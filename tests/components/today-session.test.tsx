@@ -25,5 +25,6 @@ describe("TodaySession", () => {
     await user.click(button);
 
     expect(onComplete).toHaveBeenCalledWith(flagshipRole.today);
+    expect(onComplete).toHaveBeenCalledTimes(1);
   });
 });
