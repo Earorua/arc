@@ -122,7 +122,7 @@ Expected: only `.git`, `outputs`, and `work` remain at the root.
 Run:
 
 ```powershell
-& 'C:\Program Files\Git\bin\bash.exe' -lc "'/c/Users/XF/.codex/plugins/cache/openai-bundled/sites/0.1.30/scripts/init-site.sh' '/c/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2'"
+& 'C:\Program Files\Git\bin\bash.exe' -lc "'/c/Users/XF/.codex/plugins/cache/openai-bundled/sites/0.1.30/scripts/init-site.sh' '/c/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/arc-experience-foundation'"
 ```
 
 Expected: initializer exits `0`, copies the Vinext starter, and completes `npm ci`.
