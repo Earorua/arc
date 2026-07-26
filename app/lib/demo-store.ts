@@ -117,12 +117,13 @@ export function loadDemoState(storage?: Pick<Storage, "getItem">): DemoState {
   }
 }
 
-export function saveDemoState(state: DemoState, storage?: Pick<Storage, "setItem">): void {
+export function saveDemoState(state: DemoState, storage?: Pick<Storage, "setItem">): boolean {
   try {
     const resolvedStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
-    if (!resolvedStorage) return;
+    if (!resolvedStorage) return false;
     resolvedStorage.setItem(storageKey, JSON.stringify(state));
+    return true;
   } catch {
-    // Device-local persistence is best effort.
+    return false;
   }
 }

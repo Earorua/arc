@@ -19,9 +19,10 @@ describe("demo store", () => {
     expect(twice.proofs[0].verified).toBe(true);
   });
 
-  it("does not throw when device storage rejects a write", () => {
+  it("reports whether device storage accepted a write", () => {
+    expect(saveDemoState(createDemoState(), { setItem() {} })).toBe(true);
     const storage = { setItem() { throw new Error("storage unavailable"); } };
-    expect(() => saveDemoState(createDemoState(), storage)).not.toThrow();
+    expect(saveDemoState(createDemoState(), storage)).toBe(false);
   });
 
   it("falls back to safe defaults when persisted JSON has the wrong shapes", () => {

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it } from "vitest";
 import { SiteHeader } from "../../app/components/brand/site-header";
 import { WorkspaceShell } from "../../app/components/workspace/workspace-shell";
+import { createDemoState } from "../../app/lib/demo-store";
 
 afterEach(cleanup);
 
@@ -12,7 +13,7 @@ describe("navigation accessibility contracts", () => {
     render(
       <>
         <SiteHeader />
-        <WorkspaceShell current="Today"><p>content</p></WorkspaceShell>
+        <WorkspaceShell current="Today" state={createDemoState()}><p>content</p></WorkspaceShell>
       </>,
     );
 

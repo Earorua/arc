@@ -16,7 +16,10 @@ beforeEach(() => {
   push.mockClear();
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 describe("SetupPage", () => {
   it("updates setup answers without erasing completion history", async () => {
@@ -48,5 +51,21 @@ describe("SetupPage", () => {
     expect(saved.completedUnitIds).toEqual(existing.completedUnitIds);
     expect(saved.proofs).toEqual(existing.proofs);
     expect(push).toHaveBeenCalledWith("/path");
+  });
+
+  it("shows a storage error and stays on Setup when saving fails", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("storage unavailable");
+    });
+    render(<SetupPage />);
+
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent("无法保存到此设备");
+    expect(push).not.toHaveBeenCalled();
   });
 });
