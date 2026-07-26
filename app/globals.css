@@ -126,3 +126,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .task-steps strong { font-weight: 560; }
 .deliverable-bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 34px; border-radius: 12px; background: var(--charcoal); color: white; padding: 18px 20px; }
 .deliverable-bar button { border: 0; background: transparent; color: #a8efbc; cursor: pointer; }
+
+.stack-filters { display: flex; gap: 8px; margin: 58px 0 24px; overflow-x: auto; padding-bottom: 8px; }
+.stack-filters button { flex: 0 0 auto; border: 1px solid var(--hairline); border-radius: 999px; background: transparent; padding: 9px 12px; color: var(--stone); cursor: pointer; }
+.stack-filters button[aria-pressed="true"] { border-color: var(--charcoal); background: var(--charcoal); color: white; }
+.skill-list article { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 42px; padding: 28px 0; border-top: 1px solid var(--hairline); }
+.skill-list article p { color: var(--stone); font: 0.66rem ui-monospace, monospace; text-transform: uppercase; }
+.skill-list h2 { margin: 8px 0; font-family: var(--display); font-size: 2rem; font-weight: 500; }
+.skill-list span, .skill-list dt { color: var(--stone); }
+.skill-list dl { margin: 0; }
+.skill-list dl div { display: grid; grid-template-columns: 90px 1fr; padding: 8px 0; }
+.skill-list dd { margin: 0; }
+.skill-list dd a { border-bottom: 1px solid currentColor; }
