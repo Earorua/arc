@@ -38,8 +38,8 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: [{
         url: "/og.png",
-        width: 1680,
-        height: 945,
+        width: 1672,
+        height: 941,
         alt: "Arc. — Learn only what moves you forward",
       }],
     },

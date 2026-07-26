@@ -28,6 +28,8 @@ test("server-renders the Arc landing page", async () => {
   assert.match(html, /Learn only what moves you forward/);
   assert.match(html, /Build my precise path/);
   assert.match(html, /property="og:image" content="https:\/\/arc\.example\.test\/og\.png"/);
+  assert.match(html, /property="og:image:width" content="1672"/);
+  assert.match(html, /property="og:image:height" content="941"/);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
   const legacySentinels = [
     ["codex", "preview"].join("-"),
