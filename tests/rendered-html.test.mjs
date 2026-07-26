@@ -21,6 +21,11 @@ test("server-renders the Arc landing page", async () => {
   assert.match(html, /Arc\./);
   assert.match(html, /Learn only what moves you forward/);
   assert.match(html, /Build my precise path/);
+  assert.match(html, /property="og:image" content="https:\/\/arc-precision-path\.jiahe-xu\.chatgpt\.site\/og\.png"/);
+  assert.match(html, /property="og:image:width" content="1672"/);
+  assert.match(html, /property="og:image:height" content="941"/);
+  assert.match(html, /name="twitter:card" content="summary_large_image"/);
+  assert.match(html, /name="twitter:image:alt" content="Arc\. — Learn only what moves you forward"/);
   const legacySentinels = [
     ["codex", "preview"].join("-"),
     ["Skeleton", "Preview"].join(""),
