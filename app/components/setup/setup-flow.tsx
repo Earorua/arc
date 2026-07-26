@@ -39,13 +39,13 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
 
   useEffect(() => {
     if (previousStep.current !== step) {
-      questionRef.current?.focus({ preventScroll: true });
+      questionRef.current?.focus();
       previousStep.current = step;
     }
   }, [step]);
 
   return (
-    <section className="setup-flow" aria-live="polite">
+    <section className="setup-flow">
       <p className="setup-progress">{String(step + 1).padStart(2, "0")} / 04</p>
 
       {step === 0 && (

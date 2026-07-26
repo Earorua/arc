@@ -16,16 +16,22 @@ describe("SetupFlow", () => {
     await user.click(screen.getByRole("button", { name: "Continue" }));
   }
 
-  it("moves focus to each new question after continuing", async () => {
+  it("moves focus to each new question without suppressing browser scrolling", async () => {
     const user = userEvent.setup();
+    const focusSpy = vi.spyOn(HTMLElement.prototype, "focus");
     render(<SetupFlow onComplete={vi.fn()} />);
 
     const firstQuestion = screen.getByRole("heading", { level: 1 });
+    expect(firstQuestion.closest("section")).not.toHaveAttribute("aria-live");
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     const secondQuestion = screen.getByRole("heading", { level: 1 });
     expect(secondQuestion).not.toBe(firstQuestion);
     expect(secondQuestion).toHaveFocus();
+    const questionFocusCall = focusSpy.mock.contexts.findIndex((context) => context === secondQuestion);
+    expect(questionFocusCall).toBeGreaterThanOrEqual(0);
+    expect(focusSpy.mock.calls[questionFocusCall]).toEqual([]);
+    focusSpy.mockRestore();
   });
 
   it("submits the flagship setup answers", async () => {

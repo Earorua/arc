@@ -32,27 +32,38 @@ describe("TodaySession", () => {
     expect(button).toBeDisabled();
   });
 
-  it("does not treat stale completed ids as completion for a new unit", async () => {
+  it("starts a new unit with fresh completion state even when step ids are reused", async () => {
     const user = userEvent.setup();
-    const { rerender } = render(<TodaySession onComplete={vi.fn()} unit={flagshipRole.today} />);
+    const firstComplete = vi.fn();
+    const nextComplete = vi.fn();
+    const { rerender } = render(<TodaySession onComplete={firstComplete} unit={flagshipRole.today} />);
 
     for (const step of flagshipRole.today.steps) {
       await user.click(screen.getByRole("checkbox", { name: step.label }));
     }
-    expect(screen.getByRole("button", { name: "Complete & move to Proof" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Complete & move to Proof" }));
+    expect(firstComplete).toHaveBeenCalledTimes(1);
 
     const nextUnit = {
       ...flagshipRole.today,
       id: "next-unit",
-      steps: flagshipRole.today.steps.map((step) => ({
-        ...step,
-        id: `next-${step.id}`,
-        label: `Next ${step.label}`,
-      })),
+      title: "Next unit",
     };
 
-    rerender(<TodaySession onComplete={vi.fn()} unit={nextUnit} />);
+    rerender(<TodaySession onComplete={nextComplete} unit={nextUnit} />);
 
+    for (const step of nextUnit.steps) {
+      expect(screen.getByRole("checkbox", { name: step.label })).not.toBeChecked();
+    }
     expect(screen.queryByRole("button", { name: "Complete & move to Proof" })).not.toBeInTheDocument();
+
+    for (const step of nextUnit.steps) {
+      await user.click(screen.getByRole("checkbox", { name: step.label }));
+    }
+    await user.dblClick(screen.getByRole("button", { name: "Complete & move to Proof" }));
+
+    expect(nextComplete).toHaveBeenCalledWith(nextUnit);
+    expect(nextComplete).toHaveBeenCalledTimes(1);
+    expect(firstComplete).toHaveBeenCalledTimes(1);
   });
 });

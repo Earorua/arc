@@ -4,7 +4,13 @@ import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { LearningUnit } from "../../domain/learning";
 
-export function TodaySession({ onComplete, unit }: { onComplete: (unit: LearningUnit) => void; unit: LearningUnit }) {
+type TodaySessionProps = { onComplete: (unit: LearningUnit) => void; unit: LearningUnit };
+
+export function TodaySession(props: TodaySessionProps) {
+  return <StatefulTodaySession key={props.unit.id} {...props} />;
+}
+
+function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
   const [done, setDone] = useState<string[]>([]);
   const [isCompleting, setIsCompleting] = useState(false);
   const completionStarted = useRef(false);
