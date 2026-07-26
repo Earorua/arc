@@ -1,17 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { LearningUnit } from "../../domain/learning";
 
 export function TodaySession({ onComplete, unit }: { onComplete: (unit: LearningUnit) => void; unit: LearningUnit }) {
   const [done, setDone] = useState<string[]>([]);
-  const ready = done.length === unit.steps.length;
+  const [isCompleting, setIsCompleting] = useState(false);
+  const completionStarted = useRef(false);
+  const ready = unit.steps.length > 0 && unit.steps.every((step) => done.includes(step.id));
 
   const toggleStep = (id: string) => {
     setDone((current) => current.includes(id)
       ? current.filter((doneId) => doneId !== id)
       : [...current, id]);
+  };
+
+  const complete = () => {
+    if (completionStarted.current) return;
+    completionStarted.current = true;
+    setIsCompleting(true);
+    onComplete(unit);
   };
 
   return (
@@ -47,7 +56,7 @@ export function TodaySession({ onComplete, unit }: { onComplete: (unit: Learning
             lang="en"
           >
             <span>Deliverable · {unit.deliverable}</span>
-            <button onClick={() => onComplete(unit)} type="button">Complete & move to Proof</button>
+            <button disabled={isCompleting} onClick={complete} type="button">Complete & move to Proof</button>
           </motion.div>
         )}
       </AnimatePresence>

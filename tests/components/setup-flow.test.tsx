@@ -16,6 +16,18 @@ describe("SetupFlow", () => {
     await user.click(screen.getByRole("button", { name: "Continue" }));
   }
 
+  it("moves focus to each new question after continuing", async () => {
+    const user = userEvent.setup();
+    render(<SetupFlow onComplete={vi.fn()} />);
+
+    const firstQuestion = screen.getByRole("heading", { level: 1 });
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+
+    const secondQuestion = screen.getByRole("heading", { level: 1 });
+    expect(secondQuestion).not.toBe(firstQuestion);
+    expect(secondQuestion).toHaveFocus();
+  });
+
   it("submits the flagship setup answers", async () => {
     const user = userEvent.setup();
     const onComplete = vi.fn();

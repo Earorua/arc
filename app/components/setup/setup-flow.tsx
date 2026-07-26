@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { LearnerLevel, SetupAnswers } from "../../lib/demo-store";
 
 const flagshipRoleId = "ai-native-full-stack-engineer";
@@ -11,6 +11,8 @@ function isFiniteIntegerInRange(value: number, minimum: number, maximum: number)
 
 export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) => void }) {
   const [step, setStep] = useState(0);
+  const previousStep = useRef(step);
+  const questionRef = useRef<HTMLHeadingElement>(null);
   const [customRole, setCustomRole] = useState("");
   const [answers, setAnswers] = useState<SetupAnswers>({
     roleId: flagshipRoleId,
@@ -35,13 +37,20 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
   const weeklyMinutesValid = isFiniteIntegerInRange(answers.weeklyMinutes, 30, 2400);
   const targetWeeksValid = isFiniteIntegerInRange(answers.targetWeeks, 4, 52);
 
+  useEffect(() => {
+    if (previousStep.current !== step) {
+      questionRef.current?.focus({ preventScroll: true });
+      previousStep.current = step;
+    }
+  }, [step]);
+
   return (
     <section className="setup-flow" aria-live="polite">
       <p className="setup-progress">{String(step + 1).padStart(2, "0")} / 04</p>
 
       {step === 0 && (
         <>
-          <h1>你想成为怎样的构建者？</h1>
+          <h1 ref={questionRef} tabIndex={-1}>你想成为怎样的构建者？</h1>
           <button
             aria-pressed={!hasCustomRole}
             className={hasCustomRole ? "answer-choice" : "answer-choice is-selected"}
@@ -65,7 +74,7 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
 
       {step === 1 && (
         <>
-          <h1>你现在处于哪个阶段？</h1>
+          <h1 ref={questionRef} tabIndex={-1}>你现在处于哪个阶段？</h1>
           <div className="answer-grid">
             {(["new", "beginner", "intermediate", "advanced"] as LearnerLevel[]).map((level) => (
               <button
@@ -86,7 +95,7 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
 
       {step === 2 && (
         <>
-          <h1>你每周真正拥有多少时间？</h1>
+          <h1 ref={questionRef} tabIndex={-1}>你每周真正拥有多少时间？</h1>
           <label className="answer-field" lang="en">
             Weekly minutes
             <input
@@ -108,7 +117,7 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
 
       {step === 3 && (
         <>
-          <h1>你希望用多少周抵达目标？</h1>
+          <h1 ref={questionRef} tabIndex={-1}>你希望用多少周抵达目标？</h1>
           <label className="answer-field" lang="en">
             Target weeks
             <input

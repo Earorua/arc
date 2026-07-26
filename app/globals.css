@@ -33,6 +33,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   border-bottom: 1px solid color-mix(in srgb, var(--charcoal) 10%, transparent);
 }
 .wordmark { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.06em; }
+.public-actions { display: contents; }
+.public-menu { display: none; }
 .public-nav { display: flex; gap: 28px; color: var(--stone); font-size: 0.78rem; }
 .public-nav a:hover { color: var(--charcoal); }
 .header-cta { justify-self: end; border-bottom: 1px solid currentColor; padding-bottom: 3px; font-size: 0.78rem; }
@@ -156,3 +158,60 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .empty-proof { margin: 72px 0; border-top: 1px solid var(--hairline); padding-top: 24px; color: var(--stone); }
 .share-profile { border: 0; border-bottom: 1px solid currentColor; background: transparent; padding: 0 0 4px; }
 .share-profile:disabled { cursor: not-allowed; color: var(--stone); opacity: 0.72; }
+
+@media (max-width: 760px) {
+  :root { --content: calc(100vw - 32px); }
+  .site-header { grid-template-columns: 1fr auto; height: 62px; }
+  .public-actions { position: relative; display: flex; align-items: center; justify-self: end; gap: 16px; }
+  .public-menu {
+    min-height: 44px; border: 0; display: flex; align-items: center; cursor: pointer;
+    background: transparent; color: var(--stone); font-size: 0.78rem;
+  }
+  .public-menu::after { content: "+"; margin-left: 6px; }
+  .public-menu[aria-expanded="true"]::after { content: "−"; }
+  .public-nav {
+    position: absolute; top: calc(100% + 8px); right: 0; display: none; min-width: 172px;
+    flex-direction: column; gap: 0; border: 1px solid var(--hairline); background: var(--chalk);
+    box-shadow: 0 18px 40px color-mix(in srgb, var(--charcoal) 12%, transparent); padding: 8px;
+  }
+  .public-menu[aria-expanded="true"] + .public-nav { display: flex; }
+  .public-nav a { min-height: 44px; display: flex; align-items: center; padding: 0 10px; }
+  .header-cta { min-height: 44px; display: flex; align-items: center; padding-bottom: 0; }
+  .hero-poster { grid-template-columns: 1fr; min-height: calc(100svh - 62px); padding-top: 64px; }
+  .hero-copy h1 { font-size: clamp(4rem, 20vw, 6.5rem); }
+  .story-rail { margin-top: 72px; min-height: 420px; }
+  .product-preview { grid-template-columns: 1fr; }
+  .product-preview .section-index { grid-column: 1; }
+  .editorial-section, .final-cta { padding: 84px 0; }
+  .reading-page { width: var(--content); padding: 84px 0 120px; }
+  .method-list li, .source-specimen div { grid-template-columns: 1fr; }
+  .setup-page { padding: 20px 16px calc(32px + env(safe-area-inset-bottom)); }
+  .setup-flow { margin-top: clamp(48px, 9vh, 88px); }
+  .setup-flow h1 { margin: 22px 0 36px; font-size: clamp(2.7rem, 14vw, 4.8rem); overflow-wrap: anywhere; }
+  .workspace-header {
+    position: fixed; top: auto; bottom: 0; left: 0; right: 0; grid-template-columns: 0 auto 0;
+    height: calc(64px + env(safe-area-inset-bottom)); padding: 0 18px env(safe-area-inset-bottom);
+  }
+  .workspace-header > .wordmark, .workspace-context { overflow: hidden; width: 0; opacity: 0; }
+  .workspace-header nav { gap: 0; width: calc(100vw - 36px); justify-content: space-between; }
+  .workspace-header nav a { min-width: 64px; min-height: 44px; display: grid; place-items: center; }
+  .workspace-main { padding: 60px 0 calc(100px + env(safe-area-inset-bottom)); }
+  .workspace-intro h1, .profile-heading h1 { font-size: clamp(3.8rem, 18vw, 6rem); }
+  .skill-list article { grid-template-columns: 1fr; gap: 20px; }
+  .skill-list dd, .skill-list dd a { overflow-wrap: anywhere; }
+  .profile-heading { flex-direction: column; }
+  .readiness { text-align: left; }
+  .proof-profile li { align-items: flex-start; }
+  .proof-profile li > div { min-width: 0; }
+  .proof-profile li strong, .proof-profile li span { overflow-wrap: anywhere; }
+  .answer-grid { grid-template-columns: 1fr; }
+  .deliverable-bar { align-items: flex-start; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+  }
+}
