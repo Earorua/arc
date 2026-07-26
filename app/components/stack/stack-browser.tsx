@@ -19,6 +19,7 @@ const categories: ReadonlyArray<readonly [SkillCategory | "all", string]> = [
 export function StackBrowser({ skills }: { skills: ReadonlyArray<SkillNode> }) {
   const [category, setCategory] = useState<SkillCategory | "all">("all");
   const filteredSkills = filterSkills(skills, category);
+  const skillNames = new Map(skills.map((skill) => [skill.id, skill.name]));
 
   return (
     <section lang="en">
@@ -54,7 +55,11 @@ export function StackBrowser({ skills }: { skills: ReadonlyArray<SkillNode> }) {
                 <div><dt>Observed</dt><dd>{source?.observedAt ?? "Not observed"}</dd></div>
                 <div>
                   <dt>Prerequisites</dt>
-                  <dd>{skill.prerequisiteIds.length > 0 ? skill.prerequisiteIds.join(", ") : "None"}</dd>
+                  <dd>
+                    {skill.prerequisiteIds.length > 0
+                      ? skill.prerequisiteIds.map((id) => skillNames.get(id) ?? id).join(", ")
+                      : "None"}
+                  </dd>
                 </div>
               </dl>
             </article>

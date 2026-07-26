@@ -1,5 +1,5 @@
 import type { ProofItem, SkillNode } from "../../domain/learning";
-import { calculateReadiness, getLinkedSkillIds } from "../../lib/proof-profile";
+import { calculateLocalCoverage, calculateReadiness, getLinkedSkillIds } from "../../lib/proof-profile";
 
 export function ProofProfile({
   proofs,
@@ -9,6 +9,7 @@ export function ProofProfile({
   skills: ReadonlyArray<SkillNode>;
 }) {
   const readiness = calculateReadiness(skills, proofs);
+  const localCoverage = calculateLocalCoverage(skills, proofs);
 
   return (
     <section className="proof-profile" lang="en">
@@ -17,9 +18,15 @@ export function ProofProfile({
           <p className="eyebrow">Capability profile</p>
           <h1>Your stack, proven.</h1>
         </div>
-        <div className="readiness" aria-label={`${readiness.percentage}% role readiness`}>
-          <strong>{readiness.percentage}%</strong>
-          <span>role readiness</span>
+        <div className="profile-metrics">
+          <div className="readiness" aria-label={`${readiness.percentage}% role readiness`}>
+            <strong>{readiness.percentage}%</strong>
+            <span>role readiness</span>
+          </div>
+          <div className="readiness" aria-label={`${localCoverage.percentage}% local learning coverage`}>
+            <strong>{localCoverage.percentage}%</strong>
+            <span>local learning coverage</span>
+          </div>
         </div>
       </div>
 

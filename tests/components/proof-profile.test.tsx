@@ -10,7 +10,8 @@ describe("ProofProfile", () => {
   it("shows an empty evidence state without inventing progress", () => {
     render(<ProofProfile proofs={[]} skills={flagshipRole.skills} />);
 
-    expect(screen.getByText("0%")).toBeInTheDocument();
+    expect(screen.getByLabelText("0% role readiness")).toBeInTheDocument();
+    expect(screen.getByLabelText("0% local learning coverage")).toBeInTheDocument();
     expect(screen.getByText(/first local completion evidence/i)).toBeInTheDocument();
     expect(screen.getByText(/device-local completion events only/i)).toBeInTheDocument();
     expect(screen.getByText(/Git, URL, and file verification/i)).toBeInTheDocument();
@@ -27,6 +28,8 @@ describe("ProofProfile", () => {
 
     render(<ProofProfile proofs={[completion]} skills={flagshipRole.skills} />);
 
+    expect(screen.getByLabelText("0% role readiness")).toBeInTheDocument();
+    expect(screen.getByLabelText("6% local learning coverage")).toBeInTheDocument();
     expect(screen.getByText("Completion evidence · 1 linked skill")).toBeInTheDocument();
     expect(screen.getByText("Verified locally")).toBeInTheDocument();
     expect(screen.queryByText(/commit ·/i)).not.toBeInTheDocument();
@@ -52,7 +55,8 @@ describe("ProofProfile", () => {
 
     render(<ProofProfile proofs={proofs} skills={flagshipRole.skills} />);
 
-    expect(screen.getByText("6%")).toBeInTheDocument();
+    expect(screen.getByLabelText("6% role readiness")).toBeInTheDocument();
+    expect(screen.getByLabelText("0% local learning coverage")).toBeInTheDocument();
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(2);
     expect(within(items[0]).getByText("commit · 1 linked skill")).toBeInTheDocument();

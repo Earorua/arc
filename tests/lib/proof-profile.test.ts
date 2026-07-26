@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { flagshipRole } from "../../app/data/flagship-role";
-import { calculateReadiness, getLinkedSkillIds } from "../../app/lib/proof-profile";
+import { calculateLocalCoverage, calculateReadiness, getLinkedSkillIds } from "../../app/lib/proof-profile";
 import type { ProofItem } from "../../app/domain/learning";
 
 describe("calculateReadiness", () => {
@@ -26,6 +26,13 @@ describe("calculateReadiness", () => {
         kind: "note",
         skillIds: ["cloud-delivery"],
         verified: false,
+      },
+      {
+        id: "p3",
+        title: "Local completion",
+        kind: "completion",
+        skillIds: ["cloud-delivery"],
+        verified: true,
       },
     ];
 
@@ -68,5 +75,36 @@ describe("calculateReadiness", () => {
 
   it("filters and deduplicates linked skills against the current role", () => {
     expect(getLinkedSkillIds(flagshipRole.skills, ["react", "unknown", "react"])).toEqual(["react"]);
+  });
+
+  it("tracks verified local completion coverage separately from role readiness", () => {
+    const proofs: ProofItem[] = [
+      {
+        id: "local",
+        title: "Local completion",
+        kind: "completion",
+        skillIds: ["react", "typescript", "react", "unknown"],
+        verified: true,
+      },
+      {
+        id: "local-draft",
+        title: "Unverified local completion",
+        kind: "completion",
+        skillIds: ["cloud-delivery"],
+        verified: false,
+      },
+      {
+        id: "external",
+        title: "External project",
+        kind: "project",
+        skillIds: ["cloud-delivery"],
+        verified: true,
+      },
+    ];
+
+    expect(calculateLocalCoverage(flagshipRole.skills, proofs)).toEqual({
+      completedSkillIds: ["react", "typescript"],
+      percentage: 13,
+    });
   });
 });

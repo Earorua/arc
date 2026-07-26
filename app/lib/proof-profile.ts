@@ -5,6 +5,11 @@ export interface ReadinessProfile {
   verifiedSkillIds: string[];
 }
 
+export interface LocalCoverageProfile {
+  percentage: number;
+  completedSkillIds: string[];
+}
+
 export function getLinkedSkillIds(
   skills: ReadonlyArray<SkillNode>,
   skillIds: ReadonlyArray<string>,
@@ -26,11 +31,32 @@ export function calculateReadiness(
 
   const verifiedSkillIds = getLinkedSkillIds(
     skills,
-    proofs.filter((proof) => proof.verified).flatMap((proof) => proof.skillIds),
+    proofs.filter((proof) => proof.verified && proof.kind !== "completion").flatMap((proof) => proof.skillIds),
   );
 
   return {
     percentage: Math.round((verifiedSkillIds.length / allowedSkillIds.size) * 100),
     verifiedSkillIds,
+  };
+}
+
+export function calculateLocalCoverage(
+  skills: ReadonlyArray<SkillNode>,
+  proofs: ReadonlyArray<ProofItem>,
+): LocalCoverageProfile {
+  const allowedSkillIds = new Set(skills.map((skill) => skill.id));
+
+  if (allowedSkillIds.size === 0) {
+    return { percentage: 0, completedSkillIds: [] };
+  }
+
+  const completedSkillIds = getLinkedSkillIds(
+    skills,
+    proofs.filter((proof) => proof.verified && proof.kind === "completion").flatMap((proof) => proof.skillIds),
+  );
+
+  return {
+    percentage: Math.round((completedSkillIds.length / allowedSkillIds.size) * 100),
+    completedSkillIds,
   };
 }

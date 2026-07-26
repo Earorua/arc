@@ -9,11 +9,14 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
 }));
 
-beforeEach(() => window.localStorage.clear());
+beforeEach(() => {
+  window.localStorage.clear();
+  push.mockClear();
+});
 afterEach(cleanup);
 
 describe("TodayPage", () => {
-  it("hydrates the saved role and caps the session to a small weekly budget", async () => {
+  it("keeps the honest unit estimate and explains a weekly budget shortfall", async () => {
     saveDemoState(mergeSetup(createDemoState(), {
       roleId: "数据产品经理",
       level: "beginner",
@@ -25,7 +28,9 @@ describe("TodayPage", () => {
 
     await waitFor(() => {
       expect(screen.getByText("数据产品经理 · 10 weeks")).toBeInTheDocument();
-      expect(screen.getByText("30")).toBeInTheDocument();
+      expect(screen.getByText("45")).toBeInTheDocument();
+      expect(screen.getByText(/本单元预计45分钟，超出当前每周30分钟预算15分钟/)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /返回 Setup 调整预算/ })).toHaveAttribute("href", "/setup");
       expect(screen.getByText(/当前学习单元仍使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
       expect(screen.getByText(/Product Intelligence 接入后/)).toBeInTheDocument();
     });
@@ -36,5 +41,6 @@ describe("TodayPage", () => {
     render(<TodayPage />);
 
     expect(screen.queryByText(/当前学习单元仍使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/超出当前每周/)).not.toBeInTheDocument();
   });
 });

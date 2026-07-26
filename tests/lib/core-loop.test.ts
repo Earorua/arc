@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { flagshipRole } from "../../app/data/flagship-role";
 import { completeDemoUnit, createDemoState, mergeSetup } from "../../app/lib/demo-store";
-import { calculateReadiness } from "../../app/lib/proof-profile";
+import { calculateLocalCoverage, calculateReadiness } from "../../app/lib/proof-profile";
 
 describe("Arc flagship demo loop", () => {
   it("moves from setup through completion into attributable readiness", () => {
@@ -21,10 +21,12 @@ describe("Arc flagship demo loop", () => {
 
     const completed = completeDemoUnit(configured, flagshipRole.today);
     const readiness = calculateReadiness(flagshipRole.skills, completed.proofs);
+    const localCoverage = calculateLocalCoverage(flagshipRole.skills, completed.proofs);
 
     expect(completed.completedUnitIds).toEqual([flagshipRole.today.id]);
     expect(completed.proofs[0].kind).toBe("completion");
     expect(completed.proofs[0].skillIds).toEqual(flagshipRole.today.skillIds);
-    expect(readiness.percentage).toBe(19);
+    expect(readiness.percentage).toBe(0);
+    expect(localCoverage.percentage).toBe(19);
   });
 });

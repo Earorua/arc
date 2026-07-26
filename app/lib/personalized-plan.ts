@@ -20,14 +20,42 @@ export function redistributePhaseWeeks(
   phases: ReadonlyArray<PlanPhase>,
   targetWeeks: number,
 ): PlanPhase[] {
+  if (typeof targetWeeks !== "number") {
+    throw new TypeError("targetWeeks must be a number.");
+  }
+  if (!Number.isFinite(targetWeeks) || targetWeeks <= 0) {
+    throw new RangeError("targetWeeks must be a finite positive number.");
+  }
+
+  phases.forEach((phase, index) => {
+    if (typeof phase.weeks !== "number") {
+      throw new TypeError(`phases[${index}].weeks must be a number.`);
+    }
+    if (!Number.isFinite(phase.weeks) || phase.weeks < 0) {
+      throw new RangeError(`phases[${index}].weeks must be a finite non-negative number.`);
+    }
+  });
+
   if (phases.length === 0) return [];
 
   const minimumWeeks = phases.length;
   const safeTarget = Math.max(minimumWeeks, Math.round(targetWeeks));
-  const sourceTotal = phases.reduce((total, phase) => total + phase.weeks, 0);
   const distributableWeeks = safeTarget - minimumWeeks;
-  const allocations = phases.map((phase, index) => {
-    const exactShare = sourceTotal > 0 ? (distributableWeeks * phase.weeks) / sourceTotal : 0;
+  const maximumWeight = Math.max(...phases.map((phase) => phase.weeks));
+
+  if (maximumWeight === 0) {
+    const evenShare = Math.floor(distributableWeeks / phases.length);
+    const indexedRemainder = distributableWeeks % phases.length;
+    return phases.map((phase, index) => ({
+      ...phase,
+      weeks: 1 + evenShare + (index < indexedRemainder ? 1 : 0),
+    }));
+  }
+
+  const normalizedWeights = phases.map((phase) => phase.weeks / maximumWeight);
+  const normalizedTotal = normalizedWeights.reduce((total, weight) => total + weight, 0);
+  const allocations = phases.map((_, index) => {
+    const exactShare = (normalizedWeights[index] / normalizedTotal) * distributableWeeks;
     const wholeShare = Math.floor(exactShare);
     return { index, remainder: exactShare - wholeShare, weeks: 1 + wholeShare };
   });
@@ -44,6 +72,19 @@ export function redistributePhaseWeeks(
   return phases.map((phase, index) => ({ ...phase, weeks: allocations[index].weeks }));
 }
 
-export function constrainTodayUnit(unit: LearningUnit, weeklyMinutes: number): LearningUnit {
-  return { ...unit, minutes: Math.min(unit.minutes, weeklyMinutes) };
+export interface TodayBudgetAssessment {
+  estimatedMinutes: number;
+  fits: boolean;
+  shortfallMinutes: number;
+  weeklyMinutes: number;
+}
+
+export function assessTodayBudget(unit: LearningUnit, weeklyMinutes: number): TodayBudgetAssessment {
+  const shortfallMinutes = Math.max(0, unit.minutes - weeklyMinutes);
+  return {
+    estimatedMinutes: unit.minutes,
+    fits: shortfallMinutes === 0,
+    shortfallMinutes,
+    weeklyMinutes,
+  };
 }

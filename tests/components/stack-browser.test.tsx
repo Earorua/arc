@@ -16,7 +16,7 @@ describe("StackBrowser", () => {
     await user.click(ai);
 
     expect(ai).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Structured LLM Contracts")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Structured LLM Contracts" })).toBeInTheDocument();
     expect(screen.queryByText("React 19")).not.toBeInTheDocument();
 
     const skills = screen.getAllByRole("article");
@@ -45,6 +45,6 @@ describe("StackBrowser", () => {
     expect(within(foundation!).getByText("2026-07-26")).toBeInTheDocument();
     expect(within(foundation!).getByText("Prerequisites")).toBeInTheDocument();
     expect(within(foundation!).getByText("None")).toBeInTheDocument();
-    expect(within(react!).getByText("web-platform, typescript")).toBeInTheDocument();
+    expect(within(react!).getByText("Web Platform, TypeScript")).toBeInTheDocument();
   });
 });

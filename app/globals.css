@@ -109,6 +109,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .workspace-intro h1 { margin: 20px 0; font-family: var(--display); font-size: clamp(4rem, 8vw, 8rem); font-weight: 440; line-height: 0.86; letter-spacing: -0.065em; }
 .workspace-intro > p:last-child { max-width: 580px; color: var(--stone); line-height: 1.75; }
 .workspace-notice { max-width: 860px; margin: 0 auto 36px; border-top: 1px solid var(--hairline); padding-top: 14px; color: var(--stone); font-size: 0.84rem; line-height: 1.65; }
+.workspace-notice a { border-bottom: 1px solid currentColor; color: var(--charcoal); }
 .phase-rail { position: relative; margin: 90px 0 0; padding: 0; list-style: none; }
 .phase-rail::before { content: ""; position: absolute; left: 31px; top: 32px; bottom: 32px; width: 1px; background: var(--hairline); }
 .phase-rail li { position: relative; display: grid; grid-template-columns: 64px 1fr; gap: 30px; padding: 30px 0; border-bottom: 1px solid var(--hairline); }
@@ -145,7 +146,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .proof-profile { max-width: 980px; margin: 0 auto; }
 .profile-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 30px; }
 .profile-heading h1 { max-width: 700px; margin: 18px 0; font-family: var(--display); font-size: clamp(4rem, 8vw, 7.5rem); font-weight: 440; line-height: 0.86; letter-spacing: -0.06em; }
-.readiness { text-align: right; }
+.profile-metrics { display: flex; gap: 32px; }
+.readiness { min-width: 132px; text-align: right; }
 .readiness strong, .readiness span { display: block; }
 .readiness strong { font-family: var(--display); font-size: 4rem; font-weight: 450; }
 .readiness span { color: var(--stone); }
@@ -203,6 +205,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .skill-list article { grid-template-columns: 1fr; gap: 20px; }
   .skill-list dd, .skill-list dd a { overflow-wrap: anywhere; }
   .profile-heading { flex-direction: column; }
+  .profile-metrics { flex-wrap: wrap; }
   .readiness { text-align: left; }
   .proof-profile li { align-items: flex-start; }
   .proof-profile li > div { min-width: 0; }
