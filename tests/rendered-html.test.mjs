@@ -21,8 +21,12 @@ test("server-renders the Arc landing page", async () => {
   assert.match(html, /Arc\./);
   assert.match(html, /Learn only what moves you forward/);
   assert.match(html, /Build my precise path/);
-  assert.doesNotMatch(
-    html,
-    /codex-preview|react-loading-skeleton|Your site is taking shape/i,
-  );
+  const legacySentinels = [
+    ["codex", "preview"].join("-"),
+    ["Skeleton", "Preview"].join(""),
+    ["react", "loading", "skeleton"].join("-"),
+    ["Your site", "is taking shape"].join(" "),
+  ];
+
+  assert.doesNotMatch(html, new RegExp(legacySentinels.join("|"), "i"));
 });
