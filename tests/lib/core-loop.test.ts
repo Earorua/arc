@@ -12,6 +12,13 @@ describe("Arc flagship demo loop", () => {
       targetWeeks: 18,
     });
 
+    expect(configured.setup).toEqual({
+      roleId: flagshipRole.id,
+      level: "beginner",
+      weeklyMinutes: 420,
+      targetWeeks: 18,
+    });
+
     const completed = completeDemoUnit(configured, flagshipRole.today);
     const readiness = calculateReadiness(flagshipRole.skills, completed.proofs);
 
