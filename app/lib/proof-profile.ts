@@ -5,26 +5,32 @@ export interface ReadinessProfile {
   verifiedSkillIds: string[];
 }
 
+export function getLinkedSkillIds(
+  skills: ReadonlyArray<SkillNode>,
+  skillIds: ReadonlyArray<string>,
+): string[] {
+  const allowedSkillIds = new Set(skills.map((skill) => skill.id));
+
+  return [...new Set(skillIds.filter((skillId) => allowedSkillIds.has(skillId)))].sort();
+}
+
 export function calculateReadiness(
   skills: ReadonlyArray<SkillNode>,
   proofs: ReadonlyArray<ProofItem>,
 ): ReadinessProfile {
-  if (skills.length === 0) {
+  const allowedSkillIds = new Set(skills.map((skill) => skill.id));
+
+  if (allowedSkillIds.size === 0) {
     return { percentage: 0, verifiedSkillIds: [] };
   }
 
-  const allowedSkillIds = new Set(skills.map((skill) => skill.id));
-  const verifiedSkillIds = [
-    ...new Set(
-      proofs
-        .filter((proof) => proof.verified)
-        .flatMap((proof) => proof.skillIds)
-        .filter((skillId) => allowedSkillIds.has(skillId)),
-    ),
-  ].sort();
+  const verifiedSkillIds = getLinkedSkillIds(
+    skills,
+    proofs.filter((proof) => proof.verified).flatMap((proof) => proof.skillIds),
+  );
 
   return {
-    percentage: Math.round((verifiedSkillIds.length / skills.length) * 100),
+    percentage: Math.round((verifiedSkillIds.length / allowedSkillIds.size) * 100),
     verifiedSkillIds,
   };
 }

@@ -20,7 +20,7 @@ describe("ProofProfile", () => {
         id: "verified",
         title: "Typed server action",
         kind: "commit",
-        skillIds: ["react", "typescript"],
+        skillIds: ["react", "react", "unknown"],
         verified: true,
       },
       {
@@ -34,10 +34,10 @@ describe("ProofProfile", () => {
 
     render(<ProofProfile proofs={proofs} skills={flagshipRole.skills} />);
 
-    expect(screen.getByText("13%")).toBeInTheDocument();
+    expect(screen.getByText("6%")).toBeInTheDocument();
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(2);
-    expect(within(items[0]).getByText("commit · 2 linked skills")).toBeInTheDocument();
+    expect(within(items[0]).getByText("commit · 1 linked skill")).toBeInTheDocument();
     expect(within(items[0]).getByText("Verified")).toBeInTheDocument();
     expect(within(items[1]).getByText("note · 1 linked skill")).toBeInTheDocument();
     expect(within(items[1]).getByText("Draft")).toBeInTheDocument();

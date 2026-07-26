@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { flagshipRole } from "../../app/data/flagship-role";
-import { calculateReadiness } from "../../app/lib/proof-profile";
+import { calculateReadiness, getLinkedSkillIds } from "../../app/lib/proof-profile";
 import type { ProofItem } from "../../app/domain/learning";
 
 describe("calculateReadiness", () => {
@@ -48,5 +48,25 @@ describe("calculateReadiness", () => {
       percentage: 0,
       verifiedSkillIds: [],
     });
+  });
+
+  it("uses unique role skills as the readiness denominator", () => {
+    const repeatedSkillCatalog = [flagshipRole.skills[0], flagshipRole.skills[0]];
+    const proof: ProofItem = {
+      id: "p1",
+      title: "Verified foundation",
+      kind: "commit",
+      skillIds: [flagshipRole.skills[0].id],
+      verified: true,
+    };
+
+    expect(calculateReadiness(repeatedSkillCatalog, [proof])).toEqual({
+      percentage: 100,
+      verifiedSkillIds: [flagshipRole.skills[0].id],
+    });
+  });
+
+  it("filters and deduplicates linked skills against the current role", () => {
+    expect(getLinkedSkillIds(flagshipRole.skills, ["react", "unknown", "react"])).toEqual(["react"]);
   });
 });

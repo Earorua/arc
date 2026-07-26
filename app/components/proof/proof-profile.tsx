@@ -1,5 +1,5 @@
 import type { ProofItem, SkillNode } from "../../domain/learning";
-import { calculateReadiness } from "../../lib/proof-profile";
+import { calculateReadiness, getLinkedSkillIds } from "../../lib/proof-profile";
 
 export function ProofProfile({
   proofs,
@@ -28,13 +28,14 @@ export function ProofProfile({
       ) : (
         <ol aria-label="Evidence">
           {proofs.map((proof) => {
-            const linkedSkillLabel = proof.skillIds.length === 1 ? "linked skill" : "linked skills";
+            const linkedSkillCount = getLinkedSkillIds(skills, proof.skillIds).length;
+            const linkedSkillLabel = linkedSkillCount === 1 ? "linked skill" : "linked skills";
 
             return (
               <li key={proof.id}>
                 <div>
                   <strong>{proof.title}</strong>
-                  <span>{proof.kind} · {proof.skillIds.length} {linkedSkillLabel}</span>
+                  <span>{proof.kind} · {linkedSkillCount} {linkedSkillLabel}</span>
                 </div>
                 <b className={proof.verified ? "is-verified" : "is-draft"}>
                   {proof.verified ? "Verified" : "Draft"}
