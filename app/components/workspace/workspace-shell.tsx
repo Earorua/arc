@@ -1,8 +1,9 @@
 import Link from "next/link";
 
 const links = [["Today", "/today"], ["Path", "/path"], ["Stack", "/stack"], ["Proof", "/proof"]] as const;
+type WorkspaceLabel = (typeof links)[number][0];
 
-export function WorkspaceShell({ current, children }: { current: string; children: React.ReactNode }) {
+export function WorkspaceShell({ current, children }: { current: WorkspaceLabel; children: React.ReactNode }) {
   return (
     <div className="workspace-shell">
       <header className="workspace-header" lang="en">
