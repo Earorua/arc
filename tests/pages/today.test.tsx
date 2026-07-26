@@ -26,7 +26,15 @@ describe("TodayPage", () => {
     await waitFor(() => {
       expect(screen.getByText("数据产品经理 · 10 weeks")).toBeInTheDocument();
       expect(screen.getByText("30")).toBeInTheDocument();
+      expect(screen.getByText(/当前学习单元仍使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
+      expect(screen.getByText(/Product Intelligence 接入后/)).toBeInTheDocument();
     });
     expect(screen.getByText("minutes")).toBeInTheDocument();
+  });
+
+  it("does not show a sample disclosure for the flagship role", () => {
+    render(<TodayPage />);
+
+    expect(screen.queryByText(/当前学习单元仍使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
   });
 });
