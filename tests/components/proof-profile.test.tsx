@@ -1,0 +1,51 @@
+import { cleanup, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { ProofProfile } from "../../app/components/proof/proof-profile";
+import { flagshipRole } from "../../app/data/flagship-role";
+import type { ProofItem } from "../../app/domain/learning";
+
+afterEach(cleanup);
+
+describe("ProofProfile", () => {
+  it("shows an empty evidence state without inventing progress", () => {
+    render(<ProofProfile proofs={[]} skills={flagshipRole.skills} />);
+
+    expect(screen.getByText("0%")).toBeInTheDocument();
+    expect(screen.getByText(/Complete today's unit/i)).toBeInTheDocument();
+  });
+
+  it("lists verified and draft evidence with linked skill counts", () => {
+    const proofs: ProofItem[] = [
+      {
+        id: "verified",
+        title: "Typed server action",
+        kind: "commit",
+        skillIds: ["react", "typescript"],
+        verified: true,
+      },
+      {
+        id: "draft",
+        title: "Architecture note",
+        kind: "note",
+        skillIds: ["http-apis"],
+        verified: false,
+      },
+    ];
+
+    render(<ProofProfile proofs={proofs} skills={flagshipRole.skills} />);
+
+    expect(screen.getByText("13%")).toBeInTheDocument();
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    expect(within(items[0]).getByText("commit · 2 linked skills")).toBeInTheDocument();
+    expect(within(items[0]).getByText("Verified")).toBeInTheDocument();
+    expect(within(items[1]).getByText("note · 1 linked skill")).toBeInTheDocument();
+    expect(within(items[1]).getByText("Draft")).toBeInTheDocument();
+  });
+
+  it("labels public sharing as unavailable instead of exposing a fake action", () => {
+    render(<ProofProfile proofs={[]} skills={flagshipRole.skills} />);
+
+    expect(screen.getByRole("button", { name: /Share public profile.*Coming soon/i })).toBeDisabled();
+  });
+});
