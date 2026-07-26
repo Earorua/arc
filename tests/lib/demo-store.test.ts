@@ -15,6 +15,7 @@ describe("demo store", () => {
     const twice = completeDemoUnit(once, flagshipRole.today);
     expect(twice.completedUnitIds).toEqual([flagshipRole.today.id]);
     expect(twice.proofs).toHaveLength(1);
+    expect(twice.proofs[0].kind).toBe("completion");
     expect(twice.proofs[0].verified).toBe(true);
   });
 
@@ -49,6 +50,13 @@ describe("demo store", () => {
         completedUnitIds: ["unit-one", "", 9],
         proofs: [
           {
+            id: "proof-local-completion",
+            title: "A local completion",
+            kind: "completion",
+            skillIds: ["react"],
+            verified: true,
+          },
+          {
             id: "proof-unit-one",
             title: "A verified deliverable",
             kind: "project",
@@ -68,6 +76,13 @@ describe("demo store", () => {
     });
     expect(state.completedUnitIds).toEqual(["unit-one"]);
     expect(state.proofs).toEqual([
+      {
+        id: "proof-local-completion",
+        title: "A local completion",
+        kind: "completion",
+        skillIds: ["react"],
+        verified: true,
+      },
       {
         id: "proof-unit-one",
         title: "A verified deliverable",

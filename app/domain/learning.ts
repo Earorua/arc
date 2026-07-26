@@ -21,7 +21,7 @@ export interface LearningUnit {
   steps: Array<{ id: string; label: string }>; deliverable: string;
 }
 export interface ProofItem {
-  id: string; title: string; kind: "commit" | "project" | "note" | "upload";
+  id: string; title: string; kind: "completion" | "commit" | "project" | "note" | "upload";
   skillIds: string[]; verified: boolean;
 }
 export interface RoleProfile {

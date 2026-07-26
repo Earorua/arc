@@ -1,5 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it } from "vitest";
 import { SiteHeader } from "../../app/components/brand/site-header";
 import { WorkspaceShell } from "../../app/components/workspace/workspace-shell";
@@ -34,5 +35,12 @@ describe("navigation accessibility contracts", () => {
     expect(publicNavigation).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Method" })).toHaveAttribute("href", "/method");
     expect(screen.getByRole("link", { name: "Intelligence" })).toHaveAttribute("href", "/intelligence");
+  });
+
+  it("removes the mobile workspace wordmark from focus and layout", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    const mobileRules = css.slice(css.indexOf("@media (max-width: 760px)"), css.indexOf("@media (prefers-reduced-motion: reduce)"));
+
+    expect(mobileRules).toMatch(/\.workspace-header\s*>\s*\.wordmark\s*\{[^}]*display:\s*none\s*;/);
   });
 });

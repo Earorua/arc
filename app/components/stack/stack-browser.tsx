@@ -51,6 +51,11 @@ export function StackBrowser({ skills }: { skills: ReadonlyArray<SkillNode> }) {
                   <dt>Source</dt>
                   <dd>{source ? <a href={source.url}>{source.title}</a> : "Source unavailable"}</dd>
                 </div>
+                <div><dt>Observed</dt><dd>{source?.observedAt ?? "Not observed"}</dd></div>
+                <div>
+                  <dt>Prerequisites</dt>
+                  <dd>{skill.prerequisiteIds.length > 0 ? skill.prerequisiteIds.join(", ") : "None"}</dd>
+                </div>
               </dl>
             </article>
           );

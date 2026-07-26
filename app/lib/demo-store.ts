@@ -17,7 +17,7 @@ export interface DemoState {
 
 const storageKey = "arc-demo-state-v1";
 const learnerLevels: LearnerLevel[] = ["new", "beginner", "intermediate", "advanced"];
-const proofKinds: ProofItem["kind"][] = ["commit", "project", "note", "upload"];
+const proofKinds: ProofItem["kind"][] = ["completion", "commit", "project", "note", "upload"];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -69,7 +69,7 @@ export function completeDemoUnit(state: DemoState, unit: LearningUnit): DemoStat
   const proof: ProofItem = {
     id: `proof-${unit.id}`,
     title: unit.deliverable,
-    kind: "commit",
+    kind: "completion",
     skillIds: [...unit.skillIds],
     verified: true,
   };

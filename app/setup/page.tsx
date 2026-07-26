@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SetupFlow } from "../components/setup/setup-flow";
-import { createDemoState, mergeSetup, saveDemoState, type SetupAnswers } from "../lib/demo-store";
+import { loadDemoState, mergeSetup, saveDemoState, type SetupAnswers } from "../lib/demo-store";
 
 export default function SetupPage() {
   const router = useRouter();
 
   const finish = (answers: SetupAnswers) => {
-    saveDemoState(mergeSetup(createDemoState(), answers));
+    saveDemoState(mergeSetup(loadDemoState(), answers));
     router.push("/path");
   };
 

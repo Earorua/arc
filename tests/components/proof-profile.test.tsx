@@ -11,7 +11,25 @@ describe("ProofProfile", () => {
     render(<ProofProfile proofs={[]} skills={flagshipRole.skills} />);
 
     expect(screen.getByText("0%")).toBeInTheDocument();
-    expect(screen.getByText(/Complete today's unit/i)).toBeInTheDocument();
+    expect(screen.getByText(/first local completion evidence/i)).toBeInTheDocument();
+    expect(screen.getByText(/device-local completion events only/i)).toBeInTheDocument();
+    expect(screen.getByText(/Git, URL, and file verification/i)).toBeInTheDocument();
+  });
+
+  it("labels a Today completion as locally verified evidence, not a Git commit", () => {
+    const completion: ProofItem = {
+      id: "local-completion",
+      title: "Implementation note",
+      kind: "completion",
+      skillIds: ["react"],
+      verified: true,
+    };
+
+    render(<ProofProfile proofs={[completion]} skills={flagshipRole.skills} />);
+
+    expect(screen.getByText("Completion evidence · 1 linked skill")).toBeInTheDocument();
+    expect(screen.getByText("Verified locally")).toBeInTheDocument();
+    expect(screen.queryByText(/commit ·/i)).not.toBeInTheDocument();
   });
 
   it("lists verified and draft evidence with linked skill counts", () => {

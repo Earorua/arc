@@ -31,5 +31,20 @@ describe("StackBrowser", () => {
     render(<StackBrowser skills={[{ ...flagshipRole.skills[0], sources: [] }]} />);
 
     expect(screen.getByText("Source unavailable")).toBeInTheDocument();
+    expect(screen.getByText("Not observed")).toBeInTheDocument();
+  });
+
+  it("shows source freshness and prerequisite ids for every skill", () => {
+    render(<StackBrowser skills={flagshipRole.skills} />);
+
+    const foundation = screen.getByRole("heading", { name: "Web Platform" }).closest("article");
+    const react = screen.getByRole("heading", { name: "React 19" }).closest("article");
+
+    expect(foundation).not.toBeNull();
+    expect(within(foundation!).getByText("Observed")).toBeInTheDocument();
+    expect(within(foundation!).getByText("2026-07-26")).toBeInTheDocument();
+    expect(within(foundation!).getByText("Prerequisites")).toBeInTheDocument();
+    expect(within(foundation!).getByText("None")).toBeInTheDocument();
+    expect(within(react!).getByText("web-platform, typescript")).toBeInTheDocument();
   });
 });

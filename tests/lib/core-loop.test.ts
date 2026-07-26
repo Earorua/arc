@@ -23,6 +23,7 @@ describe("Arc flagship demo loop", () => {
     const readiness = calculateReadiness(flagshipRole.skills, completed.proofs);
 
     expect(completed.completedUnitIds).toEqual([flagshipRole.today.id]);
+    expect(completed.proofs[0].kind).toBe("completion");
     expect(completed.proofs[0].skillIds).toEqual(flagshipRole.today.skillIds);
     expect(readiness.percentage).toBe(19);
   });

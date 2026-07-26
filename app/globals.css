@@ -103,7 +103,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .workspace-header nav { display: flex; gap: 26px; font-size: 0.78rem; }
 .workspace-header nav a { color: var(--stone); }
 .workspace-header nav a[aria-current="page"] { color: var(--charcoal); border-bottom: 1px solid currentColor; }
-.workspace-context { justify-self: end; color: var(--stone); font: 0.68rem ui-monospace, monospace; }
+.workspace-context { justify-self: end; max-width: min(32vw, 360px); overflow: hidden; color: var(--stone); font: 0.68rem ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
 .workspace-main { width: var(--content); margin: 0 auto; padding: 90px 0 120px; }
 .workspace-intro { max-width: 780px; }
 .workspace-intro h1 { margin: 20px 0; font-family: var(--display); font-size: clamp(4rem, 8vw, 8rem); font-weight: 440; line-height: 0.86; letter-spacing: -0.065em; }
@@ -155,6 +155,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .proof-profile li b { align-self: flex-start; }
 .proof-profile li b.is-verified { color: var(--success); }
 .proof-profile li b.is-draft { color: var(--stone); }
+.proof-boundary { max-width: 620px; margin: 36px 0 0; color: var(--stone); line-height: 1.65; }
 .empty-proof { margin: 72px 0; border-top: 1px solid var(--hairline); padding-top: 24px; color: var(--stone); }
 .share-profile { border: 0; border-bottom: 1px solid currentColor; background: transparent; padding: 0 0 4px; }
 .share-profile:disabled { cursor: not-allowed; color: var(--stone); opacity: 0.72; }
@@ -192,7 +193,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
     position: fixed; top: auto; bottom: 0; left: 0; right: 0; grid-template-columns: 0 auto 0;
     height: calc(64px + env(safe-area-inset-bottom)); padding: 0 18px env(safe-area-inset-bottom);
   }
-  .workspace-header > .wordmark, .workspace-context { overflow: hidden; width: 0; opacity: 0; }
+  .workspace-header > .wordmark { display: none; }
+  .workspace-context { overflow: hidden; width: 0; opacity: 0; }
   .workspace-header nav { gap: 0; width: calc(100vw - 36px); justify-content: space-between; }
   .workspace-header nav a { min-width: 64px; min-height: 44px; display: grid; place-items: center; }
   .workspace-main { padding: 60px 0 calc(100px + env(safe-area-inset-bottom)); }

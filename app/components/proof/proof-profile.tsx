@@ -23,22 +23,31 @@ export function ProofProfile({
         </div>
       </div>
 
+      <p className="proof-boundary">
+        This phase verifies device-local completion events only. External Git, URL, and file verification arrives with Persistence &amp; Proof.
+      </p>
+
       {proofs.length === 0 ? (
-        <p className="empty-proof">Complete today&apos;s unit to create your first verified proof.</p>
+        <p className="empty-proof">Complete today&apos;s unit to create your first local completion evidence.</p>
       ) : (
         <ol aria-label="Evidence">
           {proofs.map((proof) => {
             const linkedSkillCount = getLinkedSkillIds(skills, proof.skillIds).length;
             const linkedSkillLabel = linkedSkillCount === 1 ? "linked skill" : "linked skills";
+            const isLocalCompletion = proof.kind === "completion";
+            const kindLabel = isLocalCompletion ? "Completion evidence" : proof.kind;
+            const verificationLabel = proof.verified
+              ? (isLocalCompletion ? "Verified locally" : "Verified")
+              : "Draft";
 
             return (
               <li key={proof.id}>
                 <div>
                   <strong>{proof.title}</strong>
-                  <span>{proof.kind} · {linkedSkillCount} {linkedSkillLabel}</span>
+                  <span>{kindLabel} · {linkedSkillCount} {linkedSkillLabel}</span>
                 </div>
                 <b className={proof.verified ? "is-verified" : "is-draft"}>
-                  {proof.verified ? "Verified" : "Draft"}
+                  {verificationLabel}
                 </b>
               </li>
             );
