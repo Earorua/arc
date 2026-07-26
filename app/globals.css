@@ -113,3 +113,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .phase-rail li.is-current > span { border-color: var(--signal); background: var(--signal); color: white; }
 .phase-rail strong { font-family: var(--display); font-size: 2rem; font-weight: 500; }
 .phase-rail p, .phase-rail small { color: var(--stone); }
+
+.today-session { max-width: 860px; margin: 0 auto; }
+.time-budget { display: flex; align-items: baseline; gap: 12px; margin: 32px 0; }
+.time-budget strong { font-family: var(--display); font-size: clamp(5rem, 12vw, 10rem); font-weight: 430; line-height: 0.75; letter-spacing: -0.07em; }
+.time-budget span { color: var(--stone); }
+.today-session h1 { max-width: 760px; font-family: var(--display); font-size: clamp(2.8rem, 5vw, 5rem); font-weight: 460; line-height: 0.98; letter-spacing: -0.05em; }
+.task-steps { margin-top: 64px; }
+.task-steps label { display: grid; grid-template-columns: 28px 54px 1fr; align-items: center; padding: 24px 0; border-top: 1px solid var(--hairline); cursor: pointer; }
+.task-steps input { width: 18px; height: 18px; accent-color: var(--signal); }
+.task-steps span { color: var(--stone); font: 0.7rem ui-monospace, monospace; }
+.task-steps strong { font-weight: 560; }
+.deliverable-bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 34px; border-radius: 12px; background: var(--charcoal); color: white; padding: 18px 20px; }
+.deliverable-bar button { border: 0; background: transparent; color: #a8efbc; cursor: pointer; }
