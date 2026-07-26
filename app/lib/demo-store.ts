@@ -16,6 +16,35 @@ export interface DemoState {
 }
 
 const storageKey = "arc-demo-state-v1";
+const learnerLevels: LearnerLevel[] = ["new", "beginner", "intermediate", "advanced"];
+const proofKinds: ProofItem["kind"][] = ["commit", "project", "note", "upload"];
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function isLearnerLevel(value: unknown): value is LearnerLevel {
+  return typeof value === "string" && learnerLevels.includes(value as LearnerLevel);
+}
+
+function isFiniteIntegerInRange(value: unknown, minimum: number, maximum: number): value is number {
+  return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value) && value >= minimum && value <= maximum;
+}
+
+function isProofItem(value: unknown): value is ProofItem {
+  return isRecord(value)
+    && isNonEmptyString(value.id)
+    && isNonEmptyString(value.title)
+    && typeof value.kind === "string"
+    && proofKinds.includes(value.kind as ProofItem["kind"])
+    && Array.isArray(value.skillIds)
+    && value.skillIds.every(isNonEmptyString)
+    && typeof value.verified === "boolean";
+}
 
 export function createDemoState(): DemoState {
   return {
@@ -52,18 +81,47 @@ export function completeDemoUnit(state: DemoState, unit: LearningUnit): DemoStat
   };
 }
 
-export function loadDemoState(storage: Pick<Storage, "getItem"> = window.localStorage): DemoState {
+export function loadDemoState(storage?: Pick<Storage, "getItem">): DemoState {
   try {
-    const raw = storage.getItem(storageKey);
-    return raw ? { ...createDemoState(), ...JSON.parse(raw) } : createDemoState();
+    const resolvedStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
+    if (!resolvedStorage) return createDemoState();
+
+    const raw = resolvedStorage.getItem(storageKey);
+    if (!raw) return createDemoState();
+
+    const persisted = JSON.parse(raw);
+    if (!isRecord(persisted)) return createDemoState();
+
+    const defaults = createDemoState();
+    const persistedSetup = isRecord(persisted.setup) ? persisted.setup : {};
+    const setup: SetupAnswers = {
+      roleId: isNonEmptyString(persistedSetup.roleId) ? persistedSetup.roleId.trim() : defaults.setup.roleId,
+      level: isLearnerLevel(persistedSetup.level) ? persistedSetup.level : defaults.setup.level,
+      weeklyMinutes: isFiniteIntegerInRange(persistedSetup.weeklyMinutes, 30, 2400)
+        ? persistedSetup.weeklyMinutes
+        : defaults.setup.weeklyMinutes,
+      targetWeeks: isFiniteIntegerInRange(persistedSetup.targetWeeks, 4, 52)
+        ? persistedSetup.targetWeeks
+        : defaults.setup.targetWeeks,
+    };
+
+    return {
+      setup,
+      completedUnitIds: Array.isArray(persisted.completedUnitIds)
+        ? persisted.completedUnitIds.filter(isNonEmptyString)
+        : [],
+      proofs: Array.isArray(persisted.proofs) ? persisted.proofs.filter(isProofItem) : [],
+    };
   } catch {
     return createDemoState();
   }
 }
 
-export function saveDemoState(state: DemoState, storage: Pick<Storage, "setItem"> = window.localStorage): void {
+export function saveDemoState(state: DemoState, storage?: Pick<Storage, "setItem">): void {
   try {
-    storage.setItem(storageKey, JSON.stringify(state));
+    const resolvedStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
+    if (!resolvedStorage) return;
+    resolvedStorage.setItem(storageKey, JSON.stringify(state));
   } catch {
     // Device-local persistence is best effort.
   }

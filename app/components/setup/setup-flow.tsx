@@ -5,6 +5,10 @@ import type { LearnerLevel, SetupAnswers } from "../../lib/demo-store";
 
 const flagshipRoleId = "ai-native-full-stack-engineer";
 
+function isFiniteIntegerInRange(value: number, minimum: number, maximum: number) {
+  return Number.isFinite(value) && Number.isInteger(value) && value >= minimum && value <= maximum;
+}
+
 export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) => void }) {
   const [step, setStep] = useState(0);
   const [customRole, setCustomRole] = useState("");
@@ -27,6 +31,10 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
     setAnswers((current) => ({ ...current, roleId: value.trim() || flagshipRoleId }));
   };
 
+  const hasCustomRole = customRole.trim().length > 0;
+  const weeklyMinutesValid = isFiniteIntegerInRange(answers.weeklyMinutes, 30, 2400);
+  const targetWeeksValid = isFiniteIntegerInRange(answers.targetWeeks, 4, 52);
+
   return (
     <section className="setup-flow" aria-live="polite">
       <p className="setup-progress">{String(step + 1).padStart(2, "0")} / 04</p>
@@ -35,7 +43,8 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
         <>
           <h1>你想成为怎样的构建者？</h1>
           <button
-            className={customRole ? "answer-choice" : "answer-choice is-selected"}
+            aria-pressed={!hasCustomRole}
+            className={hasCustomRole ? "answer-choice" : "answer-choice is-selected"}
             onClick={selectFlagshipRole}
             type="button"
           >
@@ -63,6 +72,7 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
                 className={answers.level === level ? "answer-choice is-selected" : "answer-choice"}
                 key={level}
                 lang="en"
+                aria-pressed={answers.level === level}
                 onClick={() => setAnswers((current) => ({ ...current, level }))}
                 type="button"
               >
@@ -81,14 +91,18 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
             Weekly minutes
             <input
               aria-label="Weekly minutes"
+              aria-describedby={weeklyMinutesValid ? undefined : "weekly-minutes-error"}
+              aria-invalid={!weeklyMinutesValid}
               max="2400"
               min="30"
               onChange={(event) => setAnswers((current) => ({ ...current, weeklyMinutes: Number(event.target.value) }))}
               type="number"
+              step="1"
               value={answers.weeklyMinutes}
             />
           </label>
-          <button className="setup-next" lang="en" onClick={advance} type="button">Continue</button>
+          {!weeklyMinutesValid && <p id="weekly-minutes-error" role="alert">Enter a whole number from 30 to 2400.</p>}
+          <button className="setup-next" disabled={!weeklyMinutesValid} lang="en" onClick={advance} type="button">Continue</button>
         </>
       )}
 
@@ -99,14 +113,18 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
             Target weeks
             <input
               aria-label="Target weeks"
+              aria-describedby={targetWeeksValid ? undefined : "target-weeks-error"}
+              aria-invalid={!targetWeeksValid}
               max="52"
               min="4"
               onChange={(event) => setAnswers((current) => ({ ...current, targetWeeks: Number(event.target.value) }))}
               type="number"
+              step="1"
               value={answers.targetWeeks}
             />
           </label>
-          <button className="setup-next" lang="en" onClick={() => onComplete(answers)} type="button">Build my path</button>
+          {!targetWeeksValid && <p id="target-weeks-error" role="alert">Enter a whole number from 4 to 52.</p>}
+          <button className="setup-next" disabled={!targetWeeksValid} lang="en" onClick={() => onComplete(answers)} type="button">Build my path</button>
         </>
       )}
     </section>

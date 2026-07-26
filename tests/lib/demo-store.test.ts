@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { completeDemoUnit, createDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-store";
+import { completeDemoUnit, createDemoState, loadDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-store";
 import { flagshipRole } from "../../app/data/flagship-role";
 
 describe("demo store", () => {
@@ -21,5 +21,60 @@ describe("demo store", () => {
   it("does not throw when device storage rejects a write", () => {
     const storage = { setItem() { throw new Error("storage unavailable"); } };
     expect(() => saveDemoState(createDemoState(), storage)).not.toThrow();
+  });
+
+  it("falls back to safe defaults when persisted JSON has the wrong shapes", () => {
+    const state = loadDemoState({
+      getItem: () => JSON.stringify({
+        setup: {},
+        completedUnitIds: "bad",
+        proofs: [{ bad: true }],
+      }),
+    });
+
+    expect(state.setup).toEqual(createDemoState().setup);
+    expect(state.completedUnitIds).toEqual([]);
+    expect(state.proofs).toEqual([]);
+  });
+
+  it("merges valid persisted fields and retains only valid progress", () => {
+    const state = loadDemoState({
+      getItem: () => JSON.stringify({
+        setup: {
+          roleId: "data-product-manager",
+          level: "advanced",
+          weeklyMinutes: 600,
+          targetWeeks: 53,
+        },
+        completedUnitIds: ["unit-one", "", 9],
+        proofs: [
+          {
+            id: "proof-unit-one",
+            title: "A verified deliverable",
+            kind: "project",
+            skillIds: ["product-thinking"],
+            verified: true,
+          },
+          { id: "bad-proof", title: "Bad", kind: "invalid", skillIds: [], verified: true },
+        ],
+      }),
+    });
+
+    expect(state.setup).toEqual({
+      roleId: "data-product-manager",
+      level: "advanced",
+      weeklyMinutes: 600,
+      targetWeeks: 18,
+    });
+    expect(state.completedUnitIds).toEqual(["unit-one"]);
+    expect(state.proofs).toEqual([
+      {
+        id: "proof-unit-one",
+        title: "A verified deliverable",
+        kind: "project",
+        skillIds: ["product-thinking"],
+        verified: true,
+      },
+    ]);
   });
 });
