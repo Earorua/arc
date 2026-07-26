@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { LearningUnit } from "../../domain/learning";
 
-type TodaySessionProps = { onComplete: (unit: LearningUnit) => void; unit: LearningUnit };
+type TodaySessionProps = { onComplete: (unit: LearningUnit) => boolean; unit: LearningUnit };
 
 export function TodaySession(props: TodaySessionProps) {
   return <StatefulTodaySession key={props.unit.id} {...props} />;
@@ -26,7 +26,12 @@ function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
     if (completionStarted.current) return;
     completionStarted.current = true;
     setIsCompleting(true);
-    onComplete(unit);
+    const completed = onComplete(unit);
+
+    if (!completed) {
+      completionStarted.current = false;
+      setIsCompleting(false);
+    }
   };
 
   return (

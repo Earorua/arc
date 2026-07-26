@@ -1,7 +1,9 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TodayPage from "../../app/today/page";
 import { createDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-store";
+import { flagshipRole } from "../../app/data/flagship-role";
 
 const { push } = vi.hoisted(() => ({ push: vi.fn() }));
 
@@ -13,7 +15,10 @@ beforeEach(() => {
   window.localStorage.clear();
   push.mockClear();
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 describe("TodayPage", () => {
   it("keeps the honest unit estimate and explains a weekly budget shortfall", async () => {
@@ -46,5 +51,30 @@ describe("TodayPage", () => {
     await screen.findByText("45");
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
     expect(screen.queryByText(/超出当前每周/)).not.toBeInTheDocument();
+  });
+
+  it("stays on Today and restores retry when completion cannot be saved", async () => {
+    const user = userEvent.setup();
+    render(<TodayPage />);
+    await screen.findByText("45");
+    const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("storage unavailable");
+    });
+
+    for (const step of flagshipRole.today.steps) {
+      await user.click(screen.getByRole("checkbox", { name: step.label }));
+    }
+    const button = screen.getByRole("button", { name: "Complete & move to Proof" });
+    await user.click(button);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("完成记录未能保存");
+    expect(push).not.toHaveBeenCalled();
+    expect(button).toBeEnabled();
+
+    setItem.mockRestore();
+    await user.click(button);
+
+    expect(push).toHaveBeenCalledWith("/proof");
+    expect(button).toBeDisabled();
   });
 });
