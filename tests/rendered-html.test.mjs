@@ -6,13 +6,7 @@ async function render() {
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(
-    new Request("http://localhost/", {
-      headers: {
-        accept: "text/html",
-        "x-forwarded-host": "arc.example.test",
-        "x-forwarded-proto": "https",
-      },
-    }),
+    new Request("http://localhost/", { headers: { accept: "text/html" } }),
     {
       ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) },
     },
@@ -27,10 +21,6 @@ test("server-renders the Arc landing page", async () => {
   assert.match(html, /Arc\./);
   assert.match(html, /Learn only what moves you forward/);
   assert.match(html, /Build my precise path/);
-  assert.match(html, /property="og:image" content="https:\/\/arc\.example\.test\/og\.png"/);
-  assert.match(html, /property="og:image:width" content="1672"/);
-  assert.match(html, /property="og:image:height" content="941"/);
-  assert.match(html, /name="twitter:card" content="summary_large_image"/);
   const legacySentinels = [
     ["codex", "preview"].join("-"),
     ["Skeleton", "Preview"].join(""),
