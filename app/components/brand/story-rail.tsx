@@ -6,7 +6,7 @@ const chapters = [
 
 export function StoryRail() {
   return (
-    <ol className="story-rail" aria-label="Arc learning method">
+    <ol className="story-rail" aria-label="Arc learning method" lang="en">
       {chapters.map(([number, title, description], index) => (
         <li
           className={index === 0 ? "story-chapter is-active" : "story-chapter"}
@@ -15,7 +15,7 @@ export function StoryRail() {
           <span>{number}</span>
           <div>
             <strong>{title}</strong>
-            <small>{description}</small>
+            <small lang="zh-CN">{description}</small>
           </div>
         </li>
       ))}

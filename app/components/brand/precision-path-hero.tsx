@@ -11,7 +11,7 @@ export function PrecisionPathHero() {
     : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 } };
 
   return (
-    <section className="hero-poster">
+    <section className="hero-poster" lang="en">
       <div className="hero-copy">
         <motion.p
           {...enter}
@@ -27,6 +27,7 @@ export function PrecisionPathHero() {
           {...enter}
           transition={{ duration: 0.65, delay: 0.13 }}
           className="hero-support"
+          lang="zh-CN"
         >
           把任意岗位拆成清晰、可信、每天都能完成的成长路径。
         </motion.p>
