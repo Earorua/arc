@@ -80,3 +80,17 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .source-specimen div { display: grid; grid-template-columns: 160px 1fr; gap: 20px; padding: 22px 0; border-top: 1px solid var(--hairline); }
 .source-specimen dt { color: var(--stone); }
 .source-specimen dd { margin: 0; }
+
+.setup-page { min-height: 100svh; background: var(--charcoal); color: white; padding: 28px max(24px, calc((100vw - 1180px) / 2)); }
+.setup-wordmark { display: inline-block; color: white; }
+.setup-flow { width: min(760px, 100%); margin: 12vh auto 0; }
+.setup-progress { color: #8e918f; font: 0.72rem ui-monospace, monospace; }
+.setup-flow h1 { max-width: 720px; margin: 26px 0 48px; font-family: var(--display); font-size: clamp(3rem, 7vw, 6rem); font-weight: 440; line-height: 0.92; letter-spacing: -0.055em; }
+.answer-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.answer-choice, .answer-field { display: flex; justify-content: space-between; width: 100%; border: 0; border-top: 1px solid #3b3d3b; background: transparent; color: #bfc1be; padding: 20px 0; text-align: left; }
+.answer-choice { cursor: pointer; }
+.answer-choice.is-selected { color: white; }
+.answer-choice.is-selected::after { content: "Selected"; color: #9ee8b4; font-size: 0.72rem; }
+.answer-field { flex-direction: column; gap: 12px; }
+.answer-field input { border: 0; border-bottom: 1px solid #666966; background: transparent; color: white; padding: 10px 0; font-size: 1.2rem; }
+.setup-next { margin-top: 40px; border: 0; border-radius: 999px; background: white; color: var(--charcoal); padding: 13px 18px; cursor: pointer; }
