@@ -944,15 +944,15 @@ git commit -m "feat: guard Arc AI behind entitlements"
 - Create: `tests/api/proof-assets.test.ts`
 - Create: `tests/api/proof-sharing.test.ts`
 
-- [ ] **Step 1: Write failing storage and route tests**
+- [x] **Step 1: Write failing storage and route tests**
 
 Cover owner-prefixed object keys, 5 MiB maximum, accepted types `text/plain`, `application/pdf`, `image/png`, and `image/jpeg`, denied executable/HTML types, unauthenticated denial, cross-user denial, private retrieval, missing object, and no public bucket URL in any response. Sharing tests cover explicit field selection, token hashing, no raw token at rest, owner-only create/revoke, revoked-token 404, cross-user denial, and proof that the public response never includes owner ID, email, notes, internal IDs, attachment URLs, or fields outside the allowlist.
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run the two focused test files. Expected: FAIL because proof storage does not exist.
 
-- [ ] **Step 3: Implement the R2 adapter**
+- [x] **Step 3: Implement the R2 adapter**
 
 ```ts
 const MAX_PROOF_BYTES = 5 * 1024 * 1024;
@@ -967,11 +967,11 @@ Store searchable ownership/type/size metadata in D1 before returning success. Re
 
 Define an owner-scoped `ProofRepository` port with `getOwnedProof`, `createAssetMetadata`, `getOwnedAsset`, `upsertShare`, `revokeShare`, and `getActiveShareByTokenHash`. `D1ProofRepository` binds `userId` in every private query and writes metadata plus share changes idempotently. If metadata insertion fails after an R2 put, delete only the just-created explicit object key as compensation and return failure.
 
-- [ ] **Step 4: Type the worker binding and implement routes**
+- [x] **Step 4: Type the worker binding and implement routes**
 
 Add `PROOF_ASSETS: R2Bucket` and the approved environment fields to `worker/index.ts`'s `Env`. Upload accepts one multipart `file` plus an existing proof ID; asset retrieval never accepts an object key from the caller. Upload and sharing mutations reserve their own scopes through the D1 rate limiter before reading a request body or writing state.
 
-- [ ] **Step 5: Implement selective publication and revocation**
+- [x] **Step 5: Implement selective publication and revocation**
 
 `public-view.ts` defines the only publishable keys:
 
@@ -982,9 +982,11 @@ export type PublicProofView = Partial<Pick<ProofItem, "title" | "kind" | "skillI
 
 `PUT /api/proofs/[id]/sharing` accepts one or more distinct allowlisted fields, verifies ownership, generates 32 cryptographically random bytes, stores only `SHA-256(token)` plus the filtered JSON view, and returns the raw URL-safe token once. `DELETE` revokes the share by proof ID and owner ID. `GET /api/public/proofs/[token]` hashes the token, returns only the stored allowlisted view for an unrevoked record, and uses `Cache-Control: public, max-age=60`; it never serves private R2 bytes. Invalid, unknown, or revoked tokens return the same 404 shape.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 Run focused tests, full tests, lint, and build.
+
+Execution evidence (2026-07-28): storage, asset-route, and sharing tests first failed because the proof modules and routes did not exist. The completed R2 adapter accepts exactly one non-empty plain text, PDF, PNG, or JPEG file up to 5 MiB and uses server-created, owner-prefixed object keys. Upload and sharing mutations reserve D1 rate-limit scopes before reading request bodies. Every private D1 lookup binds the authenticated user and proof ID; metadata failure compensates by deleting only the newly written object key. Private retrieval uses D1 metadata rather than caller-provided keys and forces attachment, `nosniff`, and private no-store headers. Sharing stores a SHA-256 token hash, renews by owner/proof idempotently, projects only explicitly selected allowlisted fields, and revokes by owner. The public route never reads R2 bytes, strips non-publishable stored properties, and gives invalid, unknown, or revoked tokens the same 404 contract. Focused verification reached 4 files / 33 tests; the full suite reached 45 files / 204 tests; ESLint, `tsc --noEmit`, and the five-stage Vinext production build passed with all four proof API routes present.
 
 ```powershell
 git add worker/index.ts app/server/proof app/api/proofs app/api/public/proofs tests/server/proof-storage.test.ts tests/api/proof-assets.test.ts tests/api/proof-sharing.test.ts
