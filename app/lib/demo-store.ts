@@ -59,6 +59,13 @@ export function createDemoState(): DemoState {
   };
 }
 
+export function hasMeaningfulDemoState(state: DemoState): boolean {
+  const defaults = createDemoState();
+  return state.completedUnitIds.length > 0
+    || state.proofs.length > 0
+    || JSON.stringify(state.setup) !== JSON.stringify(defaults.setup);
+}
+
 export function mergeSetup(state: DemoState, setup: SetupAnswers): DemoState {
   return { ...state, setup: { ...setup } };
 }

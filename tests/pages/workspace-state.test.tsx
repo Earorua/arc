@@ -1,8 +1,12 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ProofPage from "../../app/proof/page";
 import StackPage from "../../app/stack/page";
 import { createDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-store";
+
+vi.mock("../../app/lib/auth-client", () => ({
+  authClient: { useSession: () => ({ data: null, isPending: false }) },
+}));
 
 beforeEach(() => window.localStorage.clear());
 afterEach(cleanup);

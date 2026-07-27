@@ -11,6 +11,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
 }));
 
+vi.mock("../../app/lib/auth-client", () => ({
+  authClient: { useSession: () => ({ data: null, isPending: false }) },
+}));
+
 beforeEach(() => {
   window.localStorage.clear();
   push.mockClear();

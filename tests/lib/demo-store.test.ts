@@ -1,8 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { completeDemoUnit, createDemoState, loadDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-store";
+import {
+  completeDemoUnit,
+  createDemoState,
+  hasMeaningfulDemoState,
+  loadDemoState,
+  mergeSetup,
+  saveDemoState,
+} from "../../app/lib/demo-store";
 import { flagshipRole } from "../../app/data/flagship-role";
 
 describe("demo store", () => {
+  it("distinguishes an untouched sample from meaningful local work", () => {
+    expect(hasMeaningfulDemoState(createDemoState())).toBe(false);
+    expect(hasMeaningfulDemoState(mergeSetup(createDemoState(), {
+      ...createDemoState().setup,
+      weeklyMinutes: 300,
+    }))).toBe(true);
+    expect(hasMeaningfulDemoState(completeDemoUnit(createDemoState(), flagshipRole.today))).toBe(true);
+  });
+
   it("merges setup answers without erasing progress", () => {
     const state = completeDemoUnit(createDemoState(), flagshipRole.today);
     const next = mergeSetup(state, { roleId: flagshipRole.id, level: "beginner", weeklyMinutes: 420, targetWeeks: 18 });
