@@ -350,7 +350,7 @@ git commit -m "feat: define Arc beta persistence schema"
 - Create: `app/server/cloud/service.ts`
 - Create: `tests/server/cloud-service.test.ts`
 
-- [ ] **Step 1: Write failing service tests with an in-memory repository**
+- [x] **Step 1: Write failing service tests with an in-memory repository**
 
 Cover these exact cases: anonymous default is not imported automatically; valid local state imports after explicit consent; repeating a migration ID returns the first result; an existing active cloud goal is not silently replaced; a repeated completion mutation creates one event and one proof; cross-user repository results are rejected.
 
@@ -364,13 +364,13 @@ expect(result.importedCompletionCount).toBe(1);
 expect(await service.importLocalState("user-1", request)).toEqual(result);
 ```
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run `npx vitest run tests/server/cloud-service.test.ts`.
 
 Expected: FAIL because the contracts and service do not exist.
 
-- [ ] **Step 3: Define shared Zod contracts**
+- [x] **Step 3: Define shared Zod contracts**
 
 `app/contracts/cloud-state.ts` must export these schemas and their `z.infer` types (`SetupAnswersInput`, `DemoStateInput`, `MigrationRequest`, `MigrationResult`, `WorkspaceMutation`, `CompletionMutation`, and `CloudSnapshot`):
 
@@ -398,6 +398,7 @@ export const demoStateSchema = z.object({
 
 export const migrationRequestSchema = z.object({
   migrationId: z.string().min(8).max(128),
+  consent: z.literal(true),
   state: demoStateSchema,
   conflictResolution: z.enum(["reject", "archive-import", "activate-import"]).default("reject"),
 }).strict();
@@ -439,7 +440,7 @@ export type RepositorySnapshot = CloudSnapshot & {
 
 When an existing active cloud goal conflicts, the default `reject` path returns `status: "conflict"` without writing or recording a completed migration. The user may retry the same package ID with `archive-import` or `activate-import`; the latter archives the existing goal before activating the imported one. Once either final resolution succeeds, repeating that migration ID returns the stored result and never duplicates data.
 
-- [ ] **Step 4: Define the repository port and service**
+- [x] **Step 4: Define the repository port and service**
 
 The repository port exposes owner-scoped methods only:
 
@@ -455,9 +456,11 @@ export interface CloudRepository {
 
 `CloudService` parses all external inputs through the Zod schemas before calling the port. It treats duplicate mutation IDs as successful idempotent replays, rejects a `RepositorySnapshot.ownerId` different from the requested user, and strips `ownerId` before returning the public `CloudSnapshot`.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 Run the focused test and the full unit suite. Expected: all pass.
+
+Execution evidence (2026-07-28): the service suite failed before the contracts existed, then passed all six migration, idempotency, conflict, completion, and ownership cases. The request schema now requires `consent: true`, making explicit import consent a server-side contract rather than only a UI convention. The full suite reached 23 files / 82 tests; lint and `tsc --noEmit` passed with no warnings.
 
 ```powershell
 git add app/contracts/cloud-state.ts app/server/cloud tests/server/cloud-service.test.ts
