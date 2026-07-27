@@ -861,15 +861,15 @@ git commit -m "feat: synchronize Arc learning state"
 - Create: `tests/server/ai-gateway.test.ts`
 - Create: `tests/api/intelligence-preview.test.ts`
 
-- [ ] **Step 1: Write failing entitlement and provider tests**
+- [x] **Step 1: Write failing entitlement and provider tests**
 
 Cover global disabled, feature-cohort disabled, user quota exhausted, endpoint rate limit exceeded, global budget exhausted, allowed call, structured mock output, invalid provider output, one repair maximum, and no charge when no accepted artifact is produced.
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run the three focused test files. Expected: FAIL because the modules do not exist.
 
-- [ ] **Step 3: Implement deterministic entitlement decisions**
+- [x] **Step 3: Implement deterministic entitlement decisions**
 
 Use a discriminated result:
 
@@ -883,7 +883,7 @@ Read numerical limits through Zod coercion with non-negative integer bounds. Con
 
 `EntitlementRepository` exposes `readUsage(userId, purpose, period)`, `reserve(userId, purpose, idempotencyKey, units)`, and `finalize(reservationId, "accepted" | "rejected" | "failed", acceptedUnits)`. The D1 adapter binds `userId`, uses an idempotency key unique per user, and writes append-only ledger rows; it never updates an accepted charge into a second charge.
 
-- [ ] **Step 4: Implement provider contracts and mock gateway**
+- [x] **Step 4: Implement provider contracts and mock gateway**
 
 ```ts
 export const roleResearchRequestSchema = z.object({
@@ -911,13 +911,15 @@ export type RoleResearchPreview = z.infer<typeof roleResearchPreviewSchema>;
 
 The route reserves the shared D1 endpoint rate limit before asking the gateway to check entitlements. The gateway then validates output with Zod, invokes `repair` at most once, writes sanitized `ai_runs` and quota ledger states, and never accepts provider-created URLs or tools in this foundation preview.
 
-- [ ] **Step 5: Expose the protected preview endpoint**
+- [x] **Step 5: Expose the protected preview endpoint**
 
 `POST /api/intelligence/preview` requires an Arc. session and a role string of 2-160 characters. It returns the deterministic preview only; it does not call OpenAI or consume a paid provider key.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 Run focused tests, full tests, lint, and build.
+
+Execution evidence (2026-07-28): the entitlement, D1 ledger, gateway, and protected-route tests first failed because the foundation modules did not exist. The completed policy fails closed on invalid configuration and covers the global switch, feature cohort, per-user quota, endpoint rate, and global budget before issuing an idempotent reservation. The D1 adapter scopes usage to the owner, replays existing reservations, and finalizes with append-only zero-unit rejection/failure entries. The deterministic provider is validated with Zod, receives at most one repair attempt, and records no accepted charge unless a valid artifact is produced; sanitized AI run metadata never stores prompts or output. The protected preview requires an Arc. session, reserves the shared D1 endpoint limit, and uses no paid provider or OpenAI key. Focused verification reached 4 files / 18 tests; the full suite reached 41 files / 171 tests; ESLint, `tsc --noEmit`, and the five-stage Vinext production build passed.
 
 ```powershell
 git add app/server/entitlements app/server/ai app/api/intelligence/preview tests/server tests/api/intelligence-preview.test.ts
