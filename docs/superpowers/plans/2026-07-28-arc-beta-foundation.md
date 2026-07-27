@@ -691,7 +691,7 @@ git commit -m "feat: add Arc account experience"
 - Create: `tests/api/learning-events.test.ts`
 - Create: `tests/server/rate-limit.test.ts`
 
-- [ ] **Step 1: Write failing API tests with injected session and repository factories**
+- [x] **Step 1: Write failing API tests with injected session and repository factories**
 
 Each route test must cover unauthenticated 401, malformed 400, owner-scoped success, duplicate mutation replay, rate-limit 429, and sanitized 500. Migration tests additionally cover oversized proof arrays and conflicting active goals. `tests/server/rate-limit.test.ts` covers per-scope windows, hashed subjects, expiry, and fail-closed database errors.
 
@@ -701,11 +701,11 @@ expect(await response.json()).toMatchObject({ error: { code: "UNAUTHENTICATED" }
 expect(response.headers.get("x-request-id")).toMatch(/^[0-9a-f-]{36}$/);
 ```
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run the three API test files. Expected: FAIL because routes and response helpers do not exist.
 
-- [ ] **Step 3: Implement stable API responses and sanitized logging**
+- [x] **Step 3: Implement stable API responses and sanitized logging**
 
 All API errors use:
 
@@ -720,7 +720,7 @@ Operational events may include request ID, route, result code, latency, user sur
 
 Implement `D1RateLimiter.reserve({ scope, subject, limit, windowSeconds })` with a SHA-256 subject hash and an atomic D1 upsert against `endpoint_rate_buckets`. Return `{ allowed, retryAfterSeconds }`; never persist an email, OAuth token, IP string, or raw user ID in a rate bucket. The import route uses a conservative per-account limit and all later proof and AI routes reuse the same port.
 
-- [ ] **Step 4: Implement the routes**
+- [x] **Step 4: Implement the routes**
 
 - `GET /api/workspace`: return the authenticated cloud snapshot or an empty cloud workspace.
 - `PUT /api/workspace`: parse `{ mutationId, setup }` and save setup idempotently.
@@ -731,9 +731,11 @@ Construct `CloudService` with `D1CloudRepository(getD1())` inside server-only ro
 
 `app/server/http/cloud-route-factories.ts` exports `createWorkspaceHandlers(deps)`, `createMigrationHandler(deps)`, and `createLearningEventHandler(deps)`. `deps` contains `requireUser`, `createService`, `rateLimiter`, and `recordEvent`; production route modules pass D1/session implementations, while tests pass fakes. This is the only dependency-injection seam—route modules remain thin delegates and no global mutable test override is allowed.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 Run focused tests, full tests, lint, and build.
+
+Execution evidence (2026-07-28): five focused files first failed because the route factories, limiter, and observability modules did not exist, then passed 31 tests. The implemented routes authenticate before parsing personal input, derive the owner only from the session, validate strict bodies, preserve repository idempotency, expose stable request IDs and error codes, fail closed when D1 rate limiting is unavailable, and emit only hashed-user allowlisted operational events. Oversized proof arrays, explicit-consent failures, active-goal conflicts, duplicate mutations, rate limits, and secret-bearing internal errors are covered. The full suite reached 33 files / 134 tests; ESLint, `tsc --noEmit`, and the five-stage Vinext build passed with all three cloud APIs classified as dynamic routes.
 
 ```powershell
 git add app/server/http app/server/observability app/api/workspace app/api/migrations app/api/learning tests/api tests/server/rate-limit.test.ts
