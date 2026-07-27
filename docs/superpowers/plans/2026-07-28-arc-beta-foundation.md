@@ -252,7 +252,7 @@ git commit -m "chore: establish Arc beta auth gate"
 - Modify: `drizzle/meta/_journal.json`
 - Create: `drizzle/meta/0000_snapshot.json`
 
-- [ ] **Step 1: Write schema contract tests**
+- [x] **Step 1: Write schema contract tests**
 
 Create `tests/db/schema.test.ts` and assert exported table names for `users`, `sessions`, `accounts`, `verifications`, `auth_rate_limits`, `learner_profiles`, `career_goals`, `learning_tasks`, `learning_events`, `proof_items`, `proof_assets`, `public_proof_shares`, `migration_runs`, `idempotency_records`, `quota_ledger`, `ai_runs`, `feature_flags`, `endpoint_rate_buckets`, and `operational_events`. Also assert that user-owned tables expose a `userId` column and that mutation IDs are represented by unique indexes.
 
@@ -268,13 +268,13 @@ it("exports the beta foundation tables", () => {
 });
 ```
 
-- [ ] **Step 2: Verify the schema test fails against the empty schema**
+- [x] **Step 2: Verify the schema test fails against the empty schema**
 
 Run `npx vitest run tests/db/schema.test.ts`.
 
 Expected: FAIL because the beta tables are not exported.
 
-- [ ] **Step 3: Implement the schema in focused groups**
+- [x] **Step 3: Implement the schema in focused groups**
 
 Use `sqliteTable`, `text`, `integer`, `primaryKey`, `uniqueIndex`, and `index` from `drizzle-orm/sqlite-core`. Auth tables must match Better Auth's user, session, account, and verification fields. Product tables must encode the approved invariants:
 
@@ -307,7 +307,7 @@ Use timestamp-millisecond columns consistently. Store structured snapshots as va
 
 `public_proof_shares` stores only an opaque token hash, an allowlisted published-field JSON document, and `revoked_at`; it never stores a raw bearer token. `endpoint_rate_buckets` has a unique `(scope, subject_hash, window_start)` key. `operational_events` contains only the sanitized fields defined in Task 7 and has no request-body or credential column.
 
-- [ ] **Step 4: Expose the raw D1 binding and logical resources**
+- [x] **Step 4: Expose the raw D1 binding and logical resources**
 
 Create `db/d1.ts` with `getD1()` using `env.DB`, and update `.openai/hosting.json` to:
 
@@ -319,7 +319,7 @@ Create `db/d1.ts` with `getD1()` using `env.DB`, and update `.openai/hosting.jso
 }
 ```
 
-- [ ] **Step 5: Generate and inspect the migration**
+- [x] **Step 5: Generate and inspect the migration**
 
 Run:
 
@@ -329,9 +329,11 @@ npm run db:generate -- --name=beta_foundation
 
 Expected: one new SQL migration and matching Drizzle metadata. Inspect the SQL to confirm all required tables, foreign keys, owner indexes, and unique mutation constraints exist; no `DROP TABLE` or destructive statement is allowed in this initial migration.
 
-- [ ] **Step 6: Verify and commit the schema**
+- [x] **Step 6: Verify and commit the schema**
 
 Run `npx vitest run tests/db/schema.test.ts`, `npm run test:unit`, and `npm run build`. Expected: all exit 0.
+
+Execution evidence (2026-07-28): the schema and binding tests failed before implementation, then passed with 19 tables. The reviewed migration contains 19 `CREATE TABLE` statements, 18 foreign keys, 18 unique indexes, matching snapshot/journal metadata, and no `DROP TABLE`, `DROP COLUMN`, or `DELETE FROM`. The full suite reached 22 files / 76 tests; lint, `tsc --noEmit`, and the five-stage Vinext build passed. The repository also gained the Wrangler-compatible Cloudflare Worker type package and a test-only virtual-module alias so D1/R2 bindings are typechecked without changing production resolution.
 
 ```powershell
 git add .openai/hosting.json db/schema.ts db/d1.ts drizzle tests/db/schema.test.ts
