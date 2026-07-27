@@ -9,7 +9,7 @@ function isFiniteIntegerInRange(value: number, minimum: number, maximum: number)
   return Number.isFinite(value) && Number.isInteger(value) && value >= minimum && value <= maximum;
 }
 
-export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) => void }) {
+export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) => void | Promise<void> }) {
   const [step, setStep] = useState(0);
   const previousStep = useRef(step);
   const questionRef = useRef<HTMLHeadingElement>(null);
@@ -133,7 +133,7 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
             />
           </label>
           {!targetWeeksValid && <p id="target-weeks-error" role="alert">Enter a whole number from 4 to 52.</p>}
-          <button className="setup-next" disabled={!targetWeeksValid} lang="en" onClick={() => onComplete(answers)} type="button">Build my path</button>
+          <button className="setup-next" disabled={!targetWeeksValid} lang="en" onClick={() => void onComplete(answers)} type="button">Build my path</button>
         </>
       )}
     </section>

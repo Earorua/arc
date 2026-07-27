@@ -765,15 +765,15 @@ git commit -m "feat: expose protected Arc cloud state APIs"
 - Modify: `tests/pages/setup.test.tsx`
 - Modify: `tests/pages/today.test.tsx`
 
-- [ ] **Step 1: Write failing client and UI tests**
+- [x] **Step 1: Write failing client and UI tests**
 
 Cover: anonymous pages retain current local behavior; a signed-in user loads D1 state; meaningful local data triggers an import prompt; default untouched state does not; import requires explicit click; dismissing keeps local bytes; a conflicting active goal presents archive/import choices; successful import switches source to cloud; failed synchronization keeps a retryable mutation; duplicate completion uses one mutation ID. Offline-queue tests additionally cover FIFO replay, mutation-ID deduplication, the 100-mutation cap, the 1 MiB serialized cap, preservation of older entries when full, and read-only rejection of a new mutation when either cap is reached.
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run the focused client, migration, and page tests. Expected: FAIL because cloud client and hook do not exist.
 
-- [ ] **Step 3: Add meaningful-state detection and typed browser calls**
+- [x] **Step 3: Add meaningful-state detection and typed browser calls**
 
 Add to `demo-store.ts`:
 
@@ -809,7 +809,7 @@ export function removeOfflineMutation(id: string, storage?: Pick<Storage, "getIt
 
 Parse stored entries through Zod and discard malformed entries. Calculate the UTF-8 byte length of the complete serialized next queue before writing. Deduplicate by `id`; never evict an older accepted mutation to fit a new one.
 
-- [ ] **Step 4: Implement `useArcState`**
+- [x] **Step 4: Implement `useArcState`**
 
 Return this stable shape:
 
@@ -830,13 +830,15 @@ Anonymous users call the existing guarded local store. Authenticated users load 
 
 On reconnect, `retry()` replays queued mutations in FIFO order using their original mutation IDs and removes an item only after the server returns an accepted/idempotent success. If the queue is full, `saveSetup` and `completeUnit` return `false`, leave the visible cloud snapshot unchanged, and expose a reconnect/read-only status; uploads are never copied into local storage.
 
-- [ ] **Step 5: Add the import consent UI and update pages**
+- [x] **Step 5: Add the import consent UI and update pages**
 
 The banner summarizes the role, completed units, and proof count and offers “Import to Arc.” and “Not now.” It never auto-imports or deletes local storage. If the API returns a conflict, the banner adds explicit “Keep cloud goal; archive import” and “Archive cloud goal; activate import” actions; neither runs without a click. Update all five product pages to use the controller while preserving their existing anonymous test contracts and visual hierarchy.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 Run all focused tests, the full unit suite, lint, and build.
+
+Execution evidence (2026-07-28): the client, queue, state-controller, migration-banner, and page tests first failed because the synchronization modules and meaningful-state detector did not exist. The completed controller keeps anonymous storage behavior intact, loads signed-in D1 state as authoritative, separates the local migration preview from the visible cloud snapshot, requires explicit import and conflict-resolution clicks, and never deletes dismissed local bytes. Typed same-origin calls never send an owner ID. Offline mutations retain their original IDs, replay FIFO, deduplicate, and reject the newest write without eviction at either 100 entries or 1 MiB. Accepted offline changes remain retryable; a full queue leaves the visible snapshot unchanged. All five product pages now share this controller, with the prior asynchronous restoring frame preserved. The full suite reached 37 files / 153 tests; ESLint, `tsc --noEmit`, and the five-stage Vinext build passed.
 
 ```powershell
 git add app/lib app/components/sync app/components/workspace/workspace-shell.tsx app/setup app/path app/today app/stack app/proof tests
