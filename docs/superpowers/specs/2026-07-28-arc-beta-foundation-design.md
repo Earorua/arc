@@ -2,7 +2,7 @@
 
 Date: 2026-07-28
 
-Status: Approved design, pending written-spec review
+Status: Approved written specification
 
 Primary milestone: A real, publicly usable beta
 
