@@ -1067,7 +1067,7 @@ git commit -m "feat: harden and operate Arc beta"
 - Verify: `.github/workflows/ci.yml`
 - Verify: `drizzle/0000_beta_foundation.sql`
 
-- [ ] **Step 1: Update the public technical narrative**
+- [x] **Step 1: Update the public technical narrative**
 
 README must distinguish:
 
@@ -1082,7 +1082,7 @@ README must distinguish:
 
 Do not claim cross-device OAuth production success until both providers pass a real hosted callback.
 
-- [ ] **Step 2: Run the full local verification suite**
+- [x] **Step 2: Run the full local verification suite**
 
 ```powershell
 npm run test:unit
@@ -1094,7 +1094,9 @@ git diff --check
 
 Expected: every command exits 0. Record the fresh test count and build output in the handoff; do not reuse earlier counts.
 
-- [ ] **Step 3: Inspect the generated migration and secret boundary**
+Execution evidence (2026-07-28): after the final documentation and client-boundary work, the full unit suite passed at 51 files / 239 tests, ESLint and `tsc --noEmit` exited 0, and the five-stage Vinext build completed with the public, workspace, auth, intelligence, proof, and admin routes present. The Node production-artifact gate passed 2 tests: server-rendered landing HTML and absence of server secret identifiers from the client bundle. `.github/workflows/ci.yml` remains aligned with unit, lint, build, and rendered-HTML gates.
+
+- [x] **Step 3: Inspect the generated migration and secret boundary**
 
 Run:
 
@@ -1105,7 +1107,9 @@ rg -n "clientSecret|BETTER_AUTH_SECRET|OPENAI_API_KEY|GOOGLE_CLIENT_SECRET|GITHU
 
 Expected: the initial migration contains no destructive statement. Secret names may occur only in server-only configuration code; no literal credential value or client bundle/public asset contains a secret.
 
-- [ ] **Step 4: Commit documentation and plan progress**
+Execution evidence (2026-07-28): the packaged initial migration contains 19 tables, 18 foreign keys, and 18 unique indexes, with no `DROP TABLE`, `DROP COLUMN`, or `DELETE FROM`. Credential-pattern scanning found no literal OAuth, GitHub, or model key values. Secret identifiers occur only in Worker environment declarations and `app/server/auth`; the rebuilt client and `public` output contain none. The Sites package includes logical `DB` / `PROOF_ASSETS` metadata plus the migration, snapshot, and journal.
+
+- [x] **Step 4: Commit documentation and plan progress**
 
 ```powershell
 git add README.md docs/operations/sites-oauth-feasibility.md docs/superpowers/plans/2026-07-28-arc-beta-foundation.md
