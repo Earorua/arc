@@ -6,7 +6,7 @@
 
 **Architecture:** Preserve the existing Vinext/React edge-deployed modular monolith. UI and route handlers call focused application services; identity, D1, R2, and AI live behind ports so the same product can move from Sites-managed Cloudflare resources to an owner-controlled Cloudflare account. Anonymous use remains device-local, while authenticated use makes D1 authoritative and keeps a bounded offline queue.
 
-**Tech Stack:** TypeScript 5.9, React 19.2, Vinext/Vite 8, Cloudflare Workers, D1, R2, Drizzle ORM 0.45, Better Auth 1.6.24, Zod 4.4.3, Vitest 4, Testing Library, GitHub Actions, OpenAI Sites.
+**Tech Stack:** TypeScript 5.9, React 19.2, Next.js 16.2.12 compatibility layer, Vinext 0.0.50, Vite 8.1.5, Cloudflare Workers, D1, R2, Drizzle ORM 0.45, Better Auth 1.6.24, Zod 4.4.3, Vitest 4, Testing Library, GitHub Actions, OpenAI Sites.
 
 ---
 
@@ -100,7 +100,7 @@ Current authoritative platform references:
 - Create: `tests/server/auth-policy.test.ts`
 - Create: `docs/operations/sites-oauth-feasibility.md`
 
-- [ ] **Step 1: Restore the current dependency baseline and run the existing unit suite**
+- [x] **Step 1: Restore the current dependency baseline and run the existing unit suite**
 
 Run:
 
@@ -111,7 +111,7 @@ npm run test:unit
 
 Expected: the current suite passes before beta work begins. Record the fresh passing count and duration in the execution log before continuing; do not rely on a count copied from an earlier branch.
 
-- [ ] **Step 2: Write the failing runtime-policy tests**
+- [x] **Step 2: Write the failing runtime-policy tests**
 
 Create `tests/server/auth-policy.test.ts` with these behaviors:
 
@@ -152,7 +152,7 @@ describe("Arc auth policy", () => {
 });
 ```
 
-- [ ] **Step 3: Run the focused test and verify the red state**
+- [x] **Step 3: Run the focused test and verify the red state**
 
 Run:
 
@@ -162,7 +162,7 @@ npx vitest run tests/server/auth-policy.test.ts
 
 Expected: FAIL because `app/server/auth/policy.ts` does not exist.
 
-- [ ] **Step 4: Install and pin the approved dependencies**
+- [x] **Step 4: Install and pin the approved dependencies**
 
 Run:
 
@@ -172,7 +172,7 @@ npm install --save-exact better-auth@1.6.24 @better-auth/drizzle-adapter@1.6.24 
 
 Expected: `package.json` and `package-lock.json` change; no prerelease package is installed.
 
-- [ ] **Step 5: Implement the runtime policy**
+- [x] **Step 5: Implement the runtime policy**
 
 Create `app/server/auth/policy.ts` around these exact exported contracts:
 
@@ -213,11 +213,11 @@ export function readAuthPolicy(source: AuthEnvironment) {
 }
 ```
 
-- [ ] **Step 6: Document non-secret environment names and the hosting decision record**
+- [x] **Step 6: Document non-secret environment names and the hosting decision record**
 
 Create `.env.example` with empty OAuth credentials, a local origin, `ARC_ENVIRONMENT=development`, `ARC_AI_ENABLED=false`, finite quota/budget examples, and no real key values. Create `docs/operations/sites-oauth-feasibility.md` with pass/fail rows for catch-all routes, HTTPS callbacks, secure cookies, D1 availability, runtime secrets, Google callback, GitHub callback, and production smoke testing. Mark unverified live-provider rows as `blocked-on-owner-credential`, not as passed.
 
-- [ ] **Step 7: Verify policy, baseline, and production compilation**
+- [x] **Step 7: Verify policy, baseline, and production compilation**
 
 Run:
 
@@ -230,7 +230,9 @@ npm --script-shell="C:\Program Files\Git\bin\bash.exe" run build
 
 Expected: all commands exit 0; the OAuth decision record states the exact remaining credential-dependent checks.
 
-- [ ] **Step 8: Commit the gate**
+Execution evidence (2026-07-28): the clean baseline was 19 files / 68 tests in 15.04 s. After Task 1 it was 20 files / 71 tests in 12.25 s; lint and the five-stage Vinext production build passed. The Sites project was confirmed active, public, HTTPS, and capable of hosted environment-variable management; live Google/GitHub rows remain `blocked-on-owner-credential`. The repository's original Vite pin was upgraded to 8.1.5 after a read-only audit; Next.js was upgraded to the latest stable 16.2.12. Remaining audit findings are in build/development transitive packages not present in the generated Worker bundle and are recorded for continuing security review rather than force-fixed across breaking majors.
+
+- [x] **Step 8: Commit the gate**
 
 ```powershell
 git add package.json package-lock.json .env.example app/server/auth/policy.ts tests/server/auth-policy.test.ts docs/operations/sites-oauth-feasibility.md
