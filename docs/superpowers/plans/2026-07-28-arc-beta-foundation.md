@@ -208,7 +208,7 @@ export function readAuthPolicy(source: AuthEnvironment) {
       google: `${origin}/api/auth/callback/google`,
       github: `${origin}/api/auth/callback/github`,
     },
-    isReady: Boolean(origin && source.BETTER_AUTH_SECRET && enabledProviders.length > 0),
+    isReady: Boolean(origin && (source.BETTER_AUTH_SECRET?.length ?? 0) >= 32 && enabledProviders.length > 0),
   };
 }
 ```
@@ -524,17 +524,17 @@ git commit -m "feat: persist owner scoped Arc workspaces"
 - Create: `tests/server/auth-runtime.test.ts`
 - Create: `tests/api/auth-providers.test.ts`
 
-- [ ] **Step 1: Write failing identity tests**
+- [x] **Step 1: Write failing identity tests**
 
 Assert that email/password login is disabled, only fully configured Google/GitHub providers appear, implicit cross-email linking is disabled, production cookies are secure, trusted origins contain only the configured Arc. origin, and `requireArcUser()` rejects an absent session with a stable `UNAUTHENTICATED` error.
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run `npx vitest run tests/server/auth-runtime.test.ts tests/api/auth-providers.test.ts`.
 
 Expected: FAIL because the identity modules and provider route do not exist.
 
-- [ ] **Step 3: Build a lazy Better Auth runtime**
+- [x] **Step 3: Build a lazy Better Auth runtime**
 
 `getAuth()` must read Cloudflare runtime values on first request, not at static build time. Configure `betterAuth` with the Drizzle adapter, plural schema mapping, `emailAndPassword.enabled = false`, Google/GitHub social providers, encrypted OAuth tokens, database-backed OAuth state, explicit trusted origin, secure production cookies, and disabled implicit linking.
 
@@ -588,7 +588,7 @@ export function getAuth() {
       storeStateStrategy: "database",
       accountLinking: { enabled: true, disableImplicitLinking: true, allowDifferentEmails: false },
     },
-    rateLimit: { enabled: true, window: 60, max: 30, storage: "database", modelName: "authRateLimits" },
+    rateLimit: { enabled: true, window: 60, max: 30, storage: "database", modelName: "authRateLimit" },
     trustedOrigins: [policy.origin],
     advanced: { cookiePrefix: "arc", useSecureCookies: source.ARC_ENVIRONMENT === "production" },
     socialProviders: buildSocialProviders(source),
@@ -596,7 +596,7 @@ export function getAuth() {
 }
 ```
 
-- [ ] **Step 4: Mount the same-origin route and session helpers**
+- [x] **Step 4: Mount the same-origin route and session helpers**
 
 Create Better Auth handlers inside each request so `getAuth()` is never invoked at module evaluation/build time:
 
@@ -612,13 +612,15 @@ export async function POST(request: Request) {
 
 `app/server/auth/session.ts` must expose `getArcUser(headers)` and `requireArcUser(headers)` and return only Arc. user ID, display name, and email. Never authorize from client-supplied user IDs.
 
-- [ ] **Step 5: Expose provider availability and remove ChatGPT identity code**
+- [x] **Step 5: Expose provider availability and remove ChatGPT identity code**
 
 `GET /api/auth/providers` returns `{ providers: AuthProvider[] }` and `Cache-Control: no-store`. Delete `app/chatgpt-auth.ts` and verify `rg -n "signin-with-chatgpt|oai-authenticated-user" app` returns no matches.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 Run focused tests, full unit suite, lint, and build. Expected: all exit 0 without OAuth credentials because runtime initialization stays lazy.
+
+Execution evidence (2026-07-28): identity tests cover social-only options, complete-provider filtering, 32-character minimum session secrets, encrypted OAuth tokens, database OAuth state/rate limits, disabled implicit linking, secure cookies, sanitized sessions, and stable unauthenticated errors. All ChatGPT identity helpers and reserved routes were removed. The final suite reached 26 files / 97 tests; lint, `tsc --noEmit`, and a credential-free production build passed with `/api/auth/:all+` and `/api/auth/providers` classified as dynamic API routes.
 
 ```powershell
 git add app/server/auth app/lib/auth-client.ts app/api/auth app/chatgpt-auth.ts tests/server/auth-runtime.test.ts tests/api/auth-providers.test.ts
