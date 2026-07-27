@@ -23,12 +23,14 @@ import {
 export type ArcStateSource = "restoring" | "local" | "cloud" | "offline-cloud";
 export type ArcMigrationState = "none" | "available" | "importing" | "imported" | "failed";
 export type ArcMigrationResolution = "reject" | "archive-import" | "activate-import";
+export type ArcRecoveryState = "none" | "session-expired";
 
 export type ArcStateController = {
   state: DemoState | null;
   source: ArcStateSource;
   migration: ArcMigrationState;
   localMigrationState: DemoState | null;
+  recovery: ArcRecoveryState;
   importLocal(resolution?: ArcMigrationResolution): Promise<void>;
   saveSetup(setup: SetupAnswers): Promise<boolean>;
   completeUnit(unit: LearningUnit): Promise<boolean>;
@@ -74,6 +76,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
   const [source, setSource] = useState<ArcStateSource>("restoring");
   const [migration, setMigration] = useState<ArcMigrationState>("none");
   const [localMigrationState, setLocalMigrationState] = useState<DemoState | null>(null);
+  const [recovery, setRecovery] = useState<ArcRecoveryState>("none");
   const stateRef = useRef<DemoState | null>(null);
   const sourceRef = useRef<ArcStateSource>("restoring");
   const userId = session.data?.user.id ?? null;
@@ -99,6 +102,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
         publishState(null);
         publishSource("restoring");
         setLocalMigrationState(null);
+        setRecovery("none");
       });
       return () => {
         active = false;
@@ -112,6 +116,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
         publishSource("local");
         setMigration("none");
         setLocalMigrationState(null);
+        setRecovery("none");
         migrationIdRef.current = null;
       }, 0);
       return () => window.clearTimeout(hydrationTimer);
@@ -133,11 +138,13 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
           : "local");
         setMigration(meaningful ? "available" : "none");
         setLocalMigrationState(meaningful ? local : null);
+        setRecovery("none");
       })
-      .catch(() => {
+      .catch((error) => {
         if (!active) return;
         publishState(local);
         publishSource("offline-cloud");
+        setRecovery(isArcApiError(error) && error.status === 401 ? "session-expired" : "none");
         const meaningful = hasMeaningfulDemoState(local);
         setMigration(meaningful ? "available" : "none");
         setLocalMigrationState(meaningful ? local : null);
@@ -166,8 +173,10 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       publishSource("cloud");
       setMigration("imported");
       setLocalMigrationState(null);
+      setRecovery("none");
     } catch (error) {
       setMigration("failed");
+      if (isArcApiError(error) && error.status === 401) setRecovery("session-expired");
       throw error;
     }
   }, [publishSource, publishState]);
@@ -212,8 +221,13 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       const snapshot = await clientRef.current.saveSetup(setup, mutationId);
       publishState(snapshot.state);
       publishSource("cloud");
+      setRecovery("none");
       return true;
     } catch (error) {
+      if (isArcApiError(error) && error.status === 401) {
+        setRecovery("session-expired");
+        return false;
+      }
       if (!retryable(error)) return false;
       const accepted = enqueue(mutation);
       if (accepted) publishState(mergeSetup(current, setup));
@@ -262,8 +276,13 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       const snapshot = await clientRef.current.completeUnit(unit, mutationId);
       publishState(snapshot.state);
       publishSource("cloud");
+      setRecovery("none");
       return true;
     } catch (error) {
+      if (isArcApiError(error) && error.status === 401) {
+        setRecovery("session-expired");
+        return false;
+      }
       if (!retryable(error)) return false;
       const accepted = enqueue(mutation);
       if (accepted) publishState(completeDemoUnit(current, unit));
@@ -286,9 +305,11 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       if (snapshot) {
         publishState(snapshot.state);
         publishSource("cloud");
+        setRecovery("none");
       }
-    } catch {
+    } catch (error) {
       publishSource("offline-cloud");
+      if (isArcApiError(error) && error.status === 401) setRecovery("session-expired");
     }
   }, [publishSource, publishState]);
 
@@ -297,6 +318,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     source,
     migration,
     localMigrationState,
+    recovery,
     importLocal,
     saveSetup,
     completeUnit,

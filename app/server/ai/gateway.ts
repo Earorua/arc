@@ -38,6 +38,7 @@ type AiGatewayDependencies = {
   now?: () => number;
   providerName?: string;
   model?: string;
+  cohortEnabled?: (userId: string) => Promise<boolean>;
 };
 
 export type AiGatewayResult =
@@ -79,12 +80,20 @@ export class AiGateway {
 
   async research(userId: string, input: unknown): Promise<AiGatewayResult> {
     const request = roleResearchRequestSchema.parse(input);
+    let cohortEnabled = true;
+    if (this.dependencies.cohortEnabled) {
+      try {
+        cohortEnabled = await this.dependencies.cohortEnabled(userId);
+      } catch {
+        cohortEnabled = false;
+      }
+    }
     const decision = await this.dependencies.entitlements.authorize({
       userId,
       purpose: "role-research-preview",
       idempotencyKey: request.requestId,
       units: 1,
-      cohortEnabled: true,
+      cohortEnabled,
       rateAllowed: true,
     });
     if (!decision.allowed) return { accepted: false, reason: decision.reason };

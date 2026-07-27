@@ -94,4 +94,33 @@ describe("AiGateway", () => {
     expect(provider.run).not.toHaveBeenCalled();
     expect(entitlements.finalize).not.toHaveBeenCalled();
   });
+
+  it("passes the persisted release cohort decision into entitlements", async () => {
+    const provider = { run: vi.fn(), repair: vi.fn() };
+    const entitlements = {
+      authorize: vi.fn().mockImplementation(async (input: { cohortEnabled: boolean }) => (
+        input.cohortEnabled
+          ? { allowed: true, reservationId: "reservation-1" }
+          : { allowed: false, reason: "cohort" }
+      )),
+      finalize: vi.fn(),
+    };
+    const cohortEnabled = vi.fn().mockResolvedValue(false);
+    const gateway = new AiGateway({
+      provider: provider as unknown as AiProvider,
+      entitlements,
+      runs: { record: vi.fn() },
+      cohortEnabled,
+    });
+
+    await expect(gateway.research("user-owner", request)).resolves.toEqual({
+      accepted: false,
+      reason: "cohort",
+    });
+    expect(cohortEnabled).toHaveBeenCalledWith("user-owner");
+    expect(entitlements.authorize).toHaveBeenCalledWith(expect.objectContaining({
+      cohortEnabled: false,
+    }));
+    expect(provider.run).not.toHaveBeenCalled();
+  });
 });

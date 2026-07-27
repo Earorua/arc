@@ -1014,23 +1014,23 @@ git commit -m "feat: secure and selectively share Arc proof"
 - Create: `tests/pages/admin.test.tsx`
 - Create: `tests/components/cloud-recovery.test.tsx`
 
-- [ ] **Step 1: Write failing diagnostics and recovery tests**
+- [x] **Step 1: Write failing diagnostics and recovery tests**
 
 Assert stable request IDs, secret-field redaction, session-expired recovery, import retry, offline-cloud status, quota message, kill-switch message, reduced-motion behavior, and visible keyboard focus for new controls. Admin tests assert exact email-allowlist matching, unauthenticated 401, authenticated non-admin 403, admin-only success, aggregate-only queries, and absence of learner content, email addresses, raw user IDs, role descriptions, proof text, or credentials from the response.
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run the focused observability, recovery, admin policy, API, and page files. Expected: FAIL because final recovery presentation, protected diagnostics, and redaction coverage are incomplete.
 
-- [ ] **Step 3: Apply response-level safety controls**
+- [x] **Step 3: Apply response-level safety controls**
 
 The worker adds `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and a request ID when absent. API responses add `Cache-Control: no-store`. Do not add a broad CSP until every existing font, image, and motion dependency has an explicit tested policy.
 
-- [ ] **Step 4: Complete user recovery presentation**
+- [x] **Step 4: Complete user recovery presentation**
 
 Use a single reusable status surface with `role="status"` for non-blocking states and `role="alert"` for failed writes. Every failure offers one concrete action: sign in again, retry, reconnect, adjust quota timing, or continue with the deterministic sample.
 
-- [ ] **Step 5: Implement the protected minimal admin surface**
+- [x] **Step 5: Implement the protected minimal admin surface**
 
 `policy.ts` parses `ARC_ADMIN_EMAILS` as a comma-separated, trimmed, lowercase, exact-match allowlist; empty or malformed configuration denies access. It must not support domains or wildcard entries. `repository.ts` exposes only this aggregate shape:
 
@@ -1045,9 +1045,11 @@ export type AdminHealthSnapshot = {
 
 `D1AdminRepository` reads only `feature_flags`, aggregates from `ai_runs`/`quota_ledger`/`migration_runs`, and the latest already-sanitized `operational_events`; it never joins `users`, `proof_items`, learner snapshots, or OAuth tables. `/api/admin/health` obtains the server-side Arc. session, checks the exact email allowlist, and returns `Cache-Control: private, no-store`. `/admin` shows five restrained Warm Precision cards—service, AI switch, usage, migrations, recent failures—and no mutation controls or user-content browser.
 
-- [ ] **Step 6: Verify and commit**
+- [x] **Step 6: Verify and commit**
 
 Run focused tests, full tests, lint, and build.
+
+Execution evidence (2026-07-28): the diagnostics, admin, and recovery tests first failed on missing modules plus incomplete request-ID, cache, route-redaction, and sensitive-counter behavior. The worker now preserves or creates a UUID request ID and adds `nosniff` plus strict-origin referrer policy without prematurely imposing a broad CSP. API responses default to no-store while preserving the admin endpoint's stricter private no-store policy. Operational routes lose query strings/fragments and sensitive counter names fail validation. The reusable cloud status surface distinguishes alerts from non-blocking state and provides one concrete recovery action for expired sessions, failed imports, offline queues, quota exhaustion, and the global AI switch; 401 cloud recovery preserves device state and is wired across the workspace. The D1 release-cohort switch now participates in the real AI gateway and fails closed when missing, disabled, malformed, or not matched. Admin access uses a normalized exact email allowlist; its D1 repository queries only feature flags and aggregate AI, quota, migration, and sanitized operational tables, while the API reports AI enabled only when both the environment kill switch and D1 release switch permit it. The Warm Precision `/admin` page is read-only and shows five aggregate cards without learner or identity content. After clearing only generated build output and approximately 938 MB of regenerable Node download cache to resolve ENOSPC, the full suite reached 51 files / 239 tests; ESLint, `tsc --noEmit`, and the five-stage Vinext production build passed with `/admin` and `/api/admin/health` present.
 
 ```powershell
 git add worker/index.ts app/server/http app/server/observability app/server/admin app/api/admin app/admin app/components/sync/cloud-status.tsx app/globals.css tests/server/observability.test.ts tests/server/admin-policy.test.ts tests/api/admin-health.test.ts tests/pages/admin.test.tsx tests/components/cloud-recovery.test.tsx

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { DemoState } from "../../lib/demo-store";
 import { isArcApiError } from "../../lib/cloud-client";
 import { getRoleDisplayName } from "../../lib/personalized-plan";
+import { CloudStatus } from "./cloud-status";
 
 export type MigrationStatus = "none" | "available" | "importing" | "imported" | "failed";
 export type MigrationResolution = "reject" | "archive-import" | "activate-import";
@@ -67,9 +68,13 @@ export function MigrationBanner({
         </div>
       ) : (
         <div className="migration-actions">
-          <button disabled={busy} onClick={() => void begin("reject")} type="button">
-            {status === "failed" || failed ? "Retry import" : busy ? "Importing…" : "Import to Arc."}
-          </button>
+          {status === "failed" || failed ? (
+            <CloudStatus kind="import-failed" onAction={() => begin("reject")} />
+          ) : (
+            <button disabled={busy} onClick={() => void begin("reject")} type="button">
+              {busy ? "Importing…" : "Import to Arc."}
+            </button>
+          )}
           <button disabled={busy} onClick={() => setDismissed(true)} type="button">Not now</button>
         </div>
       )}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SetupFlow } from "../components/setup/setup-flow";
+import { CloudStatus } from "../components/sync/cloud-status";
 import type { SetupAnswers } from "../lib/demo-store";
 import { useArcState } from "../lib/use-arc-state";
 
@@ -26,7 +27,8 @@ export default function SetupPage() {
     <main className="setup-page" id="main-content">
       <Link className="wordmark setup-wordmark" href="/" lang="en">Arc.</Link>
       <SetupFlow onComplete={finish} />
-      {saveError && <p className="setup-save-error" role="alert">{saveError}</p>}
+      {arc.recovery === "session-expired" && <CloudStatus kind="session-expired" />}
+      {saveError && arc.recovery === "none" && <p className="setup-save-error" role="alert">{saveError}</p>}
     </main>
   );
 }

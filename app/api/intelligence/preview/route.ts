@@ -6,6 +6,7 @@ import { AiGateway, type AiGatewayResult } from "../../../server/ai/gateway";
 import { MockAiProvider } from "../../../server/ai/mock-provider";
 import { requireArcUser, UnauthenticatedError, type ArcUser } from "../../../server/auth/session";
 import { D1EntitlementRepository } from "../../../server/entitlements/d1-entitlement-repository";
+import { D1FeatureCohort } from "../../../server/entitlements/d1-feature-cohort";
 import { EntitlementGate } from "../../../server/entitlements/policy";
 import { apiError, apiJson } from "../../../server/http/api-response";
 import {
@@ -117,6 +118,7 @@ const productionDependencies: IntelligencePreviewDependencies = {
       provider: new MockAiProvider(),
       entitlements,
       runs: new D1AiRunSink(db),
+      cohortEnabled: (userId) => new D1FeatureCohort(db).allows("role-research-preview", userId),
     });
   },
 };

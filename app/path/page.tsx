@@ -10,7 +10,7 @@ export default function PathPage() {
   const arc = useArcState();
   const { state } = arc;
 
-  if (state === null) return <WorkspaceShell current="Path" source={arc.source} state={null} />;
+  if (state === null) return <WorkspaceShell current="Path" recovery={arc.recovery} source={arc.source} state={null} />;
 
   const { roleId, targetWeeks, weeklyMinutes } = state.setup;
   const role = getRoleDisplayName(roleId);
@@ -24,6 +24,7 @@ export default function PathPage() {
       migrationState={arc.localMigrationState}
       onImport={arc.importLocal}
       onRetry={arc.retry}
+      recovery={arc.recovery}
       source={arc.source}
       state={state}
     >

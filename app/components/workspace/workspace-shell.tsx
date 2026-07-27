@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { AccountMenu } from "../account/account-menu";
 import { MigrationBanner } from "../sync/migration-banner";
+import { CloudStatus } from "../sync/cloud-status";
 import { flagshipRole } from "../../data/flagship-role";
 import type { DemoState } from "../../lib/demo-store";
 import { getRoleDisplayName } from "../../lib/personalized-plan";
 import type {
   ArcMigrationResolution,
   ArcMigrationState,
+  ArcRecoveryState,
   ArcStateSource,
 } from "../../lib/use-arc-state";
 
@@ -22,6 +24,7 @@ export function WorkspaceShell({
   migrationState,
   onImport,
   onRetry,
+  recovery = "none",
   source = "local",
   state,
 }: {
@@ -31,6 +34,7 @@ export function WorkspaceShell({
   migrationState?: DemoState | null;
   onImport?: (resolution?: ArcMigrationResolution) => Promise<void>;
   onRetry?: () => Promise<void>;
+  recovery?: ArcRecoveryState;
   source?: ArcStateSource;
   state: DemoState | null;
 }) {
@@ -66,11 +70,10 @@ export function WorkspaceShell({
             {onImport && migrationState && (
               <MigrationBanner onImport={onImport} state={migrationState} status={migration} />
             )}
-            {source === "offline-cloud" && (
-              <p className="workspace-notice sync-notice" role="status" lang="en">
-                Cloud sync is paused. Accepted changes stay queued on this device.
-                {onRetry && <button onClick={() => void onRetry()} type="button">Retry sync</button>}
-              </p>
+            {recovery === "session-expired" ? (
+              <CloudStatus kind="session-expired" />
+            ) : source === "offline-cloud" && (
+              <CloudStatus kind="offline" onAction={onRetry} />
             )}
             {isCustomRole && (
               <p className="workspace-banner">

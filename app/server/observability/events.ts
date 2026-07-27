@@ -1,7 +1,11 @@
 import { z } from "zod";
 
+const sensitiveFieldPattern = /(?:token|secret|password|api_?key|authorization|cookie|email|user_?id|role|proof|content|body)/iu;
+
 const countersSchema = z.record(
-  z.string().regex(/^[a-z][a-z0-9_]{0,39}$/),
+  z.string()
+    .regex(/^[a-z][a-z0-9_]{0,39}$/)
+    .refine((value) => !sensitiveFieldPattern.test(value), "Sensitive counter names are forbidden."),
   z.number().finite().nonnegative(),
 ).refine((value) => Object.keys(value).length <= 16, "Too many operational counters.");
 
@@ -38,9 +42,10 @@ export async function createOperationalEvent(
   options: Partial<OperationalEventOptions> = {},
 ): Promise<OperationalEvent> {
   const hash = options.hash ?? sha256;
+  const route = draft.route.split(/[?#]/u, 1)[0];
   return operationalEventSchema.parse({
     requestId: draft.requestId,
-    route: draft.route,
+    route,
     resultCode: draft.resultCode,
     latencyMs: draft.latencyMs,
     userSurrogate: draft.userId ? await hash(draft.userId) : null,

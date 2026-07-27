@@ -2,6 +2,7 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { flagshipRole } from "../../app/data/flagship-role";
 import type { ArcCloudClient } from "../../app/lib/cloud-client";
+import { ArcApiError } from "../../app/lib/cloud-client";
 import {
   completeDemoUnit,
   createDemoState,
@@ -185,5 +186,27 @@ describe("useArcState", () => {
     expect(result.current.state).toEqual(initial);
     expect(readOfflineQueue()).toHaveLength(100);
     expect(client.saveSetup).not.toHaveBeenCalled();
+  });
+
+  it("preserves device state and identifies an expired cloud session", async () => {
+    const local = completeDemoUnit(createDemoState(), flagshipRole.today);
+    saveDemoState(local);
+    const client = fakeClient({
+      loadWorkspace: vi.fn().mockRejectedValue(new ArcApiError(
+        401,
+        "UNAUTHENTICATED",
+        "Session expired",
+        "request-expired",
+      )),
+    });
+
+    const { result } = renderHook(() => useArcState({
+      client,
+      useSession: signedInSession,
+    }));
+
+    await waitFor(() => expect(result.current.recovery).toBe("session-expired"));
+    expect(result.current.state).toEqual(local);
+    expect(result.current.source).toBe("offline-cloud");
   });
 });
