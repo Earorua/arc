@@ -475,17 +475,17 @@ git commit -m "feat: add validated cloud state service"
 - Create: `app/server/cloud/d1-cloud-repository.ts`
 - Create: `tests/server/d1-cloud-repository.test.ts`
 
-- [ ] **Step 1: Write a fake D1 prepared-statement harness and failing adapter tests**
+- [x] **Step 1: Write a fake D1 prepared-statement harness and failing adapter tests**
 
 The fake records SQL, bound values, and batch calls. Assert that every personal query binds `userId`; imports use one `batch()`; duplicate migration and mutation lookups happen before writes; active goals use `active_slot = 1`; archived goals use `NULL`.
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run `npx vitest run tests/server/d1-cloud-repository.test.ts`.
 
 Expected: FAIL because the D1 adapter does not exist.
 
-- [ ] **Step 3: Implement the adapter with prepared statements**
+- [x] **Step 3: Implement the adapter with prepared statements**
 
 Use exactly one SQL statement per `prepare()` call and bind every external value. The import batch must create or reuse the learner profile, create the goal, insert unique events/proofs, and finalize the migration result. A representative owner-scoped read is:
 
@@ -497,11 +497,13 @@ const goal = await this.db.prepare(
 
 Do not interpolate table names, IDs, JSON, or user values. Serialize only values already accepted by the shared Zod contracts.
 
-- [ ] **Step 4: Verify adapter and full suite**
+- [x] **Step 4: Verify adapter and full suite**
 
 Run the focused test, full unit suite, lint, and build. Expected: all exit 0.
 
-- [ ] **Step 5: Commit**
+Execution evidence (2026-07-28): seven adapter tests cover owner-bound reads, one-batch imports, pre-write replay checks, active/archive slots, public-only idempotency payloads, and a concurrent migration unique-key race. The adapter uses static prepared SQL with bound values and recovers the winning result only when a failed batch is followed by a completed migration record. The final full suite reached 24 files / 89 tests; lint, `tsc --noEmit`, and the Vinext production build passed.
+
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/server/cloud/d1-cloud-repository.ts tests/server/d1-cloud-repository.test.ts
