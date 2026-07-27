@@ -640,15 +640,15 @@ git commit -m "feat: add independent Arc social identity"
 - Create: `tests/components/sign-in-panel.test.tsx`
 - Modify: `tests/components/site-header.test.tsx`
 
-- [ ] **Step 1: Write failing component tests**
+- [x] **Step 1: Write failing component tests**
 
 Cover: public navigation remains accessible without an account; sign-in is a secondary action; configured provider buttons call `authClient.signIn.social` with `/today`; missing credentials show an honest preparation state; signed-in account menu displays the Arc. user and calls sign-out; no ChatGPT wording appears.
 
-- [ ] **Step 2: Verify red state**
+- [x] **Step 2: Verify red state**
 
 Run the two component test files. Expected: FAIL because the account components do not exist.
 
-- [ ] **Step 3: Implement the sign-in surface**
+- [x] **Step 3: Implement the sign-in surface**
 
 `SignInPanel` accepts `providers`, `pending`, and an injectable `signIn` function. Each provider button uses:
 
@@ -658,13 +658,15 @@ await signIn({ provider, callbackURL: "/today", errorCallbackURL: "/sign-in?erro
 
 The page preserves Warm Precision, explains that Arc. accounts are independent, and offers a link back to the sample. It does not request a password or show a ChatGPT button.
 
-- [ ] **Step 4: Implement account controls and integrate them**
+- [x] **Step 4: Implement account controls and integrate them**
 
 Use `authClient.useSession()` for anonymous, pending, and signed-in states. Add AccountMenu to both headers while preserving the existing primary “Build my path” action and the four workspace destinations.
 
-- [ ] **Step 5: Verify and commit**
+- [x] **Step 5: Verify and commit**
 
 Run focused tests, the full suite, and lint.
+
+Execution evidence (2026-07-28): the component suite first failed because the account surfaces did not exist, then passed with exact same-origin Google/GitHub return paths, an honest no-provider state, anonymous and signed-in account controls, and no ChatGPT identity wording. The account loading marker was kept out of the workspace live-status channel after full-suite regression testing exposed duplicate status semantics. All 28 test files / 103 tests, ESLint, `tsc --noEmit`, and the five-stage Vinext production build passed. The Vinext launcher was also made cross-platform so the repository's npm scripts work on Windows while retaining the project-local Wrangler log path.
 
 ```powershell
 git add app/sign-in app/components/account app/components/brand/site-header.tsx app/components/workspace/workspace-shell.tsx tests/components
