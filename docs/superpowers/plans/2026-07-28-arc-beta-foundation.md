@@ -1116,7 +1116,7 @@ git add README.md docs/operations/sites-oauth-feasibility.md docs/superpowers/pl
 git commit -m "docs: prepare Arc beta foundation release"
 ```
 
-- [ ] **Step 5: Push a review branch and open a draft pull request**
+- [x] **Step 5: Push a review branch and open a draft pull request**
 
 ```powershell
 git push -u origin feature/arc-beta-foundation
@@ -1124,9 +1124,13 @@ git push -u origin feature/arc-beta-foundation
 
 Open a draft PR titled `feat: build Arc public beta foundation`. Include the acceptance checklist, test evidence, migration summary, current OAuth credential status, and rollback plan. Wait for CI; fix failures on the feature branch.
 
+Execution evidence (2026-07-28): draft PR #2 is open against `master`, contains the acceptance and rollback gates, and is mergeable. The initial comparison exposed a squash-history divergence from the prior public release; the Beta commits were cleanly replayed onto the identical latest `master` tree, with the pre/post tree hashes matching. GitHub Actions Quality run 3 then passed install, 239 unit tests, lint, production build, and rendered-artifact verification.
+
 - [ ] **Step 6: Validate hosted resource wiring without secrets**
 
 Save a Sites preview version with `DB` and `PROOF_ASSETS` logical bindings. Confirm public editorial routes and the deterministic sample still work. Confirm `/api/auth/providers` honestly reports no provider until hosted credentials exist. Do not enable production login buttons with incomplete credentials.
+
+Partial execution evidence (2026-07-28): the exact reviewed commit and a 92-file Sites archive were saved as version 4 with the logical `DB` and `PROOF_ASSETS` bindings and packaged Drizzle migration metadata. The owner-only preview deployment correctly refused to start because the existing project is public. No public deployment was substituted, so the current public version remains the rollback target. Hosted route, binding, and provider checks therefore remain pending rather than being overstated.
 
 - [ ] **Step 7: Credential-dependent OAuth validation**
 
