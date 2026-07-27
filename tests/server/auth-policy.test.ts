@@ -33,4 +33,15 @@ describe("Arc auth policy", () => {
       BETTER_AUTH_URL: "http://arc.example.com",
     })).toThrow("HTTPS");
   });
+
+  it("keeps auth disabled when the session secret is shorter than 32 characters", () => {
+    const policy = readAuthPolicy({
+      BETTER_AUTH_URL: "https://arc.example.com",
+      BETTER_AUTH_SECRET: "too-short",
+      GOOGLE_CLIENT_ID: "google-id",
+      GOOGLE_CLIENT_SECRET: "google-secret",
+    });
+
+    expect(policy.isReady).toBe(false);
+  });
 });

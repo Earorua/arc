@@ -32,6 +32,6 @@ export function readAuthPolicy(source: AuthEnvironment) {
       google: `${origin}/api/auth/callback/google`,
       github: `${origin}/api/auth/callback/github`,
     },
-    isReady: Boolean(origin && source.BETTER_AUTH_SECRET && enabledProviders.length > 0),
+    isReady: Boolean(origin && (source.BETTER_AUTH_SECRET?.length ?? 0) >= 32 && enabledProviders.length > 0),
   };
 }
