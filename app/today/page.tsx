@@ -15,7 +15,7 @@ export default function TodayPage() {
   const { state } = arc;
   const [completionError, setCompletionError] = useState<string | null>(null);
 
-  if (state === null) return <WorkspaceShell current="Today" source={arc.source} state={null} />;
+  if (state === null) return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={null} />;
 
   const budget = assessTodayBudget(flagshipRole.today, state.setup.weeklyMinutes);
 
@@ -39,6 +39,7 @@ export default function TodayPage() {
       migrationState={arc.localMigrationState}
       onImport={arc.importLocal}
       onRetry={arc.retry}
+      recovery={arc.recovery}
       source={arc.source}
       state={state}
     >
@@ -48,7 +49,7 @@ export default function TodayPage() {
           <Link href="/setup">返回 Setup 调整预算</Link>。
         </p>
       )}
-      {completionError && (
+      {completionError && arc.recovery === "none" && (
         <p className="workspace-notice" role="alert">
           {completionError}
         </p>

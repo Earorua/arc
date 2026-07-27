@@ -9,7 +9,7 @@ export default function ProofPage() {
   const arc = useArcState();
   const { state } = arc;
 
-  if (state === null) return <WorkspaceShell current="Proof" source={arc.source} state={null} />;
+  if (state === null) return <WorkspaceShell current="Proof" recovery={arc.recovery} source={arc.source} state={null} />;
 
   return (
     <WorkspaceShell
@@ -18,6 +18,7 @@ export default function ProofPage() {
       migrationState={arc.localMigrationState}
       onImport={arc.importLocal}
       onRetry={arc.retry}
+      recovery={arc.recovery}
       source={arc.source}
       state={state}
     >

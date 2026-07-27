@@ -1,5 +1,6 @@
 export type ApiErrorCode =
   | "UNAUTHENTICATED"
+  | "FORBIDDEN"
   | "INVALID_INPUT"
   | "NOT_FOUND"
   | "CONFLICT"
@@ -17,9 +18,30 @@ export type ApiErrorBody = {
 
 function responseHeaders(requestId: string, headers?: HeadersInit): Headers {
   const result = new Headers(headers);
-  result.set("Cache-Control", "no-store");
+  if (!result.has("Cache-Control")) result.set("Cache-Control", "no-store");
   result.set("X-Request-Id", requestId);
   return result;
+}
+
+const requestIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
+
+export function resolveRequestId(
+  candidate: string | null | undefined,
+  createId: () => string = () => crypto.randomUUID(),
+): string {
+  return candidate && requestIdPattern.test(candidate) ? candidate : createId();
+}
+
+export function applyResponseSafety(response: Response, requestId: string): Response {
+  const headers = new Headers(response.headers);
+  if (!headers.has("X-Request-Id")) headers.set("X-Request-Id", requestId);
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 export function apiJson(
