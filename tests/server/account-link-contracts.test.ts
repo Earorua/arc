@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  INTERNAL_PROOF_TTL_MS,
   PENDING_REAUTH_TTL_MS,
   VERIFIED_GRANT_TTL_MS,
   accountLinkProviderSchema,
@@ -17,6 +18,7 @@ describe("account-link contracts", () => {
   it("locks the approved deadlines", () => {
     expect(PENDING_REAUTH_TTL_MS).toBe(10 * 60 * 1000);
     expect(VERIFIED_GRANT_TTL_MS).toBe(5 * 60 * 1000);
+    expect(INTERNAL_PROOF_TTL_MS).toBe(60 * 1000);
   });
 
   it("allows only the approved state transitions", () => {
