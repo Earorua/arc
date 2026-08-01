@@ -139,23 +139,25 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
     now: Date,
     expiresAt: Date,
   ): Promise<AccountLinkIntent | null> {
-    const result = await this.db.prepare(`
+    const row = await this.db.prepare(`
       UPDATE account_link_intents
       SET status = 'verified', verified_at = ?1, expires_at = ?2, updated_at = ?1
       WHERE id = ?3 AND user_id = ?4
         AND status = 'pending_reauth' AND expires_at > ?1
-    `).bind(now.getTime(), expiresAt.getTime(), id, userId).run();
-    return result.meta.changes === 1 ? this.findById(id) : null;
+      RETURNING ${selectedColumns}
+    `).bind(now.getTime(), expiresAt.getTime(), id, userId).first<unknown>();
+    return row === null ? null : mapRow(row);
   }
 
   async consume(id: string, userId: string, now: Date): Promise<AccountLinkIntent | null> {
-    const result = await this.db.prepare(`
+    const row = await this.db.prepare(`
       UPDATE account_link_intents
       SET status = 'consumed', consumed_at = ?1, updated_at = ?1
       WHERE id = ?2 AND user_id = ?3
         AND status = 'verified' AND expires_at > ?1
-    `).bind(now.getTime(), id, userId).run();
-    return result.meta.changes === 1 ? this.findById(id) : null;
+      RETURNING ${selectedColumns}
+    `).bind(now.getTime(), id, userId).first<unknown>();
+    return row === null ? null : mapRow(row);
   }
 
   async complete(id: string, userId: string, now: Date): Promise<boolean> {

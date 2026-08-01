@@ -36,7 +36,7 @@ class FakeStatement {
   }
 
   async first<T>() {
-    return this.db.first(this.sql, this.values) as T | null;
+    return await this.db.first(this.sql, this.values) as T | null;
   }
 
   async run() {
@@ -49,6 +49,8 @@ class FakeD1 {
   readonly runs: Call[] = [];
   readonly batches: Call[][] = [];
   private readonly rows = new Map<string, IntentRow & Record<string, unknown>>();
+  private transitionInterleaving: ((row: IntentRow & Record<string, unknown>) => void) | null = null;
+  private returnedTransitionRow: (IntentRow & Record<string, unknown>) | null = null;
 
   seed(row: IntentRow & Record<string, unknown>) {
     this.rows.set(row.id, { ...row });
@@ -56,6 +58,10 @@ class FakeD1 {
 
   row(id: string) {
     return this.rows.get(id);
+  }
+
+  afterNextTransition(callback: (row: IntentRow & Record<string, unknown>) => void) {
+    this.transitionInterleaving = callback;
   }
 
   prepare(sql: string) {
@@ -67,15 +73,31 @@ class FakeD1 {
       sql: statement.sql,
       values: statement.values,
     })));
+    const snapshot = [...this.rows.entries()].map(
+      ([id, row]) => [id, clone(row)] as const,
+    );
     const results: RunResult[] = [];
-    for (const statement of statements) {
-      results.push(await this.run(statement.sql, statement.values));
+    try {
+      for (const statement of statements) {
+        results.push(await this.run(statement.sql, statement.values));
+      }
+      return results;
+    } catch (error) {
+      this.rows.clear();
+      for (const [id, row] of snapshot) this.rows.set(id, row);
+      throw error;
     }
-    return results;
   }
 
-  first(sql: string, values: unknown[]) {
+  async first(sql: string, values: unknown[]) {
     const normalized = normalize(sql);
+    if (
+      normalized.startsWith("UPDATE account_link_intents")
+      && normalized.includes(" RETURNING ")
+    ) {
+      const result = await this.run(sql, values);
+      return result.meta.changes === 1 ? clone(this.returnedTransitionRow) : null;
+    }
     if (normalized.includes("WHERE user_id = ?1 AND token_hash = ?2")) {
       const [userId, tokenHash] = values as [string, string];
       return clone([...this.rows.values()].find(
@@ -90,6 +112,7 @@ class FakeD1 {
 
   async run(sql: string, values: unknown[]): Promise<RunResult> {
     this.runs.push({ sql, values });
+    this.returnedTransitionRow = null;
     const normalized = normalize(sql);
     let changes = 0;
 
@@ -103,6 +126,12 @@ class FakeD1 {
         number,
         number,
       ];
+      if (this.rows.has(id)) {
+        throw new Error("UNIQUE constraint failed: account_link_intents.id");
+      }
+      if ([...this.rows.values()].some((row) => row.token_hash === tokenHash)) {
+        throw new Error("UNIQUE constraint failed: account_link_intents.token_hash");
+      }
       this.seed({
         id,
         token_hash: tokenHash,
@@ -160,6 +189,8 @@ class FakeD1 {
         row.expires_at = expiresAt;
         row.updated_at = now;
         changes = 1;
+        this.returnedTransitionRow = clone(row);
+        this.runTransitionInterleaving(row);
       }
     } else if (normalized.includes("SET status = 'consumed'")) {
       const [now, id, userId] = values as [number, string, string];
@@ -169,6 +200,8 @@ class FakeD1 {
         row.consumed_at = now;
         row.updated_at = now;
         changes = 1;
+        this.returnedTransitionRow = clone(row);
+        this.runTransitionInterleaving(row);
       }
     } else if (normalized.includes("SET status = 'completed'")) {
       const [now, id, userId] = values as [number, string, string];
@@ -200,6 +233,12 @@ class FakeD1 {
     }
 
     return { success: true, meta: { changes } };
+  }
+
+  private runTransitionInterleaving(row: IntentRow & Record<string, unknown>) {
+    const callback = this.transitionInterleaving;
+    this.transitionInterleaving = null;
+    callback?.(row);
   }
 }
 
@@ -303,6 +342,27 @@ describe("D1AccountLinkRepository", () => {
     expect(db.batches[0][1].values).toContain("sha256:new-credential");
   });
 
+  it("rolls back supersession when the batched insert violates a unique constraint", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow());
+
+    await expect(repository(db).create({
+      id: "intent-1",
+      tokenHash: "sha256:new-credential",
+      userId: "user-1",
+      sourceProvider: "github",
+      targetProvider: "google",
+      expiresAt: new Date(baseTime + 20 * 60_000),
+      now: new Date(baseTime + 10_000),
+    })).rejects.toThrow(/unique constraint/iu);
+
+    expect(db.row("intent-1")).toMatchObject({
+      status: "pending_reauth",
+      failure_code: null,
+      updated_at: baseTime,
+    });
+  });
+
   it("expires active rows before credential lookup and scopes both statements by owner and hash", async () => {
     const db = new FakeD1();
     db.seed(intentRow({ status: "verified", verified_at: baseTime - 60_000, expires_at: baseTime }));
@@ -397,6 +457,29 @@ describe("D1AccountLinkRepository", () => {
     );
   });
 
+  it("returns the row changed by markVerified without a racy follow-up read", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow());
+    db.afterNextTransition((row) => {
+      row.status = "failed";
+      row.failure_code = "INTERLEAVED";
+      row.updated_at = baseTime + 2_000;
+    });
+
+    await expect(repository(db).markVerified(
+      "intent-1",
+      "user-1",
+      new Date(baseTime + 1_000),
+      new Date(baseTime + 301_000),
+    )).resolves.toMatchObject({
+      status: "verified",
+      verifiedAt: new Date(baseTime + 1_000),
+      failureCode: null,
+    });
+    expect(db.row("intent-1")?.status).toBe("failed");
+    expect(db.calls.some((call) => normalize(call.sql).startsWith("SELECT"))).toBe(false);
+  });
+
   it("consumes an owned, non-expired verified intent once and rejects replay", async () => {
     const db = new FakeD1();
     db.seed(intentRow({
@@ -414,6 +497,32 @@ describe("D1AccountLinkRepository", () => {
     expect(normalize(db.runs[0].sql)).toContain(
       "WHERE id = ?2 AND user_id = ?3 AND status = 'verified' AND expires_at > ?1",
     );
+  });
+
+  it("returns the row changed by consume without a racy follow-up read", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({
+      status: "verified",
+      verified_at: baseTime,
+      expires_at: baseTime + 300_000,
+    }));
+    db.afterNextTransition((row) => {
+      row.status = "failed";
+      row.failure_code = "INTERLEAVED";
+      row.updated_at = baseTime + 2_000;
+    });
+
+    await expect(repository(db).consume(
+      "intent-1",
+      "user-1",
+      new Date(baseTime + 1_000),
+    )).resolves.toMatchObject({
+      status: "consumed",
+      consumedAt: new Date(baseTime + 1_000),
+      failureCode: null,
+    });
+    expect(db.row("intent-1")?.status).toBe("failed");
+    expect(db.calls.some((call) => normalize(call.sql).startsWith("SELECT"))).toBe(false);
   });
 
   it("does not consume at the expiry boundary or for a different owner", async () => {
