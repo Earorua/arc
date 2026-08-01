@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
+  AccountLinkError,
+  type AccountLinkStatus,
   INTERNAL_PROOF_TTL_MS,
   PENDING_REAUTH_TTL_MS,
   VERIFIED_GRANT_TTL_MS,
+  accountLinkPhaseSchema,
   accountLinkProviderSchema,
+  accountLinkStatusSchema,
   canTransitionAccountLink,
   projectAccountLinkIntent,
+  safeAccountLinkStatusSchema,
+  startAccountLinkSchema,
 } from "../../app/server/account-link/contracts";
 
 describe("account-link contracts", () => {
@@ -22,11 +28,58 @@ describe("account-link contracts", () => {
   });
 
   it("allows only the approved state transitions", () => {
-    expect(canTransitionAccountLink("pending_reauth", "verified")).toBe(true);
-    expect(canTransitionAccountLink("verified", "consumed")).toBe(true);
-    expect(canTransitionAccountLink("consumed", "completed")).toBe(true);
-    expect(canTransitionAccountLink("consumed", "verified")).toBe(false);
-    expect(canTransitionAccountLink("completed", "verified")).toBe(false);
+    const statuses: readonly AccountLinkStatus[] = ["pending_reauth", "verified", "consumed", "completed", "failed", "expired"];
+    const successors: Record<AccountLinkStatus, readonly AccountLinkStatus[]> = {
+      pending_reauth: ["verified", "failed", "expired"],
+      verified: ["consumed", "failed", "expired"],
+      consumed: ["completed", "failed"],
+      completed: [],
+      failed: [],
+      expired: [],
+    };
+
+    for (const from of statuses) {
+      for (const to of statuses) {
+        expect(canTransitionAccountLink(from, to)).toBe(successors[from].includes(to));
+      }
+    }
+  });
+
+  it("validates account-link statuses and phases", () => {
+    for (const status of ["pending_reauth", "verified", "consumed", "completed", "failed", "expired"]) {
+      expect(accountLinkStatusSchema.parse(status)).toBe(status);
+    }
+    expect(() => accountLinkStatusSchema.parse("unknown")).toThrow();
+    expect(accountLinkPhaseSchema.parse("reauth")).toBe("reauth");
+    expect(accountLinkPhaseSchema.parse("target")).toBe("target");
+    expect(() => accountLinkPhaseSchema.parse("other")).toThrow();
+  });
+
+  it("strictly validates start and safe account-link payloads", () => {
+    expect(() => startAccountLinkSchema.parse({ targetProvider: "google", extra: true })).toThrow();
+    expect(() => startAccountLinkSchema.parse({ targetProvider: "email-password" })).toThrow();
+    expect(safeAccountLinkStatusSchema.parse({
+      stage: null,
+      targetProvider: null,
+      expiresAt: null,
+    })).toEqual({
+      stage: null,
+      targetProvider: null,
+      expiresAt: null,
+    });
+    expect(() => safeAccountLinkStatusSchema.parse({
+      stage: null,
+      targetProvider: null,
+      expiresAt: null,
+      extra: true,
+    })).toThrow();
+  });
+
+  it("preserves account-link error details", () => {
+    const error = new AccountLinkError("EXPIRED", "The intent has expired");
+
+    expect(error.code).toBe("EXPIRED");
+    expect(error.name).toBe("AccountLinkError");
   });
 
   it("projects no secret or ownership-bearing fields", () => {
