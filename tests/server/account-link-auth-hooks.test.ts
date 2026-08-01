@@ -539,6 +539,51 @@ describe("account-link Better Auth hooks", () => {
     },
   );
 
+  it("sanitizes an expired source-reauth state error without rewriting the terminal intent", async () => {
+    const repo = repository(intent({
+      status: "expired",
+      expiresAt: now,
+      updatedAt: now,
+    }));
+    const { hooks } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => null),
+    });
+    const responseHeaders = new Headers({
+      location: "/api/auth/error?error=state_expired&error_description=provider%40example.com",
+    });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "github" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }));
+
+    expect(repo.fail).not.toHaveBeenCalled();
+    expect(responseHeaders.get("location")).toBe("/today?link=error&stage=reauth");
+  });
+
+  it("does not attribute an expired intent to a target-provider null-state callback", async () => {
+    const repo = repository(intent({ status: "expired", expiresAt: now }));
+    const { hooks } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => null),
+    });
+    const original = "/api/auth/error?error=state_expired";
+    const responseHeaders = new Headers({ location: original });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "google" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }));
+
+    expect(repo.fail).not.toHaveBeenCalled();
+    expect(responseHeaders.get("location")).toBe(original);
+  });
+
   it("preserves ordinary null-state OAuth behavior when no active Arc intent is attributable", async () => {
     const repo = repository(null);
     const { hooks } = hookFixture({

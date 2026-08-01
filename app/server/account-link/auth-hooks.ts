@@ -275,16 +275,18 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
       await hashAccountLinkCredential(credential),
       operationTime,
     );
-    if (
-      !intent
-      || intent.userId !== session.user.id
-      || (intent.status !== "pending_reauth" && intent.status !== "consumed")
-    ) {
+    if (!intent || intent.userId !== session.user.id) return;
+
+    const provider = accountLinkProviderSchema.safeParse(callbackProvider(ctx));
+    if (intent.status === "expired") {
+      if (provider.success && provider.data === intent.sourceProvider) {
+        headers?.set("location", RESULT_URLS.reauth.error);
+      }
       return;
     }
+    if (intent.status !== "pending_reauth" && intent.status !== "consumed") return;
 
     const phase = intent.status === "pending_reauth" ? "reauth" : "target";
-    const provider = accountLinkProviderSchema.safeParse(callbackProvider(ctx));
     if (!provider.success || provider.data !== expectedIntentProvider(intent, phase)) return;
 
     if (!await repository.fail(
