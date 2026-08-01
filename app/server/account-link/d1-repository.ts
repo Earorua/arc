@@ -70,6 +70,11 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
             AND in_flight.target_provider = ?3
             AND in_flight.status IN ('consumed', 'completing')
         )
+        AND NOT EXISTS (SELECT 1
+          FROM accounts AS linked_account
+          WHERE linked_account.user_id = ?2
+            AND linked_account.provider_id = ?3
+        )
     `).bind(now, input.userId, input.targetProvider);
     const insert = this.db.prepare(`
       INSERT INTO account_link_intents (
@@ -85,6 +90,11 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
           AND in_flight.target_provider = ?5
           AND in_flight.status IN ('consumed', 'completing')
       )
+        AND NOT EXISTS (SELECT 1
+          FROM accounts AS linked_account
+          WHERE linked_account.user_id = ?3
+            AND linked_account.provider_id = ?5
+        )
     `).bind(
       input.id,
       input.tokenHash,

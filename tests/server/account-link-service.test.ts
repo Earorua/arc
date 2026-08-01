@@ -255,6 +255,31 @@ describe("AccountLinkService", () => {
     )).rejects.toEqual(expectAccountLinkError("REPLAYED"));
 
     expect(callbackIntent).toMatchObject({ status: "consumed", failureCode: null });
+    expect(deps.listAccounts).toHaveBeenCalledTimes(2);
+    expect(repository.create).toHaveBeenCalledOnce();
+    expect(deps.createProof).not.toHaveBeenCalled();
+    expect(deps.startProviderLink).not.toHaveBeenCalled();
+    expect(repository.fail).not.toHaveBeenCalled();
+  });
+
+  it("maps an account inserted during atomic create to already connected", async () => {
+    const accounts: AccountLinkProvider[] = ["github"];
+    const { deps, repository } = dependencies({
+      listAccounts: vi.fn(async () => [...accounts]),
+    });
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockResolvedValue(null);
+    vi.mocked(repository.create).mockImplementation(async () => {
+      accounts.push("google");
+      return null;
+    });
+
+    await expect(new AccountLinkService(deps).start(
+      new Headers(),
+      "user-1",
+      "google",
+    )).rejects.toEqual(expectAccountLinkError("ALREADY_CONNECTED"));
+
+    expect(deps.listAccounts).toHaveBeenCalledTimes(2);
     expect(repository.create).toHaveBeenCalledOnce();
     expect(deps.createProof).not.toHaveBeenCalled();
     expect(deps.startProviderLink).not.toHaveBeenCalled();

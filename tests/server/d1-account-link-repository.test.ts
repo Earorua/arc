@@ -49,11 +49,16 @@ class FakeD1 {
   readonly runs: Call[] = [];
   readonly batches: Call[][] = [];
   private readonly rows = new Map<string, IntentRow & Record<string, unknown>>();
+  private readonly accounts = new Set<string>();
   private transitionInterleaving: ((row: IntentRow & Record<string, unknown>) => void) | null = null;
   private returnedTransitionRow: (IntentRow & Record<string, unknown>) | null = null;
 
   seed(row: IntentRow & Record<string, unknown>) {
     this.rows.set(row.id, { ...row });
+  }
+
+  seedAccount(userId: string, providerId: string) {
+    this.accounts.add(`${userId}:${providerId}`);
   }
 
   row(id: string) {
@@ -140,7 +145,10 @@ class FakeD1 {
       ];
       if (
         normalized.includes("WHERE NOT EXISTS")
-        && this.hasInFlight(userId, targetProvider)
+        && (
+          this.hasInFlight(userId, targetProvider)
+          || (normalized.includes("FROM accounts") && this.hasAccount(userId, targetProvider))
+        )
       ) {
         return { success: true, meta: { changes: 0 } };
       }
@@ -170,7 +178,10 @@ class FakeD1 {
       const [now, userId, targetProvider] = values as [number, string, string];
       if (
         normalized.includes("NOT EXISTS")
-        && this.hasInFlight(userId, targetProvider)
+        && (
+          this.hasInFlight(userId, targetProvider)
+          || (normalized.includes("FROM accounts") && this.hasAccount(userId, targetProvider))
+        )
       ) {
         return { success: true, meta: { changes: 0 } };
       }
@@ -308,6 +319,10 @@ class FakeD1 {
         && row.target_provider === targetProvider
         && (row.status === "consumed" || row.status === "completing"),
     );
+  }
+
+  private hasAccount(userId: string, providerId: string) {
+    return this.accounts.has(`${userId}:${providerId}`);
   }
 }
 
@@ -465,6 +480,34 @@ describe("D1AccountLinkRepository", () => {
       }
     },
   );
+
+  it("atomically rejects creation when the target account exists without superseding grants", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({ id: "pending-old", token_hash: "hash-pending" }));
+    db.seedAccount("user-1", "google");
+
+    await expect(repository(db).create({
+      id: "intent-new",
+      tokenHash: "sha256:new-credential",
+      userId: "user-1",
+      sourceProvider: "github",
+      targetProvider: "google",
+      expiresAt: new Date(baseTime + 20 * 60_000),
+      now: new Date(baseTime + 10_000),
+    })).resolves.toBeNull();
+
+    expect(db.row("pending-old")).toMatchObject({
+      status: "pending_reauth",
+      failure_code: null,
+      updated_at: baseTime,
+    });
+    expect(db.row("intent-new")).toBeUndefined();
+    for (const statement of db.batches[0]) {
+      expect(normalize(statement.sql)).toContain("FROM accounts");
+      expect(normalize(statement.sql)).toContain("linked_account.user_id");
+      expect(normalize(statement.sql)).toContain("linked_account.provider_id");
+    }
+  });
 
   it("finds only an owner-target consumed or completing intent and prefers completing", async () => {
     const db = new FakeD1();

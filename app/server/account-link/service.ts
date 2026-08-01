@@ -126,6 +126,10 @@ export class AccountLinkService {
       now: operationTime,
     });
     if (!intent) {
+      const reconciledProviders = await this.dependencies.listAccounts(headers);
+      if (reconciledProviders.includes(target)) {
+        throw domainError("ALREADY_CONNECTED", "The requested provider is already connected");
+      }
       throw domainError("REPLAYED", "An account-link operation is already in progress");
     }
 
