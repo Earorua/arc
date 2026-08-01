@@ -133,6 +133,33 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
     return row === null ? null : mapRow(row);
   }
 
+  async claimInternalProof(
+    input: Parameters<AccountLinkRepository["claimInternalProof"]>[0],
+  ): Promise<boolean> {
+    const providerColumn = input.phase === "reauth" ? "source_provider" : "target_provider";
+    const expectedStatus = input.phase === "reauth" ? "pending_reauth" : "consumed";
+    const pendingDeadline = input.phase === "reauth" ? "AND expires_at > ?1" : "";
+    const result = await this.db.prepare(`
+      UPDATE account_link_intents
+      SET updated_at = CASE
+        WHEN ?1 > updated_at THEN ?1
+        ELSE updated_at + 1
+      END
+      WHERE id = ?2 AND user_id = ?3
+        AND ${providerColumn} = ?4
+        AND updated_at = ?5
+        AND status = '${expectedStatus}'
+        ${pendingDeadline}
+    `).bind(
+      input.now.getTime(),
+      input.intentId,
+      input.userId,
+      input.provider,
+      input.issuedAt.getTime(),
+    ).run();
+    return result.meta.changes === 1;
+  }
+
   async markVerified(
     id: string,
     userId: string,

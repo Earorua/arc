@@ -38,16 +38,21 @@ function intent(overrides: Partial<AccountLinkIntent> = {}): AccountLinkIntent {
   };
 }
 
-function repository(row: AccountLinkIntent | null = intent()): AccountLinkRepository {
+type ProofClaimingRepository = AccountLinkRepository & {
+  claimInternalProof: ReturnType<typeof vi.fn>;
+};
+
+function repository(row: AccountLinkIntent | null = intent()): ProofClaimingRepository {
   return {
     create: vi.fn(),
     findByCredential: vi.fn(async () => row),
     findById: vi.fn(async () => row),
+    claimInternalProof: vi.fn(async () => true),
     markVerified: vi.fn(),
     consume: vi.fn(),
     complete: vi.fn(),
-    fail: vi.fn(),
-  } as AccountLinkRepository;
+    fail: vi.fn(async () => true),
+  } as unknown as ProofClaimingRepository;
 }
 
 function contextToken(overrides: Partial<SignedLinkContext> = {}) {
@@ -132,6 +137,32 @@ describe("account-link Better Auth hooks", () => {
       status: "FORBIDDEN",
       body: { code: "ARC_ACCOUNT_LINK_DENIED" },
     } satisfies Partial<APIError>);
+  });
+
+  it("rejects link-social idToken linking before any account or OAuth mutation", async () => {
+    const proof = await contextToken();
+    const getRepository = vi.fn(() => repository());
+    const getAuthoritativeSessionFromCtx = vi.fn(async () => ({ user: { id: "user-1" } }));
+    const { hooks } = hookFixture({ getRepository, getAuthoritativeSessionFromCtx });
+    const body = {
+      provider: "github",
+      idToken: { token: "provider-id-token" },
+      additionalData: { injected: "untrusted" },
+    };
+
+    await expect(hooks.hooks.before(middlewareInput({
+      path: "/link-social",
+      headers: new Headers({ "x-arc-link-proof": proof }),
+      body,
+    }))).rejects.toMatchObject({ body: { code: "ARC_ACCOUNT_LINK_DENIED" } });
+
+    expect(getRepository).not.toHaveBeenCalled();
+    expect(getAuthoritativeSessionFromCtx).not.toHaveBeenCalled();
+    expect(body).toEqual({
+      provider: "github",
+      idToken: { token: "provider-id-token" },
+      additionalData: { injected: "untrusted" },
+    });
   });
 
   it.each([
@@ -226,6 +257,34 @@ describe("account-link Better Auth hooks", () => {
       now.getTime(),
     );
     expect(oauth.expiresAt).toBe(now.getTime() + 10 * 60_000);
+  });
+
+  it("durably claims an internal proof once and rejects its replay", async () => {
+    const proof = await contextToken();
+    const repo = repository();
+    vi.mocked(repo.claimInternalProof)
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false);
+    const { hooks } = hookFixture({ getRepository: () => repo });
+    const request = () => middlewareInput({
+      path: "/link-social",
+      headers: new Headers({ "x-arc-link-proof": proof }),
+      body: { provider: "github" },
+    });
+
+    await expect(hooks.hooks.before(request())).resolves.toBeUndefined();
+    await expect(hooks.hooks.before(request()))
+      .rejects.toMatchObject({ body: { code: "ARC_ACCOUNT_LINK_DENIED" } });
+
+    expect(repo.claimInternalProof).toHaveBeenCalledTimes(2);
+    expect(repo.claimInternalProof).toHaveBeenNthCalledWith(1, {
+      intentId: "intent-1",
+      userId: "user-1",
+      provider: "github",
+      phase: "reauth",
+      issuedAt: now,
+      now,
+    });
   });
 
   it("blocks source account creation but permits the validated target account", async () => {
@@ -441,6 +500,63 @@ describe("account-link Better Auth hooks", () => {
     expect(responseHeaders.get("location")).toBe("/today");
     expect(getRepository).not.toHaveBeenCalled();
     expect(settleCallback).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["state_mismatch", "pending_reauth", "github", "/today?link=error&stage=reauth"],
+    ["state_not_found", "consumed", "google", "/today?link=error&stage=target"],
+    ["state_expired", "pending_reauth", "github", "/today?link=error&stage=reauth"],
+  ] as const)(
+    "attributes null-state callback error %s through the owner credential",
+    async (providerError, status, provider, expectedLocation) => {
+      const row = intent({ status });
+      const repo = repository(row);
+      const { hooks, settleCallback, getAuthoritativeSessionFromCtx } = hookFixture({
+        getRepository: () => repo,
+        getOAuthState: vi.fn(async () => null),
+      });
+      const responseHeaders = new Headers({
+        location: `/api/auth/error?error=${providerError}&error_description=provider%40example.com`,
+      });
+
+      await hooks.hooks.after(middlewareInput({
+        path: "/callback/:id",
+        params: { id: provider },
+        headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+        context: { responseHeaders },
+      }));
+
+      expect(getAuthoritativeSessionFromCtx).toHaveBeenCalledOnce();
+      expect(repo.fail).toHaveBeenCalledWith(
+        "intent-1",
+        "user-1",
+        "STATE_INVALID",
+        now,
+      );
+      expect(settleCallback).not.toHaveBeenCalled();
+      expect(responseHeaders.get("location")).toBe(expectedLocation);
+      expect(responseHeaders.get("location")).not.toMatch(/error_description|@/u);
+    },
+  );
+
+  it("preserves ordinary null-state OAuth behavior when no active Arc intent is attributable", async () => {
+    const repo = repository(null);
+    const { hooks } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => null),
+    });
+    const original = "/api/auth/error?error=state_mismatch";
+    const responseHeaders = new Headers({ location: original });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "github" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }));
+
+    expect(repo.fail).not.toHaveBeenCalled();
+    expect(responseHeaders.get("location")).toBe(original);
   });
 
   it("fails closed on a signed-context field with an invalid signature", async () => {

@@ -94,7 +94,7 @@ function responseHeaders(context: { context?: unknown }): Headers | null {
   return headers instanceof Headers ? headers : null;
 }
 
-function mapCallbackError(location: string | null, phase: AccountLinkPhase) {
+function callbackErrorCode(location: string | null) {
   let providerCode = "";
   if (location) {
     try {
@@ -104,6 +104,11 @@ function mapCallbackError(location: string | null, phase: AccountLinkPhase) {
     }
   }
 
+  return providerCode;
+}
+
+function mapCallbackError(location: string | null, phase: AccountLinkPhase) {
+  const providerCode = callbackErrorCode(location);
   if (["access_denied", "oauth_cancelled", "cancelled", "user_cancelled"]
     .includes(providerCode)) {
     return "OAUTH_CANCELLED";
@@ -243,24 +248,88 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
     await service.settleCallback(input);
   }
 
+  async function settleAttributableInvalidState(ctx: never) {
+    const headers = responseHeaders(ctx);
+    const location = headers?.get("location") ?? null;
+    if (!["state_mismatch", "state_not_found", "state_expired"]
+      .includes(callbackErrorCode(location))) {
+      return;
+    }
+
+    const incomingHeaders = requestHeaders(ctx);
+    const credential = readAccountLinkCookie(incomingHeaders);
+    if (!credential) return;
+
+    let session: AuthoritativeSession;
+    try {
+      session = await getAuthoritativeSession(ctx);
+    } catch {
+      return;
+    }
+    if (!session) return;
+
+    const operationTime = now();
+    const repository = options.getRepository();
+    const intent = await repository.findByCredential(
+      session.user.id,
+      await hashAccountLinkCredential(credential),
+      operationTime,
+    );
+    if (
+      !intent
+      || intent.userId !== session.user.id
+      || (intent.status !== "pending_reauth" && intent.status !== "consumed")
+    ) {
+      return;
+    }
+
+    const phase = intent.status === "pending_reauth" ? "reauth" : "target";
+    const provider = accountLinkProviderSchema.safeParse(callbackProvider(ctx));
+    if (!provider.success || provider.data !== expectedIntentProvider(intent, phase)) return;
+
+    if (!await repository.fail(
+      intent.id,
+      intent.userId,
+      "STATE_INVALID",
+      operationTime,
+    )) {
+      return;
+    }
+    headers?.set("location", RESULT_URLS[phase].error);
+  }
+
   const before = createAuthMiddleware(async (ctx) => {
     if (ctx.path !== "/link-social") return;
 
-    const proof = await verifyContext(ctx.getHeader("x-arc-link-proof"), "internal");
     const body = ctx.body && typeof ctx.body === "object"
       ? ctx.body as Record<string, unknown>
       : null;
     if (!body) throw denial();
+    if (body.idToken !== undefined) throw denial();
+    const proof = await verifyContext(ctx.getHeader("x-arc-link-proof"), "internal");
     const requestedProvider = accountLinkProviderSchema.safeParse(body?.provider);
     if (!requestedProvider.success || requestedProvider.data !== proof.provider) {
       throw denial();
     }
 
     await requireOwnerSession(ctx as never, proof.userId);
-    const intent = await loadBoundIntent(proof);
+    const repository = options.getRepository();
+    const intent = await loadBoundIntent(proof, repository);
     if (intent.userId !== proof.userId) throw denial();
 
-    const operationTime = now().getTime();
+    const operationDate = now();
+    if (!await repository.claimInternalProof({
+      intentId: proof.intentId,
+      userId: proof.userId,
+      provider: proof.provider,
+      phase: proof.phase,
+      issuedAt: new Date(proof.issuedAt),
+      now: operationDate,
+    })) {
+      throw denial();
+    }
+
+    const operationTime = operationDate.getTime();
     const expiresAt = proof.phase === "reauth"
       ? intent.expiresAt.getTime()
       : operationTime + OAUTH_STATE_TTL_MS;
@@ -289,7 +358,11 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
     } catch {
       throw denial();
     }
-    if (!state || !hasArcLinkContext(state)) return;
+    if (!state) {
+      await settleAttributableInvalidState(ctx as never);
+      return;
+    }
+    if (!hasArcLinkContext(state)) return;
 
     const headers = responseHeaders(ctx);
     const location = headers?.get("location") ?? null;

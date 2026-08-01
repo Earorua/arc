@@ -65,6 +65,7 @@ function dependencies(overrides: Partial<AccountLinkServiceDependencies> = {}) {
     })),
     findByCredential: vi.fn(async () => null),
     findById: vi.fn(async () => null),
+    claimInternalProof: vi.fn(async () => false),
     markVerified: vi.fn(async () => null),
     consume: vi.fn(async () => null),
     complete: vi.fn(async () => false),

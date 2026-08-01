@@ -16,6 +16,14 @@ export interface AccountLinkRepository {
     now: Date,
   ): Promise<AccountLinkIntent | null>;
   findById(id: string): Promise<AccountLinkIntent | null>;
+  claimInternalProof(input: {
+    intentId: string;
+    userId: string;
+    provider: AccountLinkProvider;
+    phase: "reauth" | "target";
+    issuedAt: Date;
+    now: Date;
+  }): Promise<boolean>;
   markVerified(
     id: string,
     userId: string,

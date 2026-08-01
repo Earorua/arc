@@ -228,6 +228,28 @@ class FakeD1 {
         row.updated_at = now;
         changes = 1;
       }
+    } else if (normalized.includes("SET updated_at = CASE")) {
+      const [claimTime, id, userId, provider, issuedAt] = values as [
+        number,
+        string,
+        string,
+        string,
+        number,
+      ];
+      const row = this.rows.get(id);
+      const isReauth = normalized.includes("source_provider = ?4");
+      const expectedProvider = isReauth ? row?.source_provider : row?.target_provider;
+      const expectedStatus = isReauth ? "pending_reauth" : "consumed";
+      if (
+        row?.user_id === userId
+        && expectedProvider === provider
+        && row.status === expectedStatus
+        && row.updated_at === issuedAt
+        && (!isReauth || row.expires_at > claimTime)
+      ) {
+        row.updated_at = Math.max(claimTime, row.updated_at + 1);
+        changes = 1;
+      }
     } else {
       throw new Error(`Unexpected run SQL: ${normalized}`);
     }
@@ -533,6 +555,61 @@ describe("D1AccountLinkRepository", () => {
     await expect(repo.consume("intent-1", "user-1", new Date(baseTime))).resolves.toBeNull();
     await expect(repo.consume("intent-1", "user-2", new Date(baseTime - 1))).resolves.toBeNull();
     expect(db.row("intent-1")?.status).toBe("verified");
+  });
+
+  it.each([
+    ["reauth", "pending_reauth", "github"],
+    ["target", "consumed", "google"],
+  ] as const)("durably claims one %s internal proof with an updated_at CAS", async (
+    phase,
+    status,
+    provider,
+  ) => {
+    const db = new FakeD1();
+    db.seed(intentRow({ status, updated_at: baseTime }));
+    const repo = repository(db);
+    const claim = {
+      intentId: "intent-1",
+      userId: "user-1",
+      provider,
+      phase,
+      issuedAt: new Date(baseTime),
+      now: new Date(baseTime),
+    } as const;
+
+    const results = await Promise.all([
+      repo.claimInternalProof(claim),
+      repo.claimInternalProof(claim),
+    ]);
+
+    expect(results.sort()).toEqual([false, true]);
+    expect(db.row("intent-1")?.updated_at).toBe(baseTime + 1);
+    expect(normalize(db.runs[0].sql)).toContain("updated_at = ?5");
+  });
+
+  it("rejects proof claims with mismatched owner, provider, phase, issuance, or expiry", async () => {
+    const cases: Array<Partial<Parameters<AccountLinkRepository["claimInternalProof"]>[0]>> = [
+      { userId: "other-user" },
+      { provider: "google" },
+      { phase: "target" as const },
+      { issuedAt: new Date(baseTime - 1) },
+      { now: new Date(baseTime + 10 * 60_000) },
+    ];
+
+    for (const overrides of cases) {
+      const db = new FakeD1();
+      db.seed(intentRow());
+      await expect(repository(db).claimInternalProof({
+        intentId: "intent-1",
+        userId: "user-1",
+        provider: "github",
+        phase: "reauth",
+        issuedAt: new Date(baseTime),
+        now: new Date(baseTime),
+        ...overrides,
+      })).resolves.toBe(false);
+      expect(db.row("intent-1")?.updated_at).toBe(baseTime);
+    }
   });
 
   it("completes only a consumed intent and cannot complete it twice", async () => {
