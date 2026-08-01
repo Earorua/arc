@@ -227,13 +227,23 @@ describe("AccountLinkService", () => {
     const consumed = intent({ status: "consumed", consumedAt: now });
     const { deps, repository } = dependencies();
     vi.mocked(repository.findByCredential).mockResolvedValue(verified);
-    vi.mocked(repository.consume).mockResolvedValue(consumed);
+    let resolveConsume!: (value: AccountLinkIntent | null) => void;
+    vi.mocked(repository.consume).mockReturnValue(new Promise((resolve) => {
+      resolveConsume = resolve;
+    }));
 
-    const result = await new AccountLinkService(deps).continue(
+    const continuation = new AccountLinkService(deps).continue(
       new Headers(),
       "user-1",
       rawCredential,
     );
+
+    await vi.waitFor(() => expect(repository.consume).toHaveBeenCalledOnce());
+    expect(deps.createProof).not.toHaveBeenCalled();
+    expect(deps.startProviderLink).not.toHaveBeenCalled();
+
+    resolveConsume(consumed);
+    const result = await continuation;
 
     expect(repository.consume).toHaveBeenCalledWith("intent-1", "user-1", now);
     expect(deps.createProof).toHaveBeenCalledWith(expect.objectContaining({
@@ -249,6 +259,9 @@ describe("AccountLinkService", () => {
       phase: "target",
       intent: consumed,
     }));
+    expect(vi.mocked(repository.consume).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(deps.startProviderLink).mock.invocationCallOrder[0],
+    );
     expect(result.authorizationUrl).toBe("https://provider.example/authorize");
   });
 
@@ -322,6 +335,90 @@ describe("AccountLinkService", () => {
       now,
       new Date(now.getTime() + VERIFIED_GRANT_TTL_MS),
     );
+  });
+
+  it("fails closed when the signed OAuth callback proof is invalid", async () => {
+    const invalidToken = "invalid-oauth-token-must-not-leak";
+    const { deps, repository } = dependencies();
+    vi.mocked(deps.verifyProof).mockRejectedValue(new Error("invalid signature"));
+
+    let caught: unknown;
+    try {
+      await new AccountLinkService(deps).settleCallback({
+        headers: new Headers(),
+        credential: rawCredential,
+        oauthContextToken: invalidToken,
+        provider: "github",
+        linkUserId: "user-1",
+        outcome: { kind: "success" },
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toEqual(expectAccountLinkError("IDENTITY_MISMATCH"));
+    expect(String(caught)).not.toContain(invalidToken);
+    expect(deps.hashCredential).not.toHaveBeenCalled();
+    expect(repository.findByCredential).not.toHaveBeenCalled();
+    expect(repository.markVerified).not.toHaveBeenCalled();
+    expect(repository.complete).not.toHaveBeenCalled();
+  });
+
+  it("fails closed before hashing or lookup when the HttpOnly credential is missing", async () => {
+    const { deps, repository } = dependencies();
+
+    await expect(new AccountLinkService(deps).settleCallback({
+      headers: new Headers(),
+      credential: null,
+      oauthContextToken: "signed-oauth-context",
+      provider: "github",
+      linkUserId: "user-1",
+      outcome: { kind: "success" },
+    })).rejects.toEqual(expectAccountLinkError("IDENTITY_MISMATCH"));
+
+    expect(deps.verifyProof).toHaveBeenCalledWith(
+      "signed-oauth-context",
+      "oauth",
+      now.getTime(),
+    );
+    expect(deps.hashCredential).not.toHaveBeenCalled();
+    expect(repository.findByCredential).not.toHaveBeenCalled();
+    expect(repository.markVerified).not.toHaveBeenCalled();
+    expect(repository.complete).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when a wrong credential digest has no owner-scoped intent", async () => {
+    const wrongCredential = "wrong-browser-credential-must-not-leak";
+    const wrongDigest = "sha256:wrong-browser-credential";
+    const { deps, repository } = dependencies({
+      hashCredential: vi.fn(async () => wrongDigest),
+    });
+    vi.mocked(repository.findByCredential).mockResolvedValue(null);
+
+    let caught: unknown;
+    try {
+      await new AccountLinkService(deps).settleCallback({
+        headers: new Headers(),
+        credential: wrongCredential,
+        oauthContextToken: "signed-oauth-context",
+        provider: "github",
+        linkUserId: "user-1",
+        outcome: { kind: "success" },
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toEqual(expectAccountLinkError("IDENTITY_MISMATCH"));
+    expect(String(caught)).not.toContain(wrongCredential);
+    expect(deps.hashCredential).toHaveBeenCalledWith(wrongCredential);
+    expect(repository.findByCredential).toHaveBeenCalledWith(
+      "user-1",
+      wrongDigest,
+      now,
+    );
+    expect(repository.markVerified).not.toHaveBeenCalled();
+    expect(repository.complete).not.toHaveBeenCalled();
   });
 
   it.each([
