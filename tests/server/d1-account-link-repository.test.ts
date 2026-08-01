@@ -138,6 +138,12 @@ class FakeD1 {
         number,
         number,
       ];
+      if (
+        normalized.includes("WHERE NOT EXISTS")
+        && this.hasInFlight(userId, targetProvider)
+      ) {
+        return { success: true, meta: { changes: 0 } };
+      }
       if (this.rows.has(id)) {
         throw new Error("UNIQUE constraint failed: account_link_intents.id");
       }
@@ -162,6 +168,12 @@ class FakeD1 {
       changes = 1;
     } else if (normalized.includes("failure_code = 'SUPERSEDED'")) {
       const [now, userId, targetProvider] = values as [number, string, string];
+      if (
+        normalized.includes("NOT EXISTS")
+        && this.hasInFlight(userId, targetProvider)
+      ) {
+        return { success: true, meta: { changes: 0 } };
+      }
       for (const row of this.rows.values()) {
         if (
           row.user_id === userId
@@ -289,6 +301,14 @@ class FakeD1 {
     this.transitionInterleaving = null;
     callback?.(row);
   }
+
+  private hasInFlight(userId: string, targetProvider: string) {
+    return [...this.rows.values()].some(
+      (row) => row.user_id === userId
+        && row.target_provider === targetProvider
+        && (row.status === "consumed" || row.status === "completing"),
+    );
+  }
 }
 
 function normalize(sql: string) {
@@ -334,8 +354,19 @@ describe("D1AccountLinkRepository", () => {
       status: "verified",
       verified_at: baseTime + 1,
     }));
-    db.seed(intentRow({ id: "consumed-old", token_hash: "hash-consumed", status: "consumed" }));
-    db.seed(intentRow({ id: "completing-old", token_hash: "hash-completing", status: "completing" }));
+    db.seed(intentRow({
+      id: "consumed-other-target",
+      token_hash: "hash-consumed-other-target",
+      source_provider: "google",
+      target_provider: "github",
+      status: "consumed",
+    }));
+    db.seed(intentRow({
+      id: "completing-other-user",
+      token_hash: "hash-completing-other-user",
+      user_id: "user-2",
+      status: "completing",
+    }));
     db.seed(intentRow({
       id: "other-target",
       token_hash: "hash-other-target",
@@ -368,11 +399,8 @@ describe("D1AccountLinkRepository", () => {
     );
     expect(db.row("pending-old")).toMatchObject({ status: "failed", failure_code: "SUPERSEDED" });
     expect(db.row("verified-old")).toMatchObject({ status: "failed", failure_code: "SUPERSEDED" });
-    expect(db.row("consumed-old")?.status).toBe("consumed");
-    expect(db.row("completing-old")).toMatchObject({
-      status: "completing",
-      failure_code: null,
-    });
+    expect(db.row("consumed-other-target")?.status).toBe("consumed");
+    expect(db.row("completing-other-user")?.status).toBe("completing");
     expect(db.row("other-target")?.status).toBe("pending_reauth");
     expect(db.row("other-user")?.status).toBe("pending_reauth");
     expect(created).toEqual({
@@ -395,6 +423,48 @@ describe("D1AccountLinkRepository", () => {
     expect(JSON.stringify(recordedBatchValues)).not.toContain(rawCredential);
     expect(db.batches[0][1].values).toContain("sha256:new-credential");
   });
+
+  it.each(["consumed", "completing"] as const)(
+    "atomically rejects creation beside a %s intent without superseding older grants",
+    async (status) => {
+      const db = new FakeD1();
+      db.seed(intentRow({ id: "pending-old", token_hash: "hash-pending" }));
+      db.seed(intentRow({
+        id: "in-flight",
+        token_hash: "hash-in-flight",
+        status,
+        consumed_at: baseTime + 1,
+      }));
+
+      await expect(repository(db).create({
+        id: "intent-new",
+        tokenHash: "sha256:new-credential",
+        userId: "user-1",
+        sourceProvider: "github",
+        targetProvider: "google",
+        expiresAt: new Date(baseTime + 20 * 60_000),
+        now: new Date(baseTime + 10_000),
+      })).resolves.toBeNull();
+
+      expect(db.row("pending-old")).toMatchObject({
+        status: "pending_reauth",
+        failure_code: null,
+        updated_at: baseTime,
+      });
+      expect(db.row("in-flight")).toMatchObject({ status, failure_code: null });
+      expect(db.row("intent-new")).toBeUndefined();
+      expect(db.batches).toHaveLength(1);
+      expect(db.batches[0]).toHaveLength(2);
+      for (const statement of db.batches[0]) {
+        expect(normalize(statement.sql)).toContain(
+          "NOT EXISTS (SELECT 1 FROM account_link_intents",
+        );
+        expect(normalize(statement.sql)).toContain(
+          "status IN ('consumed', 'completing')",
+        );
+      }
+    },
+  );
 
   it("finds only an owner-target consumed or completing intent and prefers completing", async () => {
     const db = new FakeD1();

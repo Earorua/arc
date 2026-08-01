@@ -9,7 +9,7 @@ export interface AccountLinkRepository {
     targetProvider: AccountLinkProvider;
     expiresAt: Date;
     now: Date;
-  }): Promise<AccountLinkIntent>;
+  }): Promise<AccountLinkIntent | null>;
   findByCredential(
     userId: string,
     tokenHash: string,

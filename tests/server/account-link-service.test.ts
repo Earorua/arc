@@ -237,6 +237,30 @@ describe("AccountLinkService", () => {
     expect(repository.create).not.toHaveBeenCalled();
   });
 
+  it("maps an atomic create conflict after a clean preflight to replayed", async () => {
+    let callbackIntent = intent({ status: "verified", verifiedAt: now });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockImplementation(async () => {
+      callbackIntent = { ...callbackIntent, status: "consumed", consumedAt: now };
+      return null;
+    });
+    vi.mocked(repository.create).mockImplementation(async () => (
+      callbackIntent.status === "consumed" ? null : intent()
+    ));
+
+    await expect(new AccountLinkService(deps).start(
+      new Headers(),
+      "user-1",
+      "google",
+    )).rejects.toEqual(expectAccountLinkError("REPLAYED"));
+
+    expect(callbackIntent).toMatchObject({ status: "consumed", failureCode: null });
+    expect(repository.create).toHaveBeenCalledOnce();
+    expect(deps.createProof).not.toHaveBeenCalled();
+    expect(deps.startProviderLink).not.toHaveBeenCalled();
+    expect(repository.fail).not.toHaveBeenCalled();
+  });
+
   it("keeps the raw credential out of repository and proof inputs", async () => {
     const { deps, repository } = dependencies();
 

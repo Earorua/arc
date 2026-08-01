@@ -54,7 +54,9 @@ function mapRow(row: unknown): AccountLinkIntent {
 export class D1AccountLinkRepository implements AccountLinkRepository {
   constructor(private readonly db: D1Database) {}
 
-  async create(input: Parameters<AccountLinkRepository["create"]>[0]): Promise<AccountLinkIntent> {
+  async create(
+    input: Parameters<AccountLinkRepository["create"]>[0],
+  ): Promise<AccountLinkIntent | null> {
     const now = input.now.getTime();
     const expiresAt = input.expiresAt.getTime();
     const supersede = this.db.prepare(`
@@ -62,15 +64,26 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
       SET status = 'failed', failure_code = 'SUPERSEDED', updated_at = ?1
       WHERE user_id = ?2 AND target_provider = ?3
         AND status IN ('pending_reauth', 'verified')
+        AND NOT EXISTS (SELECT 1
+          FROM account_link_intents AS in_flight
+          WHERE in_flight.user_id = ?2
+            AND in_flight.target_provider = ?3
+            AND in_flight.status IN ('consumed', 'completing')
+        )
     `).bind(now, input.userId, input.targetProvider);
     const insert = this.db.prepare(`
       INSERT INTO account_link_intents (
         id, token_hash, user_id, source_provider, target_provider, status,
         expires_at, verified_at, consumed_at, completed_at, failure_code,
         created_at, updated_at
-      ) VALUES (
+      ) SELECT
         ?1, ?2, ?3, ?4, ?5, 'pending_reauth',
         ?6, NULL, NULL, NULL, NULL, ?7, ?7
+      WHERE NOT EXISTS (SELECT 1
+        FROM account_link_intents AS in_flight
+        WHERE in_flight.user_id = ?3
+          AND in_flight.target_provider = ?5
+          AND in_flight.status IN ('consumed', 'completing')
       )
     `).bind(
       input.id,
@@ -82,7 +95,8 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
       now,
     );
 
-    await this.db.batch([supersede, insert]);
+    const [, insertResult] = await this.db.batch([supersede, insert]);
+    if (insertResult.meta.changes !== 1) return null;
 
     return {
       id: input.id,

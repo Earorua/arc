@@ -125,6 +125,9 @@ export class AccountLinkService {
       expiresAt: new Date(operationTime.getTime() + PENDING_REAUTH_TTL_MS),
       now: operationTime,
     });
+    if (!intent) {
+      throw domainError("REPLAYED", "An account-link operation is already in progress");
+    }
 
     try {
       const internalProof = await this.createInternalProof(
