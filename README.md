@@ -29,7 +29,7 @@ The flagship experience maps 16 skills for an AI full-stack engineer. Custom rol
 
 **Independent Arc. account.** The codebase supports Google and GitHub OAuth owned by Arc.—not ChatGPT identity. After sign-in, D1 is authoritative for learning state. Meaningful work already present on the device is shown as an explicit import choice; it is never silently moved, overwritten, or deleted.
 
-Hosted Google and GitHub primary callbacks have completed real same-origin flows on the deployed URL. Sites version 6 now exposes explicit second-provider linking and the non-disclosing conflict recovery state in production; the authenticated account menu has been smoke-tested to show the connected provider and only the available linking action. Cancellation, invalid-state rejection, and the live linking result remain release-gate checks. When hosted credentials are absent, `/api/auth/providers` still reports no available provider and the interface shows a preparation state.
+Hosted Google and GitHub primary callbacks have completed real same-origin flows on the deployed URL. Sites version 6 exposes explicit second-provider linking and the non-disclosing conflict recovery state in production. A live GitHub-to-Google linking attempt completed the provider callback but was safely rejected by the current same-email policy before ownership-conflict evaluation; neither account changed. Cross-email linking policy, cancellation, and invalid-state rejection remain release-gate decisions. When hosted credentials are absent, `/api/auth/providers` still reports no available provider and the interface shows a preparation state.
 
 ## Design thesis: Warm Precision
 
@@ -82,7 +82,7 @@ flowchart LR
 
 ## Hosted Beta status
 
-The Sites project is public with server-managed runtime configuration, logical `DB` and `PROOF_ASSETS` bindings, and the reviewed migration. Both providers can create an independent Arc. session and preserve it across navigation. Version 6 is publicly deployed and its authenticated linking entry point is present. Final release remains gated on exercising the live linking result, cancellation and invalid-state rejection, private proof retrieval, cross-user denial, and the remaining rollback smoke checks.
+The Sites project is public with server-managed runtime configuration, logical `DB` and `PROOF_ASSETS` bindings, and the reviewed migration. Both providers can create an independent Arc. session and preserve it across navigation. Version 6 is publicly deployed and its authenticated linking entry point is present. The first live linking attempt proved the no-change recovery path but exposed a deliberate same-email policy mismatch with the desired cross-provider flow. Final release remains gated on resolving that policy, cancellation and invalid-state rejection, private proof retrieval, cross-user denial, and the remaining rollback smoke checks.
 
 The version preceding the current Beta candidate remains available as the rollback target until those checks pass. If Sites cannot preserve secure same-origin OAuth cookies and callbacks, the same browser contract can move to the approved owner-controlled Cloudflare deployment branch.
 

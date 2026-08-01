@@ -20,12 +20,14 @@ Arc. requires an independent public account backed by Google and GitHub. The Sit
 | R2 runtime binding | wired-hosted-flow-pending | `PROOF_ASSETS` is deployed with owner-scoped storage code; verify a private put/get and metadata-compensation path before release. |
 | Google callback | primary-flow-passed | Hosted sign-in, callback, session refresh, and Arc. sign-out passed. Cancellation, invalid-state rejection, and second-provider linking remain. |
 | GitHub callback | primary-flow-passed | Hosted sign-in, callback, and session refresh passed. Sign-out, cancellation, invalid-state rejection, and second-provider linking remain. |
-| Explicit provider linking | deployed-entry-passed-live-result-pending | Sites version 6 is publicly deployed. In a hosted authenticated session, the account menu showed the connected GitHub identity and only the available `Link Google` action. `linkSocial` starts only from an authenticated Arc. session, and the tested conflict path is generic and never merges accounts. The live provider callback result remains pending explicit action-time approval. |
+| Explicit provider linking | blocked-cross-email-policy | Sites version 6 is publicly deployed. From a GitHub-authenticated Arc. session, `Link Google` posted successfully, completed the Google callback, and returned `email_doesn't_match` because `allowDifferentEmails` is false. Better Auth performs this check before testing whether the provider account belongs to another Arc. user. Arc. displayed a generic no-change recovery message, and the account menu still showed only GitHub connected. The release needs an explicit cross-email security decision before the intended ownership-conflict branch can be exercised. |
 | Independent Arc. identity | passed-hosted | Google/GitHub are the only product providers; real hosted sessions contain no ChatGPT identity dependency or reserved SIWC route. |
 | Deterministic AI fallback | passed-local-build | The protected preview uses the mock provider only and requires the runtime kill switch, D1 cohort, rate, quota, and budget gates; no live model key is configured. |
 | Production smoke and rollback | pending-release-verification | Both providers, cloud persistence, cross-user denial, migration idempotency, and the previous Sites version must be verified before release. |
 
 Because Google and GitHub were each first used as standalone sign-ins before the explicit-linking interface existed, those external identities may currently belong to separate Arc. users. The first hosted link attempt should therefore exercise the required conflict path: no merge, no ownership disclosure, and no change to either account.
+
+The first hosted link attempt on 2026-08-01 did preserve both accounts, but it stopped one guard earlier than expected: Better Auth rejected the differing provider email before reading the existing provider ownership. Enabling cross-email manual linking would allow the ownership-conflict check to run, but Better Auth documents that option as an account-takeover risk. Arc. will not relax it without an explicit security decision and compensating reauthentication design.
 
 ## Decision rule
 
