@@ -15,6 +15,10 @@ export interface AccountLinkRepository {
     tokenHash: string,
     now: Date,
   ): Promise<AccountLinkIntent | null>;
+  findByCredentialForAttribution(
+    userId: string,
+    tokenHash: string,
+  ): Promise<AccountLinkIntent | null>;
   findById(id: string): Promise<AccountLinkIntent | null>;
   claimInternalProof(input: {
     intentId: string;
@@ -24,6 +28,7 @@ export interface AccountLinkRepository {
     issuedAt: Date;
     now: Date;
   }): Promise<boolean>;
+  reserveTargetCompletion(id: string, userId: string, now: Date): Promise<boolean>;
   markVerified(
     id: string,
     userId: string,

@@ -123,6 +123,19 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
     return row === null ? null : mapRow(row);
   }
 
+  async findByCredentialForAttribution(
+    userId: string,
+    tokenHash: string,
+  ): Promise<AccountLinkIntent | null> {
+    const row = await this.db.prepare(`
+      SELECT ${selectedColumns}
+      FROM account_link_intents
+      WHERE user_id = ?1 AND token_hash = ?2
+      LIMIT 1
+    `).bind(userId, tokenHash).first<unknown>();
+    return row === null ? null : mapRow(row);
+  }
+
   async findById(id: string): Promise<AccountLinkIntent | null> {
     const row = await this.db.prepare(`
       SELECT ${selectedColumns}
@@ -187,11 +200,23 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
     return row === null ? null : mapRow(row);
   }
 
+  async reserveTargetCompletion(id: string, userId: string, now: Date): Promise<boolean> {
+    const result = await this.db.prepare(`
+      UPDATE account_link_intents
+      SET status = 'completing', updated_at = ?1
+      WHERE id = ?2 AND user_id = ?3 AND status = 'consumed'
+    `).bind(now.getTime(), id, userId).run();
+    return result.meta.changes === 1;
+  }
+
   async complete(id: string, userId: string, now: Date): Promise<boolean> {
     const result = await this.db.prepare(`
       UPDATE account_link_intents
-      SET status = 'completed', completed_at = ?1, updated_at = ?1
-      WHERE id = ?2 AND user_id = ?3 AND status = 'consumed'
+      SET status = 'completed',
+        completed_at = COALESCE(completed_at, ?1),
+        updated_at = CASE WHEN status = 'completed' THEN updated_at ELSE ?1 END
+      WHERE id = ?2 AND user_id = ?3
+        AND status IN ('consumed', 'completing', 'completed')
     `).bind(now.getTime(), id, userId).run();
     return result.meta.changes === 1;
   }
@@ -205,7 +230,7 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
       SET status = 'failed', failure_code = ?1, updated_at = ?2
       WHERE id = ?3 AND user_id = ?4
         AND (
-          status = 'consumed'
+          status IN ('consumed', 'completing')
           OR (status IN ('pending_reauth', 'verified') AND expires_at > ?2)
         )
     `).bind(code, now.getTime(), id, userId).run();

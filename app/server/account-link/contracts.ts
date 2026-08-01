@@ -7,6 +7,7 @@ export const accountLinkStatusSchema = z.enum([
   "pending_reauth",
   "verified",
   "consumed",
+  "completing",
   "completed",
   "failed",
   "expired",
@@ -49,7 +50,8 @@ export const INTERNAL_PROOF_TTL_MS = 60 * 1000;
 const transitions: Record<AccountLinkStatus, readonly AccountLinkStatus[]> = {
   pending_reauth: ["verified", "failed", "expired"],
   verified: ["consumed", "failed", "expired"],
-  consumed: ["completed", "failed"],
+  consumed: ["completing", "completed", "failed"],
+  completing: ["completed", "failed"],
   completed: [],
   failed: [],
   expired: [],

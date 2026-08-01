@@ -259,7 +259,7 @@ export const accountLinkIntents = sqliteTable("account_link_intents", {
   sourceProvider: text("source_provider", { enum: ["google", "github"] }).notNull(),
   targetProvider: text("target_provider", { enum: ["google", "github"] }).notNull(),
   status: text("status", {
-    enum: ["pending_reauth", "verified", "consumed", "completed", "failed", "expired"],
+    enum: ["pending_reauth", "verified", "consumed", "completing", "completed", "failed", "expired"],
   }).notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
   verifiedAt: integer("verified_at", { mode: "timestamp_ms" }),

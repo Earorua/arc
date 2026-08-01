@@ -28,11 +28,12 @@ describe("account-link contracts", () => {
   });
 
   it("allows only the approved state transitions", () => {
-    const statuses: readonly AccountLinkStatus[] = ["pending_reauth", "verified", "consumed", "completed", "failed", "expired"];
+    const statuses: readonly AccountLinkStatus[] = ["pending_reauth", "verified", "consumed", "completing", "completed", "failed", "expired"];
     const successors: Record<AccountLinkStatus, readonly AccountLinkStatus[]> = {
       pending_reauth: ["verified", "failed", "expired"],
       verified: ["consumed", "failed", "expired"],
-      consumed: ["completed", "failed"],
+      consumed: ["completing", "completed", "failed"],
+      completing: ["completed", "failed"],
       completed: [],
       failed: [],
       expired: [],
@@ -46,7 +47,7 @@ describe("account-link contracts", () => {
   });
 
   it("validates account-link statuses and phases", () => {
-    for (const status of ["pending_reauth", "verified", "consumed", "completed", "failed", "expired"]) {
+    for (const status of ["pending_reauth", "verified", "consumed", "completing", "completed", "failed", "expired"]) {
       expect(accountLinkStatusSchema.parse(status)).toBe(status);
     }
     expect(() => accountLinkStatusSchema.parse("unknown")).toThrow();

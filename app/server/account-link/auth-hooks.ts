@@ -71,8 +71,14 @@ function expectedIntentProvider(intent: AccountLinkIntent, phase: AccountLinkPha
   return phase === "reauth" ? intent.sourceProvider : intent.targetProvider;
 }
 
-function expectedIntentStatus(phase: AccountLinkPhase) {
-  return phase === "reauth" ? "pending_reauth" : "consumed";
+function intentStatusMatches(
+  intent: AccountLinkIntent,
+  phase: AccountLinkPhase,
+  targetStatuses: readonly AccountLinkIntent["status"][],
+) {
+  return phase === "reauth"
+    ? intent.status === "pending_reauth"
+    : targetStatuses.includes(intent.status);
 }
 
 function hasArcLinkContext(state: OAuthState): boolean {
@@ -107,7 +113,24 @@ function callbackErrorCode(location: string | null) {
   return providerCode;
 }
 
+function isServerPhaseErrorLocation(location: string | null, phase: AccountLinkPhase) {
+  if (!location?.startsWith("/") || location.startsWith("//")) return false;
+  try {
+    const parsed = new URL(location, "https://arc.invalid");
+    const allowedParameters = new Set(["link", "stage", "error", "error_description"]);
+    return parsed.origin === "https://arc.invalid"
+      && parsed.pathname === "/today"
+      && parsed.searchParams.get("link") === "error"
+      && parsed.searchParams.get("stage") === phase
+      && parsed.searchParams.has("error")
+      && [...parsed.searchParams.keys()].every((key) => allowedParameters.has(key));
+  } catch {
+    return false;
+  }
+}
+
 function mapCallbackError(location: string | null, phase: AccountLinkPhase) {
+  if (!isServerPhaseErrorLocation(location, phase)) return "OAUTH_FAILED";
   const providerCode = callbackErrorCode(location);
   if (["access_denied", "oauth_cancelled", "cancelled", "user_cancelled"]
     .includes(providerCode)) {
@@ -147,6 +170,11 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
   async function loadBoundIntent(
     context: SignedLinkContext,
     repository = options.getRepository(),
+    targetStatuses: readonly AccountLinkIntent["status"][] = [
+      "consumed",
+      "completing",
+      "completed",
+    ],
   ) {
     const intent = await repository.findById(context.intentId);
     const operationTime = now().getTime();
@@ -155,7 +183,7 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
       || intent.id !== context.intentId
       || intent.userId !== context.userId
       || expectedIntentProvider(intent, context.phase) !== context.provider
-      || intent.status !== expectedIntentStatus(context.phase)
+      || !intentStatusMatches(intent, context.phase, targetStatuses)
       || (context.phase === "reauth" && intent.expiresAt.getTime() <= operationTime)
     ) {
       throw denial();
@@ -268,12 +296,10 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
     }
     if (!session) return;
 
-    const operationTime = now();
     const repository = options.getRepository();
-    const intent = await repository.findByCredential(
+    const intent = await repository.findByCredentialForAttribution(
       session.user.id,
       await hashAccountLinkCredential(credential),
-      operationTime,
     );
     if (!intent || intent.userId !== session.user.id) return;
 
@@ -284,19 +310,14 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
       }
       return;
     }
-    if (intent.status !== "pending_reauth" && intent.status !== "consumed") return;
+    if (
+      intent.status !== "pending_reauth"
+      && intent.status !== "consumed"
+      && intent.status !== "completing"
+    ) return;
 
     const phase = intent.status === "pending_reauth" ? "reauth" : "target";
     if (!provider.success || provider.data !== expectedIntentProvider(intent, phase)) return;
-
-    if (!await repository.fail(
-      intent.id,
-      intent.userId,
-      "STATE_INVALID",
-      operationTime,
-    )) {
-      return;
-    }
     headers?.set("location", RESULT_URLS[phase].error);
   }
 
@@ -316,7 +337,7 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
 
     await requireOwnerSession(ctx as never, proof.userId);
     const repository = options.getRepository();
-    const intent = await loadBoundIntent(proof, repository);
+    const intent = await loadBoundIntent(proof, repository, ["consumed"]);
     if (intent.userId !== proof.userId) throw denial();
 
     const operationDate = now();
@@ -393,6 +414,14 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
         outcome.kind === "success" ? expected.success : expected.error,
       );
     } catch {
+      if (
+        bound.signed.phase === "target"
+        && outcome.kind === "success"
+        && bound.intent.status === "completing"
+      ) {
+        headers?.set("location", expected.success);
+        return;
+      }
       headers?.set("location", expected.error);
       throw denial();
     }
@@ -417,7 +446,49 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
       account.providerId,
     );
     if (account.userId !== bound.stateOwner) throw denial();
-    return bound.signed.phase === "reauth" ? false : true;
+    if (bound.signed.phase === "reauth") return false;
+    if (!await bound.repository.reserveTargetCompletion(
+      bound.intent.id,
+      bound.intent.userId,
+      now(),
+    )) {
+      throw denial();
+    }
+    return true;
+  };
+
+  const accountCreateAfter = async (
+    account: { userId?: unknown; providerId?: unknown },
+    endpointContext: unknown,
+  ) => {
+    let state: OAuthState | null;
+    try {
+      state = await getOAuthState();
+    } catch {
+      return;
+    }
+    if (!state || !hasArcLinkContext(state) || !endpointContext) return;
+
+    let bound: Awaited<ReturnType<typeof validateCallbackContext>>;
+    try {
+      bound = await validateCallbackContext(
+        endpointContext as never,
+        state,
+        account.providerId,
+      );
+    } catch {
+      return;
+    }
+    if (
+      bound.signed.phase !== "target"
+      || account.userId !== bound.stateOwner
+    ) return;
+
+    try {
+      await bound.repository.complete(bound.intent.id, bound.intent.userId, now());
+    } catch {
+      // The endpoint after hook and authenticated status reconciliation retry this completion.
+    }
   };
 
   return {
@@ -426,6 +497,7 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
       account: {
         create: {
           before: accountCreateBefore,
+          after: accountCreateAfter,
         },
       },
     },

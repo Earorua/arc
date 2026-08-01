@@ -133,16 +133,38 @@ export class AccountLinkService {
     }
   }
 
-  async status(userId: string, credential: string | null | undefined) {
+  async status(
+    userId: string,
+    credential: string | null | undefined,
+    headers?: Headers,
+  ) {
     if (!credential) return createEmptyStatus();
 
     const operationTime = this.dependencies.now();
     const tokenHash = await this.dependencies.hashCredential(credential);
-    const intent = await this.dependencies.repository.findByCredential(
+    let intent = await this.dependencies.repository.findByCredential(
       userId,
       tokenHash,
       operationTime,
     );
+    if (intent?.status === "completing" && headers) {
+      const connectedProviders = await this.dependencies.listAccounts(headers);
+      if (connectedProviders.includes(intent.targetProvider)) {
+        const completed = await this.dependencies.repository.complete(
+          intent.id,
+          intent.userId,
+          operationTime,
+        );
+        if (completed) {
+          intent = {
+            ...intent,
+            status: "completed",
+            completedAt: intent.completedAt ?? operationTime,
+            updatedAt: operationTime,
+          };
+        }
+      }
+    }
     return intent ? projectAccountLinkIntent(intent) : createEmptyStatus();
   }
 
@@ -235,14 +257,16 @@ export class AccountLinkService {
     const expectedProvider = context.phase === "reauth"
       ? intent.sourceProvider
       : intent.targetProvider;
-    const expectedStatus = context.phase === "reauth" ? "pending_reauth" : "consumed";
+    const statusMatches = context.phase === "reauth"
+      ? intent.status === "pending_reauth"
+      : ["consumed", "completing", "completed"].includes(intent.status);
     const commonIdentityMatches =
       context.intentId === intent.id
       && context.userId === intent.userId
       && input.linkUserId === intent.userId
       && context.provider === parsedProvider.data
       && parsedProvider.data === expectedProvider
-      && intent.status === expectedStatus;
+      && statusMatches;
     const reauthDeadlineIsValid =
       context.phase !== "reauth"
       || intent.expiresAt.getTime() > operationTime.getTime();
@@ -257,6 +281,7 @@ export class AccountLinkService {
         await this.failIdentityMismatch(intent, context, operationTime);
         throw domainError("IDENTITY_MISMATCH", "The callback error was not recognized");
       }
+      if (context.phase === "target" && intent.status === "completed") return;
       const failed = await this.dependencies.repository.fail(
         intent.id,
         intent.userId,
@@ -288,7 +313,7 @@ export class AccountLinkService {
       operationTime,
     );
     if (!completed) {
-      throw domainError("IDENTITY_MISMATCH", "The callback intent was no longer consumed");
+      throw domainError("IDENTITY_MISMATCH", "The callback intent could not be completed");
     }
   }
 

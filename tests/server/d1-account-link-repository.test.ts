@@ -8,7 +8,7 @@ type IntentRow = {
   user_id: string;
   source_provider: "google" | "github";
   target_provider: "google" | "github";
-  status: "pending_reauth" | "verified" | "consumed" | "completed" | "failed" | "expired";
+  status: "pending_reauth" | "verified" | "consumed" | "completing" | "completed" | "failed" | "expired";
   expires_at: number;
   verified_at: number | null;
   consumed_at: number | null;
@@ -203,13 +203,25 @@ class FakeD1 {
         this.returnedTransitionRow = clone(row);
         this.runTransitionInterleaving(row);
       }
-    } else if (normalized.includes("SET status = 'completed'")) {
+    } else if (normalized.includes("SET status = 'completing'")) {
       const [now, id, userId] = values as [number, string, string];
       const row = this.rows.get(id);
       if (row?.user_id === userId && row.status === "consumed") {
-        row.status = "completed";
-        row.completed_at = now;
+        row.status = "completing";
         row.updated_at = now;
+        changes = 1;
+      }
+    } else if (normalized.includes("SET status = 'completed'")) {
+      const [now, id, userId] = values as [number, string, string];
+      const row = this.rows.get(id);
+      if (
+        row?.user_id === userId
+        && (row.status === "consumed" || row.status === "completing" || row.status === "completed")
+      ) {
+        const alreadyCompleted = row.status === "completed";
+        row.status = "completed";
+        row.completed_at ??= now;
+        if (!alreadyCompleted) row.updated_at = now;
         changes = 1;
       }
     } else if (normalized.includes("SET status = 'failed'")) {
@@ -220,6 +232,7 @@ class FakeD1 {
         row?.user_id === userId
         && (
           row.status === "consumed"
+          || row.status === "completing"
           || (isUnexpiredGrant && (row.status === "pending_reauth" || row.status === "verified"))
         )
       ) {
@@ -439,6 +452,18 @@ describe("D1AccountLinkRepository", () => {
     expect(db.calls[0].values).toEqual(["intent-1"]);
   });
 
+  it("reads an intent for unauthenticated callback attribution without materializing expiry", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({ expires_at: baseTime }));
+
+    await expect(repository(db).findByCredentialForAttribution(
+      "user-1",
+      "sha256:credential-1",
+    )).resolves.toMatchObject({ status: "pending_reauth" });
+    expect(db.row("intent-1")?.status).toBe("pending_reauth");
+    expect(db.runs).toHaveLength(0);
+  });
+
   it("rejects database rows with unexpected fields instead of loosely mapping them", async () => {
     const db = new FakeD1();
     db.seed({ ...intentRow(), unexpected_secret: "must-not-be-accepted" });
@@ -557,6 +582,23 @@ describe("D1AccountLinkRepository", () => {
     expect(db.row("intent-1")?.status).toBe("verified");
   });
 
+  it("reserves target completion exactly once before account creation", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({ status: "consumed", consumed_at: baseTime }));
+    const repo = repository(db);
+
+    const reservations = await Promise.all([
+      repo.reserveTargetCompletion("intent-1", "user-1", new Date(baseTime + 1_000)),
+      repo.reserveTargetCompletion("intent-1", "user-1", new Date(baseTime + 1_000)),
+    ]);
+
+    expect(reservations.sort()).toEqual([false, true]);
+    expect(db.row("intent-1")).toMatchObject({
+      status: "completing",
+      updated_at: baseTime + 1_000,
+    });
+  });
+
   it.each([
     ["reauth", "pending_reauth", "github"],
     ["target", "consumed", "google"],
@@ -612,22 +654,28 @@ describe("D1AccountLinkRepository", () => {
     }
   });
 
-  it("completes only a consumed intent and cannot complete it twice", async () => {
+  it.each(["consumed", "completing", "completed"] as const)(
+    "completes idempotently from %s",
+    async (status) => {
     const db = new FakeD1();
-    db.seed(intentRow({ status: "consumed", consumed_at: baseTime + 1_000 }));
+    db.seed(intentRow({
+      status,
+      consumed_at: baseTime + 1_000,
+      completed_at: status === "completed" ? baseTime + 1_500 : null,
+    }));
     db.seed(intentRow({ id: "verified", token_hash: "hash-verified", status: "verified" }));
     const repo = repository(db);
 
     await expect(repo.complete("verified", "user-1", new Date(baseTime + 2_000))).resolves.toBe(false);
     await expect(repo.complete("intent-1", "user-1", new Date(baseTime + 2_000))).resolves.toBe(true);
-    await expect(repo.complete("intent-1", "user-1", new Date(baseTime + 3_000))).resolves.toBe(false);
+    await expect(repo.complete("intent-1", "user-1", new Date(baseTime + 3_000))).resolves.toBe(true);
     expect(db.row("intent-1")).toMatchObject({
       status: "completed",
-      completed_at: baseTime + 2_000,
+      completed_at: status === "completed" ? baseTime + 1_500 : baseTime + 2_000,
     });
   });
 
-  it.each(["pending_reauth", "verified", "consumed"] as const)(
+  it.each(["pending_reauth", "verified", "consumed", "completing"] as const)(
     "fails active %s intents with a sanitized code",
     async (status) => {
       const db = new FakeD1();
@@ -662,7 +710,10 @@ describe("D1AccountLinkRepository", () => {
 
     for (const status of ["completed", "failed", "expired"] as const) {
       const db = new FakeD1();
-      db.seed(intentRow({ status }));
+      db.seed(intentRow({
+        status,
+        completed_at: status === "completed" ? baseTime - 1 : null,
+      }));
       const repo = repository(db);
       await expect(repo.markVerified(
         "intent-1",
@@ -671,7 +722,11 @@ describe("D1AccountLinkRepository", () => {
         new Date(baseTime + 301_000),
       )).resolves.toBeNull();
       await expect(repo.consume("intent-1", "user-1", new Date(baseTime + 1_000))).resolves.toBeNull();
-      await expect(repo.complete("intent-1", "user-1", new Date(baseTime + 1_000))).resolves.toBe(false);
+      await expect(repo.complete(
+        "intent-1",
+        "user-1",
+        new Date(baseTime + 1_000),
+      )).resolves.toBe(status === "completed");
       await expect(repo.fail(
         "intent-1",
         "user-1",
@@ -679,6 +734,7 @@ describe("D1AccountLinkRepository", () => {
         new Date(baseTime + 1_000),
       )).resolves.toBe(false);
       expect(db.row("intent-1")?.status).toBe(status);
+      expect(db.row("intent-1")?.updated_at).toBe(baseTime);
     }
   });
 

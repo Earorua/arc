@@ -64,8 +64,10 @@ function dependencies(overrides: Partial<AccountLinkServiceDependencies> = {}) {
       updatedAt: input.now,
     })),
     findByCredential: vi.fn(async () => null),
+    findByCredentialForAttribution: vi.fn(async () => null),
     findById: vi.fn(async () => null),
     claimInternalProof: vi.fn(async () => false),
+    reserveTargetCompletion: vi.fn(async () => false),
     markVerified: vi.fn(async () => null),
     consume: vi.fn(async () => null),
     complete: vi.fn(async () => false),
@@ -237,6 +239,37 @@ describe("AccountLinkService", () => {
       expiresAt: new Date(now.getTime() + PENDING_REAUTH_TTL_MS).toISOString(),
     });
     expect(Object.keys(status)).toEqual(["stage", "targetProvider", "expiresAt"]);
+  });
+
+  it("reconciles completing to completed from authoritative connected accounts", async () => {
+    const completing = intent({ status: "completing", consumedAt: now });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findByCredential).mockResolvedValue(completing);
+    vi.mocked(deps.listAccounts).mockResolvedValue(["github", "google"]);
+    vi.mocked(repository.complete).mockResolvedValue(true);
+    const headers = new Headers({ cookie: "session=authoritative" });
+
+    await expect(new AccountLinkService(deps).status(
+      "user-1",
+      rawCredential,
+      headers,
+    )).resolves.toMatchObject({ stage: "completed", targetProvider: "google" });
+    expect(deps.listAccounts).toHaveBeenCalledWith(headers);
+    expect(repository.complete).toHaveBeenCalledWith("intent-1", "user-1", now);
+  });
+
+  it("does not reconcile completing when the authoritative target account is absent", async () => {
+    const completing = intent({ status: "completing", consumedAt: now });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findByCredential).mockResolvedValue(completing);
+    vi.mocked(deps.listAccounts).mockResolvedValue(["github"]);
+
+    await expect(new AccountLinkService(deps).status(
+      "user-1",
+      rawCredential,
+      new Headers({ cookie: "session=authoritative" }),
+    )).resolves.toMatchObject({ stage: "completing", targetProvider: "google" });
+    expect(repository.complete).not.toHaveBeenCalled();
   });
 
   it("atomically consumes a verified grant before starting target OAuth", async () => {
@@ -484,11 +517,14 @@ describe("AccountLinkService", () => {
     expect(repository.complete).not.toHaveBeenCalled();
   });
 
-  it("settles target success from consumed without reusing the five-minute deadline", async () => {
+  it.each(["consumed", "completing", "completed"] as const)(
+    "settles target success idempotently from %s without reusing the five-minute deadline",
+    async (status) => {
     const consumed = intent({
-      status: "consumed",
+      status,
       expiresAt: new Date(now.getTime() - 1),
       consumedAt: new Date(now.getTime() - 30_000),
+      completedAt: status === "completed" ? now : null,
     });
     const { deps, repository } = dependencies();
     vi.mocked(deps.verifyProof).mockResolvedValue(oauthContext({
@@ -509,6 +545,32 @@ describe("AccountLinkService", () => {
 
     expect(repository.complete).toHaveBeenCalledWith("intent-1", "user-1", now);
     expect(repository.markVerified).not.toHaveBeenCalled();
+  });
+
+  it("fails a completing target intent on an allowlisted callback error", async () => {
+    const { deps, repository } = dependencies();
+    vi.mocked(deps.verifyProof).mockResolvedValue(oauthContext({
+      provider: "google",
+      phase: "target",
+    }));
+    vi.mocked(repository.findByCredential).mockResolvedValue(intent({ status: "completing" }));
+    vi.mocked(repository.fail).mockResolvedValue(true);
+
+    await new AccountLinkService(deps).settleCallback({
+      headers: new Headers(),
+      credential: rawCredential,
+      oauthContextToken: "signed-target-context",
+      provider: "google",
+      linkUserId: "user-1",
+      outcome: { kind: "error", code: "OAUTH_FAILED" },
+    });
+
+    expect(repository.fail).toHaveBeenCalledWith(
+      "intent-1",
+      "user-1",
+      "OAUTH_FAILED",
+      now,
+    );
   });
 
   it("fails closed when the repository rejects the target completed transition", async () => {

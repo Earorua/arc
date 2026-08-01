@@ -46,8 +46,10 @@ function repository(row: AccountLinkIntent | null = intent()): ProofClaimingRepo
   return {
     create: vi.fn(),
     findByCredential: vi.fn(async () => row),
+    findByCredentialForAttribution: vi.fn(async () => row),
     findById: vi.fn(async () => row),
     claimInternalProof: vi.fn(async () => true),
+    reserveTargetCompletion: vi.fn(async () => true),
     markVerified: vi.fn(),
     consume: vi.fn(),
     complete: vi.fn(),
@@ -287,7 +289,7 @@ describe("account-link Better Auth hooks", () => {
     });
   });
 
-  it("blocks source account creation but permits the validated target account", async () => {
+  it("blocks source creation and reserves target completion before permitting account creation", async () => {
     const reauthToken = await createSignedLinkContext(secret, {
       ...(await contextPayload("reauth")),
       kind: "oauth",
@@ -320,6 +322,105 @@ describe("account-link Better Auth hooks", () => {
       callbackContext,
     ))
       .resolves.toBe(true);
+    expect(repo.reserveTargetCompletion).toHaveBeenCalledWith("intent-1", "user-1", now);
+
+    vi.mocked(repo.reserveTargetCompletion).mockResolvedValue(false);
+    await expect(accountCreate(
+      { userId: "user-1", providerId: "google" } as never,
+      callbackContext,
+    )).rejects.toMatchObject({ body: { code: "ARC_ACCOUNT_LINK_DENIED" } });
+  });
+
+  it("completes after account insertion and retries idempotently in the endpoint after hook", async () => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("target")),
+      kind: "oauth",
+    });
+    let row = intent({ status: "consumed", consumedAt: now });
+    const repo = repository(row);
+    vi.mocked(repo.findById).mockImplementation(async () => row);
+    vi.mocked(repo.findByCredential).mockImplementation(async () => row);
+    vi.mocked(repo.reserveTargetCompletion).mockImplementation(async () => {
+      if (row.status !== "consumed") return false;
+      row = intent({ status: "completing", consumedAt: now, updatedAt: now });
+      return true;
+    });
+    vi.mocked(repo.complete)
+      .mockRejectedValueOnce(new Error("transient D1 completion failure"))
+      .mockImplementationOnce(async () => {
+        row = intent({
+          status: "completed",
+          consumedAt: now,
+          completedAt: now,
+          updatedAt: now,
+        });
+        return true;
+      });
+    const getOAuthState = vi.fn(async () => oauthState(token, "target"));
+    const hooks = createAccountLinkAuthHooks({
+      secret,
+      getRepository: () => repo,
+      now: () => now,
+      createNonce: () => "oauth-nonce",
+      getOAuthState,
+      getAuthoritativeSessionFromCtx: vi.fn(async () => ({ user: { id: "user-1" } })),
+    });
+    const callbackContext = {
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+    };
+
+    await expect(hooks.databaseHooks.account.create.before(
+      { userId: "user-1", providerId: "google" } as never,
+      callbackContext,
+    )).resolves.toBe(true);
+    expect(row.status).toBe("completing");
+
+    const accountInserted = true;
+    await expect(hooks.databaseHooks.account.create.after(
+      { userId: "user-1", providerId: "google" } as never,
+      callbackContext,
+    )).resolves.toBeUndefined();
+    expect(accountInserted).toBe(true);
+    expect(row.status).toBe("completing");
+
+    const responseHeaders = new Headers({ location: "/today?link=complete" });
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "google" },
+      headers: callbackContext.headers,
+      context: { responseHeaders },
+    }));
+
+    expect(repo.complete).toHaveBeenCalledTimes(2);
+    expect(row.status).toBe("completed");
+    expect(responseHeaders.get("location")).toBe("/today?link=complete");
+  });
+
+  it("preserves exact target success when completion storage still fails after account insertion", async () => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("target")),
+      kind: "oauth",
+    });
+    const repo = repository(intent({ status: "completing", consumedAt: now }));
+    const settleCallback = vi.fn(async () => {
+      throw new Error("completion storage unavailable");
+    });
+    const { hooks } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => oauthState(token, "target")),
+      settleCallback,
+    });
+    const responseHeaders = new Headers({ location: "/today?link=complete" });
+
+    await expect(hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "google" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }))).resolves.toBeUndefined();
+
+    expect(responseHeaders.get("location")).toBe("/today?link=complete");
+    expect(repo.fail).not.toHaveBeenCalled();
   });
 
   it("denies target account creation before mutation when the HttpOnly credential is absent", async () => {
@@ -410,6 +511,33 @@ describe("account-link Better Auth hooks", () => {
       outcome: { kind: "error", code },
     }));
     expect(responseHeaders.get("location")).toBe("/today?link=error&stage=target");
+  });
+
+  it.each([
+    "https://arc.example.com/today?link=error&stage=target&error=account_already_linked_to_different_user",
+    "/other?link=error&stage=target&error=account_already_linked_to_different_user",
+    "/today?link=error&stage=reauth&error=account_already_linked_to_different_user",
+  ])("does not classify provider errors from a non-server phase error route: %s", async (location) => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("target")),
+      kind: "oauth",
+    });
+    const repo = repository(intent({ status: "consumed" }));
+    const { hooks, settleCallback } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => oauthState(token, "target")),
+    });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "google" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders: new Headers({ location }) },
+    }));
+
+    expect(settleCallback).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: { kind: "error", code: "OAUTH_FAILED" },
+    }));
   });
 
   it("does not classify a source identity mismatch as a target link conflict", async () => {
@@ -505,9 +633,10 @@ describe("account-link Better Auth hooks", () => {
   it.each([
     ["state_mismatch", "pending_reauth", "github", "/today?link=error&stage=reauth"],
     ["state_not_found", "consumed", "google", "/today?link=error&stage=target"],
+    ["state_not_found", "completing", "google", "/today?link=error&stage=target"],
     ["state_expired", "pending_reauth", "github", "/today?link=error&stage=reauth"],
   ] as const)(
-    "attributes null-state callback error %s through the owner credential",
+    "sanitizes attributed null-state callback error %s without mutating its intent",
     async (providerError, status, provider, expectedLocation) => {
       const row = intent({ status });
       const repo = repository(row);
@@ -527,12 +656,9 @@ describe("account-link Better Auth hooks", () => {
       }));
 
       expect(getAuthoritativeSessionFromCtx).toHaveBeenCalledOnce();
-      expect(repo.fail).toHaveBeenCalledWith(
-        "intent-1",
-        "user-1",
-        "STATE_INVALID",
-        now,
-      );
+      expect(repo.findByCredentialForAttribution).toHaveBeenCalled();
+      expect(repo.findByCredential).not.toHaveBeenCalled();
+      expect(repo.fail).not.toHaveBeenCalled();
       expect(settleCallback).not.toHaveBeenCalled();
       expect(responseHeaders.get("location")).toBe(expectedLocation);
       expect(responseHeaders.get("location")).not.toMatch(/error_description|@/u);

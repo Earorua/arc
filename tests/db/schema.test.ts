@@ -80,4 +80,8 @@ describe("Arc beta persistence schema", () => {
       "account_link_intents_expiry_idx",
     ]));
   });
+
+  it("declares the durable account-link completion reservation status", () => {
+    expect(schema.accountLinkIntents.status.enumValues).toContain("completing");
+  });
 });
