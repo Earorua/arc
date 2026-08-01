@@ -251,3 +251,29 @@ export const operationalEvents = sqliteTable("operational_events", {
   uniqueIndex("operational_events_request_idx").on(table.requestId),
   index("operational_events_result_time_idx").on(table.resultCode, table.occurredAt),
 ]);
+
+export const accountLinkIntents = sqliteTable("account_link_intents", {
+  id: text("id").primaryKey(),
+  tokenHash: text("token_hash").notNull(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  sourceProvider: text("source_provider", { enum: ["google", "github"] }).notNull(),
+  targetProvider: text("target_provider", { enum: ["google", "github"] }).notNull(),
+  status: text("status", {
+    enum: ["pending_reauth", "verified", "consumed", "completed", "failed", "expired"],
+  }).notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  verifiedAt: integer("verified_at", { mode: "timestamp_ms" }),
+  consumedAt: integer("consumed_at", { mode: "timestamp_ms" }),
+  completedAt: integer("completed_at", { mode: "timestamp_ms" }),
+  failureCode: text("failure_code"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("account_link_intents_token_idx").on(table.tokenHash),
+  index("account_link_intents_user_target_idx").on(
+    table.userId,
+    table.targetProvider,
+    table.status,
+  ),
+  index("account_link_intents_expiry_idx").on(table.status, table.expiresAt),
+]);
