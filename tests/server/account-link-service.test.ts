@@ -207,6 +207,22 @@ describe("AccountLinkService", () => {
     expect(repository.findByCredential).not.toHaveBeenCalled();
   });
 
+  it("returns a fresh all-null status that cannot be poisoned by a previous caller", async () => {
+    const { deps } = dependencies();
+    const service = new AccountLinkService(deps);
+
+    const first = await service.status("user-1", null);
+    first.stage = "verified";
+    first.targetProvider = "google";
+    first.expiresAt = now.toISOString();
+
+    await expect(service.status("user-1", null)).resolves.toEqual({
+      stage: null,
+      targetProvider: null,
+      expiresAt: null,
+    });
+  });
+
   it("looks status up by owner and digest and returns only the safe projection", async () => {
     const { deps, repository } = dependencies();
     vi.mocked(repository.findByCredential).mockResolvedValue(intent({ status: "verified" }));
@@ -335,6 +351,25 @@ describe("AccountLinkService", () => {
       now,
       new Date(now.getTime() + VERIFIED_GRANT_TTL_MS),
     );
+  });
+
+  it("fails closed when the repository rejects the reauth verified transition", async () => {
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findByCredential).mockResolvedValue(intent());
+    vi.mocked(repository.markVerified).mockResolvedValue(null);
+
+    await expect(new AccountLinkService(deps).settleCallback({
+      headers: new Headers(),
+      credential: rawCredential,
+      oauthContextToken: "signed-oauth-context",
+      provider: "github",
+      linkUserId: "user-1",
+      outcome: { kind: "success" },
+    })).rejects.toEqual(expectAccountLinkError("IDENTITY_MISMATCH"));
+
+    expect(repository.markVerified).toHaveBeenCalledOnce();
+    expect(repository.complete).not.toHaveBeenCalled();
+    expect(repository.fail).not.toHaveBeenCalled();
   });
 
   it("fails closed when the signed OAuth callback proof is invalid", async () => {
@@ -475,6 +510,29 @@ describe("AccountLinkService", () => {
     expect(repository.markVerified).not.toHaveBeenCalled();
   });
 
+  it("fails closed when the repository rejects the target completed transition", async () => {
+    const { deps, repository } = dependencies();
+    vi.mocked(deps.verifyProof).mockResolvedValue(oauthContext({
+      provider: "google",
+      phase: "target",
+    }));
+    vi.mocked(repository.findByCredential).mockResolvedValue(intent({ status: "consumed" }));
+    vi.mocked(repository.complete).mockResolvedValue(false);
+
+    await expect(new AccountLinkService(deps).settleCallback({
+      headers: new Headers(),
+      credential: rawCredential,
+      oauthContextToken: "signed-target-context",
+      provider: "google",
+      linkUserId: "user-1",
+      outcome: { kind: "success" },
+    })).rejects.toEqual(expectAccountLinkError("IDENTITY_MISMATCH"));
+
+    expect(repository.complete).toHaveBeenCalledOnce();
+    expect(repository.markVerified).not.toHaveBeenCalled();
+    expect(repository.fail).not.toHaveBeenCalled();
+  });
+
   it.each(["OAUTH_CANCELLED", "STATE_INVALID", "OAUTH_FAILED"])(
     "settles recognized callback error %s with its sanitized code",
     async (code) => {
@@ -494,6 +552,25 @@ describe("AccountLinkService", () => {
       expect(repository.fail).toHaveBeenCalledWith("intent-1", "user-1", code, now);
     },
   );
+
+  it("fails closed when the repository rejects a recognized error transition", async () => {
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findByCredential).mockResolvedValue(intent());
+    vi.mocked(repository.fail).mockResolvedValue(false);
+
+    await expect(new AccountLinkService(deps).settleCallback({
+      headers: new Headers(),
+      credential: rawCredential,
+      oauthContextToken: "signed-oauth-context",
+      provider: "github",
+      linkUserId: "user-1",
+      outcome: { kind: "error", code: "OAUTH_FAILED" },
+    })).rejects.toEqual(expectAccountLinkError("IDENTITY_MISMATCH"));
+
+    expect(repository.fail).toHaveBeenCalledOnce();
+    expect(repository.markVerified).not.toHaveBeenCalled();
+    expect(repository.complete).not.toHaveBeenCalled();
+  });
 
   it("maps an allowlisted target ownership conflict without provider or email leakage", async () => {
     const { deps, repository } = dependencies();

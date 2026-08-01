@@ -36,6 +36,10 @@ export type AccountLinkServiceDependencies = {
 };
 
 export type SettleAccountLinkCallbackInput = {
+  /**
+   * Preserved at the auth-hook boundary for request context and audit integration;
+   * domain settlement does not currently inspect header values.
+   */
   headers: Headers;
   credential: string | null;
   oauthContextToken: string;
@@ -53,11 +57,13 @@ const recognizedCallbackErrors = new Set([
   "OAUTH_FAILED",
 ]);
 
-const emptyStatus = safeAccountLinkStatusSchema.parse({
-  stage: null,
-  targetProvider: null,
-  expiresAt: null,
-});
+function createEmptyStatus() {
+  return safeAccountLinkStatusSchema.parse({
+    stage: null,
+    targetProvider: null,
+    expiresAt: null,
+  });
+}
 
 function domainError(code: AccountLinkError["code"], message: string) {
   return new AccountLinkError(code, message);
@@ -128,7 +134,7 @@ export class AccountLinkService {
   }
 
   async status(userId: string, credential: string | null | undefined) {
-    if (!credential) return emptyStatus;
+    if (!credential) return createEmptyStatus();
 
     const operationTime = this.dependencies.now();
     const tokenHash = await this.dependencies.hashCredential(credential);
@@ -137,7 +143,7 @@ export class AccountLinkService {
       tokenHash,
       operationTime,
     );
-    return intent ? projectAccountLinkIntent(intent) : emptyStatus;
+    return intent ? projectAccountLinkIntent(intent) : createEmptyStatus();
   }
 
   async continue(
