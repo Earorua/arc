@@ -61,7 +61,7 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
       UPDATE account_link_intents
       SET status = 'failed', failure_code = 'SUPERSEDED', updated_at = ?1
       WHERE user_id = ?2 AND target_provider = ?3
-        AND status IN ('pending_reauth', 'verified', 'completing')
+        AND status IN ('pending_reauth', 'verified')
     `).bind(now, input.userId, input.targetProvider);
     const insert = this.db.prepare(`
       INSERT INTO account_link_intents (
@@ -133,6 +133,21 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
       WHERE user_id = ?1 AND token_hash = ?2
       LIMIT 1
     `).bind(userId, tokenHash).first<unknown>();
+    return row === null ? null : mapRow(row);
+  }
+
+  async findInFlightByOwnerAndTarget(
+    userId: string,
+    targetProvider: Parameters<AccountLinkRepository["findInFlightByOwnerAndTarget"]>[1],
+  ): Promise<AccountLinkIntent | null> {
+    const row = await this.db.prepare(`
+      SELECT ${selectedColumns}
+      FROM account_link_intents
+      WHERE user_id = ?1 AND target_provider = ?2
+        AND status IN ('consumed', 'completing')
+      ORDER BY CASE WHEN status = 'completing' THEN 0 ELSE 1 END, updated_at DESC
+      LIMIT 1
+    `).bind(userId, targetProvider).first<unknown>();
     return row === null ? null : mapRow(row);
   }
 

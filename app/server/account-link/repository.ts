@@ -19,6 +19,10 @@ export interface AccountLinkRepository {
     userId: string,
     tokenHash: string,
   ): Promise<AccountLinkIntent | null>;
+  findInFlightByOwnerAndTarget(
+    userId: string,
+    targetProvider: AccountLinkProvider,
+  ): Promise<AccountLinkIntent | null>;
   findById(id: string): Promise<AccountLinkIntent | null>;
   claimInternalProof(input: {
     intentId: string;

@@ -9,6 +9,7 @@ import {
   PENDING_REAUTH_TTL_MS,
   type AccountLinkIntent,
   type AccountLinkPhase,
+  type AccountLinkProvider,
 } from "./contracts";
 import {
   createSignedLinkContext,
@@ -61,6 +62,10 @@ export type AccountLinkAuthHookOptions = {
   createNonce?: () => string;
   getOAuthState?: () => Promise<OAuthState | null>;
   getAuthoritativeSessionFromCtx?: (context: never) => Promise<AuthoritativeSession>;
+  listAccountsForUser: (
+    userId: string,
+    headers: Headers,
+  ) => Promise<readonly AccountLinkProvider[]>;
   settleCallback?: (
     input: SettleAccountLinkCallbackInput,
   ) => Promise<AccountLinkCallbackSettlement | void>;
@@ -259,7 +264,9 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
     };
     const service = new AccountLinkService({
       repository,
-      listAccounts: unavailable,
+      listAccounts: async (headers) => [
+        ...await options.listAccountsForUser(input.linkUserId, headers),
+      ],
       startProviderLink: unavailable,
       createCredential: () => {
         throw new Error("Unavailable outside account-link orchestration");

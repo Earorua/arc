@@ -104,6 +104,18 @@ class FakeD1 {
         (row) => row.user_id === userId && row.token_hash === tokenHash,
       ) ?? null);
     }
+    if (
+      normalized.includes("WHERE user_id = ?1 AND target_provider = ?2")
+      && normalized.includes("status IN ('consumed', 'completing')")
+    ) {
+      const [userId, targetProvider] = values as [string, string];
+      const matches = [...this.rows.values()].filter(
+        (row) => row.user_id === userId
+          && row.target_provider === targetProvider
+          && (row.status === "consumed" || row.status === "completing"),
+      );
+      return clone(matches.find((row) => row.status === "completing") ?? matches[0] ?? null);
+    }
     if (normalized.includes("WHERE id = ?1")) {
       return clone(this.rows.get(String(values[0])) ?? null);
     }
@@ -157,7 +169,6 @@ class FakeD1 {
           && (
             row.status === "pending_reauth"
             || row.status === "verified"
-            || row.status === "completing"
           )
         ) {
           row.status = "failed";
@@ -353,14 +364,14 @@ describe("D1AccountLinkRepository", () => {
     expect(db.batches).toHaveLength(1);
     expect(db.batches[0]).toHaveLength(2);
     expect(normalize(db.batches[0][0].sql)).toContain(
-      "WHERE user_id = ?2 AND target_provider = ?3 AND status IN ('pending_reauth', 'verified', 'completing')",
+      "WHERE user_id = ?2 AND target_provider = ?3 AND status IN ('pending_reauth', 'verified')",
     );
     expect(db.row("pending-old")).toMatchObject({ status: "failed", failure_code: "SUPERSEDED" });
     expect(db.row("verified-old")).toMatchObject({ status: "failed", failure_code: "SUPERSEDED" });
     expect(db.row("consumed-old")?.status).toBe("consumed");
     expect(db.row("completing-old")).toMatchObject({
-      status: "failed",
-      failure_code: "SUPERSEDED",
+      status: "completing",
+      failure_code: null,
     });
     expect(db.row("other-target")?.status).toBe("pending_reauth");
     expect(db.row("other-user")?.status).toBe("pending_reauth");
@@ -383,6 +394,29 @@ describe("D1AccountLinkRepository", () => {
     expect(recordedBatchValues).not.toContain(rawCredential);
     expect(JSON.stringify(recordedBatchValues)).not.toContain(rawCredential);
     expect(db.batches[0][1].values).toContain("sha256:new-credential");
+  });
+
+  it("finds only an owner-target consumed or completing intent and prefers completing", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({ id: "pending", token_hash: "hash-pending" }));
+    db.seed(intentRow({ id: "consumed", token_hash: "hash-consumed", status: "consumed" }));
+    db.seed(intentRow({
+      id: "completing",
+      token_hash: "hash-completing",
+      status: "completing",
+      updated_at: baseTime + 1,
+    }));
+    db.seed(intentRow({
+      id: "other-user",
+      token_hash: "hash-other-user",
+      user_id: "user-2",
+      status: "completing",
+    }));
+
+    await expect(repository(db).findInFlightByOwnerAndTarget("user-1", "google"))
+      .resolves.toMatchObject({ id: "completing", status: "completing" });
+    await expect(repository(db).findInFlightByOwnerAndTarget("user-1", "github"))
+      .resolves.toBeNull();
   });
 
   it("rolls back supersession when the batched insert violates a unique constraint", async () => {

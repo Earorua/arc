@@ -65,6 +65,7 @@ function dependencies(overrides: Partial<AccountLinkServiceDependencies> = {}) {
     })),
     findByCredential: vi.fn(async () => null),
     findByCredentialForAttribution: vi.fn(async () => null),
+    findInFlightByOwnerAndTarget: vi.fn(async () => null),
     findById: vi.fn(async () => null),
     claimInternalProof: vi.fn(async () => false),
     reserveTargetCompletion: vi.fn(async () => false),
@@ -163,6 +164,77 @@ describe("AccountLinkService", () => {
       )).rejects.toEqual(expectAccountLinkError(code));
       expect(fixture.repository.create).not.toHaveBeenCalled();
     }
+  });
+
+  it("reconciles a completing start when the target appears on the authoritative recheck", async () => {
+    const row = intent({ status: "completing", consumedAt: now });
+    const listAccounts = vi.fn()
+      .mockResolvedValueOnce(["github"])
+      .mockResolvedValueOnce(["github", "google"]);
+    const { deps, repository } = dependencies({ listAccounts });
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockResolvedValue(row);
+    vi.mocked(repository.complete).mockResolvedValue(true);
+
+    await expect(new AccountLinkService(deps).start(
+      new Headers(),
+      "user-1",
+      "google",
+    )).rejects.toEqual(expectAccountLinkError("ALREADY_CONNECTED"));
+
+    expect(listAccounts).toHaveBeenCalledTimes(2);
+    expect(repository.complete).toHaveBeenCalledWith("intent-1", "user-1", now);
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it("does not replace an in-flight completing intent before its callback finishes", async () => {
+    let row = intent({ status: "consumed", consumedAt: now });
+    const accounts: AccountLinkProvider[] = ["github"];
+    const { deps, repository } = dependencies({
+      listAccounts: vi.fn(async () => [...accounts]),
+    });
+    vi.mocked(repository.reserveTargetCompletion).mockImplementation(async () => {
+      if (row.status !== "consumed") return false;
+      row = { ...row, status: "completing", updatedAt: now };
+      return true;
+    });
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockImplementation(async () => row);
+    vi.mocked(repository.complete).mockImplementation(async () => {
+      if (row.status !== "completing") return false;
+      row = { ...row, status: "completed", completedAt: now, updatedAt: now };
+      return true;
+    });
+
+    await expect(repository.reserveTargetCompletion("intent-1", "user-1", now))
+      .resolves.toBe(true);
+    await expect(new AccountLinkService(deps).start(
+      new Headers(),
+      "user-1",
+      "google",
+    )).rejects.toEqual(expectAccountLinkError("REPLAYED"));
+
+    expect(repository.create).not.toHaveBeenCalled();
+    expect(repository.fail).not.toHaveBeenCalled();
+    expect(row.status).toBe("completing");
+
+    accounts.push("google");
+    await expect(repository.complete("intent-1", "user-1", now)).resolves.toBe(true);
+    expect(row.status).toBe("completed");
+  });
+
+  it("rejects a consumed in-flight start without rechecking or creating", async () => {
+    const row = intent({ status: "consumed", consumedAt: now });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockResolvedValue(row);
+
+    await expect(new AccountLinkService(deps).start(
+      new Headers(),
+      "user-1",
+      "google",
+    )).rejects.toEqual(expectAccountLinkError("REPLAYED"));
+
+    expect(deps.listAccounts).toHaveBeenCalledTimes(1);
+    expect(repository.complete).not.toHaveBeenCalled();
+    expect(repository.create).not.toHaveBeenCalled();
   });
 
   it("keeps the raw credential out of repository and proof inputs", async () => {

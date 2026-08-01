@@ -47,6 +47,7 @@ function repository(row: AccountLinkIntent | null = intent()): ProofClaimingRepo
     create: vi.fn(),
     findByCredential: vi.fn(async () => row),
     findByCredentialForAttribution: vi.fn(async () => row),
+    findInFlightByOwnerAndTarget: vi.fn(async () => null),
     findById: vi.fn(async () => row),
     claimInternalProof: vi.fn(async () => true),
     reserveTargetCompletion: vi.fn(async () => true),
@@ -79,6 +80,7 @@ function hookFixture(overrides: Partial<AccountLinkAuthHookOptions> = {}) {
     session: { id: "session-1", userId: "user-1" },
     user: { id: "user-1" },
   }));
+  const listAccountsForUser = vi.fn(async () => ["github"] as const);
   const options: AccountLinkAuthHookOptions = {
     secret,
     getRepository: () => repo,
@@ -86,6 +88,7 @@ function hookFixture(overrides: Partial<AccountLinkAuthHookOptions> = {}) {
     createNonce: () => "oauth-nonce",
     getOAuthState,
     getAuthoritativeSessionFromCtx,
+    listAccountsForUser,
     settleCallback,
     ...overrides,
   };
@@ -95,6 +98,7 @@ function hookFixture(overrides: Partial<AccountLinkAuthHookOptions> = {}) {
     settleCallback,
     getOAuthState,
     getAuthoritativeSessionFromCtx,
+    listAccountsForUser,
   };
 }
 
@@ -364,6 +368,7 @@ describe("account-link Better Auth hooks", () => {
       createNonce: () => "oauth-nonce",
       getOAuthState,
       getAuthoritativeSessionFromCtx: vi.fn(async () => ({ user: { id: "user-1" } })),
+      listAccountsForUser: vi.fn(async () => ["github"] as const),
     });
     const callbackContext = {
       headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
@@ -452,6 +457,38 @@ describe("account-link Better Auth hooks", () => {
 
     expect(responseHeaders.get("location")).toBe("/today?link=complete");
     expect(repo.fail).not.toHaveBeenCalled();
+  });
+
+  it("uses the default settlement path to reconcile an already-created target account", async () => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("target")),
+      kind: "oauth",
+    });
+    const repo = repository(intent({ status: "completing", consumedAt: now }));
+    vi.mocked(repo.complete).mockResolvedValue(true);
+    const listAccountsForUser = vi.fn(async () => ["github", "google"] as const);
+    const { hooks } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => oauthState(token, "target")),
+      listAccountsForUser,
+      settleCallback: undefined,
+    });
+    const requestHeaderSet = new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` });
+    const responseHeaders = new Headers({
+      location: "/today?link=error&stage=target&error=invalid_code",
+    });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "google" },
+      headers: requestHeaderSet,
+      context: { responseHeaders },
+    }));
+
+    expect(listAccountsForUser).toHaveBeenCalledWith("user-1", requestHeaderSet);
+    expect(repo.complete).toHaveBeenCalledWith("intent-1", "user-1", now);
+    expect(repo.fail).not.toHaveBeenCalled();
+    expect(responseHeaders.get("location")).toBe("/today?link=complete");
   });
 
   it("denies target account creation before mutation when the HttpOnly credential is absent", async () => {

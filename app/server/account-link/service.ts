@@ -88,13 +88,32 @@ export class AccountLinkService {
       throw domainError("ALREADY_CONNECTED", "The requested provider is already connected");
     }
 
+    const operationTime = this.dependencies.now();
+    const inFlight = await this.dependencies.repository.findInFlightByOwnerAndTarget(
+      userId,
+      target,
+    );
+    if (inFlight) {
+      if (inFlight.status === "completing") {
+        const reconciledProviders = await this.dependencies.listAccounts(headers);
+        if (reconciledProviders.includes(target)) {
+          await this.dependencies.repository.complete(
+            inFlight.id,
+            inFlight.userId,
+            operationTime,
+          );
+          throw domainError("ALREADY_CONNECTED", "The requested provider is already connected");
+        }
+      }
+      throw domainError("REPLAYED", "An account-link operation is already in progress");
+    }
+
     const sourceProviders = connectedProviders.filter((provider) => provider !== target);
     if (sourceProviders.length !== 1) {
       throw domainError("NO_SOURCE_PROVIDER", "Exactly one source provider is required");
     }
 
     const source = sourceProviders[0];
-    const operationTime = this.dependencies.now();
     const credential = this.dependencies.createCredential();
     const tokenHash = await this.dependencies.hashCredential(credential);
     const intent = await this.dependencies.repository.create({
