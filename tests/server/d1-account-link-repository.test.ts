@@ -154,7 +154,11 @@ class FakeD1 {
         if (
           row.user_id === userId
           && row.target_provider === targetProvider
-          && (row.status === "pending_reauth" || row.status === "verified")
+          && (
+            row.status === "pending_reauth"
+            || row.status === "verified"
+            || row.status === "completing"
+          )
         ) {
           row.status = "failed";
           row.failure_code = "SUPERSEDED";
@@ -232,7 +236,6 @@ class FakeD1 {
         row?.user_id === userId
         && (
           row.status === "consumed"
-          || row.status === "completing"
           || (isUnexpiredGrant && (row.status === "pending_reauth" || row.status === "verified"))
         )
       ) {
@@ -321,6 +324,7 @@ describe("D1AccountLinkRepository", () => {
       verified_at: baseTime + 1,
     }));
     db.seed(intentRow({ id: "consumed-old", token_hash: "hash-consumed", status: "consumed" }));
+    db.seed(intentRow({ id: "completing-old", token_hash: "hash-completing", status: "completing" }));
     db.seed(intentRow({
       id: "other-target",
       token_hash: "hash-other-target",
@@ -349,11 +353,15 @@ describe("D1AccountLinkRepository", () => {
     expect(db.batches).toHaveLength(1);
     expect(db.batches[0]).toHaveLength(2);
     expect(normalize(db.batches[0][0].sql)).toContain(
-      "WHERE user_id = ?2 AND target_provider = ?3 AND status IN ('pending_reauth', 'verified')",
+      "WHERE user_id = ?2 AND target_provider = ?3 AND status IN ('pending_reauth', 'verified', 'completing')",
     );
     expect(db.row("pending-old")).toMatchObject({ status: "failed", failure_code: "SUPERSEDED" });
     expect(db.row("verified-old")).toMatchObject({ status: "failed", failure_code: "SUPERSEDED" });
     expect(db.row("consumed-old")?.status).toBe("consumed");
+    expect(db.row("completing-old")).toMatchObject({
+      status: "failed",
+      failure_code: "SUPERSEDED",
+    });
     expect(db.row("other-target")?.status).toBe("pending_reauth");
     expect(db.row("other-user")?.status).toBe("pending_reauth");
     expect(created).toEqual({
@@ -675,7 +683,7 @@ describe("D1AccountLinkRepository", () => {
     });
   });
 
-  it.each(["pending_reauth", "verified", "consumed", "completing"] as const)(
+  it.each(["pending_reauth", "verified", "consumed"] as const)(
     "fails active %s intents with a sanitized code",
     async (status) => {
       const db = new FakeD1();
@@ -693,6 +701,22 @@ describe("D1AccountLinkRepository", () => {
       });
     },
   );
+
+  it("never fails a completing intent while account insertion may be in flight", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({ status: "completing", consumed_at: baseTime }));
+
+    await expect(repository(db).fail(
+      "intent-1",
+      "user-1",
+      "OAUTH_FAILED",
+      new Date(baseTime + 1_000),
+    )).resolves.toBe(false);
+    expect(db.row("intent-1")).toMatchObject({
+      status: "completing",
+      failure_code: null,
+    });
+  });
 
   it("rejects invalid failure codes and cannot revive or rewrite terminal rows", async () => {
     const invalidCodes = ["", "lowercase", "2STARTS_WITH_DIGIT", "HAS-HYPHEN", `A${"B".repeat(64)}`];

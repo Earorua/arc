@@ -50,6 +50,10 @@ export type SettleAccountLinkCallbackInput = {
     | { kind: "error"; code: string };
 };
 
+export type AccountLinkCallbackSettlement = {
+  kind: "settled" | "authoritative_completion" | "pending_completion";
+};
+
 const recognizedCallbackErrors = new Set([
   "OAUTH_CANCELLED",
   "LINK_CONFLICT",
@@ -233,7 +237,9 @@ export class AccountLinkService {
     }
   }
 
-  async settleCallback(input: SettleAccountLinkCallbackInput): Promise<void> {
+  async settleCallback(
+    input: SettleAccountLinkCallbackInput,
+  ): Promise<AccountLinkCallbackSettlement> {
     const operationTime = this.dependencies.now();
     const context = await this.verifyOAuthContext(
       input.oauthContextToken,
@@ -281,7 +287,24 @@ export class AccountLinkService {
         await this.failIdentityMismatch(intent, context, operationTime);
         throw domainError("IDENTITY_MISMATCH", "The callback error was not recognized");
       }
-      if (context.phase === "target" && intent.status === "completed") return;
+      if (context.phase === "target" && intent.status === "completed") {
+        return { kind: "authoritative_completion" };
+      }
+      if (context.phase === "target" && intent.status === "completing") {
+        const connectedProviders = await this.dependencies.listAccounts(input.headers);
+        if (!connectedProviders.includes(intent.targetProvider)) {
+          return { kind: "pending_completion" };
+        }
+        const completed = await this.dependencies.repository.complete(
+          intent.id,
+          intent.userId,
+          operationTime,
+        );
+        if (!completed) {
+          throw domainError("IDENTITY_MISMATCH", "The callback intent could not be completed");
+        }
+        return { kind: "authoritative_completion" };
+      }
       const failed = await this.dependencies.repository.fail(
         intent.id,
         intent.userId,
@@ -291,7 +314,7 @@ export class AccountLinkService {
       if (!failed) {
         throw domainError("IDENTITY_MISMATCH", "The callback intent was no longer active");
       }
-      return;
+      return { kind: "settled" };
     }
 
     if (context.phase === "reauth") {
@@ -304,7 +327,7 @@ export class AccountLinkService {
       if (!verified) {
         throw domainError("IDENTITY_MISMATCH", "The callback intent was no longer pending");
       }
-      return;
+      return { kind: "settled" };
     }
 
     const completed = await this.dependencies.repository.complete(
@@ -315,6 +338,7 @@ export class AccountLinkService {
     if (!completed) {
       throw domainError("IDENTITY_MISMATCH", "The callback intent could not be completed");
     }
+    return { kind: "settled" };
   }
 
   private async createInternalProof(

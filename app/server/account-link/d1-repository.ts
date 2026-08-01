@@ -61,7 +61,7 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
       UPDATE account_link_intents
       SET status = 'failed', failure_code = 'SUPERSEDED', updated_at = ?1
       WHERE user_id = ?2 AND target_provider = ?3
-        AND status IN ('pending_reauth', 'verified')
+        AND status IN ('pending_reauth', 'verified', 'completing')
     `).bind(now, input.userId, input.targetProvider);
     const insert = this.db.prepare(`
       INSERT INTO account_link_intents (
@@ -230,7 +230,7 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
       SET status = 'failed', failure_code = ?1, updated_at = ?2
       WHERE id = ?3 AND user_id = ?4
         AND (
-          status IN ('consumed', 'completing')
+          status = 'consumed'
           OR (status IN ('pending_reauth', 'verified') AND expires_at > ?2)
         )
     `).bind(code, now.getTime(), id, userId).run();

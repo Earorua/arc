@@ -20,6 +20,7 @@ import { readAccountLinkCookie } from "./cookie";
 import type { AccountLinkRepository } from "./repository";
 import {
   AccountLinkService,
+  type AccountLinkCallbackSettlement,
   type SettleAccountLinkCallbackInput,
 } from "./service";
 
@@ -60,7 +61,9 @@ export type AccountLinkAuthHookOptions = {
   createNonce?: () => string;
   getOAuthState?: () => Promise<OAuthState | null>;
   getAuthoritativeSessionFromCtx?: (context: never) => Promise<AuthoritativeSession>;
-  settleCallback?: (input: SettleAccountLinkCallbackInput) => Promise<void>;
+  settleCallback?: (
+    input: SettleAccountLinkCallbackInput,
+  ) => Promise<AccountLinkCallbackSettlement | void>;
 };
 
 function denial(): APIError {
@@ -248,8 +251,7 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
     input: SettleAccountLinkCallbackInput,
   ) {
     if (options.settleCallback) {
-      await options.settleCallback(input);
-      return;
+      return await options.settleCallback(input);
     }
 
     const unavailable = async () => {
@@ -273,7 +275,7 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
       createId: createNonce,
       now,
     });
-    await service.settleCallback(input);
+    return await service.settleCallback(input);
   }
 
   async function settleAttributableInvalidState(ctx: never) {
@@ -401,7 +403,7 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
       : { kind: "error" as const, code: mapCallbackError(location, bound.signed.phase) };
 
     try {
-      await settle(bound.repository, {
+      const settlement = await settle(bound.repository, {
         headers: requestHeaders(ctx),
         credential: bound.credential,
         oauthContextToken: state.arcLinkContext as string,
@@ -411,13 +413,15 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
       });
       headers?.set(
         "location",
-        outcome.kind === "success" ? expected.success : expected.error,
+        outcome.kind === "success" || settlement?.kind === "authoritative_completion"
+          ? expected.success
+          : expected.error,
       );
     } catch {
       if (
         bound.signed.phase === "target"
         && outcome.kind === "success"
-        && bound.intent.status === "completing"
+        && (bound.intent.status === "completing" || bound.intent.status === "completed")
       ) {
         headers?.set("location", expected.success);
         return;

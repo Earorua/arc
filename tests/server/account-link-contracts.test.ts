@@ -33,7 +33,7 @@ describe("account-link contracts", () => {
       pending_reauth: ["verified", "failed", "expired"],
       verified: ["consumed", "failed", "expired"],
       consumed: ["completing", "completed", "failed"],
-      completing: ["completed", "failed"],
+      completing: ["completed"],
       completed: [],
       failed: [],
       expired: [],

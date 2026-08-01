@@ -105,6 +105,9 @@ describe("AccountLinkService", () => {
     const result = await new AccountLinkService(deps).start(headers, "user-1", "google");
 
     expect(deps.listAccounts).toHaveBeenCalledWith(headers);
+    expect(vi.mocked(deps.listAccounts).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(repository.create).mock.invocationCallOrder[0],
+    );
     expect(repository.create).toHaveBeenCalledWith({
       id: "intent-1",
       tokenHash,
@@ -547,30 +550,52 @@ describe("AccountLinkService", () => {
     expect(repository.markVerified).not.toHaveBeenCalled();
   });
 
-  it("fails a completing target intent on an allowlisted callback error", async () => {
+  it("leaves completing unchanged when a concurrent callback error cannot see the target account yet", async () => {
     const { deps, repository } = dependencies();
     vi.mocked(deps.verifyProof).mockResolvedValue(oauthContext({
       provider: "google",
       phase: "target",
     }));
     vi.mocked(repository.findByCredential).mockResolvedValue(intent({ status: "completing" }));
-    vi.mocked(repository.fail).mockResolvedValue(true);
+    vi.mocked(deps.listAccounts).mockResolvedValue(["github"]);
+    const headers = new Headers({ cookie: "session=authoritative" });
 
-    await new AccountLinkService(deps).settleCallback({
-      headers: new Headers(),
+    await expect(new AccountLinkService(deps).settleCallback({
+      headers,
       credential: rawCredential,
       oauthContextToken: "signed-target-context",
       provider: "google",
       linkUserId: "user-1",
       outcome: { kind: "error", code: "OAUTH_FAILED" },
-    });
+    })).resolves.toEqual({ kind: "pending_completion" });
 
-    expect(repository.fail).toHaveBeenCalledWith(
-      "intent-1",
-      "user-1",
-      "OAUTH_FAILED",
-      now,
-    );
+    expect(deps.listAccounts).toHaveBeenCalledWith(headers);
+    expect(repository.fail).not.toHaveBeenCalled();
+    expect(repository.complete).not.toHaveBeenCalled();
+  });
+
+  it("completes a target error when authoritative accounts prove insertion succeeded", async () => {
+    const { deps, repository } = dependencies();
+    vi.mocked(deps.verifyProof).mockResolvedValue(oauthContext({
+      provider: "google",
+      phase: "target",
+    }));
+    vi.mocked(repository.findByCredential).mockResolvedValue(intent({ status: "completing" }));
+    vi.mocked(deps.listAccounts).mockResolvedValue(["github", "google"]);
+    vi.mocked(repository.complete).mockResolvedValue(true);
+    const headers = new Headers({ cookie: "session=authoritative" });
+
+    await expect(new AccountLinkService(deps).settleCallback({
+      headers,
+      credential: rawCredential,
+      oauthContextToken: "signed-target-context",
+      provider: "google",
+      linkUserId: "user-1",
+      outcome: { kind: "error", code: "OAUTH_FAILED" },
+    })).resolves.toEqual({ kind: "authoritative_completion" });
+
+    expect(repository.complete).toHaveBeenCalledWith("intent-1", "user-1", now);
+    expect(repository.fail).not.toHaveBeenCalled();
   });
 
   it("fails closed when the repository rejects the target completed transition", async () => {

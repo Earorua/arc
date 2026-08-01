@@ -396,12 +396,14 @@ describe("account-link Better Auth hooks", () => {
     expect(responseHeaders.get("location")).toBe("/today?link=complete");
   });
 
-  it("preserves exact target success when completion storage still fails after account insertion", async () => {
+  it.each(["completing", "completed"] as const)(
+    "preserves exact target success from %s when completion settlement retry fails",
+    async (status) => {
     const token = await createSignedLinkContext(secret, {
       ...(await contextPayload("target")),
       kind: "oauth",
     });
-    const repo = repository(intent({ status: "completing", consumedAt: now }));
+    const repo = repository(intent({ status, consumedAt: now }));
     const settleCallback = vi.fn(async () => {
       throw new Error("completion storage unavailable");
     });
@@ -418,6 +420,35 @@ describe("account-link Better Auth hooks", () => {
       headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
       context: { responseHeaders },
     }))).resolves.toBeUndefined();
+
+    expect(responseHeaders.get("location")).toBe("/today?link=complete");
+    expect(repo.fail).not.toHaveBeenCalled();
+  });
+
+  it("turns a target error into exact success when settlement proves authoritative completion", async () => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("target")),
+      kind: "oauth",
+    });
+    const repo = repository(intent({ status: "completing", consumedAt: now }));
+    const settleCallback = vi.fn(async () => ({
+      kind: "authoritative_completion" as const,
+    }));
+    const { hooks } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => oauthState(token, "target")),
+      settleCallback,
+    });
+    const responseHeaders = new Headers({
+      location: "/today?link=error&stage=target&error=invalid_code",
+    });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "google" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }));
 
     expect(responseHeaders.get("location")).toBe("/today?link=complete");
     expect(repo.fail).not.toHaveBeenCalled();
