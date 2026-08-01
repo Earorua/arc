@@ -58,6 +58,59 @@ describe("account-link security primitives", () => {
     expect(await hashAccountLinkCredential(credential)).toHaveLength(64);
   });
 
+  it("hashes credentials with deterministic lowercase SHA-256", async () => {
+    const firstDigest = await hashAccountLinkCredential("abc");
+    const secondDigest = await hashAccountLinkCredential("abc");
+
+    expect(firstDigest).toBe(
+      "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    );
+    expect(secondDigest).toBe(firstDigest);
+    expect(firstDigest).toMatch(/^[0-9a-f]{64}$/u);
+  });
+
+  it("creates exactly two unpadded base64url token segments", async () => {
+    const now = 1_785_564_000_000;
+    const token = await createSignedLinkContext(secret, {
+      kind: "internal",
+      intentId: "intent-1",
+      userId: "user-1",
+      provider: "google",
+      phase: "target",
+      issuedAt: now,
+      expiresAt: now + 60_000,
+      nonce: "nonce-1",
+    });
+    const segments = token.split(".");
+
+    expect(segments).toHaveLength(2);
+    expect(segments[0]).toMatch(/^[A-Za-z0-9_-]+$/u);
+    expect(segments[1]).toMatch(/^[A-Za-z0-9_-]+$/u);
+    expect(token).not.toContain("=");
+  });
+
+  it("accepts the inclusive issued-at and expiry boundaries", async () => {
+    const issuedAt = 1_785_564_000_000;
+    const expiresAt = issuedAt + 60_000;
+    const token = await createSignedLinkContext(secret, {
+      kind: "internal",
+      intentId: "intent-1",
+      userId: "user-1",
+      provider: "google",
+      phase: "target",
+      issuedAt,
+      expiresAt,
+      nonce: "nonce-1",
+    });
+
+    await expect(
+      verifySignedLinkContext(secret, token, "internal", issuedAt),
+    ).resolves.toMatchObject({ issuedAt });
+    await expect(
+      verifySignedLinkContext(secret, token, "internal", expiresAt),
+    ).resolves.toMatchObject({ expiresAt });
+  });
+
   it("rejects tampering, wrong purpose, and expiry", async () => {
     const now = 1_785_564_000_000;
     const token = await createSignedLinkContext(secret, {
