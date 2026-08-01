@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { D1AccountLinkRepository } from "../../app/server/account-link/d1-repository";
+import type { AccountLinkRepository } from "../../app/server/account-link/repository";
 
 type IntentRow = {
   id: string;
@@ -254,8 +255,7 @@ describe("D1AccountLinkRepository", () => {
     }));
     db.seed(intentRow({ id: "other-user", token_hash: "hash-other-user", user_id: "user-2" }));
     const rawCredential = "raw-browser-credential-must-never-reach-d1";
-
-    const created = await repository(db).create({
+    const createInput: Parameters<AccountLinkRepository["create"]>[0] = {
       id: "intent-new",
       tokenHash: "sha256:new-credential",
       userId: "user-1",
@@ -263,7 +263,14 @@ describe("D1AccountLinkRepository", () => {
       targetProvider: "google",
       expiresAt: new Date(baseTime + 20 * 60_000),
       now: new Date(baseTime + 10_000),
-    });
+    };
+    const runtimeInput = {
+      ...createInput,
+      rawCredential,
+    } as typeof createInput & { rawCredential: string };
+
+    expect(runtimeInput.rawCredential).toBe(rawCredential);
+    const created = await repository(db).create(runtimeInput);
 
     expect(db.batches).toHaveLength(1);
     expect(db.batches[0]).toHaveLength(2);
@@ -290,7 +297,9 @@ describe("D1AccountLinkRepository", () => {
       createdAt: new Date(baseTime + 10_000),
       updatedAt: new Date(baseTime + 10_000),
     });
-    expect(JSON.stringify(db.batches[0])).not.toContain(rawCredential);
+    const recordedBatchValues = db.batches[0].flatMap((call) => call.values);
+    expect(recordedBatchValues).not.toContain(rawCredential);
+    expect(JSON.stringify(recordedBatchValues)).not.toContain(rawCredential);
     expect(db.batches[0][1].values).toContain("sha256:new-credential");
   });
 
