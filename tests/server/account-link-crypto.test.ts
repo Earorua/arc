@@ -23,6 +23,19 @@ function toBase64Url(bytes: Uint8Array): string {
     .replace(/=+$/u, "");
 }
 
+function mutateUnusedBase64UrlPaddingBits(segment: string): string {
+  const alphabet =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  const remainder = segment.length % 4;
+  if (remainder !== 2 && remainder !== 3) {
+    throw new Error("Segment does not contain unused padding bits");
+  }
+
+  const lastIndex = alphabet.indexOf(segment.at(-1) ?? "");
+  if (lastIndex < 0) throw new Error("Invalid base64url segment");
+  return `${segment.slice(0, -1)}${alphabet[lastIndex ^ 1]}`;
+}
+
 async function signRawPayload(payload: string): Promise<string> {
   const encoder = new TextEncoder();
   const payloadBytes = encoder.encode(payload);
@@ -53,9 +66,15 @@ async function signRawPayload(payload: string): Promise<string> {
 
 describe("account-link security primitives", () => {
   it("creates a high-entropy credential and stores only a stable digest", async () => {
-    const credential = createAccountLinkCredential();
-    expect(credential).toMatch(/^[A-Za-z0-9_-]{43}$/u);
-    expect(await hashAccountLinkCredential(credential)).toHaveLength(64);
+    const credentials = Array.from({ length: 8 }, () =>
+      createAccountLinkCredential(),
+    );
+
+    expect(new Set(credentials).size).toBe(credentials.length);
+    for (const credential of credentials) {
+      expect(credential).toMatch(/^[A-Za-z0-9_-]{43}$/u);
+    }
+    expect(await hashAccountLinkCredential(credentials[0])).toHaveLength(64);
   });
 
   it("hashes credentials with deterministic lowercase SHA-256", async () => {
@@ -134,6 +153,32 @@ describe("account-link security primitives", () => {
     ).rejects.toThrow();
     await expect(
       verifySignedLinkContext(secret, token, "internal", now + 60_001),
+    ).rejects.toThrow();
+  });
+
+  it("rejects non-canonical base64url padding bits", async () => {
+    const now = 1_785_564_000_000;
+    const token = await createSignedLinkContext(secret, {
+      kind: "internal",
+      intentId: "intent-1",
+      userId: "user-1",
+      provider: "google",
+      phase: "target",
+      issuedAt: now,
+      expiresAt: now + 60_000,
+      nonce: "nonce-1",
+    });
+    const [payload, signature] = token.split(".");
+    const nonCanonicalSignature = mutateUnusedBase64UrlPaddingBits(signature);
+
+    expect(nonCanonicalSignature).not.toBe(signature);
+    await expect(
+      verifySignedLinkContext(
+        secret,
+        `${payload}.${nonCanonicalSignature}`,
+        "internal",
+        now,
+      ),
     ).rejects.toThrow();
   });
 

@@ -62,6 +62,9 @@ function decodeBase64Url(value: string): Uint8Array<ArrayBuffer> {
   for (let index = 0; index < binary.length; index += 1) {
     bytes[index] = binary.charCodeAt(index);
   }
+  if (encodeBase64Url(bytes) !== value) {
+    throw new Error("Invalid signed link context");
+  }
   return bytes;
 }
 
