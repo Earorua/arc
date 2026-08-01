@@ -1126,11 +1126,13 @@ Open a draft PR titled `feat: build Arc public beta foundation`. Include the acc
 
 Execution evidence (2026-07-28): draft PR #2 is open against `master`, contains the acceptance and rollback gates, and is mergeable. The initial comparison exposed a squash-history divergence from the prior public release; the Beta commits were cleanly replayed onto the identical latest `master` tree, with the pre/post tree hashes matching. GitHub Actions Quality run 3 then passed install, 239 unit tests, lint, production build, and rendered-artifact verification.
 
-- [ ] **Step 6: Validate hosted resource wiring without secrets**
+- [x] **Step 6: Validate hosted resource wiring without secrets**
 
 Save a Sites preview version with `DB` and `PROOF_ASSETS` logical bindings. Confirm public editorial routes and the deterministic sample still work. Confirm `/api/auth/providers` honestly reports no provider until hosted credentials exist. Do not enable production login buttons with incomplete credentials.
 
 Partial execution evidence (2026-07-28): the exact reviewed commit and a 92-file Sites archive were saved as version 4 with the logical `DB` and `PROOF_ASSETS` bindings and packaged Drizzle migration metadata. The owner-only preview deployment correctly refused to start because the existing project is public. No public deployment was substituted, so the current public version remains the rollback target. Hosted route, binding, and provider checks therefore remain pending rather than being overstated.
+
+Completion evidence (2026-08-01): version 5 was deployed only after explicit public-release approval. The anonymous editorial and deterministic learning routes remained available, the hosted provider endpoint reported both configured providers, the reviewed D1 migration was applied, and the authentication path wrote and refreshed hosted account/session state. `PROOF_ASSETS` is wired but its private asset smoke test remains a Step 8 release requirement rather than being inferred from configuration alone. The previously deployed version remains available for rollback.
 
 - [ ] **Step 7: Credential-dependent OAuth validation**
 
@@ -1142,6 +1144,8 @@ https://arc-precision-path.jiahe-xu.chatgpt.site/api/auth/callback/github
 ```
 
 Verify sign-in, sign-out, session refresh, cancelled login, invalid state rejection, explicit provider linking, and absence of ChatGPT identity. If Sites cannot complete these flows with secure same-origin cookies, select the already-approved owner-controlled Cloudflare auth branch and keep the browser contract unchanged.
+
+Partial execution evidence (2026-08-01): Google passed hosted sign-in, callback, fresh-navigation session refresh, and sign-out. GitHub passed hosted sign-in, callback, and fresh-navigation session refresh. Both flows use independent Arc. identity and no ChatGPT account. Release-gate review found that the server correctly disabled implicit linking but the account menu did not expose the required authenticated `linkSocial` action. A test-first remediation now lists connected providers, offers only configured unlinked providers, uses same-origin success/error callbacks, presents a generic no-merge conflict state, and settles failed connection reads without exposing provider internals. The focused suite passed 8 tests and the full suite passed 51 files / 244 tests; the remediation still requires a new hosted version and live cancellation, invalid-state, sign-out, and link-conflict checks before this step can close.
 
 - [ ] **Step 8: Production release gate**
 

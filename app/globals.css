@@ -42,7 +42,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .account-link, .account-menu summary { color: var(--stone); font-size: 0.72rem; white-space: nowrap; }
 .account-link:hover, .account-menu summary:hover { color: var(--charcoal); }
 .account-pending { color: var(--stone); font: 0.65rem ui-monospace, monospace; letter-spacing: 0.12em; }
-.account-menu { position: relative; }
+.account-control, .account-menu { position: relative; }
 .account-menu summary { min-height: 40px; display: flex; align-items: center; cursor: pointer; list-style: none; }
 .account-menu summary::-webkit-details-marker { display: none; }
 .account-menu summary::after { content: "+"; margin-left: 7px; }
@@ -57,6 +57,24 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .account-popover strong { font-size: 0.84rem; }
 .account-popover span { margin-top: 5px; color: var(--stone); font-size: 0.72rem; }
 .account-popover button { margin-top: 18px; border: 0; border-bottom: 1px solid currentColor; background: transparent; padding: 0 0 3px; cursor: pointer; color: var(--charcoal); font-size: 0.72rem; }
+.account-connections { margin-top: 18px; border-top: 1px solid var(--hairline); padding-top: 14px; }
+.account-connections > p { margin: 0 0 8px; color: var(--stone); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.account-connection { display: flex; min-height: 28px; align-items: center; justify-content: space-between; }
+.account-connection + .account-connection { border-top: 1px solid color-mix(in srgb, var(--hairline) 62%, transparent); }
+.account-connection span { margin: 0; color: var(--charcoal); }
+.account-connection button { margin: 0; }
+.account-connection button:disabled { cursor: wait; opacity: 0.55; }
+.account-popover .account-sign-out { margin-top: 16px; color: var(--stone); }
+.account-link-notice {
+  position: fixed; top: 76px; right: clamp(16px, 3vw, 48px); z-index: 60;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: start;
+  width: min(360px, calc(100vw - 32px)); border: 1px solid var(--hairline); background: var(--chalk);
+  padding: 16px 18px; box-shadow: 0 20px 50px color-mix(in srgb, var(--charcoal) 12%, transparent);
+  animation: account-popover-in 160ms ease-out both;
+}
+.account-link-notice-alert { border-left: 3px solid var(--signal); }
+.account-link-notice p { margin: 0; color: var(--charcoal); font-size: 0.74rem; line-height: 1.5; }
+.account-link-notice button { border: 0; background: transparent; padding: 0; cursor: pointer; color: var(--stone); font-size: 1rem; line-height: 1; }
 @keyframes account-popover-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 :focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
 

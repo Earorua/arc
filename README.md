@@ -29,7 +29,7 @@ The flagship experience maps 16 skills for an AI full-stack engineer. Custom rol
 
 **Independent Arc. account.** The codebase supports Google and GitHub OAuth owned by Arc.—not ChatGPT identity. After sign-in, D1 is authoritative for learning state. Meaningful work already present on the device is shown as an explicit import choice; it is never silently moved, overwritten, or deleted.
 
-The account implementation is credential-ready, but hosted Google and GitHub callbacks are not claimed as production-validated until both providers complete real same-origin flows on the deployed URL. With no hosted provider credentials, `/api/auth/providers` intentionally reports no available provider and the interface shows a preparation state.
+Hosted Google and GitHub primary callbacks have completed real same-origin flows on the deployed URL. Explicit second-provider linking and a non-disclosing conflict recovery state are implemented in the release candidate; cancellation, invalid-state rejection, and the hosted linking path remain release-gate checks. When hosted credentials are absent, `/api/auth/providers` still reports no available provider and the interface shows a preparation state.
 
 ## Design thesis: Warm Precision
 
@@ -82,9 +82,9 @@ flowchart LR
 
 ## Hosted Beta status
 
-The Sites project and public origin already exist. The Beta Foundation declares logical `DB` and `PROOF_ASSETS` bindings and is ready for a no-secret hosted preview. Production release remains gated on resource wiring, migration application, CI, and real Google and GitHub callback tests.
+The Sites project is public with server-managed runtime configuration, logical `DB` and `PROOF_ASSETS` bindings, and the reviewed migration. Both providers can create an independent Arc. session and preserve it across navigation. Final release remains gated on deploying and exercising explicit provider linking, cancellation and invalid-state rejection, private proof retrieval, cross-user denial, and the remaining rollback smoke checks.
 
-The current public version remains the rollback target until those checks pass. If Sites cannot preserve secure same-origin OAuth cookies and callbacks, the same browser contract can move to the approved owner-controlled Cloudflare deployment branch.
+The version preceding the current Beta candidate remains available as the rollback target until those checks pass. If Sites cannot preserve secure same-origin OAuth cookies and callbacks, the same browser contract can move to the approved owner-controlled Cloudflare deployment branch.
 
 See [the OAuth feasibility record](./docs/operations/sites-oauth-feasibility.md) for the exact hosted validation status.
 
