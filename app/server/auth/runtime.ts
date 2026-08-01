@@ -2,6 +2,7 @@ import { env } from "cloudflare:workers";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { getDb } from "../../../db";
+import { getD1 } from "../../../db/d1";
 import {
   accounts,
   authRateLimits,
@@ -10,6 +11,8 @@ import {
   verifications,
 } from "../../../db/schema";
 import { readAuthPolicy, type AuthEnvironment } from "./policy";
+import { createAccountLinkAuthHooks } from "../account-link/auth-hooks";
+import { D1AccountLinkRepository } from "../account-link/d1-repository";
 
 export class AuthUnavailableError extends Error {
   readonly code = "AUTH_UNAVAILABLE";
@@ -57,6 +60,10 @@ export function buildAuthOptions(
 ): BetterAuthOptions {
   const policy = readAuthPolicy(source);
   if (!policy.isReady || !source.BETTER_AUTH_SECRET) throw new AuthUnavailableError();
+  const accountLinkHooks = createAccountLinkAuthHooks({
+    secret: source.BETTER_AUTH_SECRET,
+    getRepository: () => new D1AccountLinkRepository(getD1()),
+  });
 
   return {
     baseURL: policy.origin,
@@ -74,9 +81,12 @@ export function buildAuthOptions(
         enabled: true,
         disableImplicitLinking: true,
         trustedProviders: ["google", "github"],
-        allowDifferentEmails: false,
+        allowDifferentEmails: true,
+        updateUserInfoOnLink: false,
       },
     },
+    hooks: accountLinkHooks.hooks,
+    databaseHooks: accountLinkHooks.databaseHooks,
     verification: { storeIdentifier: "hashed" },
     rateLimit: {
       enabled: true,

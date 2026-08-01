@@ -1,0 +1,477 @@
+import { APIError } from "better-auth/api";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  PENDING_REAUTH_TTL_MS,
+  type AccountLinkIntent,
+} from "../../app/server/account-link/contracts";
+import {
+  createSignedLinkContext,
+  verifySignedLinkContext,
+  type SignedLinkContext,
+} from "../../app/server/account-link/crypto";
+import { ACCOUNT_LINK_COOKIE } from "../../app/server/account-link/cookie";
+import type { AccountLinkRepository } from "../../app/server/account-link/repository";
+import {
+  createAccountLinkAuthHooks,
+  type AccountLinkAuthHookOptions,
+} from "../../app/server/account-link/auth-hooks";
+
+const now = new Date("2026-08-01T12:00:00.000Z");
+const secret = "s".repeat(32);
+
+function intent(overrides: Partial<AccountLinkIntent> = {}): AccountLinkIntent {
+  return {
+    id: "intent-1",
+    tokenHash: "sha256:credential",
+    userId: "user-1",
+    sourceProvider: "github",
+    targetProvider: "google",
+    status: "pending_reauth",
+    expiresAt: new Date(now.getTime() + PENDING_REAUTH_TTL_MS),
+    verifiedAt: null,
+    consumedAt: null,
+    completedAt: null,
+    failureCode: null,
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  };
+}
+
+function repository(row: AccountLinkIntent | null = intent()): AccountLinkRepository {
+  return {
+    create: vi.fn(),
+    findByCredential: vi.fn(async () => row),
+    findById: vi.fn(async () => row),
+    markVerified: vi.fn(),
+    consume: vi.fn(),
+    complete: vi.fn(),
+    fail: vi.fn(),
+  } as AccountLinkRepository;
+}
+
+function contextToken(overrides: Partial<SignedLinkContext> = {}) {
+  return createSignedLinkContext(secret, {
+    kind: "internal",
+    intentId: "intent-1",
+    userId: "user-1",
+    provider: "github",
+    phase: "reauth",
+    issuedAt: now.getTime(),
+    expiresAt: now.getTime() + 60_000,
+    nonce: "nonce-1",
+    ...overrides,
+  });
+}
+
+function hookFixture(overrides: Partial<AccountLinkAuthHookOptions> = {}) {
+  const repo = repository();
+  const settleCallback = vi.fn(async () => undefined);
+  const getOAuthState = vi.fn(async () => null);
+  const getAuthoritativeSessionFromCtx = vi.fn(async () => ({
+    session: { id: "session-1", userId: "user-1" },
+    user: { id: "user-1" },
+  }));
+  const options: AccountLinkAuthHookOptions = {
+    secret,
+    getRepository: () => repo,
+    now: () => now,
+    createNonce: () => "oauth-nonce",
+    getOAuthState,
+    getAuthoritativeSessionFromCtx,
+    settleCallback,
+    ...overrides,
+  };
+  return {
+    hooks: createAccountLinkAuthHooks(options),
+    repo,
+    settleCallback,
+    getOAuthState,
+    getAuthoritativeSessionFromCtx,
+  };
+}
+
+function middlewareInput(input: Record<string, unknown>) {
+  return {
+    method: "POST",
+    body: {},
+    query: {},
+    params: {},
+    headers: new Headers(),
+    context: {},
+    ...input,
+  } as never;
+}
+
+function oauthState(token: string, phase: "reauth" | "target" = "reauth") {
+  return {
+    callbackURL: phase === "reauth"
+      ? "/today?link=verified"
+      : "/today?link=complete",
+    errorURL: phase === "reauth"
+      ? "/today?link=error&stage=reauth"
+      : "/today?link=error&stage=target",
+    codeVerifier: "verifier",
+    expiresAt: now.getTime() + 60_000,
+    link: { email: "provider@example.com", userId: "user-1" },
+    arcLinkContext: token,
+  };
+}
+
+describe("account-link Better Auth hooks", () => {
+  beforeEach(() => vi.restoreAllMocks());
+
+  it("rejects a direct link-social request without an internal proof", async () => {
+    const { hooks } = hookFixture();
+
+    await expect(hooks.hooks.before(middlewareInput({
+      path: "/link-social",
+      body: { provider: "github" },
+    }))).rejects.toMatchObject({
+      name: "APIError",
+      status: "FORBIDDEN",
+      body: { code: "ARC_ACCOUNT_LINK_DENIED" },
+    } satisfies Partial<APIError>);
+  });
+
+  it.each([
+    ["session user", {}, { getAuthoritativeSessionFromCtx: vi.fn(async () => ({ user: { id: "other-user" } })) }],
+    ["proof user", { userId: "other-user" }, {}],
+    ["proof intent", { intentId: "other-intent" }, {}],
+    ["request provider", {}, {}, "google"],
+    ["proof provider", { provider: "google" }, {}, "google"],
+    ["proof phase", { phase: "target", provider: "google" }, {}, "google"],
+  ] as const)("rejects a link-social %s binding mismatch", async (
+    _label,
+    proofOverrides,
+    optionOverrides,
+    requestProvider: "google" | "github" = "github",
+  ) => {
+    const proof = await contextToken(proofOverrides);
+    const { hooks } = hookFixture(optionOverrides as Partial<AccountLinkAuthHookOptions>);
+
+    await expect(hooks.hooks.before(middlewareInput({
+      path: "/link-social",
+      headers: new Headers({ "x-arc-link-proof": proof }),
+      body: { provider: requestProvider },
+    }))).rejects.toMatchObject({ body: { code: "ARC_ACCOUNT_LINK_DENIED" } });
+  });
+
+  it("rejects a link-social intent whose status is wrong for its phase", async () => {
+    const proof = await contextToken();
+    const repo = repository(intent({ status: "consumed" }));
+    const { hooks } = hookFixture({ getRepository: () => repo });
+
+    await expect(hooks.hooks.before(middlewareInput({
+      path: "/link-social",
+      headers: new Headers({ "x-arc-link-proof": proof }),
+      body: { provider: "github" },
+    }))).rejects.toMatchObject({ body: { code: "ARC_ACCOUNT_LINK_DENIED" } });
+  });
+
+  it("replaces browser additionalData and fixes the source result URLs", async () => {
+    const proof = await contextToken();
+    const body = {
+      provider: "github",
+      callbackURL: "/attacker-success?secret=value",
+      errorCallbackURL: "/attacker-error?email=provider@example.com",
+      additionalData: { arcLinkContext: "forged", injected: "untrusted" },
+    };
+    const { hooks } = hookFixture();
+
+    await hooks.hooks.before(middlewareInput({
+      path: "/link-social",
+      headers: new Headers({ "x-arc-link-proof": proof }),
+      body,
+    }));
+
+    expect(body.callbackURL).toBe("/today?link=verified");
+    expect(body.errorCallbackURL).toBe("/today?link=error&stage=reauth");
+    expect(Object.keys(body.additionalData)).toEqual(["arcLinkContext"]);
+    const oauth = await verifySignedLinkContext(
+      secret,
+      body.additionalData.arcLinkContext,
+      "oauth",
+      now.getTime(),
+    );
+    expect(oauth).toMatchObject({
+      intentId: "intent-1",
+      userId: "user-1",
+      provider: "github",
+      phase: "reauth",
+      expiresAt: intent().expiresAt.getTime(),
+    });
+  });
+
+  it("issues a ten-minute target OAuth context and target result URLs", async () => {
+    const proof = await contextToken({ phase: "target", provider: "google" });
+    const repo = repository(intent({ status: "consumed" }));
+    const body = { provider: "google", additionalData: { untrusted: true } };
+    const { hooks } = hookFixture({ getRepository: () => repo });
+
+    await hooks.hooks.before(middlewareInput({
+      path: "/link-social",
+      headers: new Headers({ "x-arc-link-proof": proof }),
+      body,
+    }));
+
+    expect(body).toMatchObject({
+      callbackURL: "/today?link=complete",
+      errorCallbackURL: "/today?link=error&stage=target",
+    });
+    const oauth = await verifySignedLinkContext(
+      secret,
+      (body.additionalData as unknown as { arcLinkContext: string }).arcLinkContext,
+      "oauth",
+      now.getTime(),
+    );
+    expect(oauth.expiresAt).toBe(now.getTime() + 10 * 60_000);
+  });
+
+  it("blocks source account creation but permits the validated target account", async () => {
+    const reauthToken = await createSignedLinkContext(secret, {
+      ...(await contextPayload("reauth")),
+      kind: "oauth",
+    });
+    const targetToken = await createSignedLinkContext(secret, {
+      ...(await contextPayload("target")),
+      kind: "oauth",
+    });
+    let state = oauthState(reauthToken);
+    const repo = repository();
+    const { hooks } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => state),
+    });
+    const accountCreate = hooks.databaseHooks.account.create.before;
+
+    const callbackContext = {
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+    };
+    await expect(accountCreate(
+      { userId: "user-1", providerId: "github" } as never,
+      callbackContext,
+    ))
+      .resolves.toBe(false);
+
+    state = oauthState(targetToken, "target");
+    vi.mocked(repo.findById).mockResolvedValue(intent({ status: "consumed" }));
+    await expect(accountCreate(
+      { userId: "user-1", providerId: "google" } as never,
+      callbackContext,
+    ))
+      .resolves.toBe(true);
+  });
+
+  it("denies target account creation before mutation when the HttpOnly credential is absent", async () => {
+    const targetToken = await createSignedLinkContext(secret, {
+      ...(await contextPayload("target")),
+      kind: "oauth",
+    });
+    const repo = repository(intent({ status: "consumed" }));
+    const { hooks } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => oauthState(targetToken, "target")),
+    });
+
+    await expect(hooks.databaseHooks.account.create.before(
+      { userId: "user-1", providerId: "google" } as never,
+      {},
+    )).rejects.toMatchObject({ body: { code: "ARC_ACCOUNT_LINK_DENIED" } });
+  });
+
+  it("leaves ordinary OAuth account creation unchanged and fails closed on forged Arc state", async () => {
+    const getOAuthState = vi.fn()
+      .mockResolvedValueOnce({ link: { userId: "user-1" } })
+      .mockResolvedValueOnce({ link: { userId: "user-1" }, arcLinkContext: "forged" });
+    const { hooks } = hookFixture({ getOAuthState });
+    const accountCreate = hooks.databaseHooks.account.create.before;
+
+    await expect(accountCreate({ userId: "user-1", providerId: "github" } as never, null))
+      .resolves.toBeUndefined();
+    await expect(accountCreate({ userId: "user-1", providerId: "github" } as never, null))
+      .rejects.toMatchObject({ body: { code: "ARC_ACCOUNT_LINK_DENIED" } });
+  });
+
+  it("settles an exact source success against the state owner and current session", async () => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("reauth")),
+      kind: "oauth",
+    });
+    const { hooks, settleCallback } = hookFixture({
+      getOAuthState: vi.fn(async () => oauthState(token)),
+    });
+    const responseHeaders = new Headers({ location: "/today?link=verified" });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "github" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }));
+
+    expect(settleCallback).toHaveBeenCalledWith({
+      headers: expect.any(Headers),
+      credential: "credential",
+      oauthContextToken: token,
+      provider: "github",
+      linkUserId: "user-1",
+      outcome: { kind: "success" },
+    });
+    expect(responseHeaders.get("location")).toBe("/today?link=verified");
+  });
+
+  it.each([
+    ["access_denied", "OAUTH_CANCELLED"],
+    ["account_already_linked_to_different_user", "LINK_CONFLICT"],
+    ["state_mismatch", "STATE_INVALID"],
+    ["invalid_code", "OAUTH_FAILED"],
+  ])("settles callback error %s as %s and removes provider detail", async (providerError, code) => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("target")),
+      kind: "oauth",
+    });
+    const repo = repository(intent({ status: "consumed" }));
+    const { hooks, settleCallback } = hookFixture({
+      getRepository: () => repo,
+      getOAuthState: vi.fn(async () => oauthState(token, "target")),
+    });
+    const responseHeaders = new Headers({
+      location: `/today?link=error&stage=target&error=${providerError}&error_description=sensitive`,
+    });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "google" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }));
+
+    expect(settleCallback).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: { kind: "error", code },
+    }));
+    expect(responseHeaders.get("location")).toBe("/today?link=error&stage=target");
+  });
+
+  it("does not classify a source identity mismatch as a target link conflict", async () => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("reauth")),
+      kind: "oauth",
+    });
+    const { hooks, settleCallback } = hookFixture({
+      getOAuthState: vi.fn(async () => oauthState(token)),
+    });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "github" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: {
+        responseHeaders: new Headers({
+          location: "/today?link=error&stage=reauth&error=account_already_linked_to_different_user",
+        }),
+      },
+    }));
+
+    expect(settleCallback).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: { kind: "error", code: "OAUTH_FAILED" },
+    }));
+  });
+
+  it("does not classify an arbitrary callback location as success", async () => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("reauth")),
+      kind: "oauth",
+    });
+    const { hooks, settleCallback } = hookFixture({
+      getOAuthState: vi.fn(async () => oauthState(token)),
+    });
+    const responseHeaders = new Headers({ location: "/attacker-success" });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "github" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }));
+
+    expect(settleCallback).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: { kind: "error", code: "OAUTH_FAILED" },
+    }));
+    expect(responseHeaders.get("location")).toBe("/today?link=error&stage=reauth");
+  });
+
+  it("does not classify an absolute copy of the relative success URL as exact", async () => {
+    const token = await createSignedLinkContext(secret, {
+      ...(await contextPayload("reauth")),
+      kind: "oauth",
+    });
+    const { hooks, settleCallback } = hookFixture({
+      getOAuthState: vi.fn(async () => oauthState(token)),
+    });
+    const responseHeaders = new Headers({
+      location: "https://arc.example.com/today?link=verified",
+    });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "github" },
+      headers: new Headers({ cookie: `${ACCOUNT_LINK_COOKIE}=credential` }),
+      context: { responseHeaders },
+    }));
+
+    expect(settleCallback).toHaveBeenCalledWith(expect.objectContaining({
+      outcome: { kind: "error", code: "OAUTH_FAILED" },
+    }));
+    expect(responseHeaders.get("location")).toBe("/today?link=error&stage=reauth");
+  });
+
+  it("leaves an ordinary sign-in callback untouched without loading D1", async () => {
+    const getRepository = vi.fn(() => repository());
+    const settleCallback = vi.fn(async () => undefined);
+    const { hooks } = hookFixture({ getRepository, settleCallback });
+    const responseHeaders = new Headers({ location: "/today" });
+
+    await hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "github" },
+      context: { responseHeaders },
+    }));
+
+    expect(responseHeaders.get("location")).toBe("/today");
+    expect(getRepository).not.toHaveBeenCalled();
+    expect(settleCallback).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on a signed-context field with an invalid signature", async () => {
+    const { hooks, settleCallback } = hookFixture({
+      getOAuthState: vi.fn(async () => oauthState("invalid.signature")),
+    });
+
+    const responseHeaders = new Headers({
+      location: "/today?link=error&stage=reauth&error_description=sensitive",
+    });
+    await expect(hooks.hooks.after(middlewareInput({
+      path: "/callback/:id",
+      params: { id: "github" },
+      context: { responseHeaders },
+    }))).rejects.toMatchObject({ body: { code: "ARC_ACCOUNT_LINK_DENIED" } });
+    expect(responseHeaders.get("location")).toBeNull();
+    expect(settleCallback).not.toHaveBeenCalled();
+  });
+});
+
+async function contextPayload(phase: "reauth" | "target"): Promise<SignedLinkContext> {
+  return {
+    kind: "oauth",
+    intentId: "intent-1",
+    userId: "user-1",
+    provider: phase === "reauth" ? "github" : "google",
+    phase,
+    issuedAt: now.getTime(),
+    expiresAt: phase === "reauth"
+      ? now.getTime() + PENDING_REAUTH_TTL_MS
+      : now.getTime() + 10 * 60_000,
+    nonce: "oauth-nonce",
+  };
+}

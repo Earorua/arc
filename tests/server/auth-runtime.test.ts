@@ -33,9 +33,14 @@ describe("Arc auth runtime", () => {
       accountLinking: {
         enabled: true,
         disableImplicitLinking: true,
-        allowDifferentEmails: false,
+        trustedProviders: ["google", "github"],
+        allowDifferentEmails: true,
+        updateUserInfoOnLink: false,
       },
     });
+    expect(options.hooks?.before).toBeTypeOf("function");
+    expect(options.hooks?.after).toBeTypeOf("function");
+    expect(options.databaseHooks?.account?.create?.before).toBeTypeOf("function");
     expect(options.trustedOrigins).toEqual(["https://arc.example.com"]);
     expect(options.advanced).toMatchObject({ cookiePrefix: "arc", useSecureCookies: true });
     expect(options.rateLimit).toMatchObject({
@@ -60,6 +65,15 @@ describe("Arc auth runtime", () => {
   it("fails closed when the runtime is not ready", () => {
     expect(() => buildAuthOptions({ BETTER_AUTH_URL: "https://arc.example.com" }, {} as never))
       .toThrow(AuthUnavailableError);
+  });
+
+  it("constructs options without reading the D1 binding for ordinary requests", async () => {
+    const options = buildAuthOptions(productionEnvironment, {} as never);
+
+    await expect(options.hooks?.before?.({
+      path: "/get-session",
+      context: {},
+    } as never)).resolves.toBeUndefined();
   });
 
   it("returns only the Arc user identity fields from a server session", async () => {
