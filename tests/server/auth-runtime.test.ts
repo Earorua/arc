@@ -43,7 +43,13 @@ describe("Arc auth runtime", () => {
     expect(options.databaseHooks?.account?.create?.before).toBeTypeOf("function");
     expect(options.databaseHooks?.account?.create?.after).toBeTypeOf("function");
     expect(options.trustedOrigins).toEqual(["https://arc.example.com"]);
-    expect(options.advanced).toMatchObject({ cookiePrefix: "arc", useSecureCookies: true });
+    expect(options.advanced).toMatchObject({
+      cookiePrefix: "arc",
+      useSecureCookies: true,
+      ipAddress: {
+        ipAddressHeaders: ["cf-connecting-ip"],
+      },
+    });
     expect(options.rateLimit).toMatchObject({
       enabled: true,
       storage: "database",
@@ -51,6 +57,26 @@ describe("Arc auth runtime", () => {
       window: 60,
       max: 30,
     });
+  });
+
+  it("redacts Better Auth warning and error details before writing runtime logs", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const options = buildAuthOptions(productionEnvironment, {} as never);
+    const log = options.logger?.log;
+
+    expect(log).toBeTypeOf("function");
+    log?.("warn", "OAuth warning for learner@example.com", { accessToken: "warn-token" });
+    log?.("error", "Token exchange failed", new Error("error-token"));
+
+    expect(warn).toHaveBeenCalledWith("[Arc Auth] WARN");
+    expect(error).toHaveBeenCalledWith("[Arc Auth] ERROR");
+    expect(JSON.stringify([...warn.mock.calls, ...error.mock.calls])).not.toMatch(
+      /learner@example\.com|warn-token|error-token/,
+    );
+
+    warn.mockRestore();
+    error.mockRestore();
   });
 
   it("includes only providers with complete credentials", () => {
