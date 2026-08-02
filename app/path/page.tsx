@@ -3,13 +3,14 @@
 import { flagshipRole } from "../data/flagship-role";
 import { PhaseRail } from "../components/workspace/phase-rail";
 import { WorkspaceShell } from "../components/workspace/workspace-shell";
-import { useDemoState } from "../lib/use-demo-state";
+import { useArcState } from "../lib/use-arc-state";
 import { formatWeeklyBudget, getRoleDisplayName, redistributePhaseWeeks } from "../lib/personalized-plan";
 
 export default function PathPage() {
-  const state = useDemoState();
+  const arc = useArcState();
+  const { state } = arc;
 
-  if (state === null) return <WorkspaceShell current="Path" state={null} />;
+  if (state === null) return <WorkspaceShell current="Path" recovery={arc.recovery} source={arc.source} state={null} />;
 
   const { roleId, targetWeeks, weeklyMinutes } = state.setup;
   const role = getRoleDisplayName(roleId);
@@ -17,7 +18,16 @@ export default function PathPage() {
   const phases = redistributePhaseWeeks(flagshipRole.phases, targetWeeks);
 
   return (
-    <WorkspaceShell current="Path" state={state}>
+    <WorkspaceShell
+      current="Path"
+      migration={arc.migration}
+      migrationState={arc.localMigrationState}
+      onImport={arc.importLocal}
+      onRetry={arc.retry}
+      recovery={arc.recovery}
+      source={arc.source}
+      state={state}
+    >
       <section className="workspace-intro">
         <p className="eyebrow" lang="en">{role} · {targetWeeks} weeks · {budget}</p>
         <h1 lang="en">Your precise path.</h1>

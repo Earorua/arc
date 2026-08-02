@@ -4,15 +4,18 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SetupFlow } from "../components/setup/setup-flow";
-import { loadDemoState, mergeSetup, saveDemoState, type SetupAnswers } from "../lib/demo-store";
+import { CloudStatus } from "../components/sync/cloud-status";
+import type { SetupAnswers } from "../lib/demo-store";
+import { useArcState } from "../lib/use-arc-state";
 
 export default function SetupPage() {
   const router = useRouter();
+  const arc = useArcState();
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const finish = (answers: SetupAnswers) => {
+  const finish = async (answers: SetupAnswers) => {
     setSaveError(null);
-    const saved = saveDemoState(mergeSetup(loadDemoState(), answers));
+    const saved = await arc.saveSetup(answers);
     if (!saved) {
       setSaveError("无法保存到此设备，请检查浏览器存储设置后重试。");
       return;
@@ -24,7 +27,8 @@ export default function SetupPage() {
     <main className="setup-page" id="main-content">
       <Link className="wordmark setup-wordmark" href="/" lang="en">Arc.</Link>
       <SetupFlow onComplete={finish} />
-      {saveError && <p className="setup-save-error" role="alert">{saveError}</p>}
+      {arc.recovery === "session-expired" && <CloudStatus kind="session-expired" />}
+      {saveError && arc.recovery === "none" && <p className="setup-save-error" role="alert">{saveError}</p>}
     </main>
   );
 }

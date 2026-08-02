@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
+import { readdir, readFile } from "node:fs/promises";
+import { register } from "node:module";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
+
+register("./cloudflare-workers-loader.mjs", import.meta.url);
 
 async function render() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -34,4 +39,26 @@ test("server-renders the Arc landing page", async () => {
   ];
 
   assert.doesNotMatch(html, new RegExp(legacySentinels.join("|"), "i"));
+});
+
+async function readBundleText(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const contents = await Promise.all(entries.map(async (entry) => {
+    const path = `${directory}/${entry.name}`;
+    return entry.isDirectory() ? readBundleText(path) : readFile(path, "utf8");
+  }));
+  return contents.flat().join("\n");
+}
+
+test("keeps server secret identifiers out of the client bundle", async () => {
+  const clientDirectory = fileURLToPath(new URL("../dist/client", import.meta.url));
+  const bundle = await readBundleText(clientDirectory);
+  for (const identifier of [
+    "BETTER_AUTH_SECRET",
+    "GOOGLE_CLIENT_SECRET",
+    "GITHUB_CLIENT_SECRET",
+    "OPENAI_API_KEY",
+  ]) {
+    assert.doesNotMatch(bundle, new RegExp(identifier));
+  }
 });

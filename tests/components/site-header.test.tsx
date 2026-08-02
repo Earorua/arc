@@ -1,5 +1,10 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("../../app/components/account/account-menu", () => ({
+  AccountMenu: () => <a href="/sign-in">Sign in</a>,
+}));
+
 import { SiteHeader } from "../../app/components/brand/site-header";
 
 describe("SiteHeader", () => {
@@ -11,5 +16,6 @@ describe("SiteHeader", () => {
     expect(screen.getByRole("link", { name: "Method" })).toHaveAttribute("href", "/method");
     expect(screen.getByRole("link", { name: "Intelligence" })).toHaveAttribute("href", "/intelligence");
     expect(screen.getByRole("link", { name: "Build my path" })).toHaveAttribute("href", "/setup");
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
   });
 });

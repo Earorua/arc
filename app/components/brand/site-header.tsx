@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { AccountMenu } from "../account/account-menu";
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,7 +24,10 @@ export function SiteHeader() {
           <Link href="/method">Method</Link>
           <Link href="/intelligence">Intelligence</Link>
         </nav>
-        <Link className="header-cta" href="/setup">Build my path</Link>
+        <div className="header-end">
+          <Link className="header-cta" href="/setup">Build my path</Link>
+          <AccountMenu />
+        </div>
       </div>
     </header>
   );
