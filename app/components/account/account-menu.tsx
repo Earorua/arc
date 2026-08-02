@@ -150,12 +150,17 @@ export function AccountMenu() {
   const [noticeState, setNoticeState] = useState<UserScopedState<AccountNotice | null> | null>(null);
   const [capturedResult] = useState<AccountLinkResult | null>(readAccountLinkResult);
   const callbackOwner = useRef<string | null>(null);
+  const accountMenuRef = useRef<HTMLDetailsElement | null>(null);
+  const accountSummaryRef = useRef<HTMLElement | null>(null);
+  const linkTriggerRef = useRef<HTMLButtonElement | null>(null);
   const currentConnections = connectionState?.userId === userId ? connectionState : null;
   const currentLinkStatus = linkStatusState?.userId === userId ? linkStatusState : null;
   const selectedTarget = selectedTargetState && selectedTargetState.userId === userId
     ? selectedTargetState.value
     : null;
   const notice = noticeState && noticeState.userId === userId ? noticeState.value : null;
+  const returnFocusTarget = selectedTarget
+    ?? (notice ? currentLinkStatus?.targetProvider ?? null : null);
   const providers = currentConnections?.providers ?? [];
   const connected = currentConnections?.connectedProviders ?? [];
   const connectionsPending = Boolean(data?.user && !currentConnections);
@@ -260,8 +265,8 @@ export function AccountMenu() {
 
   return (
     <div className="account-control">
-      <details className="account-menu">
-        <summary>{data.user.name}</summary>
+      <details className="account-menu" ref={accountMenuRef}>
+        <summary ref={accountSummaryRef}>{data.user.name}</summary>
         <div className="account-popover">
           <strong>Signed in as {data.user.name}</strong>
           <span>{data.user.email}</span>
@@ -280,10 +285,12 @@ export function AccountMenu() {
                     <span>{label} connected</span>
                   ) : (
                     <button
-                      onClick={() => {
+                      onClick={(event) => {
+                        linkTriggerRef.current = event.currentTarget;
                         setNoticeState({ userId: signedInUserId, value: null });
                         setSelectedTargetState({ userId: signedInUserId, value: provider });
                       }}
+                      ref={returnFocusTarget === provider ? linkTriggerRef : undefined}
                       type="button"
                     >
                       Link {label}
@@ -298,6 +305,7 @@ export function AccountMenu() {
               expiresAt={currentLinkStatus?.expiresAt ?? null}
               onCancel={() => setSelectedTargetState({ userId: signedInUserId, value: null })}
               onSubmit={() => setNoticeState({ userId: signedInUserId, value: null })}
+              returnFocusRef={linkTriggerRef}
               sourceProvider={sourceProvider}
               stage={currentLinkStatus?.targetProvider === selectedTarget
                 ? currentLinkStatus.stage
@@ -315,7 +323,16 @@ export function AccountMenu() {
           <p role={notice.kind}>{notice.message}</p>
           <button
             aria-label="Dismiss account message"
-            onClick={() => setNoticeState({ userId: signedInUserId, value: null })}
+            onClick={() => {
+              setNoticeState({ userId: signedInUserId, value: null });
+              const linkTrigger = linkTriggerRef.current;
+              if (linkTrigger) {
+                if (accountMenuRef.current) accountMenuRef.current.open = true;
+                linkTrigger.focus();
+              } else {
+                accountSummaryRef.current?.focus();
+              }
+            }}
             type="button"
           >×</button>
         </div>

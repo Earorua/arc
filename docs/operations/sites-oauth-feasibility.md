@@ -8,6 +8,12 @@
 
 Arc. requires an independent public account backed by Google and GitHub. The Sites-provided ChatGPT/SIWC client is intentionally not used as the Arc. product identity.
 
+## Version 7 candidate — 2026-08-02
+
+Version 7 remains a local, unpublished candidate. Fresh local component and operational-event tests cover the account-link confirmation dialog, heading focus and exact trigger restoration, native keyboard actions, result live regions, reduced-motion behavior, mobile target sizing and popover containment, callback-query email non-rendering, and rejection of sensitive diagnostic counter names. These tests use mocked local status and callback inputs; mocked callbacks do not prove that either external provider completed successfully.
+
+Cross-email account-link support remains local and unpublished, and hosted account linking has not yet passed. The public production deployment remains version 6, with the production evidence and open gates below unchanged.
+
 ## Capability record
 
 | Capability | Status | Evidence / completion condition |

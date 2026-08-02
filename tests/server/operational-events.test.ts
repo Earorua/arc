@@ -49,6 +49,49 @@ describe("operational events", () => {
     },
   );
 
+  it.each([
+    "link_intent_created",
+    "link_source_verified",
+    "link_grant_consumed",
+    "link_completed",
+    "link_conflict",
+    "link_expired",
+    "link_replay_denied",
+    "link_bypass_denied",
+  ])("accepts the stable account-link outcome %s without identity data", (resultCode) => {
+    expect(operationalEventSchema.parse({
+      ...baseEvent,
+      resultCode,
+      counters: { attempt: 1 },
+    })).toMatchObject({ resultCode, counters: { attempt: 1 } });
+  });
+
+  it.each([
+    "token",
+    "secret",
+    "password",
+    "api_key",
+    "apikey",
+    "authorization",
+    "cookie",
+    "email",
+    "user_id",
+    "userid",
+    "role",
+    "proof",
+    "content",
+    "body",
+    "account",
+    "provider",
+    "callback",
+    "intent",
+  ])("rejects the sensitive counter fragment %s", (fragment) => {
+    expect(() => operationalEventSchema.parse({
+      ...baseEvent,
+      counters: { [`${fragment}_count`]: 1 },
+    })).toThrow("Sensitive counter names are forbidden.");
+  });
+
   it("persists only the already-sanitized event", async () => {
     const calls: Array<{ sql: string; values: unknown[] }> = [];
     const db = {

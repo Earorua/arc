@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const sensitiveFieldPattern = /(?:token|secret|password|api_?key|authorization|cookie|email|user_?id|role|proof|content|body)/iu;
+const sensitiveFieldPattern = /(?:token|secret|password|api_?key|authorization|cookie|email|user_?id|role|proof|content|body|account|provider|callback|intent)/iu;
 
 const countersSchema = z.record(
   z.string()
