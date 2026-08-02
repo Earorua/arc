@@ -1,8 +1,8 @@
 # Arc. Sites OAuth feasibility gate
 
-**Status:** Sites version 7 is publicly deployed; primary hosted OAuth flows and the post-deploy transport smoke passed, while destructive account-linking checks remain open.
+**Status:** Product release v7.1 is publicly deployed; primary hosted OAuth flows and the post-deploy transport smoke passed, while real-provider account-linking and fresh runtime-log checks remain open.
 
-**Reviewed:** 2026-08-02
+**Reviewed:** 2026-08-03
 
 **Production origin:** `https://arc-precision-path.jiahe-xu.chatgpt.site`
 
@@ -15,6 +15,14 @@ Version 7 was publicly deployed from the exact saved Sites artifact `appgprj_6a6
 Fresh local component and operational-event tests cover the account-link confirmation dialog, heading focus and exact trigger restoration, native keyboard actions, result live regions, reduced-motion behavior, mobile target sizing and popover containment, callback-query email non-rendering, rejection of sensitive diagnostic counter names, stale target-OAuth recovery, safe ownership-conflict messaging, and verified-grant cancellation. The final suite passed 60 files / 510 tests, with a focused route/security smoke of 6 files / 171 tests. These tests use mocked local status and callback inputs; mocked callbacks do not prove that either external provider completed successfully.
 
 The post-deploy smoke opened the public `/today` page with the expected Arc. title. Recent production Worker evidence showed successful 200 responses for `/today`, the core RSC routes, session and account-provider APIs, `/api/workspace`, and `/api/account-link/status`; the error-only query returned zero events. No external provider authorization, identity ownership change, or account merge was attempted during this automated smoke. Version 6 remains the direct rollback artifact.
+
+## Version 7.1 authentication edge hardening — 2026-08-03
+
+Product release v7.1 was saved by Sites as version number 8 and publicly deployed from artifact `appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_86e9c4efe8e881918ecd579584e10e55` in deployment `appgdep_6a6f7a4710cc819191dd0d8af31b76dd`. The isolated Sites source commit is `242a7fdb14364ffadd66de59c656c9200ee08aa1`; its file tree exactly matches verified GitHub commit `fd28276249f40b2a443d0129d1c834b734e09af8` while preserving the prior Sites release history. No runtime variable, OAuth credential, D1 schema, or R2 binding changed during this deployment.
+
+The release configures Better Auth to trust only Cloudflare's `cf-connecting-ip` header for IP-based rate limiting and replaces raw Better Auth warning/error payloads with fixed `[Arc Auth]` severity markers. The independent release snapshot passed 60 test files / 511 tests, ESLint, the five-stage Vinext production build, and 2/2 rendered HTML tests. After deployment, unauthenticated HTTPS smoke returned 200 for `/today` and `/api/auth/get-session`, and the protected `/api/auth/list-accounts` route returned the expected 401. The Sites deployment status is `succeeded` and the error-only Worker query returned zero events. The general Worker log query returned no events after the smoke requests, so runtime confirmation that the former shared-bucket warning is absent remains open rather than inferred from an empty result.
+
+This Sites version number 8 is a hosting-system sequence only. It does not mark the start of Arc. product v8.
 
 ## Capability record
 
