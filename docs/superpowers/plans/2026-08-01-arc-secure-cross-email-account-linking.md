@@ -1145,17 +1145,19 @@ Report the saved version, verification evidence, known provider limitation that 
 
 Execution evidence (2026-08-02): the final automated suite passed 60 test files and 510 tests; the focused account-link route/security smoke passed 6 files and 171 tests. ESLint and `tsc --noEmit` exited 0, the five-stage Vinext production build succeeded, and the rendered HTML suite passed 2/2. The additive migration scan, client secret/proof scan, browser-readable credential scan, and `git diff --check` all passed with no prohibited match. The independent release review initially found three Important issues—stale consumed-intent lockout, unreachable ownership-conflict copy, and cancellation that did not revoke the verified grant. Commit `65125a44ec7c7105aaaa16a09d87e81532cc0381` fixes all three with owner/target/status/time-bounded D1 compare-and-set recovery, a settled target-conflict redirect, and an owner/session/origin/cookie-scoped cancellation route; post-fix regression and line-by-line release review found no remaining release blocker. Sites version 7 was saved, not deployed, as `appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_692d37ca0724819198f151bda4d83846`, sourced from commit `22c5096eb840ce610e0b39df99475b27ccbd9c67`; that source commit preserves the Sites version 6 history and has the exact file tree of verified commit `65125a44ec7c7105aaaa16a09d87e81532cc0381`. Public production remains version 6. Its direct rollback artifact is `appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_954b8ee1fbb08191b91062090e87d5b2` at source commit `9d14a05a87b7f9c48e67f1082fbf9f86a10fe3c0`.
 
-## Production verification after a later deployment approval
+## Production verification after deployment approval
 
-This section is intentionally not executable until the user separately approves public deployment:
+The user explicitly approved public deployment on 2026-08-02. Execution state:
 
-1. publish the exact saved version 7;
-2. confirm an existing Google and an existing GitHub sign-in still reach their correct Arc. users;
-3. from a one-provider test user, complete current-provider reauthentication;
-4. confirm `Identity verified` and the five-minute continuation state;
-5. link an unowned different-email target identity when a safe test identity is available;
-6. sign out and confirm both providers return to the same Arc. user and learning state;
-7. exercise a target identity already owned by another Arc. user and confirm the generic no-merge result;
-8. verify cancellation, stale grant, replay, and direct bypass leave data unchanged;
-9. inspect sanitized Worker logs for expected categories and absence of credentials/emails;
-10. roll back to version 6 immediately on ownership mutation, bypass, replay, unintended account switch, inaccessible account, or critical UI failure.
+1. [x] publish the exact saved version 7;
+2. [ ] confirm an existing Google and an existing GitHub sign-in still reach their correct Arc. users;
+3. [ ] from a one-provider test user, complete current-provider reauthentication;
+4. [ ] confirm `Identity verified` and the five-minute continuation state;
+5. [ ] link an unowned different-email target identity when a safe test identity is available;
+6. [ ] sign out and confirm both providers return to the same Arc. user and learning state;
+7. [ ] exercise a target identity already owned by another Arc. user and confirm the generic no-merge result;
+8. [ ] verify cancellation, stale grant, replay, and direct bypass leave data unchanged;
+9. [ ] inspect sanitized Worker logs for expected account-link categories and absence of credentials/emails;
+10. [ ] roll back to version 6 immediately on ownership mutation, bypass, replay, unintended account switch, inaccessible account, or critical UI failure.
+
+Deployment evidence (2026-08-02): Sites deployment `appgdep_6a6f48344d848191bd34fe500e2e4d3a` succeeded for the exact saved version 7 artifact. The public `/today` page opened with the expected Arc. title. A read-only production log smoke observed successful 200 responses for the public page, core RSC routes, session/account-provider APIs, `/api/workspace`, and `/api/account-link/status`; a separate error-only query returned zero events. This completes deployment and non-destructive transport verification, but does not complete checklist steps 2–9 because no real provider authorization or identity ownership mutation was attempted. Version 6 remains available for immediate rollback as `appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_954b8ee1fbb08191b91062090e87d5b2`.
