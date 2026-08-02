@@ -114,10 +114,30 @@ export function buildAuthOptions(
       storage: "database",
       modelName: "authRateLimit",
     },
+    logger: {
+      level: "warn",
+      log: (level) => {
+        // Better Auth can pass raw OAuth exceptions here. Never forward their
+        // messages or attached objects into the public runtime log stream.
+        const marker = `[Arc Auth] ${level.toUpperCase()}`;
+        if (level === "error") {
+          console.error(marker);
+        } else if (level === "warn") {
+          console.warn(marker);
+        } else {
+          console.log(marker);
+        }
+      },
+    },
     trustedOrigins: [policy.origin],
     advanced: {
       cookiePrefix: "arc",
       useSecureCookies: source.ARC_ENVIRONMENT === "production",
+      ipAddress: {
+        // Sites runs at Cloudflare's edge, which owns this header. Do not add a
+        // client-controlled forwarded-header fallback without a trusted chain.
+        ipAddressHeaders: ["cf-connecting-ip"],
+      },
     },
     socialProviders: buildSocialProviders(source),
   };
