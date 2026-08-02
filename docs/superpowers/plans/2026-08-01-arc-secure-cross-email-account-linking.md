@@ -1071,7 +1071,7 @@ Expected: accessibility/privacy tests pass and documentation distinguishes local
 - Modify: `docs/superpowers/plans/2026-08-01-arc-secure-cross-email-account-linking.md`
 - Modify only if evidence requires correction: `docs/operations/sites-oauth-feasibility.md`
 
-- [ ] **Step 1: Run the complete automated suite**
+- [x] **Step 1: Run the complete automated suite**
 
 Run:
 
@@ -1085,7 +1085,7 @@ npm test
 
 Expected: all unit/component/API tests pass; ESLint and TypeScript exit 0; the five-stage Vinext build succeeds; rendered HTML tests pass. Record the final test file and test counts without replacing the previous 51/244 baseline history.
 
-- [ ] **Step 2: Run migration and secret-boundary scans**
+- [x] **Step 2: Run migration and secret-boundary scans**
 
 Run:
 
@@ -1098,7 +1098,7 @@ git diff --check
 
 Expected: the migration scan returns no destructive match; client files contain no server secret/proof field; no browser-readable credential storage exists; Git whitespace check passes.
 
-- [ ] **Step 3: Perform local route smoke tests**
+- [x] **Step 3: Perform local route smoke tests**
 
 Start the app with the existing runtime harness and verify:
 
@@ -1111,15 +1111,15 @@ Start the app with the existing runtime harness and verify:
 
 Do not claim a provider callback passed from mocks alone.
 
-- [ ] **Step 4: Request a code review before release packaging**
+- [x] **Step 4: Request a code review before release packaging**
 
 Invoke `superpowers:requesting-code-review`. Address any correctness or security finding with `superpowers:receiving-code-review`, then rerun the focused and complete verification commands. Do not waive a finding about identity ownership, replay, expiry, cookie scope, direct bypass, or callback settlement.
 
-- [ ] **Step 5: Save, but do not publish, Sites version 7**
+- [x] **Step 5: Save, but do not publish, Sites version 7**
 
 Invoke `sites:sites-building` to package the exact verified tree and `sites:sites-hosting` to save a new version for project `appgprj_6a6678d3e3848191a352778c6db1e7b1`. Confirm the version is saved and not public. Keep public version 6 and its prior rollback version untouched.
 
-- [ ] **Step 6: Record evidence and commit**
+- [x] **Step 6: Record evidence and commit**
 
 Append an execution-evidence paragraph to this plan with:
 
@@ -1139,9 +1139,11 @@ git status --short --branch
 
 Expected: evidence is committed and the worktree is clean.
 
-- [ ] **Step 7: Stop at the deployment approval gate**
+- [x] **Step 7: Stop at the deployment approval gate**
 
 Report the saved version, verification evidence, known provider limitation that OAuth may reuse an existing Google/GitHub session, exact production test sequence, and version 6 rollback target. Ask for explicit public-deployment approval. Do not publish version 7 in the same action.
+
+Execution evidence (2026-08-02): the final automated suite passed 60 test files and 510 tests; the focused account-link route/security smoke passed 6 files and 171 tests. ESLint and `tsc --noEmit` exited 0, the five-stage Vinext production build succeeded, and the rendered HTML suite passed 2/2. The additive migration scan, client secret/proof scan, browser-readable credential scan, and `git diff --check` all passed with no prohibited match. The independent release review initially found three Important issues—stale consumed-intent lockout, unreachable ownership-conflict copy, and cancellation that did not revoke the verified grant. Commit `65125a44ec7c7105aaaa16a09d87e81532cc0381` fixes all three with owner/target/status/time-bounded D1 compare-and-set recovery, a settled target-conflict redirect, and an owner/session/origin/cookie-scoped cancellation route; post-fix regression and line-by-line release review found no remaining release blocker. Sites version 7 was saved, not deployed, as `appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_692d37ca0724819198f151bda4d83846`, sourced from commit `22c5096eb840ce610e0b39df99475b27ccbd9c67`; that source commit preserves the Sites version 6 history and has the exact file tree of verified commit `65125a44ec7c7105aaaa16a09d87e81532cc0381`. Public production remains version 6. Its direct rollback artifact is `appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_954b8ee1fbb08191b91062090e87d5b2` at source commit `9d14a05a87b7f9c48e67f1082fbf9f86a10fe3c0`.
 
 ## Production verification after a later deployment approval
 
