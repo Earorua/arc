@@ -47,6 +47,7 @@ export const PENDING_REAUTH_TTL_MS = 10 * 60 * 1000;
 export const VERIFIED_GRANT_TTL_MS = 5 * 60 * 1000;
 export const INTERNAL_PROOF_TTL_MS = 60 * 1000;
 export const COMPLETION_RECONCILIATION_TTL_MS = 10 * 60 * 1000;
+export const TARGET_OAUTH_RECOVERY_TTL_MS = PENDING_REAUTH_TTL_MS;
 
 const transitions: Record<AccountLinkStatus, readonly AccountLinkStatus[]> = {
   pending_reauth: ["verified", "failed", "expired"],

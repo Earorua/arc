@@ -74,7 +74,9 @@ function contextToken(overrides: Partial<SignedLinkContext> = {}) {
 
 function hookFixture(overrides: Partial<AccountLinkAuthHookOptions> = {}) {
   const repo = repository();
-  const settleCallback = vi.fn(async () => undefined);
+  const settleCallback = vi.fn<NonNullable<AccountLinkAuthHookOptions["settleCallback"]>>(
+    async () => undefined,
+  );
   const getOAuthState = vi.fn(async () => null);
   const getAuthoritativeSessionFromCtx = vi.fn(async () => ({
     session: { id: "session-1", userId: "user-1" },
@@ -550,11 +552,15 @@ describe("account-link Better Auth hooks", () => {
   });
 
   it.each([
-    ["access_denied", "OAUTH_CANCELLED"],
-    ["account_already_linked_to_different_user", "LINK_CONFLICT"],
-    ["state_mismatch", "STATE_INVALID"],
-    ["invalid_code", "OAUTH_FAILED"],
-  ])("settles callback error %s as %s and removes provider detail", async (providerError, code) => {
+    ["access_denied", "OAUTH_CANCELLED", "/today?link=error&stage=target"],
+    ["account_already_linked_to_different_user", "LINK_CONFLICT", "/today?link=conflict"],
+    ["state_mismatch", "STATE_INVALID", "/today?link=error&stage=target"],
+    ["invalid_code", "OAUTH_FAILED", "/today?link=error&stage=target"],
+  ])("settles callback error %s as %s and removes provider detail", async (
+    providerError,
+    code,
+    expectedLocation,
+  ) => {
     const token = await createSignedLinkContext(secret, {
       ...(await contextPayload("target")),
       kind: "oauth",
@@ -564,6 +570,7 @@ describe("account-link Better Auth hooks", () => {
       getRepository: () => repo,
       getOAuthState: vi.fn(async () => oauthState(token, "target")),
     });
+    settleCallback.mockResolvedValue({ kind: "settled" });
     const responseHeaders = new Headers({
       location: `/today?link=error&stage=target&error=${providerError}&error_description=sensitive`,
     });
@@ -578,7 +585,7 @@ describe("account-link Better Auth hooks", () => {
     expect(settleCallback).toHaveBeenCalledWith(expect.objectContaining({
       outcome: { kind: "error", code },
     }));
-    expect(responseHeaders.get("location")).toBe("/today?link=error&stage=target");
+    expect(responseHeaders.get("location")).toBe(expectedLocation);
   });
 
   it.each([

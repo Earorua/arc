@@ -77,7 +77,26 @@ describe("AccountLinkPanel", () => {
     expect(continuation.closest("form")).toHaveAttribute("action", "/api/account-link/continue");
     expect(continuation.closest("form")).toHaveAttribute("method", "post");
     expect(container.querySelector('input[name="targetProvider"]')).not.toBeInTheDocument();
-    expect(container.querySelectorAll('button[type="submit"]')).toHaveLength(1);
+    expect(container.querySelectorAll('button[type="submit"]')).toHaveLength(2);
+  });
+
+  it("revokes a verified grant through a dedicated POST cancel action", () => {
+    render(
+      <AccountLinkPanel
+        expiresAt="2026-08-02T08:05:00.000Z"
+        onCancel={vi.fn()}
+        onSubmit={vi.fn()}
+        returnFocusRef={createRef<HTMLButtonElement>()}
+        sourceProvider="github"
+        stage="verified"
+        targetProvider="google"
+      />,
+    );
+
+    const cancel = screen.getByRole("button", { name: "Cancel" });
+    expect(cancel).toHaveAttribute("type", "submit");
+    expect(cancel).toHaveAttribute("formaction", "/api/account-link/cancel");
+    expect(cancel).toHaveAttribute("formmethod", "post");
   });
 
   it("disables duplicate actions once its form is submitting", async () => {

@@ -36,7 +36,10 @@ import {
   type OperationalEvent,
 } from "../observability/events";
 
-type AccountLinkHttpService = Pick<AccountLinkService, "start" | "status" | "continue">;
+type AccountLinkHttpService = Pick<
+  AccountLinkService,
+  "start" | "status" | "continue" | "cancel"
+>;
 
 export type AccountLinkHttpDependencies = {
   requireUser: (headers: Headers) => Promise<ArcUser>;
@@ -51,11 +54,12 @@ export type AccountLinkHttpDependencies = {
   now?: () => number;
 };
 
-type RouteName = "start" | "status" | "continue";
+type RouteName = "start" | "status" | "continue" | "cancel";
 
 const routeConfigs: Record<RouteName, { limit: number; windowSeconds: number }> = {
   start: { limit: 5, windowSeconds: 10 * 60 },
   continue: { limit: 10, windowSeconds: 10 * 60 },
+  cancel: { limit: 10, windowSeconds: 10 * 60 },
   status: { limit: 60, windowSeconds: 60 },
 };
 
@@ -404,6 +408,18 @@ export function createAccountLinkHandlers(deps: AccountLinkHttpDependencies) {
         );
       });
     },
+    cancel(request: Request) {
+      return runRoute(request, deps, "cancel", async (user, requestId) => {
+        const credential = deps.readCredential(request.headers);
+        await deps.service.cancel(user.id, credential);
+        return redirectResponse(
+          "/today?link=cancelled",
+          new Headers(),
+          deps.clearCredential(),
+          requestId,
+        );
+      });
+    },
   };
 }
 
@@ -503,6 +519,7 @@ function lazyProductionService(runtime: AccountLinkProductionRuntime): AccountLi
     start: (...args) => invoke((service) => service.start(...args)),
     status: (...args) => invoke((service) => service.status(...args)),
     continue: (...args) => invoke((service) => service.continue(...args)),
+    cancel: (...args) => invoke((service) => service.cancel(...args)),
   };
 }
 

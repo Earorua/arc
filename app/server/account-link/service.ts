@@ -5,6 +5,7 @@ import {
   PENDING_REAUTH_TTL_MS,
   projectAccountLinkIntent,
   safeAccountLinkStatusSchema,
+  TARGET_OAUTH_RECOVERY_TTL_MS,
   VERIFIED_GRANT_TTL_MS,
   AccountLinkError,
   type AccountLinkIntent,
@@ -129,6 +130,32 @@ export class AccountLinkService {
             throw domainError("REPLAYED", "An account-link operation is already in progress");
           }
         } else {
+          throw domainError("REPLAYED", "An account-link operation is already in progress");
+        }
+      } else if (inFlight.status === "consumed" && this.isStaleConsumed(
+        inFlight,
+        operationTime,
+      )) {
+        const failed = await this.dependencies.repository.failStaleConsumed({
+          id: inFlight.id,
+          userId: inFlight.userId,
+          targetProvider: inFlight.targetProvider,
+          cutoff: new Date(operationTime.getTime() - TARGET_OAUTH_RECOVERY_TTL_MS),
+          now: operationTime,
+        });
+        if (!failed) {
+          const finalProviders = await this.dependencies.listAccounts(headers);
+          if (finalProviders.includes(target)) {
+            await this.dependencies.repository.complete(
+              inFlight.id,
+              inFlight.userId,
+              operationTime,
+            );
+            throw domainError(
+              "ALREADY_CONNECTED",
+              "The requested provider is already connected",
+            );
+          }
           throw domainError("REPLAYED", "An account-link operation is already in progress");
         }
       } else {
@@ -324,6 +351,40 @@ export class AccountLinkService {
     }
   }
 
+  async cancel(
+    userId: string,
+    credential: string | null | undefined,
+  ) {
+    if (!credential) {
+      throw domainError("INVALID_INTENT", "The account-link intent is missing");
+    }
+
+    const operationTime = this.dependencies.now();
+    const tokenHash = await this.dependencies.hashCredential(credential);
+    const intent = await this.dependencies.repository.findByCredential(
+      userId,
+      tokenHash,
+      operationTime,
+    );
+    if (!intent) {
+      throw domainError("INVALID_INTENT", "The account-link intent is invalid");
+    }
+    if (intent.status === "expired") {
+      throw domainError("EXPIRED", "The verified grant has expired");
+    }
+    if (intent.status !== "verified") {
+      throw domainError("REPLAYED", "The verified grant is not available");
+    }
+    if (!await this.dependencies.repository.cancelVerified(
+      intent.id,
+      intent.userId,
+      operationTime,
+    )) {
+      throw domainError("REPLAYED", "The verified grant was no longer available");
+    }
+    return { cancelled: true as const };
+  }
+
   async settleCallback(
     input: SettleAccountLinkCallbackInput,
   ): Promise<AccountLinkCallbackSettlement> {
@@ -449,6 +510,12 @@ export class AccountLinkService {
   private isStaleCompletion(intent: AccountLinkIntent, operationTime: Date) {
     return intent.updatedAt.getTime()
       <= operationTime.getTime() - COMPLETION_RECONCILIATION_TTL_MS;
+  }
+
+  private isStaleConsumed(intent: AccountLinkIntent, operationTime: Date) {
+    return intent.consumedAt !== null
+      && intent.consumedAt.getTime()
+        <= operationTime.getTime() - TARGET_OAUTH_RECOVERY_TTL_MS;
   }
 
   private async verifyOAuthContext(token: string, operationTime: Date) {

@@ -11,7 +11,7 @@ const requestId = "00000000-0000-4000-8000-000000000007";
 const origin = "https://arc.example";
 const user = { id: "user-owner", name: "Arc Learner", email: "owner@example.com" };
 
-function formRequest(path: "start" | "continue", fields: Record<string, string> = {}) {
+function formRequest(path: "start" | "continue" | "cancel", fields: Record<string, string> = {}) {
   const body = new FormData();
   for (const [key, value] of Object.entries(fields)) body.set(key, value);
   return new Request(`${origin}/api/account-link/${path}`, {
@@ -63,12 +63,13 @@ function setup() {
     authorizationUrl: "https://provider.example/target",
     authHeaders: new Headers(),
   });
+  const cancel = vi.fn().mockResolvedValue({ cancelled: true });
   const reserve = vi.fn().mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
   const requireUser = vi.fn().mockResolvedValue(user);
   const recordEvent = vi.fn().mockResolvedValue(undefined);
   const deps: AccountLinkHttpDependencies = {
     requireUser,
-    service: { start, status, continue: continueLink },
+    service: { start, status, continue: continueLink, cancel },
     readCredential: (headers) => headers.get("cookie")?.includes("browser-credential")
       ? "browser-credential"
       : null,
@@ -88,6 +89,7 @@ function setup() {
     start,
     status,
     continueLink,
+    cancel,
     reserve,
     recordEvent,
   };
@@ -112,6 +114,7 @@ describe("Arc account-link HTTP gateway", () => {
     ["start", (handlers: ReturnType<typeof createAccountLinkHandlers>) => handlers.start(formRequest("start", { targetProvider: "google" }))],
     ["status", (handlers: ReturnType<typeof createAccountLinkHandlers>) => handlers.status(statusRequest())],
     ["continue", (handlers: ReturnType<typeof createAccountLinkHandlers>) => handlers.continue(formRequest("continue"))],
+    ["cancel", (handlers: ReturnType<typeof createAccountLinkHandlers>) => handlers.cancel(formRequest("cancel"))],
   ])("returns a safe 401 for unauthenticated %s requests", async (_name, invoke) => {
     const harness = setup();
     harness.requireUser.mockRejectedValue(new UnauthenticatedError());
@@ -121,7 +124,7 @@ describe("Arc account-link HTTP gateway", () => {
     expect(harness.reserve).not.toHaveBeenCalled();
   });
 
-  it.each(["start", "continue"] as const)(
+  it.each(["start", "continue", "cancel"] as const)(
     "rejects a non-matching or missing Origin before the %s mutation",
     async (route) => {
       const harness = setup();
@@ -131,7 +134,8 @@ describe("Arc account-link HTTP gateway", () => {
 
       await expectError(response, 403, "FORBIDDEN", "This request could not be verified.");
       expect(harness.reserve).not.toHaveBeenCalled();
-      expect(harness[route === "start" ? "start" : "continueLink"]).not.toHaveBeenCalled();
+      expect(harness[route === "start" ? "start" : route === "continue" ? "continueLink" : "cancel"])
+        .not.toHaveBeenCalled();
     },
   );
 
@@ -429,16 +433,46 @@ describe("Arc account-link HTTP gateway", () => {
     ]);
   });
 
+  it("cancels the verified grant through an owner-bound same-origin POST and clears its cookie", async () => {
+    const harness = setup();
+    const request = formRequest("cancel");
+    request.headers.set("cookie", "__Host-arc_link_intent=browser-credential");
+
+    const response = await harness.handlers.cancel(request);
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("/today?link=cancelled");
+    expect(setCookies(response)).toEqual([
+      expect.stringContaining("__Host-arc_link_intent=; Max-Age=0"),
+    ]);
+    expect(harness.cancel).toHaveBeenCalledWith(user.id, "browser-credential");
+  });
+
+  it("rejects cross-origin cancellation before touching the verified grant", async () => {
+    const harness = setup();
+    const request = formRequest("cancel");
+    request.headers.set("origin", "https://attacker.example");
+    request.headers.set("cookie", "__Host-arc_link_intent=browser-credential");
+
+    const response = await harness.handlers.cancel(request);
+
+    await expectError(response, 403, "FORBIDDEN", "This request could not be verified.");
+    expect(harness.cancel).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["start", 5, 600],
     ["continue", 10, 600],
+    ["cancel", 10, 600],
     ["status", 60, 60],
   ] as const)("uses the fail-closed %s user rate bucket", async (route, limit, windowSeconds) => {
     const harness = setup();
     const request = route === "status"
       ? statusRequest()
       : formRequest(route, route === "start" ? { targetProvider: "google" } : {});
-    if (route === "continue") request.headers.set("cookie", "__Host-arc_link_intent=browser-credential");
+    if (route === "continue" || route === "cancel") {
+      request.headers.set("cookie", "__Host-arc_link_intent=browser-credential");
+    }
     await harness.handlers[route](request);
 
     expect(harness.reserve).toHaveBeenCalledWith({

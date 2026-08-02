@@ -132,6 +132,10 @@ describe("AccountMenu", () => {
     const continuation = screen.getByRole("button", { name: "Continue to Google" });
     expect(continuation.closest("form")).toHaveAttribute("action", "/api/account-link/continue");
     expect(continuation.closest("form")).toHaveAttribute("method", "post");
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveAttribute(
+      "formaction",
+      "/api/account-link/cancel",
+    );
     expect(authMocks.linkSocial).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/account-link/status",

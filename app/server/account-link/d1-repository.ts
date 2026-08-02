@@ -239,6 +239,16 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
     return row === null ? null : mapRow(row);
   }
 
+  async cancelVerified(id: string, userId: string, now: Date): Promise<boolean> {
+    const result = await this.db.prepare(`
+      UPDATE account_link_intents
+      SET status = 'failed', failure_code = 'CANCELLED', updated_at = ?1
+      WHERE id = ?2 AND user_id = ?3
+        AND status = 'verified' AND expires_at > ?1
+    `).bind(now.getTime(), id, userId).run();
+    return result.meta.changes === 1;
+  }
+
   async reserveTargetCompletion(id: string, userId: string, now: Date): Promise<boolean> {
     const result = await this.db.prepare(`
       UPDATE account_link_intents
@@ -268,6 +278,29 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
       SET status = 'failed', failure_code = 'COMPLETION_STALE', updated_at = ?1
       WHERE id = ?2 AND user_id = ?3 AND target_provider = ?4
         AND status = 'completing' AND updated_at <= ?5
+        AND NOT EXISTS (SELECT 1
+          FROM accounts AS linked_account
+          WHERE linked_account.user_id = ?3
+            AND linked_account.provider_id = ?4
+        )
+    `).bind(
+      input.now.getTime(),
+      input.id,
+      input.userId,
+      input.targetProvider,
+      input.cutoff.getTime(),
+    ).run();
+    return result.meta.changes === 1;
+  }
+
+  async failStaleConsumed(
+    input: Parameters<AccountLinkRepository["failStaleConsumed"]>[0],
+  ): Promise<boolean> {
+    const result = await this.db.prepare(`
+      UPDATE account_link_intents
+      SET status = 'failed', failure_code = 'TARGET_OAUTH_STALE', updated_at = ?1
+      WHERE id = ?2 AND user_id = ?3 AND target_provider = ?4
+        AND status = 'consumed' AND consumed_at IS NOT NULL AND consumed_at <= ?5
         AND NOT EXISTS (SELECT 1
           FROM accounts AS linked_account
           WHERE linked_account.user_id = ?3

@@ -52,6 +52,7 @@ class FakeD1 {
   private readonly accounts = new Set<string>();
   private transitionInterleaving: ((row: IntentRow & Record<string, unknown>) => void) | null = null;
   private staleCompletionInterleaving: (() => void) | null = null;
+  private staleConsumedInterleaving: ((row: IntentRow & Record<string, unknown>) => void) | null = null;
   private returnedTransitionRow: (IntentRow & Record<string, unknown>) | null = null;
 
   seed(row: IntentRow & Record<string, unknown>) {
@@ -72,6 +73,10 @@ class FakeD1 {
 
   beforeNextStaleCompletion(callback: () => void) {
     this.staleCompletionInterleaving = callback;
+  }
+
+  beforeNextStaleConsumed(callback: (row: IntentRow & Record<string, unknown>) => void) {
+    this.staleConsumedInterleaving = callback;
   }
 
   prepare(sql: string) {
@@ -289,6 +294,44 @@ class FakeD1 {
         row.status = "failed";
         row.failure_code = "COMPLETION_STALE";
         row.updated_at = now;
+        changes = 1;
+      }
+    } else if (normalized.includes("failure_code = 'TARGET_OAUTH_STALE'")) {
+      const [transitionTime, id, userId, targetProvider, cutoff] = values as [
+        number,
+        string,
+        string,
+        string,
+        number,
+      ];
+      const row = this.rows.get(id);
+      const callback = this.staleConsumedInterleaving;
+      this.staleConsumedInterleaving = null;
+      if (row) callback?.(row);
+      if (
+        row?.user_id === userId
+        && row.target_provider === targetProvider
+        && row.status === "consumed"
+        && row.consumed_at !== null
+        && row.consumed_at <= cutoff
+        && !this.hasAccount(userId, targetProvider)
+      ) {
+        row.status = "failed";
+        row.failure_code = "TARGET_OAUTH_STALE";
+        row.updated_at = transitionTime;
+        changes = 1;
+      }
+    } else if (normalized.includes("failure_code = 'CANCELLED'")) {
+      const [transitionTime, id, userId] = values as [number, string, string];
+      const row = this.rows.get(id);
+      if (
+        row?.user_id === userId
+        && row.status === "verified"
+        && row.expires_at > transitionTime
+      ) {
+        row.status = "failed";
+        row.failure_code = "CANCELLED";
+        row.updated_at = transitionTime;
         changes = 1;
       }
     } else if (normalized.includes("SET status = 'failed'")) {
@@ -931,6 +974,73 @@ describe("D1AccountLinkRepository", () => {
       now: new Date(baseTime + 10 * 60_000),
     })).resolves.toBe(false);
     expect(db.row("intent-1")).toMatchObject({ status: "completing", failure_code: null });
+  });
+
+  it.each([
+    [baseTime + 1, false],
+    [baseTime, true],
+    [baseTime - 1, true],
+  ] as const)("fails stale consumed with an owned consumed-at/account CAS at cutoff %i", async (
+    consumedAt,
+    expected,
+  ) => {
+    const db = new FakeD1();
+    db.seed(intentRow({ status: "consumed", consumed_at: consumedAt }));
+
+    await expect(repository(db).failStaleConsumed({
+      id: "intent-1",
+      userId: "user-1",
+      targetProvider: "google",
+      cutoff: new Date(baseTime),
+      now: new Date(baseTime + 10 * 60_000),
+    })).resolves.toBe(expected);
+    expect(db.row("intent-1")?.status).toBe(expected ? "failed" : "consumed");
+    expect(normalize(db.runs[0].sql)).toContain("status = 'consumed'");
+    expect(normalize(db.runs[0].sql)).toContain("consumed_at <= ?5");
+    expect(normalize(db.runs[0].sql)).toContain("NOT EXISTS (SELECT 1 FROM accounts");
+  });
+
+  it("cannot fail stale consumed after callback reservation wins the same CAS", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({ status: "consumed", consumed_at: baseTime }));
+    db.beforeNextStaleConsumed((row) => {
+      row.status = "completing";
+      row.updated_at = baseTime + 1;
+    });
+
+    await expect(repository(db).failStaleConsumed({
+      id: "intent-1",
+      userId: "user-1",
+      targetProvider: "google",
+      cutoff: new Date(baseTime),
+      now: new Date(baseTime + 10 * 60_000),
+    })).resolves.toBe(false);
+    expect(db.row("intent-1")).toMatchObject({ status: "completing", failure_code: null });
+  });
+
+  it("cancels only an unexpired verified grant owned by the current user", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({
+      status: "verified",
+      verified_at: baseTime,
+      expires_at: baseTime + 5 * 60_000,
+    }));
+
+    await expect(repository(db).cancelVerified(
+      "intent-1",
+      "user-1",
+      new Date(baseTime + 1_000),
+    )).resolves.toBe(true);
+    expect(db.row("intent-1")).toMatchObject({ status: "failed", failure_code: "CANCELLED" });
+
+    const wrongOwner = new FakeD1();
+    wrongOwner.seed(intentRow({ status: "verified", verified_at: baseTime }));
+    await expect(repository(wrongOwner).cancelVerified(
+      "intent-1",
+      "user-2",
+      new Date(baseTime + 1_000),
+    )).resolves.toBe(false);
+    expect(wrongOwner.row("intent-1")?.status).toBe("verified");
   });
 
   it("rejects invalid failure codes and cannot revive or rewrite terminal rows", async () => {

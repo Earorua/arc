@@ -3,6 +3,7 @@ import {
   COMPLETION_RECONCILIATION_TTL_MS,
   INTERNAL_PROOF_TTL_MS,
   PENDING_REAUTH_TTL_MS,
+  TARGET_OAUTH_RECOVERY_TTL_MS,
   VERIFIED_GRANT_TTL_MS,
   AccountLinkError,
   type AccountLinkIntent,
@@ -72,8 +73,10 @@ function dependencies(overrides: Partial<AccountLinkServiceDependencies> = {}) {
     reserveTargetCompletion: vi.fn(async () => false),
     markVerified: vi.fn(async () => null),
     consume: vi.fn(async () => null),
+    cancelVerified: vi.fn(async () => false),
     complete: vi.fn(async () => false),
     fail: vi.fn(async () => false),
+    failStaleConsumed: vi.fn(async () => false),
     failStaleCompletion: vi.fn(async () => false),
   };
   const deps: AccountLinkServiceDependencies = {
@@ -288,6 +291,53 @@ describe("AccountLinkService", () => {
 
     expect(deps.listAccounts).toHaveBeenCalledTimes(1);
     expect(repository.complete).not.toHaveBeenCalled();
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [TARGET_OAUTH_RECOVERY_TTL_MS - 1, false],
+    [TARGET_OAUTH_RECOVERY_TTL_MS, true],
+    [TARGET_OAUTH_RECOVERY_TTL_MS + 1, true],
+  ] as const)("recovers an abandoned consumed target flow only at/after its OAuth lifetime (%i ms)", async (
+    age,
+    shouldRestart,
+  ) => {
+    const row = intent({
+      status: "consumed",
+      consumedAt: new Date(now.getTime() - age),
+      updatedAt: new Date(now.getTime() - age),
+    });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockResolvedValue(row);
+    vi.mocked(repository.failStaleConsumed).mockResolvedValue(shouldRestart);
+
+    const operation = new AccountLinkService(deps).start(new Headers(), "user-1", "google");
+    if (shouldRestart) {
+      await expect(operation).resolves.toMatchObject({ credential: rawCredential });
+      expect(repository.create).toHaveBeenCalledOnce();
+    } else {
+      await expect(operation).rejects.toEqual(expectAccountLinkError("REPLAYED"));
+      expect(repository.create).not.toHaveBeenCalled();
+    }
+    expect(repository.failStaleConsumed).toHaveBeenCalledTimes(shouldRestart ? 1 : 0);
+  });
+
+  it("keeps the old flow authoritative when callback reservation wins stale recovery", async () => {
+    const row = intent({
+      status: "consumed",
+      consumedAt: new Date(now.getTime() - TARGET_OAUTH_RECOVERY_TTL_MS),
+    });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockResolvedValue(row);
+    vi.mocked(repository.failStaleConsumed).mockResolvedValue(false);
+
+    await expect(new AccountLinkService(deps).start(
+      new Headers(),
+      "user-1",
+      "google",
+    )).rejects.toEqual(expectAccountLinkError("REPLAYED"));
+
+    expect(repository.failStaleConsumed).toHaveBeenCalledOnce();
     expect(repository.create).not.toHaveBeenCalled();
   });
 
@@ -580,6 +630,57 @@ describe("AccountLinkService", () => {
       now,
     );
     expect(repository.markVerified).not.toHaveBeenCalled();
+  });
+
+  it("atomically cancels only the owner-bound verified grant", async () => {
+    const verified = intent({
+      status: "verified",
+      verifiedAt: now,
+      expiresAt: new Date(now.getTime() + VERIFIED_GRANT_TTL_MS),
+    });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findByCredential).mockResolvedValue(verified);
+    vi.mocked(repository.cancelVerified).mockResolvedValue(true);
+
+    await expect(new AccountLinkService(deps).cancel("user-1", rawCredential))
+      .resolves.toEqual({ cancelled: true });
+
+    expect(repository.findByCredential).toHaveBeenCalledWith("user-1", tokenHash, now);
+    expect(repository.cancelVerified).toHaveBeenCalledWith("intent-1", "user-1", now);
+  });
+
+  it("makes continuation unavailable after cancellation and requires a fresh reauthentication", async () => {
+    let row = intent({
+      status: "verified",
+      verifiedAt: now,
+      expiresAt: new Date(now.getTime() + VERIFIED_GRANT_TTL_MS),
+    });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findByCredential).mockImplementation(async () => row);
+    vi.mocked(repository.cancelVerified).mockImplementation(async () => {
+      if (row.status !== "verified") return false;
+      row = { ...row, status: "failed", failureCode: "CANCELLED", updatedAt: now };
+      return true;
+    });
+
+    await expect(new AccountLinkService(deps).cancel("user-1", rawCredential))
+      .resolves.toEqual({ cancelled: true });
+    await expect(new AccountLinkService(deps).continue(
+      new Headers(),
+      "user-1",
+      rawCredential,
+    )).rejects.toEqual(expectAccountLinkError("REPLAYED"));
+    expect(deps.startProviderLink).not.toHaveBeenCalled();
+
+    await expect(new AccountLinkService(deps).start(
+      new Headers(),
+      "user-1",
+      "google",
+    )).resolves.toMatchObject({ authorizationUrl: "https://provider.example/authorize" });
+    expect(deps.startProviderLink).toHaveBeenCalledWith(expect.objectContaining({
+      provider: "github",
+      phase: "reauth",
+    }));
   });
 
   it("settles source success only after binding proof, credential, user, provider, phase, status, and deadline", async () => {

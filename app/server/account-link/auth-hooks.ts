@@ -6,7 +6,7 @@ import {
 } from "better-auth/api";
 import {
   accountLinkProviderSchema,
-  PENDING_REAUTH_TTL_MS,
+  TARGET_OAUTH_RECOVERY_TTL_MS,
   type AccountLinkIntent,
   type AccountLinkPhase,
   type AccountLinkProvider,
@@ -35,8 +35,9 @@ const RESULT_URLS = {
     error: "/today?link=error&stage=target",
   },
 } as const;
+const TARGET_CONFLICT_URL = "/today?link=conflict";
 
-const OAUTH_STATE_TTL_MS = PENDING_REAUTH_TTL_MS;
+const OAUTH_STATE_TTL_MS = TARGET_OAUTH_RECOVERY_TTL_MS;
 const ARC_LINK_DENIAL = {
   code: "ARC_ACCOUNT_LINK_DENIED",
   message: "Account link request denied",
@@ -422,6 +423,10 @@ export function createAccountLinkAuthHooks(options: AccountLinkAuthHookOptions) 
         "location",
         outcome.kind === "success" || settlement?.kind === "authoritative_completion"
           ? expected.success
+          : bound.signed.phase === "target"
+              && outcome.code === "LINK_CONFLICT"
+              && settlement?.kind === "settled"
+            ? TARGET_CONFLICT_URL
           : expected.error,
       );
     } catch {

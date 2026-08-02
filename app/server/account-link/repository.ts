@@ -40,7 +40,15 @@ export interface AccountLinkRepository {
     expiresAt: Date,
   ): Promise<AccountLinkIntent | null>;
   consume(id: string, userId: string, now: Date): Promise<AccountLinkIntent | null>;
+  cancelVerified(id: string, userId: string, now: Date): Promise<boolean>;
   complete(id: string, userId: string, now: Date): Promise<boolean>;
+  failStaleConsumed(input: {
+    id: string;
+    userId: string;
+    targetProvider: AccountLinkProvider;
+    cutoff: Date;
+    now: Date;
+  }): Promise<boolean>;
   failStaleCompletion(input: {
     id: string;
     userId: string;

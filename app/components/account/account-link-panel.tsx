@@ -49,6 +49,8 @@ export function AccountLinkPanel({
   const headingId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const sourceLabel = providerLabel(sourceProvider);
   const targetLabel = providerLabel(targetProvider);
   const verified = stage === "verified";
@@ -68,6 +70,12 @@ export function AccountLinkPanel({
   };
 
   const cancel = () => {
+    if (verified) {
+      if (formRef.current && cancelButtonRef.current) {
+        formRef.current.requestSubmit(cancelButtonRef.current);
+      }
+      return;
+    }
     onCancel();
     returnFocusRef.current?.focus();
   };
@@ -113,6 +121,7 @@ export function AccountLinkPanel({
         action={verified ? "/api/account-link/continue" : "/api/account-link/start"}
         method="post"
         onSubmit={submit}
+        ref={formRef}
       >
         {verified ? (
           <>
@@ -136,7 +145,14 @@ export function AccountLinkPanel({
           <button disabled={submitting} type="submit">
             {verified ? `Continue to ${targetLabel}` : `Verify ${sourceLabel}`}
           </button>
-          <button disabled={submitting} onClick={cancel} type="button">Cancel</button>
+          <button
+            disabled={submitting}
+            formAction={verified ? "/api/account-link/cancel" : undefined}
+            formMethod={verified ? "post" : undefined}
+            onClick={verified ? undefined : cancel}
+            ref={cancelButtonRef}
+            type={verified ? "submit" : "button"}
+          >Cancel</button>
         </div>
       </form>
     </div>
