@@ -1,5 +1,6 @@
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const authMocks = vi.hoisted(() => ({
@@ -194,6 +195,134 @@ describe("AccountMenu", () => {
     );
     expect(window.location.search).toBe("?stage=target&keep=1");
     expect(window.location.search).not.toMatch(/link|error|error_description/u);
+  });
+
+  it("preserves a completed callback through StrictMode effect replay", async () => {
+    window.history.replaceState(null, "", "/today?link=complete");
+    mockAccountFetch({
+      stage: "completed",
+      targetProvider: "google",
+      expiresAt: "2026-08-02T08:05:00.000Z",
+    });
+    authMocks.listAccounts
+      .mockResolvedValueOnce({ data: [{ providerId: "github" }], error: null })
+      .mockResolvedValueOnce({ data: [{ providerId: "github" }], error: null })
+      .mockResolvedValue({
+        data: [{ providerId: "github" }, { providerId: "google" }],
+        error: null,
+      });
+    signedInSession();
+
+    render(<StrictMode><AccountMenu /></StrictMode>);
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Google connected. You can now sign in with either provider.",
+    );
+    await waitFor(() => expect(authMocks.listAccounts).toHaveBeenCalledTimes(3));
+  });
+
+  it("preserves a verified callback notice through StrictMode effect replay", async () => {
+    window.history.replaceState(null, "", "/today?link=verified");
+    mockAccountFetch({
+      stage: "verified",
+      targetProvider: "google",
+      expiresAt: "2026-08-02T08:05:00.000Z",
+    });
+    signedInSession();
+
+    render(<StrictMode><AccountMenu /></StrictMode>);
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Identity verified. Continue within five minutes.",
+    );
+    expect(screen.getByRole("button", { name: "Continue to Google" })).toBeInTheDocument();
+  });
+
+  it.each([
+    ["complete", "verified"],
+    ["verified", "failed"],
+  ] as const)("does not trust a %s query when safe status is %s", async (result, stage) => {
+    window.history.replaceState(null, "", `/today?link=${result}`);
+    mockAccountFetch({
+      stage,
+      targetProvider: "google",
+      expiresAt: "2026-08-02T08:05:00.000Z",
+    });
+    signedInSession();
+
+    render(<AccountMenu />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "We couldn't connect this sign-in method. Nothing changed.",
+    );
+    expect(screen.queryByText(/connected\. You can now|Identity verified\. Continue/u)).not.toBeInTheDocument();
+  });
+
+  it("keeps completed state when the post-success account refresh fails", async () => {
+    const user = userEvent.setup();
+    window.history.replaceState(null, "", "/today?link=complete");
+    mockAccountFetch({
+      stage: "completed",
+      targetProvider: "google",
+      expiresAt: "2026-08-02T08:05:00.000Z",
+    });
+    authMocks.listAccounts
+      .mockResolvedValueOnce({ data: [{ providerId: "github" }], error: null })
+      .mockResolvedValueOnce({ data: null, error: { message: "refresh unavailable" } });
+    signedInSession();
+
+    render(<AccountMenu />);
+
+    await waitFor(() => expect(authMocks.listAccounts).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Google connected. You can now sign in with either provider.",
+    );
+    await user.click(screen.getByText("Arc Learner"));
+    expect(screen.getByText("GitHub connected")).toBeInTheDocument();
+    expect(screen.queryByText("Connections are temporarily unavailable.")).not.toBeInTheDocument();
+  });
+
+  it("clears link panels and notices when the signed-in user changes", async () => {
+    window.history.replaceState(null, "", "/today?link=verified");
+    let statusReads = 0;
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/auth/providers") {
+        return Response.json({ providers: availableProviders });
+      }
+      if (url === "/api/account-link/status") {
+        statusReads += 1;
+        return Response.json(statusReads === 1 ? {
+          stage: "verified",
+          targetProvider: "google",
+          expiresAt: "2026-08-02T08:05:00.000Z",
+        } : noLinkStatus);
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    }));
+    authMocks.listAccounts.mockResolvedValue({
+      data: [{ providerId: "github" }],
+      error: null,
+    });
+    let session = {
+      data: { user: { id: "user-1", name: "First Learner", email: "first@example.com" } },
+      isPending: false,
+    };
+    authMocks.useSession.mockImplementation(() => session);
+    const { rerender } = render(<AccountMenu />);
+
+    expect(await screen.findByRole("button", { name: "Continue to Google" })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Identity verified");
+
+    session = {
+      data: { user: { id: "user-2", name: "Second Learner", email: "second@example.com" } },
+      isPending: false,
+    };
+    rerender(<AccountMenu />);
+
+    await waitFor(() => expect(statusReads).toBe(2));
+    expect(screen.queryByRole("button", { name: /Verify GitHub|Continue to Google/u })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Identity verified/u)).not.toBeInTheDocument();
   });
 
   it("settles into a safe unavailable state when linked accounts cannot be read", async () => {

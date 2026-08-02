@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { authClient } from "../../lib/auth-client";
 import {
   safeAccountLinkStatusSchema,
@@ -26,6 +26,11 @@ type LinkStatusState = {
   stage: AccountLinkStatus | null;
   targetProvider: AuthProvider | null;
   expiresAt: string | null;
+};
+
+type UserScopedState<T> = {
+  userId: string;
+  value: T;
 };
 
 type AccountLinkResult = "complete" | "verified" | "expired" | "cancelled" | "conflict" | "error";
@@ -76,6 +81,16 @@ function accountLinkNotice(result: AccountLinkResult, target: AuthProvider | nul
     kind: "alert",
     message: "We couldn't connect this sign-in method. Nothing changed.",
   };
+}
+
+function authoritativeResult(
+  result: AccountLinkResult | null,
+  stage: AccountLinkStatus | null,
+): AccountLinkResult | null {
+  if (result === "complete" && stage !== "completed") return "error";
+  if (result === "verified" && stage !== "verified") return "error";
+  if (result === "error" && stage === "expired") return "expired";
+  return result;
 }
 
 async function readConfiguredProviders(signal: AbortSignal) {
@@ -129,10 +144,18 @@ export function AccountMenu() {
   const userId = data?.user?.id;
   const [connectionState, setConnectionState] = useState<ConnectionState | null>(null);
   const [linkStatusState, setLinkStatusState] = useState<LinkStatusState | null>(null);
-  const [selectedTarget, setSelectedTarget] = useState<AuthProvider | null>(null);
-  const [notice, setNotice] = useState<AccountNotice | null>(null);
+  const [selectedTargetState, setSelectedTargetState] = useState<
+    UserScopedState<AuthProvider | null> | null
+  >(null);
+  const [noticeState, setNoticeState] = useState<UserScopedState<AccountNotice | null> | null>(null);
+  const [capturedResult] = useState<AccountLinkResult | null>(readAccountLinkResult);
+  const callbackOwner = useRef<string | null>(null);
   const currentConnections = connectionState?.userId === userId ? connectionState : null;
   const currentLinkStatus = linkStatusState?.userId === userId ? linkStatusState : null;
+  const selectedTarget = selectedTargetState && selectedTargetState.userId === userId
+    ? selectedTargetState.value
+    : null;
+  const notice = noticeState && noticeState.userId === userId ? noticeState.value : null;
   const providers = currentConnections?.providers ?? [];
   const connected = currentConnections?.connectedProviders ?? [];
   const connectionsPending = Boolean(data?.user && !currentConnections);
@@ -143,7 +166,8 @@ export function AccountMenu() {
   useEffect(() => {
     if (isPending || !userId || typeof window === "undefined") return;
 
-    const callbackResult = readAccountLinkResult();
+    if (capturedResult && callbackOwner.current === null) callbackOwner.current = userId;
+    const callbackResult = callbackOwner.current === userId ? capturedResult : null;
     if (callbackResult) {
       const search = new URLSearchParams(window.location.search);
       search.delete("link");
@@ -172,29 +196,33 @@ export function AccountMenu() {
         });
         setLinkStatusState({ userId, ...linkStatus });
 
-        if (linkStatus.stage === "verified" && linkStatus.targetProvider) {
-          setSelectedTarget(linkStatus.targetProvider);
-        }
+        setSelectedTargetState({
+          userId,
+          value: linkStatus.stage === "verified" ? linkStatus.targetProvider : null,
+        });
 
-        const outcome = callbackResult === "error" && linkStatus.stage === "expired"
-          ? "expired"
-          : callbackResult;
-        if (outcome) {
-          setNotice(accountLinkNotice(outcome, linkStatus.targetProvider));
-        }
+        const outcome = authoritativeResult(callbackResult, linkStatus.stage);
+        setNoticeState({
+          userId,
+          value: outcome ? accountLinkNotice(outcome, linkStatus.targetProvider) : null,
+        });
 
         if (
           outcome === "complete"
           && linkStatus.stage === "completed"
           && linkStatus.targetProvider
         ) {
-          const refreshedConnected = connectedProviders(await authClient.listAccounts());
-          if (cancelled) return;
-          setConnectionState({
-            userId,
-            providers: Array.from(new Set([...configured, ...refreshedConnected])),
-            connectedProviders: refreshedConnected,
-          });
+          try {
+            const refreshedConnected = connectedProviders(await authClient.listAccounts());
+            if (cancelled) return;
+            setConnectionState({
+              userId,
+              providers: Array.from(new Set([...configured, ...refreshedConnected])),
+              connectedProviders: refreshedConnected,
+            });
+          } catch {
+            // Keep the authoritative completion and the initially loaded provider list.
+          }
         }
       })
       .catch(() => {
@@ -206,9 +234,12 @@ export function AccountMenu() {
             targetProvider: null,
             expiresAt: null,
           });
-          if (callbackResult) {
-            setNotice(accountLinkNotice(callbackResult, null));
-          }
+          setSelectedTargetState({ userId, value: null });
+          const outcome = authoritativeResult(callbackResult, null);
+          setNoticeState({
+            userId,
+            value: outcome ? accountLinkNotice(outcome, null) : null,
+          });
         }
       });
 
@@ -216,7 +247,7 @@ export function AccountMenu() {
       cancelled = true;
       controller.abort();
     };
-  }, [isPending, userId]);
+  }, [capturedResult, isPending, userId]);
 
   if (isPending) {
     return <span className="account-pending" aria-label="Checking account">•••</span>;
@@ -225,6 +256,7 @@ export function AccountMenu() {
   if (!data?.user) {
     return <Link className="account-link" href="/sign-in">Sign in</Link>;
   }
+  const signedInUserId = data.user.id;
 
   return (
     <div className="account-control">
@@ -249,8 +281,8 @@ export function AccountMenu() {
                   ) : (
                     <button
                       onClick={() => {
-                        setNotice(null);
-                        setSelectedTarget(provider);
+                        setNoticeState({ userId: signedInUserId, value: null });
+                        setSelectedTargetState({ userId: signedInUserId, value: provider });
                       }}
                       type="button"
                     >
@@ -264,8 +296,8 @@ export function AccountMenu() {
           {selectedTarget && sourceProvider && (
             <AccountLinkPanel
               expiresAt={currentLinkStatus?.expiresAt ?? null}
-              onCancel={() => setSelectedTarget(null)}
-              onSubmit={() => setNotice(null)}
+              onCancel={() => setSelectedTargetState({ userId: signedInUserId, value: null })}
+              onSubmit={() => setNoticeState({ userId: signedInUserId, value: null })}
               sourceProvider={sourceProvider}
               stage={currentLinkStatus?.targetProvider === selectedTarget
                 ? currentLinkStatus.stage
@@ -281,7 +313,11 @@ export function AccountMenu() {
       {notice && (
         <div className={`account-link-notice account-link-notice-${notice.kind}`}>
           <p role={notice.kind}>{notice.message}</p>
-          <button aria-label="Dismiss account message" onClick={() => setNotice(null)} type="button">×</button>
+          <button
+            aria-label="Dismiss account message"
+            onClick={() => setNoticeState({ userId: signedInUserId, value: null })}
+            type="button"
+          >×</button>
         </div>
       )}
     </div>
