@@ -238,4 +238,25 @@ describe("navigation accessibility contracts", () => {
       /\.account-popover\s*\{[^}]*max-width:\s*calc\(100vw\s*-\s*32px\)\s*;[^}]*box-sizing:\s*border-box\s*;/u,
     );
   });
+
+  it("positions the workspace account popover above the mobile bottom header", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    const mobileRules = css.slice(
+      css.indexOf("@media (max-width: 760px)"),
+      css.indexOf("@media (prefers-reduced-motion: reduce)"),
+    );
+
+    expect(mobileRules).toMatch(
+      /\.workspace-header\s+\.account-popover\s*\{[^}]*top:\s*auto\s*;[^}]*bottom:\s*calc\(100%\s*\+\s*8px\)\s*;[^}]*max-height:\s*calc\(100svh\s*-\s*96px\s*-\s*env\(safe-area-inset-bottom\)\)\s*;[^}]*overflow-y:\s*auto\s*;/u,
+    );
+  });
+
+  it("keeps the unscoped account popover below top headers", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    const baseRules = css.slice(0, css.indexOf("@media (max-width: 760px)"));
+
+    expect(baseRules).toMatch(
+      /\.account-popover\s*\{[^}]*position:\s*absolute\s*;[^}]*top:\s*calc\(100%\s*\+\s*8px\)\s*;/u,
+    );
+  });
 });

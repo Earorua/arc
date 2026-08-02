@@ -323,6 +323,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .workspace-header nav a { min-width: 52px; min-height: 44px; display: grid; place-items: center; }
   .workspace-header .account-link, .workspace-header .account-menu summary { min-width: 62px; min-height: 44px; justify-content: flex-end; }
   .account-popover { max-width: calc(100vw - 32px); box-sizing: border-box; }
+  .workspace-header .account-popover {
+    top: auto; bottom: calc(100% + 8px);
+    max-height: calc(100svh - 96px - env(safe-area-inset-bottom)); overflow-y: auto;
+  }
   .account-link-actions { align-items: stretch; flex-direction: column; gap: 0; }
   .account-link-actions button { min-height: 44px; text-align: left; }
   .workspace-main { padding: 60px 0 calc(100px + env(safe-area-inset-bottom)); }
