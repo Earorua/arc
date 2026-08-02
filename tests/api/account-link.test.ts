@@ -21,6 +21,22 @@ function formRequest(path: "start" | "continue", fields: Record<string, string> 
   });
 }
 
+function urlEncodedStart(
+  body: BodyInit | null,
+  headers: Record<string, string> = {},
+) {
+  return new Request(`${origin}/api/account-link/start`, {
+    method: "POST",
+    headers: {
+      origin,
+      "content-type": "application/x-www-form-urlencoded",
+      ...headers,
+    },
+    body,
+    ...(body instanceof ReadableStream ? { duplex: "half" } : {}),
+  } as RequestInit & { duplex?: "half" });
+}
+
 function statusRequest(cookie = "__Host-arc_link_intent=browser-credential") {
   return new Request(`${origin}/api/account-link/status`, {
     headers: cookie ? { cookie } : undefined,
@@ -137,6 +153,130 @@ describe("Arc account-link HTTP gateway", () => {
     expect(harness.start).toHaveBeenCalledOnce();
   });
 
+  it.each(["%%%", "https://arc.example, https://attacker.test", "null", "https://["])(
+    "maps malformed Origin %j to a safe 403",
+    async (malformedOrigin) => {
+      const harness = setup();
+      const request = formRequest("start", { targetProvider: "google" });
+      request.headers.set("origin", malformedOrigin);
+
+      await expectError(
+        await harness.handlers.start(request),
+        403,
+        "FORBIDDEN",
+        "This request could not be verified.",
+      );
+      expect(harness.reserve).not.toHaveBeenCalled();
+      expect(harness.start).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    [undefined, "targetProvider=google"],
+    ["application/json", JSON.stringify({ targetProvider: "google" })],
+    ["text/plain", "targetProvider=google"],
+    ["multipart/form-data", "targetProvider=google"],
+    ["multipart/form-data; boundary=", "targetProvider=google"],
+  ] as const)("rejects unsupported or incomplete form media type %j", async (contentType, body) => {
+    const harness = setup();
+    const headers: Record<string, string> = { origin };
+    if (contentType) headers["content-type"] = contentType;
+    const response = await harness.handlers.start(new Request(`${origin}/api/account-link/start`, {
+      method: "POST",
+      headers,
+      body,
+    }));
+
+    await expectError(response, 400, "INVALID_INPUT", "Choose a valid sign-in method.");
+    expect(harness.start).not.toHaveBeenCalled();
+  });
+
+  it("accepts a small strict URL-encoded targetProvider form", async () => {
+    const harness = setup();
+    const response = await harness.handlers.start(urlEncodedStart("targetProvider=github"));
+
+    expect(response.status).toBe(303);
+    expect(harness.start).toHaveBeenCalledWith(expect.any(Headers), user.id, "github");
+  });
+
+  it("rejects an oversized declared form before reading or calling the service", async () => {
+    const harness = setup();
+    const pull = vi.fn((controller: ReadableStreamDefaultController<Uint8Array>) => {
+      controller.enqueue(new TextEncoder().encode("targetProvider=google"));
+      controller.close();
+    });
+    const stream = new ReadableStream<Uint8Array>({
+      pull,
+    });
+    const request = urlEncodedStart(stream, { "content-length": "4097" });
+    await Promise.resolve();
+    const pullsBeforeHandler = pull.mock.calls.length;
+
+    await expectError(
+      await harness.handlers.start(request),
+      400,
+      "INVALID_INPUT",
+      "Choose a valid sign-in method.",
+    );
+    expect(request.bodyUsed).toBe(false);
+    expect(pull).toHaveBeenCalledTimes(pullsBeforeHandler);
+    expect(harness.start).not.toHaveBeenCalled();
+  });
+
+  it("cancels a missing-or-lying-length stream as soon as the bounded form cap is exceeded", async () => {
+    const harness = setup();
+    const cancel = vi.fn();
+    let sent = false;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (sent) return;
+        sent = true;
+        controller.enqueue(new Uint8Array(4097).fill(97));
+      },
+      cancel,
+    });
+    const request = urlEncodedStart(stream, { "content-length": "1" });
+
+    await expectError(
+      await harness.handlers.start(request),
+      400,
+      "INVALID_INPUT",
+      "Choose a valid sign-in method.",
+    );
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(harness.start).not.toHaveBeenCalled();
+  });
+
+  it("rejects oversized multipart content without a partial service call", async () => {
+    const harness = setup();
+    const boundary = "arc-test-boundary";
+    const body = [
+      `--${boundary}\r\n`,
+      'Content-Disposition: form-data; name="targetProvider"\r\n\r\n',
+      "google\r\n",
+      `--${boundary}\r\n`,
+      'Content-Disposition: form-data; name="padding"\r\n\r\n',
+      "x".repeat(4097),
+      `\r\n--${boundary}--\r\n`,
+    ].join("");
+    const request = new Request(`${origin}/api/account-link/start`, {
+      method: "POST",
+      headers: {
+        origin,
+        "content-type": `multipart/form-data; boundary=${boundary}`,
+      },
+      body,
+    });
+
+    await expectError(
+      await harness.handlers.start(request),
+      400,
+      "INVALID_INPUT",
+      "Choose a valid sign-in method.",
+    );
+    expect(harness.start).not.toHaveBeenCalled();
+  });
+
   it("accepts only targetProvider form data and returns a cookie-preserving 303", async () => {
     const harness = setup();
     const request = formRequest("start", { targetProvider: "google" });
@@ -227,6 +367,24 @@ describe("Arc account-link HTTP gateway", () => {
     expect(response.status).toBe(200);
     expect(setCookies(response)).toEqual([]);
     await expect(response.json()).resolves.toMatchObject({ stage: "completing" });
+  });
+
+  it.each([
+    ["2026-08-02T08:05:00.000Z", 300],
+    ["2026-08-02T08:10:00.000Z", 300],
+    ["2026-08-02T08:00:00.001Z", 1],
+  ] as const)("refreshes the same verified credential for only its remaining bounded grant (%s)", async (
+    expiresAt,
+    maxAge,
+  ) => {
+    const harness = setup();
+    harness.status.mockResolvedValue({ stage: "verified", targetProvider: "google", expiresAt });
+    const response = await harness.handlers.status(statusRequest());
+
+    expect(setCookies(response)).toEqual([
+      expect.stringContaining(`__Host-arc_link_intent=browser-credential; Max-Age=${maxAge}`),
+    ]);
+    expect(JSON.stringify(await response.json())).not.toContain("browser-credential");
   });
 
   it("redirects continue only after the service atomically consumes the grant", async () => {

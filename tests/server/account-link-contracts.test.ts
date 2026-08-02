@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   AccountLinkError,
+  COMPLETION_RECONCILIATION_TTL_MS,
   type AccountLinkStatus,
   INTERNAL_PROOF_TTL_MS,
   PENDING_REAUTH_TTL_MS,
@@ -25,6 +26,7 @@ describe("account-link contracts", () => {
     expect(PENDING_REAUTH_TTL_MS).toBe(10 * 60 * 1000);
     expect(VERIFIED_GRANT_TTL_MS).toBe(5 * 60 * 1000);
     expect(INTERNAL_PROOF_TTL_MS).toBe(60 * 1000);
+    expect(COMPLETION_RECONCILIATION_TTL_MS).toBe(10 * 60 * 1000);
   });
 
   it("allows only the approved state transitions", () => {
@@ -33,7 +35,7 @@ describe("account-link contracts", () => {
       pending_reauth: ["verified", "failed", "expired"],
       verified: ["consumed", "failed", "expired"],
       consumed: ["completing", "completed", "failed"],
-      completing: ["completed"],
+      completing: ["completed", "failed"],
       completed: [],
       failed: [],
       expired: [],

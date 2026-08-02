@@ -260,6 +260,29 @@ export class D1AccountLinkRepository implements AccountLinkRepository {
     return result.meta.changes === 1;
   }
 
+  async failStaleCompletion(
+    input: Parameters<AccountLinkRepository["failStaleCompletion"]>[0],
+  ): Promise<boolean> {
+    const result = await this.db.prepare(`
+      UPDATE account_link_intents
+      SET status = 'failed', failure_code = 'COMPLETION_STALE', updated_at = ?1
+      WHERE id = ?2 AND user_id = ?3 AND target_provider = ?4
+        AND status = 'completing' AND updated_at <= ?5
+        AND NOT EXISTS (SELECT 1
+          FROM accounts AS linked_account
+          WHERE linked_account.user_id = ?3
+            AND linked_account.provider_id = ?4
+        )
+    `).bind(
+      input.now.getTime(),
+      input.id,
+      input.userId,
+      input.targetProvider,
+      input.cutoff.getTime(),
+    ).run();
+    return result.meta.changes === 1;
+  }
+
   async fail(id: string, userId: string, code: string, now: Date): Promise<boolean> {
     if (!failureCodePattern.test(code)) {
       throw new Error("Account link failure code must be a sanitized stable category.");

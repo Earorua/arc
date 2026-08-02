@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  COMPLETION_RECONCILIATION_TTL_MS,
   INTERNAL_PROOF_TTL_MS,
   PENDING_REAUTH_TTL_MS,
   VERIFIED_GRANT_TTL_MS,
@@ -73,6 +74,7 @@ function dependencies(overrides: Partial<AccountLinkServiceDependencies> = {}) {
     consume: vi.fn(async () => null),
     complete: vi.fn(async () => false),
     fail: vi.fn(async () => false),
+    failStaleCompletion: vi.fn(async () => false),
   };
   const deps: AccountLinkServiceDependencies = {
     repository,
@@ -219,6 +221,58 @@ describe("AccountLinkService", () => {
     accounts.push("google");
     await expect(repository.complete("intent-1", "user-1", now)).resolves.toBe(true);
     expect(row.status).toBe("completed");
+  });
+
+  it.each([
+    [COMPLETION_RECONCILIATION_TTL_MS - 1, false],
+    [COMPLETION_RECONCILIATION_TTL_MS, true],
+    [COMPLETION_RECONCILIATION_TTL_MS + 1, true],
+  ] as const)("expires a completing start only at/after the reconciliation TTL (%i ms)", async (
+    age,
+    shouldRestart,
+  ) => {
+    const row = intent({
+      status: "completing",
+      consumedAt: new Date(now.getTime() - age),
+      updatedAt: new Date(now.getTime() - age),
+    });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockResolvedValue(row);
+    vi.mocked(repository.failStaleCompletion).mockResolvedValue(shouldRestart);
+
+    const operation = new AccountLinkService(deps).start(new Headers(), "user-1", "google");
+    if (shouldRestart) {
+      await expect(operation).resolves.toMatchObject({ credential: rawCredential });
+      expect(repository.create).toHaveBeenCalledOnce();
+    } else {
+      await expect(operation).rejects.toEqual(expectAccountLinkError("REPLAYED"));
+      expect(repository.create).not.toHaveBeenCalled();
+    }
+    expect(repository.failStaleCompletion).toHaveBeenCalledTimes(shouldRestart ? 1 : 0);
+  });
+
+  it("does not fail a stale completing start when the target account appears during the CAS", async () => {
+    const row = intent({
+      status: "completing",
+      updatedAt: new Date(now.getTime() - COMPLETION_RECONCILIATION_TTL_MS),
+    });
+    const listAccounts = vi.fn()
+      .mockResolvedValueOnce(["github"])
+      .mockResolvedValueOnce(["github"])
+      .mockResolvedValueOnce(["github", "google"]);
+    const { deps, repository } = dependencies({ listAccounts });
+    vi.mocked(repository.findInFlightByOwnerAndTarget).mockResolvedValue(row);
+    vi.mocked(repository.failStaleCompletion).mockResolvedValue(false);
+    vi.mocked(repository.complete).mockResolvedValue(true);
+
+    await expect(new AccountLinkService(deps).start(
+      new Headers(),
+      "user-1",
+      "google",
+    )).rejects.toEqual(expectAccountLinkError("ALREADY_CONNECTED"));
+    expect(repository.failStaleCompletion).toHaveBeenCalledOnce();
+    expect(repository.complete).toHaveBeenCalledWith("intent-1", "user-1", now);
+    expect(repository.create).not.toHaveBeenCalled();
   });
 
   it("rejects a consumed in-flight start without rechecking or creating", async () => {
@@ -394,6 +448,53 @@ describe("AccountLinkService", () => {
       new Headers({ cookie: "session=authoritative" }),
     )).resolves.toMatchObject({ stage: "completing", targetProvider: "google" });
     expect(repository.complete).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [COMPLETION_RECONCILIATION_TTL_MS - 1, "completing", false],
+    [COMPLETION_RECONCILIATION_TTL_MS, "failed", true],
+    [COMPLETION_RECONCILIATION_TTL_MS + 1, "failed", true],
+  ] as const)("materializes stale completion status at the TTL boundary (%i ms)", async (
+    age,
+    expectedStage,
+    shouldFail,
+  ) => {
+    const completing = intent({
+      status: "completing",
+      updatedAt: new Date(now.getTime() - age),
+    });
+    const { deps, repository } = dependencies();
+    vi.mocked(repository.findByCredential).mockResolvedValue(completing);
+    vi.mocked(deps.listAccounts).mockResolvedValue(["github"]);
+    vi.mocked(repository.failStaleCompletion).mockResolvedValue(shouldFail);
+
+    await expect(new AccountLinkService(deps).status(
+      "user-1",
+      rawCredential,
+      new Headers(),
+    )).resolves.toMatchObject({ stage: expectedStage });
+    expect(repository.failStaleCompletion).toHaveBeenCalledTimes(shouldFail ? 1 : 0);
+  });
+
+  it("reconciles an account inserted while stale completion failure loses its CAS", async () => {
+    const completing = intent({
+      status: "completing",
+      updatedAt: new Date(now.getTime() - COMPLETION_RECONCILIATION_TTL_MS),
+    });
+    const listAccounts = vi.fn()
+      .mockResolvedValueOnce(["github"])
+      .mockResolvedValueOnce(["github", "google"]);
+    const { deps, repository } = dependencies({ listAccounts });
+    vi.mocked(repository.findByCredential).mockResolvedValue(completing);
+    vi.mocked(repository.failStaleCompletion).mockResolvedValue(false);
+    vi.mocked(repository.complete).mockResolvedValue(true);
+
+    await expect(new AccountLinkService(deps).status(
+      "user-1",
+      rawCredential,
+      new Headers(),
+    )).resolves.toMatchObject({ stage: "completed" });
+    expect(repository.complete).toHaveBeenCalledWith("intent-1", "user-1", now);
   });
 
   it("atomically consumes a verified grant before starting target OAuth", async () => {

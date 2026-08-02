@@ -1,5 +1,6 @@
 import {
   accountLinkProviderSchema,
+  COMPLETION_RECONCILIATION_TTL_MS,
   INTERNAL_PROOF_TTL_MS,
   PENDING_REAUTH_TTL_MS,
   projectAccountLinkIntent,
@@ -104,8 +105,35 @@ export class AccountLinkService {
           );
           throw domainError("ALREADY_CONNECTED", "The requested provider is already connected");
         }
+        if (this.isStaleCompletion(inFlight, operationTime)) {
+          const failed = await this.dependencies.repository.failStaleCompletion({
+            id: inFlight.id,
+            userId: inFlight.userId,
+            targetProvider: inFlight.targetProvider,
+            cutoff: new Date(operationTime.getTime() - COMPLETION_RECONCILIATION_TTL_MS),
+            now: operationTime,
+          });
+          if (!failed) {
+            const finalProviders = await this.dependencies.listAccounts(headers);
+            if (finalProviders.includes(target)) {
+              await this.dependencies.repository.complete(
+                inFlight.id,
+                inFlight.userId,
+                operationTime,
+              );
+              throw domainError(
+                "ALREADY_CONNECTED",
+                "The requested provider is already connected",
+              );
+            }
+            throw domainError("REPLAYED", "An account-link operation is already in progress");
+          }
+        } else {
+          throw domainError("REPLAYED", "An account-link operation is already in progress");
+        }
+      } else {
+        throw domainError("REPLAYED", "An account-link operation is already in progress");
       }
-      throw domainError("REPLAYED", "An account-link operation is already in progress");
     }
 
     const sourceProviders = connectedProviders.filter((provider) => provider !== target);
@@ -192,6 +220,39 @@ export class AccountLinkService {
             completedAt: intent.completedAt ?? operationTime,
             updatedAt: operationTime,
           };
+        }
+      } else if (this.isStaleCompletion(intent, operationTime)) {
+        const failed = await this.dependencies.repository.failStaleCompletion({
+          id: intent.id,
+          userId: intent.userId,
+          targetProvider: intent.targetProvider,
+          cutoff: new Date(operationTime.getTime() - COMPLETION_RECONCILIATION_TTL_MS),
+          now: operationTime,
+        });
+        if (failed) {
+          intent = {
+            ...intent,
+            status: "failed",
+            failureCode: "COMPLETION_STALE",
+            updatedAt: operationTime,
+          };
+        } else {
+          const finalProviders = await this.dependencies.listAccounts(headers);
+          if (finalProviders.includes(intent.targetProvider)) {
+            const completed = await this.dependencies.repository.complete(
+              intent.id,
+              intent.userId,
+              operationTime,
+            );
+            if (completed) {
+              intent = {
+                ...intent,
+                status: "completed",
+                completedAt: intent.completedAt ?? operationTime,
+                updatedAt: operationTime,
+              };
+            }
+          }
         }
       }
     }
@@ -383,6 +444,11 @@ export class AccountLinkService {
       expiresAt: operationTime.getTime() + INTERNAL_PROOF_TTL_MS,
       nonce: this.dependencies.createId(),
     });
+  }
+
+  private isStaleCompletion(intent: AccountLinkIntent, operationTime: Date) {
+    return intent.updatedAt.getTime()
+      <= operationTime.getTime() - COMPLETION_RECONCILIATION_TTL_MS;
   }
 
   private async verifyOAuthContext(token: string, operationTime: Date) {

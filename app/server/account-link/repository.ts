@@ -41,5 +41,12 @@ export interface AccountLinkRepository {
   ): Promise<AccountLinkIntent | null>;
   consume(id: string, userId: string, now: Date): Promise<AccountLinkIntent | null>;
   complete(id: string, userId: string, now: Date): Promise<boolean>;
+  failStaleCompletion(input: {
+    id: string;
+    userId: string;
+    targetProvider: AccountLinkProvider;
+    cutoff: Date;
+    now: Date;
+  }): Promise<boolean>;
   fail(id: string, userId: string, code: string, now: Date): Promise<boolean>;
 }

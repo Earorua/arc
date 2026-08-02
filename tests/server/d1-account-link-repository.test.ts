@@ -51,6 +51,7 @@ class FakeD1 {
   private readonly rows = new Map<string, IntentRow & Record<string, unknown>>();
   private readonly accounts = new Set<string>();
   private transitionInterleaving: ((row: IntentRow & Record<string, unknown>) => void) | null = null;
+  private staleCompletionInterleaving: (() => void) | null = null;
   private returnedTransitionRow: (IntentRow & Record<string, unknown>) | null = null;
 
   seed(row: IntentRow & Record<string, unknown>) {
@@ -67,6 +68,10 @@ class FakeD1 {
 
   afterNextTransition(callback: (row: IntentRow & Record<string, unknown>) => void) {
     this.transitionInterleaving = callback;
+  }
+
+  beforeNextStaleCompletion(callback: () => void) {
+    this.staleCompletionInterleaving = callback;
   }
 
   prepare(sql: string) {
@@ -260,6 +265,30 @@ class FakeD1 {
         row.status = "completed";
         row.completed_at ??= now;
         if (!alreadyCompleted) row.updated_at = now;
+        changes = 1;
+      }
+    } else if (normalized.includes("failure_code = 'COMPLETION_STALE'")) {
+      const [now, id, userId, targetProvider, cutoff] = values as [
+        number,
+        string,
+        string,
+        string,
+        number,
+      ];
+      const callback = this.staleCompletionInterleaving;
+      this.staleCompletionInterleaving = null;
+      callback?.();
+      const row = this.rows.get(id);
+      if (
+        row?.user_id === userId
+        && row.target_provider === targetProvider
+        && row.status === "completing"
+        && row.updated_at <= cutoff
+        && !this.hasAccount(userId, targetProvider)
+      ) {
+        row.status = "failed";
+        row.failure_code = "COMPLETION_STALE";
+        row.updated_at = now;
         changes = 1;
       }
     } else if (normalized.includes("SET status = 'failed'")) {
@@ -863,6 +892,45 @@ describe("D1AccountLinkRepository", () => {
       status: "completing",
       failure_code: null,
     });
+  });
+
+  it.each([
+    [baseTime + 1, false],
+    [baseTime, true],
+    [baseTime - 1, true],
+  ] as const)("fails stale completing with an owned target/account CAS at cutoff %i", async (
+    updatedAt,
+    expected,
+  ) => {
+    const db = new FakeD1();
+    db.seed(intentRow({ status: "completing", updated_at: updatedAt }));
+
+    await expect(repository(db).failStaleCompletion({
+      id: "intent-1",
+      userId: "user-1",
+      targetProvider: "google",
+      cutoff: new Date(baseTime),
+      now: new Date(baseTime + 10 * 60_000),
+    })).resolves.toBe(expected);
+    expect(db.row("intent-1")?.status).toBe(expected ? "failed" : "completing");
+    expect(normalize(db.runs[0].sql)).toContain("status = 'completing'");
+    expect(normalize(db.runs[0].sql)).toContain("updated_at <= ?5");
+    expect(normalize(db.runs[0].sql)).toContain("NOT EXISTS (SELECT 1 FROM accounts");
+  });
+
+  it("does not fail stale completing when the target account appears inside the same CAS", async () => {
+    const db = new FakeD1();
+    db.seed(intentRow({ status: "completing", updated_at: baseTime }));
+    db.beforeNextStaleCompletion(() => db.seedAccount("user-1", "google"));
+
+    await expect(repository(db).failStaleCompletion({
+      id: "intent-1",
+      userId: "user-1",
+      targetProvider: "google",
+      cutoff: new Date(baseTime),
+      now: new Date(baseTime + 10 * 60_000),
+    })).resolves.toBe(false);
+    expect(db.row("intent-1")).toMatchObject({ status: "completing", failure_code: null });
   });
 
   it("rejects invalid failure codes and cannot revive or rewrite terminal rows", async () => {
