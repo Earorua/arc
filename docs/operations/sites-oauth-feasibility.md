@@ -22,6 +22,8 @@ Product release v7.1 was saved by Sites as version number 8 and publicly deploye
 
 The release configures Better Auth to trust only Cloudflare's `cf-connecting-ip` header for IP-based rate limiting and replaces raw Better Auth warning/error payloads with fixed `[Arc Auth]` severity markers. The independent release snapshot passed 60 test files / 511 tests, ESLint, the five-stage Vinext production build, and 2/2 rendered HTML tests. After deployment, unauthenticated HTTPS smoke returned 200 for `/today` and `/api/auth/get-session`, and the protected `/api/auth/list-accounts` route returned the expected 401. The Sites deployment status is `succeeded` and the error-only Worker query returned zero events. The general Worker log query returned no events after the smoke requests, so runtime confirmation that the former shared-bucket warning is absent remains open rather than inferred from an empty result.
 
+On 2026-08-04, the user repeated the existing GitHub and Google primary sign-in flows in private windows. Both returned to `/today` with the expected Arc. account and existing learning state, and both sign-out flows completed normally. No account-link control was opened. The error-only Worker query remained empty, while the general Worker log query still returned no events; primary-provider continuity is therefore verified, but runtime log redaction remains open.
+
 This Sites version number 8 is a hosting-system sequence only. It does not mark the start of Arc. product v8.
 
 ## Capability record
