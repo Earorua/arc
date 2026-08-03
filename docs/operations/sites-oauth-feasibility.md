@@ -1,6 +1,6 @@
 # Arc. Sites OAuth feasibility gate
 
-**Status:** Product release v7.1 is publicly deployed; primary hosted OAuth flows, current-provider reauthentication, cancellation, and the post-deploy transport smoke passed, while target-provider linking and fresh runtime-log checks remain open.
+**Status:** Product release v7.1 is publicly deployed; primary hosted OAuth flows, current-provider reauthentication, cancellation, stale-grant rejection, and the post-deploy transport smoke passed, while target-provider linking and fresh runtime-log checks remain open.
 
 **Reviewed:** 2026-08-04
 
@@ -26,6 +26,8 @@ On 2026-08-04, the user repeated the existing GitHub and Google primary sign-in 
 
 The user then opened `Link Google` from the pre-existing one-provider GitHub Arc. user, reauthenticated with the same GitHub identity, and returned to the `Identity verified` state with its five-minute continuation window. Selecting `Cancel` before target OAuth produced `Connection cancelled. Nothing changed.`, preserved the existing provider connections, and was followed by a normal GitHub sign-out. This verifies the source-provider reauthentication, verified-grant display, and cancellation subflow. An unauthenticated direct-bypass probe was stopped by a Cloudflare edge 403 before Arc. application handling could be established, so application-layer bypass behavior remains unverified. The general Worker log stream remained empty, so runtime log redaction also remains open.
 
+In a second controlled run, the user waited beyond the five-minute verified-grant deadline before submitting `Continue to Google`. The production endpoint returned a `CONFLICT` response without starting Google OAuth. Returning to Arc. showed the same account and learning state, `GitHub connected`, and `Link Google`, confirming that the expired grant caused no ownership or product-state mutation. The browser credential had already expired, so the response used the safe generic invalid-intent message. The resulting raw JSON page is non-blocking UX debt; it should later redirect to the Arc. expired-result UI while preserving the server-side denial.
+
 This Sites version number 8 is a hosting-system sequence only. It does not mark the start of Arc. product v8.
 
 ## Capability record
@@ -35,7 +37,7 @@ This Sites version number 8 is a hosting-system sequence only. It does not mark 
 | Public HTTPS origin | passed | The Sites project is active, public, and currently serves the production origin above. |
 | Hosted runtime variables and secrets | passed | Production runtime values are configured through Sites; secret values remain masked, live AI remains disabled, and no model key is present. |
 | Same-origin catch-all auth route | passed-hosted | `/api/auth/:all+` completed both hosted provider callbacks and initializes runtime configuration lazily. |
-| Secure production session behavior | partial-hosted | Arc. sessions were created over the public HTTPS origin, survived fresh navigation, and both provider sign-out flows removed private session state. Current-provider reauthentication and verified-grant cancellation preserved account connections. Code and tests enforce secure production cookies, database OAuth state, and no implicit linking; stale, replay, and invalid-state checks remain. |
+| Secure production session behavior | partial-hosted | Arc. sessions were created over the public HTTPS origin, survived fresh navigation, and both provider sign-out flows removed private session state. Current-provider reauthentication, verified-grant cancellation, and post-deadline continuation rejection preserved account connections and learning state. Code and tests enforce secure production cookies, database OAuth state, and no implicit linking; replay and invalid-state checks remain. |
 | D1 runtime binding | passed-auth-path | The reviewed 19-table migration is packaged and the hosted auth path persists users, accounts, sessions, and OAuth state through D1. Product-workspace mutation smoke tests remain part of the final gate. |
 | R2 runtime binding | wired-hosted-flow-pending | `PROOF_ASSETS` is deployed with owner-scoped storage code; verify a private put/get and metadata-compensation path before release. |
 | Google callback | primary-flow-passed | Hosted sign-in, callback, session refresh, and Arc. sign-out passed. Cancellation, invalid-state rejection, and second-provider linking remain. |
@@ -43,7 +45,7 @@ This Sites version number 8 is a hosting-system sequence only. It does not mark 
 | Explicit provider linking | source-stage-passed-target-pending | Version 7 adds the approved proof-bound cross-email flow without enabling Better Auth's unsafe implicit different-email linking. Production verified the source-provider reauthentication, five-minute grant display, and cancellation without connection mutation. Safe unowned-target linking and owned-target no-merge checks still require controlled test identities. |
 | Independent Arc. identity | passed-hosted | Google/GitHub are the only product providers; real hosted sessions contain no ChatGPT identity dependency or reserved SIWC route. |
 | Deterministic AI fallback | passed-local-build | The protected preview uses the mock provider only and requires the runtime kill switch, D1 cohort, rate, quota, and budget gates; no live model key is configured. |
-| Production smoke and rollback | partial-hosted | Version 7 deployment, read-only route smoke, primary OAuth, source-provider reauthentication, and cancellation passed. Version 6 is retained as the direct rollback target. Ownership-conflict denial, stale/replay/application-bypass behavior, observable sanitized logs, and post-link cloud-state checks remain. |
+| Production smoke and rollback | partial-hosted | Version 7 deployment, read-only route smoke, primary OAuth, source-provider reauthentication, cancellation, and stale-grant rejection passed. Version 6 is retained as the direct rollback target. Ownership-conflict denial, replay/application-bypass behavior, observable sanitized logs, and post-link cloud-state checks remain. |
 
 Because Google and GitHub were each first used as standalone sign-ins before the explicit-linking interface existed, those external identities may currently belong to separate Arc. users. The first hosted link attempt should therefore exercise the required conflict path: no merge, no ownership disclosure, and no change to either account.
 
