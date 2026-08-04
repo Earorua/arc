@@ -22,6 +22,7 @@ export function WorkspaceShell({
   children,
   migration = "none",
   migrationState,
+  onDismissMigration,
   onImport,
   onRetry,
   recovery = "none",
@@ -32,6 +33,7 @@ export function WorkspaceShell({
   children?: React.ReactNode;
   migration?: ArcMigrationState;
   migrationState?: DemoState | null;
+  onDismissMigration?: () => void;
   onImport?: (resolution?: ArcMigrationResolution) => Promise<void>;
   onRetry?: () => Promise<void>;
   recovery?: ArcRecoveryState;
@@ -67,8 +69,13 @@ export function WorkspaceShell({
           <p className="workspace-restoring" role="status" lang="en">Restoring your plan…</p>
         ) : (
           <>
-            {onImport && migrationState && (
-              <MigrationBanner onImport={onImport} state={migrationState} status={migration} />
+            {onDismissMigration && onImport && migrationState && (
+              <MigrationBanner
+                onDismiss={onDismissMigration}
+                onImport={onImport}
+                state={migrationState}
+                status={migration}
+              />
             )}
             {recovery === "session-expired" ? (
               <CloudStatus kind="session-expired" />
