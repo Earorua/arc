@@ -1,8 +1,8 @@
 # Arc. Sites OAuth feasibility gate
 
-**Status:** Product release v7.1 is publicly deployed; primary hosted OAuth flows, current-provider reauthentication, cancellation, stale-grant rejection, and the post-deploy transport smoke passed, while target-provider linking and fresh runtime-log checks remain open.
+**Status:** Product release v7.1 is publicly deployed; primary hosted OAuth flows, current-provider reauthentication, cancellation, stale-grant rejection, and owned-target no-merge isolation passed, while safe unowned-target linking, replay/application-bypass evidence, and fresh runtime-log checks remain open.
 
-**Reviewed:** 2026-08-04
+**Reviewed:** 2026-08-05
 
 **Production origin:** `https://arc-precision-path.jiahe-xu.chatgpt.site`
 
@@ -30,6 +30,12 @@ In a second controlled run, the user waited beyond the five-minute verified-gran
 
 This Sites version number 8 is a hosting-system sequence only. It does not mark the start of Arc. product v8.
 
+## Owned-target isolation and v7.2 release candidate — 2026-08-05
+
+The user completed the controlled ownership-conflict run from the existing GitHub Arc. account against the existing Google identity that already owned a separate Arc. account. Arc. returned the generic `This sign-in method can't be connected to this account.` message. The source remained the original GitHub Arc. user with only GitHub connected and unchanged learning progress. A subsequent independent Google sign-in still reached the original Google Arc. user with only Google connected and unchanged learning progress. This verifies the required no-merge ownership boundary without disclosing target ownership or mutating either account.
+
+The Google-account verification exposed a non-security migration-prompt defect: setup-only device work could honestly be meaningful while showing zero completions and proofs, and **Not now** was lost on route remount. The v7.2 release candidate stores only an internal-user-scoped deterministic snapshot acknowledgement in browser storage, never imports or deletes automatically, re-prompts after the local snapshot changes, keeps different Arc. users isolated, and displays the local level, weekly minutes, and target weeks. The complete release gate passed 61 test files / 516 tests, ESLint, TypeScript, the five-stage production build, and 2/2 rendered HTML/secret-boundary checks. This paragraph records a verified release candidate, not a production deployment; the deployment identifier is appended only after Sites reports success.
+
 ## Capability record
 
 | Capability | Status | Evidence / completion condition |
@@ -42,10 +48,10 @@ This Sites version number 8 is a hosting-system sequence only. It does not mark 
 | R2 runtime binding | wired-hosted-flow-pending | `PROOF_ASSETS` is deployed with owner-scoped storage code; verify a private put/get and metadata-compensation path before release. |
 | Google callback | primary-flow-passed | Hosted sign-in, callback, session refresh, and Arc. sign-out passed. Cancellation, invalid-state rejection, and second-provider linking remain. |
 | GitHub callback | primary-and-reauth-passed | Hosted sign-in, callback, session refresh, sign-out, current-provider reauthentication, and pre-target cancellation passed. Invalid-state rejection and second-provider linking remain. |
-| Explicit provider linking | source-stage-passed-target-pending | Version 7 adds the approved proof-bound cross-email flow without enabling Better Auth's unsafe implicit different-email linking. Production verified the source-provider reauthentication, five-minute grant display, and cancellation without connection mutation. Safe unowned-target linking and owned-target no-merge checks still require controlled test identities. |
+| Explicit provider linking | owned-target-conflict-passed | Version 7 adds the approved proof-bound cross-email flow without enabling Better Auth's unsafe implicit different-email linking. Production verified source-provider reauthentication, the five-minute grant, cancellation, stale-grant denial, and an owned-target no-merge result with both Arc. accounts and learning states unchanged. Safe unowned-target linking remains deferred until an unused identity is available. |
 | Independent Arc. identity | passed-hosted | Google/GitHub are the only product providers; real hosted sessions contain no ChatGPT identity dependency or reserved SIWC route. |
 | Deterministic AI fallback | passed-local-build | The protected preview uses the mock provider only and requires the runtime kill switch, D1 cohort, rate, quota, and budget gates; no live model key is configured. |
-| Production smoke and rollback | partial-hosted | Version 7 deployment, read-only route smoke, primary OAuth, source-provider reauthentication, cancellation, and stale-grant rejection passed. Version 6 is retained as the direct rollback target. Ownership-conflict denial, replay/application-bypass behavior, observable sanitized logs, and post-link cloud-state checks remain. |
+| Production smoke and rollback | partial-hosted | Version 7 deployment, read-only route smoke, primary OAuth, source-provider reauthentication, cancellation, stale-grant rejection, and owned-target isolation passed. Version 6 is retained as the direct rollback target. Safe unowned-target linking, replay/application-bypass behavior, observable sanitized logs, and post-link cloud-state checks remain. |
 
 Because Google and GitHub were each first used as standalone sign-ins before the explicit-linking interface existed, those external identities may currently belong to separate Arc. users. The first hosted link attempt should therefore exercise the required conflict path: no merge, no ownership disclosure, and no change to either account.
 

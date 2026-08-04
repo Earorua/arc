@@ -34,7 +34,7 @@
 - Modify: `tests/lib/demo-store.test.ts`
 - Modify: `app/lib/demo-store.ts`
 
-- [ ] **Step 1: Write the failing fingerprint test**
+- [x] **Step 1: Write the failing fingerprint test**
 
 Add `fingerprintDemoState` to the existing import and append:
 
@@ -52,7 +52,7 @@ it("fingerprints the validated snapshot deterministically and detects every migr
 });
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run:
 
@@ -62,7 +62,7 @@ npm run test:unit -- tests/lib/demo-store.test.ts
 
 Expected: FAIL because `fingerprintDemoState` is not exported.
 
-- [ ] **Step 3: Implement the deterministic fingerprint**
+- [x] **Step 3: Implement the deterministic fingerprint**
 
 Append to `app/lib/demo-store.ts`:
 
@@ -73,21 +73,24 @@ export function fingerprintDemoState(state: DemoState): string {
     completedUnitIds: state.completedUnitIds,
     proofs: state.proofs,
   });
-  let hash = 0xcbf29ce484222325n;
-  const prime = 0x100000001b3n;
+  let first = 0x811c9dc5;
+  let second = 0x9e3779b9;
 
   for (let index = 0; index < serialized.length; index += 1) {
-    hash ^= BigInt(serialized.charCodeAt(index));
-    hash = BigInt.asUintN(64, hash * prime);
+    const code = serialized.charCodeAt(index);
+    first = Math.imul(first ^ code, 0x01000193);
+    second = Math.imul(second ^ code, 0x85ebca6b);
   }
 
-  return `v1-${hash.toString(16).padStart(16, "0")}`;
+  const high = (first >>> 0).toString(16).padStart(8, "0");
+  const low = (second >>> 0).toString(16).padStart(8, "0");
+  return `v1-${high}${low}`;
 }
 ```
 
-The fingerprint is a deterministic UI snapshot identifier, not a credential, integrity proof, or security boundary.
+The fingerprint is a deterministic UI snapshot identifier, not a credential, integrity proof, or security boundary. Its paired 32-bit operations preserve compatibility with the project's ES2017 TypeScript target.
 
-- [ ] **Step 4: Run the focused test and verify GREEN**
+- [x] **Step 4: Run the focused test and verify GREEN**
 
 Run the Step 2 command. Expected: all `demo store` tests pass.
 
@@ -97,7 +100,7 @@ Run the Step 2 command. Expected: all `demo store` tests pass.
 - Create: `tests/lib/migration-dismissal.test.ts`
 - Create: `app/lib/migration-dismissal.ts`
 
-- [ ] **Step 1: Write the failing acknowledgement tests**
+- [x] **Step 1: Write the failing acknowledgement tests**
 
 Create `tests/lib/migration-dismissal.test.ts`:
 
@@ -130,7 +133,7 @@ describe("migration dismissal", () => {
 });
 ```
 
-- [ ] **Step 2: Run the new test and verify RED**
+- [x] **Step 2: Run the new test and verify RED**
 
 Run:
 
@@ -140,7 +143,7 @@ npm run test:unit -- tests/lib/migration-dismissal.test.ts
 
 Expected: FAIL because `app/lib/migration-dismissal.ts` does not exist.
 
-- [ ] **Step 3: Implement the focused storage helper**
+- [x] **Step 3: Implement the focused storage helper**
 
 Create `app/lib/migration-dismissal.ts`:
 
@@ -185,11 +188,11 @@ export function acknowledgeMigrationSnapshot(
 }
 ```
 
-- [ ] **Step 4: Run the new test and verify GREEN**
+- [x] **Step 4: Run the new test and verify GREEN**
 
 Run the Step 2 command. Expected: 2/2 new tests pass.
 
-- [ ] **Step 5: Commit the foundational behavior**
+- [x] **Step 5: Commit the foundational behavior**
 
 ```powershell
 git add app/lib/demo-store.ts app/lib/migration-dismissal.ts tests/lib/demo-store.test.ts tests/lib/migration-dismissal.test.ts
@@ -202,7 +205,7 @@ git commit -m "fix: persist migration snapshot acknowledgement"
 - Modify: `tests/lib/use-arc-state.test.tsx`
 - Modify: `app/lib/use-arc-state.ts`
 
-- [ ] **Step 1: Write failing controller tests**
+- [x] **Step 1: Write failing controller tests**
 
 Use this session helper so account identity is explicit:
 
@@ -278,7 +281,7 @@ await waitFor(() => expect(remounted.result.current.source).toBe("cloud"));
 expect(remounted.result.current.migration).toBe("none");
 ```
 
-- [ ] **Step 2: Run the controller test and verify RED**
+- [x] **Step 2: Run the controller test and verify RED**
 
 Run:
 
@@ -288,7 +291,7 @@ npm run test:unit -- tests/lib/use-arc-state.test.tsx
 
 Expected: FAIL because the controller does not expose `dismissMigration` and does not consult acknowledgement storage.
 
-- [ ] **Step 3: Implement eligibility and dismissal**
+- [x] **Step 3: Implement eligibility and dismissal**
 
 In `app/lib/use-arc-state.ts`:
 
@@ -332,7 +335,7 @@ const dismissMigration = useCallback(() => {
 }, []);
 ```
 
-- [ ] **Step 4: Run the controller test and verify GREEN**
+- [x] **Step 4: Run the controller test and verify GREEN**
 
 Run the Step 2 command. Expected: all controller tests pass, including remount, changed snapshot, different user, and successful import acknowledgement.
 
@@ -348,7 +351,7 @@ Run the Step 2 command. Expected: all controller tests pass, including remount, 
 - Modify: `app/proof/page.tsx`
 - Modify: `app/globals.css`
 
-- [ ] **Step 1: Write failing banner tests**
+- [x] **Step 1: Write failing banner tests**
 
 Add `onDismiss={vi.fn()}` to existing renders, then add:
 
@@ -378,7 +381,7 @@ it("explains setup-only device work and delegates Not now", async () => {
 });
 ```
 
-- [ ] **Step 2: Run the banner test and verify RED**
+- [x] **Step 2: Run the banner test and verify RED**
 
 Run:
 
@@ -388,7 +391,7 @@ npm run test:unit -- tests/components/migration-banner.test.tsx
 
 Expected: FAIL because `onDismiss` and plan-detail copy do not exist.
 
-- [ ] **Step 3: Implement the presentational change**
+- [x] **Step 3: Implement the presentational change**
 
 In `migration-banner.tsx`, add required `onDismiss: () => void`, preserve current-render dismissal state, and call the controller action before hiding:
 
@@ -429,7 +432,7 @@ Add one spacing rule:
 
 Add `onDismissMigration?: () => void` to `WorkspaceShell`, pass it to `MigrationBanner`, and have Today, Path, Stack, and Proof pass `arc.dismissMigration`.
 
-- [ ] **Step 4: Run focused UI and controller tests**
+- [x] **Step 4: Run focused UI and controller tests**
 
 ```powershell
 npm run test:unit -- tests/components/migration-banner.test.tsx tests/lib/use-arc-state.test.tsx tests/lib/demo-store.test.ts tests/lib/migration-dismissal.test.ts
@@ -437,7 +440,7 @@ npm run test:unit -- tests/components/migration-banner.test.tsx tests/lib/use-ar
 
 Expected: all focused tests pass.
 
-- [ ] **Step 5: Commit the integrated fix**
+- [x] **Step 5: Commit the integrated fix**
 
 ```powershell
 git add app/components/sync/migration-banner.tsx app/components/workspace/workspace-shell.tsx app/globals.css app/today/page.tsx app/path/page.tsx app/stack/page.tsx app/proof/page.tsx app/lib/use-arc-state.ts tests/components/migration-banner.test.tsx tests/lib/use-arc-state.test.tsx
@@ -451,7 +454,7 @@ git commit -m "fix: stop repeated device migration prompts"
 - Modify: `docs/superpowers/plans/2026-08-01-arc-secure-cross-email-account-linking.md`
 - Modify: `docs/superpowers/plans/2026-08-05-arc-device-migration-prompt.md`
 
-- [ ] **Step 1: Run the complete release gate**
+- [x] **Step 1: Run the complete release gate**
 
 ```powershell
 npm run test:unit
@@ -464,7 +467,7 @@ git diff --check
 
 Expected: every command exits 0; record fresh test counts and build result rather than reusing v7.1 evidence.
 
-- [ ] **Step 2: Record precise production-test evidence**
+- [x] **Step 2: Record precise production-test evidence**
 
 Mark account-link checklist item 7 complete and append that the owned Google target was rejected with the generic no-merge result; the source GitHub account, source learning state, target Google account, and target learning state all remained independent and unchanged.
 
