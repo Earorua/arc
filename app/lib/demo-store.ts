@@ -72,15 +72,18 @@ export function fingerprintDemoState(state: DemoState): string {
     completedUnitIds: state.completedUnitIds,
     proofs: state.proofs,
   });
-  let hash = 0xcbf29ce484222325n;
-  const prime = 0x100000001b3n;
+  let first = 0x811c9dc5;
+  let second = 0x9e3779b9;
 
   for (let index = 0; index < serialized.length; index += 1) {
-    hash ^= BigInt(serialized.charCodeAt(index));
-    hash = BigInt.asUintN(64, hash * prime);
+    const code = serialized.charCodeAt(index);
+    first = Math.imul(first ^ code, 0x01000193);
+    second = Math.imul(second ^ code, 0x85ebca6b);
   }
 
-  return `v1-${hash.toString(16).padStart(16, "0")}`;
+  const high = (first >>> 0).toString(16).padStart(8, "0");
+  const low = (second >>> 0).toString(16).padStart(8, "0");
+  return `v1-${high}${low}`;
 }
 
 export function mergeSetup(state: DemoState, setup: SetupAnswers): DemoState {
