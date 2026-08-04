@@ -21,7 +21,7 @@ Arc. correctly treats a changed setup—role, level, weekly minutes, or target w
 - The same prompt remains dismissed across Today, Path, Stack, Proof, and page reloads.
 - A changed local setup, completion, or proof produces a new fingerprint and may prompt again.
 - Signing into a different Arc. account does not inherit another account's dismissal.
-- A successful import clears the visible migration state through the existing controller. No local learning bytes are deleted by this change.
+- A successful import acknowledges that exact local snapshot and clears the visible migration state, so the already-imported prompt does not return after navigation. No local learning bytes are deleted by this change.
 - If browser storage is unavailable, **Not now** still dismisses the current render; failure to persist the preference must not block learning.
 
 ## Prompt content
