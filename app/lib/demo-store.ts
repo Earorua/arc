@@ -66,6 +66,23 @@ export function hasMeaningfulDemoState(state: DemoState): boolean {
     || JSON.stringify(state.setup) !== JSON.stringify(defaults.setup);
 }
 
+export function fingerprintDemoState(state: DemoState): string {
+  const serialized = JSON.stringify({
+    setup: state.setup,
+    completedUnitIds: state.completedUnitIds,
+    proofs: state.proofs,
+  });
+  let hash = 0xcbf29ce484222325n;
+  const prime = 0x100000001b3n;
+
+  for (let index = 0; index < serialized.length; index += 1) {
+    hash ^= BigInt(serialized.charCodeAt(index));
+    hash = BigInt.asUintN(64, hash * prime);
+  }
+
+  return `v1-${hash.toString(16).padStart(16, "0")}`;
+}
+
 export function mergeSetup(state: DemoState, setup: SetupAnswers): DemoState {
   return { ...state, setup: { ...setup } };
 }
