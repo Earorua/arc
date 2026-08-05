@@ -9,13 +9,22 @@ import { CloudStatus } from "./cloud-status";
 export type MigrationStatus = "none" | "available" | "importing" | "imported" | "failed";
 export type MigrationResolution = "reject" | "archive-import" | "activate-import";
 
+const levelLabels: Record<DemoState["setup"]["level"], string> = {
+  new: "New",
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+};
+
 export function MigrationBanner({
   state,
   status,
+  onDismiss,
   onImport,
 }: {
   state: DemoState;
   status: MigrationStatus;
+  onDismiss: () => void;
   onImport: (resolution?: MigrationResolution) => Promise<void>;
 }) {
   const [dismissed, setDismissed] = useState(false);
@@ -51,7 +60,10 @@ export function MigrationBanner({
       <div className="migration-copy">
         <h2 id="migration-title">Continue this path in your Arc. account?</h2>
         <p>
-          {getRoleDisplayName(state.setup.roleId)} · {completed} completed {completed === 1 ? "unit" : "units"} · {proofs} {proofs === 1 ? "proof" : "proofs"}
+          {getRoleDisplayName(state.setup.roleId)} · {levelLabels[state.setup.level]} · {state.setup.weeklyMinutes} min/week · {state.setup.targetWeeks} weeks
+        </p>
+        <p className="migration-progress">
+          {completed} completed {completed === 1 ? "unit" : "units"} · {proofs} {proofs === 1 ? "proof" : "proofs"}
         </p>
         <small>Nothing moves until you choose. “Not now” keeps every local byte on this device.</small>
       </div>
@@ -75,7 +87,16 @@ export function MigrationBanner({
               {busy ? "Importing…" : "Import to Arc."}
             </button>
           )}
-          <button disabled={busy} onClick={() => setDismissed(true)} type="button">Not now</button>
+          <button
+            disabled={busy}
+            onClick={() => {
+              onDismiss();
+              setDismissed(true);
+            }}
+            type="button"
+          >
+            Not now
+          </button>
         </div>
       )}
     </aside>

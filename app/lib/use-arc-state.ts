@@ -6,6 +6,7 @@ import { authClient } from "./auth-client";
 import { arcCloudClient, isArcApiError, type ArcCloudClient } from "./cloud-client";
 import {
   completeDemoUnit,
+  fingerprintDemoState,
   hasMeaningfulDemoState,
   loadDemoState,
   mergeSetup,
@@ -13,6 +14,10 @@ import {
   type DemoState,
   type SetupAnswers,
 } from "./demo-store";
+import {
+  acknowledgeMigrationSnapshot,
+  isMigrationSnapshotAcknowledged,
+} from "./migration-dismissal";
 import {
   enqueueOfflineMutation,
   readOfflineQueue,
@@ -31,6 +36,7 @@ export type ArcStateController = {
   migration: ArcMigrationState;
   localMigrationState: DemoState | null;
   recovery: ArcRecoveryState;
+  dismissMigration(): void;
   importLocal(resolution?: ArcMigrationResolution): Promise<void>;
   saveSetup(setup: SetupAnswers): Promise<boolean>;
   completeUnit(unit: LearningUnit): Promise<boolean>;
@@ -60,6 +66,19 @@ function useRuntimeSession(): ArcSessionState {
 
 function retryable(error: unknown): boolean {
   return !isArcApiError(error) || error.status === 429 || error.status >= 500;
+}
+
+function hasPendingLocalMigration(
+  local: DemoState,
+  userId: string,
+  storage?: Storage,
+): boolean {
+  return hasMeaningfulDemoState(local)
+    && !isMigrationSnapshotAcknowledged(
+      userId,
+      fingerprintDemoState(local),
+      storage,
+    );
 }
 
 export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateController {
@@ -131,13 +150,13 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     void clientRef.current.loadWorkspace()
       .then((snapshot) => {
         if (!active) return;
-        const meaningful = hasMeaningfulDemoState(local);
+        const available = hasPendingLocalMigration(local, userId, storageRef.current);
         publishState(snapshot?.state ?? local);
         publishSource(snapshot
           ? (readOfflineQueue(storageRef.current).length > 0 ? "offline-cloud" : "cloud")
           : "local");
-        setMigration(meaningful ? "available" : "none");
-        setLocalMigrationState(meaningful ? local : null);
+        setMigration(available ? "available" : "none");
+        setLocalMigrationState(available ? local : null);
         setRecovery("none");
       })
       .catch((error) => {
@@ -145,9 +164,9 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
         publishState(local);
         publishSource("offline-cloud");
         setRecovery(isArcApiError(error) && error.status === 401 ? "session-expired" : "none");
-        const meaningful = hasMeaningfulDemoState(local);
-        setMigration(meaningful ? "available" : "none");
-        setLocalMigrationState(meaningful ? local : null);
+        const available = hasPendingLocalMigration(local, userId, storageRef.current);
+        setMigration(available ? "available" : "none");
+        setLocalMigrationState(available ? local : null);
       });
 
     return () => {
@@ -157,7 +176,8 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
 
   const importLocal = useCallback(async (resolution: ArcMigrationResolution = "reject") => {
     const local = loadDemoState(storageRef.current);
-    if (!userIdRef.current || !hasMeaningfulDemoState(local)) {
+    const currentUserId = userIdRef.current;
+    if (!currentUserId || !hasMeaningfulDemoState(local)) {
       setMigration("none");
       return;
     }
@@ -169,6 +189,11 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       await clientRef.current.importLocal(local, resolution, migrationId);
       const snapshot = await clientRef.current.loadWorkspace();
       if (!snapshot) throw new Error("Imported Arc workspace is unavailable.");
+      acknowledgeMigrationSnapshot(
+        currentUserId,
+        fingerprintDemoState(local),
+        storageRef.current,
+      );
       publishState(snapshot.state);
       publishSource("cloud");
       setMigration("imported");
@@ -180,6 +205,20 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       throw error;
     }
   }, [publishSource, publishState]);
+
+  const dismissMigration = useCallback(() => {
+    const local = loadDemoState(storageRef.current);
+    const currentUserId = userIdRef.current;
+    if (currentUserId && hasMeaningfulDemoState(local)) {
+      acknowledgeMigrationSnapshot(
+        currentUserId,
+        fingerprintDemoState(local),
+        storageRef.current,
+      );
+    }
+    setMigration("none");
+    setLocalMigrationState(null);
+  }, []);
 
   const enqueue = useCallback((mutation: OfflineMutation): boolean => {
     const result = enqueueOfflineMutation(mutation, storageRef.current);
@@ -319,6 +358,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     migration,
     localMigrationState,
     recovery,
+    dismissMigration,
     importLocal,
     saveSetup,
     completeUnit,

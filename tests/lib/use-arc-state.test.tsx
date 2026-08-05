@@ -13,10 +13,11 @@ import { enqueueOfflineMutation, readOfflineQueue } from "../../app/lib/offline-
 import { useArcState } from "../../app/lib/use-arc-state";
 
 const anonymousSession = () => ({ data: null, isPending: false });
-const signedInSession = () => ({
-  data: { user: { id: "user-owner", name: "Arc Learner", email: "learner@example.com" } },
+const signedInSessionFor = (id: string) => () => ({
+  data: { user: { id, name: "Arc Learner", email: "learner@example.com" } },
   isPending: false,
 });
+const signedInSession = signedInSessionFor("user-owner");
 
 function fakeClient(overrides: Partial<Record<keyof ArcCloudClient, unknown>> = {}) {
   return {
@@ -77,6 +78,47 @@ describe("useArcState", () => {
     );
   });
 
+  it("keeps one snapshot dismissed for the same user until device work changes", async () => {
+    const local = mergeSetup(createDemoState(), {
+      ...createDemoState().setup,
+      weeklyMinutes: 300,
+    });
+    saveDemoState(local);
+    const client = fakeClient();
+
+    const first = renderHook(() => useArcState({
+      client,
+      useSession: signedInSessionFor("user-owner"),
+    }));
+    await waitFor(() => expect(first.result.current.migration).toBe("available"));
+    act(() => first.result.current.dismissMigration());
+    expect(first.result.current.migration).toBe("none");
+    first.unmount();
+
+    const sameUser = renderHook(() => useArcState({
+      client,
+      useSession: signedInSessionFor("user-owner"),
+    }));
+    await waitFor(() => expect(sameUser.result.current.source).not.toBe("restoring"));
+    expect(sameUser.result.current.migration).toBe("none");
+    sameUser.unmount();
+
+    saveDemoState(mergeSetup(local, { ...local.setup, weeklyMinutes: 360 }));
+    const changedSnapshot = renderHook(() => useArcState({
+      client,
+      useSession: signedInSessionFor("user-owner"),
+    }));
+    await waitFor(() => expect(changedSnapshot.result.current.migration).toBe("available"));
+    changedSnapshot.unmount();
+
+    saveDemoState(local);
+    const otherUser = renderHook(() => useArcState({
+      client,
+      useSession: signedInSessionFor("user-other"),
+    }));
+    await waitFor(() => expect(otherUser.result.current.migration).toBe("available"));
+  });
+
   it("never imports automatically and switches to cloud only after explicit success", async () => {
     const local = completeDemoUnit(createDemoState(), flagshipRole.today);
     saveDemoState(local);
@@ -88,7 +130,7 @@ describe("useArcState", () => {
     const client = fakeClient({
       loadWorkspace: vi.fn()
         .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(cloudSnapshot),
+        .mockResolvedValue(cloudSnapshot),
       importLocal: vi.fn().mockResolvedValue({
         migrationId: "migration-original",
         status: "imported",
@@ -98,7 +140,7 @@ describe("useArcState", () => {
         availableResolutions: [],
       }),
     });
-    const { result } = renderHook(() => useArcState({
+    const { result, unmount } = renderHook(() => useArcState({
       client,
       useSession: signedInSession,
       createMutationId: () => "migration-original",
@@ -113,6 +155,14 @@ describe("useArcState", () => {
     expect(result.current.source).toBe("cloud");
     expect(result.current.migration).toBe("imported");
     expect(result.current.state).toEqual(local);
+
+    unmount();
+    const remounted = renderHook(() => useArcState({
+      client,
+      useSession: signedInSessionFor("user-owner"),
+    }));
+    await waitFor(() => expect(remounted.result.current.source).toBe("cloud"));
+    expect(remounted.result.current.migration).toBe("none");
   });
 
   it("queues one original completion mutation after cloud connectivity fails", async () => {

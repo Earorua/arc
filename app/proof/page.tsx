@@ -16,6 +16,7 @@ export default function ProofPage() {
       current="Proof"
       migration={arc.migration}
       migrationState={arc.localMigrationState}
+      onDismissMigration={arc.dismissMigration}
       onImport={arc.importLocal}
       onRetry={arc.retry}
       recovery={arc.recovery}

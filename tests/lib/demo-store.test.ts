@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   completeDemoUnit,
   createDemoState,
+  fingerprintDemoState,
   hasMeaningfulDemoState,
   loadDemoState,
   mergeSetup,
@@ -17,6 +18,21 @@ describe("demo store", () => {
       weeklyMinutes: 300,
     }))).toBe(true);
     expect(hasMeaningfulDemoState(completeDemoUnit(createDemoState(), flagshipRole.today))).toBe(true);
+  });
+
+  it("fingerprints the validated snapshot deterministically and detects migration-relevant changes", () => {
+    const initial = createDemoState();
+    const same = createDemoState();
+    const setupChanged = mergeSetup(initial, {
+      ...initial.setup,
+      weeklyMinutes: 300,
+    });
+    const progressChanged = completeDemoUnit(initial, flagshipRole.today);
+
+    expect(fingerprintDemoState(initial)).toBe(fingerprintDemoState(same));
+    expect(fingerprintDemoState(setupChanged)).not.toBe(fingerprintDemoState(initial));
+    expect(fingerprintDemoState(progressChanged)).not.toBe(fingerprintDemoState(initial));
+    expect(fingerprintDemoState(initial)).toMatch(/^v1-[0-9a-f]{16}$/);
   });
 
   it("merges setup answers without erasing progress", () => {

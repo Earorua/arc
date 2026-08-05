@@ -198,6 +198,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .migration-banner .section-index { margin: 4px 0; }
 .migration-copy h2 { margin: 0; font-family: var(--display); font-size: clamp(1.7rem, 3vw, 2.7rem); font-weight: 480; line-height: 1; letter-spacing: -0.04em; }
 .migration-copy p { margin: 14px 0 0; color: var(--charcoal); font-size: 0.82rem; }
+.migration-copy .migration-progress { margin-top: 5px; color: var(--stone); }
 .migration-copy small { display: block; margin-top: 9px; color: var(--stone); line-height: 1.55; }
 .migration-actions { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 12px; }
 .migration-actions button { border: 0; border-bottom: 1px solid currentColor; background: transparent; padding: 0 0 3px; color: var(--charcoal); cursor: pointer; text-align: left; font-size: 0.76rem; }
