@@ -23,6 +23,7 @@ const expectedTableNames = [
   "feature_flags",
   "endpoint_rate_buckets",
   "operational_events",
+  "account_link_intents",
 ];
 
 function exportedTableNames() {
@@ -58,6 +59,7 @@ describe("Arc beta persistence schema", () => {
       schema.idempotencyRecords,
       schema.quotaLedger,
       schema.aiRuns,
+      schema.accountLinkIntents,
     ];
 
     for (const table of userOwnedTables) {
@@ -72,5 +74,14 @@ describe("Arc beta persistence schema", () => {
     expect(indexNames(schema.idempotencyRecords)).toContain("idempotency_user_scope_mutation_idx");
     expect(indexNames(schema.quotaLedger)).toContain("quota_ledger_user_idempotency_idx");
     expect(indexNames(schema.endpointRateBuckets)).toContain("endpoint_rate_bucket_idx");
+    expect(indexNames(schema.accountLinkIntents)).toEqual(expect.arrayContaining([
+      "account_link_intents_token_idx",
+      "account_link_intents_user_target_idx",
+      "account_link_intents_expiry_idx",
+    ]));
+  });
+
+  it("declares the durable account-link completion reservation status", () => {
+    expect(schema.accountLinkIntents.status.enumValues).toContain("completing");
   });
 });

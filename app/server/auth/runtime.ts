@@ -1,7 +1,9 @@
 import { env } from "cloudflare:workers";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
+import { eq } from "drizzle-orm";
 import { getDb } from "../../../db";
+import { getD1 } from "../../../db/d1";
 import {
   accounts,
   authRateLimits,
@@ -10,6 +12,12 @@ import {
   verifications,
 } from "../../../db/schema";
 import { readAuthPolicy, type AuthEnvironment } from "./policy";
+import { createAccountLinkAuthHooks } from "../account-link/auth-hooks";
+import { D1AccountLinkRepository } from "../account-link/d1-repository";
+import {
+  accountLinkProviderSchema,
+  type AccountLinkProvider,
+} from "../account-link/contracts";
 
 export class AuthUnavailableError extends Error {
   readonly code = "AUTH_UNAVAILABLE";
@@ -57,6 +65,24 @@ export function buildAuthOptions(
 ): BetterAuthOptions {
   const policy = readAuthPolicy(source);
   if (!policy.isReady || !source.BETTER_AUTH_SECRET) throw new AuthUnavailableError();
+  const accountLinkHooks = createAccountLinkAuthHooks({
+    secret: source.BETTER_AUTH_SECRET,
+    getRepository: () => new D1AccountLinkRepository(getD1()),
+    listAccountsForUser: async (userId) => {
+      const rows = await database
+        .select({ providerId: accounts.providerId })
+        .from(accounts)
+        .where(eq(accounts.userId, userId));
+      const providers: AccountLinkProvider[] = [];
+      for (const row of rows) {
+        const provider = accountLinkProviderSchema.safeParse(row.providerId);
+        if (provider.success && !providers.includes(provider.data)) {
+          providers.push(provider.data);
+        }
+      }
+      return providers;
+    },
+  });
 
   return {
     baseURL: policy.origin,
@@ -74,9 +100,12 @@ export function buildAuthOptions(
         enabled: true,
         disableImplicitLinking: true,
         trustedProviders: ["google", "github"],
-        allowDifferentEmails: false,
+        allowDifferentEmails: true,
+        updateUserInfoOnLink: false,
       },
     },
+    hooks: accountLinkHooks.hooks,
+    databaseHooks: accountLinkHooks.databaseHooks,
     verification: { storeIdentifier: "hashed" },
     rateLimit: {
       enabled: true,
@@ -85,10 +114,30 @@ export function buildAuthOptions(
       storage: "database",
       modelName: "authRateLimit",
     },
+    logger: {
+      level: "warn",
+      log: (level) => {
+        // Better Auth can pass raw OAuth exceptions here. Never forward their
+        // messages or attached objects into the public runtime log stream.
+        const marker = `[Arc Auth] ${level.toUpperCase()}`;
+        if (level === "error") {
+          console.error(marker);
+        } else if (level === "warn") {
+          console.warn(marker);
+        } else {
+          console.log(marker);
+        }
+      },
+    },
     trustedOrigins: [policy.origin],
     advanced: {
       cookiePrefix: "arc",
       useSecureCookies: source.ARC_ENVIRONMENT === "production",
+      ipAddress: {
+        // Sites runs at Cloudflare's edge, which owns this header. Do not add a
+        // client-controlled forwarded-header fallback without a trusted chain.
+        ipAddressHeaders: ["cf-connecting-ip"],
+      },
     },
     socialProviders: buildSocialProviders(source),
   };

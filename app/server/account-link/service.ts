@@ -1,0 +1,560 @@
+import {
+  accountLinkProviderSchema,
+  COMPLETION_RECONCILIATION_TTL_MS,
+  INTERNAL_PROOF_TTL_MS,
+  PENDING_REAUTH_TTL_MS,
+  projectAccountLinkIntent,
+  safeAccountLinkStatusSchema,
+  TARGET_OAUTH_RECOVERY_TTL_MS,
+  VERIFIED_GRANT_TTL_MS,
+  AccountLinkError,
+  type AccountLinkIntent,
+  type AccountLinkPhase,
+  type AccountLinkProvider,
+} from "./contracts";
+import type { SignedLinkContext } from "./crypto";
+import type { AccountLinkRepository } from "./repository";
+
+export type AccountLinkServiceDependencies = {
+  repository: AccountLinkRepository;
+  listAccounts: (headers: Headers) => Promise<AccountLinkProvider[]>;
+  startProviderLink: (input: {
+    headers: Headers;
+    provider: AccountLinkProvider;
+    phase: AccountLinkPhase;
+    intent: AccountLinkIntent;
+    internalProof: string;
+  }) => Promise<{ url: string; headers: Headers }>;
+  createCredential: () => string;
+  hashCredential: (value: string) => Promise<string>;
+  createProof: (input: SignedLinkContext) => Promise<string>;
+  verifyProof: (
+    token: string,
+    kind: "internal" | "oauth",
+    now: number,
+  ) => Promise<SignedLinkContext>;
+  createId: () => string;
+  now: () => Date;
+};
+
+export type SettleAccountLinkCallbackInput = {
+  /**
+   * Preserved at the auth-hook boundary for request context and audit integration;
+   * domain settlement does not currently inspect header values.
+   */
+  headers: Headers;
+  credential: string | null;
+  oauthContextToken: string;
+  provider: unknown;
+  linkUserId: string;
+  outcome:
+    | { kind: "success" }
+    | { kind: "error"; code: string };
+};
+
+export type AccountLinkCallbackSettlement = {
+  kind: "settled" | "authoritative_completion" | "pending_completion";
+};
+
+const recognizedCallbackErrors = new Set([
+  "OAUTH_CANCELLED",
+  "LINK_CONFLICT",
+  "STATE_INVALID",
+  "OAUTH_FAILED",
+]);
+
+function createEmptyStatus() {
+  return safeAccountLinkStatusSchema.parse({
+    stage: null,
+    targetProvider: null,
+    expiresAt: null,
+  });
+}
+
+function domainError(code: AccountLinkError["code"], message: string) {
+  return new AccountLinkError(code, message);
+}
+
+export class AccountLinkService {
+  constructor(private readonly dependencies: AccountLinkServiceDependencies) {}
+
+  async start(headers: Headers, userId: string, targetProvider: unknown) {
+    const parsedTarget = accountLinkProviderSchema.safeParse(targetProvider);
+    if (!parsedTarget.success) {
+      throw domainError("NOT_CONFIGURED", "The requested provider is not configured");
+    }
+
+    const target = parsedTarget.data;
+    const connectedProviders = await this.dependencies.listAccounts(headers);
+    if (connectedProviders.includes(target)) {
+      throw domainError("ALREADY_CONNECTED", "The requested provider is already connected");
+    }
+
+    const operationTime = this.dependencies.now();
+    const inFlight = await this.dependencies.repository.findInFlightByOwnerAndTarget(
+      userId,
+      target,
+    );
+    if (inFlight) {
+      if (inFlight.status === "completing") {
+        const reconciledProviders = await this.dependencies.listAccounts(headers);
+        if (reconciledProviders.includes(target)) {
+          await this.dependencies.repository.complete(
+            inFlight.id,
+            inFlight.userId,
+            operationTime,
+          );
+          throw domainError("ALREADY_CONNECTED", "The requested provider is already connected");
+        }
+        if (this.isStaleCompletion(inFlight, operationTime)) {
+          const failed = await this.dependencies.repository.failStaleCompletion({
+            id: inFlight.id,
+            userId: inFlight.userId,
+            targetProvider: inFlight.targetProvider,
+            cutoff: new Date(operationTime.getTime() - COMPLETION_RECONCILIATION_TTL_MS),
+            now: operationTime,
+          });
+          if (!failed) {
+            const finalProviders = await this.dependencies.listAccounts(headers);
+            if (finalProviders.includes(target)) {
+              await this.dependencies.repository.complete(
+                inFlight.id,
+                inFlight.userId,
+                operationTime,
+              );
+              throw domainError(
+                "ALREADY_CONNECTED",
+                "The requested provider is already connected",
+              );
+            }
+            throw domainError("REPLAYED", "An account-link operation is already in progress");
+          }
+        } else {
+          throw domainError("REPLAYED", "An account-link operation is already in progress");
+        }
+      } else if (inFlight.status === "consumed" && this.isStaleConsumed(
+        inFlight,
+        operationTime,
+      )) {
+        const failed = await this.dependencies.repository.failStaleConsumed({
+          id: inFlight.id,
+          userId: inFlight.userId,
+          targetProvider: inFlight.targetProvider,
+          cutoff: new Date(operationTime.getTime() - TARGET_OAUTH_RECOVERY_TTL_MS),
+          now: operationTime,
+        });
+        if (!failed) {
+          const finalProviders = await this.dependencies.listAccounts(headers);
+          if (finalProviders.includes(target)) {
+            await this.dependencies.repository.complete(
+              inFlight.id,
+              inFlight.userId,
+              operationTime,
+            );
+            throw domainError(
+              "ALREADY_CONNECTED",
+              "The requested provider is already connected",
+            );
+          }
+          throw domainError("REPLAYED", "An account-link operation is already in progress");
+        }
+      } else {
+        throw domainError("REPLAYED", "An account-link operation is already in progress");
+      }
+    }
+
+    const sourceProviders = connectedProviders.filter((provider) => provider !== target);
+    if (sourceProviders.length !== 1) {
+      throw domainError("NO_SOURCE_PROVIDER", "Exactly one source provider is required");
+    }
+
+    const source = sourceProviders[0];
+    const credential = this.dependencies.createCredential();
+    const tokenHash = await this.dependencies.hashCredential(credential);
+    const intent = await this.dependencies.repository.create({
+      id: this.dependencies.createId(),
+      tokenHash,
+      userId,
+      sourceProvider: source,
+      targetProvider: target,
+      expiresAt: new Date(operationTime.getTime() + PENDING_REAUTH_TTL_MS),
+      now: operationTime,
+    });
+    if (!intent) {
+      const reconciledProviders = await this.dependencies.listAccounts(headers);
+      if (reconciledProviders.includes(target)) {
+        throw domainError("ALREADY_CONNECTED", "The requested provider is already connected");
+      }
+      throw domainError("REPLAYED", "An account-link operation is already in progress");
+    }
+
+    try {
+      const internalProof = await this.createInternalProof(
+        intent,
+        source,
+        "reauth",
+        operationTime,
+      );
+      const providerLink = await this.dependencies.startProviderLink({
+        headers,
+        provider: source,
+        phase: "reauth",
+        intent,
+        internalProof,
+      });
+      return {
+        intent,
+        credential,
+        authorizationUrl: providerLink.url,
+        authHeaders: providerLink.headers,
+      };
+    } catch (error) {
+      await this.bestEffortFailAfterOAuthStart(
+        intent.id,
+        userId,
+        operationTime,
+      );
+      throw error;
+    }
+  }
+
+  async status(
+    userId: string,
+    credential: string | null | undefined,
+    headers?: Headers,
+  ) {
+    if (!credential) return createEmptyStatus();
+
+    const operationTime = this.dependencies.now();
+    const tokenHash = await this.dependencies.hashCredential(credential);
+    let intent = await this.dependencies.repository.findByCredential(
+      userId,
+      tokenHash,
+      operationTime,
+    );
+    if (intent?.status === "completing" && headers) {
+      const connectedProviders = await this.dependencies.listAccounts(headers);
+      if (connectedProviders.includes(intent.targetProvider)) {
+        const completed = await this.dependencies.repository.complete(
+          intent.id,
+          intent.userId,
+          operationTime,
+        );
+        if (completed) {
+          intent = {
+            ...intent,
+            status: "completed",
+            completedAt: intent.completedAt ?? operationTime,
+            updatedAt: operationTime,
+          };
+        }
+      } else if (this.isStaleCompletion(intent, operationTime)) {
+        const failed = await this.dependencies.repository.failStaleCompletion({
+          id: intent.id,
+          userId: intent.userId,
+          targetProvider: intent.targetProvider,
+          cutoff: new Date(operationTime.getTime() - COMPLETION_RECONCILIATION_TTL_MS),
+          now: operationTime,
+        });
+        if (failed) {
+          intent = {
+            ...intent,
+            status: "failed",
+            failureCode: "COMPLETION_STALE",
+            updatedAt: operationTime,
+          };
+        } else {
+          const finalProviders = await this.dependencies.listAccounts(headers);
+          if (finalProviders.includes(intent.targetProvider)) {
+            const completed = await this.dependencies.repository.complete(
+              intent.id,
+              intent.userId,
+              operationTime,
+            );
+            if (completed) {
+              intent = {
+                ...intent,
+                status: "completed",
+                completedAt: intent.completedAt ?? operationTime,
+                updatedAt: operationTime,
+              };
+            }
+          }
+        }
+      }
+    }
+    return intent ? projectAccountLinkIntent(intent) : createEmptyStatus();
+  }
+
+  async continue(
+    headers: Headers,
+    userId: string,
+    credential: string | null | undefined,
+  ) {
+    if (!credential) {
+      throw domainError("INVALID_INTENT", "The account-link intent is missing");
+    }
+
+    const operationTime = this.dependencies.now();
+    const tokenHash = await this.dependencies.hashCredential(credential);
+    const intent = await this.dependencies.repository.findByCredential(
+      userId,
+      tokenHash,
+      operationTime,
+    );
+    if (!intent) {
+      throw domainError("INVALID_INTENT", "The account-link intent is invalid");
+    }
+    if (intent.status === "expired") {
+      throw domainError("EXPIRED", "The verified grant has expired");
+    }
+    if (intent.status !== "verified") {
+      const code = intent.status === "pending_reauth" ? "INVALID_INTENT" : "REPLAYED";
+      throw domainError(code, "The verified grant is not available");
+    }
+
+    const consumed = await this.dependencies.repository.consume(
+      intent.id,
+      userId,
+      operationTime,
+    );
+    if (!consumed) {
+      throw domainError("REPLAYED", "The verified grant was already consumed");
+    }
+
+    try {
+      const internalProof = await this.createInternalProof(
+        consumed,
+        consumed.targetProvider,
+        "target",
+        operationTime,
+      );
+      const providerLink = await this.dependencies.startProviderLink({
+        headers,
+        provider: consumed.targetProvider,
+        phase: "target",
+        intent: consumed,
+        internalProof,
+      });
+      return {
+        intent: consumed,
+        authorizationUrl: providerLink.url,
+        authHeaders: providerLink.headers,
+      };
+    } catch (error) {
+      await this.bestEffortFailAfterOAuthStart(
+        consumed.id,
+        userId,
+        operationTime,
+      );
+      throw error;
+    }
+  }
+
+  async cancel(
+    userId: string,
+    credential: string | null | undefined,
+  ) {
+    if (!credential) {
+      throw domainError("INVALID_INTENT", "The account-link intent is missing");
+    }
+
+    const operationTime = this.dependencies.now();
+    const tokenHash = await this.dependencies.hashCredential(credential);
+    const intent = await this.dependencies.repository.findByCredential(
+      userId,
+      tokenHash,
+      operationTime,
+    );
+    if (!intent) {
+      throw domainError("INVALID_INTENT", "The account-link intent is invalid");
+    }
+    if (intent.status === "expired") {
+      throw domainError("EXPIRED", "The verified grant has expired");
+    }
+    if (intent.status !== "verified") {
+      throw domainError("REPLAYED", "The verified grant is not available");
+    }
+    if (!await this.dependencies.repository.cancelVerified(
+      intent.id,
+      intent.userId,
+      operationTime,
+    )) {
+      throw domainError("REPLAYED", "The verified grant was no longer available");
+    }
+    return { cancelled: true as const };
+  }
+
+  async settleCallback(
+    input: SettleAccountLinkCallbackInput,
+  ): Promise<AccountLinkCallbackSettlement> {
+    const operationTime = this.dependencies.now();
+    const context = await this.verifyOAuthContext(
+      input.oauthContextToken,
+      operationTime,
+    );
+    const parsedProvider = accountLinkProviderSchema.safeParse(input.provider);
+    if (!parsedProvider.success || !input.credential) {
+      throw domainError("IDENTITY_MISMATCH", "The callback identity did not match");
+    }
+
+    const tokenHash = await this.dependencies.hashCredential(input.credential);
+    const intent = await this.dependencies.repository.findByCredential(
+      context.userId,
+      tokenHash,
+      operationTime,
+    );
+    if (!intent) {
+      throw domainError("IDENTITY_MISMATCH", "The callback intent did not match");
+    }
+
+    const expectedProvider = context.phase === "reauth"
+      ? intent.sourceProvider
+      : intent.targetProvider;
+    const statusMatches = context.phase === "reauth"
+      ? intent.status === "pending_reauth"
+      : ["consumed", "completing", "completed"].includes(intent.status);
+    const commonIdentityMatches =
+      context.intentId === intent.id
+      && context.userId === intent.userId
+      && input.linkUserId === intent.userId
+      && context.provider === parsedProvider.data
+      && parsedProvider.data === expectedProvider
+      && statusMatches;
+    const reauthDeadlineIsValid =
+      context.phase !== "reauth"
+      || intent.expiresAt.getTime() > operationTime.getTime();
+
+    if (!commonIdentityMatches || !reauthDeadlineIsValid) {
+      await this.failIdentityMismatch(intent, context, operationTime);
+      throw domainError("IDENTITY_MISMATCH", "The callback identity did not match");
+    }
+
+    if (input.outcome.kind === "error") {
+      if (!recognizedCallbackErrors.has(input.outcome.code)) {
+        await this.failIdentityMismatch(intent, context, operationTime);
+        throw domainError("IDENTITY_MISMATCH", "The callback error was not recognized");
+      }
+      if (context.phase === "target" && intent.status === "completed") {
+        return { kind: "authoritative_completion" };
+      }
+      if (context.phase === "target" && intent.status === "completing") {
+        const connectedProviders = await this.dependencies.listAccounts(input.headers);
+        if (!connectedProviders.includes(intent.targetProvider)) {
+          return { kind: "pending_completion" };
+        }
+        const completed = await this.dependencies.repository.complete(
+          intent.id,
+          intent.userId,
+          operationTime,
+        );
+        if (!completed) {
+          throw domainError("IDENTITY_MISMATCH", "The callback intent could not be completed");
+        }
+        return { kind: "authoritative_completion" };
+      }
+      const failed = await this.dependencies.repository.fail(
+        intent.id,
+        intent.userId,
+        input.outcome.code,
+        operationTime,
+      );
+      if (!failed) {
+        throw domainError("IDENTITY_MISMATCH", "The callback intent was no longer active");
+      }
+      return { kind: "settled" };
+    }
+
+    if (context.phase === "reauth") {
+      const verified = await this.dependencies.repository.markVerified(
+        intent.id,
+        intent.userId,
+        operationTime,
+        new Date(operationTime.getTime() + VERIFIED_GRANT_TTL_MS),
+      );
+      if (!verified) {
+        throw domainError("IDENTITY_MISMATCH", "The callback intent was no longer pending");
+      }
+      return { kind: "settled" };
+    }
+
+    const completed = await this.dependencies.repository.complete(
+      intent.id,
+      intent.userId,
+      operationTime,
+    );
+    if (!completed) {
+      throw domainError("IDENTITY_MISMATCH", "The callback intent could not be completed");
+    }
+    return { kind: "settled" };
+  }
+
+  private async createInternalProof(
+    intent: AccountLinkIntent,
+    provider: AccountLinkProvider,
+    phase: AccountLinkPhase,
+    operationTime: Date,
+  ) {
+    return await this.dependencies.createProof({
+      kind: "internal",
+      intentId: intent.id,
+      userId: intent.userId,
+      provider,
+      phase,
+      issuedAt: operationTime.getTime(),
+      expiresAt: operationTime.getTime() + INTERNAL_PROOF_TTL_MS,
+      nonce: this.dependencies.createId(),
+    });
+  }
+
+  private isStaleCompletion(intent: AccountLinkIntent, operationTime: Date) {
+    return intent.updatedAt.getTime()
+      <= operationTime.getTime() - COMPLETION_RECONCILIATION_TTL_MS;
+  }
+
+  private isStaleConsumed(intent: AccountLinkIntent, operationTime: Date) {
+    return intent.consumedAt !== null
+      && intent.consumedAt.getTime()
+        <= operationTime.getTime() - TARGET_OAUTH_RECOVERY_TTL_MS;
+  }
+
+  private async verifyOAuthContext(token: string, operationTime: Date) {
+    try {
+      return await this.dependencies.verifyProof(token, "oauth", operationTime.getTime());
+    } catch {
+      throw domainError("IDENTITY_MISMATCH", "The callback proof was invalid");
+    }
+  }
+
+  private async failIdentityMismatch(
+    intent: AccountLinkIntent,
+    context: SignedLinkContext,
+    operationTime: Date,
+  ) {
+    if (intent.id === context.intentId && intent.userId === context.userId) {
+      await this.dependencies.repository.fail(
+        intent.id,
+        intent.userId,
+        "IDENTITY_MISMATCH",
+        operationTime,
+      );
+    }
+  }
+
+  private async bestEffortFailAfterOAuthStart(
+    intentId: string,
+    userId: string,
+    operationTime: Date,
+  ) {
+    try {
+      await this.dependencies.repository.fail(
+        intentId,
+        userId,
+        "OAUTH_START_FAILED",
+        operationTime,
+      );
+    } catch {
+      // Preserve the provider-start error that caused this terminal transition attempt.
+    }
+  }
+}
