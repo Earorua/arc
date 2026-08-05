@@ -473,7 +473,7 @@ Mark account-link checklist item 7 complete and append that the owned Google tar
 
 Keep checklist items 5–6 explicitly deferred because no safe unused Google identity exists. Keep checklist item 8 open for replay and direct application-bypass evidence. Keep checklist item 9 open because the recent Worker log stream returned no observable events. Record the repeated migration prompt as the root cause for v7.2 and include the fresh automated verification results.
 
-- [ ] **Step 3: Commit documentation and push the feature branch**
+- [x] **Step 3: Commit documentation and push the feature branch**
 
 ```powershell
 git add docs/operations/sites-oauth-feasibility.md docs/superpowers/plans/2026-08-01-arc-secure-cross-email-account-linking.md docs/superpowers/plans/2026-08-05-arc-device-migration-prompt.md
@@ -483,14 +483,22 @@ git push origin feature/arc-beta-foundation
 
 Verify that the remote branch head equals local `HEAD` and that draft PR #3 reflects the pushed commits.
 
-- [ ] **Step 4: Save and deploy the exact verified source as product v7.2**
+- [x] **Step 4: Save and deploy the exact verified source as product v7.2**
 
 Read `.openai/hosting.json`, package the exact successful build with the Sites helper, save one new version from the pushed `HEAD`, and deploy it publicly under the user's existing approval. Do not change OAuth credentials, runtime variables, D1 schema, R2 bindings, access policy, or the production slug. Poll until deployment reaches `succeeded`; retain Sites version 6 as the rollback artifact.
 
-- [ ] **Step 5: Perform production smoke without mutating learning data**
+- [x] **Step 5: Perform production smoke without mutating learning data**
 
 Open the production URL, confirm `/today` and the session endpoint respond normally, and confirm deployment status remains successful. Ask the user for one final UX observation: on the existing Google account, select **Not now**, navigate among workspace pages, and reload once; the same unchanged prompt must remain absent. A changed local setup may prompt again by design.
 
-- [ ] **Step 6: Close the release checkpoint**
+- [x] **Step 6: Close the release checkpoint**
 
 Append the Sites version/deployment evidence and final UX result after the user reports it. If the smoke passes, mark this plan complete and move the project from v7 stabilization to the already-approved v8 product-planning phase. If authentication, account identity, learning state, or import consent regresses, roll back to Sites version 6 and keep v7 open.
+
+## Completion evidence — 2026-08-05
+
+GitHub commit `1ac6f2c2414727fef422d94074f7baf43c0a4a5a` was pushed to `feature/arc-beta-foundation`; draft PR #3 reflected that exact head and GitHub Quality run 15 completed successfully. The release gate passed 61 test files / 516 tests, ESLint, `tsc --noEmit`, the five-stage Vinext production build, and 2/2 rendered HTML/secret-boundary tests.
+
+The identical file tree was preserved in Sites source commit `7ca5b530dfc58f3cbc700b44a7a881a9bd661209`, saved as Sites version number 9 (`appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_165606d8964c8191a362046f03b6d93a`), and publicly deployed successfully as `appgdep_6a728790e0608191bf1286c3a9a3ccfd`. No OAuth credential, runtime variable, D1 schema, R2 binding, access policy, or production slug changed. Version 6 remains available for rollback.
+
+Production Worker evidence returned 200 with `ok` outcomes for `/` and `/api/auth/get-session`. Error-filtered events contained only non-fatal `/favicon.ico` 404 responses and no application exception. The user then selected **Not now** on the existing Google account, navigated through Today, Path, Stack, and Proof, reloaded, and confirmed that the unchanged migration prompt did not return; account identity and learning progress remained unchanged. Product v7 stabilization is therefore closed, while the explicitly deferred unowned-target link, replay/application-bypass, account-link event-log, and post-link continuity checks remain backlog items rather than claimed passes. The project may proceed to the approved v8 product-planning phase.

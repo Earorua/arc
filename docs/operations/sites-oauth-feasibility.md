@@ -1,6 +1,6 @@
 # Arc. Sites OAuth feasibility gate
 
-**Status:** Product release v7.1 is publicly deployed; primary hosted OAuth flows, current-provider reauthentication, cancellation, stale-grant rejection, and owned-target no-merge isolation passed, while safe unowned-target linking, replay/application-bypass evidence, and fresh runtime-log checks remain open.
+**Status:** Product release v7.2 is publicly deployed; primary hosted OAuth flows, current-provider reauthentication, cancellation, stale-grant rejection, owned-target no-merge isolation, and persistent device-migration dismissal passed, while safe unowned-target linking, replay/application-bypass evidence, account-link event-log evidence, and post-link continuity remain open.
 
 **Reviewed:** 2026-08-05
 
@@ -30,11 +30,15 @@ In a second controlled run, the user waited beyond the five-minute verified-gran
 
 This Sites version number 8 is a hosting-system sequence only. It does not mark the start of Arc. product v8.
 
-## Owned-target isolation and v7.2 release candidate — 2026-08-05
+## Owned-target isolation and v7.2 production — 2026-08-05
 
 The user completed the controlled ownership-conflict run from the existing GitHub Arc. account against the existing Google identity that already owned a separate Arc. account. Arc. returned the generic `This sign-in method can't be connected to this account.` message. The source remained the original GitHub Arc. user with only GitHub connected and unchanged learning progress. A subsequent independent Google sign-in still reached the original Google Arc. user with only Google connected and unchanged learning progress. This verifies the required no-merge ownership boundary without disclosing target ownership or mutating either account.
 
-The Google-account verification exposed a non-security migration-prompt defect: setup-only device work could honestly be meaningful while showing zero completions and proofs, and **Not now** was lost on route remount. The v7.2 release candidate stores only an internal-user-scoped deterministic snapshot acknowledgement in browser storage, never imports or deletes automatically, re-prompts after the local snapshot changes, keeps different Arc. users isolated, and displays the local level, weekly minutes, and target weeks. The complete release gate passed 61 test files / 516 tests, ESLint, TypeScript, the five-stage production build, and 2/2 rendered HTML/secret-boundary checks. This paragraph records a verified release candidate, not a production deployment; the deployment identifier is appended only after Sites reports success.
+The Google-account verification exposed a non-security migration-prompt defect: setup-only device work could honestly be meaningful while showing zero completions and proofs, and **Not now** was lost on route remount. Product v7.2 stores only an internal-user-scoped deterministic snapshot acknowledgement in browser storage, never imports or deletes automatically, re-prompts after the local snapshot changes, keeps different Arc. users isolated, and displays the local level, weekly minutes, and target weeks. The complete release gate passed 61 test files / 516 tests, ESLint, TypeScript, the five-stage production build, and 2/2 rendered HTML/secret-boundary checks.
+
+Product v7.2 was saved by Sites as version number 9 from source commit `7ca5b530dfc58f3cbc700b44a7a881a9bd661209`, whose file tree exactly matches verified GitHub commit `1ac6f2c2414727fef422d94074f7baf43c0a4a5a` while preserving the prior Sites release history. The saved artifact is `appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_165606d8964c8191a362046f03b6d93a`, archive hash `sha256:2c8bdaa8edeaad68e3f7db6d4fe27ab12a6b02d2d57a88eae4ed741ca53ac5fa`, and deployment `appgdep_6a728790e0608191bf1286c3a9a3ccfd`; Sites reported `succeeded`. No OAuth credential, runtime variable, D1 schema, R2 binding, access policy, or production slug changed. Version 6 remains the direct rollback artifact.
+
+Post-deploy evidence showed 200 responses with `ok` Worker outcomes for `/` and `/api/auth/get-session`. The only error-filtered events were non-fatal `GET /favicon.ico` 404 responses with `ok` Worker outcomes; no application exception was observed. The user then selected **Not now** on the existing Google account, navigated among Today, Path, Stack, and Proof, reloaded, and confirmed that the unchanged prompt stayed absent while account identity and learning progress remained unchanged. This closes the v7.2 migration-prompt release checkpoint.
 
 ## Capability record
 
@@ -51,7 +55,7 @@ The Google-account verification exposed a non-security migration-prompt defect: 
 | Explicit provider linking | owned-target-conflict-passed | Version 7 adds the approved proof-bound cross-email flow without enabling Better Auth's unsafe implicit different-email linking. Production verified source-provider reauthentication, the five-minute grant, cancellation, stale-grant denial, and an owned-target no-merge result with both Arc. accounts and learning states unchanged. Safe unowned-target linking remains deferred until an unused identity is available. |
 | Independent Arc. identity | passed-hosted | Google/GitHub are the only product providers; real hosted sessions contain no ChatGPT identity dependency or reserved SIWC route. |
 | Deterministic AI fallback | passed-local-build | The protected preview uses the mock provider only and requires the runtime kill switch, D1 cohort, rate, quota, and budget gates; no live model key is configured. |
-| Production smoke and rollback | partial-hosted | Version 7 deployment, read-only route smoke, primary OAuth, source-provider reauthentication, cancellation, stale-grant rejection, and owned-target isolation passed. Version 6 is retained as the direct rollback target. Safe unowned-target linking, replay/application-bypass behavior, observable sanitized logs, and post-link cloud-state checks remain. |
+| Production smoke and rollback | partial-hosted | Version 7.2 deployment, read-only route smoke, primary OAuth, source-provider reauthentication, cancellation, stale-grant rejection, owned-target isolation, and persistent device-migration dismissal passed. Version 6 is retained as the direct rollback target. Safe unowned-target linking, replay/application-bypass behavior, and post-link cloud-state checks remain. |
 
 Because Google and GitHub were each first used as standalone sign-ins before the explicit-linking interface existed, those external identities may currently belong to separate Arc. users. The first hosted link attempt should therefore exercise the required conflict path: no merge, no ownership disclosure, and no change to either account.
 
