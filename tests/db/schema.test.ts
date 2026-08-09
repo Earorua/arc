@@ -24,6 +24,12 @@ const expectedTableNames = [
   "endpoint_rate_buckets",
   "operational_events",
   "account_link_intents",
+  "role_blueprints",
+  "role_blueprint_versions",
+  "role_skill_definitions",
+  "role_skill_edges",
+  "learning_resources",
+  "resource_skill_links",
 ];
 
 function exportedTableNames() {
@@ -38,6 +44,16 @@ function exportedTableNames() {
 
 function indexNames(table: SQLiteTable) {
   return getTableConfig(table).indexes.map((index) => index.config.name);
+}
+
+function nonUniqueIndexNames(table: SQLiteTable) {
+  return getTableConfig(table).indexes
+    .filter((index) => !index.config.unique)
+    .map((index) => index.config.name);
+}
+
+function columnNames(table: SQLiteTable) {
+  return getTableConfig(table).columns.map((column) => column.name).sort();
 }
 
 describe("Arc beta persistence schema", () => {
@@ -83,5 +99,118 @@ describe("Arc beta persistence schema", () => {
 
   it("declares the durable account-link completion reservation status", () => {
     expect(schema.accountLinkIntents.status.enumValues).toContain("completing");
+  });
+
+  it("declares the product intelligence table columns", () => {
+    expect(columnNames(schema.roleBlueprints)).toEqual([
+      "created_at",
+      "current_version",
+      "id",
+      "name",
+      "slug",
+      "status",
+      "updated_at",
+    ]);
+    expect(columnNames(schema.roleBlueprintVersions)).toEqual([
+      "blueprint_json",
+      "created_at",
+      "id",
+      "published_at",
+      "role_id",
+      "source_coverage_json",
+      "status",
+      "version",
+    ]);
+    expect(columnNames(schema.roleSkillDefinitions)).toEqual([
+      "blueprint_version_id",
+      "category",
+      "created_at",
+      "id",
+      "importance",
+      "name",
+      "payload_json",
+      "skill_key",
+    ]);
+    expect(columnNames(schema.roleSkillEdges)).toEqual([
+      "blueprint_version_id",
+      "created_at",
+      "from_skill_key",
+      "id",
+      "relation",
+      "to_skill_key",
+    ]);
+    expect(columnNames(schema.learningResources)).toEqual([
+      "canonical_url",
+      "cost",
+      "created_at",
+      "format",
+      "id",
+      "language",
+      "last_verified_at",
+      "provider",
+      "source_tier",
+      "title",
+      "updated_at",
+    ]);
+    expect(columnNames(schema.resourceSkillLinks)).toEqual([
+      "blueprint_version_id",
+      "created_at",
+      "id",
+      "purpose",
+      "resource_id",
+      "skill_key",
+    ]);
+  });
+
+  it("declares the product intelligence enum boundaries", () => {
+    expect(schema.roleBlueprints.status.enumValues).toEqual(["ready", "needs-review", "draft"]);
+    expect(schema.roleBlueprintVersions.status.enumValues).toEqual(["ready", "needs-review", "draft"]);
+    expect(schema.roleSkillDefinitions.category.enumValues).toEqual([
+      "foundations",
+      "frontend",
+      "backend",
+      "data",
+      "quality",
+      "cloud",
+      "ai",
+      "product",
+    ]);
+    expect(schema.roleSkillDefinitions.importance.enumValues).toEqual(["core", "strong", "advantage"]);
+    expect(schema.roleSkillEdges.relation.enumValues).toEqual(["prerequisite"]);
+    expect(schema.learningResources.language.enumValues).toEqual(["en", "zh-CN"]);
+    expect(schema.learningResources.cost.enumValues).toEqual(["free", "paid", "mixed"]);
+    expect(schema.learningResources.format.enumValues).toEqual([
+      "documentation",
+      "course",
+      "guide",
+      "reference",
+      "practice",
+    ]);
+    expect(schema.learningResources.sourceTier.enumValues).toEqual([
+      "primary",
+      "institutional",
+      "practitioner",
+      "community",
+    ]);
+    expect(schema.resourceSkillLinks.purpose.enumValues).toEqual(["primary", "alternative", "reference"]);
+  });
+
+  it("declares version and normalized intelligence uniqueness boundaries", () => {
+    expect(indexNames(schema.roleBlueprints)).toContain("role_blueprints_slug_idx");
+    expect(indexNames(schema.roleBlueprintVersions)).toContain("role_blueprint_versions_role_version_idx");
+    expect(indexNames(schema.roleSkillDefinitions)).toContain("role_skill_definitions_version_key_idx");
+    expect(indexNames(schema.roleSkillEdges)).toContain("role_skill_edges_unique_idx");
+    expect(indexNames(schema.learningResources)).toContain("learning_resources_url_idx");
+    expect(indexNames(schema.resourceSkillLinks)).toContain("resource_skill_links_unique_idx");
+  });
+
+  it("declares exact product intelligence lookup indexes", () => {
+    expect(nonUniqueIndexNames(schema.roleBlueprintVersions)).toEqual(["role_blueprint_versions_role_idx"]);
+    expect(nonUniqueIndexNames(schema.roleSkillDefinitions)).toEqual(["role_skill_definitions_version_idx"]);
+    expect(nonUniqueIndexNames(schema.roleSkillEdges)).toEqual(["role_skill_edges_version_idx"]);
+    expect(nonUniqueIndexNames(schema.resourceSkillLinks)).toEqual([
+      "resource_skill_links_version_idx",
+      "resource_skill_links_resource_idx",
+    ]);
   });
 });

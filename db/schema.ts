@@ -277,3 +277,112 @@ export const accountLinkIntents = sqliteTable("account_link_intents", {
   ),
   index("account_link_intents_expiry_idx").on(table.status, table.expiresAt),
 ]);
+
+export const roleBlueprints = sqliteTable("role_blueprints", {
+  id: text("id").primaryKey(),
+  slug: text("slug").notNull(),
+  name: text("name").notNull(),
+  status: text("status", { enum: ["ready", "needs-review", "draft"] }).notNull(),
+  currentVersion: text("current_version").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("role_blueprints_slug_idx").on(table.slug),
+]);
+
+export const roleBlueprintVersions = sqliteTable("role_blueprint_versions", {
+  id: text("id").primaryKey(),
+  roleId: text("role_id").notNull().references(() => roleBlueprints.id, { onDelete: "cascade" }),
+  version: text("version").notNull(),
+  status: text("status", { enum: ["ready", "needs-review", "draft"] }).notNull(),
+  blueprintJson: text("blueprint_json").notNull(),
+  sourceCoverageJson: text("source_coverage_json").notNull().default("{}"),
+  publishedAt: integer("published_at", { mode: "timestamp_ms" }),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("role_blueprint_versions_role_version_idx").on(table.roleId, table.version),
+  index("role_blueprint_versions_role_idx").on(table.roleId),
+]);
+
+export const roleSkillDefinitions = sqliteTable("role_skill_definitions", {
+  id: text("id").primaryKey(),
+  blueprintVersionId: text("blueprint_version_id").notNull().references(
+    () => roleBlueprintVersions.id,
+    { onDelete: "cascade" },
+  ),
+  skillKey: text("skill_key").notNull(),
+  name: text("name").notNull(),
+  category: text("category", {
+    enum: ["foundations", "frontend", "backend", "data", "quality", "cloud", "ai", "product"],
+  }).notNull(),
+  importance: text("importance", { enum: ["core", "strong", "advantage"] }).notNull(),
+  payloadJson: text("payload_json").notNull().default("{}"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("role_skill_definitions_version_key_idx").on(table.blueprintVersionId, table.skillKey),
+  index("role_skill_definitions_version_idx").on(table.blueprintVersionId),
+]);
+
+export const roleSkillEdges = sqliteTable("role_skill_edges", {
+  id: text("id").primaryKey(),
+  blueprintVersionId: text("blueprint_version_id").notNull().references(
+    () => roleBlueprintVersions.id,
+    { onDelete: "cascade" },
+  ),
+  fromSkillKey: text("from_skill_key").notNull(),
+  toSkillKey: text("to_skill_key").notNull(),
+  relation: text("relation", { enum: ["prerequisite"] }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("role_skill_edges_unique_idx").on(
+    table.blueprintVersionId,
+    table.fromSkillKey,
+    table.toSkillKey,
+    table.relation,
+  ),
+  index("role_skill_edges_version_idx").on(table.blueprintVersionId),
+]);
+
+export const learningResources = sqliteTable("learning_resources", {
+  id: text("id").primaryKey(),
+  canonicalUrl: text("canonical_url").notNull(),
+  title: text("title").notNull(),
+  provider: text("provider").notNull(),
+  language: text("language", { enum: ["en", "zh-CN"] }).notNull(),
+  cost: text("cost", { enum: ["free", "paid", "mixed"] }).notNull(),
+  format: text("format", {
+    enum: ["documentation", "course", "guide", "reference", "practice"],
+  }).notNull(),
+  sourceTier: text("source_tier", {
+    enum: ["primary", "institutional", "practitioner", "community"],
+  }).notNull(),
+  lastVerifiedAt: text("last_verified_at").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("learning_resources_url_idx").on(table.canonicalUrl),
+]);
+
+export const resourceSkillLinks = sqliteTable("resource_skill_links", {
+  id: text("id").primaryKey(),
+  blueprintVersionId: text("blueprint_version_id").notNull().references(
+    () => roleBlueprintVersions.id,
+    { onDelete: "cascade" },
+  ),
+  skillKey: text("skill_key").notNull(),
+  resourceId: text("resource_id").notNull().references(
+    () => learningResources.id,
+    { onDelete: "restrict" },
+  ),
+  purpose: text("purpose", { enum: ["primary", "alternative", "reference"] }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("resource_skill_links_unique_idx").on(
+    table.blueprintVersionId,
+    table.skillKey,
+    table.resourceId,
+    table.purpose,
+  ),
+  index("resource_skill_links_version_idx").on(table.blueprintVersionId),
+  index("resource_skill_links_resource_idx").on(table.resourceId),
+]);
