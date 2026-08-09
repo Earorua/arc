@@ -18,10 +18,18 @@ Arc. organizes the learning journey into five connected decisions:
 1. **Setup** — define the role, current level, weekly time budget, and target duration.
 2. **Path** — distribute the journey across foundations, systems, delivery, and proof.
 3. **Today** — complete one focused unit with a concrete artifact.
-4. **Stack** — inspect skills, confidence, sources, freshness, and prerequisites.
+4. **Stack** — inspect skills, curated claim confidence, sources, freshness, and prerequisites.
 5. **Proof** — turn completed work into private evidence and selectively publish only chosen fields.
 
 The flagship experience maps 16 skills for an AI full-stack engineer. Custom roles use that transparent sample until live role research is enabled; Arc. says this directly instead of presenting generated claims as researched fact.
+
+## v8 Phase 1 boundary — in final quality review
+
+The v8 Phase 1 candidate adds a canonical, versioned intelligence contract for the built-in Flagship role. Each learning resource carries its language, cost, format, source tier, and last verification date, and Stack renders that evidence alongside prerequisites and mastery criteria. Stack's confidence value is confidence in the curated role claim; it is not a score of the learner's mastery, readiness, Proof status, or verification.
+
+The candidate's `GET /api/intelligence/flagship` endpoint is public, read-only, and guest-safe. It serves only the schema- and policy-validated built-in Flagship blueprint, without reading a session or user identifier. The Stack page consumes the same deterministic built-in source directly, so the guest path has no network or model dependency.
+
+Six additive, non-personal D1 tables and `drizzle/0002_product_intelligence.sql` reserve storage for future version publication. They have not been applied to production and are not the current Flagship read repository. Live Research Beta remains disabled: Phase 1 does not require or read `OPENROUTER_API_KEY`, and its Flagship path makes no OpenRouter request. Phase 1 is still inside its final quality gate; Phase 2 adaptive planning has not started. This section describes the review candidate, not capabilities already deployed on the live Sites URL.
 
 ## Two honest modes
 
@@ -62,7 +70,7 @@ flowchart LR
 | Durable state | Cloudflare D1 with Drizzle migrations | Signed-in goals, events, proofs, idempotency, quota ledger, and sanitized operations |
 | Private files | Cloudflare R2 | Owner-scoped proof bytes; D1 stores searchable ownership metadata |
 | Anonymous state | Guarded browser storage | Device-local sample, explicit migration source, and capped offline mutation queue |
-| Intelligence | Typed gateway + deterministic mock provider | Structured output validation, one repair maximum, and a provider-replaceable boundary |
+| Intelligence | Versioned Flagship contract + deterministic mock preview | Validated, no-network Flagship reads today; a provider-replaceable boundary for later research |
 | Controls | D1 rate limits and cohort flag + runtime limits | Per-user quota, global budget, release cohort, and emergency kill switch |
 | Quality | Vitest, Testing Library, TypeScript, ESLint, rendered HTML checks | Domain behavior, access control, privacy, accessibility, and production confidence |
 | Delivery | GitHub Actions and OpenAI Sites | Reviewable checks, logical D1/R2 bindings, versioned publishing, and rollback |
@@ -75,7 +83,7 @@ flowchart LR
 - Proof assets are private in R2. Retrieval first proves ownership through D1 and never accepts an object key from the caller.
 - A public proof token stores only a SHA-256 hash at rest and exposes only the fields the owner selected. Revocation disables the database record; public routes never serve R2 bytes.
 - The browser never receives OAuth secrets, session secrets, or future model credentials. Real values belong only in hosted server-side secret management.
-- Live model access is still disabled. The current AI route uses a deterministic mock and no paid provider key.
+- Live model access is still disabled. The protected legacy AI preview uses a deterministic mock, while the v8 Phase 1 Flagship read path uses validated built-in data only. Neither path requires `OPENROUTER_API_KEY`.
 - Any future paid call must pass identity, endpoint rate limiting, the runtime kill switch, the D1 release cohort, per-user quota, and the global budget ceiling before a reservation is issued.
 - Failed or invalid AI output produces no accepted user-facing charge. Operational records contain sanitized metadata, not prompts, role descriptions, proof bodies, tokens, or credentials.
 - `/admin` is read-only, exact-email allowlisted, and aggregate-only; it cannot browse learner content or identity records.
@@ -97,7 +105,7 @@ npm install
 npm run dev
 ```
 
-Copy `.env.example` to a local ignored environment file only when exercising server features. Keep credential values out of source control. The deterministic public sample and test suite require no OAuth or model key.
+Copy `.env.example` to a local ignored environment file only when exercising server features. Keep credential values out of source control. The deterministic public sample, v8 Phase 1 Flagship path, and test suite require no OAuth or model key; `OPENROUTER_API_KEY` is reserved for the later Research Beta phase.
 
 ## Verification
 

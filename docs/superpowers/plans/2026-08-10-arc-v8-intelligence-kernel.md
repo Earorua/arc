@@ -59,13 +59,21 @@ This plan does not:
 | `tests/db/migration-safety.test.ts` | Assert the Phase 1 migration is additive and contains all intelligence tables. |
 | `README.md` | Accurate Phase 1 capability and no-live-model statement. |
 
+## Pre-final-gate implementation record — 2026-08-10
+
+Tasks 1–6 have focused implementation evidence: the current focused command passes 11 test files and 82 tests. That evidence covers the strict versioned contract, deterministic Flagship adapter, cross-entity validator, additive non-personal D1 schema artifacts, validated guest-safe read endpoint, and Stack evidence view. Task 7 records and audits the truth boundary separately. Neither evidence set replaces the complete Task 8 gate.
+
+The six D1 intelligence tables and `0002_product_intelligence.sql` reserve future version publication only. They have not been migrated to production and the current read path uses `BuiltinIntelligenceRepository`, not D1. Research Beta is disabled; Phase 1 neither requires nor reads `OPENROUTER_API_KEY`, and the deterministic Flagship read path performs no OpenRouter call.
+
+Stack renders resource language, cost, format, source tier, and last verification date. Its confidence value is curated claim confidence, not learner mastery, Proof status, readiness, or verification. Phase 1 remains inside its final quality gate, and Phase 2 has not started. No final Phase 1 commit hash is recorded before Task 8.
+
 ### Task 1: Define strict role-intelligence contracts
 
 **Files:**
 - Create: `tests/contracts/intelligence.test.ts`
 - Create: `app/contracts/intelligence.ts`
 
-- [ ] **Step 1: Write the failing contract tests**
+- [x] **Step 1: Write the failing contract tests**
 
 Create `tests/contracts/intelligence.test.ts` with these assertions:
 
@@ -121,7 +129,7 @@ describe("role intelligence contracts", () => {
 });
 ```
 
-- [ ] **Step 2: Run the focused test and prove it fails**
+- [x] **Step 2: Run the focused test and prove it fails**
 
 Run:
 
@@ -131,7 +139,7 @@ npx vitest run tests/contracts/intelligence.test.ts
 
 Expected: FAIL because `app/contracts/intelligence.ts` does not exist.
 
-- [ ] **Step 3: Implement the strict schemas**
+- [x] **Step 3: Implement the strict schemas**
 
 Create `app/contracts/intelligence.ts`. Use `.strict()` on every object and export the inferred types. The implementation must define these exact enums and fields:
 
@@ -210,7 +218,7 @@ export type RolePhase = z.infer<typeof rolePhaseSchema>;
 export type RoleBlueprint = z.infer<typeof roleBlueprintSchema>;
 ```
 
-- [ ] **Step 4: Run contract tests**
+- [x] **Step 4: Run contract tests**
 
 Run:
 
@@ -220,7 +228,7 @@ npx vitest run tests/contracts/intelligence.test.ts
 
 Expected: PASS, 3 tests.
 
-- [ ] **Step 5: Commit the contract**
+- [x] **Step 5: Commit the contract**
 
 ```powershell
 git add app/contracts/intelligence.ts tests/contracts/intelligence.test.ts
@@ -233,7 +241,7 @@ git commit -m "feat: define v8 intelligence contracts"
 - Create: `tests/data/flagship-blueprint.test.ts`
 - Create: `app/data/flagship-blueprint.ts`
 
-- [ ] **Step 1: Write the failing Flagship registry tests**
+- [x] **Step 1: Write the failing Flagship registry tests**
 
 Create `tests/data/flagship-blueprint.test.ts`:
 
@@ -273,7 +281,7 @@ describe("flagshipBlueprint", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test and prove it fails**
+- [x] **Step 2: Run the test and prove it fails**
 
 ```powershell
 npx vitest run tests/data/flagship-blueprint.test.ts
@@ -281,7 +289,7 @@ npx vitest run tests/data/flagship-blueprint.test.ts
 
 Expected: FAIL because `app/data/flagship-blueprint.ts` does not exist.
 
-- [ ] **Step 3: Implement the deterministic adapter**
+- [x] **Step 3: Implement the deterministic adapter**
 
 Create `app/data/flagship-blueprint.ts`. Do not duplicate the 16 reviewed URLs; derive canonical v8 resources from `flagshipRole` and parse the final object once:
 
@@ -345,7 +353,7 @@ export const flagshipBlueprint = roleBlueprintSchema.parse({
 });
 ```
 
-- [ ] **Step 4: Run the new and compatibility tests**
+- [x] **Step 4: Run the new and compatibility tests**
 
 ```powershell
 npx vitest run tests/data/flagship-blueprint.test.ts tests/data/flagship-role.test.ts
@@ -353,7 +361,7 @@ npx vitest run tests/data/flagship-blueprint.test.ts tests/data/flagship-role.te
 
 Expected: PASS, and the v7 Flagship tests remain green.
 
-- [ ] **Step 5: Commit the reviewed adapter**
+- [x] **Step 5: Commit the reviewed adapter**
 
 ```powershell
 git add app/data/flagship-blueprint.ts tests/data/flagship-blueprint.test.ts
@@ -366,7 +374,7 @@ git commit -m "feat: add flagship intelligence blueprint"
 - Create: `tests/lib/intelligence-validation.test.ts`
 - Create: `app/lib/intelligence-validation.ts`
 
-- [ ] **Step 1: Write failing policy tests**
+- [x] **Step 1: Write failing policy tests**
 
 Create `tests/lib/intelligence-validation.test.ts`:
 
@@ -407,7 +415,7 @@ describe("validateRoleBlueprint", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test and prove it fails**
+- [x] **Step 2: Run the test and prove it fails**
 
 ```powershell
 npx vitest run tests/lib/intelligence-validation.test.ts
@@ -415,7 +423,7 @@ npx vitest run tests/lib/intelligence-validation.test.ts
 
 Expected: FAIL because the validator does not exist.
 
-- [ ] **Step 3: Implement deterministic validation**
+- [x] **Step 3: Implement deterministic validation**
 
 Create `app/lib/intelligence-validation.ts` with this public boundary:
 
@@ -460,7 +468,7 @@ Implement the function in this deterministic order:
 
 Each issue path must use a stable form such as `skills.web-platform.resourceIds` rather than an array index. Do not throw for policy failures; reserve exceptions for programmer errors.
 
-- [ ] **Step 4: Run validation and Flagship tests**
+- [x] **Step 4: Run validation and Flagship tests**
 
 ```powershell
 npx vitest run tests/lib/intelligence-validation.test.ts tests/data/flagship-blueprint.test.ts
@@ -468,7 +476,7 @@ npx vitest run tests/lib/intelligence-validation.test.ts tests/data/flagship-blu
 
 Expected: PASS, 7 tests total.
 
-- [ ] **Step 5: Commit the quality gate**
+- [x] **Step 5: Commit the quality gate**
 
 ```powershell
 git add app/lib/intelligence-validation.ts tests/lib/intelligence-validation.test.ts
@@ -485,7 +493,7 @@ git commit -m "feat: validate intelligence graphs and resources"
 - Create by generator: `drizzle/meta/0002_snapshot.json`
 - Modify by generator: `drizzle/meta/_journal.json`
 
-- [ ] **Step 1: Extend schema tests first**
+- [x] **Step 1: Extend schema tests first**
 
 Add these names to `expectedTableNames` in `tests/db/schema.test.ts`:
 
@@ -511,7 +519,7 @@ it("declares version and normalized intelligence uniqueness boundaries", () => {
 });
 ```
 
-- [ ] **Step 2: Run the schema test and prove it fails**
+- [x] **Step 2: Run the schema test and prove it fails**
 
 ```powershell
 npx vitest run tests/db/schema.test.ts
@@ -519,7 +527,7 @@ npx vitest run tests/db/schema.test.ts
 
 Expected: FAIL because the six table exports do not exist.
 
-- [ ] **Step 3: Add the six Drizzle tables**
+- [x] **Step 3: Add the six Drizzle tables**
 
 Append these table responsibilities and exact storage fields to `db/schema.ts`:
 
@@ -532,7 +540,7 @@ Append these table responsibilities and exact storage fields to `db/schema.ts`:
 
 Use the exact index names asserted above. Add non-unique lookup indexes for version foreign keys and resource links. These tables contain global role intelligence, so do not add `userId` and do not add them to the personal-table ownership test.
 
-- [ ] **Step 4: Generate the named migration**
+- [x] **Step 4: Generate the named migration**
 
 Run:
 
@@ -544,7 +552,7 @@ Expected: Drizzle reports six created tables and writes `drizzle/0002_product_in
 
 Inspect the SQL and confirm it contains only additive `CREATE TABLE` and `CREATE INDEX` statements. It must not contain `DROP TABLE`, `DROP COLUMN` or destructive data-copy statements.
 
-- [ ] **Step 5: Add a migration safety test**
+- [x] **Step 5: Add a migration safety test**
 
 Create `tests/db/migration-safety.test.ts`:
 
@@ -575,7 +583,7 @@ describe("product intelligence migration", () => {
 });
 ```
 
-- [ ] **Step 6: Run schema and migration safety tests**
+- [x] **Step 6: Run schema and migration safety tests**
 
 ```powershell
 npx vitest run tests/db/schema.test.ts tests/db/migration-safety.test.ts
@@ -583,7 +591,7 @@ npx vitest run tests/db/schema.test.ts tests/db/migration-safety.test.ts
 
 Expected: PASS. If the repository's migration safety test discovers migrations dynamically, it must include `0002_product_intelligence.sql` without changing the test.
 
-- [ ] **Step 7: Commit schema and generated artifacts**
+- [x] **Step 7: Commit schema and generated artifacts**
 
 ```powershell
 git add db/schema.ts tests/db/schema.test.ts tests/db/migration-safety.test.ts drizzle/0002_product_intelligence.sql drizzle/meta/0002_snapshot.json drizzle/meta/_journal.json
@@ -600,7 +608,7 @@ git commit -m "feat: add product intelligence persistence"
 - Create: `tests/api/intelligence-flagship.test.ts`
 - Create: `app/api/intelligence/flagship/route.ts`
 
-- [ ] **Step 1: Write the failing service tests**
+- [x] **Step 1: Write the failing service tests**
 
 Create `tests/server/intelligence-service.test.ts`:
 
@@ -631,7 +639,7 @@ describe("IntelligenceService", () => {
 });
 ```
 
-- [ ] **Step 2: Run the focused test and prove it fails**
+- [x] **Step 2: Run the focused test and prove it fails**
 
 ```powershell
 npx vitest run tests/server/intelligence-service.test.ts
@@ -639,7 +647,7 @@ npx vitest run tests/server/intelligence-service.test.ts
 
 Expected: FAIL because the repository and service modules do not exist.
 
-- [ ] **Step 3: Implement repository and service boundaries**
+- [x] **Step 3: Implement repository and service boundaries**
 
 Create `app/server/intelligence/repository.ts`:
 
@@ -666,7 +674,7 @@ export class BuiltinIntelligenceRepository implements IntelligenceRepository {
 
 Create `app/server/intelligence/service.ts`. `getPublished` must call `roleBlueprintSchema.safeParse`, then `validateRoleBlueprint`; throw `IntelligenceIntegrityError` with only issue codes in its public message and keep detailed issues on a property for server-side tests. Never return malformed repository data.
 
-- [ ] **Step 4: Run service tests**
+- [x] **Step 4: Run service tests**
 
 ```powershell
 npx vitest run tests/server/intelligence-service.test.ts
@@ -674,7 +682,7 @@ npx vitest run tests/server/intelligence-service.test.ts
 
 Expected: PASS, 3 tests.
 
-- [ ] **Step 5: Write failing API tests**
+- [x] **Step 5: Write failing API tests**
 
 Create `tests/api/intelligence-flagship.test.ts` with three cases:
 
@@ -719,7 +727,7 @@ describe("GET /api/intelligence/flagship", () => {
 });
 ```
 
-- [ ] **Step 6: Implement the guest-safe API**
+- [x] **Step 6: Implement the guest-safe API**
 
 Create `app/api/intelligence/flagship/route.ts` with an injectable handler. It must:
 
@@ -738,7 +746,7 @@ export const dynamic = "force-dynamic";
 
 The explicit cache header, not static route inference, controls edge/browser caching.
 
-- [ ] **Step 7: Run service and API tests**
+- [x] **Step 7: Run service and API tests**
 
 ```powershell
 npx vitest run tests/server/intelligence-service.test.ts tests/api/intelligence-flagship.test.ts tests/server/api-response.test.ts
@@ -746,7 +754,7 @@ npx vitest run tests/server/intelligence-service.test.ts tests/api/intelligence-
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit the validated read path**
+- [x] **Step 8: Commit the validated read path**
 
 ```powershell
 git add app/server/intelligence app/api/intelligence/flagship tests/server/intelligence-service.test.ts tests/api/intelligence-flagship.test.ts
@@ -762,7 +770,7 @@ git commit -m "feat: expose validated flagship intelligence"
 - Modify: `app/globals.css`
 - Modify: `app/lib/skill-map.ts`
 
-- [ ] **Step 1: Replace the component test input with the v8 blueprint**
+- [x] **Step 1: Replace the component test input with the v8 blueprint**
 
 Update `tests/components/stack-browser.test.tsx` to render:
 
@@ -786,7 +794,7 @@ expect(within(skill).getByRole("link", { name: /official documentation/i })).toH
 
 Add a test that every rendered skill has two mastery criteria and at least one resource link.
 
-- [ ] **Step 2: Run the component test and prove it fails**
+- [x] **Step 2: Run the component test and prove it fails**
 
 ```powershell
 npx vitest run tests/components/stack-browser.test.tsx
@@ -794,7 +802,7 @@ npx vitest run tests/components/stack-browser.test.tsx
 
 Expected: FAIL because `StackBrowser` still accepts `skills` and does not render resource metadata.
 
-- [ ] **Step 3: Update filtering without breaking v7 callers**
+- [x] **Step 3: Update filtering without breaking v7 callers**
 
 Make `filterSkills` generic over any object that has a `category` field:
 
@@ -809,7 +817,7 @@ export function filterSkills<T extends { category: SkillCategory }>(
 
 Keep the `SkillCategory` import from `app/domain/learning.ts` in Phase 1; the enum values are deliberately compatible. Existing `tests/lib/skill-map.test.ts` must remain green.
 
-- [ ] **Step 4: Render canonical skills and resources**
+- [x] **Step 4: Render canonical skills and resources**
 
 Change `StackBrowser` to accept:
 
@@ -829,11 +837,11 @@ Build `resourcesById` once with `useMemo`. For each skill, render:
 
 If a resource ID cannot resolve, render `Resource metadata unavailable` and do not fabricate a URL. The server-side validator should prevent this in production, but truthful defensive rendering protects tests and future repository adapters.
 
-- [ ] **Step 5: Update the Stack page**
+- [x] **Step 5: Update the Stack page**
 
 In `app/stack/page.tsx`, import `flagshipBlueprint`, show `Role intelligence · {flagshipBlueprint.version}`, and pass `blueprint={flagshipBlueprint}`. Do not fetch the public API from the browser in Phase 1: the page and API intentionally share the same validated builtin source, keeping the guest experience deterministic and avoiding a self-request during rendering.
 
-- [ ] **Step 6: Add restrained editorial styles**
+- [x] **Step 6: Add restrained editorial styles**
 
 In `app/globals.css`, extend the current `.skill-list` hierarchy with resource rows and mastery criteria. Requirements:
 
@@ -844,7 +852,7 @@ In `app/globals.css`, extend the current `.skill-list` hierarchy with resource r
 - visible keyboard focus uses the existing focus token;
 - at widths below the existing mobile breakpoint, evidence rows become one column without horizontal scrolling.
 
-- [ ] **Step 7: Run focused UI and compatibility tests**
+- [x] **Step 7: Run focused UI and compatibility tests**
 
 ```powershell
 npx vitest run tests/components/stack-browser.test.tsx tests/lib/skill-map.test.ts tests/pages/workspace-state.test.tsx
@@ -852,7 +860,7 @@ npx vitest run tests/components/stack-browser.test.tsx tests/lib/skill-map.test.
 
 Expected: PASS. The Stack page still participates in the local/cloud state shell and migration prompt.
 
-- [ ] **Step 8: Commit the Stack evidence view**
+- [x] **Step 8: Commit the Stack evidence view**
 
 ```powershell
 git add app/components/stack/stack-browser.tsx app/stack/page.tsx app/globals.css app/lib/skill-map.ts tests/components/stack-browser.test.tsx
@@ -866,7 +874,7 @@ git commit -m "feat: show trusted learning resources in stack"
 - Modify: `docs/superpowers/plans/2026-08-10-arc-v8-product-intelligence-roadmap.md`
 - Modify: `docs/superpowers/plans/2026-08-10-arc-v8-intelligence-kernel.md`
 
-- [ ] **Step 1: Update README capability wording**
+- [x] **Step 1: Update README capability wording**
 
 Document these facts without claiming Phase 2–5 functionality:
 
@@ -877,11 +885,11 @@ Document these facts without claiming Phase 2–5 functionality:
 - `OPENROUTER_API_KEY` is not required or read in Phase 1;
 - current Stack confidence describes the curated claim, not the learner's mastery.
 
-- [ ] **Step 2: Record the implemented Phase 1 boundary in both plan files**
+- [x] **Step 2: Record the implemented Phase 1 boundary in both plan files**
 
 Check only implementation items already supported by focused test output. Record that Phase 1 remains inside its final quality gate and that Phase 2 has not started. Do not claim completion or quote a final commit hash before Task 8 passes.
 
-- [ ] **Step 3: Commit documentation truthfulness**
+- [x] **Step 3: Commit documentation truthfulness**
 
 ```powershell
 git add README.md docs/superpowers/plans/2026-08-10-arc-v8-product-intelligence-roadmap.md docs/superpowers/plans/2026-08-10-arc-v8-intelligence-kernel.md

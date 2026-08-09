@@ -37,6 +37,19 @@ v8 不重写 Better Auth，不更换现有 D1/R2 绑定，不删除 v7.2 数据�
 
 退出门槛：Flagship 数据可被严格解析；技能图无环且引用完整；每项技能至少有一个可追溯资源；付费核心资源必须有免费替代；访客路径无网络依赖。
 
+**2026-08-10 实现记录（最终质量门槛前）：**
+
+- [x] 已实现 canonical、versioned Flagship 契约，以及可确定性重建的 16 项技能与资源注册表。
+- [x] 已实现引用、依赖图、阶段覆盖、资源反向链接与付费资源免费替代策略验证。
+- [x] 已生成六张非个人 D1 情报表及增量迁移，并用静态测试锁定表、索引、外键和只增不减边界；这些表仅为未来版本发布预留，尚未迁移生产，也不是当前读取源。
+- [x] 已实现只返回通过契约、发布状态、slug 与策略验证数据的 guest-safe、read-only Flagship endpoint。
+- [x] Stack 已展示资源 language、cost、format、source tier 与 verification date，并把 confidence 明确为 curated claim confidence，而非 learner mastery。
+- [x] 当前聚焦验证通过：11 个测试文件、82 项测试；这是 Task 1–6 的实现证据，Task 7 另由文档边界审计验证；两者都不是 Phase 1 最终验收证据。
+- [ ] Task 8 完整单元、类型、lint、build、渲染、bundle 审计与最终代码审查仍待执行；因此 Phase 1 尚未标记完成。
+- [ ] Phase 2 尚未开始，也没有生成个性化路线、每日计划或自适应重排功能。
+
+Phase 1 不要求也不读取 `OPENROUTER_API_KEY`，确定性 Flagship 路径不发起 OpenRouter 请求。Live Research Beta 保持关闭，D1 生产迁移、功能旗标、推送、合并和部署均不在本记录内。
+
 ### Phase 2 — Adaptive Planning Loop
 
 计划文件将在 Phase 1 合并并复核实际契约后编写，目标路径：
