@@ -46,7 +46,7 @@ v8 不重写 Better Auth，不更换现有 D1/R2 绑定，不删除 v7.2 数据�
 - [x] Stack 已展示资源 language、cost、format、source tier 与 verification date，并把 confidence 明确为 curated claim confidence，而非 learner mastery。
 - [x] 当前聚焦验证通过：11 个测试文件、82 项测试；这是 Task 1–6 的实现证据，Task 7 另由文档边界审计验证；两者都不是 Phase 1 最终验收证据。
 - [ ] Task 8 完整单元、类型、lint、build、渲染、bundle 审计与最终代码审查仍待执行；因此 Phase 1 尚未标记完成。
-- [ ] Phase 2 尚未开始，也没有生成个性化路线、每日计划或自适应重排功能。
+- [ ] Phase 2 尚未开始；尚未实现的是本阶段定义的岗位研究驱动完整路线、滚动每日计划与基于学习事件的自适应重排，现有 v7 proportional path 与 custom role text 不受此状态判断影响。
 
 Phase 1 不要求也不读取 `OPENROUTER_API_KEY`，确定性 Flagship 路径不发起 OpenRouter 请求。Live Research Beta 保持关闭，D1 生产迁移、功能旗标、推送、合并和部署均不在本记录内。
 
