@@ -1,8 +1,8 @@
 # Arc. v8 恢复检查点
 
-**保存日期：** 2026-08-05
+**保存日期：** 2026-08-10
 
-**当前阶段：** v7.2 已发布并闭环；下一阶段为 v8 产品规格
+**当前阶段：** v8 产品规格和实施路线图已批准；等待选择 Phase 1 执行方式
 
 **生产地址：** <https://arc-precision-path.jiahe-xu.chatgpt.site>
 
@@ -17,7 +17,22 @@
 - 生产源提交：`7ca5b530dfc58f3cbc700b44a7a881a9bd661209`；其文件树与 GitHub 提交 `1ac6f2c2414727fef422d94074f7baf43c0a4a5a` 完全一致
 - 直接回滚基线：Sites version 6，`appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_954b8ee1fbb08191b91062090e87d5b2`
 
-## 2. v7 已完成的范围
+## 2. 当前开发状态
+
+- 当前分支：`codex/v8-resume-checkpoint`
+- v8 产品规格提交：`de15395 docs: define Arc v8 product intelligence`
+- v8 实施规划提交：`350950d docs: plan v8 product intelligence implementation`
+- 保存检查点前，分支比远程 `origin/codex/v8-resume-checkpoint` 领先 2 个提交；这两个提交尚未推送。
+- 本轮只完成了规格和计划文档，没有开始 Phase 1 产品代码、数据库迁移或 OpenRouter 接入。
+- 没有执行预览部署、生产迁移、公开部署或功能旗标变更。
+
+当前权威文档：
+
+- 产品规格：`docs/superpowers/specs/2026-08-09-arc-v8-product-intelligence-design.md`
+- 五阶段路线图：`docs/superpowers/plans/2026-08-10-arc-v8-product-intelligence-roadmap.md`
+- Phase 1 详细计划：`docs/superpowers/plans/2026-08-10-arc-v8-intelligence-kernel.md`
+
+## 3. v7 已完成的范围
 
 v7.2 的开发、自动化验证、公开部署、人工验收、文档记录和 GitHub 合并均已完成。已验证的关键行为包括：
 
@@ -31,7 +46,7 @@ v7.2 的开发、自动化验证、公开部署、人工验收、文档记录和
 
 因此，**v7 产品发布周期已经结束，可以开始 v8**。
 
-## 3. 不阻塞 v8 的保留待办
+## 4. 不阻塞 v8 的保留待办
 
 以下内容没有被错误标记为通过。它们进入安全与基础设施待办，不阻止 v8 产品规划：
 
@@ -44,34 +59,59 @@ v7.2 的开发、自动化验证、公开部署、人工验收、文档记录和
 
 这些项目必须继续显示为“待验证/待完成”，不能在缺少证据时改写为已通过。
 
-## 4. v8 的产品起点
+## 5. 已批准的 v8 方向
 
-v8 不从继续打磨登录开始，而从原始产品构想中尚未落地的 **Product Intelligence** 开始。优先问题是：
+v8 的核心闭环已经批准：
 
-> 如何把任意目标岗位转换成尽可能全面、可追溯、可更新的技术栈，并为每项能力提供优质学习资源，再根据用户的真实空闲时间生成每日可执行步骤？
+```text
+岗位目标
+  → 可追溯的岗位技能图谱
+  → 优质学习资源
+  → 基于能力与时间的完整路线
+  → 滚动七日计划
+  → 今日可交付成果
+  → Proof 验证
+  → 有证据的 Stack
+  → 按新状态重新规划
+```
 
-现有批准方向来自主规格中的四个模块：
+关键决策：
 
-- Career Intelligence：岗位规范化、技能依赖图、来源、观察时间与置信度；
-- Path Planner：根据现有水平、每周时间和目标周期生成确定性阶段路线；
-- Daily Engine：把阶段路线切分成每日“理解 → 练习 → 产出”单元，并支持重排；
-- AI Provider Gateway：以结构化输出补全陌生岗位；无 API Key 时仍使用内置图谱与确定性规划。
+- 先把 `AI-Native Full-Stack Engineer` 做成生产质量 Flagship；其他岗位作为受控 Research Beta。
+- 学习资源 English-first，质量优先于免费与否；付费核心资源必须显示费用并提供免费替代。
+- 用户以周一至周日逐日分钟数和休息日描述真实时间。
+- 先做快速技能审计，可选提交 GitHub、项目或其他证据。
+- 同时提供完整路线和滚动七日详细计划；每日单元以可交付成果为中心。
+- 采用可信情报内核加 AI 增强；OpenRouter 是首个正式模型 Provider。
+- OpenRouter 密钥由站点所有者配置，v8 不提供用户 BYOK。
+- AI 不能单独授予 `Verified`；技能状态必须由学习事件和 Proof 支撑。
+- Flagship 访客体验无模型和登录也能工作；实时 Research Beta 与付费 AI 只向认证用户开放。
 
-“最领先的优质学习链接”属于 v8 的核心范围，但具体来源白名单、更新策略、质量评分、版权边界、失效链接检查、AI 使用边界及第一批岗位覆盖面，必须先形成并批准 v8 规格，不能直接凭实现过程临时决定。
+## 6. v8 五阶段路线图
 
-## 5. 恢复 v8 的固定流程
+1. **Trusted Intelligence Kernel**：版本化岗位蓝图、资源注册表、图验证、D1 情报表、只读 API 和可信 Stack 视图。
+2. **Adaptive Planning Loop**：技能审计、逐日时间、完整路线、滚动七日计划、Today 和确定性重排。
+3. **Proof-backed Stack**：Proof 版本和审核状态机、证据聚合与技能状态。
+4. **OpenRouter Research Beta**：固定模型策略、结构化输出、来源审计、预算与速率闸门、确定性降级。
+5. **Production Validation & Controlled Beta**：完整回归、安全/隐私/成本验证、功能旗标、受控验收和发布候选。
 
-恢复时先做规格，不直接写代码：
+详细计划采用顺序编写：Phase 1 的详细计划已完成，但实现尚未开始；Phase 2–5 的详细计划在前一阶段实现和复核后，依据真实落地的类型与文件结构编写。
 
-1. 读取本检查点、主产品规格和 v7 运维记录；
-2. 核对 GitHub `master`、生产 v7.2 与待办状态是否变化；
-3. 围绕“岗位情报 → 优质资源 → 个性化路线 → 每日任务”完成 v8 构思；
-4. 向用户提交 v8 完整产品规格，等待明确批准；
-5. 规格批准后编写可执行计划；
-6. 从最新 `master` 创建独立的 `codex/arc-v8-*` 分支或 worktree；
-7. 按测试驱动方式实现、验证、提交、公开部署和人工验收。
+## 7. 下一次恢复流程
 
-## 6. 本地环境提示
+恢复时不要重新讨论已经批准的产品规格，也不要直接跳到 OpenRouter：
+
+1. 读取本检查点、v8 产品规格、总路线图和 Phase 1 详细计划；
+2. 运行 `git status --short --branch` 和 `git log -4 --oneline`，确认分支与提交仍一致；
+3. 若需要远程备份，先取得用户批准再推送当前分支；
+4. 让用户选择 Phase 1 执行方式：
+   - `1`：子代理驱动，逐任务实现和审查；
+   - `2`：由当前任务按详细计划连续执行；
+5. 选择后，从 Phase 1 Task 1 开始，严格按 TDD 实施；
+6. Phase 1 完成完整质量闸门后停止，等待用户验收；
+7. 未经单独批准，不进行生产 D1 迁移、真实 OpenRouter 请求、推送、合并或公开部署。
+
+## 8. 本地环境提示
 
 当前用户级 `.npmrc` 把 npm cache 指向不可写的 `C:\Program Files\nodejs\node_cache`。不要擅自修改用户的全局 npm 配置。需要安装依赖时使用临时可写缓存，例如：
 
@@ -85,10 +125,18 @@ npm install --cache "$env:TEMP\arc-npm-cache"
 npx eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .worktrees
 ```
 
-## 7. 用户恢复口令
+## 9. 用户恢复口令
 
 以后回到这个 Codex 任务，只需发送：
 
-> 继续 Arc v8。请先读取 `docs/operations/v8-resume-checkpoint.md`，从 v8 产品规格阶段继续，不要直接写代码。
+> 继续 Arc v8。请先读取 `docs/operations/v8-resume-checkpoint.md`、v8 总路线图和 Phase 1 详细计划，从执行方式选择处继续，不要重新设计规格，也不要直接部署。
 
-即使电脑关闭或当前页面关闭，只要源代码仓库仍在并可访问，就可以依据本文件和 GitHub 历史恢复；不需要重新完成 v7。
+如果希望直接指定执行方式，也可以发送：
+
+> 继续 Arc v8，选择执行方式 1。
+
+或：
+
+> 继续 Arc v8，选择执行方式 2。
+
+即使电脑关闭或当前页面关闭，只要源代码仓库仍在并可访问，就可以依据本文件和 Git 历史恢复；不需要重新完成 v7，也不需要重新审批 v8 规格。
