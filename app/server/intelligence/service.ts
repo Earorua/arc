@@ -12,8 +12,20 @@ type SchemaIssue = {
   message: string;
 };
 
-export type IntelligenceIntegrityIssue = IntelligenceIssue | SchemaIssue;
-type IntelligenceIntegrityIssueCode = IntelligenceIssueCode | SchemaIssue["code"];
+type PublicationIssue = {
+  code: "not-published" | "slug-mismatch";
+  path: string;
+  message: string;
+};
+
+export type IntelligenceIntegrityIssue =
+  | IntelligenceIssue
+  | SchemaIssue
+  | PublicationIssue;
+type IntelligenceIntegrityIssueCode =
+  | IntelligenceIssueCode
+  | SchemaIssue["code"]
+  | PublicationIssue["code"];
 
 export class IntelligenceIntegrityError extends Error {
   override readonly name = "IntelligenceIntegrityError";
@@ -42,6 +54,26 @@ export class IntelligenceService {
           message: issue.message,
         })),
       );
+    }
+
+    if (parsed.data.status !== "ready") {
+      throw new IntelligenceIntegrityError([
+        {
+          code: "not-published",
+          path: "status",
+          message: "Blueprint is not published.",
+        },
+      ]);
+    }
+
+    if (parsed.data.id !== slug) {
+      throw new IntelligenceIntegrityError([
+        {
+          code: "slug-mismatch",
+          path: "id",
+          message: "Blueprint identity does not match the requested slug.",
+        },
+      ]);
     }
 
     const validation = validateRoleBlueprint(parsed.data);

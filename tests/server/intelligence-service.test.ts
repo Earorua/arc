@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import type { RoleBlueprint } from "../../app/contracts/intelligence";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import {
   IntelligenceIntegrityError,
@@ -15,6 +14,51 @@ describe("IntelligenceService", () => {
     await expect(
       service.getPublished("ai-native-full-stack-engineer"),
     ).resolves.toEqual(flagshipBlueprint);
+  });
+
+  it.each(["draft", "needs-review"] as const)(
+    "rejects a %s blueprint because it is not published",
+    async (status) => {
+      const unpublished = structuredClone(flagshipBlueprint);
+      unpublished.status = status;
+      const service = new IntelligenceService({
+        getPublishedBySlug: async () => unpublished,
+      });
+
+      const result = service.getPublished(unpublished.id);
+      await expect(result).rejects.toMatchObject({
+        message: "Intelligence integrity failed: not-published.",
+        issues: [
+          {
+            code: "not-published",
+            path: "status",
+            message: "Blueprint is not published.",
+          },
+        ],
+      });
+      await expect(result).rejects.not.toThrow(status);
+    },
+  );
+
+  it("rejects a valid ready blueprint whose identity does not match the requested slug", async () => {
+    const differentBlueprint = structuredClone(flagshipBlueprint);
+    differentBlueprint.id = "different-ready-role";
+    const service = new IntelligenceService({
+      getPublishedBySlug: async () => differentBlueprint,
+    });
+
+    const result = service.getPublished(flagshipBlueprint.id);
+    await expect(result).rejects.toMatchObject({
+      message: "Intelligence integrity failed: slug-mismatch.",
+      issues: [
+        {
+          code: "slug-mismatch",
+          path: "id",
+          message: "Blueprint identity does not match the requested slug.",
+        },
+      ],
+    });
+    await expect(result).rejects.not.toThrow(differentBlueprint.id);
   });
 
   it("rejects repository data that fails cross-entity validation", async () => {
@@ -44,7 +88,7 @@ describe("IntelligenceService", () => {
       privateRepositoryField: "must not be served",
     };
     const service = new IntelligenceService({
-      getPublishedBySlug: async () => malformed as unknown as RoleBlueprint,
+      getPublishedBySlug: async () => malformed,
     });
 
     const result = service.getPublished(malformed.id);
@@ -54,6 +98,32 @@ describe("IntelligenceService", () => {
     });
     await expect(result).rejects.toBeInstanceOf(IntelligenceIntegrityError);
     await expect(result).rejects.not.toThrow("privateRepositoryField");
+  });
+
+  it("publishes only sorted unique issue codes in the error message", () => {
+    const error = new IntelligenceIntegrityError([
+      {
+        code: "slug-mismatch",
+        path: "id",
+        message: "private role identity",
+      },
+      {
+        code: "not-published",
+        path: "status",
+        message: "private publication status",
+      },
+      {
+        code: "slug-mismatch",
+        path: "id",
+        message: "another private identity detail",
+      },
+    ]);
+
+    expect(error.message).toBe(
+      "Intelligence integrity failed: not-published, slug-mismatch.",
+    );
+    expect(error.message).not.toMatch(/private|identity|status/u);
+    expect(error.issues).toHaveLength(3);
   });
 
   it("returns null for an unknown role", async () => {

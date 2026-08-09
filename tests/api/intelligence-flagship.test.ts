@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
-import { createFlagshipIntelligenceHandler } from "../../app/api/intelligence/flagship/route";
+import {
+  GET as productionGET,
+  createFlagshipIntelligenceHandler,
+} from "../../app/api/intelligence/flagship/route";
 import { expectApiError, requestId } from "./cloud-route-test-helpers";
 
 describe("GET /api/intelligence/flagship", () => {
@@ -19,11 +22,20 @@ describe("GET /api/intelligence/flagship", () => {
       "public, max-age=300, stale-while-revalidate=3600",
     );
     expect(getBlueprint).toHaveBeenCalledWith();
-    await expect(response.json()).resolves.toMatchObject({
-      blueprint: {
-        id: flagshipBlueprint.id,
-        version: flagshipBlueprint.version,
-      },
+    await expect(response.json()).resolves.toEqual({
+      blueprint: flagshipBlueprint,
+    });
+  });
+
+  it("wires the production GET to the canonical validated flagship", async () => {
+    const response = await productionGET();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe(
+      "public, max-age=300, stale-while-revalidate=3600",
+    );
+    await expect(response.json()).resolves.toEqual({
+      blueprint: flagshipBlueprint,
     });
   });
 
@@ -33,7 +45,9 @@ describe("GET /api/intelligence/flagship", () => {
       createRequestId: () => requestId,
     });
 
-    await expectApiError(await GET(), 404, "NOT_FOUND");
+    const response = await GET();
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    await expectApiError(response, 404, "NOT_FOUND");
   });
 
   it("maps integrity failures to a stable unavailable response", async () => {
@@ -45,9 +59,40 @@ describe("GET /api/intelligence/flagship", () => {
 
     const response = await GET();
     const responseCopy = response.clone();
+    expect(response.headers.get("cache-control")).toBe("no-store");
     await expectApiError(response, 503, "UNAVAILABLE");
     const responseText = await responseCopy.text();
     expect(responseText).not.toContain(privateDetail);
     expect(responseText).not.toContain("Error:");
+  });
+
+  it("returns a controlled unavailable response when request ID creation fails", async () => {
+    const privateDetail = "private request ID failure";
+    const getBlueprint = vi.fn().mockResolvedValue(flagshipBlueprint);
+    const GET = createFlagshipIntelligenceHandler({
+      getBlueprint,
+      createRequestId: () => {
+        throw new Error(privateDetail);
+      },
+    });
+
+    const response = await GET();
+    const fallbackRequestId = response.headers.get("x-request-id");
+    const responseCopy = response.clone();
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(fallbackRequestId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu,
+    );
+    expect(getBlueprint).not.toHaveBeenCalled();
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: "UNAVAILABLE",
+        message: "Flagship role intelligence is temporarily unavailable.",
+        requestId: fallbackRequestId,
+      },
+    });
+    expect(await responseCopy.text()).not.toContain(privateDetail);
   });
 });

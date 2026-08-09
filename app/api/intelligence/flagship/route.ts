@@ -15,7 +15,17 @@ export function createFlagshipIntelligenceHandler(
   deps: FlagshipIntelligenceDependencies,
 ) {
   return async function GET(): Promise<Response> {
-    const requestId = (deps.createRequestId ?? (() => crypto.randomUUID()))();
+    let requestId: string;
+    try {
+      requestId = (deps.createRequestId ?? (() => crypto.randomUUID()))();
+    } catch {
+      return apiError(
+        "UNAVAILABLE",
+        "Flagship role intelligence is temporarily unavailable.",
+        503,
+        crypto.randomUUID(),
+      );
+    }
 
     try {
       const blueprint = await deps.getBlueprint();
