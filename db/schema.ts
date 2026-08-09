@@ -3,7 +3,7 @@
 // See examples/d1/db/schema.ts for an opt-in example.
 export {};
 import { sql } from "drizzle-orm";
-import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { foreignKey, index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 const nowMs = sql`(unixepoch() * 1000)`;
 
@@ -334,6 +334,16 @@ export const roleSkillEdges = sqliteTable("role_skill_edges", {
   relation: text("relation", { enum: ["prerequisite"] }).notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  foreignKey({
+    columns: [table.blueprintVersionId, table.fromSkillKey],
+    foreignColumns: [roleSkillDefinitions.blueprintVersionId, roleSkillDefinitions.skillKey],
+    name: "role_skill_edges_from_skill_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.blueprintVersionId, table.toSkillKey],
+    foreignColumns: [roleSkillDefinitions.blueprintVersionId, roleSkillDefinitions.skillKey],
+    name: "role_skill_edges_to_skill_fk",
+  }).onDelete("cascade"),
   uniqueIndex("role_skill_edges_unique_idx").on(
     table.blueprintVersionId,
     table.fromSkillKey,
@@ -377,6 +387,11 @@ export const resourceSkillLinks = sqliteTable("resource_skill_links", {
   purpose: text("purpose", { enum: ["primary", "alternative", "reference"] }).notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  foreignKey({
+    columns: [table.blueprintVersionId, table.skillKey],
+    foreignColumns: [roleSkillDefinitions.blueprintVersionId, roleSkillDefinitions.skillKey],
+    name: "resource_skill_links_skill_fk",
+  }).onDelete("cascade"),
   uniqueIndex("resource_skill_links_unique_idx").on(
     table.blueprintVersionId,
     table.skillKey,

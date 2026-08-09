@@ -46,6 +46,10 @@ function indexNames(table: SQLiteTable) {
   return getTableConfig(table).indexes.map((index) => index.config.name);
 }
 
+function isUniqueIndex(table: SQLiteTable, indexName: string) {
+  return getTableConfig(table).indexes.find((index) => index.config.name === indexName)?.config.unique;
+}
+
 function nonUniqueIndexNames(table: SQLiteTable) {
   return getTableConfig(table).indexes
     .filter((index) => !index.config.unique)
@@ -54,6 +58,22 @@ function nonUniqueIndexNames(table: SQLiteTable) {
 
 function columnNames(table: SQLiteTable) {
   return getTableConfig(table).columns.map((column) => column.name).sort();
+}
+
+function foreignKeyConfig(table: SQLiteTable, foreignKeyName: string) {
+  const foreignKey = getTableConfig(table).foreignKeys.find(
+    (candidate) => candidate.getName() === foreignKeyName,
+  );
+  const reference = foreignKey?.reference();
+
+  return foreignKey && reference
+    ? {
+        columns: reference.columns.map((column) => column.name),
+        foreignColumns: reference.foreignColumns.map((column) => column.name),
+        foreignTable: getTableName(reference.foreignTable),
+        onDelete: foreignKey.onDelete,
+      }
+    : undefined;
 }
 
 describe("Arc beta persistence schema", () => {
@@ -197,11 +217,17 @@ describe("Arc beta persistence schema", () => {
 
   it("declares version and normalized intelligence uniqueness boundaries", () => {
     expect(indexNames(schema.roleBlueprints)).toContain("role_blueprints_slug_idx");
+    expect(isUniqueIndex(schema.roleBlueprints, "role_blueprints_slug_idx")).toBe(true);
     expect(indexNames(schema.roleBlueprintVersions)).toContain("role_blueprint_versions_role_version_idx");
+    expect(isUniqueIndex(schema.roleBlueprintVersions, "role_blueprint_versions_role_version_idx")).toBe(true);
     expect(indexNames(schema.roleSkillDefinitions)).toContain("role_skill_definitions_version_key_idx");
+    expect(isUniqueIndex(schema.roleSkillDefinitions, "role_skill_definitions_version_key_idx")).toBe(true);
     expect(indexNames(schema.roleSkillEdges)).toContain("role_skill_edges_unique_idx");
+    expect(isUniqueIndex(schema.roleSkillEdges, "role_skill_edges_unique_idx")).toBe(true);
     expect(indexNames(schema.learningResources)).toContain("learning_resources_url_idx");
+    expect(isUniqueIndex(schema.learningResources, "learning_resources_url_idx")).toBe(true);
     expect(indexNames(schema.resourceSkillLinks)).toContain("resource_skill_links_unique_idx");
+    expect(isUniqueIndex(schema.resourceSkillLinks, "resource_skill_links_unique_idx")).toBe(true);
   });
 
   it("declares exact product intelligence lookup indexes", () => {
@@ -212,5 +238,26 @@ describe("Arc beta persistence schema", () => {
       "resource_skill_links_version_idx",
       "resource_skill_links_resource_idx",
     ]);
+  });
+
+  it("links edges and resources to declared skills with composite foreign keys", () => {
+    expect(foreignKeyConfig(schema.roleSkillEdges, "role_skill_edges_from_skill_fk")).toEqual({
+      columns: ["blueprint_version_id", "from_skill_key"],
+      foreignColumns: ["blueprint_version_id", "skill_key"],
+      foreignTable: "role_skill_definitions",
+      onDelete: "cascade",
+    });
+    expect(foreignKeyConfig(schema.roleSkillEdges, "role_skill_edges_to_skill_fk")).toEqual({
+      columns: ["blueprint_version_id", "to_skill_key"],
+      foreignColumns: ["blueprint_version_id", "skill_key"],
+      foreignTable: "role_skill_definitions",
+      onDelete: "cascade",
+    });
+    expect(foreignKeyConfig(schema.resourceSkillLinks, "resource_skill_links_skill_fk")).toEqual({
+      columns: ["blueprint_version_id", "skill_key"],
+      foreignColumns: ["blueprint_version_id", "skill_key"],
+      foreignTable: "role_skill_definitions",
+      onDelete: "cascade",
+    });
   });
 });

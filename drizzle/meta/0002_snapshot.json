@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "316dba19-32cc-40b7-8b52-3f66cf72a151",
+  "id": "4613064f-41ec-4454-b588-108e80148c17",
   "prevId": "c5c1ec12-724f-4b77-a6fc-e35360f418c0",
   "tables": {
     "account_link_intents": {
@@ -1923,6 +1923,21 @@
           ],
           "onDelete": "restrict",
           "onUpdate": "no action"
+        },
+        "resource_skill_links_skill_fk": {
+          "name": "resource_skill_links_skill_fk",
+          "tableFrom": "resource_skill_links",
+          "tableTo": "role_skill_definitions",
+          "columnsFrom": [
+            "blueprint_version_id",
+            "skill_key"
+          ],
+          "columnsTo": [
+            "blueprint_version_id",
+            "skill_key"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -2270,6 +2285,36 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "role_skill_edges_from_skill_fk": {
+          "name": "role_skill_edges_from_skill_fk",
+          "tableFrom": "role_skill_edges",
+          "tableTo": "role_skill_definitions",
+          "columnsFrom": [
+            "blueprint_version_id",
+            "from_skill_key"
+          ],
+          "columnsTo": [
+            "blueprint_version_id",
+            "skill_key"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "role_skill_edges_to_skill_fk": {
+          "name": "role_skill_edges_to_skill_fk",
+          "tableFrom": "role_skill_edges",
+          "tableTo": "role_skill_definitions",
+          "columnsFrom": [
+            "blueprint_version_id",
+            "to_skill_key"
+          ],
+          "columnsTo": [
+            "blueprint_version_id",
+            "skill_key"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"

@@ -21,7 +21,8 @@ CREATE TABLE `resource_skill_links` (
 	`purpose` text NOT NULL,
 	`created_at` integer DEFAULT (unixepoch() * 1000) NOT NULL,
 	FOREIGN KEY (`blueprint_version_id`) REFERENCES `role_blueprint_versions`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`resource_id`) REFERENCES `learning_resources`(`id`) ON UPDATE no action ON DELETE restrict
+	FOREIGN KEY (`resource_id`) REFERENCES `learning_resources`(`id`) ON UPDATE no action ON DELETE restrict,
+	FOREIGN KEY (`blueprint_version_id`,`skill_key`) REFERENCES `role_skill_definitions`(`blueprint_version_id`,`skill_key`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `resource_skill_links_unique_idx` ON `resource_skill_links` (`blueprint_version_id`,`skill_key`,`resource_id`,`purpose`);--> statement-breakpoint
@@ -73,7 +74,9 @@ CREATE TABLE `role_skill_edges` (
 	`to_skill_key` text NOT NULL,
 	`relation` text NOT NULL,
 	`created_at` integer DEFAULT (unixepoch() * 1000) NOT NULL,
-	FOREIGN KEY (`blueprint_version_id`) REFERENCES `role_blueprint_versions`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`blueprint_version_id`) REFERENCES `role_blueprint_versions`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`blueprint_version_id`,`from_skill_key`) REFERENCES `role_skill_definitions`(`blueprint_version_id`,`skill_key`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`blueprint_version_id`,`to_skill_key`) REFERENCES `role_skill_definitions`(`blueprint_version_id`,`skill_key`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `role_skill_edges_unique_idx` ON `role_skill_edges` (`blueprint_version_id`,`from_skill_key`,`to_skill_key`,`relation`);--> statement-breakpoint
