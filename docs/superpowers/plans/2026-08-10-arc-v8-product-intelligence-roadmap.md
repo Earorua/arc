@@ -37,15 +37,20 @@ v8 不重写 Better Auth，不更换现有 D1/R2 绑定，不删除 v7.2 数据�
 
 退出门槛：Flagship 数据可被严格解析；技能图无环且引用完整；每项技能至少有一个可追溯资源；付费核心资源必须有免费替代；访客路径无网络依赖。
 
-**2026-08-10 实现记录（最终质量门槛前）：**
+**2026-08-10 Phase 1 工程质量门槛记录（等待用户验收）：**
 
 - [x] 已实现 canonical、versioned Flagship 契约，以及可确定性重建的 16 项技能与资源注册表。
 - [x] 已实现引用、依赖图、阶段覆盖、资源反向链接与付费资源免费替代策略验证。
 - [x] 已生成六张非个人 D1 情报表及增量迁移，并用静态测试锁定表、索引、外键和只增不减边界；这些表仅为未来版本发布预留，尚未迁移生产，也不是当前读取源。
 - [x] 已实现只返回通过契约、发布状态、slug 与策略验证数据的 guest-safe、read-only Flagship endpoint。
 - [x] Stack 已展示资源 language、cost、format、source tier 与 verification date，并把 confidence 明确为 curated claim confidence，而非 learner mastery。
-- [x] 当前聚焦验证通过：11 个测试文件、82 项测试；这是 Task 1–6 的实现证据，Task 7 另由文档边界审计验证；两者都不是 Phase 1 最终验收证据。
-- [ ] Task 8 完整单元、类型、lint、build、渲染、bundle 审计与最终代码审查仍待执行；因此 Phase 1 尚未标记完成。
+- [x] Task 8 已验证实现范围 `2825ff4..fe26ff27f914eb19c8c15a3fe11ed5cabf12c24b`；后续完成记录提交不包含在该范围内，避免产生自指提交哈希。
+- [x] 最后一次 review 修复后的完整门槛全部通过：`npm run test:unit` 退出 `0`（67 个测试文件、616 项测试）；`npx tsc --noEmit` 退出 `0`；`npm run lint` 退出 `0`；`npm run build` 退出 `0`（5/5）；`node --test tests/rendered-html.test.mjs` 退出 `0`（2/2）。实际构建目录是 `dist`，`.next` 不存在。
+- [x] 安全与确定性审计通过：在 `dist` 中搜索 `OPENROUTER_API_KEY|OPENAI_API_KEY|sk-or-` 退出 `1` 且无匹配；在 Flagship 数据、service 与 API 路径中搜索 `MockAiProvider|OpenRouter|fetch\(` 退出 `1` 且无匹配。完成记录修改前 `git status --short` 退出 `0` 且无输出。
+- [x] 两位独立 reviewer 完成必需的全量审查；修复提交为 `b71cc86` 与 `fe26ff2`，最终 Critical / Important / Minor 均为 `0`，没有未解决发现。
+- [x] 证据覆盖 strict parse、deterministic builtin、对称的依赖图与资源策略、additive non-personal D1 schema（未迁移）、guest-safe API、truthful Stack，以及保持全绿的 v7.2 auth、migration 与 workspace 回归测试。
+- [x] Task 8 Step 1–9 已完成；本线程在 checkpoint 停止，Phase 1 engineering gate 已准备好交由用户验收。
+- [ ] 用户验收、合并、推送、D1 迁移、功能旗标变更、部署与 Phase 2 均未发生，仍分别需要明确批准；因此本记录不声称线上 v8 或用户已接受 Phase 1。
 - [ ] Phase 2 尚未开始；尚未实现的是本阶段定义的岗位研究驱动完整路线、滚动每日计划与基于学习事件的自适应重排，现有 v7 proportional path 与 custom role text 不受此状态判断影响。
 
 Phase 1 不要求也不读取 `OPENROUTER_API_KEY`，确定性 Flagship 路径不发起 OpenRouter 请求。Live Research Beta 保持关闭，D1 生产迁移、功能旗标、推送、合并和部署均不在本记录内。

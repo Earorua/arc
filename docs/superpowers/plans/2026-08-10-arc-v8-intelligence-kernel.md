@@ -59,13 +59,26 @@ This plan does not:
 | `tests/db/migration-safety.test.ts` | Assert the Phase 1 migration is additive and contains all intelligence tables. |
 | `README.md` | Accurate Phase 1 capability and no-live-model statement. |
 
-## Pre-final-gate implementation record — 2026-08-10
+## Phase 1 engineering gate record — 2026-08-10 (awaiting user acceptance)
 
-Tasks 1–6 have focused implementation evidence: the current focused command passes 11 test files and 82 tests. That evidence covers the strict versioned contract, deterministic Flagship adapter, cross-entity validator, additive non-personal D1 schema artifacts, validated guest-safe read endpoint, and Stack evidence view. Task 7 records and audits the truth boundary separately. Neither evidence set replaces the complete Task 8 gate.
+The verified implementation range is `2825ff4..fe26ff27f914eb19c8c15a3fe11ed5cabf12c24b`. The later documentation-only closure commit is intentionally outside that range; this record does not invent a self-referential commit hash.
 
-The six D1 intelligence tables and `0002_product_intelligence.sql` reserve future version publication only. They have not been migrated to production and the current read path uses `BuiltinIntelligenceRepository`, not D1. Research Beta is disabled; Phase 1 neither requires nor reads `OPENROUTER_API_KEY`, and the deterministic Flagship read path performs no OpenRouter call.
+Fresh post-fix and main-agent verification evidence:
 
-Stack renders resource language, cost, format, source tier, and last verification date. Its confidence value is curated claim confidence, not learner mastery, Proof status, readiness, or verification. Phase 1 remains inside its final quality gate, and Phase 2 has not started. No final Phase 1 commit hash is recorded before Task 8.
+- `npm run test:unit` — exit `0`; 67 test files and 616 tests passed.
+- `npx tsc --noEmit` — exit `0`.
+- `npm run lint` — exit `0`.
+- `npm run build` — exit `0`; 5 of 5 build steps completed. The actual build directory is `dist`; `.next` is absent.
+- `node --test tests/rendered-html.test.mjs` — exit `0`; 2 of 2 tests passed.
+- `rg -n "OPENROUTER_API_KEY|OPENAI_API_KEY|sk-or-" dist` — exit `1`, meaning no matches.
+- `rg -n "MockAiProvider|OpenRouter|fetch\(" app/data/flagship-blueprint.ts app/server/intelligence app/api/intelligence/flagship` — exit `1`, meaning no matches.
+- `git status --short` — exit `0` with no output before this completion-record edit; the verified implementation worktree was clean.
+
+Two independent reviewers completed the required full review. Review corrections were committed as `b71cc86` and `fe26ff2`; the final review result contains zero Critical, Important, or Minor findings and no unresolved findings.
+
+The evidence covers strict contract parsing, deterministic builtin Flagship availability, symmetric graph/resource policy enforcement, an additive non-personal D1 schema, guest-safe API behavior, a truthful Stack evidence view, and green v7.2 authentication, migration, and workspace regressions. The six D1 intelligence tables and `0002_product_intelligence.sql` remain unapplied reservations for future version publication; the current read path remains `BuiltinIntelligenceRepository`. Research Beta remains disabled, Phase 1 neither requires nor reads `OPENROUTER_API_KEY`, and the deterministic Flagship path has no model provider or outbound `fetch`.
+
+Task 8 Steps 1–9 are complete and this thread stops at the checkpoint. The Phase 1 engineering gate is ready for user acceptance, but user acceptance, merge, push, production D1 migration, feature-flag change, deployment, and Phase 2 have not occurred and still require explicit approval. This record does not claim that v8 is live or that the user has accepted Phase 1.
 
 ### Task 1: Define strict role-intelligence contracts
 
@@ -904,7 +917,7 @@ git commit -m "docs: record v8 intelligence kernel boundary"
 - Modify after verification: `docs/superpowers/plans/2026-08-10-arc-v8-product-intelligence-roadmap.md`
 - Modify after verification: `docs/superpowers/plans/2026-08-10-arc-v8-intelligence-kernel.md`
 
-- [ ] **Step 1: Run the complete unit suite**
+- [x] **Step 1: Run the complete unit suite**
 
 ```powershell
 npm run test:unit
@@ -912,7 +925,7 @@ npm run test:unit
 
 Expected: all Vitest suites pass with no unhandled rejection or leaked timer.
 
-- [ ] **Step 2: Run static verification**
+- [x] **Step 2: Run static verification**
 
 ```powershell
 npx tsc --noEmit
@@ -921,7 +934,7 @@ npm run lint
 
 Expected: both commands exit `0` with no new errors.
 
-- [ ] **Step 3: Build and run rendered HTML checks**
+- [x] **Step 3: Build and run rendered HTML checks**
 
 ```powershell
 npm run build
@@ -930,7 +943,7 @@ node --test tests/rendered-html.test.mjs
 
 Expected: production build succeeds and all rendered HTML tests pass.
 
-- [ ] **Step 4: Inspect the production bundle for secrets and provider drift**
+- [x] **Step 4: Inspect the production bundle for secrets and provider drift**
 
 Run:
 
@@ -948,15 +961,15 @@ rg -n "MockAiProvider|OpenRouter|fetch\(" app/data/flagship-blueprint.ts app/ser
 
 Expected: no model provider and no outbound `fetch` in the deterministic Flagship read path.
 
-- [ ] **Step 5: Perform the required code review**
+- [x] **Step 5: Perform the required code review**
 
 Invoke `superpowers:requesting-code-review` against the Phase 1 commit range. Resolve every correctness, security, privacy and contract-consistency finding. Re-run the affected focused tests after each correction.
 
-- [ ] **Step 6: Re-run the full gate after review fixes**
+- [x] **Step 6: Re-run the full gate after review fixes**
 
 Repeat Steps 1–4. Do not reuse earlier output.
 
-- [ ] **Step 7: Apply verification-before-completion**
+- [x] **Step 7: Apply verification-before-completion**
 
 Invoke `superpowers:verification-before-completion`. Confirm the evidence demonstrates:
 
@@ -968,7 +981,7 @@ Invoke `superpowers:verification-before-completion`. Confirm the evidence demons
 - rich, truthful Stack evidence;
 - v7.2 auth, migration and workspace tests remain green.
 
-- [ ] **Step 8: Record fresh completion evidence**
+- [x] **Step 8: Record fresh completion evidence**
 
 In both plan files, add the final Phase 1 commit range, the exact verification commands, their exit codes, test totals, review outcome and the date. Check only items proven by those results. Then run:
 
@@ -986,7 +999,7 @@ git add docs/superpowers/plans/2026-08-10-arc-v8-product-intelligence-roadmap.md
 git commit -m "docs: close v8 intelligence kernel phase"
 ```
 
-- [ ] **Step 9: Stop at the checkpoint**
+- [x] **Step 9: Stop at the checkpoint**
 
 Report Phase 1 as ready for review. Do not migrate production D1, enable a feature flag, push, merge, deploy or begin Phase 2 without the corresponding user approval. After acceptance, write the Phase 2 detailed plan against the actual merged Phase 1 types and file structure.
 
