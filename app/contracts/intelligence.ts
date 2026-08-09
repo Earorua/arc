@@ -21,6 +21,14 @@ function isIpLiteral(hostname: string): boolean {
     && octets.every((octet) => /^\d{1,3}$/u.test(octet) && Number(octet) <= 255);
 }
 
+const nonPublicDnsSuffixes = ["internal", "test", "invalid", "example", "home.arpa"];
+
+function hasNonPublicDnsSuffix(hostname: string): boolean {
+  return nonPublicDnsSuffixes.some(
+    (suffix) => hostname === suffix || hostname.endsWith(`.${suffix}`),
+  );
+}
+
 function isPublicHttpsUrl(value: string): boolean {
   try {
     const url = new URL(value);
@@ -32,6 +40,8 @@ function isPublicHttpsUrl(value: string): boolean {
       && !hostname.endsWith(".localhost")
       && hostname !== "local"
       && !hostname.endsWith(".local")
+      && hostname.includes(".")
+      && !hasNonPublicDnsSuffix(hostname)
       && !isIpLiteral(hostname);
   } catch {
     return false;

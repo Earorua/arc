@@ -99,6 +99,13 @@ describe("role intelligence contracts", () => {
     "https://169.254.169.254/latest/meta-data",
     "https://[::1]/docs",
     "https://10.0.0.1/docs",
+    "https://intranet/docs",
+    "https://metadata/latest",
+    "https://metadata.google.internal/",
+    "https://example.test/docs",
+    "https://example.invalid/docs",
+    "https://service.example/docs",
+    "https://router.home.arpa/",
   ])("rejects the non-public learning resource URL %s", (url) => {
     expect(() => learningResourceSchema.parse({ ...resource, url })).toThrow();
   });
@@ -106,6 +113,7 @@ describe("role intelligence contracts", () => {
   it.each([
     "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
     "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript",
+    "https://learn.microsoft.com/en-us/training/",
   ])("accepts the public international learning resource URL %s", (url) => {
     expect(learningResourceSchema.parse({ ...resource, url }).url).toBe(url);
   });
