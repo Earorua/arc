@@ -74,6 +74,42 @@ describe("role intelligence contracts", () => {
     })).toThrow();
   });
 
+  it.each([
+    "2026-02-30",
+    "2026-99-99",
+    "2025-02-29",
+  ])("rejects the impossible calendar date %s", (date) => {
+    expect(() => learningResourceSchema.parse({
+      ...resource,
+      lastVerifiedAt: date,
+    })).toThrow();
+    expect(() => roleBlueprintSchema.parse({
+      ...blueprint,
+      updatedAt: date,
+    })).toThrow();
+  });
+
+  it.each([
+    "https://user:password@example.com/docs",
+    "https://localhost/docs",
+    "https://api.localhost/docs",
+    "https://local/docs",
+    "https://service.local/docs",
+    "https://127.0.0.1/docs",
+    "https://169.254.169.254/latest/meta-data",
+    "https://[::1]/docs",
+    "https://10.0.0.1/docs",
+  ])("rejects the non-public learning resource URL %s", (url) => {
+    expect(() => learningResourceSchema.parse({ ...resource, url })).toThrow();
+  });
+
+  it.each([
+    "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
+    "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript",
+  ])("accepts the public international learning resource URL %s", (url) => {
+    expect(learningResourceSchema.parse({ ...resource, url }).url).toBe(url);
+  });
+
   it.each(["skills", "resources", "phases"] as const)(
     "requires at least one %s entry",
     (collection) => {

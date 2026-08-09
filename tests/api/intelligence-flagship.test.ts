@@ -17,9 +17,13 @@ describe("GET /api/intelligence/flagship", () => {
     const response = await GET();
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("x-request-id")).toBe(requestId);
+    expect(response.headers.get("x-request-id")).toBeNull();
     expect(response.headers.get("cache-control")).toBe(
       "public, max-age=300, stale-while-revalidate=3600",
+    );
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(response.headers.get("referrer-policy")).toBe(
+      "strict-origin-when-cross-origin",
     );
     expect(getBlueprint).toHaveBeenCalledWith();
     await expect(response.json()).resolves.toEqual({
@@ -34,6 +38,11 @@ describe("GET /api/intelligence/flagship", () => {
     expect(response.headers.get("cache-control")).toBe(
       "public, max-age=300, stale-while-revalidate=3600",
     );
+    expect(response.headers.get("x-request-id")).toBeNull();
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(response.headers.get("referrer-policy")).toBe(
+      "strict-origin-when-cross-origin",
+    );
     await expect(response.json()).resolves.toEqual({
       blueprint: flagshipBlueprint,
     });
@@ -47,6 +56,10 @@ describe("GET /api/intelligence/flagship", () => {
 
     const response = await GET();
     expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(response.headers.get("referrer-policy")).toBe(
+      "strict-origin-when-cross-origin",
+    );
     await expectApiError(response, 404, "NOT_FOUND");
   });
 
@@ -60,6 +73,10 @@ describe("GET /api/intelligence/flagship", () => {
     const response = await GET();
     const responseCopy = response.clone();
     expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(response.headers.get("referrer-policy")).toBe(
+      "strict-origin-when-cross-origin",
+    );
     await expectApiError(response, 503, "UNAVAILABLE");
     const responseText = await responseCopy.text();
     expect(responseText).not.toContain(privateDetail);
@@ -82,6 +99,10 @@ describe("GET /api/intelligence/flagship", () => {
 
     expect(response.status).toBe(503);
     expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(response.headers.get("referrer-policy")).toBe(
+      "strict-origin-when-cross-origin",
+    );
     expect(fallbackRequestId).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu,
     );

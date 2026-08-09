@@ -1,8 +1,45 @@
 import { z } from "zod";
 
 const idSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
-const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/u);
-const httpsUrlSchema = z.string().url().refine((url) => url.startsWith("https://"));
+
+function isCalendarDate(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(value);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1) return false;
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return day <= daysInMonth[month - 1]!;
+}
+
+function isIpLiteral(hostname: string): boolean {
+  if (hostname.includes(":")) return true;
+  const octets = hostname.split(".");
+  return octets.length === 4
+    && octets.every((octet) => /^\d{1,3}$/u.test(octet) && Number(octet) <= 255);
+}
+
+function isPublicHttpsUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    const hostname = url.hostname.toLowerCase().replace(/\.+$/u, "");
+    return url.protocol === "https:"
+      && url.username === ""
+      && url.password === ""
+      && hostname !== "localhost"
+      && !hostname.endsWith(".localhost")
+      && hostname !== "local"
+      && !hostname.endsWith(".local")
+      && !isIpLiteral(hostname);
+  } catch {
+    return false;
+  }
+}
+
+const dateSchema = z.string().refine(isCalendarDate, "Invalid calendar date");
+const httpsUrlSchema = z.string().url().refine(isPublicHttpsUrl, "Public HTTPS URL required");
 
 export const skillCategorySchema = z.enum([
   "foundations", "frontend", "backend", "data",

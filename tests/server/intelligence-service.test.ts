@@ -63,7 +63,11 @@ describe("IntelligenceService", () => {
 
   it("rejects repository data that fails cross-entity validation", async () => {
     const broken = structuredClone(flagshipBlueprint);
+    const originalResourceId = broken.skills[0]!.resourceIds[0]!;
     broken.skills[0]!.resourceIds = ["missing-source-record"];
+    broken.resources = broken.resources.filter(
+      (resource) => resource.id !== originalResourceId,
+    );
     const service = new IntelligenceService({
       getPublishedBySlug: async () => broken,
     });
@@ -82,6 +86,26 @@ describe("IntelligenceService", () => {
     await expect(result).rejects.not.toThrow("missing-source-record");
   });
 
+  it("rejects shape-valid repository data with duplicate graph references", async () => {
+    const broken = structuredClone(flagshipBlueprint);
+    broken.phases[0]!.skillIds.push(broken.phases[0]!.skillIds[0]!);
+    const service = new IntelligenceService({
+      getPublishedBySlug: async () => broken,
+    });
+
+    const result = service.getPublished(broken.id);
+    await expect(result).rejects.toMatchObject({
+      message: "Intelligence integrity failed: duplicate-reference.",
+      issues: [
+        expect.objectContaining({
+          code: "duplicate-reference",
+          path: `phases.${broken.phases[0]!.id}.skillIds`,
+        }),
+      ],
+    });
+    await expect(result).rejects.toBeInstanceOf(IntelligenceIntegrityError);
+  });
+
   it("rejects repository data that fails strict schema parsing", async () => {
     const malformed = {
       ...structuredClone(flagshipBlueprint),
@@ -98,6 +122,23 @@ describe("IntelligenceService", () => {
     });
     await expect(result).rejects.toBeInstanceOf(IntelligenceIntegrityError);
     await expect(result).rejects.not.toThrow("privateRepositoryField");
+  });
+
+  it("rejects a non-public resource URL without leaking its location", async () => {
+    const malformed = structuredClone(flagshipBlueprint);
+    const privateUrl = "https://169.254.169.254/latest/meta-data";
+    malformed.resources[0]!.url = privateUrl;
+    const service = new IntelligenceService({
+      getPublishedBySlug: async () => malformed,
+    });
+
+    const result = service.getPublished(malformed.id);
+    await expect(result).rejects.toMatchObject({
+      message: "Intelligence integrity failed: invalid-schema.",
+      issues: [expect.objectContaining({ code: "invalid-schema" })],
+    });
+    await expect(result).rejects.toBeInstanceOf(IntelligenceIntegrityError);
+    await expect(result).rejects.not.toThrow(privateUrl);
   });
 
   it("publishes only sorted unique issue codes in the error message", () => {

@@ -3,9 +3,13 @@ import type { RoleBlueprint } from "../contracts/intelligence";
 export type IntelligenceIssueCode =
   | "duplicate-skill"
   | "duplicate-resource"
+  | "duplicate-phase"
+  | "duplicate-reference"
   | "missing-prerequisite"
   | "missing-resource"
   | "resource-backlink-mismatch"
+  | "missing-resource-skill"
+  | "resource-forward-link-mismatch"
   | "missing-phase-skill"
   | "unplanned-skill"
   | "prerequisite-cycle"
@@ -59,8 +63,51 @@ export function validateRoleBlueprint(
     seenResourceIds.add(resource.id);
   }
 
+  const seenPhaseIds = new Set<string>();
+  for (const phase of blueprint.phases) {
+    if (seenPhaseIds.has(phase.id)) {
+      addIssue({
+        code: "duplicate-phase",
+        path: `phases.${phase.id}`,
+        message: `Phase ID ${phase.id} is duplicated.`,
+      });
+    }
+    seenPhaseIds.add(phase.id);
+  }
+
+  function reportDuplicateReferences(ids: readonly string[], path: string): void {
+    const seenIds = new Set<string>();
+    for (const id of ids) {
+      if (seenIds.has(id)) {
+        addIssue({
+          code: "duplicate-reference",
+          path,
+          message: `Reference ${id} is duplicated.`,
+        });
+      }
+      seenIds.add(id);
+    }
+  }
+
+  for (const skill of blueprint.skills) {
+    reportDuplicateReferences(
+      skill.prerequisiteIds,
+      `skills.${skill.id}.prerequisiteIds`,
+    );
+    reportDuplicateReferences(skill.resourceIds, `skills.${skill.id}.resourceIds`);
+  }
+  for (const phase of blueprint.phases) {
+    reportDuplicateReferences(phase.skillIds, `phases.${phase.id}.skillIds`);
+  }
+  for (const resource of blueprint.resources) {
+    reportDuplicateReferences(resource.skillIds, `resources.${resource.id}.skillIds`);
+  }
+
   const skillsById = new Map(blueprint.skills.map((skill) => [skill.id, skill]));
   const resourcesById = new Map(blueprint.resources.map((resource) => [resource.id, resource]));
+  const skillResourceIdsById = new Map(
+    blueprint.skills.map((skill) => [skill.id, new Set(skill.resourceIds)]),
+  );
   const resourceSkillIdsById = new Map(
     blueprint.resources.map((resource) => [resource.id, new Set(resource.skillIds)]),
   );
@@ -72,6 +119,26 @@ export function validateRoleBlueprint(
           code: "missing-prerequisite",
           path: `skills.${skill.id}.prerequisiteIds`,
           message: `Skill ${skill.id} has missing prerequisite ${prerequisiteId}.`,
+        });
+      }
+    }
+  }
+
+  for (const resource of blueprint.resources) {
+    for (const skillId of resource.skillIds) {
+      if (!skillsById.has(skillId)) {
+        addIssue({
+          code: "missing-resource-skill",
+          path: `resources.${resource.id}.skillIds`,
+          message: `Resource ${resource.id} links missing skill ${skillId}.`,
+        });
+        continue;
+      }
+      if (!skillResourceIdsById.get(skillId)?.has(resource.id)) {
+        addIssue({
+          code: "resource-forward-link-mismatch",
+          path: `resources.${resource.id}.skillIds`,
+          message: `Resource ${resource.id} links skill ${skillId}, but the skill does not link back.`,
         });
       }
     }

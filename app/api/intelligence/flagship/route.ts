@@ -1,10 +1,23 @@
 import type { RoleBlueprint } from "../../../contracts/intelligence";
 import { BuiltinIntelligenceRepository } from "../../../server/intelligence/builtin-repository";
 import { IntelligenceService } from "../../../server/intelligence/service";
-import { apiError, apiJson } from "../../../server/http/api-response";
+import { apiError, applyResponseSafety } from "../../../server/http/api-response";
 
 const flagshipSlug = "ai-native-full-stack-engineer";
 const publicCacheControl = "public, max-age=300, stale-while-revalidate=3600";
+const safetyHeaders = {
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+};
+
+function unavailable(requestId: string): Response {
+  return applyResponseSafety(apiError(
+    "UNAVAILABLE",
+    "Flagship role intelligence is temporarily unavailable.",
+    503,
+    requestId,
+  ), requestId);
+}
 
 export type FlagshipIntelligenceDependencies = {
   getBlueprint: () => Promise<RoleBlueprint | null>;
@@ -19,35 +32,28 @@ export function createFlagshipIntelligenceHandler(
     try {
       requestId = (deps.createRequestId ?? (() => crypto.randomUUID()))();
     } catch {
-      return apiError(
-        "UNAVAILABLE",
-        "Flagship role intelligence is temporarily unavailable.",
-        503,
-        crypto.randomUUID(),
-      );
+      return unavailable(crypto.randomUUID());
     }
 
     try {
       const blueprint = await deps.getBlueprint();
       if (blueprint === null) {
-        return apiError(
+        return applyResponseSafety(apiError(
           "NOT_FOUND",
           "Flagship role intelligence was not found.",
           404,
           requestId,
-        );
+        ), requestId);
       }
 
-      return apiJson({ blueprint }, requestId, {
-        headers: { "Cache-Control": publicCacheControl },
+      return Response.json({ blueprint }, {
+        headers: {
+          "Cache-Control": publicCacheControl,
+          ...safetyHeaders,
+        },
       });
     } catch {
-      return apiError(
-        "UNAVAILABLE",
-        "Flagship role intelligence is temporarily unavailable.",
-        503,
-        requestId,
-      );
+      return unavailable(requestId);
     }
   };
 }

@@ -160,6 +160,101 @@ describe("validateRoleBlueprint", () => {
     );
   });
 
+  it("reports a duplicate phase ID", () => {
+    const blueprint = structuredClone(flagshipBlueprint);
+    const phase = blueprint.phases.find((candidate) => candidate.id === "foundations");
+    if (!phase) throw new Error("Flagship phase fixture missing");
+    blueprint.phases.push(structuredClone(phase));
+
+    expect(validateRoleBlueprint(blueprint).issues).toContainEqual(
+      expect.objectContaining({
+        code: "duplicate-phase",
+        path: "phases.foundations",
+      }),
+    );
+  });
+
+  it.each([
+    {
+      label: "skill prerequisiteIds",
+      path: "skills.react.prerequisiteIds",
+      mutate(blueprint: RoleBlueprint) {
+        const skill = blueprint.skills.find((candidate) => candidate.id === "react");
+        if (!skill) throw new Error("React fixture missing");
+        skill.prerequisiteIds.push(skill.prerequisiteIds[0]!);
+      },
+    },
+    {
+      label: "skill resourceIds",
+      path: "skills.web-platform.resourceIds",
+      mutate(blueprint: RoleBlueprint) {
+        const skill = blueprint.skills.find((candidate) => candidate.id === "web-platform");
+        if (!skill) throw new Error("Web platform fixture missing");
+        skill.resourceIds.push(skill.resourceIds[0]!);
+      },
+    },
+    {
+      label: "phase skillIds",
+      path: "phases.foundations.skillIds",
+      mutate(blueprint: RoleBlueprint) {
+        const phase = blueprint.phases.find((candidate) => candidate.id === "foundations");
+        if (!phase) throw new Error("Foundations phase fixture missing");
+        phase.skillIds.push(phase.skillIds[0]!);
+      },
+    },
+    {
+      label: "resource skillIds",
+      path: "resources.web-platform-official.skillIds",
+      mutate(blueprint: RoleBlueprint) {
+        const resource = blueprint.resources.find(
+          (candidate) => candidate.id === "web-platform-official",
+        );
+        if (!resource) throw new Error("Web platform resource fixture missing");
+        resource.skillIds.push(resource.skillIds[0]!);
+      },
+    },
+  ])("reports a duplicate reference in $label", ({ path, mutate }) => {
+    const blueprint = structuredClone(flagshipBlueprint);
+    mutate(blueprint);
+
+    expect(validateRoleBlueprint(blueprint).issues).toContainEqual(
+      expect.objectContaining({ code: "duplicate-reference", path }),
+    );
+  });
+
+  it("reports a resource skill reference that does not exist", () => {
+    const blueprint = structuredClone(flagshipBlueprint);
+    const resource = blueprint.resources.find(
+      (candidate) => candidate.id === "web-platform-official",
+    );
+    if (!resource) throw new Error("Web platform resource fixture missing");
+    resource.skillIds.push("missing-skill");
+
+    expect(validateRoleBlueprint(blueprint).issues).toContainEqual(
+      expect.objectContaining({
+        code: "missing-resource-skill",
+        path: "resources.web-platform-official.skillIds",
+      }),
+    );
+  });
+
+  it("reports a resource whose skill does not link back to it", () => {
+    const blueprint = structuredClone(flagshipBlueprint);
+    const resource = blueprint.resources.find(
+      (candidate) => candidate.id === "web-platform-official",
+    );
+    const skill = blueprint.skills.find((candidate) => candidate.id === "typescript");
+    if (!resource || !skill) throw new Error("Forward-link fixtures missing");
+    resource.skillIds = [skill.id];
+
+    expect(validateRoleBlueprint(blueprint).issues).toContainEqual(
+      expect.objectContaining({
+        code: "resource-forward-link-mismatch",
+        path: "resources.web-platform-official.skillIds",
+      }),
+    );
+  });
+
   it("reports a missing prerequisite", () => {
     const blueprint = structuredClone(flagshipBlueprint);
     const skill = blueprint.skills.find((candidate) => candidate.id === "web-platform");
@@ -287,6 +382,9 @@ describe("validateRoleBlueprint", () => {
 
     const issues = validateRoleBlueprint(blueprint).issues;
     expect(issues.map(({ code, path }) => `${code}:${path}`)).toEqual([
+      "duplicate-reference:phases.foundations.skillIds",
+      "duplicate-reference:skills.web-platform.prerequisiteIds",
+      "duplicate-reference:skills.web-platform.resourceIds",
       "duplicate-resource:resources.web-platform-official",
       "duplicate-skill:skills.web-platform",
       "missing-phase-skill:phases.foundations.skillIds",
@@ -393,6 +491,10 @@ describe("validateRoleBlueprint", () => {
           code: "free-alternative-required",
           path: "skills.web-platform.resourceIds",
         }),
+        expect.objectContaining({
+          code: "resource-forward-link-mismatch",
+          path: "resources.web-platform-policy-alternative.skillIds",
+        }),
       ]);
     });
   });
@@ -409,7 +511,15 @@ describe("validateRoleBlueprint", () => {
 
     expect(validateRoleBlueprint(blueprint).issues).toEqual([
       expect.objectContaining({
+        code: "duplicate-reference",
+        path: "skills.web-platform.resourceIds",
+      }),
+      expect.objectContaining({
         code: "resource-backlink-mismatch",
+        path: "resources.web-platform-official.skillIds",
+      }),
+      expect.objectContaining({
+        code: "resource-forward-link-mismatch",
         path: "resources.web-platform-official.skillIds",
       }),
     ]);
