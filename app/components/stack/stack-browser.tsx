@@ -92,24 +92,43 @@ export function StackBrowser({ blueprint }: { blueprint: RoleBlueprint }) {
               <section className="mastery-block">
                 <h3>Mastery criteria</h3>
                 <ol aria-label="Mastery criteria">
-                  {skill.masteryCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
+                  {skill.masteryCriteria.map((criterion, index) => (
+                    <li key={`${skill.id}-mastery-${index}`}>{criterion}</li>
+                  ))}
                 </ol>
               </section>
 
               <section className="resource-block">
                 <h3>Learning resources</h3>
                 <ul aria-label="Learning resources" className="resource-list">
-                  {skill.resourceIds.map((resourceId) => {
+                  {skill.resourceIds.map((resourceId, index) => {
                     const resource = resourcesById.get(resourceId);
 
                     if (!resource) {
-                      return <li className="resource-unavailable" key={resourceId}>Resource metadata unavailable</li>;
+                      return (
+                        <li
+                          className="resource-unavailable"
+                          key={`${skill.id}-resource-${resourceId}-${index}`}
+                        >
+                          Resource metadata unavailable
+                        </li>
+                      );
                     }
 
                     return (
-                      <li className="resource-row" key={resource.id}>
+                      <li
+                        className="resource-row"
+                        key={`${skill.id}-resource-${resource.id}-${index}`}
+                      >
                         <div className="resource-reference">
-                          <a href={resource.url} rel="noreferrer" target="_blank">{resource.title}</a>
+                          <a
+                            href={resource.url}
+                            lang={resource.language}
+                            rel="noreferrer"
+                            target="_blank"
+                          >
+                            {resource.title}
+                          </a>
                           <span>{resource.provider}</span>
                         </div>
                         <dl className="resource-metadata">

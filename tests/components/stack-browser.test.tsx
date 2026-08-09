@@ -1,6 +1,6 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { StackBrowser } from "../../app/components/stack/stack-browser";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 
@@ -77,5 +77,92 @@ describe("StackBrowser", () => {
     const evidence = screen.getByRole("list", { name: "Learning resources" });
     expect(within(evidence).getByText("Resource metadata unavailable")).toBeInTheDocument();
     expect(within(evidence).queryByRole("link")).not.toBeInTheDocument();
+  });
+
+  it("renders repeated mastery and resource occurrences without duplicate React keys", () => {
+    const repeatedCriterion = flagshipBlueprint.skills[0].masteryCriteria[0];
+    const repeatedResourceId = flagshipBlueprint.skills[0].resourceIds[0];
+    const repeatedResource = flagshipBlueprint.resources.find(
+      (resource) => resource.id === repeatedResourceId,
+    );
+
+    if (!repeatedResource) throw new Error("Repeated-resource fixture is incomplete");
+
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    try {
+      render(
+        <StackBrowser
+          blueprint={{
+            ...flagshipBlueprint,
+            skills: [{
+              ...flagshipBlueprint.skills[0],
+              masteryCriteria: [repeatedCriterion, repeatedCriterion],
+              resourceIds: [repeatedResourceId, repeatedResourceId],
+            }],
+          }}
+        />,
+      );
+
+      expect(screen.getAllByText(repeatedCriterion)).toHaveLength(2);
+      expect(screen.getAllByRole("link", { name: repeatedResource.title })).toHaveLength(2);
+      expect(
+        consoleError.mock.calls.filter(([message]) =>
+          String(message).includes("Encountered two children with the same key")),
+      ).toHaveLength(0);
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
+  it("renders distinct mastery claims and multilingual evidence for every linked resource", () => {
+    const skill = flagshipBlueprint.skills.find((candidate) => candidate.id === "llm-contracts")!;
+    const primaryResource = flagshipBlueprint.resources.find(
+      (resource) => resource.id === skill.resourceIds[0],
+    )!;
+    const translatedResource = {
+      ...primaryResource,
+      id: "llm-contracts-field-guide",
+      title: "Structured LLM Contracts field guide",
+      url: "https://example.com/structured-llm-contracts-zh",
+      provider: "Arc Learning Lab",
+      language: "zh-CN" as const,
+      cost: "mixed" as const,
+      sourceTier: "institutional" as const,
+      format: "guide" as const,
+      purpose: "alternative" as const,
+    };
+
+    render(
+      <StackBrowser
+        blueprint={{
+          ...flagshipBlueprint,
+          skills: [{
+            ...skill,
+            resourceIds: [primaryResource.id, translatedResource.id],
+          }],
+          resources: [primaryResource, translatedResource],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(skill.masteryCriteria[0])).toBeInTheDocument();
+    expect(screen.getByText(skill.masteryCriteria[1])).toBeInTheDocument();
+
+    const primaryLink = screen.getByRole("link", { name: primaryResource.title });
+    expect(primaryLink).toHaveAttribute("href", primaryResource.url);
+    expect(primaryLink).toHaveAttribute("target", "_blank");
+    expect(primaryLink).toHaveAttribute("rel", "noreferrer");
+
+    const translatedLink = screen.getByRole("link", { name: translatedResource.title });
+    expect(translatedLink).toHaveAttribute("href", translatedResource.url);
+    expect(translatedLink).toHaveAttribute("target", "_blank");
+    expect(translatedLink).toHaveAttribute("rel", "noreferrer");
+    expect(translatedLink).toHaveAttribute("lang", "zh-CN");
+    expect(screen.getByText("Arc Learning Lab")).toBeInTheDocument();
+    expect(screen.getByText("Chinese (Simplified)")).toBeInTheDocument();
+    expect(screen.getByText("Free and paid")).toBeInTheDocument();
+    expect(screen.getByText("Institutional source")).toBeInTheDocument();
+    expect(screen.getByText("Guide")).toBeInTheDocument();
   });
 });
