@@ -749,10 +749,10 @@ The explicit cache header, not static route inference, controls edge/browser cac
 - [x] **Step 7: Run service and API tests**
 
 ```powershell
-npx vitest run tests/server/intelligence-service.test.ts tests/api/intelligence-flagship.test.ts tests/server/api-response.test.ts
+npx vitest run tests/server/intelligence-service.test.ts tests/api/intelligence-flagship.test.ts tests/server/observability.test.ts
 ```
 
-Expected: PASS.
+Expected: PASS, 3 test files and 24 tests.
 
 - [x] **Step 8: Commit the validated read path**
 

@@ -37,7 +37,7 @@ Six additive, non-personal D1 tables and `drizzle/0002_product_intelligence.sql`
 
 **Independent Arc. account.** The codebase supports Google and GitHub OAuth owned by Arc.—not ChatGPT identity. After sign-in, D1 is authoritative for learning state. Meaningful work already present on the device is shown as an explicit import choice; it is never silently moved, overwritten, or deleted.
 
-Hosted Google and GitHub primary callbacks have completed real same-origin flows on the deployed URL. Sites version 6 exposes explicit second-provider linking and the non-disclosing conflict recovery state in production. A live GitHub-to-Google linking attempt completed the provider callback but was safely rejected by the current same-email policy before ownership-conflict evaluation; neither account changed. Cross-email linking policy, cancellation, and invalid-state rejection remain release-gate decisions. When hosted credentials are absent, `/api/auth/providers` still reports no available provider and the interface shows a preparation state.
+Production currently serves Arc. product v7.2 as Sites version 9; Sites version 6 is the direct rollback baseline. Real same-origin evidence has passed for primary Google and GitHub sign-in and sign-out, current-provider reauthentication, user cancellation, stale-grant rejection, owned-target no-merge isolation, and persistent device-migration dismissal. Safe unowned-target linking, replay and application-bypass evidence, observable account-link event-log evidence, and post-link account and learning-state continuity remain open. When hosted credentials are absent, `/api/auth/providers` still reports no available provider and the interface shows a preparation state.
 
 ## Design thesis: Warm Precision
 
@@ -90,9 +90,9 @@ flowchart LR
 
 ## Hosted Beta status
 
-The Sites project is public with server-managed runtime configuration, logical `DB` and `PROOF_ASSETS` bindings, and the reviewed migration. Both providers can create an independent Arc. session and preserve it across navigation. Version 6 is publicly deployed and its authenticated linking entry point is present. The first live linking attempt proved the no-change recovery path but exposed a deliberate same-email policy mismatch with the desired cross-provider flow. Final release remains gated on resolving that policy, cancellation and invalid-state rejection, private proof retrieval, cross-user denial, and the remaining rollback smoke checks.
+The Sites project is public with server-managed runtime configuration, logical `DB` and `PROOF_ASSETS` bindings, and the reviewed production v7 19-table migration. The deployed production product is Arc. v7.2, saved and deployed as Sites version 9. Primary Google and GitHub flows, current-provider reauthentication, cancellation, stale-grant rejection, owned-target isolation, and persistent migration dismissal have passed. Safe unowned-target linking, replay/application-bypass evidence, account-link event-log evidence, and post-link continuity remain open.
 
-The version preceding the current Beta candidate remains available as the rollback target until those checks pass. If Sites cannot preserve secure same-origin OAuth cookies and callbacks, the same browser contract can move to the approved owner-controlled Cloudflare deployment branch.
+Sites version 6 remains the direct rollback baseline. The v8 Phase 1 candidate is not deployed, and its additive `drizzle/0002_product_intelligence.sql` migration has not been applied to production. If Sites cannot preserve secure same-origin OAuth cookies and callbacks, the same browser contract can move to the approved owner-controlled Cloudflare deployment branch.
 
 See [the OAuth feasibility record](./docs/operations/sites-oauth-feasibility.md) for the exact hosted validation status.
 
