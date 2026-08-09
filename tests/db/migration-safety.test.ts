@@ -12,9 +12,12 @@ function migrationStatements(sql: string) {
 }
 
 function isAdditiveSchemaMigration(sql: string) {
-  return migrationStatements(sql).every((statement) =>
-    /^(?:CREATE TABLE|CREATE (?:UNIQUE )?INDEX)\b/u.test(statement),
-  );
+  return migrationStatements(sql).every((statement) => {
+    const statementBody = statement.replace(/;$/u, "").trim();
+
+    return !statementBody.includes(";")
+      && /^(?:CREATE TABLE|CREATE (?:UNIQUE )?INDEX)\b/u.test(statementBody);
+  });
 }
 
 function tableStatement(tableName: string) {
@@ -60,6 +63,23 @@ describe("product intelligence migration safety", () => {
     "DROP TABLE existing_table;",
   ])("rejects non-additive statement: %s", (statement) => {
     expect(isAdditiveSchemaMigration(statement)).toBe(false);
+  });
+
+  it.each([
+    "CREATE TABLE `allowed` (`id` text); DELETE FROM `users`;",
+    "CREATE INDEX `allowed_idx` ON `allowed` (`id`); UPDATE `users` SET `name` = 'changed';",
+    "CREATE TABLE `allowed` (`id` text); DROP TABLE `users`;",
+  ])("rejects a mutation hidden after an allowed CREATE: %s", (sql) => {
+    expect(isAdditiveSchemaMigration(sql)).toBe(false);
+  });
+
+  it("accepts one generated multiline CREATE with a terminal semicolon", () => {
+    const generatedCreate = `CREATE TABLE \`allowed\` (
+      \`id\` text PRIMARY KEY NOT NULL,
+      \`created_at\` integer DEFAULT (unixepoch() * 1000) NOT NULL
+    );`;
+
+    expect(isAdditiveSchemaMigration(generatedCreate)).toBe(true);
   });
 
   it("creates the required intelligence uniqueness and lookup indexes", () => {
