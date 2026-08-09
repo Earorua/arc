@@ -121,7 +121,7 @@ CI runs the unit, lint, production-build, and rendered-HTML gates on pull reques
 
 ## Focused roadmap
 
-1. **Hosted Beta validation** — wire Sites-managed D1/R2 resources, apply the reviewed migration, and validate both OAuth providers with owner credentials.
+1. **Hosted Beta validation** — complete the private R2 Proof put/get and compensation smoke, then close safe unowned-target linking, replay/application-bypass, account-link event-log, and post-link continuity evidence.
 2. **Live role intelligence** — add the first owner-funded server provider behind the existing typed gateway, evidence model, quota, budget, cohort, and kill-switch controls.
 3. **Adaptive planning** — replace the transparent flagship fallback with sourced role research while keeping dependency ordering and time allocation deterministic.
 4. **Independent home** — attach a custom domain and move the same portable worker to the owner's Cloudflare account when product scale or identity control requires it.
