@@ -2,7 +2,7 @@
 
 import { StackBrowser } from "../components/stack/stack-browser";
 import { WorkspaceShell } from "../components/workspace/workspace-shell";
-import { flagshipRole } from "../data/flagship-role";
+import { flagshipBlueprint } from "../data/flagship-blueprint";
 import { useArcState } from "../lib/use-arc-state";
 
 export default function StackPage() {
@@ -24,11 +24,11 @@ export default function StackPage() {
       state={state}
     >
       <section className="workspace-intro">
-        <p className="eyebrow" lang="en">Role intelligence · {flagshipRole.version}</p>
+        <p className="eyebrow" lang="en">Role intelligence · {flagshipBlueprint.version}</p>
         <h1 lang="en">The complete stack.</h1>
-        <p>岗位重要度与结论置信度分开显示；每条结论都能回到来源。</p>
+        <p>岗位重要度与结论置信度分开显示；每条学习建议都能回到经过验证的来源。</p>
       </section>
-      <StackBrowser skills={flagshipRole.skills} />
+      <StackBrowser blueprint={flagshipBlueprint} />
     </WorkspaceShell>
   );
 }

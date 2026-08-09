@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import type { SkillCategory, SkillNode } from "../../domain/learning";
+import { useMemo, useState } from "react";
+import type { LearningResource, RoleBlueprint } from "../../contracts/intelligence";
+import type { SkillCategory } from "../../domain/learning";
 import { filterSkills } from "../../lib/skill-map";
 
 const categories: ReadonlyArray<readonly [SkillCategory | "all", string]> = [
@@ -16,10 +17,39 @@ const categories: ReadonlyArray<readonly [SkillCategory | "all", string]> = [
   ["product", "Product"],
 ];
 
-export function StackBrowser({ skills }: { skills: ReadonlyArray<SkillNode> }) {
+const formatLabels: Record<LearningResource["format"], string> = {
+  course: "Course",
+  documentation: "Documentation",
+  guide: "Guide",
+  practice: "Practice",
+  reference: "Reference",
+};
+
+const languageLabels: Record<LearningResource["language"], string> = {
+  en: "English",
+  "zh-CN": "Chinese (Simplified)",
+};
+
+const costLabels: Record<LearningResource["cost"], string> = {
+  free: "Free",
+  mixed: "Free and paid",
+  paid: "Paid",
+};
+
+const sourceTierLabels: Record<LearningResource["sourceTier"], string> = {
+  community: "Community source",
+  institutional: "Institutional source",
+  practitioner: "Practitioner source",
+  primary: "Primary source",
+};
+
+export function StackBrowser({ blueprint }: { blueprint: RoleBlueprint }) {
   const [category, setCategory] = useState<SkillCategory | "all">("all");
-  const filteredSkills = filterSkills(skills, category);
-  const skillNames = new Map(skills.map((skill) => [skill.id, skill.name]));
+  const { resourcesById, skillNames } = useMemo(() => ({
+    resourcesById: new Map(blueprint.resources.map((resource) => [resource.id, resource])),
+    skillNames: new Map(blueprint.skills.map((skill) => [skill.id, skill.name])),
+  }), [blueprint]);
+  const filteredSkills = filterSkills(blueprint.skills, category);
 
   return (
     <section lang="en">
@@ -36,23 +66,19 @@ export function StackBrowser({ skills }: { skills: ReadonlyArray<SkillNode> }) {
         ))}
       </div>
       <div className="skill-list">
-        {filteredSkills.map((skill) => {
-          const source = skill.sources[0];
-
-          return (
-            <article key={skill.id}>
-              <div>
-                <p>{skill.category} · {skill.importance}</p>
-                <h2>{skill.name}</h2>
-                <span>{skill.why}</span>
-              </div>
-              <dl>
-                <div><dt>Confidence</dt><dd>{Math.round(skill.confidence * 100)}%</dd></div>
+        {filteredSkills.map((skill) => (
+          <article key={skill.id}>
+            <header className="skill-summary">
+              <p className="skill-kicker">{skill.category} · {skill.importance}</p>
+              <h2>{skill.name}</h2>
+              <p className="skill-why">{skill.why}</p>
+            </header>
+            <div className="skill-detail">
+              <dl className="skill-facts">
                 <div>
-                  <dt>Source</dt>
-                  <dd>{source ? <a href={source.url}>{source.title}</a> : "Source unavailable"}</dd>
+                  <dt>Confidence</dt>
+                  <dd>{Math.round(skill.confidence * 100)}% claim confidence</dd>
                 </div>
-                <div><dt>Observed</dt><dd>{source?.observedAt ?? "Not observed"}</dd></div>
                 <div>
                   <dt>Prerequisites</dt>
                   <dd>
@@ -62,9 +88,45 @@ export function StackBrowser({ skills }: { skills: ReadonlyArray<SkillNode> }) {
                   </dd>
                 </div>
               </dl>
-            </article>
-          );
-        })}
+
+              <section className="mastery-block">
+                <h3>Mastery criteria</h3>
+                <ol aria-label="Mastery criteria">
+                  {skill.masteryCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
+                </ol>
+              </section>
+
+              <section className="resource-block">
+                <h3>Learning resources</h3>
+                <ul aria-label="Learning resources" className="resource-list">
+                  {skill.resourceIds.map((resourceId) => {
+                    const resource = resourcesById.get(resourceId);
+
+                    if (!resource) {
+                      return <li className="resource-unavailable" key={resourceId}>Resource metadata unavailable</li>;
+                    }
+
+                    return (
+                      <li className="resource-row" key={resource.id}>
+                        <div className="resource-reference">
+                          <a href={resource.url} rel="noreferrer" target="_blank">{resource.title}</a>
+                          <span>{resource.provider}</span>
+                        </div>
+                        <dl className="resource-metadata">
+                          <div><dt>Format</dt><dd>{formatLabels[resource.format]}</dd></div>
+                          <div><dt>Language</dt><dd>{languageLabels[resource.language]}</dd></div>
+                          <div><dt>Cost</dt><dd>{costLabels[resource.cost]}</dd></div>
+                          <div><dt>Source tier</dt><dd>{sourceTierLabels[resource.sourceTier]}</dd></div>
+                          <div><dt>Freshness</dt><dd>Verified {resource.lastVerifiedAt}</dd></div>
+                        </dl>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );

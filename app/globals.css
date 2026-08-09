@@ -227,16 +227,33 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .deliverable-bar button { border: 0; background: transparent; color: #a8efbc; cursor: pointer; }
 
 .stack-filters { display: flex; gap: 8px; margin: 58px 0 24px; overflow-x: auto; padding-bottom: 8px; }
-.stack-filters button { flex: 0 0 auto; border: 1px solid var(--hairline); border-radius: 999px; background: transparent; padding: 9px 12px; color: var(--stone); cursor: pointer; }
+.stack-filters button { flex: 0 0 auto; border: 1px solid var(--hairline); border-radius: 999px; background: transparent; padding: 9px 12px; color: var(--stone); cursor: pointer; transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease; }
+.stack-filters button:hover { border-color: var(--stone); color: var(--charcoal); }
 .stack-filters button[aria-pressed="true"] { border-color: var(--charcoal); background: var(--charcoal); color: white; }
-.skill-list article { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 42px; padding: 28px 0; border-top: 1px solid var(--hairline); }
-.skill-list article p { color: var(--stone); font: 0.66rem ui-monospace, monospace; text-transform: uppercase; }
-.skill-list h2 { margin: 8px 0; font-family: var(--display); font-size: 2rem; font-weight: 500; }
-.skill-list span, .skill-list dt { color: var(--stone); }
-.skill-list dl { margin: 0; }
-.skill-list dl div { display: grid; grid-template-columns: 90px 1fr; padding: 8px 0; }
-.skill-list dd { margin: 0; }
-.skill-list dd a { border-bottom: 1px solid currentColor; }
+.skill-list article { display: grid; grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr); gap: clamp(42px, 6vw, 88px); padding: 38px 0 54px; border-top: 1px solid var(--hairline); }
+.skill-summary { align-self: start; }
+.skill-kicker { margin: 0; color: var(--stone); font: 0.66rem ui-monospace, monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+.skill-list h2 { margin: 10px 0 14px; font-family: var(--display); font-size: clamp(2rem, 3vw, 2.8rem); font-weight: 500; letter-spacing: -0.035em; line-height: 1; }
+.skill-why { max-width: 38rem; margin: 0; color: var(--stone); font-size: 0.9rem; line-height: 1.65; }
+.skill-detail h3 { margin: 0 0 12px; color: var(--stone); font: 0.64rem ui-monospace, monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+.skill-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; border-bottom: 1px solid color-mix(in srgb, var(--hairline) 68%, transparent); }
+.skill-facts > div { padding: 0 20px 18px 0; }
+.skill-facts dt, .resource-metadata dt { color: var(--stone); font: 0.6rem ui-monospace, monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+.skill-facts dd { margin: 6px 0 0; font-size: 0.78rem; line-height: 1.5; }
+.mastery-block, .resource-block { margin-top: 26px; }
+.mastery-block ol { margin: 0; padding: 0; list-style: none; counter-reset: mastery; }
+.mastery-block li { position: relative; padding: 10px 0 10px 34px; border-top: 1px solid color-mix(in srgb, var(--hairline) 68%, transparent); font-size: 0.82rem; line-height: 1.55; counter-increment: mastery; }
+.mastery-block li::before { content: counter(mastery, decimal-leading-zero); position: absolute; top: 12px; left: 0; color: var(--stone); font: 0.58rem ui-monospace, monospace; }
+.resource-list { margin: 0; padding: 0; list-style: none; }
+.resource-row { display: grid; grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1.28fr); gap: 30px; align-items: start; padding: 17px 0; border-top: 1px solid color-mix(in srgb, var(--hairline) 68%, transparent); }
+.resource-reference { min-width: 0; }
+.resource-reference a { display: inline; border-bottom: 1px solid color-mix(in srgb, var(--signal) 65%, transparent); color: var(--signal); font-size: 0.82rem; line-height: 1.45; transition: border-color 140ms ease; overflow-wrap: anywhere; }
+.resource-reference a:hover { border-color: var(--signal); }
+.resource-reference span { display: block; margin-top: 7px; color: var(--stone); font: 0.61rem ui-monospace, monospace; overflow-wrap: anywhere; }
+.resource-metadata { display: flex; flex-wrap: wrap; gap: 14px 22px; margin: 0; }
+.resource-metadata > div { min-width: max-content; }
+.resource-metadata dd { margin: 5px 0 0; color: var(--stone); font: 0.65rem ui-monospace, monospace; }
+.resource-unavailable { padding: 17px 0; border-top: 1px solid color-mix(in srgb, var(--hairline) 68%, transparent); color: var(--stone); font: 0.68rem/1.5 ui-monospace, monospace; }
 
 .proof-profile { max-width: 980px; margin: 0 auto; }
 .profile-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 30px; }
@@ -337,7 +354,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .sync-notice { align-items: flex-start; flex-direction: column; gap: 12px; }
   .cloud-status { align-items: flex-start; flex-direction: column; gap: 12px; }
   .workspace-intro h1, .profile-heading h1 { font-size: clamp(3.8rem, 18vw, 6rem); }
-  .skill-list article { grid-template-columns: 1fr; gap: 20px; }
+  .skill-list article { grid-template-columns: minmax(0, 1fr); gap: 30px; padding: 32px 0 44px; }
+  .skill-facts { grid-template-columns: minmax(0, 1fr); }
+  .resource-row { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .resource-metadata { gap: 14px 20px; }
+  .resource-metadata > div { min-width: 0; }
   .skill-list dd, .skill-list dd a { overflow-wrap: anywhere; }
   .profile-heading { flex-direction: column; }
   .profile-metrics { flex-wrap: wrap; }
