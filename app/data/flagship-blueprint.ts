@@ -12,10 +12,9 @@ function masteryCriteria(name: string): [string, string] {
   ];
 }
 
-function toResource(skillId: string): LearningResource {
-  const skill = flagshipRole.skills.find((candidate) => candidate.id === skillId);
-  const source = skill?.sources[0];
-  if (!skill || !source) throw new Error(`Flagship source missing for ${skillId}`);
+function toResource(skill: (typeof flagshipRole.skills)[number]): LearningResource {
+  const source = skill.sources[0];
+  if (!source) throw new Error(`Flagship source missing for ${skill.id}`);
 
   return {
     id: resourceId(skill.id),
@@ -52,6 +51,6 @@ export const flagshipBlueprint = roleBlueprintSchema.parse({
     prerequisiteIds: skill.prerequisiteIds,
     resourceIds: [resourceId(skill.id)],
   })),
-  resources: flagshipRole.skills.map((skill) => toResource(skill.id)),
+  resources: flagshipRole.skills.map(toResource),
   phases: flagshipRole.phases,
 });
