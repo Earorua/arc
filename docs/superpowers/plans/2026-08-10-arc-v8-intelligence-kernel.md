@@ -59,7 +59,7 @@ This plan does not:
 | `tests/db/migration-safety.test.ts` | Assert the Phase 1 migration is additive and contains all intelligence tables. |
 | `README.md` | Accurate Phase 1 capability and no-live-model statement. |
 
-## Phase 1 engineering gate record — 2026-08-10 (awaiting user acceptance)
+## Phase 1 engineering gate record — 2026-08-10 (locally accepted and merged)
 
 The verified implementation range is `2825ff4..fe26ff27f914eb19c8c15a3fe11ed5cabf12c24b`. The later documentation-only closure commit is intentionally outside that range; this record does not invent a self-referential commit hash.
 
@@ -78,7 +78,7 @@ Two independent reviewers completed the required full review. Review corrections
 
 The evidence covers strict contract parsing, deterministic builtin Flagship availability, symmetric graph/resource policy enforcement, an additive non-personal D1 schema, guest-safe API behavior, a truthful Stack evidence view, and green v7.2 authentication, migration, and workspace regressions. The six D1 intelligence tables and `0002_product_intelligence.sql` remain unapplied reservations for future version publication; the current read path remains `BuiltinIntelligenceRepository`. Research Beta remains disabled, Phase 1 neither requires nor reads `OPENROUTER_API_KEY`, and the deterministic Flagship path has no model provider or outbound `fetch`.
 
-Task 8 Steps 1–9 are complete and this thread stops at the checkpoint. The Phase 1 engineering gate is ready for user acceptance, but user acceptance, merge, push, production D1 migration, feature-flag change, deployment, and Phase 2 have not occurred and still require explicit approval. This record does not claim that v8 is live or that the user has accepted Phase 1.
+Task 8 Steps 1–9 are complete. The user selected local integration, and `master` fast-forwarded from `7861b8d` to completion commit `a3df268`; the merged result then passed 67 test files / 616 tests and `npx tsc --noEmit`. The feature branch and isolated worktree were removed only after the merge and verification. GitHub synchronization timed out, so the local `master` remains unpushed and is 24 commits ahead of the cached `origin/master`. Production D1 migration, feature-flag change, deployment, and Phase 2 have not occurred and still require explicit approval. This record does not claim that v8 is live.
 
 ### Task 1: Define strict role-intelligence contracts
 

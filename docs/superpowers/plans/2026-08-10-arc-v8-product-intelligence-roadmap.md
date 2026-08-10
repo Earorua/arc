@@ -37,7 +37,7 @@ v8 不重写 Better Auth，不更换现有 D1/R2 绑定，不删除 v7.2 数据�
 
 退出门槛：Flagship 数据可被严格解析；技能图无环且引用完整；每项技能至少有一个可追溯资源；付费核心资源必须有免费替代；访客路径无网络依赖。
 
-**2026-08-10 Phase 1 工程质量门槛记录（等待用户验收）：**
+**2026-08-10 Phase 1 工程质量门槛记录（已本地验收并合并）：**
 
 - [x] 已实现 canonical、versioned Flagship 契约，以及可确定性重建的 16 项技能与资源注册表。
 - [x] 已实现引用、依赖图、阶段覆盖、资源反向链接与付费资源免费替代策略验证。
@@ -49,8 +49,9 @@ v8 不重写 Better Auth，不更换现有 D1/R2 绑定，不删除 v7.2 数据�
 - [x] 安全与确定性审计通过：在 `dist` 中搜索 `OPENROUTER_API_KEY|OPENAI_API_KEY|sk-or-` 退出 `1` 且无匹配；在 Flagship 数据、service 与 API 路径中搜索 `MockAiProvider|OpenRouter|fetch\(` 退出 `1` 且无匹配。完成记录修改前 `git status --short` 退出 `0` 且无输出。
 - [x] 两位独立 reviewer 完成必需的全量审查；修复提交为 `b71cc86` 与 `fe26ff2`，最终 Critical / Important / Minor 均为 `0`，没有未解决发现。
 - [x] 证据覆盖 strict parse、deterministic builtin、对称的依赖图与资源策略、additive non-personal D1 schema（未迁移）、guest-safe API、truthful Stack，以及保持全绿的 v7.2 auth、migration 与 workspace 回归测试。
-- [x] Task 8 Step 1–9 已完成；本线程在 checkpoint 停止，Phase 1 engineering gate 已准备好交由用户验收。
-- [ ] 用户验收、合并、推送、D1 迁移、功能旗标变更、部署与 Phase 2 均未发生，仍分别需要明确批准；因此本记录不声称线上 v8 或用户已接受 Phase 1。
+- [x] Task 8 Step 1–9 已完成；用户选择本地合并后，`master` 已从 `7861b8d` 快进到 `a3df268`，合并结果重新通过 67 files / 616 tests 与 TypeScript。
+- [x] `codex/v8-intelligence-kernel` 及其隔离 worktree 已在确认合并后清理；全部提交保留在本地 `master`。
+- [ ] 推送、D1 生产迁移、功能旗标变更、部署与 Phase 2 均未发生，仍分别需要明确批准；因此本记录不声称线上 v8。GitHub 网络同步曾超时，本地 `master` 根据缓存引用领先 `origin/master` 24 个提交。
 - [ ] Phase 2 尚未开始；尚未实现的是本阶段定义的岗位研究驱动完整路线、滚动每日计划与基于学习事件的自适应重排，现有 v7 proportional path 与 custom role text 不受此状态判断影响。
 
 Phase 1 不要求也不读取 `OPENROUTER_API_KEY`，确定性 Flagship 路径不发起 OpenRouter 请求。Live Research Beta 保持关闭，D1 生产迁移、功能旗标、推送、合并和部署均不在本记录内。
