@@ -323,6 +323,43 @@ describe("estimateCompletionDate", () => {
     }), "UNIT_NEVER_FITS");
   });
 
+  it.each(["estimate", "plan"] as const)(
+    "reports UNIT_NEVER_FITS at the %s boundary after the sole large exception is consumed",
+    (boundary) => {
+      const units = [
+        pathUnit({ id: "alpha-unit", skillId: "alpha", minutes: 60 }),
+        pathUnit({
+          id: "beta-unit",
+          skillId: "beta",
+          minutes: 90,
+          prerequisites: ["alpha-unit"],
+        }),
+      ];
+      const inputAvailability = availability({
+        weekdays: {
+          monday: 60,
+          tuesday: 60,
+          wednesday: 60,
+          thursday: 60,
+          friday: 60,
+          saturday: 60,
+          sunday: 60,
+        },
+        exceptions: [{ date: PLANNING_DATE, minutes: 90, reason: "One long session" }],
+        weeklyMinutes: 420,
+      });
+      const operation = boundary === "estimate"
+        ? () => estimateCompletionDate({
+          units,
+          availability: inputAvailability,
+          planningDate: PLANNING_DATE,
+        })
+        : () => buildPlanVersion(buildInput(units, { availability: inputAvailability }));
+
+      expectScheduleError(operation, "UNIT_NEVER_FITS");
+    },
+  );
+
   it("reports horizon exhaustion when a near-year-boundary unit could fit only later", () => {
     const units = [pathUnit({ id: "alpha-unit", minutes: 60 })];
     const inputAvailability = availability({
@@ -777,8 +814,10 @@ describe("buildPlanVersion", () => {
   it.each(["estimate", "plan"] as const)(
     "contains a hostile completed-unit Set iterator at the %s boundary",
     (boundary) => {
+      let iteratorCalls = 0;
       class HostileSet extends Set<string> {
         override [Symbol.iterator](): SetIterator<string> {
+          iteratorCalls += 1;
           throw new Error("DO-NOT-LEAK-SET-ITERATOR");
         }
       }
@@ -794,6 +833,34 @@ describe("buildPlanVersion", () => {
         : () => buildPlanVersion(buildInput(units, { completedUnitIds }));
 
       expectScheduleError(operation, "INVALID_SCHEDULE_INPUT");
+      expect(iteratorCalls).toBe(0);
+    },
+  );
+
+  it.each(["estimate", "plan"] as const)(
+    "rejects an own Set iterator override without calling it at the %s boundary",
+    (boundary) => {
+      const units = [pathUnit({ id: "alpha-unit" })];
+      const completedUnitIds = new Set(["alpha-unit"]);
+      let iteratorCalls = 0;
+      Object.defineProperty(completedUnitIds, Symbol.iterator, {
+        enumerable: false,
+        value() {
+          iteratorCalls += 1;
+          throw new Error("DO-NOT-CALL-OWN-SET-ITERATOR");
+        },
+      });
+      const operation = boundary === "estimate"
+        ? () => estimateCompletionDate({
+          units,
+          availability: availability(),
+          planningDate: PLANNING_DATE,
+          completedUnitIds,
+        })
+        : () => buildPlanVersion(buildInput(units, { completedUnitIds }));
+
+      expectScheduleError(operation, "INVALID_SCHEDULE_INPUT");
+      expect(iteratorCalls).toBe(0);
     },
   );
 

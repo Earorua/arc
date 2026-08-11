@@ -30,6 +30,11 @@ import { canonicalJson, deterministicId, fingerprint } from "./fingerprint";
 
 const SCHEDULE_HORIZON_DAYS = 3_660;
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+const NATIVE_SET_PROTOTYPE = Set.prototype;
+const NATIVE_SET_VALUES = Set.prototype.values;
+const NATIVE_SET_ITERATOR_NEXT = Object.getPrototypeOf(new Set<unknown>().values()).next as (
+  this: SetIterator<unknown>,
+) => IteratorResult<unknown>;
 
 export type PlanningScheduleErrorCode =
   | "INVALID_SCHEDULE_INPUT"
@@ -231,10 +236,16 @@ function parseBuildInput(input: PlanBuildInput): PlanBuildInput & {
 
 function parseCompletedUnitIds(value: unknown, units: readonly PathUnit[]): Set<string> {
   try {
-    if (!(value instanceof Set)) invalidInput();
+    if (!value || typeof value !== "object" || Object.getPrototypeOf(value) !== NATIVE_SET_PROTOTYPE) invalidInput();
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    if (Reflect.ownKeys(descriptors).length > 0) invalidInput();
     const availableIds = new Set(units.map((unit) => unit.id));
     const parsed = new Set<string>();
-    for (const item of value) {
+    const iterator = NATIVE_SET_VALUES.call(value as Set<unknown>);
+    while (true) {
+      const step = NATIVE_SET_ITERATOR_NEXT.call(iterator);
+      if (step.done) break;
+      const item = step.value;
       if (typeof item !== "string" || !ID_PATTERN.test(item) || !availableIds.has(item)) invalidInput();
       parsed.add(item);
     }
@@ -360,10 +371,20 @@ function estimateParsedCompletionDate(input: ParsedEstimateInput): string {
   let date = input.planningDate;
   for (let dayIndex = 0; dayIndex < SCHEDULE_HORIZON_DAYS; dayIndex += 1) {
     const nextIndex = schedule.nextIndex();
+    assertNextUnitCanFit(
+      input.units,
+      nextIndex,
+      budget.maximumFrom(date, true),
+    );
     if (nextIndex !== null
       && input.units[nextIndex]!.estimatedMinutes <= budget.minutes(date, dayIndex)) {
       schedule.complete(nextIndex);
       if (schedule.remaining === 0) return date;
+      assertNextUnitCanFit(
+        input.units,
+        schedule.nextIndex(),
+        budget.maximumFrom(date, false),
+      );
     }
     if (dayIndex === SCHEDULE_HORIZON_DAYS - 1) break;
     try {
@@ -373,6 +394,16 @@ function estimateParsedCompletionDate(input: ParsedEstimateInput): string {
     }
   }
   throw new PlanningScheduleError("SCHEDULE_HORIZON_EXCEEDED");
+}
+
+function assertNextUnitCanFit(
+  units: readonly PathUnit[],
+  nextIndex: number | null,
+  maximumMinutes: number,
+): void {
+  if (nextIndex !== null && units[nextIndex]!.estimatedMinutes > maximumMinutes) {
+    throw new PlanningScheduleError("UNIT_NEVER_FITS");
+  }
 }
 
 type ScheduleState = Readonly<{
@@ -421,13 +452,30 @@ const WEEKDAY_KEYS: (keyof AvailabilityVersion["weekdays"])[] = [
 
 function createBudgetResolver(availability: AvailabilityVersion, planningDate: string) {
   const exceptionMinutes = new Map(availability.exceptions.map((exception) => [exception.date, exception.minutes]));
+  const orderedExceptions = [...availability.exceptions].sort((left, right) =>
+    compareCalendarDates(left.date, right.date));
+  const suffixMaximums = new Array<number>(orderedExceptions.length);
+  let suffixMaximum = 0;
+  for (let index = orderedExceptions.length - 1; index >= 0; index -= 1) {
+    suffixMaximum = Math.max(suffixMaximum, orderedExceptions[index]!.minutes);
+    suffixMaximums[index] = suffixMaximum;
+  }
   const startWeekdayIndex = WEEKDAY_KEYS.indexOf(weekdayForDate(planningDate));
-  const maximumMinutes = Math.max(
-    ...Object.values(availability.weekdays),
-    ...availability.exceptions.map((exception) => exception.minutes),
-  );
+  const recurringMaximum = Math.max(...Object.values(availability.weekdays));
+  const maximumMinutes = Math.max(recurringMaximum, suffixMaximums[0] ?? 0);
   return {
     maximumMinutes,
+    maximumFrom(date: string, inclusive: boolean): number {
+      let low = 0;
+      let high = orderedExceptions.length;
+      while (low < high) {
+        const middle = Math.floor((low + high) / 2);
+        const comparison = compareCalendarDates(orderedExceptions[middle]!.date, date);
+        if (comparison > 0 || (inclusive && comparison === 0)) high = middle;
+        else low = middle + 1;
+      }
+      return Math.max(recurringMaximum, suffixMaximums[low] ?? 0);
+    },
     minutes(date: string, dayIndex: number): number {
       return exceptionMinutes.get(date)
         ?? availability.weekdays[WEEKDAY_KEYS[(startWeekdayIndex + dayIndex) % 7]!]!;
