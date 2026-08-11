@@ -48,8 +48,8 @@ function isPublicHttpsUrl(value: string): boolean {
   }
 }
 
-const dateSchema = z.string().refine(isCalendarDate, "Invalid calendar date");
-const httpsUrlSchema = z.string().url().refine(isPublicHttpsUrl, "Public HTTPS URL required");
+export const calendarDateSchema = z.string().refine(isCalendarDate, "Invalid calendar date");
+export const publicHttpsUrlSchema = z.string().url().refine(isPublicHttpsUrl, "Public HTTPS URL required");
 
 export const skillCategorySchema = z.enum([
   "foundations", "frontend", "backend", "data",
@@ -68,7 +68,7 @@ export const resourcePurposeSchema = z.enum(["primary", "alternative", "referenc
 export const learningResourceSchema = z.object({
   id: idSchema,
   title: z.string().trim().min(3).max(180),
-  url: httpsUrlSchema,
+  url: publicHttpsUrlSchema,
   provider: z.string().trim().min(2).max(120),
   language: z.enum(["en", "zh-CN"]),
   cost: resourceCostSchema,
@@ -76,7 +76,7 @@ export const learningResourceSchema = z.object({
   sourceTier: sourceTierSchema,
   purpose: resourcePurposeSchema,
   estimatedMinutes: z.number().int().positive().nullable(),
-  lastVerifiedAt: dateSchema,
+  lastVerifiedAt: calendarDateSchema,
   skillIds: z.array(idSchema).min(1),
 }).strict();
 
@@ -106,7 +106,7 @@ export const roleBlueprintSchema = z.object({
   summary: z.string().trim().min(20).max(500),
   version: z.string().regex(/^\d{4}\.\d{2}\.\d+$/u),
   status: z.enum(["ready", "needs-review", "draft"]),
-  updatedAt: dateSchema,
+  updatedAt: calendarDateSchema,
   languagePolicy: z.literal("english-first"),
   skills: z.array(roleSkillSchema).min(1),
   resources: z.array(learningResourceSchema).min(1),
@@ -117,3 +117,5 @@ export type LearningResource = z.infer<typeof learningResourceSchema>;
 export type RoleSkill = z.infer<typeof roleSkillSchema>;
 export type RolePhase = z.infer<typeof rolePhaseSchema>;
 export type RoleBlueprint = z.infer<typeof roleBlueprintSchema>;
+export type CalendarDate = z.infer<typeof calendarDateSchema>;
+export type PublicHttpsUrl = z.infer<typeof publicHttpsUrlSchema>;

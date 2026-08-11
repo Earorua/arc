@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  calendarDateSchema,
   learningResourceSchema,
+  publicHttpsUrlSchema,
   roleBlueprintSchema,
 } from "../../app/contracts/intelligence";
 
@@ -56,6 +58,11 @@ const blueprint = {
 };
 
 describe("role intelligence contracts", () => {
+  it("exports the shared calendar-date and public-HTTPS primitives", () => {
+    expect(calendarDateSchema.parse("2028-02-29")).toBe("2028-02-29");
+    expect(publicHttpsUrlSchema.parse(resource.url)).toBe(resource.url);
+  });
+
   it("accepts a fully attributed learning resource", () => {
     expect(learningResourceSchema.parse(resource)).toEqual(resource);
   });
