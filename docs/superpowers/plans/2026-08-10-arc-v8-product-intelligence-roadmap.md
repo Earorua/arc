@@ -58,7 +58,7 @@ Phase 1 不要求也不读取 `OPENROUTER_API_KEY`，确定性 Flagship 路径�
 
 ### Phase 2 — Adaptive Planning Loop
 
-计划文件将在 Phase 1 合并并复核实际契约后编写，目标路径：
+书面规格已获批准；详细实施计划已编写并暂停在用户审阅门槛：
 `docs/superpowers/plans/2026-08-10-arc-v8-adaptive-planning.md`
 
 交付：快速技能审计、可选证据入口、周一至周日分钟模板和休息日、完整路线、滚动七日计划、Today 可交付单元、完成/延迟/太难/已掌握后的确定性重排以及变更摘要。

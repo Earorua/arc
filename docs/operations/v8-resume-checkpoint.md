@@ -1,8 +1,8 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-**保存日期：** 2026-08-11
+**保存日期：** 2026-08-12
 
-**当前阶段：** Phase 1 `Trusted Intelligence Kernel` 已完成并合并到本地 `master`；Phase 2 `Adaptive Planning Loop` 的交互设计已获用户批准，书面规格已提交到隔离分支，暂停在用户审阅书面规格之前。没有开始实施计划或功能代码。
+**当前阶段：** Phase 1 `Trusted Intelligence Kernel` 已完成并合并到本地 `master`；Phase 2 `Adaptive Planning Loop` 的交互设计与书面规格已获用户批准，详细 TDD 实施计划已保存到隔离分支。当前暂停在用户审阅并批准实施计划之前；没有开始 Phase 2 功能代码、测试或迁移。
 
 **生产地址：** <https://arc-precision-path.jiahe-xu.chatgpt.site>
 
@@ -34,8 +34,10 @@
 - 可选证据只保存公共 HTTPS 链接、类型和简短说明；不抓取、不上传、不调用 AI。
 - 用户逐段批准产品体验、领域契约、持久化、API、安全、视觉、测试和 Phase 2 完成定义，并统一反馈“全部符合”。
 - 书面规格已保存为 `docs/superpowers/specs/2026-08-11-arc-v8-adaptive-planning-design.md`，自审无占位符、矛盾或范围越界，提交只包含该文档。
+- 用户于 2026-08-12 明确批准 Phase 2 书面规格。
+- 已使用 `writing-plans` 按当前真实代码结构编写 `docs/superpowers/plans/2026-08-10-arc-v8-adaptive-planning.md`，分为契约与策划数据、确定性内核、持久化/API、产品体验和最终工程门槛五个检查点。
 
-当前门槛：必须先由用户审阅并明确回复“批准规格”。只有书面规格获批后，才能调用 `writing-plans` 编写逐任务实施计划；即便实施计划完成，也必须再次获得用户批准才允许写代码。
+当前门槛：必须先由用户审阅并明确批准 Phase 2 实施计划，然后选择执行方式。只有这两项完成后，才能创建独立实施 worktree 并开始 TDD；本分支不得直接写功能代码。
 
 ## 3. Phase 1 已完成的范围
 
@@ -69,7 +71,7 @@
 - 没有启用功能旗标；
 - 没有保存或部署新的 Sites 版本；
 - 没有配置或读取 `OPENROUTER_API_KEY`；
-- 没有编写 Phase 2 实施计划；
+- 已编写 Phase 2 实施计划，但尚未获得实施批准，也未开始执行；
 - 没有开始 Phase 2 功能代码、测试或 `0003` 迁移文件；
 - 没有开始真实 OpenRouter Research Beta（路线图 Phase 4）。
 
@@ -77,9 +79,9 @@ Phase 1 新表目前只是未来版本发布的结构预留；运行中的 Flags
 
 ## 5. 下一次继续时的权威下一步
 
-### A. 审阅并批准 Phase 2 书面规格（当前推荐路径）
+### A. 审阅并批准 Phase 2 实施计划（当前推荐路径）
 
-先读取 `docs/superpowers/specs/2026-08-11-arc-v8-adaptive-planning-design.md`。如果用户回复“批准规格”，再使用 `writing-plans` 生成详细实施计划；此时仍不写功能代码。若用户要求修改，先修改规格、自审并重新提交，然后再次请求书面批准。
+先读取 `docs/superpowers/plans/2026-08-10-arc-v8-adaptive-planning.md`，并与已批准规格逐项核对。如果用户要求修改，只修改计划和检查点并重新自审；如果用户明确批准计划，再让用户选择“子代理逐任务执行”或“当前任务内分批执行”。选定方式前仍不写功能代码。
 
 ### B. 远程备份
 
@@ -102,17 +104,18 @@ Phase 1 新表目前只是未来版本发布的结构预留；运行中的 Flags
 
 ## 7. 下次恢复流程
 
-1. 读取本文件、Phase 2 书面规格、v8 总路线图与 Phase 1 完成记录；
+1. 读取本文件、Phase 2 书面规格、Phase 2 实施计划、v8 总路线图与 Phase 1 完成记录；
 2. 运行 `git status --short --branch`、`git log -5 --oneline`、`git rev-parse HEAD`；
 3. 确认当前分支包含 `7cb9181` 且工作树干净；若用户位于 `master`，切回 `codex/v8-adaptive-planning-spec` 前先确认没有未提交修改；
 4. 不要重做 Phase 1，不要重新询问已经批准的七项 Phase 2 产品决策，也不要重新设计已批准书面规格；
-5. 当前只等待用户审阅书面规格。用户明确回复“批准规格”后才编写实施计划；不要直接写代码；
+5. 当前只等待用户审阅实施计划。用户明确批准计划并选择执行方式后，才允许创建独立实现 worktree 并按 TDD 开始；不要在规格分支直接写代码；
 6. 未经后续独立批准，不合并、不推送、不迁移生产 D1、不启用旗标、不部署、不发起真实 OpenRouter 请求。
 
 当前权威文档：
 
 - 产品规格：`docs/superpowers/specs/2026-08-09-arc-v8-product-intelligence-design.md`
 - Phase 2 书面规格：`docs/superpowers/specs/2026-08-11-arc-v8-adaptive-planning-design.md`
+- Phase 2 实施计划：`docs/superpowers/plans/2026-08-10-arc-v8-adaptive-planning.md`
 - 五阶段路线图：`docs/superpowers/plans/2026-08-10-arc-v8-product-intelligence-roadmap.md`
 - Phase 1 完成记录：`docs/superpowers/plans/2026-08-10-arc-v8-intelligence-kernel.md`
 
@@ -129,6 +132,10 @@ Phase 1 新表目前只是未来版本发布的结构预留；运行中的 Flags
 批准书面规格并开始实施计划：
 
 > 批准 Phase 2 书面规格。请使用 writing-plans 编写详细实施计划，不直接写功能代码。
+
+审阅并批准实施计划：
+
+> 继续 Arc v8。读取恢复检查点、已批准的 Phase 2 书面规格和详细实施计划，从实施计划审阅门槛继续，不要直接写代码、迁移或部署。
 
 准备远程备份：
 
