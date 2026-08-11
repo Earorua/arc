@@ -3,6 +3,7 @@ import type { RoleBlueprint } from "../../../app/contracts/intelligence";
 import {
   PLANNING_SCHEMA_VERSION,
   type AvailabilityVersion,
+  type PathUnit,
   type PlanningTarget,
   type SkillAuditVersion,
   type UnitRegistry,
@@ -10,6 +11,7 @@ import {
 import { flagshipBlueprint } from "../../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../../app/data/flagship-unit-registry";
 import {
+  PlanningEstimationBoundaryError,
   PlanningInputError,
   createPathBuilder,
   type CompletionEstimator,
@@ -352,6 +354,63 @@ describe("createPathBuilder", () => {
     expect(Object.isFrozen(result.fullScope)).toBe(true);
     expect(Object.isFrozen(result.fullScope.units)).toBe(true);
     expect(result.fullScope.units.every(Object.isFrozen)).toBe(true);
+    expect(Object.isFrozen(result.fullScope.units[0]?.prerequisiteUnitIds)).toBe(true);
+    expect(Object.isFrozen(result.fullScope.phases)).toBe(true);
+    expect(Object.isFrozen(result.fullScope.phases[0]?.unitIds)).toBe(true);
+  });
+
+  it("isolates path construction from estimator attempts to mutate units and availability", () => {
+    const input = compactFixture([
+      { id: "foundation", importance: "core" },
+      { id: "delivery", importance: "strong", prerequisiteIds: ["foundation"] },
+    ]);
+    const observations: boolean[] = [];
+    const estimator: CompletionEstimator = (units, estimatorAvailability, planningDate) => {
+      observations.push(
+        Object.isFrozen(units),
+        Object.isFrozen(units[0]),
+        Object.isFrozen(units[0]?.prerequisiteUnitIds),
+        Object.isFrozen(estimatorAvailability),
+        Object.isFrozen(estimatorAvailability.weekdays),
+      );
+      try { (units as PathUnit[]).reverse(); } catch { /* expected immutable boundary */ }
+      try { (units as PathUnit[]).pop(); } catch { /* expected immutable boundary */ }
+      try {
+        (estimatorAvailability.weekdays as { monday: number }).monday = 15;
+      } catch { /* expected immutable boundary */ }
+      return planningDate;
+    };
+
+    const result = createPathBuilder(estimator)(input);
+
+    expect(observations).toEqual([true, true, true, true, true]);
+    expect(result.fullScope.units.map((unit) => unit.skillId)).toEqual(["foundation", "delivery"]);
+    expect(input.availability.weekdays.monday).toBe(60);
+  });
+
+  it.each([
+    ["not-a-calendar-date", "invalid-completion-date"],
+    ["2025-12-31", "completion-before-planning-date"],
+  ] as const)("rejects estimator output %s at the deterministic boundary", (completionDate, code) => {
+    const input = compactFixture([{ id: "core", importance: "core" }]);
+
+    let caught: unknown;
+    try {
+      createPathBuilder(() => completionDate)(input);
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(PlanningEstimationBoundaryError);
+    expect((caught as PlanningEstimationBoundaryError).code).toBe(code);
+    expect((caught as Error).message).not.toContain(completionDate);
+  });
+
+  it("allows scheduler-domain errors to propagate unchanged", () => {
+    const input = compactFixture([{ id: "core", importance: "core" }]);
+    const scheduleError = new Error("task-5-schedule-error");
+
+    expect(() => createPathBuilder(() => { throw scheduleError; })(input)).toThrow(scheduleError);
   });
 
   it("produces byte-identical output and stable IDs for identical inputs", () => {
@@ -393,6 +452,7 @@ describe("createPathBuilder", () => {
       note: "DO-NOT-LEAK-EVIDENCE-NOTE",
     }];
     input.audit.answers[0] = { ...input.audit.answers[0]!, evidenceRefs: ["secret-evidence"] };
+    (input.availability as AvailabilityVersion & { unexpected?: string }).unexpected = "DO-NOT-LEAK-AVAILABILITY";
     (input.target as PlanningTarget & { unexpected?: string }).unexpected = "DO-NOT-LEAK-INPUT";
 
     let caught: unknown;
@@ -404,8 +464,7 @@ describe("createPathBuilder", () => {
 
     expect(caught).toBeInstanceOf(PlanningInputError);
     const error = caught as PlanningInputError;
-    expect(error.issues).toEqual([...error.issues].sort((left, right) =>
-      left.code.localeCompare(right.code) || left.path.localeCompare(right.path)));
+    expect(error.issues).toEqual([...error.issues].sort(comparePublicIssuesOrdinal));
     const serialized = JSON.stringify({ message: error.message, issues: error.issues });
     expect(serialized).not.toContain("DO-NOT-LEAK");
     expect(serialized).not.toContain("secret.example.com");
@@ -441,4 +500,57 @@ describe("createPathBuilder", () => {
       ]));
     }
   });
+
+  it("attributes an unrepresentable planning horizon to the planning date", () => {
+    const input = compactFixture([{ id: "core", importance: "core" }]);
+    input.planningDate = "9999-12-31";
+
+    let caught: unknown;
+    try {
+      createPathBuilder(immediateEstimator)(input);
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(PlanningInputError);
+    expect((caught as PlanningInputError).issues).toContainEqual({
+      code: "planning-date-horizon-overflow",
+      path: "planning-date",
+    });
+    expect((caught as PlanningInputError).issues).not.toContainEqual({
+      code: "availability-horizon-invalid",
+      path: "availability.exceptions",
+    });
+  });
+
+  it("keeps every target prerequisite resolvable and phase membership exact after multiple deferrals", () => {
+    const input = compactFixture([
+      { id: "core", importance: "core", phase: 0 },
+      { id: "strong-base", importance: "strong", phase: 0 },
+      { id: "advantage-child", importance: "advantage", prerequisiteIds: ["strong-base"], phase: 1 },
+    ]);
+    const result = createPathBuilder((units) => units.length > 1 ? "2026-02-01" : "2026-01-20")(input);
+    const targetPath = result.targetDate!;
+    const targetUnitIds = new Set(targetPath.units.map((unit) => unit.id));
+
+    expect(targetPath.units.every((unit) =>
+      unit.prerequisiteUnitIds.every((id) => targetUnitIds.has(id)))).toBe(true);
+    expect(targetPath.phases).toEqual([{
+      phaseId: "phase-1",
+      name: "Phase 1",
+      outcome: "Complete all work assigned to phase 1.",
+      unitIds: targetPath.units.map((unit) => unit.id),
+    }]);
+  });
 });
+
+function comparePublicIssuesOrdinal(
+  left: { code: string; path: string },
+  right: { code: string; path: string },
+): number {
+  if (left.code < right.code) return -1;
+  if (left.code > right.code) return 1;
+  if (left.path < right.path) return -1;
+  if (left.path > right.path) return 1;
+  return 0;
+}

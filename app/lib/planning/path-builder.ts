@@ -55,6 +55,22 @@ export class PlanningInputError extends Error {
   }
 }
 
+export type PlanningEstimationBoundaryErrorCode =
+  | "invalid-completion-date"
+  | "completion-before-planning-date";
+
+export class PlanningEstimationBoundaryError extends Error {
+  readonly code: PlanningEstimationBoundaryErrorCode;
+
+  constructor(code: PlanningEstimationBoundaryErrorCode) {
+    super(code === "invalid-completion-date"
+      ? "The completion estimator returned an invalid calendar date."
+      : "The completion estimator returned a date before the planning date.");
+    this.name = "PlanningEstimationBoundaryError";
+    this.code = code;
+  }
+}
+
 export function createPathBuilder(estimate: CompletionEstimator) {
   if (typeof estimate !== "function") throw new TypeError("A completion estimator is required");
   return (input: PathBuildInput): PathBuildResult => buildValidatedPathAlternatives(input, estimate);
@@ -67,7 +83,12 @@ function buildValidatedPathAlternatives(
   const parsed = parseAndValidateInput(input);
   const orderedSkills = topologicallyOrderSkills(parsed.blueprint);
   const allUnits = expandPathUnits(parsed, orderedSkills);
-  const fullCompletionDate = estimate(allUnits, parsed.availability, parsed.planningDate);
+  const fullCompletionDate = estimateAndValidate(
+    estimate,
+    allUnits,
+    parsed.availability,
+    parsed.planningDate,
+  );
   const fullScope = buildPathVersion(parsed, "full-scope", allUnits, [], fullCompletionDate);
   const deadline = addCalendarDays(parsed.planningDate, parsed.target.targetWeeks * 7 - 1);
 
@@ -92,7 +113,12 @@ function buildValidatedPathAlternatives(
 
       const retainedUnits = allUnits.filter((unit) => retained.has(unit.skillId));
       if (retainedUnits.length === 0) break;
-      const completionDate = estimate(retainedUnits, parsed.availability, parsed.planningDate);
+      const completionDate = estimateAndValidate(
+        estimate,
+        retainedUnits,
+        parsed.availability,
+        parsed.planningDate,
+      );
       if (compareCalendarDates(completionDate, deadline) <= 0) {
         targetDate = buildPathVersion(parsed, "target-date", retainedUnits, deferred, completionDate);
       }
@@ -138,8 +164,14 @@ function parseAndValidateInput(input: PathBuildInput): ValidatedPathInput {
   validateAuditCoverage(blueprint, audit, issues);
   try {
     validateAvailabilityHorizon(availability, planningDate);
-  } catch {
-    issues.push({ code: "availability-horizon-invalid", path: "availability.exceptions" });
+  } catch (error) {
+    if (error instanceof RangeError) {
+      issues.push({ code: "availability-horizon-invalid", path: "availability.exceptions" });
+    } else if (error instanceof TypeError) {
+      issues.push({ code: "planning-date-horizon-overflow", path: "planning-date" });
+    } else {
+      throw error;
+    }
   }
 
   if (issues.length > 0) throw new PlanningInputError(issues);
@@ -228,6 +260,30 @@ function topologicallyOrderSkills(blueprint: RoleBlueprint): RoleSkill[] {
     }
   }
   return ordered;
+}
+
+function estimateAndValidate(
+  estimate: CompletionEstimator,
+  units: readonly PathUnit[],
+  availability: AvailabilityVersion,
+  planningDate: string,
+): string {
+  const unitSnapshot = deepFreeze(units.map((unit) => ({
+    ...unit,
+    prerequisiteUnitIds: [...unit.prerequisiteUnitIds],
+  })));
+  const availabilitySnapshot = deepFreeze(availabilityVersionSchema.parse(availability));
+
+  // Deliberately do not catch estimator errors: Task 5 schedule-domain errors must retain their type.
+  const estimatedCompletionDate = estimate(unitSnapshot, availabilitySnapshot, planningDate);
+  const parsedDate = calendarDateSchema.safeParse(estimatedCompletionDate);
+  if (!parsedDate.success) {
+    throw new PlanningEstimationBoundaryError("invalid-completion-date");
+  }
+  if (compareCalendarDates(parsedDate.data, planningDate) < 0) {
+    throw new PlanningEstimationBoundaryError("completion-before-planning-date");
+  }
+  return parsedDate.data;
 }
 
 function skillComparator(blueprint: RoleBlueprint): (left: RoleSkill, right: RoleSkill) => number {
