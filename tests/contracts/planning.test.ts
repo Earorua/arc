@@ -155,6 +155,7 @@ function validPath() {
 function validDailyUnit() {
   return {
     id: "daily-unit-1",
+    planVersionId: "plan-1",
     templateId: "typescript-learn-01",
     templateVersion: "2026.08.1",
     checkpointId: null,
@@ -231,6 +232,7 @@ function validWorkspace() {
     lastSequence: 0,
     audit: validAudit(),
     availability: validAvailability(),
+    availabilityVersions: [validAvailability()],
     target: validTarget(),
     pathVersions: [validPath()],
     planVersions: [validPlan()],
@@ -297,7 +299,16 @@ describe("adaptive planning contracts", () => {
     ["rubric rows", () => ({ ...validTemplate(), rubric: Array.from({ length: 7 }, (_, index) => `Rubric row ${index}`) }), unitTemplateSchema],
     ["path units", () => ({ ...validPath(), phases: [{ ...validPath().phases[0], unitIds: Array.from({ length: 2000 }, (_, index) => `unit-${index}`) }, { ...validPath().phases[0], phaseId: "phase-2", unitIds: ["unit-2000"] }], units: Array.from({ length: 2001 }, (_, index) => ({ ...validPath().units[0], id: `unit-${index}` })) }), learningPathVersionSchema],
     ["workspace daily units", () => ({ ...validWorkspace(), dailyUnits: Array.from({ length: 2001 }, (_, index) => ({ ...validDailyUnit(), id: `daily-${index}` })), planVersions: [{ ...validPlan(), dailyUnitIds: ["daily-0"], days: validPlan().days.map((day, index) => index === 0 ? { ...day, primaryUnitId: "daily-0" } : day) }] }), planningWorkspaceSchema],
-    ["workspace plan versions", () => ({ ...validWorkspace(), activePlanVersionId: "plan-0", planVersions: Array.from({ length: 501 }, (_, index) => ({ ...validPlan(), id: `plan-${index}` })) }), planningWorkspaceSchema],
+    ["workspace plan versions", () => {
+      const dailyUnits = Array.from({ length: 501 }, (_, index) => ({ ...validDailyUnit(), id: `daily-${index}`, planVersionId: `plan-${index}` }));
+      const planVersions = Array.from({ length: 501 }, (_, index) => ({
+        ...validPlan(),
+        id: `plan-${index}`,
+        dailyUnitIds: [`daily-${index}`],
+        days: validPlan().days.map((day, dayIndex) => dayIndex === 0 ? { ...day, primaryUnitId: `daily-${index}` } : day),
+      }));
+      return { ...validWorkspace(), activePlanVersionId: "plan-0", planVersions, dailyUnits };
+    }, planningWorkspaceSchema],
     ["workspace events", () => ({ ...validWorkspace(), lastSequence: 5001, events: Array.from({ length: 5001 }, (_, index) => ({ ...validCompletedEvent(), eventId: `event-${index}`, mutationId: `mutation-${index}`, sequence: index + 1 })) }), planningWorkspaceSchema],
   ] as const)("rejects %s above its cap", (_name, fixture, schema) => {
     expect(() => schema.parse(fixture())).toThrow();
@@ -565,6 +576,56 @@ describe("adaptive planning contracts", () => {
     })).toThrow();
   });
 
+  it("preserves a stable daily unit ID across immutable plan snapshots", () => {
+    const historical = validHistoricalWorkspace();
+    expect(planningWorkspaceSchema.parse(historical)).toEqual(historical);
+    expect(() => planningWorkspaceSchema.parse({
+      ...historical,
+      dailyUnits: [...historical.dailyUnits, { ...historical.dailyUnits[0] }],
+    })).toThrow();
+    expect(() => planningWorkspaceSchema.parse({
+      ...historical,
+      dailyUnits: [{ ...historical.dailyUnits[0], planVersionId: "plan-2" }, { ...historical.dailyUnits[1], id: "candidate-unit" }],
+    })).toThrow();
+  });
+
+  it("retains historical availability snapshots for active and candidate paths", () => {
+    const historical = validAvailabilityHistoryWorkspace();
+    expect(planningWorkspaceSchema.parse(historical)).toEqual(historical);
+    expect(() => planningWorkspaceSchema.parse({
+      ...historical,
+      availabilityVersions: [historical.availability],
+    })).toThrow();
+    expect(() => planningWorkspaceSchema.parse({
+      ...historical,
+      availabilityVersions: [{ ...historical.availability, inputFingerprint: "different-snapshot" }, historical.availabilityVersions[0]],
+    })).toThrow();
+  });
+
+  it("requires an ordered, gap-free event sequence and matching terminal sequence", () => {
+    expect(planningWorkspaceSchema.parse(workspaceWithEventSequences([1, 2], 2)).events).toHaveLength(2);
+    expect(() => planningWorkspaceSchema.parse(workspaceWithEventSequences([2, 1], 2))).toThrow();
+    expect(() => planningWorkspaceSchema.parse(workspaceWithEventSequences([1, 3], 3))).toThrow();
+    expect(() => planningWorkspaceSchema.parse(workspaceWithEventSequences([2], 2))).toThrow();
+    expect(() => planningWorkspaceSchema.parse(workspaceWithEventSequences([1, 2], 1))).toThrow();
+  });
+
+  it("reports a late-day primary placement at its original day index", () => {
+    const plan = validPlan();
+    const result = planningWorkspaceSchema.safeParse({
+      ...validWorkspace(),
+      dailyUnits: [validDailyUnit(), { ...validDailyUnit(), id: "late-unit", scheduledDate: "2026-08-12" }],
+      planVersions: [{
+        ...plan,
+        dailyUnitIds: ["daily-unit-1", "late-unit"],
+        days: plan.days.map((day, index) => index === 6 ? { ...day, budgetMinutes: 60, status: "scheduled" as const, primaryUnitId: "late-unit" } : day),
+      }],
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error.issues.some((issue) => issue.path.join(".") === "planVersions.0.days.6.primaryUnitId")).toBe(true);
+  });
+
   it("rejects a workspace path whose audit reference differs from the workspace audit", () => {
     expect(() => planningWorkspaceSchema.parse({
       ...validWorkspace(),
@@ -689,7 +750,7 @@ function validLargeWorkspace() {
   return {
     ...validWorkspace(),
     lastSequence: events.length,
-    dailyUnits: [{ ...validDailyUnit(), id: unitId }],
+    dailyUnits: [{ ...validDailyUnit(), id: unitId, planVersionId: planId }],
     planVersions: [{
       ...plan,
       id: planId,
@@ -698,5 +759,60 @@ function validLargeWorkspace() {
     }],
     events,
     activePlanVersionId: planId,
+  };
+}
+
+function validHistoricalWorkspace() {
+  const basePlan = validPlan();
+  const candidatePlan = {
+    ...validPlan(),
+    id: "plan-2",
+    generation: "proposed" as const,
+    baseVersionId: "plan-1",
+    days: validPlan().days.map((day, index) => {
+      if (index === 0) return { ...day, budgetMinutes: 0, status: "rest" as const, primaryUnitId: null };
+      if (index === 1) return { ...day, budgetMinutes: 60, status: "scheduled" as const, primaryUnitId: "daily-unit-1" };
+      return day;
+    }),
+  };
+  return {
+    ...validWorkspace(),
+    planVersions: [basePlan, candidatePlan],
+    dailyUnits: [
+      validDailyUnit(),
+      { ...validDailyUnit(), planVersionId: "plan-2", scheduledDate: "2026-08-13" },
+    ],
+    pendingPlanVersionId: "plan-2",
+  };
+}
+
+function validAvailabilityHistoryWorkspace() {
+  const oldAvailability = validAvailability();
+  const currentAvailability = { ...validAvailability(), id: "availability-2", inputFingerprint: "p2-availability-current" };
+  const historical = validHistoricalWorkspace();
+  const candidatePath = {
+    ...validPath(),
+    id: "path-2",
+    availabilityVersionId: currentAvailability.id,
+  };
+  return {
+    ...historical,
+    availability: currentAvailability,
+    availabilityVersions: [oldAvailability, currentAvailability],
+    pathVersions: [validPath(), candidatePath],
+    planVersions: historical.planVersions.map((plan) => plan.id === "plan-2" ? { ...plan, pathVersionId: "path-2" } : plan),
+  };
+}
+
+function workspaceWithEventSequences(sequences: number[], lastSequence: number) {
+  return {
+    ...validWorkspace(),
+    lastSequence,
+    events: sequences.map((sequence) => ({
+      ...validCompletedEvent(),
+      eventId: `event-${sequence}`,
+      mutationId: `mutation-${sequence}`,
+      sequence,
+    })),
   };
 }

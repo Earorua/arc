@@ -254,6 +254,7 @@ export const pathBuildResultSchema = z.object({
 
 export const dailyUnitSchema = z.object({
   id: idSchema,
+  planVersionId: idSchema,
   templateId: idSchema,
   templateVersion: versionSchema,
   checkpointId: idSchema.nullable(),
@@ -388,6 +389,7 @@ export const planningWorkspaceSchema = z.object({
   lastSequence: z.number().int().min(0),
   audit: skillAuditVersionSchema,
   availability: availabilityVersionSchema,
+  availabilityVersions: z.array(availabilityVersionSchema).min(1).max(500),
   target: planningTargetSchema,
   pathVersions: z.array(learningPathVersionSchema).min(1).max(500),
   planVersions: z.array(planVersionSchema).min(1).max(500),
@@ -399,33 +401,47 @@ export const planningWorkspaceSchema = z.object({
 }).strict().superRefine((workspace, ctx) => {
   issueDuplicateIds(ctx, workspace.pathVersions.map(({ id }) => id), ["pathVersions"], "Path version IDs must be unique");
   issueDuplicateIds(ctx, workspace.planVersions.map(({ id }) => id), ["planVersions"], "Plan version IDs must be unique");
-  issueDuplicateIds(ctx, workspace.dailyUnits.map(({ id }) => id), ["dailyUnits"], "Daily unit IDs must be unique");
+  issueDuplicateIds(ctx, workspace.availabilityVersions.map(({ id }) => id), ["availabilityVersions"], "Availability version IDs must be unique");
+  issueDuplicateIds(ctx, workspace.dailyUnits.map(({ planVersionId, id }) => `${planVersionId}:${id}`), ["dailyUnits"], "Daily unit IDs must be unique within a plan version");
   issueDuplicateIds(ctx, workspace.events.map(({ eventId }) => eventId), ["events"], "Event IDs must be unique");
   issueDuplicateIds(ctx, workspace.events.map(({ mutationId }) => mutationId), ["events"], "Event mutation IDs must be unique");
   issueDuplicateIds(ctx, workspace.events.map(({ sequence }) => String(sequence)), ["events"], "Event sequences must be unique");
   const paths = new Map(workspace.pathVersions.map((path) => [path.id, path]));
   const plans = new Map(workspace.planVersions.map((plan) => [plan.id, plan]));
-  const units = new Map(workspace.dailyUnits.map((unit) => [unit.id, unit]));
+  const availabilityVersions = new Map(workspace.availabilityVersions.map((availability) => [availability.id, availability]));
+  const units = new Map(workspace.dailyUnits.map((unit) => [`${unit.planVersionId}:${unit.id}`, unit]));
   if (!paths.has(workspace.activePathVersionId)) ctx.addIssue({ code: "custom", path: ["activePathVersionId"], message: "Active path must resolve" });
   if (!plans.has(workspace.activePlanVersionId)) ctx.addIssue({ code: "custom", path: ["activePlanVersionId"], message: "Active plan must resolve" });
   if (workspace.pendingPlanVersionId !== null && !plans.has(workspace.pendingPlanVersionId)) ctx.addIssue({ code: "custom", path: ["pendingPlanVersionId"], message: "Pending plan must resolve" });
+  const currentAvailability = availabilityVersions.get(workspace.availability.id);
+  if (!currentAvailability
+    || currentAvailability.inputFingerprint !== workspace.availability.inputFingerprint
+    || JSON.stringify(currentAvailability) !== JSON.stringify(workspace.availability)) {
+    ctx.addIssue({ code: "custom", path: ["availability"], message: "Current availability must match a historical availability snapshot" });
+  }
+  workspace.dailyUnits.forEach((unit, unitIndex) => {
+    if (!plans.has(unit.planVersionId)) ctx.addIssue({ code: "custom", path: ["dailyUnits", unitIndex, "planVersionId"], message: "Daily unit plan version must resolve" });
+  });
   workspace.pathVersions.forEach((path, pathIndex) => {
     if (path.auditVersionId !== workspace.audit.id) ctx.addIssue({ code: "custom", path: ["pathVersions", pathIndex, "auditVersionId"], message: "Path audit must be the workspace audit" });
-    if (path.availabilityVersionId !== workspace.availability.id) ctx.addIssue({ code: "custom", path: ["pathVersions", pathIndex, "availabilityVersionId"], message: "Path availability must be the workspace availability" });
+    if (!availabilityVersions.has(path.availabilityVersionId)) ctx.addIssue({ code: "custom", path: ["pathVersions", pathIndex, "availabilityVersionId"], message: "Path availability must resolve" });
     if (path.targetId !== workspace.target.id) ctx.addIssue({ code: "custom", path: ["pathVersions", pathIndex, "targetId"], message: "Path target must be the workspace target" });
   });
   workspace.planVersions.forEach((plan, planIndex) => {
     if (!paths.has(plan.pathVersionId)) ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "pathVersionId"], message: "Plan path must resolve" });
     if (plan.baseVersionId !== null && !plans.has(plan.baseVersionId)) ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "baseVersionId"], message: "Plan base version must resolve" });
     plan.dailyUnitIds.forEach((unitId, unitIndex) => {
-      const unit = units.get(unitId);
-      if (!unit) ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "dailyUnitIds", unitIndex], message: "Plan daily unit must resolve" });
+      const unit = units.get(`${plan.id}:${unitId}`);
+      if (!unit) ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "dailyUnitIds", unitIndex], message: "Plan daily unit must resolve within its plan version" });
     });
-    plan.days.forEach((day, dayIndex) => ([day.primaryUnitId, day.stretchUnitId] as const).forEach((unitId) => {
+    plan.days.forEach((day, dayIndex) => ([
+      { slot: "primary" as const, unitId: day.primaryUnitId },
+      { slot: "stretch" as const, unitId: day.stretchUnitId },
+    ]).forEach(({ slot, unitId }) => {
       if (unitId === null) return;
-      const unit = units.get(unitId);
-      if (!unit || unit.scheduledDate !== day.date || unit.slot !== (day.primaryUnitId === unitId ? "primary" : "stretch")) {
-        ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "days", dayIndex], message: "Placed daily unit must match its day and slot" });
+      const unit = units.get(`${plan.id}:${unitId}`);
+      if (!unit || unit.scheduledDate !== day.date || unit.slot !== slot) {
+        ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "days", dayIndex, `${slot}UnitId`], message: "Placed daily unit must match its day and slot" });
       }
     }));
   });
@@ -433,14 +449,16 @@ export const planningWorkspaceSchema = z.object({
     if (!plans.has(event.targetPlanVersionId)) ctx.addIssue({ code: "custom", path: ["events", eventIndex, "targetPlanVersionId"], message: "Event target plan must resolve" });
     if ("unitId" in event) {
       const targetPlan = plans.get(event.targetPlanVersionId);
-      if (!units.has(event.unitId) || !targetPlan?.dailyUnitIds.includes(event.unitId)) {
+      if (!units.has(`${event.targetPlanVersionId}:${event.unitId}`) || !targetPlan?.dailyUnitIds.includes(event.unitId)) {
         ctx.addIssue({ code: "custom", path: ["events", eventIndex, "unitId"], message: "Event unit must resolve within its target plan" });
       }
     }
     if ("candidatePlanVersionId" in event && !plans.has(event.candidatePlanVersionId)) ctx.addIssue({ code: "custom", path: ["events", eventIndex, "candidatePlanVersionId"], message: "Candidate plan must resolve" });
   });
-  const maxSequence = workspace.events.reduce((maximum, event) => Math.max(maximum, event.sequence), 0);
-  if (workspace.lastSequence !== maxSequence) ctx.addIssue({ code: "custom", path: ["lastSequence"], message: "Last sequence must equal the latest event sequence" });
+  workspace.events.forEach((event, eventIndex) => {
+    if (event.sequence !== eventIndex + 1) ctx.addIssue({ code: "custom", path: ["events", eventIndex, "sequence"], message: "Event sequences must be ordered and gap-free" });
+  });
+  if (workspace.lastSequence !== workspace.events.length) ctx.addIssue({ code: "custom", path: ["lastSequence"], message: "Last sequence must equal the terminal event sequence" });
 });
 
 export const planningMutationResultSchema = z.object({
