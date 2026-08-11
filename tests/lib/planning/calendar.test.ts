@@ -95,6 +95,15 @@ describe("calendar primitives", () => {
     expect(planningDateForInstant("2026-11-01T06:00:00.000Z", "America/New_York")).toBe("2026-11-01");
     expect(planningDateForInstant("2026-08-12T16:30:00.000Z", "Asia/Shanghai")).toBe("2026-08-13");
     expect(planningDateForInstant("2026-08-12T00:30:00.000Z", "America/New_York")).toBe("2026-08-11");
+    expect(planningDateForInstant("2026-03-08T04:59:59.000Z", "America/New_York")).toBe("2026-03-07");
+    expect(planningDateForInstant("2026-03-08T05:00:00.000Z", "America/New_York")).toBe("2026-03-08");
+    expect(planningDateForInstant("2026-03-09T03:59:59.000Z", "America/New_York")).toBe("2026-03-08");
+    expect(planningDateForInstant("2026-03-09T04:00:00.000Z", "America/New_York")).toBe("2026-03-09");
+    expect(planningDateForInstant("2026-11-01T03:59:59.000Z", "America/New_York")).toBe("2026-10-31");
+    expect(planningDateForInstant("2026-11-01T04:00:00.000Z", "America/New_York")).toBe("2026-11-01");
+    expect(planningDateForInstant("2026-11-02T04:59:59.000Z", "America/New_York")).toBe("2026-11-01");
+    expect(planningDateForInstant("2026-11-02T05:00:00.000Z", "America/New_York")).toBe("2026-11-02");
+    expect(planningDateForInstant("2026-08-12T16:00:00.000Z", "Asia/Shanghai")).toBe("2026-08-13");
   });
 
   it("validates IANA zones without reading the current clock", () => {
@@ -102,6 +111,13 @@ describe("calendar primitives", () => {
     expect(source).not.toMatch(/\.format\(\s*\)/u);
     expect(planningDateForInstant("2026-08-12T00:30:00.000Z", "America/New_York")).toBe("2026-08-11");
     expect(() => planningDateForInstant("2026-08-12T00:30:00.000Z", "Not/AZone")).toThrow();
+  });
+
+  it("accepts named IANA zones and rejects numeric offset identifiers", () => {
+    expect(planningDateForInstant("2026-08-12T00:30:00.000Z", "UTC")).toBe("2026-08-12");
+    expect(planningDateForInstant("2026-08-12T00:30:00.000Z", "Etc/GMT+1")).toBe("2026-08-11");
+    expect(() => planningDateForInstant("2026-08-12T00:30:00.000Z", "+01:00")).toThrow();
+    expect(() => planningDateForInstant("2026-08-12T00:30:00.000Z", "-0230")).toThrow();
   });
 
   it("accepts exception dates from planning day through day 365 inclusively", () => {
@@ -113,6 +129,8 @@ describe("calendar primitives", () => {
 
   it("rejects invalid dates, numeric inputs, instants, zones, and invalid availability", () => {
     expect(() => addCalendarDays("2026-02-29", 1)).toThrow();
+    expect(() => addCalendarDays("0000-01-01", 1)).toThrow();
+    expect(addCalendarDays("0001-01-01", 1)).toBe("0001-01-02");
     expect(() => addCalendarDays("2026-08-12", 0.5)).toThrow();
     expect(() => compareCalendarDates("2026-13-01", "2026-08-12")).toThrow();
     expect(() => calendarDates("2026-08-12", -1)).toThrow();

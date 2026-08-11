@@ -1,5 +1,5 @@
 import { availabilityVersionSchema, type AvailabilityVersion, type WeekdayMinutes } from "../../contracts/planning";
-import { calendarDateSchema } from "../../contracts/intelligence";
+import { calendarDateSchema, isIanaTimeZoneIdentifier } from "../../contracts/intelligence";
 
 const MAX_CALENDAR_DAY_DELTA = 366_000;
 const MAX_CALENDAR_DATE_COUNT = 3_661;
@@ -37,7 +37,7 @@ function parseAvailability(value: AvailabilityVersion): AvailabilityVersion {
 }
 
 function supportedTimeZone(timeZone: string): boolean {
-  if (typeof timeZone !== "string") return false;
+  if (!isIanaTimeZoneIdentifier(timeZone)) return false;
   try {
     new Intl.DateTimeFormat("en-CA", { timeZone });
     return true;

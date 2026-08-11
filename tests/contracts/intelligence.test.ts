@@ -60,6 +60,9 @@ const blueprint = {
 describe("role intelligence contracts", () => {
   it("exports the shared calendar-date and public-HTTPS primitives", () => {
     expect(calendarDateSchema.parse("2028-02-29")).toBe("2028-02-29");
+    expect(calendarDateSchema.parse("0001-01-01")).toBe("0001-01-01");
+    expect(calendarDateSchema.parse("2000-02-29")).toBe("2000-02-29");
+    expect(() => calendarDateSchema.parse("0000-01-01")).toThrow();
     expect(publicHttpsUrlSchema.parse(resource.url)).toBe(resource.url);
   });
 

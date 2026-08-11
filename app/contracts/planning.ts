@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { calendarDateSchema as baseCalendarDateSchema, publicHttpsUrlSchema as basePublicHttpsUrlSchema } from "./intelligence";
+import { calendarDateSchema as baseCalendarDateSchema, isIanaTimeZoneIdentifier, publicHttpsUrlSchema as basePublicHttpsUrlSchema } from "./intelligence";
 
 export const PLANNING_SCHEMA_VERSION = "2026.08.1" as const;
 
@@ -84,6 +84,7 @@ export const availabilityExceptionSchema = z.object({
 }).strict();
 
 function isSupportedTimeZone(timeZone: string): boolean {
+  if (!isIanaTimeZoneIdentifier(timeZone)) return false;
   try {
     new Intl.DateTimeFormat("en-US", { timeZone });
     return true;

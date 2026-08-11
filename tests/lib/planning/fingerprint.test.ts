@@ -22,9 +22,32 @@ describe("planning fingerprints", () => {
     }
   });
 
+  it("uses descriptor snapshots without invoking proxy get traps", () => {
+    let objectGets = 0;
+    let arrayGets = 0;
+    const object = new Proxy({ b: 2, a: 1 }, { get() { objectGets += 1; throw new Error("unexpected get"); } });
+    const array = new Proxy(["first", "second"], { get() { arrayGets += 1; throw new Error("unexpected get"); } });
+
+    expect(canonicalJson(object)).toBe('{"a":1,"b":2}');
+    expect(canonicalJson(array)).toBe('["first","second"]');
+    expect(fingerprint({ object, array })).toMatch(/^p2-[0-9a-f]{32}$/u);
+    expect(objectGets).toBe(0);
+    expect(arrayGets).toBe(0);
+  });
+
+  it("allows shared references but rejects null-prototype objects", () => {
+    const shared = { minutes: 30 };
+    expect(canonicalJson({ first: shared, second: shared })).toBe('{"first":{"minutes":30},"second":{"minutes":30}}');
+    expect(() => canonicalJson(Object.create(null))).toThrow();
+    const descriptorFailure = new Proxy({ a: 1 }, { getOwnPropertyDescriptor() { throw new Error("descriptor detail"); } });
+    expect(() => canonicalJson(descriptorFailure)).toThrow("Value must be plain JSON");
+  });
+
   it("produces stable known vectors", () => {
     expect(fingerprint({ b: 2, a: 1 })).toBe("p2-5314055bb4d606bd32adba871e800499");
     expect(deterministicId("plan-version", { b: 2, a: 1 })).toBe("plan-version-5314055bb4d606bd32adba871e800499");
+    expect(canonicalJson("\ud800")).toBe('"\\ud800"');
+    expect(fingerprint("\ud800")).toBe("p2-3ffd2a2cb9154f9e6e3ac2986c125ffa");
   });
 
   it("hashes sorted object keys but preserves material array order", () => {
@@ -62,5 +85,7 @@ describe("planning fingerprints", () => {
     expect(() => deterministicId("Plan-Version", { a: 1 })).toThrow();
     expect(() => deterministicId("plan--version", { a: 1 })).toThrow();
     expect(() => deterministicId("plan-version-", { a: 1 })).toThrow();
+    expect(deterministicId("a".repeat(223), { a: 1 })).toHaveLength(256);
+    expect(() => deterministicId("a".repeat(224), { a: 1 })).toThrow();
   });
 });

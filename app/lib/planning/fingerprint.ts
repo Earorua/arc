@@ -11,28 +11,59 @@ function invalidJson(): never {
   throw new TypeError("Value must be plain JSON");
 }
 
-function sortedOwnDataKeys(value: object): string[] {
-  if (Object.getPrototypeOf(value) !== Object.prototype) invalidJson();
-  if (Object.getOwnPropertySymbols(value).length > 0) invalidJson();
-
-  const keys = Object.getOwnPropertyNames(value);
-  for (const key of keys) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) invalidJson();
+function hasExpectedPrototype(value: object, prototype: object): boolean {
+  try {
+    return Object.getPrototypeOf(value) === prototype;
+  } catch {
+    invalidJson();
   }
-  return keys.sort((left, right) => left < right ? -1 : left > right ? 1 : 0);
+}
+
+function ownDescriptorSnapshot(value: object): Record<PropertyKey, PropertyDescriptor> {
+  // A proxy descriptor trap is allowed to fail validation, but never exposes its own error.
+  try {
+    return Object.getOwnPropertyDescriptors(value);
+  } catch {
+    return invalidJson();
+  }
+}
+
+function sortedObjectEntries(value: object): [string, unknown][] {
+  if (!hasExpectedPrototype(value, Object.prototype)) invalidJson();
+  const descriptors = ownDescriptorSnapshot(value);
+  if (Object.getOwnPropertySymbols(descriptors).length > 0) invalidJson();
+
+  const entries: [string, unknown][] = [];
+  for (const key of Object.getOwnPropertyNames(descriptors)) {
+    const descriptor = descriptors[key]!;
+    if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) invalidJson();
+    entries.push([key, descriptor.value]);
+  }
+  return entries.sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0);
 }
 
 function arrayValues(value: unknown[]): unknown[] {
-  if (Object.getPrototypeOf(value) !== Array.prototype || Object.getOwnPropertySymbols(value).length > 0) invalidJson();
-  const ownNames = Object.getOwnPropertyNames(value);
-  if (ownNames.length !== value.length + 1 || !ownNames.includes("length")) invalidJson();
-  for (let index = 0; index < value.length; index += 1) {
-    const key = String(index);
-    const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    if (!descriptor || !descriptor.enumerable || !("value" in descriptor)) invalidJson();
+  if (!hasExpectedPrototype(value, Array.prototype)) invalidJson();
+  const descriptors = ownDescriptorSnapshot(value);
+  if (Object.getOwnPropertySymbols(descriptors).length > 0) invalidJson();
+  const lengthDescriptor = descriptors.length;
+  if (!lengthDescriptor || !("value" in lengthDescriptor) || !Number.isSafeInteger(lengthDescriptor.value) || lengthDescriptor.value < 0) {
+    invalidJson();
   }
-  return value;
+  const length = lengthDescriptor.value;
+  const names = Object.getOwnPropertyNames(descriptors);
+  if (names.length !== length + 1) invalidJson();
+
+  const values: [number, unknown][] = [];
+  for (const name of names) {
+    if (name === "length") continue;
+    const index = Number(name);
+    const descriptor = descriptors[name]!;
+    if (!Number.isSafeInteger(index) || index < 0 || index >= length || String(index) !== name
+      || !descriptor.enumerable || !("value" in descriptor)) invalidJson();
+    values.push([index, descriptor.value]);
+  }
+  return values.sort(([left], [right]) => left - right).map(([, item]) => item);
 }
 
 function serialize(value: unknown, stack: Set<object>): string {
@@ -51,8 +82,7 @@ function serialize(value: unknown, stack: Set<object>): string {
     if (Array.isArray(value)) {
       return `[${arrayValues(value).map((item) => serialize(item, stack)).join(",")}]`;
     }
-    const keys = sortedOwnDataKeys(value);
-    return `{${keys.map((key) => `${JSON.stringify(key)}:${serialize((value as Record<string, unknown>)[key], stack)}`).join(",")}}`;
+    return `{${sortedObjectEntries(value).map(([key, item]) => `${JSON.stringify(key)}:${serialize(item, stack)}`).join(",")}}`;
   } finally {
     stack.delete(value);
   }
@@ -72,10 +102,10 @@ function copyWithoutRuntimeMetadata(value: unknown, stack: Set<object>): JsonVal
     if (Array.isArray(value)) return arrayValues(value).map((item) => copyWithoutRuntimeMetadata(item, stack));
 
     const copy: { [key: string]: JsonValue } = {};
-    for (const key of sortedOwnDataKeys(value)) {
+    for (const [key, item] of sortedObjectEntries(value)) {
       if (!RUNTIME_METADATA_KEYS.has(key)) {
         Object.defineProperty(copy, key, {
-          value: copyWithoutRuntimeMetadata((value as Record<string, unknown>)[key], stack),
+          value: copyWithoutRuntimeMetadata(item, stack),
           enumerable: true,
           configurable: true,
           writable: true,

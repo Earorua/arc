@@ -369,11 +369,19 @@ describe("adaptive planning contracts", () => {
     (timeZone) => expect(availabilityVersionSchema.parse({ ...validAvailability(), timeZone }).timeZone).toBe(timeZone),
   );
 
+  it.each(["UTC", "Etc/GMT+1", "US/Eastern"])("accepts named IANA zone %s", (timeZone) => {
+    expect(availabilityVersionSchema.parse({ ...validAvailability(), timeZone }).timeZone).toBe(timeZone);
+  });
+
+  it.each(["+01:00", "-0230"])("rejects numeric offset zone %s", (timeZone) => {
+    expect(() => availabilityVersionSchema.parse({ ...validAvailability(), timeZone })).toThrow();
+  });
+
   it.each(["Mars/Olympus", "Not_A_Zone", ""])("rejects the unsupported time zone %s", (timeZone) => {
     expect(() => availabilityVersionSchema.parse({ ...validAvailability(), timeZone })).toThrow();
   });
 
-  it.each(["2026-02-30", "2025-02-29", "2026-13-01", "2026-8-12"])(
+  it.each(["0000-01-01", "2026-02-30", "2025-02-29", "2026-13-01", "2026-8-12"])(
     "rejects the impossible or non-ISO calendar date %s",
     (date) => {
       expect(() => availabilityExceptionSchema.parse({ date, minutes: 30, reason: null })).toThrow();
