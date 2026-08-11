@@ -39,7 +39,7 @@ function parseAvailability(value: AvailabilityVersion): AvailabilityVersion {
 function supportedTimeZone(timeZone: string): boolean {
   if (typeof timeZone !== "string") return false;
   try {
-    new Intl.DateTimeFormat("en-CA", { timeZone }).format();
+    new Intl.DateTimeFormat("en-CA", { timeZone });
     return true;
   } catch {
     return false;

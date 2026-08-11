@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { AvailabilityVersion } from "../../../app/contracts/planning";
 import {
@@ -63,6 +64,13 @@ describe("calendar primitives", () => {
     expect(planningDateForInstant("2026-11-01T06:00:00.000Z", "America/New_York")).toBe("2026-11-01");
     expect(planningDateForInstant("2026-08-12T16:30:00.000Z", "Asia/Shanghai")).toBe("2026-08-13");
     expect(planningDateForInstant("2026-08-12T00:30:00.000Z", "America/New_York")).toBe("2026-08-11");
+  });
+
+  it("validates IANA zones without reading the current clock", () => {
+    const source = readFileSync("app/lib/planning/calendar.ts", "utf8");
+    expect(source).not.toMatch(/\.format\(\s*\)/u);
+    expect(planningDateForInstant("2026-08-12T00:30:00.000Z", "America/New_York")).toBe("2026-08-11");
+    expect(() => planningDateForInstant("2026-08-12T00:30:00.000Z", "Not/AZone")).toThrow();
   });
 
   it("accepts exception dates from planning day through day 365 inclusively", () => {
