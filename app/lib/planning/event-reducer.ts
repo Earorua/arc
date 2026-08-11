@@ -17,7 +17,6 @@ import {
 } from "../../contracts/planning";
 import { minutesForDate } from "./calendar";
 import { canonicalJson, deterministicId, fingerprint } from "./fingerprint";
-import { buildLearningPaths } from "./path-builder";
 import { PlanningEventError, diffPlans } from "./plan-diff";
 import { buildPlanVersion, estimateCompletionDate } from "./scheduler";
 
@@ -46,7 +45,7 @@ export function applyPlanningEvent(input: {
   if (parsed.event.kind === "completed") {
     return applyCompletion(parsed.workspace, parsed.event, parsed.registry);
   }
-  return proposeReplan(parsed.workspace, parsed.event, parsed.blueprint, parsed.registry);
+  return proposeReplan(parsed.workspace, parsed.event, parsed.registry);
 }
 
 export function replayPlanningEvents(input: {
@@ -134,7 +133,6 @@ function applyCompletion(
 function proposeReplan(
   workspace: PlanningWorkspace,
   event: Exclude<PlanningEvent, { kind: "completed" | "replan_accepted" | "replan_discarded" }>,
-  blueprint: RoleBlueprint,
   registry: UnitRegistry,
 ): PlanningTransition {
   const completedHistory = completedIds(workspace);
@@ -154,21 +152,12 @@ function proposeReplan(
       availability,
       event.planningDate,
       "availability-changed",
+      completedHistory,
     );
     pathVersions = appendUnique(pathVersions, path);
   } else if (event.kind === "already_known") {
     const target = activeDailyUnit(workspace, event.unitId);
-    const updatedAudit = {
-      ...workspace.audit,
-      answers: workspace.audit.answers.map((answer) => answer.skillId === target.skillId
-        ? { ...answer, level: "independent" as const }
-        : answer),
-    };
-    const alternatives = buildLearningPaths({
-      blueprint, registry, audit: updatedAudit, availability, target: workspace.target,
-      planningDate: event.planningDate,
-    });
-    path = selectScope(alternatives.fullScope, alternatives.targetDate, getPath(workspace, workspace.activePathVersionId).scopeMode);
+    path = alreadyKnownPath(path, target, registry, availability, event.planningDate, completedHistory);
     pathVersions = appendUnique(pathVersions, path);
   } else if (event.kind === "too_hard") {
     path = reinforcePath(path, activeDailyUnit(workspace, event.unitId), registry, availability, event.planningDate);
@@ -194,7 +183,7 @@ function proposeReplan(
     : built;
   const diff = diffPlans({ active: activePlan, candidate: candidate.plan, completedUnitIds: completedHistory });
   const next = finalizeWorkspace(workspace, event, {
-    availability,
+    availability: workspace.availability,
     availabilityVersions,
     pathVersions,
     planVersions: appendUnique(workspace.planVersions, candidate.plan),
@@ -218,9 +207,13 @@ function applyDecision(
     throw new PlanningEventError("BASE_REVISION_MISMATCH");
   }
   const accepted = event.kind === "replan_accepted";
+  const candidatePath = getPath(workspace, candidate.pathVersionId);
+  const candidateAvailability = workspace.availabilityVersions.find(({ id }) => id === candidatePath.availabilityVersionId);
+  if (!candidateAvailability) throw new PlanningEventError("BASE_REVISION_MISMATCH");
   const next = finalizeWorkspace(workspace, event, {
     activePlanVersionId: accepted ? candidate.id : workspace.activePlanVersionId,
     activePathVersionId: accepted ? candidate.pathVersionId : workspace.activePathVersionId,
+    availability: accepted ? candidateAvailability : workspace.availability,
     pendingPlanVersionId: null,
   });
   return deepFreeze({ kind: accepted ? "accepted" : "discarded", event, workspace: next });
@@ -263,6 +256,72 @@ function reinforcePath(
   return derivedPath(source, units, phases, availability, planningDate, "too-hard-reinforcement");
 }
 
+function alreadyKnownPath(
+  source: LearningPathVersion,
+  target: DailyUnit,
+  registry: UnitRegistry,
+  availability: AvailabilityVersion,
+  planningDate: string,
+  completedUnitIds: ReadonlySet<string>,
+): LearningPathVersion {
+  const unfinishedLearnUnits = source.units.filter((unit) =>
+    unit.skillId === target.skillId
+    && unit.kind === "learn"
+    && !completedUnitIds.has(unit.id));
+  const existingCalibrations = source.units.filter((unit) =>
+    unit.skillId === target.skillId && unit.kind === "calibrate");
+  if (unfinishedLearnUnits.length === 0 && existingCalibrations.length === 1) return source;
+
+  const template = registry.tracks.find(({ skillId }) => skillId === target.skillId)?.templates
+    .find(({ kind }) => kind === "calibrate");
+  if (!template) throw new PlanningEventError("UNIT_NOT_ACTIVE");
+  const removedIds = new Set(unfinishedLearnUnits.map(({ id }) => id));
+  const firstRemovedIndex = source.units.findIndex(({ id }) => removedIds.has(id));
+  const externalPrerequisites = uniqueIds(unfinishedLearnUnits.flatMap(({ prerequisiteUnitIds }) =>
+    prerequisiteUnitIds.filter((id) => !removedIds.has(id))));
+  const existingCalibration = existingCalibrations[0];
+  const calibration: PathUnit = existingCalibration
+    ? { ...existingCalibration, prerequisiteUnitIds: uniqueIds([...existingCalibration.prerequisiteUnitIds, ...externalPrerequisites]) }
+    : {
+      id: deterministicId("path-unit", {
+        sourcePathVersionId: source.id,
+        skillId: target.skillId,
+        templateId: template.id,
+        templateVersion: template.version,
+        replacedUnitIds: [...removedIds].sort(compareOrdinal),
+      }),
+      templateId: template.id,
+      templateVersion: template.version,
+      checkpointId: null,
+      skillId: template.skillId,
+      kind: "calibrate",
+      estimatedMinutes: template.estimatedMinutes,
+      prerequisiteUnitIds: externalPrerequisites,
+    };
+  const units = source.units
+    .filter((unit) => !removedIds.has(unit.id) && (unit.kind !== "calibrate" || unit.skillId !== target.skillId))
+    .map((unit) => ({
+      ...unit,
+      prerequisiteUnitIds: uniqueIds(unit.prerequisiteUnitIds.map((id) => removedIds.has(id) ? calibration.id : id)),
+    }));
+  const insertionIndex = Math.max(0, firstRemovedIndex);
+  units.splice(insertionIndex, 0, calibration);
+  const phases = source.phases.map((phase) => {
+    let inserted = false;
+    const unitIds = phase.unitIds.flatMap((id) => {
+      if (!removedIds.has(id)) {
+        if (id === existingCalibration?.id) return [];
+        return [id];
+      }
+      if (inserted) return [];
+      inserted = true;
+      return [calibration.id];
+    });
+    return { ...phase, unitIds };
+  });
+  return derivedPath(source, units, phases, availability, planningDate, "already-known", completedUnitIds);
+}
+
 function derivedPath(
   source: LearningPathVersion,
   units: PathUnit[],
@@ -270,8 +329,9 @@ function derivedPath(
   availability: AvailabilityVersion,
   planningDate: string,
   reason: string,
+  completedUnitIds: ReadonlySet<string> = new Set(),
 ): LearningPathVersion {
-  const estimatedCompletionDate = estimateCompletionDate({ units, availability, planningDate });
+  const estimatedCompletionDate = estimateCompletionDate({ units, availability, planningDate, completedUnitIds });
   const sourceFields = {
     schemaVersion: source.schemaVersion,
     blueprintId: source.blueprintId,
@@ -333,17 +393,13 @@ function restoreDisplayedBudget(
   };
 }
 
-function selectScope(
-  fullScope: LearningPathVersion,
-  targetDate: LearningPathVersion | null,
-  scope: LearningPathVersion["scopeMode"],
-): LearningPathVersion {
-  return scope === "target-date" && targetDate ? targetDate : fullScope;
-}
-
 function completedIds(workspace: PlanningWorkspace): Set<string> {
   return new Set(workspace.events.filter((event): event is Extract<PlanningEvent, { kind: "completed" }> => event.kind === "completed")
     .map(({ unitId }) => unitId));
+}
+
+function uniqueIds(ids: readonly string[]): string[] {
+  return [...new Set(ids)];
 }
 
 function completedIdsForPath(workspace: PlanningWorkspace, path: LearningPathVersion): Set<string> {

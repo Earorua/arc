@@ -74,7 +74,7 @@ function availability(id = "availability-01", firstDayMinutes = 60): Availabilit
   };
 }
 
-function workspace(): PlanningWorkspace {
+function workspace(inputRegistry: UnitRegistry = registry): PlanningWorkspace {
   const audit = {
     id: "audit-01", schemaVersion: PLANNING_SCHEMA_VERSION, blueprintId: blueprint.id,
     blueprintVersion: blueprint.version,
@@ -83,8 +83,8 @@ function workspace(): PlanningWorkspace {
   };
   const target = { id: "target-01", schemaVersion: PLANNING_SCHEMA_VERSION, targetWeeks: 8, inputFingerprint: "target-fingerprint" };
   const currentAvailability = availability();
-  const paths = buildLearningPaths({ blueprint, registry, audit, availability: currentAvailability, target, planningDate: PLANNING_DATE });
-  const built = buildPlanVersion({ path: paths.fullScope, registry, availability: currentAvailability, planningDate: PLANNING_DATE, generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() });
+  const paths = buildLearningPaths({ blueprint, registry: inputRegistry, audit, availability: currentAvailability, target, planningDate: PLANNING_DATE });
+  const built = buildPlanVersion({ path: paths.fullScope, registry: inputRegistry, availability: currentAvailability, planningDate: PLANNING_DATE, generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() });
   return planningWorkspaceSchema.parse({
     id: "workspace-01", goalId: "goal-01", revision: 0, lastSequence: 0,
     audit, availability: currentAvailability, availabilityVersions: [currentAvailability], target,
@@ -174,9 +174,36 @@ describe("applyPlanningEvent", () => {
     });
     expect(availabilityTransition.kind).toBe("proposed");
     if (availabilityTransition.kind !== "proposed") throw new Error("Expected proposed transition");
-    expect(availabilityTransition.workspace.availability).toEqual(changed);
+    expect(availabilityTransition.workspace.availability).toEqual(initial.availability);
     expect(availabilityTransition.workspace.availabilityVersions).toEqual([initial.availability, changed]);
+    const availabilityCandidate = availabilityTransition.workspace.planVersions.find(({ id }) => id === availabilityTransition.workspace.pendingPlanVersionId)!;
+    const availabilityCandidatePath = availabilityTransition.workspace.pathVersions.find(({ id }) => id === availabilityCandidate.pathVersionId)!;
+    expect(availabilityCandidatePath.availabilityVersionId).toBe(changed.id);
     expect(availabilityTransition.diff.items.find(({ unitId }) => unitId === alpha.id)?.toDate).toBe("2026-08-13");
+  });
+
+  it("switches a proposed availability snapshot only on acceptance", () => {
+    const initial = workspace();
+    const changed = availability("availability-02", 0);
+    const proposalEvent = event(initial, { kind: "availability_changed", availability: changed, planningDate: PLANNING_DATE });
+    const proposed = applyPlanningEvent({ workspace: initial, blueprint, registry, event: proposalEvent }).workspace;
+    const candidateId = proposed.pendingPlanVersionId!;
+
+    expect(proposed.availability).toEqual(initial.availability);
+    expect(propose(initial, "skipped").workspace.availability).toEqual(initial.availability);
+
+    const discarded = applyPlanningEvent({
+      workspace: proposed, blueprint, registry,
+      event: event(proposed, { kind: "replan_discarded", candidatePlanVersionId: candidateId }, { targetPlanVersionId: initial.activePlanVersionId }),
+    }).workspace;
+    expect(discarded.availability).toEqual(initial.availability);
+
+    const proposedAgain = applyPlanningEvent({ workspace: initial, blueprint, registry, event: proposalEvent }).workspace;
+    const accepted = applyPlanningEvent({
+      workspace: proposedAgain, blueprint, registry,
+      event: event(proposedAgain, { kind: "replan_accepted", candidatePlanVersionId: proposedAgain.pendingPlanVersionId! }, { targetPlanVersionId: initial.activePlanVersionId }),
+    }).workspace;
+    expect(accepted.availability).toEqual(changed);
   });
 
   it("rejects unavailable reinforcement without changing caller state", () => {
@@ -210,6 +237,80 @@ describe("applyPlanningEvent", () => {
 
     expect(rescheduledUnits.filter(({ skillId, required }) => skillId === "alpha" && required).map(({ kind }) => kind))
       .toEqual(["calibrate"]);
+  });
+
+  it("replaces only unfinished learn units and preserves completed skill history across later replans", () => {
+    const alphaTrack = registry.tracks.find(({ skillId }) => skillId === "alpha")!;
+    const firstLearn = alphaTrack.templates.find(({ kind }) => kind === "learn")!;
+    const secondLearn = {
+      ...firstLearn,
+      id: "alpha-learn-02",
+      title: "learn alpha continuation",
+      steps: [{ ...firstLearn.steps[0]!, id: "alpha-learn-02-step" }],
+    };
+    const multiRegistry = unitRegistrySchema.parse({
+      ...registry,
+      tracks: registry.tracks.map((track) => track.skillId === "alpha"
+        ? { ...track, templates: [firstLearn, secondLearn, ...track.templates.filter(({ kind }) => kind !== "learn")] }
+        : track),
+    });
+    const initial = workspace(multiRegistry);
+    const completedUnit = activeUnit(initial, "alpha");
+    const historicalDate = completedUnit.scheduledDate;
+    const afterCompletion = applyPlanningEvent({
+      workspace: initial, blueprint, registry: multiRegistry,
+      event: event(initial, { kind: "completed", unitId: completedUnit.id, actualMinutes: 60, planningDate: "2026-08-13" }),
+    }).workspace;
+    const unfinishedUnit = activeUnit(afterCompletion, "alpha");
+    const knownProposal = applyPlanningEvent({
+      workspace: afterCompletion, blueprint, registry: multiRegistry,
+      event: event(afterCompletion, { kind: "already_known", unitId: unfinishedUnit.id, planningDate: "2026-08-13" }),
+    });
+    if (knownProposal.kind !== "proposed") throw new Error("Expected proposed transition");
+    const candidatePlan = knownProposal.workspace.planVersions.find(({ id }) => id === knownProposal.workspace.pendingPlanVersionId)!;
+    const candidatePath = knownProposal.workspace.pathVersions.find(({ id }) => id === candidatePlan.pathVersionId)!;
+    const alphaPathUnits = candidatePath.units.filter(({ skillId }) => skillId === "alpha");
+    const calibration = alphaPathUnits.find(({ kind }) => kind === "calibrate")!;
+    const betaUnit = candidatePath.units.find(({ skillId }) => skillId === "beta")!;
+
+    expect(alphaPathUnits.filter(({ kind }) => kind === "learn").map(({ id }) => id)).toEqual([completedUnit.id]);
+    expect(alphaPathUnits.filter(({ kind }) => kind === "calibrate")).toHaveLength(1);
+    expect(alphaPathUnits.some(({ id }) => id === unfinishedUnit.id)).toBe(false);
+    expect(calibration.prerequisiteUnitIds).toContain(completedUnit.id);
+    expect(betaUnit.prerequisiteUnitIds).toContain(calibration.id);
+    expect(knownProposal.workspace.dailyUnits.find(({ planVersionId, id }) => planVersionId === initial.activePlanVersionId && id === completedUnit.id)?.scheduledDate)
+      .toBe(historicalDate);
+
+    const accepted = applyPlanningEvent({
+      workspace: knownProposal.workspace, blueprint, registry: multiRegistry,
+      event: event(knownProposal.workspace, { kind: "replan_accepted", candidatePlanVersionId: candidatePlan.id }, { targetPlanVersionId: afterCompletion.activePlanVersionId }),
+    }).workspace;
+    const activeCalibration = activeUnit(accepted, "alpha");
+    const secondProposal = applyPlanningEvent({
+      workspace: accepted, blueprint, registry: multiRegistry,
+      event: event(accepted, { kind: "already_known", unitId: activeCalibration.id, planningDate: "2026-08-13" }),
+    }).workspace;
+    const secondCandidate = secondProposal.planVersions.find(({ id }) => id === secondProposal.pendingPlanVersionId)!;
+    const secondPath = secondProposal.pathVersions.find(({ id }) => id === secondCandidate.pathVersionId)!;
+    expect(secondPath.units.filter(({ skillId, kind }) => skillId === "alpha" && kind === "calibrate")).toHaveLength(1);
+    expect(secondPath.units.some(({ id }) => id === completedUnit.id)).toBe(true);
+
+    const secondAccepted = applyPlanningEvent({
+      workspace: secondProposal, blueprint, registry: multiRegistry,
+      event: event(secondProposal, { kind: "replan_accepted", candidatePlanVersionId: secondCandidate.id }, { targetPlanVersionId: accepted.activePlanVersionId }),
+    }).workspace;
+    const changed = {
+      ...availability("availability-02"),
+      exceptions: [{ date: "2026-08-13", minutes: 0, reason: "Changed schedule" }],
+    };
+    const availabilityProposal = applyPlanningEvent({
+      workspace: secondAccepted, blueprint, registry: multiRegistry,
+      event: event(secondAccepted, { kind: "availability_changed", availability: changed, planningDate: "2026-08-13" }),
+    }).workspace;
+    const availabilityCandidate = availabilityProposal.planVersions.find(({ id }) => id === availabilityProposal.pendingPlanVersionId)!;
+    const availabilityPath = availabilityProposal.pathVersions.find(({ id }) => id === availabilityCandidate.pathVersionId)!;
+    expect(availabilityPath.units.filter(({ skillId, kind }) => skillId === "alpha" && kind === "calibrate")).toHaveLength(1);
+    expect(availabilityPath.units.some(({ id }) => id === completedUnit.id)).toBe(true);
   });
 
   it("accepts and discards only the exact pending candidate against its base", () => {
