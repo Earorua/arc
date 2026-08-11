@@ -504,6 +504,17 @@ describe("adaptive planning contracts", () => {
     expect(() => planVersionSchema.parse({ ...validPlan(), dailyUnitIds: ["daily-unit-1", "daily-unit-1"] })).toThrow();
   });
 
+  it("reports an unlisted late-day reference at its standalone plan-day path", () => {
+    const plan = validPlan();
+    const result = planVersionSchema.safeParse({
+      ...plan,
+      days: plan.days.map((day, index) => index === 6 ? { ...day, budgetMinutes: 60, status: "scheduled" as const, primaryUnitId: "unlisted-unit" } : day),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error.issues.some((issue) => issue.path.join(".") === "days.6.primaryUnitId")).toBe(true);
+  });
+
   it.each([
     { kind: "completed", unitId: "daily-unit-1", actualMinutes: 48, planningDate: "2026-08-12" },
     { kind: "completed", unitId: "daily-unit-1", actualMinutes: null, planningDate: "2026-08-12" },
@@ -528,6 +539,20 @@ describe("adaptive planning contracts", () => {
       availability: validAvailability(),
       unitId: "daily-unit-1",
       planningDate: "2026-08-12",
+    })).toThrow();
+  });
+
+  it("requires availability-change events to retain an exact availability snapshot", () => {
+    const event = validAvailabilityChangedEvent();
+    const validWorkspaceWithEvent = { ...validWorkspace(), lastSequence: 1, events: [event] };
+    expect(planningWorkspaceSchema.parse(validWorkspaceWithEvent)).toEqual(validWorkspaceWithEvent);
+    expect(() => planningWorkspaceSchema.parse({
+      ...validWorkspaceWithEvent,
+      events: [{ ...event, availability: { ...event.availability, id: "availability-missing" } }],
+    })).toThrow();
+    expect(() => planningWorkspaceSchema.parse({
+      ...validWorkspaceWithEvent,
+      events: [{ ...event, availability: { ...event.availability, inputFingerprint: "different-event-snapshot" } }],
     })).toThrow();
   });
 
@@ -700,6 +725,19 @@ function validCompletedEvent() {
     kind: "completed" as const,
     unitId: "daily-unit-1",
     actualMinutes: 48,
+    planningDate: "2026-08-12",
+  };
+}
+
+function validAvailabilityChangedEvent() {
+  return {
+    eventId: "event-availability-1",
+    mutationId: "mutation-availability-1",
+    sequence: 1,
+    targetPlanVersionId: "plan-1",
+    occurredAt: "2026-08-12T08:00:00.000Z",
+    kind: "availability_changed" as const,
+    availability: validAvailability(),
     planningDate: "2026-08-12",
   };
 }

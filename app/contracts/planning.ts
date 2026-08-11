@@ -309,13 +309,16 @@ export const planVersionSchema = z.object({
 }).strict().superRefine((plan, ctx) => {
   issueDuplicateIds(ctx, plan.days.map(({ date }) => date), ["days"], "Plan dates must be unique");
   issueDuplicateIds(ctx, plan.dailyUnitIds, ["dailyUnitIds"], "Daily unit IDs must be unique");
-  const placements = plan.days.flatMap((day) => [day.primaryUnitId, day.stretchUnitId].filter((id): id is string => id !== null));
-  issueDuplicateIds(ctx, placements, ["days"], "A daily unit may be placed only once");
+  const placements = plan.days.flatMap((day, dayIndex) => [
+    { dayIndex, slot: "primary" as const, unitId: day.primaryUnitId },
+    { dayIndex, slot: "stretch" as const, unitId: day.stretchUnitId },
+  ].filter((placement): placement is { dayIndex: number; slot: "primary" | "stretch"; unitId: string } => placement.unitId !== null));
+  issueDuplicateIds(ctx, placements.map(({ unitId }) => unitId), ["days"], "A daily unit may be placed only once");
   const unitIds = new Set(plan.dailyUnitIds);
-  placements.forEach((unitId, index) => {
-    if (!unitIds.has(unitId)) ctx.addIssue({ code: "custom", path: ["days", index], message: "Plan-day unit must be listed in dailyUnitIds" });
+  placements.forEach(({ dayIndex, slot, unitId }) => {
+    if (!unitIds.has(unitId)) ctx.addIssue({ code: "custom", path: ["days", dayIndex, `${slot}UnitId`], message: "Plan-day unit must be listed in dailyUnitIds" });
   });
-  if (placements.length !== plan.dailyUnitIds.length || placements.some((id) => !unitIds.has(id))) {
+  if (placements.length !== plan.dailyUnitIds.length || placements.some(({ unitId }) => !unitIds.has(unitId))) {
     ctx.addIssue({ code: "custom", path: ["dailyUnitIds"], message: "Every daily unit must have exactly one plan-day placement" });
   }
 });
@@ -447,6 +450,14 @@ export const planningWorkspaceSchema = z.object({
   });
   workspace.events.forEach((event, eventIndex) => {
     if (!plans.has(event.targetPlanVersionId)) ctx.addIssue({ code: "custom", path: ["events", eventIndex, "targetPlanVersionId"], message: "Event target plan must resolve" });
+    if (event.kind === "availability_changed") {
+      const availability = availabilityVersions.get(event.availability.id);
+      if (!availability
+        || availability.inputFingerprint !== event.availability.inputFingerprint
+        || JSON.stringify(availability) !== JSON.stringify(event.availability)) {
+        ctx.addIssue({ code: "custom", path: ["events", eventIndex, "availability"], message: "Availability-change event must match a retained availability snapshot" });
+      }
+    }
     if ("unitId" in event) {
       const targetPlan = plans.get(event.targetPlanVersionId);
       if (!units.has(`${event.targetPlanVersionId}:${event.unitId}`) || !targetPlan?.dailyUnitIds.includes(event.unitId)) {
