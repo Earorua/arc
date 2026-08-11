@@ -9,7 +9,7 @@ import {
   type UnitRegistry,
   type UnitTemplate,
 } from "../../../app/contracts/planning";
-import { calendarDates } from "../../../app/lib/planning/calendar";
+import { addCalendarDays, calendarDates, weekdayForDate } from "../../../app/lib/planning/calendar";
 import {
   PlanningScheduleError,
   buildPlanVersion,
@@ -238,8 +238,9 @@ describe("estimateCompletionDate", () => {
     );
   });
 
-  it("reports SCHEDULE_HORIZON_EXCEEDED when schedulable units cannot finish within 3660 days", () => {
-    const units = Array.from({ length: 2000 }, (_, index) => pathUnit({
+  it("allows the final required unit to land on exact horizon day 3660", () => {
+    const planningDate = "2026-12-28";
+    const units = Array.from({ length: 523 }, (_, index) => pathUnit({
       id: `skill-${index + 1}-unit`,
       skillId: `skill-${index + 1}`,
       minutes: 60,
@@ -247,21 +248,104 @@ describe("estimateCompletionDate", () => {
     }));
     const sparse = availability({
       weekdays: {
-        monday: 60,
+        monday: 0,
         tuesday: 0,
         wednesday: 0,
         thursday: 0,
         friday: 0,
-        saturday: 0,
+        saturday: 60,
+        sunday: 0,
+      },
+      weeklyMinutes: 60,
+    });
+
+    expect(estimateCompletionDate({ units, availability: sparse, planningDate }))
+      .toBe(addCalendarDays(planningDate, 3_659));
+  });
+
+  it("reports SCHEDULE_HORIZON_EXCEEDED when completion would require day 3661 or later", () => {
+    const planningDate = "2026-12-28";
+    const units = Array.from({ length: 524 }, (_, index) => pathUnit({
+      id: `skill-${index + 1}-unit`,
+      skillId: `skill-${index + 1}`,
+      minutes: 60,
+      prerequisites: index === 0 ? [] : [`skill-${index}-unit`],
+    }));
+    const sparse = availability({
+      weekdays: {
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 60,
         sunday: 0,
       },
       weeklyMinutes: 60,
     });
 
     expectScheduleError(
-      () => estimateCompletionDate({ units, availability: sparse, planningDate: PLANNING_DATE }),
+      () => estimateCompletionDate({ units, availability: sparse, planningDate }),
       "SCHEDULE_HORIZON_EXCEEDED",
     );
+  });
+
+  it("completes on the first day near year 9999 without eagerly overflowing the horizon", () => {
+    const units = [pathUnit({ id: "alpha-unit", minutes: 60 })];
+    const alwaysAvailable = availability({
+      weekdays: {
+        monday: 60,
+        tuesday: 60,
+        wednesday: 60,
+        thursday: 60,
+        friday: 60,
+        saturday: 60,
+        sunday: 60,
+      },
+      weeklyMinutes: 420,
+    });
+
+    expect(estimateCompletionDate({
+      units,
+      availability: alwaysAvailable,
+      planningDate: "9999-12-31",
+    })).toBe("9999-12-31");
+  });
+
+  it("keeps UNIT_NEVER_FITS precedence near the representable year boundary", () => {
+    const units = [pathUnit({ id: "alpha-unit", minutes: 90 })];
+    const inputAvailability = availability();
+
+    expectScheduleError(() => estimateCompletionDate({
+      units,
+      availability: inputAvailability,
+      planningDate: "9999-12-31",
+    }), "UNIT_NEVER_FITS");
+  });
+
+  it("reports horizon exhaustion when a near-year-boundary unit could fit only later", () => {
+    const units = [pathUnit({ id: "alpha-unit", minutes: 60 })];
+    const inputAvailability = availability({
+      weekdays: {
+        monday: 60,
+        tuesday: 60,
+        wednesday: 60,
+        thursday: 60,
+        friday: 60,
+        saturday: 60,
+        sunday: 60,
+      },
+      weeklyMinutes: 420,
+    });
+    const currentWeekday = weekdayForDate("9999-12-31");
+    inputAvailability.weekdays[currentWeekday] = 30;
+    inputAvailability.weeklyMinutes = 390;
+
+    expectScheduleError(() => estimateCompletionDate({
+      units,
+      availability: inputAvailability,
+      planningDate: "9999-12-31",
+    }), "SCHEDULE_HORIZON_EXCEEDED");
   });
 
   it("keeps calendar dates exact across a DST boundary", () => {
@@ -289,6 +373,57 @@ describe("estimateCompletionDate", () => {
       planningDate: "2026-10-31",
     })).toBe("2026-11-02");
   });
+
+  it("validates unique IDs, prerequisite resolution, and iterative acyclicity", () => {
+    const invalidCases = [
+      [pathUnit({ id: "alpha-unit", prerequisites: ["missing-unit"] })],
+      [pathUnit({ id: "alpha-unit" }), pathUnit({ id: "alpha-unit" })],
+      [
+        pathUnit({ id: "alpha-unit", prerequisites: ["beta-unit"] }),
+        pathUnit({ id: "beta-unit", prerequisites: ["alpha-unit"] }),
+      ],
+      [pathUnit({ id: "alpha-unit", prerequisites: ["alpha-unit"] })],
+    ];
+
+    for (const units of invalidCases) {
+      expectScheduleError(() => estimateCompletionDate({
+        units,
+        availability: availability(),
+        planningDate: PLANNING_DATE,
+      }), "INVALID_SCHEDULE_INPUT");
+    }
+  });
+
+  it("schedules an unordered valid DAG by eligibility while retaining declared tie order", () => {
+    const units = [
+      pathUnit({ id: "dependent-unit", prerequisites: ["foundation-unit"] }),
+      pathUnit({ id: "foundation-unit" }),
+      pathUnit({ id: "parallel-unit" }),
+    ];
+
+    expect(estimateCompletionDate({
+      units,
+      availability: availability(),
+      planningDate: PLANNING_DATE,
+    })).toBe("2026-12-31");
+  });
+
+  it.each(["past", "day-366"] as const)(
+    "rejects a %s availability exception outside the supported horizon",
+    (position) => {
+      const exceptionDate = position === "past"
+        ? addCalendarDays(PLANNING_DATE, -1)
+        : addCalendarDays(PLANNING_DATE, 366);
+      const units = [pathUnit({ id: "alpha-unit" })];
+      expectScheduleError(() => estimateCompletionDate({
+        units,
+        availability: availability({
+          exceptions: [{ date: exceptionDate, minutes: 60, reason: "Out of range" }],
+        }),
+        planningDate: PLANNING_DATE,
+      }), "INVALID_SCHEDULE_INPUT");
+    },
+  );
 });
 
 describe("buildPlanVersion", () => {
@@ -526,6 +661,25 @@ describe("buildPlanVersion", () => {
     expectScheduleError(() => buildPlanVersion(input), "INVALID_SCHEDULE_INPUT");
   });
 
+  it("validates availability horizon and path graph at the plan boundary", () => {
+    const validUnits = [pathUnit({ id: "alpha-unit" })];
+    expectScheduleError(() => buildPlanVersion(buildInput(validUnits, {
+      availability: availability({
+        exceptions: [{
+          date: addCalendarDays(PLANNING_DATE, 366),
+          minutes: 60,
+          reason: "Out of range",
+        }],
+      }),
+    })), "INVALID_SCHEDULE_INPUT");
+
+    const cyclic = [
+      pathUnit({ id: "alpha-unit", prerequisites: ["beta-unit"] }),
+      pathUnit({ id: "beta-unit", prerequisites: ["alpha-unit"] }),
+    ];
+    expectScheduleError(() => buildPlanVersion(buildInput(cyclic)), "INVALID_SCHEDULE_INPUT");
+  });
+
   it("contains hostile object traps at the typed public boundary", () => {
     const hostile = new Proxy({}, {
       ownKeys() {
@@ -543,6 +697,150 @@ describe("buildPlanVersion", () => {
     expect(caught).toBeInstanceOf(PlanningScheduleError);
     expect((caught as PlanningScheduleError).code).toBe("INVALID_SCHEDULE_INPUT");
     expect((caught as Error).message).not.toContain("DO-NOT-LEAK");
+  });
+
+  it.each(["estimate", "plan"] as const)(
+    "rejects a top-level own getter without invoking it at the %s boundary",
+    (boundary) => {
+      let getterCalls = 0;
+      const units = [pathUnit({ id: "alpha-unit" })];
+      const input = boundary === "estimate"
+        ? {
+          availability: availability(),
+          planningDate: PLANNING_DATE,
+        } as Partial<Parameters<typeof estimateCompletionDate>[0]>
+        : buildInput(units) as Partial<Parameters<typeof buildPlanVersion>[0]>;
+      Object.defineProperty(input, boundary === "estimate" ? "units" : "path", {
+        enumerable: true,
+        get() {
+          getterCalls += 1;
+          throw new Error("DO-NOT-INVOKE-TOP-LEVEL-GETTER");
+        },
+      });
+
+      const operation = boundary === "estimate"
+        ? () => estimateCompletionDate(input as Parameters<typeof estimateCompletionDate>[0])
+        : () => buildPlanVersion(input as Parameters<typeof buildPlanVersion>[0]);
+      expectScheduleError(operation, "INVALID_SCHEDULE_INPUT");
+      expect(getterCalls).toBe(0);
+    },
+  );
+
+  it.each(["estimate", "plan"] as const)(
+    "contains a nested accessor failure during %s schema parsing",
+    (boundary) => {
+      const units = [pathUnit({ id: "alpha-unit" })];
+      const inputAvailability = availability();
+      let getterCalls = 0;
+      Object.defineProperty(inputAvailability.weekdays, "monday", {
+        enumerable: true,
+        get() {
+          getterCalls += 1;
+          throw new Error("DO-NOT-LEAK-NESTED-GETTER");
+        },
+      });
+      const operation = boundary === "estimate"
+        ? () => estimateCompletionDate({
+          units,
+          availability: inputAvailability,
+          planningDate: PLANNING_DATE,
+        })
+        : () => buildPlanVersion(buildInput(units, { availability: inputAvailability }));
+
+      expectScheduleError(operation, "INVALID_SCHEDULE_INPUT");
+      expect(getterCalls).toBe(0);
+    },
+  );
+
+  it.each(["estimate", "plan"] as const)(
+    "contains a nested proxy failure during %s schema parsing",
+    (boundary) => {
+      const units = [pathUnit({ id: "alpha-unit" })];
+      const inputAvailability = availability();
+      inputAvailability.weekdays = new Proxy(inputAvailability.weekdays, {
+        ownKeys() {
+          throw new Error("DO-NOT-LEAK-NESTED-PROXY");
+        },
+      });
+      const operation = boundary === "estimate"
+        ? () => estimateCompletionDate({
+          units,
+          availability: inputAvailability,
+          planningDate: PLANNING_DATE,
+        })
+        : () => buildPlanVersion(buildInput(units, { availability: inputAvailability }));
+
+      expectScheduleError(operation, "INVALID_SCHEDULE_INPUT");
+    },
+  );
+
+  it.each(["estimate", "plan"] as const)(
+    "contains a hostile completed-unit Set iterator at the %s boundary",
+    (boundary) => {
+      class HostileSet extends Set<string> {
+        override [Symbol.iterator](): SetIterator<string> {
+          throw new Error("DO-NOT-LEAK-SET-ITERATOR");
+        }
+      }
+      const units = [pathUnit({ id: "alpha-unit" })];
+      const completedUnitIds = new HostileSet(["alpha-unit"]);
+      const operation = boundary === "estimate"
+        ? () => estimateCompletionDate({
+          units,
+          availability: availability(),
+          planningDate: PLANNING_DATE,
+          completedUnitIds,
+        })
+        : () => buildPlanVersion(buildInput(units, { completedUnitIds }));
+
+      expectScheduleError(operation, "INVALID_SCHEDULE_INPUT");
+    },
+  );
+
+  it("does not reparse availability on every horizon day at maximum supported shape", () => {
+    const units = Array.from({ length: 524 }, (_, index) => pathUnit({
+      id: `skill-${index + 1}-unit`,
+      skillId: `skill-${index + 1}`,
+      minutes: 60,
+      prerequisites: index === 0 ? [] : [`skill-${index}-unit`],
+    }));
+    const sparse = availability({
+      weekdays: {
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 60,
+        sunday: 0,
+      },
+      weeklyMinutes: 60,
+    });
+    const OriginalDateTimeFormat = Intl.DateTimeFormat;
+    const originalSetHas = Set.prototype.has;
+    let constructorCalls = 0;
+    let setHasCalls = 0;
+    Intl.DateTimeFormat = function (...args: ConstructorParameters<typeof Intl.DateTimeFormat>) {
+      constructorCalls += 1;
+      return new OriginalDateTimeFormat(...args);
+    } as typeof Intl.DateTimeFormat;
+    Set.prototype.has = function (this: Set<unknown>, value: unknown): boolean {
+      setHasCalls += 1;
+      return originalSetHas.call(this, value);
+    } as typeof Set.prototype.has;
+    try {
+      expectScheduleError(() => estimateCompletionDate({
+        units,
+        availability: sparse,
+        planningDate: "2026-12-28",
+      }), "SCHEDULE_HORIZON_EXCEEDED");
+    } finally {
+      Intl.DateTimeFormat = OriginalDateTimeFormat;
+      Set.prototype.has = originalSetHas;
+    }
+
+    expect(constructorCalls).toBeLessThanOrEqual(3);
+    expect(setHasCalls).toBeLessThan(50_000);
   });
 });
 
