@@ -1,15 +1,17 @@
 import { z } from "zod";
-import { calendarDateSchema, publicHttpsUrlSchema } from "./intelligence";
+import { calendarDateSchema as baseCalendarDateSchema, publicHttpsUrlSchema as basePublicHttpsUrlSchema } from "./intelligence";
 
 export const PLANNING_SCHEMA_VERSION = "2026.08.1" as const;
 
-const idSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
-const versionSchema = z.string().regex(/^\d{4}\.\d{2}\.\d+$/u);
+const idSchema = z.string().max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
+const versionSchema = z.string().max(32).regex(/^\d{4}\.\d{2}\.\d+$/u);
 const fingerprintSchema = z.string().trim().min(1).max(256);
-const shortTextSchema = z.string().trim().min(1);
+const shortTextSchema = z.string().trim().min(1).max(1000);
 const minuteSchema = z.number().int().positive().max(720);
 const availabilityMinuteSchema = z.union([z.literal(0), z.number().int().min(15).max(720)]);
-const timestampSchema = z.string().datetime({ offset: true });
+const calendarDateSchema = baseCalendarDateSchema.max(10);
+const publicHttpsUrlSchema = basePublicHttpsUrlSchema.max(2048);
+const timestampSchema = z.string().max(64).datetime({ offset: true });
 
 function hasDuplicates(values: readonly string[]): boolean {
   return new Set(values).size !== values.length;
@@ -93,7 +95,7 @@ function isSupportedTimeZone(timeZone: string): boolean {
 export const availabilityVersionSchema = z.object({
   id: idSchema,
   schemaVersion: z.literal(PLANNING_SCHEMA_VERSION),
-  timeZone: z.string().min(1).refine(isSupportedTimeZone, "Unsupported IANA time zone"),
+  timeZone: z.string().min(1).max(128).refine(isSupportedTimeZone, "Unsupported IANA time zone"),
   weekdays: weekdayMinutesSchema,
   exceptions: z.array(availabilityExceptionSchema).max(90),
   weeklyMinutes: z.number().int().min(30).max(2400),
@@ -147,6 +149,9 @@ export const unitTemplateSchema = z.object({
   estimatedMinutes: minuteSchema,
 }).strict().superRefine((template, ctx) => {
   issueDuplicateIds(ctx, template.alternativeResourceIds, ["alternativeResourceIds"], "Alternative resource IDs must be unique");
+  if (template.alternativeResourceIds.includes(template.primaryResourceId)) {
+    ctx.addIssue({ code: "custom", path: ["alternativeResourceIds"], message: "Primary resource cannot also be an alternative" });
+  }
   issueDuplicateIds(ctx, template.steps.map(({ id }) => id), ["steps"], "Step IDs must be unique");
   issueDuplicateIds(ctx, template.checkpoints.map(({ id }) => id), ["checkpoints"], "Checkpoint IDs must be unique");
   issueDuplicateIds(ctx, template.completionCriteria, ["completionCriteria"], "Completion criteria must be unique");
@@ -269,6 +274,9 @@ export const dailyUnitSchema = z.object({
   estimatedMinutes: minuteSchema,
 }).strict().superRefine((unit, ctx) => {
   issueDuplicateIds(ctx, unit.alternativeResourceIds, ["alternativeResourceIds"], "Alternative resource IDs must be unique");
+  if (unit.alternativeResourceIds.includes(unit.primaryResourceId)) {
+    ctx.addIssue({ code: "custom", path: ["alternativeResourceIds"], message: "Primary resource cannot also be an alternative" });
+  }
   issueDuplicateIds(ctx, unit.steps.map(({ id }) => id), ["steps"], "Step IDs must be unique");
   issueDuplicateIds(ctx, unit.completionCriteria, ["completionCriteria"], "Completion criteria must be unique");
   issueDuplicateIds(ctx, unit.rubric, ["rubric"], "Rubric rows must be unique");
@@ -401,8 +409,14 @@ export const planningWorkspaceSchema = z.object({
   if (!paths.has(workspace.activePathVersionId)) ctx.addIssue({ code: "custom", path: ["activePathVersionId"], message: "Active path must resolve" });
   if (!plans.has(workspace.activePlanVersionId)) ctx.addIssue({ code: "custom", path: ["activePlanVersionId"], message: "Active plan must resolve" });
   if (workspace.pendingPlanVersionId !== null && !plans.has(workspace.pendingPlanVersionId)) ctx.addIssue({ code: "custom", path: ["pendingPlanVersionId"], message: "Pending plan must resolve" });
+  workspace.pathVersions.forEach((path, pathIndex) => {
+    if (path.auditVersionId !== workspace.audit.id) ctx.addIssue({ code: "custom", path: ["pathVersions", pathIndex, "auditVersionId"], message: "Path audit must be the workspace audit" });
+    if (path.availabilityVersionId !== workspace.availability.id) ctx.addIssue({ code: "custom", path: ["pathVersions", pathIndex, "availabilityVersionId"], message: "Path availability must be the workspace availability" });
+    if (path.targetId !== workspace.target.id) ctx.addIssue({ code: "custom", path: ["pathVersions", pathIndex, "targetId"], message: "Path target must be the workspace target" });
+  });
   workspace.planVersions.forEach((plan, planIndex) => {
     if (!paths.has(plan.pathVersionId)) ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "pathVersionId"], message: "Plan path must resolve" });
+    if (plan.baseVersionId !== null && !plans.has(plan.baseVersionId)) ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "baseVersionId"], message: "Plan base version must resolve" });
     plan.dailyUnitIds.forEach((unitId, unitIndex) => {
       const unit = units.get(unitId);
       if (!unit) ctx.addIssue({ code: "custom", path: ["planVersions", planIndex, "dailyUnitIds", unitIndex], message: "Plan daily unit must resolve" });
@@ -417,7 +431,12 @@ export const planningWorkspaceSchema = z.object({
   });
   workspace.events.forEach((event, eventIndex) => {
     if (!plans.has(event.targetPlanVersionId)) ctx.addIssue({ code: "custom", path: ["events", eventIndex, "targetPlanVersionId"], message: "Event target plan must resolve" });
-    if ("unitId" in event && !units.has(event.unitId)) ctx.addIssue({ code: "custom", path: ["events", eventIndex, "unitId"], message: "Event unit must resolve" });
+    if ("unitId" in event) {
+      const targetPlan = plans.get(event.targetPlanVersionId);
+      if (!units.has(event.unitId) || !targetPlan?.dailyUnitIds.includes(event.unitId)) {
+        ctx.addIssue({ code: "custom", path: ["events", eventIndex, "unitId"], message: "Event unit must resolve within its target plan" });
+      }
+    }
     if ("candidatePlanVersionId" in event && !plans.has(event.candidatePlanVersionId)) ctx.addIssue({ code: "custom", path: ["events", eventIndex, "candidatePlanVersionId"], message: "Candidate plan must resolve" });
   });
   const maxSequence = workspace.events.reduce((maximum, event) => Math.max(maximum, event.sequence), 0);

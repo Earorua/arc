@@ -289,16 +289,16 @@ describe("adaptive planning contracts", () => {
     ["audit evidence", () => ({ ...validAudit(), answers: [], evidence: Array.from({ length: 193 }, (_, index) => ({ ...validAudit().evidence[0], id: `evidence-${index}`, skillId: `skill-${index}` })) }), skillAuditVersionSchema],
     ["evidence references", () => ({ skillId: "typescript", level: "guided", evidenceRefs: ["a", "b", "c", "d"] }), skillAuditAnswerSchema],
     ["availability exceptions", () => ({ ...validAvailability(), exceptions: Array.from({ length: 91 }, (_, index) => ({ date: `2026-${String(Math.floor(index / 28) + 1).padStart(2, "0")}-${String(index % 28 + 1).padStart(2, "0")}`, minutes: 30, reason: null })) }), availabilityVersionSchema],
-    ["registry tracks", () => ({ ...validRegistry(), tracks: Array.from({ length: 65 }, (_, index) => ({ skillId: `skill-${index}`, templates: [] })) }), unitRegistrySchema],
+    ["registry tracks", () => ({ ...validRegistry(), tracks: Array.from({ length: 65 }, (_, index) => ({ skillId: `skill-${index}`, templates: [{ ...validTemplate(), id: `template-${index}`, skillId: `skill-${index}` }] })) }), unitRegistrySchema],
     ["templates per track", () => ({ skillId: "typescript", templates: Array.from({ length: 9 }, (_, index) => ({ ...validTemplate(), id: `template-${index}` })) }), skillUnitTrackSchema],
-    ["unit steps", () => ({ ...validTemplate(), steps: Array.from({ length: 13 }, (_, index) => ({ id: `step-${index}`, label: "Do focused work", minutes: 5 })) }), unitTemplateSchema],
-    ["unit checkpoints", () => ({ ...validTemplate(), checkpoints: Array.from({ length: 9 }, (_, index) => ({ id: `checkpoint-${index}`, label: "Checkpoint", stepIds: ["read"], estimatedMinutes: 30 })) }), unitTemplateSchema],
-    ["completion criteria", () => ({ ...validTemplate(), completionCriteria: Array.from({ length: 9 }, () => "Criterion") }), unitTemplateSchema],
-    ["rubric rows", () => ({ ...validTemplate(), rubric: Array.from({ length: 7 }, () => "Rubric row") }), unitTemplateSchema],
-    ["path units", () => ({ ...validPath(), phases: [], units: Array.from({ length: 2001 }, (_, index) => ({ ...validPath().units[0], id: `unit-${index}` })) }), learningPathVersionSchema],
-    ["workspace daily units", () => ({ ...validWorkspace(), planVersions: [], dailyUnits: Array.from({ length: 2001 }, (_, index) => ({ ...validDailyUnit(), id: `daily-${index}` })) }), planningWorkspaceSchema],
+    ["unit steps", () => ({ ...validTemplate(), steps: Array.from({ length: 13 }, (_, index) => ({ id: `step-${index}`, label: "Do focused work", minutes: 5 })), checkpoints: [{ id: "checkpoint-0", label: "Checkpoint", stepIds: ["step-0"], estimatedMinutes: 5 }] }), unitTemplateSchema],
+    ["unit checkpoints", () => ({ ...validTemplate(), steps: Array.from({ length: 9 }, (_, index) => ({ id: `step-${index}`, label: "Do focused work", minutes: 10 })), checkpoints: Array.from({ length: 9 }, (_, index) => ({ id: `checkpoint-${index}`, label: "Checkpoint", stepIds: [`step-${index}`], estimatedMinutes: 10 })), estimatedMinutes: 90 }), unitTemplateSchema],
+    ["completion criteria", () => ({ ...validTemplate(), completionCriteria: Array.from({ length: 9 }, (_, index) => `Criterion ${index}`) }), unitTemplateSchema],
+    ["rubric rows", () => ({ ...validTemplate(), rubric: Array.from({ length: 7 }, (_, index) => `Rubric row ${index}`) }), unitTemplateSchema],
+    ["path units", () => ({ ...validPath(), phases: [{ ...validPath().phases[0], unitIds: Array.from({ length: 2000 }, (_, index) => `unit-${index}`) }, { ...validPath().phases[0], phaseId: "phase-2", unitIds: ["unit-2000"] }], units: Array.from({ length: 2001 }, (_, index) => ({ ...validPath().units[0], id: `unit-${index}` })) }), learningPathVersionSchema],
+    ["workspace daily units", () => ({ ...validWorkspace(), dailyUnits: Array.from({ length: 2001 }, (_, index) => ({ ...validDailyUnit(), id: `daily-${index}` })), planVersions: [{ ...validPlan(), dailyUnitIds: ["daily-0"], days: validPlan().days.map((day, index) => index === 0 ? { ...day, primaryUnitId: "daily-0" } : day) }] }), planningWorkspaceSchema],
     ["workspace plan versions", () => ({ ...validWorkspace(), activePlanVersionId: "plan-0", planVersions: Array.from({ length: 501 }, (_, index) => ({ ...validPlan(), id: `plan-${index}` })) }), planningWorkspaceSchema],
-    ["workspace events", () => ({ ...validWorkspace(), events: Array.from({ length: 5001 }, (_, index) => ({ ...validCompletedEvent(), eventId: `event-${index}`, mutationId: `mutation-${index}`, sequence: index + 1 })) }), planningWorkspaceSchema],
+    ["workspace events", () => ({ ...validWorkspace(), lastSequence: 5001, events: Array.from({ length: 5001 }, (_, index) => ({ ...validCompletedEvent(), eventId: `event-${index}`, mutationId: `mutation-${index}`, sequence: index + 1 })) }), planningWorkspaceSchema],
   ] as const)("rejects %s above its cap", (_name, fixture, schema) => {
     expect(() => schema.parse(fixture())).toThrow();
   });
@@ -315,8 +315,21 @@ describe("adaptive planning contracts", () => {
     expect(() => schema.parse(fixture())).toThrow();
   });
 
+  it("rejects overlong planning identifiers and shared planning strings", () => {
+    expect(() => planningTargetSchema.parse({ ...validTarget(), id: repeat(257) })).toThrow();
+    expect(() => availabilityVersionSchema.parse({ ...validAvailability(), timeZone: repeat(257) })).toThrow();
+    expect(() => unitTemplateSchema.parse({ ...validTemplate(), version: `2026.08.${repeat(257, "1")}` })).toThrow();
+    expect(() => planVersionSchema.parse({ ...validPlan(), baseVersionId: repeat(257) })).toThrow();
+    expect(() => planDiffSchema.parse({ ...validDiff(), candidatePlanVersionId: repeat(257) })).toThrow();
+    expect(() => planningEventSchema.parse({ ...validCompletedEvent(), eventId: repeat(257) })).toThrow();
+    expect(() => planningEventSchema.parse({ ...validCompletedEvent(), mutationId: repeat(257) })).toThrow();
+    expect(() => planningEventSchema.parse({ ...validCompletedEvent(), occurredAt: `2026-08-12T08:00:00.${repeat(257, "1")}Z` })).toThrow();
+  });
+
   it("requires exactly the seven weekday keys", () => {
-    const { sunday: _sunday, ...missingSunday } = validAvailability().weekdays;
+    const missingSunday = Object.fromEntries(
+      Object.entries(validAvailability().weekdays).filter(([day]) => day !== "sunday"),
+    );
     expect(() => weekdayMinutesSchema.parse(missingSunday)).toThrow();
     expect(() => weekdayMinutesSchema.parse({ ...validAvailability().weekdays, holiday: 30 })).toThrow();
   });
@@ -421,6 +434,14 @@ describe("adaptive planning contracts", () => {
       ...validPath(),
       units: [{ ...validPath().units[0], prerequisiteUnitIds: ["missing-unit"] }],
     })).toThrow();
+  });
+
+  it("rejects a template that lists its primary resource as an alternative", () => {
+    expect(() => unitTemplateSchema.parse({ ...validTemplate(), alternativeResourceIds: ["typescript-official"] })).toThrow();
+  });
+
+  it("rejects a daily unit that lists its primary resource as an alternative", () => {
+    expect(() => dailyUnitSchema.parse({ ...validDailyUnit(), alternativeResourceIds: ["typescript-official"] })).toThrow();
   });
 
   it("correlates the target-date path and infeasibility reason", () => {
@@ -531,6 +552,43 @@ describe("adaptive planning contracts", () => {
       ...validWorkspace(),
       lastSequence: 1,
       events: [{ ...validCompletedEvent(), targetPlanVersionId: "missing-plan" }],
+    })).toThrow();
+  });
+
+  it("rejects a workspace path whose audit reference differs from the workspace audit", () => {
+    expect(() => planningWorkspaceSchema.parse({
+      ...validWorkspace(),
+      pathVersions: [{ ...validPath(), auditVersionId: "other-audit" }],
+    })).toThrow();
+  });
+
+  it("rejects a workspace path whose availability reference differs from the workspace availability", () => {
+    expect(() => planningWorkspaceSchema.parse({
+      ...validWorkspace(),
+      pathVersions: [{ ...validPath(), availabilityVersionId: "other-availability" }],
+    })).toThrow();
+  });
+
+  it("rejects a workspace path whose target reference differs from the workspace target", () => {
+    expect(() => planningWorkspaceSchema.parse({
+      ...validWorkspace(),
+      pathVersions: [{ ...validPath(), targetId: "other-target" }],
+    })).toThrow();
+  });
+
+  it("rejects a plan version whose base version does not resolve in its workspace", () => {
+    expect(() => planningWorkspaceSchema.parse({
+      ...validWorkspace(),
+      planVersions: [{ ...validPlan(), baseVersionId: "other-plan" }],
+    })).toThrow();
+  });
+
+  it("rejects an event unit that is outside its target plan", () => {
+    expect(() => planningWorkspaceSchema.parse({
+      ...validWorkspace(),
+      dailyUnits: [{ ...validDailyUnit(), id: "daily-unit-1" }, { ...validDailyUnit(), id: "daily-unit-2" }],
+      lastSequence: 1,
+      events: [{ ...validCompletedEvent(), unitId: "daily-unit-2" }],
     })).toThrow();
   });
 

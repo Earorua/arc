@@ -87,6 +87,13 @@ describe("adaptive planning API contracts", () => {
     expect(() => replanDecisionRequestSchema.parse({ ...request, accept: true })).toThrow();
   });
 
+  it("rejects overlong mutation, base, and candidate identifiers", () => {
+    const longId = "a".repeat(257);
+    expect(() => generatePlanningRequestSchema.parse({ ...generateRequest, mutationId: longId })).toThrow();
+    expect(() => planningEventRequestSchema.parse({ mutationId: "mutation-event-1", baseVersionId: longId, event: { kind: "skipped", unitId: "daily-unit-1", planningDate: "2026-08-12" } })).toThrow();
+    expect(() => replanDecisionRequestSchema.parse({ mutationId: "mutation-decision-1", baseVersionId: "plan-1", candidatePlanVersionId: longId })).toThrow();
+  });
+
   it("uses strict wrappers for workspace and mutation responses", () => {
     expect(planningWorkspaceResponseSchema.parse({ workspace: null })).toEqual({ workspace: null });
     expect(() => planningWorkspaceResponseSchema.parse({ workspace: null, debug: true })).toThrow();

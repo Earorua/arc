@@ -9,12 +9,13 @@ import {
 } from "./planning";
 import { calendarDateSchema } from "./intelligence";
 
-const idSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
+const idSchema = z.string().max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
+const planningDateSchema = calendarDateSchema.max(10);
 
 export const generatePlanningRequestSchema = z.object({
   mutationId: idSchema,
   roleId: z.literal("ai-native-full-stack-engineer"),
-  planningDate: calendarDateSchema,
+  planningDate: planningDateSchema,
   audit: skillAuditVersionSchema,
   availability: availabilityVersionSchema,
   target: planningTargetSchema,
