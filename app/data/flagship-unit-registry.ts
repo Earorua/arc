@@ -459,7 +459,7 @@ const flagshipUnitTracks: UnitRegistry["tracks"] = [
         whyNow: "Authorization defects often hide between individually reasonable layers.",
         primaryResourceId: "security-official", alternativeResourceIds: [],
         steps: [{ id: "security-calibrate-01-step-01", label: "Trace and test one authorization decision path", minutes: 35 }], checkpoints: [],
-        buildTask: "Audit an authorization path and repair its highest-risk gap.",
+        buildTask: "Audit an authorization path, repair its owner-scoped gap, and add negative tests.",
         completionCriteria: ["Every protected read or write is constrained by owner identity.", "Anonymous, wrong-owner, and missing-record outcomes are tested safely."],
         proofRequirement: "Provide the authorization threat model, repair diff, and owner-scoped negative tests for the audited path.",
         rubric: ["Level 1: The authorization audit omits an ownership gate or lacks a cross-owner negative test.", "Level 2: The threat model traces session identity to owner-scoped access and safe rejection.", "Level 3: Negative tests also cover missing records and demonstrate non-disclosing responses."], estimatedMinutes: 35,
