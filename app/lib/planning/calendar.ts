@@ -97,7 +97,13 @@ export function planningDateForInstant(instant: string, timeZone: string): strin
     day: "2-digit",
   }).formatToParts(parsed);
   const getPart = (type: "year" | "month" | "day") => parts.find((part) => part.type === type)?.value;
-  const formatted = `${getPart("year")}-${getPart("month")}-${getPart("day")}`;
+  const formattedYear = getPart("year");
+  const formattedMonth = getPart("month");
+  const formattedDay = getPart("day");
+  if (!formattedYear || !/^[0-9]+$/u.test(formattedYear) || !formattedMonth || !/^\d{2}$/u.test(formattedMonth) || !formattedDay || !/^\d{2}$/u.test(formattedDay)) invalidDate();
+  const numericYear = Number(formattedYear);
+  if (!Number.isSafeInteger(numericYear) || numericYear < 1 || numericYear > 9999) invalidDate();
+  const formatted = `${formattedYear.padStart(4, "0")}-${formattedMonth}-${formattedDay}`;
   parseCalendarDate(formatted);
   return formatted;
 }
