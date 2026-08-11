@@ -7,89 +7,89 @@ import { validateUnitRegistry } from "../../app/lib/planning/registry-validation
 
 type LockedTrack = {
   templates: [[string, number], [string, number], [string, number]];
-  artifact: RegExp;
+  artifact: string;
   vocabulary: RegExp;
 };
 
 const lockedMatrix: Record<string, LockedTrack> = {
   "web-platform": {
     templates: [["Trace a browser interaction end to end", 75], ["Explain the browser-runtime boundary", 30], ["Rebuild semantic HTML and event flow", 30]],
-    artifact: /(?=.*\bform\b)(?=.*\b(?:request|event)\b)/u,
+    artifact: "accessible form with a documented request/event trace",
     vocabulary: /\b(?:browser|dom|form|event|request)\b/u,
   },
   typescript: {
     templates: [["Model one UI-to-API contract", 90], ["Repair an unsafe typed boundary", 35], ["Practice unions, narrowing and inference", 30]],
-    artifact: /\b(?:schema|boundary|result union)\b/u,
+    artifact: "strict schema plus inferred request/result types",
     vocabulary: /\b(?:typescript|schema|types?|unions?|result|narrow\w*|infer\w*)\b/u,
   },
   react: {
     templates: [["Build an accessible async React flow", 90], ["Diagnose state ownership and rendering", 35], ["Rehearse state, events and effects", 30]],
-    artifact: /(?=.*\b(?:form|component tree|event)\b)(?=.*\b(?:loading|state|effect|synchronization|recovery)\b)/u,
+    artifact: "tested form with loading, success, and recovery states",
     vocabulary: /\b(?:react|state|render|effect|event|form|loading|success|recovery)\b/u,
   },
   "design-systems": {
     templates: [["Author a keyboard-safe component state model", 75], ["Audit semantics, focus and contrast", 30], ["Rebuild focus and error relationships", 30]],
-    artifact: /(?=.*\b(?:component|control|field)\b)(?=.*\b(?:focus|state|interaction|error)\b)/u,
+    artifact: "reusable component with visible focus and state text",
     vocabulary: /\b(?:component|keyboard|focus|contrast|semantics|error)\b/u,
   },
   "http-apis": {
     templates: [["Design a typed idempotent write endpoint", 75], ["Review an HTTP failure contract", 30], ["Rehearse methods, status and retry semantics", 30]],
-    artifact: /(?=.*\b(?:endpoint|request-response)\b)(?=.*\b(?:request|response|failure|retry|status|conflict)\b)/u,
+    artifact: "request/response contract with safe error cases",
     vocabulary: /\b(?:http|endpoint|request|response|status|retry|success|failure|methods?)\b/u,
   },
   "edge-runtime": {
     templates: [["Ship a Worker-compatible route boundary", 90], ["Explain edge constraints and bindings", 35], ["Rebuild the isolate execution model", 30]],
-    artifact: /(?=.*\b(?:edge route|route design|handler)\b)(?=.*\b(?:bindings|runtime|request state)\b)/u,
+    artifact: "edge handler with injected bindings and no node-only leak",
     vocabulary: /\b(?:edge|worker|isolate|binding|bindings|handler|route|runtime|isolation|node-only)\b/u,
   },
   sql: {
     templates: [["Model immutable versions and relations", 90], ["Review keys, cardinality and delete actions", 35], ["Rehearse joins and integrity constraints", 30]],
-    artifact: /(?=.*\b(?:schema|join)\b)(?=.*\b(?:ownership|integrity|constraints)\b)/u,
+    artifact: "additive relational schema with ownership boundaries",
     vocabulary: /\b(?:sql|schema|relations?|relational|keys?|joins?|constraints?)\b/u,
   },
   "object-storage": {
     templates: [["Design private object metadata and compensation", 60], ["Threat-model an object access path", 30], ["Rehearse database-versus-object boundaries", 30]],
-    artifact: /(?=.*\b(?:put|get|object access|boundary table)\b)(?=.*\b(?:private|metadata|cleanup|boundary)\b)/u,
+    artifact: "put/get/cleanup sequence with private object keys",
     vocabulary: /\b(?:object|storage|metadata|put|get|cleanup|keys)\b/u,
   },
   testing: {
     templates: [["Drive one behavior from RED to GREEN", 75], ["Strengthen a weak regression test", 30], ["Rehearse boundary and mutation tests", 30]],
-    artifact: /(?=.*\btest\b)(?=.*\b(?:failing|failure|mutation|boundary)\b)/u,
+    artifact: "focused test proving a meaningful failure before implementation",
     vocabulary: /\b(?:test|tests|red|green|failure|mutation|boundary)\b/u,
   },
   security: {
     templates: [["Enforce session, ownership and secret boundaries", 90], ["Audit one authorization path", 35], ["Separate authentication from authorization", 30]],
-    artifact: /(?=.*\b(?:threat model|authorization|identity)\b)(?=.*\b(?:owner-scoped|cross-owner|permission|negative)\b)/u,
+    artifact: "threat model plus owner-scoped negative tests",
     vocabulary: /\b(?:security|session|ownership|authorization|authentication|secret|owner-scoped|negative)\b/u,
   },
   "cloud-delivery": {
     templates: [["Build a reversible delivery runbook", 90], ["Diagnose a failed build or release", 35], ["Rehearse environment and rollback boundaries", 30]],
-    artifact: /(?=.*\b(?:build|release|environment)\b)(?=.*\b(?:rollback|recovery|decision)\b)/u,
+    artifact: "build, smoke-check, and rollback checklist",
     vocabulary: /\b(?:delivery|release|build|smoke|rollback|environment)\b/u,
   },
   observability: {
     templates: [["Emit useful telemetry without private data", 60], ["Audit signal quality and redaction", 30], ["Rehearse metrics, logs and traces", 30]],
-    artifact: /(?=.*\b(?:event contract|signal)\b)(?=.*\b(?:counters|unsafe|retention|cardinality)\b)/u,
+    artifact: "structured event contract with allowed counters only",
     vocabulary: /\b(?:telemetry|event|signal|redaction|metrics|logs|traces)\b/u,
   },
   "llm-contracts": {
     templates: [["Validate a mocked structured-model boundary", 90], ["Reject malformed model output safely", 35], ["Separate prompt text from output contracts", 30]],
-    artifact: /(?=.*\b(?:schema|validation)\b)(?=.*\b(?:provider|model-output|mocked|output)\b)/u,
+    artifact: "provider-independent schema gate with malformed fixtures",
     vocabulary: /\b(?:model|output|prompt|schema|provider|malformed)\b/u,
   },
   retrieval: {
     templates: [["Rank attributable evidence without fetching", 90], ["Audit provenance, recency and coverage", 35], ["Rehearse source attribution decisions", 30]],
-    artifact: /(?=.*\b(?:evidence registry|claim-to-source)\b)(?=.*\b(?:source-quality|attributed|evidence)\b)/u,
+    artifact: "evidence registry with explicit source-quality rationale",
     vocabulary: /\b(?:retrieval|evidence|sources?|provenance|recency|attribution|claims?|passages?)\b/u,
   },
   "product-thinking": {
     templates: [["Turn a user outcome into acceptance criteria", 60], ["Defend one scope trade-off", 30], ["Separate outcomes from feature output", 30]],
-    artifact: /(?=.*\b(?:product slice|scope|feature)\b)(?=.*\b(?:goals|outcome|hypotheses|decision)\b)/u,
+    artifact: "one-page product slice with goals, non-goals, and gates",
     vocabulary: /\b(?:product|user|outcome|scope|feature|criteria|gates)\b/u,
   },
   "proof-of-work": {
     templates: [["Package a reviewable implementation artifact", 60], ["Assess whether a claim is inspectable", 30], ["Rehearse claim-to-evidence mapping", 30]],
-    artifact: /(?=.*\b(?:commit|claim-to-evidence)\b)(?=.*\b(?:reproduction|independent review|unsupported wording|verification)\b)/u,
+    artifact: "commit or note with reproduction and verification evidence",
     vocabulary: /\b(?:artifact|claim|evidence|commit|note|reproduction|verification)\b/u,
   },
 };
@@ -115,54 +115,54 @@ function authoredContentDigest(template: UnitTemplate): string {
 }
 
 const expectedAuthoredContentDigests: Record<string, string> = {
-  "cloud-delivery-calibrate-01": "8f1b994d48d3131c4c3aba2ac4a0d9404b3dbcc960abc19cf7d30871f3237916",
-  "cloud-delivery-learn-01": "c4d86ce9875bd9933de0373529036297726b760a10f8944cd9efb8dc7b39b224",
-  "cloud-delivery-reinforce-01": "807d50a809f1f8bec1ff65fd744f4f37d49706f9bbd6707f95cee948eadbe0c5",
-  "design-systems-calibrate-01": "3c478aa0401183aa02970ef8f26fc596517f06730151e734f946e14b3c627b73",
-  "design-systems-learn-01": "01d623158162efcabeaa2d740597dfb0073462b91106b4a2128e7304102b0dd3",
-  "design-systems-reinforce-01": "ce53c2c178038d98677bcab1593ef20182e946ae9f6cfabc8aafa93db7760aa0",
-  "edge-runtime-calibrate-01": "ab5285eae90c90e4ecba2b54497b24dd17aff8f1f0e5e4ba6fb6b23076e53a94",
-  "edge-runtime-learn-01": "f76f782caa3a1354ee0dfa830e1ee803a63ead825b518befa371061229a757fe",
-  "edge-runtime-reinforce-01": "902edf0e2bbd64dffa62a5b07ebd548668338b62edeff955a7328ba29dd2bbc4",
-  "http-apis-calibrate-01": "a4631fe38437316fd1dd0d67a76a130ea15dcdff7f989346f6e45325f9c84771",
-  "http-apis-learn-01": "d3f839d8c82f4ec67efc4fe776a65d047369d7810223eb51ab35796fb184b071",
-  "http-apis-reinforce-01": "d674a918fb48dc6cb4e66f545b0c7637f408cf81fddbad0463fd49e8dd5724e2",
-  "llm-contracts-calibrate-01": "f1aa46e1b1f9ec9353814d966738135899cce971722affe83b827077a284f3e6",
-  "llm-contracts-learn-01": "f87ba57cb76bc1decf0ba1987409b66fd18ab1fc2d8415bcbbaf5c688bf476a1",
-  "llm-contracts-reinforce-01": "943004b81c98b264cdbbca65fec663f38922cb3c71fd0be1450bb6aa848dc720",
-  "object-storage-calibrate-01": "11ae9ebf1b7ad3b677e5d5762eb88fff9d3e7c57406cdf4e9bec2f61cd9c94c3",
-  "object-storage-learn-01": "68c28de6f8e7359e1289d9ea75d03a4236e74c71b9a9ab0bee1f164af63322af",
-  "object-storage-reinforce-01": "a478c843ae64b0d7951e366f0c19bd2a62b395c238e61deb4217065db251a5e3",
-  "observability-calibrate-01": "930fb778251dbeff8817445126e695b78bce97628088e959151e114b4f8a9b09",
-  "observability-learn-01": "95a86725487c4b20af56d9ed61674784026aa367308fa9eecff5a717f3cb11d6",
-  "observability-reinforce-01": "1483e074edad8f162b563401a8ae2d7a76cb388d9102121b5553cae2789ff8e6",
-  "product-thinking-calibrate-01": "6eec76d9d288633cb8697f39d2d23d83bcb021a241ee7ff34984bf7b72fde7cf",
-  "product-thinking-learn-01": "881db36e108c496b7fecd6538a808c642caa788c90e396b3ca1abbc48dbfa818",
-  "product-thinking-reinforce-01": "dd40a45f30fccbcc1dcef4a0f87330603c3ed300d21ffbba90d9da355c666c66",
-  "proof-of-work-calibrate-01": "fea28a844845f1ab0dc6ca6649e77d743e14a138e4efd63e3ed23ac88cf6ffd3",
-  "proof-of-work-learn-01": "068bd67d192978385a847a607d0352938b61419e0127ac59d9c452c4381bcf37",
-  "proof-of-work-reinforce-01": "06fa11f45c8eb98d1d5a394989179cf3c64832bf1cb2448223b2b6f23b66c9e6",
-  "react-calibrate-01": "949e22c4e2b7ffdb7a7e7e8898c0f2aa0b9189e1dbc5e6dfcd2bbea1acc61376",
-  "react-learn-01": "9e3d089008710fd3a62762ff69592f45abfc5af3eb323f18466659c988d53a00",
-  "react-reinforce-01": "cc8c8e848adf076f45470e91365a062644694cdc97823558d7749b12023b250c",
-  "retrieval-calibrate-01": "7cc196d2def22db1112312896589bf3430775109f76e1011f17988e6836e69fe",
-  "retrieval-learn-01": "7e4a4e4d4f465ace9c11bc14c1a89b4798b3ce03e97eac6b7d2db18dc97f43dd",
-  "retrieval-reinforce-01": "248c673cccbeb2a0647963d5a2f1af88e7d36f6ac8dc2ba7c49d03b43dff3f56",
-  "security-calibrate-01": "83ab3a09908ff1f3d7587ce093adfb079b7644408693db578b1d720c4f061488",
-  "security-learn-01": "5cdff281e256029cd066fb61e2e13ff6618082ea0d340057256df9a4aaf68ced",
-  "security-reinforce-01": "f57c111d88aa031774feb979c5286802a02fbb39e75f951a35af78a2525fa69c",
-  "sql-calibrate-01": "8add0dc6a3fa4e1fc7c0102d2382c2d1a40c0bf19bc994e8476774556f491fd8",
-  "sql-learn-01": "761c48b544decc8dda71bf41afbaf5891d094218e05d519d93e2d0bdf5328628",
-  "sql-reinforce-01": "bd6eca469132a6e50e6a1206977c2375955f16f2c17d8afc42e1dca8bbb903e8",
-  "testing-calibrate-01": "1cba8afcfb0393d1c7275dd7b2a835e4e28f86f889e7a992dfc1ce82114bda04",
-  "testing-learn-01": "4abd2c189d691ce951bd61bebf0cfcab7b600fb7f03cdf26685889e9e971d132",
-  "testing-reinforce-01": "d3803900ecee7097f903d7d747b66b3f992d1eabefe2cfe7f81f80e717613c1c",
-  "typescript-calibrate-01": "5f2fc6e57133dd51c6aff47fa5a371ce088bb2960a92c47b2c1c5185d35f33b8",
-  "typescript-learn-01": "93f3656e7c80a5fabaf41176e702c5259df0bb2eaf254064c1bc4b774813fc68",
-  "typescript-reinforce-01": "e957da772e4894bfe0b6eae4e34efc2b4692eaae636286b2e88622581a6aa0f5",
-  "web-platform-calibrate-01": "1b5b9a615fe1122fe6f598340a9040c0fb2b31c5fb67bfc74e9dae7fed212cc0",
-  "web-platform-learn-01": "9526ace338ef2615c69bca7b3fe866c04ca0c928a3b4f25aed6fcec40315ca1f",
-  "web-platform-reinforce-01": "39a0085620759c6cddd5434b375a2ef797b1545c7f96f0cbe8913c8fada9323a",
+  "cloud-delivery-calibrate-01": "c4f4d9815318e80a4dcbe7c8cf35625f3c26694cbe002cbefaf8b14d85423f18",
+  "cloud-delivery-learn-01": "838c6b11faee8075b9a74b765b4c1722b58f22906ce47ba06ea7b986483e8920",
+  "cloud-delivery-reinforce-01": "fd829e86e8b532cb5687772ad7720d3690f55e7bb44b99460995746e9b01994c",
+  "design-systems-calibrate-01": "1e7f70a4285a08d37b6872170fd4d0177e47afe5573a489bc84eef697b4bbf63",
+  "design-systems-learn-01": "068ba4158942c86e60f4864f849e09791b2cfe6d0e98b5789b697ae4a44c9cec",
+  "design-systems-reinforce-01": "d1179db12151c7cfbc05ca37510be694ec4e25ffdd0b257f1a1627fa50caf28c",
+  "edge-runtime-calibrate-01": "b43bbe34dd52e616c788717f8fcca2b5c2a039dbd29c57eaa6fc70171a90c64b",
+  "edge-runtime-learn-01": "99f4ec44186daf96e4d5bfcd4aa21a4ecde2a3043a036a505ec708f6b5ad3d25",
+  "edge-runtime-reinforce-01": "8a271e525c3308eadf36251912bc91ea69b17e93b9b70bb83251e83ce639e886",
+  "http-apis-calibrate-01": "7f0085b8b19c57254c23f932c2d1c408e83a3bf5a2457efab0d127e6134a1005",
+  "http-apis-learn-01": "acc974d7747558a4b66372eeca1710c6457acb38b26e93ede2ca3717428106a8",
+  "http-apis-reinforce-01": "80fc234005bd67785e87b15f71304dbd094a33bbe852b941aefd56faf0705860",
+  "llm-contracts-calibrate-01": "83a0dd01bb4a354b901a83ae1f2005cc40a0e7e9b344e3decbaf3ddab8983f7d",
+  "llm-contracts-learn-01": "ecd1d530a9b401d962d34e3a7a6c3a9dd9dd9d49cd853917cb032e29af7266a6",
+  "llm-contracts-reinforce-01": "51385b5e1c37e667f13c9aab2e426b963bca0826ac2520413b6bf4f5d2f9968b",
+  "object-storage-calibrate-01": "ac8bba7bc0abc8c2899304eec51d917ab945dfe578237f91549de7edb356ab4c",
+  "object-storage-learn-01": "5fee154fe89cb2643f60b82c12486a08984b7dd62140dfdec3ce54cfab72fb76",
+  "object-storage-reinforce-01": "5c4532277d5bebafc1e7146b3e7d7f36d350f9114c422a4bf6aaa260fc2c0175",
+  "observability-calibrate-01": "2697578bbc7fcf92f1aacfc609d7e7a61e613999181f02fedf933db8637203a7",
+  "observability-learn-01": "88c218dc035bf2b3b14dc7e9b4c10e972355908120c2625b91b6683fb446e700",
+  "observability-reinforce-01": "e52287ff29c1087900a2a9582cdb0a0dd807e27e55c7ccf05fb1690b5a0d6038",
+  "product-thinking-calibrate-01": "a0ed298bc5a3e6714306717140b9dfdd74be714622b5634fbda1d961d1ed366a",
+  "product-thinking-learn-01": "7af4dfe1817f7eac0af186673f7200862f88c77afcf8dfcf4f3229f16e28b533",
+  "product-thinking-reinforce-01": "1b018186370ebe3294abba75eed86da9d9413d4b74a42f9a9df7d20c50a058db",
+  "proof-of-work-calibrate-01": "dd52643f2f2822d71af4ed2afba290b06122941bbd03a0bf985711f53991c65b",
+  "proof-of-work-learn-01": "cbbcd1d85a83f6e283ed4dda1af88b5ef4d9c8f1f982244666023ca4a30670de",
+  "proof-of-work-reinforce-01": "efd24cddf70bc804557108c64e481ad892a4a55547845f346ee14e2d8efc33ad",
+  "react-calibrate-01": "7b08b1923d64f363c7c33ce05b3b86933062a255b8a06877dd5318f9cd08fde3",
+  "react-learn-01": "0eb9824b31f7daba77fb7d05979e1aa967eaa62298b0788b9db04a9dfd7d477c",
+  "react-reinforce-01": "cc6ab9a6dfdce01f56c4ad5f9d19338081c832e6d66c71e8fec4c305b15084d6",
+  "retrieval-calibrate-01": "58e54eb4778304664f8655a12b3c1894d9f40766df85a091e8163bc0187ce5f4",
+  "retrieval-learn-01": "66b8b6d37b4c82839ad9fdc291f18b4267630b39738295f66e06b622c496a035",
+  "retrieval-reinforce-01": "2018b4bd558bc6acab93cdf6ff32eecf77b91a6828cc4559b5f2292ad40ea309",
+  "security-calibrate-01": "f1142b3e1a9a80d5d35dadd48a5e9bda607df223a2ba7f92b3abfdaadd73ee0d",
+  "security-learn-01": "feb3c9e732cf59fbcad5a56b910e2414e9ccbb8de5402db01bedb3a79c7b23a1",
+  "security-reinforce-01": "ce0a6bb41be3c2c6e227489fd4fe82259343ae53d1de31702edfe117ef185858",
+  "sql-calibrate-01": "5a78f0d8fa2348fabf775b372a6cb2de58d8599b40509cd6f75b7e83eb4e9a98",
+  "sql-learn-01": "dec28d8db63c42430bd087f8080611d5cf0c604010fcf36f285db6090ea1bb70",
+  "sql-reinforce-01": "85cf8bb67ca9e545fed17565814e11695f826839f4bd7d7159f3eec45bba49b3",
+  "testing-calibrate-01": "f40cd2f9f3ae3eb38c55202fe39af00f7004a16c2534738fafe8948be2bf913b",
+  "testing-learn-01": "bfc1aaf1d5300e9fd3a3b216415f6058b144b9a21c6947fe14e5f840db0769e9",
+  "testing-reinforce-01": "d44bc42cb79420d427d7d7d74cee22939bc756a94a27ce53afd08151b34df4aa",
+  "typescript-calibrate-01": "9b4a2eef89f1720dfa5f881109578be487eeea96571e3a5ad26913cf898c084f",
+  "typescript-learn-01": "596b0c0f326f7c8e7e48d9d028d8776c27d1c3631fe5b9f8369010fedbe88ea9",
+  "typescript-reinforce-01": "f6e41d14aa10bc9a8021b1956a5a4439789d10e39357b475fdfc115b0010a190",
+  "web-platform-calibrate-01": "c4370953b82df41c0498887796607f85f3b1c9c5fc1f33767acb9c90e5090ca4",
+  "web-platform-learn-01": "ac006e39bf572f8f372c8b4016be35ae71c94eab2077a8303d55bdc1a8b7d82e",
+  "web-platform-reinforce-01": "c54fd802a17c39e9c8fdfb8d1f80e1b7dcb5bf9bfc4c9bfde6e29210f80ecf0a",
 };
 
 describe("flagshipUnitRegistry", () => {
@@ -196,7 +196,7 @@ describe("flagshipUnitRegistry", () => {
       const locked = lockedMatrix[skill.id]!;
       expect(track.templates.map((template) => [template.title, template.estimatedMinutes])).toEqual(locked.templates);
       for (const template of track.templates) {
-        expect(normalize(template.buildTask), template.id).toMatch(locked.artifact);
+        expect(normalize(template.buildTask), template.id).toContain(normalize(locked.artifact));
         const proof = normalize(template.proofRequirement);
         expect(proof, template.id).toMatch(/^(?:provide|submit)\b/u);
         expect(proof, template.id).toMatch(
@@ -250,6 +250,24 @@ describe("flagshipUnitRegistry", () => {
       if (authoredContentDigest(candidate) !== expectedAuthoredContentDigests[template.id]) mismatches += 1;
     }
     expect(mismatches).toBe(5);
+  });
+
+  it("rejects weaker React, Security, and Cloud Delivery build tasks even when proof remains intact", () => {
+    const cases = [
+      { skillId: "react", templateId: "react-calibrate-01", weak: "Review a component tree, remove one derived-state effect, and record the event-to-render path." },
+      { skillId: "security", templateId: "security-calibrate-01", weak: "Audit an authorization path and repair its highest-risk gap." },
+      { skillId: "cloud-delivery", templateId: "cloud-delivery-calibrate-01", weak: "Analyze a failed release record and produce an evidence-backed recovery decision." },
+    ];
+    for (const fixture of cases) {
+      const template = flagshipUnitRegistry.tracks
+        .find((track) => track.skillId === fixture.skillId)!.templates
+        .find((candidate) => candidate.id === fixture.templateId)!;
+      const candidate = structuredClone(template);
+      candidate.buildTask = fixture.weak;
+      expect(candidate.proofRequirement).toBe(template.proofRequirement);
+      expect(normalize(candidate.buildTask)).not.toContain(normalize(lockedMatrix[fixture.skillId]!.artifact));
+      expect(authoredContentDigest(candidate)).not.toBe(expectedAuthoredContentDigests[fixture.templateId]);
+    }
   });
 
   it("uses stable unique IDs, exact minute totals, and inspectable authored content", () => {
