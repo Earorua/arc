@@ -95,11 +95,14 @@ export function planningDateForInstant(instant: string, timeZone: string): strin
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
+    era: "short",
   }).formatToParts(parsed);
-  const getPart = (type: "year" | "month" | "day") => parts.find((part) => part.type === type)?.value;
+  const getPart = (type: "year" | "month" | "day" | "era") => parts.find((part) => part.type === type)?.value;
   const formattedYear = getPart("year");
   const formattedMonth = getPart("month");
   const formattedDay = getPart("day");
+  const era = getPart("era");
+  if (era !== "AD" && era !== "CE") invalidDate();
   if (!formattedYear || !/^[0-9]+$/u.test(formattedYear) || !formattedMonth || !/^\d{2}$/u.test(formattedMonth) || !formattedDay || !/^\d{2}$/u.test(formattedDay)) invalidDate();
   const numericYear = Number(formattedYear);
   if (!Number.isSafeInteger(numericYear) || numericYear < 1 || numericYear > 9999) invalidDate();

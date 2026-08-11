@@ -99,6 +99,8 @@ describe("calendar primitives", () => {
   it("maps instants into their IANA calendar date across DST and UTC boundaries", () => {
     expect(planningDateForInstant("0001-01-01T00:00:00.000Z", "UTC")).toBe("0001-01-01");
     expect(planningDateForInstant("0999-12-31T00:00:00.000Z", "UTC")).toBe("0999-12-31");
+    expect(() => planningDateForInstant("0001-01-01T00:00:00.000Z", "America/New_York")).toThrow();
+    expect(() => planningDateForInstant("0001-01-01T00:00:00+01:00", "UTC")).toThrow();
     expect(planningDateForInstant("2026-03-08T06:59:59.000Z", "America/New_York")).toBe("2026-03-08");
     expect(planningDateForInstant("2026-03-08T07:00:00.000Z", "America/New_York")).toBe("2026-03-08");
     expect(planningDateForInstant("2026-11-01T05:59:59.000Z", "America/New_York")).toBe("2026-11-01");
