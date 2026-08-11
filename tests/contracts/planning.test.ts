@@ -528,11 +528,21 @@ describe("adaptive planning contracts", () => {
     },
   );
 
-  it("caps the serialized event payload at 32 KiB", () => {
-    expect(() => planningEventSchema.parse({
-      ...validCompletedEvent(),
-      unitId: repeat(33 * 1024),
-    })).toThrow();
+  it("caps an otherwise valid availability event at 32 KiB serialized UTF-8", () => {
+    const availability = validLargeAvailability();
+    expect(availabilityVersionSchema.parse(availability)).toEqual(availability);
+    const event = {
+      eventId: "event-large-availability",
+      mutationId: "mutation-large-availability",
+      sequence: 1,
+      targetPlanVersionId: "plan-1",
+      occurredAt: "2026-08-12T08:00:00.000Z",
+      kind: "availability_changed" as const,
+      availability,
+      planningDate: "2026-08-12",
+    };
+    expect(new TextEncoder().encode(JSON.stringify(event)).byteLength).toBeGreaterThan(32 * 1024);
+    expect(() => planningEventSchema.parse(event)).toThrow();
   });
 
   it("resolves every workspace path, plan, unit, and event pointer", () => {
@@ -592,12 +602,18 @@ describe("adaptive planning contracts", () => {
     })).toThrow();
   });
 
-  it("strictly parses planning mutation results without a replay outcome", () => {
-    expect(planningMutationResultSchema.parse({
-      outcome: "active",
-      workspace: validWorkspace(),
-      diff: null,
-    }).outcome).toBe("active");
+  it.each(["active", "proposed", "accepted", "discarded"] as const)(
+    "accepts the %s planning mutation outcome",
+    (outcome) => {
+      expect(planningMutationResultSchema.parse({
+        outcome,
+        workspace: validWorkspace(),
+        diff: null,
+      }).outcome).toBe(outcome);
+    },
+  );
+
+  it("rejects a replayed planning mutation outcome", () => {
     expect(() => planningMutationResultSchema.parse({
       outcome: "replayed",
       workspace: validWorkspace(),
@@ -605,9 +621,11 @@ describe("adaptive planning contracts", () => {
     })).toThrow();
   });
 
-  it("enforces the explicit 4 MiB repository pre-parse boundary", () => {
-    expect(parsePlanningWorkspaceAtRepositoryBoundary(validWorkspace())).toEqual(validWorkspace());
-    expect(() => parsePlanningWorkspaceAtRepositoryBoundary(`"${repeat(4 * 1024 * 1024)}"`)).toThrow();
+  it("enforces the 4 MiB repository boundary for an otherwise valid workspace", () => {
+    const workspace = validLargeWorkspace();
+    expect(planningWorkspaceSchema.safeParse(workspace).success).toBe(true);
+    expect(new TextEncoder().encode(JSON.stringify(workspace)).byteLength).toBeGreaterThan(4 * 1024 * 1024);
+    expect(() => parsePlanningWorkspaceAtRepositoryBoundary(workspace)).toThrow();
   });
 });
 
@@ -634,5 +652,51 @@ function validDecisionEvent(kind: "replan_accepted" | "replan_discarded") {
     occurredAt: "2026-08-12T09:00:00.000Z",
     kind,
     candidatePlanVersionId: "plan-2",
+  };
+}
+
+function validLargeAvailability() {
+  return {
+    ...validAvailability(),
+    exceptions: Array.from({ length: 90 }, (_, index) => ({
+      date: `2026-${String(Math.floor(index / 28) + 1).padStart(2, "0")}-${String(index % 28 + 1).padStart(2, "0")}`,
+      minutes: 30,
+      reason: repeat(300, "测"),
+    })),
+  };
+}
+
+function maxPlanningId(prefix: string, index?: number) {
+  const stem = index === undefined ? prefix : `${prefix}-${index}`;
+  return `${stem}-${"a".repeat(256 - stem.length - 1)}`;
+}
+
+function validLargeWorkspace() {
+  const unitId = maxPlanningId("daily-unit");
+  const planId = maxPlanningId("plan");
+  const events = Array.from({ length: 5000 }, (_, index) => ({
+    eventId: maxPlanningId("event", index),
+    mutationId: maxPlanningId("mutation", index),
+    sequence: index + 1,
+    targetPlanVersionId: planId,
+    occurredAt: "2026-08-12T08:00:00.000Z",
+    kind: "completed" as const,
+    unitId,
+    actualMinutes: 48,
+    planningDate: "2026-08-12",
+  }));
+  const plan = validPlan();
+  return {
+    ...validWorkspace(),
+    lastSequence: events.length,
+    dailyUnits: [{ ...validDailyUnit(), id: unitId }],
+    planVersions: [{
+      ...plan,
+      id: planId,
+      dailyUnitIds: [unitId],
+      days: plan.days.map((day, index) => index === 0 ? { ...day, primaryUnitId: unitId } : day),
+    }],
+    events,
+    activePlanVersionId: planId,
   };
 }
