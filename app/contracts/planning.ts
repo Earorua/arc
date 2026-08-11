@@ -85,7 +85,7 @@ export const availabilityExceptionSchema = z.object({
 
 function isSupportedTimeZone(timeZone: string): boolean {
   try {
-    new Intl.DateTimeFormat("en-US", { timeZone }).format();
+    new Intl.DateTimeFormat("en-US", { timeZone });
     return true;
   } catch {
     return false;

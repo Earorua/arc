@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import type { AvailabilityVersion } from "../../../app/contracts/planning";
+import { availabilityVersionSchema, type AvailabilityVersion } from "../../../app/contracts/planning";
 import {
   addCalendarDays,
   calendarDates,
@@ -24,6 +24,37 @@ function availability(exceptions: AvailabilityVersion["exceptions"] = []): Avail
 }
 
 describe("calendar primitives", () => {
+  it("parses availability and calendar helpers without reading the current clock", () => {
+    const input = availability();
+    const original = Object.getOwnPropertyDescriptor(Intl, "DateTimeFormat")!;
+    let noArgumentFormatCall = false;
+    const RealDateTimeFormat = Intl.DateTimeFormat;
+
+    function ClockSafeDateTimeFormat(locales?: string | string[], options?: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+      const formatter = new RealDateTimeFormat(locales, options);
+      return {
+        format(value?: number | Date) {
+          if (value === undefined) {
+            noArgumentFormatCall = true;
+            throw new Error("Current-clock read");
+          }
+          return formatter.format(value);
+        },
+      } as Intl.DateTimeFormat;
+    }
+
+    Object.defineProperty(Intl, "DateTimeFormat", { configurable: true, value: ClockSafeDateTimeFormat });
+    try {
+      expect(availabilityVersionSchema.parse(input)).toEqual(input);
+      expect(minutesForDate(input, "2026-08-10")).toBe(60);
+      expect(() => validateAvailabilityHorizon(input, "2026-08-12")).not.toThrow();
+      expect(() => availabilityVersionSchema.parse({ ...input, timeZone: "Not/AZone" })).toThrow();
+      expect(noArgumentFormatCall).toBe(false);
+    } finally {
+      Object.defineProperty(Intl, "DateTimeFormat", original);
+    }
+  });
+
   it("adds calendar days across month, year, and leap boundaries", () => {
     expect(addCalendarDays("2028-02-28", 1)).toBe("2028-02-29");
     expect(addCalendarDays("2000-02-28", 1)).toBe("2000-02-29");
