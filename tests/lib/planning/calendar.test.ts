@@ -61,6 +61,10 @@ describe("calendar primitives", () => {
     expect(addCalendarDays("1900-02-28", 1)).toBe("1900-03-01");
     expect(addCalendarDays("2027-01-01", -1)).toBe("2026-12-31");
     expect(addCalendarDays("2026-01-01", 3660)).toBe("2036-01-09");
+    expect(addCalendarDays("0001-01-01", 0)).toBe("0001-01-01");
+    expect(addCalendarDays("9999-12-31", 0)).toBe("9999-12-31");
+    expect(() => addCalendarDays("0001-01-01", -1)).toThrow();
+    expect(() => addCalendarDays("9999-12-31", 1)).toThrow();
   });
 
   it("compares validated ISO calendar dates ordinally", () => {
@@ -73,6 +77,10 @@ describe("calendar primitives", () => {
     expect(calendarDates("2027-12-30", 4)).toEqual(["2027-12-30", "2027-12-31", "2028-01-01", "2028-01-02"]);
     expect(calendarDates("2026-08-12", 0)).toEqual([]);
     expect(() => calendarDates("2026-08-12", 3662)).toThrow();
+    expect(calendarDates("0001-01-01", 1)).toEqual(["0001-01-01"]);
+    expect(calendarDates("9999-12-31", 1)).toEqual(["9999-12-31"]);
+    expect(() => calendarDates("0000-12-31", 2)).toThrow();
+    expect(() => calendarDates("9999-12-31", 2)).toThrow();
   });
 
   it("calculates weekdays independently of host timezone", () => {

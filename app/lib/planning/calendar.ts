@@ -27,7 +27,9 @@ function toUtcDate(value: string): Date {
 function formatCalendarDate(date: Date): string {
   const year = date.getUTCFullYear();
   if (!Number.isFinite(date.getTime()) || year < 0 || year > 9999) invalidDate();
-  return `${String(year).padStart(4, "0")}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+  const formatted = `${String(year).padStart(4, "0")}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+  if (!calendarDateSchema.safeParse(formatted).success) invalidDate();
+  return formatted;
 }
 
 function parseAvailability(value: AvailabilityVersion): AvailabilityVersion {
