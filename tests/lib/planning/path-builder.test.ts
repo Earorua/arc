@@ -13,6 +13,7 @@ import { flagshipUnitRegistry } from "../../../app/data/flagship-unit-registry";
 import {
   PlanningEstimationBoundaryError,
   PlanningInputError,
+  buildLearningPaths,
   createPathBuilder,
   type CompletionEstimator,
   type PathBuildInput,
@@ -190,6 +191,14 @@ function target(targetWeeks = 4): PlanningTarget {
 const immediateEstimator: CompletionEstimator = (_units, _availability, planningDate) => planningDate;
 
 describe("createPathBuilder", () => {
+  it("exposes the production scheduler-backed path builder", () => {
+    const input = compactFixture([{ id: "typescript", learnMinutes: [30] }]);
+
+    const result = buildLearningPaths(input);
+
+    expect(result.fullScope.estimatedCompletionDate).toBe(PLANNING_DATE);
+  });
+
   it.each(["unseen", "conceptual", "guided"] as const)(
     "selects every ordered learn template for a %s answer",
     (level) => {

@@ -24,6 +24,7 @@ import { validateRoleBlueprint } from "../intelligence-validation";
 import { addCalendarDays, compareCalendarDates, validateAvailabilityHorizon } from "./calendar";
 import { deterministicId, fingerprint } from "./fingerprint";
 import { validateUnitRegistry } from "./registry-validation";
+import { estimateCompletionDate } from "./scheduler";
 
 export type PathBuildInput = {
   blueprint: RoleBlueprint;
@@ -75,6 +76,14 @@ export function createPathBuilder(estimate: CompletionEstimator) {
   if (typeof estimate !== "function") throw new TypeError("A completion estimator is required");
   return (input: PathBuildInput): PathBuildResult => buildValidatedPathAlternatives(input, estimate);
 }
+
+export const buildLearningPaths = createPathBuilder(
+  (units, availability, planningDate) => estimateCompletionDate({
+    units,
+    availability,
+    planningDate,
+  }),
+);
 
 function buildValidatedPathAlternatives(
   input: PathBuildInput,
