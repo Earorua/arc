@@ -2,15 +2,60 @@ import { describe, expect, it } from "vitest";
 import {
   completeDemoUnit,
   createDemoState,
+  DEMO_STORAGE_KEY,
   fingerprintDemoState,
   hasMeaningfulDemoState,
   loadDemoState,
   mergeSetup,
+  readDemoStateForMigration,
   saveDemoState,
 } from "../../app/lib/demo-store";
 import { flagshipRole } from "../../app/data/flagship-role";
 
 describe("demo store", () => {
+  it("exposes the unchanged v7 key and reads an exact migration snapshot without writing", () => {
+    const original = mergeSetup(createDemoState(), {
+      roleId: "ai-native-full-stack-engineer",
+      level: "advanced",
+      weeklyMinutes: 600,
+      targetWeeks: 12,
+    });
+    const storage = {
+      getItem(key: string) {
+        expect(key).toBe("arc-demo-state-v1");
+        return JSON.stringify(original);
+      },
+    };
+
+    const result = readDemoStateForMigration(storage);
+
+    expect(DEMO_STORAGE_KEY).toBe("arc-demo-state-v1");
+    expect(result).toEqual({
+      found: true,
+      state: original,
+      fingerprint: fingerprintDemoState(original),
+    });
+    if (result.found) {
+      result.state.setup.weeklyMinutes = 30;
+      expect(original.setup.weeklyMinutes).toBe(600);
+    }
+  });
+
+  it("rejects absent, malformed, partial, and non-exact migration snapshots", () => {
+    const valid = createDemoState();
+    const cases = [
+      null,
+      "not-json",
+      JSON.stringify({ ...valid, setup: { ...valid.setup, targetWeeks: 99 } }),
+      JSON.stringify({ ...valid, extra: true }),
+      JSON.stringify({ ...valid, setup: { ...valid.setup, extra: true } }),
+    ];
+
+    for (const raw of cases) {
+      expect(readDemoStateForMigration({ getItem: () => raw })).toEqual({ found: false });
+    }
+  });
+
   it("distinguishes an untouched sample from meaningful local work", () => {
     expect(hasMeaningfulDemoState(createDemoState())).toBe(false);
     expect(hasMeaningfulDemoState(mergeSetup(createDemoState(), {

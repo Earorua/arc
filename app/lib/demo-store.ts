@@ -15,7 +15,7 @@ export interface DemoState {
   proofs: ProofItem[];
 }
 
-const storageKey = "arc-demo-state-v1";
+export const DEMO_STORAGE_KEY = "arc-demo-state-v1";
 const learnerLevels: LearnerLevel[] = ["new", "beginner", "intermediate", "advanced"];
 const proofKinds: ProofItem["kind"][] = ["completion", "commit", "project", "note", "upload"];
 
@@ -44,6 +44,45 @@ function isProofItem(value: unknown): value is ProofItem {
     && Array.isArray(value.skillIds)
     && value.skillIds.every(isNonEmptyString)
     && typeof value.verified === "boolean";
+}
+
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value);
+  return actual.length === keys.length && keys.every((key) => Object.hasOwn(value, key));
+}
+
+function isStrictProofItem(value: unknown): value is ProofItem {
+  return isRecord(value)
+    && isProofItem(value)
+    && hasExactKeys(value, ["id", "title", "kind", "skillIds", "verified"]);
+}
+
+function parseStrictDemoState(value: unknown): DemoState | null {
+  if (!isRecord(value)
+    || !hasExactKeys(value, ["setup", "completedUnitIds", "proofs"])
+    || !isRecord(value.setup)
+    || !hasExactKeys(value.setup, ["roleId", "level", "weeklyMinutes", "targetWeeks"])
+    || !isNonEmptyString(value.setup.roleId)
+    || !isLearnerLevel(value.setup.level)
+    || !isFiniteIntegerInRange(value.setup.weeklyMinutes, 30, 2400)
+    || !isFiniteIntegerInRange(value.setup.targetWeeks, 4, 52)
+    || !Array.isArray(value.completedUnitIds)
+    || !value.completedUnitIds.every(isNonEmptyString)
+    || !Array.isArray(value.proofs)
+    || !value.proofs.every(isStrictProofItem)) {
+    return null;
+  }
+
+  return {
+    setup: {
+      roleId: value.setup.roleId,
+      level: value.setup.level,
+      weeklyMinutes: value.setup.weeklyMinutes,
+      targetWeeks: value.setup.targetWeeks,
+    },
+    completedUnitIds: [...value.completedUnitIds],
+    proofs: value.proofs.map((proof) => ({ ...proof, skillIds: [...proof.skillIds] })),
+  };
 }
 
 export function createDemoState(): DemoState {
@@ -113,7 +152,7 @@ export function loadDemoState(storage?: Pick<Storage, "getItem">): DemoState {
     const resolvedStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
     if (!resolvedStorage) return createDemoState();
 
-    const raw = resolvedStorage.getItem(storageKey);
+    const raw = resolvedStorage.getItem(DEMO_STORAGE_KEY);
     if (!raw) return createDemoState();
 
     const persisted = JSON.parse(raw);
@@ -144,11 +183,27 @@ export function loadDemoState(storage?: Pick<Storage, "getItem">): DemoState {
   }
 }
 
+export function readDemoStateForMigration(
+  storage?: Pick<Storage, "getItem">,
+): { found: false } | { found: true; state: DemoState; fingerprint: string } {
+  try {
+    const resolvedStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
+    if (!resolvedStorage) return { found: false };
+    const raw = resolvedStorage.getItem(DEMO_STORAGE_KEY);
+    if (raw === null) return { found: false };
+    const state = parseStrictDemoState(JSON.parse(raw) as unknown);
+    if (!state) return { found: false };
+    return { found: true, state, fingerprint: fingerprintDemoState(state) };
+  } catch {
+    return { found: false };
+  }
+}
+
 export function saveDemoState(state: DemoState, storage?: Pick<Storage, "setItem">): boolean {
   try {
     const resolvedStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
     if (!resolvedStorage) return false;
-    resolvedStorage.setItem(storageKey, JSON.stringify(state));
+    resolvedStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(state));
     return true;
   } catch {
     return false;
