@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { roleBlueprintSchema, type RoleBlueprint } from "../../../app/contracts/intelligence";
 import {
   PLANNING_SCHEMA_VERSION,
@@ -155,6 +155,15 @@ describe("applyPlanningEvent", () => {
     expect(skipped.kind).toBe("proposed");
     expect(skipped.workspace.events.at(-1)?.kind).toBe("skipped");
     expect(skipped.workspace.events.some((item) => item.kind === "completed")).toBe(false);
+    expect(skipped.workspace.activePlanVersionId).toBe(initial.activePlanVersionId);
+    expect(skipped.diff.items.find(({ unitId }) => unitId === alpha.id)).toMatchObject({
+      change: "moved", fromDate: originalDate, toDate: "2026-08-13",
+    });
+    expect(skipped.diff.items.find(({ unitId }) => unitId === activeUnit(initial, "beta").id)).toMatchObject({
+      change: "moved", toDate: "2026-08-14",
+    });
+    const skippedCandidate = skipped.workspace.planVersions.find(({ id }) => id === skipped.workspace.pendingPlanVersionId)!;
+    expect(skippedCandidate.replanReason).toBe("skipped");
 
     const hard = propose(initial, "too_hard");
     const hardCandidateId = hard.workspace.pendingPlanVersionId!;
@@ -217,6 +226,34 @@ describe("applyPlanningEvent", () => {
     expect(() => proposeWithRegistry(initial, withoutReinforcement, "too_hard"))
       .toThrowError(expect.objectContaining({ code: "REINFORCEMENT_UNAVAILABLE" }));
     expect(JSON.stringify(initial)).toBe(before);
+  });
+
+  it("keeps completed prerequisites out of reinforcement completion promises", () => {
+    const initial = workspace();
+    const alpha = activeUnit(initial, "alpha");
+    const afterCompletion = applyPlanningEvent({
+      workspace: initial, blueprint, registry,
+      event: event(initial, { kind: "completed", unitId: alpha.id, actualMinutes: 60, planningDate: "2026-08-13" }),
+    }).workspace;
+    const beta = activeUnit(afterCompletion, "beta");
+    const hard = applyPlanningEvent({
+      workspace: afterCompletion, blueprint, registry,
+      event: event(afterCompletion, { kind: "too_hard", unitId: beta.id, planningDate: "2026-08-13" }),
+    });
+    if (hard.kind !== "proposed") throw new Error("Expected proposed transition");
+    const candidatePlan = hard.workspace.planVersions.find(({ id }) => id === hard.workspace.pendingPlanVersionId)!;
+    const candidatePath = hard.workspace.pathVersions.find(({ id }) => id === candidatePlan.pathVersionId)!;
+
+    expect(candidatePath.estimatedCompletionDate).toBe(candidatePlan.estimatedCompletionDate);
+    expect(hard.workspace.dailyUnits.filter(({ planVersionId, id }) => planVersionId === candidatePlan.id && id === alpha.id)).toEqual([]);
+
+    const accepted = applyPlanningEvent({
+      workspace: hard.workspace, blueprint, registry,
+      event: event(hard.workspace, { kind: "replan_accepted", candidatePlanVersionId: candidatePlan.id }, { targetPlanVersionId: afterCompletion.activePlanVersionId }),
+    }).workspace;
+    expect(accepted.activePathVersionId).toBe(candidatePath.id);
+    expect(accepted.pathVersions.find(({ id }) => id === accepted.activePathVersionId)?.estimatedCompletionDate)
+      .toBe(accepted.planVersions.find(({ id }) => id === accepted.activePlanVersionId)?.estimatedCompletionDate);
   });
 
   it("reschedules the accepted adaptive path without reviving replaced learn units", () => {
@@ -356,6 +393,36 @@ describe("applyPlanningEvent", () => {
       .toThrowError(expect.objectContaining({ code: "UNIT_NOT_ACTIVE" }));
     expect(() => applyPlanningEvent({ workspace: { ...initial, extra: true } as unknown as PlanningWorkspace, blueprint, registry, event: first })).toThrow();
   });
+
+  it("rejects schema-valid active and pending lifecycle mismatches", () => {
+    const initial = workspace();
+    const activePath = initial.pathVersions[0]!;
+    const alternatePath = { ...activePath, id: "alternate-path", inputFingerprint: "alternate-path-fingerprint" };
+    const mismatchedActive = planningWorkspaceSchema.parse({
+      ...initial,
+      pathVersions: [...initial.pathVersions, alternatePath],
+      activePathVersionId: alternatePath.id,
+    });
+    const skipped = event(mismatchedActive, { kind: "skipped", unitId: activeUnit(mismatchedActive, "alpha").id, planningDate: PLANNING_DATE });
+    expect(() => applyPlanningEvent({ workspace: mismatchedActive, blueprint, registry, event: skipped }))
+      .toThrowError(expect.objectContaining({ code: "BASE_REVISION_MISMATCH" }));
+    expect(() => replayPlanningEvents({ initial: mismatchedActive, events: [], blueprint, registry }))
+      .toThrowError(expect.objectContaining({ code: "BASE_REVISION_MISMATCH" }));
+
+    const proposed = propose(initial, "delayed").workspace;
+    const pendingId = proposed.pendingPlanVersionId!;
+    const malformedPending = planningWorkspaceSchema.parse({
+      ...proposed,
+      planVersions: proposed.planVersions.map((plan) => plan.id === pendingId
+        ? { ...plan, generation: "automatic" as const }
+        : plan),
+    });
+    const decision = event(malformedPending, { kind: "replan_discarded", candidatePlanVersionId: pendingId }, { targetPlanVersionId: initial.activePlanVersionId });
+    expect(() => applyPlanningEvent({ workspace: malformedPending, blueprint, registry, event: decision }))
+      .toThrowError(expect.objectContaining({ code: "BASE_REVISION_MISMATCH" }));
+    expect(() => replayPlanningEvents({ initial: malformedPending, events: [], blueprint, registry }))
+      .toThrowError(expect.objectContaining({ code: "BASE_REVISION_MISMATCH" }));
+  });
 });
 
 describe("replayPlanningEvents", () => {
@@ -394,6 +461,33 @@ describe("replayPlanningEvents", () => {
     expect(second.activePlanVersionId).toBe(first.activePlanVersionId);
     expect(second.planVersions.map(({ inputFingerprint }) => inputFingerprint)).toEqual(first.planVersions.map(({ inputFingerprint }) => inputFingerprint));
     expect(second.events.map(({ sequence, kind }) => ({ sequence, kind }))).toEqual(first.events.map(({ sequence, kind }) => ({ sequence, kind })));
+  });
+
+  it("parses the workspace boundary only at replay entry and exit for a bounded long stream", () => {
+    const initial = workspace();
+    let generated = initial;
+    const stream: PlanningEvent[] = [];
+    for (let index = 0; index < 30; index += 1) {
+      const proposal = propose(generated, "skipped").workspace;
+      stream.push(proposal.events.at(-1)!);
+      const candidateId = proposal.pendingPlanVersionId!;
+      const discarded = applyPlanningEvent({
+        workspace: proposal, blueprint, registry,
+        event: event(proposal, { kind: "replan_discarded", candidatePlanVersionId: candidateId }, { targetPlanVersionId: generated.activePlanVersionId }),
+      }).workspace;
+      stream.push(discarded.events.at(-1)!);
+      generated = discarded;
+    }
+    const parseSpy = vi.spyOn(planningWorkspaceSchema, "parse");
+    try {
+      const replayed = replayPlanningEvents({ initial, events: stream, blueprint, registry });
+      expect(replayed.events).toHaveLength(60);
+      expect(replayed.lastSequence).toBe(60);
+      expect(replayed.activePlanVersionId).toBe(initial.activePlanVersionId);
+      expect(parseSpy).toHaveBeenCalledTimes(2);
+    } finally {
+      parseSpy.mockRestore();
+    }
   });
 });
 

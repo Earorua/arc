@@ -34,18 +34,11 @@ export function applyPlanningEvent(input: {
   registry: UnitRegistry;
 }): PlanningTransition {
   const parsed = parseApplyInput(input);
-  assertEventOrder(parsed.workspace, parsed.event);
-  if (parsed.event.kind === "replan_accepted" || parsed.event.kind === "replan_discarded") {
-    return applyDecision(parsed.workspace, parsed.event);
-  }
-  if (parsed.workspace.pendingPlanVersionId !== null) {
-    throw new PlanningEventError("PENDING_REPLAN_REQUIRED");
-  }
-  assertActiveTarget(parsed.workspace, parsed.event);
-  if (parsed.event.kind === "completed") {
-    return applyCompletion(parsed.workspace, parsed.event, parsed.registry);
-  }
-  return proposeReplan(parsed.workspace, parsed.event, parsed.registry);
+  return validateTransition(applyTrustedPlanningEvent(
+    parsed.workspace,
+    parsed.event,
+    parsed.registry,
+  ));
 }
 
 export function replayPlanningEvents(input: {
@@ -59,11 +52,36 @@ export function replayPlanningEvents(input: {
   const blueprint = roleBlueprintSchema.parse(cloneData(fields.blueprint));
   const registry = unitRegistrySchema.parse(cloneData(fields.registry));
   if (!Array.isArray(fields.events)) throw new TypeError("Planning events must be an array.");
-  const events = fields.events.map((event) => planningEventSchema.parse(cloneData(event)));
+  const events = planningEventSchema.array().parse(cloneData(fields.events));
+  assertWorkspaceLifecycle(workspace);
+  const eventLog = [...workspace.events];
   for (const event of events) {
-    workspace = applyPlanningEvent({ workspace, event, blueprint, registry }).workspace;
+    workspace = applyTrustedPlanningEvent(workspace, event, registry, eventLog).workspace;
   }
-  return workspace;
+  void blueprint;
+  assertWorkspaceLifecycle(workspace);
+  return deepFreeze(planningWorkspaceSchema.parse(workspace));
+}
+
+function applyTrustedPlanningEvent(
+  workspace: PlanningWorkspace,
+  event: PlanningEvent,
+  registry: UnitRegistry,
+  eventLog?: PlanningEvent[],
+): PlanningTransition {
+  assertWorkspaceLifecycle(workspace);
+  assertEventOrder(workspace, event);
+  if (event.kind === "replan_accepted" || event.kind === "replan_discarded") {
+    return applyDecision(workspace, event, eventLog);
+  }
+  if (workspace.pendingPlanVersionId !== null) {
+    throw new PlanningEventError("PENDING_REPLAN_REQUIRED");
+  }
+  assertActiveTarget(workspace, event);
+  if (event.kind === "completed") {
+    return applyCompletion(workspace, event, registry, eventLog);
+  }
+  return proposeReplan(workspace, event, registry, eventLog);
 }
 
 function parseApplyInput(input: unknown): {
@@ -88,6 +106,20 @@ function assertEventOrder(workspace: PlanningWorkspace, event: PlanningEvent): v
   if (event.sequence !== workspace.lastSequence + 1) throw new PlanningEventError("STALE_SEQUENCE");
 }
 
+function assertWorkspaceLifecycle(workspace: PlanningWorkspace): void {
+  const activePlan = getPlan(workspace, workspace.activePlanVersionId);
+  if (activePlan.pathVersionId !== workspace.activePathVersionId) {
+    throw new PlanningEventError("BASE_REVISION_MISMATCH");
+  }
+  if (workspace.pendingPlanVersionId === null) return;
+  const pending = getPlan(workspace, workspace.pendingPlanVersionId);
+  if (pending.generation !== "proposed"
+    || pending.baseVersionId !== workspace.activePlanVersionId
+    || !workspace.pathVersions.some(({ id }) => id === pending.pathVersionId)) {
+    throw new PlanningEventError("BASE_REVISION_MISMATCH");
+  }
+}
+
 function assertActiveTarget(
   workspace: PlanningWorkspace,
   event: Exclude<PlanningEvent, { kind: "replan_accepted" | "replan_discarded" }>,
@@ -107,6 +139,7 @@ function applyCompletion(
   workspace: PlanningWorkspace,
   event: Extract<PlanningEvent, { kind: "completed" }>,
   registry: UnitRegistry,
+  eventLog?: PlanningEvent[],
 ): PlanningTransition {
   const activePath = getPath(workspace, workspace.activePathVersionId);
   const completed = completedIdsForPath(workspace, activePath);
@@ -126,14 +159,15 @@ function applyCompletion(
     dailyUnits: appendDailyUnits(workspace.dailyUnits, dailyUnits),
     activePlanVersionId: plan.id,
     pendingPlanVersionId: null,
-  });
-  return deepFreeze({ kind: "automatic", event, workspace: next });
+  }, eventLog);
+  return { kind: "automatic", event, workspace: next };
 }
 
 function proposeReplan(
   workspace: PlanningWorkspace,
   event: Exclude<PlanningEvent, { kind: "completed" | "replan_accepted" | "replan_discarded" }>,
   registry: UnitRegistry,
+  eventLog?: PlanningEvent[],
 ): PlanningTransition {
   const completedHistory = completedIds(workspace);
   const activePlan = getPlan(workspace, workspace.activePlanVersionId);
@@ -160,11 +194,18 @@ function proposeReplan(
     path = alreadyKnownPath(path, target, registry, availability, event.planningDate, completedHistory);
     pathVersions = appendUnique(pathVersions, path);
   } else if (event.kind === "too_hard") {
-    path = reinforcePath(path, activeDailyUnit(workspace, event.unitId), registry, availability, event.planningDate);
+    path = reinforcePath(
+      path,
+      activeDailyUnit(workspace, event.unitId),
+      registry,
+      availability,
+      event.planningDate,
+      completedHistory,
+    );
     pathVersions = appendUnique(pathVersions, path);
   }
 
-  const scheduleAvailability = event.kind === "delayed"
+  const scheduleAvailability = event.kind === "delayed" || event.kind === "skipped"
     ? availabilityWithDeferredDate(availability, activeDailyUnit(workspace, event.unitId).scheduledDate)
     : availability;
   const completed = completedIdsForPath(workspace, path);
@@ -178,7 +219,7 @@ function proposeReplan(
     replanReason: event.kind,
     completedUnitIds: completed,
   });
-  const candidate = event.kind === "delayed"
+  const candidate = event.kind === "delayed" || event.kind === "skipped"
     ? restoreDisplayedBudget(built.plan, built.dailyUnits, availability, activeDailyUnit(workspace, event.unitId).scheduledDate)
     : built;
   const diff = diffPlans({ active: activePlan, candidate: candidate.plan, completedUnitIds: completedHistory });
@@ -189,13 +230,14 @@ function proposeReplan(
     planVersions: appendUnique(workspace.planVersions, candidate.plan),
     dailyUnits: appendDailyUnits(workspace.dailyUnits, candidate.dailyUnits),
     pendingPlanVersionId: candidate.plan.id,
-  });
-  return deepFreeze({ kind: "proposed", event, workspace: next, diff });
+  }, eventLog);
+  return { kind: "proposed", event, workspace: next, diff };
 }
 
 function applyDecision(
   workspace: PlanningWorkspace,
   event: Extract<PlanningEvent, { kind: "replan_accepted" | "replan_discarded" }>,
+  eventLog?: PlanningEvent[],
 ): PlanningTransition {
   if (workspace.pendingPlanVersionId === null
     || workspace.pendingPlanVersionId !== event.candidatePlanVersionId) {
@@ -215,8 +257,8 @@ function applyDecision(
     activePathVersionId: accepted ? candidate.pathVersionId : workspace.activePathVersionId,
     availability: accepted ? candidateAvailability : workspace.availability,
     pendingPlanVersionId: null,
-  });
-  return deepFreeze({ kind: accepted ? "accepted" : "discarded", event, workspace: next });
+  }, eventLog);
+  return { kind: accepted ? "accepted" : "discarded", event, workspace: next };
 }
 
 function reinforcePath(
@@ -225,6 +267,7 @@ function reinforcePath(
   registry: UnitRegistry,
   availability: AvailabilityVersion,
   planningDate: string,
+  completedUnitIds: ReadonlySet<string>,
 ): LearningPathVersion {
   const template = registry.tracks.find(({ skillId }) => skillId === target.skillId)?.templates
     .find(({ kind }) => kind === "reinforce");
@@ -253,7 +296,15 @@ function reinforcePath(
     ...phase,
     unitIds: phase.unitIds.flatMap((unitId) => unitId === sourceTarget.id ? [reinforcement.id, unitId] : [unitId]),
   }));
-  return derivedPath(source, units, phases, availability, planningDate, "too-hard-reinforcement");
+  return derivedPath(
+    source,
+    units,
+    phases,
+    availability,
+    planningDate,
+    "too-hard-reinforcement",
+    completedUnitIds,
+  );
 }
 
 function alreadyKnownPath(
@@ -429,14 +480,22 @@ function finalizeWorkspace(
   workspace: PlanningWorkspace,
   event: PlanningEvent,
   changes: Partial<PlanningWorkspace>,
+  eventLog?: PlanningEvent[],
 ): PlanningWorkspace {
-  return deepFreeze(planningWorkspaceSchema.parse({
+  const events = eventLog ?? [...workspace.events, event];
+  if (eventLog) eventLog.push(event);
+  return {
     ...workspace,
     ...changes,
     revision: workspace.revision + 1,
     lastSequence: event.sequence,
-    events: [...workspace.events, event],
-  }));
+    events,
+  };
+}
+
+function validateTransition(transition: PlanningTransition): PlanningTransition {
+  const workspace = deepFreeze(planningWorkspaceSchema.parse(transition.workspace));
+  return deepFreeze({ ...transition, workspace });
 }
 
 function appendUnique<T extends { id: string }>(items: readonly T[], item: T): T[] {
