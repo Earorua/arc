@@ -133,7 +133,7 @@ function errorResponse(error: unknown, requestId: string): { response: Response;
   }
   if (error instanceof RateLimitUnavailableError || error instanceof PlanningUnavailableError) {
     const action: ApiRecoveryAction = error instanceof PlanningUnavailableError
-      && error.issues.some((issue) => /schema|version/iu.test(issue)) ? "rebuild" : "retry";
+      && error.reason === "version-mismatch" ? "rebuild" : "retry";
     return { resultCode: "PLANNING_UNAVAILABLE", response: apiError(
       "PLANNING_UNAVAILABLE", "Planning is temporarily unavailable.", 503, requestId, undefined, action,
     ) };

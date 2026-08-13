@@ -88,4 +88,69 @@ describe("adaptive planning browser client", () => {
     await expect(createPlanningClient({ fetch: unknownError }).loadWorkspace()).rejects.toThrow("invalid response");
     await expect(createPlanningClient({ fetch: oversized }).loadWorkspace()).rejects.toThrow("invalid response");
   });
+
+  it("rejects an oversized content length before pulling and cancels once", async () => {
+    const pull = vi.fn();
+    const cancel = vi.fn();
+    const stream = new ReadableStream<Uint8Array>({ pull, cancel }, { highWaterMark: 0 });
+    const fetcher = vi.fn().mockResolvedValue(new Response(stream, {
+      headers: { "content-length": String(4 * 1024 * 1024 + 1) },
+    }));
+    await expect(createPlanningClient({ fetch: fetcher }).loadWorkspace())
+      .rejects.toMatchObject({ code: "INTERNAL" });
+    expect(pull).not.toHaveBeenCalled();
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it("bounds and cancels deceptive streamed responses without response.text", async () => {
+    const chunk = new Uint8Array(1024 * 1024).fill(120);
+    let pulls = 0;
+    const cancel = vi.fn();
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulls += 1;
+        if (pulls <= 6) controller.enqueue(chunk);
+        else controller.close();
+      },
+      cancel,
+    }, { highWaterMark: 0 });
+    const response = new Response(stream, { headers: { "content-length": "1" } });
+    Object.defineProperty(response, "text", { value: vi.fn(() => { throw new Error("response.text forbidden"); }) });
+    await expect(createPlanningClient({ fetch: vi.fn().mockResolvedValue(response) }).loadWorkspace())
+      .rejects.toMatchObject({ code: "INTERNAL" });
+    expect(pulls).toBeLessThanOrEqual(5);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(response.text).not.toHaveBeenCalled();
+  });
+
+  it("contains reader errors and rejects null bodies safely", async () => {
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) { controller.error(new Error("private response stream")); },
+    }, { highWaterMark: 0 });
+    const streamed = createPlanningClient({ fetch: vi.fn().mockResolvedValue(new Response(stream)) });
+    const streamError = await streamed.loadWorkspace().then(
+      () => { throw new Error("expected rejection"); },
+      (error) => error as ArcApiError,
+    );
+    expect(streamError).toMatchObject({ code: "INTERNAL" });
+    expect(streamError.message).not.toContain("private response stream");
+
+    const empty = createPlanningClient({ fetch: vi.fn().mockResolvedValue(new Response(null)) });
+    await expect(empty.loadWorkspace()).rejects.toMatchObject({ code: "INTERNAL" });
+  });
+
+  it("counts Unicode response limits by raw UTF-8 bytes", async () => {
+    const prefix = '{"workspace":null,"padding":"';
+    const suffix = '"}';
+    const budget = 4 * 1024 * 1024;
+    const exactCount = Math.floor((budget - new TextEncoder().encode(prefix + suffix).byteLength) / 4);
+    const exact = `${prefix}${"😀".repeat(exactCount)}${suffix}`;
+    const over = `${prefix}${"😀".repeat(exactCount + 1)}${suffix}`;
+    expect(new TextEncoder().encode(exact).byteLength).toBeLessThanOrEqual(budget);
+    expect(new TextEncoder().encode(over).byteLength).toBeGreaterThan(budget);
+    await expect(createPlanningClient({ fetch: vi.fn().mockResolvedValue(new Response(exact)) }).loadWorkspace())
+      .rejects.toThrow("invalid response");
+    await expect(createPlanningClient({ fetch: vi.fn().mockResolvedValue(new Response(over)) }).loadWorkspace())
+      .rejects.toMatchObject({ code: "INTERNAL" });
+  });
 });

@@ -480,6 +480,28 @@ describe("D1PlanningRepository", () => {
       .every(({ values }) => values.includes("user-1") && values.includes("goal-1"))).toBe(true);
   });
 
+  it("surfaces a stable version mismatch reason for stored generation schema drift", async () => {
+    const result = await validResult();
+    const db = new FakeD1();
+    db.whenFirst("mutation_id = ?3", { response_json: JSON.stringify({
+      schemaVersion: "future-version", ownerId: "user-1", goalId: "goal-1", kind: "generation", result,
+    }) });
+    await expect(repositoryWith(db).findMutation({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-version",
+    })).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE", reason: "version-mismatch" });
+  });
+
+  it("preserves a stable version mismatch reason for canonical payload drift", async () => {
+    const db = new FakeD1();
+    const result = await validResult();
+    db.whenFirst("FROM skill_audit_versions", { payload_json: JSON.stringify({
+      ...result.workspace.audit, schemaVersion: "future-version",
+    }) });
+    seedCanonicalLoad(db, result, result);
+    await expect(repositoryWith(db).load({ ownerId: "user-1", goalId: "goal-1" }))
+      .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE", reason: "version-mismatch" });
+  });
+
   it("fails closed on a corrupt or mismatched canonical snapshot without writing", async () => {
     for (const response_json of ["{", generationRecord(await validResult(), "wrong-user")]) {
       const db = new FakeD1();

@@ -173,7 +173,8 @@ export class D1PlanningRepository implements PlanningRepository {
       }
       if (canonicalJson(workspace) !== canonicalJson(snapshot)) throw new Error("snapshot mismatch");
       return { ...scope, payload: workspace };
-    } catch {
+    } catch (error) {
+      if (error instanceof PlanningUnavailableError && error.reason === "version-mismatch") throw error;
       throw new PlanningUnavailableError();
     }
   }
@@ -467,6 +468,10 @@ function parseStoredMutation(value: string): StoredMutation {
   let parsed: unknown;
   try { parsed = JSON.parse(value) as unknown; }
   catch { throw new PlanningUnavailableError(); }
+  if (parsed && typeof parsed === "object" && "schemaVersion" in parsed
+    && parsed.schemaVersion !== PLANNING_SCHEMA_VERSION) {
+    throw new PlanningUnavailableError([], "version-mismatch");
+  }
   const kind = parsed && typeof parsed === "object" && "kind" in parsed ? parsed.kind : null;
   if (kind === "generation") {
     try {
@@ -478,7 +483,10 @@ function parseStoredMutation(value: string): StoredMutation {
     }
   }
   try { return storedEventSchema.parse(parsed); }
-  catch { throw new PlanningUnavailableError(); }
+  catch (error) {
+    if (error instanceof PlanningUnavailableError) throw error;
+    throw new PlanningUnavailableError();
+  }
 }
 
 function parseStoredGeneration(value: string): StoredGeneration {
@@ -567,7 +575,10 @@ function parseMutationResult(value: unknown): PlanningMutationResult {
 function parsePlanningEvent(value: string): PlanningEvent {
   if (serializedBytes(value) > 32 * 1024) throw new PlanningUnavailableError();
   try { return planningEventSchema.parse(JSON.parse(value) as unknown); }
-  catch { throw new PlanningUnavailableError(); }
+  catch (error) {
+    if (error instanceof PlanningUnavailableError) throw error;
+    throw new PlanningUnavailableError();
+  }
 }
 
 function serializedBytes(value: unknown): number {
@@ -579,8 +590,18 @@ type PayloadRow = { payload_json: string };
 
 function parsePayload(value: string): unknown {
   if (serializedBytes(value) > D1_PLANNING_VALUE_MAX_BYTES) throw new PlanningUnavailableError();
-  try { return JSON.parse(value) as unknown; }
-  catch { throw new PlanningUnavailableError(); }
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (parsed && typeof parsed === "object" && "schemaVersion" in parsed
+      && parsed.schemaVersion !== PLANNING_SCHEMA_VERSION) {
+      throw new PlanningUnavailableError([], "version-mismatch");
+    }
+    return parsed;
+  }
+  catch (error) {
+    if (error instanceof PlanningUnavailableError) throw error;
+    throw new PlanningUnavailableError();
+  }
 }
 
 function safeTable(value: string): string {

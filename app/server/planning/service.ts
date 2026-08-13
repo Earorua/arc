@@ -46,7 +46,10 @@ export class PlanningConflictError extends PlanningServiceError {
 }
 
 export class PlanningUnavailableError extends PlanningServiceError {
-  constructor(issues: readonly string[] = []) {
+  constructor(
+    issues: readonly string[] = [],
+    readonly reason: "unavailable" | "version-mismatch" = "unavailable",
+  ) {
     super("PLANNING_UNAVAILABLE", [...new Set(issues)].sort());
     this.name = "PlanningUnavailableError";
   }

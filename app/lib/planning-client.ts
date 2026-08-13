@@ -13,6 +13,7 @@ import type { PlanningMutationResult, PlanningWorkspace } from "../contracts/pla
 import { ArcApiError } from "./cloud-client";
 
 const MAX_PLANNING_RESPONSE_BYTES = 4 * 1024 * 1024;
+const invalidResponseId = "request-unavailable";
 
 const planningErrorSchema = z.object({
   error: z.object({
@@ -43,10 +44,7 @@ export function createPlanningClient(options: { fetch?: ArcFetch } = {}): Planni
       credentials: "include",
       headers: init.body ? { "content-type": "application/json", ...init.headers } : init.headers,
     });
-    const raw = await response.text();
-    if (new TextEncoder().encode(raw).byteLength > MAX_PLANNING_RESPONSE_BYTES) {
-      throw new Error("Arc returned an invalid response.");
-    }
+    const raw = await readBoundedResponse(response);
     let payload: unknown;
     try { payload = JSON.parse(raw) as unknown; }
     catch { throw new Error("Arc returned an invalid response."); }
@@ -85,6 +83,49 @@ export function createPlanningClient(options: { fetch?: ArcFetch } = {}): Planni
     acceptReplan: (input) => mutation("/api/planning/replans/accept", input, replanDecisionRequestSchema),
     discardReplan: (input) => mutation("/api/planning/replans/discard", input, replanDecisionRequestSchema),
   };
+}
+
+function invalidResponse(): ArcApiError {
+  return new ArcApiError(500, "INTERNAL", "Arc returned an invalid response.", invalidResponseId);
+}
+
+async function readBoundedResponse(response: Response): Promise<string> {
+  const contentLength = response.headers.get("content-length");
+  if (contentLength !== null) {
+    const parsed = Number(contentLength);
+    if (Number.isFinite(parsed) && parsed >= 0 && parsed > MAX_PLANNING_RESPONSE_BYTES) {
+      await response.body?.cancel().catch(() => undefined);
+      throw invalidResponse();
+    }
+  }
+  if (!response.body) throw invalidResponse();
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_PLANNING_RESPONSE_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        throw invalidResponse();
+      }
+      chunks.push(value);
+    }
+  } catch (error) {
+    if (error instanceof ArcApiError) throw error;
+    await reader.cancel().catch(() => undefined);
+    throw invalidResponse();
+  }
+  const combined = new Uint8Array(bytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    combined.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(combined); }
+  catch { throw invalidResponse(); }
 }
 
 export const planningClient = createPlanningClient();

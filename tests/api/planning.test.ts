@@ -189,7 +189,7 @@ describe("authenticated adaptive planning routes", () => {
     expect(limiterFailure.service.getWorkspace).not.toHaveBeenCalled();
 
     const schemaMismatch = setup(result);
-    schemaMismatch.service.getWorkspace.mockRejectedValue(new PlanningUnavailableError(["schema-version-mismatch"]));
+    schemaMismatch.service.getWorkspace.mockRejectedValue(new PlanningUnavailableError([], "version-mismatch"));
     const rebuild = await createPlanningWorkspaceHandler(schemaMismatch.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(await body(rebuild)).toEqual({ error: {
       code: "PLANNING_UNAVAILABLE", message: "Planning is temporarily unavailable.", requestId, action: "rebuild",
@@ -228,6 +228,16 @@ describe("authenticated adaptive planning routes", () => {
     const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(response.status).toBe(503);
     expect(JSON.stringify(await body(response))).not.toContain("private payload");
+  });
+
+  it("uses a stable typed version mismatch reason for rebuild recovery", async () => {
+    const result = await resultFixture();
+    const harness = setup(result);
+    harness.service.getWorkspace.mockRejectedValue(new PlanningUnavailableError([], "version-mismatch"));
+    const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
+    expect(await body(response)).toEqual({ error: {
+      code: "PLANNING_UNAVAILABLE", message: "Planning is temporarily unavailable.", requestId, action: "rebuild",
+    } });
   });
 
   it("maps direct domain PlanningInputError to a private-safe 400", async () => {
