@@ -84,6 +84,7 @@ export const careerGoals = sqliteTable("career_goals", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
   uniqueIndex("career_goals_one_active_idx").on(table.userId, table.activeSlot),
+  uniqueIndex("career_goals_user_id_idx").on(table.userId, table.id),
   index("career_goals_user_idx").on(table.userId),
 ]);
 
@@ -400,4 +401,231 @@ export const resourceSkillLinks = sqliteTable("resource_skill_links", {
   ),
   index("resource_skill_links_version_idx").on(table.blueprintVersionId),
   index("resource_skill_links_resource_idx").on(table.resourceId),
+]);
+
+export const skillAuditVersions = sqliteTable("skill_audit_versions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  schemaVersion: text("schema_version").notNull(),
+  blueprintId: text("blueprint_id").notNull(),
+  blueprintVersion: text("blueprint_version").notNull(),
+  inputFingerprint: text("input_fingerprint").notNull(),
+  payloadJson: text("payload_json").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "skill_audit_versions_goal_fk",
+  }).onDelete("cascade"),
+  uniqueIndex("skill_audit_versions_identity_idx").on(table.userId, table.goalId, table.id),
+]);
+
+export const availabilityVersions = sqliteTable("availability_versions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  schemaVersion: text("schema_version").notNull(),
+  inputFingerprint: text("input_fingerprint").notNull(),
+  weeklyMinutes: integer("weekly_minutes").notNull(),
+  payloadJson: text("payload_json").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "availability_versions_goal_fk",
+  }).onDelete("cascade"),
+  uniqueIndex("availability_versions_identity_idx").on(table.userId, table.goalId, table.id),
+]);
+
+export const learningPathVersions = sqliteTable("learning_path_versions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  schemaVersion: text("schema_version").notNull(),
+  blueprintId: text("blueprint_id").notNull(),
+  blueprintVersion: text("blueprint_version").notNull(),
+  registryId: text("registry_id").notNull(),
+  registryVersion: text("registry_version").notNull(),
+  auditVersionId: text("audit_version_id").notNull(),
+  availabilityVersionId: text("availability_version_id").notNull(),
+  scopeMode: text("scope_mode", { enum: ["full-scope", "target-date"] }).notNull(),
+  inputFingerprint: text("input_fingerprint").notNull(),
+  payloadJson: text("payload_json").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "learning_path_versions_goal_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.auditVersionId],
+    foreignColumns: [skillAuditVersions.userId, skillAuditVersions.goalId, skillAuditVersions.id],
+    name: "learning_path_versions_audit_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.availabilityVersionId],
+    foreignColumns: [availabilityVersions.userId, availabilityVersions.goalId, availabilityVersions.id],
+    name: "learning_path_versions_availability_fk",
+  }).onDelete("cascade"),
+  uniqueIndex("learning_path_versions_identity_idx").on(table.userId, table.goalId, table.id),
+]);
+
+const planningEventKinds = [
+  "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed",
+  "replan_accepted", "replan_discarded",
+] as const;
+
+export const planVersions = sqliteTable("plan_versions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  schemaVersion: text("schema_version").notNull(),
+  pathVersionId: text("path_version_id").notNull(),
+  generation: text("generation", { enum: ["initial", "automatic", "proposed"] }).notNull(),
+  baseVersionId: text("base_version_id"),
+  replanReason: text("replan_reason", { enum: planningEventKinds }),
+  planningDate: text("planning_date").notNull(),
+  inputFingerprint: text("input_fingerprint").notNull(),
+  payloadJson: text("payload_json").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "plan_versions_goal_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.pathVersionId],
+    foreignColumns: [learningPathVersions.userId, learningPathVersions.goalId, learningPathVersions.id],
+    name: "plan_versions_path_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.baseVersionId],
+    foreignColumns: [table.userId, table.goalId, table.id],
+    name: "plan_versions_base_fk",
+  }).onDelete("no action"),
+  uniqueIndex("plan_versions_identity_idx").on(table.userId, table.goalId, table.id),
+]);
+
+export const dailyUnits = sqliteTable("daily_units", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  planVersionId: text("plan_version_id").notNull(),
+  unitId: text("unit_id").notNull(),
+  scheduledDate: text("scheduled_date").notNull(),
+  slot: text("slot", { enum: ["primary", "stretch"] }).notNull(),
+  required: integer("required", { mode: "boolean" }).notNull(),
+  payloadJson: text("payload_json").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "daily_units_goal_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.planVersionId],
+    foreignColumns: [planVersions.userId, planVersions.goalId, planVersions.id],
+    name: "daily_units_plan_fk",
+  }).onDelete("cascade"),
+  uniqueIndex("daily_units_unit_idx").on(table.userId, table.goalId, table.planVersionId, table.unitId),
+  uniqueIndex("daily_units_slot_idx").on(
+    table.userId,
+    table.goalId,
+    table.planVersionId,
+    table.scheduledDate,
+    table.slot,
+  ),
+]);
+
+export const planningWorkspaces = sqliteTable("planning_workspaces", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  revision: integer("revision").notNull().default(0),
+  currentAuditVersionId: text("current_audit_version_id"),
+  currentAvailabilityVersionId: text("current_availability_version_id"),
+  activePathVersionId: text("active_path_version_id"),
+  activePlanVersionId: text("active_plan_version_id"),
+  pendingPlanVersionId: text("pending_plan_version_id"),
+  nextSequence: integer("next_sequence").notNull().default(1),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "planning_workspaces_goal_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.currentAuditVersionId],
+    foreignColumns: [skillAuditVersions.userId, skillAuditVersions.goalId, skillAuditVersions.id],
+    name: "planning_workspaces_audit_fk",
+  }).onDelete("no action"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.currentAvailabilityVersionId],
+    foreignColumns: [availabilityVersions.userId, availabilityVersions.goalId, availabilityVersions.id],
+    name: "planning_workspaces_availability_fk",
+  }).onDelete("no action"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.activePathVersionId],
+    foreignColumns: [learningPathVersions.userId, learningPathVersions.goalId, learningPathVersions.id],
+    name: "planning_workspaces_path_fk",
+  }).onDelete("no action"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.activePlanVersionId],
+    foreignColumns: [planVersions.userId, planVersions.goalId, planVersions.id],
+    name: "planning_workspaces_active_plan_fk",
+  }).onDelete("no action"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.pendingPlanVersionId],
+    foreignColumns: [planVersions.userId, planVersions.goalId, planVersions.id],
+    name: "planning_workspaces_pending_plan_fk",
+  }).onDelete("no action"),
+  uniqueIndex("planning_workspaces_identity_idx").on(table.userId, table.goalId, table.id),
+  uniqueIndex("planning_workspaces_goal_idx").on(table.userId, table.goalId),
+]);
+
+export const planningEvents = sqliteTable("planning_events", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  workspaceId: text("workspace_id").notNull(),
+  sequence: integer("sequence").notNull(),
+  mutationId: text("mutation_id").notNull(),
+  targetPlanVersionId: text("target_plan_version_id").notNull(),
+  candidatePlanVersionId: text("candidate_plan_version_id"),
+  unitId: text("unit_id"),
+  kind: text("kind", { enum: planningEventKinds }).notNull(),
+  payloadJson: text("payload_json").notNull(),
+  occurredAt: integer("occurred_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "planning_events_goal_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.workspaceId],
+    foreignColumns: [planningWorkspaces.userId, planningWorkspaces.goalId, planningWorkspaces.id],
+    name: "planning_events_workspace_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.targetPlanVersionId],
+    foreignColumns: [planVersions.userId, planVersions.goalId, planVersions.id],
+    name: "planning_events_target_plan_fk",
+  }).onDelete("no action"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.candidatePlanVersionId],
+    foreignColumns: [planVersions.userId, planVersions.goalId, planVersions.id],
+    name: "planning_events_candidate_plan_fk",
+  }).onDelete("no action"),
+  uniqueIndex("planning_events_sequence_idx").on(table.userId, table.goalId, table.workspaceId, table.sequence),
+  uniqueIndex("planning_events_mutation_idx").on(table.userId, table.mutationId),
 ]);

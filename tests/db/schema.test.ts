@@ -30,6 +30,13 @@ const expectedTableNames = [
   "role_skill_edges",
   "learning_resources",
   "resource_skill_links",
+  "skill_audit_versions",
+  "availability_versions",
+  "learning_path_versions",
+  "plan_versions",
+  "daily_units",
+  "planning_workspaces",
+  "planning_events",
 ];
 
 function exportedTableNames() {
@@ -259,5 +266,171 @@ describe("Arc beta persistence schema", () => {
       foreignTable: "role_skill_definitions",
       onDelete: "cascade",
     });
+  });
+
+  it("declares the exact adaptive planning table columns", () => {
+    expect(columnNames(schema.skillAuditVersions)).toEqual([
+      "blueprint_id", "blueprint_version", "created_at", "goal_id", "id",
+      "input_fingerprint", "payload_json", "schema_version", "user_id",
+    ]);
+    expect(columnNames(schema.availabilityVersions)).toEqual([
+      "created_at", "goal_id", "id", "input_fingerprint", "payload_json",
+      "schema_version", "user_id", "weekly_minutes",
+    ]);
+    expect(columnNames(schema.learningPathVersions)).toEqual([
+      "audit_version_id", "availability_version_id", "blueprint_id", "blueprint_version",
+      "created_at", "goal_id", "id", "input_fingerprint", "payload_json", "registry_id",
+      "registry_version", "schema_version", "scope_mode", "user_id",
+    ]);
+    expect(columnNames(schema.planVersions)).toEqual([
+      "base_version_id", "created_at", "generation", "goal_id", "id",
+      "input_fingerprint", "path_version_id", "payload_json", "planning_date",
+      "replan_reason", "schema_version", "user_id",
+    ]);
+    expect(columnNames(schema.dailyUnits)).toEqual([
+      "created_at", "goal_id", "id", "payload_json", "plan_version_id", "required",
+      "scheduled_date", "slot", "unit_id", "user_id",
+    ]);
+    expect(columnNames(schema.planningWorkspaces)).toEqual([
+      "active_path_version_id", "active_plan_version_id", "created_at",
+      "current_audit_version_id", "current_availability_version_id", "goal_id", "id",
+      "next_sequence", "pending_plan_version_id", "revision", "updated_at", "user_id",
+    ]);
+    expect(columnNames(schema.planningEvents)).toEqual([
+      "candidate_plan_version_id", "created_at", "goal_id", "id", "kind", "mutation_id",
+      "occurred_at", "payload_json", "sequence", "target_plan_version_id", "unit_id",
+      "user_id", "workspace_id",
+    ]);
+  });
+
+  it("keeps all adaptive planning rows scoped to one user and goal", () => {
+    for (const table of [
+      schema.skillAuditVersions,
+      schema.availabilityVersions,
+      schema.learningPathVersions,
+      schema.planVersions,
+      schema.dailyUnits,
+      schema.planningWorkspaces,
+      schema.planningEvents,
+    ]) {
+      expect(columnNames(table)).toEqual(expect.arrayContaining(["user_id", "goal_id"]));
+    }
+    expect(isUniqueIndex(schema.careerGoals, "career_goals_user_id_idx")).toBe(true);
+  });
+
+  it("declares exact adaptive planning enum boundaries", () => {
+    expect(schema.learningPathVersions.scopeMode.enumValues).toEqual(["full-scope", "target-date"]);
+    expect(schema.planVersions.generation.enumValues).toEqual(["initial", "automatic", "proposed"]);
+    expect(schema.planVersions.replanReason.enumValues).toEqual([
+      "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed",
+      "replan_accepted", "replan_discarded",
+    ]);
+    expect(schema.dailyUnits.slot.enumValues).toEqual(["primary", "stretch"]);
+    expect(schema.planningEvents.kind.enumValues).toEqual([
+      "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed",
+      "replan_accepted", "replan_discarded",
+    ]);
+  });
+
+  it("declares exact adaptive planning uniqueness boundaries", () => {
+    const uniqueIndexes: Array<[SQLiteTable, string]> = [
+      [schema.careerGoals, "career_goals_user_id_idx"],
+      [schema.skillAuditVersions, "skill_audit_versions_identity_idx"],
+      [schema.availabilityVersions, "availability_versions_identity_idx"],
+      [schema.learningPathVersions, "learning_path_versions_identity_idx"],
+      [schema.planVersions, "plan_versions_identity_idx"],
+      [schema.dailyUnits, "daily_units_unit_idx"],
+      [schema.dailyUnits, "daily_units_slot_idx"],
+      [schema.planningWorkspaces, "planning_workspaces_identity_idx"],
+      [schema.planningWorkspaces, "planning_workspaces_goal_idx"],
+      [schema.planningEvents, "planning_events_sequence_idx"],
+      [schema.planningEvents, "planning_events_mutation_idx"],
+    ];
+    for (const [table, name] of uniqueIndexes) {
+      expect(isUniqueIndex(table, name), name).toBe(true);
+    }
+  });
+
+  it("declares the exact adaptive planning composite foreign keys", () => {
+    const goalForeignKeys: Array<[SQLiteTable, string]> = [
+      [schema.skillAuditVersions, "skill_audit_versions_goal_fk"],
+      [schema.availabilityVersions, "availability_versions_goal_fk"],
+      [schema.learningPathVersions, "learning_path_versions_goal_fk"],
+      [schema.planVersions, "plan_versions_goal_fk"],
+      [schema.dailyUnits, "daily_units_goal_fk"],
+      [schema.planningWorkspaces, "planning_workspaces_goal_fk"],
+      [schema.planningEvents, "planning_events_goal_fk"],
+    ];
+    for (const [table, name] of goalForeignKeys) {
+      expect(foreignKeyConfig(table, name), name).toEqual({
+        columns: ["user_id", "goal_id"],
+        foreignColumns: ["user_id", "id"],
+        foreignTable: "career_goals",
+        onDelete: "cascade",
+      });
+    }
+
+    expect(foreignKeyConfig(schema.learningPathVersions, "learning_path_versions_audit_fk")).toEqual({
+      columns: ["user_id", "goal_id", "audit_version_id"],
+      foreignColumns: ["user_id", "goal_id", "id"],
+      foreignTable: "skill_audit_versions",
+      onDelete: "cascade",
+    });
+    expect(foreignKeyConfig(schema.learningPathVersions, "learning_path_versions_availability_fk")).toEqual({
+      columns: ["user_id", "goal_id", "availability_version_id"],
+      foreignColumns: ["user_id", "goal_id", "id"],
+      foreignTable: "availability_versions",
+      onDelete: "cascade",
+    });
+    expect(foreignKeyConfig(schema.planVersions, "plan_versions_path_fk")).toEqual({
+      columns: ["user_id", "goal_id", "path_version_id"],
+      foreignColumns: ["user_id", "goal_id", "id"],
+      foreignTable: "learning_path_versions",
+      onDelete: "cascade",
+    });
+    expect(foreignKeyConfig(schema.planVersions, "plan_versions_base_fk")).toEqual({
+      columns: ["user_id", "goal_id", "base_version_id"],
+      foreignColumns: ["user_id", "goal_id", "id"],
+      foreignTable: "plan_versions",
+      onDelete: "no action",
+    });
+    expect(foreignKeyConfig(schema.dailyUnits, "daily_units_plan_fk")).toEqual({
+      columns: ["user_id", "goal_id", "plan_version_id"],
+      foreignColumns: ["user_id", "goal_id", "id"],
+      foreignTable: "plan_versions",
+      onDelete: "cascade",
+    });
+    expect(foreignKeyConfig(schema.planningEvents, "planning_events_workspace_fk")).toEqual({
+      columns: ["user_id", "goal_id", "workspace_id"],
+      foreignColumns: ["user_id", "goal_id", "id"],
+      foreignTable: "planning_workspaces",
+      onDelete: "cascade",
+    });
+    for (const [name, column] of [
+      ["planning_events_target_plan_fk", "target_plan_version_id"],
+      ["planning_events_candidate_plan_fk", "candidate_plan_version_id"],
+    ] as const) {
+      expect(foreignKeyConfig(schema.planningEvents, name)).toEqual({
+        columns: ["user_id", "goal_id", column],
+        foreignColumns: ["user_id", "goal_id", "id"],
+        foreignTable: "plan_versions",
+        onDelete: "no action",
+      });
+    }
+
+    for (const [name, column, foreignTable] of [
+      ["planning_workspaces_audit_fk", "current_audit_version_id", "skill_audit_versions"],
+      ["planning_workspaces_availability_fk", "current_availability_version_id", "availability_versions"],
+      ["planning_workspaces_path_fk", "active_path_version_id", "learning_path_versions"],
+      ["planning_workspaces_active_plan_fk", "active_plan_version_id", "plan_versions"],
+      ["planning_workspaces_pending_plan_fk", "pending_plan_version_id", "plan_versions"],
+    ] as const) {
+      expect(foreignKeyConfig(schema.planningWorkspaces, name)).toEqual({
+        columns: ["user_id", "goal_id", column],
+        foreignColumns: ["user_id", "goal_id", "id"],
+        foreignTable,
+        onDelete: "no action",
+      });
+    }
   });
 });

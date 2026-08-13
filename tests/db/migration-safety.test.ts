@@ -1,8 +1,14 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-const migrationPath = "../../drizzle/0002_product_intelligence.sql";
-const migrationSql = readFileSync(new URL(/* @vite-ignore */ migrationPath, import.meta.url), "utf8");
+const migrationPaths = {
+  productIntelligence: "../../drizzle/0002_product_intelligence.sql",
+  adaptivePlanning: "../../drizzle/0003_adaptive_planning.sql",
+} as const;
+const migrations = Object.fromEntries(Object.entries(migrationPaths).map(([name, path]) => [
+  name,
+  readFileSync(new URL(/* @vite-ignore */ path, import.meta.url), "utf8"),
+])) as Record<keyof typeof migrationPaths, string>;
 
 function migrationStatements(sql: string) {
   return sql
@@ -20,8 +26,8 @@ function isAdditiveSchemaMigration(sql: string) {
   });
 }
 
-function tableStatement(tableName: string) {
-  const statement = migrationSql
+function tableStatement(sql: string, tableName: string) {
+  const statement = sql
     .split("--> statement-breakpoint")
     .find((candidate) => candidate.trimStart().startsWith(`CREATE TABLE \`${tableName}\``));
 
@@ -33,6 +39,7 @@ function tableStatement(tableName: string) {
 }
 
 describe("product intelligence migration safety", () => {
+  const migrationSql = migrations.productIntelligence;
   it("creates all six additive intelligence tables", () => {
     const expectedTableNames = [
       "role_blueprints",
@@ -114,29 +121,70 @@ describe("product intelligence migration safety", () => {
 
   it("preserves the approved foreign-key delete behavior", () => {
     expect([...migrationSql.matchAll(/\bFOREIGN KEY\s*\(/gu)]).toHaveLength(8);
-    expect(tableStatement("role_blueprint_versions")).toMatch(
+    expect(tableStatement(migrationSql, "role_blueprint_versions")).toMatch(
       /FOREIGN KEY \(`role_id`\) REFERENCES `role_blueprints`\(`id`\) ON UPDATE no action ON DELETE cascade/iu,
     );
-    expect(tableStatement("role_skill_definitions")).toMatch(
+    expect(tableStatement(migrationSql, "role_skill_definitions")).toMatch(
       /FOREIGN KEY \(`blueprint_version_id`\) REFERENCES `role_blueprint_versions`\(`id`\) ON UPDATE no action ON DELETE cascade/iu,
     );
-    expect(tableStatement("role_skill_edges")).toMatch(
+    expect(tableStatement(migrationSql, "role_skill_edges")).toMatch(
       /FOREIGN KEY \(`blueprint_version_id`\) REFERENCES `role_blueprint_versions`\(`id`\) ON UPDATE no action ON DELETE cascade/iu,
     );
-    expect(tableStatement("resource_skill_links")).toMatch(
+    expect(tableStatement(migrationSql, "resource_skill_links")).toMatch(
       /FOREIGN KEY \(`blueprint_version_id`\) REFERENCES `role_blueprint_versions`\(`id`\) ON UPDATE no action ON DELETE cascade/iu,
     );
-    expect(tableStatement("resource_skill_links")).toMatch(
+    expect(tableStatement(migrationSql, "resource_skill_links")).toMatch(
       /FOREIGN KEY \(`resource_id`\) REFERENCES `learning_resources`\(`id`\) ON UPDATE no action ON DELETE restrict/iu,
     );
-    expect(tableStatement("role_skill_edges")).toMatch(
+    expect(tableStatement(migrationSql, "role_skill_edges")).toMatch(
       /FOREIGN KEY \(`blueprint_version_id`,\s*`from_skill_key`\) REFERENCES `role_skill_definitions`\(`blueprint_version_id`,\s*`skill_key`\) ON UPDATE no action ON DELETE cascade/iu,
     );
-    expect(tableStatement("role_skill_edges")).toMatch(
+    expect(tableStatement(migrationSql, "role_skill_edges")).toMatch(
       /FOREIGN KEY \(`blueprint_version_id`,\s*`to_skill_key`\) REFERENCES `role_skill_definitions`\(`blueprint_version_id`,\s*`skill_key`\) ON UPDATE no action ON DELETE cascade/iu,
     );
-    expect(tableStatement("resource_skill_links")).toMatch(
+    expect(tableStatement(migrationSql, "resource_skill_links")).toMatch(
       /FOREIGN KEY \(`blueprint_version_id`,\s*`skill_key`\) REFERENCES `role_skill_definitions`\(`blueprint_version_id`,\s*`skill_key`\) ON UPDATE no action ON DELETE cascade/iu,
+    );
+  });
+});
+
+describe("adaptive planning migration safety", () => {
+  const migrationSql = migrations.adaptivePlanning;
+
+  it("creates exactly seven adaptive planning tables", () => {
+    expect([...migrationSql.matchAll(/CREATE TABLE `([^`]+)`/gu)].map((match) => match[1]).sort()).toEqual([
+      "availability_versions",
+      "daily_units",
+      "learning_path_versions",
+      "plan_versions",
+      "planning_events",
+      "planning_workspaces",
+      "skill_audit_versions",
+    ]);
+  });
+
+  it("contains only additive table and index segments", () => {
+    expect(migrationStatements(migrationSql)).toHaveLength(18);
+    expect(isAdditiveSchemaMigration(migrationSql)).toBe(true);
+  });
+
+  it("adds only the approved index to a pre-existing table", () => {
+    const statements = migrationStatements(migrationSql).filter((statement) =>
+      /^CREATE (?:UNIQUE )?INDEX\b[\s\S]+\bON `career_goals`/u.test(statement));
+    expect(statements).toEqual([
+      "CREATE UNIQUE INDEX `career_goals_user_id_idx` ON `career_goals` (`user_id`,`id`);",
+    ]);
+  });
+
+  it("preserves the exact composite ownership and version references", () => {
+    expect(tableStatement(migrationSql, "learning_path_versions")).toMatch(
+      /FOREIGN KEY \(`user_id`,`goal_id`,`audit_version_id`\) REFERENCES `skill_audit_versions`\(`user_id`,`goal_id`,`id`\)/u,
+    );
+    expect(tableStatement(migrationSql, "plan_versions")).toMatch(
+      /FOREIGN KEY \(`user_id`,`goal_id`,`base_version_id`\) REFERENCES `plan_versions`\(`user_id`,`goal_id`,`id`\)/u,
+    );
+    expect(tableStatement(migrationSql, "planning_events")).toMatch(
+      /FOREIGN KEY \(`user_id`,`goal_id`,`workspace_id`\) REFERENCES `planning_workspaces`\(`user_id`,`goal_id`,`id`\)/u,
     );
   });
 });
