@@ -29,6 +29,7 @@ import { PlanningConflictError, PlanningNotFoundError, PlanningUnavailableError 
 import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
 
 const IDEMPOTENCY_SCOPE_PREFIX = "adaptive-planning:";
+export const D1_PLANNING_VALUE_MAX_BYTES = 1_900_000;
 
 const mutationOutcomeSchema = z.enum(["active", "proposed", "accepted", "discarded"]);
 const lineageFingerprintSchema = z.string().regex(/^p2-[0-9a-f]{32}$/u);
@@ -391,12 +392,12 @@ function immutableGenerationStatements(
       (id,user_id,goal_id,schema_version,blueprint_id,blueprint_version,input_fingerprint,payload_json,created_at)
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9)`).bind(workspace.audit.id, ownerId, goalId,
       workspace.audit.schemaVersion, workspace.audit.blueprintId, workspace.audit.blueprintVersion,
-      workspace.audit.inputFingerprint, JSON.stringify(workspace.audit), now),
+      workspace.audit.inputFingerprint, serializeD1Value(workspace.audit), now),
     ...workspace.availabilityVersions.map((availability) => db.prepare(`INSERT INTO availability_versions
       (id,user_id,goal_id,schema_version,input_fingerprint,weekly_minutes,payload_json,created_at)
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8)`).bind(availability.id, ownerId, goalId,
       availability.schemaVersion, availability.inputFingerprint, availability.weeklyMinutes,
-      JSON.stringify(availability), now)),
+      serializeD1Value(availability), now)),
   ];
   statements.push(...workspace.pathVersions.map((path) => insertPath(db, ownerId, goalId, path, now)));
   statements.push(...workspace.planVersions.map((plan) => insertPlan(db, ownerId, goalId, plan, now)));
@@ -418,7 +419,7 @@ function transitionStatements(
       (id,user_id,goal_id,schema_version,input_fingerprint,weekly_minutes,payload_json,created_at)
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8)`).bind(availability.id, ownerId, goalId,
       availability.schemaVersion, availability.inputFingerprint, availability.weeklyMinutes,
-      JSON.stringify(availability), now)));
+      serializeD1Value(availability), now)));
   statements.push(...next.pathVersions.filter(({ id }) => !previousPaths.has(id)).map((path) => insertPath(db, ownerId, goalId, path, now)));
   statements.push(...next.planVersions.filter(({ id }) => !previousPlans.has(id)).map((plan) => insertPlan(db, ownerId, goalId, plan, now)));
   statements.push(...next.dailyUnits.filter(({ planVersionId, id }) => !previousUnits.has(`${planVersionId}:${id}`))
@@ -429,7 +430,7 @@ function transitionStatements(
     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13)`).bind(
     event.eventId, ownerId, goalId, next.id, event.sequence, event.mutationId,
     event.targetPlanVersionId, "candidatePlanVersionId" in event ? event.candidatePlanVersionId : null,
-    "unitId" in event ? event.unitId : null, event.kind, JSON.stringify(event), Date.parse(event.occurredAt), now));
+    "unitId" in event ? event.unitId : null, event.kind, serializeD1Value(event), Date.parse(event.occurredAt), now));
   return statements;
 }
 
@@ -440,7 +441,7 @@ function insertPath(db: D1Database, ownerId: string, goalId: string, path: Learn
     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14)`).bind(
     path.id, ownerId, goalId, path.schemaVersion, path.blueprintId, path.blueprintVersion,
     path.registryId, path.registryVersion, path.auditVersionId, path.availabilityVersionId,
-    path.scopeMode, path.inputFingerprint, JSON.stringify(path), now);
+    path.scopeMode, path.inputFingerprint, serializeD1Value(path), now);
 }
 
 function insertPlan(db: D1Database, ownerId: string, goalId: string, plan: PlanVersion, now: number) {
@@ -450,7 +451,7 @@ function insertPlan(db: D1Database, ownerId: string, goalId: string, plan: PlanV
     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)`).bind(
     plan.id, ownerId, goalId, plan.schemaVersion, plan.pathVersionId, plan.generation,
     plan.baseVersionId, plan.replanReason, plan.planningDate, plan.inputFingerprint,
-    JSON.stringify(plan), now);
+    serializeD1Value(plan), now);
 }
 
 function insertUnit(db: D1Database, ownerId: string, goalId: string, unit: DailyUnit, now: number) {
@@ -458,11 +459,11 @@ function insertUnit(db: D1Database, ownerId: string, goalId: string, unit: Daily
     (id,user_id,goal_id,plan_version_id,unit_id,scheduled_date,slot,required,payload_json,created_at)
     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)`).bind(
     `${unit.planVersionId}:${unit.id}`, ownerId, goalId, unit.planVersionId, unit.id,
-    unit.scheduledDate, unit.slot, unit.required ? 1 : 0, JSON.stringify(unit), now);
+    unit.scheduledDate, unit.slot, unit.required ? 1 : 0, serializeD1Value(unit), now);
 }
 
 function parseStoredMutation(value: string): StoredMutation {
-  if (serializedBytes(value) > MAX_PLANNING_WORKSPACE_BYTES) throw new PlanningUnavailableError();
+  if (serializedBytes(value) > D1_PLANNING_VALUE_MAX_BYTES) throw new PlanningUnavailableError();
   let parsed: unknown;
   try { parsed = JSON.parse(value) as unknown; }
   catch { throw new PlanningUnavailableError(); }
@@ -506,7 +507,7 @@ function serializeGeneration(command: SavePlanningGenerationCommand, result: Pla
     result,
   });
   const serialized = JSON.stringify(stored);
-  if (serializedBytes(serialized) > MAX_PLANNING_WORKSPACE_BYTES) throw new PlanningUnavailableError();
+  if (serializedBytes(serialized) > D1_PLANNING_VALUE_MAX_BYTES) throw new PlanningUnavailableError();
   return serialized;
 }
 
@@ -517,7 +518,7 @@ function serializeEvent(
   event: PlanningEvent | undefined,
 ): string {
   if (!event || event.mutationId !== command.mutationId) throw new PlanningUnavailableError();
-  return JSON.stringify(storedEventSchema.parse({
+  return serializeD1Value(storedEventSchema.parse({
     schemaVersion: PLANNING_SCHEMA_VERSION,
     ownerId: command.ownerId,
     goalId: command.goalId,
@@ -552,10 +553,10 @@ function resultFromTransition(transition: PlanningTransition): PlanningMutationR
 
 function parseMutationResult(value: unknown): PlanningMutationResult {
   try {
-    const parsed = planningMutationResultSchema.parse(value);
+    const raw = safeSerializeBounded(value, MAX_PLANNING_WORKSPACE_BYTES);
+    const parsed = planningMutationResultSchema.parse(JSON.parse(raw) as unknown);
     const workspace = parsePlanningWorkspaceAtRepositoryBoundary(parsed.workspace);
     const cloned = planningMutationResultSchema.parse({ ...parsed, workspace });
-    if (serializedBytes(cloned) > MAX_PLANNING_WORKSPACE_BYTES) throw new PlanningUnavailableError();
     return cloned;
   } catch (error) {
     if (error instanceof PlanningUnavailableError) throw error;
@@ -577,6 +578,7 @@ function serializedBytes(value: unknown): number {
 type PayloadRow = { payload_json: string };
 
 function parsePayload(value: string): unknown {
+  if (serializedBytes(value) > D1_PLANNING_VALUE_MAX_BYTES) throw new PlanningUnavailableError();
   try { return JSON.parse(value) as unknown; }
   catch { throw new PlanningUnavailableError(); }
 }
@@ -618,10 +620,30 @@ function scopeFor(goalId: string): string {
 }
 
 function parseWorkspace(value: unknown): PlanningWorkspace {
-  try { return parsePlanningWorkspaceAtRepositoryBoundary(value); }
+  try {
+    const raw = safeSerializeBounded(value, MAX_PLANNING_WORKSPACE_BYTES);
+    return parsePlanningWorkspaceAtRepositoryBoundary(raw);
+  }
   catch { throw new PlanningUnavailableError(); }
 }
 
 function isConflictError(error: unknown): boolean {
   return error instanceof Error && /unique|constraint|revision|sequence/iu.test(error.message);
+}
+
+function serializeD1Value(value: unknown): string {
+  return safeSerializeBounded(value, D1_PLANNING_VALUE_MAX_BYTES);
+}
+
+function safeSerializeBounded(value: unknown, limit: number): string {
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(value);
+  } catch {
+    throw new PlanningUnavailableError();
+  }
+  if (typeof serialized !== "string" || serializedBytes(serialized) > limit) {
+    throw new PlanningUnavailableError();
+  }
+  return serialized;
 }

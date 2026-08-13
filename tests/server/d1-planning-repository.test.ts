@@ -7,6 +7,7 @@ import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { fingerprint } from "../../app/lib/planning/fingerprint";
 
 type PreparedCall = { sql: string; values: unknown[] };
+const D1_SAFE_LIMIT = 1_900_000;
 
 class FakeStatement {
   values: unknown[] = [];
@@ -305,6 +306,7 @@ describe("D1PlanningRepository", () => {
       schemaVersion: "2026.08.1", ownerId: "user-1", goalId: "goal-1", kind: "generation",
       result: generation,
     });
+    expect(new TextEncoder().encode(generationJson).byteLength).toBeLessThanOrEqual(D1_SAFE_LIMIT);
 
     const { previous, next } = await completedResults();
     const eventDb = new FakeD1();
@@ -342,6 +344,64 @@ describe("D1PlanningRepository", () => {
     await expect(repositoryWith(db).findMutation({
       ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-oversized",
     })).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+  });
+
+  it("rejects schema-valid generation JSON above the D1 value budget before batching", async () => {
+    const generation = await validResult();
+    const large = structuredClone(generation);
+    const basePath = large.workspace.pathVersions[0]!;
+    while (new TextEncoder().encode(JSON.stringify(large)).byteLength <= D1_SAFE_LIMIT + 10_000) {
+      large.workspace.pathVersions.push({
+        ...basePath,
+        id: `path-large-${large.workspace.pathVersions.length}`,
+        inputFingerprint: `path-fingerprint-${large.workspace.pathVersions.length}`,
+      });
+    }
+    expect(new TextEncoder().encode(JSON.stringify(large)).byteLength).toBeLessThan(4 * 1024 * 1024);
+    const db = new FakeD1();
+
+    await expect(repositoryWith(db).saveGeneration({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-large", result: large,
+    })).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+    expect(db.batches).toHaveLength(0);
+  });
+
+  it("preflights raw stored response and payload JSON against D1 limits before parsing", async () => {
+    const responseDb = new FakeD1();
+    responseDb.whenFirst("mutation_id = ?3", { response_json: " ".repeat(D1_SAFE_LIMIT + 1) });
+    await expect(repositoryWith(responseDb).findMutation({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-large",
+    })).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+
+    const generation = await validResult();
+    const payloadDb = new FakeD1();
+    const workspace = generation.workspace;
+    payloadDb.whenFirst("FROM planning_workspaces", {
+      id: workspace.id, revision: 0, next_sequence: 1,
+      current_audit_version_id: workspace.audit.id,
+      current_availability_version_id: workspace.availability.id,
+      active_path_version_id: workspace.activePathVersionId,
+      active_plan_version_id: workspace.activePlanVersionId,
+      pending_plan_version_id: null,
+    });
+    seedHistory(payloadDb, generation, generation);
+    payloadDb.whenFirst("FROM skill_audit_versions", { payload_json: " ".repeat(D1_SAFE_LIMIT + 1) });
+    await expect(repositoryWith(payloadDb).load({ ownerId: "user-1", goalId: "goal-1" }))
+      .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+  });
+
+  it("contains unknown serialization failures without inspecting or writing them", async () => {
+    const db = new FakeD1();
+    const poison = Object.defineProperty({}, "outcome", {
+      enumerable: true,
+      get() { throw new Error("private getter value"); },
+    }) as PlanningMutationResult;
+    const error = await repositoryWith(db).saveGeneration({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-poison", result: poison,
+    }).catch((caught) => caught);
+    expect(error).toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+    expect(error.message).not.toContain("private getter value");
+    expect(db.batches).toHaveLength(0);
   });
 
   it("writes immutable generation rows before workspace pointers and idempotency in one batch", async () => {
