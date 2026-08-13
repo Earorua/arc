@@ -54,6 +54,7 @@ type PlanningWorkspaceOptions = {
 };
 
 type PlanningIdentity = "guest" | `user:${string}`;
+type PlanningOperationToken = { identity: PlanningIdentity; generation: number };
 
 const IMPORT_EVENT_LINEAGE_KIND = "arc-planning-import-event-lineage";
 const IMPORT_EVENT_LINEAGE_VERSION = 1;
@@ -87,6 +88,10 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   const userIdRef = useRef<string | null>(session.data?.user.id ?? null);
   const importSourceRef = useRef<LocalPlanningImportSource | null>(null);
   const loadGenerationRef = useRef(0);
+  const operationContextRef = useRef<{ identity: PlanningIdentity; generation: number }>({
+    identity: currentIdentity,
+    generation: 0,
+  });
   const inFlightRef = useRef(false);
 
   const publishWorkspace = useCallback((value: unknown) => {
@@ -105,6 +110,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     const loadGeneration = ++loadGenerationRef.current;
     const userId = userIdRef.current;
     const identity: PlanningIdentity = userId ? `user:${userId}` : "guest";
+    operationContextRef.current = { identity, generation: loadGeneration };
     const sessionIsCurrent = () => userIdRef.current === userId && loadGenerationRef.current === loadGeneration;
     setRecovery("none");
     if (!userId) {
@@ -155,6 +161,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   useEffect(() => {
     userIdRef.current = session.data?.user.id ?? null;
     loadGenerationRef.current += 1;
+    operationContextRef.current = { identity: currentIdentity, generation: loadGenerationRef.current };
     if (session.isPending) {
       let current = true;
       queueMicrotask(() => {
@@ -170,7 +177,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       });
     });
     return () => { current = false; };
-  }, [load, publishSource, session.data?.user.id, session.isPending]);
+  }, [currentIdentity, load, publishSource, session.data?.user.id, session.isPending]);
 
   const guarded = useCallback(async (action: () => Promise<boolean>): Promise<boolean> => {
     if (inFlightRef.current) return false;
@@ -179,35 +186,60 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     finally { inFlightRef.current = false; }
   }, []);
 
-  const publishResult = useCallback((value: unknown, nextSource: "local" | "cloud") => {
+  const captureOperation = useCallback((identity: PlanningIdentity): PlanningOperationToken => ({
+    identity,
+    generation: loadGenerationRef.current,
+  }), []);
+
+  const isOperationCurrent = useCallback((token: PlanningOperationToken) =>
+    operationContextRef.current.identity === token.identity
+      && operationContextRef.current.generation === token.generation, []);
+
+  const publishResult = useCallback((
+    value: unknown,
+    nextSource: "local" | "cloud",
+    token: PlanningOperationToken,
+  ) => {
+    if (!isOperationCurrent(token)) return false;
     const result = planningMutationResultSchema.parse(value);
+    if (!isOperationCurrent(token)) return false;
     publishWorkspace(result.workspace);
-    const identity: PlanningIdentity = userIdRef.current ? `user:${userIdRef.current}` : "guest";
-    setVisibleIdentity(identity);
+    setVisibleIdentity(token.identity);
     publishSource(nextSource);
     setRecovery("none");
     return true;
-  }, [publishSource, publishWorkspace]);
+  }, [isOperationCurrent, publishSource, publishWorkspace]);
 
   const mutate = useCallback(async (
+    expectedIdentity: PlanningIdentity,
     localAction: (repository: LocalPlanningRepository) => Promise<PlanningMutationResult>,
     cloudAction: (client: PlanningClient) => Promise<PlanningMutationResult>,
   ) => guarded(async () => {
+    const token = captureOperation(expectedIdentity);
+    if (!isOperationCurrent(token)) return false;
     try {
-      if (!userIdRef.current) return publishResult(await localAction(localRef.current), "local");
+      if (token.identity === "guest") {
+        const result = await localAction(localRef.current);
+        if (!isOperationCurrent(token)) return false;
+        return publishResult(result, "local", token);
+      }
       if (sourceRef.current !== "cloud") return false;
-      return publishResult(await cloudAction(clientRef.current), "cloud");
+      const result = await cloudAction(clientRef.current);
+      if (!isOperationCurrent(token)) return false;
+      return publishResult(result, "cloud", token);
     } catch (error) {
+      if (!isOperationCurrent(token)) return false;
       handleFailure(error, setRecovery);
-      if (userIdRef.current && workspaceRef.current && isUnavailable(error)) publishSource("offline-cloud");
+      if (token.identity !== "guest" && workspaceRef.current && isUnavailable(error)) publishSource("offline-cloud");
       return false;
     }
-  }), [guarded, publishResult, publishSource]);
+  }), [captureOperation, guarded, isOperationCurrent, publishResult, publishSource]);
 
   const generate = useCallback((input: GeneratePlanningRequest) => mutate(
+    currentIdentity,
     (repository) => repository.generate(input),
     (client) => client.generate(input),
-  ), [mutate]);
+  ), [currentIdentity, mutate]);
 
   const guardedGenerate = useCallback((input: GeneratePlanningRequest) => {
     if (visibleIdentity !== currentIdentity) return Promise.resolve(false);
@@ -227,6 +259,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       event: parsed,
     };
     return mutate(
+      currentIdentity,
       (repository) => repository.appendEvent(request),
       (client) => client.appendEvent(request),
     );
@@ -242,6 +275,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       candidatePlanVersionId,
     };
     return mutate(
+      currentIdentity,
       (repository) => kind === "accept" ? repository.accept(request) : repository.discard(request),
       (client) => kind === "accept" ? client.acceptReplan(request) : client.discardReplan(request),
     );
@@ -249,12 +283,19 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
 
   const importLocal = useCallback(() => guarded(async () => {
     if (visibleIdentity !== currentIdentity) return false;
-    const userId = userIdRef.current;
-    const sourceSnapshot = importSourceRef.current ?? await localRef.current.readImportSource();
+    const token = captureOperation(currentIdentity);
+    if (!isOperationCurrent(token) || token.identity === "guest") return false;
+    const userId = token.identity.slice("user:".length);
+    let sourceSnapshot = importSourceRef.current;
+    if (!sourceSnapshot) {
+      sourceSnapshot = await localRef.current.readImportSource();
+      if (!isOperationCurrent(token)) return false;
+    }
     if (!userId || !sourceSnapshot) return false;
     setMigration("importing");
     try {
       let progress = await localRef.current.readImportProgress(userId, sourceSnapshot.workspaceFingerprint);
+      if (!isOperationCurrent(token)) return false;
       if (!progress) {
         progress = {
           userId,
@@ -264,34 +305,44 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         };
       }
       let cloudWorkspace = await generateImportWorkspace(clientRef.current, sourceSnapshot, progress);
+      if (!isOperationCurrent(token)) return false;
       if (!cloudWorkspace) throw new Error("Planning import did not produce a workspace.");
       await localRef.current.updateImportProgress(sourceSnapshot.workspaceFingerprint, progress);
+      if (!isOperationCurrent(token)) return false;
 
       if (progress.lastImportedSequence > 0) {
         cloudWorkspace = planningWorkspaceSchema.parse(await clientRef.current.loadWorkspace());
+        if (!isOperationCurrent(token)) return false;
       }
 
       for (const event of [...sourceSnapshot.workspace.events].sort((left, right) => left.sequence - right.sequence)) {
         if (event.sequence <= progress.lastImportedSequence) continue;
         const result = await replayImportEvent(clientRef.current, cloudWorkspace, event);
+        if (!isOperationCurrent(token)) return false;
         cloudWorkspace = planningMutationResultSchema.parse(result).workspace;
         progress = { ...progress, lastImportedSequence: event.sequence };
         await localRef.current.updateImportProgress(sourceSnapshot.workspaceFingerprint, progress);
+        if (!isOperationCurrent(token)) return false;
       }
-      const loaded = planningWorkspaceSchema.parse(await clientRef.current.loadWorkspace());
+      const loadedValue = await clientRef.current.loadWorkspace();
+      if (!isOperationCurrent(token)) return false;
+      const loaded = planningWorkspaceSchema.parse(loadedValue);
       if (!importMatches(sourceSnapshot.workspace, loaded)) throw new Error("Planning import verification failed.");
       await localRef.current.updateImportProgress(sourceSnapshot.workspaceFingerprint, { ...progress, completed: true });
+      if (!isOperationCurrent(token)) return false;
       publishWorkspace(loaded);
+      setVisibleIdentity(token.identity);
       publishSource("cloud");
       setMigration("imported");
       setRecovery("none");
       return true;
     } catch (error) {
+      if (!isOperationCurrent(token)) return false;
       setMigration("failed");
       handleFailure(error, setRecovery);
       return false;
     }
-  }), [currentIdentity, guarded, publishSource, publishWorkspace, visibleIdentity]);
+  }), [captureOperation, currentIdentity, guarded, isOperationCurrent, publishSource, publishWorkspace, visibleIdentity]);
 
   return {
     workspace: visibleIdentity === currentIdentity ? workspace : null,

@@ -414,4 +414,68 @@ describe("usePlanningWorkspace", () => {
     await waitFor(() => expect(client.loadWorkspace).toHaveBeenCalledTimes(1));
     await act(async () => { cloudLoad.resolve(null); });
   });
+
+  it("discards a stale cloud append completion without publishing or changing recovery", async () => {
+    const { generated } = await generatedFixture();
+    const append = deferred<PlanningMutationResult>();
+    const pendingB = deferred<typeof generated.workspace>();
+    const loadWorkspace = vi.fn()
+      .mockResolvedValueOnce(generated.workspace)
+      .mockReturnValueOnce(pendingB.promise);
+    const client = cloud({ loadWorkspace, appendEvent: vi.fn().mockReturnValue(append.promise) });
+    const { result, rerender } = renderHook(
+      ({ identity }) => usePlanningWorkspace({ local: local(), client, useSession: () => signedAs(identity) }),
+      { initialProps: { identity: "user-a" } },
+    );
+    await waitFor(() => expect(result.current.source).toBe("cloud"));
+    let staleWrite!: Promise<boolean>;
+    act(() => {
+      staleWrite = result.current.record({
+        kind: "skipped", unitId: generated.workspace.dailyUnits[0]!.id, planningDate: "2026-08-17",
+      });
+    });
+    rerender({ identity: "user-b" });
+    await waitFor(() => expect(loadWorkspace).toHaveBeenCalledTimes(2));
+    await act(async () => {
+      append.resolve(generated);
+      await staleWrite;
+    });
+    expect(result.current).toMatchObject({ workspace: null, source: "restoring", recovery: "none" });
+    await act(async () => { pendingB.resolve(generated.workspace); });
+    await waitFor(() => expect(result.current.source).toBe("cloud"));
+  });
+
+  it("stops a stale import after remote generation without writing progress or replaying events", async () => {
+    const { generated, repository, source } = await importFixture();
+    const remoteGeneration = deferred<PlanningMutationResult>();
+    const pendingB = deferred<null>();
+    const loadWorkspace = vi.fn()
+      .mockResolvedValueOnce(null)
+      .mockReturnValueOnce(pendingB.promise);
+    const updateImportProgress = vi.spyOn(repository, "updateImportProgress");
+    const client = cloud({
+      loadWorkspace,
+      generate: vi.fn().mockReturnValue(remoteGeneration.promise),
+    });
+    const { result, rerender } = renderHook(
+      ({ identity }) => usePlanningWorkspace({ local: repository, client, useSession: () => signedAs(identity) }),
+      { initialProps: { identity: "user-a" } },
+    );
+    await waitFor(() => expect(result.current.migration).toBe("available"));
+    let staleImport!: Promise<boolean>;
+    act(() => { staleImport = result.current.importLocal(); });
+    await waitFor(() => expect(client.generate).toHaveBeenCalledTimes(1));
+    rerender({ identity: "user-b" });
+    await waitFor(() => expect(loadWorkspace).toHaveBeenCalledTimes(2));
+    await act(async () => {
+      remoteGeneration.resolve(generated);
+      await staleImport;
+    });
+    expect(updateImportProgress).not.toHaveBeenCalled();
+    expect(client.appendEvent).not.toHaveBeenCalled();
+    expect(client.acceptReplan).not.toHaveBeenCalled();
+    expect(result.current).toMatchObject({ workspace: null, source: "restoring", recovery: "none" });
+    expect(await repository.readImportProgress("user-a", source.workspaceFingerprint)).toBeNull();
+    await act(async () => { pendingB.resolve(null); });
+  });
 });
