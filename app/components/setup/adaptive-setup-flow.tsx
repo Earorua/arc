@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RoleBlueprint } from "../../contracts/intelligence";
 import { generatePlanningRequestSchema, type GeneratePlanningRequest } from "../../contracts/planning-api";
-import { PLANNING_SCHEMA_VERSION, availabilityVersionSchema, planningTargetSchema, skillAuditVersionSchema, type PlanningTarget, type UnitRegistry } from "../../contracts/planning";
+import { PLANNING_SCHEMA_VERSION, availabilityVersionSchema, dailyUnitSchema, pathBuildResultSchema, planningTargetSchema, planVersionSchema, skillAuditVersionSchema, type PlanningTarget, type UnitRegistry } from "../../contracts/planning";
 import { buildLearningPaths, type PathBuildInput } from "../../lib/planning/path-builder";
+import { buildPlanVersion, type PlanBuildInput } from "../../lib/planning/scheduler";
 import { deterministicId, fingerprint } from "../../lib/planning/fingerprint";
 import { planningDateForInstant } from "../../lib/planning/calendar";
 import { AvailabilityStep, createAvailabilityDraft, isAvailabilityDraftValid, weeklyMinutesForDraft, type AvailabilityDraft } from "./availability-step";
@@ -32,10 +33,12 @@ function toTarget(targetWeeks: number): PlanningTarget {
 }
 function safely<T>(build: () => T): T | null { try { return build(); } catch { return null; } }
 
-export function AdaptiveSetupFlow({ blueprint, registry, generate, navigate, createMutationId, now, timeZone, onBackToRole, active = true, buildPaths = buildLearningPaths }: {
+export function AdaptiveSetupFlow({ blueprint, registry, generate, navigate, createMutationId, now, timeZone, onBackToRole, active = true, buildPaths = buildLearningPaths, buildPathsForSubmit = buildLearningPaths, scheduleForSubmit = buildPlanVersion }: {
   blueprint: RoleBlueprint; registry: UnitRegistry; generate: (request: GeneratePlanningRequest) => Promise<boolean>;
   navigate: (path: string) => void; createMutationId: () => string; now: () => Date; timeZone: string; onBackToRole?: () => void; active?: boolean;
   buildPaths?: (input: PathBuildInput) => ReturnType<typeof buildLearningPaths>;
+  buildPathsForSubmit?: (input: PathBuildInput) => ReturnType<typeof buildLearningPaths> | Promise<ReturnType<typeof buildLearningPaths>>;
+  scheduleForSubmit?: (input: PlanBuildInput) => ReturnType<typeof buildPlanVersion> | Promise<ReturnType<typeof buildPlanVersion>>;
 }) {
   const [stageIndex, setStageIndex] = useState(0);
   const stage = stages[stageIndex]!;
@@ -75,10 +78,28 @@ export function AdaptiveSetupFlow({ blueprint, registry, generate, navigate, cre
     if (building || !audit || !availability || !target || !targetPaths || !scopeAvailable) return;
     setBuilding(true); setBuildStatus("Validating your inputs…");
     try {
+      const validated = await Promise.resolve().then(() => ({
+        audit: skillAuditVersionSchema.parse(audit),
+        availability: availabilityVersionSchema.parse(availability),
+        target: planningTargetSchema.parse(target),
+      }));
       const scope = selectedScope ?? (targetPaths.targetDate && targetPaths.targetDate.deferredSkills.length > 0 ? "full-scope" : null);
       if (scope === "target-date" && !targetPaths.targetDate) throw new Error("Path unavailable");
+
+      setBuildStatus("Building the learning path…");
+      const submittedPaths = pathBuildResultSchema.parse(await buildPathsForSubmit({ blueprint, registry, ...validated, planningDate }));
+      if (submittedPaths.fullScope.inputFingerprint !== targetPaths.fullScope.inputFingerprint
+        || submittedPaths.targetDate?.inputFingerprint !== targetPaths.targetDate?.inputFingerprint) throw new Error("Path preview changed");
+      const selectedPath = scope === "target-date" ? submittedPaths.targetDate : submittedPaths.fullScope;
+      if (!selectedPath) throw new Error("Path unavailable");
+
+      setBuildStatus("Building the seven-day schedule…");
+      const schedule = await scheduleForSubmit({ path: selectedPath, registry, availability: validated.availability, planningDate, generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() });
+      planVersionSchema.parse(schedule.plan);
+      schedule.dailyUnits.forEach((unit) => dailyUnitSchema.parse(unit));
+
       setBuildStatus("Saving your plan…");
-      const request = generatePlanningRequestSchema.parse({ mutationId: createMutationId(), roleId: blueprint.id, planningDate, audit, availability, target, selectedScope: scope });
+      const request = generatePlanningRequestSchema.parse({ mutationId: createMutationId(), roleId: blueprint.id, planningDate, ...validated, selectedScope: scope });
       const saved = await generate(request);
       if (!saved) { setBuildStatus("Arc could not save this plan. Your answers are still editable."); return; }
       setBuildStatus("Plan ready."); navigate("/path");

@@ -6,10 +6,18 @@ import type { GeneratePlanningRequest } from "../../app/contracts/planning-api";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { buildLearningPaths } from "../../app/lib/planning/path-builder";
+import { buildPlanVersion, type PlanBuildInput } from "../../app/lib/planning/scheduler";
 
 afterEach(cleanup);
 
 describe("AdaptiveSetupFlow", () => {
+  function deferred<T>() {
+    let resolve!: (value: T) => void;
+    let reject!: (reason?: unknown) => void;
+    const promise = new Promise<T>((onResolve, onReject) => { resolve = onResolve; reject = onReject; });
+    return { promise, resolve, reject };
+  }
+
   it("uses the exact five stages, focuses each heading, preserves Back edits, and submits once", async () => {
     const user = userEvent.setup();
     let resolveGenerate!: (value: boolean) => void;
@@ -105,5 +113,53 @@ describe("AdaptiveSetupFlow", () => {
     expect(screen.getByRole("radio", { name: /Target date/i })).toBeDisabled();
     expect(screen.getByText("The edited week cannot support the target-date scope.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+  });
+
+  it("runs the real build preflight in observable promise-backed stages", async () => {
+    const user = userEvent.setup();
+    const pathWork = deferred<ReturnType<typeof buildLearningPaths>>();
+    const scheduleWork = deferred<ReturnType<typeof buildPlanVersion>>();
+    const saveWork = deferred<boolean>();
+    let scheduleInput: PlanBuildInput | undefined;
+    const preview = vi.fn(buildLearningPaths);
+    const buildPathsForSubmit = vi.fn(() => pathWork.promise);
+    const scheduleForSubmit = vi.fn((input: PlanBuildInput) => { scheduleInput = input; return scheduleWork.promise; });
+    const generate = vi.fn(() => saveWork.promise);
+    const navigate = vi.fn();
+    render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} buildPaths={preview} buildPathsForSubmit={buildPathsForSubmit} createMutationId={() => "mutation-staged"} generate={generate} navigate={navigate} now={() => new Date("2026-08-14T02:00:00.000Z")} registry={flagshipUnitRegistry} scheduleForSubmit={scheduleForSubmit} timeZone="Asia/Shanghai" />);
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(preview).toHaveBeenCalledTimes(1);
+    const previewResult = preview.mock.results[0]!.value;
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    expect(await screen.findByRole("status")).toHaveTextContent("Building the learning path");
+    expect(buildPathsForSubmit).toHaveBeenCalledTimes(1);
+    expect(preview).toHaveBeenCalledTimes(1);
+
+    pathWork.resolve(previewResult);
+    expect(await screen.findByRole("status")).toHaveTextContent("Building the seven-day schedule");
+    expect(scheduleForSubmit).toHaveBeenCalledTimes(1);
+    scheduleWork.resolve(buildPlanVersion(scheduleInput!));
+    expect(await screen.findByRole("status")).toHaveTextContent("Saving your plan");
+    expect(generate).toHaveBeenCalledTimes(1);
+    expect(navigate).not.toHaveBeenCalled();
+    saveWork.resolve(true);
+    expect(await screen.findByText("Plan ready.")).toBeInTheDocument();
+    expect(navigate).toHaveBeenCalledWith("/path");
+  });
+
+  it("contains a build preflight failure and never saves", async () => {
+    const user = userEvent.setup();
+    const generate = vi.fn();
+    render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} buildPathsForSubmit={vi.fn().mockRejectedValue(new Error("private path failure"))} createMutationId={() => "mutation-failed"} generate={generate} navigate={vi.fn()} now={() => new Date("2026-08-14T02:00:00.000Z")} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />);
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("answers are still editable");
+    expect(screen.queryByText("private path failure")).not.toBeInTheDocument();
+    expect(generate).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Build my path" })).toBeEnabled();
   });
 });
