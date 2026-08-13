@@ -1,7 +1,10 @@
 import { z } from "zod";
 import {
+  MAX_PLANNING_WORKSPACE_BYTES,
+  parsePlanningWorkspaceAtRepositoryBoundary,
+  planningEventSchema,
   planningMutationResultSchema,
-  planningWorkspaceSchema,
+  PLANNING_SCHEMA_VERSION,
   type DailyUnit,
   type LearningPathVersion,
   type PlanVersion,
@@ -9,6 +12,11 @@ import {
   type PlanningMutationResult,
   type PlanningWorkspace,
 } from "../../contracts/planning";
+import type { RoleBlueprint } from "../../contracts/intelligence";
+import type { UnitRegistry } from "../../contracts/planning";
+import { flagshipBlueprint } from "../../data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
+import { applyPlanningEvent, replayPlanningEvents, type PlanningTransition } from "../../lib/planning/event-reducer";
 import type {
   PlanningMutationLookup,
   PlanningOwnerGoal,
@@ -18,24 +26,53 @@ import type {
   SavePlanningGenerationCommand,
 } from "./repository";
 import { PlanningConflictError, PlanningNotFoundError, PlanningUnavailableError } from "./service";
-import { canonicalJson } from "../../lib/planning/fingerprint";
+import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
 
 const IDEMPOTENCY_SCOPE_PREFIX = "adaptive-planning:";
 
-const storedResultSchema = z.object({
+const mutationOutcomeSchema = z.enum(["active", "proposed", "accepted", "discarded"]);
+const lineageFingerprintSchema = z.string().regex(/^p2-[0-9a-f]{32}$/u);
+const CLOUD_LINEAGE_KIND = "arc-cloud-planning-mutation-lineage";
+const CLOUD_LINEAGE_VERSION = 1;
+
+const storedGenerationSchema = z.object({
+  schemaVersion: z.literal(PLANNING_SCHEMA_VERSION),
   ownerId: z.string().min(1),
   goalId: z.string().min(1),
-  result: planningMutationResultSchema,
+  kind: z.literal("generation"),
+  result: z.unknown(),
 }).strict();
 
-type RepositoryOptions = { createId: () => string; now: () => Date };
+const storedEventSchema = z.object({
+  schemaVersion: z.literal(PLANNING_SCHEMA_VERSION),
+  ownerId: z.string().min(1),
+  goalId: z.string().min(1),
+  kind: z.literal("event"),
+  sequence: z.number().int().positive().max(5000),
+  outcome: mutationOutcomeSchema,
+  lineageFingerprint: lineageFingerprintSchema,
+}).strict();
+
+type StoredGeneration = Omit<z.infer<typeof storedGenerationSchema>, "result"> & { result: PlanningMutationResult };
+type StoredEvent = z.infer<typeof storedEventSchema>;
+type StoredMutation = StoredGeneration | StoredEvent;
+
+type RepositoryOptions = {
+  createId: () => string;
+  now: () => Date;
+  blueprint: RoleBlueprint;
+  registry: UnitRegistry;
+};
 const defaultOptions: RepositoryOptions = {
   createId: () => crypto.randomUUID(),
   now: () => new Date(),
+  blueprint: flagshipBlueprint,
+  registry: flagshipUnitRegistry,
 };
 
 type GoalRow = { id: string; user_id?: string };
 type IdempotencyRow = { response_json: string };
+type EventIdempotencyRow = { mutation_id: string; response_json: string };
 type WorkspaceRow = {
   id: string;
   revision: number;
@@ -71,9 +108,18 @@ export class D1PlanningRepository implements PlanningRepository {
     `).bind(input.ownerId, scopeFor(input.goalId), input.mutationId)
       .first<IdempotencyRow>();
     if (!row) return null;
-    const stored = parseStoredResult(row.response_json);
+    const stored = parseStoredMutation(row.response_json);
     if (stored.ownerId !== input.ownerId || stored.goalId !== input.goalId) throw new PlanningNotFoundError();
-    return { ownerId: stored.ownerId, goalId: stored.goalId, payload: stored.result };
+    if (stored.kind === "generation") {
+      return { ownerId: stored.ownerId, goalId: stored.goalId, payload: stored.result };
+    }
+    const history = await this.replayHistory(input, stored.sequence);
+    const replay = history.resultAtTarget;
+    if (!replay || replay.outcome !== stored.outcome
+      || history.lineageAtTarget !== stored.lineageFingerprint) {
+      throw new PlanningUnavailableError();
+    }
+    return { ownerId: stored.ownerId, goalId: stored.goalId, payload: replay };
   }
 
   async load(scope: PlanningOwnerGoal): Promise<PlanningRepositoryPayload | null> {
@@ -86,26 +132,27 @@ export class D1PlanningRepository implements PlanningRepository {
     `).bind(scope.ownerId, scope.goalId).first<WorkspaceRow>();
     if (!workspaceRow) return null;
     try {
-      // Target has no dedicated Task 8 table. The strict latest result snapshot carries
-      // it, while every immutable/event/unit body is reloaded owner+goal scoped below.
+      // Target has no dedicated Task 8 table. The one bounded generation record carries
+      // it; later state is reconstructed once from the canonical owner+goal event stream.
       const row = await this.db.prepare(`SELECT response_json FROM idempotency_records
         WHERE user_id = ?1 AND scope = ?2
-        ORDER BY json_extract(response_json, '$.result.workspace.revision') DESC, created_at DESC
+          AND json_extract(response_json, '$.kind') = 'generation'
+        ORDER BY created_at ASC
         LIMIT 1`).bind(scope.ownerId, scopeFor(scope.goalId))
         .first<IdempotencyRow>();
       if (!row) throw new Error("missing workspace payload");
-      const stored = parseStoredResult(row.response_json);
-      if (stored.ownerId !== scope.ownerId || stored.goalId !== scope.goalId) throw new Error("owner mismatch");
-      const snapshot = planningWorkspaceSchema.parse(stored.result.workspace);
-      const [audit, availabilities, paths, plans, units, events] = await Promise.all([
+      const generation = parseStoredGeneration(row.response_json);
+      if (generation.ownerId !== scope.ownerId || generation.goalId !== scope.goalId) throw new Error("owner mismatch");
+      const replayed = await this.replayHistory(scope, workspaceRow.next_sequence - 1, generation);
+      const snapshot = replayed.workspace;
+      const [audit, availabilities, paths, plans, units] = await Promise.all([
         this.loadOne("skill_audit_versions", scope, workspaceRow.current_audit_version_id),
         this.loadMany("availability_versions", scope),
         this.loadMany("learning_path_versions", scope),
         this.loadMany("plan_versions", scope),
         this.loadMany("daily_units", scope),
-        this.loadMany("planning_events", scope),
       ]);
-      const workspace = planningWorkspaceSchema.parse({
+      const workspace = parsePlanningWorkspaceAtRepositoryBoundary({
         ...snapshot,
         audit,
         availabilityVersions: alignRows(availabilities, snapshot.availabilityVersions, versionKey),
@@ -113,7 +160,6 @@ export class D1PlanningRepository implements PlanningRepository {
         pathVersions: alignRows(paths, snapshot.pathVersions, versionKey),
         planVersions: alignRows(plans, snapshot.planVersions, versionKey),
         dailyUnits: alignRows(units, snapshot.dailyUnits, dailyUnitKey),
-        events: alignRows(events, snapshot.events, eventKey),
       });
       if (workspace.id !== workspaceRow.id || workspace.revision !== workspaceRow.revision
         || workspace.lastSequence + 1 !== workspaceRow.next_sequence
@@ -132,9 +178,7 @@ export class D1PlanningRepository implements PlanningRepository {
   }
 
   async saveGeneration(command: SavePlanningGenerationCommand): Promise<PlanningRepositoryPayload> {
-    let result: PlanningMutationResult;
-    try { result = planningMutationResultSchema.parse(command.result); }
-    catch { throw new PlanningUnavailableError(); }
+    const result = parseMutationResult(command.result);
     if (result.workspace.goalId !== command.goalId || result.workspace.revision !== 0) throw new PlanningUnavailableError();
     const replay = await this.findMutation(command);
     if (replay) return replay;
@@ -152,7 +196,7 @@ export class D1PlanningRepository implements PlanningRepository {
     `).bind(result.workspace.id, command.ownerId, command.goalId, result.workspace.audit.id,
       result.workspace.availability.id, result.workspace.activePathVersionId,
       result.workspace.activePlanVersionId, now));
-    statements.push(this.idempotencyStatement(command, result, now, true));
+    statements.push(this.idempotencyStatement(command, result, now));
     try {
       await this.db.batch(statements);
     } catch (error) {
@@ -165,9 +209,7 @@ export class D1PlanningRepository implements PlanningRepository {
 
   async saveEvent(command: SavePlanningEventCommand): Promise<PlanningRepositoryPayload> {
     const previous = parseWorkspace(command.previous);
-    let result: PlanningMutationResult;
-    try { result = planningMutationResultSchema.parse(command.result); }
-    catch { throw new PlanningUnavailableError(); }
+    const result = parseMutationResult(command.result);
     const workspace = result.workspace;
     if (previous.goalId !== command.goalId || workspace.goalId !== command.goalId
       || previous.revision !== command.baseRevision || previous.activePlanVersionId !== command.baseVersionId
@@ -194,7 +236,24 @@ export class D1PlanningRepository implements PlanningRepository {
       workspace.activePathVersionId, workspace.activePlanVersionId, workspace.pendingPlanVersionId,
       workspace.lastSequence + 1, now, command.ownerId, command.goalId, workspace.id,
       command.baseRevision, previous.lastSequence + 1));
-    statements.push(this.idempotencyStatement(command, result, now, false));
+    const history = await this.replayHistory(command, previous.lastSequence);
+    const previousLineage = history.lineageAtTarget;
+    if (!previousLineage || canonicalJson(history.workspace) !== canonicalJson(previous)) {
+      throw new PlanningUnavailableError();
+    }
+    let canonicalResult: PlanningMutationResult;
+    try {
+      canonicalResult = resultFromTransition(applyPlanningEvent({
+        workspace: previous,
+        event,
+        blueprint: this.options.blueprint,
+        registry: this.options.registry,
+      }));
+    } catch {
+      throw new PlanningUnavailableError();
+    }
+    if (canonicalJson(canonicalResult) !== canonicalJson(result)) throw new PlanningUnavailableError();
+    statements.push(this.idempotencyStatement(command, result, now, previousLineage));
     try {
       await this.db.batch(statements);
     } catch (error) {
@@ -211,22 +270,19 @@ export class D1PlanningRepository implements PlanningRepository {
     command: SavePlanningGenerationCommand,
     result: PlanningMutationResult,
     now: number,
-    requireActiveGoal: boolean,
+    previousLineageFingerprint?: string,
   ): D1PreparedStatement {
-    const stored = storedResultSchema.parse({
-      ownerId: command.ownerId,
-      goalId: command.goalId,
-      result,
-    });
     const workspace = result.workspace;
-    const activeGoalGuard = requireActiveGoal
-      ? `EXISTS (SELECT 1 FROM career_goals
-          WHERE user_id = ?7 AND id = ?8 AND active_slot = 1) AND`
-      : "";
+    const event = workspace.events.at(-1);
+    const stored = previousLineageFingerprint === undefined
+      ? serializeGeneration(command, result)
+      : serializeEvent(command, result, previousLineageFingerprint, event);
     return this.db.prepare(`INSERT INTO idempotency_records
       (id,user_id,scope,mutation_id,response_json,created_at)
       VALUES (?1,?2,?3,?4,
-        CASE WHEN ${activeGoalGuard} EXISTS (SELECT 1 FROM planning_workspaces
+        CASE WHEN EXISTS (SELECT 1 FROM career_goals
+          WHERE user_id = ?7 AND id = ?8 AND active_slot = 1) AND
+        EXISTS (SELECT 1 FROM planning_workspaces
           WHERE user_id = ?7 AND goal_id = ?8 AND id = ?9
             AND revision = ?10 AND next_sequence = ?11
             AND current_audit_version_id = ?12 AND current_availability_version_id = ?13
@@ -235,7 +291,7 @@ export class D1PlanningRepository implements PlanningRepository {
         THEN ?5 ELSE NULL END,
         ?6)`)
       .bind(this.options.createId(), command.ownerId, scopeFor(command.goalId), command.mutationId,
-        JSON.stringify(stored), now, command.ownerId, command.goalId, workspace.id,
+        stored, now, command.ownerId, command.goalId, workspace.id,
         workspace.revision, workspace.lastSequence + 1, workspace.audit.id, workspace.availability.id,
         workspace.activePathVersionId, workspace.activePlanVersionId, workspace.pendingPlanVersionId);
   }
@@ -251,6 +307,78 @@ export class D1PlanningRepository implements PlanningRepository {
     const rows = await this.db.prepare(`SELECT payload_json FROM ${safeTable(table)}
       WHERE user_id = ?1 AND goal_id = ?2 ORDER BY created_at ASC`).bind(scope.ownerId, scope.goalId).all<PayloadRow>();
     return rows.results.map(({ payload_json }) => parsePayload(payload_json));
+  }
+
+  private async replayHistory(
+    scope: PlanningOwnerGoal,
+    targetSequence: number,
+    knownGeneration?: StoredGeneration,
+  ): Promise<{
+    workspace: PlanningWorkspace;
+    resultAtTarget: PlanningMutationResult;
+    lineageAtTarget: string;
+  }> {
+    const generation = knownGeneration ?? await this.loadGeneration(scope);
+    const [eventRows, mutationRows] = await Promise.all([
+      this.db.prepare(`SELECT payload_json FROM planning_events
+      WHERE user_id = ?1 AND goal_id = ?2 AND sequence <= ?3
+      ORDER BY sequence ASC`).bind(scope.ownerId, scope.goalId, targetSequence).all<PayloadRow>(),
+      this.db.prepare(`SELECT mutation_id, response_json FROM idempotency_records
+        WHERE user_id = ?1 AND scope = ?2
+          AND json_extract(response_json, '$.kind') = 'event'
+          AND json_extract(response_json, '$.sequence') <= ?3
+        ORDER BY json_extract(response_json, '$.sequence') ASC`)
+        .bind(scope.ownerId, scopeFor(scope.goalId), targetSequence).all<EventIdempotencyRow>(),
+    ]);
+    const events = eventRows.results.map(({ payload_json }) => parsePlanningEvent(payload_json));
+    const mutationEntries = mutationRows.results.map(({ mutation_id, response_json }) => ({
+      mutationId: mutation_id,
+      stored: parseStoredEvent(response_json),
+    }));
+    if (events.length !== targetSequence || mutationEntries.length !== targetSequence) {
+      throw new PlanningUnavailableError();
+    }
+    let lineage = fingerprint(generation.result);
+    let resultAtTarget = generation.result;
+    let workspace: PlanningWorkspace;
+    try {
+      workspace = replayPlanningEvents({
+        initial: generation.result.workspace,
+        events,
+        blueprint: this.options.blueprint,
+        registry: this.options.registry,
+      }, (transition) => {
+        const result = resultFromTransition(transition);
+        lineage = mutationLineageFingerprint(lineage, transition.event, result.outcome);
+        if (transition.event.sequence === targetSequence) resultAtTarget = result;
+        const entry = mutationEntries[transition.event.sequence - 1];
+        if (!entry || entry.mutationId !== transition.event.mutationId
+          || entry.stored.ownerId !== scope.ownerId || entry.stored.goalId !== scope.goalId
+          || entry.stored.sequence !== transition.event.sequence
+          || entry.stored.outcome !== result.outcome
+          || entry.stored.lineageFingerprint !== lineage) {
+          throw new PlanningUnavailableError();
+        }
+      });
+    } catch {
+      throw new PlanningUnavailableError();
+    }
+    return {
+      workspace: parsePlanningWorkspaceAtRepositoryBoundary(workspace),
+      resultAtTarget,
+      lineageAtTarget: lineage,
+    };
+  }
+
+  private async loadGeneration(scope: PlanningOwnerGoal): Promise<StoredGeneration> {
+    const row = await this.db.prepare(`SELECT response_json FROM idempotency_records
+      WHERE user_id = ?1 AND scope = ?2
+        AND json_extract(response_json, '$.kind') = 'generation'
+      ORDER BY created_at ASC LIMIT 1`).bind(scope.ownerId, scopeFor(scope.goalId)).first<IdempotencyRow>();
+    if (!row) throw new PlanningUnavailableError();
+    const generation = parseStoredGeneration(row.response_json);
+    if (generation.ownerId !== scope.ownerId || generation.goalId !== scope.goalId) throw new PlanningNotFoundError();
+    return generation;
   }
 
 }
@@ -333,9 +461,117 @@ function insertUnit(db: D1Database, ownerId: string, goalId: string, unit: Daily
     unit.scheduledDate, unit.slot, unit.required ? 1 : 0, JSON.stringify(unit), now);
 }
 
-function parseStoredResult(value: string) {
-  try { return storedResultSchema.parse(JSON.parse(value) as unknown); }
+function parseStoredMutation(value: string): StoredMutation {
+  if (serializedBytes(value) > MAX_PLANNING_WORKSPACE_BYTES) throw new PlanningUnavailableError();
+  let parsed: unknown;
+  try { parsed = JSON.parse(value) as unknown; }
   catch { throw new PlanningUnavailableError(); }
+  const kind = parsed && typeof parsed === "object" && "kind" in parsed ? parsed.kind : null;
+  if (kind === "generation") {
+    try {
+      const stored = storedGenerationSchema.parse(parsed);
+      return { ...stored, result: parseMutationResult(stored.result) };
+    } catch (error) {
+      if (error instanceof PlanningUnavailableError) throw error;
+      throw new PlanningUnavailableError();
+    }
+  }
+  try { return storedEventSchema.parse(parsed); }
+  catch { throw new PlanningUnavailableError(); }
+}
+
+function parseStoredGeneration(value: string): StoredGeneration {
+  const stored = parseStoredMutation(value);
+  if (stored.kind !== "generation") throw new PlanningUnavailableError();
+  if (stored.result.outcome !== "active" || stored.result.diff !== null
+    || stored.result.workspace.revision !== 0 || stored.result.workspace.lastSequence !== 0
+    || stored.result.workspace.events.length !== 0) {
+    throw new PlanningUnavailableError();
+  }
+  return stored;
+}
+
+function parseStoredEvent(value: string): StoredEvent {
+  const stored = parseStoredMutation(value);
+  if (stored.kind !== "event") throw new PlanningUnavailableError();
+  return stored;
+}
+
+function serializeGeneration(command: SavePlanningGenerationCommand, result: PlanningMutationResult): string {
+  const stored = storedGenerationSchema.parse({
+    schemaVersion: PLANNING_SCHEMA_VERSION,
+    ownerId: command.ownerId,
+    goalId: command.goalId,
+    kind: "generation",
+    result,
+  });
+  const serialized = JSON.stringify(stored);
+  if (serializedBytes(serialized) > MAX_PLANNING_WORKSPACE_BYTES) throw new PlanningUnavailableError();
+  return serialized;
+}
+
+function serializeEvent(
+  command: SavePlanningGenerationCommand,
+  result: PlanningMutationResult,
+  previousLineageFingerprint: string,
+  event: PlanningEvent | undefined,
+): string {
+  if (!event || event.mutationId !== command.mutationId) throw new PlanningUnavailableError();
+  return JSON.stringify(storedEventSchema.parse({
+    schemaVersion: PLANNING_SCHEMA_VERSION,
+    ownerId: command.ownerId,
+    goalId: command.goalId,
+    kind: "event",
+    sequence: event.sequence,
+    outcome: result.outcome,
+    lineageFingerprint: mutationLineageFingerprint(previousLineageFingerprint, event, result.outcome),
+  }));
+}
+
+function mutationLineageFingerprint(
+  previousLineageFingerprint: string,
+  event: PlanningEvent,
+  outcome: PlanningMutationResult["outcome"],
+): string {
+  return fingerprint({
+    kind: CLOUD_LINEAGE_KIND,
+    version: CLOUD_LINEAGE_VERSION,
+    previousLineageFingerprint,
+    event,
+    outcome,
+  });
+}
+
+function resultFromTransition(transition: PlanningTransition): PlanningMutationResult {
+  return parseMutationResult({
+    outcome: transition.kind === "automatic" ? "active" : transition.kind,
+    workspace: transition.workspace,
+    diff: transition.kind === "proposed" ? transition.diff : null,
+  });
+}
+
+function parseMutationResult(value: unknown): PlanningMutationResult {
+  try {
+    const parsed = planningMutationResultSchema.parse(value);
+    const workspace = parsePlanningWorkspaceAtRepositoryBoundary(parsed.workspace);
+    const cloned = planningMutationResultSchema.parse({ ...parsed, workspace });
+    if (serializedBytes(cloned) > MAX_PLANNING_WORKSPACE_BYTES) throw new PlanningUnavailableError();
+    return cloned;
+  } catch (error) {
+    if (error instanceof PlanningUnavailableError) throw error;
+    throw new PlanningUnavailableError();
+  }
+}
+
+function parsePlanningEvent(value: string): PlanningEvent {
+  if (serializedBytes(value) > 32 * 1024) throw new PlanningUnavailableError();
+  try { return planningEventSchema.parse(JSON.parse(value) as unknown); }
+  catch { throw new PlanningUnavailableError(); }
+}
+
+function serializedBytes(value: unknown): number {
+  const serialized = typeof value === "string" ? value : JSON.stringify(value);
+  return new TextEncoder().encode(serialized).byteLength;
 }
 
 type PayloadRow = { payload_json: string };
@@ -377,19 +613,12 @@ function dailyUnitKey(value: unknown): string {
   return `${value.planVersionId}:${readId(value)}`;
 }
 
-function eventKey(value: unknown): string {
-  if (!value || typeof value !== "object" || !("eventId" in value) || typeof value.eventId !== "string") {
-    throw new PlanningUnavailableError();
-  }
-  return value.eventId;
-}
-
 function scopeFor(goalId: string): string {
   return `${IDEMPOTENCY_SCOPE_PREFIX}${goalId}`;
 }
 
 function parseWorkspace(value: unknown): PlanningWorkspace {
-  try { return planningWorkspaceSchema.parse(value); }
+  try { return parsePlanningWorkspaceAtRepositoryBoundary(value); }
   catch { throw new PlanningUnavailableError(); }
 }
 

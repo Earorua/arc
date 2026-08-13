@@ -4,6 +4,7 @@ import type { PlanningMutationResult } from "../../app/contracts/planning";
 import { PlanningService } from "../../app/server/planning/service";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { fingerprint } from "../../app/lib/planning/fingerprint";
 
 type PreparedCall = { sql: string; values: unknown[] };
 
@@ -156,6 +157,121 @@ async function availabilityResults(): Promise<{
   return { previous, proposed, accepted };
 }
 
+function generationRecord(result: PlanningMutationResult, ownerId = "user-1", storedGoalId = "goal-1") {
+  return JSON.stringify({
+    schemaVersion: "2026.08.1",
+    ownerId,
+    goalId: storedGoalId,
+    kind: "generation",
+    result,
+  });
+}
+
+function eventRecord(
+  result: PlanningMutationResult,
+  previous: PlanningMutationResult,
+  ownerId = "user-1",
+  storedGoalId = "goal-1",
+) {
+  const event = result.workspace.events.at(-1)!;
+  return JSON.stringify({
+    schemaVersion: "2026.08.1",
+    ownerId,
+    goalId: storedGoalId,
+    kind: "event",
+    sequence: event.sequence,
+    outcome: result.outcome,
+    lineageFingerprint: fingerprint({
+      kind: "arc-cloud-planning-mutation-lineage",
+      version: 1,
+      previousLineageFingerprint: lineageForResult(previous),
+      event,
+      outcome: result.outcome,
+    }),
+  });
+}
+
+function lineageForResult(result: PlanningMutationResult): string {
+  let lineage = fingerprint({ outcome: "active", workspace: {
+    ...result.workspace,
+    revision: 0,
+    lastSequence: 0,
+    events: [],
+    availability: result.workspace.availabilityVersions[0],
+    availabilityVersions: [result.workspace.availabilityVersions[0]],
+    pathVersions: [result.workspace.pathVersions[0]],
+    planVersions: [result.workspace.planVersions[0]],
+    dailyUnits: result.workspace.dailyUnits.filter(({ planVersionId }) => planVersionId === result.workspace.planVersions[0]!.id),
+    activePathVersionId: result.workspace.pathVersions[0]!.id,
+    activePlanVersionId: result.workspace.planVersions[0]!.id,
+    pendingPlanVersionId: null,
+  }, diff: null });
+  for (const event of result.workspace.events) {
+    const outcome = event.kind === "completed" ? "active"
+      : event.kind === "replan_accepted" ? "accepted"
+        : event.kind === "replan_discarded" ? "discarded" : "proposed";
+    lineage = fingerprint({
+      kind: "arc-cloud-planning-mutation-lineage", version: 1,
+      previousLineageFingerprint: lineage, event, outcome,
+    });
+  }
+  return lineage;
+}
+
+function seedCanonicalLoad(
+  db: FakeD1,
+  result: PlanningMutationResult,
+  generation: PlanningMutationResult,
+  events = result.workspace.events,
+) {
+  const workspace = result.workspace;
+  db.whenFirst("FROM planning_workspaces", {
+    id: workspace.id, revision: workspace.revision, next_sequence: workspace.lastSequence + 1,
+    current_audit_version_id: workspace.audit.id,
+    current_availability_version_id: workspace.availability.id,
+    active_path_version_id: workspace.activePathVersionId,
+    active_plan_version_id: workspace.activePlanVersionId,
+    pending_plan_version_id: workspace.pendingPlanVersionId,
+  });
+  seedHistory(db, generation, result, events);
+  db.whenFirst("FROM skill_audit_versions", { payload_json: JSON.stringify(workspace.audit) });
+  db.whenAll("FROM availability_versions", workspace.availabilityVersions.map((item) => ({ payload_json: JSON.stringify(item) })));
+  db.whenAll("FROM learning_path_versions", workspace.pathVersions.map((item) => ({ payload_json: JSON.stringify(item) })));
+  db.whenAll("FROM plan_versions", workspace.planVersions.map((item) => ({ payload_json: JSON.stringify(item) })));
+  db.whenAll("FROM daily_units", workspace.dailyUnits.map((item) => ({ payload_json: JSON.stringify(item) })));
+}
+
+function seedHistory(
+  db: FakeD1,
+  generation: PlanningMutationResult,
+  current: PlanningMutationResult,
+  eventRows = current.workspace.events,
+) {
+  db.whenFirst("$.kind') = 'generation'", { response_json: generationRecord(generation) });
+  db.whenAll("FROM planning_events", eventRows.map((event) => ({ payload_json: JSON.stringify(event) })));
+  db.whenAll("$.kind') = 'event'", historyRecords(generation, current));
+}
+
+function historyRecords(generation: PlanningMutationResult, current: PlanningMutationResult) {
+  let lineage = fingerprint(generation);
+  return current.workspace.events.map((event) => {
+    const outcome = event.kind === "completed" ? "active"
+      : event.kind === "replan_accepted" ? "accepted"
+        : event.kind === "replan_discarded" ? "discarded" : "proposed";
+    lineage = fingerprint({
+      kind: "arc-cloud-planning-mutation-lineage", version: 1,
+      previousLineageFingerprint: lineage, event, outcome,
+    });
+    return {
+      mutation_id: event.mutationId,
+      response_json: JSON.stringify({
+        schemaVersion: "2026.08.1", ownerId: "user-1", goalId: "goal-1",
+        kind: "event", sequence: event.sequence, outcome, lineageFingerprint: lineage,
+      }),
+    };
+  });
+}
+
 describe("D1PlanningRepository", () => {
   it("finds the active goal by authenticated owner and active slot", async () => {
     const db = new FakeD1();
@@ -176,6 +292,56 @@ describe("D1PlanningRepository", () => {
     await expect(repositoryWith(db).findMutation({ ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-1" }))
       .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
     expect(db.calls[0]!.values).toEqual(["user-1", "adaptive-planning:goal-1", "mutation-1"]);
+  });
+
+  it("stores one bounded generation snapshot and compact event lineage records", async () => {
+    const generationDb = new FakeD1();
+    const generation = await validResult();
+    await repositoryWith(generationDb).saveGeneration({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-generation", result: generation,
+    });
+    const generationJson = generationDb.batches[0]!.at(-1)!.values[4] as string;
+    expect(JSON.parse(generationJson)).toMatchObject({
+      schemaVersion: "2026.08.1", ownerId: "user-1", goalId: "goal-1", kind: "generation",
+      result: generation,
+    });
+
+    const { previous, next } = await completedResults();
+    const eventDb = new FakeD1();
+    seedHistory(eventDb, previous, previous);
+    await repositoryWith(eventDb).saveEvent({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-event-1",
+      baseRevision: previous.workspace.revision,
+      baseVersionId: previous.workspace.activePlanVersionId,
+      previous: previous.workspace,
+      result: next,
+    });
+    const eventJson = eventDb.batches[0]!.at(-1)!.values[4] as string;
+    const stored = JSON.parse(eventJson) as Record<string, unknown>;
+    expect(stored).toMatchObject({
+      schemaVersion: "2026.08.1", ownerId: "user-1", goalId: "goal-1",
+      kind: "event", sequence: 1, outcome: "active",
+    });
+    expect(stored).toHaveProperty("lineageFingerprint");
+    expect(stored).not.toHaveProperty("result");
+    expect(eventJson.length).toBeLessThan(1000);
+  });
+
+  it("rejects repository-boundary workspaces and results over four MiB without writing", async () => {
+    const generation = await validResult();
+    const oversized = structuredClone(generation);
+    oversized.workspace.target.inputFingerprint = "x".repeat(4 * 1024 * 1024);
+    const db = new FakeD1();
+
+    await expect(repositoryWith(db).saveGeneration({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-oversized", result: oversized,
+    })).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+    expect(db.batches).toHaveLength(0);
+
+    db.whenFirst("mutation_id = ?3", { response_json: "x".repeat(4 * 1024 * 1024 + 1) });
+    await expect(repositoryWith(db).findMutation({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-oversized",
+    })).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
   });
 
   it("writes immutable generation rows before workspace pointers and idempotency in one batch", async () => {
@@ -238,9 +404,7 @@ describe("D1PlanningRepository", () => {
       active_plan_version_id: workspace.activePlanVersionId,
       pending_plan_version_id: workspace.pendingPlanVersionId,
     });
-    db.whenFirst("FROM idempotency_records", {
-      response_json: JSON.stringify({ ownerId: "user-1", goalId: "goal-1", result }),
-    });
+    db.whenFirst("$.kind') = 'generation'", { response_json: generationRecord(result) });
     db.whenFirst("FROM skill_audit_versions", { payload_json: JSON.stringify(workspace.audit) });
     db.whenAll("FROM availability_versions", workspace.availabilityVersions.map((item) => ({ payload_json: JSON.stringify(item) })));
     db.whenAll("FROM learning_path_versions", workspace.pathVersions.map((item) => ({ payload_json: JSON.stringify(item) })));
@@ -257,7 +421,7 @@ describe("D1PlanningRepository", () => {
   });
 
   it("fails closed on a corrupt or mismatched canonical snapshot without writing", async () => {
-    for (const response_json of ["{", JSON.stringify({ ownerId: "wrong-user", goalId: "goal-1", result: await validResult() })]) {
+    for (const response_json of ["{", generationRecord(await validResult(), "wrong-user")]) {
       const db = new FakeD1();
       const result = await validResult();
       db.whenFirst("FROM planning_workspaces", {
@@ -268,7 +432,7 @@ describe("D1PlanningRepository", () => {
         active_plan_version_id: result.workspace.activePlanVersionId,
         pending_plan_version_id: null,
       });
-      db.whenFirst("FROM idempotency_records", { response_json });
+      db.whenFirst("$.kind') = 'generation'", { response_json });
 
       await expect(repositoryWith(db).load({ ownerId: "user-1", goalId: "goal-1" }))
         .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
@@ -289,6 +453,7 @@ describe("D1PlanningRepository", () => {
   it("writes one immutable-first event batch with a revision and sequence guard", async () => {
     const db = new FakeD1();
     const { previous, next } = await completedResults();
+    seedHistory(db, previous, previous);
 
     await repositoryWith(db).saveEvent({
       ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-event-1",
@@ -320,6 +485,7 @@ describe("D1PlanningRepository", () => {
     const { previous, next } = await completedResults();
     db.guardExists = false;
     db.batchResults = Array.from({ length: 20 }, () => ({ success: true, meta: { changes: 1 } }));
+    seedHistory(db, previous, previous);
 
     await expect(repositoryWith(db).saveEvent({
       ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-event-1",
@@ -333,9 +499,48 @@ describe("D1PlanningRepository", () => {
     expect(db.committedBatches).toHaveLength(0);
   });
 
+  it("rolls back event writes when the active goal drifts before the final guard", async () => {
+    const db = new FakeD1();
+    const { previous, next } = await completedResults();
+    db.guardExists = false;
+    seedHistory(db, previous, previous);
+
+    await expect(repositoryWith(db).saveEvent({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-event-1",
+      baseRevision: previous.workspace.revision,
+      baseVersionId: previous.workspace.activePlanVersionId,
+      previous: previous.workspace,
+      result: next,
+    })).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(db.committedBatches).toHaveLength(0);
+    expect(db.batches[0]!.at(-1)!.sql).toMatch(/career_goals[\s\S]*active_slot = 1/u);
+  });
+
+  it("replays exact duplicate event results and rejects tampered canonical history", async () => {
+    const { previous, next } = await completedResults();
+    const replayDb = new FakeD1();
+    replayDb.whenFirst("mutation_id = ?3", { response_json: eventRecord(next, previous) });
+    replayDb.whenFirst("$.kind') = 'generation'", { response_json: generationRecord(previous) });
+    replayDb.whenAll("FROM planning_events", next.workspace.events.map((event) => ({ payload_json: JSON.stringify(event) })));
+    replayDb.whenAll("$.kind') = 'event'", historyRecords(previous, next));
+
+    await expect(repositoryWith(replayDb).findMutation({
+      ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-event-1",
+    })).resolves.toEqual({ ownerId: "user-1", goalId: "goal-1", payload: next });
+
+    const tamperedDb = new FakeD1();
+    const event = structuredClone(next.workspace.events[0]!);
+    if (event.kind !== "completed") throw new Error("Expected completed fixture");
+    event.actualMinutes = 31;
+    seedCanonicalLoad(tamperedDb, next, previous, [event]);
+    await expect(repositoryWith(tamperedDb).load({ ownerId: "user-1", goalId: "goal-1" }))
+      .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+  });
+
   it("synchronizes weekly minutes only on generation and accepted availability changes", async () => {
     const { previous, proposed, accepted } = await availabilityResults();
     const proposalDb = new FakeD1();
+    seedHistory(proposalDb, previous, previous);
     await repositoryWith(proposalDb).saveEvent({
       ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-availability",
       baseRevision: previous.workspace.revision,
@@ -346,6 +551,7 @@ describe("D1PlanningRepository", () => {
     expect(proposalDb.batches[0]!.some(({ sql }) => sql.includes("UPDATE career_goals SET weekly_minutes"))).toBe(false);
 
     const acceptDb = new FakeD1();
+    seedHistory(acceptDb, previous, proposed);
     await repositoryWith(acceptDb).saveEvent({
       ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-accept",
       baseRevision: proposed.workspace.revision,
@@ -373,15 +579,18 @@ describe("D1PlanningRepository", () => {
     };
     const winning = new FakeD1();
     winning.whenFirst("FROM idempotency_records", null);
+    seedHistory(winning, previous, previous);
     winning.whenFirst("FROM idempotency_records", {
-      response_json: JSON.stringify({ ownerId: "user-1", goalId: "goal-1", result: next }),
+      response_json: eventRecord(next, previous),
     });
+    seedHistory(winning, previous, next);
     winning.batchError = new Error("UNIQUE constraint failed: planning_events.workspace_id, planning_events.sequence");
     await expect(repositoryWith(winning).saveEvent(command)).resolves.toEqual({
       ownerId: "user-1", goalId: "goal-1", payload: next,
     });
 
     const losing = new FakeD1();
+    seedHistory(losing, previous, previous);
     losing.batchError = new Error("UNIQUE constraint failed: planning_events.workspace_id, planning_events.sequence");
     await expect(repositoryWith(losing).saveEvent(command)).rejects.toMatchObject({ code: "CONFLICT" });
   });
