@@ -82,20 +82,49 @@ function seedValidGraph(db: Database) {
     INSERT INTO plan_versions
       (id, user_id, goal_id, schema_version, path_version_id, generation, base_version_id,
        replan_reason, planning_date, input_fingerprint, payload_json)
-    VALUES ('plan-a', 'user-a', 'goal-a', '2026.08.1', 'path-a', 'initial', NULL,
-      NULL, '2026-08-12', 'plan-fp', '{}');
+    VALUES
+      ('plan-base', 'user-a', 'goal-a', '2026.08.1', 'path-a', 'initial', NULL,
+        NULL, '2026-08-11', 'plan-base-fp', '{}'),
+      ('plan-a', 'user-a', 'goal-a', '2026.08.1', 'path-a', 'automatic', 'plan-base',
+        'availability_changed', '2026-08-12', 'plan-fp', '{}'),
+      ('plan-pending', 'user-a', 'goal-a', '2026.08.1', 'path-a', 'proposed', 'plan-a',
+        'too_hard', '2026-08-13', 'plan-pending-fp', '{}');
     INSERT INTO daily_units
       (id, user_id, goal_id, plan_version_id, unit_id, scheduled_date, slot, required, payload_json)
     VALUES ('daily-a', 'user-a', 'goal-a', 'plan-a', 'unit-a', '2026-08-12', 'primary', 1, '{}');
     INSERT INTO planning_workspaces
       (id, user_id, goal_id, revision, current_audit_version_id, current_availability_version_id,
        active_path_version_id, active_plan_version_id, pending_plan_version_id, next_sequence)
-    VALUES ('workspace-a', 'user-a', 'goal-a', 0, 'audit-a', 'availability-a', 'path-a', 'plan-a', NULL, 1);
+    VALUES ('workspace-a', 'user-a', 'goal-a', 0, 'audit-a', 'availability-a', 'path-a',
+      'plan-a', 'plan-pending', 1);
     INSERT INTO planning_events
       (id, user_id, goal_id, workspace_id, sequence, mutation_id, target_plan_version_id,
        candidate_plan_version_id, unit_id, kind, payload_json, occurred_at)
     VALUES ('event-a', 'user-a', 'goal-a', 'workspace-a', 1, 'mutation-a', 'plan-a',
-      NULL, 'unit-a', 'completed', '{}', 1786500000000);
+      'plan-pending', 'unit-a', 'completed', '{}', 1786500000000);
+  `);
+}
+
+function seedAlternateGoalGraph(db: Database) {
+  db.exec(`
+    INSERT INTO skill_audit_versions
+      (id, user_id, goal_id, schema_version, blueprint_id, blueprint_version, input_fingerprint, payload_json)
+    VALUES ('audit-a2', 'user-a', 'goal-a2', '2026.08.1', 'blueprint', '2026.08.1', 'audit-a2-fp', '{}');
+    INSERT INTO availability_versions
+      (id, user_id, goal_id, schema_version, input_fingerprint, weekly_minutes, payload_json)
+    VALUES ('availability-a2', 'user-a', 'goal-a2', '2026.08.1', 'availability-a2-fp', 420, '{}');
+    INSERT INTO learning_path_versions
+      (id, user_id, goal_id, schema_version, blueprint_id, blueprint_version, registry_id,
+       registry_version, audit_version_id, availability_version_id, scope_mode, input_fingerprint, payload_json)
+    VALUES ('path-a2', 'user-a', 'goal-a2', '2026.08.1', 'blueprint', '2026.08.1', 'registry',
+      '2026.08.1', 'audit-a2', 'availability-a2', 'full-scope', 'path-a2-fp', '{}');
+    INSERT INTO plan_versions
+      (id, user_id, goal_id, schema_version, path_version_id, generation, base_version_id,
+       replan_reason, planning_date, input_fingerprint, payload_json)
+    VALUES ('plan-a2', 'user-a', 'goal-a2', '2026.08.1', 'path-a2', 'initial', NULL,
+      NULL, '2026-08-12', 'plan-a2-fp', '{}');
+    INSERT INTO planning_workspaces (id, user_id, goal_id, revision, next_sequence)
+    VALUES ('workspace-a2', 'user-a', 'goal-a2', 0, 1);
   `);
 }
 
@@ -152,6 +181,63 @@ describe("adaptive planning migration", () => {
          audit_version_id,availability_version_id,scope_mode,input_fingerprint,payload_json)
         VALUES ('bad-goal','user-a','goal-a2','2026.08.1','b','2026.08.1','r','2026.08.1',
           'audit-a','availability-a','full-scope','fp','{}')`);
+    });
+  });
+
+  it("enforces scoped path, base-plan, and daily-unit plan references", () => {
+    withDatabase((db) => {
+      seedValidGraph(db);
+      seedAlternateGoalGraph(db);
+      expectConstraint(db, `INSERT INTO plan_versions
+        (id,user_id,goal_id,schema_version,path_version_id,generation,planning_date,input_fingerprint,payload_json)
+        VALUES ('bad-path','user-a','goal-a','2026.08.1','path-a2','initial','2026-08-14','fp','{}')`);
+      expectConstraint(db, `INSERT INTO plan_versions
+        (id,user_id,goal_id,schema_version,path_version_id,generation,base_version_id,planning_date,input_fingerprint,payload_json)
+        VALUES ('bad-base','user-a','goal-a','2026.08.1','path-a','automatic','plan-a2','2026-08-14','fp','{}')`);
+      expectConstraint(db, `INSERT INTO daily_units
+        (id,user_id,goal_id,plan_version_id,unit_id,scheduled_date,slot,required,payload_json)
+        VALUES ('bad-daily-plan','user-a','goal-a','plan-a2','unit-x','2026-08-14','stretch',0,'{}')`);
+    });
+  });
+
+  it("allows an empty workspace bootstrap and enforces every optional pointer scope", () => {
+    withDatabase((db) => {
+      seedValidGraph(db);
+      seedAlternateGoalGraph(db);
+      db.exec(`INSERT INTO planning_workspaces (id,user_id,goal_id,revision,next_sequence)
+        VALUES ('workspace-b','user-b','goal-b',0,1)`);
+      expect(db.prepare(`SELECT current_audit_version_id, current_availability_version_id,
+        active_path_version_id, active_plan_version_id, pending_plan_version_id
+        FROM planning_workspaces WHERE id = 'workspace-b'`).get()).toEqual({
+        current_audit_version_id: null,
+        current_availability_version_id: null,
+        active_path_version_id: null,
+        active_plan_version_id: null,
+        pending_plan_version_id: null,
+      });
+      expectConstraint(db, "UPDATE planning_workspaces SET current_audit_version_id = 'audit-a2' WHERE id = 'workspace-a'");
+      expectConstraint(db, "UPDATE planning_workspaces SET current_availability_version_id = 'availability-a2' WHERE id = 'workspace-a'");
+      expectConstraint(db, "UPDATE planning_workspaces SET active_path_version_id = 'path-a2' WHERE id = 'workspace-a'");
+      expectConstraint(db, "UPDATE planning_workspaces SET active_plan_version_id = 'plan-a2' WHERE id = 'workspace-a'");
+      expectConstraint(db, "UPDATE planning_workspaces SET pending_plan_version_id = 'plan-a2' WHERE id = 'workspace-a'");
+    });
+  });
+
+  it("enforces event workspace, target-plan, and optional candidate-plan scope", () => {
+    withDatabase((db) => {
+      seedValidGraph(db);
+      seedAlternateGoalGraph(db);
+      expectConstraint(db, `INSERT INTO planning_events
+        (id,user_id,goal_id,workspace_id,sequence,mutation_id,target_plan_version_id,kind,payload_json,occurred_at)
+        VALUES ('bad-event-workspace','user-a','goal-a','workspace-a2',10,'mutation-workspace','plan-a','completed','{}',1)`);
+      expectConstraint(db, `INSERT INTO planning_events
+        (id,user_id,goal_id,workspace_id,sequence,mutation_id,target_plan_version_id,kind,payload_json,occurred_at)
+        VALUES ('bad-event-target','user-a','goal-a','workspace-a',11,'mutation-target','plan-a2','completed','{}',1)`);
+      expectConstraint(db, `INSERT INTO planning_events
+        (id,user_id,goal_id,workspace_id,sequence,mutation_id,target_plan_version_id,candidate_plan_version_id,
+         kind,payload_json,occurred_at)
+        VALUES ('bad-event-candidate','user-a','goal-a','workspace-a',12,'mutation-candidate','plan-a','plan-a2',
+          'completed','{}',1)`);
     });
   });
 
