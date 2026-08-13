@@ -206,7 +206,7 @@ describe("guest adaptive planning repository", () => {
     defaultWebLocks.restore();
   });
 
-  it("upgrades a strict v7 snapshot without overwriting v7 or the offline queue", () => {
+  it("upgrades a strict v7 snapshot without overwriting v7 or the offline queue", async () => {
     const storage = new MemoryStorage();
     const legacy = mergeSetup(createDemoState(), {
       roleId: "ai-native-full-stack-engineer",
@@ -219,7 +219,7 @@ describe("guest adaptive planning repository", () => {
     storage.values.set(DEMO_STORAGE_KEY, legacyBytes);
     storage.values.set(OFFLINE_QUEUE_KEY, offlineBytes);
 
-    const result = upgradeV7State(storage);
+    const result = await upgradeV7State(storage);
 
     expect(PLANNING_STORAGE_KEY).toBe("arc-planning-state-v2");
     expect(result).toMatchObject({
@@ -253,7 +253,7 @@ describe("guest adaptive planning repository", () => {
     expect(storage.removeCalls).toEqual([]);
   });
 
-  it("returns a v7-compatible fallback without replacing malformed v2 bytes or partially writing", () => {
+  it("returns a v7-compatible fallback without replacing malformed v2 bytes or partially writing", async () => {
     const storage = new MemoryStorage();
     const legacy = mergeSetup(createDemoState(), {
       roleId: "legacy-custom-role",
@@ -265,7 +265,7 @@ describe("guest adaptive planning repository", () => {
     storage.values.set(DEMO_STORAGE_KEY, JSON.stringify(legacy));
     storage.values.set(PLANNING_STORAGE_KEY, malformedV2);
 
-    const malformed = upgradeV7State(storage);
+    const malformed = await upgradeV7State(storage);
 
     expect(malformed).toMatchObject({ migrated: false, envelope: null, fallback: legacy });
     expect(storage.getItem(PLANNING_STORAGE_KEY)).toBe(malformedV2);
@@ -274,7 +274,7 @@ describe("guest adaptive planning repository", () => {
 
     storage.values.delete(PLANNING_STORAGE_KEY);
     storage.failSet = true;
-    const failedWrite = upgradeV7State(storage);
+    const failedWrite = await upgradeV7State(storage);
     expect(failedWrite).toMatchObject({ migrated: false, envelope: null, fallback: legacy });
     expect(storage.getItem(PLANNING_STORAGE_KEY)).toBeNull();
     expect(storage.getItem(DEMO_STORAGE_KEY)).toBe(JSON.stringify(legacy));
@@ -312,6 +312,81 @@ describe("guest adaptive planning repository", () => {
     expect(JSON.stringify(persisted)).not.toContain("resultJson");
     expect(await repository.load()).toEqual(result.workspace);
     expect(storage.getItem(DEMO_STORAGE_KEY)).toBe(JSON.stringify(createDemoState()));
+  });
+
+  it("chains non-generation cache fingerprints from compact canonical lineage only", async () => {
+    const storage = new MemoryStorage();
+    const repository = createRepository(storage, "lineage-chain");
+    const generated = await repository.generate(generateRequest());
+    const completed = await repository.appendEvent(eventRequest(
+      generated.workspace,
+      "mutation-lineage-completed",
+      "completed",
+    ));
+    const envelope = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as {
+      eventStream: PlanningEvent[];
+      mutationResults: Array<{ sequence: number; resultFingerprint: string }>;
+    };
+    const generation = envelope.mutationResults.find(({ sequence }) => sequence === 0)!;
+    const completion = envelope.mutationResults.find(({ sequence }) => sequence === 1)!;
+
+    expect(generation.resultFingerprint).toBe(fingerprint(generated));
+    expect(completion.resultFingerprint).toBe(fingerprint({
+      kind: "arc-local-planning-mutation-lineage",
+      version: 1,
+      previousLineageFingerprint: generation.resultFingerprint,
+      event: envelope.eventStream[0],
+      outcome: completed.outcome,
+    }));
+    expect(completion.resultFingerprint).not.toBe(fingerprint(completed));
+  });
+
+  it("serializes upgrade behind generation and never overwrites the generated winner", async () => {
+    const storage = new MemoryStorage();
+    const legacyBytes = JSON.stringify(createDemoState());
+    storage.values.set(DEMO_STORAGE_KEY, legacyBytes);
+    const repository = createRepository(storage, "upgrade-race");
+
+    const generatedPromise = repository.generate(generateRequest("mutation-upgrade-race"));
+    const upgradePromise = upgradeV7State(storage);
+    const [generated, upgrade] = await Promise.all([generatedPromise, upgradePromise]);
+
+    expect(upgrade).toMatchObject({
+      migrated: false,
+      envelope: { workspace: generated.workspace },
+    });
+    expect(storage.setAttempts).toBe(1);
+    expect(storage.setCalls).toHaveLength(1);
+    expect(JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!)).toMatchObject({
+      workspace: generated.workspace,
+      generationMutationId: "mutation-upgrade-race",
+    });
+    expect(storage.getItem(DEMO_STORAGE_KEY)).toBe(legacyBytes);
+  });
+
+  it("returns a safe migration fallback with zero writes when browser Web Locks are unavailable", async () => {
+    const legacy = createDemoState();
+    const descriptor = Object.getOwnPropertyDescriptor(navigator, "locks");
+    for (const unavailable of ["missing", "throwing"] as const) {
+      const storage = new MemoryStorage();
+      storage.values.set(DEMO_STORAGE_KEY, JSON.stringify(legacy));
+      if (unavailable === "missing") {
+        Object.defineProperty(navigator, "locks", { configurable: true, value: undefined });
+      } else {
+        Object.defineProperty(navigator, "locks", {
+          configurable: true,
+          get() { throw new Error("locks unavailable"); },
+        });
+      }
+
+      const result = await upgradeV7State(storage);
+
+      expect(result).toMatchObject({ migrated: false, envelope: null, fallback: legacy });
+      expect(storage.getItem(PLANNING_STORAGE_KEY)).toBeNull();
+      expect(storage.setAttempts).toBe(0);
+    }
+    if (descriptor) Object.defineProperty(navigator, "locks", descriptor);
+    else Reflect.deleteProperty(navigator, "locks");
   });
 
   it("does not write when the complete next envelope cannot validate or storage rejects it", async () => {
@@ -418,6 +493,7 @@ describe("guest adaptive planning repository", () => {
     const initialEnvelope = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as {
       generationMutationId?: string;
       initialWorkspace?: PlanningWorkspace;
+      mutationResults: Array<{ sequence: number; resultFingerprint: string }>;
     };
     expect(initialEnvelope.initialWorkspace).toEqual(generated.workspace);
     if (!initialEnvelope.initialWorkspace) throw new Error("Expected canonical initial workspace");
@@ -430,6 +506,8 @@ describe("guest adaptive planning repository", () => {
       resultFingerprint: string;
     }> = [];
     const unit = requiredUnit(generated.workspace);
+    let previousLineageFingerprint = initialEnvelope.mutationResults
+      .find(({ sequence }) => sequence === 0)!.resultFingerprint;
     const firstProposalEvent: PlanningEvent = {
       kind: "delayed",
       unitId: unit.id,
@@ -481,12 +559,20 @@ describe("guest adaptive planning repository", () => {
       registry: flagshipUnitRegistry,
     }, (transition) => {
       const result = resultFromTransition(transition);
+      const resultFingerprint = fingerprint({
+        kind: "arc-local-planning-mutation-lineage",
+        version: 1,
+        previousLineageFingerprint,
+        event: transition.event,
+        outcome: result.outcome,
+      });
       cacheRecords.push({
         mutationId: transition.event.mutationId,
         sequence: transition.event.sequence,
         outcome: result.outcome,
-        resultFingerprint: fingerprint(result),
+        resultFingerprint,
       });
+      previousLineageFingerprint = resultFingerprint;
     });
 
     const envelope = {

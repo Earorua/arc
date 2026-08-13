@@ -43,6 +43,8 @@ const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const idSchema = z.string().max(256).regex(ID_PATTERN);
 const fingerprintSchema = z.string().trim().min(1).max(256);
 const resultFingerprintSchema = z.string().regex(/^p2-[0-9a-f]{32}$/u);
+const MUTATION_LINEAGE_KIND = "arc-local-planning-mutation-lineage";
+const MUTATION_LINEAGE_VERSION = 1;
 const learnerLevelSchema = z.enum(["new", "beginner", "intermediate", "advanced"]);
 const mutationOutcomeSchema = z.enum(["active", "proposed", "accepted", "discarded"]);
 
@@ -137,6 +139,8 @@ export const localPlanningEnvelopeSchema = z.object({
   const cachedSequences = new Set(envelope.mutationResults
     .filter(({ sequence }) => sequence > 0)
     .map(({ sequence }) => sequence));
+  const generationFingerprint = fingerprint(initialResult(initialWorkspace));
+  let previousLineageFingerprint = generationFingerprint;
   try {
     replayedWorkspace = replayPlanningEvents({
       initial: initialWorkspace,
@@ -144,10 +148,14 @@ export const localPlanningEnvelopeSchema = z.object({
       blueprint: flagshipBlueprint,
       registry: flagshipUnitRegistry,
     }, (transition) => {
+      previousLineageFingerprint = mutationLineageFingerprint(
+        previousLineageFingerprint,
+        transition.event,
+      );
       if (cachedSequences.has(transition.event.sequence)) {
         cachedFingerprints.set(
           transition.event.sequence,
-          fingerprint(resultFromTransition(transition)),
+          previousLineageFingerprint,
         );
       }
     });
@@ -164,7 +172,7 @@ export const localPlanningEnvelopeSchema = z.object({
         ctx.addIssue({ code: "custom", path: ["mutationResults", index, "mutationId"], message: "Generation cache must match the generation mutation" });
       }
       const expected = initialResult(initialWorkspace);
-      if (entry.outcome !== expected.outcome || entry.resultFingerprint !== fingerprint(expected)) {
+      if (entry.outcome !== expected.outcome || entry.resultFingerprint !== generationFingerprint) {
         ctx.addIssue({ code: "custom", path: ["mutationResults", index], message: "Generation cache fingerprint must match the initial workspace" });
       }
     } else {
@@ -206,7 +214,7 @@ export interface LocalPlanningRepository {
   discard(request: ReplanDecisionRequest): Promise<PlanningMutationResult>;
 }
 
-export function upgradeV7State(storage?: Storage): V7UpgradeResult {
+export async function upgradeV7State(storage?: Storage): Promise<V7UpgradeResult> {
   const resolvedStorage = resolveStorage(storage);
   const fallback = cloneDemoState(resolvedStorage ? loadDemoState(resolvedStorage) : createDemoState());
   if (!resolvedStorage) return { migrated: false, envelope: null, fallback };
@@ -221,12 +229,39 @@ export function upgradeV7State(storage?: Storage): V7UpgradeResult {
 
   const legacy = readDemoStateForMigration(resolvedStorage);
   if (!legacy.found) return { migrated: false, envelope: null, fallback };
-  const envelope = createEmptyEnvelope(legacy.state, legacy.fingerprint);
   try {
-    const persisted = persistEnvelope(resolvedStorage, envelope, null);
-    return { migrated: true, envelope: persisted, fallback: cloneDemoState(legacy.state) };
+    return await withRepositoryMutationLock(resolvedStorage, () => {
+      const lockedFallback = cloneDemoState(loadDemoState(resolvedStorage));
+      const lockedExisting = readEnvelope(resolvedStorage);
+      if (lockedExisting.kind === "valid") {
+        return {
+          migrated: false,
+          envelope: cloneEnvelope(lockedExisting.envelope),
+          fallback: lockedFallback,
+        };
+      }
+      if (lockedExisting.kind === "invalid") {
+        return { migrated: false, envelope: null, fallback: lockedFallback };
+      }
+      const lockedLegacy = readDemoStateForMigration(resolvedStorage);
+      if (!lockedLegacy.found) {
+        return { migrated: false, envelope: null, fallback: lockedFallback };
+      }
+      const envelope = createEmptyEnvelope(lockedLegacy.state, lockedLegacy.fingerprint);
+      const persisted = persistEnvelope(resolvedStorage, envelope, null);
+      return {
+        migrated: true,
+        envelope: persisted,
+        fallback: cloneDemoState(lockedLegacy.state),
+      };
+    });
   } catch {
-    return { migrated: false, envelope: null, fallback: cloneDemoState(legacy.state) };
+    const current = readEnvelope(resolvedStorage);
+    return {
+      migrated: false,
+      envelope: current.kind === "valid" ? cloneEnvelope(current.envelope) : null,
+      fallback: cloneDemoState(loadDemoState(resolvedStorage)),
+    };
   }
 }
 
@@ -480,7 +515,7 @@ function writeMutation(
       mutationId,
       sequence: workspace.lastSequence,
       outcome: clonedResult.outcome,
-      resultFingerprint: fingerprint(clonedResult),
+      resultFingerprint: resultFingerprintForWrite(envelope, clonedResult),
     },
   ].slice(-500);
   const candidate = {
@@ -526,10 +561,52 @@ function replayMutation(envelope: LocalPlanningEnvelope, mutationId: string): Pl
   if (!entry) return null;
   if (!envelope.initialWorkspace) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
   const result = resultAtSequence(envelope.initialWorkspace, envelope.eventStream, entry.sequence);
-  if (result.outcome !== entry.outcome || fingerprint(result) !== entry.resultFingerprint) {
+  if (result.outcome !== entry.outcome
+    || lineageFingerprintAtSequence(envelope.initialWorkspace, envelope.eventStream, entry.sequence) !== entry.resultFingerprint) {
     throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
   }
   return planningMutationResultSchema.parse(JSON.parse(JSON.stringify(result)) as unknown);
+}
+
+function resultFingerprintForWrite(
+  envelope: LocalPlanningEnvelope,
+  result: PlanningMutationResult,
+): string {
+  const sequence = result.workspace.lastSequence;
+  if (sequence === 0) return fingerprint(result);
+  const event = result.workspace.events[sequence - 1];
+  const previous = envelope.mutationResults.at(-1);
+  if (!event || !previous || previous.sequence !== sequence - 1) {
+    throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+  }
+  return mutationLineageFingerprint(previous.resultFingerprint, event);
+}
+
+function lineageFingerprintAtSequence(
+  initialWorkspace: PlanningWorkspace,
+  events: readonly PlanningEvent[],
+  sequence: number,
+): string {
+  let lineage = fingerprint(initialResult(initialWorkspace));
+  for (let index = 0; index < sequence; index += 1) {
+    const event = events[index];
+    if (!event) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+    lineage = mutationLineageFingerprint(lineage, event);
+  }
+  return lineage;
+}
+
+function mutationLineageFingerprint(
+  previousLineageFingerprint: string,
+  event: PlanningEvent,
+): string {
+  return fingerprint({
+    kind: MUTATION_LINEAGE_KIND,
+    version: MUTATION_LINEAGE_VERSION,
+    previousLineageFingerprint,
+    event,
+    outcome: outcomeForEvent(event),
+  });
 }
 
 function resultAtSequence(
