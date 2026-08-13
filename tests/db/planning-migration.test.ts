@@ -170,17 +170,36 @@ describe("adaptive planning migration", () => {
     });
   });
 
-  it("accepts a same-owner graph and rejects cross-owner or cross-goal references", () => {
+  it("accepts a same-owner graph and rejects a cross-owner goal reference", () => {
     withDatabase((db) => {
       seedValidGraph(db);
       expectConstraint(db, `INSERT INTO skill_audit_versions
         (id,user_id,goal_id,schema_version,blueprint_id,blueprint_version,input_fingerprint,payload_json)
         VALUES ('bad-owner','user-b','goal-a','2026.08.1','b','2026.08.1','fp','{}')`);
+    });
+  });
+
+  it("rejects a cross-goal path audit when availability belongs to the path goal", () => {
+    withDatabase((db) => {
+      seedValidGraph(db);
+      seedAlternateGoalGraph(db);
       expectConstraint(db, `INSERT INTO learning_path_versions
         (id,user_id,goal_id,schema_version,blueprint_id,blueprint_version,registry_id,registry_version,
          audit_version_id,availability_version_id,scope_mode,input_fingerprint,payload_json)
-        VALUES ('bad-goal','user-a','goal-a2','2026.08.1','b','2026.08.1','r','2026.08.1',
-          'audit-a','availability-a','full-scope','fp','{}')`);
+        VALUES ('bad-audit-goal','user-a','goal-a2','2026.08.1','b','2026.08.1','r','2026.08.1',
+          'audit-a','availability-a2','full-scope','fp','{}')`);
+    });
+  });
+
+  it("rejects a cross-goal path availability when audit belongs to the path goal", () => {
+    withDatabase((db) => {
+      seedValidGraph(db);
+      seedAlternateGoalGraph(db);
+      expectConstraint(db, `INSERT INTO learning_path_versions
+        (id,user_id,goal_id,schema_version,blueprint_id,blueprint_version,registry_id,registry_version,
+         audit_version_id,availability_version_id,scope_mode,input_fingerprint,payload_json)
+        VALUES ('bad-availability-goal','user-a','goal-a2','2026.08.1','b','2026.08.1','r','2026.08.1',
+          'audit-a2','availability-a','full-scope','fp','{}')`);
     });
   });
 
