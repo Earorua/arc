@@ -1,13 +1,28 @@
 import { describe, expect, it, vi } from "vitest";
 import type { GeneratePlanningRequest, PlanningEventRequest } from "../../../app/contracts/planning-api";
-import { PLANNING_SCHEMA_VERSION, type PlanningWorkspace } from "../../../app/contracts/planning";
+import {
+  planningMutationResultSchema,
+  PLANNING_SCHEMA_VERSION,
+  type PlanningEvent,
+  type PlanningMutationResult,
+  type PlanningWorkspace,
+} from "../../../app/contracts/planning";
 import { flagshipBlueprint } from "../../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../../app/data/flagship-unit-registry";
 import { createDemoState, DEMO_STORAGE_KEY, mergeSetup } from "../../../app/lib/demo-store";
 import {
   createLocalPlanningRepository,
+  LOCAL_PLANNING_ENVELOPE_MAX_BYTES,
+  localPlanningEnvelopeSchema,
   PLANNING_STORAGE_KEY,
+  PLANNING_STORAGE_LOCK_NAME,
   upgradeV7State,
 } from "../../../app/lib/planning/local-repository";
+import {
+  applyPlanningEvent,
+  replayPlanningEvents,
+} from "../../../app/lib/planning/event-reducer";
+import { fingerprint } from "../../../app/lib/planning/fingerprint";
 
 const OFFLINE_QUEUE_KEY = "arc-offline-queue-v1";
 const PLANNING_DATE = "2026-08-12";
@@ -18,6 +33,7 @@ class MemoryStorage implements Storage {
   readonly removeCalls: string[] = [];
   setAttempts = 0;
   failSet = false;
+  beforeGet: ((key: string) => void) | null = null;
 
   get length(): number {
     return this.values.size;
@@ -28,6 +44,7 @@ class MemoryStorage implements Storage {
   }
 
   getItem(key: string): string | null {
+    this.beforeGet?.(key);
     return this.values.get(key) ?? null;
   }
 
@@ -96,6 +113,22 @@ function generateRequest(mutationId = "mutation-generate"): GeneratePlanningRequ
   };
 }
 
+function sparseGenerateRequest(mutationId = "mutation-generate"): GeneratePlanningRequest {
+  const request = generateRequest(mutationId);
+  request.availability.weekdays = {
+    monday: 0,
+    tuesday: 0,
+    wednesday: 720,
+    thursday: 0,
+    friday: 0,
+    saturday: 0,
+    sunday: 0,
+  };
+  request.availability.weeklyMinutes = 720;
+  request.availability.inputFingerprint = "availability-sparse-fingerprint";
+  return request;
+}
+
 function createRepository(storage: Storage, prefix = "runtime") {
   let nextId = 0;
   return createLocalPlanningRepository({
@@ -124,6 +157,32 @@ function eventRequest(
     event: kind === "completed"
       ? { kind, unitId: unit.id, actualMinutes: 90, planningDate: PLANNING_DATE }
       : { kind, unitId: unit.id, planningDate: PLANNING_DATE },
+  };
+}
+
+function installFakeWebLocks() {
+  const calls: Array<{ name: string; mode: string | undefined }> = [];
+  let tail: Promise<unknown> = Promise.resolve();
+  const fakeLocks = {
+    request<T>(
+      name: string,
+      options: { mode?: string },
+      callback: () => Promise<T> | T,
+    ): Promise<T> {
+      calls.push({ name, mode: options.mode });
+      const result = tail.then(() => callback());
+      tail = result.then(() => undefined, () => undefined);
+      return result;
+    },
+  };
+  const descriptor = Object.getOwnPropertyDescriptor(navigator, "locks");
+  Object.defineProperty(navigator, "locks", { configurable: true, value: fakeLocks });
+  return {
+    calls,
+    restore() {
+      if (descriptor) Object.defineProperty(navigator, "locks", descriptor);
+      else Reflect.deleteProperty(navigator, "locks");
+    },
   };
 }
 
@@ -220,9 +279,18 @@ describe("guest adaptive planning repository", () => {
     const persisted = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as Record<string, unknown>;
     expect(persisted).toMatchObject({
       schemaVersion: PLANNING_SCHEMA_VERSION,
+      generationMutationId: "mutation-generate",
+      initialWorkspace: result.workspace,
       nextSequence: 1,
       eventStream: [],
+      mutationResults: [{
+        mutationId: "mutation-generate",
+        sequence: 0,
+        outcome: "active",
+        resultFingerprint: fingerprint(result),
+      }],
     });
+    expect(JSON.stringify(persisted)).not.toContain("resultJson");
     expect(await repository.load()).toEqual(result.workspace);
     expect(storage.getItem(DEMO_STORAGE_KEY)).toBe(JSON.stringify(createDemoState()));
   });
@@ -327,30 +395,250 @@ describe("guest adaptive planning repository", () => {
   it("evicts the oldest cached result deterministically after the 500-entry cap", async () => {
     const storage = new MemoryStorage();
     const repository = createRepository(storage, "cache");
-    const generated = await repository.generate(generateRequest());
-    const envelope = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as {
-      mutationResults: Array<{ mutationId: string; resultJson: string }>;
+    const generated = await repository.generate(sparseGenerateRequest());
+    const initialEnvelope = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as {
+      generationMutationId?: string;
+      initialWorkspace?: PlanningWorkspace;
     };
-    const resultJson = JSON.stringify(generated);
-    envelope.mutationResults = Array.from({ length: 500 }, (_, index) => ({
-      mutationId: `seed-${String(index + 1).padStart(3, "0")}`,
-      resultJson,
-    }));
-    storage.values.set(PLANNING_STORAGE_KEY, JSON.stringify(envelope));
+    expect(initialEnvelope.initialWorkspace).toEqual(generated.workspace);
+    if (!initialEnvelope.initialWorkspace) throw new Error("Expected canonical initial workspace");
+
+    const events: PlanningEvent[] = [];
+    const cacheRecords: Array<{
+      mutationId: string;
+      sequence: number;
+      outcome: PlanningMutationResult["outcome"];
+      resultFingerprint: string;
+    }> = [];
+    const unit = requiredUnit(generated.workspace);
+    const firstProposalEvent: PlanningEvent = {
+      kind: "delayed",
+      unitId: unit.id,
+      planningDate: PLANNING_DATE,
+      eventId: "cache-event-1",
+      mutationId: "cache-mutation-1",
+      sequence: 1,
+      targetPlanVersionId: generated.workspace.activePlanVersionId,
+      occurredAt: "2026-08-12T08:00:00.000Z",
+    };
+    const firstProposal = applyPlanningEvent({
+      workspace: generated.workspace,
+      event: firstProposalEvent,
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+    });
+    if (firstProposal.kind !== "proposed") throw new Error("Expected proposed transition");
+    const candidatePlanVersionId = firstProposal.workspace.pendingPlanVersionId!;
+    for (let cycle = 1; cycle <= 250; cycle += 1) {
+      const proposalSequence = cycle * 2 - 1;
+      const proposalEvent: PlanningEvent = {
+        kind: "delayed",
+        unitId: unit.id,
+        planningDate: PLANNING_DATE,
+        eventId: `cache-event-${proposalSequence}`,
+        mutationId: `cache-mutation-${proposalSequence}`,
+        sequence: proposalSequence,
+        targetPlanVersionId: generated.workspace.activePlanVersionId,
+        occurredAt: "2026-08-12T08:00:00.000Z",
+      };
+      events.push(proposalEvent);
+      cacheRecords.push({
+        mutationId: proposalEvent.mutationId,
+        sequence: proposalSequence,
+        outcome: "proposed",
+        resultFingerprint: fingerprint({ event: proposalEvent, outcome: "proposed" }),
+      });
+
+      const decisionSequence = cycle * 2;
+      const decisionEvent: PlanningEvent = {
+        kind: "replan_discarded",
+        candidatePlanVersionId,
+        eventId: `cache-event-${decisionSequence}`,
+        mutationId: `cache-mutation-${decisionSequence}`,
+        sequence: decisionSequence,
+        targetPlanVersionId: generated.workspace.activePlanVersionId,
+        occurredAt: "2026-08-12T08:00:00.000Z",
+      };
+      events.push(decisionEvent);
+      cacheRecords.push({
+        mutationId: decisionEvent.mutationId,
+        sequence: decisionSequence,
+        outcome: "discarded",
+        resultFingerprint: fingerprint({ event: decisionEvent, outcome: "discarded" }),
+      });
+    }
+    const workspace = replayPlanningEvents({
+      initial: initialEnvelope.initialWorkspace,
+      events,
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+    });
+
+    const envelope = {
+      ...initialEnvelope,
+      workspace,
+      eventStream: workspace.events,
+      mutationResults: cacheRecords,
+      nextSequence: 501,
+    };
+    const serialized = JSON.stringify(envelope);
+    const measuredBytes = new TextEncoder().encode(serialized).byteLength;
+    expect(measuredBytes).toBeLessThan(LOCAL_PLANNING_ENVELOPE_MAX_BYTES);
+    storage.values.set(PLANNING_STORAGE_KEY, serialized);
     storage.setCalls.length = 0;
     storage.setAttempts = 0;
 
-    await repository.appendEvent(eventRequest(generated.workspace, "mutation-after-cap", "completed"));
+    await repository.appendEvent(eventRequest(workspace, "cache-mutation-501", "delayed"));
 
     const persisted = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as {
-      mutationResults: Array<{ mutationId: string }>;
+      mutationResults: Array<{ mutationId: string; sequence: number }>;
     };
     expect(persisted.mutationResults).toHaveLength(500);
-    expect(persisted.mutationResults[0]?.mutationId).toBe("seed-002");
-    expect(persisted.mutationResults.at(-1)?.mutationId).toBe("mutation-after-cap");
-    expect(persisted.mutationResults.some(({ mutationId }) => mutationId === "seed-001")).toBe(false);
+    expect(persisted.mutationResults[0]).toMatchObject({ mutationId: "cache-mutation-2", sequence: 2 });
+    expect(persisted.mutationResults.at(-1)).toMatchObject({ mutationId: "cache-mutation-501", sequence: 501 });
+    expect(persisted.mutationResults.some(({ mutationId }) => mutationId === "cache-mutation-1")).toBe(false);
     expect(storage.setAttempts).toBe(1);
     expect(storage.setCalls).toHaveLength(1);
+  }, 30_000);
+
+  it("rejects a compact cache record that is not related to its canonical history", async () => {
+    const storage = new MemoryStorage();
+    const repository = createRepository(storage, "lineage");
+    const generated = await repository.generate(generateRequest());
+    const envelope = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as {
+      mutationResults: unknown[];
+    };
+    envelope.mutationResults = [{
+      mutationId: "unrelated-generation",
+      sequence: 0,
+      outcome: "active",
+      resultFingerprint: fingerprint(generated),
+    }];
+    const unrelatedBytes = JSON.stringify(envelope);
+    storage.values.set(PLANNING_STORAGE_KEY, unrelatedBytes);
+    storage.setCalls.length = 0;
+    storage.setAttempts = 0;
+
+    expect(await repository.load()).toBeNull();
+    await expect(repository.appendEvent(eventRequest(generated.workspace, "mutation-after-unrelated", "completed")))
+      .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+    expect(storage.getItem(PLANNING_STORAGE_KEY)).toBe(unrelatedBytes);
+    expect(storage.setAttempts).toBe(0);
+  });
+
+  it("uses one named exclusive Web Lock so concurrent same-base writes cannot overwrite", async () => {
+    const fakeLocks = installFakeWebLocks();
+    try {
+      const storage = new MemoryStorage();
+      const firstRepository = createRepository(storage, "first-tab");
+      const secondRepository = createRepository(storage, "second-tab");
+      const generated = await firstRepository.generate(generateRequest());
+      const lockCallsBefore = fakeLocks.calls.length;
+      const writesBefore = storage.setAttempts;
+
+      const [first, second] = await Promise.allSettled([
+        firstRepository.appendEvent(eventRequest(generated.workspace, "mutation-first-tab", "completed")),
+        secondRepository.appendEvent(eventRequest(generated.workspace, "mutation-second-tab", "completed")),
+      ]);
+
+      expect(first.status).toBe("fulfilled");
+      expect(second).toMatchObject({
+        status: "rejected",
+        reason: { code: "CONFLICT" },
+      });
+      expect(storage.setAttempts).toBe(writesBefore + 1);
+      expect(fakeLocks.calls.slice(lockCallsBefore)).toEqual([
+        { name: PLANNING_STORAGE_LOCK_NAME, mode: "exclusive" },
+        { name: PLANNING_STORAGE_LOCK_NAME, mode: "exclusive" },
+      ]);
+      expect(fakeLocks.calls[0]).toEqual({ name: PLANNING_STORAGE_LOCK_NAME, mode: "exclusive" });
+    } finally {
+      fakeLocks.restore();
+    }
+  });
+
+  it("uses the per-storage mutex fallback so concurrent duplicate mutations return the first result", async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(navigator, "locks");
+    Object.defineProperty(navigator, "locks", { configurable: true, value: undefined });
+    try {
+      const storage = new MemoryStorage();
+      const firstRepository = createRepository(storage, "fallback-first");
+      const secondRepository = createRepository(storage, "fallback-second");
+      const generated = await firstRepository.generate(generateRequest());
+      const duplicate = eventRequest(generated.workspace, "mutation-fallback-duplicate", "completed");
+      const writesBefore = storage.setAttempts;
+
+      const [first, replayed] = await Promise.all([
+        firstRepository.appendEvent(duplicate),
+        secondRepository.appendEvent(duplicate),
+      ]);
+
+      expect(replayed).toEqual(first);
+      expect(storage.setAttempts).toBe(writesBefore + 1);
+    } finally {
+      if (descriptor) Object.defineProperty(navigator, "locks", descriptor);
+      else Reflect.deleteProperty(navigator, "locks");
+    }
+  });
+
+  it("performs a final raw-byte recheck and preserves a cooperative external winner", async () => {
+    const storage = new MemoryStorage();
+    const repository = createRepository(storage, "optimistic");
+    const generated = await repository.generate(generateRequest());
+    const before = storage.getItem(PLANNING_STORAGE_KEY)!;
+    const externalBytes = `${before} `;
+    let planningReads = 0;
+    storage.beforeGet = (key) => {
+      if (key !== PLANNING_STORAGE_KEY) return;
+      planningReads += 1;
+      if (planningReads === 2) storage.values.set(PLANNING_STORAGE_KEY, externalBytes);
+    };
+    const writesBefore = storage.setAttempts;
+
+    await expect(repository.appendEvent(eventRequest(generated.workspace, "mutation-optimistic", "completed")))
+      .rejects.toMatchObject({ code: "CONFLICT" });
+
+    storage.beforeGet = null;
+    expect(storage.getItem(PLANNING_STORAGE_KEY)).toBe(externalBytes);
+    expect(storage.setAttempts).toBe(writesBefore);
+  });
+
+  it("rejects an otherwise valid envelope over the conservative byte budget before writing", async () => {
+    const storage = new MemoryStorage();
+    const repository = createRepository(storage, "oversized");
+    const generated = await repository.generate(generateRequest());
+    const envelope = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as {
+      initialWorkspace?: PlanningWorkspace;
+      workspace: PlanningWorkspace;
+      mutationResults: Array<{ resultFingerprint: string }>;
+    };
+    if (!envelope.initialWorkspace) throw new Error("Expected canonical initial workspace");
+    const sourcePath = envelope.initialWorkspace.pathVersions[0]!;
+    const paths = [sourcePath, ...Array.from({ length: 499 }, (_, index) => ({
+      ...sourcePath,
+      id: `oversized-path-${String(index + 1).padStart(3, "0")}`,
+    }))];
+    envelope.initialWorkspace.pathVersions = paths.map((path) => structuredClone(path));
+    envelope.workspace.pathVersions = paths.map((path) => structuredClone(path));
+    const initialResult = planningMutationResultSchema.parse({
+      outcome: "active",
+      workspace: envelope.initialWorkspace,
+      diff: null,
+    });
+    envelope.mutationResults[0]!.resultFingerprint = fingerprint(initialResult);
+    const oversizedBytes = JSON.stringify(envelope);
+
+    expect(new TextEncoder().encode(oversizedBytes).byteLength)
+      .toBeGreaterThan(LOCAL_PLANNING_ENVELOPE_MAX_BYTES);
+    expect(localPlanningEnvelopeSchema.safeParse(envelope).success).toBe(false);
+    storage.values.set(PLANNING_STORAGE_KEY, oversizedBytes);
+    storage.setCalls.length = 0;
+    storage.setAttempts = 0;
+
+    await expect(repository.appendEvent(eventRequest(generated.workspace, "mutation-after-oversized", "completed")))
+      .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+    expect(storage.getItem(PLANNING_STORAGE_KEY)).toBe(oversizedBytes);
+    expect(storage.setAttempts).toBe(0);
   });
 
   it("accepts and discards candidates while retaining every prior plan and event row", async () => {

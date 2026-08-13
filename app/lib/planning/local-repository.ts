@@ -25,17 +25,26 @@ import {
   readDemoStateForMigration,
   type DemoState,
 } from "../demo-store";
-import { applyPlanningEvent, PlanningEventError } from "./event-reducer";
+import {
+  applyPlanningEvent,
+  PlanningEventError,
+  replayPlanningEvents,
+  type PlanningTransition,
+} from "./event-reducer";
+import { canonicalJson, fingerprint } from "./fingerprint";
 import { buildLearningPaths } from "./path-builder";
 import { buildPlanVersion } from "./scheduler";
 
 export const PLANNING_STORAGE_KEY = "arc-planning-state-v2";
+export const PLANNING_STORAGE_LOCK_NAME = "arc-planning-state-v2:exclusive";
+export const LOCAL_PLANNING_ENVELOPE_MAX_BYTES = 4 * 1024 * 1024;
 
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const idSchema = z.string().max(256).regex(ID_PATTERN);
 const fingerprintSchema = z.string().trim().min(1).max(256);
-const resultJsonSchema = z.string().min(1);
+const resultFingerprintSchema = z.string().regex(/^p2-[0-9a-f]{32}$/u);
 const learnerLevelSchema = z.enum(["new", "beginner", "intermediate", "advanced"]);
+const mutationOutcomeSchema = z.enum(["active", "proposed", "accepted", "discarded"]);
 
 const migrationMarkerSchema = z.object({
   source: z.literal(DEMO_STORAGE_KEY),
@@ -55,18 +64,26 @@ const setupDraftSchema = z.object({
 
 const mutationResultEntrySchema = z.object({
   mutationId: idSchema,
-  resultJson: resultJsonSchema,
+  sequence: z.number().int().min(0).max(5000),
+  outcome: mutationOutcomeSchema,
+  resultFingerprint: resultFingerprintSchema,
 }).strict();
 
-const localPlanningEnvelopeSchema = z.object({
+export const localPlanningEnvelopeSchema = z.object({
   schemaVersion: z.literal(PLANNING_SCHEMA_VERSION),
   migration: migrationMarkerSchema.nullable(),
   setupDraft: setupDraftSchema.nullable(),
+  generationMutationId: idSchema.nullable(),
+  initialWorkspace: planningWorkspaceSchema.nullable(),
   workspace: planningWorkspaceSchema.nullable(),
   eventStream: z.array(planningEventSchema).max(5000),
   mutationResults: z.array(mutationResultEntrySchema).max(500),
   nextSequence: z.number().int().positive(),
 }).strict().superRefine((envelope, ctx) => {
+  if (serializedBytes(envelope) > LOCAL_PLANNING_ENVELOPE_MAX_BYTES) {
+    ctx.addIssue({ code: "custom", message: "Local planning envelope exceeds the byte budget" });
+    return;
+  }
   if ((envelope.migration === null) !== (envelope.setupDraft === null)) {
     ctx.addIssue({ code: "custom", path: ["setupDraft"], message: "Migration marker and setup draft must coexist" });
   }
@@ -74,20 +91,39 @@ const localPlanningEnvelopeSchema = z.object({
   if (new Set(mutationIds).size !== mutationIds.length) {
     ctx.addIssue({ code: "custom", path: ["mutationResults"], message: "Mutation results must have unique IDs" });
   }
-  envelope.mutationResults.forEach(({ resultJson }, index) => {
-    try {
-      planningMutationResultSchema.parse(JSON.parse(resultJson) as unknown);
-    } catch {
-      ctx.addIssue({ code: "custom", path: ["mutationResults", index, "resultJson"], message: "Cached result must strictly parse" });
+  const sequences = envelope.mutationResults.map(({ sequence }) => sequence);
+  if (new Set(sequences).size !== sequences.length) {
+    ctx.addIssue({ code: "custom", path: ["mutationResults"], message: "Mutation result sequences must be unique" });
+  }
+  envelope.mutationResults.forEach((entry, index) => {
+    if (index > 0 && entry.sequence <= envelope.mutationResults[index - 1]!.sequence) {
+      ctx.addIssue({ code: "custom", path: ["mutationResults", index, "sequence"], message: "Mutation results must follow history order" });
     }
   });
   if (envelope.workspace === null) {
+    if (envelope.initialWorkspace !== null || envelope.generationMutationId !== null) {
+      ctx.addIssue({ code: "custom", path: ["initialWorkspace"], message: "An empty envelope cannot have generation state" });
+    }
     if (envelope.eventStream.length !== 0) {
       ctx.addIssue({ code: "custom", path: ["eventStream"], message: "An empty envelope cannot contain events" });
+    }
+    if (envelope.mutationResults.length !== 0) {
+      ctx.addIssue({ code: "custom", path: ["mutationResults"], message: "An empty envelope cannot contain mutation results" });
     }
     if (envelope.nextSequence !== 1) {
       ctx.addIssue({ code: "custom", path: ["nextSequence"], message: "An empty envelope starts at sequence one" });
     }
+    return;
+  }
+  if (envelope.initialWorkspace === null || envelope.generationMutationId === null) {
+    ctx.addIssue({ code: "custom", path: ["initialWorkspace"], message: "A generated envelope requires canonical generation state" });
+    return;
+  }
+  const initialWorkspace = envelope.initialWorkspace;
+  if (initialWorkspace.events.length !== 0
+    || initialWorkspace.lastSequence !== 0
+    || initialWorkspace.revision !== 0) {
+    ctx.addIssue({ code: "custom", path: ["initialWorkspace"], message: "Canonical initial workspace must precede all events" });
     return;
   }
   if (JSON.stringify(envelope.eventStream) !== JSON.stringify(envelope.workspace.events)) {
@@ -96,6 +132,39 @@ const localPlanningEnvelopeSchema = z.object({
   if (envelope.nextSequence !== envelope.workspace.lastSequence + 1) {
     ctx.addIssue({ code: "custom", path: ["nextSequence"], message: "Next sequence must follow the workspace history" });
   }
+  let replayedWorkspace: PlanningWorkspace;
+  try {
+    replayedWorkspace = replayPlanningEvents({
+      initial: initialWorkspace,
+      events: envelope.eventStream,
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+    });
+  } catch {
+    ctx.addIssue({ code: "custom", path: ["eventStream"], message: "Event stream must replay from the canonical initial workspace" });
+    return;
+  }
+  if (canonicalJson(replayedWorkspace) !== canonicalJson(envelope.workspace)) {
+    ctx.addIssue({ code: "custom", path: ["workspace"], message: "Current workspace must equal canonical event replay" });
+  }
+  envelope.mutationResults.forEach((entry, index) => {
+    if (entry.sequence === 0) {
+      if (entry.mutationId !== envelope.generationMutationId) {
+        ctx.addIssue({ code: "custom", path: ["mutationResults", index, "mutationId"], message: "Generation cache must match the generation mutation" });
+      }
+      const expected = initialResult(initialWorkspace);
+      if (entry.outcome !== expected.outcome || entry.resultFingerprint !== fingerprint(expected)) {
+        ctx.addIssue({ code: "custom", path: ["mutationResults", index], message: "Generation cache fingerprint must match the initial workspace" });
+      }
+    } else {
+      const event = envelope.eventStream[entry.sequence - 1];
+      if (!event || event.sequence !== entry.sequence || event.mutationId !== entry.mutationId) {
+        ctx.addIssue({ code: "custom", path: ["mutationResults", index], message: "Mutation cache must match its event history row" });
+      } else if (entry.outcome !== outcomeForEvent(event)) {
+        ctx.addIssue({ code: "custom", path: ["mutationResults", index, "outcome"], message: "Mutation cache outcome must match its event kind" });
+      }
+    }
+  });
 });
 
 export type LocalPlanningEnvelope = z.infer<typeof localPlanningEnvelopeSchema>;
@@ -141,7 +210,7 @@ export function upgradeV7State(storage?: Storage): V7UpgradeResult {
   if (!legacy.found) return { migrated: false, envelope: null, fallback };
   const envelope = createEmptyEnvelope(legacy.state, legacy.fingerprint);
   try {
-    const persisted = persistEnvelope(resolvedStorage, envelope);
+    const persisted = persistEnvelope(resolvedStorage, envelope, null);
     return { migrated: true, envelope: persisted, fallback: cloneDemoState(legacy.state) };
   } catch {
     return { migrated: false, envelope: null, fallback: cloneDemoState(legacy.state) };
@@ -167,59 +236,73 @@ export function createLocalPlanningRepository(options?: {
 
     async generate(request) {
       const parsed = parseRequest(generatePlanningRequestSchema, request);
-      const envelope = envelopeForWrite(storage);
-      const replay = replayMutation(envelope, parsed.mutationId);
-      if (replay) return replay;
-      if (envelope.workspace !== null) throw new LocalPlanningRepositoryError("CONFLICT");
+      return withRepositoryMutationLock(storage, () => {
+        const context = envelopeForWrite(storage);
+        const replay = replayMutation(context.envelope, parsed.mutationId);
+        if (replay) return replay;
+        if (context.envelope.workspace !== null) throw new LocalPlanningRepositoryError("CONFLICT");
 
-      let result: PlanningMutationResult;
-      try {
-        const alternatives = buildLearningPaths({
-          blueprint: flagshipBlueprint,
-          registry: flagshipUnitRegistry,
-          audit: parsed.audit,
-          availability: parsed.availability,
-          target: parsed.target,
-          planningDate: parsed.planningDate,
-        });
-        const path = parsed.selectedScope === "target-date"
-          ? alternatives.targetDate
-          : alternatives.fullScope;
-        if (!path) throw new LocalPlanningRepositoryError("INVALID_INPUT");
-        const built = buildPlanVersion({
-          path,
-          registry: flagshipUnitRegistry,
-          availability: parsed.availability,
-          planningDate: parsed.planningDate,
-          generation: "initial",
-          baseVersionId: null,
-          replanReason: null,
-          completedUnitIds: new Set(),
-        });
-        const workspace = planningWorkspaceSchema.parse({
-          id: createId(),
-          goalId: createId(),
-          revision: 0,
-          lastSequence: 0,
-          audit: parsed.audit,
-          availability: parsed.availability,
-          availabilityVersions: [parsed.availability],
-          target: parsed.target,
-          pathVersions: [path],
-          planVersions: [built.plan],
-          dailyUnits: built.dailyUnits,
-          events: [],
-          activePathVersionId: path.id,
-          activePlanVersionId: built.plan.id,
-          pendingPlanVersionId: null,
-        });
-        result = planningMutationResultSchema.parse({ outcome: "active", workspace, diff: null });
-      } catch (error) {
-        throw normalizePlanningError(error);
-      }
+        let result: PlanningMutationResult;
+        try {
+          const alternatives = buildLearningPaths({
+            blueprint: flagshipBlueprint,
+            registry: flagshipUnitRegistry,
+            audit: parsed.audit,
+            availability: parsed.availability,
+            target: parsed.target,
+            planningDate: parsed.planningDate,
+          });
+          const path = parsed.selectedScope === "target-date"
+            ? alternatives.targetDate
+            : alternatives.fullScope;
+          if (!path) throw new LocalPlanningRepositoryError("INVALID_INPUT");
+          const built = buildPlanVersion({
+            path,
+            registry: flagshipUnitRegistry,
+            availability: parsed.availability,
+            planningDate: parsed.planningDate,
+            generation: "initial",
+            baseVersionId: null,
+            replanReason: null,
+            completedUnitIds: new Set(),
+          });
+          const workspace = planningWorkspaceSchema.parse({
+            id: createId(),
+            goalId: createId(),
+            revision: 0,
+            lastSequence: 0,
+            audit: parsed.audit,
+            availability: parsed.availability,
+            availabilityVersions: [parsed.availability],
+            target: parsed.target,
+            pathVersions: [path],
+            planVersions: [built.plan],
+            dailyUnits: built.dailyUnits,
+            events: [],
+            activePathVersionId: path.id,
+            activePlanVersionId: built.plan.id,
+            pendingPlanVersionId: null,
+          });
+          result = planningMutationResultSchema.parse({ outcome: "active", workspace, diff: null });
+        } catch (error) {
+          throw normalizePlanningError(error);
+        }
 
-      const persisted = writeMutation(storage, envelope, parsed.mutationId, result);
-      return replayMutation(persisted, parsed.mutationId)!;
+        const generatedEnvelope = {
+          ...context.envelope,
+          generationMutationId: parsed.mutationId,
+          initialWorkspace: result.workspace,
+          workspace: result.workspace,
+        };
+        const persisted = writeMutation(
+          storage,
+          generatedEnvelope,
+          parsed.mutationId,
+          result,
+          context.raw,
+        );
+        return replayMutation(persisted, parsed.mutationId)!;
+      });
     },
 
     async appendEvent(request) {
@@ -246,9 +329,9 @@ export function createLocalPlanningRepository(options?: {
 }
 
 type StoredEnvelopeRead =
-  | { kind: "absent" }
-  | { kind: "invalid" }
-  | { kind: "valid"; envelope: LocalPlanningEnvelope };
+  | { kind: "absent"; raw: null }
+  | { kind: "invalid"; raw: string | null }
+  | { kind: "valid"; envelope: LocalPlanningEnvelope; raw: string };
 
 type MutationRequest = {
   mutationId: string;
@@ -265,43 +348,47 @@ function mutateWithEvent(
   now: () => Date,
   request: MutationRequest,
   body: EventBody,
-): PlanningMutationResult {
-  const envelope = envelopeForWrite(storage);
-  const replay = replayMutation(envelope, request.mutationId);
-  if (replay) return replay;
-  const workspace = envelope.workspace;
-  if (!workspace) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
-  if (request.baseVersionId !== workspace.activePlanVersionId) {
-    throw new LocalPlanningRepositoryError("CONFLICT");
-  }
+): Promise<PlanningMutationResult> {
+  return withRepositoryMutationLock(storage, () => {
+    const context = envelopeForWrite(storage);
+    const replay = replayMutation(context.envelope, request.mutationId);
+    if (replay) return replay;
+    const workspace = context.envelope.workspace;
+    if (!workspace) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+    if (request.baseVersionId !== workspace.activePlanVersionId) {
+      throw new LocalPlanningRepositoryError("CONFLICT");
+    }
 
-  let result: PlanningMutationResult;
-  try {
-    const event = planningEventSchema.parse({
-      ...body,
-      eventId: createId(),
-      mutationId: request.mutationId,
-      sequence: envelope.nextSequence,
-      targetPlanVersionId: request.baseVersionId,
-      occurredAt: now().toISOString(),
-    }) as PlanningEvent;
-    const transition = applyPlanningEvent({
-      workspace,
-      event,
-      blueprint: flagshipBlueprint,
-      registry: flagshipUnitRegistry,
-    });
-    result = planningMutationResultSchema.parse({
-      outcome: transition.kind === "automatic" ? "active" : transition.kind,
-      workspace: transition.workspace,
-      diff: transition.kind === "proposed" ? transition.diff : null,
-    });
-  } catch (error) {
-    throw normalizePlanningError(error);
-  }
+    let result: PlanningMutationResult;
+    try {
+      const event = planningEventSchema.parse({
+        ...body,
+        eventId: createId(),
+        mutationId: request.mutationId,
+        sequence: context.envelope.nextSequence,
+        targetPlanVersionId: request.baseVersionId,
+        occurredAt: now().toISOString(),
+      }) as PlanningEvent;
+      const transition = applyPlanningEvent({
+        workspace,
+        event,
+        blueprint: flagshipBlueprint,
+        registry: flagshipUnitRegistry,
+      });
+      result = resultFromTransition(transition);
+    } catch (error) {
+      throw normalizePlanningError(error);
+    }
 
-  const persisted = writeMutation(storage, envelope, request.mutationId, result);
-  return replayMutation(persisted, request.mutationId)!;
+    const persisted = writeMutation(
+      storage,
+      context.envelope,
+      request.mutationId,
+      result,
+      context.raw,
+    );
+    return replayMutation(persisted, request.mutationId)!;
+  });
 }
 
 function createEmptyEnvelope(state?: DemoState, sourceFingerprint?: string): LocalPlanningEnvelope {
@@ -327,6 +414,8 @@ function createEmptyEnvelope(state?: DemoState, sourceFingerprint?: string): Loc
     schemaVersion: PLANNING_SCHEMA_VERSION,
     migration,
     setupDraft,
+    generationMutationId: null,
+    initialWorkspace: null,
     workspace: null,
     eventStream: [],
     mutationResults: [],
@@ -334,25 +423,31 @@ function createEmptyEnvelope(state?: DemoState, sourceFingerprint?: string): Loc
   });
 }
 
-function envelopeForWrite(storage: Storage | undefined): LocalPlanningEnvelope {
+function envelopeForWrite(storage: Storage | undefined): { envelope: LocalPlanningEnvelope; raw: string | null } {
   if (!storage) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
   const stored = readEnvelope(storage);
-  if (stored.kind === "valid") return stored.envelope;
+  if (stored.kind === "valid") return { envelope: stored.envelope, raw: stored.raw };
   if (stored.kind === "invalid") throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
   const legacy = readDemoStateForMigration(storage);
-  return legacy.found ? createEmptyEnvelope(legacy.state, legacy.fingerprint) : createEmptyEnvelope();
+  return {
+    envelope: legacy.found ? createEmptyEnvelope(legacy.state, legacy.fingerprint) : createEmptyEnvelope(),
+    raw: null,
+  };
 }
 
 function readEnvelope(storage: Pick<Storage, "getItem">): StoredEnvelopeRead {
+  let raw: string | null = null;
   try {
-    const raw = storage.getItem(PLANNING_STORAGE_KEY);
-    if (raw === null) return { kind: "absent" };
+    raw = storage.getItem(PLANNING_STORAGE_KEY);
+    if (raw === null) return { kind: "absent", raw };
+    if (serializedBytes(raw) > LOCAL_PLANNING_ENVELOPE_MAX_BYTES) return { kind: "invalid", raw };
     return {
       kind: "valid",
       envelope: localPlanningEnvelopeSchema.parse(JSON.parse(raw) as unknown),
+      raw,
     };
   } catch {
-    return { kind: "invalid" };
+    return { kind: "invalid", raw };
   }
 }
 
@@ -361,13 +456,19 @@ function writeMutation(
   envelope: LocalPlanningEnvelope,
   mutationId: string,
   result: PlanningMutationResult,
+  expectedRaw: string | null,
 ): LocalPlanningEnvelope {
   if (!storage) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
-  const resultJson = JSON.stringify(planningMutationResultSchema.parse(result));
-  const workspace = planningMutationResultSchema.parse(JSON.parse(resultJson) as unknown).workspace;
+  const clonedResult = planningMutationResultSchema.parse(JSON.parse(JSON.stringify(result)) as unknown);
+  const workspace = clonedResult.workspace;
   const mutationResults = [
     ...envelope.mutationResults,
-    { mutationId, resultJson },
+    {
+      mutationId,
+      sequence: workspace.lastSequence,
+      outcome: clonedResult.outcome,
+      resultFingerprint: fingerprint(clonedResult),
+    },
   ].slice(-500);
   const candidate = {
     ...envelope,
@@ -376,29 +477,149 @@ function writeMutation(
     mutationResults,
     nextSequence: workspace.lastSequence + 1,
   };
-  return persistEnvelope(storage, candidate);
+  return persistEnvelope(storage, candidate, expectedRaw);
 }
 
-function persistEnvelope(storage: Storage, input: unknown): LocalPlanningEnvelope {
+function persistEnvelope(
+  storage: Storage,
+  input: unknown,
+  expectedRaw: string | null,
+): LocalPlanningEnvelope {
   let serialized: string;
   try {
     const envelope = localPlanningEnvelopeSchema.parse(input);
     serialized = JSON.stringify(envelope);
-  } catch {
+    if (serializedBytes(serialized) > LOCAL_PLANNING_ENVELOPE_MAX_BYTES) {
+      throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+    }
+  } catch (error) {
+    if (error instanceof LocalPlanningRepositoryError) throw error;
     throw new LocalPlanningRepositoryError("INVALID_INPUT");
   }
   try {
+    if (storage.getItem(PLANNING_STORAGE_KEY) !== expectedRaw) {
+      throw new LocalPlanningRepositoryError("CONFLICT");
+    }
     storage.setItem(PLANNING_STORAGE_KEY, serialized);
-  } catch {
+  } catch (error) {
+    if (error instanceof LocalPlanningRepositoryError) throw error;
     throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
   }
-  return localPlanningEnvelopeSchema.parse(JSON.parse(serialized) as unknown);
+  return JSON.parse(serialized) as LocalPlanningEnvelope;
 }
 
 function replayMutation(envelope: LocalPlanningEnvelope, mutationId: string): PlanningMutationResult | null {
   const entry = envelope.mutationResults.find((candidate) => candidate.mutationId === mutationId);
   if (!entry) return null;
-  return planningMutationResultSchema.parse(JSON.parse(entry.resultJson) as unknown);
+  if (!envelope.initialWorkspace) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+  const result = resultAtSequence(envelope.initialWorkspace, envelope.eventStream, entry.sequence);
+  if (result.outcome !== entry.outcome || fingerprint(result) !== entry.resultFingerprint) {
+    throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+  }
+  return planningMutationResultSchema.parse(JSON.parse(JSON.stringify(result)) as unknown);
+}
+
+function resultAtSequence(
+  initialWorkspace: PlanningWorkspace,
+  events: readonly PlanningEvent[],
+  sequence: number,
+): PlanningMutationResult {
+  if (sequence === 0) return initialResult(initialWorkspace);
+  if (sequence < 0 || sequence > events.length) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+  const priorEvents = events.slice(0, sequence - 1);
+  const workspace = priorEvents.length === 0
+    ? planningWorkspaceSchema.parse(initialWorkspace)
+    : replayPlanningEvents({
+      initial: initialWorkspace,
+      events: priorEvents,
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+    });
+  const transition = applyPlanningEvent({
+    workspace,
+    event: events[sequence - 1]!,
+    blueprint: flagshipBlueprint,
+    registry: flagshipUnitRegistry,
+  });
+  return resultFromTransition(transition);
+}
+
+function initialResult(workspace: PlanningWorkspace): PlanningMutationResult {
+  return planningMutationResultSchema.parse({ outcome: "active", workspace, diff: null });
+}
+
+function resultFromTransition(transition: PlanningTransition): PlanningMutationResult {
+  return planningMutationResultSchema.parse({
+    outcome: transition.kind === "automatic" ? "active" : transition.kind,
+    workspace: transition.workspace,
+    diff: transition.kind === "proposed" ? transition.diff : null,
+  });
+}
+
+function outcomeForEvent(event: PlanningEvent): PlanningMutationResult["outcome"] {
+  if (event.kind === "completed") return "active";
+  if (event.kind === "replan_accepted") return "accepted";
+  if (event.kind === "replan_discarded") return "discarded";
+  return "proposed";
+}
+
+type WebLockManager = {
+  request<T>(
+    name: string,
+    options: { mode: "exclusive" },
+    callback: () => Promise<T> | T,
+  ): Promise<T>;
+};
+
+const storageMutexTails = new WeakMap<Storage, Promise<void>>();
+
+async function withRepositoryMutationLock<T>(
+  storage: Storage | undefined,
+  action: () => Promise<T> | T,
+): Promise<T> {
+  if (!storage) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+  const webLocks = resolveWebLocks();
+  if (webLocks) {
+    try {
+      return await webLocks.request(PLANNING_STORAGE_LOCK_NAME, { mode: "exclusive" }, action);
+    } catch (error) {
+      if (error instanceof LocalPlanningRepositoryError) throw error;
+      throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+    }
+  }
+  return withStorageMutex(storage, action);
+}
+
+async function withStorageMutex<T>(storage: Storage, action: () => Promise<T> | T): Promise<T> {
+  const previous = storageMutexTails.get(storage) ?? Promise.resolve();
+  let release = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const tail = previous.catch(() => undefined).then(() => gate);
+  storageMutexTails.set(storage, tail);
+  await previous.catch(() => undefined);
+  try {
+    return await action();
+  } finally {
+    release();
+    if (storageMutexTails.get(storage) === tail) storageMutexTails.delete(storage);
+  }
+}
+
+function resolveWebLocks(): WebLockManager | null {
+  try {
+    if (typeof navigator === "undefined") return null;
+    const locks = navigator.locks as unknown as WebLockManager | undefined;
+    return locks && typeof locks.request === "function" ? locks : null;
+  } catch {
+    return null;
+  }
+}
+
+function serializedBytes(value: unknown): number {
+  const serialized = typeof value === "string" ? value : JSON.stringify(value);
+  return new TextEncoder().encode(serialized).byteLength;
 }
 
 function parseRequest<T>(schema: z.ZodType<T>, request: unknown): T {
