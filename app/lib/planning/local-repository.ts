@@ -133,12 +133,23 @@ export const localPlanningEnvelopeSchema = z.object({
     ctx.addIssue({ code: "custom", path: ["nextSequence"], message: "Next sequence must follow the workspace history" });
   }
   let replayedWorkspace: PlanningWorkspace;
+  const cachedFingerprints = new Map<number, string>();
+  const cachedSequences = new Set(envelope.mutationResults
+    .filter(({ sequence }) => sequence > 0)
+    .map(({ sequence }) => sequence));
   try {
     replayedWorkspace = replayPlanningEvents({
       initial: initialWorkspace,
       events: envelope.eventStream,
       blueprint: flagshipBlueprint,
       registry: flagshipUnitRegistry,
+    }, (transition) => {
+      if (cachedSequences.has(transition.event.sequence)) {
+        cachedFingerprints.set(
+          transition.event.sequence,
+          fingerprint(resultFromTransition(transition)),
+        );
+      }
     });
   } catch {
     ctx.addIssue({ code: "custom", path: ["eventStream"], message: "Event stream must replay from the canonical initial workspace" });
@@ -162,6 +173,8 @@ export const localPlanningEnvelopeSchema = z.object({
         ctx.addIssue({ code: "custom", path: ["mutationResults", index], message: "Mutation cache must match its event history row" });
       } else if (entry.outcome !== outcomeForEvent(event)) {
         ctx.addIssue({ code: "custom", path: ["mutationResults", index, "outcome"], message: "Mutation cache outcome must match its event kind" });
+      } else if (entry.resultFingerprint !== cachedFingerprints.get(entry.sequence)) {
+        ctx.addIssue({ code: "custom", path: ["mutationResults", index, "resultFingerprint"], message: "Mutation cache fingerprint must match canonical replay" });
       }
     }
   });
@@ -579,13 +592,16 @@ async function withRepositoryMutationLock<T>(
 ): Promise<T> {
   if (!storage) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
   const webLocks = resolveWebLocks();
-  if (webLocks) {
+  if (webLocks.kind === "available") {
     try {
-      return await webLocks.request(PLANNING_STORAGE_LOCK_NAME, { mode: "exclusive" }, action);
+      return await webLocks.manager.request(PLANNING_STORAGE_LOCK_NAME, { mode: "exclusive" }, action);
     } catch (error) {
       if (error instanceof LocalPlanningRepositoryError) throw error;
       throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
     }
+  }
+  if (webLocks.kind === "unavailable") {
+    throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
   }
   return withStorageMutex(storage, action);
 }
@@ -607,13 +623,20 @@ async function withStorageMutex<T>(storage: Storage, action: () => Promise<T> | 
   }
 }
 
-function resolveWebLocks(): WebLockManager | null {
+type WebLocksResolution =
+  | { kind: "available"; manager: WebLockManager }
+  | { kind: "non-browser" }
+  | { kind: "unavailable" };
+
+function resolveWebLocks(): WebLocksResolution {
+  if (typeof navigator === "undefined") return { kind: "non-browser" };
   try {
-    if (typeof navigator === "undefined") return null;
     const locks = navigator.locks as unknown as WebLockManager | undefined;
-    return locks && typeof locks.request === "function" ? locks : null;
+    return locks && typeof locks.request === "function"
+      ? { kind: "available", manager: locks }
+      : { kind: "unavailable" };
   } catch {
-    return null;
+    return { kind: "unavailable" };
   }
 }
 

@@ -426,6 +426,49 @@ describe("applyPlanningEvent", () => {
 });
 
 describe("replayPlanningEvents", () => {
+  it("observes each canonical transition once without changing the final replay", () => {
+    const initial = workspace();
+    const proposed = propose(initial, "delayed").workspace;
+    const proposalEvent = proposed.events.at(-1)!;
+    const discardEvent = event(proposed, {
+      kind: "replan_discarded",
+      candidatePlanVersionId: proposed.pendingPlanVersionId!,
+    }, { targetPlanVersionId: initial.activePlanVersionId });
+    const events = [proposalEvent, discardEvent];
+    const observed: Array<{ kind: PlanningTransition["kind"]; sequence: number; lastSequence: number }> = [];
+    const replayed = replayPlanningEvents(
+      { initial, events, blueprint, registry },
+      (transition) => observed.push({
+        kind: transition.kind,
+        sequence: transition.event.sequence,
+        lastSequence: transition.workspace.lastSequence,
+      }),
+    );
+
+    expect(observed).toEqual([
+      { kind: "proposed", sequence: 1, lastSequence: 1 },
+      { kind: "discarded", sequence: 2, lastSequence: 2 },
+    ]);
+    expect(replayed).toEqual(replayPlanningEvents({ initial, events, blueprint, registry }));
+    expect(initial.events).toEqual([]);
+  });
+
+  it("propagates an observer failure without mutating the caller workspace", () => {
+    const initial = workspace();
+    const completion = event(initial, {
+      kind: "completed",
+      unitId: activeUnit(initial, "alpha").id,
+      actualMinutes: 55,
+      planningDate: PLANNING_DATE,
+    });
+    const before = JSON.stringify(initial);
+    expect(() => replayPlanningEvents(
+      { initial, events: [completion], blueprint, registry },
+      () => { throw new Error("observer failed"); },
+    )).toThrow("observer failed");
+    expect(JSON.stringify(initial)).toBe(before);
+  });
+
   it("uses sequence rather than occurredAt and reconstructs pending, accepted, and discarded states", () => {
     const initial = workspace();
     const proposedTransition = propose(initial, "delayed");

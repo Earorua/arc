@@ -46,7 +46,7 @@ export function replayPlanningEvents(input: {
   events: readonly PlanningEvent[];
   blueprint: RoleBlueprint;
   registry: UnitRegistry;
-}): PlanningWorkspace {
+}, trustedObserver?: (transition: Readonly<PlanningTransition>) => void): PlanningWorkspace {
   const fields = exactObject(input, ["initial", "events", "blueprint", "registry"]);
   let workspace = planningWorkspaceSchema.parse(cloneData(fields.initial));
   const blueprint = roleBlueprintSchema.parse(cloneData(fields.blueprint));
@@ -56,7 +56,9 @@ export function replayPlanningEvents(input: {
   assertWorkspaceLifecycle(workspace);
   const eventLog = [...workspace.events];
   for (const event of events) {
-    workspace = applyTrustedPlanningEvent(workspace, event, registry, eventLog).workspace;
+    const transition = applyTrustedPlanningEvent(workspace, event, registry, eventLog);
+    workspace = transition.workspace;
+    trustedObserver?.(transition);
   }
   void blueprint;
   assertWorkspaceLifecycle(workspace);
