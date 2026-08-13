@@ -142,6 +142,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .answer-choice.is-selected::after { content: "Selected"; color: #9ee8b4; font-size: 0.72rem; }
 .answer-field { flex-direction: column; gap: 12px; }
 .answer-field input { border: 0; border-bottom: 1px solid #666966; background: transparent; color: white; padding: 10px 0; font-size: 1.2rem; }
+.setup-next, .setup-back { min-height: 44px; }
 .setup-next { margin-top: 40px; border: 0; border-radius: 999px; background: white; color: var(--charcoal); padding: 13px 18px; cursor: pointer; }
 .setup-next:disabled { cursor: not-allowed; opacity: 0.55; }
 .setup-save-error { width: min(760px, 100%); margin: 18px auto 0; color: #ffb4a3; }

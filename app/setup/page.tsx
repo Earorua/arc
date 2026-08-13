@@ -12,15 +12,16 @@ import type { SetupAnswers } from "../lib/demo-store";
 import { useArcState } from "../lib/use-arc-state";
 import { usePlanningWorkspace } from "../lib/use-planning-workspace";
 
-function AdaptiveSetupConnector({ navigate }: { navigate: (path: string) => void }) {
+function AdaptiveSetupConnector({ navigate, onBackToRole, active }: { navigate: (path: string) => void; onBackToRole: () => void; active: boolean }) {
   const planning = usePlanningWorkspace();
   return <AdaptiveSetupFlow
     blueprint={flagshipBlueprint}
     createMutationId={() => `mutation-setup-${Date.now().toString(36)}-${crypto.randomUUID()}`}
     generate={planning.generate}
-    initialStage="audit"
     navigate={navigate}
     now={() => new Date()}
+    onBackToRole={onBackToRole}
+    active={active}
     registry={flagshipUnitRegistry}
     timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"}
   />;
@@ -44,7 +45,7 @@ export default function SetupPage() {
   return (
     <main className="setup-page" id="main-content">
       <Link className="wordmark setup-wordmark" href="/" lang="en">Arc.</Link>
-      <SetupFlow onComplete={finish} renderAdaptive={() => <AdaptiveSetupConnector navigate={router.push} />} />
+      <SetupFlow onComplete={finish} renderAdaptive={({ active, onBackToRole }) => <AdaptiveSetupConnector active={active} navigate={router.push} onBackToRole={onBackToRole} />} />
       {arc.recovery === "session-expired" && <CloudStatus kind="session-expired" />}
       {saveError && arc.recovery === "none" && <p className="setup-save-error" role="alert">{saveError}</p>}
     </main>

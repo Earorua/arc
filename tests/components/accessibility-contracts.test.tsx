@@ -259,4 +259,9 @@ describe("navigation accessibility contracts", () => {
       /\.account-popover\s*\{[^}]*position:\s*absolute\s*;[^}]*top:\s*calc\(100%\s*\+\s*8px\)\s*;/u,
     );
   });
+
+  it("keeps Setup forward and Back actions at the 44px touch-target minimum", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    expect(css).toMatch(/\.setup-next\s*,\s*\.setup-back\s*\{[^}]*min-height:\s*44px\s*;/u);
+  });
 });

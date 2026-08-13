@@ -17,16 +17,17 @@ describe("AdaptiveSetupFlow", () => {
       return new Promise<boolean>((resolve) => { resolveGenerate = resolve; });
     });
     const navigate = vi.fn();
-    render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} createMutationId={() => "mutation-setup"} generate={generate} navigate={navigate} now={() => new Date("2026-08-14T02:00:00.000Z")} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />);
+    const onBackToRole = vi.fn();
+    render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} createMutationId={() => "mutation-setup"} generate={generate} navigate={navigate} now={() => new Date("2026-08-14T02:00:00.000Z")} onBackToRole={onBackToRole} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />);
 
-    expect(screen.getByText("01 / 05 · Role")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    expect(screen.getByRole("heading", { level: 1, name: /Audit/i })).toHaveFocus();
+    expect(screen.getByText("02 / 05 · Audit")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Set Foundations to Guided" }));
-    await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(onBackToRole).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("02 / 05 · Audit")).toBeInTheDocument();
     expect(screen.getAllByRole("radio", { name: "Guided", checked: true })).toHaveLength(2);
     await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByText("03 / 05 · Availability")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Build my path" }));
@@ -46,7 +47,9 @@ describe("AdaptiveSetupFlow", () => {
   it("keeps completed answers editable after a real save failure", async () => {
     const user = userEvent.setup();
     render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} createMutationId={() => "mutation-setup"} generate={vi.fn().mockResolvedValue(false)} navigate={vi.fn()} now={() => new Date("2026-08-14T02:00:00.000Z")} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />);
-    for (let index = 0; index < 4; index += 1) await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Build my path" }));
     expect(await screen.findByRole("alert")).toHaveTextContent(/could not save/i);
     await user.click(screen.getByRole("button", { name: "Back" }));
@@ -56,11 +59,25 @@ describe("AdaptiveSetupFlow", () => {
   it("keeps invalid target input visible and blocks Build until corrected", async () => {
     const user = userEvent.setup();
     render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} createMutationId={() => "mutation-setup"} generate={vi.fn()} navigate={vi.fn()} now={() => new Date("2026-08-14T02:00:00.000Z")} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />);
-    for (let index = 0; index < 3; index += 1) await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
     const targetWeeks = screen.getByLabelText("Target weeks");
     await user.clear(targetWeeks);
     await user.type(targetWeeks, "3");
     expect(targetWeeks).toHaveAttribute("aria-invalid", "true");
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+  });
+
+  it("keeps Target editable and blocks Build when the deterministic builder rejects inputs", async () => {
+    const user = userEvent.setup();
+    const buildPaths = vi.fn(() => { throw new Error("private builder detail"); });
+    render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} buildPaths={buildPaths} createMutationId={() => "mutation-setup"} generate={vi.fn()} navigate={vi.fn()} now={() => new Date("2026-08-14T02:00:00.000Z")} onBackToRole={vi.fn()} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />);
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(buildPaths).toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent("could not compare");
+    expect(screen.queryByText("private builder detail")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    expect(screen.getByLabelText("Target weeks")).toBeEnabled();
   });
 });

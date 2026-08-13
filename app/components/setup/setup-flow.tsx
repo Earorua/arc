@@ -9,9 +9,10 @@ function isFiniteIntegerInRange(value: number, minimum: number, maximum: number)
   return Number.isFinite(value) && Number.isInteger(value) && value >= minimum && value <= maximum;
 }
 
-export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers: SetupAnswers) => void | Promise<void>; renderAdaptive?: () => ReactNode }) {
+export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers: SetupAnswers) => void | Promise<void>; renderAdaptive?: (controls: { active: boolean; onBackToRole: () => void }) => ReactNode }) {
   const [step, setStep] = useState(0);
   const [adaptiveSelected, setAdaptiveSelected] = useState(false);
+  const [adaptiveStarted, setAdaptiveStarted] = useState(false);
   const previousStep = useRef(step);
   const questionRef = useRef<HTMLHeadingElement>(null);
   const [customRole, setCustomRole] = useState("");
@@ -23,7 +24,7 @@ export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers
   });
 
   const advance = () => {
-    if (step === 0 && !hasCustomRole && renderAdaptive) { setAdaptiveSelected(true); return; }
+    if (step === 0 && !hasCustomRole && renderAdaptive) { setAdaptiveStarted(true); setAdaptiveSelected(true); return; }
     setStep((current) => Math.min(current + 1, 3));
   };
 
@@ -48,10 +49,9 @@ export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers
     }
   }, [step]);
 
-  if (adaptiveSelected && renderAdaptive) return <>{renderAdaptive()}</>;
-
   return (
-    <section className="setup-flow">
+    <>
+    <section className="setup-flow" hidden={adaptiveSelected}>
       <p className="setup-progress">{String(step + 1).padStart(2, "0")} / 04</p>
 
       {step === 0 && (
@@ -144,5 +144,7 @@ export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers
         </>
       )}
     </section>
+    {renderAdaptive && adaptiveStarted && <div hidden={!adaptiveSelected}>{renderAdaptive({ active: adaptiveSelected, onBackToRole: () => setAdaptiveSelected(false) })}</div>}
+    </>
   );
 }

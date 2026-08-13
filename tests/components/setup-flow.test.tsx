@@ -2,6 +2,9 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SetupFlow } from "../../app/components/setup/setup-flow";
+import { AdaptiveSetupFlow } from "../../app/components/setup/adaptive-setup-flow";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 
 afterEach(cleanup);
 
@@ -97,6 +100,22 @@ describe("SetupFlow", () => {
     await user.click(screen.getByRole("button", { name: "Continue" }));
     expect(renderAdaptive).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Adaptive workspace")).toBeInTheDocument();
+  });
+
+  it("owns the common Role stage and preserves adaptive answers across Role changes", async () => {
+    const user = userEvent.setup();
+    render(<SetupFlow onComplete={vi.fn()} renderAdaptive={({ active, onBackToRole }) => <AdaptiveSetupFlow active={active} blueprint={flagshipBlueprint} createMutationId={() => "mutation"} generate={vi.fn()} navigate={vi.fn()} now={() => new Date("2026-08-14T02:00:00.000Z")} onBackToRole={onBackToRole} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />} />);
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByText("02 / 05 · Audit")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Set Foundations to Guided" }));
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByLabelText("Custom role")).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Custom role"), "数据产品经理");
+    expect(screen.getByText(/This custom role will keep the proportional v7 path/)).toBeInTheDocument();
+    await user.clear(screen.getByLabelText("Custom role"));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByRole("heading", { name: "Audit each skill, honestly." })).toHaveFocus();
+    expect(screen.getAllByRole("radio", { name: "Guided", checked: true })).toHaveLength(2);
   });
 
   it("exposes the selected role and level to assistive technology", async () => {
