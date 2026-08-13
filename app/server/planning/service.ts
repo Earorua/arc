@@ -15,7 +15,9 @@ import {
   type PlanningWorkspace,
 } from "../../contracts/planning";
 import { applyPlanningEvent, PlanningEventError, type PlanningTransition } from "../../lib/planning/event-reducer";
+import { validateRoleBlueprint } from "../../lib/intelligence-validation";
 import { buildLearningPaths, PlanningInputError } from "../../lib/planning/path-builder";
+import { validateUnitRegistry } from "../../lib/planning/registry-validation";
 import { buildPlanVersion, PlanningScheduleError } from "../../lib/planning/scheduler";
 import type { IntelligenceService } from "../intelligence/service";
 import type {
@@ -44,7 +46,10 @@ export class PlanningConflictError extends PlanningServiceError {
 }
 
 export class PlanningUnavailableError extends PlanningServiceError {
-  constructor() { super("PLANNING_UNAVAILABLE"); this.name = "PlanningUnavailableError"; }
+  constructor(issues: readonly string[] = []) {
+    super("PLANNING_UNAVAILABLE", [...new Set(issues)].sort());
+    this.name = "PlanningUnavailableError";
+  }
 }
 
 export class PlanningNotFoundError extends PlanningServiceError {
@@ -95,6 +100,7 @@ export class PlanningService {
       if (!rawBlueprint) throw new PlanningUnavailableError();
       const blueprint = roleBlueprintSchema.parse(cloneUnknown(rawBlueprint));
       if (blueprint.id !== FLAGSHIP_SLUG) throw new PlanningUnavailableError();
+      validatePlanningSources(blueprint, registry);
       const alternatives = buildLearningPaths({
         blueprint,
         registry,
@@ -144,11 +150,13 @@ export class PlanningService {
   }
 
   async appendEvent(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    parseOwner(userId);
     const request = parseContract(planningEventRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, request.event);
   }
 
   async acceptReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    parseOwner(userId);
     const request = parseContract(replanDecisionRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, {
       kind: "replan_accepted",
@@ -157,6 +165,7 @@ export class PlanningService {
   }
 
   async discardReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    parseOwner(userId);
     const request = parseContract(replanDecisionRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, {
       kind: "replan_discarded",
@@ -183,6 +192,8 @@ export class PlanningService {
       const rawBlueprint = await this.dependencies.intelligence.getPublished(FLAGSHIP_SLUG);
       if (!rawBlueprint) throw new PlanningUnavailableError();
       const blueprint = roleBlueprintSchema.parse(cloneUnknown(rawBlueprint));
+      if (blueprint.id !== FLAGSHIP_SLUG) throw new PlanningUnavailableError();
+      validatePlanningSources(blueprint, registry);
       const event = planningEventSchema.parse({
         ...body,
         eventId: this.createId(),
@@ -255,6 +266,17 @@ function parseOwner(userId: string): string {
   const parsed = authenticatedOwnerSchema.safeParse(userId);
   if (!parsed.success) throw new PlanningUnavailableError();
   return parsed.data;
+}
+
+function validatePlanningSources(
+  blueprint: z.infer<typeof roleBlueprintSchema>,
+  registry: z.infer<typeof unitRegistrySchema>,
+): void {
+  const issues = [
+    ...validateRoleBlueprint(blueprint).issues.map(({ code, path }) => `blueprint:${code}:${path}`),
+    ...validateUnitRegistry(registry, blueprint).issues.map(({ code, path }) => `registry:${code}:${path}`),
+  ].sort();
+  if (issues.length > 0) throw new PlanningUnavailableError(issues);
 }
 
 function parseContract<T>(schema: z.ZodType<T>, value: unknown): T {

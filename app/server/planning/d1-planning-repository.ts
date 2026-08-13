@@ -152,7 +152,7 @@ export class D1PlanningRepository implements PlanningRepository {
     `).bind(result.workspace.id, command.ownerId, command.goalId, result.workspace.audit.id,
       result.workspace.availability.id, result.workspace.activePathVersionId,
       result.workspace.activePlanVersionId, now));
-    statements.push(this.idempotencyStatement(command, result, now));
+    statements.push(this.idempotencyStatement(command, result, now, true));
     try {
       await this.db.batch(statements);
     } catch (error) {
@@ -185,7 +185,6 @@ export class D1PlanningRepository implements PlanningRepository {
         WHERE user_id = ?3 AND id = ?4 AND active_slot = 1`).bind(
         workspace.availability.weeklyMinutes, now, command.ownerId, command.goalId));
     }
-    const pointerIndex = statements.length;
     statements.push(this.db.prepare(`
       UPDATE planning_workspaces SET revision = ?1, current_audit_version_id = ?2,
         current_availability_version_id = ?3, active_path_version_id = ?4,
@@ -195,11 +194,9 @@ export class D1PlanningRepository implements PlanningRepository {
       workspace.activePathVersionId, workspace.activePlanVersionId, workspace.pendingPlanVersionId,
       workspace.lastSequence + 1, now, command.ownerId, command.goalId, workspace.id,
       command.baseRevision, previous.lastSequence + 1));
-    statements.push(this.idempotencyStatement(command, result, now));
+    statements.push(this.idempotencyStatement(command, result, now, false));
     try {
-      const batch = await this.db.batch(statements);
-      const pointerResult = batch[pointerIndex] as { meta?: { changes?: number } } | undefined;
-      if (pointerResult?.meta?.changes === 0) throw new PlanningConflictError();
+      await this.db.batch(statements);
     } catch (error) {
       const winner = await this.findMutation(command);
       if (winner) return winner;
@@ -214,15 +211,33 @@ export class D1PlanningRepository implements PlanningRepository {
     command: SavePlanningGenerationCommand,
     result: PlanningMutationResult,
     now: number,
+    requireActiveGoal: boolean,
   ): D1PreparedStatement {
     const stored = storedResultSchema.parse({
       ownerId: command.ownerId,
       goalId: command.goalId,
       result,
     });
+    const workspace = result.workspace;
+    const activeGoalGuard = requireActiveGoal
+      ? `EXISTS (SELECT 1 FROM career_goals
+          WHERE user_id = ?7 AND id = ?8 AND active_slot = 1) AND`
+      : "";
     return this.db.prepare(`INSERT INTO idempotency_records
-      (id,user_id,scope,mutation_id,response_json,created_at) VALUES (?1,?2,?3,?4,?5,?6)`)
-      .bind(this.options.createId(), command.ownerId, scopeFor(command.goalId), command.mutationId, JSON.stringify(stored), now);
+      (id,user_id,scope,mutation_id,response_json,created_at)
+      VALUES (?1,?2,?3,?4,
+        CASE WHEN ${activeGoalGuard} EXISTS (SELECT 1 FROM planning_workspaces
+          WHERE user_id = ?7 AND goal_id = ?8 AND id = ?9
+            AND revision = ?10 AND next_sequence = ?11
+            AND current_audit_version_id = ?12 AND current_availability_version_id = ?13
+            AND active_path_version_id = ?14 AND active_plan_version_id = ?15
+            AND pending_plan_version_id IS ?16)
+        THEN ?5 ELSE NULL END,
+        ?6)`)
+      .bind(this.options.createId(), command.ownerId, scopeFor(command.goalId), command.mutationId,
+        JSON.stringify(stored), now, command.ownerId, command.goalId, workspace.id,
+        workspace.revision, workspace.lastSequence + 1, workspace.audit.id, workspace.availability.id,
+        workspace.activePathVersionId, workspace.activePlanVersionId, workspace.pendingPlanVersionId);
   }
 
   private async loadOne(table: string, scope: PlanningOwnerGoal, id: string | null): Promise<unknown | null> {

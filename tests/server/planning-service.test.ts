@@ -75,8 +75,12 @@ function fakeRepository(overrides: Partial<PlanningRepository> = {}): PlanningRe
   };
 }
 
-function createService(repository: PlanningRepository, registry: unknown = flagshipUnitRegistry) {
-  const getPublished = vi.fn(async () => structuredClone(flagshipBlueprint));
+function createService(
+  repository: PlanningRepository,
+  registry: unknown = flagshipUnitRegistry,
+  blueprint = flagshipBlueprint,
+) {
+  const getPublished = vi.fn(async () => structuredClone(blueprint));
   return {
     getPublished,
     service: new PlanningService({
@@ -101,6 +105,30 @@ describe("PlanningService", () => {
 
     await expect(service.getWorkspace("  ")).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
     expect(repository.findActiveGoal).not.toHaveBeenCalled();
+  });
+
+  it("rejects empty owners before parsing every mutation body or calling dependencies", async () => {
+    const invocations = [
+      (service: PlanningService) => service.generate(" ", {}),
+      (service: PlanningService) => service.appendEvent(" ", {}),
+      (service: PlanningService) => service.acceptReplan(" ", {}),
+      (service: PlanningService) => service.discardReplan(" ", {}),
+    ];
+
+    for (const invoke of invocations) {
+      const repository = fakeRepository();
+      const { service, getPublished } = createService(repository);
+      const error = await invoke(service).catch((caught) => caught);
+
+      expect(error).toBeInstanceOf(PlanningUnavailableError);
+      expect(error.message).toBe("Planning is unavailable. The previous valid state is unchanged.");
+      expect(repository.findActiveGoal).not.toHaveBeenCalled();
+      expect(repository.load).not.toHaveBeenCalled();
+      expect(repository.findMutation).not.toHaveBeenCalled();
+      expect(repository.saveGeneration).not.toHaveBeenCalled();
+      expect(repository.saveEvent).not.toHaveBeenCalled();
+      expect(getPublished).not.toHaveBeenCalled();
+    }
   });
 
   it("resolves the active goal only through the repository and loads an owner-scoped workspace", async () => {
@@ -145,6 +173,83 @@ describe("PlanningService", () => {
     });
     await expect(createService(repository).service.generate(userId, generateRequest()))
       .rejects.toBeInstanceOf(PlanningUnavailableError);
+  });
+
+  it("fails closed on schema-valid semantic blueprint and registry defects before any write", async () => {
+    const cyclicBlueprint = structuredClone(flagshipBlueprint);
+    const [firstSkill, secondSkill] = cyclicBlueprint.skills;
+    firstSkill!.prerequisiteIds = [secondSkill!.id];
+    secondSkill!.prerequisiteIds = [firstSkill!.id];
+    const mismatchedRegistry = structuredClone(flagshipUnitRegistry);
+    mismatchedRegistry.blueprintVersion = "2026.08.999";
+
+    for (const candidate of [
+      { blueprint: cyclicBlueprint, registry: flagshipUnitRegistry },
+      { blueprint: flagshipBlueprint, registry: mismatchedRegistry },
+    ]) {
+      const repository = fakeRepository();
+      const { service } = createService(repository, candidate.registry, candidate.blueprint);
+      const error = await service.generate(userId, generateRequest()).catch((caught) => caught);
+
+      expect(error).toBeInstanceOf(PlanningUnavailableError);
+      expect(error.issues).toEqual([...error.issues].sort());
+      expect(error.message).not.toContain(firstSkill!.id);
+      expect(repository.saveGeneration).not.toHaveBeenCalled();
+    }
+
+    const current = await generatedResult();
+    for (const candidate of [
+      { blueprint: cyclicBlueprint, registry: flagshipUnitRegistry },
+      { blueprint: flagshipBlueprint, registry: mismatchedRegistry },
+    ]) {
+      const repository = fakeRepository({
+        load: vi.fn(async () => ({ ownerId: userId, goalId, payload: structuredClone(current.workspace) })),
+      });
+      const { service } = createService(repository, candidate.registry, candidate.blueprint);
+      const error = await service.appendEvent(userId, {
+        mutationId: "mutation-semantic-invalid",
+        baseVersionId: current.workspace.activePlanVersionId,
+        event: {
+          kind: "completed",
+          unitId: current.workspace.dailyUnits[0]!.id,
+          actualMinutes: 30,
+          planningDate: "2026-08-17",
+        },
+      }).catch((caught) => caught);
+
+      expect(error).toBeInstanceOf(PlanningUnavailableError);
+      expect(error.issues).toEqual([...error.issues].sort());
+      expect(repository.saveEvent).not.toHaveBeenCalled();
+    }
+
+    const proposedRepository = fakeRepository({
+      load: vi.fn(async () => ({ ownerId: userId, goalId, payload: structuredClone(current.workspace) })),
+    });
+    const proposedService = createService(proposedRepository).service;
+    const proposed = await proposedService.appendEvent(userId, {
+      mutationId: "mutation-proposal",
+      baseVersionId: current.workspace.activePlanVersionId,
+      event: {
+        kind: "delayed",
+        unitId: current.workspace.dailyUnits[0]!.id,
+        planningDate: "2026-08-17",
+      },
+    });
+    for (const decision of ["acceptReplan", "discardReplan"] as const) {
+      const repository = fakeRepository({
+        load: vi.fn(async () => ({ ownerId: userId, goalId, payload: structuredClone(proposed.workspace) })),
+      });
+      const { service } = createService(repository, mismatchedRegistry);
+      const error = await service[decision](userId, {
+        mutationId: decision === "acceptReplan" ? "mutation-accept" : "mutation-discard",
+        baseVersionId: proposed.workspace.activePlanVersionId,
+        candidatePlanVersionId: proposed.workspace.pendingPlanVersionId,
+      }).catch((caught) => caught);
+
+      expect(error).toBeInstanceOf(PlanningUnavailableError);
+      expect(error.issues).toEqual([...error.issues].sort());
+      expect(repository.saveEvent).not.toHaveBeenCalled();
+    }
   });
 
   it("returns the exact stored public result for an idempotent replay without recomputing", async () => {
