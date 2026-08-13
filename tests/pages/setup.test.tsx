@@ -64,6 +64,7 @@ describe("SetupPage", () => {
     });
     render(<SetupPage />);
 
+    await user.type(screen.getByRole("textbox", { name: "Custom role" }), "数据产品经理");
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Continue" }));

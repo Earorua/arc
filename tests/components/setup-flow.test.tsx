@@ -78,6 +78,27 @@ describe("SetupFlow", () => {
     });
   });
 
+  it("discloses the legacy custom-role path and never instantiates adaptive planning", async () => {
+    const user = userEvent.setup();
+    const renderAdaptive = vi.fn(() => <p>Adaptive workspace</p>);
+    render(<SetupFlow onComplete={vi.fn()} renderAdaptive={renderAdaptive} />);
+    await user.type(screen.getByLabelText("Custom role"), "数据产品经理");
+    expect(screen.getByText("Full skill audit and adaptive scheduling currently require Arc's reviewed AI-Native Full-Stack Engineer blueprint. This custom role will keep the proportional v7 path.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(renderAdaptive).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { name: "你现在处于哪个阶段？" })).toBeInTheDocument();
+  });
+
+  it("instantiates adaptive planning only after the reviewed flagship is confirmed", async () => {
+    const user = userEvent.setup();
+    const renderAdaptive = vi.fn(() => <p>Adaptive workspace</p>);
+    render(<SetupFlow onComplete={vi.fn()} renderAdaptive={renderAdaptive} />);
+    expect(renderAdaptive).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(renderAdaptive).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Adaptive workspace")).toBeInTheDocument();
+  });
+
   it("exposes the selected role and level to assistive technology", async () => {
     const user = userEvent.setup();
     const onComplete = vi.fn();

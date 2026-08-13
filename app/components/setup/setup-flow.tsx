@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { LearnerLevel, SetupAnswers } from "../../lib/demo-store";
 
 const flagshipRoleId = "ai-native-full-stack-engineer";
@@ -9,8 +9,9 @@ function isFiniteIntegerInRange(value: number, minimum: number, maximum: number)
   return Number.isFinite(value) && Number.isInteger(value) && value >= minimum && value <= maximum;
 }
 
-export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) => void | Promise<void> }) {
+export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers: SetupAnswers) => void | Promise<void>; renderAdaptive?: () => ReactNode }) {
   const [step, setStep] = useState(0);
+  const [adaptiveSelected, setAdaptiveSelected] = useState(false);
   const previousStep = useRef(step);
   const questionRef = useRef<HTMLHeadingElement>(null);
   const [customRole, setCustomRole] = useState("");
@@ -21,7 +22,10 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
     targetWeeks: 18,
   });
 
-  const advance = () => setStep((current) => Math.min(current + 1, 3));
+  const advance = () => {
+    if (step === 0 && !hasCustomRole && renderAdaptive) { setAdaptiveSelected(true); return; }
+    setStep((current) => Math.min(current + 1, 3));
+  };
 
   const selectFlagshipRole = () => {
     setCustomRole("");
@@ -43,6 +47,8 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
       previousStep.current = step;
     }
   }, [step]);
+
+  if (adaptiveSelected && renderAdaptive) return <>{renderAdaptive()}</>;
 
   return (
     <section className="setup-flow">
@@ -68,6 +74,7 @@ export function SetupFlow({ onComplete }: { onComplete: (answers: SetupAnswers) 
               value={customRole}
             />
           </label>
+          {hasCustomRole && <p className="custom-role-disclosure">Full skill audit and adaptive scheduling currently require Arc&apos;s reviewed AI-Native Full-Stack Engineer blueprint. This custom role will keep the proportional v7 path.</p>}
           <button className="setup-next" lang="en" onClick={advance} type="button">Continue</button>
         </>
       )}
