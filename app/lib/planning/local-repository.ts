@@ -71,6 +71,17 @@ const mutationResultEntrySchema = z.object({
   resultFingerprint: resultFingerprintSchema,
 }).strict();
 
+const planningImportProgressSchema = z.object({
+  userId: z.string().trim().min(1).max(256),
+  initialMutationId: idSchema,
+  lastImportedSequence: z.number().int().min(0).max(5000),
+  completed: z.boolean(),
+}).strict();
+
+const planningImportProgressEntrySchema = planningImportProgressSchema.extend({
+  workspaceFingerprint: resultFingerprintSchema,
+}).strict();
+
 export const localPlanningEnvelopeSchema = z.object({
   schemaVersion: z.literal(PLANNING_SCHEMA_VERSION),
   migration: migrationMarkerSchema.nullable(),
@@ -80,6 +91,7 @@ export const localPlanningEnvelopeSchema = z.object({
   workspace: planningWorkspaceSchema.nullable(),
   eventStream: z.array(planningEventSchema).max(5000),
   mutationResults: z.array(mutationResultEntrySchema).max(500),
+  importProgress: z.array(planningImportProgressEntrySchema).max(32).default([]),
   nextSequence: z.number().int().positive(),
 }).strict().superRefine((envelope, ctx) => {
   if (serializedBytes(envelope) > LOCAL_PLANNING_ENVELOPE_MAX_BYTES) {
@@ -102,6 +114,10 @@ export const localPlanningEnvelopeSchema = z.object({
       ctx.addIssue({ code: "custom", path: ["mutationResults", index, "sequence"], message: "Mutation results must follow history order" });
     }
   });
+  const progressKeys = envelope.importProgress.map(({ userId, workspaceFingerprint }) => `${userId}\u0000${workspaceFingerprint}`);
+  if (new Set(progressKeys).size !== progressKeys.length) {
+    ctx.addIssue({ code: "custom", path: ["importProgress"], message: "Import progress must be unique per user and workspace" });
+  }
   if (envelope.workspace === null) {
     if (envelope.initialWorkspace !== null || envelope.generationMutationId !== null) {
       ctx.addIssue({ code: "custom", path: ["initialWorkspace"], message: "An empty envelope cannot have generation state" });
@@ -112,6 +128,9 @@ export const localPlanningEnvelopeSchema = z.object({
     if (envelope.mutationResults.length !== 0) {
       ctx.addIssue({ code: "custom", path: ["mutationResults"], message: "An empty envelope cannot contain mutation results" });
     }
+    if (envelope.importProgress.length !== 0) {
+      ctx.addIssue({ code: "custom", path: ["importProgress"], message: "An empty envelope cannot contain import progress" });
+    }
     if (envelope.nextSequence !== 1) {
       ctx.addIssue({ code: "custom", path: ["nextSequence"], message: "An empty envelope starts at sequence one" });
     }
@@ -121,6 +140,14 @@ export const localPlanningEnvelopeSchema = z.object({
     ctx.addIssue({ code: "custom", path: ["initialWorkspace"], message: "A generated envelope requires canonical generation state" });
     return;
   }
+  envelope.importProgress.forEach((entry, index) => {
+    if (entry.initialMutationId !== envelope.generationMutationId) {
+      ctx.addIssue({ code: "custom", path: ["importProgress", index, "initialMutationId"], message: "Import progress must use the local generation mutation" });
+    }
+    if (entry.lastImportedSequence > envelope.workspace!.lastSequence) {
+      ctx.addIssue({ code: "custom", path: ["importProgress", index, "lastImportedSequence"], message: "Import progress cannot exceed local history" });
+    }
+  });
   const initialWorkspace = envelope.initialWorkspace;
   if (initialWorkspace.events.length !== 0
     || initialWorkspace.lastSequence !== 0
@@ -189,6 +216,14 @@ export const localPlanningEnvelopeSchema = z.object({
 });
 
 export type LocalPlanningEnvelope = z.infer<typeof localPlanningEnvelopeSchema>;
+export type PlanningImportProgress = z.infer<typeof planningImportProgressSchema>;
+
+export type LocalPlanningImportSource = {
+  generationMutationId: string;
+  initialWorkspace: PlanningWorkspace;
+  workspace: PlanningWorkspace;
+  workspaceFingerprint: string;
+};
 
 export type V7UpgradeResult =
   | { migrated: true; envelope: LocalPlanningEnvelope; fallback: DemoState }
@@ -208,6 +243,9 @@ export class LocalPlanningRepositoryError extends Error {
 
 export interface LocalPlanningRepository {
   load(): Promise<PlanningWorkspace | null>;
+  readImportSource(): Promise<LocalPlanningImportSource | null>;
+  readImportProgress(userId: string, workspaceFingerprint: string): Promise<PlanningImportProgress | null>;
+  updateImportProgress(workspaceFingerprint: string, progress: PlanningImportProgress): Promise<void>;
   generate(request: GeneratePlanningRequest): Promise<PlanningMutationResult>;
   appendEvent(request: PlanningEventRequest): Promise<PlanningMutationResult>;
   accept(request: ReplanDecisionRequest): Promise<PlanningMutationResult>;
@@ -280,6 +318,65 @@ export function createLocalPlanningRepository(options?: {
       const stored = readEnvelope(storage);
       if (stored.kind !== "valid" || stored.envelope.workspace === null) return null;
       return cloneWorkspace(stored.envelope.workspace);
+    },
+
+    async readImportSource() {
+      return withRepositoryMutationLock(storage, () => {
+        if (!storage) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+        const stored = readEnvelope(storage);
+        if (stored.kind === "absent") return null;
+        if (stored.kind !== "valid") throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+        const { generationMutationId, initialWorkspace, workspace } = stored.envelope;
+        if (!generationMutationId || !initialWorkspace || !workspace) return null;
+        return {
+          generationMutationId,
+          initialWorkspace: cloneWorkspace(initialWorkspace),
+          workspace: cloneWorkspace(workspace),
+          workspaceFingerprint: fingerprint(workspace),
+        };
+      });
+    },
+
+    async readImportProgress(userId, workspaceFingerprint) {
+      const parsedUserId = parseProgressUserId(userId);
+      const parsedFingerprint = parseProgressFingerprint(workspaceFingerprint);
+      return withRepositoryMutationLock(storage, () => {
+        if (!storage) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+        const stored = readEnvelope(storage);
+        if (stored.kind === "absent") return null;
+        if (stored.kind !== "valid") throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+        const entry = stored.envelope.importProgress.find((candidate) =>
+          candidate.userId === parsedUserId && candidate.workspaceFingerprint === parsedFingerprint);
+        if (!entry) return null;
+        return planningImportProgressSchema.parse({
+          userId: entry.userId,
+          initialMutationId: entry.initialMutationId,
+          lastImportedSequence: entry.lastImportedSequence,
+          completed: entry.completed,
+        });
+      });
+    },
+
+    async updateImportProgress(workspaceFingerprint, progress) {
+      const parsedFingerprint = parseProgressFingerprint(workspaceFingerprint);
+      const parsedProgress = parseProgress(progress);
+      await withRepositoryMutationLock(storage, () => {
+        if (!storage) throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+        const stored = readEnvelope(storage);
+        if (stored.kind !== "valid" || !stored.envelope.workspace) {
+          throw new LocalPlanningRepositoryError("PLANNING_UNAVAILABLE");
+        }
+        if (fingerprint(stored.envelope.workspace) !== parsedFingerprint) {
+          throw new LocalPlanningRepositoryError("CONFLICT");
+        }
+        const retained = stored.envelope.importProgress.filter((entry) =>
+          entry.userId !== parsedProgress.userId || entry.workspaceFingerprint !== parsedFingerprint);
+        const candidate = {
+          ...stored.envelope,
+          importProgress: [...retained, { ...parsedProgress, workspaceFingerprint: parsedFingerprint }].slice(-32),
+        };
+        persistEnvelope(storage, candidate, stored.raw);
+      });
     },
 
     async generate(request) {
@@ -467,6 +564,7 @@ function createEmptyEnvelope(state?: DemoState, sourceFingerprint?: string): Loc
     workspace: null,
     eventStream: [],
     mutationResults: [],
+    importProgress: [],
     nextSequence: 1,
   });
 }
@@ -725,6 +823,30 @@ function serializedBytes(value: unknown): number {
 function parseRequest<T>(schema: z.ZodType<T>, request: unknown): T {
   try {
     return schema.parse(request);
+  } catch {
+    throw new LocalPlanningRepositoryError("INVALID_INPUT");
+  }
+}
+
+function parseProgress(value: unknown): PlanningImportProgress {
+  try {
+    return planningImportProgressSchema.parse(value);
+  } catch {
+    throw new LocalPlanningRepositoryError("INVALID_INPUT");
+  }
+}
+
+function parseProgressUserId(value: unknown): string {
+  try {
+    return planningImportProgressSchema.shape.userId.parse(value);
+  } catch {
+    throw new LocalPlanningRepositoryError("INVALID_INPUT");
+  }
+}
+
+function parseProgressFingerprint(value: unknown): string {
+  try {
+    return resultFingerprintSchema.parse(value);
   } catch {
     throw new LocalPlanningRepositoryError("INVALID_INPUT");
   }

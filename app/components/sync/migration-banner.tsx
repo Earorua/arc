@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { PlanningWorkspace } from "../../contracts/planning";
 import type { DemoState } from "../../lib/demo-store";
 import { isArcApiError } from "../../lib/cloud-client";
 import { getRoleDisplayName } from "../../lib/personalized-plan";
@@ -16,17 +17,85 @@ const levelLabels: Record<DemoState["setup"]["level"], string> = {
   advanced: "Advanced",
 };
 
-export function MigrationBanner({
-  state,
-  status,
-  onDismiss,
-  onImport,
-}: {
+type V7MigrationBannerProps = {
+  kind?: "v7-state";
   state: DemoState;
   status: MigrationStatus;
   onDismiss: () => void;
   onImport: (resolution?: MigrationResolution) => Promise<void>;
-}) {
+};
+
+type AdaptiveMigrationBannerProps = {
+  kind: "adaptive-plan";
+  state: PlanningWorkspace;
+  status: MigrationStatus;
+  onDismiss: () => void;
+  onImport: () => Promise<void>;
+};
+
+export function MigrationBanner(props: V7MigrationBannerProps | AdaptiveMigrationBannerProps) {
+  if (props.kind === "adaptive-plan") return <AdaptiveMigrationBanner {...props} />;
+  return <V7MigrationBanner {...props} />;
+}
+
+function AdaptiveMigrationBanner({ status, onDismiss, onImport }: AdaptiveMigrationBannerProps) {
+  const [dismissed, setDismissed] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [conflict, setConflict] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  if (dismissed || status === "none" || status === "imported") return null;
+  const busy = pending || status === "importing";
+
+  async function begin() {
+    setPending(true);
+    setFailed(false);
+    setConflict(false);
+    try {
+      await onImport();
+    } catch (error) {
+      if (isArcApiError(error) && error.code === "CONFLICT") setConflict(true);
+      else setFailed(true);
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <aside className="migration-banner" aria-labelledby="adaptive-migration-title">
+      <p className="section-index">Device work found</p>
+      <div className="migration-copy">
+        <h2 id="adaptive-migration-title">A complete adaptive plan exists on this device.</h2>
+        <p>Importing replays its versioned learning history into this Arc account.</p>
+        <small>Nothing moves until you choose. “Not now” keeps every local byte on this device.</small>
+      </div>
+      <div className="migration-actions">
+        {conflict ? <p>Cloud planning changed. Refresh and retry the import.</p> : null}
+        {failed || status === "failed" ? <p>Import is unavailable. Retry when your connection recovers.</p> : null}
+        <button disabled={busy} onClick={() => void begin()} type="button">
+          {busy ? "Importing…" : "Import"}
+        </button>
+        <button
+          disabled={busy}
+          onClick={() => {
+            onDismiss();
+            setDismissed(true);
+          }}
+          type="button"
+        >
+          Not now
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+function V7MigrationBanner({
+  state,
+  status,
+  onDismiss,
+  onImport,
+}: V7MigrationBannerProps) {
   const [dismissed, setDismissed] = useState(false);
   const [pending, setPending] = useState(false);
   const [conflict, setConflict] = useState(false);

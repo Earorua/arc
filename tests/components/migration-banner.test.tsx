@@ -10,11 +10,30 @@ import {
   saveDemoState,
 } from "../../app/lib/demo-store";
 import { flagshipRole } from "../../app/data/flagship-role";
+import type { PlanningWorkspace } from "../../app/contracts/planning";
 
 beforeEach(() => window.localStorage.clear());
 afterEach(cleanup);
 
 describe("MigrationBanner", () => {
+  it("renders truthful adaptive-plan actions without v7 conflict choices", async () => {
+    const user = userEvent.setup();
+    const onImport = vi.fn().mockRejectedValue(new ArcApiError(409, "CONFLICT", "safe", "request-1"));
+    render(<MigrationBanner
+      kind="adaptive-plan"
+      state={{} as PlanningWorkspace}
+      status="available"
+      onDismiss={vi.fn()}
+      onImport={onImport}
+    />);
+    expect(screen.getByText(/complete adaptive plan exists on this device/i)).toBeInTheDocument();
+    expect(screen.getByText(/versioned learning history/i)).toBeInTheDocument();
+    expect(screen.queryByText(/completed unit|proof/i)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Import" }));
+    expect(onImport).toHaveBeenCalledWith();
+    expect(await screen.findByText(/refresh.*retry/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /archive import/i })).not.toBeInTheDocument();
+  });
   it("summarizes meaningful local work and imports only after an explicit click", async () => {
     const user = userEvent.setup();
     const state = completeDemoUnit(createDemoState(), flagshipRole.today);

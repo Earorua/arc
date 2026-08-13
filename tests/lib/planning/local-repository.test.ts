@@ -890,4 +890,65 @@ describe("guest adaptive planning repository", () => {
     const secondLoad = await repository.load();
     expect(secondLoad?.audit.answers[0]?.level).toBe(originalLevel);
   });
+
+  it("stores bounded import progress independently per user and workspace fingerprint", async () => {
+    const storage = new MemoryStorage();
+    const repository = createRepository(storage, "import-progress");
+    await repository.generate(generateRequest());
+    const source = await repository.readImportSource();
+    if (!source) throw new Error("Expected a local import source");
+    const writesBefore = storage.setAttempts;
+
+    expect(source.initialWorkspace.events).toEqual([]);
+    expect(source.workspaceFingerprint).toMatch(/^p2-[0-9a-f]{32}$/u);
+    expect(await repository.readImportProgress("user-one", source.workspaceFingerprint)).toBeNull();
+
+    await repository.updateImportProgress(source.workspaceFingerprint, {
+      userId: "user-one",
+      initialMutationId: source.generationMutationId,
+      lastImportedSequence: 0,
+      completed: false,
+    });
+    await repository.updateImportProgress(source.workspaceFingerprint, {
+      userId: "user-two",
+      initialMutationId: source.generationMutationId,
+      lastImportedSequence: 0,
+      completed: true,
+    });
+
+    expect(storage.setAttempts).toBe(writesBefore + 2);
+    expect(await repository.readImportProgress("user-one", source.workspaceFingerprint))
+      .toMatchObject({ userId: "user-one", completed: false });
+    expect(await repository.readImportProgress("user-two", source.workspaceFingerprint))
+      .toMatchObject({ userId: "user-two", completed: true });
+    expect(JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!).eventStream).toEqual([]);
+  });
+
+  it("loads a pre-import-progress v2 envelope and fails progress writes closed without Web Locks", async () => {
+    const storage = new MemoryStorage();
+    const repository = createRepository(storage, "progress-compat");
+    const generated = await repository.generate(generateRequest());
+    const legacyEnvelope = JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!) as Record<string, unknown>;
+    delete legacyEnvelope.importProgress;
+    const legacyBytes = JSON.stringify(legacyEnvelope);
+    storage.values.set(PLANNING_STORAGE_KEY, legacyBytes);
+    storage.setAttempts = 0;
+    expect(await repository.load()).toEqual(generated.workspace);
+
+    const descriptor = Object.getOwnPropertyDescriptor(navigator, "locks");
+    Object.defineProperty(navigator, "locks", { configurable: true, value: undefined });
+    try {
+      await expect(repository.updateImportProgress(fingerprint(generated.workspace), {
+        userId: "user-one",
+        initialMutationId: "mutation-generate",
+        lastImportedSequence: 0,
+        completed: false,
+      })).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+      expect(storage.getItem(PLANNING_STORAGE_KEY)).toBe(legacyBytes);
+      expect(storage.setAttempts).toBe(0);
+    } finally {
+      if (descriptor) Object.defineProperty(navigator, "locks", descriptor);
+      else Reflect.deleteProperty(navigator, "locks");
+    }
+  });
 });
