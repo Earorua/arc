@@ -13,6 +13,7 @@ import { BuiltinIntelligenceRepository } from "../intelligence/builtin-repositor
 import { IntelligenceService } from "../intelligence/service";
 import { D1OperationalEventSink } from "../observability/d1-events";
 import { createOperationalEvent, type OperationalEvent } from "../observability/events";
+import { PlanningInputError } from "../../lib/planning/path-builder";
 import { D1PlanningRepository } from "../planning/d1-planning-repository";
 import {
   PlanningConflictError,
@@ -21,7 +22,7 @@ import {
   PlanningService,
   PlanningUnavailableError,
 } from "../planning/service";
-import { apiError, apiJson, applyResponseSafety, type ApiRecoveryAction } from "./api-response";
+import { apiError, apiJson, applyResponseSafety, resolveRequestId, type ApiRecoveryAction } from "./api-response";
 import { D1RateLimiter, RateLimitUnavailableError, type RateLimiter } from "./rate-limit";
 
 const MAX_PLANNING_REQUEST_BYTES = 4 * 1024 * 1024;
@@ -54,10 +55,7 @@ class InvalidPlanningBodyError extends Error {}
 
 async function parseBody<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
   try {
-    const raw = await request.text();
-    if (new TextEncoder().encode(raw).byteLength > MAX_PLANNING_REQUEST_BYTES) {
-      throw new InvalidPlanningBodyError();
-    }
+    const raw = await readBoundedBody(request);
     const parsed = schema.safeParse(JSON.parse(raw) as unknown);
     if (!parsed.success) throw new InvalidPlanningBodyError();
     return parsed.data;
@@ -67,12 +65,48 @@ async function parseBody<T>(request: Request, schema: z.ZodType<T>): Promise<T> 
   }
 }
 
-function safeRequestId(createRequestId?: () => string): string {
-  try { return (createRequestId ?? (() => crypto.randomUUID()))(); }
-  catch {
-    try { return crypto.randomUUID(); }
-    catch { return "00000000-0000-4000-8000-000000000000"; }
+async function readBoundedBody(request: Request): Promise<string> {
+  const contentLength = request.headers.get("content-length");
+  if (contentLength !== null) {
+    const parsed = Number(contentLength);
+    if (Number.isFinite(parsed) && parsed >= 0 && parsed > MAX_PLANNING_REQUEST_BYTES) {
+      await request.body?.cancel().catch(() => undefined);
+      throw new InvalidPlanningBodyError();
+    }
   }
+  if (!request.body) throw new InvalidPlanningBodyError();
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  const chunks: string[] = [];
+  let bytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_PLANNING_REQUEST_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        throw new InvalidPlanningBodyError();
+      }
+      chunks.push(decoder.decode(value, { stream: true }));
+    }
+    chunks.push(decoder.decode());
+    return chunks.join("");
+  } catch (error) {
+    if (error instanceof InvalidPlanningBodyError) throw error;
+    await reader.cancel().catch(() => undefined);
+    throw new InvalidPlanningBodyError();
+  }
+}
+
+function safeRequestId(candidate: string | null | undefined): string {
+  try { return resolveRequestId(candidate, fallbackRequestId); }
+  catch { return fallbackRequestId(); }
+}
+
+function fallbackRequestId(): string {
+  try { return crypto.randomUUID(); }
+  catch { return "request-unavailable"; }
 }
 
 function errorResponse(error: unknown, requestId: string): { response: Response; resultCode: string } {
@@ -81,7 +115,8 @@ function errorResponse(error: unknown, requestId: string): { response: Response;
       "UNAUTHENTICATED", "Sign in to use Arc planning.", 401, requestId, undefined, "sign-in",
     ) };
   }
-  if (error instanceof InvalidPlanningBodyError || error instanceof PlanningInvalidInputError || error instanceof z.ZodError) {
+  if (error instanceof InvalidPlanningBodyError || error instanceof PlanningInputError
+    || error instanceof PlanningInvalidInputError || error instanceof z.ZodError) {
     return { resultCode: "INVALID_INPUT", response: apiError(
       "INVALID_INPUT", "Planning input is invalid.", 400, requestId,
     ) };
@@ -122,7 +157,7 @@ async function runPlanningRoute(
   config: RouteConfig,
   action: (service: PlanningRouteService, userId: string) => Promise<RouteOutcome>,
 ): Promise<Response> {
-  let requestId = safeRequestId();
+  let requestId = "request-unavailable";
   const now = deps.now ?? (() => Date.now());
   const startedAt = now();
   let userId: string | null = null;
@@ -131,7 +166,10 @@ async function runPlanningRoute(
   let response: Response;
 
   try {
-    requestId = (deps.createRequestId ?? (() => crypto.randomUUID()))();
+    let candidate: string | undefined;
+    try { candidate = (deps.createRequestId ?? (() => crypto.randomUUID()))(); }
+    catch { candidate = undefined; }
+    requestId = safeRequestId(candidate);
     const user = await deps.requireUser(request.headers);
     userId = user.id;
     const reservation = await deps.rateLimiter.reserve({

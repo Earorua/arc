@@ -17,6 +17,7 @@ import {
   PlanningUnavailableError,
 } from "../../app/server/planning/service";
 import { RateLimitUnavailableError } from "../../app/server/http/rate-limit";
+import { PlanningInputError } from "../../app/lib/planning/path-builder";
 
 const requestId = "00000000-0000-4000-8000-000000000001";
 
@@ -201,11 +202,11 @@ describe("authenticated adaptive planning routes", () => {
     harness.deps.createRequestId = () => { throw new Error("private request id failure"); };
     harness.deps.recordEvent = vi.fn().mockRejectedValue(new Error("private telemetry failure"));
     const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(200);
     const payload = JSON.stringify(await body(response));
     expect(payload).not.toMatch(/private|request id failure|telemetry/iu);
     expect(response.headers.get("x-request-id")).toMatch(/^[0-9a-f-]{36}$/u);
-    expect(harness.service.getWorkspace).not.toHaveBeenCalled();
+    expect(harness.service.getWorkspace).toHaveBeenCalledTimes(1);
 
     const telemetry = setup(result);
     telemetry.deps.recordEvent = vi.fn().mockRejectedValue(new Error("private telemetry failure"));
@@ -227,5 +228,99 @@ describe("authenticated adaptive planning routes", () => {
     const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(response.status).toBe(503);
     expect(JSON.stringify(await body(response))).not.toContain("private payload");
+  });
+
+  it("maps direct domain PlanningInputError to a private-safe 400", async () => {
+    const result = await resultFixture();
+    const harness = setup(result);
+    harness.service.generate.mockRejectedValue(new PlanningInputError([{
+      code: "private-input-code", path: "audit.answers[0].private",
+    }]));
+    const response = await createPlanningGenerateHandler(harness.deps)(post("/api/planning/generate", generateRequest()));
+    expect(response.status).toBe(400);
+    expect(await body(response)).toEqual({ error: {
+      code: "INVALID_INPUT", message: "Planning input is invalid.", requestId,
+    } });
+    expectSafety(response);
+    const event = JSON.stringify(harness.recordEvent.mock.calls);
+    expect(event).toContain("INVALID_INPUT");
+    expect(event).not.toMatch(/private-input-code|audit\.answers/iu);
+  });
+
+  it("calls the request ID factory once and uses only its first valid result", async () => {
+    const result = await resultFixture();
+    const harness = setup(result);
+    const first = "00000000-0000-4000-8000-000000000011";
+    const createRequestId = vi.fn()
+      .mockReturnValueOnce(first)
+      .mockReturnValueOnce("00000000-0000-4000-8000-000000000012");
+    harness.deps.createRequestId = createRequestId;
+    const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
+    expect(createRequestId).toHaveBeenCalledTimes(1);
+    expect(response.headers.get("x-request-id")).toBe(first);
+    expect(JSON.stringify(harness.recordEvent.mock.calls)).toContain(first);
+    expect(JSON.stringify(harness.recordEvent.mock.calls)).not.toContain("00000000-0000-4000-8000-000000000012");
+  });
+
+  it.each([
+    ["invalid", (): string => "  attacker\r\nrequest-id  "],
+    ["throwing", (): string => { throw new Error("private request ID generator"); }],
+  ] as const)("falls back to one safe ID for a %s request ID factory", async (_label, factory) => {
+    const result = await resultFixture();
+    const harness = setup(result);
+    const createRequestId = vi.fn(factory);
+    harness.deps.createRequestId = createRequestId;
+    const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
+    expect(createRequestId).toHaveBeenCalledTimes(1);
+    const safeId = response.headers.get("x-request-id")!;
+    expect(safeId).toMatch(/^[0-9a-f-]{36}$|^request-unavailable$/u);
+    expect(JSON.stringify(await body(response))).not.toMatch(/attacker|private request ID/iu);
+    expect(JSON.stringify(harness.recordEvent.mock.calls)).toContain(safeId);
+  });
+
+  it("rejects an oversized content length without pulling the body stream", async () => {
+    const result = await resultFixture();
+    const harness = setup(result);
+    const pull = vi.fn();
+    const cancel = vi.fn();
+    const stream = new ReadableStream<Uint8Array>({ pull, cancel }, { highWaterMark: 0 });
+    const request = new Request("https://arc.example/api/planning/generate", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": String(4 * 1024 * 1024 + 1) },
+      body: stream,
+      duplex: "half",
+    } as RequestInit & { duplex: "half" });
+    const response = await createPlanningGenerateHandler(harness.deps)(request);
+    expect(response.status).toBe(400);
+    expect(pull).not.toHaveBeenCalled();
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(harness.service.generate).not.toHaveBeenCalled();
+  });
+
+  it("bounds and cancels an oversized streamed body despite a deceptive length", async () => {
+    const result = await resultFixture();
+    const harness = setup(result);
+    const chunk = new Uint8Array(1024 * 1024).fill(120);
+    let pulls = 0;
+    const cancel = vi.fn();
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulls += 1;
+        if (pulls <= 6) controller.enqueue(chunk);
+        else controller.close();
+      },
+      cancel,
+    }, { highWaterMark: 0 });
+    const request = new Request("https://arc.example/api/planning/generate", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": "1" },
+      body: stream,
+      duplex: "half",
+    } as RequestInit & { duplex: "half" });
+    const response = await createPlanningGenerateHandler(harness.deps)(request);
+    expect(response.status).toBe(400);
+    expect(pulls).toBeLessThanOrEqual(5);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(harness.service.generate).not.toHaveBeenCalled();
   });
 });
