@@ -347,8 +347,8 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   return {
     workspace: visibleIdentity === currentIdentity ? workspace : null,
     source: visibleIdentity === currentIdentity ? source : "restoring",
-    migration,
-    recovery,
+    migration: visibleIdentity === currentIdentity ? migration : "none",
+    recovery: visibleIdentity === currentIdentity ? recovery : "none",
     generate: guardedGenerate,
     record,
     accept: (candidatePlanVersionId) => decide("accept", candidatePlanVersionId),

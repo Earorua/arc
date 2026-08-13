@@ -478,4 +478,60 @@ describe("usePlanningWorkspace", () => {
     expect(await repository.readImportProgress("user-a", source.workspaceFingerprint)).toBeNull();
     await act(async () => { pendingB.resolve(null); });
   });
+
+  it("hides user A migration and recovery immediately while user B restores", async () => {
+    const { repository } = await importFixture();
+    const pendingB = deferred<null>();
+    const loadWorkspace = vi.fn()
+      .mockResolvedValueOnce(null)
+      .mockReturnValueOnce(pendingB.promise);
+    const client = cloud({
+      loadWorkspace,
+      generate: vi.fn().mockRejectedValue(new ArcApiError(409, "CONFLICT", "Safe conflict", "request-conflict")),
+    });
+    const { result, rerender } = renderHook(
+      ({ identity }) => usePlanningWorkspace({ local: repository, client, useSession: () => signedAs(identity) }),
+      { initialProps: { identity: "user-a" } },
+    );
+    await waitFor(() => expect(result.current.migration).toBe("available"));
+    await act(() => result.current.importLocal());
+    expect(result.current).toMatchObject({ migration: "failed", recovery: "conflict" });
+
+    rerender({ identity: "user-b" });
+    expect(result.current).toMatchObject({
+      workspace: null,
+      source: "restoring",
+      migration: "none",
+      recovery: "none",
+    });
+    await act(async () => { pendingB.resolve(null); });
+  });
+
+  it("hides signed migration and recovery immediately while guest state restores", async () => {
+    const { repository } = await importFixture();
+    const guestLoad = deferred<null>();
+    vi.spyOn(repository, "load").mockReturnValue(guestLoad.promise);
+    const client = cloud({
+      generate: vi.fn().mockRejectedValue(new ArcApiError(409, "CONFLICT", "Safe conflict", "request-conflict")),
+    });
+    const { result, rerender } = renderHook(
+      ({ signedIn }) => usePlanningWorkspace({
+        local: repository,
+        client,
+        useSession: () => signedIn ? signedAs("user-a") : anonymous(),
+      }),
+      { initialProps: { signedIn: true } },
+    );
+    await waitFor(() => expect(result.current.migration).toBe("available"));
+    await act(() => result.current.importLocal());
+    expect(result.current).toMatchObject({ migration: "failed", recovery: "conflict" });
+    rerender({ signedIn: false });
+    expect(result.current).toMatchObject({
+      workspace: null,
+      source: "restoring",
+      migration: "none",
+      recovery: "none",
+    });
+    await act(async () => { guestLoad.resolve(null); });
+  });
 });
