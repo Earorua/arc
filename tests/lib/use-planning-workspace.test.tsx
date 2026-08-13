@@ -534,4 +534,81 @@ describe("usePlanningWorkspace", () => {
     });
     await act(async () => { guestLoad.resolve(null); });
   });
+
+  it("lets user B mutate while user A is stale and keeps B single-flight after A settles", async () => {
+    const { generated } = await generatedFixture();
+    const appendA = deferred<PlanningMutationResult>();
+    const appendB = deferred<PlanningMutationResult>();
+    const loadWorkspace = vi.fn().mockResolvedValue(generated.workspace);
+    const appendEvent = vi.fn()
+      .mockReturnValueOnce(appendA.promise)
+      .mockReturnValueOnce(appendB.promise);
+    const client = cloud({ loadWorkspace, appendEvent });
+    const { result, rerender } = renderHook(
+      ({ identity }) => usePlanningWorkspace({ local: local(), client, useSession: () => signedAs(identity) }),
+      { initialProps: { identity: "user-a" } },
+    );
+    await waitFor(() => expect(result.current.source).toBe("cloud"));
+    let operationA!: Promise<boolean>;
+    act(() => { operationA = result.current.record({
+      kind: "skipped", unitId: generated.workspace.dailyUnits[0]!.id, planningDate: "2026-08-17",
+    }); });
+    rerender({ identity: "user-b" });
+    await waitFor(() => expect(result.current.source).toBe("cloud"));
+    let operationB!: Promise<boolean>;
+    act(() => { operationB = result.current.record({
+      kind: "skipped", unitId: generated.workspace.dailyUnits[0]!.id, planningDate: "2026-08-17",
+    }); });
+    expect(appendEvent).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      appendA.resolve(generated);
+      await operationA;
+    });
+    await expect(result.current.record({
+      kind: "skipped", unitId: generated.workspace.dailyUnits[0]!.id, planningDate: "2026-08-17",
+    })).resolves.toBe(false);
+    expect(appendEvent).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      appendB.resolve(generated);
+      await operationB;
+    });
+  });
+
+  it("stops an unmounted import after deferred generation without progress or replay", async () => {
+    const { generated, repository } = await importFixture();
+    const remoteGeneration = deferred<PlanningMutationResult>();
+    const updateProgress = vi.spyOn(repository, "updateImportProgress");
+    const client = cloud({ generate: vi.fn().mockReturnValue(remoteGeneration.promise) });
+    const { result, unmount } = renderHook(() => usePlanningWorkspace({ local: repository, client, useSession: signed }));
+    await waitFor(() => expect(result.current.migration).toBe("available"));
+    let operation!: Promise<boolean>;
+    act(() => { operation = result.current.importLocal(); });
+    await waitFor(() => expect(client.generate).toHaveBeenCalledTimes(1));
+    unmount();
+    remoteGeneration.resolve(generated);
+    await expect(operation).resolves.toBe(false);
+    expect(updateProgress).not.toHaveBeenCalled();
+    expect(client.appendEvent).not.toHaveBeenCalled();
+  });
+
+  it("stops an unmounted import during replay before the next progress write", async () => {
+    const { generated, proposed, repository } = await importFixture();
+    const remoteEvent = deferred<PlanningMutationResult>();
+    const updateProgress = vi.spyOn(repository, "updateImportProgress");
+    const client = cloud({
+      generate: vi.fn().mockResolvedValue(generated),
+      appendEvent: vi.fn().mockReturnValue(remoteEvent.promise),
+    });
+    const { result, unmount } = renderHook(() => usePlanningWorkspace({ local: repository, client, useSession: signed }));
+    await waitFor(() => expect(result.current.migration).toBe("available"));
+    let operation!: Promise<boolean>;
+    act(() => { operation = result.current.importLocal(); });
+    await waitFor(() => expect(client.appendEvent).toHaveBeenCalledTimes(1));
+    expect(updateProgress).toHaveBeenCalledTimes(1);
+    unmount();
+    remoteEvent.resolve(proposed);
+    await expect(operation).resolves.toBe(false);
+    expect(updateProgress).toHaveBeenCalledTimes(1);
+    expect(client.acceptReplan).not.toHaveBeenCalled();
+  });
 });

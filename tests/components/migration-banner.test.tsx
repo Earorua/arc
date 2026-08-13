@@ -60,6 +60,22 @@ describe("MigrationBanner", () => {
       .toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /archive/i })).not.toBeInTheDocument();
   });
+  it("announces adaptive import status and errors through semantic live regions", () => {
+    const props = {
+      kind: "adaptive-plan" as const,
+      state: {} as PlanningWorkspace,
+      onDismiss: vi.fn(),
+      onImport: vi.fn().mockResolvedValue(undefined),
+      recovery: "none" as const,
+    };
+    const view = render(<MigrationBanner {...props} status="importing" />);
+    expect(screen.getByRole("status")).toHaveAttribute("aria-live", "polite");
+    expect(screen.getByRole("status")).toHaveTextContent("Importing");
+
+    view.rerender(<MigrationBanner {...props} status="failed" recovery={"conflict" as const} />);
+    expect(screen.getByRole("alert")).toHaveAttribute("aria-live", "assertive");
+    expect(screen.getByRole("alert")).toHaveTextContent(/cloud plan changed/i);
+  });
   it("summarizes meaningful local work and imports only after an explicit click", async () => {
     const user = userEvent.setup();
     const state = completeDemoUnit(createDemoState(), flagshipRole.today);

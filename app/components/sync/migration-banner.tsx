@@ -47,6 +47,12 @@ function AdaptiveMigrationBanner({ status, recovery = "none", onDismiss, onImpor
 
   if (dismissed || status === "none" || status === "imported") return null;
   const busy = pending || status === "importing";
+  const errorMessage = conflict || recovery === "conflict"
+    ? "Arc could not import because the cloud plan changed. Refresh and try again."
+    : failed || status === "failed"
+      ? "Import is unavailable. Retry when your connection recovers."
+      : null;
+  const statusMessage = busy ? "Importing adaptive planning history." : "Ready to import adaptive planning history.";
 
   async function begin() {
     setPending(true);
@@ -72,12 +78,9 @@ function AdaptiveMigrationBanner({ status, recovery = "none", onDismiss, onImpor
         <small>Nothing moves until you choose. “Not now” keeps every local byte on this device.</small>
       </div>
       <div className="migration-actions">
-        {conflict || recovery === "conflict"
-          ? <p>Arc could not import because the cloud plan changed. Refresh and try again.</p>
-          : null}
-        {(failed || status === "failed") && recovery !== "conflict"
-          ? <p>Import is unavailable. Retry when your connection recovers.</p>
-          : null}
+        <p role={errorMessage ? "alert" : "status"} aria-live={errorMessage ? "assertive" : "polite"}>
+          {errorMessage ?? statusMessage}
+        </p>
         <button disabled={busy} onClick={() => void begin()} type="button">
           {busy ? "Importing…" : "Import"}
         </button>

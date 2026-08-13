@@ -54,7 +54,7 @@ type PlanningWorkspaceOptions = {
 };
 
 type PlanningIdentity = "guest" | `user:${string}`;
-type PlanningOperationToken = { identity: PlanningIdentity; generation: number };
+type PlanningOperationToken = { identity: PlanningIdentity; generation: number; lifecycleEpoch: number };
 
 const IMPORT_EVENT_LINEAGE_KIND = "arc-planning-import-event-lineage";
 const IMPORT_EVENT_LINEAGE_VERSION = 1;
@@ -92,7 +92,8 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     identity: currentIdentity,
     generation: 0,
   });
-  const inFlightRef = useRef(false);
+  const lifecycleRef = useRef({ mounted: false, epoch: 0 });
+  const activeOperationRef = useRef<PlanningOperationToken | null>(null);
 
   const publishWorkspace = useCallback((value: unknown) => {
     const parsed = value === null ? null : planningWorkspaceSchema.parse(value);
@@ -159,6 +160,8 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   }, [publishSource, publishWorkspace]);
 
   useEffect(() => {
+    const lifecycle = lifecycleRef.current;
+    lifecycle.mounted = true;
     userIdRef.current = session.data?.user.id ?? null;
     loadGenerationRef.current += 1;
     operationContextRef.current = { identity: currentIdentity, generation: loadGenerationRef.current };
@@ -167,7 +170,12 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       queueMicrotask(() => {
         if (current) publishSource("restoring");
       });
-      return () => { current = false; };
+      return () => {
+        current = false;
+        lifecycle.mounted = false;
+        lifecycle.epoch += 1;
+        loadGenerationRef.current += 1;
+      };
     }
     let current = true;
     queueMicrotask(() => {
@@ -176,24 +184,41 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         if (current) handleFailure(error, setRecovery);
       });
     });
-    return () => { current = false; };
+    return () => {
+      current = false;
+      lifecycle.mounted = false;
+      lifecycle.epoch += 1;
+      loadGenerationRef.current += 1;
+    };
   }, [currentIdentity, load, publishSource, session.data?.user.id, session.isPending]);
-
-  const guarded = useCallback(async (action: () => Promise<boolean>): Promise<boolean> => {
-    if (inFlightRef.current) return false;
-    inFlightRef.current = true;
-    try { return await action(); }
-    finally { inFlightRef.current = false; }
-  }, []);
 
   const captureOperation = useCallback((identity: PlanningIdentity): PlanningOperationToken => ({
     identity,
     generation: loadGenerationRef.current,
+    lifecycleEpoch: lifecycleRef.current.epoch,
   }), []);
 
   const isOperationCurrent = useCallback((token: PlanningOperationToken) =>
-    operationContextRef.current.identity === token.identity
+    lifecycleRef.current.mounted
+      && lifecycleRef.current.epoch === token.lifecycleEpoch
+      && operationContextRef.current.identity === token.identity
       && operationContextRef.current.generation === token.generation, []);
+
+  const runOperation = useCallback(async (
+    identity: PlanningIdentity,
+    action: (token: PlanningOperationToken) => Promise<boolean>,
+  ): Promise<boolean> => {
+    const token = captureOperation(identity);
+    const active = activeOperationRef.current;
+    if (!isOperationCurrent(token)
+      || (active !== null && active.identity === token.identity && active.generation === token.generation
+        && active.lifecycleEpoch === token.lifecycleEpoch)) return false;
+    activeOperationRef.current = token;
+    try { return await action(token); }
+    finally {
+      if (activeOperationRef.current === token) activeOperationRef.current = null;
+    }
+  }, [captureOperation, isOperationCurrent]);
 
   const publishResult = useCallback((
     value: unknown,
@@ -214,9 +239,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     expectedIdentity: PlanningIdentity,
     localAction: (repository: LocalPlanningRepository) => Promise<PlanningMutationResult>,
     cloudAction: (client: PlanningClient) => Promise<PlanningMutationResult>,
-  ) => guarded(async () => {
-    const token = captureOperation(expectedIdentity);
-    if (!isOperationCurrent(token)) return false;
+  ) => runOperation(expectedIdentity, async (token) => {
     try {
       if (token.identity === "guest") {
         const result = await localAction(localRef.current);
@@ -233,7 +256,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       if (token.identity !== "guest" && workspaceRef.current && isUnavailable(error)) publishSource("offline-cloud");
       return false;
     }
-  }), [captureOperation, guarded, isOperationCurrent, publishResult, publishSource]);
+  }), [isOperationCurrent, publishResult, publishSource, runOperation]);
 
   const generate = useCallback((input: GeneratePlanningRequest) => mutate(
     currentIdentity,
@@ -281,9 +304,8 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     );
   }, [currentIdentity, mutate, visibleIdentity]);
 
-  const importLocal = useCallback(() => guarded(async () => {
+  const importLocal = useCallback(() => runOperation(currentIdentity, async (token) => {
     if (visibleIdentity !== currentIdentity) return false;
-    const token = captureOperation(currentIdentity);
     if (!isOperationCurrent(token) || token.identity === "guest") return false;
     const userId = token.identity.slice("user:".length);
     let sourceSnapshot = importSourceRef.current;
@@ -342,7 +364,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       handleFailure(error, setRecovery);
       return false;
     }
-  }), [captureOperation, currentIdentity, guarded, isOperationCurrent, publishSource, publishWorkspace, visibleIdentity]);
+  }), [currentIdentity, isOperationCurrent, publishSource, publishWorkspace, runOperation, visibleIdentity]);
 
   return {
     workspace: visibleIdentity === currentIdentity ? workspace : null,
