@@ -21,7 +21,7 @@ export function isAvailabilityDraftValid(value: AvailabilityDraft, planningDate:
   const total = weeklyMinutesForDraft(value);
   if (!Object.values(value.weekdays).every((minutes) => validMinutes(minutes)) || total < 30 || total > 2400) return false;
   const unique = new Set(value.exceptions.map(({ date }) => date));
-  return value.exceptions.length <= 90 && unique.size === value.exceptions.length && value.exceptions.every(({ date, minutes }) => validMinutes(minutes, 480) && compareCalendarDates(date, planningDate) >= 0 && compareCalendarDates(date, addCalendarDays(planningDate, 365)) <= 0);
+  return value.exceptions.length <= 90 && unique.size === value.exceptions.length && value.exceptions.every(({ date, minutes }) => validMinutes(minutes) && compareCalendarDates(date, planningDate) >= 0 && compareCalendarDates(date, addCalendarDays(planningDate, 365)) <= 0);
 }
 
 export function AvailabilityStep({ value, onChange, planningDate }: { value: AvailabilityDraft; onChange: (next: AvailabilityDraft) => void; planningDate: string }) {
@@ -47,11 +47,11 @@ export function AvailabilityStep({ value, onChange, planningDate }: { value: Ava
       <h2>Date exceptions</h2>
       {value.exceptions.map((item, index) => <div className="exception-row" key={index}>
         <label>Date<input aria-describedby={(duplicateDates || outsideHorizon) ? "exception-date-error" : undefined} aria-label={`Exception date ${index + 1}`} type="date" value={item.date} onChange={(event) => updateException(index, { date: event.target.value })} /></label>
-        <label>Minutes<input aria-describedby={!validMinutes(item.minutes, 480) ? `exception-minutes-error-${index}` : undefined} aria-invalid={!validMinutes(item.minutes, 480)} aria-label={`Exception minutes ${index + 1}`} min="0" max="480" step="1" type="number" value={item.minutes} onChange={(event) => updateException(index, { minutes: Number(event.target.value) })} /></label>
+        <label>Minutes<input aria-describedby={!validMinutes(item.minutes) ? `exception-minutes-error-${index}` : undefined} aria-invalid={!validMinutes(item.minutes)} aria-label={`Exception minutes ${index + 1}`} min="0" max="720" step="1" type="number" value={item.minutes} onChange={(event) => updateException(index, { minutes: Number(event.target.value) })} /></label>
         <label>Reason<input aria-label={`Exception reason ${index + 1}`} maxLength={300} value={item.reason ?? ""} onChange={(event) => updateException(index, { reason: event.target.value.trim() ? event.target.value : null })} /></label>
         <p>{item.date ? `${item.date} overrides ${weekdayForDate(item.date)[0]!.toUpperCase() + weekdayForDate(item.date).slice(1)} with ${item.minutes === 0 ? "Rest" : `${item.minutes} minutes`}.` : "Choose a date to preview the override."}</p>
         <button aria-label={`Remove exception ${index + 1}`} onClick={() => onChange({ ...value, exceptions: value.exceptions.filter((_, itemIndex) => itemIndex !== index) })} type="button">Remove</button>
-        {!validMinutes(item.minutes, 480) && <p id={`exception-minutes-error-${index}`} role="alert">Use 0 or a whole number from 15 to 480.</p>}
+        {!validMinutes(item.minutes) && <p id={`exception-minutes-error-${index}`} role="alert">Use 0 or a whole number from 15 to 720.</p>}
       </div>)}
       {(duplicateDates || outsideHorizon) && <p id="exception-date-error" role="alert">{duplicateDates ? "Exception dates must be unique." : "Choose a date within the next 365 days."}</p>}
       {value.exceptions.length >= 90 && <p>Maximum 90 exceptions</p>}

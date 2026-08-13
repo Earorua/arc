@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { AvailabilityStep, createAvailabilityDraft } from "../../app/components/setup/availability-step";
+import { AvailabilityStep, createAvailabilityDraft, isAvailabilityDraftValid } from "../../app/components/setup/availability-step";
 import { addCalendarDays } from "../../app/lib/planning/calendar";
 
 afterEach(cleanup);
@@ -10,7 +10,7 @@ afterEach(cleanup);
 describe("AvailabilityStep", () => {
   function Harness({ planningDate = "2026-08-14", exceptions = [] }: { planningDate?: string; exceptions?: ReturnType<typeof createAvailabilityDraft>["exceptions"] }) {
     const [draft, setDraft] = useState(() => ({ ...createAvailabilityDraft("Asia/Shanghai"), exceptions }));
-    return <AvailabilityStep onChange={setDraft} planningDate={planningDate} value={draft} />;
+    return <><AvailabilityStep onChange={setDraft} planningDate={planningDate} value={draft} /><button disabled={!isAvailabilityDraftValid(draft, planningDate)} type="button">Continue</button></>;
   }
 
   it("renders a seven-day ledger with a derived total and visible rest days", async () => {
@@ -40,10 +40,18 @@ describe("AvailabilityStep", () => {
     rerender(<Harness exceptions={[{ date: "2026-08-14", minutes: 0, reason: null }]} key="one" />);
     const minutes = screen.getByLabelText("Exception minutes 1");
     await user.clear(minutes);
-    await user.type(minutes, "481");
+    await user.type(minutes, "720");
+    expect(minutes).toHaveAttribute("aria-invalid", "false");
+    expect(minutes).not.toHaveAttribute("aria-describedby");
+    expect(screen.queryByText(/0 or a whole number from 15 to 720/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+
+    await user.clear(minutes);
+    await user.type(minutes, "721");
     expect(minutes).toHaveAttribute("aria-invalid", "true");
     expect(minutes).toHaveAttribute("aria-describedby", "exception-minutes-error-0");
-    expect(screen.getByText(/0 or a whole number from 15 to 480/i)).toBeInTheDocument();
+    expect(screen.getByText(/0 or a whole number from 15 to 720/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
   });
 
   it("associates time, minute, duplicate, and horizon errors and previews exceptions", async () => {
