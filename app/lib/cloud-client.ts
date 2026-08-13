@@ -19,6 +19,7 @@ const apiErrorSchema = z.object({
     code: z.string().min(1).max(64),
     message: z.string().min(1).max(240),
     requestId: z.string().min(1).max(128),
+    action: z.enum(["refresh", "retry", "sign-in", "rebuild"]).optional(),
   }).strict(),
 }).strict();
 
@@ -31,6 +32,7 @@ export class ArcApiError extends Error {
     readonly code: string,
     message: string,
     readonly requestId: string,
+    readonly action?: "refresh" | "retry" | "sign-in" | "rebuild",
   ) {
     super(message);
     this.name = "ArcApiError";
@@ -92,6 +94,7 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
         parsedError.data.error.code,
         parsedError.data.error.message,
         parsedError.data.error.requestId,
+        parsedError.data.error.action,
       );
     }
 

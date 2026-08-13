@@ -5,14 +5,18 @@ export type ApiErrorCode =
   | "NOT_FOUND"
   | "CONFLICT"
   | "RATE_LIMITED"
+  | "PLANNING_UNAVAILABLE"
   | "UNAVAILABLE"
   | "INTERNAL";
+
+export type ApiRecoveryAction = "refresh" | "retry" | "sign-in" | "rebuild";
 
 export type ApiErrorBody = {
   error: {
     code: ApiErrorCode;
     message: string;
     requestId: string;
+    action?: ApiRecoveryAction;
   };
 };
 
@@ -61,9 +65,10 @@ export function apiError(
   status: number,
   requestId: string,
   headers?: HeadersInit,
+  action?: ApiRecoveryAction,
 ): Response {
   const body: ApiErrorBody = {
-    error: { code, message, requestId },
+    error: { code, message, requestId, ...(action ? { action } : {}) },
   };
   return apiJson(body, requestId, { status, headers });
 }

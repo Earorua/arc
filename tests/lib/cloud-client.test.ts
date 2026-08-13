@@ -98,4 +98,19 @@ describe("Arc cloud client", () => {
     )).rejects.toMatchObject({ code: "CONFLICT", status: 409 } satisfies Partial<ArcApiError>);
     await expect(createArcCloudClient({ fetch: invalidFetch }).loadWorkspace()).rejects.toThrow("invalid response");
   });
+
+  it("retains strict recovery actions without changing existing errors", async () => {
+    const fetcher = vi.fn().mockResolvedValue(Response.json({
+      error: {
+        code: "CONFLICT",
+        message: "Refresh planning.",
+        requestId: "00000000-0000-4000-8000-000000000001",
+        action: "refresh",
+      },
+    }, { status: 409 }));
+
+    const error = await createArcCloudClient({ fetch: fetcher }).loadWorkspace()
+      .catch((caught) => caught as ArcApiError);
+    expect(error).toMatchObject({ code: "CONFLICT", action: "refresh" });
+  });
 });
