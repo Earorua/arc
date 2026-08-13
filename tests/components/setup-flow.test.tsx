@@ -110,6 +110,7 @@ describe("SetupFlow", () => {
     await user.click(screen.getByRole("button", { name: "Set Foundations to Guided" }));
     await user.click(screen.getByRole("button", { name: "Back" }));
     expect(screen.getByLabelText("Custom role")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "你想成为怎样的构建者？" })).toHaveFocus();
     await user.type(screen.getByLabelText("Custom role"), "数据产品经理");
     expect(screen.getByText(/This custom role will keep the proportional v7 path/)).toBeInTheDocument();
     await user.clear(screen.getByLabelText("Custom role"));

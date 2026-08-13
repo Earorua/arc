@@ -23,18 +23,17 @@ export function createSkillAuditDraft(blueprint: RoleBlueprint): SkillAuditDraft
 }
 
 export function isSkillAuditDraftValid(blueprint: RoleBlueprint, draft: SkillAuditDraft): boolean {
-  return blueprint.skills.every((skill) => {
+  const allIds = blueprint.skills.flatMap((skill) => (draft.evidence[skill.id] ?? []).map(({ id }) => id));
+  return new Set(allIds).size === allIds.length && blueprint.skills.every((skill) => {
     if (!draft.levels[skill.id]) return false;
     return (draft.evidence[skill.id] ?? []).every((item) => skillEvidenceSchema.safeParse({ ...item, skillId: skill.id }).success);
   });
 }
 
-function evidenceError(skillId: string, item: SkillEvidenceDraft): string | null {
-  const parsed = skillEvidenceSchema.safeParse({ ...item, skillId });
-  if (parsed.success) return null;
-  if (!/^https:\/\//u.test(item.url)) return "Enter a public HTTPS URL.";
-  if (!item.note.trim()) return "Add a short note describing this link.";
-  return "Check this evidence link and note.";
+function evidenceErrors(skillId: string, item: SkillEvidenceDraft) {
+  const urlValid = skillEvidenceSchema.safeParse({ ...item, skillId, note: "Evidence" }).success;
+  const noteValid = item.note.trim().length >= 1 && item.note.trim().length <= 300;
+  return { url: urlValid ? null : "Enter a public HTTPS URL.", note: noteValid ? null : "Add a short note describing this link." };
 }
 
 export function SkillAuditStep({ blueprint, value, onChange }: {
@@ -51,7 +50,10 @@ export function SkillAuditStep({ blueprint, value, onChange }: {
   const addEvidence = (skillId: string) => {
     const rows = value.evidence[skillId] ?? [];
     if (rows.length >= 3) return;
-    onChange({ ...value, evidence: { ...value.evidence, [skillId]: [...rows, { id: `evidence-${skillId}-${rows.length + 1}`, kind: "project", url: "", note: "" }] } });
+    const used = new Set(blueprint.skills.flatMap((skill) => (value.evidence[skill.id] ?? []).map(({ id }) => id)));
+    let suffix = 1;
+    while (used.has(`evidence-${skillId}-${suffix}`)) suffix += 1;
+    onChange({ ...value, evidence: { ...value.evidence, [skillId]: [...rows, { id: `evidence-${skillId}-${suffix}`, kind: "project", url: "", note: "" }] } });
   };
 
   return <div className="audit-ledger">
@@ -78,17 +80,19 @@ export function SkillAuditStep({ blueprint, value, onChange }: {
             </div>
           </fieldset>
           {(value.evidence[skill.id] ?? []).map((item, index) => {
-            const error = evidenceError(skill.id, item);
-            const errorId = `evidence-error-${skill.id}-${index}`;
+            const errors = evidenceErrors(skill.id, item);
+            const urlErrorId = `evidence-url-error-${skill.id}-${index}`;
+            const noteErrorId = `evidence-note-error-${skill.id}-${index}`;
             return <fieldset className="evidence-row" key={item.id}>
               <legend>Evidence link {index + 1}</legend>
               <label>Type<select aria-label={`${skill.name} evidence type ${index + 1}`} onChange={(event) => updateEvidence(skill.id, index, { kind: event.target.value as EvidenceKind })} value={item.kind}>
                 {(["repository", "deployment", "project", "document", "other"] as const).map((kind) => <option key={kind}>{kind}</option>)}
               </select></label>
-              <label>Public link<input aria-describedby={error ? errorId : undefined} aria-invalid={Boolean(error)} aria-label={`${skill.name} evidence URL ${index + 1}`} onChange={(event) => updateEvidence(skill.id, index, { url: event.target.value })} type="url" value={item.url} /></label>
-              <label>Note<input aria-label={`${skill.name} evidence note ${index + 1}`} maxLength={300} onChange={(event) => updateEvidence(skill.id, index, { note: event.target.value })} value={item.note} /></label>
+              <label>Public link<input aria-describedby={errors.url ? urlErrorId : undefined} aria-invalid={Boolean(errors.url)} aria-label={`${skill.name} evidence URL ${index + 1}`} onChange={(event) => updateEvidence(skill.id, index, { url: event.target.value })} type="url" value={item.url} /></label>
+              <label>Note<input aria-describedby={errors.note ? noteErrorId : undefined} aria-invalid={Boolean(errors.note)} aria-label={`${skill.name} evidence note ${index + 1}`} maxLength={300} onChange={(event) => updateEvidence(skill.id, index, { note: event.target.value })} value={item.note} /></label>
               <button className="text-action" onClick={() => onChange({ ...value, evidence: { ...value.evidence, [skill.id]: (value.evidence[skill.id] ?? []).filter((_, itemIndex) => itemIndex !== index) } })} type="button">Remove evidence {index + 1} for {skill.name}</button>
-              {error && <p id={errorId} role="alert">{error}</p>}
+              {errors.url && <p id={urlErrorId} role="alert">{errors.url}</p>}
+              {errors.note && <p id={noteErrorId} role="alert">{errors.note}</p>}
             </fieldset>;
           })}
           <button className="text-action" disabled={(value.evidence[skill.id]?.length ?? 0) >= 3} onClick={() => addEvidence(skill.id)} type="button">Add evidence link for {skill.name}</button>

@@ -43,11 +43,11 @@ export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers
   const targetWeeksValid = isFiniteIntegerInRange(answers.targetWeeks, 4, 52);
 
   useEffect(() => {
-    if (previousStep.current !== step) {
+    if (!adaptiveSelected && (previousStep.current !== step || step === 0)) {
       questionRef.current?.focus();
       previousStep.current = step;
     }
-  }, [step]);
+  }, [adaptiveSelected, step]);
 
   return (
     <>

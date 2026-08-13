@@ -5,6 +5,7 @@ import { AdaptiveSetupFlow } from "../../app/components/setup/adaptive-setup-flo
 import type { GeneratePlanningRequest } from "../../app/contracts/planning-api";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { buildLearningPaths } from "../../app/lib/planning/path-builder";
 
 afterEach(cleanup);
 
@@ -79,5 +80,30 @@ describe("AdaptiveSetupFlow", () => {
     expect(screen.queryByText("private builder detail")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
     expect(screen.getByLabelText("Target weeks")).toBeEnabled();
+  });
+
+  it("computes each target result once and clears an unavailable scope after draft edits", async () => {
+    const user = userEvent.setup();
+    const canonical = vi.fn(buildLearningPaths);
+    const buildPaths = vi.fn((input: Parameters<typeof buildLearningPaths>[0]) => {
+      const result = canonical(input);
+      return input.availability.weeklyMinutes === 420
+        ? { ...result, targetDate: { ...result.fullScope, id: "path-target", scopeMode: "target-date" as const, deferredSkills: [{ skillId: "observability", reason: "target-date-advantage" as const }] } }
+        : { ...result, targetDate: null, infeasibleReason: "The edited week cannot support the target-date scope." };
+    });
+    render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} buildPaths={buildPaths} createMutationId={() => "mutation-setup"} generate={vi.fn()} navigate={vi.fn()} now={() => new Date("2026-08-14T02:00:00.000Z")} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />);
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(buildPaths).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole("radio", { name: /Target date/i }));
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    await user.clear(screen.getByLabelText("Monday minutes"));
+    await user.type(screen.getByLabelText("Monday minutes"), "30");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(buildPaths).toHaveBeenCalledTimes(3);
+    expect(screen.getByRole("radio", { name: /Target date/i })).not.toBeChecked();
+    expect(screen.getByRole("radio", { name: /Target date/i })).toBeDisabled();
+    expect(screen.getByText("The edited week cannot support the target-date scope.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
   });
 });

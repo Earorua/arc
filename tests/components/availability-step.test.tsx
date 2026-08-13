@@ -65,11 +65,26 @@ describe("AvailabilityStep", () => {
     await user.click(screen.getByRole("button", { name: "Add date exception" }));
     expect(screen.getByText(/overrides Friday/i)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Add date exception" }));
-    expect(screen.getByText(/Exception dates must be unique/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Exception dates must be unique/i)).toHaveLength(2);
     await user.clear(screen.getByLabelText("Exception date 2"));
     await user.type(screen.getByLabelText("Exception date 2"), "2027-08-16");
     expect(screen.getByText(/365 days/i)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Remove exception 2" }));
     expect(screen.queryByLabelText("Exception date 2")).not.toBeInTheDocument();
+  });
+
+  it("contains malformed calendar dates and associates the date error", async () => {
+    const user = userEvent.setup();
+    const malformed = { ...createAvailabilityDraft("Asia/Shanghai"), exceptions: [{ date: "", minutes: 0, reason: null }] };
+    expect(() => isAvailabilityDraftValid(malformed, "not-a-date")).not.toThrow();
+    expect(isAvailabilityDraftValid(malformed, "not-a-date")).toBe(false);
+
+    render(<Harness exceptions={malformed.exceptions} />);
+    const date = screen.getByLabelText("Exception date 1");
+    await user.clear(date);
+    expect(date).toHaveAttribute("aria-invalid", "true");
+    expect(date).toHaveAttribute("aria-describedby", "exception-date-error-0");
+    expect(screen.getByText("Enter a valid calendar date.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
   });
 });

@@ -5,7 +5,6 @@ import type { RoleBlueprint } from "../../contracts/intelligence";
 import { generatePlanningRequestSchema, type GeneratePlanningRequest } from "../../contracts/planning-api";
 import { PLANNING_SCHEMA_VERSION, availabilityVersionSchema, planningTargetSchema, skillAuditVersionSchema, type PlanningTarget, type UnitRegistry } from "../../contracts/planning";
 import { buildLearningPaths, type PathBuildInput } from "../../lib/planning/path-builder";
-import { buildPlanVersion } from "../../lib/planning/scheduler";
 import { deterministicId, fingerprint } from "../../lib/planning/fingerprint";
 import { planningDateForInstant } from "../../lib/planning/calendar";
 import { AvailabilityStep, createAvailabilityDraft, isAvailabilityDraftValid, weeklyMinutesForDraft, type AvailabilityDraft } from "./availability-step";
@@ -31,6 +30,7 @@ function toTarget(targetWeeks: number): PlanningTarget {
   const raw = { schemaVersion: PLANNING_SCHEMA_VERSION, targetWeeks }; const inputFingerprint = fingerprint(raw);
   return planningTargetSchema.parse({ ...raw, id: deterministicId("target", { inputFingerprint }), inputFingerprint });
 }
+function safely<T>(build: () => T): T | null { try { return build(); } catch { return null; } }
 
 export function AdaptiveSetupFlow({ blueprint, registry, generate, navigate, createMutationId, now, timeZone, onBackToRole, active = true, buildPaths = buildLearningPaths }: {
   blueprint: RoleBlueprint; registry: UnitRegistry; generate: (request: GeneratePlanningRequest) => Promise<boolean>;
@@ -51,9 +51,9 @@ export function AdaptiveSetupFlow({ blueprint, registry, generate, navigate, cre
     try { return planningDateForInstant(planningInstant, availabilityDraft.timeZone); }
     catch { return planningDateForInstant(planningInstant, timeZone || "UTC"); }
   }, [availabilityDraft.timeZone, planningInstant, timeZone]);
-  const audit = useMemo(() => isSkillAuditDraftValid(blueprint, auditDraft) ? toAudit(blueprint, auditDraft) : null, [auditDraft, blueprint]);
-  const availability = useMemo(() => isAvailabilityDraftValid(availabilityDraft, planningDate) ? toAvailability(availabilityDraft) : null, [availabilityDraft, planningDate]);
-  const target = useMemo(() => Number.isInteger(targetWeeks) && targetWeeks >= 4 && targetWeeks <= 52 ? toTarget(targetWeeks) : null, [targetWeeks]);
+  const audit = useMemo(() => isSkillAuditDraftValid(blueprint, auditDraft) ? safely(() => toAudit(blueprint, auditDraft)) : null, [auditDraft, blueprint]);
+  const availability = useMemo(() => isAvailabilityDraftValid(availabilityDraft, planningDate) ? safely(() => toAvailability(availabilityDraft)) : null, [availabilityDraft, planningDate]);
+  const target = useMemo(() => Number.isInteger(targetWeeks) && targetWeeks >= 4 && targetWeeks <= 52 ? safely(() => toTarget(targetWeeks)) : null, [targetWeeks]);
   const targetDraft: PlanningTarget = target ?? {
     id: "target-draft", schemaVersion: PLANNING_SCHEMA_VERSION, targetWeeks, inputFingerprint: "target-draft",
   };
@@ -64,23 +64,19 @@ export function AdaptiveSetupFlow({ blueprint, registry, generate, navigate, cre
   }, [audit, availability, blueprint, buildPaths, planningDate, registry, target]);
   const targetPaths = targetBuild.paths;
   const needsScopeChoice = Boolean(targetPaths && (targetPaths.targetDate === null || targetPaths.targetDate.deferredSkills.length > 0));
+  const scopeAvailable = selectedScope === "full-scope" ? targetPaths !== null : selectedScope === "target-date" ? targetPaths?.targetDate != null : !needsScopeChoice;
 
   useEffect(() => { if (active) headingRef.current?.focus(); }, [active, stage]);
   const advance = () => setStageIndex((current) => Math.min(current + 1, stages.length - 1));
   const back = () => { if (stageIndex === 0) onBackToRole?.(); else setStageIndex((current) => current - 1); };
-  const canContinue = (stage === "audit" && audit !== null) || (stage === "availability" && availability !== null) || (stage === "target" && audit !== null && availability !== null && target !== null && targetPaths !== null && (!needsScopeChoice || selectedScope !== null));
+  const canContinue = (stage === "audit" && audit !== null) || (stage === "availability" && availability !== null) || (stage === "target" && audit !== null && availability !== null && target !== null && targetPaths !== null && scopeAvailable);
 
   const build = async () => {
-    if (building || !audit || !availability || !target) return;
+    if (building || !audit || !availability || !target || !targetPaths || !scopeAvailable) return;
     setBuilding(true); setBuildStatus("Validating your inputs…");
     try {
-      const requestBase = await Promise.resolve().then(() => ({ audit: skillAuditVersionSchema.parse(audit), availability: availabilityVersionSchema.parse(availability), target: planningTargetSchema.parse(target) }));
-      const paths = await Promise.resolve().then(() => buildPaths({ blueprint, registry, ...requestBase, planningDate }));
-      const scope = selectedScope ?? (paths.targetDate && paths.targetDate.deferredSkills.length > 0 ? "full-scope" : null);
-      const path = scope === "target-date" ? paths.targetDate : paths.fullScope;
-      if (!path) throw new Error("Path unavailable");
-      setBuildStatus("Building the seven-day schedule…");
-      await Promise.resolve().then(() => buildPlanVersion({ path, registry, availability, planningDate, generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() }));
+      const scope = selectedScope ?? (targetPaths.targetDate && targetPaths.targetDate.deferredSkills.length > 0 ? "full-scope" : null);
+      if (scope === "target-date" && !targetPaths.targetDate) throw new Error("Path unavailable");
       setBuildStatus("Saving your plan…");
       const request = generatePlanningRequestSchema.parse({ mutationId: createMutationId(), roleId: blueprint.id, planningDate, audit, availability, target, selectedScope: scope });
       const saved = await generate(request);
@@ -93,9 +89,9 @@ export function AdaptiveSetupFlow({ blueprint, registry, generate, navigate, cre
   return <section className="setup-flow adaptive-setup-flow">
     <p className="setup-progress">{String(stageIndex + 2).padStart(2, "0")} / 05 · {stageLabel[stage]}</p>
     <h1 ref={headingRef} tabIndex={-1}>{stage === "audit" ? "Audit each skill, honestly." : stage === "availability" ? "Write a week you can repeat." : stage === "target" ? "Choose scope against time." : "Build the plan from your answers."}</h1>
-    {stage === "audit" && <SkillAuditStep blueprint={blueprint} onChange={setAuditDraft} value={auditDraft} />}
-    {stage === "availability" && <AvailabilityStep onChange={setAvailabilityDraft} planningDate={planningDate} value={availabilityDraft} />}
-    {stage === "target" && audit && availability && <TargetStep audit={audit} availability={availability} blueprint={blueprint} buildPaths={buildPaths} registry={registry} onScopeChange={setSelectedScope} onTargetChange={(weeks) => { setTargetWeeks(weeks); setSelectedScope(null); }} planningDate={planningDate} selectedScope={selectedScope} target={targetDraft} />}
+    {stage === "audit" && <SkillAuditStep blueprint={blueprint} onChange={(next) => { setAuditDraft(next); setSelectedScope(null); }} value={auditDraft} />}
+    {stage === "availability" && <AvailabilityStep onChange={(next) => { setAvailabilityDraft(next); setSelectedScope(null); }} planningDate={planningDate} value={availabilityDraft} />}
+    {stage === "target" && audit && availability && <TargetStep blueprint={blueprint} error={targetBuild.failed ? "Arc could not compare these paths. Review the inputs and try again." : undefined} onScopeChange={setSelectedScope} onTargetChange={(weeks) => { setTargetWeeks(weeks); setSelectedScope(null); }} result={targetPaths} selectedScope={scopeAvailable ? selectedScope : null} target={targetDraft} />}
     {stage === "build" && <div className="build-ledger"><p role={buildStatus.includes("could not") ? "alert" : "status"}>{buildStatus}</p><button className="setup-next" disabled={building} onClick={() => void build()} type="button">Build my path</button></div>}
     <nav className="setup-actions" aria-label="Setup steps">
       <button className="setup-back text-action" disabled={building} onClick={back} type="button">Back</button>
