@@ -351,6 +351,20 @@ describe("Arc beta persistence schema", () => {
     }
   });
 
+  it("indexes immutable planning fingerprints within the owner and goal scope", () => {
+    for (const [table, name] of [
+      [schema.skillAuditVersions, "skill_audit_versions_fingerprint_idx"],
+      [schema.availabilityVersions, "availability_versions_fingerprint_idx"],
+      [schema.learningPathVersions, "learning_path_versions_fingerprint_idx"],
+      [schema.planVersions, "plan_versions_fingerprint_idx"],
+    ] as Array<[SQLiteTable, string]>) {
+      const candidate = getTableConfig(table).indexes.find((item) => item.config.name === name);
+      expect(candidate?.config.columns.map((column) => "name" in column ? column.name : null), name)
+        .toEqual(["user_id", "goal_id", "input_fingerprint"]);
+      expect(candidate?.config.unique, name).toBe(false);
+    }
+  });
+
   it("declares the exact adaptive planning composite foreign keys", () => {
     const goalForeignKeys: Array<[SQLiteTable, string]> = [
       [schema.skillAuditVersions, "skill_audit_versions_goal_fk"],

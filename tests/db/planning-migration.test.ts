@@ -124,6 +124,23 @@ describe("adaptive planning migration", () => {
     }
   });
 
+  it("installs all four scoped immutable fingerprint indexes", () => {
+    withDatabase((db) => {
+      for (const [table, name] of [
+        ["skill_audit_versions", "skill_audit_versions_fingerprint_idx"],
+        ["availability_versions", "availability_versions_fingerprint_idx"],
+        ["learning_path_versions", "learning_path_versions_fingerprint_idx"],
+        ["plan_versions", "plan_versions_fingerprint_idx"],
+      ]) {
+        const index = db.prepare(`PRAGMA index_list(\`${table}\`)`).all() as Array<{ name: string }>;
+        expect(index.map(({ name: indexName }) => indexName), table).toContain(name);
+        const columns = db.prepare(`PRAGMA index_info(\`${name}\`)`).all() as Array<{ name: string }>;
+        expect(columns.map(({ name: column }) => column), name)
+          .toEqual(["user_id", "goal_id", "input_fingerprint"]);
+      }
+    });
+  });
+
   it("accepts a same-owner graph and rejects cross-owner or cross-goal references", () => {
     withDatabase((db) => {
       seedValidGraph(db);

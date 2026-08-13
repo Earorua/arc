@@ -420,6 +420,7 @@ export const skillAuditVersions = sqliteTable("skill_audit_versions", {
     name: "skill_audit_versions_goal_fk",
   }).onDelete("cascade"),
   uniqueIndex("skill_audit_versions_identity_idx").on(table.userId, table.goalId, table.id),
+  index("skill_audit_versions_fingerprint_idx").on(table.userId, table.goalId, table.inputFingerprint),
 ]);
 
 export const availabilityVersions = sqliteTable("availability_versions", {
@@ -438,6 +439,7 @@ export const availabilityVersions = sqliteTable("availability_versions", {
     name: "availability_versions_goal_fk",
   }).onDelete("cascade"),
   uniqueIndex("availability_versions_identity_idx").on(table.userId, table.goalId, table.id),
+  index("availability_versions_fingerprint_idx").on(table.userId, table.goalId, table.inputFingerprint),
 ]);
 
 export const learningPathVersions = sqliteTable("learning_path_versions", {
@@ -472,6 +474,7 @@ export const learningPathVersions = sqliteTable("learning_path_versions", {
     name: "learning_path_versions_availability_fk",
   }).onDelete("cascade"),
   uniqueIndex("learning_path_versions_identity_idx").on(table.userId, table.goalId, table.id),
+  index("learning_path_versions_fingerprint_idx").on(table.userId, table.goalId, table.inputFingerprint),
 ]);
 
 const planningEventKinds = [
@@ -509,6 +512,7 @@ export const planVersions = sqliteTable("plan_versions", {
     name: "plan_versions_base_fk",
   }).onDelete("no action"),
   uniqueIndex("plan_versions_identity_idx").on(table.userId, table.goalId, table.id),
+  index("plan_versions_fingerprint_idx").on(table.userId, table.goalId, table.inputFingerprint),
 ]);
 
 export const dailyUnits = sqliteTable("daily_units", {

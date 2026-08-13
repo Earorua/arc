@@ -11,6 +11,7 @@ CREATE TABLE `availability_versions` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `availability_versions_identity_idx` ON `availability_versions` (`user_id`,`goal_id`,`id`);--> statement-breakpoint
+CREATE INDEX `availability_versions_fingerprint_idx` ON `availability_versions` (`user_id`,`goal_id`,`input_fingerprint`);--> statement-breakpoint
 CREATE TABLE `daily_units` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
@@ -49,6 +50,7 @@ CREATE TABLE `learning_path_versions` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `learning_path_versions_identity_idx` ON `learning_path_versions` (`user_id`,`goal_id`,`id`);--> statement-breakpoint
+CREATE INDEX `learning_path_versions_fingerprint_idx` ON `learning_path_versions` (`user_id`,`goal_id`,`input_fingerprint`);--> statement-breakpoint
 CREATE TABLE `plan_versions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
@@ -68,6 +70,7 @@ CREATE TABLE `plan_versions` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `plan_versions_identity_idx` ON `plan_versions` (`user_id`,`goal_id`,`id`);--> statement-breakpoint
+CREATE INDEX `plan_versions_fingerprint_idx` ON `plan_versions` (`user_id`,`goal_id`,`input_fingerprint`);--> statement-breakpoint
 CREATE TABLE `planning_events` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text NOT NULL,
@@ -127,4 +130,5 @@ CREATE TABLE `skill_audit_versions` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `skill_audit_versions_identity_idx` ON `skill_audit_versions` (`user_id`,`goal_id`,`id`);--> statement-breakpoint
+CREATE INDEX `skill_audit_versions_fingerprint_idx` ON `skill_audit_versions` (`user_id`,`goal_id`,`input_fingerprint`);--> statement-breakpoint
 CREATE UNIQUE INDEX `career_goals_user_id_idx` ON `career_goals` (`user_id`,`id`);

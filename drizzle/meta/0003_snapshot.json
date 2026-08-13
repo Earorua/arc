@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3b9ba116-af32-4c0c-ba8a-222e1ba5e2d0",
+  "id": "ee2e7bbd-cbd1-4deb-94e9-48b676c6bca8",
   "prevId": "4613064f-41ec-4454-b588-108e80148c17",
   "tables": {
     "account_link_intents": {
@@ -536,6 +536,15 @@
             "id"
           ],
           "isUnique": true
+        },
+        "availability_versions_fingerprint_idx": {
+          "name": "availability_versions_fingerprint_idx",
+          "columns": [
+            "user_id",
+            "goal_id",
+            "input_fingerprint"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1296,6 +1305,15 @@
             "id"
           ],
           "isUnique": true
+        },
+        "learning_path_versions_fingerprint_idx": {
+          "name": "learning_path_versions_fingerprint_idx",
+          "columns": [
+            "user_id",
+            "goal_id",
+            "input_fingerprint"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1873,6 +1891,15 @@
             "id"
           ],
           "isUnique": true
+        },
+        "plan_versions_fingerprint_idx": {
+          "name": "plan_versions_fingerprint_idx",
+          "columns": [
+            "user_id",
+            "goal_id",
+            "input_fingerprint"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -3464,6 +3491,15 @@
             "id"
           ],
           "isUnique": true
+        },
+        "skill_audit_versions_fingerprint_idx": {
+          "name": "skill_audit_versions_fingerprint_idx",
+          "columns": [
+            "user_id",
+            "goal_id",
+            "input_fingerprint"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {

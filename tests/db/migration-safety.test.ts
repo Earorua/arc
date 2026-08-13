@@ -164,7 +164,7 @@ describe("adaptive planning migration safety", () => {
   });
 
   it("contains only additive table and index segments", () => {
-    expect(migrationStatements(migrationSql)).toHaveLength(18);
+    expect(migrationStatements(migrationSql)).toHaveLength(22);
     expect(isAdditiveSchemaMigration(migrationSql)).toBe(true);
   });
 
@@ -174,6 +174,19 @@ describe("adaptive planning migration safety", () => {
     expect(statements).toEqual([
       "CREATE UNIQUE INDEX `career_goals_user_id_idx` ON `career_goals` (`user_id`,`id`);",
     ]);
+  });
+
+  it("creates the four scoped immutable fingerprint indexes", () => {
+    for (const [table, name] of [
+      ["skill_audit_versions", "skill_audit_versions_fingerprint_idx"],
+      ["availability_versions", "availability_versions_fingerprint_idx"],
+      ["learning_path_versions", "learning_path_versions_fingerprint_idx"],
+      ["plan_versions", "plan_versions_fingerprint_idx"],
+    ]) {
+      expect(migrationSql).toContain(
+        `CREATE INDEX \`${name}\` ON \`${table}\` (\`user_id\`,\`goal_id\`,\`input_fingerprint\`)`,
+      );
+    }
   });
 
   it("preserves the exact composite ownership and version references", () => {
