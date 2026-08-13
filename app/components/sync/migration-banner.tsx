@@ -29,8 +29,9 @@ type AdaptiveMigrationBannerProps = {
   kind: "adaptive-plan";
   state: PlanningWorkspace;
   status: MigrationStatus;
+  recovery?: "none" | "session-expired" | "conflict" | "unavailable";
   onDismiss: () => void;
-  onImport: () => Promise<void>;
+  onImport: () => Promise<boolean | void>;
 };
 
 export function MigrationBanner(props: V7MigrationBannerProps | AdaptiveMigrationBannerProps) {
@@ -38,7 +39,7 @@ export function MigrationBanner(props: V7MigrationBannerProps | AdaptiveMigratio
   return <V7MigrationBanner {...props} />;
 }
 
-function AdaptiveMigrationBanner({ status, onDismiss, onImport }: AdaptiveMigrationBannerProps) {
+function AdaptiveMigrationBanner({ status, recovery = "none", onDismiss, onImport }: AdaptiveMigrationBannerProps) {
   const [dismissed, setDismissed] = useState(false);
   const [pending, setPending] = useState(false);
   const [conflict, setConflict] = useState(false);
@@ -52,7 +53,8 @@ function AdaptiveMigrationBanner({ status, onDismiss, onImport }: AdaptiveMigrat
     setFailed(false);
     setConflict(false);
     try {
-      await onImport();
+      const imported = await onImport();
+      if (imported === false) return;
     } catch (error) {
       if (isArcApiError(error) && error.code === "CONFLICT") setConflict(true);
       else setFailed(true);
@@ -70,8 +72,12 @@ function AdaptiveMigrationBanner({ status, onDismiss, onImport }: AdaptiveMigrat
         <small>Nothing moves until you choose. “Not now” keeps every local byte on this device.</small>
       </div>
       <div className="migration-actions">
-        {conflict ? <p>Cloud planning changed. Refresh and retry the import.</p> : null}
-        {failed || status === "failed" ? <p>Import is unavailable. Retry when your connection recovers.</p> : null}
+        {conflict || recovery === "conflict"
+          ? <p>Arc could not import because the cloud plan changed. Refresh and try again.</p>
+          : null}
+        {(failed || status === "failed") && recovery !== "conflict"
+          ? <p>Import is unavailable. Retry when your connection recovers.</p>
+          : null}
         <button disabled={busy} onClick={() => void begin()} type="button">
           {busy ? "Importing…" : "Import"}
         </button>

@@ -31,8 +31,34 @@ describe("MigrationBanner", () => {
     expect(screen.queryByText(/completed unit|proof/i)).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Import" }));
     expect(onImport).toHaveBeenCalledWith();
-    expect(await screen.findByText(/refresh.*retry/i)).toBeInTheDocument();
+    expect(await screen.findByText(/cloud plan changed.*try again/i)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /archive import/i })).not.toBeInTheDocument();
+  });
+  it("renders a typed adaptive conflict when import resolves false", async () => {
+    const user = userEvent.setup();
+    const onImport = vi.fn().mockResolvedValue(false);
+    const view = render(<MigrationBanner
+      kind="adaptive-plan"
+      recovery="none"
+      state={{} as PlanningWorkspace}
+      status="available"
+      onDismiss={vi.fn()}
+      onImport={onImport}
+    />);
+    await user.click(screen.getByRole("button", { name: "Import" }));
+    expect(onImport).toHaveBeenCalledTimes(1);
+
+    view.rerender(<MigrationBanner
+      kind="adaptive-plan"
+      recovery="conflict"
+      state={{} as PlanningWorkspace}
+      status="failed"
+      onDismiss={vi.fn()}
+      onImport={onImport}
+    />);
+    expect(screen.getByText("Arc could not import because the cloud plan changed. Refresh and try again."))
+      .toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /archive/i })).not.toBeInTheDocument();
   });
   it("summarizes meaningful local work and imports only after an explicit click", async () => {
     const user = userEvent.setup();

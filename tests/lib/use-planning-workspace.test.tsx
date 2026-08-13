@@ -14,6 +14,16 @@ import { usePlanningWorkspace } from "../../app/lib/use-planning-workspace";
 const anonymous = () => ({ data: null, isPending: false });
 const signed = () => ({ data: { user: { id: "user-1", name: "Learner", email: "learner@example.com" } }, isPending: false });
 
+function signedAs(id: string) {
+  return { data: { user: { id, name: id, email: `${id}@example.com` } }, isPending: false };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((next) => { resolve = next; });
+  return { promise, resolve };
+}
+
 function local(overrides: Partial<LocalPlanningRepository> = {}) {
   return {
     load: vi.fn().mockResolvedValue(null),
@@ -312,5 +322,96 @@ describe("usePlanningWorkspace", () => {
     }
     render(<RoleBoundary roleId="custom-role" />);
     expect(instantiate).not.toHaveBeenCalled();
+  });
+
+  it("hides user A immediately on an identity switch and ignores A resolving after B", async () => {
+    const { generated } = await generatedFixture();
+    const workspaceA = structuredClone(generated.workspace);
+    workspaceA.id = "workspace-user-a";
+    const workspaceB = structuredClone(generated.workspace);
+    workspaceB.id = "workspace-user-b";
+    const staleA = deferred<typeof workspaceA>();
+    const pendingB = deferred<typeof workspaceB>();
+    const loadWorkspace = vi.fn()
+      .mockResolvedValueOnce(workspaceA)
+      .mockReturnValueOnce(staleA.promise)
+      .mockReturnValueOnce(pendingB.promise);
+    const client = cloud({ loadWorkspace });
+    const { result, rerender } = renderHook(
+      ({ identity }) => usePlanningWorkspace({
+        local: local(), client, useSession: () => signedAs(identity),
+      }),
+      { initialProps: { identity: "user-a" } },
+    );
+    await waitFor(() => expect(result.current.workspace?.id).toBe("workspace-user-a"));
+    let staleRetry!: Promise<void>;
+    act(() => { staleRetry = result.current.retry(); });
+    await waitFor(() => expect(loadWorkspace).toHaveBeenCalledTimes(2));
+
+    rerender({ identity: "user-b" });
+    expect(result.current.workspace).toBeNull();
+    expect(result.current.source).toBe("restoring");
+    await expect(result.current.record({
+      kind: "skipped",
+      unitId: workspaceA.dailyUnits[0]!.id,
+      planningDate: "2026-08-17",
+    })).resolves.toBe(false);
+    await expect(result.current.generate(generationInput())).resolves.toBe(false);
+    await expect(result.current.accept("candidate-a")).resolves.toBe(false);
+    await expect(result.current.discard("candidate-a")).resolves.toBe(false);
+    await expect(result.current.importLocal()).resolves.toBe(false);
+    expect(client.appendEvent).not.toHaveBeenCalled();
+    expect(client.generate).not.toHaveBeenCalled();
+    expect(client.acceptReplan).not.toHaveBeenCalled();
+    expect(client.discardReplan).not.toHaveBeenCalled();
+    await waitFor(() => expect(loadWorkspace).toHaveBeenCalledTimes(3));
+    await act(async () => { pendingB.resolve(workspaceB); });
+    await waitFor(() => expect(result.current.workspace?.id).toBe("workspace-user-b"));
+    await act(async () => {
+      staleA.resolve(workspaceA);
+      await staleRetry;
+    });
+    expect(result.current.workspace?.id).toBe("workspace-user-b");
+  });
+
+  it("never exposes cloud bytes while switching signed to guest", async () => {
+    const { generated } = await generatedFixture();
+    const guestLoad = deferred<null>();
+    const repository = local({ load: vi.fn().mockReturnValue(guestLoad.promise) });
+    const client = cloud({ loadWorkspace: vi.fn().mockResolvedValue(generated.workspace) });
+    const { result, rerender } = renderHook(
+      ({ signedIn }) => usePlanningWorkspace({
+        local: repository,
+        client,
+        useSession: () => signedIn ? signedAs("user-a") : anonymous(),
+      }),
+      { initialProps: { signedIn: true } },
+    );
+    await waitFor(() => expect(result.current.workspace).toEqual(generated.workspace));
+    rerender({ signedIn: false });
+    expect(result.current).toMatchObject({ workspace: null, source: "restoring" });
+    await waitFor(() => expect(repository.load).toHaveBeenCalledTimes(1));
+    await act(async () => { guestLoad.resolve(null); });
+    await waitFor(() => expect(result.current.source).toBe("local"));
+  });
+
+  it("never exposes guest bytes while switching guest to signed", async () => {
+    const { generated } = await generatedFixture();
+    const cloudLoad = deferred<null>();
+    const repository = local({ load: vi.fn().mockResolvedValue(generated.workspace) });
+    const client = cloud({ loadWorkspace: vi.fn().mockReturnValue(cloudLoad.promise) });
+    const { result, rerender } = renderHook(
+      ({ signedIn }) => usePlanningWorkspace({
+        local: repository,
+        client,
+        useSession: () => signedIn ? signedAs("user-a") : anonymous(),
+      }),
+      { initialProps: { signedIn: false } },
+    );
+    await waitFor(() => expect(result.current.workspace).toEqual(generated.workspace));
+    rerender({ signedIn: true });
+    expect(result.current).toMatchObject({ workspace: null, source: "restoring" });
+    await waitFor(() => expect(client.loadWorkspace).toHaveBeenCalledTimes(1));
+    await act(async () => { cloudLoad.resolve(null); });
   });
 });

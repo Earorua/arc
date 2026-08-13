@@ -53,6 +53,8 @@ type PlanningWorkspaceOptions = {
   useSession: () => ArcSessionState;
 };
 
+type PlanningIdentity = "guest" | `user:${string}`;
+
 const IMPORT_EVENT_LINEAGE_KIND = "arc-planning-import-event-lineage";
 const IMPORT_EVENT_LINEAGE_VERSION = 1;
 
@@ -67,6 +69,9 @@ function useRuntimeSession(): ArcSessionState {
 export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> = {}): PlanningWorkspaceController {
   const useSession = options.useSession ?? useRuntimeSession;
   const session = useSession();
+  const currentIdentity: PlanningIdentity = session.data?.user.id
+    ? `user:${session.data.user.id}`
+    : "guest";
   const clientRef = useRef(options.client ?? planningClient);
   const localRef = useRef(options.local ?? createLocalPlanningRepository());
   const nowRef = useRef(options.now ?? (() => new Date()));
@@ -76,10 +81,12 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   const [source, setSource] = useState<PlanningStateSource>("restoring");
   const [migration, setMigration] = useState<PlanningMigrationState>("none");
   const [recovery, setRecovery] = useState<PlanningRecoveryState>("none");
+  const [visibleIdentity, setVisibleIdentity] = useState<PlanningIdentity | null>(null);
   const workspaceRef = useRef<PlanningWorkspace | null>(null);
   const sourceRef = useRef<PlanningStateSource>("restoring");
   const userIdRef = useRef<string | null>(session.data?.user.id ?? null);
   const importSourceRef = useRef<LocalPlanningImportSource | null>(null);
+  const loadGenerationRef = useRef(0);
   const inFlightRef = useRef(false);
 
   const publishWorkspace = useCallback((value: unknown) => {
@@ -95,13 +102,16 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   }, []);
 
   const load = useCallback(async () => {
+    const loadGeneration = ++loadGenerationRef.current;
     const userId = userIdRef.current;
-    const sessionIsCurrent = () => userIdRef.current === userId;
+    const identity: PlanningIdentity = userId ? `user:${userId}` : "guest";
+    const sessionIsCurrent = () => userIdRef.current === userId && loadGenerationRef.current === loadGeneration;
     setRecovery("none");
     if (!userId) {
       const localWorkspace = await localRef.current.load();
       if (!sessionIsCurrent()) return;
       publishWorkspace(localWorkspace);
+      setVisibleIdentity(identity);
       importSourceRef.current = null;
       setMigration("none");
       publishSource("local");
@@ -112,6 +122,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       if (!sessionIsCurrent()) return;
       if (cloudWorkspace) {
         publishWorkspace(cloudWorkspace);
+        setVisibleIdentity(identity);
         importSourceRef.current = null;
         setMigration("none");
         publishSource("cloud");
@@ -124,10 +135,12 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         const progress = await localRef.current.readImportProgress(userId, localSource.workspaceFingerprint);
         if (!sessionIsCurrent()) return;
         publishWorkspace(localSource.workspace);
+        setVisibleIdentity(identity);
         setMigration(progress?.completed ? "imported" : "available");
         publishSource("local");
       } else {
         publishWorkspace(null);
+        setVisibleIdentity(identity);
         setMigration("none");
         publishSource("cloud");
       }
@@ -141,6 +154,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
 
   useEffect(() => {
     userIdRef.current = session.data?.user.id ?? null;
+    loadGenerationRef.current += 1;
     if (session.isPending) {
       let current = true;
       queueMicrotask(() => {
@@ -168,6 +182,8 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   const publishResult = useCallback((value: unknown, nextSource: "local" | "cloud") => {
     const result = planningMutationResultSchema.parse(value);
     publishWorkspace(result.workspace);
+    const identity: PlanningIdentity = userIdRef.current ? `user:${userIdRef.current}` : "guest";
+    setVisibleIdentity(identity);
     publishSource(nextSource);
     setRecovery("none");
     return true;
@@ -193,7 +209,13 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     (client) => client.generate(input),
   ), [mutate]);
 
+  const guardedGenerate = useCallback((input: GeneratePlanningRequest) => {
+    if (visibleIdentity !== currentIdentity) return Promise.resolve(false);
+    return generate(input);
+  }, [currentIdentity, generate, visibleIdentity]);
+
   const record = useCallback((input: PlanningEventInput) => {
+    if (visibleIdentity !== currentIdentity) return Promise.resolve(false);
     let parsed: PlanningEventInput;
     try { parsed = planningEventInputSchema.parse(input); }
     catch { return Promise.resolve(false); }
@@ -208,9 +230,10 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       (repository) => repository.appendEvent(request),
       (client) => client.appendEvent(request),
     );
-  }, [mutate]);
+  }, [currentIdentity, mutate, visibleIdentity]);
 
   const decide = useCallback((kind: "accept" | "discard", candidatePlanVersionId: string) => {
+    if (visibleIdentity !== currentIdentity) return Promise.resolve(false);
     const current = workspaceRef.current;
     if (!current) return Promise.resolve(false);
     const request: ReplanDecisionRequest = {
@@ -222,9 +245,10 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       (repository) => kind === "accept" ? repository.accept(request) : repository.discard(request),
       (client) => kind === "accept" ? client.acceptReplan(request) : client.discardReplan(request),
     );
-  }, [mutate]);
+  }, [currentIdentity, mutate, visibleIdentity]);
 
   const importLocal = useCallback(() => guarded(async () => {
+    if (visibleIdentity !== currentIdentity) return false;
     const userId = userIdRef.current;
     const sourceSnapshot = importSourceRef.current ?? await localRef.current.readImportSource();
     if (!userId || !sourceSnapshot) return false;
@@ -267,14 +291,14 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       handleFailure(error, setRecovery);
       return false;
     }
-  }), [guarded, publishSource, publishWorkspace]);
+  }), [currentIdentity, guarded, publishSource, publishWorkspace, visibleIdentity]);
 
   return {
-    workspace,
-    source,
+    workspace: visibleIdentity === currentIdentity ? workspace : null,
+    source: visibleIdentity === currentIdentity ? source : "restoring",
     migration,
     recovery,
-    generate,
+    generate: guardedGenerate,
     record,
     accept: (candidatePlanVersionId) => decide("accept", candidatePlanVersionId),
     discard: (candidatePlanVersionId) => decide("discard", candidatePlanVersionId),
