@@ -6,6 +6,8 @@ import { createDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-s
 import { flagshipRole } from "../../app/data/flagship-role";
 
 const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+const { usePlanningWorkspace } = vi.hoisted(() => ({ usePlanningWorkspace: vi.fn(() => ({ workspace: null, source: "local", migration: "none", recovery: "none", generate: vi.fn(), record: vi.fn(), accept: vi.fn(), discard: vi.fn(), importLocal: vi.fn(), dismissMigration: vi.fn(), retry: vi.fn() })) }));
+vi.mock("../../app/lib/use-planning-workspace", () => ({ usePlanningWorkspace }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
@@ -26,6 +28,7 @@ afterEach(() => {
 
 describe("TodayPage", () => {
   it("keeps the honest unit estimate and explains a weekly budget shortfall", async () => {
+    usePlanningWorkspace.mockClear();
     saveDemoState(mergeSetup(createDemoState(), {
       roleId: "数据产品经理",
       level: "beginner",
@@ -47,6 +50,7 @@ describe("TodayPage", () => {
       expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
     });
     expect(screen.getByText("minutes")).toBeInTheDocument();
+    expect(usePlanningWorkspace).not.toHaveBeenCalled();
   });
 
   it("does not show sample or budget disclosures for the fitting flagship role", async () => {

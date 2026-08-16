@@ -8,15 +8,34 @@ import { WorkspaceShell } from "../components/workspace/workspace-shell";
 import { flagshipRole } from "../data/flagship-role";
 import { assessTodayBudget } from "../lib/personalized-plan";
 import { useArcState } from "../lib/use-arc-state";
+import { usePlanningWorkspace } from "../lib/use-planning-workspace";
+import { parsePlanningWorkspaceAtRepositoryBoundary } from "../contracts/planning";
+import { AdaptiveTodaySession } from "../components/today/adaptive-today-session";
 
 export default function TodayPage() {
-  const router = useRouter();
   const arc = useArcState();
   const { state } = arc;
-  const [completionError, setCompletionError] = useState<string | null>(null);
 
   if (state === null) return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={null} />;
 
+  if (state.setup.roleId === flagshipRole.id) return <FlagshipAdaptiveToday arc={arc} />;
+  return <LegacyToday arc={arc} />;
+}
+
+function FlagshipAdaptiveToday({ arc }: { arc: ReturnType<typeof useArcState> }) {
+  const planning = usePlanningWorkspace();
+  let workspace = null;
+  try { workspace = planning.workspace ? parsePlanningWorkspaceAtRepositoryBoundary(planning.workspace) : null; } catch { workspace = null; }
+  if (!workspace) return <LegacyToday arc={arc} />;
+  return <WorkspaceShell current="Today" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery}>
+    <AdaptiveTodaySession accept={planning.accept} discard={planning.discard} record={planning.record} recovery={planning.recovery} workspace={workspace} />
+  </WorkspaceShell>;
+}
+
+function LegacyToday({ arc }: { arc: ReturnType<typeof useArcState> }) {
+  const router = useRouter();
+  const state = arc.state!;
+  const [completionError, setCompletionError] = useState<string | null>(null);
   const budget = assessTodayBudget(flagshipRole.today, state.setup.weeklyMinutes);
 
   const complete = async (unit: typeof flagshipRole.today) => {

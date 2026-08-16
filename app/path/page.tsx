@@ -5,6 +5,9 @@ import { PhaseRail } from "../components/workspace/phase-rail";
 import { WorkspaceShell } from "../components/workspace/workspace-shell";
 import { useArcState } from "../lib/use-arc-state";
 import { formatWeeklyBudget, getRoleDisplayName, redistributePhaseWeeks } from "../lib/personalized-plan";
+import { usePlanningWorkspace } from "../lib/use-planning-workspace";
+import { parsePlanningWorkspaceAtRepositoryBoundary } from "../contracts/planning";
+import { AdaptivePath } from "../components/workspace/adaptive-path";
 
 export default function PathPage() {
   const arc = useArcState();
@@ -12,6 +15,22 @@ export default function PathPage() {
 
   if (state === null) return <WorkspaceShell current="Path" recovery={arc.recovery} source={arc.source} state={null} />;
 
+  if (state.setup.roleId === flagshipRole.id) return <FlagshipAdaptivePath arc={arc} />;
+  return <LegacyPath arc={arc} />;
+}
+
+function FlagshipAdaptivePath({ arc }: { arc: ReturnType<typeof useArcState> }) {
+  const planning = usePlanningWorkspace();
+  let workspace = null;
+  try { workspace = planning.workspace ? parsePlanningWorkspaceAtRepositoryBoundary(planning.workspace) : null; } catch { workspace = null; }
+  if (!workspace) return <LegacyPath arc={arc} />;
+  return <WorkspaceShell current="Path" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery}>
+    <AdaptivePath workspace={workspace} />
+  </WorkspaceShell>;
+}
+
+function LegacyPath({ arc }: { arc: ReturnType<typeof useArcState> }) {
+  const state = arc.state!;
   const { roleId, targetWeeks, weeklyMinutes } = state.setup;
   const role = getRoleDisplayName(roleId);
   const budget = formatWeeklyBudget(weeklyMinutes);

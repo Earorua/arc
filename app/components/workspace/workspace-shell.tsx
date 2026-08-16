@@ -13,6 +13,8 @@ import type {
   ArcRecoveryState,
   ArcStateSource,
 } from "../../lib/use-arc-state";
+import type { PlanningMigrationState, PlanningRecoveryState } from "../../lib/use-planning-workspace";
+import type { PlanningWorkspace } from "../../contracts/planning";
 
 const links = [["Today", "/today"], ["Path", "/path"], ["Stack", "/stack"], ["Proof", "/proof"]] as const;
 type WorkspaceLabel = (typeof links)[number][0];
@@ -25,6 +27,11 @@ export function WorkspaceShell({
   onDismissMigration,
   onImport,
   onRetry,
+  planningMigration = "none",
+  planningMigrationState,
+  onDismissPlanningMigration,
+  onImportPlanning,
+  planningRecovery = "none",
   recovery = "none",
   source = "local",
   state,
@@ -36,6 +43,11 @@ export function WorkspaceShell({
   onDismissMigration?: () => void;
   onImport?: (resolution?: ArcMigrationResolution) => Promise<void>;
   onRetry?: () => Promise<void>;
+  planningMigration?: PlanningMigrationState;
+  planningMigrationState?: PlanningWorkspace | null;
+  onDismissPlanningMigration?: () => void;
+  onImportPlanning?: () => Promise<boolean>;
+  planningRecovery?: PlanningRecoveryState;
   recovery?: ArcRecoveryState;
   source?: ArcStateSource;
   state: DemoState | null;
@@ -75,6 +87,16 @@ export function WorkspaceShell({
                 onImport={onImport}
                 state={migrationState}
                 status={migration}
+              />
+            )}
+            {onDismissPlanningMigration && onImportPlanning && planningMigrationState && (
+              <MigrationBanner
+                kind="adaptive-plan"
+                onDismiss={onDismissPlanningMigration}
+                onImport={onImportPlanning}
+                recovery={planningRecovery}
+                state={planningMigrationState}
+                status={planningMigration}
               />
             )}
             {recovery === "session-expired" ? (

@@ -3,6 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import PathPage from "../../app/path/page";
 import { createDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-store";
 
+const { usePlanningWorkspace } = vi.hoisted(() => ({ usePlanningWorkspace: vi.fn(() => ({ workspace: null, source: "local", migration: "none", recovery: "none", generate: vi.fn(), record: vi.fn(), accept: vi.fn(), discard: vi.fn(), importLocal: vi.fn(), dismissMigration: vi.fn(), retry: vi.fn() })) }));
+vi.mock("../../app/lib/use-planning-workspace", () => ({ usePlanningWorkspace }));
+
 vi.mock("../../app/lib/auth-client", () => ({
   authClient: { useSession: () => ({ data: null, isPending: false }) },
 }));
@@ -31,6 +34,7 @@ describe("PathPage", () => {
   });
 
   it("hydrates a custom role, weekly budget, and proportional target path", async () => {
+    usePlanningWorkspace.mockClear();
     saveDemoState(mergeSetup(createDemoState(), {
       roleId: "数据产品经理",
       level: "advanced",
@@ -49,6 +53,7 @@ describe("PathPage", () => {
     expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
     expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
 
+    expect(usePlanningWorkspace).not.toHaveBeenCalled();
     const phaseList = screen.getByRole("list", { name: "Learning phases" });
     const phaseWeeks = within(phaseList).getAllByText(/weeks$/).map((item) => item.textContent);
     expect(phaseWeeks).toEqual(["2 weeks", "3 weeks", "3 weeks", "2 weeks"]);
