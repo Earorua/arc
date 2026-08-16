@@ -15,8 +15,38 @@ vi.mock("../../app/lib/auth-client", () => ({
 
 import { AccountMenu } from "../../app/components/account/account-menu";
 import { SiteHeader } from "../../app/components/brand/site-header";
+import { AdaptiveTodaySession } from "../../app/components/today/adaptive-today-session";
+import { AdaptivePath } from "../../app/components/workspace/adaptive-path";
 import { WorkspaceShell } from "../../app/components/workspace/workspace-shell";
+import { PLANNING_SCHEMA_VERSION, planningWorkspaceSchema } from "../../app/contracts/planning";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { createDemoState } from "../../app/lib/demo-store";
+import { buildLearningPaths } from "../../app/lib/planning/path-builder";
+import { buildPlanVersion } from "../../app/lib/planning/scheduler";
+
+function adaptiveWorkspace() {
+  const audit = {
+    id: "audit-accessibility", schemaVersion: PLANNING_SCHEMA_VERSION,
+    blueprintId: flagshipBlueprint.id, blueprintVersion: flagshipBlueprint.version,
+    answers: flagshipBlueprint.skills.map(({ id: skillId }) => ({ skillId, level: "conceptual" as const, evidenceRefs: [] })),
+    evidence: [], createdBy: "learner", inputFingerprint: "audit-accessibility-fingerprint",
+  };
+  const availability = {
+    id: "availability-accessibility", schemaVersion: PLANNING_SCHEMA_VERSION, timeZone: "UTC",
+    weekdays: { monday: 180, tuesday: 180, wednesday: 180, thursday: 180, friday: 180, saturday: 180, sunday: 180 },
+    exceptions: [], weeklyMinutes: 1260, inputFingerprint: "availability-accessibility-fingerprint",
+  };
+  const target = { id: "target-accessibility", schemaVersion: PLANNING_SCHEMA_VERSION, targetWeeks: 18, inputFingerprint: "target-accessibility-fingerprint" };
+  const path = buildLearningPaths({ blueprint: flagshipBlueprint, registry: flagshipUnitRegistry, audit, availability, target, planningDate: "2026-08-17" }).fullScope;
+  const built = buildPlanVersion({ path, registry: flagshipUnitRegistry, availability, planningDate: "2026-08-17", generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() });
+  return planningWorkspaceSchema.parse({
+    id: "workspace-accessibility", goalId: "goal-accessibility", revision: 0, lastSequence: 0,
+    audit, availability, availabilityVersions: [availability], target,
+    pathVersions: [path], planVersions: [built.plan], dailyUnits: built.dailyUnits, events: [],
+    activePathVersionId: path.id, activePlanVersionId: built.plan.id, pendingPlanVersionId: null,
+  });
+}
 
 function mockAccountMenu(status: unknown = {
   stage: null,
@@ -263,5 +293,34 @@ describe("navigation accessibility contracts", () => {
   it("keeps Setup forward and Back actions at the 44px touch-target minimum", () => {
     const css = readFileSync("app/globals.css", "utf8");
     expect(css).toMatch(/\.setup-next\s*,\s*\.setup-back\s*\{[^}]*min-height:\s*44px\s*;/u);
+  });
+
+  it("exposes adaptive Path and Today through semantic hierarchy, labels, source safety, and status feedback", async () => {
+    const user = userEvent.setup();
+    const workspace = adaptiveWorkspace();
+    const record = vi.fn().mockResolvedValue(false);
+    render(<>
+      <AdaptivePath workspace={workspace} />
+      <AdaptiveTodaySession workspace={workspace} record={record} accept={vi.fn()} discard={vi.fn()} />
+    </>);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Your precise path." })).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Ordered learning path" })).toBeInTheDocument();
+    expect(screen.getByRole("article")).toHaveAccessibleName();
+    expect(screen.getAllByRole("checkbox").length).toBeGreaterThan(0);
+    const resource = screen.getAllByRole("link").find((link) => link.getAttribute("target") === "_blank");
+    expect(resource).toHaveAttribute("rel", "noreferrer");
+
+    await user.click(screen.getByRole("button", { name: "Delay" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Arc could not update this plan");
+  });
+
+  it("keeps adaptive focus indication and reduced-motion rules explicit", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    const reducedMotionRules = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
+
+    expect(css).toMatch(/:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--signal\)[^}]*outline-offset:\s*4px/u);
+    expect(reducedMotionRules).toMatch(/\.plan-diff-review\s*\{[^}]*animation:\s*none[^}]*transition:\s*none[^}]*transform:\s*none/u);
+    expect(reducedMotionRules).toMatch(/\*,\s*\*::before,\s*\*::after\s*\{[^}]*animation-duration:\s*0\.01ms\s*!important/u);
   });
 });

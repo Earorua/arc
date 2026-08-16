@@ -26,6 +26,8 @@ test("server-renders the Arc landing page", async () => {
   assert.match(html, /Arc\./);
   assert.match(html, /Learn only what moves you forward/);
   assert.match(html, /Build my precise path/);
+  assert.match(html, /<main[\s>]/);
+  assert.match(html, /aria-label="Public navigation"/);
   assert.match(html, /property="og:image" content="https:\/\/arc-precision-path\.jiahe-xu\.chatgpt\.site\/og\.png"/);
   assert.match(html, /property="og:image:width" content="1672"/);
   assert.match(html, /property="og:image:height" content="941"/);
@@ -61,4 +63,14 @@ test("keeps server secret identifiers out of the client bundle", async () => {
   ]) {
     assert.doesNotMatch(bundle, new RegExp(identifier));
   }
+});
+
+test("ships the adaptive workspace recovery and review copy without replacing the public shell", async () => {
+  const clientDirectory = fileURLToPath(new URL("../dist/client", import.meta.url));
+  const bundle = await readBundleText(clientDirectory);
+
+  assert.match(bundle, /Review every change\./);
+  assert.match(bundle, /Plan version unavailable\./);
+  assert.match(bundle, /Your precise path\./);
+  assert.doesNotMatch(bundle, /self-assessment is verified/iu);
 });
