@@ -8,6 +8,7 @@ import { formatWeeklyBudget, getRoleDisplayName, redistributePhaseWeeks } from "
 import { usePlanningWorkspace } from "../lib/use-planning-workspace";
 import { parsePlanningWorkspaceAtRepositoryBoundary } from "../contracts/planning";
 import { AdaptivePath } from "../components/workspace/adaptive-path";
+import { PlanDiffReview } from "../components/workspace/plan-diff-review";
 
 export default function PathPage() {
   const arc = useArcState();
@@ -24,8 +25,9 @@ function FlagshipAdaptivePath({ arc }: { arc: ReturnType<typeof useArcState> }) 
   let workspace = null;
   try { workspace = planning.workspace ? parsePlanningWorkspaceAtRepositoryBoundary(planning.workspace) : null; } catch { workspace = null; }
   if (!workspace) return <LegacyPath arc={arc} />;
-  return <WorkspaceShell current="Path" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery}>
+  return <WorkspaceShell current="Path" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>
     <AdaptivePath workspace={workspace} />
+    {workspace.pendingPlanVersionId && <PlanDiffReview workspace={workspace} recovery={planning.recovery} onAccept={planning.accept} onDiscard={planning.discard} />}
   </WorkspaceShell>;
 }
 

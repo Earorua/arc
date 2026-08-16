@@ -97,6 +97,7 @@ describe("SetupFlow", () => {
     const renderAdaptive = vi.fn(() => <p>Adaptive workspace</p>);
     render(<SetupFlow onComplete={vi.fn()} renderAdaptive={renderAdaptive} />);
     expect(renderAdaptive).not.toHaveBeenCalled();
+    expect(screen.getByText("01 / 05")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Continue" }));
     expect(renderAdaptive).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Adaptive workspace")).toBeInTheDocument();

@@ -15,7 +15,7 @@ import {
   type PlanningWorkspace,
   type UnitRegistry,
 } from "../../contracts/planning";
-import { minutesForDate } from "./calendar";
+import { compareCalendarDates, minutesForDate } from "./calendar";
 import { canonicalJson, deterministicId, fingerprint } from "./fingerprint";
 import { PlanningEventError, diffPlans } from "./plan-diff";
 import { buildPlanVersion, estimateCompletionDate } from "./scheduler";
@@ -133,6 +133,13 @@ function assertActiveTarget(
   const activePlan = getPlan(workspace, workspace.activePlanVersionId);
   if (!activePlan.dailyUnitIds.includes(event.unitId)
     || !workspace.dailyUnits.some((unit) => unit.planVersionId === activePlan.id && unit.id === event.unitId)) {
+    throw new PlanningEventError("UNIT_NOT_ACTIVE");
+  }
+  const target = workspace.dailyUnits.find((unit) =>
+    unit.planVersionId === activePlan.id && unit.id === event.unitId);
+  const nextRequiredId = activePlan.days.find(({ primaryUnitId }) => primaryUnitId !== null)?.primaryUnitId;
+  if (!target?.required || target.slot !== "primary" || target.id !== nextRequiredId
+    || compareCalendarDates(event.planningDate, target.scheduledDate) < 0) {
     throw new PlanningEventError("UNIT_NOT_ACTIVE");
   }
 }

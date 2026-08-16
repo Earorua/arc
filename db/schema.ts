@@ -3,7 +3,7 @@
 // See examples/d1/db/schema.ts for an opt-in example.
 export {};
 import { sql } from "drizzle-orm";
-import { foreignKey, index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { foreignKey, index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 const nowMs = sql`(unixepoch() * 1000)`;
 
@@ -404,7 +404,7 @@ export const resourceSkillLinks = sqliteTable("resource_skill_links", {
 ]);
 
 export const skillAuditVersions = sqliteTable("skill_audit_versions", {
-  id: text("id").primaryKey(),
+  id: text("id").notNull(),
   userId: text("user_id").notNull(),
   goalId: text("goal_id").notNull(),
   schemaVersion: text("schema_version").notNull(),
@@ -414,6 +414,7 @@ export const skillAuditVersions = sqliteTable("skill_audit_versions", {
   payloadJson: text("payload_json").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
   foreignKey({
     columns: [table.userId, table.goalId],
     foreignColumns: [careerGoals.userId, careerGoals.id],
@@ -424,7 +425,7 @@ export const skillAuditVersions = sqliteTable("skill_audit_versions", {
 ]);
 
 export const availabilityVersions = sqliteTable("availability_versions", {
-  id: text("id").primaryKey(),
+  id: text("id").notNull(),
   userId: text("user_id").notNull(),
   goalId: text("goal_id").notNull(),
   schemaVersion: text("schema_version").notNull(),
@@ -433,6 +434,7 @@ export const availabilityVersions = sqliteTable("availability_versions", {
   payloadJson: text("payload_json").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
   foreignKey({
     columns: [table.userId, table.goalId],
     foreignColumns: [careerGoals.userId, careerGoals.id],
@@ -443,7 +445,7 @@ export const availabilityVersions = sqliteTable("availability_versions", {
 ]);
 
 export const learningPathVersions = sqliteTable("learning_path_versions", {
-  id: text("id").primaryKey(),
+  id: text("id").notNull(),
   userId: text("user_id").notNull(),
   goalId: text("goal_id").notNull(),
   schemaVersion: text("schema_version").notNull(),
@@ -458,6 +460,7 @@ export const learningPathVersions = sqliteTable("learning_path_versions", {
   payloadJson: text("payload_json").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
   foreignKey({
     columns: [table.userId, table.goalId],
     foreignColumns: [careerGoals.userId, careerGoals.id],
@@ -483,7 +486,7 @@ const planningEventKinds = [
 ] as const;
 
 export const planVersions = sqliteTable("plan_versions", {
-  id: text("id").primaryKey(),
+  id: text("id").notNull(),
   userId: text("user_id").notNull(),
   goalId: text("goal_id").notNull(),
   schemaVersion: text("schema_version").notNull(),
@@ -496,6 +499,7 @@ export const planVersions = sqliteTable("plan_versions", {
   payloadJson: text("payload_json").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
   foreignKey({
     columns: [table.userId, table.goalId],
     foreignColumns: [careerGoals.userId, careerGoals.id],
@@ -516,7 +520,7 @@ export const planVersions = sqliteTable("plan_versions", {
 ]);
 
 export const dailyUnits = sqliteTable("daily_units", {
-  id: text("id").primaryKey(),
+  id: text("id").notNull(),
   userId: text("user_id").notNull(),
   goalId: text("goal_id").notNull(),
   planVersionId: text("plan_version_id").notNull(),
@@ -527,6 +531,7 @@ export const dailyUnits = sqliteTable("daily_units", {
   payloadJson: text("payload_json").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
   foreignKey({
     columns: [table.userId, table.goalId],
     foreignColumns: [careerGoals.userId, careerGoals.id],
@@ -548,7 +553,7 @@ export const dailyUnits = sqliteTable("daily_units", {
 ]);
 
 export const planningWorkspaces = sqliteTable("planning_workspaces", {
-  id: text("id").primaryKey(),
+  id: text("id").notNull(),
   userId: text("user_id").notNull(),
   goalId: text("goal_id").notNull(),
   revision: integer("revision").notNull().default(0),
@@ -561,6 +566,7 @@ export const planningWorkspaces = sqliteTable("planning_workspaces", {
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
   foreignKey({
     columns: [table.userId, table.goalId],
     foreignColumns: [careerGoals.userId, careerGoals.id],
@@ -596,7 +602,7 @@ export const planningWorkspaces = sqliteTable("planning_workspaces", {
 ]);
 
 export const planningEvents = sqliteTable("planning_events", {
-  id: text("id").primaryKey(),
+  id: text("id").notNull(),
   userId: text("user_id").notNull(),
   goalId: text("goal_id").notNull(),
   workspaceId: text("workspace_id").notNull(),
@@ -610,6 +616,7 @@ export const planningEvents = sqliteTable("planning_events", {
   occurredAt: integer("occurred_at", { mode: "timestamp_ms" }).notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 }, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
   foreignKey({
     columns: [table.userId, table.goalId],
     foreignColumns: [careerGoals.userId, careerGoals.id],

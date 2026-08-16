@@ -253,6 +253,35 @@ describe("guest adaptive planning repository", () => {
     expect(storage.removeCalls).toEqual([]);
   });
 
+  it("runs the guarded v7 upgrade on the first production repository read", async () => {
+    const storage = new MemoryStorage();
+    const legacy = mergeSetup(createDemoState(), {
+      roleId: "ai-native-full-stack-engineer",
+      level: "intermediate",
+      weeklyMinutes: 360,
+      targetWeeks: 20,
+    });
+    const legacyBytes = JSON.stringify(legacy);
+    storage.values.set(DEMO_STORAGE_KEY, legacyBytes);
+
+    const repository = createRepository(storage, "production-upgrade");
+    await expect(repository.load()).resolves.toBeNull();
+
+    expect(storage.getItem(DEMO_STORAGE_KEY)).toBe(legacyBytes);
+    expect(storage.setCalls).toHaveLength(1);
+    expect(JSON.parse(storage.getItem(PLANNING_STORAGE_KEY)!)).toMatchObject({
+      migration: { source: DEMO_STORAGE_KEY },
+      setupDraft: {
+        roleId: "ai-native-full-stack-engineer",
+        legacyLevel: "intermediate",
+        weeklyMinutes: 360,
+        targetWeeks: 20,
+        auditAnswers: [],
+      },
+      workspace: null,
+    });
+  });
+
   it("returns a v7-compatible fallback without replacing malformed v2 bytes or partially writing", async () => {
     const storage = new MemoryStorage();
     const legacy = mergeSetup(createDemoState(), {

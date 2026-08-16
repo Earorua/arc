@@ -179,6 +179,44 @@ describe("adaptive planning migration", () => {
     });
   });
 
+  it("allows two owners to persist identical deterministic planning IDs", () => {
+    withDatabase((db) => {
+      seedValidGraph(db);
+      db.exec(`
+        INSERT INTO skill_audit_versions
+          (id,user_id,goal_id,schema_version,blueprint_id,blueprint_version,input_fingerprint,payload_json)
+        VALUES ('audit-a','user-b','goal-b','2026.08.1','blueprint','2026.08.1','audit-fp','{}');
+        INSERT INTO availability_versions
+          (id,user_id,goal_id,schema_version,input_fingerprint,weekly_minutes,payload_json)
+        VALUES ('availability-a','user-b','goal-b','2026.08.1','availability-fp',420,'{}');
+        INSERT INTO learning_path_versions
+          (id,user_id,goal_id,schema_version,blueprint_id,blueprint_version,registry_id,registry_version,
+           audit_version_id,availability_version_id,scope_mode,input_fingerprint,payload_json)
+        VALUES ('path-a','user-b','goal-b','2026.08.1','blueprint','2026.08.1','registry','2026.08.1',
+          'audit-a','availability-a','full-scope','path-fp','{}');
+        INSERT INTO plan_versions
+          (id,user_id,goal_id,schema_version,path_version_id,generation,planning_date,input_fingerprint,payload_json)
+        VALUES ('plan-a','user-b','goal-b','2026.08.1','path-a','initial','2026-08-12','plan-fp','{}');
+        INSERT INTO daily_units
+          (id,user_id,goal_id,plan_version_id,unit_id,scheduled_date,slot,required,payload_json)
+        VALUES ('daily-a','user-b','goal-b','plan-a','unit-a','2026-08-12','primary',1,'{}');
+        INSERT INTO planning_workspaces
+          (id,user_id,goal_id,revision,current_audit_version_id,current_availability_version_id,
+           active_path_version_id,active_plan_version_id,next_sequence)
+        VALUES ('workspace-a','user-b','goal-b',0,'audit-a','availability-a','path-a','plan-a',1);
+        INSERT INTO planning_events
+          (id,user_id,goal_id,workspace_id,sequence,mutation_id,target_plan_version_id,unit_id,kind,payload_json,occurred_at)
+        VALUES ('event-a','user-b','goal-b','workspace-a',1,'mutation-a','plan-a','unit-a','completed','{}',1786500000000);
+      `);
+
+      for (const table of planningTables) {
+        expect(db.prepare(`SELECT COUNT(*) AS count FROM \`${table}\``).get(), table)
+          .toMatchObject({ count: 2 });
+      }
+      expect(db.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
+    });
+  });
+
   it("rejects a cross-goal path audit when availability belongs to the path goal", () => {
     withDatabase((db) => {
       seedValidGraph(db);

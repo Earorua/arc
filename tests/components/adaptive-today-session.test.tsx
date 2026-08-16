@@ -17,10 +17,12 @@ function workspace() {
   return planningWorkspaceSchema.parse({ id: "workspace-today", goalId: "goal-today", revision: 0, lastSequence: 0, audit, availability, availabilityVersions: [availability], target, pathVersions: [path], planVersions: [built.plan], dailyUnits: built.dailyUnits, events: [], activePathVersionId: path.id, activePlanVersionId: built.plan.id, pendingPlanVersionId: null });
 }
 
+const fixedNow = () => new Date("2026-08-14T10:00:00.000Z");
+
 afterEach(cleanup);
 describe("AdaptiveTodaySession", () => {
   it("renders one complete primary brief, exact source attributes, and at most one optional stretch", () => {
-    render(<AdaptiveTodaySession workspace={workspace()} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+    render(<AdaptiveTodaySession workspace={workspace()} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
     expect(screen.getByText(/Today · 2026-08-14 · Primary outcome/)).toBeInTheDocument();
     expect(screen.getByText("Build")).toBeInTheDocument(); expect(screen.getByText("Completion criteria")).toBeInTheDocument();
     expect(screen.getByText("Proof requirement")).toBeInTheDocument(); expect(screen.getByText("Rubric")).toBeInTheDocument();
@@ -32,7 +34,7 @@ describe("AdaptiveTodaySession", () => {
 
   it("keeps step checks ephemeral, requires them for Complete, and emits contextual event kinds", async () => {
     const user = userEvent.setup(); const record = vi.fn().mockResolvedValue(true);
-    render(<AdaptiveTodaySession workspace={workspace()} record={record} accept={vi.fn()} discard={vi.fn()} />);
+    render(<AdaptiveTodaySession workspace={workspace()} now={fixedNow} record={record} accept={vi.fn()} discard={vi.fn()} />);
     const complete = screen.getByRole("button", { name: "Complete" }); expect(complete).toBeDisabled();
     for (const box of screen.getAllByRole("checkbox")) await user.click(box);
     await user.click(complete); expect(record).toHaveBeenLastCalledWith(expect.objectContaining({ kind: "completed" }));
@@ -40,12 +42,42 @@ describe("AdaptiveTodaySession", () => {
     expect(screen.getByRole("status")).toHaveTextContent("current plan has not changed");
   });
 
+  it("reveals optional stretch only after the primary checklist is complete", async () => {
+    const user = userEvent.setup();
+    const current = workspace();
+    const active = current.planVersions.find(({ id }) => id === current.activePlanVersionId)!;
+    const firstDay = active.days[0]!;
+    expect(firstDay.stretchUnitId).not.toBeNull();
+
+    render(<AdaptiveTodaySession workspace={current} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+
+    expect(screen.queryByText(/Optional stretch/)).not.toBeInTheDocument();
+    for (const box of screen.getAllByRole("checkbox")) await user.click(box);
+    expect(screen.getByText(/Optional stretch/)).toBeInTheDocument();
+  });
+
+  it("uses the current availability-zone date for overdue work and event rollover", async () => {
+    const user = userEvent.setup();
+    const record = vi.fn().mockResolvedValue(true);
+    render(<AdaptiveTodaySession
+      workspace={workspace()}
+      now={() => new Date("2026-08-15T10:00:00.000Z")}
+      record={record}
+      accept={vi.fn()}
+      discard={vi.fn()}
+    />);
+
+    expect(screen.getByText(/Today · 2026-08-15 · Primary outcome/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Delay" }));
+    expect(record).toHaveBeenCalledWith(expect.objectContaining({ planningDate: "2026-08-15" }));
+  });
+
   it("contains a rejected action and restores the controls for retry", async () => {
     const user = userEvent.setup();
     const record = vi.fn()
       .mockRejectedValueOnce(new Error("private transport detail"))
       .mockResolvedValueOnce(true);
-    render(<AdaptiveTodaySession workspace={workspace()} record={record} accept={vi.fn()} discard={vi.fn()} />);
+    render(<AdaptiveTodaySession workspace={workspace()} now={fixedNow} record={record} accept={vi.fn()} discard={vi.fn()} />);
     const delay = screen.getByRole("button", { name: "Delay" });
 
     await user.click(delay);
@@ -68,12 +100,12 @@ describe("AdaptiveTodaySession", () => {
       pathVersions: [activePath, alternatePath],
       planVersions: [{ ...activePlan, pathVersionId: alternatePath.id }],
     });
-    const view = render(<AdaptiveTodaySession workspace={mismatched} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+    const view = render(<AdaptiveTodaySession workspace={mismatched} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
 
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("Today’s plan version is unavailable");
 
-    view.rerender(<AdaptiveTodaySession workspace={current} registry={{ ...flagshipUnitRegistry, blueprintVersion: "2026.99" }} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+    view.rerender(<AdaptiveTodaySession workspace={current} now={fixedNow} registry={{ ...flagshipUnitRegistry, blueprintVersion: "2026.99" }} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("Today’s plan version is unavailable");
   });
@@ -93,7 +125,7 @@ describe("AdaptiveTodaySession", () => {
     const activePrimaryId = active.days.find(({ primaryUnitId }) => primaryUnitId !== null)!.primaryUnitId!;
     const activeObjective = current.dailyUnits.find(({ id, planVersionId }) => id === activePrimaryId && planVersionId === active.id)!.objective;
 
-    render(<AdaptiveTodaySession workspace={pending} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+    render(<AdaptiveTodaySession workspace={pending} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
 
     expect(screen.getByRole("heading", { name: activeObjective })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Review every change." })).toBeInTheDocument();
@@ -113,7 +145,7 @@ describe("AdaptiveTodaySession", () => {
         : unit),
     });
 
-    render(<AdaptiveTodaySession workspace={withAlternative} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+    render(<AdaptiveTodaySession workspace={withAlternative} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
 
     for (const resource of [flagshipBlueprint.resources.find(({ id }) => id === primary.primaryResourceId)!, alternative]) {
       const link = screen.getByRole("link", { name: resource.title });

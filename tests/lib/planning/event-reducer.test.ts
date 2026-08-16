@@ -138,6 +138,22 @@ describe("applyPlanningEvent", () => {
     expect(transition.workspace.dailyUnits.filter(({ planVersionId, id }) => planVersionId === transition.workspace.activePlanVersionId && id === alpha.id)).toEqual([]);
   });
 
+  it("rejects stretch, future required, and pre-scheduled unit events", () => {
+    const initial = workspace();
+    const alpha = activeUnit(initial, "alpha");
+    const beta = activeUnit(initial, "beta");
+
+    for (const invalidEvent of [
+      event(initial, { kind: "completed", unitId: beta.id, actualMinutes: 30, planningDate: beta.scheduledDate }),
+      event(initial, { kind: "completed", unitId: alpha.id, actualMinutes: 30, planningDate: "2026-08-11" }),
+    ]) {
+      expect(() => applyPlanningEvent({ workspace: initial, blueprint, registry, event: invalidEvent }))
+        .toThrow(expect.objectContaining({ code: "UNIT_NOT_ACTIVE" }));
+    }
+    expect(initial.events).toEqual([]);
+    expect(initial.revision).toBe(0);
+  });
+
   it("proposes delayed, skipped, too-hard, known, and availability replans without replacing active", () => {
     const initial = workspace();
     const alpha = activeUnit(initial, "alpha");

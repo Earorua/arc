@@ -5,6 +5,7 @@ import type { LearningResource, RoleBlueprint } from "../../contracts/intelligen
 import { parsePlanningWorkspaceAtRepositoryBoundary, type DailyUnit, type PlanningEventInput, type PlanningWorkspace, type UnitRegistry } from "../../contracts/planning";
 import { flagshipBlueprint } from "../../data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
+import { planningDateForInstant } from "../../lib/planning/calendar";
 import { PlanDiffReview } from "../workspace/plan-diff-review";
 import { SevenDayTimeline } from "../workspace/seven-day-timeline";
 
@@ -16,14 +17,17 @@ type AdaptiveTodaySessionProps = {
   discard: (candidatePlanVersionId: string) => Promise<boolean>;
   blueprint?: RoleBlueprint;
   registry?: UnitRegistry;
+  now?: () => Date;
 };
 
 const actionEvents = [
   ["Delay", "delayed"], ["Skip", "skipped"], ["Too hard", "too_hard"], ["Already know this", "already_known"],
 ] as const;
 
-export function AdaptiveTodaySession({ workspace: value, recovery = "none", record, accept, discard, blueprint = flagshipBlueprint, registry = flagshipUnitRegistry }: AdaptiveTodaySessionProps) {
-  const resolved = useMemo(() => resolveToday(value, blueprint, registry), [blueprint, registry, value]);
+const systemNow = () => new Date();
+
+export function AdaptiveTodaySession({ workspace: value, recovery = "none", record, accept, discard, blueprint = flagshipBlueprint, registry = flagshipUnitRegistry, now = systemNow }: AdaptiveTodaySessionProps) {
+  const resolved = useMemo(() => resolveToday(value, blueprint, registry, now), [blueprint, now, registry, value]);
   const [progress, setProgress] = useState<{ unitId: string; checked: Set<string> }>(() => ({ unitId: "", checked: new Set() }));
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
@@ -52,7 +56,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
       <ResourceLinks primary={resolved.primaryResource} alternatives={resolved.alternativeResources} />
       <section className="today-work"><h2>Work the sequence.</h2><ol>{resolved.primary.steps.map((step) => <li key={step.id}><label><input checked={checked.has(step.id)} onChange={(event) => setProgress((current) => { const next = new Set(current.unitId === resolved.primary!.id ? current.checked : []); if (event.target.checked) next.add(step.id); else next.delete(step.id); return { unitId: resolved.primary!.id, checked: next }; })} type="checkbox" /><span>{step.label}</span><time>{step.minutes} min</time></label></li>)}</ol></section>
       <section className="today-brief"><div><p className="section-index">Build</p><p>{resolved.primary.buildTask}</p></div><div><p className="section-index">Completion criteria</p><ul>{resolved.primary.completionCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul></div><div><p className="section-index">Proof requirement</p><p>{resolved.primary.proofRequirement}</p></div><div><p className="section-index">Rubric</p><ol>{resolved.primary.rubric.map((row) => <li key={row}>{row}</li>)}</ol></div></section>
-      {resolved.stretch && <aside className="today-stretch"><p className="section-index">Optional stretch · {resolved.stretch.estimatedMinutes} minutes</p><h2>{resolved.stretch.objective}</h2><p>{resolved.stretch.whyNow}</p></aside>}
+      {canComplete && resolved.stretch && <aside className="today-stretch"><p className="section-index">Optional stretch · {resolved.stretch.estimatedMinutes} minutes</p><h2>{resolved.stretch.objective}</h2><p>{resolved.stretch.whyNow}</p></aside>}
       <div className="today-actions"><button disabled={pending || !canComplete} onClick={() => void send("completed")} type="button">Complete</button>{actionEvents.map(([label, kind]) => <button disabled={pending} key={kind} onClick={() => void send(kind)} type="button">{label}</button>)}</div>
       {message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "This plan changed on another device. Refresh before continuing." : message.text}</p>}
     </article>
@@ -61,7 +65,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
   </>;
 }
 
-function resolveToday(value: unknown, blueprint: RoleBlueprint, registry: UnitRegistry) {
+function resolveToday(value: unknown, blueprint: RoleBlueprint, registry: UnitRegistry, now: () => Date) {
   try {
     const workspace = parsePlanningWorkspaceAtRepositoryBoundary(value);
     const path = workspace.pathVersions.find(({ id }) => id === workspace.activePathVersionId);
@@ -70,12 +74,17 @@ function resolveToday(value: unknown, blueprint: RoleBlueprint, registry: UnitRe
       || path.blueprintId !== blueprint.id || path.blueprintVersion !== blueprint.version
       || path.registryId !== registry.id || path.registryVersion !== registry.version
       || registry.blueprintId !== blueprint.id || registry.blueprintVersion !== blueprint.version) return null;
-    const today = plan.planningDate;
-    const day = plan.days.find(({ date }) => date === today) ?? plan.days[0];
-    if (!day) return null;
+    const today = planningDateForInstant(now().toISOString(), workspace.availability.timeZone);
     const units = new Map(workspace.dailyUnits.filter(({ planVersionId }) => planVersionId === plan.id).map((unit) => [unit.id, unit]));
+    const nextRequired = plan.days
+      .map(({ primaryUnitId }) => primaryUnitId ? units.get(primaryUnitId) ?? null : null)
+      .find((unit) => unit !== null && unit.scheduledDate <= today) ?? null;
+    const day = nextRequired
+      ? plan.days.find(({ primaryUnitId }) => primaryUnitId === nextRequired.id)
+      : plan.days.find(({ date }) => date === today);
+    if (!day) return null;
     const resources = new Map(blueprint.resources.map((resource) => [resource.id, resource]));
-    const primary = day.primaryUnitId ? units.get(day.primaryUnitId) ?? null : null;
+    const primary = nextRequired;
     const stretch = day.stretchUnitId ? units.get(day.stretchUnitId) ?? null : null;
     return { workspace, plan, today: day.date, primary, stretch, primaryResource: primary ? resources.get(primary.primaryResourceId) ?? null : null, alternativeResources: primary ? primary.alternativeResourceIds.map((id) => resources.get(id)).filter((resource): resource is LearningResource => Boolean(resource)) : [] } satisfies TodayResolution;
   } catch { return null; }

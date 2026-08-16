@@ -52,7 +52,7 @@ export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers
   return (
     <>
     <section className="setup-flow" hidden={adaptiveSelected}>
-      <p className="setup-progress">{String(step + 1).padStart(2, "0")} / 04</p>
+      <p className="setup-progress">{String(step + 1).padStart(2, "0")} / {step === 0 && renderAdaptive && !hasCustomRole ? "05" : "04"}</p>
 
       {step === 0 && (
         <>

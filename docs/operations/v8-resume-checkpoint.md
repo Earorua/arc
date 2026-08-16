@@ -1,5 +1,17 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-16 当前恢复记录（覆盖下方历史状态）**
+>
+> 当前实现 worktree 为 `.worktrees/v8-adaptive-planning`，分支 `codex/v8-adaptive-planning`。Phase 2 Task 1–14 已按 TDD 完成本地提交；Task 13 提交为 `addae4c`，Task 14 提交为 `7b94915`。Task 15 首轮完整门槛在 `7b94915` 上通过：96 files / 1075 tests、TypeScript、lint、5/5 build、rendered HTML 3/3、产物 secret/provider drift 均无匹配。此证据已因随后 review fixes 失效，恢复后必须从头重跑。
+>
+> 两位独立最终 reviewer 均给出 `Ready: No`，确认需修复：跨 owner/goal 的确定性规划 ID 被 0003 全局主键错误冲突；事件 reducer 可越过首个 required primary；Today 使用旧 `plan.planningDate` 且提前显示 Stretch；生产读取未调用 guarded v7 upgrade；自定义岗位切回 Flagship 后公共 v7 Role 未同步；Path 缺 pending diff；adaptive shell 元数据仍取 v7 target；Setup 首屏进度总数不一致。规格 reviewer 另指出版本不匹配的 “Rebuild from Setup” 目前没有可保持历史的真正重建路径，恢复后必须先作架构内修复或把无法兑现的恢复承诺改成获批的诚实边界，不能删除历史来绕过。
+>
+> 当前 WIP 已先写 RED 测试并开始最小实现：event 当前必修边界、Today 当前时区日期与 Stretch gate、repository 首读升级、common Role 持久化、Path diff、planning target 元数据、Setup 进度，以及七张 planning 表的 `(user_id, goal_id, id)` composite primary key。已确认旧 0003 在第二 owner 使用相同确定性 ID 时 RED；v7 生产首读 RED；其他聚焦 GREEN 命令因用户要求保存进度而主动终止，**不得视为通过**。`npx tsc --noEmit` 在当前源码/测试 WIP 上已 exit 0，`git diff --check` 已通过。
+>
+> 恢复后的精确下一步：先运行当前八文件 focused Vitest，修正剩余失败；安全核对并用 Drizzle 重新生成仍叫 `0003_adaptive_planning` 的迁移（不能生成 0004，不能 ALTER/DROP/改旧表）；完成重建恢复边界；再跑 Task 8/9/10/11/12/13/14 回归、全量 Task 15 gate、两位独立复审，最后才更新完成文档。当前没有 merge、push、部署、生产 D1 迁移、环境变量或线上配置改动。
+>
+> 下方 2026-08-12 内容是历史检查点，仅用于背景，不再代表当前门槛。
+
 **保存日期：** 2026-08-12
 
 **当前阶段：** Phase 1 `Trusted Intelligence Kernel` 已完成并合并到本地 `master`；Phase 2 `Adaptive Planning Loop` 的交互设计与书面规格已获用户批准，详细 TDD 实施计划已保存到隔离分支。当前暂停在用户审阅并批准实施计划之前；没有开始 Phase 2 功能代码、测试或迁移。

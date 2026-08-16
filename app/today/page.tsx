@@ -27,7 +27,7 @@ function FlagshipAdaptiveToday({ arc }: { arc: ReturnType<typeof useArcState> })
   let workspace = null;
   try { workspace = planning.workspace ? parsePlanningWorkspaceAtRepositoryBoundary(planning.workspace) : null; } catch { workspace = null; }
   if (!workspace) return <LegacyToday arc={arc} />;
-  return <WorkspaceShell current="Today" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery}>
+  return <WorkspaceShell current="Today" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>
     <AdaptiveTodaySession accept={planning.accept} discard={planning.discard} record={planning.record} recovery={planning.recovery} workspace={workspace} />
   </WorkspaceShell>;
 }

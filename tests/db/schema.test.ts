@@ -318,6 +318,24 @@ describe("Arc beta persistence schema", () => {
     expect(isUniqueIndex(schema.careerGoals, "career_goals_user_id_idx")).toBe(true);
   });
 
+  it("uses owner-and-goal-scoped primary identities for every planning row", () => {
+    for (const table of [
+      schema.skillAuditVersions,
+      schema.availabilityVersions,
+      schema.learningPathVersions,
+      schema.planVersions,
+      schema.dailyUnits,
+      schema.planningWorkspaces,
+      schema.planningEvents,
+    ]) {
+      const config = getTableConfig(table);
+      expect(config.primaryKeys, getTableName(table)).toHaveLength(1);
+      expect(config.primaryKeys[0]?.columns.map(({ name }) => name), getTableName(table))
+        .toEqual(["user_id", "goal_id", "id"]);
+      expect(config.columns.find(({ name }) => name === "id")?.primary, getTableName(table)).toBe(false);
+    }
+  });
+
   it("declares exact adaptive planning enum boundaries", () => {
     expect(schema.learningPathVersions.scopeMode.enumValues).toEqual(["full-scope", "target-date"]);
     expect(schema.planVersions.generation.enumValues).toEqual(["initial", "automatic", "proposed"]);

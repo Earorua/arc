@@ -15,21 +15,25 @@ Arc. turns a career goal into an attributable skill map, a schedule-aware path, 
 
 Arc. organizes the learning journey into five connected decisions:
 
-1. **Setup** — define the role, current level, weekly time budget, and target duration.
-2. **Path** — distribute the journey across foundations, systems, delivery, and proof.
-3. **Today** — complete one focused unit with a concrete artifact.
+1. **Setup** — choose the role, assess each Flagship skill, record optional evidence metadata, set availability, and choose an honest scope.
+2. **Path** — follow a dependency-ordered route with explicit calibration and deferred-skill rationale.
+3. **Today** — complete one focused deliverable inside a rolling seven-day plan and review any proposed replan.
 4. **Stack** — inspect skills, curated claim confidence, sources, freshness, and prerequisites.
 5. **Proof** — turn completed work into private evidence and selectively publish only chosen fields.
 
-The flagship experience maps 16 skills for an AI full-stack engineer. Custom roles use that transparent sample until live role research is enabled; Arc. says this directly instead of presenting generated claims as researched fact.
+The flagship experience maps 16 skills for an AI full-stack engineer. The v8 adaptive flow is Flagship-only. Custom roles continue to use the v7 proportional route and transparent sample text until live role research is separately implemented; Arc. does not present generated claims as researched fact.
 
-## v8 Phase 1 boundary — in final quality review
+## v8 Phase 1 + Phase 2 boundary — local engineering candidate
 
-The v8 Phase 1 candidate adds a canonical, versioned intelligence contract for the built-in Flagship role. Each learning resource carries its language, cost, format, source tier, and last verification date, and Stack renders that evidence alongside prerequisites and mastery criteria. Stack's confidence value is confidence in the curated role claim; it is not a score of the learner's mastery, readiness, Proof status, or verification.
+Phase 1 adds a canonical, versioned intelligence contract for the built-in Flagship role. Each learning resource carries its language, cost, format, source tier, and last verification date, and Stack renders that evidence alongside prerequisites and mastery criteria. Stack's confidence value is confidence in the curated role claim; it is not a score of the learner's mastery, readiness, Proof status, or verification.
 
 The candidate's `GET /api/intelligence/flagship` endpoint is public, read-only, and guest-safe. It serves only the schema- and policy-validated built-in Flagship blueprint, without reading a session or user identifier. The Stack page consumes the same deterministic built-in source directly, so the guest path has no network or model dependency.
 
-Six additive, non-personal D1 tables and `drizzle/0002_product_intelligence.sql` reserve storage for future version publication. They have not been applied to production and are not the current Flagship read repository. Live Research Beta remains disabled: Phase 1 does not require or read `OPENROUTER_API_KEY`, and its Flagship path makes no OpenRouter request. Phase 1 is still inside its final quality gate; Phase 2 adaptive planning has not started. This section describes the review candidate, not capabilities already deployed on the live Sites URL.
+Phase 2 is implemented on the isolated local `codex/v8-adaptive-planning` branch. It adds strict planning contracts, a curated 48-unit Registry, deterministic path and calendar primitives, a rolling seven-day scheduler, event-sourced replanning with full diffs, guarded guest storage, owner-scoped D1 persistence and APIs, resumable device import, and adaptive Setup, Path, and Today surfaces. The same Flagship inputs and event stream are parity-tested across local and cloud adapters. Custom roles do not instantiate this adaptive path.
+
+Skill levels are learner self-assessment. Optional evidence is learner-supplied public-link metadata only: Arc. does not fetch, review, upload, demonstrate, or verify it, and Phase 2 does not modify Proof state or grant `verified` status.
+
+`drizzle/0002_product_intelligence.sql` and `drizzle/0003_adaptive_planning.sql` are generated local migration artifacts. Neither has been applied to production. Live Research Beta remains disabled: the deterministic Flagship planning path does not require or read `OPENROUTER_API_KEY` and makes no OpenRouter request. Phase 2 has not been merged, pushed, feature-flagged, migrated, or deployed; this section describes a local engineering candidate awaiting user acceptance. The public Sites URL still serves Arc. v7.2 / Sites version 9.
 
 ## Two honest modes
 
@@ -71,6 +75,7 @@ flowchart LR
 | Private files | Cloudflare R2 | Owner-scoped proof bytes; D1 stores searchable ownership metadata |
 | Anonymous state | Guarded browser storage | Device-local sample, explicit migration source, and capped offline mutation queue |
 | Intelligence | Versioned Flagship contract + deterministic mock preview | Validated, no-network Flagship reads today; a provider-replaceable boundary for later research |
+| Adaptive planning | Versioned Registry + deterministic event-sourced kernel | Flagship-only audit, path, seven-day plan, Today session, diff review, replay, and local/cloud parity |
 | Controls | D1 rate limits and cohort flag + runtime limits | Per-user quota, global budget, release cohort, and emergency kill switch |
 | Quality | Vitest, Testing Library, TypeScript, ESLint, rendered HTML checks | Domain behavior, access control, privacy, accessibility, and production confidence |
 | Delivery | GitHub Actions and OpenAI Sites | Reviewable checks, logical D1/R2 bindings, versioned publishing, and rollback |
@@ -83,7 +88,8 @@ flowchart LR
 - Proof assets are private in R2. Retrieval first proves ownership through D1 and never accepts an object key from the caller.
 - A public proof token stores only a SHA-256 hash at rest and exposes only the fields the owner selected. Revocation disables the database record; public routes never serve R2 bytes.
 - The browser never receives OAuth secrets, session secrets, or future model credentials. Real values belong only in hosted server-side secret management.
-- Live model access is still disabled. The protected legacy AI preview uses a deterministic mock, while the v8 Phase 1 Flagship read path uses validated built-in data only. Neither path requires `OPENROUTER_API_KEY`.
+- Live model access is still disabled. The protected legacy AI preview uses a deterministic mock, while the v8 Flagship intelligence and planning paths use validated built-in data only. Neither path requires `OPENROUTER_API_KEY`.
+- Phase 2 evidence fields are self-reported metadata, not Arc verification. Planning completion never writes legacy Proof verification state.
 - Any future paid call must pass identity, endpoint rate limiting, the runtime kill switch, the D1 release cohort, per-user quota, and the global budget ceiling before a reservation is issued.
 - Failed or invalid AI output produces no accepted user-facing charge. Operational records contain sanitized metadata, not prompts, role descriptions, proof bodies, tokens, or credentials.
 - `/admin` is read-only, exact-email allowlisted, and aggregate-only; it cannot browse learner content or identity records.
@@ -92,7 +98,7 @@ flowchart LR
 
 The Sites project is public with server-managed runtime configuration, logical `DB` and `PROOF_ASSETS` bindings, and the reviewed production v7 19-table migration. The deployed production product is Arc. v7.2, saved and deployed as Sites version 9. Primary Google and GitHub flows, current-provider reauthentication, cancellation, stale-grant rejection, owned-target isolation, and persistent migration dismissal have passed. Safe unowned-target linking, replay/application-bypass evidence, account-link event-log evidence, and post-link continuity remain open.
 
-Sites version 6 remains the direct rollback baseline. The v8 Phase 1 candidate is not deployed, and its additive `drizzle/0002_product_intelligence.sql` migration has not been applied to production. If Sites cannot preserve secure same-origin OAuth cookies and callbacks, the same browser contract can move to the approved owner-controlled Cloudflare deployment branch.
+Sites version 6 remains the direct rollback baseline. The v8 Phase 1 + Phase 2 candidate is not deployed; `drizzle/0002_product_intelligence.sql` and `drizzle/0003_adaptive_planning.sql` remain unapplied in production. If Sites cannot preserve secure same-origin OAuth cookies and callbacks, the same browser contract can move to the approved owner-controlled Cloudflare deployment branch.
 
 See [the OAuth feasibility record](./docs/operations/sites-oauth-feasibility.md) for the exact hosted validation status.
 
@@ -105,7 +111,7 @@ npm install
 npm run dev
 ```
 
-Copy `.env.example` to a local ignored environment file only when exercising server features. Keep credential values out of source control. The deterministic public sample, v8 Phase 1 Flagship path, and test suite require no OAuth or model key; `OPENROUTER_API_KEY` is reserved for the later Research Beta phase.
+Copy `.env.example` to a local ignored environment file only when exercising server features. Keep credential values out of source control. The deterministic public sample, v8 Flagship intelligence/planning paths, and test suite require no OAuth or model key; `OPENROUTER_API_KEY` is reserved for the later Research Beta phase.
 
 ## Verification
 
@@ -123,5 +129,5 @@ CI runs the unit, lint, production-build, and rendered-HTML gates on pull reques
 
 1. **Hosted Beta validation** — complete the private R2 Proof put/get and compensation smoke, then close safe unowned-target linking, replay/application-bypass, account-link event-log, and post-link continuity evidence.
 2. **Live role intelligence** — add the first owner-funded server provider behind the existing typed gateway, evidence model, quota, budget, cohort, and kill-switch controls.
-3. **Adaptive planning** — replace the transparent flagship fallback with sourced role research while keeping dependency ordering and time allocation deterministic.
+3. **Adaptive planning expansion** — after Phase 2 acceptance, plan the separately scoped Proof-backed Stack and later sourced-role research while keeping dependency ordering and time allocation deterministic.
 4. **Independent home** — attach a custom domain and move the same portable worker to the owner's Cloudflare account when product scale or identity control requires it.

@@ -315,7 +315,11 @@ export function createLocalPlanningRepository(options?: {
   return {
     async load() {
       if (!storage) return null;
-      const stored = readEnvelope(storage);
+      let stored = readEnvelope(storage);
+      if (stored.kind === "absent") {
+        await upgradeV7State(storage);
+        stored = readEnvelope(storage);
+      }
       if (stored.kind !== "valid" || stored.envelope.workspace === null) return null;
       return cloneWorkspace(stored.envelope.workspace);
     },

@@ -3,9 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SetupPage from "../../app/setup/page";
 import { flagshipRole } from "../../app/data/flagship-role";
-import { completeDemoUnit, createDemoState, loadDemoState, saveDemoState } from "../../app/lib/demo-store";
+import { completeDemoUnit, createDemoState, loadDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-store";
 
-const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+const { push, planningGenerate } = vi.hoisted(() => ({ push: vi.fn(), planningGenerate: vi.fn() }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
@@ -15,9 +15,26 @@ vi.mock("../../app/lib/auth-client", () => ({
   authClient: { useSession: () => ({ data: null, isPending: false }) },
 }));
 
+vi.mock("../../app/lib/use-planning-workspace", () => ({
+  usePlanningWorkspace: () => ({ generate: planningGenerate }),
+}));
+
+vi.mock("../../app/components/setup/adaptive-setup-flow", () => ({
+  AdaptiveSetupFlow: ({ generate, navigate }: {
+    generate: (request: unknown) => Promise<boolean>;
+    navigate: (path: string) => void;
+  }) => <button onClick={() => void generate({
+    roleId: "ai-native-full-stack-engineer",
+    availability: { weeklyMinutes: 840 },
+    target: { targetWeeks: 12 },
+  }).then((saved) => { if (saved) navigate("/path"); })} type="button">Finish adaptive setup</button>,
+}));
+
 beforeEach(() => {
   window.localStorage.clear();
   push.mockClear();
+  planningGenerate.mockReset();
+  planningGenerate.mockResolvedValue(true);
 });
 
 afterEach(() => {
@@ -72,5 +89,29 @@ describe("SetupPage", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent("无法保存到此设备");
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("persists the common Flagship role before exposing a generated adaptive workspace", async () => {
+    const user = userEvent.setup();
+    saveDemoState(mergeSetup(createDemoState(), {
+      roleId: "数据产品经理",
+      level: "advanced",
+      weeklyMinutes: 90,
+      targetWeeks: 10,
+    }));
+    render(<SetupPage />);
+    await screen.findByRole("heading", { name: "你想成为怎样的构建者？" });
+
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Finish adaptive setup" }));
+
+    expect(planningGenerate).toHaveBeenCalledTimes(1);
+    expect(loadDemoState().setup).toEqual({
+      roleId: "ai-native-full-stack-engineer",
+      level: "advanced",
+      weeklyMinutes: 840,
+      targetWeeks: 12,
+    });
+    expect(push).toHaveBeenCalledWith("/path");
   });
 });

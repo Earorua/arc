@@ -51,19 +51,30 @@ v8 不重写 Better Auth，不更换现有 D1/R2 绑定，不删除 v7.2 数据�
 - [x] 证据覆盖 strict parse、deterministic builtin、对称的依赖图与资源策略、additive non-personal D1 schema（未迁移）、guest-safe API、truthful Stack，以及保持全绿的 v7.2 auth、migration 与 workspace 回归测试。
 - [x] Task 8 Step 1–9 已完成；用户选择本地合并后，`master` 已从 `7861b8d` 快进到 `a3df268`，合并结果重新通过 67 files / 616 tests 与 TypeScript。
 - [x] `codex/v8-intelligence-kernel` 及其隔离 worktree 已在确认合并后清理；全部提交保留在本地 `master`。
-- [ ] 推送、D1 生产迁移、功能旗标变更、部署与 Phase 2 均未发生，仍分别需要明确批准；因此本记录不声称线上 v8。GitHub 网络同步曾超时，本地 `master` 根据缓存引用领先 `origin/master` 24 个提交。
-- [ ] Phase 2 尚未开始；尚未实现的是本阶段定义的岗位研究驱动完整路线、滚动每日计划与基于学习事件的自适应重排，现有 v7 proportional path 与 custom role text 不受此状态判断影响。
+- [ ] 推送、D1 生产迁移、功能旗标变更和部署均未发生，仍分别需要明确批准；因此本记录不声称线上 v8。GitHub 网络同步状态也没有在 Phase 2 工程工作中刷新。
+- [x] Phase 2 工程已在隔离本地分支实现；现有 v7 proportional path 与 custom role text 继续作为非 Flagship 路径，没有被自适应实现替换。
 
 Phase 1 不要求也不读取 `OPENROUTER_API_KEY`，确定性 Flagship 路径不发起 OpenRouter 请求。Live Research Beta 保持关闭，D1 生产迁移、功能旗标、推送、合并和部署均不在本记录内。
 
 ### Phase 2 — Adaptive Planning Loop
 
-书面规格已获批准；详细实施计划已编写并暂停在用户审阅门槛：
+书面规格与详细实施计划均已获批准；工程实现位于隔离本地分支，已通过最终工程门槛，当前暂停在用户验收与后续集成选择之前：
 `docs/superpowers/plans/2026-08-10-arc-v8-adaptive-planning.md`
 
 交付：快速技能审计、可选证据入口、周一至周日分钟模板和休息日、完整路线、滚动七日计划、Today 可交付单元、完成/延迟/太难/已掌握后的确定性重排以及变更摘要。
 
 退出门槛：相同输入得到相同计划；前置依赖不被越过；每日分钟不超预算；休息日不排任务；事件重放能重建计划状态；本地访客与云端用户行为一致。
+
+**2026-08-16 Phase 2 本地工程门槛记录（待用户验收，未发布）：**
+
+- [x] 已实现逐技能自评、可选公共证据元数据、时区与例外可用时间、目标范围选择，以及 Flagship-only 五阶段 Setup；证据元数据不等于 Arc 验证。
+- [x] 已实现确定性路径、完整/目标日期两种诚实范围、连续七日日程、一个 Primary 加至多一个 Stretch、完整 Today brief 和候选计划全量 diff。
+- [x] 已实现 append-only 学习事件、确定性重放、幂等结果、旧基线冲突、本地/云端 parity、可恢复设备导入，以及跨身份和卸载生命周期隔离。
+- [x] 已生成 `0003_adaptive_planning.sql` 和对应 Drizzle snapshot；七张个人规划表的 owner/goal 外键、CAS、唯一约束、回滚和 payload 上限已由本地测试覆盖。`0002` 与 `0003` 均未迁移生产。
+- [x] 最终 fresh gate：`npm run test:unit` 96 files / 1075 tests；TypeScript 与 ESLint exit `0`；vinext build 5/5；rendered HTML 3/3。
+- [x] Task 14 parity/安全/兼容门槛为 27 files / 408 tests；高风险 v7/auth/account-link/Proof 回归为 23 files / 230 tests。
+- [x] `dist` 密钥模式搜索与 Flagship planning provider/outbound-fetch 搜索均为 0 matches（`rg` exit `1`）。
+- [ ] 用户验收、合并、远程备份、生产 D1 迁移、功能旗标和 Sites 发布仍未发生；公开站点仍是 Arc. v7.2 / Sites version 9。
 
 ### Phase 3 — Proof-backed Stack
 
