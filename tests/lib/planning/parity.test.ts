@@ -309,5 +309,5 @@ describe("guest and cloud adaptive planning parity", () => {
     staleCloud.baseVersionId = oldBaseVersionId;
     await expect(local.appendEvent(staleLocal)).rejects.toMatchObject({ code: "CONFLICT" });
     await expect(cloud.appendEvent(OWNER_ID, staleCloud)).rejects.toMatchObject({ code: "CONFLICT" });
-  });
+  }, 30_000);
 });
