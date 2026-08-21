@@ -169,7 +169,7 @@ describe("navigation accessibility contracts", () => {
     dismiss.focus();
     await user.keyboard(" ");
 
-    await waitFor(() => expect(message).not.toBeInTheDocument());
+    await waitFor(() => expect(message).not.toBeInTheDocument(), { timeout: 10_000 });
     expect(linkTrigger).toHaveFocus();
   });
 

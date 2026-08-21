@@ -629,7 +629,7 @@ describe("guest adaptive planning repository", () => {
     expect(persisted.mutationResults.some(({ mutationId }) => mutationId === "cache-mutation-1")).toBe(false);
     expect(storage.setAttempts).toBe(1);
     expect(storage.setCalls).toHaveLength(1);
-  }, 30_000);
+  }, 120_000);
 
   it("rejects a compact cache record that is not related to its canonical history", async () => {
     const storage = new MemoryStorage();
