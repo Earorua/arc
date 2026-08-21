@@ -34,7 +34,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
   if (!resolved) return <PlanningVersionBoundary />;
-  if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">Today · {resolved.today}</p><h1>Rest is part of the plan.</h1><p>No required learning unit is scheduled today.</p></section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
+  if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">Today · {resolved.today}</p><h1>Rest is part of the plan.</h1><p>No required learning unit is scheduled today.</p>{message && <p role={message.kind}>{message.text}</p>}</section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
   const requiredSteps = resolved.primary.steps;
   const checked = progress.unitId === resolved.primary.id ? progress.checked : new Set<string>();
   const canComplete = requiredSteps.every(({ id }) => checked.has(id));

@@ -1,12 +1,14 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { useState } from "react";
 import { AdaptiveTodaySession } from "../../app/components/today/adaptive-today-session";
 import { PLANNING_SCHEMA_VERSION, planningWorkspaceSchema } from "../../app/contracts/planning";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { buildLearningPaths } from "../../app/lib/planning/path-builder";
 import { buildPlanVersion } from "../../app/lib/planning/scheduler";
+import { applyPlanningEvent } from "../../app/lib/planning/event-reducer";
 
 function workspace() {
   const audit = { id: "audit-today", schemaVersion: PLANNING_SCHEMA_VERSION, blueprintId: flagshipBlueprint.id, blueprintVersion: flagshipBlueprint.version, answers: flagshipBlueprint.skills.map(({ id }) => ({ skillId: id, level: "unseen" as const, evidenceRefs: [] })), evidence: [], createdBy: "learner", inputFingerprint: "audit-today-fingerprint" };
@@ -184,6 +186,63 @@ describe("AdaptiveTodaySession", () => {
     expect(screen.getByRole("heading", { name: activeObjective })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Review every change." })).toBeInTheDocument();
     expect(screen.getByText(/review before changing/)).toBeInTheDocument();
+  });
+
+  it("keeps the accepted-plan announcement visible when the candidate makes Today a Rest day", async () => {
+    const current = workspace();
+    const changedAvailability = {
+      ...current.availability,
+      id: "availability-today-accepted-rest",
+      weekdays: { ...current.availability.weekdays, friday: 0 },
+      weeklyMinutes: 1080,
+      inputFingerprint: "availability-today-accepted-rest-fingerprint",
+    };
+    const proposal = applyPlanningEvent({
+      workspace: current,
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+      event: {
+        eventId: "event-today-rest-proposal",
+        mutationId: "mutation-today-rest-proposal",
+        sequence: 1,
+        targetPlanVersionId: current.activePlanVersionId,
+        occurredAt: "2026-08-14T10:00:00.000Z",
+        kind: "availability_changed",
+        availability: changedAvailability,
+        planningDate: "2026-08-14",
+      },
+    });
+    if (proposal.kind !== "proposed") throw new Error("Expected a proposed rest-day plan");
+
+    function TodayDecisionHarness() {
+      const [value, setValue] = useState(proposal.workspace);
+      const accept = async (candidatePlanVersionId: string) => {
+        const accepted = applyPlanningEvent({
+          workspace: value,
+          blueprint: flagshipBlueprint,
+          registry: flagshipUnitRegistry,
+          event: {
+            eventId: "event-today-rest-accept",
+            mutationId: "mutation-today-rest-accept",
+            sequence: value.lastSequence + 1,
+            targetPlanVersionId: value.activePlanVersionId,
+            occurredAt: "2026-08-14T10:01:00.000Z",
+            kind: "replan_accepted",
+            candidatePlanVersionId,
+          },
+        });
+        setValue(accepted.workspace);
+        return true;
+      };
+      return <AdaptiveTodaySession workspace={value} now={fixedNow} record={vi.fn()} accept={accept} discard={vi.fn()} />;
+    }
+
+    const user = userEvent.setup();
+    render(<TodayDecisionHarness />);
+    await user.click(screen.getByRole("button", { name: "Accept new plan" }));
+
+    expect(await screen.findByRole("heading", { name: "Rest is part of the plan." })).toBeInTheDocument();
+    expect(await screen.findByRole("status")).toHaveTextContent("Candidate plan accepted");
   });
 
   it("uses exact safe-link attributes for primary and alternative sources", () => {
