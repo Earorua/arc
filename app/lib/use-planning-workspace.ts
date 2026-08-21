@@ -24,7 +24,7 @@ import { fingerprint } from "./planning/fingerprint";
 
 export type PlanningStateSource = "restoring" | "local" | "cloud" | "offline-cloud";
 export type PlanningMigrationState = "none" | "available" | "importing" | "imported" | "failed";
-export type PlanningRecoveryState = "none" | "session-expired" | "conflict" | "unavailable";
+export type PlanningRecoveryState = "none" | "session-expired" | "conflict" | "unavailable" | "version-unavailable";
 
 export type PlanningWorkspaceController = {
   workspace: PlanningWorkspace | null;
@@ -83,6 +83,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   const [migration, setMigration] = useState<PlanningMigrationState>("none");
   const [recovery, setRecovery] = useState<PlanningRecoveryState>("none");
   const [visibleIdentity, setVisibleIdentity] = useState<PlanningIdentity | null>(null);
+  const visibleIdentityRef = useRef<PlanningIdentity | null>(null);
   const workspaceRef = useRef<PlanningWorkspace | null>(null);
   const sourceRef = useRef<PlanningStateSource>("restoring");
   const userIdRef = useRef<string | null>(session.data?.user.id ?? null);
@@ -107,6 +108,11 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     setSource(value);
   }, []);
 
+  const publishVisibleIdentity = useCallback((value: PlanningIdentity) => {
+    visibleIdentityRef.current = value;
+    setVisibleIdentity(value);
+  }, []);
+
   const load = useCallback(async () => {
     const loadGeneration = ++loadGenerationRef.current;
     const userId = userIdRef.current;
@@ -118,7 +124,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       const localWorkspace = await localRef.current.load();
       if (!sessionIsCurrent()) return;
       publishWorkspace(localWorkspace);
-      setVisibleIdentity(identity);
+      publishVisibleIdentity(identity);
       importSourceRef.current = null;
       setMigration("none");
       publishSource("local");
@@ -129,7 +135,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       if (!sessionIsCurrent()) return;
       if (cloudWorkspace) {
         publishWorkspace(cloudWorkspace);
-        setVisibleIdentity(identity);
+        publishVisibleIdentity(identity);
         importSourceRef.current = null;
         setMigration("none");
         publishSource("cloud");
@@ -142,22 +148,28 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         const progress = await localRef.current.readImportProgress(userId, localSource.workspaceFingerprint);
         if (!sessionIsCurrent()) return;
         publishWorkspace(localSource.workspace);
-        setVisibleIdentity(identity);
+        publishVisibleIdentity(identity);
         setMigration(progress?.completed ? "imported" : "available");
         publishSource("local");
       } else {
         publishWorkspace(null);
-        setVisibleIdentity(identity);
+        publishVisibleIdentity(identity);
         setMigration("none");
         publishSource("cloud");
       }
     } catch (error) {
       if (!sessionIsCurrent()) return;
+      if (visibleIdentityRef.current !== identity) {
+        publishWorkspace(null);
+        importSourceRef.current = null;
+        setMigration("none");
+      }
+      publishVisibleIdentity(identity);
       handleFailure(error, setRecovery);
       if (workspaceRef.current && sourceRef.current === "cloud") publishSource("offline-cloud");
       else if (!workspaceRef.current) publishSource("offline-cloud");
     }
-  }, [publishSource, publishWorkspace]);
+  }, [publishSource, publishVisibleIdentity, publishWorkspace]);
 
   useEffect(() => {
     const lifecycle = lifecycleRef.current;
@@ -229,11 +241,11 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     const result = planningMutationResultSchema.parse(value);
     if (!isOperationCurrent(token)) return false;
     publishWorkspace(result.workspace);
-    setVisibleIdentity(token.identity);
+    publishVisibleIdentity(token.identity);
     publishSource(nextSource);
     setRecovery("none");
     return true;
-  }, [isOperationCurrent, publishSource, publishWorkspace]);
+  }, [isOperationCurrent, publishSource, publishVisibleIdentity, publishWorkspace]);
 
   const mutate = useCallback(async (
     expectedIdentity: PlanningIdentity,
@@ -353,7 +365,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       await localRef.current.updateImportProgress(sourceSnapshot.workspaceFingerprint, { ...progress, completed: true });
       if (!isOperationCurrent(token)) return false;
       publishWorkspace(loaded);
-      setVisibleIdentity(token.identity);
+      publishVisibleIdentity(token.identity);
       publishSource("cloud");
       setMigration("imported");
       setRecovery("none");
@@ -364,7 +376,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       handleFailure(error, setRecovery);
       return false;
     }
-  }), [currentIdentity, isOperationCurrent, publishSource, publishWorkspace, runOperation, visibleIdentity]);
+  }), [currentIdentity, isOperationCurrent, publishSource, publishVisibleIdentity, publishWorkspace, runOperation, visibleIdentity]);
 
   return {
     workspace: visibleIdentity === currentIdentity ? workspace : null,
@@ -450,7 +462,8 @@ function importEventFingerprint(events: readonly PlanningEvent[]): string {
 }
 
 function handleFailure(error: unknown, publish: (state: PlanningRecoveryState) => void) {
-  if (isArcApiError(error) && (error.status === 401 || error.action === "sign-in")) publish("session-expired");
+  if (isArcApiError(error) && error.action === "rebuild") publish("version-unavailable");
+  else if (isArcApiError(error) && (error.status === 401 || error.action === "sign-in")) publish("session-expired");
   else if (isArcApiError(error) && (error.status === 409 || error.code === "CONFLICT")) publish("conflict");
   else publish("unavailable");
 }

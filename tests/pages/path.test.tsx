@@ -108,4 +108,19 @@ describe("PathPage", () => {
     await user.click(screen.getByRole("button", { name: "Keep current plan" }));
     expect(discard).toHaveBeenCalledTimes(1);
   });
+
+  it("shows a truthful fail-closed boundary when the stored catalogue version cannot load", async () => {
+    usePlanningWorkspace.mockReturnValue({
+      ...emptyPlanningController(),
+      source: "offline-cloud",
+      recovery: "version-unavailable",
+    });
+
+    render(<PathPage />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Plan version unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(screen.queryByRole("link", { name: /rebuild/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Your precise path." })).not.toBeInTheDocument();
+  });
 });

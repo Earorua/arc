@@ -267,7 +267,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 /* Adaptive workspace: one editorial working ledger, not a dashboard. */
 .adaptive-path, .adaptive-today-session, .seven-day-plan, .plan-diff-review, .planning-version-recovery { width: min(1040px, 100%); margin-inline: auto; }
 .adaptive-path-heading { max-width: 860px; margin-bottom: 70px; }
-.adaptive-path-heading h1, .planning-version-recovery h1 { margin: 18px 0; font: 440 clamp(4rem, 8vw, 8rem)/.86 var(--display); letter-spacing: -.065em; }
+.adaptive-path-heading h1, .planning-version-recovery h1, .planning-version-recovery h2 { margin: 18px 0; font: 440 clamp(4rem, 8vw, 8rem)/.86 var(--display); letter-spacing: -.065em; }
 .adaptive-path-heading > p:last-child, .planning-version-recovery > p { max-width: 660px; color: var(--stone); line-height: 1.7; }
 .adaptive-path-rail, .adaptive-path-rail ol, .adaptive-later ul, .seven-day-timeline, .diff-items, .today-work ol { margin: 0; padding: 0; list-style: none; }
 .adaptive-path-rail { border-top: 1px solid var(--charcoal); }

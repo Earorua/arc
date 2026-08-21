@@ -222,6 +222,23 @@ describe("usePlanningWorkspace", () => {
     expect(result.current.workspace).toEqual(generated.workspace);
   });
 
+  it("distinguishes an unavailable catalogue version from a retryable outage", async () => {
+    const client = cloud({
+      loadWorkspace: vi.fn().mockRejectedValue(new ArcApiError(
+        503,
+        "PLANNING_UNAVAILABLE",
+        "Planning is temporarily unavailable.",
+        "request-version",
+        "rebuild",
+      )),
+    });
+    const { result } = renderHook(() => usePlanningWorkspace({ local: local(), client, useSession: signed }));
+
+    await waitFor(() => expect(result.current.recovery).toBe("version-unavailable"));
+    expect(result.current.workspace).toBeNull();
+    expect(result.current.source).toBe("offline-cloud");
+  });
+
   it("explicitly imports initial state then replays learning and decision events in sequence", async () => {
     const { generated, proposed, accepted, repository, source } = await importFixture();
     const loadWorkspace = vi.fn()

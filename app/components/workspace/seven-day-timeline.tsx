@@ -3,10 +3,11 @@ import type { UnitRegistry } from "../../contracts/planning";
 import { parsePlanningWorkspaceAtRepositoryBoundary } from "../../contracts/planning";
 import { flagshipBlueprint } from "../../data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
+import { PlanningVersionBoundary } from "./planning-version-boundary";
 
 export function SevenDayTimeline({ workspace: value, blueprint = flagshipBlueprint, registry = flagshipUnitRegistry }: { workspace: unknown; blueprint?: RoleBlueprint; registry?: UnitRegistry }) {
   const resolved = resolveTimeline(value, blueprint, registry);
-  if (!resolved) return <p className="workspace-notice" role="alert"><strong>Plan version unavailable.</strong> Rebuild it from Setup.</p>;
+  if (!resolved) return <PlanningVersionBoundary />;
   const { plan, units, templates, exceptions } = resolved;
   return <section className="seven-day-plan" aria-labelledby="seven-day-title">
     <div className="seven-day-heading"><p className="section-index">Seven-day plan</p><h2 id="seven-day-title">One continuous week.</h2></div>

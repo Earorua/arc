@@ -1,14 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { parsePlanningWorkspaceAtRepositoryBoundary, type UnitRegistry } from "../../contracts/planning";
 import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
 import { diffPlans } from "../../lib/planning/plan-diff";
+import type { PlanningRecoveryState } from "../../lib/use-planning-workspace";
+import { PlanningVersionBoundary } from "./planning-version-boundary";
 
 type PlanDiffReviewProps = {
   workspace: unknown;
-  recovery?: "none" | "session-expired" | "conflict" | "unavailable";
+  recovery?: PlanningRecoveryState;
   onAccept: (candidatePlanVersionId: string) => Promise<boolean>;
   onDiscard: (candidatePlanVersionId: string) => Promise<boolean>;
   registry?: UnitRegistry;
@@ -42,7 +43,7 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
   }, [registry, value]);
   useEffect(() => { if (resolved.kind === "ready") headingRef.current?.focus(); }, [resolved]);
   if (resolved.kind === "none") return null;
-  if (resolved.kind === "unavailable") return <p className="workspace-notice" role="alert"><strong>Plan version unavailable.</strong> Rebuild it from <Link href="/setup">Setup</Link>.</p>;
+  if (resolved.kind === "unavailable") return <PlanningVersionBoundary />;
   const counts = (["added", "moved", "removed", "unchanged"] as const).map((change) => ({ change, count: resolved.diff.items.filter((item) => item.change === change).length }));
   const decide = async (kind: "accept" | "discard") => {
     if (pending) return;

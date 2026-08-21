@@ -45,13 +45,14 @@ function adaptiveWorkspace() {
 describe("personalized workspace state", () => {
   it.each([["Today", TodayPage], ["Path", PathPage]])("renders the strict adaptive Flagship surface on %s", async (page, Page) => {
     const workspace = adaptiveWorkspace();
+    const currentUtcDate = new Date().toISOString().slice(0, 10);
     saveDemoState(createDemoState());
     usePlanningWorkspace.mockReturnValue({ workspace, source: "local", migration: "none", recovery: "none", generate: vi.fn(), record: vi.fn(), accept: vi.fn(), discard: vi.fn(), importLocal: vi.fn(), dismissMigration: vi.fn(), retry: vi.fn() } as never);
 
     render(<Page />);
 
     if (page === "Today") {
-      expect(await screen.findByText(/Today · 2026-08-14 · Primary outcome/)).toBeInTheDocument();
+      expect(await screen.findByText(`Today · ${currentUtcDate} · Primary outcome`)).toBeInTheDocument();
       expect(screen.getByRole("list", { name: "Seven consecutive learning days" })).toBeInTheDocument();
     } else {
       expect(await screen.findByRole("list", { name: "Ordered learning path" })).toBeInTheDocument();

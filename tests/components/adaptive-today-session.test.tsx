@@ -51,9 +51,10 @@ describe("AdaptiveTodaySession", () => {
 
     render(<AdaptiveTodaySession workspace={current} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
 
-    expect(screen.queryByText(/Optional stretch/)).not.toBeInTheDocument();
+    const article = screen.getByRole("article");
+    expect(within(article).queryByText(/Optional stretch/)).not.toBeInTheDocument();
     for (const box of screen.getAllByRole("checkbox")) await user.click(box);
-    expect(screen.getByText(/Optional stretch/)).toBeInTheDocument();
+    expect(within(article).getByText(/Optional stretch/)).toBeInTheDocument();
   });
 
   it("uses the current availability-zone date for overdue work and event rollover", async () => {
@@ -103,11 +104,13 @@ describe("AdaptiveTodaySession", () => {
     const view = render(<AdaptiveTodaySession workspace={mismatched} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
 
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveTextContent("Today’s plan version is unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
 
     view.rerender(<AdaptiveTodaySession workspace={current} now={fixedNow} registry={{ ...flagshipUnitRegistry, blueprintVersion: "2026.99" }} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveTextContent("Today’s plan version is unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("A compatible rebuild is not available in this Phase 2 build");
   });
 
   it("keeps active Today visible while a candidate diff is pending", () => {

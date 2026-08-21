@@ -74,7 +74,7 @@ describe("PlanDiffReview", () => {
     expect(onDiscard).toHaveBeenCalledTimes(2);
   });
 
-  it("shows rebuild recovery when the pending path catalogue version is unavailable", () => {
+  it("keeps unavailable pending history unchanged without offering a dead rebuild action", () => {
     const current = workspace();
     const activePath = current.pathVersions.find(({ id }) => id === current.activePathVersionId)!;
     const candidate = current.planVersions.find(({ id }) => id === current.pendingPlanVersionId)!;
@@ -92,8 +92,10 @@ describe("PlanDiffReview", () => {
 
     render(<PlanDiffReview workspace={unavailable} onAccept={vi.fn()} onDiscard={vi.fn()} />);
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable. Rebuild it from Setup.");
-    expect(screen.getByRole("link", { name: "Setup" })).toHaveAttribute("href", "/setup");
+    expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(screen.getByRole("alert")).toHaveTextContent("A compatible rebuild is not available in this Phase 2 build");
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Accept new plan" })).not.toBeInTheDocument();
   });
 });

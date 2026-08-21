@@ -5,6 +5,7 @@ import type { PlanningWorkspace } from "../../contracts/planning";
 import type { DemoState } from "../../lib/demo-store";
 import { isArcApiError } from "../../lib/cloud-client";
 import { getRoleDisplayName } from "../../lib/personalized-plan";
+import type { PlanningRecoveryState } from "../../lib/use-planning-workspace";
 import { CloudStatus } from "./cloud-status";
 
 export type MigrationStatus = "none" | "available" | "importing" | "imported" | "failed";
@@ -29,7 +30,7 @@ type AdaptiveMigrationBannerProps = {
   kind: "adaptive-plan";
   state: PlanningWorkspace;
   status: MigrationStatus;
-  recovery?: "none" | "session-expired" | "conflict" | "unavailable";
+  recovery?: PlanningRecoveryState;
   onDismiss: () => void;
   onImport: () => Promise<boolean | void>;
 };

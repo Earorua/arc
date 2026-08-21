@@ -209,9 +209,18 @@ describe("adaptive planning migration", () => {
         VALUES ('event-a','user-b','goal-b','workspace-a',1,'mutation-a','plan-a','unit-a','completed','{}',1786500000000);
       `);
 
+      const expectedCounts: Record<(typeof planningTables)[number], number> = {
+        skill_audit_versions: 2,
+        availability_versions: 2,
+        learning_path_versions: 2,
+        plan_versions: 4,
+        daily_units: 2,
+        planning_workspaces: 2,
+        planning_events: 2,
+      };
       for (const table of planningTables) {
         expect(db.prepare(`SELECT COUNT(*) AS count FROM \`${table}\``).get(), table)
-          .toMatchObject({ count: 2 });
+          .toMatchObject({ count: expectedCounts[table] });
       }
       expect(db.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
     });

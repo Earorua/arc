@@ -35,7 +35,9 @@ describe("AdaptivePath", () => {
     const current = workspace();
     render(<AdaptivePath workspace={current} registry={{ ...flagshipUnitRegistry, version: "2026.08.99" }} />);
     expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable");
-    expect(screen.getByRole("link", { name: "Rebuild from Setup" })).toHaveAttribute("href", "/setup");
+    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(screen.getByRole("alert")).toHaveTextContent("A compatible rebuild is not available in this Phase 2 build");
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
   it("explains prerequisites with the recorded blueprint rationale", () => {

@@ -85,4 +85,26 @@ describe("TodayPage", () => {
     expect(push).toHaveBeenCalledWith("/proof");
     expect(button).toBeDisabled();
   });
+
+  it("does not fall back to a legacy lesson when the adaptive catalogue version is unavailable", async () => {
+    usePlanningWorkspace.mockReturnValue({
+      workspace: null,
+      source: "offline-cloud",
+      migration: "none",
+      recovery: "version-unavailable",
+      generate: vi.fn(),
+      record: vi.fn(),
+      accept: vi.fn(),
+      discard: vi.fn(),
+      importLocal: vi.fn(),
+      dismissMigration: vi.fn(),
+      retry: vi.fn(),
+    });
+
+    render(<TodayPage />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Plan version unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(screen.queryByText("45")).not.toBeInTheDocument();
+  });
 });

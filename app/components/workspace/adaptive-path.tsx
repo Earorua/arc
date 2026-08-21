@@ -1,8 +1,8 @@
-import Link from "next/link";
 import type { RoleBlueprint } from "../../contracts/intelligence";
 import { parsePlanningWorkspaceAtRepositoryBoundary, type PlanningWorkspace, type UnitRegistry } from "../../contracts/planning";
 import { flagshipBlueprint } from "../../data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
+import { PlanningVersionBoundary } from "./planning-version-boundary";
 
 type AdaptivePathProps = {
   workspace: unknown;
@@ -15,7 +15,7 @@ const levelLabel = { unseen: "Not started", conceptual: "Conceptual", guided: "G
 
 export function AdaptivePath({ workspace: value, blueprint = flagshipBlueprint, registry = flagshipUnitRegistry }: AdaptivePathProps) {
   const resolved = resolvePath(value, blueprint, registry);
-  if (!resolved) return <VersionRecovery />;
+  if (!resolved) return <PlanningVersionBoundary />;
   const { workspace, path } = resolved;
   const completed = new Set(workspace.events.filter((event) => event.kind === "completed").map((event) => event.unitId));
   const currentPhaseIndex = path.phases.findIndex((phase) => phase.unitIds.some((id) => !completed.has(id)));
@@ -77,8 +77,4 @@ function resolvePath(value: unknown, blueprint: RoleBlueprint, registry: UnitReg
       || registry.blueprintId !== blueprint.id || registry.blueprintVersion !== blueprint.version) return null;
     return { workspace, path } satisfies { workspace: PlanningWorkspace; path: NonNullable<typeof path> };
   } catch { return null; }
-}
-
-function VersionRecovery() {
-  return <section className="planning-version-recovery" role="alert"><p className="section-index">Plan version unavailable</p><h1>This plan cannot be read with the current learning catalogue.</h1><p>Rebuild it from Setup so Arc never mixes content versions.</p><Link href="/setup">Rebuild from Setup</Link></section>;
 }

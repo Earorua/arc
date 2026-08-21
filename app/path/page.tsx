@@ -9,6 +9,7 @@ import { usePlanningWorkspace } from "../lib/use-planning-workspace";
 import { parsePlanningWorkspaceAtRepositoryBoundary } from "../contracts/planning";
 import { AdaptivePath } from "../components/workspace/adaptive-path";
 import { PlanDiffReview } from "../components/workspace/plan-diff-review";
+import { PlanningVersionBoundary } from "../components/workspace/planning-version-boundary";
 
 export default function PathPage() {
   const arc = useArcState();
@@ -24,6 +25,9 @@ function FlagshipAdaptivePath({ arc }: { arc: ReturnType<typeof useArcState> }) 
   const planning = usePlanningWorkspace();
   let workspace = null;
   try { workspace = planning.workspace ? parsePlanningWorkspaceAtRepositoryBoundary(planning.workspace) : null; } catch { workspace = null; }
+  if (!workspace && planning.recovery === "version-unavailable") return <WorkspaceShell current="Path" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
+    <PlanningVersionBoundary />
+  </WorkspaceShell>;
   if (!workspace) return <LegacyPath arc={arc} />;
   return <WorkspaceShell current="Path" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>
     <AdaptivePath workspace={workspace} />

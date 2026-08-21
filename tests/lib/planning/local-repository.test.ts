@@ -156,8 +156,8 @@ function eventRequest(
     mutationId,
     baseVersionId: workspace.activePlanVersionId,
     event: kind === "completed"
-      ? { kind, unitId: unit.id, actualMinutes: 90, planningDate: PLANNING_DATE }
-      : { kind, unitId: unit.id, planningDate: PLANNING_DATE },
+      ? { kind, unitId: unit.id, actualMinutes: 90, planningDate: unit.scheduledDate }
+      : { kind, unitId: unit.id, planningDate: unit.scheduledDate },
   };
 }
 

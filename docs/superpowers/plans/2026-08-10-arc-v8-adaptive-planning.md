@@ -1601,7 +1601,7 @@ Expected: FAIL because adaptive workspace components do not exist.
 
 - [ ] **Step 5: Implement adaptive Path**
 
-Render parsed workspace data only. Resolve template/resource copy from the exact Registry/Blueprint version recorded by the path; if the built-in versions do not match, render a safe “Plan version unavailable—rebuild from Setup” recovery instead of mixing versions. Use semantic ordered lists and details text, not a dependency canvas.
+Render parsed workspace data only. Resolve template/resource copy from the exact Registry/Blueprint version recorded by the path; if the built-in versions do not match, render a safe “Plan version unavailable” boundary instead of mixing versions. Phase 2 does not define a history-preserving catalogue-rebuild mutation, so the boundary must say that Arc kept the saved plan unchanged and that a compatible rebuild is not available in this build; it must not expose a Setup link that the existing-workspace conflict would reject. The API `rebuild` action is a typed version-mismatch classification used to select this fail-closed boundary, not permission to overwrite history. Use semantic ordered lists and details text, not a dependency canvas.
 
 - [ ] **Step 6: Implement Today and seven-day timeline**
 

@@ -31,9 +31,12 @@ describe("SevenDayTimeline", () => {
     const current = workspace();
     const view = render(<SevenDayTimeline workspace={current} registry={{ ...flagshipUnitRegistry, version: "2026.08.99" }} />);
     expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
 
     view.rerender(<SevenDayTimeline workspace={current} blueprint={{ ...flagshipBlueprint, version: "2026.08.99" }} />);
     expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("A compatible rebuild is not available in this Phase 2 build");
   });
 
   it("renders a truthful fallback for an exception without a reason", () => {

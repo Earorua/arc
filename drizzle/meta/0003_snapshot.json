@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ee2e7bbd-cbd1-4deb-94e9-48b676c6bca8",
+  "id": "ac37168e-d502-4b4b-9f16-2a1f686979a2",
   "prevId": "4613064f-41ec-4454-b588-108e80148c17",
   "tables": {
     "account_link_intents": {
@@ -472,7 +472,7 @@
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -564,7 +564,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "availability_versions_user_id_goal_id_id_pk": {
+          "columns": [
+            "user_id",
+            "goal_id",
+            "id"
+          ],
+          "name": "availability_versions_user_id_goal_id_id_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -694,7 +703,7 @@
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -820,7 +829,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "daily_units_user_id_goal_id_id_pk": {
+          "columns": [
+            "user_id",
+            "goal_id",
+            "id"
+          ],
+          "name": "daily_units_user_id_goal_id_id_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -1199,7 +1217,7 @@
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -1367,7 +1385,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "learning_path_versions_user_id_goal_id_id_pk": {
+          "columns": [
+            "user_id",
+            "goal_id",
+            "id"
+          ],
+          "name": "learning_path_versions_user_id_goal_id_id_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -1799,7 +1826,7 @@
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -1953,7 +1980,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "plan_versions_user_id_goal_id_id_pk": {
+          "columns": [
+            "user_id",
+            "goal_id",
+            "id"
+          ],
+          "name": "plan_versions_user_id_goal_id_id_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -1963,7 +1999,7 @@
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -2141,7 +2177,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "planning_events_user_id_goal_id_id_pk": {
+          "columns": [
+            "user_id",
+            "goal_id",
+            "id"
+          ],
+          "name": "planning_events_user_id_goal_id_id_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -2151,7 +2196,7 @@
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -2358,7 +2403,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "planning_workspaces_user_id_goal_id_id_pk": {
+          "columns": [
+            "user_id",
+            "goal_id",
+            "id"
+          ],
+          "name": "planning_workspaces_user_id_goal_id_id_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -3420,7 +3474,7 @@
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -3519,7 +3573,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "skill_audit_versions_user_id_goal_id_id_pk": {
+          "columns": [
+            "user_id",
+            "goal_id",
+            "id"
+          ],
+          "name": "skill_audit_versions_user_id_goal_id_id_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },

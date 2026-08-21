@@ -6,12 +6,14 @@ import { parsePlanningWorkspaceAtRepositoryBoundary, type DailyUnit, type Planni
 import { flagshipBlueprint } from "../../data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
 import { planningDateForInstant } from "../../lib/planning/calendar";
+import type { PlanningRecoveryState } from "../../lib/use-planning-workspace";
 import { PlanDiffReview } from "../workspace/plan-diff-review";
+import { PlanningVersionBoundary } from "../workspace/planning-version-boundary";
 import { SevenDayTimeline } from "../workspace/seven-day-timeline";
 
 type AdaptiveTodaySessionProps = {
   workspace: unknown;
-  recovery?: "none" | "session-expired" | "conflict" | "unavailable";
+  recovery?: PlanningRecoveryState;
   record: (event: PlanningEventInput) => Promise<boolean>;
   accept: (candidatePlanVersionId: string) => Promise<boolean>;
   discard: (candidatePlanVersionId: string) => Promise<boolean>;
@@ -31,7 +33,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
   const [progress, setProgress] = useState<{ unitId: string; checked: Set<string> }>(() => ({ unitId: "", checked: new Set() }));
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
-  if (!resolved) return <p className="workspace-notice" role="alert">Today’s plan version is unavailable. Rebuild it from Setup.</p>;
+  if (!resolved) return <PlanningVersionBoundary />;
   if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">Today · {resolved.plan.planningDate}</p><h1>Rest is part of the plan.</h1><p>No required learning unit is scheduled today.</p></section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
   const requiredSteps = resolved.primary.steps;
   const checked = progress.unitId === resolved.primary.id ? progress.checked : new Set<string>();
@@ -86,7 +88,7 @@ function resolveToday(value: unknown, blueprint: RoleBlueprint, registry: UnitRe
     const resources = new Map(blueprint.resources.map((resource) => [resource.id, resource]));
     const primary = nextRequired;
     const stretch = day.stretchUnitId ? units.get(day.stretchUnitId) ?? null : null;
-    return { workspace, plan, today: day.date, primary, stretch, primaryResource: primary ? resources.get(primary.primaryResourceId) ?? null : null, alternativeResources: primary ? primary.alternativeResourceIds.map((id) => resources.get(id)).filter((resource): resource is LearningResource => Boolean(resource)) : [] } satisfies TodayResolution;
+    return { workspace, plan, today, primary, stretch, primaryResource: primary ? resources.get(primary.primaryResourceId) ?? null : null, alternativeResources: primary ? primary.alternativeResourceIds.map((id) => resources.get(id)).filter((resource): resource is LearningResource => Boolean(resource)) : [] } satisfies TodayResolution;
   } catch { return null; }
 }
 
