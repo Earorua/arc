@@ -1,6 +1,7 @@
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useState } from "react";
 import PathPage from "../../app/path/page";
 import { PLANNING_SCHEMA_VERSION, planningWorkspaceSchema } from "../../app/contracts/planning";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
@@ -36,6 +37,32 @@ function pendingWorkspace() {
     event: { eventId: "event-path-page", mutationId: "mutation-path-page", sequence: 1, targetPlanVersionId: built.plan.id, occurredAt: "2026-08-14T10:00:00.000Z", kind: "delayed", unitId: primary.id, planningDate: "2026-08-14" },
   });
   return transition.workspace;
+}
+
+function useDecisionController() {
+  const [workspace, setWorkspace] = useState(() => pendingWorkspace());
+  return {
+    ...emptyPlanningController(),
+    workspace,
+    accept: async (candidatePlanVersionId: string) => {
+      const transition = applyPlanningEvent({
+        workspace,
+        blueprint: flagshipBlueprint,
+        registry: flagshipUnitRegistry,
+        event: {
+          eventId: "event-path-accept",
+          mutationId: "mutation-path-accept",
+          sequence: workspace.lastSequence + 1,
+          targetPlanVersionId: workspace.activePlanVersionId,
+          occurredAt: "2026-08-14T11:00:00.000Z",
+          kind: "replan_accepted",
+          candidatePlanVersionId,
+        },
+      });
+      setWorkspace(transition.workspace);
+      return true;
+    },
+  };
 }
 
 beforeEach(() => {
@@ -122,5 +149,38 @@ describe("PathPage", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
     expect(screen.queryByRole("link", { name: /rebuild/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Your precise path." })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["restoring", "none"],
+    ["offline-cloud", "unavailable"],
+  ] as const)("fails closed while adaptive cloud state is %s", async (source, recovery) => {
+    const retry = vi.fn();
+    usePlanningWorkspace.mockReturnValue({
+      ...emptyPlanningController(),
+      source,
+      recovery,
+      retry,
+    });
+
+    render(<PathPage />);
+
+    expect(await screen.findByText(source === "restoring" ? "Restoring adaptive plan." : "Adaptive plan temporarily unavailable.")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Your precise path." })).not.toBeInTheDocument();
+    if (source === "offline-cloud") {
+      await userEvent.click(screen.getByRole("button", { name: /retry/i }));
+      expect(retry).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it("keeps the decision announcement mounted after the pending diff is accepted", async () => {
+    usePlanningWorkspace.mockImplementation(useDecisionController);
+    const user = userEvent.setup();
+
+    render(<PathPage />);
+    await user.click(await screen.findByRole("button", { name: "Accept new plan" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Candidate plan accepted");
+    expect(screen.queryByRole("heading", { name: "Review every change." })).not.toBeInTheDocument();
   });
 });

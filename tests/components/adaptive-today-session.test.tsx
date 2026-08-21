@@ -73,6 +73,57 @@ describe("AdaptiveTodaySession", () => {
     expect(record).toHaveBeenCalledWith(expect.objectContaining({ planningDate: "2026-08-15" }));
   });
 
+  it("uses the current availability-zone date on a Rest day", () => {
+    const current = workspace();
+    const availability = {
+      ...current.availability,
+      id: "availability-today-rest",
+      weekdays: { ...current.availability.weekdays, friday: 0, saturday: 0 },
+      weeklyMinutes: 900,
+      inputFingerprint: "availability-today-rest-fingerprint",
+    };
+    const path = buildLearningPaths({
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+      audit: current.audit,
+      availability,
+      target: current.target,
+      planningDate: "2026-08-14",
+    }).fullScope;
+    const built = buildPlanVersion({
+      path,
+      registry: flagshipUnitRegistry,
+      availability,
+      planningDate: "2026-08-14",
+      generation: "initial",
+      baseVersionId: null,
+      replanReason: null,
+      completedUnitIds: new Set(),
+    });
+    const restDay = built.plan.days.find(({ date }) => date === "2026-08-15")!;
+    const restWorkspace = planningWorkspaceSchema.parse({
+      ...current,
+      availability,
+      availabilityVersions: [availability],
+      pathVersions: [path],
+      planVersions: [built.plan],
+      dailyUnits: built.dailyUnits,
+      activePathVersionId: path.id,
+      activePlanVersionId: built.plan.id,
+    });
+
+    render(<AdaptiveTodaySession
+      workspace={restWorkspace}
+      now={() => new Date(`${restDay.date}T10:00:00.000Z`)}
+      record={vi.fn()}
+      accept={vi.fn()}
+      discard={vi.fn()}
+    />);
+
+    expect(screen.getByText(`Today · ${restDay.date}`)).toBeInTheDocument();
+    expect(screen.queryByText("Today · 2026-08-14")).not.toBeInTheDocument();
+  });
+
   it("contains a rejected action and restores the controls for retry", async () => {
     const user = userEvent.setup();
     const record = vi.fn()

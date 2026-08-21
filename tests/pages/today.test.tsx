@@ -107,4 +107,34 @@ describe("TodayPage", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
     expect(screen.queryByText("45")).not.toBeInTheDocument();
   });
+
+  it.each([
+    ["restoring", "none"],
+    ["offline-cloud", "unavailable"],
+  ] as const)("does not expose legacy completion while adaptive cloud state is %s", async (source, recovery) => {
+    const retry = vi.fn();
+    usePlanningWorkspace.mockReturnValue({
+      workspace: null,
+      source,
+      migration: "none",
+      recovery,
+      generate: vi.fn(),
+      record: vi.fn(),
+      accept: vi.fn(),
+      discard: vi.fn(),
+      importLocal: vi.fn(),
+      dismissMigration: vi.fn(),
+      retry,
+    });
+
+    render(<TodayPage />);
+
+    expect(await screen.findByText(source === "restoring" ? "Restoring adaptive plan." : "Adaptive plan temporarily unavailable.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Complete & move to Proof" })).not.toBeInTheDocument();
+    expect(screen.queryByText("45")).not.toBeInTheDocument();
+    if (source === "offline-cloud") {
+      await userEvent.click(screen.getByRole("button", { name: /retry/i }));
+      expect(retry).toHaveBeenCalledTimes(1);
+    }
+  });
 });

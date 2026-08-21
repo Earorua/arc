@@ -11,7 +11,7 @@ import { useArcState } from "../lib/use-arc-state";
 import { usePlanningWorkspace } from "../lib/use-planning-workspace";
 import { parsePlanningWorkspaceAtRepositoryBoundary } from "../contracts/planning";
 import { AdaptiveTodaySession } from "../components/today/adaptive-today-session";
-import { PlanningVersionBoundary } from "../components/workspace/planning-version-boundary";
+import { PlanningLoadBoundary, PlanningVersionBoundary } from "../components/workspace/planning-version-boundary";
 
 export default function TodayPage() {
   const arc = useArcState();
@@ -26,9 +26,14 @@ export default function TodayPage() {
 function FlagshipAdaptiveToday({ arc }: { arc: ReturnType<typeof useArcState> }) {
   const planning = usePlanningWorkspace();
   let workspace = null;
-  try { workspace = planning.workspace ? parsePlanningWorkspaceAtRepositoryBoundary(planning.workspace) : null; } catch { workspace = null; }
-  if (!workspace && planning.recovery === "version-unavailable") return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
+  let workspaceInvalid = false;
+  try { workspace = planning.workspace ? parsePlanningWorkspaceAtRepositoryBoundary(planning.workspace) : null; }
+  catch { workspaceInvalid = planning.workspace !== null; }
+  if (!workspace && (workspaceInvalid || planning.recovery === "version-unavailable")) return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
     <PlanningVersionBoundary />
+  </WorkspaceShell>;
+  if (!workspace && (planning.source === "restoring" || planning.source === "offline-cloud")) return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
+    <PlanningLoadBoundary loading={planning.source === "restoring"} onRetry={planning.retry} />
   </WorkspaceShell>;
   if (!workspace) return <LegacyToday arc={arc} />;
   return <WorkspaceShell current="Today" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>

@@ -34,7 +34,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
   if (!resolved) return <PlanningVersionBoundary />;
-  if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">Today · {resolved.plan.planningDate}</p><h1>Rest is part of the plan.</h1><p>No required learning unit is scheduled today.</p></section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
+  if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">Today · {resolved.today}</p><h1>Rest is part of the plan.</h1><p>No required learning unit is scheduled today.</p></section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
   const requiredSteps = resolved.primary.steps;
   const checked = progress.unitId === resolved.primary.id ? progress.checked : new Set<string>();
   const canComplete = requiredSteps.every(({ id }) => checked.has(id));
@@ -62,7 +62,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
       <div className="today-actions"><button disabled={pending || !canComplete} onClick={() => void send("completed")} type="button">Complete</button>{actionEvents.map(([label, kind]) => <button disabled={pending} key={kind} onClick={() => void send(kind)} type="button">{label}</button>)}</div>
       {message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "This plan changed on another device. Refresh before continuing." : message.text}</p>}
     </article>
-    {resolved.workspace.pendingPlanVersionId && <PlanDiffReview workspace={resolved.workspace} recovery={recovery} onAccept={accept} onDiscard={discard} />}
+    {resolved.workspace.pendingPlanVersionId && <PlanDiffReview workspace={resolved.workspace} recovery={recovery} onAccept={accept} onDiscard={discard} onSuccess={(text) => setMessage({ kind: "status", text })} />}
     <SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} />
   </>;
 }

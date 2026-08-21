@@ -12,10 +12,11 @@ type PlanDiffReviewProps = {
   recovery?: PlanningRecoveryState;
   onAccept: (candidatePlanVersionId: string) => Promise<boolean>;
   onDiscard: (candidatePlanVersionId: string) => Promise<boolean>;
+  onSuccess?: (message: string) => void;
   registry?: UnitRegistry;
 };
 
-export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, onDiscard, registry = flagshipUnitRegistry }: PlanDiffReviewProps) {
+export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, onDiscard, onSuccess, registry = flagshipUnitRegistry }: PlanDiffReviewProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
@@ -50,7 +51,11 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
     setPending(true); setMessage(null);
     try {
       const succeeded = await (kind === "accept" ? onAccept : onDiscard)(resolved.candidate.id);
-      if (succeeded) setMessage({ kind: "status", text: kind === "accept" ? "Candidate plan accepted." : "Current plan kept." });
+      if (succeeded) {
+        const text = kind === "accept" ? "Candidate plan accepted." : "Current plan kept.";
+        if (onSuccess) onSuccess(text);
+        else setMessage({ kind: "status", text });
+      }
       else setMessage({ kind: "alert", text: recovery === "conflict" ? "This plan changed on another device. Refresh before deciding." : "Arc could not save this decision. Try again when the connection recovers." });
     } catch {
       setMessage({ kind: "alert", text: recovery === "conflict" ? "This plan changed on another device. Refresh before deciding." : "Arc could not save this decision. Try again when the connection recovers." });
