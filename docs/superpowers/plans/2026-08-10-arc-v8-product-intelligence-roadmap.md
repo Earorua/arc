@@ -65,15 +65,17 @@ Phase 1 不要求也不读取 `OPENROUTER_API_KEY`，确定性 Flagship 路径�
 
 退出门槛：相同输入得到相同计划；前置依赖不被越过；每日分钟不超预算；休息日不排任务；事件重放能重建计划状态；本地访客与云端用户行为一致。
 
-**2026-08-16 Phase 2 本地工程门槛记录（待用户验收，未发布）：**
+**2026-08-22 Phase 2 本地工程门槛记录（待用户验收，未发布）：**
 
 - [x] 已实现逐技能自评、可选公共证据元数据、时区与例外可用时间、目标范围选择，以及 Flagship-only 五阶段 Setup；证据元数据不等于 Arc 验证。
 - [x] 已实现确定性路径、完整/目标日期两种诚实范围、连续七日日程、一个 Primary 加至多一个 Stretch、完整 Today brief 和候选计划全量 diff。
 - [x] 已实现 append-only 学习事件、确定性重放、幂等结果、旧基线冲突、本地/云端 parity、可恢复设备导入，以及跨身份和卸载生命周期隔离。
 - [x] 已生成 `0003_adaptive_planning.sql` 和对应 Drizzle snapshot；七张个人规划表的 owner/goal 外键、CAS、唯一约束、回滚和 payload 上限已由本地测试覆盖。`0002` 与 `0003` 均未迁移生产。
-- [x] 最终 fresh gate：`npm run test:unit` 96 files / 1075 tests；TypeScript 与 ESLint exit `0`；vinext build 5/5；rendered HTML 3/3。
+- [x] 最终实现范围为 `c8473eb04c93be39e604e68865806ea51c11a73b..19b8c8765704f2e6c88e007568f28eef32a4e830`；完成记录提交不纳入该范围，避免自指。
+- [x] 最终 fresh gate：`npm run test:unit` 96 files / 1093 tests；TypeScript 与 ESLint exit `0`；vinext build 5/5；rendered HTML 3/3。
 - [x] Task 14 parity/安全/兼容门槛为 27 files / 408 tests；高风险 v7/auth/account-link/Proof 回归为 23 files / 230 tests。
 - [x] `dist` 密钥模式搜索与 Flagship planning provider/outbound-fetch 搜索均为 0 matches（`rg` exit `1`）。
+- [x] 两位独立最终 reviewer 均给出 Critical / Important / Minor 为 `0`、Ready Yes；恢复态 fail-closed、当地日期、事件顺序、多租户主键与决策公告的审查修复均有判别性回归。
 - [ ] 用户验收、合并、远程备份、生产 D1 迁移、功能旗标和 Sites 发布仍未发生；公开站点仍是 Arc. v7.2 / Sites version 9。
 
 ### Phase 3 — Proof-backed Stack

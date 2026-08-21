@@ -97,7 +97,7 @@ Before Task 1, create an isolated `codex/v8-adaptive-planning` worktree using `s
 - Create: `tests/contracts/planning-api.test.ts`
 - Modify: `tests/contracts/intelligence.test.ts`
 
-- [ ] **Step 1: Write failing contract tests**
+- [x] **Step 1: Write failing contract tests**
 
 Add table-driven tests that prove strict parsing, all array/string caps, exact weekday keys, real ISO calendar dates, runtime-supported IANA zones, duplicate audit/evidence/exception rejection, public HTTPS evidence, `weeklyMinutes` derivation, exactly seven plan days, at most one primary/stretch per date, and discriminated event payloads.
 
@@ -123,13 +123,13 @@ it("rejects a plan with two required primary units on one date", () => {
 });
 ```
 
-- [ ] **Step 2: Run the contract test to verify RED**
+- [x] **Step 2: Run the contract test to verify RED**
 
 Run: `npx vitest run tests/contracts/planning.test.ts tests/contracts/planning-api.test.ts tests/contracts/intelligence.test.ts`
 
 Expected: FAIL because the planning contract modules and exported shared primitives do not exist.
 
-- [ ] **Step 3: Export shared Phase 1 primitives without changing their rules**
+- [x] **Step 3: Export shared Phase 1 primitives without changing their rules**
 
 Rename the private constants and keep existing resource behavior byte-for-byte:
 
@@ -143,7 +143,7 @@ export const publicHttpsUrlSchema = z.string().url()
 
 Update `learningResourceSchema` and `roleBlueprintSchema` to consume these exports. Do not relax credentials, IP literal, dotless host, localhost, `.local`, or special-use suffix rejection.
 
-- [ ] **Step 4: Implement the strict planning contracts**
+- [x] **Step 4: Implement the strict planning contracts**
 
 Use `.strict()` on every object and explicit maximums on every array/string. Export these exact schema/type names:
 
@@ -354,7 +354,7 @@ type PlanDay = {
 
 Use `superRefine` for uniqueness and cross-field limits: exactly one audit answer per Flagship skill is enforced later against the blueprint; contract-level uniqueness rejects repeated IDs and references. Availability accepts only integer `0` or `15..720`, sums to `30..2400`, caps exceptions at 90, and rejects duplicate dates. Validate time zones by constructing `new Intl.DateTimeFormat("en", { timeZone })` inside a safe predicate.
 
-- [ ] **Step 5: Run focused contracts and typecheck**
+- [x] **Step 5: Run focused contracts and typecheck**
 
 Run: `npx vitest run tests/contracts/planning.test.ts tests/contracts/planning-api.test.ts tests/contracts/intelligence.test.ts`
 
@@ -364,7 +364,7 @@ Run: `npx tsc --noEmit`
 
 Expected: exit `0`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add app/contracts/intelligence.ts app/contracts/planning.ts app/contracts/planning-api.ts tests/contracts/intelligence.test.ts tests/contracts/planning.test.ts tests/contracts/planning-api.test.ts
@@ -381,7 +381,7 @@ git commit -m "feat: define adaptive planning contracts"
 - Create: `tests/data/flagship-unit-registry.test.ts`
 - Create: `tests/lib/planning/registry-validation.test.ts`
 
-- [ ] **Step 1: Write failing Registry coverage tests**
+- [x] **Step 1: Write failing Registry coverage tests**
 
 Test exact 16-skill coverage, one-or-more `learn`, exactly one `calibrate`, one `reinforce` fallback per skill, unique stable IDs, `15..180` estimates, step-minute totals, checkpoint coverage, and resource IDs resolvable in `flagshipBlueprint`.
 
@@ -402,13 +402,13 @@ it("covers every reviewed Flagship skill with learn, calibrate and reinforce", (
 
 Add one mutation test for each issue code: `duplicate-template`, `missing-skill`, `missing-resource`, `missing-kind`, `minute-mismatch`, `invalid-checkpoint`, and `registry-version-mismatch`.
 
-- [ ] **Step 2: Run Registry tests to verify RED**
+- [x] **Step 2: Run Registry tests to verify RED**
 
 Run: `npx vitest run tests/data/flagship-unit-registry.test.ts tests/lib/planning/registry-validation.test.ts`
 
 Expected: FAIL because the Registry and validator do not exist.
 
-- [ ] **Step 3: Implement the pure Registry validator**
+- [x] **Step 3: Implement the pure Registry validator**
 
 Export:
 
@@ -433,7 +433,7 @@ export function validateUnitRegistry(
 
 Build skill/resource maps once, funnel issues through a de-duplicating `addIssue`, compare blueprint ID/version exactly, verify template/track skill identity, sum step minutes, and require checkpoint step IDs to be unique, resolvable, contiguous in source order, and total to the template estimate when checkpoints are present. Sort by `code`, then semantic `path`; never include array indexes.
 
-- [ ] **Step 4: Author the reviewed Registry data**
+- [x] **Step 4: Author the reviewed Registry data**
 
 Parse once at export:
 
@@ -472,7 +472,7 @@ Use this locked content matrix. Each ID is `<skill>-learn-01`, `<skill>-calibrat
 
 Templates longer than 60 minutes must contain explicit, contiguous checkpoints of 30–60 minutes whose step IDs cover the full template exactly. Shorter templates remain atomic.
 
-- [ ] **Step 5: Capture mutation REDs, then make Registry GREEN**
+- [x] **Step 5: Capture mutation REDs, then make Registry GREEN**
 
 For each validator rule, temporarily mutate one valid Registry fixture, run the focused test, record the expected single failure, restore the fixture immediately, and implement the minimum rule. Do not weaken `unitRegistrySchema` to accommodate the data.
 
@@ -480,7 +480,7 @@ Run: `npx vitest run tests/data/flagship-unit-registry.test.ts tests/lib/plannin
 
 Expected: PASS with all 16 tracks, 48+ templates, exact resource backlinks, and no network use.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add app/data/flagship-unit-registry.ts app/lib/planning/registry-validation.ts tests/data/flagship-unit-registry.test.ts tests/lib/planning/registry-validation.test.ts
@@ -497,7 +497,7 @@ git commit -m "feat: curate flagship learning units"
 - Create: `tests/lib/planning/fingerprint.test.ts`
 - Create: `tests/lib/planning/calendar.test.ts`
 
-- [ ] **Step 1: Write failing deterministic primitive tests**
+- [x] **Step 1: Write failing deterministic primitive tests**
 
 Cover recursively sorted object keys, preserved array order, excluded runtime metadata, identical IDs for identical domain input, different IDs for material input, real-date arithmetic across month/year/leap boundaries, weekday mapping, exception override, explicit Rest, IANA validation, and `planningDateForInstant` around DST transitions.
 
@@ -511,13 +511,13 @@ expect(calendarDates("2026-12-29", 7)).toEqual([
 ]);
 ```
 
-- [ ] **Step 2: Run tests to verify RED**
+- [x] **Step 2: Run tests to verify RED**
 
 Run: `npx vitest run tests/lib/planning/fingerprint.test.ts tests/lib/planning/calendar.test.ts`
 
 Expected: FAIL with missing planning primitive modules.
 
-- [ ] **Step 3: Implement canonical fingerprints**
+- [x] **Step 3: Implement canonical fingerprints**
 
 Export these exact functions:
 
@@ -529,7 +529,7 @@ export function deterministicId(prefix: string, value: unknown): string;
 
 `canonicalJson` sorts object keys recursively, preserves array order, rejects unsupported values (`undefined`, function, symbol, bigint, non-finite number), and serializes plain JSON only. `fingerprint` uses four independently seeded synchronous FNV-style 32-bit lanes over the canonical string and concatenates them as `p2-<32 lowercase hex>`. `deterministicId` validates a lowercase kebab prefix and returns `<prefix>-<fingerprint suffix>`. Never read `crypto`, time, random state, or environment values.
 
-- [ ] **Step 4: Implement calendar helpers without time-zone offset arithmetic**
+- [x] **Step 4: Implement calendar helpers without time-zone offset arithmetic**
 
 Export:
 
@@ -548,7 +548,7 @@ export function validateAvailabilityHorizon(
 
 Use UTC only as an internal carrier for calendar parts in `addCalendarDays`; never convert a local midnight through an offset. `planningDateForInstant` uses `Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(...)`. Horizon validation permits dates from `planningDate` through `planningDate + 365`, rejects past/out-of-range exceptions, and does not mutate input.
 
-- [ ] **Step 5: Run focused tests and typecheck**
+- [x] **Step 5: Run focused tests and typecheck**
 
 Run: `npx vitest run tests/lib/planning/fingerprint.test.ts tests/lib/planning/calendar.test.ts tests/contracts/planning.test.ts`
 
@@ -558,7 +558,7 @@ Run: `npx tsc --noEmit`
 
 Expected: exit `0`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add app/lib/planning/fingerprint.ts app/lib/planning/calendar.ts tests/lib/planning/fingerprint.test.ts tests/lib/planning/calendar.test.ts
@@ -573,7 +573,7 @@ git commit -m "feat: add deterministic planning primitives"
 - Create: `app/lib/planning/path-builder.ts`
 - Create: `tests/lib/planning/path-builder.test.ts`
 
-- [ ] **Step 1: Write failing path-builder tests**
+- [x] **Step 1: Write failing path-builder tests**
 
 Create compact blueprints/registries to prove:
 
@@ -601,13 +601,13 @@ expect(result.targetDate?.deferredSkills.map((item) => item.skillId))
   .not.toContain("typescript");
 ```
 
-- [ ] **Step 2: Run the focused test to verify RED**
+- [x] **Step 2: Run the focused test to verify RED**
 
 Run: `npx vitest run tests/lib/planning/path-builder.test.ts`
 
 Expected: FAIL because `buildLearningPaths` does not exist.
 
-- [ ] **Step 3: Implement validation and stable topological ordering**
+- [x] **Step 3: Implement validation and stable topological ordering**
 
 Export:
 
@@ -637,7 +637,7 @@ Use iterative Kahn topological ordering. The ready queue comparator is:
 
 Expand ordered skill templates into immutable `PathUnit` records. For a checkpointed template, create one path unit per checkpoint with a stable ID derived from blueprint, Registry, template, and checkpoint versions; otherwise create one atomic path unit. Chain checkpoints and multiple learn templates within a skill, then make the first unit of a dependent skill reference the final required unit of every prerequisite skill. This preserves both intra-skill sequence and cross-skill dependencies.
 
-- [ ] **Step 4: Implement full-scope and target-date selection**
+- [x] **Step 4: Implement full-scope and target-date selection**
 
 Compute the target deadline as `planningDate + targetWeeks * 7 - 1`. Ask the scheduler's estimate-only helper from Task 5 through a small injected dependency so Task 4 tests can supply a deterministic estimator before Task 5 exists:
 
@@ -662,13 +662,13 @@ export function createPathBuilder(estimate: CompletionEstimator) {
 
 For a conflict, build a protected skill closure starting from every `core` skill. A defer candidate is eligible only when it is `advantage`, or `strong` and not in the transitive prerequisite closure of any retained skill. Sort candidates by importance rank (`advantage` first), phase index, blueprint index, and ID. Remove one candidate at a time, recompute the retained prerequisite closure, and stop at the first honest schedule that fits. Never shorten unit minutes.
 
-- [ ] **Step 5: Verify path behavior**
+- [x] **Step 5: Verify path behavior**
 
 Run: `npx vitest run tests/lib/planning/path-builder.test.ts tests/lib/planning/registry-validation.test.ts tests/lib/intelligence-validation.test.ts`
 
 Expected: PASS with deterministic full scope, truthful alternatives, no cycle/owner/network behavior.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add app/lib/planning/path-builder.ts tests/lib/planning/path-builder.test.ts
@@ -685,7 +685,7 @@ git commit -m "feat: build deterministic learning paths"
 - Modify: `app/lib/planning/path-builder.ts`
 - Modify: `tests/lib/planning/path-builder.test.ts`
 
-- [ ] **Step 1: Write failing scheduler tests**
+- [x] **Step 1: Write failing scheduler tests**
 
 Test exact seven-date coverage, exception precedence, Rest days, one required primary per day, no partial unit unless it is a declared checkpoint, minute fit, no dependency violation, at most one optional reinforce stretch, stretch excluded from completion estimate, cross-month/year/DST behavior, completed-unit exclusion, and deterministic IDs.
 
@@ -704,13 +704,13 @@ for (const day of plan.days) {
 }
 ```
 
-- [ ] **Step 2: Run the scheduler test to verify RED**
+- [x] **Step 2: Run the scheduler test to verify RED**
 
 Run: `npx vitest run tests/lib/planning/scheduler.test.ts`
 
 Expected: FAIL because scheduler exports do not exist.
 
-- [ ] **Step 3: Implement the estimator**
+- [x] **Step 3: Implement the estimator**
 
 Export:
 
@@ -725,7 +725,7 @@ export function estimateCompletionDate(input: {
 
 Iterate calendar dates up to a hard 3,660-day horizon. On each non-rest date, schedule at most one next required unit that fits the full budget and whose prerequisite unit IDs are complete. An atomic unit that never fits any available day produces `PlanningScheduleError("UNIT_NEVER_FITS")`; an exhausted horizon produces `PlanningScheduleError("SCHEDULE_HORIZON_EXCEEDED")`. The estimator ignores optional stretch templates.
 
-- [ ] **Step 4: Implement the seven-day plan builder**
+- [x] **Step 4: Implement the seven-day plan builder**
 
 Export:
 
@@ -744,7 +744,7 @@ export function buildPlanVersion(input: {
 
 For each of seven dates, use exception minutes before weekday minutes. Assign only the next eligible required path unit. After primary assignment, a stretch may be the matching skill's `reinforce` template only when its full minutes fit the remaining budget; give it `required: false` and a context-specific deterministic ID. The UI exposes that stretch only after the primary is completed, and stretch completion never unlocks dependencies or alters the promised date. Build `PlanVersion.id` and `inputFingerprint` from parsed domain inputs excluding `createdAt`, request IDs, mutation IDs, and runtime clock data.
 
-- [ ] **Step 5: Replace the injected path estimator with the production helper**
+- [x] **Step 5: Replace the injected path estimator with the production helper**
 
 Keep `createPathBuilder` exported for focused tests, and export:
 
@@ -758,7 +758,7 @@ export const buildLearningPaths = createPathBuilder(
 );
 ```
 
-- [ ] **Step 6: Run focused scheduler/path tests and typecheck**
+- [x] **Step 6: Run focused scheduler/path tests and typecheck**
 
 Run: `npx vitest run tests/lib/planning/scheduler.test.ts tests/lib/planning/path-builder.test.ts tests/lib/planning/calendar.test.ts`
 
@@ -768,7 +768,7 @@ Run: `npx tsc --noEmit`
 
 Expected: exit `0`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add app/lib/planning/scheduler.ts app/lib/planning/path-builder.ts tests/lib/planning/scheduler.test.ts tests/lib/planning/path-builder.test.ts
@@ -785,7 +785,7 @@ git commit -m "feat: schedule rolling learning plans"
 - Create: `tests/lib/planning/plan-diff.test.ts`
 - Create: `tests/lib/planning/event-reducer.test.ts`
 
-- [ ] **Step 1: Write failing diff tests**
+- [x] **Step 1: Write failing diff tests**
 
 Use stable unit IDs to assert exact `added`, `moved`, `removed`, and `unchanged` entries, old/new dates, reason, completion-date change, sorted output, and the invariant that a completed unit can only be `unchanged`.
 
@@ -799,13 +799,13 @@ expect(diffPlans({ active, candidate, completedUnitIds: new Set(["unit-a"]) }))
   });
 ```
 
-- [ ] **Step 2: Run diff tests to verify RED**
+- [x] **Step 2: Run diff tests to verify RED**
 
 Run: `npx vitest run tests/lib/planning/plan-diff.test.ts`
 
 Expected: FAIL because `diffPlans` does not exist.
 
-- [ ] **Step 3: Implement the pure diff**
+- [x] **Step 3: Implement the pure diff**
 
 Export:
 
@@ -819,7 +819,7 @@ export function diffPlans(input: {
 
 Index plan-day primary/stretch references once, union the unit IDs, classify by stable unit ID, reject any candidate that moves or removes a completed unit, and sort by change rank (`added`, `moved`, `removed`, `unchanged`), then destination/source date, then unit ID. Produce a deterministic diff ID/fingerprint and a sentence-level completion-date summary; do not include runtime timestamps.
 
-- [ ] **Step 4: Write failing event/replay tests**
+- [x] **Step 4: Write failing event/replay tests**
 
 Cover all eight event kinds and all three candidate states:
 
@@ -835,13 +835,13 @@ Cover all eight event kinds and all three candidate states:
 - `occurredAt` never determines order—`sequence` does;
 - repeated mutation IDs are rejected before a second transition.
 
-- [ ] **Step 5: Run event tests to verify RED**
+- [x] **Step 5: Run event tests to verify RED**
 
 Run: `npx vitest run tests/lib/planning/event-reducer.test.ts tests/lib/planning/plan-diff.test.ts`
 
 Expected: event tests FAIL because reducer exports do not exist; diff tests remain GREEN.
 
-- [ ] **Step 6: Implement transition and replay APIs**
+- [x] **Step 6: Implement transition and replay APIs**
 
 Export these exact public functions:
 
@@ -876,7 +876,7 @@ Use typed errors with stable public codes:
 "BASE_REVISION_MISMATCH" | "COMPLETED_HISTORY_CHANGED"
 ```
 
-- [ ] **Step 7: Mutation-test history protection and replay**
+- [x] **Step 7: Mutation-test history protection and replay**
 
 Temporarily remove completed-unit locking and confirm the focused test fails; restore it. Temporarily order by `occurredAt` and confirm an out-of-time-order fixture fails; restore it. Temporarily reapply a discarded candidate during replay and confirm only the decision-state test fails; restore it.
 
@@ -884,7 +884,7 @@ Run: `npx vitest run tests/lib/planning/plan-diff.test.ts tests/lib/planning/eve
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```powershell
 git add app/lib/planning/plan-diff.ts app/lib/planning/event-reducer.ts tests/lib/planning/plan-diff.test.ts tests/lib/planning/event-reducer.test.ts
@@ -901,7 +901,7 @@ git commit -m "feat: replay adaptive planning events"
 - Modify: `app/lib/demo-store.ts`
 - Modify: `tests/lib/demo-store.test.ts`
 
-- [ ] **Step 1: Expose a read-only v7 storage key helper**
+- [x] **Step 1: Expose a read-only v7 storage key helper**
 
 Keep `arc-demo-state-v1` unchanged. Export a named constant and a raw strict reader so the Phase 2 migrator does not duplicate the key or permissive parsing rules:
 
@@ -915,7 +915,7 @@ export function readDemoStateForMigration(
 
 The helper must return `found: false` for absent or malformed input and must not write storage.
 
-- [ ] **Step 2: Write failing local repository tests**
+- [x] **Step 2: Write failing local repository tests**
 
 Prove:
 
@@ -941,13 +941,13 @@ expect(upgradeV7State(storage)).toMatchObject({
 expect(storage.getItem(DEMO_STORAGE_KEY)).toBe(before);
 ```
 
-- [ ] **Step 3: Run local repository tests to verify RED**
+- [x] **Step 3: Run local repository tests to verify RED**
 
 Run: `npx vitest run tests/lib/planning/local-repository.test.ts tests/lib/demo-store.test.ts`
 
 Expected: FAIL because the Phase 2 repository and migration reader do not exist.
 
-- [ ] **Step 4: Implement the local envelope and repository**
+- [x] **Step 4: Implement the local envelope and repository**
 
 Export:
 
@@ -973,13 +973,13 @@ The persisted envelope contains strict schema version, migration marker, setup d
 
 The guest repository delegates all generation/transitions to the pure kernel. Inject event ID, mutation ID, sequence, and occurrence time; pass them in explicitly. Repository replay returns the originally serialized public result for a duplicate mutation ID.
 
-- [ ] **Step 5: Verify local migration and regression**
+- [x] **Step 5: Verify local migration and regression**
 
 Run: `npx vitest run tests/lib/planning/local-repository.test.ts tests/lib/demo-store.test.ts tests/lib/use-arc-state.test.tsx tests/lib/core-loop.test.ts`
 
 Expected: PASS; v7 tests remain unchanged and `proofItems.verified` behavior is not invoked by Phase 2 tests.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add app/lib/planning/local-repository.ts app/lib/demo-store.ts tests/lib/planning/local-repository.test.ts tests/lib/demo-store.test.ts
@@ -999,7 +999,7 @@ git commit -m "feat: persist guest adaptive plans"
 - Modify: `tests/db/migration-safety.test.ts`
 - Create: `tests/db/planning-migration.test.ts`
 
-- [ ] **Step 1: Write failing schema tests for seven personal tables**
+- [x] **Step 1: Write failing schema tests for seven personal tables**
 
 Add exact table/column/index/FK assertions for:
 
@@ -1027,13 +1027,13 @@ Lock the remaining boundaries:
 - workspace nullable composite pointers to audit/availability/path/plan, allowing insert-first bootstrap;
 - event composite FKs to workspace and target/candidate plan IDs.
 
-- [ ] **Step 2: Run schema tests to verify RED**
+- [x] **Step 2: Run schema tests to verify RED**
 
 Run: `npx vitest run tests/db/schema.test.ts`
 
 Expected: FAIL because the seven tables and indexes do not exist.
 
-- [ ] **Step 3: Implement Drizzle definitions**
+- [x] **Step 3: Implement Drizzle definitions**
 
 Store immutable version bodies in `payload_json`, plus indexed identity/fingerprint columns. Use these exact semantic columns:
 
@@ -1061,7 +1061,7 @@ planning_events: id, user_id, goal_id, workspace_id, sequence, mutation_id,
 
 `slot` is `primary | stretch`; `generation` and `kind` mirror the strict contracts. Keep pointer columns nullable to avoid an impossible circular bootstrap; the repository must insert validated immutable versions before switching pointers in one batch.
 
-- [ ] **Step 4: Generate, never hand-author, the migration**
+- [x] **Step 4: Generate, never hand-author, the migration**
 
 First verify the exact deletion targets are inside the implementation worktree. If no `0003` exists, run:
 
@@ -1071,7 +1071,7 @@ npx drizzle-kit generate --name adaptive_planning
 
 Expected: exactly `drizzle/0003_adaptive_planning.sql`, `drizzle/meta/0003_snapshot.json`, and one journal entry tagged `0003_adaptive_planning`. Stop if Drizzle chooses another sequence or proposes changing/removing any pre-existing table.
 
-- [ ] **Step 5: Add migration safety and executable FK tests**
+- [x] **Step 5: Add migration safety and executable FK tests**
 
 Refactor the existing additive statement helper so both `0002` and `0003` are checked segment-by-segment. `0003` may contain only `CREATE TABLE`, `CREATE INDEX`, or `CREATE UNIQUE INDEX`; it may add the new unique index on `career_goals`, but it may not contain `ALTER`, `DROP`, `INSERT`, `REPLACE`, `UPDATE`, or `DELETE`.
 
@@ -1085,7 +1085,7 @@ In `tests/db/planning-migration.test.ts`, apply `0000`, `0001`, `0002`, then `00
 - `PRAGMA foreign_key_check` is empty;
 - every pre-existing table keeps the same columns, foreign keys, and existing indexes; the only permitted old-table metadata delta is the explicitly approved additive `career_goals_user_id_idx` unique index.
 
-- [ ] **Step 6: Run schema/migration gates**
+- [x] **Step 6: Run schema/migration gates**
 
 Run: `npx vitest run tests/db/schema.test.ts tests/db/migration-safety.test.ts tests/db/planning-migration.test.ts`
 
@@ -1099,7 +1099,7 @@ Run: `git diff --check`
 
 Expected: exit `0`.
 
-- [ ] **Step 7: Commit the exact generated scope**
+- [x] **Step 7: Commit the exact generated scope**
 
 ```powershell
 git add db/schema.ts drizzle/0003_adaptive_planning.sql drizzle/meta/0003_snapshot.json drizzle/meta/_journal.json tests/db/schema.test.ts tests/db/migration-safety.test.ts tests/db/planning-migration.test.ts
@@ -1119,7 +1119,7 @@ Do not execute `0003` against hosted or production D1.
 - Create: `tests/server/planning-service.test.ts`
 - Create: `tests/server/d1-planning-repository.test.ts`
 
-- [ ] **Step 1: Define repository commands and write service RED tests**
+- [x] **Step 1: Define repository commands and write service RED tests**
 
 The repository returns `unknown` payloads plus explicit `ownerId`/`goalId`; the service must never trust repository typing. Define commands for load, generate, append event, and decide replan, each carrying `mutationId` and `baseVersionId` where required.
 
@@ -1135,13 +1135,13 @@ Test that the service:
 - never writes a candidate before schema, graph, schedule, history, and diff validation pass;
 - never invokes OpenRouter, R2, legacy completion, or `proof_items`.
 
-- [ ] **Step 2: Run service tests to verify RED**
+- [x] **Step 2: Run service tests to verify RED**
 
 Run: `npx vitest run tests/server/planning-service.test.ts`
 
 Expected: FAIL because the planning repository/service modules do not exist.
 
-- [ ] **Step 3: Implement the validated service boundary**
+- [x] **Step 3: Implement the validated service boundary**
 
 Export:
 
@@ -1171,13 +1171,13 @@ export class PlanningService {
 
 Convert internal contract/registry/kernel errors into sorted, stable public codes. Preserve detailed issues only on the typed server error object; keep `message` free of evidence notes, URLs, user IDs, goal IDs, SQL, and payload JSON.
 
-- [ ] **Step 4: Write D1 repository RED tests**
+- [x] **Step 4: Write D1 repository RED tests**
 
 Use the existing `FakeD1` prepared-call pattern, extended to expose batch metadata. Prove every SELECT/UPDATE/INSERT binds authenticated `userId` and active `goalId`, payload JSON is parsed on reads, immutable versions are inserted before pointer updates, all related writes use one `db.batch`, repeated mutations short-circuit, and stale/racing writes fail closed.
 
 The concurrency fixture must simulate two calls reading the same revision/sequence: one batch wins; the second hits the unique `(workspace_id, sequence)` boundary, reloads the winner, and returns conflict unless its mutation ID now resolves to the winning result.
 
-- [ ] **Step 5: Implement the D1 repository**
+- [x] **Step 5: Implement the D1 repository**
 
 Use prepared statements only. Read the active goal with `WHERE user_id = ? AND active_slot = 1`. On load, fetch the workspace and only rows matching both `user_id` and `goal_id`, parse all JSON through `planningWorkspaceSchema`, and return `{ ownerId, goalId, workspace }`.
 
@@ -1196,7 +1196,7 @@ Never update version, Daily Unit, or event rows. Only `planning_workspaces` poin
 
 When generation activates a new Availability version, update `career_goals.weekly_minutes` to its derived seven-day sum in the same batch. For `availability_changed`, keep the legacy total unchanged while the plan is only proposed; update it only in the batch that accepts the candidate and advances the current Availability pointer.
 
-- [ ] **Step 6: Run service/repository tests**
+- [x] **Step 6: Run service/repository tests**
 
 Run: `npx vitest run tests/server/planning-service.test.ts tests/server/d1-planning-repository.test.ts tests/server/d1-cloud-repository.test.ts`
 
@@ -1206,7 +1206,7 @@ Run: `npx tsc --noEmit`
 
 Expected: exit `0`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add app/server/planning/repository.ts app/server/planning/d1-planning-repository.ts app/server/planning/service.ts tests/server/planning-service.test.ts tests/server/d1-planning-repository.test.ts
@@ -1234,7 +1234,7 @@ git commit -m "feat: validate adaptive planning writes"
 - Modify: `tests/lib/cloud-client.test.ts`
 - Modify: `tests/server/observability.test.ts`
 
-- [ ] **Step 1: Write failing API contract and handler tests**
+- [x] **Step 1: Write failing API contract and handler tests**
 
 Requests must use these shapes:
 
@@ -1264,13 +1264,13 @@ type ReplanDecisionRequest = {
 
 Test exact `200`, `400`, `401`, `404`, `409`, `429`, and `503` bodies, `Cache-Control: no-store`, `X-Request-Id`, `X-Content-Type-Options: nosniff`, and `Referrer-Policy`. Invalid JSON, unknown fields, owner mismatch, stale base, and injected repository errors must not leak request content or private service messages.
 
-- [ ] **Step 2: Run API tests to verify RED**
+- [x] **Step 2: Run API tests to verify RED**
 
 Run: `npx vitest run tests/api/planning.test.ts tests/api/planning-production.test.ts`
 
 Expected: FAIL because planning API contracts/routes do not exist.
 
-- [ ] **Step 3: Add the planning code and safe recovery action to shared errors**
+- [x] **Step 3: Add the planning code and safe recovery action to shared errors**
 
 Extend `ApiErrorCode` with `PLANNING_UNAVAILABLE` and add an optional `action` to the shared error body:
 
@@ -1288,7 +1288,7 @@ export type ApiErrorBody = {
 
 Keep the existing fifth `headers` argument to `apiError` compatible and add `action` as a sixth optional argument. Update `ArcApiError` and the strict client error schema to retain an optional action without changing existing call sites. Planning uses `refresh` for `409`, `sign-in` for `401`, `retry` for `429/503`, and `rebuild` for a version/schema mismatch. All planning responses pass through `applyResponseSafety` after `apiJson`/`apiError`.
 
-- [ ] **Step 4: Implement route factories**
+- [x] **Step 4: Implement route factories**
 
 Follow `cloud-route-factories.ts`, but keep a separate planning dependency type:
 
@@ -1318,11 +1318,11 @@ unknown -> 500 INTERNAL
 
 Operational events may contain only route, result code, latency, safe user surrogate, and counters (`writes`, `events`, `plans`, `daily_units`); never log evidence URLs/notes, audit answers, unit copy, or full payloads.
 
-- [ ] **Step 5: Wire production routes**
+- [x] **Step 5: Wire production routes**
 
 Each route exports `dynamic = "force-dynamic"` and delegates to a production factory using `requireArcUser`, `getD1`, `D1RateLimiter`, `D1OperationalEventSink`, `D1PlanningRepository`, `IntelligenceService(new BuiltinIntelligenceRepository())`, and `flagshipUnitRegistry`. No route imports OpenRouter or `fetch`.
 
-- [ ] **Step 6: Write client RED tests and implement the strict client**
+- [x] **Step 6: Write client RED tests and implement the strict client**
 
 The client parses every success/error response, always uses `credentials: "include"`, `cache: "no-store"`, and JSON content type for writes. Export:
 
@@ -1338,7 +1338,7 @@ export interface PlanningClient {
 
 Reuse `ArcApiError` for safe server errors; do not accept success payloads with unknown fields.
 
-- [ ] **Step 7: Run API/client/security tests**
+- [x] **Step 7: Run API/client/security tests**
 
 Run: `npx vitest run tests/api/planning.test.ts tests/api/planning-production.test.ts tests/lib/planning-client.test.ts tests/lib/cloud-client.test.ts tests/server/observability.test.ts tests/server/rate-limit.test.ts`
 
@@ -1348,7 +1348,7 @@ Run: `npx tsc --noEmit`
 
 Expected: exit `0`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```powershell
 git add app/contracts/planning-api.ts app/server/http/planning-route-factories.ts app/api/planning app/lib/planning-client.ts app/server/http/api-response.ts app/lib/cloud-client.ts tests/api/planning.test.ts tests/api/planning-production.test.ts tests/lib/planning-client.test.ts tests/lib/cloud-client.test.ts tests/server/observability.test.ts
@@ -1367,7 +1367,7 @@ git commit -m "feat: expose adaptive planning APIs"
 - Modify: `app/components/sync/migration-banner.tsx`
 - Modify: `tests/components/migration-banner.test.tsx`
 
-- [ ] **Step 1: Write failing controller tests**
+- [x] **Step 1: Write failing controller tests**
 
 Test these explicit states:
 
@@ -1389,13 +1389,13 @@ Required behaviors:
 - session expiry exposes recovery without deleting guest or cloud state;
 - custom-role/v7 callers never instantiate the adaptive controller.
 
-- [ ] **Step 2: Run controller tests to verify RED**
+- [x] **Step 2: Run controller tests to verify RED**
 
 Run: `npx vitest run tests/lib/use-planning-workspace.test.tsx`
 
 Expected: FAIL because `usePlanningWorkspace` does not exist.
 
-- [ ] **Step 3: Add resumable import metadata to the local envelope**
+- [x] **Step 3: Add resumable import metadata to the local envelope**
 
 Persist only safe progress:
 
@@ -1410,7 +1410,7 @@ type PlanningImportProgress = {
 
 Scope progress by user ID plus local workspace fingerprint. Never mark `completed` until a final cloud reload strictly parses and its replayed active/pending pointers and event fingerprint equal the local workspace. A different signed-in user starts a separate import progress record and cannot reuse another user's completion marker.
 
-- [ ] **Step 4: Implement the controller**
+- [x] **Step 4: Implement the controller**
 
 Export:
 
@@ -1432,17 +1432,17 @@ export type PlanningWorkspaceController = {
 
 Inject `useSession`, client, local repository, ID factory, and clock for tests. For a cloud write, derive `baseVersionId` from the visible workspace immediately before the call and reject a second click while one mutation is in flight. For guest writes, use the same request contracts and pure transition functions through the local repository. Publish a new visible workspace only after strict parsing.
 
-- [ ] **Step 5: Extend the existing migration banner without conflating formats**
+- [x] **Step 5: Extend the existing migration banner without conflating formats**
 
 Add a `kind: "v7-state" | "adaptive-plan"` prop and truthful adaptive copy: “A complete adaptive plan exists on this device. Importing replays its versioned learning history into this Arc account.” Keep the existing v7 conflict-resolution controls untouched. The adaptive banner has only `Import` and `Not now`; any cloud conflict is shown as a safe refresh/retry message.
 
-- [ ] **Step 6: Run controller and existing state tests**
+- [x] **Step 6: Run controller and existing state tests**
 
 Run: `npx vitest run tests/lib/use-planning-workspace.test.tsx tests/lib/planning/local-repository.test.ts tests/lib/use-arc-state.test.tsx tests/components/migration-banner.test.tsx`
 
 Expected: PASS; old v7 queue and migration behavior remain GREEN.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add app/lib/use-planning-workspace.ts app/lib/planning/local-repository.ts app/components/sync/migration-banner.tsx tests/lib/use-planning-workspace.test.tsx tests/lib/planning/local-repository.test.ts tests/components/migration-banner.test.tsx
@@ -1468,7 +1468,7 @@ git commit -m "feat: coordinate local and cloud plans"
 - Modify: `tests/pages/setup.test.tsx`
 - Modify: `app/globals.css`
 
-- [ ] **Step 1: Write failing audit-step tests**
+- [x] **Step 1: Write failing audit-step tests**
 
 Render all 16 skills grouped in the eight blueprint categories. Assert one clear four-state radiogroup per skill, category quick-set with per-skill override, `aria-describedby` for self-assessment disclosure, keyboard selection, optional evidence editor, maximum three evidence rows, public HTTPS validation, 300-character note cap, and no `Verified`/`Demonstrated` copy.
 
@@ -1479,11 +1479,11 @@ expect(screen.getByRole("radio", { name: "Guided", checked: true })).toBeInTheDo
 expect(screen.getByText(/Self-assessment, not Arc verification/i)).toBeInTheDocument();
 ```
 
-- [ ] **Step 2: Write failing availability-step tests**
+- [x] **Step 2: Write failing availability-step tests**
 
 Assert seven labeled minute inputs, `0` → visible Rest, integer/boundary validation, derived weekly total, injected browser time-zone default, IANA error, add/remove exceptions, duplicate/date-horizon rejection, exception override preview, and error association.
 
-- [ ] **Step 3: Write failing target/build tests**
+- [x] **Step 3: Write failing target/build tests**
 
 Use a tiny deterministic path builder fixture to show:
 
@@ -1495,13 +1495,13 @@ Use a tiny deterministic path builder fixture to show:
 - build progress corresponds to actual local validation/path/schedule/save promises, with no timer-driven fake stage;
 - double-submit is blocked and a save failure keeps the completed answers editable.
 
-- [ ] **Step 4: Run component tests to verify RED**
+- [x] **Step 4: Run component tests to verify RED**
 
 Run: `npx vitest run tests/components/skill-audit-step.test.tsx tests/components/availability-step.test.tsx tests/components/target-step.test.tsx tests/components/adaptive-setup-flow.test.tsx`
 
 Expected: FAIL because the adaptive components do not exist.
 
-- [ ] **Step 5: Implement the focused steps**
+- [x] **Step 5: Implement the focused steps**
 
 `SkillAuditStep` receives the parsed Blueprint and a controlled draft. Use semantic `fieldset`/`legend`, real radio inputs or equivalent buttons with `role="radio"`, and category actions that update only that category. Evidence remains collapsed behind a secondary “Add evidence link” control and parses with `skillEvidenceSchema` before advancing.
 
@@ -1516,7 +1516,7 @@ Never expose a separate editable total.
 
 `TargetStep` calls `buildLearningPaths` in memory with the explicit `planningDate`. Render each option as a semantic radio with scope, Later skills, expected completion date, and the reason the option is or is not feasible.
 
-- [ ] **Step 6: Build the five-stage adaptive flow**
+- [x] **Step 6: Build the five-stage adaptive flow**
 
 Use exact stages and progress text:
 
@@ -1529,7 +1529,7 @@ const stages: AdaptiveSetupStage[] = [
 
 On stage change, move focus to the new `<h1 tabIndex={-1}>`. Preserve answers when navigating back. The Build stage emits a strict `GeneratePlanningRequest` and calls `usePlanningWorkspace.generate`; on success route to `/path`.
 
-- [ ] **Step 7: Preserve custom-role v7 Setup**
+- [x] **Step 7: Preserve custom-role v7 Setup**
 
 Refactor the existing four-question component into a legacy branch inside `SetupFlow`. The initial Role stage remains common. Selecting a nonempty custom role shows this exact disclosure before continuing:
 
@@ -1537,11 +1537,11 @@ Refactor the existing four-question component into a legacy branch inside `Setup
 
 Then render the existing level, weekly total, target weeks, and `saveSetup` flow without creating a Phase 2 workspace. Existing public props may receive additive callbacks, but the v7 `onComplete(SetupAnswers)` contract and tests remain supported.
 
-- [ ] **Step 8: Add restrained responsive styles**
+- [x] **Step 8: Add restrained responsive styles**
 
 Extend `app/globals.css` using existing tokens. Use grouped editorial rows, thin separators, strong text hierarchy, four explicit state choices, 44px touch targets, visible `:focus-visible`, WCAG 2.2 AA text/control contrast, and one-column mobile stacking. Do not add glass panels, gradients, generic card grids, or decorative motion. Add `prefers-reduced-motion` coverage for any stage transition.
 
-- [ ] **Step 9: Run Setup and accessibility tests**
+- [x] **Step 9: Run Setup and accessibility tests**
 
 Run: `npx vitest run tests/components/skill-audit-step.test.tsx tests/components/availability-step.test.tsx tests/components/target-step.test.tsx tests/components/adaptive-setup-flow.test.tsx tests/components/setup-flow.test.tsx tests/pages/setup.test.tsx tests/components/accessibility-contracts.test.tsx`
 
@@ -1551,7 +1551,7 @@ Run: `npx tsc --noEmit`
 
 Expected: exit `0`.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```powershell
 git add app/components/setup app/setup/page.tsx app/globals.css tests/components/skill-audit-step.test.tsx tests/components/availability-step.test.tsx tests/components/target-step.test.tsx tests/components/adaptive-setup-flow.test.tsx tests/components/setup-flow.test.tsx tests/pages/setup.test.tsx
@@ -1579,51 +1579,51 @@ git commit -m "feat: add adaptive planning setup"
 - Modify: `tests/pages/workspace-state.test.tsx`
 - Modify: `app/globals.css`
 
-- [ ] **Step 1: Write failing adaptive Path tests**
+- [x] **Step 1: Write failing adaptive Path tests**
 
 Assert the full ordered scope, current phase, prerequisite rationale, calibration labels, expected date range, and semantic Later section. Core/prerequisite skills can never appear in Later. Self-assessment copy is visually/textually distinct from Phase 1 claim confidence and never says verified.
 
-- [ ] **Step 2: Write failing Today/timeline tests**
+- [x] **Step 2: Write failing Today/timeline tests**
 
 Assert exactly one required primary outcome with objective, `whyNow`, primary/alternative source links, timed steps, build task, completion criteria, Proof requirement, rubric, and estimated minutes. At most one optional stretch appears. The timeline has exactly seven consecutive dates, retains Rest/exception dates, and uses one ordered timeline—not seven generic cards.
 
 Test contextual actions: Complete, Delay, Skip, Too hard, Already know this. Complete immediately rolls and keeps the learner on Today; the other four show a candidate diff before active content changes.
 
-- [ ] **Step 3: Write failing diff-review tests**
+- [x] **Step 3: Write failing diff-review tests**
 
 Render counts and full lists for added/moved/removed/unchanged, old/new dates, reasons, and completion-date change. Require explicit Accept and Keep current plan buttons, focus the review heading when it opens, block double decisions, announce success/errors with `role="status"`/`role="alert"`, and keep all details readable before acceptance.
 
-- [ ] **Step 4: Run UI tests to verify RED**
+- [x] **Step 4: Run UI tests to verify RED**
 
 Run: `npx vitest run tests/components/adaptive-path.test.tsx tests/components/seven-day-timeline.test.tsx tests/components/plan-diff-review.test.tsx tests/components/adaptive-today-session.test.tsx`
 
 Expected: FAIL because adaptive workspace components do not exist.
 
-- [ ] **Step 5: Implement adaptive Path**
+- [x] **Step 5: Implement adaptive Path**
 
 Render parsed workspace data only. Resolve template/resource copy from the exact Registry/Blueprint version recorded by the path; if the built-in versions do not match, render a safe “Plan version unavailable” boundary instead of mixing versions. Phase 2 does not define a history-preserving catalogue-rebuild mutation, so the boundary must say that Arc kept the saved plan unchanged and that a compatible rebuild is not available in this build; it must not expose a Setup link that the existing-workspace conflict would reject. The API `rebuild` action is a typed version-mismatch classification used to select this fail-closed boundary, not permission to overwrite history. Use semantic ordered lists and details text, not a dependency canvas.
 
-- [ ] **Step 6: Implement Today and seven-day timeline**
+- [x] **Step 6: Implement Today and seven-day timeline**
 
 `AdaptiveTodaySession` is controlled by the active `PlanVersion` and `DailyUnit` map. Local checkbox progress is ephemeral; completing the unit appends one `completed` event only after all required steps are checked. Do not create a `ProofItem`, set `verified`, call `completeDemoUnit`, or redirect to `/proof`.
 
 Resource anchors must use exact Blueprint URLs, `target="_blank"`, `rel="noreferrer"`, and the resource language attribute. A missing resource/version mismatch renders truthful fallback text without a fabricated URL.
 
-- [ ] **Step 7: Implement candidate diff and decisions**
+- [x] **Step 7: Implement candidate diff and decisions**
 
 After a proposed transition, keep active Today/Path in place and render `PlanDiffReview` from `pendingPlanVersionId`. Accept calls `controller.accept(candidateId)` with the latest visible base. Discard calls `controller.discard(candidateId)`. On `409`, show “This plan changed on another device. Refresh before deciding.” and never retry automatically.
 
-- [ ] **Step 8: Branch existing pages by authoritative adaptive state**
+- [x] **Step 8: Branch existing pages by authoritative adaptive state**
 
-`PathPage` and `TodayPage` continue to load `useArcState` for auth/migration/custom-role compatibility and load `usePlanningWorkspace` only for the Flagship role. Render adaptive components only when a strict Phase 2 workspace exists. Otherwise render the current v7 `PhaseRail`/`TodaySession` unchanged.
+`PathPage` and `TodayPage` continue to load `useArcState` for auth/migration/custom-role compatibility and load `usePlanningWorkspace` only for the Flagship role. Render adaptive components only when a strict Phase 2 workspace exists. Render the current v7 `PhaseRail`/`TodaySession` unchanged only after the local/cloud repository has authoritatively returned no adaptive workspace. While the adaptive source is restoring, when the first cloud read is unavailable, or when a stored version cannot be parsed safely, render a read-only fail-closed boundary and never expose the legacy completion path.
 
 Update `WorkspaceShell` to accept optional planning migration/recovery state and display the adaptive device-import banner without replacing the existing v7 migration banner. Keep the navigation labels and `/stack`/`/proof` routes intact.
 
-- [ ] **Step 9: Add Editorial Precision styles and reduced motion**
+- [x] **Step 9: Add Editorial Precision styles and reduced motion**
 
 Path uses a wide vertical editorial rail with a restrained Later section. Today remains dominant at the top; the seven-day timeline is a continuous ruled list. Diff transitions may use short opacity/position changes only, and the reduced-motion media query removes transforms/transitions. On mobile, keep current Today-first navigation and stack metadata below content; on desktop, allow Path/diff wider measure.
 
-- [ ] **Step 10: Run workspace and regression tests**
+- [x] **Step 10: Run workspace and regression tests**
 
 Run: `npx vitest run tests/components/adaptive-path.test.tsx tests/components/seven-day-timeline.test.tsx tests/components/plan-diff-review.test.tsx tests/components/adaptive-today-session.test.tsx tests/pages/path.test.tsx tests/pages/today.test.tsx tests/pages/workspace-state.test.tsx tests/components/stack-browser.test.tsx tests/components/proof-profile.test.tsx`
 
@@ -1633,7 +1633,7 @@ Run: `npx tsc --noEmit`
 
 Expected: exit `0`.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```powershell
 git add app/components/workspace app/components/today/adaptive-today-session.tsx app/path/page.tsx app/today/page.tsx app/globals.css tests/components/adaptive-path.test.tsx tests/components/seven-day-timeline.test.tsx tests/components/plan-diff-review.test.tsx tests/components/adaptive-today-session.test.tsx tests/pages/path.test.tsx tests/pages/today.test.tsx tests/pages/workspace-state.test.tsx
@@ -1652,7 +1652,7 @@ git commit -m "feat: present adaptive learning workspace"
 - Modify: `tests/components/accessibility-contracts.test.tsx`
 - Modify only if a regression proves necessary: existing v7/auth/account-link/proof tests or compatibility adapters
 
-- [ ] **Step 1: Add guest/cloud parity tests**
+- [x] **Step 1: Add guest/cloud parity tests**
 
 Run the same generated Flagship input and ordered event stream through `LocalPlanningRepository` and `PlanningService` backed by an in-memory/fake repository. Normalize storage metadata only; assert equal audit/path/plan/Daily Unit/event fingerprints, active/pending pointers, completion set, diff, and final replay state.
 
@@ -1665,11 +1665,11 @@ completed -> delayed -> replan_discarded -> too_hard -> replan_accepted
 
 Also assert a repeated mutation returns the first result and an old base returns conflict in both adapters.
 
-- [ ] **Step 2: Add v7 upgrade and fallback tests**
+- [x] **Step 2: Add v7 upgrade and fallback tests**
 
 Cover guest and cloud v7 states for default, custom role, meaningful completion, and Proof items. A successful upgrade preserves original v7 bytes/rows and builds only a setup draft until the learner confirms per-skill audit/availability. Malformed/new-envelope write failure keeps v7 Today/Path/Proof readable. No upgrade path turns legacy `level` into skill answers or writes `verified=true`.
 
-- [ ] **Step 3: Add security and resource-limit tests**
+- [x] **Step 3: Add security and resource-limit tests**
 
 Exercise maximum-size valid inputs and just-over-limit rejection for audits, evidence, exceptions, Daily Units, events, plans, and workspaces. Verify owner mismatch, cross-goal references, evidence URLs with credentials/private hosts, payload redaction, and service failure messages. Search production planning paths for disallowed dependencies:
 
@@ -1679,11 +1679,11 @@ rg -n "OpenRouter|MockAiProvider|OPENROUTER_API_KEY|fetch\(|PROOF_ASSETS|proof_i
 
 Expected: no model/provider/R2/legacy-proof write matches. The only `fetch(` match may be the intentional browser API client in `app/lib/planning-client.ts`, which is outside the searched server/domain paths.
 
-- [ ] **Step 4: Extend rendered HTML and accessibility gates**
+- [x] **Step 4: Extend rendered HTML and accessibility gates**
 
 Build fixtures must prove the public shell still renders without client-only crashes and that the adaptive UI includes semantic headings, labels, status text, focus styles, and reduced-motion CSS. Do not assert visual polish through brittle class snapshots; assert user-visible hierarchy and safety attributes.
 
-- [ ] **Step 5: Run the focused Phase 2 gate**
+- [x] **Step 5: Run the focused Phase 2 gate**
 
 Run all newly added planning tests in one fresh command:
 
@@ -1693,7 +1693,7 @@ npx vitest run tests/contracts/planning.test.ts tests/data/flagship-unit-registr
 
 Expected: PASS with no unhandled rejection or leaked timer.
 
-- [ ] **Step 6: Run all legacy high-risk regression suites**
+- [x] **Step 6: Run all legacy high-risk regression suites**
 
 Run:
 
@@ -1703,7 +1703,7 @@ npx vitest run tests/api/account-link.test.ts tests/api/account-link-production.
 
 Expected: PASS; no v7 schema, OAuth, owner isolation, device migration, offline queue, Proof privacy, custom role, or proportional path regression.
 
-- [ ] **Step 7: Commit parity/regression coverage**
+- [x] **Step 7: Commit parity/regression coverage**
 
 ```powershell
 git add tests/lib/planning/parity.test.ts tests/lib/planning/v7-upgrade.test.ts tests/server/planning-security.test.ts tests/rendered-html.test.mjs tests/components/accessibility-contracts.test.tsx
@@ -1720,7 +1720,7 @@ git commit -m "test: verify adaptive planning compatibility"
 - Modify: `docs/operations/v8-resume-checkpoint.md`
 - Modify: this plan only to check completed steps and record exact fresh evidence
 
-- [ ] **Step 1: Run the full fresh repository gate**
+- [x] **Step 1: Run the full fresh repository gate**
 
 Run in order, without reusing earlier output:
 
@@ -1734,7 +1734,7 @@ node --test tests/rendered-html.test.mjs
 
 Expected: every command exits `0`; record the exact test file/test counts and build environment count in this plan. A Vite `spawn EPERM` caused only by the restricted Windows sandbox may be rerun with the already-approved scoped command; record both attempts and treat only the fresh permitted run as functional evidence.
 
-- [ ] **Step 2: Audit build output for secrets and provider drift**
+- [x] **Step 2: Audit build output for secrets and provider drift**
 
 Resolve the actual output directory first (`dist` is expected; do not assume `.next`). Run a safe file-name pre-scan, then exact searches only if no secret values will be printed:
 
@@ -1745,15 +1745,15 @@ rg -n "MockAiProvider|OpenRouter|fetch\(" app/data/flagship-blueprint.ts app/dat
 
 Expected: no secret pattern and no model/provider/outbound fetch in Blueprint, Registry, domain, server, or route code. `app/lib/planning-client.ts` is intentionally excluded because it is the authenticated same-origin browser transport.
 
-- [ ] **Step 3: Request independent specification review**
+- [x] **Step 3: Request independent specification review**
 
 Use `superpowers:requesting-code-review`. The reviewer compares the implementation range against every section of the approved Phase 2 spec, checks exact file scope, runs focused tests, and returns a binary compliance verdict. Resolve all Critical/Important findings with new TDD commits before proceeding.
 
-- [ ] **Step 4: Request independent quality/security review**
+- [x] **Step 4: Request independent quality/security review**
 
 Review untrusted input caps, determinism, graph complexity, time-zone/calendar edges, immutable history, replay/idempotency, D1 owner/goal integrity, concurrency races, failure rollback, response/log redaction, client bundle/provider drift, accessibility, and v7 regressions. Resolve all Critical/Important findings and rerun the entire Step 1 gate fresh after the final fix.
 
-- [ ] **Step 5: Update truthful documentation**
+- [x] **Step 5: Update truthful documentation**
 
 README and roadmap must say:
 
@@ -1766,7 +1766,7 @@ README and roadmap must say:
 
 Update `docs/operations/v8-resume-checkpoint.md` with branch, HEAD, implementation range, exact fresh gate evidence, reviewer verdicts, unresolved nonblocking items, and the next authorized action: user acceptance and choice of merge/backup/release planning.
 
-- [ ] **Step 6: Verify documentation and worktree scope**
+- [x] **Step 6: Verify documentation and worktree scope**
 
 Run:
 
@@ -1778,16 +1778,24 @@ git status --short
 
 Expected: claims agree with actual Git/build/migration/deployment state; diff check exits `0`; only planned documentation is uncommitted.
 
-- [ ] **Step 7: Commit the completion record**
+- [x] **Step 7: Commit the completion record**
 
 ```powershell
 git add README.md docs/superpowers/plans/2026-08-10-arc-v8-product-intelligence-roadmap.md docs/superpowers/plans/2026-08-10-arc-v8-adaptive-planning.md docs/operations/v8-resume-checkpoint.md
 git commit -m "docs: close v8 adaptive planning phase"
 ```
 
-- [ ] **Step 8: Stop at the user acceptance gate**
+- [x] **Step 8: Stop at the user acceptance gate**
 
 Report the exact implementation range and fresh verification totals. Do **not** merge, push, create a PR, execute `0002`/`0003`, change a flag, deploy Sites, or begin Phase 3. Offer those as separate, explicitly authorized next actions only after the user accepts the Phase 2 result.
+
+**2026-08-22 completion evidence (local engineering candidate, awaiting user acceptance):**
+
+- Implementation range: `c8473eb04c93be39e604e68865806ea51c11a73b..19b8c8765704f2e6c88e007568f28eef32a4e830`. This documentation commit is intentionally outside that range.
+- Fresh full gate: `npm run test:unit` exit `0`, 96 files / 1093 tests; `npx tsc --noEmit` exit `0`; `npm run lint` exit `0`; `npm run build` exit `0`, 5/5 environments; rendered HTML exit `0`, 3/3 tests.
+- Build output: `dist` exists and `.next` does not. Both the safe file-name pre-scan and exact `OPENROUTER_API_KEY|OPENAI_API_KEY|sk-or-` scan returned no matches (`rg` exit `1`). The Phase 2 Blueprint/Registry/domain/server/route scan for `MockAiProvider|OpenRouter|fetch\(` also returned no matches (`rg` exit `1`).
+- Independent final specification review: Critical `0`, Important `0`, Minor `0`, Ready Yes. Independent final quality/security review: Critical `0`, Important `0`, Minor `0`, Ready Yes.
+- No merge, push, PR, production `0002`/`0003` execution, feature-flag change, environment change, Sites deployment, or Phase 3 work occurred. The next gate is user acceptance and a separately authorized integration/release choice.
 
 ---
 

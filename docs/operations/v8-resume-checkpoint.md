@@ -1,22 +1,16 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-08-22 暂停恢复记录（覆盖下方历史状态）**
+> **2026-08-22 Phase 2 工程完成记录（覆盖下方历史状态）**
 >
-> 当前实现 worktree 为 `.worktrees/v8-adaptive-planning`，分支 `codex/v8-adaptive-planning`，保存时实现 HEAD 为 `591624e3b6cd8bed1010cc7c864011a0ad76aa2a`。Phase 2 Task 1–14 已按 TDD 完成本地提交；Task 15 的实现修复与完整工程门槛也已完成，但最终质量/安全复审尚有问题待关闭，因此 **Arc v8 尚未进入用户验收门槛，也不得标记工程完成**。
+> 当前实现 worktree 为 `.worktrees/v8-adaptive-planning`，分支 `codex/v8-adaptive-planning`。Phase 2 Task 1–15 已按 TDD 完成本地工程建设；实现范围为 `c8473eb04c93be39e604e68865806ea51c11a73b..19b8c8765704f2e6c88e007568f28eef32a4e830`。本完成记录提交不纳入范围，避免自指。Arc v8 现在停在**用户验收门槛**，不是线上发布状态。
 >
-> 已提交的最终审查修复包括：`165d1a6`（关闭首轮 review findings）、`ae92ff3`（限定 parity gate）和 `591624e`（稳定完整回归门槛）。已关闭的重点问题包括：七张 planning 表改为 `(user_id, goal_id, id)` composite primary key 并重新生成同名 `0003_adaptive_planning`（无 `0004`、无 ALTER/DROP）；event 只接受当前首个 required primary；Today 使用 availability 时区的真实今天且 Stretch 只在 primary checklist 完成后显示；生产首读调用 guarded v7 upgrade；Flagship Setup 同步公共 Role；Path 显示 pending diff；shell 使用 planning target；Setup 进度一致；版本不匹配使用保留历史的 `version-unavailable` 诚实边界。
+> 最终审查修复包括 `165d1a6`、`c978312` 与 `19b8c87`。已关闭的重点问题包括：七张 planning 表使用 `(user_id, goal_id, id)` composite primary key 并重新生成同名 `0003_adaptive_planning`（无 `0004`、无 ALTER/DROP）；event 只接受当前首个 required primary；Today 使用 availability 时区的真实今天且 Stretch 只在 primary checklist 完成后显示；生产首读调用 guarded v7 upgrade；Flagship Setup 同步公共 Role；Path 显示 pending diff；版本不匹配保留历史；restoring/首次 cloud unavailable 不回退 legacy；Path 与 Today 的候选决策公告在 diff 卸载和 Rest/Open 转换后仍可播报。
 >
-> 保存前的 fresh Task 15 工程证据全部通过：`npm run test:unit` 为 96 files / 1086 tests；`npx tsc --noEmit`、`npm run lint`、`npm run build`（5/5）均 exit 0；rendered HTML 3/3；仅 `dist` 存在、`.next` 不存在；产物 secret 扫描与 Phase 2 provider / outbound `fetch` 扫描均 0 matches；`git diff --check 2825ff4..591624e` 通过。规格复审结论为 C0 / I0 / M2 / Ready Yes，其中两个 Minor 是本检查点旧状态需要更新，以及云端 v7 升级测试的直接追踪性不足。
+> 最终 fresh Task 15 工程证据全部通过：`npm run test:unit` 为 96 files / 1093 tests；`npx tsc --noEmit`、`npm run lint`、`npm run build`（5/5）均 exit 0；rendered HTML 3/3；仅 `dist` 存在、`.next` 不存在；产物 secret 扫描与 Phase 2 provider / outbound `fetch` 扫描均 0 matches（`rg` exit `1`）；实现范围 diff-check 通过，提交前工作树干净。
 >
-> 最终质量/安全复审结论为 **C0 / I2 / M1 / Ready No**。恢复后的第一项工作不是重跑 Phase 1、不是部署，也不是更新完成文档，而是按 TDD 关闭以下清单：
+> 两位独立 reviewer 的最终结论均为 **Critical 0 / Important 0 / Minor 0 / Ready Yes**。没有未解决的阻断或非阻断 finding。审查确认严格契约、确定性内核、append-only replay、owner/goal 与 CAS、请求/响应上限、私密错误、身份生命周期、v7 兼容、可访问性与 provider/secret 边界均满足已批准 Phase 2 规格。
 >
-> 1. **Important — 未确定或首次云读取失败时错误回退 v7。** 当 Flagship planning 为 `source='restoring'`，或首次云加载失败且 `workspace=null` 时，Path/Today 会进入 legacy UI；Today 可执行旧 `completeUnit` 并进入会创建 verified Proof 的 v7 流程。必须显示只读恢复/重试边界，只有明确判定不存在 adaptive workspace 时才允许 legacy fallback。
-> 2. **Important — Rest/Open Today 仍显示旧日期。** 有 primary 的标题已使用 availability 时区的当前当地日，但无 primary 分支仍显示 `plan.planningDate`；需统一使用解析后的当地今天，并补 Rest/Open 回归。
-> 3. **Minor — 候选决策成功公告随 diff 卸载。** accept/discard 成功后 controller 先发布新 workspace，Path 随即卸载 `PlanDiffReview`，其局部 live-region 成功提示无法可靠播报；应把公告提升到不会随 review 卸载的页面或 controller live region，并补真实集成调用链测试。
->
-> 修复后必须重新执行完整 Task 15 unit/type/lint/build/rendered/security gate，并重新取得两位 reviewer 的 C0/I0 结论，之后才更新最终完成记录。
->
-> 当前没有 merge、push、部署、生产 D1 迁移、环境变量或线上配置改动。公开生产仍是 Arc v7.2 / Sites version 9。
+> **下一步只接受显式用户选择。** 可以先做用户验收；通过后再分别决定是否本地合并、远程备份、编写发布方案、执行生产 D1 迁移、修改功能旗标或部署 Sites。当前没有 merge、push、PR、生产 D1 迁移、环境变量、线上配置或部署改动；公开生产仍是 Arc v7.2 / Sites version 9。不要重做 Phase 1，不要直接开始 Phase 3。
 >
 > 下方 2026-08-12 内容是历史检查点，仅用于背景，不再代表当前门槛。
 
