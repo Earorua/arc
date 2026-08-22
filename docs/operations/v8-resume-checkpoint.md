@@ -1,5 +1,19 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-22 本地用户验收暂停记录（当前最高优先级）**
+>
+> Phase 2 工程完成提交仍为 `91188eb1bf7e61f7153b0b7719dd8d5d20d5aac4`，本轮没有修改功能代码。用户已从 `.worktrees/v8-adaptive-planning` 启动 `npm run dev`，在访客本地模式完成 Setup → Build → Path → Today 的人工验收，并确认刷新后 Path 与 Today 状态一致、规划结果可从本地持久化恢复。
+>
+> 已人工确认：Flagship Setup 可以生成自适应计划；Path 可以显示完整阶段、学习目标、自评状态与 Blueprint claim confidence；Today 可以显示当前单元总分钟数、分步分钟数、主要资源、Build、Completion criteria、Proof requirement 与 Rubric；Delay 可以生成 `Review every change.` 候选差异；Keep / Accept 决策链路可用；决策后的计划跨刷新保持一致。
+>
+> 验收中发现并保留一个待修 UI 缺陷：候选计划实际已生成时，Today 仍可能显示 `Arc could not update this plan. Try again when the connection recovers.`；候选待审期间学习动作也仍保持可用，后续动作会被内核的 pending-replan guard 拒绝，却被 UI 归类成连接错误。预期行为是显示 `Candidate plan ready for review. Your current plan has not changed.`，并在候选被 Accept 或 Keep 前禁用或隐藏 Complete / Delay / Skip / Too hard / Already know this。修复必须先写可判别 RED，再做最小实现与 focused/full gate；不要把它当作网络或数据丢失。
+>
+> 另一个产品呈现事实：分钟数与资源当前只在 Today 显示，Path 只显示路线结构与能力叙事。此前口头验收指引中“Path 每个单元显示分钟和资源”不准确；若后续用户要求 Path 也直接展示，应作为新的产品呈现改动单独批准，而不是误报为当前已实现。
+>
+> **验收尚未最终签字。** 下次从这里继续：先修复上述 pending-candidate 状态与错误文案，运行相关 Today / controller / repository 回归、TypeScript、ESLint，并按风险决定是否重跑 96-file full gate；然后恢复本地预览，验收 Complete 持久化（若当天不是 Rest）、键盘焦点、窄屏单列与状态语义。通过后再请用户明确回复“本地验收通过”。
+>
+> 本地预览地址为 `http://localhost:3000/setup`；当前会话启动过开发服务器，但关闭 Codex 或电脑后不能假设进程仍在，恢复时应先检查端口，再从 v8 worktree 运行 `npm run dev`。本轮没有 merge、push、PR、生产 D1 迁移、环境变量、功能旗标或部署动作；公开生产仍为 Arc v7.2 / Sites version 9。浏览器中的访客计划属于本地存储，不写入 Git；本检查点保存的是可复现的验收结论与后续动作。
+
 > **2026-08-22 Phase 2 工程完成记录（覆盖下方历史状态）**
 >
 > 当前实现 worktree 为 `.worktrees/v8-adaptive-planning`，分支 `codex/v8-adaptive-planning`。Phase 2 Task 1–15 已按 TDD 完成本地工程建设；实现范围为 `c8473eb04c93be39e604e68865806ea51c11a73b..19b8c8765704f2e6c88e007568f28eef32a4e830`。本完成记录提交不纳入范围，避免自指。Arc v8 现在停在**用户验收门槛**，不是线上发布状态。
