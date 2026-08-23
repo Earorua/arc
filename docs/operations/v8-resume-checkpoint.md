@@ -1,6 +1,14 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-08-22 本地用户验收暂停记录（当前最高优先级）**
+> **2026-08-23 pending-candidate 修复完成（本地验收待继续）**
+>
+> 已从下方本地用户验收暂停记录继续，并在本地提交 `2b021a5`（`fix: lock pending planning actions`）修复候选计划状态。Today 现在以 workspace 的 `pendingPlanVersionId` 为权威状态：候选待审期间禁用 Complete / Delay / Skip / Too hard / Already know this，Accept new plan / Keep current plan 保持可用；候选差异存在时固定显示 `Candidate plan ready for review. Your current plan has not changed.`，不会再让陈旧的 record 失败结果显示为连接错误。
+>
+> 本轮按 TDD 先捕获 2 条可判别 RED，再完成最小实现。验证结果：Today 聚焦测试 11/11；Today / diff review / controller / local repository / Today page 相邻回归 5 files、68 tests 全通过；完整 Vitest 门槛 96 files、1094 tests 全通过；`npx tsc --noEmit`、目标文件 ESLint 与 `git diff --check` 通过。
+>
+> **下一步仍是本地用户验收，不是部署。** 启动或恢复 `.worktrees/v8-adaptive-planning` 的 `npm run dev` 后，先复验 Delay → 候选提示与五个动作锁定 → Keep / Accept 解锁；随后继续验收 Complete 持久化（若当天不是 Rest）、键盘焦点、窄屏单列与状态语义。用户明确回复“本地验收通过”前，不执行 merge、push、PR、生产 D1 迁移、环境变量、功能旗标或部署。
+>
+> **2026-08-22 本地用户验收暂停记录（已由上方修复记录接续）**
 >
 > Phase 2 工程完成提交仍为 `91188eb1bf7e61f7153b0b7719dd8d5d20d5aac4`，本轮没有修改功能代码。用户已从 `.worktrees/v8-adaptive-planning` 启动 `npm run dev`，在访客本地模式完成 Setup → Build → Path → Today 的人工验收，并确认刷新后 Path 与 Today 状态一致、规划结果可从本地持久化恢复。
 >
