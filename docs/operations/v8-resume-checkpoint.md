@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-24 Arc v8 已合并到本地 `master`（当前权威状态）**
+>
+> 用户完成本地验收后明确选择“本地合并回 `master`”。本地 `master` 已从 `fa9bc6c` 快进到验收签字提交 `a7ee0837ebc3a86e9ca4dab6c89bc14484ea976a`，没有冲突或额外 merge commit。合并后源代码门槛重新通过：`npm run test:unit` 为 96 files / 1095 tests，`npx tsc --noEmit` exit 0，排除仓库内其他独立 `.worktrees` 构建产物后的 ESLint exit 0，`npm test` 的 vinext production build 5/5 与 rendered HTML 3/3 均通过。
+>
+> `codex/v8-adaptive-planning` 已确认完整合并后删除，对应 Git worktree 已注销，残留的本地依赖、Wrangler 状态和构建缓存也已清理；为释放这些缓存文件，已结束只属于该 worktree 的本地 vinext / workerd 预览进程。因此当前没有运行中的 v8 本地预览。
+>
+> 本次仅完成本地集成与清理。没有 push、PR、生产 D1 迁移、R2 写入、环境变量、功能旗标或 Sites 部署；公开生产仍保持 Arc v7.2 / Sites version 9。后续如需远程备份或公开发布，必须重新获得用户明确授权。下方“尚未集成”的记录是合并前历史状态，不再代表当前门槛。
+
 > **2026-08-24 本地用户验收通过（当前最终状态）**
 >
 > 用户已明确回复“本地验收通过”。人工验收覆盖：Flagship Setup → Build → Path → Today 主链路；Today 分钟数、分步分钟、主要资源与完整 brief；Delay 候选差异、正确候选状态提示、候选待审动作锁定、Keep / Accept；决策与 Complete 的跨刷新持久化；键盘焦点；319px 窄屏单列、无横向溢出与动作换行。状态语义由人工提示检查及自动化 `role="status"` / `role="alert"` contract 共同覆盖。
