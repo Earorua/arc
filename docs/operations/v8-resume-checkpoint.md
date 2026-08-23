@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-24 窄屏单列修复完成（继续本地验收）**
+>
+> 用户已人工确认 pending-candidate 提示与动作锁定正常、Complete 跨刷新持久化成功、键盘焦点符合。窄屏验收在 319px 视口发现 Today brief 仍为两列；根因是 `@media (max-width: 760px)` 将 `.today-brief` 与 `.diff-counts` 共同设置为 `1fr 1fr`，违反已批准的 one-column mobile stacking 规格。
+>
+> 用户批准后按 TDD 修复并在本地提交 `e8d1179`（`fix: stack Today brief on mobile`）：新增移动端 CSS contract RED，再只把 `.today-brief` 改为 `1fr`，保留 `.diff-counts` 两列。浏览器重新加载后的计算样式在 319px 视口为单列 `287.333px`，document width 304px、actions `flex-wrap: wrap`。聚焦测试 18/18、相邻回归 3 files / 35 tests、TypeScript、目标 ESLint 与 `git diff --check` 通过；第一次完整门槛有一个无关 `skill-audit-step` 5 秒并发超时，单文件立即 3/3 通过，随后 fresh 完整门槛 96 files / 1095 tests 全通过，未修改超时。
+>
+> 下一步请用户在当前本地 Today 页确认窄屏单列视觉符合，然后继续状态语义验收。用户明确回复“本地验收通过”前，不执行 merge、push、PR、生产 D1 迁移、环境变量、功能旗标或部署。
+>
 > **2026-08-23 pending-candidate 修复完成（本地验收待继续）**
 >
 > 已从下方本地用户验收暂停记录继续，并在本地提交 `2b021a5`（`fix: lock pending planning actions`）修复候选计划状态。Today 现在以 workspace 的 `pendingPlanVersionId` 为权威状态：候选待审期间禁用 Complete / Delay / Skip / Too hard / Already know this，Accept new plan / Keep current plan 保持可用；候选差异存在时固定显示 `Candidate plan ready for review. Your current plan has not changed.`，不会再让陈旧的 record 失败结果显示为连接错误。
