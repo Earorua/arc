@@ -121,6 +121,16 @@ describe("navigation accessibility contracts", () => {
     expect(mobileRules).toMatch(/\.workspace-header\s*>\s*\.wordmark\s*\{[^}]*display:\s*none\s*;/);
   });
 
+  it("stacks the Today brief in one column on mobile", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    const mobileRules = css.slice(
+      css.indexOf("@media (max-width: 760px)"),
+      css.indexOf("@media (prefers-reduced-motion: reduce)"),
+    );
+
+    expect(mobileRules).toMatch(/\.today-brief\s*\{[^}]*grid-template-columns:\s*1fr\s*;/u);
+  });
+
   it("moves focus into account linking and restores the exact Link trigger on cancel", async () => {
     const user = userEvent.setup();
     mockAccountMenu();

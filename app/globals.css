@@ -479,7 +479,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .adaptive-later li, .today-resources > p:not(.section-index), .diff-completion { flex-direction: column; }
   .adaptive-today-session > header { grid-template-columns: 1fr; }
   .adaptive-today-session header h1, .adaptive-today-session header > p:last-child { grid-column: 1; }
-  .today-brief, .diff-counts { grid-template-columns: 1fr 1fr; }
+  .today-brief { grid-template-columns: 1fr; }
+  .diff-counts { grid-template-columns: 1fr 1fr; }
   .diff-items li { grid-template-columns: 1fr; gap: 8px; }
   .audit-radio-row { grid-template-columns: 1fr 1fr; }
   .audit-radio-row label:nth-child(2) { border-right: 0; }
