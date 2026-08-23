@@ -1,5 +1,11 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-24 整站完成四目标流程已批准（当前权威门槛）**
+>
+> Phase 1–2 已完成，`master` 已合并并远程备份到 GitHub；本地与 `origin/master` 在制定流程前均为 `9128321575a67c2fc6ec86e2ce1924e631ba28fe`。用户已批准把剩余整站建设拆为四个长目标：Proof-backed Stack、OpenRouter Research Beta、Production Candidate、Public Release & Stabilization。正式书面规格位于 `docs/superpowers/specs/2026-08-24-arc-v8-completion-program-design.md`。
+>
+> 当前停在书面规格复核门槛。用户批准书面规格后，下一步只为目标 1 编写详细实施计划；不要重做 Phase 1–2，不要直接写 Phase 3 功能代码。四目标流程批准不等于真实模型调用、生产 D1/R2 写入、运行时变量、功能旗标、访问范围或公开部署授权，这些仍按规格中的强制门槛单独确认。公开生产仍为 Arc. v7.2 / Sites version 9。
+
 > **2026-08-24 Arc v8 已合并到本地 `master`（当前权威状态）**
 >
 > 用户完成本地验收后明确选择“本地合并回 `master`”。本地 `master` 已从 `fa9bc6c` 快进到验收签字提交 `a7ee0837ebc3a86e9ca4dab6c89bc14484ea976a`，没有冲突或额外 merge commit。合并后源代码门槛重新通过：`npm run test:unit` 为 96 files / 1095 tests，`npx tsc --noEmit` exit 0，排除仓库内其他独立 `.worktrees` 构建产物后的 ESLint exit 0，`npm test` 的 vinext production build 5/5 与 rendered HTML 3/3 均通过。
