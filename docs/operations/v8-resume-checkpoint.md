@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-24 本地用户验收通过（当前最终状态）**
+>
+> 用户已明确回复“本地验收通过”。人工验收覆盖：Flagship Setup → Build → Path → Today 主链路；Today 分钟数、分步分钟、主要资源与完整 brief；Delay 候选差异、正确候选状态提示、候选待审动作锁定、Keep / Accept；决策与 Complete 的跨刷新持久化；键盘焦点；319px 窄屏单列、无横向溢出与动作换行。状态语义由人工提示检查及自动化 `role="status"` / `role="alert"` contract 共同覆盖。
+>
+> 签字后 fresh 最终工程门槛：`npm run test:unit` 为 96 files / 1095 tests 全通过；`npx tsc --noEmit` 与完整 `npm run lint` exit 0；`npm test` 的 vinext production build 5/5 完成，rendered HTML 3/3 通过。最新功能修复提交为 `e8d1179`，窄屏修复检查点为 `55e68b8`；本签字记录随后单独提交。
+>
+> Arc v8 Phase 2 至此完成本地建设与本地用户验收，但尚未集成或公开发布。分支仍为 `codex/v8-adaptive-planning`，worktree 仍为 `.worktrees/v8-adaptive-planning`。未执行 merge、push、PR、生产 D1 迁移、环境变量、功能旗标或部署；公开生产仍保持 Arc v7.2 / Sites version 9。下一步必须由用户单独选择保留分支、合并、PR 或放弃；部署需要另行明确授权。
+>
 > **2026-08-24 窄屏单列修复完成（继续本地验收）**
 >
 > 用户已人工确认 pending-candidate 提示与动作锁定正常、Complete 跨刷新持久化成功、键盘焦点符合。窄屏验收在 319px 视口发现 Today brief 仍为两列；根因是 `@media (max-width: 760px)` 将 `.today-brief` 与 `.diff-counts` 共同设置为 `1fr 1fr`，违反已批准的 one-column mobile stacking 规格。
