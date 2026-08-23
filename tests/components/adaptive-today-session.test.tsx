@@ -166,7 +166,9 @@ describe("AdaptiveTodaySession", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("A compatible rebuild is not available in this Phase 2 build");
   });
 
-  it("keeps active Today visible while a candidate diff is pending", () => {
+  it("keeps active Today visible but locks learning actions while a candidate diff is pending", async () => {
+    const user = userEvent.setup();
+    const record = vi.fn();
     const current = workspace();
     const path = current.pathVersions.find(({ id }) => id === current.activePathVersionId)!;
     const active = current.planVersions.find(({ id }) => id === current.activePlanVersionId)!;
@@ -181,11 +183,57 @@ describe("AdaptiveTodaySession", () => {
     const activePrimaryId = active.days.find(({ primaryUnitId }) => primaryUnitId !== null)!.primaryUnitId!;
     const activeObjective = current.dailyUnits.find(({ id, planVersionId }) => id === activePrimaryId && planVersionId === active.id)!.objective;
 
-    render(<AdaptiveTodaySession workspace={pending} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+    render(<AdaptiveTodaySession workspace={pending} now={fixedNow} record={record} accept={vi.fn()} discard={vi.fn()} />);
 
     expect(screen.getByRole("heading", { name: activeObjective })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Review every change." })).toBeInTheDocument();
     expect(screen.getByText(/review before changing/)).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Candidate plan ready for review");
+    for (const name of ["Complete", "Delay", "Skip", "Too hard", "Already know this"]) {
+      expect(screen.getByRole("button", { name })).toBeDisabled();
+    }
+    expect(screen.getByRole("button", { name: "Accept new plan" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Keep current plan" })).toBeEnabled();
+
+    await user.click(screen.getByRole("button", { name: "Delay" }));
+    expect(record).not.toHaveBeenCalled();
+  });
+
+  it("prefers an authoritative candidate workspace over a stale failed record result", async () => {
+    const current = workspace();
+    const proposal = applyPlanningEvent({
+      workspace: current,
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+      event: {
+        eventId: "event-today-delay-race",
+        mutationId: "mutation-today-delay-race",
+        sequence: 1,
+        targetPlanVersionId: current.activePlanVersionId,
+        occurredAt: "2026-08-14T10:00:00.000Z",
+        kind: "delayed",
+        unitId: current.dailyUnits.find(({ planVersionId }) => planVersionId === current.activePlanVersionId)!.id,
+        planningDate: "2026-08-14",
+      },
+    });
+    if (proposal.kind !== "proposed") throw new Error("Expected a delayed candidate plan");
+
+    function CandidateRaceHarness() {
+      const [value, setValue] = useState(current);
+      const record = async () => {
+        setValue(proposal.workspace);
+        return false;
+      };
+      return <AdaptiveTodaySession workspace={value} now={fixedNow} record={record} accept={vi.fn()} discard={vi.fn()} />;
+    }
+
+    const user = userEvent.setup();
+    render(<CandidateRaceHarness />);
+    await user.click(screen.getByRole("button", { name: "Delay" }));
+
+    expect(await screen.findByRole("heading", { name: "Review every change." })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Candidate plan ready for review");
+    expect(screen.queryByText(/connection recovers/)).not.toBeInTheDocument();
   });
 
   it("keeps the accepted-plan announcement visible when the candidate makes Today a Rest day", async () => {
