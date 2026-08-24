@@ -1,9 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { LearningResource, RoleBlueprint } from "../../contracts/intelligence";
+import type { SkillEvidenceProjection, SkillEvidenceStatus } from "../../contracts/proof-ledger";
 import type { SkillCategory } from "../../domain/learning";
 import { filterSkills } from "../../lib/skill-map";
+
+export type ProofEvidenceSummary = Readonly<{
+  proofId: string;
+  versionId: string;
+  title: string;
+}>;
+
+type StackBrowserProps = {
+  blueprint: RoleBlueprint;
+  projections: readonly SkillEvidenceProjection[];
+  evidence: readonly ProofEvidenceSummary[];
+};
 
 const categories: ReadonlyArray<readonly [SkillCategory | "all", string]> = [
   ["all", "All"],
@@ -43,12 +57,23 @@ const sourceTierLabels: Record<LearningResource["sourceTier"], string> = {
   primary: "Primary source",
 };
 
-export function StackBrowser({ blueprint }: { blueprint: RoleBlueprint }) {
+const statusLabels: Record<SkillEvidenceStatus, string> = {
+  exploring: "Exploring",
+  practicing: "Practicing",
+  demonstrated: "Demonstrated",
+  verified: "Verified",
+};
+
+const importanceLabels = { core: "Core", strong: "Strong", advantage: "Advantage" } as const;
+
+export function StackBrowser({ blueprint, evidence, projections }: StackBrowserProps) {
   const [category, setCategory] = useState<SkillCategory | "all">("all");
-  const { resourcesById, skillNames } = useMemo(() => ({
+  const { evidenceByVersion, projectionBySkill, resourcesById, skillNames } = useMemo(() => ({
+    evidenceByVersion: new Map(evidence.map((item) => [item.versionId, item])),
+    projectionBySkill: new Map(projections.filter(({ audience }) => audience === "internal").map((projection) => [projection.skillId, projection])),
     resourcesById: new Map(blueprint.resources.map((resource) => [resource.id, resource])),
     skillNames: new Map(blueprint.skills.map((skill) => [skill.id, skill.name])),
-  }), [blueprint]);
+  }), [blueprint, evidence, projections]);
   const filteredSkills = filterSkills(blueprint.skills, category);
 
   return (
@@ -66,8 +91,14 @@ export function StackBrowser({ blueprint }: { blueprint: RoleBlueprint }) {
         ))}
       </div>
       <div className="skill-list">
-        {filteredSkills.map((skill) => (
-          <article key={skill.id}>
+        {filteredSkills.map((skill) => {
+          const projection = projectionBySkill.get(skill.id) ?? emptyProjection(skill.id);
+          const strongest = projection.strongestVersionId
+            ? evidenceByVersion.get(projection.strongestVersionId) ?? null
+            : null;
+          const completedLabel = `${projection.completedUnitIds.length} completed ${projection.completedUnitIds.length === 1 ? "unit" : "units"}`;
+          const next = nextAction(projection.status, projection.strongestProofId);
+          return <article key={skill.id}>
             <header className="skill-summary">
               <p className="skill-kicker">{skill.category} · {skill.importance}</p>
               <h2>{skill.name}</h2>
@@ -76,7 +107,35 @@ export function StackBrowser({ blueprint }: { blueprint: RoleBlueprint }) {
             <div className="skill-detail">
               <dl className="skill-facts">
                 <div>
-                  <dt>Confidence</dt>
+                  <dt>Learner status</dt>
+                  <dd><strong className={`skill-status skill-status-${projection.status}`}>{statusLabels[projection.status]}</strong></dd>
+                </div>
+                <div>
+                  <dt>Role importance</dt>
+                  <dd>{importanceLabels[skill.importance]}</dd>
+                </div>
+                <div>
+                  <dt>Completed work</dt>
+                  <dd>{completedLabel}</dd>
+                </div>
+                <div>
+                  <dt>Strongest proof</dt>
+                  <dd className="skill-proof-link">{projection.strongestProofId
+                    ? strongest && strongest.proofId === projection.strongestProofId
+                      ? <Link href={`/proof?proof=${encodeURIComponent(strongest.proofId)}`}>{strongest.title}</Link>
+                      : "Evidence unavailable"
+                    : "None yet"}</dd>
+                </div>
+                <div>
+                  <dt>Latest use</dt>
+                  <dd>{projection.latestUsedAt ? formatLatestUse(projection.latestUsedAt) : "Not recorded"}</dd>
+                </div>
+                <div>
+                  <dt>Next action</dt>
+                  <dd><Link href={next.href}>{next.label}</Link></dd>
+                </div>
+                <div>
+                  <dt>Claim confidence</dt>
                   <dd>{Math.round(skill.confidence * 100)}% claim confidence</dd>
                 </div>
                 <div>
@@ -144,9 +203,32 @@ export function StackBrowser({ blueprint }: { blueprint: RoleBlueprint }) {
                 </ul>
               </section>
             </div>
-          </article>
-        ))}
+          </article>;
+        })}
       </div>
     </section>
   );
+}
+
+function emptyProjection(skillId: string): SkillEvidenceProjection {
+  return {
+    skillId,
+    audience: "internal",
+    status: "exploring",
+    completedUnitIds: [],
+    strongestProofId: null,
+    strongestVersionId: null,
+    latestUsedAt: null,
+  };
+}
+
+function nextAction(status: SkillEvidenceStatus, proofId: string | null) {
+  if (status === "exploring") return { label: "Start Today", href: "/today" };
+  if (status === "practicing") return { label: "Continue Today", href: "/today" };
+  if (status === "demonstrated") return { label: "Add stronger proof", href: "/proof" };
+  return { label: "Maintain evidence", href: proofId ? `/proof?proof=${encodeURIComponent(proofId)}` : "/proof" };
+}
+
+function formatLatestUse(value: string): string {
+  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(value));
 }

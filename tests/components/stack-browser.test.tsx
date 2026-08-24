@@ -3,14 +3,17 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { StackBrowser } from "../../app/components/stack/stack-browser";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import type { SkillEvidenceProjection } from "../../app/contracts/proof-ledger";
 
 afterEach(cleanup);
 
 describe("StackBrowser", () => {
+  const emptyEvidence = { evidence: [], projections: [] };
+
   it("filters canonical skills and reveals complete resource evidence", async () => {
     const user = userEvent.setup();
 
-    render(<StackBrowser blueprint={flagshipBlueprint} />);
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
 
     const ai = screen.getByRole("button", { name: "AI" });
     await user.click(ai);
@@ -26,7 +29,7 @@ describe("StackBrowser", () => {
       .closest("article");
 
     expect(structuredContracts).not.toBeNull();
-    expect(within(structuredContracts!).getByText("Confidence")).toBeInTheDocument();
+    expect(within(structuredContracts!).getByText("Claim confidence")).toBeInTheDocument();
     expect(within(structuredContracts!).getByText("Free")).toBeInTheDocument();
     expect(within(structuredContracts!).getByText("English")).toBeInTheDocument();
     expect(within(structuredContracts!).getByText("Primary source")).toBeInTheDocument();
@@ -38,7 +41,7 @@ describe("StackBrowser", () => {
   });
 
   it("gives every rendered skill two mastery criteria and a learning-resource link", () => {
-    render(<StackBrowser blueprint={flagshipBlueprint} />);
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
 
     screen.getAllByRole("article").forEach((skill) => {
       const mastery = within(skill).getByRole("list", { name: "Mastery criteria" });
@@ -50,7 +53,7 @@ describe("StackBrowser", () => {
   });
 
   it("resolves prerequisite names instead of exposing internal ids", () => {
-    render(<StackBrowser blueprint={flagshipBlueprint} />);
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
 
     const foundation = screen.getByRole("heading", { name: "Web Platform" }).closest("article");
     const react = screen.getByRole("heading", { name: "React 19" }).closest("article");
@@ -72,7 +75,7 @@ describe("StackBrowser", () => {
       skills: [skill],
     };
 
-    render(<StackBrowser blueprint={blueprint} />);
+    render(<StackBrowser blueprint={blueprint} {...emptyEvidence} />);
 
     const evidence = screen.getByRole("list", { name: "Learning resources" });
     expect(within(evidence).getByText("Resource metadata unavailable")).toBeInTheDocument();
@@ -101,6 +104,7 @@ describe("StackBrowser", () => {
               resourceIds: [repeatedResourceId, repeatedResourceId],
             }],
           }}
+          {...emptyEvidence}
         />,
       );
 
@@ -143,6 +147,7 @@ describe("StackBrowser", () => {
           }],
           resources: [primaryResource, translatedResource],
         }}
+        {...emptyEvidence}
       />,
     );
 
@@ -164,5 +169,44 @@ describe("StackBrowser", () => {
     expect(screen.getByText("Free and paid")).toBeInTheDocument();
     expect(screen.getByText("Institutional source")).toBeInTheDocument();
     expect(screen.getByText("Guide")).toBeInTheDocument();
+  });
+
+  it("shows canonical learner status, evidence facts, and deterministic next actions", () => {
+    const projections: SkillEvidenceProjection[] = [
+      { skillId: "web-platform", audience: "internal", status: "exploring", completedUnitIds: [], strongestProofId: null, strongestVersionId: null, latestUsedAt: null },
+      { skillId: "typescript", audience: "internal", status: "practicing", completedUnitIds: ["unit-1", "unit-2"], strongestProofId: null, strongestVersionId: null, latestUsedAt: "2026-08-20T10:00:00.000Z" },
+      { skillId: "react", audience: "internal", status: "demonstrated", completedUnitIds: ["unit-3"], strongestProofId: "proof-react", strongestVersionId: "version-react", latestUsedAt: "2026-08-21T10:00:00.000Z" },
+      { skillId: "design-systems", audience: "internal", status: "verified", completedUnitIds: [], strongestProofId: "proof-design", strongestVersionId: "version-design", latestUsedAt: "2026-08-22T10:00:00.000Z" },
+    ];
+    render(<StackBrowser blueprint={flagshipBlueprint} projections={projections} evidence={[
+      { proofId: "proof-react", versionId: "version-react", title: "Accessible request trace" },
+      { proofId: "proof-design", versionId: "version-design", title: "Keyboard-safe design system" },
+    ]} />);
+
+    const exploring = screen.getByRole("heading", { name: "Web Platform" }).closest("article")!;
+    const practicing = screen.getByRole("heading", { name: "TypeScript" }).closest("article")!;
+    const demonstrated = screen.getByRole("heading", { name: "React 19" }).closest("article")!;
+    const verified = screen.getByRole("heading", { name: "Accessible Design Systems" }).closest("article")!;
+    expect(within(exploring).getByText("Exploring")).toBeInTheDocument();
+    expect(within(exploring).getByRole("link", { name: "Start Today" })).toHaveAttribute("href", "/today");
+    expect(within(practicing).getByText("Practicing")).toBeInTheDocument();
+    expect(within(practicing).getByText("2 completed units")).toBeInTheDocument();
+    expect(within(practicing).getByRole("link", { name: "Continue Today" })).toHaveAttribute("href", "/today");
+    expect(within(demonstrated).getByText("Demonstrated")).toBeInTheDocument();
+    expect(within(demonstrated).getByRole("link", { name: "Accessible request trace" })).toHaveAttribute("href", "/proof?proof=proof-react");
+    expect(within(demonstrated).getByRole("link", { name: "Add stronger proof" })).toBeInTheDocument();
+    expect(within(verified).getByText("Verified")).toBeInTheDocument();
+    expect(within(verified).getByRole("link", { name: "Maintain evidence" })).toBeInTheDocument();
+    expect(within(verified).getByText("90% claim confidence")).toBeInTheDocument();
+  });
+
+  it("degrades unresolved strongest evidence without exposing internal identifiers", () => {
+    const projection: SkillEvidenceProjection = {
+      skillId: "react", audience: "internal", status: "demonstrated", completedUnitIds: [],
+      strongestProofId: "secret-proof-id", strongestVersionId: "secret-version-id", latestUsedAt: null,
+    };
+    render(<StackBrowser blueprint={{ ...flagshipBlueprint, skills: [flagshipBlueprint.skills[2]] }} projections={[projection]} evidence={[]} />);
+    expect(screen.getByText("Evidence unavailable")).toBeInTheDocument();
+    expect(screen.queryByText(/secret-proof-id|secret-version-id/u)).not.toBeInTheDocument();
   });
 });
