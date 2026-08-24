@@ -2,6 +2,8 @@
 
 Date: 2026-08-25  
 Branch: `codex/v8-proof-backed-stack`  
+Reviewed engineering HEAD: `19157f5c97eb468b311e9207c097e1fe44f90bf0`
+
 Preview: `http://localhost:3000`  
 Environment: local guest storage; no authenticated D1 or R2 bindings  
 User acceptance: **Pending user decision**
@@ -35,6 +37,8 @@ Capture references ending in `-inline` refer to images or DOM evidence emitted b
 - The service/API suites cover failed-save non-promotion and the authenticated `arc.test-report.v1` upload path. Manual upload was unavailable in this guest-only local preview because no authenticated D1/R2 bindings were present.
 - Responsive CSS contracts assert Proof and Stack width safety at 320px, 768px, and 1440px.
 - Reduced-motion and visible-focus contracts remain covered by `tests/components/accessibility-contracts.test.tsx`.
+- Post-review full gate: 108 test files / 1217 tests, TypeScript exit 0, ESLint exit 0, vinext build 5/5, rendered HTML 3/3, and `git diff --check` clean.
+- Code review found no P0/P1. Two confirmed P2 findings were fixed with red-green regressions: deterministic workspace-revision loading and safe v7 legacy Proof re-sharing without status promotion.
 
 ## User acceptance checklist
 

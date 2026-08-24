@@ -2,13 +2,15 @@
 
 > **2026-08-25 目标 1 `Proof-backed Stack` 工程完成；本地 UAT 待用户决定（当前权威门槛）**
 >
-> 分支仍为 `codex/v8-proof-backed-stack`，隔离工作树仍为 `.worktrees/v8-proof-backed-stack`；本轮工程 HEAD（检查点文档提交前）为 `cb7219747c402022d5a941b4bb9c8a07ebf4f5f5`。Tasks 0–15 已完成，Task 16 进入最终代码审查与复验。不要重做 Phase 1–2，也不要把自动化或 Codex 浏览器检查解释为用户验收签字。
+> 分支仍为 `codex/v8-proof-backed-stack`，隔离工作树仍为 `.worktrees/v8-proof-backed-stack`；最终审查后的工程 HEAD（本验收交接文档提交前）为 `19157f5c97eb468b311e9207c097e1fe44f90bf0`。Tasks 0–15 与 Task 16 的工程审查、修复和最终复验均已完成；当前只停在用户本地 UAT 决定。不要重做 Phase 1–2，也不要把自动化或 Codex 浏览器检查解释为用户验收签字。
 >
-> 最新工程门槛：`npm run test:unit` 为 108 files / 1215 tests；`npm exec tsc -- --noEmit` exit 0；`npm run lint` exit 0；独立 `npm run build` 的 vinext 5/5 完成；`npm test` 的 vinext 5/5 与 rendered HTML 3/3 通过；`git diff --check` 无错误。所有权与隐私聚焦套件为 4 files / 39 tests。临时 SQLite 已依次应用迁移 `0000`–`0004`，双账户 create / revise / reject / privacy / withdraw 夹具通过，`PRAGMA foreign_key_check` 为空。
+> 最终工程门槛：`npm run test:unit` 为 108 files / 1217 tests；`npm exec tsc -- --noEmit` exit 0；`npm run lint` exit 0；独立 `npm run build` 的 vinext 5/5 完成；`npm test` 的 vinext 5/5 与 rendered HTML 3/3 通过；`git diff --check` 无错误。所有权与隐私聚焦套件为 4 files / 39 tests。临时 SQLite 已依次应用迁移 `0000`–`0004`，双账户 create / revise / reject / privacy / withdraw 夹具通过，`PRAGMA foreign_key_check` 为空。
+>
+> Task 16 规格对照审查未发现 P0/P1，确认并修复两项 P2：同一毫秒幂等快照现在按 workspace revision 确定性加载；v7 legacy Proof 可通过新版 `title` / `skillNames` 安全字段重新分享，且旧 `verified` 不会被提升为新状态。两项均先获得判别性失败测试，再转绿；审查后聚焦套件为 3 files / 38 tests。
 >
 > 本地人工辅助检查已覆盖 `/today`、`/proof`、`/stack` 的桌面和 320px 窄屏、键盘焦点、状态联动、不可变版本、撤销降级及公开/私有切换；详细记录位于 `docs/operations/v8-goal-1-uat.md`。浏览器自动化无法改变实际浏览器缩放，故 200% 缩放仍列为用户确认项；本地 UAT 结论必须保持 `Pending user decision`，直到用户明确接受。
 >
-> 本地预览保持在 `http://localhost:3000`，但进程跨会话不可假定仍存活。下一步是 `User reviews Goal 1 local acceptance`：先完成 Task 16 独立审查和最终全门槛复验，再向用户提供本地 URL 与 UAT 清单并停下等待。用户明确接受前，不合并、不推送、不清理分支。
+> 本地预览保持在 `http://localhost:3000`，但进程跨会话不可假定仍存活。下一步是 `User reviews Goal 1 local acceptance`：向用户提供本地 URL 与 UAT 清单并停下等待。用户明确接受前，不合并、不推送、不清理分支。
 >
 > 本目标仍未执行生产 D1 迁移、生产 R2 写入、Sites 候选保存、运行时配置/旗标修改或公开部署。公开生产继续保持 Arc. v7.2 / Sites version 9。
 
