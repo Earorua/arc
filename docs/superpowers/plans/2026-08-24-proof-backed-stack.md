@@ -305,15 +305,15 @@ export const deterministicValidators: Readonly<Record<string, DeterministicValid
 - Create: `tests/lib/proof-client.test.ts`
 - Create: `tests/lib/use-proof-ledger.test.tsx`
 
-- [ ] Write failing client tests for credentialed requests, strict response parsing, body/response byte limits, standardized Arc API errors, and each mutation path.
-- [ ] Implement `ProofClient` with `loadWorkspace`, `createProof`, `reviseProof`, `withdrawProof`, and `setVisibility`.
-- [ ] Write failing hook tests covering guest local load, authenticated cloud load, identity switch, stale response suppression, one in-flight mutation, offline-cloud read-only fallback, mutation replay, and retry.
-- [ ] Implement `useProofLedger({ planningWorkspace, legacyProofs })` following `usePlanningWorkspace` identity-generation and lifecycle-token patterns. Do not share refs or mutation state between hooks.
-- [ ] Merge planning completions and legacy completion records into a derived projection on read; do not write synthetic review events for them.
-- [ ] Expose `source`, `recovery`, `workspace`, `projections`, mutation methods, and `retry`. Recovery values are `none`, `session-expired`, `conflict`, `unavailable`, and `version-unavailable`.
-- [ ] Run `npm run test:unit -- tests/lib/proof-client.test.ts tests/lib/use-proof-ledger.test.tsx`; expect all client/hook tests to pass.
-- [ ] Stage with `git add app/lib/proof-client.ts app/lib/use-proof-ledger.ts tests/lib/proof-client.test.ts tests/lib/use-proof-ledger.test.tsx`.
-- [ ] Commit with `git commit -m "feat: synchronize proof workspaces"`.
+- [x] Write failing client tests for credentialed requests, strict response parsing, body/response byte limits, standardized Arc API errors, and each mutation path.
+- [x] Implement `ProofClient` with `loadWorkspace`, `createProof`, `reviseProof`, `withdrawProof`, and `setVisibility`.
+- [x] Write failing hook tests covering guest local load, authenticated cloud load, identity switch, stale response suppression, one in-flight mutation, offline-cloud read-only fallback, mutation replay, and retry.
+- [x] Implement `useProofLedger({ planningWorkspace, legacyProofs })` following `usePlanningWorkspace` identity-generation and lifecycle-token patterns. Do not share refs or mutation state between hooks.
+- [x] Merge planning completions and legacy completion records into a derived projection on read; do not write synthetic review events for them.
+- [x] Expose `source`, `recovery`, `workspace`, `projections`, mutation methods, and `retry`. Recovery values are `none`, `session-expired`, `conflict`, `unavailable`, and `version-unavailable`.
+- [x] Run `npm run test:unit -- tests/lib/proof-client.test.ts tests/lib/use-proof-ledger.test.tsx`; expect all client/hook tests to pass.
+- [x] Stage with `git add app/lib/proof-client.ts app/lib/use-proof-ledger.ts tests/lib/proof-client.test.ts tests/lib/use-proof-ledger.test.tsx`.
+- [x] Commit with `git commit -m "feat: synchronize proof workspaces"`.
 
 ## Task 9: Upgrade Today to state the truthful evidence transition
 
