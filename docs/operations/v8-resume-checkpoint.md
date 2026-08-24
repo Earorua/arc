@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-25 目标 1 `Proof-backed Stack` 已获实施批准（当前权威门槛）**
+>
+> 用户已批准目标 1 详细实施计划并选择“方式 1：当前任务内顺序执行”。隔离工作树为 `.worktrees/v8-proof-backed-stack`，分支为 `codex/v8-proof-backed-stack`；计划提交为 `d9dd4446559c2cf9c99bdacee167186147f7e489`，基于本地 `master` 的四目标规格提交 `3db3fc9cacafe4afc1b05f3d3d1025648a56ecda`。
+>
+> 启动时已刷新 GitHub 引用：`origin/master` 仍为 `9128321575a67c2fc6ec86e2ce1924e631ba28fe`，没有远程漂移；本地 `master` 仅领先该引用一个已批准的四目标规格提交。下一步按 `docs/superpowers/plans/2026-08-24-proof-backed-stack.md` 从 Task 0 基线验证继续，不重做 Phase 1–2。
+>
+> 本批准仅授权目标 1 的本地实现、测试、本地验收、通过验收后的本地合并与普通 GitHub 备份；不授权生产 D1 迁移、生产 R2 写入、Sites 候选保存或公开部署。公开生产仍为 Arc. v7.2 / Sites version 9。
+
 > **2026-08-24 整站完成四目标流程已批准（当前权威门槛）**
 >
 > Phase 1–2 已完成，`master` 已合并并远程备份到 GitHub；本地与 `origin/master` 在制定流程前均为 `9128321575a67c2fc6ec86e2ce1924e631ba28fe`。用户已批准把剩余整站建设拆为四个长目标：Proof-backed Stack、OpenRouter Research Beta、Production Candidate、Public Release & Stabilization。正式书面规格位于 `docs/superpowers/specs/2026-08-24-arc-v8-completion-program-design.md`。

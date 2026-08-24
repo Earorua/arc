@@ -57,12 +57,12 @@ Every review event records `sequence`, `stateAfter`, and `visibilityAfter`. A vi
 - Read: `docs/operations/v8-resume-checkpoint.md`
 - Read: `docs/superpowers/specs/2026-08-24-arc-v8-completion-program-design.md`
 
-- [ ] Run `git status --short --branch`; expect branch `codex/v8-proof-backed-stack` with no implementation changes at the start of execution.
-- [ ] Run `git fetch origin`; expect the remote reference refresh to succeed without modifying the worktree.
-- [ ] Run `git log --oneline --decorate -8`; confirm HEAD descends from approved local baseline `3db3fc9`.
-- [ ] Run `git log --oneline --left-right origin/master...master`; record the exact local/remote difference and confirm it matches the recovery checkpoint.
-- [ ] Re-read both listed documents and verify they agree that Phase 1 and Phase 2 are complete, public production is still v7.2 / Sites version 9, migrations `0002` and `0003` are not production-applied, and Goal 1 forbids deployment.
-- [ ] If Git history or external state differs, stop implementation, update only the recovery facts after investigation, and obtain user direction. Do not reset, rebase, merge, or deploy to force alignment.
+- [x] Run `git status --short --branch`; expect branch `codex/v8-proof-backed-stack` with no implementation changes at the start of execution.
+- [x] Run `git fetch origin`; expect the remote reference refresh to succeed without modifying the worktree.
+- [x] Run `git log --oneline --decorate -8`; confirm HEAD descends from approved local baseline `3db3fc9`.
+- [x] Run `git log --oneline --left-right origin/master...master`; record the exact local/remote difference and confirm it matches the recovery checkpoint.
+- [x] Re-read both listed documents and verify they agree that Phase 1 and Phase 2 are complete, public production is still v7.2 / Sites version 9, migrations `0002` and `0003` are not production-applied, and Goal 1 forbids deployment.
+- [x] If Git history or external state differs, stop implementation, update only the recovery facts after investigation, and obtain user direction. Do not reset, rebase, merge, or deploy to force alignment.
 
 ## Task 1: Introduce the strict proof-ledger contract
 
