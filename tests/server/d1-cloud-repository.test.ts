@@ -3,6 +3,8 @@ import { flagshipRole } from "../../app/data/flagship-role";
 import { completeDemoUnit, createDemoState } from "../../app/lib/demo-store";
 import { D1CloudRepository } from "../../app/server/cloud/d1-cloud-repository";
 import type { MigrationRequest, MigrationResult } from "../../app/contracts/cloud-state";
+import { legacyProofsToPracticingSkills } from "../../app/lib/proof/legacy-adapter";
+import { projectSkillEvidence } from "../../app/lib/proof/projection";
 
 type PreparedCall = { sql: string; values: unknown[] };
 
@@ -113,6 +115,15 @@ describe("D1CloudRepository", () => {
 
     expect(snapshot?.ownerId).toBe("user-1");
     expect(snapshot?.state.completedUnitIds).toEqual([flagshipRole.today.id]);
+    expect(snapshot?.state.proofs[0].verified).toBe(true);
+    const projections = projectSkillEvidence({
+      skillIds: flagshipRole.today.skillIds,
+      completedSkillIds: legacyProofsToPracticingSkills(snapshot!.state.proofs),
+      versions: [],
+      reviews: [],
+      visibility: "internal",
+    });
+    expect(projections.every(({ status }) => status === "practicing")).toBe(true);
     expect(db.calls
       .filter((call) => call.sql.includes("SELECT"))
       .every((call) => call.values.includes("user-1")))
@@ -243,8 +254,11 @@ describe("D1CloudRepository", () => {
     });
 
     const record = db.batches[0].find((call) => call.sql.includes("INSERT INTO idempotency_records"));
+    const proofInsert = db.batches[0].find((call) => call.sql.includes("INSERT INTO proof_items"));
     const storedResponse = JSON.parse(record?.values.find((value) => typeof value === "string" && value.startsWith("{")) as string);
     expect(result.ownerId).toBe("user-1");
+    expect(result.state.proofs[0].verified).toBe(false);
+    expect(proofInsert?.values[7]).toBe(0);
     expect(storedResponse).not.toHaveProperty("ownerId");
   });
 });

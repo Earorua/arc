@@ -24,6 +24,22 @@ function setup() {
 }
 
 describe("/api/workspace", () => {
+  it("keeps a strict legacy verified proof in the v7 response schema", async () => {
+    const legacyState = createDemoState();
+    legacyState.proofs = [{
+      id: "legacy-proof", title: "Legacy project", kind: "project",
+      skillIds: ["react"], verified: true,
+    }];
+    const harness = createRouteHarness({
+      getWorkspace: vi.fn().mockResolvedValue({ ...snapshot, state: legacyState }),
+      saveSetup: vi.fn(),
+    });
+    const response = await createWorkspaceHandlers(harness.deps).GET(new Request("https://arc.example/api/workspace"));
+    const body = await response.json() as { snapshot: typeof snapshot };
+    expect(body.snapshot.state.proofs).toEqual(legacyState.proofs);
+    expect(Object.keys(body.snapshot.state.proofs[0]).sort()).toEqual(["id", "kind", "skillIds", "title", "verified"]);
+  });
+
   it("returns 401 before reading an anonymous workspace", async () => {
     const harness = setup();
     makeAnonymous(harness);
