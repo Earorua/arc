@@ -29,6 +29,13 @@
       "when": 1787329412836,
       "tag": "0003_adaptive_planning",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1787589510163,
+      "tag": "0004_proof_backed_stack",
+      "breakpoints": true
     }
   ]
 }

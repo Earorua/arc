@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 const migrationPaths = {
   productIntelligence: "../../drizzle/0002_product_intelligence.sql",
   adaptivePlanning: "../../drizzle/0003_adaptive_planning.sql",
+  proofBackedStack: "../../drizzle/0004_proof_backed_stack.sql",
 } as const;
 const migrations = Object.fromEntries(Object.entries(migrationPaths).map(([name, path]) => [
   name,
@@ -199,5 +200,26 @@ describe("adaptive planning migration safety", () => {
     expect(tableStatement(migrationSql, "planning_events")).toMatch(
       /FOREIGN KEY \(`user_id`,`goal_id`,`workspace_id`\) REFERENCES `planning_workspaces`\(`user_id`,`goal_id`,`id`\)/u,
     );
+  });
+});
+
+describe("proof backed stack migration safety", () => {
+  const migrationSql = migrations.proofBackedStack;
+
+  it("contains exactly three table creates and additive index statements", () => {
+    expect([...migrationSql.matchAll(/CREATE TABLE `([^`]+)`/gu)].map((match) => match[1]).sort())
+      .toEqual(["proof_review_events", "proof_versions", "user_skill_projections"]);
+    expect(isAdditiveSchemaMigration(migrationSql)).toBe(true);
+  });
+
+  it.each([
+    "ALTER TABLE proof_items ADD COLUMN status text;",
+    "UPDATE proof_items SET verified = 0;",
+    "INSERT INTO proof_items (id) VALUES ('x');",
+    "DELETE FROM proof_items;",
+    "DROP TABLE proof_items;",
+    "REPLACE INTO proof_items (id) VALUES ('x');",
+  ])("rejects non-additive proof migration statement: %s", (statement) => {
+    expect(isAdditiveSchemaMigration(statement)).toBe(false);
   });
 });

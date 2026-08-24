@@ -206,17 +206,17 @@ export function legacyProofsToPracticingSkills(proofs: readonly ProofItem[]): Se
 - Modify: `tests/db/migration-safety.test.ts`
 - Modify: `tests/db/schema.test.ts`
 
-- [ ] Write a failing migration test expecting exactly `proof_versions`, `proof_review_events`, and `user_skill_projections` after applying migrations `0000` through `0004`.
-- [ ] Extend migration safety tests so `0004` permits only one `CREATE TABLE` or `CREATE INDEX` per generated statement and rejects `ALTER`, `UPDATE`, `INSERT`, `DELETE`, `DROP`, and `REPLACE`.
-- [ ] Define `proofVersions` with composite owner/goal/proof foreign keys, immutable version uniqueness, visibility, rich kind, and payload fields. Do not alter `proof_items`.
-- [ ] Define `proofReviewEvents` with owner/goal/proof/version scope, unique mutation IDs, monotonically queryable timestamps, terminal state, validator identity, outcome, and sanitized reason JSON.
-- [ ] Define `userSkillProjections` as a replaceable cache keyed by `(userId, goalId, skillId, audience)` where audience is `internal` or `public`.
-- [ ] Add composite unique indexes required as foreign-key parents on legacy `proof_items`, `proof_assets`, and each new immutable table. Give `proof_versions.asset_id` a composite `(user_id, proof_id, asset_id)` foreign key so a version cannot bind another owner's asset. Ensure Drizzle produces no data mutation statements.
-- [ ] Run `npm run db:generate`; rename only the generated SQL tag to `0004_proof_backed_stack` if Drizzle chose another suffix, and keep journal/snapshot metadata synchronized.
-- [ ] Add SQLite tests that accept the same version/review/projection IDs for different owners, reject cross-owner and cross-goal references, reject duplicate `(proofId, versionNumber)`, reject cross-proof review references, reject cross-owner asset references, enforce idempotent mutation IDs, and preserve every pre-0004 table column/index/foreign-key snapshot. Legacy root proof IDs remain globally unique because the v7 primary key is unchanged.
-- [ ] Run `npm run test:unit -- tests/db/proof-ledger-migration.test.ts tests/db/migration-safety.test.ts tests/db/schema.test.ts`; expect all database tests to pass.
-- [ ] Stage with `git add db/schema.ts drizzle tests/db`.
-- [ ] Commit with `git commit -m "feat: add proof ledger schema"`.
+- [x] Write a failing migration test expecting exactly `proof_versions`, `proof_review_events`, and `user_skill_projections` after applying migrations `0000` through `0004`.
+- [x] Extend migration safety tests so `0004` permits only one `CREATE TABLE` or `CREATE INDEX` per generated statement and rejects `ALTER`, `UPDATE`, `INSERT`, `DELETE`, `DROP`, and `REPLACE`.
+- [x] Define `proofVersions` with composite owner/goal/proof foreign keys, immutable version uniqueness, visibility, rich kind, and payload fields. Do not alter `proof_items`.
+- [x] Define `proofReviewEvents` with owner/goal/proof/version scope, unique mutation IDs, monotonically queryable timestamps, terminal state, validator identity, outcome, and sanitized reason JSON.
+- [x] Define `userSkillProjections` as a replaceable cache keyed by `(userId, goalId, skillId, audience)` where audience is `internal` or `public`.
+- [x] Add composite unique indexes required as foreign-key parents on legacy `proof_items`, `proof_assets`, and each new immutable table. Give `proof_versions.asset_id` a composite `(user_id, proof_id, asset_id)` foreign key so a version cannot bind another owner's asset. Ensure Drizzle produces no data mutation statements.
+- [x] Run `npm run db:generate`; rename only the generated SQL tag to `0004_proof_backed_stack` if Drizzle chose another suffix, and keep journal/snapshot metadata synchronized.
+- [x] Add SQLite tests that accept the same version/review/projection IDs for different owners, reject cross-owner and cross-goal references, reject duplicate `(proofId, versionNumber)`, reject cross-proof review references, reject cross-owner asset references, enforce idempotent mutation IDs, and preserve every pre-0004 table column/index/foreign-key snapshot. Legacy root proof IDs remain globally unique because the v7 primary key is unchanged.
+- [x] Run `npm run test:unit -- tests/db/proof-ledger-migration.test.ts tests/db/migration-safety.test.ts tests/db/schema.test.ts`; expect all database tests to pass.
+- [x] Stage with `git add db/schema.ts drizzle tests/db`.
+- [x] Commit with `git commit -m "feat: add proof ledger schema"`.
 
 ## Task 5: Expand the proof repository without breaking v7 assets and shares
 

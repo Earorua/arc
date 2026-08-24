@@ -37,6 +37,9 @@ const expectedTableNames = [
   "daily_units",
   "planning_workspaces",
   "planning_events",
+  "proof_versions",
+  "proof_review_events",
+  "user_skill_projections",
 ];
 
 function exportedTableNames() {
@@ -103,11 +106,44 @@ describe("Arc beta persistence schema", () => {
       schema.quotaLedger,
       schema.aiRuns,
       schema.accountLinkIntents,
+      schema.proofVersions,
+      schema.proofReviewEvents,
+      schema.userSkillProjections,
     ];
 
     for (const table of userOwnedTables) {
       expect(getTableConfig(table).columns.map((column) => column.name)).toContain("user_id");
     }
+  });
+
+  it("declares proof ledger ownership, immutable version, and projection boundaries", () => {
+    expect(indexNames(schema.proofItems)).toContain("proof_items_owner_goal_id_idx");
+    expect(indexNames(schema.proofAssets)).toContain("proof_assets_owner_proof_id_idx");
+    expect(indexNames(schema.proofVersions)).toEqual(expect.arrayContaining([
+      "proof_versions_identity_idx",
+      "proof_versions_number_idx",
+      "proof_versions_owner_proof_version_idx",
+    ]));
+    expect(indexNames(schema.proofReviewEvents)).toEqual(expect.arrayContaining([
+      "proof_review_events_sequence_idx",
+      "proof_review_events_mutation_kind_idx",
+    ]));
+    expect(schema.userSkillProjections.audience.enumValues).toEqual(["internal", "public"]);
+    expect(schema.userSkillProjections.status.enumValues).toEqual([
+      "exploring", "practicing", "demonstrated", "verified",
+    ]);
+    expect(foreignKeyConfig(schema.proofVersions, "proof_versions_asset_fk")).toEqual({
+      columns: ["user_id", "proof_id", "asset_id"],
+      foreignColumns: ["user_id", "proof_id", "id"],
+      foreignTable: "proof_assets",
+      onDelete: "no action",
+    });
+    expect(foreignKeyConfig(schema.proofReviewEvents, "proof_review_events_version_fk")).toEqual({
+      columns: ["user_id", "goal_id", "proof_id", "version_id"],
+      foreignColumns: ["user_id", "goal_id", "proof_id", "id"],
+      foreignTable: "proof_versions",
+      onDelete: "cascade",
+    });
   });
 
   it("declares the active-goal and idempotency uniqueness boundaries", () => {

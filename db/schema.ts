@@ -133,6 +133,7 @@ export const proofItems = sqliteTable("proof_items", {
 }, (table) => [
   index("proof_items_user_goal_idx").on(table.userId, table.goalId),
   uniqueIndex("proof_items_user_task_idx").on(table.userId, table.sourceTaskId),
+  uniqueIndex("proof_items_owner_goal_id_idx").on(table.userId, table.goalId, table.id),
 ]);
 
 export const proofAssets = sqliteTable("proof_assets", {
@@ -144,7 +145,10 @@ export const proofAssets = sqliteTable("proof_assets", {
   contentType: text("content_type").notNull(),
   sizeBytes: integer("size_bytes").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
-}, (table) => [index("proof_assets_user_proof_idx").on(table.userId, table.proofId)]);
+}, (table) => [
+  index("proof_assets_user_proof_idx").on(table.userId, table.proofId),
+  uniqueIndex("proof_assets_owner_proof_id_idx").on(table.userId, table.proofId, table.id),
+]);
 
 export const publicProofShares = sqliteTable("public_proof_shares", {
   id: text("id").primaryKey(),
@@ -639,4 +643,145 @@ export const planningEvents = sqliteTable("planning_events", {
   }).onDelete("no action"),
   uniqueIndex("planning_events_sequence_idx").on(table.userId, table.goalId, table.workspaceId, table.sequence),
   uniqueIndex("planning_events_mutation_idx").on(table.userId, table.mutationId),
+]);
+
+const proofArtifactKinds = [
+  "repository", "commit", "pull_request", "deployment", "api", "document", "screenshot",
+  "test_report", "code", "upload", "reflection",
+] as const;
+const proofReviewStates = [
+  "draft", "pending_review", "demonstrated", "verified", "rejected", "withdrawn", "superseded",
+] as const;
+const proofReviewEventKinds = [
+  "drafted", "submitted", "structural_passed", "validator_passed", "validator_failed",
+  "validator_unavailable", "rejected", "withdrawn", "superseded", "visibility_changed",
+] as const;
+
+export const proofVersions = sqliteTable("proof_versions", {
+  id: text("id").notNull(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  proofId: text("proof_id").notNull(),
+  versionNumber: integer("version_number").notNull(),
+  schemaVersion: text("schema_version").notNull(),
+  dailyUnitId: text("daily_unit_id"),
+  title: text("title").notNull(),
+  kind: text("kind", { enum: proofArtifactKinds }).notNull(),
+  summary: text("summary").notNull(),
+  artifactUrl: text("artifact_url"),
+  assetId: text("asset_id"),
+  skillIdsJson: text("skill_ids_json").notNull(),
+  completionCriteriaJson: text("completion_criteria_json").notNull().default("[]"),
+  visibility: text("visibility", { enum: ["private", "public"] }).notNull(),
+  supersedesVersionId: text("supersedes_version_id"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "proof_versions_goal_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.proofId],
+    foreignColumns: [proofItems.userId, proofItems.goalId, proofItems.id],
+    name: "proof_versions_root_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.proofId, table.assetId],
+    foreignColumns: [proofAssets.userId, proofAssets.proofId, proofAssets.id],
+    name: "proof_versions_asset_fk",
+  }).onDelete("no action"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.proofId, table.supersedesVersionId],
+    foreignColumns: [table.userId, table.goalId, table.proofId, table.id],
+    name: "proof_versions_supersedes_fk",
+  }).onDelete("no action"),
+  uniqueIndex("proof_versions_identity_idx").on(table.userId, table.goalId, table.id),
+  uniqueIndex("proof_versions_number_idx").on(
+    table.userId,
+    table.goalId,
+    table.proofId,
+    table.versionNumber,
+  ),
+  uniqueIndex("proof_versions_owner_proof_version_idx").on(
+    table.userId,
+    table.goalId,
+    table.proofId,
+    table.id,
+  ),
+  index("proof_versions_created_idx").on(table.userId, table.goalId, table.createdAt),
+]);
+
+export const proofReviewEvents = sqliteTable("proof_review_events", {
+  id: text("id").notNull(),
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  proofId: text("proof_id").notNull(),
+  versionId: text("version_id").notNull(),
+  sequence: integer("sequence").notNull(),
+  mutationId: text("mutation_id").notNull(),
+  kind: text("kind", { enum: proofReviewEventKinds }).notNull(),
+  stateAfter: text("state_after", { enum: proofReviewStates }).notNull(),
+  visibilityAfter: text("visibility_after", { enum: ["private", "public"] }).notNull(),
+  validatorKey: text("validator_key"),
+  outcome: text("outcome", { enum: ["passed", "failed", "unavailable"] }),
+  reasonCodesJson: text("reason_codes_json").notNull().default("[]"),
+  occurredAt: integer("occurred_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.id] }),
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "proof_review_events_goal_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.proofId, table.versionId],
+    foreignColumns: [proofVersions.userId, proofVersions.goalId, proofVersions.proofId, proofVersions.id],
+    name: "proof_review_events_version_fk",
+  }).onDelete("cascade"),
+  uniqueIndex("proof_review_events_identity_idx").on(table.userId, table.goalId, table.id),
+  uniqueIndex("proof_review_events_sequence_idx").on(
+    table.userId,
+    table.goalId,
+    table.proofId,
+    table.sequence,
+  ),
+  uniqueIndex("proof_review_events_mutation_kind_idx").on(
+    table.userId,
+    table.goalId,
+    table.mutationId,
+    table.kind,
+  ),
+  index("proof_review_events_occurred_idx").on(table.userId, table.goalId, table.occurredAt),
+]);
+
+export const userSkillProjections = sqliteTable("user_skill_projections", {
+  userId: text("user_id").notNull(),
+  goalId: text("goal_id").notNull(),
+  skillId: text("skill_id").notNull(),
+  audience: text("audience", { enum: ["internal", "public"] }).notNull(),
+  schemaVersion: text("schema_version").notNull(),
+  status: text("status", {
+    enum: ["exploring", "practicing", "demonstrated", "verified"],
+  }).notNull(),
+  proofId: text("proof_id"),
+  versionId: text("version_id"),
+  completedUnitIdsJson: text("completed_unit_ids_json").notNull().default("[]"),
+  latestUseAt: integer("latest_use_at", { mode: "timestamp_ms" }),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.goalId, table.skillId, table.audience] }),
+  foreignKey({
+    columns: [table.userId, table.goalId],
+    foreignColumns: [careerGoals.userId, careerGoals.id],
+    name: "user_skill_projections_goal_fk",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.userId, table.goalId, table.proofId, table.versionId],
+    foreignColumns: [proofVersions.userId, proofVersions.goalId, proofVersions.proofId, proofVersions.id],
+    name: "user_skill_projections_version_fk",
+  }).onDelete("no action"),
+  index("user_skill_projections_status_idx").on(table.userId, table.goalId, table.audience, table.status),
 ]);
