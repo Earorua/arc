@@ -70,7 +70,7 @@ Every review event records `sequence`, `stateAfter`, and `visibilityAfter`. A vi
 - Create: `app/contracts/proof-ledger.ts`
 - Create: `tests/contracts/proof-ledger.test.ts`
 
-- [ ] Write a failing contract test that accepts the four canonical skill statuses and rejects `completed`, `mastered`, and unknown keys.
+- [x] Write a failing contract test that accepts the four canonical skill statuses and rejects `completed`, `mastered`, and unknown keys.
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -87,9 +87,9 @@ describe("proof ledger contracts", () => {
 });
 ```
 
-- [ ] Run `npm run test:unit -- tests/contracts/proof-ledger.test.ts`; expect failure because the module does not exist.
-- [ ] Add the enums from the canonical state model and export inferred TypeScript types.
-- [ ] Add strict schemas for `ProofVersion`, `ProofReviewEvent`, `SkillEvidenceProjection`, and `ProofLedgerWorkspace`.
+- [x] Run `npm run test:unit -- tests/contracts/proof-ledger.test.ts`; expect failure because the module does not exist.
+- [x] Add the enums from the canonical state model and export inferred TypeScript types.
+- [x] Add strict schemas for `ProofVersion`, `ProofReviewEvent`, `SkillEvidenceProjection`, and `ProofLedgerWorkspace`.
 
 ```ts
 export const proofVersionSchema = z.object({
@@ -111,12 +111,12 @@ export const proofVersionSchema = z.object({
 }).strict();
 ```
 
-- [ ] Add cross-record refinements: unique IDs, unique `(proofId, versionNumber)`, unique skill IDs, valid supersession within one proof, review version resolution, projection strongest-version resolution, and a 4 MiB serialized repository boundary.
-- [ ] Add request/response schemas for create, revise, withdraw, visibility, workspace, and deterministic review results. Create and revise requests contain `intent: "save_draft" | "submit"` plus a nullable closed-registry `validatorKey`; every mutation contains `mutationId` and `baseRevision`.
-- [ ] Add tests for duplicate versions, cross-proof supersession, unresolved review IDs, private/public visibility, invalid URLs, excessive payloads, and strict unknown-key rejection.
-- [ ] Run `npm run test:unit -- tests/contracts/proof-ledger.test.ts`; expect all contract tests to pass.
-- [ ] Stage with `git add app/contracts/proof-ledger.ts tests/contracts/proof-ledger.test.ts`.
-- [ ] Commit with `git commit -m "feat: define proof ledger contracts"`.
+- [x] Add cross-record refinements: unique IDs, unique `(proofId, versionNumber)`, unique skill IDs, valid supersession within one proof, review version resolution, projection strongest-version resolution, and a 4 MiB serialized repository boundary.
+- [x] Add request/response schemas for create, revise, withdraw, visibility, workspace, and deterministic review results. Create and revise requests contain `intent: "save_draft" | "submit"` plus a nullable closed-registry `validatorKey`; every mutation contains `mutationId` and `baseRevision`.
+- [x] Add tests for duplicate versions, cross-proof supersession, unresolved review IDs, private/public visibility, invalid URLs, excessive payloads, and strict unknown-key rejection.
+- [x] Run `npm run test:unit -- tests/contracts/proof-ledger.test.ts`; expect all contract tests to pass.
+- [x] Stage with `git add app/contracts/proof-ledger.ts tests/contracts/proof-ledger.test.ts`.
+- [x] Commit with `git commit -m "feat: define proof ledger contracts"`.
 
 ## Task 2: Build the deterministic skill projector
 
