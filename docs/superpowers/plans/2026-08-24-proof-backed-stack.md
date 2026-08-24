@@ -178,18 +178,12 @@ function contribution(state: ProofReviewState): SkillEvidenceStatus | null {
 - [ ] Write failing tests for an empty local workspace, persisted reload, optimistic revision conflict, idempotent mutation replay, and corrupt-storage quarantine.
 - [ ] Implement the storage key `arc-proof-ledger-v1`, strict boundary parsing, and repository methods `load`, `createProof`, `reviseProof`, `withdrawProof`, and `setVisibility`.
 - [ ] Keep the local mutation path atomic: calculate the next workspace, validate it, then write one serialized value. On quota or storage errors return the previous valid workspace unchanged.
-- [ ] Implement a legacy adapter: every legacy completion contributes only `practicing`; a non-completion legacy proof with `verified: true` contributes at most `demonstrated`; a non-completion draft contributes no promotion. No legacy row can contribute `verified`.
+- [ ] Implement a legacy adapter: every legacy `verified: true` row contributes at most `practicing`, regardless of kind; a legacy draft contributes no promotion. No legacy row can contribute `demonstrated` or `verified`.
 
 ```ts
 export function legacyProofsToPracticingSkills(proofs: readonly ProofItem[]): Set<string> {
   return new Set(
-    proofs.filter(({ kind }) => kind === "completion").flatMap(({ skillIds }) => skillIds),
-  );
-}
-
-export function legacyDemonstratedSkillIds(proofs: readonly ProofItem[]): Set<string> {
-  return new Set(
-    proofs.filter(({ kind, verified }) => kind !== "completion" && verified)
+    proofs.filter(({ kind, verified }) => kind === "completion" || verified)
       .flatMap(({ skillIds }) => skillIds),
   );
 }
