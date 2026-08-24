@@ -288,14 +288,14 @@ export const deterministicValidators: Readonly<Record<string, DeterministicValid
 - Create: `tests/contracts/proof-api.test.ts`
 - Create: `tests/api/proof-ledger.test.ts`
 
-- [ ] Write failing route tests for authentication before body parsing, bounded bodies, strict schemas, owner isolation, rate limiting, idempotent responses, conflicts, and sanitized error shapes.
-- [ ] Define response contracts as `{ workspace }` for GET and `{ result }` for mutations. Return `409 CONFLICT` with `action: "refresh"` and `503 UNAVAILABLE` with `action: "retry"`.
-- [ ] Factor one route factory with a 1 MiB body cap, request IDs, response safety headers, operational event recording, and separate rate-limit scopes for create, revise, withdraw, and visibility.
-- [ ] Wire production dependencies to `D1ProofRepository`, `ProofService`, `requireArcUser`, `D1RateLimiter`, and the existing operational event sink.
-- [ ] Ensure path IDs are validated before repository access and use the same 404 body for unknown, foreign-owner, and invalid proof IDs.
-- [ ] Run `npm run test:unit -- tests/contracts/proof-api.test.ts tests/api/proof-ledger.test.ts`; expect all API tests to pass.
-- [ ] Stage with `git add app/contracts/proof-api.ts app/server/http/proof-route-factories.ts app/api/proofs tests/contracts/proof-api.test.ts tests/api/proof-ledger.test.ts`.
-- [ ] Commit with `git commit -m "feat: add proof ledger api"`.
+- [x] Write failing route tests for authentication before body parsing, bounded bodies, strict schemas, owner isolation, rate limiting, idempotent responses, conflicts, and sanitized error shapes.
+- [x] Define response contracts as `{ workspace }` for GET and `{ result }` for mutations. Return `409 CONFLICT` with `action: "refresh"` and `503 UNAVAILABLE` with `action: "retry"`.
+- [x] Factor one route factory with a 1 MiB body cap, request IDs, response safety headers, operational event recording, and separate rate-limit scopes for create, revise, withdraw, and visibility.
+- [x] Wire production dependencies to `D1ProofRepository`, `ProofService`, `requireArcUser`, `D1RateLimiter`, and the existing operational event sink.
+- [x] Ensure path IDs are validated before repository access and use the same 404 body for unknown, foreign-owner, and invalid proof IDs.
+- [x] Run `npm run test:unit -- tests/contracts/proof-api.test.ts tests/api/proof-ledger.test.ts`; expect all API tests to pass.
+- [x] Stage with `git add app/contracts/proof-api.ts app/server/http/proof-route-factories.ts app/api/proofs tests/contracts/proof-api.test.ts tests/api/proof-ledger.test.ts`.
+- [x] Commit with `git commit -m "feat: add proof ledger api"`.
 
 ## Task 8: Add client and hook parity for local and cloud workspaces
 
