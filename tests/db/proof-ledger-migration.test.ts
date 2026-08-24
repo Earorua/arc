@@ -226,4 +226,57 @@ describe("proof ledger migration", () => {
       expect(db.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
     });
   });
+
+  it("smokes create, revise, reject, privacy, and withdraw transitions for isolated owners", () => {
+    withDatabase((db) => {
+      seedOwnersAndRoots(db);
+      insertVersion(db, {});
+      insertVersion(db, { id: "version-a2", versionNumber: 2, supersedesVersionId: "version-a" });
+      insertVersion(db, {
+        id: "version-b", userId: "user-b", goalId: "goal-b", proofId: "proof-b", assetId: "asset-b",
+      });
+      db.exec(`
+        INSERT INTO proof_review_events
+          (id,user_id,goal_id,proof_id,version_id,sequence,mutation_id,kind,state_after,
+           visibility_after,outcome,reason_codes_json,occurred_at)
+        VALUES
+          ('a-created','user-a','goal-a','proof-a','version-a',1,'a-create','submitted',
+            'pending_review','private',NULL,'[]',1786500000000),
+          ('a-demonstrated','user-a','goal-a','proof-a','version-a',2,'a-create','structural_passed',
+            'demonstrated','private','passed','[]',1786500000001),
+          ('a-superseded','user-a','goal-a','proof-a','version-a',3,'a-revise','superseded',
+            'superseded','private',NULL,'[]',1786500000002),
+          ('a-revised','user-a','goal-a','proof-a','version-a2',4,'a-revise','submitted',
+            'pending_review','private',NULL,'[]',1786500000003),
+          ('a-rejected','user-a','goal-a','proof-a','version-a2',5,'a-reject','rejected',
+            'rejected','private','failed','["review-failed"]',1786500000004),
+          ('a-public','user-a','goal-a','proof-a','version-a2',6,'a-privacy','visibility_changed',
+            'rejected','public',NULL,'[]',1786500000005),
+          ('a-withdrawn','user-a','goal-a','proof-a','version-a2',7,'a-withdraw','withdrawn',
+            'withdrawn','public',NULL,'[]',1786500000006),
+          ('b-created','user-b','goal-b','proof-b','version-b',1,'b-create','submitted',
+            'pending_review','private',NULL,'[]',1786500000000),
+          ('b-demonstrated','user-b','goal-b','proof-b','version-b',2,'b-create','structural_passed',
+            'demonstrated','private','passed','[]',1786500000001);
+        INSERT INTO user_skill_projections
+          (user_id,goal_id,skill_id,audience,schema_version,status,proof_id,version_id,
+           completed_unit_ids_json,latest_use_at)
+        VALUES
+          ('user-a','goal-a','react','internal','2026.08.1','practicing',NULL,NULL,'["unit-a"]',1786500000006),
+          ('user-a','goal-a','react','public','2026.08.1','exploring',NULL,NULL,'[]',NULL),
+          ('user-b','goal-b','react','internal','2026.08.1','demonstrated','proof-b','version-b','[]',1786500000001),
+          ('user-b','goal-b','react','public','2026.08.1','exploring',NULL,NULL,'[]',NULL);
+      `);
+
+      expect(db.prepare(`SELECT state_after, visibility_after FROM proof_review_events
+        WHERE user_id = 'user-a' AND goal_id = 'goal-a' AND proof_id = 'proof-a'
+        ORDER BY sequence DESC LIMIT 1`).get()).toEqual({ state_after: "withdrawn", visibility_after: "public" });
+      expect(db.prepare(`SELECT COUNT(*) AS count FROM proof_review_events
+        WHERE user_id = 'user-b' AND proof_id = 'proof-a'`).get()).toEqual({ count: 0 });
+      expect(db.prepare(`SELECT status, proof_id FROM user_skill_projections
+        WHERE user_id = 'user-a' AND goal_id = 'goal-a' AND skill_id = 'react' AND audience = 'public'`).get())
+        .toEqual({ status: "exploring", proof_id: null });
+      expect(db.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
+    });
+  });
 });
