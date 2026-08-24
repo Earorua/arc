@@ -65,20 +65,29 @@ describe("proof asset storage policy", () => {
 });
 
 describe("public proof projection", () => {
-  const proof = {
-    id: "proof-private",
-    userId: "owner-private",
+  const version = {
+    id: "version-private",
+    proofId: "proof-private",
+    versionNumber: 1,
+    schemaVersion: "2026.08.1" as const,
+    dailyUnitId: null,
     title: "Typed role research",
-    kind: "project" as const,
-    skillIds: ["research", "typescript"],
-    verified: true,
-    notes: "Never publish this note",
+    kind: "document" as const,
+    summary: "A public summary.",
+    artifactUrl: "https://example.com/proof",
+    assetId: null,
+    skillIds: ["typescript"],
+    completionCriteria: ["Never publish this criterion"],
+    visibility: "public" as const,
+    createdAt: "2026-08-24T10:00:00.000Z",
+    supersedesVersionId: null,
   };
 
   it("publishes only explicitly selected fields", () => {
-    expect(createPublicProofView(proof, ["title", "verified"])).toEqual({
+    expect(createPublicProofView({ version, status: "verified", skillNames: ["TypeScript"], fields: ["title", "status"] })).toEqual({
+      schemaVersion: "2026.08.1",
       title: "Typed role research",
-      verified: true,
+      status: "verified",
     });
   });
 

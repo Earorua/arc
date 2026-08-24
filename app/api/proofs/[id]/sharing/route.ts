@@ -7,6 +7,8 @@ import {
   type RateLimiter,
 } from "../../../../server/http/rate-limit";
 import { D1ProofRepository } from "../../../../server/proof/d1-proof-repository";
+import { flagshipBlueprint } from "../../../../data/flagship-blueprint";
+import { projectSkillEvidence } from "../../../../lib/proof/projection";
 import {
   createPublicProofView,
   createShareToken,
@@ -20,7 +22,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 export type ProofSharingRouteDependencies = {
   requireUser: (headers: Headers) => Promise<ArcUser>;
   rateLimiter: RateLimiter;
-  repository: Pick<ProofRepository, "getOwnedProof" | "upsertShare" | "revokeShare">;
+  repository: Pick<ProofRepository, "findActiveGoal" | "load" | "upsertShare" | "revokeShare">;
   createRequestId?: () => string;
   createId?: () => string;
   createToken?: () => string;
@@ -73,16 +75,41 @@ export function createProofSharingHandlers(deps: ProofSharingRouteDependencies) 
       if (!parsed.success || !proofId || proofId.length > 200) {
         throw new InvalidSharingInputError();
       }
-      const proof = await deps.repository.getOwnedProof(user.id, proofId);
-      if (!proof) return notFound(requestId);
+      const scope = await deps.repository.findActiveGoal(user.id);
+      const workspace = scope ? await deps.repository.load(scope) : null;
+      const versions = workspace?.versions.filter((version) => version.proofId === proofId)
+        .sort((left, right) => right.versionNumber - left.versionNumber) ?? [];
+      const version = versions[0];
+      if (!version) return notFound(requestId);
+      const versionReviews = workspace!.reviews.filter((review) => review.versionId === version.id);
+      const publicProjection = projectSkillEvidence({
+        skillIds: version.skillIds,
+        completedSkillIds: new Set(),
+        versions: [version],
+        reviews: versionReviews,
+        visibility: "public",
+      });
+      const status = publicProjection.some(({ status: value }) => value === "verified")
+        ? "verified" as const
+        : publicProjection.some(({ status: value }) => value === "demonstrated")
+          ? "demonstrated" as const
+          : null;
+      const skillNamesById = new Map(flagshipBlueprint.skills.map((skill) => [skill.id, skill.name]));
+      const skillNames = version.skillIds.map((skillId) => skillNamesById.get(skillId));
+      if (!status || skillNames.some((name) => !name)) return notFound(requestId);
 
       const token = (deps.createToken ?? createShareToken)();
       const tokenHash = await (deps.hashToken ?? hashShareToken)(token);
-      const publicView = createPublicProofView(proof, parsed.data);
+      const publicView = createPublicProofView({
+        version,
+        status,
+        skillNames: skillNames as string[],
+        fields: parsed.data,
+      });
       await deps.repository.upsertShare({
         id: (deps.createId ?? (() => crypto.randomUUID()))(),
         userId: user.id,
-        proofId: proof.id,
+        proofId,
         tokenHash,
         publishedFields: parsed.data,
         publicView,

@@ -1,44 +1,70 @@
 import { z } from "zod";
-import type { ProofItem } from "../../domain/learning";
+import {
+  proofArtifactKindSchema,
+  type ProofVersion,
+} from "../../contracts/proof-ledger";
 
-export const publicProofFieldSchema = z.enum(["title", "kind", "skillIds", "verified"]);
+export const PUBLIC_PROOF_SCHEMA_VERSION = "2026.08.1" as const;
+
+export const publicProofFieldSchema = z.enum([
+  "title",
+  "kind",
+  "skillNames",
+  "status",
+  "summary",
+  "submittedAt",
+  "versionNumber",
+]);
 export type PublicProofField = z.infer<typeof publicProofFieldSchema>;
-export type PublicProofView = Partial<Pick<ProofItem, PublicProofField>>;
 
 export const publicProofFieldsSchema = z.array(publicProofFieldSchema)
   .min(1)
-  .max(4)
+  .max(7)
   .superRefine((fields, context) => {
     if (new Set(fields).size !== fields.length) {
       context.addIssue({ code: "custom", message: "Published proof fields must be distinct." });
     }
   });
 
-const storedPublicViewSchema = z.object({
-  title: z.string().trim().min(1).max(500).optional(),
-  kind: z.enum(["completion", "commit", "project", "note", "upload"]).optional(),
-  skillIds: z.array(z.string().trim().min(1).max(160)).max(100).optional(),
-  verified: z.boolean().optional(),
+export const storedPublicProofViewSchema = z.object({
+  schemaVersion: z.literal(PUBLIC_PROOF_SCHEMA_VERSION),
+  title: z.string().trim().min(1).max(180).optional(),
+  kind: proofArtifactKindSchema.optional(),
+  skillNames: z.array(z.string().trim().min(1).max(120)).min(1).max(32).optional(),
+  status: z.enum(["demonstrated", "verified"]).optional(),
+  summary: z.string().trim().min(1).max(2000).optional(),
+  submittedAt: z.string().datetime({ offset: true }).optional(),
+  versionNumber: z.number().int().positive().max(10_000).optional(),
+}).strict().superRefine((view, context) => {
+  if (Object.keys(view).length === 1) {
+    context.addIssue({ code: "custom", message: "A public proof snapshot must include a selected field." });
+  }
 });
 
-export function createPublicProofView(
-  proof: ProofItem,
-  fields: PublicProofField[],
-): PublicProofView {
-  const view: PublicProofView = {};
-  for (const field of fields) {
-    if (field === "title") view.title = proof.title;
-    if (field === "kind") view.kind = proof.kind;
-    if (field === "skillIds") view.skillIds = [...proof.skillIds];
-    if (field === "verified") view.verified = proof.verified;
+export type PublicProofView = z.infer<typeof storedPublicProofViewSchema>;
+
+export function createPublicProofView(input: {
+  version: ProofVersion;
+  status: "demonstrated" | "verified";
+  skillNames: readonly string[];
+  fields: PublicProofField[];
+}): PublicProofView {
+  const view: Record<string, unknown> = { schemaVersion: PUBLIC_PROOF_SCHEMA_VERSION };
+  for (const field of input.fields) {
+    if (field === "title") view.title = input.version.title;
+    if (field === "kind") view.kind = input.version.kind;
+    if (field === "skillNames") view.skillNames = [...input.skillNames];
+    if (field === "status") view.status = input.status;
+    if (field === "summary") view.summary = input.version.summary;
+    if (field === "submittedAt") view.submittedAt = input.version.createdAt;
+    if (field === "versionNumber") view.versionNumber = input.version.versionNumber;
   }
-  return view;
+  return storedPublicProofViewSchema.parse(view);
 }
 
 export function sanitizeStoredPublicProofView(input: unknown): PublicProofView | null {
-  const parsed = storedPublicViewSchema.safeParse(input);
-  if (!parsed.success || Object.keys(parsed.data).length === 0) return null;
-  return parsed.data;
+  const parsed = storedPublicProofViewSchema.safeParse(input);
+  return parsed.success ? parsed.data : null;
 }
 
 export async function hashShareToken(token: string): Promise<string> {

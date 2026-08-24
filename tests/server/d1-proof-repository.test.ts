@@ -356,7 +356,7 @@ describe("D1ProofRepository", () => {
       proofId: "proof-1",
       tokenHash: "hash-only",
       publishedFields: ["title"],
-      publicView: { title: "Architecture map" },
+      publicView: { schemaVersion: "2026.08.1", title: "Architecture map" },
     });
 
     expect(db.runs[0].sql).toContain("ON CONFLICT(user_id, proof_id) DO UPDATE");
