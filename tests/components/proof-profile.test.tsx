@@ -1,73 +1,48 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { ProofProfile } from "../../app/components/proof/proof-profile";
 import { flagshipRole } from "../../app/data/flagship-role";
-import type { ProofItem } from "../../app/domain/learning";
+import type { SkillEvidenceProjection } from "../../app/contracts/proof-ledger";
 
 afterEach(cleanup);
 
+const projection = (skillId: string, status: SkillEvidenceProjection["status"]): SkillEvidenceProjection => ({
+  skillId,
+  audience: "internal",
+  status,
+  completedUnitIds: status === "practicing" ? ["unit-1"] : [],
+  strongestProofId: status === "demonstrated" || status === "verified" ? "proof-1" : null,
+  strongestVersionId: status === "demonstrated" || status === "verified" ? "version-1" : null,
+  latestUsedAt: status === "exploring" ? null : "2026-08-24T10:00:00.000Z",
+});
+
 describe("ProofProfile", () => {
-  it("shows an empty evidence state without inventing progress", () => {
-    render(<ProofProfile proofs={[]} skills={flagshipRole.skills} />);
+  it("shows projection-based readiness without inventing progress", () => {
+    render(<ProofProfile projections={[]} skills={flagshipRole.skills} />);
 
     expect(screen.getByLabelText("0% role readiness")).toBeInTheDocument();
-    expect(screen.getByLabelText("0% local learning coverage")).toBeInTheDocument();
-    expect(screen.getByText(/first local completion evidence/i)).toBeInTheDocument();
-    expect(screen.getByText(/device-local completion events only/i)).toBeInTheDocument();
-    expect(screen.getByText(/Git, URL, and file verification/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("0 verified skills")).toBeInTheDocument();
+    expect(screen.getByText(/submit inspectable evidence to demonstrate/i)).toBeInTheDocument();
   });
 
-  it("labels a Today completion as locally verified evidence, not a Git commit", () => {
-    const completion: ProofItem = {
-      id: "local-completion",
-      title: "Implementation note",
-      kind: "completion",
-      skillIds: ["react"],
-      verified: true,
-    };
+  it("labels local completion as Practicing and never Verified locally", () => {
+    render(<ProofProfile projections={[projection("react", "practicing")]} skills={flagshipRole.skills} />);
 
-    render(<ProofProfile proofs={[completion]} skills={flagshipRole.skills} />);
-
-    expect(screen.getByLabelText("0% role readiness")).toBeInTheDocument();
-    expect(screen.getByLabelText("6% local learning coverage")).toBeInTheDocument();
-    expect(screen.getByText("Completion evidence · 1 linked skill")).toBeInTheDocument();
-    expect(screen.getByText("Verified locally")).toBeInTheDocument();
-    expect(screen.queryByText(/commit ·/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Practicing")).toBeInTheDocument();
+    expect(screen.queryByText("Verified locally")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("0 verified skills")).toBeInTheDocument();
   });
 
-  it("lists verified and draft evidence with linked skill counts", () => {
-    const proofs: ProofItem[] = [
-      {
-        id: "verified",
-        title: "Typed server action",
-        kind: "commit",
-        skillIds: ["react", "react", "unknown"],
-        verified: true,
-      },
-      {
-        id: "draft",
-        title: "Architecture note",
-        kind: "note",
-        skillIds: ["http-apis"],
-        verified: false,
-      },
-    ];
+  it("uses importance-weighted demonstrated-or-verified readiness and counts verified separately", () => {
+    render(<ProofProfile projections={[
+      projection("react", "demonstrated"),
+      projection("design-systems", "verified"),
+    ]} skills={flagshipRole.skills} />);
 
-    render(<ProofProfile proofs={proofs} skills={flagshipRole.skills} />);
-
-    expect(screen.getByLabelText("6% role readiness")).toBeInTheDocument();
-    expect(screen.getByLabelText("0% local learning coverage")).toBeInTheDocument();
-    const items = screen.getAllByRole("listitem");
-    expect(items).toHaveLength(2);
-    expect(within(items[0]).getByText("commit · 1 linked skill")).toBeInTheDocument();
-    expect(within(items[0]).getByText("Verified")).toBeInTheDocument();
-    expect(within(items[1]).getByText("note · 1 linked skill")).toBeInTheDocument();
-    expect(within(items[1]).getByText("Draft")).toBeInTheDocument();
-  });
-
-  it("labels public sharing as unavailable instead of exposing a fake action", () => {
-    render(<ProofProfile proofs={[]} skills={flagshipRole.skills} />);
-
-    expect(screen.getByRole("button", { name: /Share public profile.*Coming soon/i })).toBeDisabled();
+    expect(screen.getByLabelText("13% role readiness")).toBeInTheDocument();
+    expect(screen.getByLabelText("1 verified skill")).toBeInTheDocument();
+    expect(screen.getByText("Exploring")).toBeInTheDocument();
+    expect(screen.getByText("Demonstrated")).toBeInTheDocument();
+    expect(screen.getByText("Verified")).toBeInTheDocument();
   });
 });

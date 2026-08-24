@@ -1,110 +1,49 @@
 import { describe, expect, it } from "vitest";
 import { flagshipRole } from "../../app/data/flagship-role";
-import { calculateLocalCoverage, calculateReadiness, getLinkedSkillIds } from "../../app/lib/proof-profile";
-import type { ProofItem } from "../../app/domain/learning";
+import { calculateReadiness, getLinkedSkillIds } from "../../app/lib/proof-profile";
+import type { SkillEvidenceProjection } from "../../app/contracts/proof-ledger";
+
+function projection(skillId: string, status: SkillEvidenceProjection["status"]): SkillEvidenceProjection {
+  const hasProof = status === "demonstrated" || status === "verified";
+  return {
+    skillId, audience: "internal", status, completedUnitIds: [], latestUsedAt: null,
+    strongestProofId: hasProof ? "proof-1" : null,
+    strongestVersionId: hasProof ? "version-1" : null,
+  };
+}
 
 describe("calculateReadiness", () => {
-  it("never increases readiness without verified evidence", () => {
-    expect(calculateReadiness(flagshipRole.skills, [])).toEqual({
-      percentage: 0,
-      verifiedSkillIds: [],
-    });
-  });
+  it("uses importance weights and requires demonstrated or verified projections", () => {
+    const result = calculateReadiness(flagshipRole.skills, [
+      projection("react", "practicing"),
+      projection("design-systems", "demonstrated"),
+      projection("typescript", "verified"),
+      projection("unknown", "verified"),
+    ]);
 
-  it("counts unique, valid skills from verified proofs only", () => {
-    const proofs: ProofItem[] = [
-      {
-        id: "p1",
-        title: "Verified commit",
-        kind: "commit",
-        skillIds: ["typescript", "react", "react", "not-in-this-role"],
-        verified: true,
-      },
-      {
-        id: "p2",
-        title: "Draft note",
-        kind: "note",
-        skillIds: ["cloud-delivery"],
-        verified: false,
-      },
-      {
-        id: "p3",
-        title: "Local completion",
-        kind: "completion",
-        skillIds: ["cloud-delivery"],
-        verified: true,
-      },
-    ];
-
-    expect(calculateReadiness(flagshipRole.skills, proofs)).toEqual({
+    expect(result).toEqual({
       percentage: 13,
-      verifiedSkillIds: ["react", "typescript"],
+      demonstratedOrVerifiedSkillIds: ["design-systems", "typescript"],
+      verifiedSkillIds: ["typescript"],
     });
   });
 
-  it("returns zero readiness for an empty role catalog", () => {
-    const proof: ProofItem = {
-      id: "p1",
-      title: "Verified commit",
-      kind: "commit",
-      skillIds: ["react"],
-      verified: true,
-    };
-
-    expect(calculateReadiness([], [proof])).toEqual({
+  it("returns zero for an empty role and deduplicates projections", () => {
+    expect(calculateReadiness([], [projection("react", "verified")])).toEqual({
       percentage: 0,
+      demonstratedOrVerifiedSkillIds: [],
       verifiedSkillIds: [],
     });
-  });
-
-  it("uses unique role skills as the readiness denominator", () => {
-    const repeatedSkillCatalog = [flagshipRole.skills[0], flagshipRole.skills[0]];
-    const proof: ProofItem = {
-      id: "p1",
-      title: "Verified foundation",
-      kind: "commit",
-      skillIds: [flagshipRole.skills[0].id],
-      verified: true,
-    };
-
-    expect(calculateReadiness(repeatedSkillCatalog, [proof])).toEqual({
+    expect(calculateReadiness([flagshipRole.skills[2]], [
+      projection("react", "demonstrated"), projection("react", "verified"),
+    ])).toEqual({
       percentage: 100,
-      verifiedSkillIds: [flagshipRole.skills[0].id],
+      demonstratedOrVerifiedSkillIds: ["react"],
+      verifiedSkillIds: ["react"],
     });
   });
 
   it("filters and deduplicates linked skills against the current role", () => {
     expect(getLinkedSkillIds(flagshipRole.skills, ["react", "unknown", "react"])).toEqual(["react"]);
-  });
-
-  it("tracks verified local completion coverage separately from role readiness", () => {
-    const proofs: ProofItem[] = [
-      {
-        id: "local",
-        title: "Local completion",
-        kind: "completion",
-        skillIds: ["react", "typescript", "react", "unknown"],
-        verified: true,
-      },
-      {
-        id: "local-draft",
-        title: "Unverified local completion",
-        kind: "completion",
-        skillIds: ["cloud-delivery"],
-        verified: false,
-      },
-      {
-        id: "external",
-        title: "External project",
-        kind: "project",
-        skillIds: ["cloud-delivery"],
-        verified: true,
-      },
-    ];
-
-    expect(calculateLocalCoverage(flagshipRole.skills, proofs)).toEqual({
-      completedSkillIds: ["react", "typescript"],
-      percentage: 13,
-    });
   });
 });

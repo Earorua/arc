@@ -1,15 +1,24 @@
-import type { ProofItem, SkillNode } from "../../domain/learning";
-import { calculateLocalCoverage, calculateReadiness, getLinkedSkillIds } from "../../lib/proof-profile";
+import type { SkillEvidenceProjection, SkillEvidenceStatus } from "../../contracts/proof-ledger";
+import type { SkillNode } from "../../domain/learning";
+import { calculateReadiness } from "../../lib/proof-profile";
+
+const statusLabels: Record<SkillEvidenceStatus, string> = {
+  exploring: "Exploring",
+  practicing: "Practicing",
+  demonstrated: "Demonstrated",
+  verified: "Verified",
+};
 
 export function ProofProfile({
-  proofs,
+  projections,
   skills,
 }: {
-  proofs: ReadonlyArray<ProofItem>;
+  projections: ReadonlyArray<SkillEvidenceProjection>;
   skills: ReadonlyArray<SkillNode>;
 }) {
-  const readiness = calculateReadiness(skills, proofs);
-  const localCoverage = calculateLocalCoverage(skills, proofs);
+  const readiness = calculateReadiness(skills, projections);
+  const visibleStatuses = new Set(projections.filter(({ audience }) => audience === "internal").map(({ status }) => status));
+  const verifiedLabel = `${readiness.verifiedSkillIds.length} verified ${readiness.verifiedSkillIds.length === 1 ? "skill" : "skills"}`;
 
   return (
     <section className="proof-profile" lang="en">
@@ -17,60 +26,30 @@ export function ProofProfile({
         <div>
           <p className="eyebrow">Capability profile</p>
           <h1>Your stack, proven.</h1>
+          <p className="proof-boundary">
+            Complete learning work to reach Practicing. Submit inspectable evidence to demonstrate a skill;
+            Verified is reserved for evidence that passes a deterministic validator.
+          </p>
         </div>
         <div className="profile-metrics">
           <div className="readiness" aria-label={`${readiness.percentage}% role readiness`}>
             <strong>{readiness.percentage}%</strong>
-            <span>role readiness</span>
+            <span>demonstrated readiness</span>
           </div>
-          <div className="readiness" aria-label={`${localCoverage.percentage}% local learning coverage`}>
-            <strong>{localCoverage.percentage}%</strong>
-            <span>local learning coverage</span>
+          <div className="readiness" aria-label={verifiedLabel}>
+            <strong>{readiness.verifiedSkillIds.length}</strong>
+            <span>verified skills</span>
           </div>
         </div>
       </div>
-
-      <p className="proof-boundary">
-        This phase verifies device-local completion events only. External Git, URL, and file verification arrives with Persistence &amp; Proof.
-      </p>
-
-      {proofs.length === 0 ? (
-        <p className="empty-proof">Complete today&apos;s unit to create your first local completion evidence.</p>
-      ) : (
-        <ol aria-label="Evidence">
-          {proofs.map((proof) => {
-            const linkedSkillCount = getLinkedSkillIds(skills, proof.skillIds).length;
-            const linkedSkillLabel = linkedSkillCount === 1 ? "linked skill" : "linked skills";
-            const isLocalCompletion = proof.kind === "completion";
-            const kindLabel = isLocalCompletion ? "Completion evidence" : proof.kind;
-            const verificationLabel = proof.verified
-              ? (isLocalCompletion ? "Verified locally" : "Verified")
-              : "Draft";
-
-            return (
-              <li key={proof.id}>
-                <div>
-                  <strong>{proof.title}</strong>
-                  <span>{kindLabel} · {linkedSkillCount} {linkedSkillLabel}</span>
-                </div>
-                <b className={proof.verified ? "is-verified" : "is-draft"}>
-                  {verificationLabel}
-                </b>
-              </li>
-            );
-          })}
-        </ol>
-      )}
-
-      <button
-        aria-disabled="true"
-        className="share-profile"
-        disabled
-        title="Public profiles are not available in this preview."
-        type="button"
-      >
-        Share public profile — Coming soon
-      </button>
+      <ul className="proof-status-key" aria-label="Evidence status scale">
+        {(Object.keys(statusLabels) as SkillEvidenceStatus[]).map((status) => (
+          <li className={visibleStatuses.has(status) ? "is-current" : undefined} key={status}>
+            <span aria-hidden="true">0{Object.keys(statusLabels).indexOf(status) + 1}</span>
+            <strong>{statusLabels[status]}</strong>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
