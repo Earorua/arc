@@ -1,5 +1,17 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-25 目标 1 `Proof-backed Stack` 工程完成；本地 UAT 待用户决定（当前权威门槛）**
+>
+> 分支仍为 `codex/v8-proof-backed-stack`，隔离工作树仍为 `.worktrees/v8-proof-backed-stack`；本轮工程 HEAD（检查点文档提交前）为 `cb7219747c402022d5a941b4bb9c8a07ebf4f5f5`。Tasks 0–15 已完成，Task 16 进入最终代码审查与复验。不要重做 Phase 1–2，也不要把自动化或 Codex 浏览器检查解释为用户验收签字。
+>
+> 最新工程门槛：`npm run test:unit` 为 108 files / 1215 tests；`npm exec tsc -- --noEmit` exit 0；`npm run lint` exit 0；独立 `npm run build` 的 vinext 5/5 完成；`npm test` 的 vinext 5/5 与 rendered HTML 3/3 通过；`git diff --check` 无错误。所有权与隐私聚焦套件为 4 files / 39 tests。临时 SQLite 已依次应用迁移 `0000`–`0004`，双账户 create / revise / reject / privacy / withdraw 夹具通过，`PRAGMA foreign_key_check` 为空。
+>
+> 本地人工辅助检查已覆盖 `/today`、`/proof`、`/stack` 的桌面和 320px 窄屏、键盘焦点、状态联动、不可变版本、撤销降级及公开/私有切换；详细记录位于 `docs/operations/v8-goal-1-uat.md`。浏览器自动化无法改变实际浏览器缩放，故 200% 缩放仍列为用户确认项；本地 UAT 结论必须保持 `Pending user decision`，直到用户明确接受。
+>
+> 本地预览保持在 `http://localhost:3000`，但进程跨会话不可假定仍存活。下一步是 `User reviews Goal 1 local acceptance`：先完成 Task 16 独立审查和最终全门槛复验，再向用户提供本地 URL 与 UAT 清单并停下等待。用户明确接受前，不合并、不推送、不清理分支。
+>
+> 本目标仍未执行生产 D1 迁移、生产 R2 写入、Sites 候选保存、运行时配置/旗标修改或公开部署。公开生产继续保持 Arc. v7.2 / Sites version 9。
+
 > **2026-08-25 目标 1 `Proof-backed Stack` 已获实施批准（当前权威门槛）**
 >
 > 用户已批准目标 1 详细实施计划并选择“方式 1：当前任务内顺序执行”。隔离工作树为 `.worktrees/v8-proof-backed-stack`，分支为 `codex/v8-proof-backed-stack`；计划提交为 `d9dd4446559c2cf9c99bdacee167186147f7e489`，基于本地 `master` 的四目标规格提交 `3db3fc9cacafe4afc1b05f3d3d1025648a56ecda`。
