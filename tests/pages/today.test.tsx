@@ -84,6 +84,10 @@ describe("TodayPage", () => {
 
     expect(push).toHaveBeenCalledWith("/proof");
     expect(button).toBeDisabled();
+    const stored = JSON.parse(window.localStorage.getItem("arc-demo-state-v1") ?? "{}") as {
+      proofs?: Array<{ verified?: boolean }>;
+    };
+    expect(stored.proofs?.[0]?.verified).toBe(false);
   });
 
   it("does not fall back to a legacy lesson when the adaptive catalogue version is unavailable", async () => {

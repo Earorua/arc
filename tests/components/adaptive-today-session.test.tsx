@@ -40,8 +40,24 @@ describe("AdaptiveTodaySession", () => {
     const complete = screen.getByRole("button", { name: "Complete" }); expect(complete).toBeDisabled();
     for (const box of screen.getAllByRole("checkbox")) await user.click(box);
     await user.click(complete); expect(record).toHaveBeenLastCalledWith(expect.objectContaining({ kind: "completed" }));
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Completed. This skill is now practicing; add proof to demonstrate it.",
+    );
+    expect(screen.getByRole("link", { name: "Open Proof" })).toHaveAttribute("href", "/proof");
     for (const [label, kind] of [["Delay", "delayed"], ["Skip", "skipped"], ["Too hard", "too_hard"], ["Already know this", "already_known"]] as const) { await user.click(screen.getByRole("button", { name: label })); expect(record).toHaveBeenLastCalledWith(expect.objectContaining({ kind })); }
     expect(screen.getByRole("status")).toHaveTextContent("current plan has not changed");
+  });
+
+  it("shows no status promotion language after a failed completion mutation", async () => {
+    const user = userEvent.setup();
+    render(<AdaptiveTodaySession
+      workspace={workspace()} now={fixedNow} record={vi.fn().mockResolvedValue(false)}
+      accept={vi.fn()} discard={vi.fn()}
+    />);
+    for (const box of screen.getAllByRole("checkbox")) await user.click(box);
+    await user.click(screen.getByRole("button", { name: "Complete" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Arc could not update this plan");
+    expect(screen.queryByText(/now practicing|add proof to demonstrate/iu)).not.toBeInTheDocument();
   });
 
   it("reveals optional stretch only after the primary checklist is complete", async () => {

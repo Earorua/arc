@@ -323,13 +323,13 @@ export const deterministicValidators: Readonly<Record<string, DeterministicValid
 - Modify: `tests/components/adaptive-today-session.test.tsx`
 - Modify: `tests/pages/today.test.tsx`
 
-- [ ] Add a failing component test that completes all required steps, records `completed`, and expects the message `Completed. This skill is now practicing; add proof to demonstrate it.` plus a link to `/proof`.
-- [ ] Add a failing test that a failed planning mutation shows no status promotion language and retains the existing recoverable error.
-- [ ] Replace the current completion success sentence with the locked truthful copy and a Proof link. Keep candidate-plan handling and button guards unchanged.
-- [ ] On the legacy Today path, keep redirecting to Proof but ensure its local completion is presented as practicing rather than locally verified.
-- [ ] Run `npm run test:unit -- tests/components/adaptive-today-session.test.tsx tests/pages/today.test.tsx tests/lib/demo-store.test.ts`; expect all Today and compatibility tests to pass.
-- [ ] Stage with `git add app/components/today/adaptive-today-session.tsx app/today/page.tsx tests/components/adaptive-today-session.test.tsx tests/pages/today.test.tsx tests/lib/demo-store.test.ts`.
-- [ ] Commit with `git commit -m "fix: keep today completion truthful"`.
+- [x] Add a failing component test that completes all required steps, records `completed`, and expects the message `Completed. This skill is now practicing; add proof to demonstrate it.` plus a link to `/proof`.
+- [x] Add a failing test that a failed planning mutation shows no status promotion language and retains the existing recoverable error.
+- [x] Replace the current completion success sentence with the locked truthful copy and a Proof link. Keep candidate-plan handling and button guards unchanged.
+- [x] On the legacy Today path, keep redirecting to Proof but ensure its local completion is presented as practicing rather than locally verified.
+- [x] Run `npm run test:unit -- tests/components/adaptive-today-session.test.tsx tests/pages/today.test.tsx tests/lib/demo-store.test.ts`; expect all Today and compatibility tests to pass.
+- [x] Stage with `git add app/components/today/adaptive-today-session.tsx app/today/page.tsx tests/components/adaptive-today-session.test.tsx tests/pages/today.test.tsx tests/lib/demo-store.test.ts`.
+- [x] Commit with `git commit -m "fix: keep today completion truthful"`.
 
 ## Task 10: Replace the legacy Proof profile with a versioned evidence workspace
 

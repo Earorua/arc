@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { LearningResource, RoleBlueprint } from "../../contracts/intelligence";
 import { parsePlanningWorkspaceAtRepositoryBoundary, type DailyUnit, type PlanningEventInput, type PlanningWorkspace, type UnitRegistry } from "../../contracts/planning";
 import { flagshipBlueprint } from "../../data/flagship-blueprint";
@@ -28,6 +29,7 @@ const actionEvents = [
 
 const systemNow = () => new Date();
 const candidateReadyMessage = "Candidate plan ready for review. Your current plan has not changed.";
+const completedPracticingMessage = "Completed. This skill is now practicing; add proof to demonstrate it.";
 
 export function AdaptiveTodaySession({ workspace: value, recovery = "none", record, accept, discard, blueprint = flagshipBlueprint, registry = flagshipUnitRegistry, now = systemNow }: AdaptiveTodaySessionProps) {
   const resolved = useMemo(() => resolveToday(value, blueprint, registry, now), [blueprint, now, registry, value]);
@@ -46,7 +48,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
     try {
       const saved = await record({ kind, unitId: resolved.primary!.id, planningDate: resolved.today, ...(kind === "completed" ? { actualMinutes: null } : {}) } as PlanningEventInput);
       if (!saved) setMessage({ kind: "alert", text: recovery === "conflict" ? "This plan changed on another device. Refresh before continuing." : "Arc could not update this plan. Try again when the connection recovers." });
-      else if (kind === "completed") setMessage({ kind: "status", text: "Completed. Today has rolled forward." });
+      else if (kind === "completed") setMessage({ kind: "status", text: completedPracticingMessage });
       else setMessage({ kind: "status", text: candidateReadyMessage });
     } catch {
       setMessage({ kind: "alert", text: recovery === "conflict" ? "This plan changed on another device. Refresh before continuing." : "Arc could not update this plan. Try again when the connection recovers." });
@@ -62,7 +64,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
       <section className="today-brief"><div><p className="section-index">Build</p><p>{resolved.primary.buildTask}</p></div><div><p className="section-index">Completion criteria</p><ul>{resolved.primary.completionCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul></div><div><p className="section-index">Proof requirement</p><p>{resolved.primary.proofRequirement}</p></div><div><p className="section-index">Rubric</p><ol>{resolved.primary.rubric.map((row) => <li key={row}>{row}</li>)}</ol></div></section>
       {canComplete && resolved.stretch && <aside className="today-stretch"><p className="section-index">Optional stretch · {resolved.stretch.estimatedMinutes} minutes</p><h2>{resolved.stretch.objective}</h2><p>{resolved.stretch.whyNow}</p></aside>}
       <div className="today-actions"><button disabled={pending || hasCandidate || !canComplete} onClick={() => void send("completed")} type="button">Complete</button>{actionEvents.map(([label, kind]) => <button disabled={pending || hasCandidate} key={kind} onClick={() => void send(kind)} type="button">{label}</button>)}</div>
-      {hasCandidate ? <p role="status">{candidateReadyMessage}</p> : message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "This plan changed on another device. Refresh before continuing." : message.text}</p>}
+      {hasCandidate ? <p role="status">{candidateReadyMessage}</p> : message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "This plan changed on another device. Refresh before continuing." : message.text}{message.text === completedPracticingMessage && <> <Link href="/proof">Open Proof</Link></>}</p>}
     </article>
     {resolved.workspace.pendingPlanVersionId && <PlanDiffReview workspace={resolved.workspace} recovery={recovery} onAccept={accept} onDiscard={discard} onSuccess={(text) => setMessage({ kind: "status", text })} />}
     <SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} />
