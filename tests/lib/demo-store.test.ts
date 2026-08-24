@@ -87,13 +87,25 @@ describe("demo store", () => {
     expect(next.setup.weeklyMinutes).toBe(420);
   });
 
-  it("creates exactly one verified proof for an idempotent completion", () => {
+  it("creates exactly one unverified compatibility proof for an idempotent completion", () => {
     const once = completeDemoUnit(createDemoState(), flagshipRole.today);
     const twice = completeDemoUnit(once, flagshipRole.today);
     expect(twice.completedUnitIds).toEqual([flagshipRole.today.id]);
     expect(twice.proofs).toHaveLength(1);
     expect(twice.proofs[0].kind).toBe("completion");
-    expect(twice.proofs[0].verified).toBe(true);
+    expect(twice.proofs[0].verified).toBe(false);
+  });
+
+  it("still reads a persisted v7 completion whose verified flag is true", () => {
+    const legacy = completeDemoUnit(createDemoState(), flagshipRole.today);
+    legacy.proofs[0]!.verified = true;
+
+    expect(loadDemoState({ getItem: () => JSON.stringify(legacy) }).proofs[0]?.verified)
+      .toBe(true);
+    expect(readDemoStateForMigration({ getItem: () => JSON.stringify(legacy) })).toMatchObject({
+      found: true,
+      state: { proofs: [{ verified: true }] },
+    });
   });
 
   it("reports whether device storage accepted a write", () => {

@@ -175,10 +175,10 @@ function contribution(state: ProofReviewState): SkillEvidenceStatus | null {
 - Create: `tests/lib/proof/legacy-adapter.test.ts`
 - Modify: `tests/lib/demo-store.test.ts`
 
-- [ ] Write failing tests for an empty local workspace, persisted reload, optimistic revision conflict, idempotent mutation replay, and corrupt-storage quarantine.
-- [ ] Implement the storage key `arc-proof-ledger-v1`, strict boundary parsing, and repository methods `load`, `createProof`, `reviseProof`, `withdrawProof`, and `setVisibility`.
-- [ ] Keep the local mutation path atomic: calculate the next workspace, validate it, then write one serialized value. On quota or storage errors return the previous valid workspace unchanged.
-- [ ] Implement a legacy adapter: every legacy `verified: true` row contributes at most `practicing`, regardless of kind; a legacy draft contributes no promotion. No legacy row can contribute `demonstrated` or `verified`.
+- [x] Write failing tests for an empty local workspace, persisted reload, optimistic revision conflict, idempotent mutation replay, and corrupt-storage quarantine.
+- [x] Implement the storage key `arc-proof-ledger-v1`, strict boundary parsing, and repository methods `load`, `createProof`, `reviseProof`, `withdrawProof`, and `setVisibility`.
+- [x] Keep the local mutation path atomic: calculate the next workspace, validate it, then write one serialized value. On quota or storage errors return the previous valid workspace unchanged.
+- [x] Implement a legacy adapter: every legacy `verified: true` row contributes at most `practicing`, regardless of kind; a legacy draft contributes no promotion. No legacy row can contribute `demonstrated` or `verified`.
 
 ```ts
 export function legacyProofsToPracticingSkills(proofs: readonly ProofItem[]): Set<string> {
@@ -189,11 +189,11 @@ export function legacyProofsToPracticingSkills(proofs: readonly ProofItem[]): Se
 }
 ```
 
-- [ ] Change `completeDemoUnit` so new legacy completion rows use `verified: false`. Preserve the existing strict migration reader so stored v7 rows with `verified: true` still load.
-- [ ] Update demo-store tests to assert new completions are not verified and old stored rows remain readable.
-- [ ] Run `npm run test:unit -- tests/lib/proof/local-repository.test.ts tests/lib/proof/legacy-adapter.test.ts tests/lib/demo-store.test.ts`; expect all tests to pass.
-- [ ] Stage with `git add app/lib/proof app/lib/demo-store.ts tests/lib/proof tests/lib/demo-store.test.ts`.
-- [ ] Commit with `git commit -m "feat: persist local proof ledger safely"`.
+- [x] Change `completeDemoUnit` so new legacy completion rows use `verified: false`. Preserve the existing strict migration reader so stored v7 rows with `verified: true` still load.
+- [x] Update demo-store tests to assert new completions are not verified and old stored rows remain readable.
+- [x] Run `npm run test:unit -- tests/lib/proof/local-repository.test.ts tests/lib/proof/legacy-adapter.test.ts tests/lib/demo-store.test.ts`; expect all tests to pass.
+- [x] Stage with `git add app/lib/proof app/lib/demo-store.ts tests/lib/proof tests/lib/demo-store.test.ts`.
+- [x] Commit with `git commit -m "feat: persist local proof ledger safely"`.
 
 ## Task 4: Add the additive proof-ledger database migration
 

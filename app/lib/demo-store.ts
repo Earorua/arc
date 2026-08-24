@@ -137,7 +137,7 @@ export function completeDemoUnit(state: DemoState, unit: LearningUnit): DemoStat
     title: unit.deliverable,
     kind: "completion",
     skillIds: [...unit.skillIds],
-    verified: true,
+    verified: false,
   };
 
   return {
