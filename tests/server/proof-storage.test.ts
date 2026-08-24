@@ -3,7 +3,9 @@ import {
   ALLOWED_PROOF_TYPES,
   MAX_PROOF_BYTES,
   ProofUploadValidationError,
+  ProofJsonReadError,
   proofObjectKey,
+  readProofJson,
   validateProofUpload,
 } from "../../app/server/proof/storage";
 import {
@@ -23,9 +25,23 @@ describe("proof asset storage policy", () => {
     "application/pdf",
     "image/png",
     "image/jpeg",
+    "application/json",
   ])("accepts %s up to the five MiB boundary", (contentType) => {
     expect(ALLOWED_PROOF_TYPES.has(contentType)).toBe(true);
     expect(() => validateProofUpload({ contentType, sizeBytes: MAX_PROOF_BYTES })).not.toThrow();
+  });
+
+  it("reads JSON through a bounded stream and rejects missing, invalid, and oversized objects", async () => {
+    const body = (value: BodyInit | null) => ({
+      put: async () => undefined,
+      delete: async () => undefined,
+      get: async () => value === null ? null : { body: value },
+    });
+    await expect(readProofJson(body('{"passed":2}'), "report")).resolves.toEqual({ passed: 2 });
+    await expect(readProofJson(body(null), "report")).rejects.toBeInstanceOf(ProofJsonReadError);
+    await expect(readProofJson(body("not-json"), "report")).rejects.toBeInstanceOf(ProofJsonReadError);
+    await expect(readProofJson(body("x".repeat(256 * 1024 + 1)), "report"))
+      .rejects.toBeInstanceOf(ProofJsonReadError);
   });
 
   it.each(["text/html", "application/javascript", "application/x-msdownload"])(

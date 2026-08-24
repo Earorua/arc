@@ -12,6 +12,7 @@ import {
   type ProofVersion,
   type SkillEvidenceProjection,
 } from "../../contracts/proof-ledger";
+import { dailyUnitSchema, type DailyUnit } from "../../contracts/planning";
 import type {
   ActiveProofShare,
   OwnedProof,
@@ -58,6 +59,7 @@ const IDEMPOTENCY_SCOPE_PREFIX = "proof-ledger:";
 type GoalRow = { id: string };
 type IdempotencyRow = { response_json: string };
 type RevisionRow = { revision: number };
+type PayloadRow = { payload_json: string };
 type VersionRow = {
   id: string; proof_id: string; version_number: number; schema_version: string;
   daily_unit_id: string | null; title: string; kind: ProofVersion["kind"]; summary: string;
@@ -246,6 +248,17 @@ export class D1ProofRepository implements ProofRepository {
       }
       const proof = await this.getOwnedProof(userId, proofId);
       return proof ? { source: "legacy", proof } : null;
+    } catch {
+      throw new ProofRepositoryUnavailableError();
+    }
+  }
+
+  async getOwnedDailyUnit(scope: ProofOwnerGoal, dailyUnitId: string): Promise<DailyUnit | null> {
+    try {
+      const row = await this.db.prepare(`SELECT payload_json FROM daily_units
+        WHERE user_id = ?1 AND goal_id = ?2 AND id = ?3 LIMIT 1`)
+        .bind(scope.ownerId, scope.goalId, dailyUnitId).first<PayloadRow>();
+      return row ? parseBoundedJson(row.payload_json, dailyUnitSchema) : null;
     } catch {
       throw new ProofRepositoryUnavailableError();
     }

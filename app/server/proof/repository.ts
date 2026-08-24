@@ -1,4 +1,5 @@
 import type { ProofItem } from "../../domain/learning";
+import type { DailyUnit } from "../../contracts/planning";
 import type {
   ProofLedgerMutationResult,
   ProofLedgerWorkspace,
@@ -60,6 +61,7 @@ export interface ProofRepository {
   saveMutation(command: SaveProofMutationCommand): Promise<ProofLedgerMutationResult>;
   getOwnedProof(userId: string, proofId: string): Promise<OwnedProof | null>;
   getOwnedProofSnapshot(userId: string, proofId: string): Promise<OwnedProofSnapshot | null>;
+  getOwnedDailyUnit(scope: ProofOwnerGoal, dailyUnitId: string): Promise<DailyUnit | null>;
   createAssetMetadata(metadata: ProofAssetMetadata): Promise<void>;
   getOwnedAsset(userId: string, proofId: string): Promise<ProofAssetMetadata | null>;
   upsertShare(input: ProofShareInput): Promise<void>;

@@ -246,12 +246,12 @@ export function legacyProofsToPracticingSkills(proofs: readonly ProofItem[]): Se
 - Create: `tests/server/proof-validators.test.ts`
 - Modify: `tests/server/proof-storage.test.ts`
 
-- [ ] Write failing service tests for unaffiliated owner, malformed input, create, revise, mutation replay, stale revision, withdrawal, visibility change, and repository failure.
-- [ ] Implement `ProofService` with the same error discipline used by Planning: `NOT_FOUND`, `CONFLICT`, `INVALID_INPUT`, and `UNAVAILABLE`, with no raw database errors crossing the boundary.
-- [ ] Resolve owner and active goal from the repository. Ignore any `userId` or `goalId` supplied in unknown request keys by rejecting the strict request schema.
-- [ ] Implement structural validation that checks skill membership, Daily Unit linkage, title/summary bounds, exactly one of public HTTPS URL or owned asset when the kind requires an artifact, and artifact-kind consistency.
-- [ ] Add `application/json` to the passive upload allowlist and implement a bounded 256 KiB JSON reader over an owned R2 object. Continue rejecting HTML, JavaScript, executables, empty files, and oversized files.
-- [ ] Implement a closed validator registry. Goal 1 registers only `proof.test-report.v1`; it reads an owned `application/json` asset and requires schema version `arc.test-report.v1`, a non-empty command, `exitCode === 0`, `passed > 0`, and `failed === 0`. Unknown validator keys return `unavailable`.
+- [x] Write failing service tests for unaffiliated owner, malformed input, create, revise, mutation replay, stale revision, withdrawal, visibility change, and repository failure.
+- [x] Implement `ProofService` with the same error discipline used by Planning: `NOT_FOUND`, `CONFLICT`, `INVALID_INPUT`, and `UNAVAILABLE`, with no raw database errors crossing the boundary.
+- [x] Resolve owner and active goal from the repository. Ignore any `userId` or `goalId` supplied in unknown request keys by rejecting the strict request schema.
+- [x] Implement structural validation that checks skill membership, Daily Unit linkage, title/summary bounds, exactly one of public HTTPS URL or owned asset when the kind requires an artifact, and artifact-kind consistency.
+- [x] Add `application/json` to the passive upload allowlist and implement a bounded 256 KiB JSON reader over an owned R2 object. Continue rejecting HTML, JavaScript, executables, empty files, and oversized files.
+- [x] Implement a closed validator registry. Goal 1 registers only `proof.test-report.v1`; it reads an owned `application/json` asset and requires schema version `arc.test-report.v1`, a non-empty command, `exitCode === 0`, `passed > 0`, and `failed === 0`. Unknown validator keys return `unavailable`.
 
 ```ts
 export const deterministicValidators: Readonly<Record<string, DeterministicValidator>> = {
@@ -268,12 +268,12 @@ export const deterministicValidators: Readonly<Record<string, DeterministicValid
 };
 ```
 
-- [ ] On `save_draft`, append `drafted` and perform no promotion. On `submit`, append `submitted` with `pending_review`, run structural checks, append `demonstrated` when they pass, and append `verified` only when the selected registered validator returns `passed`. A failed validator appends `rejected`; unavailable stops at `demonstrated`.
-- [ ] Recompute both internal and public projections from the complete canonical ledger after every mutation. Never increment or decrement cached status directly.
-- [ ] Add tests proving completion cannot call a validator, AI-like validator keys are unavailable, a rejected strongest proof downgrades to the next valid proof, public privacy changes do not alter internal status, and repository errors preserve the previous state.
-- [ ] Run `npm run test:unit -- tests/server/proof-service.test.ts tests/server/proof-validators.test.ts`; expect all service tests to pass.
-- [ ] Stage with `git add app/server/proof tests/server/proof-service.test.ts tests/server/proof-validators.test.ts tests/server/proof-storage.test.ts`.
-- [ ] Commit with `git commit -m "feat: review proof deterministically"`.
+- [x] On `save_draft`, append `drafted` and perform no promotion. On `submit`, append `submitted` with `pending_review`, run structural checks, append `demonstrated` when they pass, and append `verified` only when the selected registered validator returns `passed`. A failed validator appends `rejected`; unavailable stops at `demonstrated`.
+- [x] Recompute both internal and public projections from the complete canonical ledger after every mutation. Never increment or decrement cached status directly.
+- [x] Add tests proving completion cannot call a validator, AI-like validator keys are unavailable, a rejected strongest proof downgrades to the next valid proof, public privacy changes do not alter internal status, and repository errors preserve the previous state.
+- [x] Run `npm run test:unit -- tests/server/proof-service.test.ts tests/server/proof-validators.test.ts`; expect all service tests to pass.
+- [x] Stage with `git add app/server/proof tests/server/proof-service.test.ts tests/server/proof-validators.test.ts tests/server/proof-storage.test.ts`.
+- [x] Commit with `git commit -m "feat: review proof deterministically"`.
 
 ## Task 7: Expose bounded proof workspace and mutation APIs
 
