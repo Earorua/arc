@@ -137,6 +137,14 @@ describe("proof ledger migration", () => {
         proofId: "proof-b",
         assetId: "asset-b",
       });
+      db.exec(`INSERT INTO proof_review_events
+        (id,user_id,goal_id,proof_id,version_id,sequence,mutation_id,kind,state_after,
+         visibility_after,reason_codes_json,occurred_at)
+        VALUES
+          ('review-shared','user-a','goal-a','proof-a','version-a',1,'mutation-a','submitted',
+            'pending_review','private','[]',1786500000000),
+          ('review-shared','user-b','goal-b','proof-b','version-a',1,'mutation-b','submitted',
+            'pending_review','private','[]',1786500000000)`);
       expectConstraint(db, `INSERT INTO proof_versions
         (id,user_id,goal_id,proof_id,version_number,schema_version,title,kind,summary,
          skill_ids_json,completion_criteria_json,visibility)

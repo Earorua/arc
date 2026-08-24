@@ -225,16 +225,16 @@ export function legacyProofsToPracticingSkills(proofs: readonly ProofItem[]): Se
 - Modify: `app/server/proof/d1-proof-repository.ts`
 - Modify: `tests/server/d1-proof-repository.test.ts`
 
-- [ ] Extend the fake D1 harness to support `all`, `batch`, and transactional call inspection, then write failing owner-isolation tests for loading a ledger workspace.
-- [ ] Add repository commands for resolving the active owner goal, loading versions/reviews/projections, finding a mutation replay, atomically appending a version plus events, and replacing cached projections.
-- [ ] Keep existing `getOwnedProof`, asset, and share methods intact. Add `getOwnedProofSnapshot(userId, proofId)` that returns the latest ledger version or falls back to the legacy row.
-- [ ] Parse every JSON column with a bounded Zod schema. Treat malformed stored JSON as repository unavailability, not as empty evidence.
-- [ ] Bind `userId` and `goalId` in every new query. Assert this in tests by inspecting SQL and bound values.
-- [ ] Persist a create/revision transaction in this order: legacy root with `verified = 0` if absent, immutable version, append-only review events, internal projections, public projections, idempotency response.
-- [ ] Add tests proving a failed batch leaves no partial version, review, or projection writes; an identical mutation replays; a conflicting base revision fails; and v7 upload/download/share lookup still reads legacy rows.
-- [ ] Run `npm run test:unit -- tests/server/d1-proof-repository.test.ts tests/server/proof-storage.test.ts`; expect all repository and storage tests to pass.
-- [ ] Stage with `git add app/server/proof tests/server/d1-proof-repository.test.ts`.
-- [ ] Commit with `git commit -m "feat: persist owner scoped proof versions"`.
+- [x] Extend the fake D1 harness to support `all`, `batch`, and transactional call inspection, then write failing owner-isolation tests for loading a ledger workspace.
+- [x] Add repository commands for resolving the active owner goal, loading versions/reviews/projections, finding a mutation replay, atomically appending a version plus events, and replacing cached projections.
+- [x] Keep existing `getOwnedProof`, asset, and share methods intact. Add `getOwnedProofSnapshot(userId, proofId)` that returns the latest ledger version or falls back to the legacy row.
+- [x] Parse every JSON column with a bounded Zod schema. Treat malformed stored JSON as repository unavailability, not as empty evidence.
+- [x] Bind `userId` and `goalId` in every new query. Assert this in tests by inspecting SQL and bound values.
+- [x] Persist a create/revision transaction in this order: legacy root with `verified = 0` if absent, immutable version, append-only review events, internal projections, public projections, idempotency response.
+- [x] Add tests proving a failed batch leaves no partial version, review, or projection writes; an identical mutation replays; a conflicting base revision fails; and v7 upload/download/share lookup still reads legacy rows.
+- [x] Run `npm run test:unit -- tests/server/d1-proof-repository.test.ts tests/server/proof-storage.test.ts`; expect all repository and storage tests to pass.
+- [x] Stage with `git add app/server/proof tests/server/d1-proof-repository.test.ts`.
+- [x] Commit with `git commit -m "feat: persist owner scoped proof versions"`.
 
 ## Task 6: Implement the proof service and deterministic validator registry
 
