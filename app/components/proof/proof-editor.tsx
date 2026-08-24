@@ -127,7 +127,7 @@ export function ProofEditor({ canUpload, dailyUnits, disabled, initial, onCancel
         <label className="proof-field-wide">Summary<textarea disabled={disabled} maxLength={2000} onChange={(event) => setSummary(event.target.value)} rows={4} value={summary} /></label>
         <label className="proof-field-wide">Public HTTPS URL<input disabled={disabled || assetId !== null} inputMode="url" onChange={(event) => setArtifactUrl(event.target.value)} placeholder="https://" type="url" value={artifactUrl} /></label>
         <label>Linked skill<select disabled={disabled} onChange={(event) => { setSkillId(event.target.value); setDailyUnitId(""); }} value={skillId}><option value="">Choose a skill</option>{skills.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}</select></label>
-        <label>Linked Daily Unit<select disabled={disabled} onChange={(event) => setDailyUnitId(event.target.value)} value={dailyUnitId}><option value="">No linked unit</option>{dailyUnits.filter((unit) => !skillId || unit.skillId === skillId).map((unit) => <option key={unit.id} value={unit.id}>{unit.objective}</option>)}</select></label>
+        <label>Linked Daily Unit<select disabled={disabled} onChange={(event) => setDailyUnitId(event.target.value)} value={dailyUnitId}><option value="">No linked unit</option>{dailyUnits.filter((unit) => !skillId || unit.skillId === skillId).map((unit) => <option key={unit.id} value={unit.id}>{formatDailyUnitLabel(unit)}</option>)}</select></label>
         <label>Visibility<select disabled={disabled} onChange={(event) => setVisibility(event.target.value as ProofVisibility)} value={visibility}><option value="private">Private</option><option value="public">Public</option></select></label>
         <label>Deterministic validator<select disabled={disabled || kind !== "test_report"} onChange={(event) => setValidatorKey(event.target.value)} value={validatorKey}><option value="">No validator</option><option value="proof.test-report.v1">Arc JSON test report</option></select></label>
       </div>
@@ -146,6 +146,10 @@ export function ProofEditor({ canUpload, dailyUnits, disabled, initial, onCancel
       </div>
     </section>
   );
+}
+
+function formatDailyUnitLabel(unit: DailyUnit): string {
+  return `${unit.scheduledDate} · ${unit.slot === "primary" ? "Primary" : "Stretch"} · ${unit.objective}`;
 }
 
 function isPublicHttpsUrl(value: string): boolean {

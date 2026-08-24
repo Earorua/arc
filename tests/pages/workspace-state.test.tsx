@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ProofPage from "../../app/proof/page";
 import StackPage from "../../app/stack/page";
@@ -83,5 +83,34 @@ describe("personalized workspace state", () => {
       expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
       expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
     });
+  });
+
+  it("offers only Daily Units from the active plan when linking proof", async () => {
+    const initial = adaptiveWorkspace();
+    const replanned = {
+      plan: {
+        ...initial.planVersions[0]!, id: "plan-active-two", generation: "automatic" as const,
+        baseVersionId: initial.activePlanVersionId, replanReason: "delayed" as const,
+        inputFingerprint: "active-plan-two-fingerprint",
+      },
+      dailyUnits: initial.dailyUnits.map((unit) => ({ ...unit, planVersionId: "plan-active-two" })),
+    };
+    const workspace = planningWorkspaceSchema.parse({
+      ...initial,
+      planVersions: [...initial.planVersions, replanned.plan],
+      dailyUnits: [...initial.dailyUnits, ...replanned.dailyUnits],
+      activePlanVersionId: replanned.plan.id,
+    });
+    saveDemoState(createDemoState());
+    usePlanningWorkspace.mockReturnValue({ workspace, source: "local", migration: "none", recovery: "none", generate: vi.fn(), record: vi.fn(), accept: vi.fn(), discard: vi.fn(), importLocal: vi.fn(), dismissMigration: vi.fn(), retry: vi.fn() } as never);
+
+    render(<ProofPage />);
+
+    const select = await screen.findByLabelText("Linked Daily Unit");
+    expect(within(select).getAllByRole("option")).toHaveLength(replanned.dailyUnits.length + 1);
+    const firstUnit = replanned.dailyUnits[0]!;
+    expect(within(select).getAllByRole("option", {
+      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "Primary" : "Stretch"} · ${firstUnit.objective}`,
+    })).toHaveLength(1);
   });
 });

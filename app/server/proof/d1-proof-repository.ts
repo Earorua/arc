@@ -255,8 +255,13 @@ export class D1ProofRepository implements ProofRepository {
 
   async getOwnedDailyUnit(scope: ProofOwnerGoal, dailyUnitId: string): Promise<DailyUnit | null> {
     try {
-      const row = await this.db.prepare(`SELECT payload_json FROM daily_units
-        WHERE user_id = ?1 AND goal_id = ?2 AND id = ?3 LIMIT 1`)
+      const row = await this.db.prepare(`SELECT daily_units.payload_json FROM daily_units
+        INNER JOIN planning_workspaces
+          ON planning_workspaces.user_id = daily_units.user_id
+          AND planning_workspaces.goal_id = daily_units.goal_id
+          AND planning_workspaces.active_plan_version_id = daily_units.plan_version_id
+        WHERE daily_units.user_id = ?1 AND daily_units.goal_id = ?2
+          AND daily_units.unit_id = ?3 LIMIT 1`)
         .bind(scope.ownerId, scope.goalId, dailyUnitId).first<PayloadRow>();
       return row ? parseBoundedJson(row.payload_json, dailyUnitSchema) : null;
     } catch {

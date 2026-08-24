@@ -41,7 +41,8 @@ export default function ProofPage() {
       <ProofWorkspace
         canUpload={proof.source === "cloud"}
         createProof={proof.createProof}
-        dailyUnits={planning.workspace?.dailyUnits ?? []}
+        dailyUnits={planning.workspace?.dailyUnits.filter((unit) =>
+          unit.planVersionId === planning.workspace?.activePlanVersionId) ?? []}
         projections={proof.projections}
         recovery={proof.recovery}
         retry={proof.retry}

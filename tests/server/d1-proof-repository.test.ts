@@ -80,6 +80,19 @@ function repository(db: FakeD1) {
   return new D1ProofRepository(db as unknown as D1Database, () => 1_785_196_800_000);
 }
 
+function dailyUnit() {
+  return {
+    id: "daily-unit-1", planVersionId: "plan-active", templateId: "testing-learn-01",
+    templateVersion: "2026.08.1", checkpointId: null, skillId: "testing", kind: "learn" as const,
+    scheduledDate: "2026-08-17", slot: "primary" as const, required: true,
+    objective: "Build a focused regression.", whyNow: "It protects the evidence boundary.",
+    primaryResourceId: "testing-official", alternativeResourceIds: [],
+    steps: [{ id: "test", label: "Write the focused regression", minutes: 35 }],
+    buildTask: "Write a regression.", completionCriteria: ["The regression passes."],
+    proofRequirement: "Save the test output.", rubric: ["Incomplete", "Complete"], estimatedMinutes: 35,
+  };
+}
+
 function result(revision = 1): ProofLedgerMutationResult {
   return {
     outcome: "demonstrated",
@@ -315,6 +328,18 @@ describe("D1ProofRepository", () => {
     });
     expect(db.calls[0].values).toEqual(["user-owner", "proof-1"]);
     expect(db.calls[0].sql).toContain("WHERE user_id = ?1 AND id = ?2");
+  });
+
+  it("resolves a linked Daily Unit by unit ID within the active plan", async () => {
+    const db = new FakeD1();
+    db.when("FROM daily_units", { payload_json: JSON.stringify(dailyUnit()) });
+
+    await expect(repository(db).getOwnedDailyUnit({ ownerId: "user-owner", goalId: "goal-1" }, "daily-unit-1"))
+      .resolves.toEqual(dailyUnit());
+
+    expect(db.calls[0].values).toEqual(["user-owner", "goal-1", "daily-unit-1"]);
+    expect(db.calls[0].sql).toMatch(/unit_id\s*=\s*\?3/u);
+    expect(db.calls[0].sql).toMatch(/active_plan_version_id/u);
   });
 
   it("writes searchable asset metadata and reads it through owner scope", async () => {

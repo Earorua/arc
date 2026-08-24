@@ -18,6 +18,9 @@ import { SiteHeader } from "../../app/components/brand/site-header";
 import { AdaptiveTodaySession } from "../../app/components/today/adaptive-today-session";
 import { AdaptivePath } from "../../app/components/workspace/adaptive-path";
 import { WorkspaceShell } from "../../app/components/workspace/workspace-shell";
+import { ProofWorkspace } from "../../app/components/proof/proof-workspace";
+import { StackBrowser } from "../../app/components/stack/stack-browser";
+import { flagshipRole } from "../../app/data/flagship-role";
 import { PLANNING_SCHEMA_VERSION, planningWorkspaceSchema } from "../../app/contracts/planning";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
@@ -85,6 +88,65 @@ afterEach(() => {
 });
 
 describe("navigation accessibility contracts", () => {
+  it("exposes the Proof editor through native labelled controls and focused errors", async () => {
+    const user = userEvent.setup();
+    const planning = adaptiveWorkspace();
+    const firstUnit = planning.dailyUnits[0];
+    render(<ProofWorkspace
+      canUpload={false}
+      createProof={vi.fn(async () => true)}
+      dailyUnits={planning.dailyUnits}
+      projections={[]}
+      recovery="none"
+      retry={vi.fn(async () => undefined)}
+      reviseProof={vi.fn(async () => true)}
+      setVisibility={vi.fn(async () => true)}
+      skills={flagshipRole.skills}
+      source="local"
+      withdrawProof={vi.fn(async () => true)}
+      workspace={null}
+    />);
+
+    for (const label of ["Title", "Artifact kind", "Summary", "Public HTTPS URL", "Linked skill", "Linked Daily Unit", "Visibility", "Deterministic validator"]) {
+      expect(screen.getByLabelText(label)).toBeInTheDocument();
+    }
+    expect(screen.getByRole("option", {
+      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "Primary" : "Stretch"} · ${firstUnit.objective}`,
+    })).toBeInTheDocument();
+    const save = screen.getByRole("button", { name: "Save draft" });
+    const submit = screen.getByRole("button", { name: "Submit for review" });
+    expect(save).toHaveAttribute("type", "button");
+    expect(submit).toHaveAttribute("type", "button");
+    await user.click(submit);
+    expect(await screen.findByRole("alert")).toHaveFocus();
+    expect(screen.getByRole("heading", { name: "Evidence history." })).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Title"), "Accessible trace");
+    await user.type(screen.getByLabelText("Summary"), "A labelled request trace.");
+    await user.selectOptions(screen.getByLabelText("Linked skill"), "react");
+    await user.click(save);
+    expect(await screen.findByRole("status")).toHaveTextContent("Proof workspace updated");
+  });
+
+  it("keeps Stack category filters keyboard-operable", async () => {
+    const user = userEvent.setup();
+    render(<StackBrowser blueprint={flagshipBlueprint} evidence={[]} projections={[]} />);
+    const frontend = screen.getByRole("button", { name: "Frontend" });
+    frontend.focus();
+    await user.keyboard("{Enter}");
+    expect(frontend).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: "React 19" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "SQL & Relational Modeling" })).not.toBeInTheDocument();
+  });
+
+  it.each([320, 768, 1440])("keeps Proof and Stack width contracts safe at %ipx", (width) => {
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+    const css = readFileSync("app/globals.css", "utf8");
+    expect(css).toMatch(/\.proof-form-grid input,[^}]*width:\s*100%;[^}]*box-sizing:\s*border-box/u);
+    expect(css).toMatch(/\.skill-proof-link,[^}]*min-width:\s*0;[^}]*overflow-wrap:\s*anywhere/u);
+    expect(css).toMatch(/@media \(max-width:\s*720px\)[\s\S]*?\.skill-facts\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/u);
+    expect(css).toMatch(/@media \(max-width:\s*760px\)[\s\S]*?\.proof-form-grid,[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/u);
+  });
+
   it("names public and workspace navigation independently", () => {
     render(
       <>
