@@ -3,6 +3,7 @@ import {
   proofArtifactKindSchema,
   type ProofVersion,
 } from "../../contracts/proof-ledger";
+import type { ProofItem } from "../../domain/learning";
 
 export const PUBLIC_PROOF_SCHEMA_VERSION = "2026.08.1" as const;
 
@@ -60,6 +61,19 @@ export function createPublicProofView(input: {
     if (field === "versionNumber") view.versionNumber = input.version.versionNumber;
   }
   return storedPublicProofViewSchema.parse(view);
+}
+
+export function createLegacyPublicProofView(input: {
+  proof: ProofItem;
+  skillNames: readonly string[];
+  fields: PublicProofField[];
+}): PublicProofView | null {
+  if (input.fields.some((field) => field !== "title" && field !== "skillNames")) return null;
+  const view: Record<string, unknown> = { schemaVersion: PUBLIC_PROOF_SCHEMA_VERSION };
+  if (input.fields.includes("title")) view.title = input.proof.title;
+  if (input.fields.includes("skillNames")) view.skillNames = [...input.skillNames];
+  const parsed = storedPublicProofViewSchema.safeParse(view);
+  return parsed.success ? parsed.data : null;
 }
 
 export function sanitizeStoredPublicProofView(input: unknown): PublicProofView | null {

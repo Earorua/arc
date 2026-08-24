@@ -10,10 +10,12 @@ import { D1ProofRepository } from "../../../../server/proof/d1-proof-repository"
 import { flagshipBlueprint } from "../../../../data/flagship-blueprint";
 import { projectSkillEvidence } from "../../../../lib/proof/projection";
 import {
+  createLegacyPublicProofView,
   createPublicProofView,
   createShareToken,
   hashShareToken,
   publicProofFieldsSchema,
+  type PublicProofView,
 } from "../../../../server/proof/public-view";
 import type { ProofRepository } from "../../../../server/proof/repository";
 
@@ -22,7 +24,8 @@ type RouteContext = { params: Promise<{ id: string }> };
 export type ProofSharingRouteDependencies = {
   requireUser: (headers: Headers) => Promise<ArcUser>;
   rateLimiter: RateLimiter;
-  repository: Pick<ProofRepository, "findActiveGoal" | "load" | "upsertShare" | "revokeShare">;
+  repository: Pick<ProofRepository,
+    "findActiveGoal" | "load" | "getOwnedProofSnapshot" | "upsertShare" | "revokeShare">;
   createRequestId?: () => string;
   createId?: () => string;
   createToken?: () => string;
@@ -80,32 +83,44 @@ export function createProofSharingHandlers(deps: ProofSharingRouteDependencies) 
       const versions = workspace?.versions.filter((version) => version.proofId === proofId)
         .sort((left, right) => right.versionNumber - left.versionNumber) ?? [];
       const version = versions[0];
-      if (!version) return notFound(requestId);
-      const versionReviews = workspace!.reviews.filter((review) => review.versionId === version.id);
-      const publicProjection = projectSkillEvidence({
-        skillIds: version.skillIds,
-        completedSkillIds: new Set(),
-        versions: [version],
-        reviews: versionReviews,
-        visibility: "public",
-      });
-      const status = publicProjection.some(({ status: value }) => value === "verified")
-        ? "verified" as const
-        : publicProjection.some(({ status: value }) => value === "demonstrated")
-          ? "demonstrated" as const
-          : null;
       const skillNamesById = new Map(flagshipBlueprint.skills.map((skill) => [skill.id, skill.name]));
-      const skillNames = version.skillIds.map((skillId) => skillNamesById.get(skillId));
-      if (!status || skillNames.some((name) => !name)) return notFound(requestId);
+      let publicView: PublicProofView;
+      if (version) {
+        const versionReviews = workspace!.reviews.filter((review) => review.versionId === version.id);
+        const publicProjection = projectSkillEvidence({
+          skillIds: version.skillIds,
+          completedSkillIds: new Set(),
+          versions: [version],
+          reviews: versionReviews,
+          visibility: "public",
+        });
+        const status = publicProjection.some(({ status: value }) => value === "verified")
+          ? "verified" as const
+          : publicProjection.some(({ status: value }) => value === "demonstrated")
+            ? "demonstrated" as const
+            : null;
+        const skillNames = version.skillIds.map((skillId) => skillNamesById.get(skillId));
+        if (!status || skillNames.some((name) => !name)) return notFound(requestId);
+        publicView = createPublicProofView({
+          version, status, skillNames: skillNames as string[], fields: parsed.data,
+        });
+      } else {
+        const snapshot = await deps.repository.getOwnedProofSnapshot(user.id, proofId);
+        if (!snapshot || snapshot.source !== "legacy") return notFound(requestId);
+        const includesSkillNames = parsed.data.includes("skillNames");
+        const skillNames = includesSkillNames
+          ? snapshot.proof.skillIds.map((skillId) => skillNamesById.get(skillId))
+          : [];
+        if (includesSkillNames && skillNames.some((name) => !name)) return notFound(requestId);
+        const legacyView = createLegacyPublicProofView({
+          proof: snapshot.proof, skillNames: skillNames as string[], fields: parsed.data,
+        });
+        if (!legacyView) return notFound(requestId);
+        publicView = legacyView;
+      }
 
       const token = (deps.createToken ?? createShareToken)();
       const tokenHash = await (deps.hashToken ?? hashShareToken)(token);
-      const publicView = createPublicProofView({
-        version,
-        status,
-        skillNames: skillNames as string[],
-        fields: parsed.data,
-      });
       await deps.repository.upsertShare({
         id: (deps.createId ?? (() => crypto.randomUUID()))(),
         userId: user.id,

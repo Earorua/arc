@@ -205,6 +205,7 @@ describe("D1ProofRepository", () => {
 
     await expect(repository(db).load({ ownerId: "user-owner", goalId: "goal-1" }))
       .resolves.toEqual(result().workspace);
+    expect(db.calls[0].sql).toMatch(/json_extract\(response_json, '\$\.result\.workspace\.revision'\)\s+DESC/u);
     for (const call of db.calls) {
       expect(call.values).toEqual(expect.arrayContaining(["user-owner"]));
       expect(call.sql).toMatch(/user_id\s*=\s*\?\d/iu);

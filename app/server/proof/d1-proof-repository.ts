@@ -101,7 +101,9 @@ export class D1ProofRepository implements ProofRepository {
   async load(scope: ProofOwnerGoal): Promise<ProofLedgerWorkspace | null> {
     try {
       const latest = await this.db.prepare(`SELECT response_json FROM idempotency_records
-        WHERE user_id = ?1 AND scope = ?2 ORDER BY created_at DESC LIMIT 1`)
+        WHERE user_id = ?1 AND scope = ?2
+        ORDER BY json_extract(response_json, '$.result.workspace.revision') DESC, created_at DESC
+        LIMIT 1`)
         .bind(scope.ownerId, scopeFor(scope.goalId)).first<IdempotencyRow>();
       if (!latest) return null;
       const stored = parseStoredMutation(latest.response_json, scope);

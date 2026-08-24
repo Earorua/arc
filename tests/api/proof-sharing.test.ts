@@ -47,6 +47,7 @@ function setup() {
   const repository = {
     findActiveGoal: vi.fn().mockResolvedValue({ ownerId: owner.id, goalId: "goal-1" }),
     load: vi.fn().mockResolvedValue(ledger()),
+    getOwnedProofSnapshot: vi.fn().mockResolvedValue(null),
     upsertShare: vi.fn().mockResolvedValue(undefined),
     revokeShare: vi.fn().mockResolvedValue(true),
     getActiveShareByTokenHash: vi.fn().mockResolvedValue({ tokenHash: "hash-fixed", publicView: storedView }),
@@ -103,6 +104,61 @@ describe("PUT/DELETE /api/proofs/[id]/sharing", () => {
     for (const secret of [owner.email, owner.id, "proof-1", "version-1", "asset", "objectKey", "completionCriteria", "prompt", "modelInput", "aiFeedback"]) {
       expect(serialized).not.toContain(secret);
     }
+  });
+
+  it("re-shares a legacy owned proof only through safe fields without promoting verified", async () => {
+    const harness = setup();
+    harness.repository.load.mockResolvedValue(null);
+    harness.repository.getOwnedProofSnapshot.mockResolvedValue({
+      source: "legacy",
+      proof: {
+        id: "proof-1", userId: owner.id, title: "Legacy TypeScript project",
+        kind: "project", skillIds: ["typescript"], verified: true,
+      },
+    });
+
+    const response = await createProofSharingHandlers(harness.sharing).PUT(
+      jsonRequest("https://arc.example/api/proofs/proof-1/sharing", "PUT", { fields: ["title", "skillNames"] }),
+      { params: Promise.resolve({ id: "proof-1" }) },
+    );
+
+    expect(response.status).toBe(200);
+    expect(harness.repository.upsertShare).toHaveBeenCalledWith(expect.objectContaining({
+      proofId: "proof-1",
+      publishedFields: ["title", "skillNames"],
+      publicView: {
+        schemaVersion: PUBLIC_PROOF_SCHEMA_VERSION,
+        title: "Legacy TypeScript project",
+        skillNames: ["TypeScript"],
+      },
+    }));
+    expect(JSON.stringify(harness.repository.upsertShare.mock.calls[0][0].publicView))
+      .not.toContain("verified");
+  });
+
+  it("re-shares a legacy title without requiring obsolete skill metadata", async () => {
+    const harness = setup();
+    harness.repository.load.mockResolvedValue(null);
+    harness.repository.getOwnedProofSnapshot.mockResolvedValue({
+      source: "legacy",
+      proof: {
+        id: "proof-1", userId: owner.id, title: "Legacy custom-role project",
+        kind: "project", skillIds: ["retired-custom-skill"], verified: false,
+      },
+    });
+
+    const response = await createProofSharingHandlers(harness.sharing).PUT(
+      jsonRequest("https://arc.example/api/proofs/proof-1/sharing", "PUT", { fields: ["title"] }),
+      { params: Promise.resolve({ id: "proof-1" }) },
+    );
+
+    expect(response.status).toBe(200);
+    expect(harness.repository.upsertShare).toHaveBeenCalledWith(expect.objectContaining({
+      publicView: {
+        schemaVersion: PUBLIC_PROOF_SCHEMA_VERSION,
+        title: "Legacy custom-role project",
+      },
+    }));
   });
 
   it.each([[], ["title", "title"], ["title", "skillIds"], ["verified"]] as string[][])(
