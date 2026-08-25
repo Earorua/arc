@@ -29,7 +29,7 @@ describe("StackBrowser", () => {
       .closest("article");
 
     expect(structuredContracts).not.toBeNull();
-    expect(within(structuredContracts!).getByText("Claim confidence")).toBeInTheDocument();
+    expect(within(structuredContracts!).queryByText(/claim confidence/i)).not.toBeInTheDocument();
     expect(within(structuredContracts!).getByText("Free")).toBeInTheDocument();
     expect(within(structuredContracts!).getByText("English")).toBeInTheDocument();
     expect(within(structuredContracts!).getByText("Primary source")).toBeInTheDocument();
@@ -197,7 +197,7 @@ describe("StackBrowser", () => {
     expect(within(demonstrated).getByRole("link", { name: "Add stronger proof" })).toBeInTheDocument();
     expect(within(verified).getByText("Verified")).toBeInTheDocument();
     expect(within(verified).getByRole("link", { name: "Maintain evidence" })).toBeInTheDocument();
-    expect(within(verified).getByText("90% claim confidence")).toBeInTheDocument();
+    expect(screen.queryAllByText(/claim confidence/i)).toHaveLength(0);
   });
 
   it("degrades unresolved strongest evidence without exposing internal identifiers", () => {

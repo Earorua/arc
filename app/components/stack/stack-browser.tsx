@@ -135,10 +135,6 @@ export function StackBrowser({ blueprint, evidence, projections }: StackBrowserP
                   <dd><Link href={next.href}>{next.label}</Link></dd>
                 </div>
                 <div>
-                  <dt>Claim confidence</dt>
-                  <dd>{Math.round(skill.confidence * 100)}% claim confidence</dd>
-                </div>
-                <div>
                   <dt>Prerequisites</dt>
                   <dd>
                     {skill.prerequisiteIds.length > 0
