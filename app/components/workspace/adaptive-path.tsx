@@ -53,7 +53,9 @@ export function AdaptivePath({ workspace: value, blueprint = flagshipBlueprint, 
                 <div><span className="unit-kind">{kindLabel[unit.kind]}</span><strong>{template.title}</strong></div>
                 <p>{template.objective}</p>
                 {prerequisites.length > 0 && <small>Builds on {prerequisites.join(", ")}. <span>{skill.why}</span></small>}
-                <p className="audit-position">Your self-assessment: {levelLabel[answers.get(skill.id)?.level ?? "unseen"]}. <span>Blueprint claim confidence {Math.round(skill.confidence * 100)}%.</span></p>
+                <p className="audit-position">
+                  Your self-assessment: {levelLabel[answers.get(skill.id)?.level ?? "unseen"]}.
+                </p>
               </li>;
             })}
           </ol>

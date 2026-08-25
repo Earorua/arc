@@ -26,7 +26,7 @@ describe("AdaptivePath", () => {
     expect(within(path).getAllByText("Current phase")).toHaveLength(1);
     expect(screen.getAllByText("Calibration").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Your self-assessment: Conceptual/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Blueprint claim confidence/).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText(/Blueprint claim confidence/i)).toHaveLength(0);
     expect(screen.queryByText(/self-assessment.*verified/i)).not.toBeInTheDocument();
     expect(screen.getByText(/2026-08-14—/)).toBeInTheDocument();
   });
