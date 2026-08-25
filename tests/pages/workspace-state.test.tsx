@@ -71,7 +71,7 @@ describe("personalized workspace state", () => {
   it.each([
     ["Stack", StackPage],
     ["Proof", ProofPage],
-  ])("restores the custom role consistently on %s", async (_, Page) => {
+  ])("restores the custom role consistently on %s", async (page, Page) => {
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<Page />);
 
@@ -83,6 +83,11 @@ describe("personalized workspace state", () => {
       expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
       expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
     });
+
+    if (page === "Stack") {
+      expect(screen.getByText("岗位重要度与学习证据分开呈现；每条学习建议都能回到经过验证的来源。")).toBeInTheDocument();
+      expect(screen.queryByText(/置信度|confidence/i)).not.toBeInTheDocument();
+    }
   });
 
   it("offers only Daily Units from the active plan when linking proof", async () => {

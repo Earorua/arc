@@ -41,7 +41,7 @@ export default function StackPage() {
       <section className="workspace-intro">
         <p className="eyebrow" lang="en">Role intelligence · {flagshipBlueprint.version}</p>
         <h1 lang="en">The complete stack.</h1>
-        <p>岗位重要度与结论置信度分开显示；每条学习建议都能回到经过验证的来源。</p>
+        <p>岗位重要度与学习证据分开呈现；每条学习建议都能回到经过验证的来源。</p>
       </section>
       {(proof.source === "offline-cloud" || proof.recovery === "unavailable") && (
         <p className="workspace-notice" role="status">Cloud proof status is temporarily unavailable; Stack is showing only evidence Arc can resolve safely.</p>
