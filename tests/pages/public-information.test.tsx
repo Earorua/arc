@@ -13,18 +13,19 @@ describe("public trust pages", () => {
     expect(screen.getByText(/Understand → Build → Prove/i)).toBeInTheDocument();
   });
 
-  it("explains sources, freshness, and confidence", () => {
+  it("explains attributable sources and freshness without unsupported confidence", () => {
     render(<IntelligencePage />);
     const heading = screen.getByRole("heading", { name: /Trust is part of the interface/i });
     expect(heading).toBeInTheDocument();
     expect(heading).toHaveAttribute("lang", "en");
+    expect(screen.getByText("每条技能结论都显示来源和观察时间。可归属的证据与推断保持明确分离。")).toBeInTheDocument();
     expect(screen.getByText("Source")).toBeInTheDocument();
     expect(screen.getByText("Observed at")).toBeInTheDocument();
-    expect(screen.getByText("Confidence")).toBeInTheDocument();
+    expect(screen.queryByText("Confidence")).not.toBeInTheDocument();
+    expect(screen.queryByText("96%")).not.toBeInTheDocument();
     expect(screen.getByText("Web Platform")).toBeInTheDocument();
     expect(screen.getByText("Web Platform official documentation")).toBeInTheDocument();
     expect(screen.getByText("2026-07-26")).toBeInTheDocument();
-    expect(screen.getByText("96%")).toBeInTheDocument();
   });
 
   it("returns no specimen when stable source data is unavailable", () => {

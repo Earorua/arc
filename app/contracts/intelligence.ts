@@ -90,6 +90,7 @@ export const roleSkillSchema = z.object({
   category: skillCategorySchema,
   importance: skillImportanceSchema,
   why: z.string().trim().min(12).max(360),
+  // Deprecated compatibility field. Not learner evidence; do not use for product decisions.
   confidence: z.number().min(0.75).max(1),
   masteryCriteria: z.array(z.string().trim().min(12).max(240)).min(2),
   prerequisiteIds: z.array(idSchema),

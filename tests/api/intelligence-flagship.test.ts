@@ -26,8 +26,16 @@ describe("GET /api/intelligence/flagship", () => {
       "strict-origin-when-cross-origin",
     );
     expect(getBlueprint).toHaveBeenCalledWith();
-    await expect(response.json()).resolves.toEqual({
+    const payload = await response.json();
+    expect(payload).toEqual({
       blueprint: flagshipBlueprint,
+    });
+    expect(payload).toMatchObject({
+      blueprint: {
+        skills: expect.arrayContaining([
+          expect.objectContaining({ confidence: expect.any(Number) }),
+        ]),
+      },
     });
   });
 

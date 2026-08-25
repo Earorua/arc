@@ -13,7 +13,10 @@ export type SkillImportance = "core" | "strong" | "advantage";
 export interface SkillSource { title: string; url: string; observedAt: string; }
 export interface SkillNode {
   id: string; name: string; category: SkillCategory; importance: SkillImportance;
-  why: string; confidence: number; prerequisiteIds: string[]; sources: SkillSource[];
+  why: string;
+  /** @deprecated Compatibility-only metadata. Not learner evidence; do not use for product decisions. */
+  confidence: number;
+  prerequisiteIds: string[]; sources: SkillSource[];
 }
 export interface PlanPhase { id: string; name: string; weeks: number; outcome: string; skillIds: string[]; }
 export interface LearningUnit {
