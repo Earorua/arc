@@ -215,7 +215,6 @@ const needsReviewResearchRunPublicViewSchema = z.object({
   state: z.literal("needs-review"),
   retryable: z.boolean(),
   quality: z.object({
-    passed: z.literal(false),
     issueCodes: sortedIssueCodesSchema,
     skillCount: z.number().int().min(0).max(64),
     sourceCount: z.number().int().min(0).max(256),

@@ -72,6 +72,16 @@ describe("research contracts", () => {
     }).role).toBe("BI");
     expect(() => researchRequestSchema.parse({ mutationId: "abcdefg", role: "BI", locale: "en-US" })).toThrow();
     expect(() => researchRequestSchema.parse({ mutationId: "a-bcdefg", role: "B", locale: "en-US" })).toThrow();
+    expect(() => researchRequestSchema.parse({
+      mutationId: "a".repeat(129),
+      role: "BI",
+      locale: "en-US",
+    })).toThrow();
+    expect(() => researchRequestSchema.parse({
+      mutationId: "a-bcdefg",
+      role: "B".repeat(161),
+      locale: "en-US",
+    })).toThrow();
   });
 
   it("keeps resource URL policy outside the candidate schema", () => {
@@ -125,22 +135,45 @@ describe("research contracts", () => {
   });
 
   it("exposes a bounded Ready summary without provider or cost metadata", () => {
-    const view = researchRunPublicViewSchema.parse({
-      id: "research-run-1",
-      state: "ready",
-      role: "数据产品经理",
-      locale: "zh-CN",
-      retryable: false,
-      packageId: "research-package-1",
-      summary: "Leads evidence-backed data products from opportunity discovery through measurable delivery.",
-      skillCount: 3,
-      sourceCount: 6,
-      observedAt: "2026-08-27",
-      quality: { passed: true, issueCodes: [] },
-    });
+    const view = researchRunPublicViewSchema.parse(validReadyPublicView());
 
     expect(view).not.toHaveProperty("provider");
     expect(view).not.toHaveProperty("costMicros");
+  });
+
+  it.each([
+    ["provider", "private-provider"],
+    ["model", "private-model"],
+    ["totalTokens", 4_600],
+    ["costMicros", 410],
+    ["maxToolCalls", 2],
+  ] as const)("strictly rejects the private Ready field %s", (field, value) => {
+    expect(() => researchRunPublicViewSchema.parse({
+      ...validReadyPublicView(),
+      [field]: value,
+    })).toThrow();
+  });
+
+  it("limits Needs-review quality to issue codes and bounded counts", () => {
+    const view = {
+      id: "research-run-3",
+      state: "needs-review" as const,
+      role: "Data Product Manager",
+      locale: "en-US" as const,
+      retryable: true,
+      quality: {
+        issueCodes: ["missing-unit" as const],
+        skillCount: 3,
+        sourceCount: 6,
+        unitCount: 2,
+      },
+    };
+
+    expect(researchRunPublicViewSchema.parse(view)).toEqual(view);
+    expect(() => researchRunPublicViewSchema.parse({
+      ...view,
+      quality: { ...view.quality, passed: false },
+    })).toThrow();
   });
 
   it("rejects private metadata and packages from every public run state", () => {
@@ -266,5 +299,21 @@ function validResearchPackage() {
     contentFingerprint: "sha256-content-fingerprint",
     observedAt: "2026-08-27",
     expiresAt: "2026-09-26",
+  };
+}
+
+function validReadyPublicView() {
+  return {
+    id: "research-run-1",
+    state: "ready" as const,
+    role: "数据产品经理",
+    locale: "zh-CN" as const,
+    retryable: false as const,
+    packageId: "research-package-1",
+    summary: "Leads evidence-backed data products from opportunity discovery through measurable delivery.",
+    skillCount: 3,
+    sourceCount: 6,
+    observedAt: "2026-08-27",
+    quality: { passed: true as const, issueCodes: [] },
   };
 }
