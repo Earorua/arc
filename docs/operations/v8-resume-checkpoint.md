@@ -1,6 +1,6 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-08-27 目标 1 `Proof-backed Stack` 已验收并合并到本地 `master`；远程备份待执行（当前权威门槛）**
+> **2026-08-27 目标 1 `Proof-backed Stack` 已验收、合并并完成 GitHub 远程备份（当前权威门槛）**
 >
 > 用户已完成目标 1 本地验收并明确选择本地合并。`master` 已从四目标流程基线 `3db3fc9cacafe4afc1b05f3d3d1025648a56ecda` 快进到 `2f2a9a29718caf12c4fffa8aa2c8d62d6e393c57`，没有冲突或额外 merge commit。`codex/v8-proof-backed-stack` 已确认完整合并后删除，对应 `.worktrees/v8-proof-backed-stack` 已注销并清理；为释放 Miniflare / workerd 锁定的 `.wrangler` 与原生依赖文件，只结束了命令行明确指向该工作树的本地预览进程，因此当前不能假定 `http://localhost:3000` 仍在运行。
 >
@@ -8,7 +8,7 @@
 >
 > 用户随后批准并验收了置信度展示退场：Path 仅保留 self-assessment，Stack 保留 learner status、Role importance、Proof、资源与下一步行动，`/intelligence` 仅保留 Skill、Source、Observed at 与证据／推断边界；三个用户界面均不再显示 confidence、百分比或中文“置信度”。内部 `confidence` 数据字段、Zod wire contract 与 `/api/intelligence/flagship` 返回仍为兼容目的保留，并已标记为非 learner evidence、不得用于产品决策。规划、Proof 投影和 readiness 行为未改变。
 >
-> 当前只剩目标 1 的普通 GitHub 远程备份。更新本检查点前，本地 `master` 为 `2f2a9a2`，缓存的 `origin/master` 为 `9128321575a67c2fc6ec86e2ce1924e631ba28fe`，计数为远端独有 0、本地独有 29；此前一次 `git pull --ff-only` 因 GitHub 连接被重置而未刷新引用，也未改变本地历史。下一步必须先成功 `git fetch origin`，重新确认 `origin/master` 没有未处理提交，再以普通非 force push 备份 `master` 并用远端 HEAD 验证。完成远程备份后才进入目标 2 `OpenRouter Research Beta` 的详细计划门槛；真实密钥、付费模型请求、生产变量与生产旗标仍需单独明确授权。
+> 目标 1 的普通 GitHub 远程备份已完成。执行前 `git fetch origin` 成功，确认 `origin/master` 仍为 `9128321575a67c2fc6ec86e2ce1924e631ba28fe`、远端独有提交 0，且远端是本地 `master` 的祖先；随后以非 force 的 `git push origin master` 将远端快进到检查点提交 `6fad25e00f4ba41ace9f03eb92c398703dd9c904`，并用 `git ls-remote origin refs/heads/master` 独立确认远端 HEAD 精确一致。本权威状态提交应紧随 `6fad25e` 以普通 push 同步，恢复时以本地与远端实际 HEAD 为准。下一门槛是目标 2 `OpenRouter Research Beta` 的详细实施计划，不直接开始真实模型调用；真实密钥、付费请求、生产变量与生产旗标仍需单独明确授权。
 >
 > 本轮没有执行生产 D1 迁移、生产 R2 写入、Sites 候选保存、运行时配置／功能旗标修改或公开部署。公开生产继续保持 Arc. v7.2 / Sites version 9。下方所有“UAT 待决定”“分支仍存在”记录均为历史检查点，不再代表当前状态。
 
