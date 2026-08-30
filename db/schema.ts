@@ -3,7 +3,7 @@
 // See examples/d1/db/schema.ts for an opt-in example.
 export {};
 import { sql } from "drizzle-orm";
-import { foreignKey, index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { check, foreignKey, index, integer, primaryKey, sqliteTable, text, uniqueIndex, type AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 
 const nowMs = sql`(unixepoch() * 1000)`;
 
@@ -784,4 +784,162 @@ export const userSkillProjections = sqliteTable("user_skill_projections", {
     name: "user_skill_projections_version_fk",
   }).onDelete("no action"),
   index("user_skill_projections_status_idx").on(table.userId, table.goalId, table.audience, table.status),
+]);
+
+// SQLite INTEGER affinity alone accepts fractional REAL values; financial counters
+// must also stay exactly representable in the JavaScript/D1 number boundary.
+function nonnegativeSafeInteger(column: AnySQLiteColumn) {
+  return sql`typeof(${column}) = 'integer' AND ${column} BETWEEN 0 AND 9007199254740991`;
+}
+
+function boundedJson(column: AnySQLiteColumn, maximumBytes: number) {
+  return sql`${column} IS NULL OR (json_valid(${column}) AND length(CAST(${column} AS BLOB)) <= ${sql.raw(String(maximumBytes))})`;
+}
+
+function calendarDate(column: AnySQLiteColumn) {
+  return sql`length(${column}) = 10 AND ${column} GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+    AND date(${column}, '+0 days') IS NOT NULL AND date(${column}, '+0 days') = ${column}`;
+}
+
+// Nonpersonal cache rows are insert-only at the repository boundary. Canonical
+// IDs in package_json remain separate from namespaced normalized storage IDs.
+export const researchPackages = sqliteTable("research_packages", {
+  id: text("id").primaryKey(),
+  normalizedRoleKey: text("normalized_role_key").notNull(),
+  locale: text("locale", { enum: ["zh-CN", "en-US"] }).notNull(),
+  configFingerprint: text("config_fingerprint").notNull(),
+  contentFingerprint: text("content_fingerprint").notNull(),
+  packageJson: text("package_json").notNull(),
+  qualityJson: text("quality_json").notNull(),
+  blueprintId: text("blueprint_id").notNull(),
+  blueprintVersion: text("blueprint_version").notNull(),
+  blueprintVersionId: text("blueprint_version_id").notNull().references(() => roleBlueprintVersions.id, { onDelete: "restrict" }),
+  registryId: text("registry_id").notNull(),
+  registryVersion: text("registry_version").notNull(),
+  observedAt: text("observed_at").notNull(),
+  // Exclusive UTC midnight of the package contract's expiresAt date.
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("research_packages_fingerprint_idx").on(table.contentFingerprint, table.configFingerprint),
+  index("research_packages_cache_idx").on(table.normalizedRoleKey, table.locale, table.configFingerprint, table.expiresAt),
+  check("research_packages_locale_check", sql`${table.locale} IN ('zh-CN', 'en-US')`),
+  check("research_packages_payload_check", boundedJson(table.packageJson, 1_900_000)),
+  check("research_packages_quality_check", boundedJson(table.qualityJson, 16_384)),
+  check("research_packages_blueprint_version_check", sql`length(trim(${table.blueprintVersion})) BETWEEN 1 AND 32`),
+  check("research_packages_registry_version_check", sql`length(trim(${table.registryVersion})) BETWEEN 1 AND 64`),
+  check("research_packages_observed_date_check", calendarDate(table.observedAt)),
+  check("research_packages_expiry_check", sql`${nonnegativeSafeInteger(table.expiresAt)} AND ${table.expiresAt} % 86400000 = 0`),
+]);
+
+export const researchRuns = sqliteTable("research_runs", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  requestId: text("request_id").notNull(),
+  mutationId: text("mutation_id").notNull(),
+  rawRole: text("raw_role").notNull(),
+  normalizedRoleKey: text("normalized_role_key").notNull(),
+  locale: text("locale", { enum: ["zh-CN", "en-US"] }).notNull(),
+  inputFingerprint: text("input_fingerprint").notNull(),
+  configFingerprint: text("config_fingerprint").notNull(),
+  state: text("state", { enum: ["queued", "researching", "validating", "ready", "needs-review", "failed"] }).notNull(),
+  stateVersion: integer("state_version").notNull().default(0),
+  retryable: integer("retryable", { mode: "boolean" }).notNull().default(false),
+  activeSlot: integer("active_slot"),
+  activeExpiresAt: integer("active_expires_at", { mode: "timestamp_ms" }),
+  packageId: text("package_id").references(() => researchPackages.id, { onDelete: "restrict" }),
+  // A bounded machine code, never provider error messages or raw responses.
+  errorCode: text("error_code"),
+  publicFailureCategory: text("public_failure_category", {
+    enum: ["timeout", "rate-limited", "allowance-reached", "service-unavailable", "content-rejected", "invalid-result", "internal"],
+  }),
+  qualityJson: text("quality_json"),
+  candidateJson: text("candidate_json"),
+  retryOfRunId: text("retry_of_run_id"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.retryOfRunId], foreignColumns: [table.userId, table.id],
+    name: "research_runs_retry_owner_fk",
+  }).onDelete("no action"),
+  uniqueIndex("research_runs_owner_mutation_idx").on(table.userId, table.mutationId),
+  uniqueIndex("research_runs_owner_id_idx").on(table.userId, table.id),
+  uniqueIndex("research_runs_active_idx").on(table.userId, table.normalizedRoleKey, table.locale, table.configFingerprint, table.activeSlot),
+  index("research_runs_active_expiry_idx").on(table.state, table.activeExpiresAt),
+  check("research_runs_state_check", sql`${table.state} IN ('queued', 'researching', 'validating', 'ready', 'needs-review', 'failed')`),
+  check("research_runs_state_version_check", nonnegativeSafeInteger(table.stateVersion)),
+  check("research_runs_retryable_check", sql`${table.retryable} IN (0, 1)`),
+  check("research_runs_locale_check", sql`${table.locale} IN ('zh-CN', 'en-US')`),
+  check("research_runs_active_slot_check", sql`(${table.state} IN ('queued', 'researching', 'validating') AND ${table.activeSlot} IS NOT NULL AND ${table.activeSlot} = 1)
+    OR (${table.state} IN ('ready', 'needs-review', 'failed') AND ${table.activeSlot} IS NULL)`),
+  check("research_runs_active_expiry_check", sql`(${table.state} NOT IN ('queued', 'researching', 'validating') OR ${table.activeExpiresAt} IS NOT NULL)
+    AND (${table.activeExpiresAt} IS NULL OR (${nonnegativeSafeInteger(table.activeExpiresAt)}))`),
+  check("research_runs_ready_package_check", sql`${table.state} <> 'ready' OR ${table.packageId} IS NOT NULL`),
+  check("research_runs_error_code_check", sql`${table.errorCode} IS NULL OR (length(${table.errorCode}) BETWEEN 1 AND 64
+    AND length(CAST(${table.errorCode} AS BLOB)) = length(${table.errorCode})
+    AND ${table.errorCode} NOT GLOB '*[^a-z-]*' AND substr(${table.errorCode}, 1, 1) <> '-'
+    AND substr(${table.errorCode}, -1) <> '-' AND instr(${table.errorCode}, '--') = 0)`),
+  check("research_runs_public_failure_check", sql`${table.publicFailureCategory} IS NULL OR ${table.publicFailureCategory}
+    IN ('timeout', 'rate-limited', 'allowance-reached', 'service-unavailable', 'content-rejected', 'invalid-result', 'internal')`),
+  check("research_runs_quality_check", boundedJson(table.qualityJson, 16_384)),
+  check("research_runs_candidate_check", boundedJson(table.candidateJson, 1_048_576)),
+]);
+
+export const researchSourceAudits = sqliteTable("research_source_audits", {
+  id: text("id").primaryKey(),
+  packageId: text("package_id").notNull().references(() => researchPackages.id, { onDelete: "restrict" }),
+  canonicalUrl: text("canonical_url").notNull(),
+  title: text("title").notNull(),
+  hostname: text("hostname").notNull(),
+  sourceTier: text("source_tier", { enum: ["primary", "institutional", "practitioner", "community"] }).notNull(),
+  observedAt: text("observed_at").notNull(),
+  citationHash: text("citation_hash").notNull(),
+}, (table) => [
+  uniqueIndex("research_source_audits_package_url_idx").on(table.packageId, table.canonicalUrl),
+  check("research_source_audits_tier_check", sql`${table.sourceTier} IN ('primary', 'institutional', 'practitioner', 'community')`),
+  check("research_source_audits_observed_date_check", calendarDate(table.observedAt)),
+]);
+
+export const aiBudgetBuckets = sqliteTable("ai_budget_buckets", {
+  id: text("id").primaryKey(),
+  scope: text("scope").notNull(),
+  periodKind: text("period_kind", { enum: ["day", "month"] }).notNull(),
+  periodStart: integer("period_start", { mode: "timestamp_ms" }).notNull(),
+  reservedMicros: integer("reserved_micros").notNull().default(0),
+  settledMicros: integer("settled_micros").notNull().default(0),
+  version: integer("version").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("ai_budget_bucket_period_idx").on(table.scope, table.periodKind, table.periodStart),
+  check("ai_budget_buckets_kind_check", sql`${table.periodKind} IN ('day', 'month')`),
+  check("ai_budget_buckets_period_check", sql`${nonnegativeSafeInteger(table.periodStart)} AND ${table.periodStart} % 86400000 = 0
+    AND (${table.periodKind} = 'day' OR (strftime('%d', ${table.periodStart} / 1000, 'unixepoch') IS NOT NULL
+      AND strftime('%d', ${table.periodStart} / 1000, 'unixepoch') = '01'))`),
+  check("ai_budget_buckets_reserved_check", nonnegativeSafeInteger(table.reservedMicros)),
+  check("ai_budget_buckets_settled_check", nonnegativeSafeInteger(table.settledMicros)),
+  check("ai_budget_buckets_version_check", nonnegativeSafeInteger(table.version)),
+]);
+
+export const aiBudgetReservations = sqliteTable("ai_budget_reservations", {
+  id: text("id").primaryKey(),
+  requestId: text("request_id").notNull(),
+  runId: text("run_id").notNull().references(() => researchRuns.id, { onDelete: "restrict" }),
+  dayBucketId: text("day_bucket_id").notNull().references(() => aiBudgetBuckets.id, { onDelete: "restrict" }),
+  monthBucketId: text("month_bucket_id").notNull().references(() => aiBudgetBuckets.id, { onDelete: "restrict" }),
+  maximumReservedMicros: integer("maximum_reserved_micros").notNull(),
+  // Actual billing may exceed the reservation; retain the overrun faithfully.
+  settledMicros: integer("settled_micros").notNull().default(0),
+  status: text("status", { enum: ["reserved", "settled", "conservative-hold", "released"] }).notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
+}, (table) => [
+  uniqueIndex("ai_budget_reservations_request_idx").on(table.requestId),
+  index("ai_budget_reservations_expiry_idx").on(table.status, table.expiresAt),
+  check("ai_budget_reservations_maximum_check", nonnegativeSafeInteger(table.maximumReservedMicros)),
+  check("ai_budget_reservations_settled_check", nonnegativeSafeInteger(table.settledMicros)),
+  check("ai_budget_reservations_status_check", sql`${table.status} IN ('reserved', 'settled', 'conservative-hold', 'released')`),
+  check("ai_budget_reservations_expiry_check", nonnegativeSafeInteger(table.expiresAt)),
 ]);

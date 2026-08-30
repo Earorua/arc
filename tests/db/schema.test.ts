@@ -40,6 +40,11 @@ const expectedTableNames = [
   "proof_versions",
   "proof_review_events",
   "user_skill_projections",
+  "research_runs",
+  "research_packages",
+  "research_source_audits",
+  "ai_budget_buckets",
+  "ai_budget_reservations",
 ];
 
 function exportedTableNames() {
@@ -87,6 +92,46 @@ function foreignKeyConfig(table: SQLiteTable, foreignKeyName: string) {
 }
 
 describe("Arc beta persistence schema", () => {
+  it("exports the five research tables with SQL checks and exact persistence boundaries", () => {
+    const tables = [schema.researchRuns, schema.researchPackages, schema.researchSourceAudits,
+      schema.aiBudgetBuckets, schema.aiBudgetReservations];
+    for (const table of tables) expect(table).toBeDefined();
+    expect(columnNames(schema.researchRuns)).toEqual([
+      "active_expires_at", "active_slot", "candidate_json", "config_fingerprint", "created_at",
+      "error_code", "id", "input_fingerprint", "locale", "mutation_id", "normalized_role_key",
+      "package_id", "public_failure_category", "quality_json", "raw_role", "request_id",
+      "retry_of_run_id", "retryable", "state", "state_version", "updated_at", "user_id",
+    ]);
+    expect(columnNames(schema.researchPackages)).toEqual([
+      "blueprint_id", "blueprint_version", "blueprint_version_id", "config_fingerprint",
+      "content_fingerprint", "created_at", "expires_at", "id", "locale", "normalized_role_key",
+      "observed_at", "package_json", "quality_json", "registry_id", "registry_version",
+    ]);
+    expect(columnNames(schema.researchSourceAudits)).toEqual([
+      "canonical_url", "citation_hash", "hostname", "id", "observed_at", "package_id", "source_tier", "title",
+    ]);
+    expect(columnNames(schema.aiBudgetBuckets)).toEqual([
+      "created_at", "id", "period_kind", "period_start", "reserved_micros", "scope", "settled_micros", "updated_at", "version",
+    ]);
+    expect(columnNames(schema.aiBudgetReservations)).toEqual([
+      "created_at", "day_bucket_id", "expires_at", "id", "maximum_reserved_micros", "month_bucket_id",
+      "request_id", "run_id", "settled_micros", "status", "updated_at",
+    ]);
+    for (const table of tables) expect(getTableConfig(table).checks.length).toBeGreaterThan(0);
+    for (const [table, name] of [
+      [schema.researchRuns, "research_runs_owner_mutation_idx"],
+      [schema.researchRuns, "research_runs_owner_id_idx"],
+      [schema.researchRuns, "research_runs_active_idx"],
+      [schema.researchPackages, "research_packages_fingerprint_idx"],
+      [schema.researchSourceAudits, "research_source_audits_package_url_idx"],
+      [schema.aiBudgetBuckets, "ai_budget_bucket_period_idx"],
+      [schema.aiBudgetReservations, "ai_budget_reservations_request_idx"],
+    ] as Array<[SQLiteTable, string]>) expect(isUniqueIndex(table, name), name).toBe(true);
+    expect(foreignKeyConfig(schema.researchRuns, "research_runs_retry_owner_fk")).toEqual({
+      columns: ["user_id", "retry_of_run_id"], foreignColumns: ["user_id", "id"],
+      foreignTable: "research_runs", onDelete: "no action",
+    });
+  });
   it("exports every foundation table", () => {
     expect(exportedTableNames()).toEqual(expect.arrayContaining(expectedTableNames));
     expect(exportedTableNames()).toHaveLength(expectedTableNames.length);
