@@ -1,4 +1,4 @@
-export const validResearchCandidate = {
+const learningCandidate = {
   role: {
     id: "data-product-manager",
     name: "Data Product Manager",
@@ -153,11 +153,12 @@ export const validResearchCandidate = {
       primaryResourceId: "dbt-modeling-guide",
       alternativeResourceIds: ["kimball-dimensional-modeling"],
       steps: [
-        { id: "study-modeling", label: "Review the modeling guidance", minutes: 45 },
-        { id: "draft-model", label: "Draft the decision model", minutes: 75 },
+        { id: "study-modeling", label: "Review the modeling guidance", minutes: 60 },
+        { id: "draft-model", label: "Draft the decision model", minutes: 60 },
       ],
       checkpoints: [
-        { id: "model-review", label: "Review grain and metric definitions", stepIds: ["draft-model"], estimatedMinutes: 75 },
+        { id: "model-study-review", label: "Summarize modeling guidance", stepIds: ["study-modeling"], estimatedMinutes: 60 },
+        { id: "model-review", label: "Review grain and metric definitions", stepIds: ["draft-model"], estimatedMinutes: 60 },
       ],
       buildTask: "Create a one-page product measurement model with explicit grain and metric ownership.",
       completionCriteria: ["Every metric has a grain and owner.", "Entity relationships are unambiguous."],
@@ -175,11 +176,12 @@ export const validResearchCandidate = {
       primaryResourceId: "amplitude-product-analytics",
       alternativeResourceIds: ["product-analytics-playbook"],
       steps: [
-        { id: "study-analytics", label: "Review product analytics guidance", minutes: 40 },
-        { id: "build-metric-tree", label: "Build and annotate the metric tree", minutes: 80 },
+        { id: "study-analytics", label: "Review product analytics guidance", minutes: 60 },
+        { id: "build-metric-tree", label: "Build and annotate the metric tree", minutes: 60 },
       ],
       checkpoints: [
-        { id: "metric-tree-review", label: "Review causal assumptions and guardrails", stepIds: ["build-metric-tree"], estimatedMinutes: 80 },
+        { id: "analytics-study-review", label: "Summarize product analytics guidance", stepIds: ["study-analytics"], estimatedMinutes: 60 },
+        { id: "metric-tree-review", label: "Review causal assumptions and guardrails", stepIds: ["build-metric-tree"], estimatedMinutes: 60 },
       ],
       buildTask: "Build a metric tree for one product outcome and annotate every decision it supports.",
       completionCriteria: ["The primary metric matches the outcome.", "Guardrails cover foreseeable harms."],
@@ -197,11 +199,12 @@ export const validResearchCandidate = {
       primaryResourceId: "microsoft-experimentation",
       alternativeResourceIds: ["experiment-design-guide"],
       steps: [
-        { id: "study-experiments", label: "Review experimentation guidance", minutes: 45 },
-        { id: "design-experiment", label: "Draft and critique the experiment", minutes: 75 },
+        { id: "study-experiments", label: "Review experimentation guidance", minutes: 60 },
+        { id: "design-experiment", label: "Draft and critique the experiment", minutes: 60 },
       ],
       checkpoints: [
-        { id: "experiment-review", label: "Review validity risks and decision rules", stepIds: ["design-experiment"], estimatedMinutes: 75 },
+        { id: "experiment-study-review", label: "Summarize experimentation guidance", stepIds: ["study-experiments"], estimatedMinutes: 60 },
+        { id: "experiment-review", label: "Review validity risks and decision rules", stepIds: ["design-experiment"], estimatedMinutes: 60 },
       ],
       buildTask: "Draft a preregistered experiment brief for one product decision.",
       completionCriteria: ["The hypothesis is falsifiable.", "The stopping and decision rules are explicit."],
@@ -217,6 +220,56 @@ export const validResearchCandidate = {
     { id: "evidence-product-analytics-alternative", skillId: "product-analytics", resourceId: "product-analytics-playbook" },
     { id: "evidence-experimentation-primary", skillId: "experimentation", resourceId: "microsoft-experimentation" },
     { id: "evidence-experimentation-alternative", skillId: "experimentation", resourceId: "experiment-design-guide" },
+  ],
+} as const;
+
+// Authored calibration and transfer exercises; validators must never invent these.
+const practiceBriefs = [
+  {
+    skillId: "data-modeling",
+    calibrate: "Diagnose ambiguous grain and ownership in a sample order model.",
+    reinforce: "Extend the order model to refunds while preserving metric lineage.",
+    proof: "Submit the annotated schema and explain how one ambiguity was resolved.",
+  },
+  {
+    skillId: "product-analytics",
+    calibrate: "Critique an activation metric tree with confounded drivers and missing guardrails.",
+    reinforce: "Adapt the metric tree to a second user segment and explain changed assumptions.",
+    proof: "Submit the revised metric tree with definitions, segments, and decision rules.",
+  },
+  {
+    skillId: "experimentation",
+    calibrate: "Identify assignment bias and premature stopping in a sample experiment brief.",
+    reinforce: "Design a follow-up experiment that addresses the validity risks you identified.",
+    proof: "Submit a revised experiment brief with assignment, stopping, and validity checks.",
+  },
+] as const;
+
+export const validResearchCandidate = {
+  ...learningCandidate,
+  unitTemplates: [
+    ...learningCandidate.unitTemplates,
+    ...practiceBriefs.flatMap((brief, index) => (["calibrate", "reinforce"] as const).map((kind) => {
+      const learn = learningCandidate.unitTemplates[index]!;
+      const id = `${brief.skillId}-${kind}-01`;
+      return {
+        id,
+        skillId: brief.skillId,
+        kind,
+        title: brief[kind],
+        objective: brief[kind],
+        whyNow: kind === "calibrate" ? "Check the learned model against an independent example." : "Transfer the corrected approach to a new product decision.",
+        primaryResourceId: learn.primaryResourceId,
+        alternativeResourceIds: [...learn.alternativeResourceIds],
+        steps: [{ id: `${id}-practice`, label: brief[kind], minutes: 60 }],
+        checkpoints: [],
+        buildTask: brief[kind],
+        completionCriteria: ["Resolve the identified risks with an explicit decision rule."],
+        proofRequirement: brief.proof,
+        rubric: ["The artifact makes assumptions and corrections independently reviewable."],
+        estimatedMinutes: 60,
+      };
+    })),
   ],
 } as const;
 

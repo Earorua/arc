@@ -141,6 +141,61 @@ describe("research contracts", () => {
     expect(view).not.toHaveProperty("costMicros");
   });
 
+  it("rejects research packages with 65 inherited blueprint skills", () => {
+    const candidate = validResearchPackage();
+    candidate.blueprint.skills = Array.from({ length: 65 }, (_, index) => ({ ...candidate.blueprint.skills[0]!, id: `skill-${index}` }));
+    expect(researchPackageSchema.safeParse(candidate).success).toBe(false);
+  });
+
+  it.each(["resources", "phases"] as const)("bounds inherited blueprint %s collections", (field) => {
+    const candidate = validResearchPackage();
+    const maximum = field === "resources" ? 256 : 24;
+    const blueprint = { ...candidate.blueprint, [field]: Array.from({ length: maximum + 1 }, () => candidate.blueprint[field][0]) };
+    expect(researchPackageSchema.safeParse({ ...candidate, blueprint }).success).toBe(false);
+  });
+
+  it("bounds inherited blueprint nested collections and identifiers", () => {
+    const candidate = validResearchPackage();
+    const skill = candidate.blueprint.skills[0]!;
+    for (const change of [
+      { id: "a".repeat(257) },
+      { masteryCriteria: Array.from({ length: 9 }, () => skill.masteryCriteria[0]) },
+      { resourceIds: Array.from({ length: 33 }, () => skill.resourceIds[0]) },
+      { prerequisiteIds: Array.from({ length: 65 }, (_, index) => `skill-${index}`) },
+    ]) {
+      expect(researchPackageSchema.safeParse({ ...candidate, blueprint: { ...candidate.blueprint, skills: [{ ...skill, ...change }] } }).success).toBe(false);
+    }
+  });
+
+  it.each([
+    ["skills", 64], ["resources", 256], ["stages", 24],
+    ["unitTemplates", 512], ["evidence", 512], ["prerequisiteEdges", 4096],
+  ] as const)("rejects candidate %s above its maximum", (field, maximum) => {
+    expect(researchCandidateSchema.safeParse({
+      ...validResearchCandidate,
+      [field]: Array.from({ length: maximum + 1 }, () => validResearchCandidate[field][0]),
+    }).success).toBe(false);
+  });
+
+  it.each([
+    { passed: false, issueCodes: ["invalid-graph", "invalid-graph"] },
+    { passed: true, issueCodes: ["invalid-graph"] },
+    { passed: false, issueCodes: [] },
+  ])("rejects contradictory or duplicate quality codes: %j", (change) => {
+    expect(researchQualityReportSchema.safeParse({ ...validResearchPackage().qualityReport, ...change }).success).toBe(false);
+  });
+
+  it("rejects mismatched token totals", () => {
+    expect(providerUsageSchema.safeParse({ promptTokens: 10, completionTokens: 20, totalTokens: 31, costMicros: 0, webSearchRequests: 1 }).success).toBe(false);
+  });
+
+  it("rejects Needs-review with no issues", () => {
+    expect(researchRunPublicViewSchema.safeParse({
+      id: "research-run-1", state: "needs-review", role: "Data Product Manager", locale: "en-US", retryable: true,
+      quality: { issueCodes: [], skillCount: 3, sourceCount: 6, unitCount: 9 },
+    }).success).toBe(false);
+  });
+
   it.each([
     ["provider", "private-provider"],
     ["model", "private-model"],

@@ -167,9 +167,32 @@ export const auditedSourceSchema = z.object({
 
 const researchVersionSchema = z.string().trim().min(1).max(64);
 
+// Research packages inherit canonical types, with research-only input/storage bounds.
+const researchBlueprintSchema = roleBlueprintSchema.extend({
+  id: idSchema,
+  version: roleBlueprintSchema.shape.version.max(32),
+  skills: z.array(roleBlueprintSchema.shape.skills.element.extend({
+    id: idSchema,
+    masteryCriteria: researchCandidateSkillSchema.shape.masteryCriteria,
+    prerequisiteIds: z.array(idSchema).max(64),
+    resourceIds: researchCandidateSkillSchema.shape.resourceIds,
+  })).min(1).max(64),
+  resources: z.array(roleBlueprintSchema.shape.resources.element.extend({
+    id: idSchema,
+    url: roleBlueprintSchema.shape.resources.element.shape.url.max(2_048),
+    estimatedMinutes: minuteSchema.nullable(),
+    skillIds: researchCandidateResourceSchema.shape.skillIds,
+  })).min(1).max(256),
+  phases: z.array(roleBlueprintSchema.shape.phases.element.extend({
+    id: idSchema,
+    weeks: researchCandidateStageSchema.shape.weeks,
+    skillIds: researchCandidateStageSchema.shape.skillIds,
+  })).min(1).max(24),
+});
+
 export const researchPackageSchema = z.object({
   id: idSchema,
-  blueprint: roleBlueprintSchema,
+  blueprint: researchBlueprintSchema,
   registry: unitRegistrySchema,
   sourceEvidence: z.array(auditedSourceSchema).min(1).max(256),
   qualityReport: researchQualityReportSchema,
