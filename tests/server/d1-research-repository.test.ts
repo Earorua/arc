@@ -195,18 +195,25 @@ describe("D1ResearchRepository", () => {
     await expect(operation).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE", message: "RESEARCH_UNAVAILABLE" });
   });
 
-  it("preserves two packages' immutable metadata while reusing the same global URL row", async () => {
+  it.each(["same-canonical-role", "different-generated-role"] as const)("preserves two packages' immutable metadata while reusing the same global URL row: %s", async (variant) => {
     const { repository, db } = setup(); const resource = validated.package.blueprint.resources[0]!;
     db.database.prepare("INSERT INTO learning_resources(id,canonical_url,title,provider,language,cost,format,source_tier,last_verified_at) VALUES('existing-url',?1,'old title','old provider','en','paid','course','community','2020-01-01')").run(resource.url);
     const first = await validating(repository); await repository.saveValidation(saveCommand(first.current));
-    const candidate = researchCandidateSchema.parse(validResearchCandidate); candidate.role.id = "generated-role-id-not-input-key"; candidate.resources[0]!.title = "Second package title";
+    const candidate = researchCandidateSchema.parse(validResearchCandidate);
+    if (variant === "different-generated-role") candidate.role.id = "generated-role-id-not-input-key";
+    candidate.resources[0]!.title = "Second package title";
     const result = validateResearchCandidate(candidate, validAnnotations, { ...context, packageId: "research-package-second" }); expect(result.ready).toBe(true); if (!result.ready) throw new Error("fixture");
+    expect(result.package.blueprint.version).toBe(validated.package.blueprint.version);
+    expect(result.package.blueprint.resources.map(({ url }) => url)).toEqual(validated.package.blueprint.resources.map(({ url }) => url));
+    if (variant === "same-canonical-role") expect(result.package.blueprint.id).toBe(validated.package.blueprint.id);
+    else expect(result.package.blueprint.id).not.toBe(command().normalizedRoleKey);
     const next = (await repository.createOrReplay(command("mutation-second"))).run; const second = await validating(repository, next); await repository.saveValidation(saveCommand(second.current, result));
     await expect(repository.resolveReadyPackage("owner-a", first.current.id)).resolves.toEqual(validated.package);
     await expect(repository.resolveReadyPackage("owner-a", second.current.id)).resolves.toEqual(result.package);
     expect(db.database.prepare("SELECT title,provider FROM learning_resources WHERE id='existing-url'").get()).toEqual({ title: "old title", provider: "old provider" });
     expect(db.database.prepare("SELECT count(*) count FROM resource_skill_links WHERE resource_id='existing-url'").get()).toEqual({ count: 2 });
-    expect(db.database.prepare("SELECT count(DISTINCT slug) count FROM role_blueprints").get()).toEqual({ count: 2 });
+    expect(db.database.prepare("SELECT count(DISTINCT id) role_ids,count(DISTINCT slug) slugs FROM role_blueprints").get()).toEqual({ role_ids: 2, slugs: 2 });
+    expect(db.database.prepare("SELECT count(DISTINCT id) version_ids,count(DISTINCT role_id) role_ids FROM role_blueprint_versions").get()).toEqual({ version_ids: 2, role_ids: 2 });
   });
 
   it("rejects retry replay against an unrelated create mutation", async () => {
