@@ -539,6 +539,15 @@ git commit -m "feat: add bounded OpenRouter research adapter"
 **Files:**
 - Create: `app/server/research/orchestrator.ts`
 - Create: `tests/server/research-orchestrator.test.ts`
+- Modify: `app/server/ai/gateway.ts` (run-record contract only; preserve preview behavior)
+- Modify: `app/server/ai/d1-run-recorder.ts`
+- Create: `tests/server/d1-research-run-recorder.test.ts`
+
+**Model-audit integration requirement:** Source inspection found that the existing `AiRunRecord` supports only `role-research-preview` and `D1AiRunSink` always writes `'{}'` to `usage_json`. Reusing it unchanged would omit the approved model/usage audit. Extend the run-record contract and recorder with a strict research-specific record variant for `role-research` and `role-research-repair`, while keeping old preview records compatible. Store the bounded actual model returned by the adapter, provider identifier, prompt/input/output versions, sanitized terminal code/status, latency, and an allowlisted usage summary (token counts, integer cost micros, bounded search count, or explicit unknown-usage state). Do not store input text, prompts, annotations, candidate JSON, raw provider errors, credentials, or routing configuration in this record.
+
+Use a deterministic, bounded attempt request ID derived from the parent run/request and `research` or `repair`; the existing `(user_id, request_id)` unique index must make retries of audit persistence idempotent without conflating the two paid calls. Research and repair usage settle against the original combined cost reservation exactly once; do not ignore the first call's charge when repair also runs. Cache hits must create neither a provider-call audit nor a new cost charge. Persist the necessary audit successfully before publishing Ready; do not copy the legacy gateway's best-effort `.catch(() => undefined)` behavior for research success. Audit-storage failures must leave the result unavailable and preserve/reconcile cost conservatively, never trigger a hidden second provider call.
+
+Write a real-SQLite recorder test using the Task 4 helper: research and repair rows coexist, same-attempt replay does not duplicate rows, conflicting reuse is rejected rather than silently accepted, usage is bounded/allowlisted, and the old preview record still works. Orchestrator tests inject audit failure before Ready and assert no usable package is exposed, accepted quota is not falsely charged, and provider calls are not replayed. Also test successful research, repair, invalid-domain response, timeout with unknown cost, and cached replay for the exact audit/settlement counts. Run `tests/server/d1-research-run-recorder.test.ts` and `tests/server/ai-gateway.test.ts` with the Task 7 focused regressions.
 
 - [ ] **Step 1: Write state-machine tests before implementation**
 
