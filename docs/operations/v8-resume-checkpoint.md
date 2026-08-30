@@ -1,12 +1,14 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-08-30 目标 2 Research Beta 已进入实现；当前为 Task 2 独立审查门槛**
+> **2026-08-30 目标 2 Research Beta：Task 1–2 已完成，正在 Task 3 数据库增量迁移**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
 >
 > 已保存规格 `docs/superpowers/specs/2026-08-27-arc-v8-openrouter-research-beta-design.md` 和详细计划 `docs/superpowers/plans/2026-08-10-arc-v8-openrouter-research-beta.md`（计划提交 `21e40ce`）。Task 1 契约/夹具实现提交为 `2666662`，规格审查修复为 `2b2e9f0`；Task 1 已完成独立规格及质量审查。后续计划修正包括实际 Drizzle schema 入口、SQLite/D1 原子事务验证、受限搜索引擎及 Research 配额并发准入（文档提交至 `42fcf95`）。
 >
-> Task 2 来源审计、确定性质量验证、研究包上限与完整学习单元夹具已实现并提交 `380708b`。2026-08-30 主代理最终独立复跑五文件回归 205/205、全量单元回归 111 files / 1377 tests、TypeScript、完整 ESLint、production build 5/5 和 rendered HTML 3/3，全部通过。独立规格审查已通过，当前仍须完成 Task 2 独立代码质量审查。恢复时先核对实际 Git HEAD 和未提交文件；不要重做 Task 1–2 实现。Task 3–13 尚未实现。
+> Task 2 实现为 `380708b`，审查修复为 `af31ae5`、`bf82f1f`、`89c803f`。普通技术文案误判、JSON 字段名长度预算和斜杠事件属性拦截均已有 RED→GREEN 回归；最终独立质量复审确认无待修问题，独立规格审查也已通过。主代理在 `89c803f` 独立复跑五文件 229/229 通过；`bf82f1f` 全量为 111 files / 1395 tests，TypeScript 与完整 ESLint 通过；较早 `380708b` 构建 5/5、rendered HTML 3/3 通过，不能将这些不同版本证据冒充最终目标验收。
+>
+> 下一步为 Task 3：新增五张研究/预算表及本地迁移 `0005`，保留 `0000`–`0004` 不变；随后继续 Task 4–13。Task 3 已交给新的实现代理进行 TDD，尚未宣称完成。恢复先核对实际 Git HEAD、代理状态与未提交文件；不要重做 Task 1–2 或覆盖 Task 3 进行中的修改。
 >
 > 此时不能宣称目标 2 已完成。真实密钥、付费请求、生产变量、生产旗标、生产 D1/R2、Sites 候选及部署仍是独立授权门槛。本轮没有调用真实模型、合并或推送。恢复以此条及实际 Git 状态为准，下方目标 1 / Phase 2 记录均为历史。
 

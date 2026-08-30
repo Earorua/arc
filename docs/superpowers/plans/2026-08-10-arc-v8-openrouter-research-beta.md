@@ -165,7 +165,7 @@ git commit -m "feat: define research beta contracts"
 
 **Review hardening:** Add a failing package-boundary test for 65 inherited blueprint skills and enforce research-specific bounds without changing the canonical domain type. Add negative tests for duplicate quality issue codes, passed/issue contradictions, inconsistent token totals, candidate collection maxima, and empty Needs-review issue codes. Existing correct guards need coverage, not behavioral rewrites.
 
-- [ ] **Step 1: Write source policy and quality golden tests**
+- [x] **Step 1: Write source policy and quality golden tests**
 
 ```ts
 it("normalizes public HTTPS citations and rejects candidate URLs absent from annotations", () => {
@@ -189,13 +189,13 @@ it.each([
 });
 ```
 
-- [ ] **Step 2: Run focused tests and verify RED**
+- [x] **Step 2: Run focused tests and verify RED**
 
 Run: `npm run test:unit -- tests/server/research-source-audit.test.ts tests/server/research-package-validator.test.ts`
 
 Expected: FAIL because audit and validator modules do not exist.
 
-- [ ] **Step 3: Implement URL canonicalization and citation binding**
+- [x] **Step 3: Implement URL canonicalization and citation binding**
 
 `canonicalizePublicCitationUrl(value)` must parse with `URL`, require `https:`, reject username/password, localhost, IP literals, `.local`, `.internal`, and hostnames without a dot, lower-case the host, remove fragments and tracking parameters `utm_*`, `gclid`, `fbclid`, sort remaining query params, and cap the canonical URL at 2048 characters. `auditResearchSources` must deduplicate by canonical URL, hash only the bounded annotation identity, and require every candidate resource URL to match an annotation URL. It must never call `fetch`.
 
@@ -212,7 +212,7 @@ export type AuditedSource = Readonly<{
 }>;
 ```
 
-- [ ] **Step 4: Implement deterministic package adaptation and hard gates**
+- [x] **Step 4: Implement deterministic package adaptation and hard gates**
 
 `validateResearchCandidate(candidate, annotations, context)` must:
 
@@ -235,18 +235,20 @@ export type ResearchValidationResult =
   | { ready: false; quality: ResearchQualityReport; sanitizedCandidate: ResearchCandidate | null };
 ```
 
-- [ ] **Step 5: Run focused and Phase 1 validator regression tests**
+- [x] **Step 5: Run focused and Phase 1 validator regression tests**
 
 Run: `npm run test:unit -- tests/server/research-source-audit.test.ts tests/server/research-package-validator.test.ts tests/lib/intelligence-validation.test.ts tests/lib/planning/registry-validation.test.ts`
 
 Expected: all tests pass; no network call occurs.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add app/server/research/source-audit.ts app/server/research/package-validator.ts tests/server/research-source-audit.test.ts tests/server/research-package-validator.test.ts tests/fixtures/research
 git commit -m "feat: validate citation backed research packages"
 ```
+
+**Task 2 evidence, 2026-08-30:** Implementation `380708b`; scoped review corrections `af31ae5`, `bf82f1f`, `89c803f`. Independent specification review passed. Quality review identified ordinary technical-text false positives and uncounted JSON property names; all were reproduced RED and fixed, including a slash-delimited executable-attribute regression found during re-review. Final quality verdict at `89c803f`: no outstanding Critical / Important / Minor findings. Fresh controller five-suite regression: 229/229. Full suite at `bf82f1f`: 111 files / 1395 tests; TypeScript and full lint passed. Earlier Task 2 baseline `380708b` also passed production build 5/5 and rendered HTML 3/3. These are per-revision evidence, not the final Goal 2 gate. Task 3 may now proceed.
 
 ### Task 3: Add the additive D1 research and budget schema
 
