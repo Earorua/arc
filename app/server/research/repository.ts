@@ -17,6 +17,8 @@ export type SaveResearchValidationCommand = { id: string; ownerId: string; expec
 export type CreateResearchRetryCommand = { ownerId: string; requestId: string; mutationId: string; runId: string; activeExpiresAt: number };
 
 export interface ResearchRepository {
+  // Owners must come from the authenticated session, never from a request body.
+  // All entry points validate bounded plain JSON and fail with ResearchRepositoryError.
   createOrReplay(command: CreateResearchRunCommand): Promise<{ run: ResearchRunRecord; replayed: boolean }>;
   getRun(ownerId: string, runId: string): Promise<ResearchRunRecord | null>;
   findFreshPackage(input: ResearchCacheLookup): Promise<ResearchPackage | null>;

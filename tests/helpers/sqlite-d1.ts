@@ -3,14 +3,21 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 type Bindings = unknown[];
+const D1_VALUE_MAX = 2_000_000;
+const valueBytes = (value: unknown): number => typeof value === "string" ? new TextEncoder().encode(value).byteLength : value instanceof Uint8Array ? value.byteLength : value === null ? 0 : 8;
+function boundedRow<T>(row: T): T {
+  if (row && typeof row === "object" && Object.values(row).reduce((total, value) => total + valueBytes(value), 0) > D1_VALUE_MAX) throw new Error("D1 row too large");
+  return row;
+}
 
 class SqliteStatement {
   private bindings: Bindings = [];
   constructor(private readonly database: SqliteD1, readonly sql: string) {}
   bind(...values: unknown[]) {
     if (values.length > 100) throw new Error("D1 parameter limit");
+    if (values.some((value) => valueBytes(value) > D1_VALUE_MAX)) throw new Error("D1 value too large");
     const bound = new SqliteStatement(this.database, this.sql);
-    bound.bindings = [...values];
+    bound.bindings = values.map((value) => value instanceof Uint8Array ? value.slice() : value);
     return bound as unknown as D1PreparedStatement;
   }
   async first<T = Record<string, unknown>>() {
@@ -56,8 +63,8 @@ export class SqliteD1 {
   execute(sql: string, values: Bindings, mode: "get" | "all" | "run"): unknown {
     if (values.length > 100) throw new Error("D1 parameter limit");
     const statement = this.database.prepare(sql);
-    if (mode === "get") return statement.get(...values as never[]) as Record<string, unknown> | undefined;
-    if (mode === "all") return statement.all(...values as never[]) as Record<string, unknown>[];
+    if (mode === "get") return boundedRow(statement.get(...values as never[]));
+    if (mode === "all") return statement.all(...values as never[]).map(boundedRow);
     return statement.run(...values as never[]) as { changes?: number };
   }
   close() { this.database.close(); }
