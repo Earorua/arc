@@ -7,7 +7,7 @@ const annotationListSchema = z.array(providerCitationAnnotationSchema).max(256);
 const forbiddenSuffixes = ["onion", "alt", "lan", "home", "corp"];
 const unsafeControl = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/u;
 // Dangerous tags/attributes remain forbidden even when incomplete or adjacent to prose.
-const unsafeMarkup = /<!--|<!doctype\b|<\/?(?:script|style|iframe|frame|frameset|img|svg|math|object|embed|link|meta|base)(?=[\s/>]|$)|<[a-z][a-z0-9:-]*\s[^<>]*\b(?:on[a-z]+\s*=|(?:href|src|action)\s*=\s*["']?\s*(?:javascript|vbscript|data):)/iu;
+const unsafeMarkup = /<!--|<!doctype\b|<\/?(?:script|style|iframe|frame|frameset|img|svg|math|object|embed|link|meta|base)(?=[\s/>]|$)|<[a-z][a-z0-9:-]*[\s/][^<>]*\b(?:on[a-z]+\s*=|(?:href|src|action)\s*=\s*["']?\s*(?:javascript|vbscript|data):)/iu;
 const htmlTagNames = new Set((
   "a abbr address area article aside audio b base bdi bdo blockquote body br button canvas caption cite code col colgroup "
   + "data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 "
