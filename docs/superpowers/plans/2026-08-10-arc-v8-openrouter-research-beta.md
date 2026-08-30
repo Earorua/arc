@@ -379,7 +379,12 @@ git commit -m "feat: persist owner bound research runs"
 - Create: `tests/server/research-budget.test.ts`
 - Create: `tests/server/d1-research-budget-repository.test.ts`
 - Modify: `app/server/entitlements/policy.ts`
+- Modify: `app/server/entitlements/repository.ts`
+- Modify: `app/server/entitlements/d1-entitlement-repository.ts`
 - Modify: `tests/server/entitlements.test.ts`
+- Modify: `tests/server/d1-entitlement-repository.test.ts`
+
+**Quota integration constraint:** The existing entitlement path reads accepted units and then reserves in a separate statement. That is insufficient for concurrent Research requests for different roles. Add a research-safe atomic admission operation over `quota_ledger`: count accepted results plus outstanding reservations, admit only within the user-day limit, and replay the same reservation without a second charge. Keep accepted-unit reporting separate from outstanding capacity. A single conditional `INSERT ... SELECT` may supply the SQLite atomic boundary; a read-then-unconditional-insert may not. Preserve existing preview behavior and use the atomic path for Research. Add SQLite-backed tests for two different roles racing for the last quota slot, release on Failed/Needs-review, same-key replay, and conflicting terminal settlements. Do not modify migrations `0000`-`0004`.
 
 - [ ] **Step 1: Write failing policy, concurrency, and settlement tests**
 
