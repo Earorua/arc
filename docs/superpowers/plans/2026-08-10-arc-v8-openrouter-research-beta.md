@@ -51,7 +51,7 @@
 - Create: `tests/fixtures/research/invalid-candidates.ts`
 - Create: `tests/contracts/research-contracts.test.ts`
 
-- [ ] **Step 1: Write failing contract tests**
+- [x] **Step 1: Write failing contract tests**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -94,13 +94,13 @@ describe("research contracts", () => {
 });
 ```
 
-- [ ] **Step 2: Run the contract test and verify RED**
+- [x] **Step 2: Run the contract test and verify RED**
 
 Run: `npm run test:unit -- tests/contracts/research-contracts.test.ts`
 
 Expected: FAIL because `app/contracts/research.ts` and fixtures do not exist.
 
-- [ ] **Step 3: Add complete bounded schemas and exported types**
+- [x] **Step 3: Add complete bounded schemas and exported types**
 
 Define these exact public unions and limits in `app/contracts/research.ts`:
 
@@ -131,7 +131,7 @@ Add strict candidate schemas for role summary, 1–64 skills, prerequisite edges
 
 Create one three-skill valid candidate fixture whose resource ids, skill ids, stage ids, and unit ids form a complete connected graph. Create named invalid fixture builders for confidence injection, missing citations, a dependency cycle, minute mismatch, paid-only primary, HTML payload, and oversized text.
 
-- [ ] **Step 4: Run the contract tests and type-check**
+- [x] **Step 4: Run the contract tests and type-check**
 
 Run: `npm run test:unit -- tests/contracts/research-contracts.test.ts`
 
@@ -141,12 +141,14 @@ Run: `npx tsc --noEmit`
 
 Expected: exit 0.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/contracts/research.ts tests/contracts/research-contracts.test.ts tests/fixtures/research
 git commit -m "feat: define research beta contracts"
 ```
+
+**Task 1 evidence, 2026-08-30:** Implementation `2666662`, spec remediation `2b2e9f0`. Fresh controller verification: 19/19 focused tests, TypeScript exit 0, focused ESLint exit 0. Independent spec review passed; independent quality review reported Critical 0 / Important 0, with two nonblocking hardening notes assigned to Task 2: layer research-specific package bounds over inherited canonical schemas and add negative regression tests for existing quality/usage/collection guards. Task 1 commit step is complete.
 
 ### Task 2: Audit citations and validate research packages
 
@@ -156,6 +158,12 @@ git commit -m "feat: define research beta contracts"
 - Create: `tests/server/research-source-audit.test.ts`
 - Create: `tests/server/research-package-validator.test.ts`
 - Modify: `tests/fixtures/research/valid-candidate.ts`
+- Modify: `app/contracts/research.ts` (research-package bounds only)
+- Modify: `tests/contracts/research-contracts.test.ts` (review hardening regressions)
+
+**Integration constraint:** Task 1's fixture is structurally valid only. Before using it as the Ready golden sample, supply at least one learn, exactly one calibrate, and exactly one reinforce template for each skill, with globally unique step/checkpoint ids. Units over 60 minutes need contiguous, complete 30–60 minute checkpoints. These are existing `validateUnitRegistry` requirements; do not weaken them or synthesize missing learning content in the validator.
+
+**Review hardening:** Add a failing package-boundary test for 65 inherited blueprint skills and enforce research-specific bounds without changing the canonical domain type. Add negative tests for duplicate quality issue codes, passed/issue contradictions, inconsistent token totals, candidate collection maxima, and empty Needs-review issue codes. Existing correct guards need coverage, not behavioral rewrites.
 
 - [ ] **Step 1: Write source policy and quality golden tests**
 

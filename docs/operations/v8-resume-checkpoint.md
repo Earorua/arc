@@ -6,7 +6,7 @@
 >
 > 已保存规格 `docs/superpowers/specs/2026-08-27-arc-v8-openrouter-research-beta-design.md` 和详细计划 `docs/superpowers/plans/2026-08-10-arc-v8-openrouter-research-beta.md`（计划提交 `21e40ce`）。Task 1 契约/夹具实现提交为 `2666662`，规格审查修复为 `2b2e9f0`。2026-08-30 现场核对 feature HEAD 为 `2b2e9f0`，代码工作树干净；没有后续 Task 2–13 实现。
 >
-> 2026-08-30 主代理重新运行聚焦测试 19/19、TypeScript 与聚焦 ESLint，全部 exit 0。独立规格复核已确认 Needs review 不暴露 `quality.passed`、Ready 严格拒绝私有字段、输入上限 129/161 测试覆盖，并报告完整 Task 1 符合。当前正在做独立代码质量审查；通过后再进入 Task 2 来源审计和质量验证。
+> 2026-08-30 主代理重新运行聚焦测试 19/19、TypeScript 与聚焦 ESLint，全部 exit 0。独立规格复核通过；独立代码质量审查报告 Critical 0 / Important 0。两项非阻断加固（研究包上限及负面回归覆盖）已明确移交 Task 2。下一步为 Task 2 来源审计和质量验证，不重做 Task 1。
 >
 > 此时不能宣称目标 2 已完成。真实密钥、付费请求、生产变量、生产旗标、生产 D1/R2、Sites 候选及部署仍是独立授权门槛。本轮没有调用真实模型、合并或推送。恢复以此条及实际 Git 状态为准，下方目标 1 / Phase 2 记录均为历史。
 
