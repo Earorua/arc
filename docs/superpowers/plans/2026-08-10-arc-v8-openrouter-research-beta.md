@@ -261,7 +261,7 @@ git commit -m "feat: validate citation backed research packages"
 - Modify: `tests/db/migration-safety.test.ts`
 - Create: `tests/db/research-migration.test.ts`
 
-- [ ] **Step 1: Add failing schema and migration assertions**
+- [x] **Step 1: Add failing schema and migration assertions**
 
 Assert that `db/schema.ts` exports `researchRuns`, `researchPackages`, `researchSourceAudits`, `aiBudgetBuckets`, and `aiBudgetReservations`. Assert SQL has owner+mutation and active-run uniqueness, package fingerprint/config uniqueness, source package+URL uniqueness, budget scope+period uniqueness, reservation request uniqueness, foreign keys, and query-driven indexes. Extend the safety test to expect exactly `0000` through `0005` and prove `0000`–`0004` hashes are unchanged.
 
@@ -273,13 +273,13 @@ expect(sql).toContain("CREATE UNIQUE INDEX `ai_budget_bucket_period_idx`");
 expect(sql).not.toMatch(/DROP\s+(TABLE|COLUMN)/iu);
 ```
 
-- [ ] **Step 2: Run migration tests and verify RED**
+- [x] **Step 2: Run migration tests and verify RED**
 
 Run: `npm run test:unit -- tests/db/schema.test.ts tests/db/migration-safety.test.ts tests/db/research-migration.test.ts`
 
 Expected: FAIL because the five tables and `0005` do not exist.
 
-- [ ] **Step 3: Define the five tables with integer-micro cost fields**
+- [x] **Step 3: Define the five tables with integer-micro cost fields**
 
 Use these state fields and constraints:
 
@@ -293,7 +293,7 @@ settledMicros: integer("settled_micros").notNull().default(0),
 
 `research_runs` stores owner, mutation id, normalized role key, locale, input/config fingerprints, active slot, package id, sanitized error code, retryability, timestamps, and state version. `research_packages` stores immutable sanitized package JSON, quality JSON, blueprint/registry ids+versions, content/config fingerprints, observed/expiry timestamps. `research_source_audits` stores no excerpt. Budget rows use UTC day/month period starts and status `reserved | settled | conservative-hold | released`.
 
-- [ ] **Step 4: Generate and inspect migration artifacts**
+- [x] **Step 4: Generate and inspect migration artifacts**
 
 Run: `npm run db:generate -- --name=openrouter_research_beta`
 
@@ -301,18 +301,21 @@ Expected: Drizzle creates `drizzle/0005_openrouter_research_beta.sql`, snapshot 
 
 Open the generated SQL and verify every `prepare`-time query in Tasks 4–5 has a matching index. Keep generated SQL; do not hand-edit old migrations.
 
-- [ ] **Step 5: Run migration tests and SQLite smoke**
+- [x] **Step 5: Run migration tests and SQLite smoke**
 
 Run: `npm run test:unit -- tests/db/schema.test.ts tests/db/migration-safety.test.ts tests/db/research-migration.test.ts`
 
 Expected: PASS, sequential temporary database migration succeeds, `PRAGMA foreign_key_check` returns zero rows, and representative owner/cache/budget queries report their intended indexes under `EXPLAIN QUERY PLAN`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add db/schema.ts drizzle/0005_openrouter_research_beta.sql drizzle/meta/0005_snapshot.json drizzle/meta/_journal.json tests/db/schema.test.ts tests/db/migration-safety.test.ts tests/db/research-migration.test.ts
 git commit -m "feat: add research beta persistence schema"
 ```
+
+
+**Task 3 evidence, 2026-08-30:** Implementation `9cf3ca5`, binary error-code type-guard fix `33cb78d`. Independent specification review passed; quality re-review of `33cb78d` has no outstanding findings. Focused SQLite/schema/migration regression: controller 95/95; TypeScript and diff-check passed after the fix. At `9cf3ca5`, controller full suite 112 files / 1451 tests, full lint, build 5/5, rendered HTML 3/3 passed. The fix regenerated unpublished `0005` from unchanged `0004` metadata; no `0006`, old-migration edit, or production migration. Task 4 may proceed.
 
 ### Task 4: Implement owner-scoped research persistence and Ready resolution
 
