@@ -606,6 +606,10 @@ git commit -m "feat: orchestrate recoverable role research"
 
 ### Task 8: Expose authenticated Research Beta HTTP routes
 
+**Composition constraints from current source inspection (2026-08-31):** The existing `D1RateLimiter` hashes scope + subject without a secret; production Research composition must derive its IP subject using the configured `ARC_AI_IP_HASH_SALT` before passing it to the limiter. Trust Cloudflare's `cf-connecting-ip` only in its edge runtime; do not add a client-controlled `x-forwarded-for` fallback. Missing/invalid IP or salt cannot silently bypass the IP gate. Local Fake composition supplies explicit test dependencies, not a public identity/IP override. State-changing browser requests must reject a mismatching Origin/cross-site fetch context and non-JSON media types before creating a run, reservation, or provider call; add request-security regressions for those cases.
+
+The shared `apiError` helper currently lacks Research error codes and uses `error.action`/nested request ID. Keep the new Research error envelope explicit and typed in this route factory, matching its documented `error.recovery` and top-level request ID, while reusing `apiJson`/`applyResponseSafety`; do not cast unsupported codes into the legacy helper or change existing route responses. Add the optional string Worker declarations needed by the new factory in Task 8 (no values or secrets). Task 12 still owns disabled examples, full runtime/health checks, and removal of obsolete bindings after consumer inspection. Production composition requires BOTH AI and Research enable flags plus all validated model, timeout, budget, quota, cache and salt values; missing configuration never selects Fake implicitly.
+
 **Files:**
 - Create: `app/server/research/service-factory.ts`
 - Create: `app/server/http/research-route-factories.ts`
@@ -614,6 +618,7 @@ git commit -m "feat: orchestrate recoverable role research"
 - Create: `app/api/intelligence/research/[id]/retry/route.ts`
 - Create: `tests/api/research-routes.test.ts`
 - Modify: `tests/server/planning-security.test.ts`
+- Modify: `worker-configuration.d.ts` (optional Research binding declarations only; runtime documentation and health remain Task 12)
 
 - [ ] **Step 1: Write route security, gate-order, and public-error tests**
 
