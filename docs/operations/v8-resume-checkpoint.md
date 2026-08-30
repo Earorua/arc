@@ -1,5 +1,15 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-08-30 目标 2 Research Beta 已进入实现；当前停在 Task 1 审查门槛**
+>
+> 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
+>
+> 已保存规格 `docs/superpowers/specs/2026-08-27-arc-v8-openrouter-research-beta-design.md` 和详细计划 `docs/superpowers/plans/2026-08-10-arc-v8-openrouter-research-beta.md`（计划提交 `21e40ce`）。Task 1 契约/夹具实现提交为 `2666662`，规格审查修复为 `2b2e9f0`。2026-08-30 现场核对 feature HEAD 为 `2b2e9f0`，代码工作树干净；没有后续 Task 2–13 实现。
+>
+> 2026-08-30 主代理重新运行聚焦测试 19/19、TypeScript 与聚焦 ESLint，全部 exit 0。独立规格复核已确认 Needs review 不暴露 `quality.passed`、Ready 严格拒绝私有字段、输入上限 129/161 测试覆盖，并报告完整 Task 1 符合。当前正在做独立代码质量审查；通过后再进入 Task 2 来源审计和质量验证。
+>
+> 此时不能宣称目标 2 已完成。真实密钥、付费请求、生产变量、生产旗标、生产 D1/R2、Sites 候选及部署仍是独立授权门槛。本轮没有调用真实模型、合并或推送。恢复以此条及实际 Git 状态为准，下方目标 1 / Phase 2 记录均为历史。
+
 > **2026-08-27 目标 1 `Proof-backed Stack` 已验收、合并并完成 GitHub 远程备份（当前权威门槛）**
 >
 > 用户已完成目标 1 本地验收并明确选择本地合并。`master` 已从四目标流程基线 `3db3fc9cacafe4afc1b05f3d3d1025648a56ecda` 快进到 `2f2a9a29718caf12c4fffa8aa2c8d62d6e393c57`，没有冲突或额外 merge commit。`codex/v8-proof-backed-stack` 已确认完整合并后删除，对应 `.worktrees/v8-proof-backed-stack` 已注销并清理；为释放 Miniflare / workerd 锁定的 `.wrangler` 与原生依赖文件，只结束了命令行明确指向该工作树的本地预览进程，因此当前不能假定 `http://localhost:3000` 仍在运行。
