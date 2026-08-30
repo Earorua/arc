@@ -39,7 +39,7 @@
 - `app/server/planning/service.ts`, `app/server/planning/repository.ts`, `app/server/planning/d1-planning-repository.ts`, `app/contracts/planning-api.ts`: discriminated planning source and immutable source-reference persistence.
 - `app/lib/research-client.ts`, `app/lib/use-role-research.ts`: safe client transport and refresh-resumable controller.
 - `app/components/setup/role-research-panel.tsx`, `app/components/setup/setup-flow.tsx`, `app/components/setup/adaptive-setup-flow.tsx`, `app/setup/page.tsx`, `app/globals.css`: embedded, accessible Research Beta Setup experience.
-- `db/index.ts`, `drizzle/0005_openrouter_research_beta.sql`, `drizzle/meta/_journal.json`, `drizzle/meta/0005_snapshot.json`: additive schema and generated migration artifacts.
+- `db/schema.ts`, `drizzle/0005_openrouter_research_beta.sql`, `drizzle/meta/_journal.json`, `drizzle/meta/0005_snapshot.json`: additive schema and generated migration artifacts. `db/index.ts` remains the runtime helper; `drizzle.config.ts` selects `db/schema.ts`.
 - `.env.example`, `worker-configuration.d.ts`, `app/server/admin/*`, `app/api/admin/health/route.ts`: disabled-by-default runtime contract and aggregate operational health.
 - `tests/fixtures/research/*`: provider-neutral golden and adversarial fixtures containing no secrets and no network dependency.
 
@@ -251,7 +251,7 @@ git commit -m "feat: validate citation backed research packages"
 ### Task 3: Add the additive D1 research and budget schema
 
 **Files:**
-- Modify: `db/index.ts`
+- Modify: `db/schema.ts`
 - Create: `drizzle/0005_openrouter_research_beta.sql`
 - Create: `drizzle/meta/0005_snapshot.json`
 - Modify: `drizzle/meta/_journal.json`
@@ -261,7 +261,7 @@ git commit -m "feat: validate citation backed research packages"
 
 - [ ] **Step 1: Add failing schema and migration assertions**
 
-Assert that `db/index.ts` exports `researchRuns`, `researchPackages`, `researchSourceAudits`, `aiBudgetBuckets`, and `aiBudgetReservations`. Assert SQL has owner+mutation and active-run uniqueness, package fingerprint/config uniqueness, source package+URL uniqueness, budget scope+period uniqueness, reservation request uniqueness, foreign keys, and query-driven indexes. Extend the safety test to expect exactly `0000` through `0005` and prove `0000`–`0004` hashes are unchanged.
+Assert that `db/schema.ts` exports `researchRuns`, `researchPackages`, `researchSourceAudits`, `aiBudgetBuckets`, and `aiBudgetReservations`. Assert SQL has owner+mutation and active-run uniqueness, package fingerprint/config uniqueness, source package+URL uniqueness, budget scope+period uniqueness, reservation request uniqueness, foreign keys, and query-driven indexes. Extend the safety test to expect exactly `0000` through `0005` and prove `0000`–`0004` hashes are unchanged.
 
 ```ts
 expect(sql).toContain("CREATE TABLE `research_runs`");
@@ -293,7 +293,7 @@ settledMicros: integer("settled_micros").notNull().default(0),
 
 - [ ] **Step 4: Generate and inspect migration artifacts**
 
-Run: `npm run db:generate`
+Run: `npm run db:generate -- --name=openrouter_research_beta`
 
 Expected: Drizzle creates `drizzle/0005_openrouter_research_beta.sql`, snapshot `0005`, and one journal entry without rewriting prior migrations.
 
@@ -308,7 +308,7 @@ Expected: PASS, sequential temporary database migration succeeds, `PRAGMA foreig
 - [ ] **Step 6: Commit**
 
 ```powershell
-git add db/index.ts drizzle/0005_openrouter_research_beta.sql drizzle/meta/0005_snapshot.json drizzle/meta/_journal.json tests/db/schema.test.ts tests/db/migration-safety.test.ts tests/db/research-migration.test.ts
+git add db/schema.ts drizzle/0005_openrouter_research_beta.sql drizzle/meta/0005_snapshot.json drizzle/meta/_journal.json tests/db/schema.test.ts tests/db/migration-safety.test.ts tests/db/research-migration.test.ts
 git commit -m "feat: add research beta persistence schema"
 ```
 
@@ -318,10 +318,13 @@ git commit -m "feat: add research beta persistence schema"
 - Create: `app/server/research/repository.ts`
 - Create: `app/server/research/d1-repository.ts`
 - Create: `tests/server/d1-research-repository.test.ts`
+- Create: `tests/helpers/sqlite-d1.ts`
 
 - [ ] **Step 1: Write failing repository tests**
 
 Cover create-or-replay by owner+mutation, active-run dedupe by owner+normalized role+locale+config, CAS transition conflict, immutable package fingerprint replay, TTL cache hit/miss, owner isolation, retry lineage, and Ready-only resolution.
+
+Use a test-only `node:sqlite` D1 adapter that actually executes prepared SQL and wraps `batch` in a transaction with rollback on failure. Apply `0000`–`0005` to an in-memory database. SQL substring mocks alone cannot prove ownership, CAS, rollback, or budget concurrency. Reuse this bounded adapter in Task 5, without changing production repository APIs.
 
 ```ts
 await expect(repository.getPublicRun("owner-b", run.id)).resolves.toBeNull();
@@ -364,7 +367,7 @@ Expected: PASS including concurrent replay and cross-owner cases.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add app/server/research/repository.ts app/server/research/d1-repository.ts tests/server/d1-research-repository.test.ts
+git add app/server/research/repository.ts app/server/research/d1-repository.ts tests/server/d1-research-repository.test.ts tests/helpers/sqlite-d1.ts
 git commit -m "feat: persist owner bound research runs"
 ```
 
@@ -410,6 +413,8 @@ Expected: FAIL because cost budgets are not modeled.
 - [ ] **Step 3: Implement fail-closed environment parsing and two-period reservations**
 
 Parse `ARC_AI_SITE_DAILY_BUDGET_MICROS`, `ARC_AI_SITE_MONTHLY_BUDGET_MICROS`, `ARC_AI_RESEARCH_MAX_COST_MICROS`, and `ARC_AI_REPAIR_MAX_COST_MICROS` as safe non-negative integers. Reserve the combined maximum against UTC day and month buckets in a single D1 batch guarded by versioned conditional updates. Replays return the original reservation. A denied update returns `{ allowed: false, reason: "budget" }` and creates no provider-call authority.
+
+A conditional UPDATE that affects zero rows does not itself roll back a D1 batch. Include a constraint-backed final reservation guard, or an equivalently atomic SQL construction, so a day/month partial success cannot leak reserved funds or grant call authority. Prove this by exhausting only one bucket in the SQLite-backed test, and verify both bucket balances and reservation count remain unchanged on denial.
 
 Settlement must be idempotent:
 
