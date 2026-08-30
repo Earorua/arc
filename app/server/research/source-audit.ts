@@ -6,8 +6,10 @@ import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
 const annotationListSchema = z.array(providerCitationAnnotationSchema).max(256);
 const forbiddenSuffixes = ["onion", "alt", "lan", "home", "corp"];
 const unsafeControl = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/u;
-const unsafeMarkup = /<!--|<!doctype\b|<\/?[a-z][a-z0-9-]*(?:\s[^<>]*?)?\/?\s*>|<\/?(?:script|iframe|img|svg|object|embed)(?:\s|$)|&lt;\/?(?:script|iframe|img|svg|object|embed)\b/iu;
-const unsafeInstruction = /\b(?:ignore|disregard|override|forget)\b[\s\S]{0,64}\b(?:instructions?|prompts?|rules?)\b|(?:^|\n)\s*(?:system|developer|assistant|tool)\s*:|\[\/?INST\]|<\|(?:im_start|im_end|system|assistant|endoftext)\|>/iu;
+// Known HTML tags or executable custom-tag attributes, not arbitrary <T> or <y ...> prose.
+const unsafeMarkup = /<!--|<!doctype\b|<\/?(?:a|abbr|address|area|article|aside|audio|b|base|bdi|bdo|blockquote|body|br|button|canvas|caption|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|div|dl|dt|em|embed|fieldset|figcaption|figure|footer|form|h[1-6]|head|header|hgroup|hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|math|menu|meta|meter|nav|noscript|object|ol|optgroup|option|output|p|picture|pre|progress|q|rp|rt|ruby|s|samp|script|search|section|select|slot|small|source|span|strong|style|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|u|ul|var|video|wbr)(?=[\s/>]|$)|<[a-z][a-z0-9:-]*\s[^<>]*\b(?:on[a-z]+\s*=|(?:href|src|action)\s*=\s*["']?\s*(?:javascript|vbscript|data):)/iu;
+// Only instruction/prompt targets or explicitly system/prior/safety rules indicate control wording.
+const unsafeInstruction = /\b(?:ignore|disregard|override|forget)\s+(?:(?:all|the|any|your|these|those)\s+)*(?:(?:previous|prior|earlier|above|system|developer|safety|security)\s+)*(?:instructions?|prompts?)\b|\b(?:ignore|disregard|override|forget)\s+(?:(?:all|the|any)\s+)*(?:previous|prior|earlier|above|system|developer|your|safety|security)\s+rules?\b|(?:^|\n)\s*(?:system|developer|assistant|tool)\s*:|\[\/?INST\]|<\|(?:im_start|im_end|system|assistant|endoftext)\|>/iu;
 const unsafeSecret = /\bsk-(?:or-v1-|proj-)?[a-z0-9_-]{12,}|\bBearer\s+[a-z0-9._-]{12,}|\b(?:api[_-]?key|access[_-]?token|password)\s*[=:]\s*\S+/iu;
 
 export class SourcePolicyError extends Error {
@@ -103,6 +105,8 @@ export function readBoundedResearchJson(value: unknown): unknown {
       const result: Record<string, unknown> = {};
       for (const [key, descriptor] of Object.entries(descriptors)) {
         if (array && key === "length") continue;
+        textLength += key.length;
+        if (key.length > 8_192 || textLength > 16_000_000) throw new SourcePolicyError("invalid-schema");
         if (!("value" in descriptor) || !descriptor.enumerable) throw new SourcePolicyError("invalid-schema");
         Object.defineProperty(result, key, { value: copy(descriptor.value, depth + 1), enumerable: true });
       }

@@ -1,9 +1,26 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { researchCandidateSchema } from "../../app/contracts/research";
-import { auditResearchSources, canonicalizePublicCitationUrl, SourcePolicyError } from "../../app/server/research/source-audit";
+import { auditResearchSources, canonicalizePublicCitationUrl, readBoundedResearchJson, SourcePolicyError } from "../../app/server/research/source-audit";
 import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe("untrusted research JSON property-name bounds", () => {
+  it("rejects a property name exceeding the per-string bound without exposing the name", () => {
+    const key = "k".repeat(8_193);
+    expect(() => readBoundedResearchJson({ [key]: null }))
+      .toThrowError(new SourcePolicyError("invalid-schema"));
+  });
+
+  it("counts individually bounded property names toward the aggregate text budget", () => {
+    const value = Object.fromEntries(Array.from({ length: 2_000 }, (_, index) => [
+      `${String(index).padStart(4, "0")}-${"k".repeat(7_996)}`, null,
+    ]));
+    expect(Object.keys(value).every((key) => key.length <= 8_192)).toBe(true);
+    expect(Object.keys(value).reduce((sum, key) => sum + key.length, 0)).toBeGreaterThan(16_000_000);
+    expect(() => readBoundedResearchJson(value)).toThrowError(new SourcePolicyError("invalid-schema"));
+  });
+});
 
 describe("public citation URL canonicalization", () => {
   it("normalizes HTTPS hosts, tracking parameters, fragments and query ordering", () => {
