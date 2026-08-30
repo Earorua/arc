@@ -12,7 +12,7 @@
 >
 > Task 3 已通过独立规格审查。质量审查提出的唯一 Minor（二进制错误码绕过文本约束）已先复现 RED，再在 `33cb78dbe8bcc24abfd8f1639ebf05a712494da8` 修复；主代理独立数据库回归为 95/95，TypeScript 与 diff-check 通过，质量复审确认 Critical / Important / Minor 均为零。修复从原 `0004` 元数据重新生成尚未发布的 `0005`，没有新增 `0006` 或修改旧迁移。
 >
-> Task 4 已由实现代理 `task4_research_persistence` 从 `5fc4c11` 开始 TDD：所有者隔离的研究运行、幂等别名、缓存、CAS 与原子 Ready 写入；当前尚未宣称完成。计划已补充固定数量的批量 SQL、真实 SQLite 事务测试，以及全局 URL 资源复用但不覆盖元数据的约束。之后继续 Task 5–13。恢复先核对实际 Git HEAD、代理状态与未提交文件；不要重做 Task 1–3 或覆盖后续进行中的修改。代理 observation timeout 不等于停止；只有实际终态或句柄缺失才允许重新派发。
+> Task 4 初版已提交为 `986d43a`（四个文件），实现代理报告 13/13 聚焦测试、TypeScript 与局部 lint 通过，但尚未通过独立审查，不能据此标记完成。主代理已核实：高扇出用例实际包含自依赖/循环和不完整资源引用，当前包解析只验证 Schema/指纹而漏掉领域规则；缓存附加缺少运行岗位/locale/config 绑定，重试 lineage 也在创建后另行更新。已交回同一实现代理 `task4_research_persistence` 按 TDD 修复，补齐有效 DAG 高扇出、非法 Ready 拒绝、缓存身份、原子重试、失败分类及完整事务测试，再进入规格/质量双审。之后继续 Task 5–13。恢复先核对实际 Git HEAD、代理状态与未提交文件；不要重做 Task 1–3 或覆盖后续进行中的修改。代理 observation timeout 不等于停止；只有实际终态或句柄缺失才允许重新派发。
 >
 > 主代理核对实际消费者后，在计划提交 `1cbb136` 补齐了 Tasks 9–11 的研究数据接线范围：Ready 公共规划投影、规划 HTTP/source context、刷新后的客户端恢复、Path/Today/Stack/Proof 与服务端 Proof 的同源数据、工作区岗位标题和完整链路测试。这些都是既有 Goal 2 可用闭环的必要接入，不能只实现 Ready 面板或服务器生成就宣称完成。
 >
