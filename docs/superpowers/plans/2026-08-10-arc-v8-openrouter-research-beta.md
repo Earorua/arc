@@ -442,6 +442,10 @@ git commit -m "feat: enforce research cost budgets"
 
 ### Task 6: Build the server-only OpenRouter adapter
 
+**Official interface check, 2026-08-30:** Pin web search to `engine: "exa"`, `mode: "fast"`, `max_results: 5`, `max_uses: 2`, `max_total_results: 10`, and `max_characters: 2000`, with top-level `max_tool_calls: 2`. Do not leave engine selection on `auto`: native providers other than Anthropic ignore `max_uses`, and native search ignores result-size controls. Do not add `stop_server_tools_when` alongside the tool-call limit, because it overrides that limit. Sources: [web search controls](https://openrouter.ai/docs/guides/features/server-tools/web-search), [server-tool limits](https://openrouter.ai/docs/guides/features/server-tools).
+
+**Billing boundary:** A D1 reservation is application accounting, not proof that an external bill cannot exceed it. Task 6 must bound request/response bytes and output tokens; any real-request gate must additionally verify fixed-model pricing, search charges, and provider/account spending controls against the authorized maximum. Never claim a hard external cost cap based on `ARC_AI_RESEARCH_MAX_COST_MICROS` alone. Unknown usage retains the conservative hold; actual usage is recorded even if it exceeds the reservation. [Provider price filters](https://openrouter.ai/docs/guides/routing/provider-selection) filter unit prices, not the total request bill.
+
 **Files:**
 - Create: `app/server/research/provider.ts`
 - Create: `app/server/research/openrouter-provider.ts`
@@ -457,7 +461,11 @@ Use a stubbed `fetch` and assert URL `https://openrouter.ai/api/v1/chat/completi
 expect(body).toMatchObject({
   stream: false,
   response_format: { type: "json_schema", json_schema: { strict: true } },
-  tools: [{ type: "openrouter:web_search", parameters: { max_uses: 2, max_total_results: 10 } }],
+  tools: [{ type: "openrouter:web_search", parameters: {
+    engine: "exa", mode: "fast", max_results: 5, max_uses: 2,
+    max_total_results: 10, max_characters: 2000,
+  } }],
+  max_tool_calls: 2,
   provider: { require_parameters: true, data_collection: "deny", zdr: true },
 });
 expect(repairBody.tools).toBeUndefined();
