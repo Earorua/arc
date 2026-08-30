@@ -363,6 +363,8 @@ All commands carry the session-derived owner. The D1 implementation must bind `u
 
 `getRun` is server-internal only (never an HTTP response) so Task 7 can identify and safely finalize expired attempts before offering explicit retry. Preserve run/request ids, state version and active expiry in the internal record. A mutation replay with conflicting input must return a typed conflict, not a second call. Shared cached packages remain nonpersonal; every attachment still belongs to an authenticated run owner.
 
+When a different mutation id deduplicates onto an already-active run, persist that alias in the existing owner-scoped `idempotency_records` table under a research-specific scope. The alias must include a bounded run id and input fingerprint, not a copied private/provider payload. Replaying that second mutation after the shared run becomes terminal must still return the same run rather than creating another paid attempt. Test this lifecycle and conflicting reuse explicitly; no additional table is needed.
+
 For terminal batch writes, a stale CAS must not leave orphan packages or normalized rows. Gate every insert/update on the same owner/state/version predicate until the final state update, or enforce rollback with a constraint-backed guard. Test the real SQL under stale versions and injected mid-batch failures, then verify package/audit/intelligence counts and run state are unchanged. Namespace normalized research role/version row ids to avoid overwriting existing Flagship or another immutable package; canonical domain ids inside package JSON remain unchanged.
 
 - [ ] **Step 4: Run repository tests**
@@ -427,6 +429,8 @@ Expected: FAIL because cost budgets are not modeled.
 Parse `ARC_AI_SITE_DAILY_BUDGET_MICROS`, `ARC_AI_SITE_MONTHLY_BUDGET_MICROS`, `ARC_AI_RESEARCH_MAX_COST_MICROS`, and `ARC_AI_REPAIR_MAX_COST_MICROS` as safe non-negative integers. Reserve the combined maximum against UTC day and month buckets in a single D1 batch guarded by versioned conditional updates. Replays return the original reservation. A denied update returns `{ allowed: false, reason: "budget" }` and creates no provider-call authority.
 
 A conditional UPDATE that affects zero rows does not itself roll back a D1 batch. Include a constraint-backed final reservation guard, or an equivalently atomic SQL construction, so a day/month partial success cannot leak reserved funds or grant call authority. Prove this by exhausting only one bucket in the SQLite-backed test, and verify both bucket balances and reservation count remain unchanged on denial.
+
+The guard must prove this attempt obtained both reservations, not merely that bucket versions/balances now equal values predicted from a prior read: another equal-sized concurrent request can produce those same values. Include a stale-read/equal-amount concurrency regression. A conditional insert that atomically checks both bucket capacities within the same transaction is also valid if subsequent writes occur only for that newly inserted reservation and replays cannot increment either bucket again.
 
 Settlement must be idempotent:
 
