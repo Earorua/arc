@@ -876,7 +876,7 @@ export const researchRuns = sqliteTable("research_runs", {
   check("research_runs_active_expiry_check", sql`(${table.state} NOT IN ('queued', 'researching', 'validating') OR ${table.activeExpiresAt} IS NOT NULL)
     AND (${table.activeExpiresAt} IS NULL OR (${nonnegativeSafeInteger(table.activeExpiresAt)}))`),
   check("research_runs_ready_package_check", sql`${table.state} <> 'ready' OR ${table.packageId} IS NOT NULL`),
-  check("research_runs_error_code_check", sql`${table.errorCode} IS NULL OR (length(${table.errorCode}) BETWEEN 1 AND 64
+  check("research_runs_error_code_check", sql`${table.errorCode} IS NULL OR (typeof(${table.errorCode}) = 'text' AND length(${table.errorCode}) BETWEEN 1 AND 64
     AND length(CAST(${table.errorCode} AS BLOB)) = length(${table.errorCode})
     AND ${table.errorCode} NOT GLOB '*[^a-z-]*' AND substr(${table.errorCode}, 1, 1) <> '-'
     AND substr(${table.errorCode}, -1) <> '-' AND instr(${table.errorCode}, '--') = 0)`),

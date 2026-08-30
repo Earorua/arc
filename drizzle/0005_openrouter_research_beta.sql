@@ -105,7 +105,7 @@ CREATE TABLE `research_runs` (
 	CONSTRAINT "research_runs_active_expiry_check" CHECK(("research_runs"."state" NOT IN ('queued', 'researching', 'validating') OR "research_runs"."active_expires_at" IS NOT NULL)
     AND ("research_runs"."active_expires_at" IS NULL OR (typeof("research_runs"."active_expires_at") = 'integer' AND "research_runs"."active_expires_at" BETWEEN 0 AND 9007199254740991))),
 	CONSTRAINT "research_runs_ready_package_check" CHECK("research_runs"."state" <> 'ready' OR "research_runs"."package_id" IS NOT NULL),
-	CONSTRAINT "research_runs_error_code_check" CHECK("research_runs"."error_code" IS NULL OR (length("research_runs"."error_code") BETWEEN 1 AND 64
+	CONSTRAINT "research_runs_error_code_check" CHECK("research_runs"."error_code" IS NULL OR (typeof("research_runs"."error_code") = 'text' AND length("research_runs"."error_code") BETWEEN 1 AND 64
     AND length(CAST("research_runs"."error_code" AS BLOB)) = length("research_runs"."error_code")
     AND "research_runs"."error_code" NOT GLOB '*[^a-z-]*' AND substr("research_runs"."error_code", 1, 1) <> '-'
     AND substr("research_runs"."error_code", -1) <> '-' AND instr("research_runs"."error_code", '--') = 0)),

@@ -110,6 +110,7 @@ describe("research beta SQLite migration", () => {
     { state: "ready", active_slot: null }, { retryable: 2 }, { state_version: -1 }, { state_version: 0.5 },
     { state_version: 9007199254740992 }, { locale: "unknown" }, { error_code: "Raw provider failure message" },
     { error_code: "timeout\u0000raw response" }, { error_code: "a".repeat(65) }, { error_code: "" },
+    { error_code: Buffer.from("timeout\u0000raw response") }, { error_code: Buffer.from([0, 1, 255]) },
     { error_code: "-timeout" }, { error_code: "timeout-" }, { error_code: "provider--timeout" },
     { public_failure_category: "raw-secret-message" },
   ] as Row[])("rejects invalid run state/value %j", (change) => withDatabase((db) => constraint(() => insert(db, "research_runs", runRow(change)))));

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b3180968-ca56-41c9-b404-a2f9869e2cee",
+  "id": "e74cd676-ecd0-4249-8415-a8639caf3943",
   "prevId": "45f7465f-97c8-4c1e-8732-7b89e8d9998a",
   "tables": {
     "account_link_intents": {
@@ -4062,7 +4062,7 @@
         },
         "research_runs_error_code_check": {
           "name": "research_runs_error_code_check",
-          "value": "\"research_runs\".\"error_code\" IS NULL OR (length(\"research_runs\".\"error_code\") BETWEEN 1 AND 64\n    AND length(CAST(\"research_runs\".\"error_code\" AS BLOB)) = length(\"research_runs\".\"error_code\")\n    AND \"research_runs\".\"error_code\" NOT GLOB '*[^a-z-]*' AND substr(\"research_runs\".\"error_code\", 1, 1) <> '-'\n    AND substr(\"research_runs\".\"error_code\", -1) <> '-' AND instr(\"research_runs\".\"error_code\", '--') = 0)"
+          "value": "\"research_runs\".\"error_code\" IS NULL OR (typeof(\"research_runs\".\"error_code\") = 'text' AND length(\"research_runs\".\"error_code\") BETWEEN 1 AND 64\n    AND length(CAST(\"research_runs\".\"error_code\" AS BLOB)) = length(\"research_runs\".\"error_code\")\n    AND \"research_runs\".\"error_code\" NOT GLOB '*[^a-z-]*' AND substr(\"research_runs\".\"error_code\", 1, 1) <> '-'\n    AND substr(\"research_runs\".\"error_code\", -1) <> '-' AND instr(\"research_runs\".\"error_code\", '--') = 0)"
         },
         "research_runs_public_failure_check": {
           "name": "research_runs_public_failure_check",
