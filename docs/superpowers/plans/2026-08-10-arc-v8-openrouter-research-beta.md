@@ -348,6 +348,7 @@ Expected: FAIL because the repository contracts and D1 implementation do not exi
 ```ts
 export interface ResearchRepository {
   createOrReplay(command: CreateResearchRunCommand): Promise<{ run: ResearchRunRecord; replayed: boolean }>;
+  getRun(ownerId: string, runId: string): Promise<ResearchRunRecord | null>;
   findFreshPackage(input: ResearchCacheLookup): Promise<ResearchPackage | null>;
   attachCachedPackage(command: AttachCachedPackageCommand): Promise<ResearchRunRecord>;
   transition(command: TransitionResearchRunCommand): Promise<ResearchRunRecord>;
@@ -359,6 +360,10 @@ export interface ResearchRepository {
 ```
 
 All commands carry the session-derived owner. The D1 implementation must bind `user_id` in every owner operation, serialize through contract schemas with byte limits, clear `active_slot` only on terminal transition, and use `UPDATE ... WHERE state_version = ? AND state = ?` plus a follow-up read to detect CAS failure. Save package, audits, normalized role-intelligence rows, and terminal run state in one `db.batch`.
+
+`getRun` is server-internal only (never an HTTP response) so Task 7 can identify and safely finalize expired attempts before offering explicit retry. Preserve run/request ids, state version and active expiry in the internal record. A mutation replay with conflicting input must return a typed conflict, not a second call. Shared cached packages remain nonpersonal; every attachment still belongs to an authenticated run owner.
+
+For terminal batch writes, a stale CAS must not leave orphan packages or normalized rows. Gate every insert/update on the same owner/state/version predicate until the final state update, or enforce rollback with a constraint-backed guard. Test the real SQL under stale versions and injected mid-batch failures, then verify package/audit/intelligence counts and run state are unchanged. Namespace normalized research role/version row ids to avoid overwriting existing Flagship or another immutable package; canonical domain ids inside package JSON remain unchanged.
 
 - [ ] **Step 4: Run repository tests**
 
