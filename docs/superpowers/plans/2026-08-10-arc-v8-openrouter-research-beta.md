@@ -649,6 +649,10 @@ git commit -m "feat: expose protected role research routes"
 
 ### Task 9: Connect Ready packages to deterministic planning and replay
 
+**Cross-flow closure found by source inspection, 2026-08-30:** Merely changing `PlanningService.generate` does not satisfy the approved Research -> Audit -> Build -> Path -> Today flow. `app/path/page.tsx` and `app/today/page.tsx` currently select adaptive rendering only when the legacy role equals Flagship; their adaptive components otherwise receive default Flagship sources. Stack, Proof, the workspace heading, Proof client projections, and the production Proof service also have fixed Flagship inputs. Tasks 9 and 11 must remove those assumptions for an authenticated, owner-bound research workspace, while retaining the exact existing Guest/Flagship/legacy behavior. This is required integration within Goal 2, not a new product goal or AI Proof review feature.
+
+**Historical-expiry decision gate:** A question has been sent to the user: should cache expiry prevent only new-plan generation, while existing plans continue replaying their immutable locked package? Current approved prose applies expiry at resolution and could stop a long-running plan after cache expiry. Do not silently add an expiry bypass. Tasks 4–8 can proceed with strict new-use expiry; settle this rule before implementing `resolveForReplay` and record the user's answer in the design and tests.
+
 **Files:**
 - Modify: `app/contracts/planning-api.ts`
 - Modify: `app/contracts/planning.ts`
@@ -661,6 +665,17 @@ git commit -m "feat: expose protected role research routes"
 - Modify: `tests/server/d1-planning-repository.test.ts`
 - Modify: `tests/server/planning-security.test.ts`
 - Create: `tests/server/research-planning-integration.test.ts`
+- Modify: `app/contracts/research.ts`
+- Modify: `app/server/research/d1-repository.ts`
+- Modify: `app/lib/planning-client.ts`
+- Modify: `app/lib/use-planning-workspace.ts`
+- Modify: `app/server/http/proof-route-factories.ts`
+- Modify: `app/server/proof/service.ts` (only if per-request source injection requires it)
+- Modify: `tests/contracts/research-contracts.test.ts`
+- Modify: `tests/lib/planning-client.test.ts`
+- Modify: `tests/lib/use-planning-workspace.test.tsx`
+- Modify: `tests/server/proof-service.test.ts`
+- Modify: `tests/server/d1-research-repository.test.ts`
 
 - [ ] **Step 1: Write compatibility, ownership, and replay tests**
 
@@ -703,6 +718,18 @@ export const planningSourceReferenceSchema = z.discriminatedUnion("source", [
 Extend `PlanningRepositoryPayload`, `SavePlanningGenerationCommand`, and `SavePlanningEventCommand` with `sourceReference`. Store it inside the bounded `storedGenerationSchema` envelope and return it on every repository load/mutation replay. Make the envelope field optional only while reading historical generations; derive the Flagship reference only when the stored workspace has the exact Flagship blueprint and registry ids. New writes always include the explicit reference. This avoids changing `PLANNING_SCHEMA_VERSION`, nested planning fingerprints, or canonical workspace snapshots.
 
 Change `D1PlanningRepository` from constructor-fixed blueprint/registry to an injected `PlanningSourceResolver`; every `replayHistory`, `replayPlanningEvents`, and `applyPlanningEvent` call resolves by authenticated owner plus the generation envelope reference. Research resolution failure must surface as unavailable/version-mismatch and must never fall back to Flagship. `PlanningService.generate` resolves the public request source before building and passes the returned reference into `saveGeneration`; append/replan methods reuse the reference returned by `repository.load`.
+
+Expose only the existing validated domain data required for the approved client-side audit and deterministic preview. Add this strict projection in `app/contracts/research.ts` and include it in the owner-only Ready view; do not expose the full internal ResearchPackage:
+
+```ts
+export const researchPlanningDataSchema = researchPackageSchema.pick({
+  id: true, blueprint: true, registry: true,
+});
+```
+
+Add `sourceContext` to the planning HTTP response envelopes (not `PlanningWorkspace`), carrying the immutable source reference plus the validated blueprint/registry. Preserve reading of historical Flagship-only response fixtures, but permit inferred defaults only when both stored blueprint and registry identities are exactly Flagship. A research workspace with missing or mismatched source context must be unavailable, never implicitly Flagship. Extend the planning client/controller to retain this context in memory, obtain it again from the authenticated workspace response after navigation or reload, and clear it under the same identity/generation guards as the workspace. No research package or context is persisted in browser storage. Add wire-response byte limits that account for both workspace and source context, and strict response parsing. Keep old response/workspace fingerprints intact.
+
+Inject the same authenticated goal's resolved source into the production Proof service. Research skill IDs must be accepted for that goal, arbitrary foreign skill IDs rejected, and existing structural/deterministic review rules unchanged. Add an integration test for a Research plan's completed unit -> Proof submission -> demonstrated projection -> withdrawal, alongside the existing Flagship Proof regressions. Never use a package from a client request as Proof validation authority.
 
 - [ ] **Step 4: Run planning, Today, and proof regressions**
 
@@ -771,6 +798,17 @@ git commit -m "feat: recover role research in setup"
 - Modify: `tests/components/setup-flow.test.tsx`
 - Modify: `tests/components/adaptive-setup-flow.test.tsx`
 - Modify: `tests/components/accessibility-contracts.test.tsx`
+- Modify: `app/path/page.tsx`
+- Modify: `app/today/page.tsx`
+- Modify: `app/stack/page.tsx`
+- Modify: `app/proof/page.tsx`
+- Modify: `app/components/workspace/workspace-shell.tsx`
+- Modify: `app/lib/use-proof-ledger.ts`
+- Modify: `app/components/proof/proof-profile.tsx`
+- Modify: `app/components/proof/proof-workspace.tsx`
+- Modify: `app/components/proof/proof-editor.tsx` (skill input type only if needed)
+- Create: `tests/components/research-workspace-pages.test.tsx`
+- Modify: `tests/lib/use-proof-ledger.test.tsx`
 
 - [ ] **Step 1: Write failing Setup state and accessibility tests**
 
@@ -798,6 +836,10 @@ Content plan: existing role question; one inline Beta explanation/action for an 
 Interaction thesis: move focus to the status heading on state transition; reveal the Ready facts with the existing restrained opacity/translate treatment; use only the existing button hover/focus language and disable motion under `prefers-reduced-motion`.
 
 `RoleResearchPanel` receives the controller state and callbacks as props, renders external text only in text nodes, and uses `aria-live="polite"`, `aria-busy`, and explicit alert semantics. `SetupFlow` receives signed-in/cohort eligibility and a `renderResearch` slot so it stays presentational. `AdaptiveSetupFlow` accepts `{source:"flagship",roleId}` or `{source:"research",researchRunId}` and builds the discriminated planning request. `app/setup/page.tsx` wires session/cohort state, research controller, and the source-aware adaptive connector. Keep the old custom role disclosure and proportional v7 completion route when Research Beta is unavailable or declined.
+
+Use Ready `planningData` for the actual skill audit and target preview; submit only `researchRunId` plus learner answers, never the displayed package. After saving, Path and Today must select the adaptive workspace by its resolved source context rather than a legacy `setup.roleId === flagshipRole.id` test, and pass its explicit blueprint/registry into `AdaptivePath` and `AdaptiveTodaySession`. Stack and Proof must use that same source's skills for rendering and evidence projection; the workspace heading shows that role's name. Narrow Proof presentation skill props to the fields actually used instead of inventing legacy SkillNode metadata for researched skills. Keep the legacy sample banner only for the real legacy-custom fallback. Missing context shows a loading/recovery boundary, not Flagship content masquerading as the researched role.
+
+`research-workspace-pages.test.tsx` must mount the real page adapters with a non-Flagship validated package and workspace, assert researched phase/skill/resource/step/minute content and heading, refresh with a new controller instance and empty research recovery storage, then exercise Complete/Delay/Keep/Accept. Verify no fixed Flagship content leaks into researched pages; preserve existing Flagship and legacy custom regressions. `use-proof-ledger` must project researched skill IDs and clear source-derived data on account change. Fake-provider browser UAT covers this whole path, not just the Ready panel.
 
 CSS must reuse existing variables/typefaces/accent, remain cardless, collapse to one column at 320px, enforce `min-height: 44px` for actions, and add no gradient or second accent color.
 
