@@ -30,6 +30,42 @@ function request(overrides: Record<string, unknown> = {}) {
 }
 
 describe("EntitlementGate", () => {
+  it("admits Research atomically without the legacy global-units setting", async () => {
+    const repo = { ...repository(), admitResearch: vi.fn().mockResolvedValue({ allowed: true, reservationId: "research-reservation", replayed: false, finalStatus: null }) };
+    const gate = new EntitlementGate(repo, { ARC_AI_ENABLED: "true", ARC_AI_USER_DAILY_QUOTA: "1", ARC_AI_RATE_LIMIT_PER_MINUTE: "2" }, { now: () => new Date("2026-08-31T12:00:00Z") });
+    await expect(gate.authorizeResearch(request({ purpose: "role-research" }))).resolves.toMatchObject({ allowed: true, reservationId: "research-reservation", replayed: false, finalStatus: null });
+    expect(repo.admitResearch).toHaveBeenCalledWith({ userId: "user-owner", purpose: "role-research", idempotencyKey: request().idempotencyKey, units: 1, dailyQuota: 1, period: { startMs: Date.parse("2026-08-31T00:00:00Z"), endMs: Date.parse("2026-09-01T00:00:00Z") } });
+    expect(repo.readUsage).not.toHaveBeenCalled(); expect(repo.reserve).not.toHaveBeenCalled();
+  });
+
+  it("never falls back to non-atomic reservation for Research", async () => {
+    const repo = repository();
+    await expect(new EntitlementGate(repo, enabledEnvironment).authorizeResearch(request({ purpose: "role-research" }))).resolves.toEqual({ allowed: false, reason: "disabled" });
+    expect(repo.reserve).not.toHaveBeenCalled(); expect(repo.readUsage).not.toHaveBeenCalled();
+  });
+
+  it("cannot bypass atomic Research admission through the legacy authorize entrypoint", async () => {
+    const repo = repository();
+    await expect(new EntitlementGate(repo, enabledEnvironment).authorize(request({ purpose: "role-research" }))).resolves.toEqual({ allowed: false, reason: "disabled" });
+    expect(repo.reserve).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [{ cohortEnabled: false }, {}, "cohort"], [{ rateAllowed: false }, {}, "rate"],
+    [{ units: 2 }, {}, "disabled"], [{ purpose: "role-research-preview" }, {}, "disabled"],
+    [{}, { ARC_AI_USER_DAILY_QUOTA: "" }, "disabled"], [{}, { ARC_AI_USER_DAILY_QUOTA: "1e2" }, "disabled"],
+    [{}, { ARC_AI_ENABLED: "false" }, "disabled"],
+  ])("guards Research admission before repository work: %j %j", async (overrides, environment, reason) => {
+    const repo = { ...repository(), admitResearch: vi.fn() };
+    await expect(new EntitlementGate(repo, { ...enabledEnvironment, ...environment }).authorizeResearch(request({ purpose: "role-research", ...overrides }))).resolves.toEqual({ allowed: false, reason });
+    expect(repo.admitResearch).not.toHaveBeenCalled();
+  });
+
+  it("returns an atomic Research quota denial without legacy budget checks", async () => {
+    const repo = { ...repository(), admitResearch: vi.fn().mockResolvedValue({ allowed: false, reason: "quota" }) };
+    await expect(new EntitlementGate(repo, enabledEnvironment).authorizeResearch(request({ purpose: "role-research" }))).resolves.toEqual({ allowed: false, reason: "quota" });
+  });
+
   it("fails closed when globally disabled or configuration is invalid", async () => {
     const repo = repository();
     await expect(new EntitlementGate(repo, {
