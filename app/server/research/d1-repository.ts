@@ -253,7 +253,23 @@ function bytes(value: string) { return new TextEncoder().encode(value).byteLengt
 function serialize(value: unknown, limit: number) { try { const bounded = readBoundedResearchJson(value); const result = JSON.stringify(bounded); if (typeof result !== "string" || bytes(result) > limit) throw new Error(); return result; } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
 function parseJson(value: string, limit: number) { if (bytes(value) > limit) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); try { return readBoundedResearchJson(JSON.parse(value) as unknown); } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
 function validateQuality(value: unknown) { try { return researchQualityReportSchema.parse(readBoundedResearchJson(value)); } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
-function validatePackage(value: unknown, now: number) { try { const snapshot = readBoundedResearchJson(value); const packageValue = researchPackageSchema.parse(snapshot); if (canonicalJson(snapshot) !== canonicalJson(packageValue) || !packageValue.qualityReport.passed || expiryMs(packageValue.expiresAt) <= now) throw new Error(); const { contentFingerprint, ...rest } = packageValue; if (fingerprint(canonicalJson(rest)) !== contentFingerprint) throw new Error(); assertPackageIntegrity(packageValue); return packageValue; } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
+function validatePackage(value: unknown, now: number) {
+  try {
+    const snapshot = readBoundedResearchJson(value);
+    const packageValue = researchPackageSchema.parse(snapshot);
+    if (canonicalJson(snapshot) !== canonicalJson(packageValue)
+      || !packageValue.qualityReport.passed
+      || expiryMs(packageValue.expiresAt) <= now) {
+      throw new Error();
+    }
+    const { contentFingerprint, ...rest } = packageValue;
+    if (fingerprint(canonicalJson(rest)) !== contentFingerprint) throw new Error();
+    assertPackageIntegrity(packageValue);
+    return packageValue;
+  } catch {
+    throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+  }
+}
 function validateCandidate(value: unknown) {
   try {
     const candidate = researchCandidateSchema.parse(readBoundedResearchJson(value));
@@ -321,7 +337,19 @@ function parseRun(row: Row): ResearchRunRecord {
 }
 function string(value: unknown) { if (typeof value !== "string") throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); return value; }
 function assertSameInput(run: ResearchRunRecord, command: CreateResearchRunCommand, retryOfRunId: string | null) { if (run.retryOfRunId !== retryOfRunId || run.inputFingerprint !== command.inputFingerprint || run.normalizedRoleKey !== command.normalizedRoleKey || run.locale !== command.locale || run.configFingerprint !== command.configFingerprint) throw new ResearchRepositoryError("CONFLICT"); return run; }
-function assertTransition(command: TransitionResearchRunCommand) { const normal = (command.from === "queued" && command.to === "researching") || (command.from === "researching" && command.to === "validating"); const failure = ['queued','researching','validating'].includes(command.from) && command.to === "failed"; if (!normal && !failure) throw new ResearchRepositoryError("CONFLICT"); if (failure && (!command.errorCode || !command.failureCategory)) throw new ResearchRepositoryError("CONFLICT"); if (normal && (command.retryable || command.errorCode || command.failureCategory)) throw new ResearchRepositoryError("CONFLICT"); }
+function assertTransition(command: TransitionResearchRunCommand) {
+  const normal = (command.from === "queued" && command.to === "researching")
+    || (command.from === "researching" && command.to === "validating");
+  const failure = ["queued", "researching", "validating"].includes(command.from)
+    && command.to === "failed";
+  if (!normal && !failure) throw new ResearchRepositoryError("CONFLICT");
+  if (failure && (!command.errorCode || !command.failureCategory)) {
+    throw new ResearchRepositoryError("CONFLICT");
+  }
+  if (normal && (command.retryable || command.errorCode || command.failureCategory)) {
+    throw new ResearchRepositoryError("CONFLICT");
+  }
+}
 
 function aliasJson(command: CreateResearchRunCommand, runId: string, retryOfRunId: string | null) {
   return serialize({ runId, retryOfRunId, inputFingerprint: command.inputFingerprint, normalizedRoleKey: command.normalizedRoleKey, locale: command.locale, configFingerprint: command.configFingerprint }, 4096);
