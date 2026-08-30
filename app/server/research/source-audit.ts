@@ -6,8 +6,18 @@ import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
 const annotationListSchema = z.array(providerCitationAnnotationSchema).max(256);
 const forbiddenSuffixes = ["onion", "alt", "lan", "home", "corp"];
 const unsafeControl = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/u;
-// Known HTML tags or executable custom-tag attributes, not arbitrary <T> or <y ...> prose.
-const unsafeMarkup = /<!--|<!doctype\b|<\/?(?:a|abbr|address|area|article|aside|audio|b|base|bdi|bdo|blockquote|body|br|button|canvas|caption|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|div|dl|dt|em|embed|fieldset|figcaption|figure|footer|form|h[1-6]|head|header|hgroup|hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|math|menu|meta|meter|nav|noscript|object|ol|optgroup|option|output|p|picture|pre|progress|q|rp|rt|ruby|s|samp|script|search|section|select|slot|small|source|span|strong|style|sub|summary|sup|svg|table|tbody|td|template|textarea|tfoot|th|thead|time|title|tr|track|u|ul|var|video|wbr)(?=[\s/>]|$)|<[a-z][a-z0-9:-]*\s[^<>]*\b(?:on[a-z]+\s*=|(?:href|src|action)\s*=\s*["']?\s*(?:javascript|vbscript|data):)/iu;
+// Dangerous tags/attributes remain forbidden even when incomplete or adjacent to prose.
+const unsafeMarkup = /<!--|<!doctype\b|<\/?(?:script|style|iframe|frame|frameset|img|svg|math|object|embed|link|meta|base)(?=[\s/>]|$)|<[a-z][a-z0-9:-]*\s[^<>]*\b(?:on[a-z]+\s*=|(?:href|src|action)\s*=\s*["']?\s*(?:javascript|vbscript|data):)/iu;
+const htmlTagNames = new Set((
+  "a abbr address area article aside audio b base bdi bdo blockquote body br button canvas caption cite code col colgroup "
+  + "data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 "
+  + "head header hgroup hr html i iframe img input ins kbd label legend li link main map mark math menu meta meter nav "
+  + "noscript object ol optgroup option output p picture pre progress q rp rt ruby s samp script search section select "
+  + "slot small source span strong style sub summary sup svg table tbody td template textarea tfoot th thead time title "
+  + "tr track u ul var video wbr"
+).split(" "));
+// Prose such as `and a` is not an attribute assignment and cannot complete a tag.
+const completeHtmlTag = /<\/?([a-z][a-z0-9-]*)(?:\s+[a-z_:][a-z0-9_.:-]*\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))*\s*\/?>/giu;
 // Only instruction/prompt targets or explicitly system/prior/safety rules indicate control wording.
 const unsafeInstruction = /\b(?:ignore|disregard|override|forget)\s+(?:(?:all|the|any|your|these|those)\s+)*(?:(?:previous|prior|earlier|above|system|developer|safety|security)\s+)*(?:instructions?|prompts?)\b|\b(?:ignore|disregard|override|forget)\s+(?:(?:all|the|any)\s+)*(?:previous|prior|earlier|above|system|developer|your|safety|security)\s+rules?\b|(?:^|\n)\s*(?:system|developer|assistant|tool)\s*:|\[\/?INST\]|<\|(?:im_start|im_end|system|assistant|endoftext)\|>/iu;
 const unsafeSecret = /\bsk-(?:or-v1-|proj-)?[a-z0-9_-]{12,}|\bBearer\s+[a-z0-9._-]{12,}|\b(?:api[_-]?key|access[_-]?token|password)\s*[=:]\s*\S+/iu;
@@ -88,7 +98,7 @@ export function readBoundedResearchJson(value: unknown): unknown {
       textLength += input.length;
       if (input.length > 8_192 || textLength > 16_000_000) throw new SourcePolicyError("invalid-schema");
       const decoded = decodeForSafety(input);
-      if (unsafeControl.test(decoded) || unsafeMarkup.test(decoded) || unsafeInstruction.test(decoded) || unsafeSecret.test(decoded)) {
+      if (unsafeControl.test(decoded) || hasUnsafeMarkup(decoded) || unsafeInstruction.test(decoded) || unsafeSecret.test(decoded)) {
         throw new SourcePolicyError("unsafe-content");
       }
       return input;
@@ -128,6 +138,19 @@ export function readBoundedResearchJson(value: unknown): unknown {
     if (error instanceof SourcePolicyError) throw error;
     throw new SourcePolicyError("invalid-schema");
   }
+}
+
+function hasUnsafeMarkup(value: string): boolean {
+  if (unsafeMarkup.test(value)) return true;
+  for (const match of value.matchAll(completeHtmlTag)) {
+    if (!htmlTagNames.has(match[1]!.toLowerCase())) continue;
+    // Bare identifier<Type> and identifier<other> comparisons stay text. A closing
+    // HTML tag or any assigned attribute still identifies actual markup.
+    const adjacentTechnicalText = /^<[a-z][a-z0-9-]*>$/iu.test(match[0])
+      && /[\p{L}\p{N}_$]$/u.test(value.slice(0, match.index));
+    if (!adjacentTechnicalText) return true;
+  }
+  return false;
 }
 
 // Inspect common transport encodings without changing the persisted/plain-text content.
