@@ -325,7 +325,7 @@ git commit -m "feat: add research beta persistence schema"
 - Create: `tests/server/d1-research-repository.test.ts`
 - Create: `tests/helpers/sqlite-d1.ts`
 
-- [ ] **Step 1: Write failing repository tests**
+- [x] **Step 1: Write failing repository tests**
 
 Cover create-or-replay by owner+mutation, active-run dedupe by owner+normalized role+locale+config, CAS transition conflict, immutable package fingerprint replay, TTL cache hit/miss, owner isolation, retry lineage, and Ready-only resolution.
 
@@ -340,13 +340,13 @@ await expect(repository.transition({ id: run.id, ownerId: "owner-a", expectedVer
   .rejects.toMatchObject({ code: "CONFLICT" });
 ```
 
-- [ ] **Step 2: Run repository tests and verify RED**
+- [x] **Step 2: Run repository tests and verify RED**
 
 Run: `npm run test:unit -- tests/server/d1-research-repository.test.ts`
 
 Expected: FAIL because the repository contracts and D1 implementation do not exist.
 
-- [ ] **Step 3: Define repository commands and typed errors**
+- [x] **Step 3: Define repository commands and typed errors**
 
 ```ts
 export interface ResearchRepository {
@@ -374,18 +374,20 @@ For terminal batch writes, a stale CAS must not leave orphan packages or normali
 
 `learning_resources.canonical_url` is already globally unique. Reuse the row identity for an existing canonical URL without updating its metadata; preserve each research package's exact resource metadata inside immutable package/blueprint JSON and its own source audit. New role IDs, slugs, version IDs, skill/edge/link IDs must be namespaced independently of canonical domain IDs. Test two packages with the same canonical role and URL, plus a seeded preexisting resource with different metadata: both packages resolve unchanged, the old resource remains unchanged, and links reference the actual URL-matched resource ID. Do not change the old schema or silently overwrite global resource records.
 
-- [ ] **Step 4: Run repository tests**
+- [x] **Step 4: Run repository tests**
 
 Run: `npm run test:unit -- tests/server/d1-research-repository.test.ts`
 
 Expected: PASS including concurrent replay and cross-owner cases.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/server/research/repository.ts app/server/research/d1-repository.ts tests/server/d1-research-repository.test.ts tests/helpers/sqlite-d1.ts
 git commit -m "feat: persist owner bound research runs"
 ```
+
+**Task 4 evidence, 2026-08-31:** Initial implementation `986d43a`; invariant repairs `e1b4083`; same-canonical-role package coverage `26e55b4`; formatting-only readability fix `a7b18f5`. Specification review passed at `26e55b4`; quality re-review at `a7b18f5` has no outstanding findings. Controller focused persistence 100/100 at `26e55b4`, final full suite **113 files / 1553 tests** at `a7b18f5`, exit 0. At `e1b4083`, TypeScript, full lint, build 5/5 and rendered HTML 3/3 passed; the first CPU-contended full run had one large-fixture timeout, followed by unchanged standalone 1552/1552. Final test count increases by one from the same-role coverage addition. No timeout increase, real provider call, merge, push, or deployment. Task 5 may proceed.
 
 ### Task 5: Enforce atomic cost budgets separately from accepted-user quota
 

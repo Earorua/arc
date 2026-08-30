@@ -1,6 +1,6 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-08-30 目标 2 Research Beta：Task 1–3 已完成，进入 Task 4 所有者隔离持久化**
+> **2026-08-31 目标 2 Research Beta：Task 1–4 已完成，进入 Task 5 原子预算与配额控制**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
 >
@@ -13,6 +13,14 @@
 > Task 3 已通过独立规格审查。质量审查提出的唯一 Minor（二进制错误码绕过文本约束）已先复现 RED，再在 `33cb78dbe8bcc24abfd8f1639ebf05a712494da8` 修复；主代理独立数据库回归为 95/95，TypeScript 与 diff-check 通过，质量复审确认 Critical / Important / Minor 均为零。修复从原 `0004` 元数据重新生成尚未发布的 `0005`，没有新增 `0006` 或修改旧迁移。
 >
 > Task 4 初版已提交为 `986d43a`（四个文件），实现代理报告 13/13 聚焦测试、TypeScript 与局部 lint 通过，但尚未通过独立审查，不能据此标记完成。主代理已核实：高扇出用例实际包含自依赖/循环和不完整资源引用，当前包解析只验证 Schema/指纹而漏掉领域规则；缓存附加缺少运行岗位/locale/config 绑定，重试 lineage 也在创建后另行更新。已交回同一实现代理 `task4_research_persistence` 按 TDD 修复，补齐有效 DAG 高扇出、非法 Ready 拒绝、缓存身份、原子重试、失败分类及完整事务测试，再进入规格/质量双审。之后继续 Task 5–13。恢复先核对实际 Git HEAD、代理状态与未提交文件；不要重做 Task 1–3 或覆盖后续进行中的修改。代理 observation timeout 不等于停止；只有实际终态或句柄缺失才允许重新派发。
+>
+> **2026-08-31 恢复补记：** 旧实现代理明确因额度错误终止，随后代理列表确认句柄已不存在。新代理 `task4_persistence_repair` 从原未提交修复接手，未重做 Task 1–3。已报告首组 18 项判别性失败及后续重试/输入边界 RED→GREEN（阶段性 74/74），仍在补齐 UTF-8 存储上限、各方法所有者/错误边界、双包共享网址和幂等记录损坏测试；这些不是最终审查证据。主代理在检查点提交 `2501ed0` 后独立运行原有 entitlements / D1 entitlements / AI gateway 三套件，14/14 通过。有效但超出存储上限的 Ready 包应以 CAS 进入 Failed 且不写入截断内容；伪造或矛盾的 Ready 命令直接拒绝、不产生局部写入。主代理不修改实现代理负责的四个代码/测试文件。
+>
+> **Task 4 修复与验证更新：** 修复已提交为 `e1b4083`，实现代理报告五组判别性 RED→GREEN，聚焦 99/99、相邻套件 331/331。主代理在该源码版本独立验证 TypeScript、完整 ESLint、生产构建 5/5 和 rendered HTML 3/3 通过；全量测试首次与 tsc/lint 并行时仅长 ID/网址压力用例超过 10 秒，随后保持源码和时限不变、单独运行全量得到 **113 files / 1552 tests 全通过**。不要把先前超时隐藏为断言修复；大型全量套件后续单独运行，避免额外 CPU 竞争。独立规格审查尚有一项验收覆盖缺口：双包共享 URL 用例改变了第二包 canonical role ID，没有直接证明同一 canonical role/version 的双包命名空间；已交回实现代理参数化补强，待复审后再启动质量审查。Task 4 仍未关闭，Task 5 尚未实施。
+>
+> 双包覆盖补强已提交为 `26e55b4`，仅修改测试，生产源码未变。主代理独立持久化回归为 **100/100**；规格代理复审确认 SPEC COMPLIANT，无剩余规格发现。质量代理 `task4_persistence_quality_review` 正在审查，不得在其完成且问题修复前关闭 Task 4 或开始 Task 5。
+>
+> **Task 4 最终关闭（覆盖上方阶段性状态）：** 规格审查在 `26e55b4` 通过；质量审查仅提出两处紧凑校验函数的可读性问题，已在 `a7b18f5` 仅作格式展开。主代理核对提交差异，质量代理复审确认行为、条件与求值顺序未变，Critical / Important / Minor 均为零。主代理在最终源码 `a7b18f5` 独立运行完整 `npm run test:unit`：**113 files / 1553 tests 全通过**，exit 0；未修改测试超时。Task 4 的 TypeScript、完整 lint、build 5/5、rendered HTML 3/3 证据来自上述 `e1b4083`，其后仅增加一项测试和格式整理，不冒称重新构建。现在从 Task 5 继续，Task 5 尚未实施，Task 1–4 不重做。
 >
 > 主代理核对实际消费者后，在计划提交 `1cbb136` 补齐了 Tasks 9–11 的研究数据接线范围：Ready 公共规划投影、规划 HTTP/source context、刷新后的客户端恢复、Path/Today/Stack/Proof 与服务端 Proof 的同源数据、工作区岗位标题和完整链路测试。这些都是既有 Goal 2 可用闭环的必要接入，不能只实现 Ready 面板或服务器生成就宣称完成。
 >
