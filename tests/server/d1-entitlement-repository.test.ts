@@ -165,4 +165,78 @@ describe("D1EntitlementRepository", () => {
     const id = await admit(repository); await repository.finalize(id, "accepted", 1);
     await expect(repository.readUsage("owner-a", "role-research", period)).resolves.toEqual({ userAcceptedUnits: 1, globalAcceptedUnits: 1 });
   });
+
+  describe.each(["purpose", "user_id", "idempotency_key"] as const)("related terminal corruption: %s", (field) => {
+    it.each(["admit", "usage", "replay", "finalize"] as const)("fails closed for %s even when the terminal's own scope columns changed", async (operation) => {
+      const { repository, db } = setup(); const id = await admit(repository);
+      const status = operation === "usage" ? "accepted" : "failed";
+      const units = status === "accepted" ? 1 : 0;
+      await repository.finalize(id, status, units);
+      db.database.prepare(`UPDATE quota_ledger SET ${field}=?1 WHERE entry_kind<>'reserved'`).run(field === "purpose" ? "preview" : field === "user_id" ? "owner-b" : "changed-terminal-key");
+      const before = db.database.prepare("SELECT count(*) count FROM quota_ledger").get();
+      const result = operation === "admit" ? repository.admitResearch(command("research-role-b")) : operation === "usage" ? repository.readUsage("owner-a", "role-research", period) : operation === "replay" ? repository.admitResearch(command()) : repository.finalize(id, status, units);
+      await expect(result).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE", message: "ENTITLEMENT_UNAVAILABLE" });
+      expect(db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual(before);
+    });
+  });
+
+  it.each([
+    ["reservation_id", " padded "], ["reservation_id", "\tpadded\t"],
+    ["reservation_id", "\u00a0padded\u00a0"], ["reservation_id", "\ufeffpadded\ufeff"],
+    ["idempotency_key", "        "], ["idempotency_key", "\tpadded-key\t"],
+    ["idempotency_key", "\u00a0padded-key\u00a0"], ["idempotency_key", "\ufeffpadded-key\ufeff"],
+    ["purpose", " role-research "], ["purpose", "\trole-research\t"],
+  ])("rejects noncanonical stored %s=%j for period accounting", async (field, value) => {
+    const { repository, db } = setup(); await admit(repository);
+    db.database.prepare(`UPDATE quota_ledger SET ${field}=?1`).run(value);
+    await expect(repository.admitResearch(command("research-role-b", { dailyQuota: 2 }))).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    await expect(repository.readUsage("owner-a", "role-research", period)).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    expect(db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 1 });
+  });
+
+  it.each([["reservation_id", 80], ["idempotency_key", 64]] as const)("uses schema UTF-16 bounds for stored %s, not SQLite code-point length", async (field, maximumPairs) => {
+    const { repository, db } = setup(); await admit(repository);
+    db.database.prepare(`UPDATE quota_ledger SET ${field}=?1`).run("😀".repeat(maximumPairs + 1));
+    await expect(repository.admitResearch(command("research-role-b", { dailyQuota: 2 }))).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    await expect(repository.readUsage("owner-a", "role-research", period)).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+  });
+
+  it.each([4, 64])("continues accepting schema-valid supplementary characters at key length %s pairs", async (keyPairs) => {
+    const { repository, db } = setup(); await admit(repository);
+    db.database.prepare("UPDATE quota_ledger SET reservation_id=?1,idempotency_key=?2").run("😀".repeat(80), "😀".repeat(keyPairs));
+    await expect(repository.admitResearch(command("research-role-b", { dailyQuota: 2 }))).resolves.toMatchObject({ allowed: true });
+    await expect(repository.readUsage("owner-a", "role-research", period)).resolves.toEqual({ userAcceptedUnits: 0, globalAcceptedUnits: 0 });
+  });
+
+  it("rejects embedded NULs consistently in supplied and stored ledger identifiers", async () => {
+    const { repository, db } = setup();
+    await expect(repository.admitResearch(command("research\u0000key"))).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    await admit(repository);
+    db.database.prepare("UPDATE quota_ledger SET reservation_id=?1").run("reservation\u0000suffix");
+    await expect(repository.admitResearch(command("research-role-b", { dailyQuota: 2 }))).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+  });
+
+  it("rechecks related terminal integrity inside the atomic admission statement", async () => {
+    const { repository, db } = setup(); const id = await admit(repository); await repository.finalize(id, "failed", 0);
+    const prepare = db.prepare.bind(db); let injected = false;
+    db.prepare = (sql) => {
+      if (!injected && sql.includes("SELECT ?5,?1,'role-research'")) {
+        injected = true;
+        db.database.exec("UPDATE quota_ledger SET purpose='preview' WHERE entry_kind='failed'");
+      }
+      return prepare(sql);
+    };
+    await expect(repository.admitResearch(command("research-role-b"))).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    expect(injected).toBe(true);
+    expect(db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 2 });
+  });
+
+  it("limits parent-related corruption checks to the relevant Research period or exact replay", async () => {
+    const { repository, db, setNow } = setup(); const id = await admit(repository); await repository.finalize(id, "failed", 0);
+    db.database.exec("UPDATE quota_ledger SET purpose='preview' WHERE entry_kind='failed'");
+    setNow(period.endMs + 1000); const nextPeriod = { startMs: period.endMs, endMs: period.endMs + 86_400_000 };
+    await expect(repository.admitResearch(command("research-next-day", { period: nextPeriod }))).resolves.toMatchObject({ allowed: true });
+    await expect(repository.readUsage("owner-a", "role-research", nextPeriod)).resolves.toEqual({ userAcceptedUnits: 0, globalAcceptedUnits: 0 });
+    await expect(repository.admitResearch(command("research-role-a", { period: nextPeriod }))).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+  });
 });

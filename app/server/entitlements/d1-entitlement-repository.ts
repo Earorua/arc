@@ -3,7 +3,7 @@ import { EntitlementRepositoryError, RESEARCH_QUOTA_PURPOSE, type EntitlementFin
 
 const MAX = Number.MAX_SAFE_INTEGER;
 const integer = z.number().int().min(0).max(MAX);
-const identifier = z.string().min(1).max(160).refine((value) => value.trim() === value);
+const identifier = z.string().min(1).max(160).refine((value) => value.trim() === value && !value.includes("\0"));
 const purposeSchema = identifier.max(120);
 const keySchema = identifier.min(8).max(128);
 const periodSchema = z.object({ startMs: integer, endMs: integer }).strict().refine((value) => value.endMs > value.startMs);
@@ -11,10 +11,20 @@ const reservationSchema = z.object({ user_id: identifier, purpose: purposeSchema
 type ReservationRow = z.infer<typeof reservationSchema>;
 type FinalRow = { entry_kind: EntitlementFinalStatus; units: number };
 const researchCommandSchema = z.object({ userId: identifier, purpose: z.literal(RESEARCH_QUOTA_PURPOSE), idempotencyKey: keySchema, units: z.literal(1), dailyQuota: integer.max(100_000), period: periodSchema.refine((value) => value.startMs % 86_400_000 === 0 && value.endMs - value.startMs === 86_400_000) }).strict();
+// SQLite's default trim removes only ASCII spaces; use ECMAScript trim's exact
+// whitespace set so stored keys cannot disagree with the command schemas.
+const trimCharacters = "char(9,10,11,12,13,32,160,5760,8192,8193,8194,8195,8196,8197,8198,8199,8200,8201,8202,8232,8233,8239,8287,12288,65279)";
+const trimmed = (column: string) => `trim(${column},${trimCharacters})`;
+// The command schemas count UTF-16 units. SQLite length counts code points, so
+// count supplementary pairs only for non-ASCII, bounded to identifier length.
+const utf16Length = (column: string) => `(length(${column}) + CASE WHEN length(CAST(${column} AS BLOB))=length(${column}) THEN 0 ELSE (SELECT count(*) FROM identifier_positions WHERE n<=length(${column}) AND unicode(substr(${column},n,1))>65535) END)`;
+const invalidIdentifier = (column: string, minimum: number, maximum: number) => `(typeof(${column})<>'text' OR instr(${column},char(0))>0 OR ${column}<>${trimmed(column)} OR length(${column})>${maximum} OR ${utf16Length(column)}<${minimum} OR ${utf16Length(column)}>${maximum})`;
 
 // Aggregate once: reservation_id has no index in the legacy schema. Correlated
 // scans here would turn period validation into quadratic work over ledger history.
-const ledgerGroups = `WITH ledger_groups AS MATERIALIZED (
+const ledgerGroups = `WITH RECURSIVE identifier_positions(n) AS MATERIALIZED (
+  SELECT 1 UNION ALL SELECT n+1 FROM identifier_positions WHERE n<160
+), ledger_groups AS MATERIALIZED (
   SELECT reservation_id,
     SUM(entry_kind='reserved') AS reserved_count, SUM(entry_kind<>'reserved') AS terminal_count,
     MAX(CASE WHEN entry_kind='reserved' THEN user_id END) AS reserved_user,
@@ -33,14 +43,20 @@ const invalidLedgerRow = `(
   OR (q.entry_kind='reserved' AND q.units<1)
   OR (q.entry_kind IN ('rejected','failed') AND q.units<>0)
   OR (q.purpose='${RESEARCH_QUOTA_PURPOSE}' AND q.entry_kind IN ('reserved','accepted') AND q.units<>1)
-  OR length(trim(q.purpose))<1 OR length(q.purpose)>120
-  OR length(trim(q.reservation_id))<1 OR length(q.reservation_id)>160
-  OR length(q.idempotency_key)<8 OR length(q.idempotency_key)>128
+  OR ${invalidIdentifier("q.user_id", 1, 160)}
+  OR ${invalidIdentifier("q.purpose", 1, 120)}
+  OR ${invalidIdentifier("q.reservation_id", 1, 160)}
+  OR ${invalidIdentifier("q.idempotency_key", 8, 128)}
   OR g.reserved_count<>1 OR g.terminal_count>1
   OR g.reserved_user<>q.user_id OR g.reserved_purpose<>q.purpose OR g.reserved_key<>q.idempotency_key OR g.reserved_units<q.units
 )`;
 const groupJoin = "quota_ledger q JOIN ledger_groups g ON g.reservation_id=q.reservation_id";
-const researchScope = `q.user_id=?1 AND (q.idempotency_key=?2 OR (q.purpose='${RESEARCH_QUOTA_PURPOSE}' AND ((g.reserved_created_at>=?3 AND g.reserved_created_at<?4) OR (q.created_at>=?3 AND q.created_at<?4))))`;
+// Include children through their parent reservation, even if a child's owner,
+// key or purpose is corrupt. Direct-row scope also catches orphan ledger rows.
+const exactScope = "((q.user_id=?1 AND q.idempotency_key=?2) OR (g.reserved_user=?1 AND g.reserved_key=?2))";
+const researchScope = `(${exactScope}
+  OR (g.reserved_user=?1 AND ${trimmed("g.reserved_purpose")}='${RESEARCH_QUOTA_PURPOSE}' AND g.reserved_created_at>=?3 AND g.reserved_created_at<?4)
+  OR (q.user_id=?1 AND ${trimmed("q.purpose")}='${RESEARCH_QUOTA_PURPOSE}' AND q.created_at>=?3 AND q.created_at<?4))`;
 
 function unavailable(): never { throw new EntitlementRepositoryError("ENTITLEMENT_UNAVAILABLE"); }
 function parse<T>(schema: z.ZodType<T>, value: unknown): T { const parsed = schema.safeParse(value); return parsed.success ? parsed.data : unavailable(); }
@@ -69,11 +85,12 @@ export class D1EntitlementRepository implements EntitlementRepository {
   readUsage(userId: string, purpose: string, period: EntitlementPeriod): Promise<EntitlementUsage> {
     return guarded(async () => {
       parse(identifier, userId); parse(purposeSchema, purpose); parse(periodSchema, period);
-      await this.assertLedger("q.purpose=?1 AND ((q.created_at>=?2 AND q.created_at<?3) OR (q.purpose=?4 AND g.reserved_created_at>=?2 AND g.reserved_created_at<?3))", [purpose, period.startMs, period.endMs, RESEARCH_QUOTA_PURPOSE]);
+      await this.assertLedger(`((${trimmed("q.purpose")}=?1 AND q.created_at>=?2 AND q.created_at<?3)
+        OR (${trimmed("g.reserved_purpose")}=?1 AND ((q.created_at>=?2 AND q.created_at<?3) OR (g.reserved_created_at>=?2 AND g.reserved_created_at<?3))))`, [purpose, period.startMs, period.endMs]);
       // Research accepted usage belongs to its reservation day, even when Ready
       // arrives after midnight. Legacy preview continues using finalization time.
       const row = await this.db.prepare(`SELECT COALESCE(SUM(CASE WHEN q.user_id=?1 THEN q.units ELSE 0 END),0) AS user_units,COALESCE(SUM(q.units),0) AS global_units
-        FROM quota_ledger q JOIN quota_ledger r ON r.user_id=q.user_id AND r.idempotency_key=q.idempotency_key AND r.entry_kind='reserved'
+        FROM quota_ledger q JOIN quota_ledger r ON r.user_id=q.user_id AND r.idempotency_key=q.idempotency_key AND r.reservation_id=q.reservation_id AND r.purpose=q.purpose AND r.entry_kind='reserved'
         WHERE q.purpose=?2 AND q.entry_kind='accepted'
           AND (CASE WHEN q.purpose='${RESEARCH_QUOTA_PURPOSE}' THEN r.created_at ELSE q.created_at END)>=?3
           AND (CASE WHEN q.purpose='${RESEARCH_QUOTA_PURPOSE}' THEN r.created_at ELSE q.created_at END)<?4
@@ -87,7 +104,7 @@ export class D1EntitlementRepository implements EntitlementRepository {
     return guarded(async () => {
       parse(identifier, userId); parse(purposeSchema, purpose); parse(keySchema, idempotencyKey); parse(z.number().int().min(1).max(1000), units);
       if (purpose === RESEARCH_QUOTA_PURPOSE) unavailable();
-      await this.assertLedger("q.user_id=?1 AND q.idempotency_key=?2", [userId, idempotencyKey]);
+      await this.assertLedger(exactScope, [userId, idempotencyKey]);
       const existing = await this.findReservation(userId, idempotencyKey);
       if (existing) { this.validateReplay(existing, purpose, units); return existing.reservation_id; }
       const id = parse(identifier, this.options.createId());
@@ -114,7 +131,7 @@ export class D1EntitlementRepository implements EntitlementRepository {
         SELECT ?5,?1,'${RESEARCH_QUOTA_PURPOSE}',?6,?2,'reserved',1,?7
         WHERE NOT EXISTS(SELECT 1 FROM ${groupJoin} WHERE ${researchScope} AND ${invalidLedgerRow})
           AND (SELECT count(*) FROM quota_ledger r WHERE r.user_id=?1 AND r.purpose='${RESEARCH_QUOTA_PURPOSE}' AND r.entry_kind='reserved' AND r.created_at>=?3 AND r.created_at<?4
-            AND NOT EXISTS(SELECT 1 FROM quota_ledger t WHERE t.user_id=r.user_id AND t.idempotency_key=r.idempotency_key AND t.entry_kind IN ('rejected','failed'))) < ?8
+            AND NOT EXISTS(SELECT 1 FROM quota_ledger t WHERE t.user_id=r.user_id AND t.idempotency_key=r.idempotency_key AND t.reservation_id=r.reservation_id AND t.purpose=r.purpose AND t.entry_kind IN ('rejected','failed'))) < ?8
         ON CONFLICT(user_id,idempotency_key,entry_kind) DO NOTHING
       `).bind(...scopeValues, parse(identifier, this.options.createId()), id, now, command.dailyQuota).run();
       const saved = await this.findReservation(command.userId, command.idempotencyKey);
@@ -128,7 +145,7 @@ export class D1EntitlementRepository implements EntitlementRepository {
       parse(identifier, reservationId); parse(z.enum(["accepted", "rejected", "failed"]), status); parse(integer.max(1000), acceptedUnits);
       const row = await this.db.prepare("SELECT user_id,purpose,reservation_id,idempotency_key,units,created_at FROM quota_ledger WHERE reservation_id=?1 AND entry_kind='reserved'").bind(reservationId).first();
       if (!row) unavailable(); const reservation = parse(reservationSchema, row);
-      await this.assertLedger("q.user_id=?1 AND q.idempotency_key=?2", [reservation.user_id, reservation.idempotency_key]);
+      await this.assertLedger(exactScope, [reservation.user_id, reservation.idempotency_key]);
       if (reservation.purpose === RESEARCH_QUOTA_PURPOSE && acceptedUnits !== (status === "accepted" ? 1 : 0)) unavailable();
       const units = status === "accepted" ? acceptedUnits : 0;
       if (units > reservation.units) unavailable();
