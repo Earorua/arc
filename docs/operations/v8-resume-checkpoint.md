@@ -1,6 +1,6 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-08-31 目标 2 Research Beta：Task 1–4 已完成，进入 Task 5 原子预算与配额控制**
+> **2026-08-31 目标 2 Research Beta：Task 1–5 已完成，进入 Task 6 服务端 OpenRouter Adapter**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
 >
@@ -22,7 +22,13 @@
 >
 > **Task 4 最终关闭（覆盖上方阶段性状态）：** 规格审查在 `26e55b4` 通过；质量审查仅提出两处紧凑校验函数的可读性问题，已在 `a7b18f5` 仅作格式展开。主代理核对提交差异，质量代理复审确认行为、条件与求值顺序未变，Critical / Important / Minor 均为零。主代理在最终源码 `a7b18f5` 独立运行完整 `npm run test:unit`：**113 files / 1553 tests 全通过**，exit 0；未修改测试超时。Task 4 的 TypeScript、完整 lint、build 5/5、rendered HTML 3/3 证据来自上述 `e1b4083`，其后仅增加一项测试和格式整理，不冒称重新构建。现在从 Task 5 继续，Task 5 尚未实施，Task 1–4 不重做。
 >
-> **Task 5 实施中（2026-08-31）：** Task 4 关闭记录已提交 `1e2685b`；后续 `aa8d3c1`、`c6acd1a` 仅补齐已批准 Task 6/8 与当前契约、Provider 错误/费用、IP 哈希和运行时类型的接线要求。实现代理 `task5_atomic_budgets` 已报告四套件初始 RED 32 failed / 8 passed 加两项缺失模块，加入拒绝执行的接口骨架后，预算行为 RED 为 29 failed / 23 passed。现有未提交内容为四个测试文件及 `budget.ts` / `d1-budget-repository.ts` 的部分实现；Entitlements 生产接线尚未完成，不能宣称 Task 5 通过。代理随后因额度错误明确终止，主代理核对终态和文件后已向同一代理发送续作请求，不重派并行实现、不丢弃原修改。恢复时先检查真实代理状态和 Git，不依据旧 timeout 推断任务停止。后续顺序仍为完成九文件实现、聚焦/相邻验证、规格审查、质量审查及独立复验。
+> **Task 5 规格修复中（2026-08-31）：** Task 4 关闭记录已提交 `1e2685b`；后续 `aa8d3c1`、`c6acd1a` 仅补齐已批准 Task 6/8 与当前契约、Provider 错误/费用、IP 哈希和运行时类型的接线要求。Task 5 九文件实现已提交为 `68ec17e6eee55b45e270d9cc78ce6458040cfd6e`，包含原子双期间成本预留/结算、Research 原子用户配额和真实 SQLite 回归；此前额度中断已恢复，不是当前阻碍。实现代理报告五套件 108/108，主代理在该提交独立验证完整 **115 files / 1647 tests**、TypeScript、完整 ESLint、build 5/5，并补跑 rendered HTML **3/3** 通过。独立规格审查仍发现两项问题：相关 terminal 行的 purpose/owner/key 损坏可能逃过按行筛选的校验；聚合校验没有对齐 Schema 的标识符 trim 规则。主代理核对源码后已交回同一实现代理 `task5_atomic_budgets` 按 TDD 修复，保持历史范围隔离与线性查询计划。Task 5 尚未通过规格门槛，质量审查尚未开始；不能据全量绿色提前关闭或开始 Task 6。恢复时先核对实际 Git、代理状态及未提交差异，不重做 Tasks 1–4。
+>
+> **Task 5 复审更新：** 配额修复已提交为 `8bdf2d1a959b0450147c8870a95da1ecaa4c1910`，仅修改 entitlement repository 和对应测试，新增 29 项回归。关系范围、ECMAScript 空白、UTF-16 长度及 NUL 边界均经 RED→GREEN；实现代理五套件 **137/137** 通过。独立规格代理重新运行原始复现、历史期间隔离和真实查询 EXPLAIN，确认 SPEC COMPLIANT，未发现相关全表嵌套扫描（最长 SQL 5,537 bytes）。主代理独立完整回归 **115 files / 1676 tests**、TypeScript、完整 ESLint、build **5/5**、rendered HTML **3/3** 与 diff-check 通过。质量代理 `task5_budget_quality_review` 正在审查；未获质量结论前 Task 5 仍不关闭。
+>
+> 主代理另在一次性本地 Miniflare D1 上从 `0000` 顺序应用到 `0005`，运行实际预算及配额仓库：预算并发只准入一次、重放无新调用权限、unknown hold 转实际成本并重复结算后日/月账本各为 reserved 0 / settled 430；配额并发只准入一次、相关损坏 terminal 的准入与 usage 均拒绝、合法 UTF-16 最短键可完成；两次外键检查均为 0。数据库不持久化，未访问 Cloudflare 账户或生产 D1。运行工具需用安装版本支持的兼容日期 `2026-05-22`；stdin 脚本用普通 `node` 加 async IIFE，避免 `--input-type=module` 被 Miniflare worker thread 继承导致同步代理启动挂起。此诊断不是生产运行时配置变更。
+>
+> **Task 5 最终关闭（覆盖上方阶段性状态）：** 质量审查未发现 Critical/Important，提出的两项 Minor 已在 `870a207ba2d1dfc3b792709edf0075e867010743` 关闭：类型禁止 replay 同时授予 Provider 权限；新增跨月 actual/not-charged 结算只改变原日/月桶的回归。该提交仅修改类型及测试，不改变运行时 SQL/行为；类型测试已验证 RED→GREEN，跨月用例为现有正确行为的补强。独立规格及质量复审均通过，剩余发现为零。主代理在最终提交独立完整回归 **115 files / 1679 tests**、TypeScript、完整 ESLint、build **5/5**、rendered HTML **3/3**、diff-check 均通过。计划 Task 5 五项已勾选；下一步按 Task 6 五文件范围创建服务端 Provider 接口、OpenRouter 传输及 Fake，不重做 Tasks 1–5。没有真实模型请求、合并、推送或部署。
 >
 > 主代理核对实际消费者后，在计划提交 `1cbb136` 补齐了 Tasks 9–11 的研究数据接线范围：Ready 公共规划投影、规划 HTTP/source context、刷新后的客户端恢复、Path/Today/Stack/Proof 与服务端 Proof 的同源数据、工作区岗位标题和完整链路测试。这些都是既有 Goal 2 可用闭环的必要接入，不能只实现 Ready 面板或服务器生成就宣称完成。
 >

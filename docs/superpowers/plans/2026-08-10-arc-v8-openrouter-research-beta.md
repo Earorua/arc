@@ -404,7 +404,7 @@ git commit -m "feat: persist owner bound research runs"
 
 **Quota integration constraint:** The existing entitlement path reads accepted units and then reserves in a separate statement. That is insufficient for concurrent Research requests for different roles. Add a research-safe atomic admission operation over `quota_ledger`: count accepted results plus outstanding reservations, admit only within the user-day limit, and replay the same reservation without a second charge. Keep accepted-unit reporting separate from outstanding capacity. A single conditional `INSERT ... SELECT` may supply the SQLite atomic boundary; a read-then-unconditional-insert may not. Preserve existing preview behavior and use the atomic path for Research. Add SQLite-backed tests for two different roles racing for the last quota slot, release on Failed/Needs-review, same-key replay, and conflicting terminal settlements. Do not modify migrations `0000`-`0004`.
 
-- [ ] **Step 1: Write failing policy, concurrency, and settlement tests**
+- [x] **Step 1: Write failing policy, concurrency, and settlement tests**
 
 ```ts
 it("cannot oversell a site budget under concurrent reservations", async () => {
@@ -427,13 +427,13 @@ it("keeps a conservative hold when actual provider cost is unknown", async () =>
 });
 ```
 
-- [ ] **Step 2: Run focused tests and verify RED**
+- [x] **Step 2: Run focused tests and verify RED**
 
 Run: `npm run test:unit -- tests/server/research-budget.test.ts tests/server/d1-research-budget-repository.test.ts tests/server/entitlements.test.ts`
 
 Expected: FAIL because cost budgets are not modeled.
 
-- [ ] **Step 3: Implement fail-closed environment parsing and two-period reservations**
+- [x] **Step 3: Implement fail-closed environment parsing and two-period reservations**
 
 Parse `ARC_AI_SITE_DAILY_BUDGET_MICROS`, `ARC_AI_SITE_MONTHLY_BUDGET_MICROS`, `ARC_AI_RESEARCH_MAX_COST_MICROS`, and `ARC_AI_REPAIR_MAX_COST_MICROS` as safe non-negative integers. Reserve the combined maximum against UTC day and month buckets in a single D1 batch guarded by versioned conditional updates. Replays return the original reservation. A denied update returns `{ allowed: false, reason: "budget" }` and creates no provider-call authority.
 
@@ -452,18 +452,20 @@ export type BudgetSettlement =
 
 Actual settlement removes reserved micros and adds actual micros; not-charged releases; unknown retains the reservation in `conservative-hold`. Extend `EntitlementGate` only so accepted quota is finalized when a new run becomes Ready; do not use quota units as currency.
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 Run: `npm run test:unit -- tests/server/research-budget.test.ts tests/server/d1-research-budget-repository.test.ts tests/server/entitlements.test.ts tests/server/d1-entitlement-repository.test.ts`
 
 Expected: PASS; quota and cost assertions remain independent.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/server/research/budget.ts app/server/research/d1-budget-repository.ts app/server/entitlements/policy.ts tests/server/research-budget.test.ts tests/server/d1-research-budget-repository.test.ts tests/server/entitlements.test.ts
 git commit -m "feat: enforce research cost budgets"
 ```
+
+**Task 5 review gate closed (2026-08-31):** Implementation `68ec17e`, relationship/identifier repair `8bdf2d1`, type and rollover hardening `870a207`. Independent specification and quality reviews both pass at `870a207`, with no remaining findings. Root verified 115 files / 1679 unit tests, TypeScript, full lint, build 5/5, rendered HTML 3/3, and diff-check. Actual repositories also passed isolated, non-persistent Miniflare D1 smoke tests (migrations 0000–0005, budget/quota concurrency, replay, settlement and corrupt-row rejection; foreign-key violations zero). These are Task 5 evidence, not final Goal 2 acceptance; no live model, production write, merge, push or deployment occurred.
 
 ### Task 6: Build the server-only OpenRouter adapter
 
