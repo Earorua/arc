@@ -1,6 +1,6 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-08-31 目标 2 Research Beta：Task 1–5 已完成，进入 Task 6 服务端 OpenRouter Adapter**
+> **2026-08-31 目标 2 Research Beta：Task 1–6 已完成，进入 Task 7 研究编排与恢复**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
 >
@@ -35,6 +35,10 @@
 > **Task 6 边界复核更新：** 同一实现代理在额度错误终止后已恢复，保留原五文件工作，未重做任务。代理报告三文件 94/94 后补强至阶段性 111/111，TypeScript 与目标 lint 通过；这些尚未代替主代理独立验证。主代理用真实 Adapter 加纯内存 fetch stub 复现计费缺陷：HTTP 400/402/429 携带正数 `usage.cost`、但缺少可选搜索汇总时，完整 usage 校验失败导致错误被标为 `charged: false`。已交回实现代理先写 RED 再修复：部分计费证据不得释放预留，未知汇总保持 unknown，合法明确正数成本可以标记 charged，但不能伪造完整 usage。Task 6 尚未进入独立规格/质量审查；Fake 当前为固定 Data Product Manager 离线样例、usage unknown，不是真实任意岗位研究证据。
 >
 > **Task 6 初版冻结与送审：** 五文件实现已提交 `7a12885f03ab52a916b72e87638d6c6b2249985f`，上述计费误判已按 RED→GREEN 修复。主代理独立内存 stub 复测确认 partial-positive → charged true / usage null、malformed → charged unknown、clean absent → charged false；独立三文件回归 **133/133** 通过。模型输入另经 RED→GREEN 拒绝 auto/free/bodybuilder/pareto-code/fusion 等动态选择器及其变体，同时保留具体模型的 `:free` 变体；[Free Router](https://openrouter.ai/docs/guides/routing/routers/free-router)、[Pareto Router](https://openrouter.ai/docs/guides/routing/routers/pareto-router)、[Fusion Router](https://openrouter.ai/docs/guides/routing/routers/fusion-router) 官方文档支持此区别，查阅文档未调用模型。主代理在精确提交独立验证完整单元回归 **117 files / 1807 tests**、TypeScript、完整 ESLint、build **5/5**、rendered HTML **3/3** 和 diff-check 均通过。独立规格代理 `task6_provider_spec_review` 正在审查；后续仍需质量审查，不能提前关闭 Task 6。
+>
+> **Task 6 质量修复门槛：** 独立规格审查已在 `7a12885` 通过。质量代理 `task6_provider_quality_review` 发现唯一 Important：读取每个响应块都对同一 deadline 执行 `Promise.race`，导致未清除的监听随块数增长；490,078 字节合法响应的一字节分块诊断约额外保留 239 MB。主代理独立复现 10,078 字节响应产生同一 deadline 的 10,080 次订阅。已交回原实现代理 `task6_openrouter_adapter` 先写确定性 RED，再把超时竞争移到整个有界读取操作，保留 stalled body、超时取消、迟到响应和 reader lock 清理。不要用任意分块数量限制或放宽时限掩盖问题。质量审查无其他 Critical/Important/Minor；修复后需要规格/质量复审及 fresh 回归，Task 6 仍未关闭，Task 7 尚未实施。
+>
+> **Task 6 最终关闭（覆盖上方阶段性状态）：** 修复提交 `f379a23e7581ec2a67a64257a27c2f03f108d725` 仅改变 Adapter 及其测试；RED 证明一字节分块产生 17,166 次 deadline 订阅，GREEN 将上限固定为 2。独立规格及质量复审均通过；质量代理另用真实内存 stream 验证超时、迟到响应、挂起取消、超限与 reader lock，未出现未处理 rejection，剩余 Critical/Important/Minor 均为零。主代理在精确提交独立完整回归 **117 files / 1809 tests**、TypeScript、完整 ESLint、build **5/5**、rendered HTML **3/3** 和 diff-check 全通过。Task 6 五项已勾选；从 Task 7 研究编排、模型审计和跨进程结算恢复继续，不重做 Tasks 1–6。此时只是服务端 Provider 边界完成，Research API、规划与 UI 接线仍待完成，不能宣称目标 2 已完成；无真实密钥、模型请求、合并、推送或部署。
 >
 > 主代理在 Task 6 期间补跑实际研究仓库的本地 Miniflare D1 smoke：同一有效包保存为 Ready、原 mutation 重放、他人运行不可见，以及第二所有者经独立运行复用缓存均通过；结果为 2 runs / 1 package / 3 skills / 2 edges / 6 resource links / 6 source audits，外键异常 0，无外部模型或持久化数据库。Task 7 计划已在 `b1ff3ac` 补齐原配额和模型审计的 owner-bound 恢复读取、跨进程故障注入与结算要求；配置变更后不得用旧 retry 的缓存身份调用新模型。此补充不改变已批准的产品语义，不是提前实施 Task 7。
 >

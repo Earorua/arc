@@ -488,7 +488,7 @@ Keep one abort deadline alive through response-body reading, not just receipt of
 - Create: `tests/server/openrouter-provider.test.ts`
 - Create: `tests/server/fake-research-provider.test.ts`
 
-- [ ] **Step 1: Write exact request and error-mapping tests**
+- [x] **Step 1: Write exact request and error-mapping tests**
 
 Use a stubbed `fetch` and assert URL `https://openrouter.ai/api/v1/chat/completions`, Bearer header, server-fixed model, non-streaming strict JSON Schema, `openrouter:web_search`, `max_uses: 2`, `max_total_results: 10`, bounded top-level tool calls, `require_parameters: true`, `data_collection: "deny"`, `zdr: true`, and AbortSignal timeout. Assert the repair request uses the Economy model, strict schema, no tools, and no web search. Assert missing key performs zero fetches.
 
@@ -508,13 +508,13 @@ expect(repairBody.tools).toBeUndefined();
 
 Map timeout, 429, insufficient balance, 5xx, content filter, empty choice, invalid JSON, and oversized body to typed `ResearchProviderError` values with `retryable`, `charged: true | false | "unknown"`, and sanitized code. Parse only bounded content, annotation URL/title, actual model, and usage `{promptTokens, completionTokens, totalTokens, costMicros, webSearchRequests}`.
 
-- [ ] **Step 2: Run provider tests and verify RED**
+- [x] **Step 2: Run provider tests and verify RED**
 
 Run: `npm run test:unit -- tests/server/openrouter-provider.test.ts tests/server/fake-research-provider.test.ts`
 
 Expected: FAIL because provider modules do not exist.
 
-- [ ] **Step 3: Implement provider-neutral and OpenRouter transports**
+- [x] **Step 3: Implement provider-neutral and OpenRouter transports**
 
 ```ts
 export interface ResearchProvider {
@@ -533,13 +533,13 @@ export class ResearchProviderError extends Error {
 
 Build prompts from normalized role, locale, fixed policy, version strings, and the exported JSON Schema only. Do not include owner or learner state. Use `AbortController`, a bounded response reader, and dependency-injected fetch/timeouts for tests. Implement `FakeResearchProvider` with deterministic modes selected in server composition, never by a public client field.
 
-- [ ] **Step 4: Run provider and secret-boundary tests**
+- [x] **Step 4: Run provider and secret-boundary tests**
 
 Run: `npm run test:unit -- tests/server/openrouter-provider.test.ts tests/server/fake-research-provider.test.ts tests/server/ai-gateway.test.ts`
 
 Expected: PASS and existing deterministic preview remains green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/server/research/provider.ts app/server/research/openrouter-provider.ts app/server/research/fake-provider.ts tests/server/openrouter-provider.test.ts tests/server/fake-research-provider.test.ts
