@@ -66,24 +66,29 @@ export class OpenRouterResearchProvider implements ResearchProvider {
       }
       if (!response.body) throw new ResearchProviderError("invalid-transport", false, "unknown");
       reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8", { fatal: true });
-      const decode = (chunk?: Uint8Array): string => {
-        try { return chunk ? decoder.decode(chunk, { stream: true }) : decoder.decode(); }
-        catch { throw new ResearchProviderError("invalid-transport", false, "unknown"); }
+      const responseReader = reader;
+      const readBody = async (): Promise<ProviderResearchResult> => {
+        const decoder = new TextDecoder("utf-8", { fatal: true });
+        const decode = (chunk?: Uint8Array): string => {
+          try { return chunk ? decoder.decode(chunk, { stream: true }) : decoder.decode(); }
+          catch { throw new ResearchProviderError("invalid-transport", false, "unknown"); }
+        };
+        let bytes = 0;
+        let text = "";
+        while (true) {
+          const chunk = await responseReader.read();
+          if (chunk.done) { complete = true; break; }
+          bytes += chunk.value.byteLength;
+          if (bytes > OPENROUTER_LIMITS.responseBytes) throw new ResearchProviderError("invalid-transport", false, "unknown");
+          text += decode(chunk.value);
+        }
+        text += decode();
+        let outer: unknown;
+        try { outer = JSON.parse(text); } catch { throw new ResearchProviderError("invalid-transport", false, "unknown"); }
+        return readResponse(outer, response.status, repair);
       };
-      let bytes = 0;
-      let text = "";
-      while (true) {
-        const chunk = await Promise.race([reader.read(), deadline]);
-        if (chunk.done) { complete = true; break; }
-        bytes += chunk.value.byteLength;
-        if (bytes > OPENROUTER_LIMITS.responseBytes) throw new ResearchProviderError("invalid-transport", false, "unknown");
-        text += decode(chunk.value);
-      }
-      text += decode();
-      let outer: unknown;
-      try { outer = JSON.parse(text); } catch { throw new ResearchProviderError("invalid-transport", false, "unknown"); }
-      return readResponse(outer, response.status, repair);
+      // One subscription for the whole body, not one retained deadline reaction per chunk.
+      return await Promise.race([readBody(), deadline]);
     } catch (error) {
       if (error instanceof ResearchProviderError) throw error;
       throw new ResearchProviderError(controller.signal.aborted ? "timeout" : "unavailable", true, "unknown");

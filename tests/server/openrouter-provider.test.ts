@@ -220,6 +220,33 @@ describe("OpenRouter response and billing boundary", () => {
 });
 
 describe("OpenRouter byte limits and deadline", () => {
+  it.each([1, 16_384])("bounds deadline subscriptions independently of valid response chunk size %i", async (chunkSize) => {
+    vi.useFakeTimers();
+    const bytes = new TextEncoder().encode(JSON.stringify(wire()));
+    let offset = 0;
+    const stream = new ReadableStream<Uint8Array>({ pull(controller) {
+      if (offset === bytes.length) { controller.close(); return; }
+      controller.enqueue(bytes.subarray(offset, offset + chunkSize));
+      offset = Math.min(bytes.length, offset + chunkSize);
+    } });
+    const { provider } = harness(new Response(stream));
+    const race = vi.spyOn(Promise, "race");
+    try {
+      const result = await provider.research(request);
+      expect(result.candidate).toEqual(validResearchCandidate);
+      expect(offset).toBe(bytes.length);
+      // Each race subscribes to every input promise. Repeatedly racing the same
+      // pending deadline retains one reaction pair per chunk until it settles.
+      const subscriptions = new Map<unknown, number>();
+      for (const [inputs] of race.mock.calls) {
+        for (const promise of inputs) subscriptions.set(promise, (subscriptions.get(promise) ?? 0) + 1);
+      }
+      expect(race).toHaveBeenCalled();
+      expect(Math.max(...subscriptions.values())).toBeLessThanOrEqual(2);
+      expect(stream.locked).toBe(false);
+      expect(vi.getTimerCount()).toBe(0);
+    } finally { race.mockRestore(); }
+  });
   it("rejects invalid UTF8 as invalid transport, not an available candidate", async () => {
     const { provider } = harness(new Response(new Uint8Array([0xc3, 0x28])));
     await failure(provider.research(request), "invalid-transport");
