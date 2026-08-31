@@ -13,7 +13,10 @@ export type BudgetReservation = {
   expiresAt: number; createdAt: number; updatedAt: number;
 };
 export type BudgetBucket = { id: string; scope: "site"; periodKind: "day" | "month"; periodStart: number; reservedMicros: number; settledMicros: number; version: number; createdAt: number; updatedAt: number };
-export type BudgetDecision = { allowed: false; reason: "budget" } | { allowed: true; reservation: BudgetReservation; replayed: boolean; providerAttemptAllowed: boolean };
+export type BudgetDecision =
+  | { allowed: false; reason: "budget" }
+  | { allowed: true; reservation: BudgetReservation; replayed: true; providerAttemptAllowed: false }
+  | { allowed: true; reservation: BudgetReservation; replayed: false; providerAttemptAllowed: boolean };
 export interface ResearchBudgetRepository {
   reserve(command: BudgetReserveCommand): Promise<BudgetDecision>;
   settle(ownerId: string, reservationId: string, settlement: BudgetSettlement): Promise<BudgetReservation>;

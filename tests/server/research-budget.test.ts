@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { parseResearchBudgetEnvironment, ResearchBudgetGate } from "../../app/server/research/budget";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { parseResearchBudgetEnvironment, ResearchBudgetGate, type BudgetDecision, type BudgetReservation } from "../../app/server/research/budget";
 
 const environment = {
   ARC_AI_SITE_DAILY_BUDGET_MICROS: "1000",
@@ -10,6 +10,15 @@ const environment = {
 const input = { ownerId: "owner-a", runId: "run-a", requestId: "request-a", expiresAt: 1_800_000_000_000 };
 
 describe("Research cost policy", () => {
+  it("encodes replay as never granting provider authority without excluding fresh terminal races", () => {
+    type Base = { allowed: true; reservation: BudgetReservation };
+    expectTypeOf<Base & { replayed: false; providerAttemptAllowed: true }>().toExtend<BudgetDecision>();
+    expectTypeOf<Base & { replayed: false; providerAttemptAllowed: false }>().toExtend<BudgetDecision>();
+    expectTypeOf<Base & { replayed: true; providerAttemptAllowed: false }>().toExtend<BudgetDecision>();
+    // @ts-expect-error Replayed reservations must never grant another provider attempt.
+    expectTypeOf<Base & { replayed: true; providerAttemptAllowed: true }>().toExtend<BudgetDecision>();
+  });
+
   it("parses integer currency limits and reserves the combined research and repair maximum", async () => {
     const reserve = vi.fn().mockResolvedValue({ allowed: false, reason: "budget" });
     expect(parseResearchBudgetEnvironment(environment)).toEqual({ dailyBudgetMicros: 1000, monthlyBudgetMicros: 9000, maximumMicros: 700, researchMaximumMicros: 600, repairMaximumMicros: 100 });

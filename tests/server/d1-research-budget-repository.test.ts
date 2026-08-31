@@ -98,6 +98,34 @@ describe("D1ResearchBudgetRepository", () => {
   });
 
   it.each([
+    [{ kind: "actual", actualMicros: 430 }, "settled", 430],
+    [{ kind: "not-charged" }, "released", 0],
+  ] as const)("applies rollover settlement %j only to the original day and month", async (settlement, status, actual) => {
+    const { repository, setNow, db } = setup();
+    const original = allowed(await repository.reserve(command()));
+    const nextDay = day + 86_400_000; const nextNow = nextDay + 1000;
+    setNow(nextNow);
+    db.database.prepare("UPDATE research_runs SET active_expires_at=?1 WHERE id='run-b'").run(nextNow + 60_000);
+    const next = allowed(await repository.reserve(command("b", { expiresAt: nextNow + 60_000, maximumMicros: 500 })));
+    const originalIds = [original.dayBucketId, original.monthBucketId];
+    const nextIds = [next.dayBucketId, next.monthBucketId];
+    expect(new Set([...originalIds, ...nextIds]).size).toBe(4);
+    const oldBefore = await Promise.all(originalIds.map((id) => repository.readBucket(id)));
+    const nextBefore = await Promise.all(nextIds.map((id) => repository.readBucket(id)));
+    expect(oldBefore.map((bucket) => bucket!.periodStart)).toEqual([day, Date.parse("2026-08-01T00:00:00Z")]);
+    expect(nextBefore.map((bucket) => bucket!.periodStart)).toEqual([nextDay, nextDay]);
+    const settled = await repository.settle("owner-a", original.id, settlement);
+    expect(settled).toMatchObject({ status, settledMicros: actual });
+    const oldAfter = await Promise.all(originalIds.map((id) => repository.readBucket(id)));
+    expect(oldAfter).toEqual(oldBefore.map((bucket) => ({ ...bucket, reservedMicros: 0, settledMicros: actual, version: bucket!.version + 1, updatedAt: nextNow })));
+    expect(await Promise.all(nextIds.map((id) => repository.readBucket(id)))).toEqual(nextBefore);
+    await expect(repository.settle("owner-a", original.id, settlement)).resolves.toEqual(settled);
+    await expect(repository.reserve(command())).resolves.toMatchObject({ reservation: settled, replayed: true, providerAttemptAllowed: false });
+    expect(await Promise.all(originalIds.map((id) => repository.readBucket(id)))).toEqual(oldAfter);
+    expect(await Promise.all(nextIds.map((id) => repository.readBucket(id)))).toEqual(nextBefore);
+  });
+
+  it.each([
     [{ kind: "actual", actualMicros: 400 }, "settled", 0, 400],
     [{ kind: "actual", actualMicros: 1200 }, "settled", 0, 1200],
     [{ kind: "actual", actualMicros: 0 }, "settled", 0, 0],
