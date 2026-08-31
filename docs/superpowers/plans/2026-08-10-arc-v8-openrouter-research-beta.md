@@ -653,6 +653,8 @@ git commit -m "feat: orchestrate recoverable role research"
 
 The shared `apiError` helper currently lacks Research error codes and uses `error.action`/nested request ID. Keep the new Research error envelope explicit and typed in this route factory, matching its documented `error.recovery` and top-level request ID, while reusing `apiJson`/`applyResponseSafety`; do not cast unsupported codes into the legacy helper or change existing route responses. Add the optional string Worker declarations needed by the new factory in Task 8 (no values or secrets). Task 12 still owns disabled examples, full runtime/health checks, and removal of obsolete bindings after consumer inspection. Production composition requires BOTH AI and Research enable flags plus all validated model, timeout, budget, quota, cache and salt values; missing configuration never selects Fake implicitly.
 
+**Recovery versus new-call authority:** The production enabled/configuration check above governs new provider attempts, not access to the authenticated owner's already-persisted run. Keep GET status and Task 7's original-ledger reconciliation available when the AI/Research kill switch is off, the cohort changes, or the provider key is absent; these paths must never require new provider authority, substitute Fake, or call Research/Repair. Preserve authentication, owner isolation, response safety and a bounded non-provider read-rate policy. Invalid/unreadable D1 still fails closed. Test GET after disabling flags/removing the synthetic key with a provider stub that throws if invoked, and verify recovery uses the original quota/audit/budget IDs. Start/retry with new-call authority disabled must remain denied. The legacy preview composition lives inline in `app/api/intelligence/preview/route.ts`; do not import that route as the new service factory or change its existing behavior.
+
 **Files:**
 - Create: `app/server/research/service-factory.ts`
 - Create: `app/server/http/research-route-factories.ts`
@@ -710,7 +712,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add app/server/research/service-factory.ts app/server/http/research-route-factories.ts app/api/intelligence/research tests/api/research-routes.test.ts tests/server/planning-security.test.ts
+git add app/server/research/service-factory.ts app/server/http/research-route-factories.ts app/api/intelligence/research tests/api/research-routes.test.ts tests/server/planning-security.test.ts worker-configuration.d.ts
 git commit -m "feat: expose protected role research routes"
 ```
 

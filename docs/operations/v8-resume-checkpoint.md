@@ -40,6 +40,8 @@
 >
 > **Task 6 最终关闭（覆盖上方阶段性状态）：** 修复提交 `f379a23e7581ec2a67a64257a27c2f03f108d725` 仅改变 Adapter 及其测试；RED 证明一字节分块产生 17,166 次 deadline 订阅，GREEN 将上限固定为 2。独立规格及质量复审均通过；质量代理另用真实内存 stream 验证超时、迟到响应、挂起取消、超限与 reader lock，未出现未处理 rejection，剩余 Critical/Important/Minor 均为零。主代理在精确提交独立完整回归 **117 files / 1809 tests**、TypeScript、完整 ESLint、build **5/5**、rendered HTML **3/3** 和 diff-check 全通过。Task 6 五项已勾选；从 Task 7 研究编排、模型审计和跨进程结算恢复继续，不重做 Tasks 1–6。此时只是服务端 Provider 边界完成，Research API、规划与 UI 接线仍待完成，不能宣称目标 2 已完成；无真实密钥、模型请求、合并、推送或部署。
 >
+> **Task 7 已启动：** Task 6 关闭文档提交为 `7703d9d`。新实现代理 `task7_research_orchestration` 已接收计划中的十文件范围、完整 TDD 与跨进程恢复要求；原 Provider 实现已冻结，主代理只更新接线计划/检查点，不与实现代理重叠编辑。恢复时核对该代理实际状态及工作树，不并行重派。Task 8 计划另明确新调用授权与 GET 恢复分离：关闭 AI/Research 或移除密钥后，所有者仍能读取旧状态并对账，绝不因此调用 Provider 或隐式选择 Fake；这与 Task 7 的持久化恢复约束一致。Task 7 尚未通过实现/双审/验证门槛。
+>
 > 主代理在 Task 6 期间补跑实际研究仓库的本地 Miniflare D1 smoke：同一有效包保存为 Ready、原 mutation 重放、他人运行不可见，以及第二所有者经独立运行复用缓存均通过；结果为 2 runs / 1 package / 3 skills / 2 edges / 6 resource links / 6 source audits，外键异常 0，无外部模型或持久化数据库。Task 7 计划已在 `b1ff3ac` 补齐原配额和模型审计的 owner-bound 恢复读取、跨进程故障注入与结算要求；配置变更后不得用旧 retry 的缓存身份调用新模型。此补充不改变已批准的产品语义，不是提前实施 Task 7。
 >
 > 主代理核对实际消费者后，在计划提交 `1cbb136` 补齐了 Tasks 9–11 的研究数据接线范围：Ready 公共规划投影、规划 HTTP/source context、刷新后的客户端恢复、Path/Today/Stack/Proof 与服务端 Proof 的同源数据、工作区岗位标题和完整链路测试。这些都是既有 Goal 2 可用闭环的必要接入，不能只实现 Ready 面板或服务器生成就宣称完成。
