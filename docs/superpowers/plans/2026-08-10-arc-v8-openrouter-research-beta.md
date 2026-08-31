@@ -655,6 +655,8 @@ The shared `apiError` helper currently lacks Research error codes and uses `erro
 
 **Recovery versus new-call authority:** The production enabled/configuration check above governs new provider attempts, not access to the authenticated owner's already-persisted run. Keep GET status and Task 7's original-ledger reconciliation available when the AI/Research kill switch is off, the cohort changes, or the provider key is absent; these paths must never require new provider authority, substitute Fake, or call Research/Repair. Preserve authentication, owner isolation, response safety and a bounded non-provider read-rate policy. Invalid/unreadable D1 still fails closed. Test GET after disabling flags/removing the synthetic key with a provider stub that throws if invoked, and verify recovery uses the original quota/audit/budget IDs. Start/retry with new-call authority disabled must remain denied. The legacy preview composition lives inline in `app/api/intelligence/preview/route.ts`; do not import that route as the new service factory or change its existing behavior.
 
+**Terminal run response continuity:** Task 1's `researchRunPublicViewSchema` already carries the run ID, retryability and Needs-review issue codes, but there is not yet a shared HTTP envelope. Define the Research-only envelope alongside that contract and test it in `tests/contracts/research-contracts.test.ts`; do not reuse or change legacy Preview/Planning error shapes. A successful GET of an owned persisted run returns HTTP 200 `{ run, requestId }`, including a safely readable Needs-review or Failed terminal. POST start/retry retains the mapped 422/503/429 outcome when applicable, but if orchestration returned a persisted terminal, include its validated public `run` alongside the stable `error` and top-level `requestId`. Admission/authentication/storage failures without a safely readable run must not invent one. No raw candidate or audit fields may be added. Tests must cover initial Needs-review/Failed POST -> capture run ID -> GET after refresh -> explicit retry, plus contradictory or malformed envelope rejection. Task 10 must consume these same envelopes instead of dropping every non-2xx result into a generic connection error.
+
 **Files:**
 - Create: `app/server/research/service-factory.ts`
 - Create: `app/server/http/research-route-factories.ts`
@@ -664,6 +666,8 @@ The shared `apiError` helper currently lacks Research error codes and uses `erro
 - Create: `tests/api/research-routes.test.ts`
 - Modify: `tests/server/planning-security.test.ts`
 - Modify: `worker-configuration.d.ts` (optional Research binding declarations only; runtime documentation and health remain Task 12)
+- Modify: `app/contracts/research.ts` (shared Research HTTP envelopes; preserve existing run/package schemas)
+- Modify: `tests/contracts/research-contracts.test.ts`
 
 - [ ] **Step 1: Write route security, gate-order, and public-error tests**
 
@@ -705,14 +709,14 @@ Thin route files export `dynamic = "force-dynamic"` and delegate to one producti
 
 - [ ] **Step 4: Run API and security tests**
 
-Run: `npm run test:unit -- tests/api/research-routes.test.ts tests/server/planning-security.test.ts tests/server/auth-policy.test.ts tests/server/rate-limit.test.ts`
+Run: `npm run test:unit -- tests/api/research-routes.test.ts tests/contracts/research-contracts.test.ts tests/server/planning-security.test.ts tests/server/auth-policy.test.ts tests/server/rate-limit.test.ts`
 
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add app/server/research/service-factory.ts app/server/http/research-route-factories.ts app/api/intelligence/research tests/api/research-routes.test.ts tests/server/planning-security.test.ts worker-configuration.d.ts
+git add app/server/research/service-factory.ts app/server/http/research-route-factories.ts app/api/intelligence/research tests/api/research-routes.test.ts tests/server/planning-security.test.ts worker-configuration.d.ts app/contracts/research.ts tests/contracts/research-contracts.test.ts
 git commit -m "feat: expose protected role research routes"
 ```
 
@@ -841,6 +845,8 @@ Expected: FAIL because client modules do not exist.
 - [ ] **Step 3: Implement bounded client parsing and state controller**
 
 `research-client.ts` exposes `startResearch`, `getResearch`, and `retryResearch`, each requiring an AbortSignal and parsing the public contract or stable Arc error envelope. `useRoleResearch` owns the state union `idle | submitting | queued | researching | validating | ready | needs-review | failed`, persists only recovery identity, refreshes on mount, and exposes `start`, `refresh`, `retry`, and `reset`. Active status refresh uses one bounded timer with exponential delays capped at 5 seconds and stops on terminal state, hidden/inactive Setup, unmount, or AbortSignal.
+
+Use Task 8's shared Research HTTP envelope: a valid persisted terminal returned with non-2xx POST status is a recoverable `needs-review`/`failed` run, not a lost connection. Preserve its run ID and issue/retry state; a subsequent GET can restore it without another provider call. Reject malformed or contradictory envelopes and never trust a browser-stored status/package over the server. Errors with no run remain ordinary stable Arc errors. Add explicit initial 422 Needs-review and 503 Failed response tests through refresh and retry so the panel can render the approved recovery actions.
 
 - [ ] **Step 4: Run client tests**
 
