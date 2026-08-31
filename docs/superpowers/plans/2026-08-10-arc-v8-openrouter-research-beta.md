@@ -554,6 +554,45 @@ git commit -m "feat: add bounded OpenRouter research adapter"
 - Modify: `app/server/ai/gateway.ts` (run-record contract only; preserve preview behavior)
 - Modify: `app/server/ai/d1-run-recorder.ts`
 - Create: `tests/server/d1-research-run-recorder.test.ts`
+- Modify: `app/server/entitlements/repository.ts` (owner-bound Research reservation recovery contract)
+- Modify: `app/server/entitlements/d1-entitlement-repository.ts` (read-only lookup using the existing integrity guards)
+- Modify: `app/server/entitlements/policy.ts` (server-only recovery lookup forwarding, without granting admission)
+- Modify: `tests/server/d1-entitlement-repository.test.ts`
+- Modify: `tests/server/entitlements.test.ts`
+
+**Durable recovery integration (2026-08-31 source inspection):** Task 4 persists run/request IDs and expiry, but the current entitlement interface exposes no reservation lookup, and `AiRunSink` only writes records. An in-memory reservation ID or call-result variable is not recoverable after a Worker ends. Extend these existing interfaces for narrowly scoped, owner-bound reads in Task 7; do not add another migration or use raw SQL in the orchestrator. Keep legacy preview mocks compatible through an optional repository method, but require the recovery capability when composing Research.
+
+The quota lookup takes the authenticated owner and the deterministic Research quota key derived from the stored run/request IDs, returns only the original reservation ID, creation time and terminal status (or null), validates purpose/units and the complete relevant parent/terminal relationship, and never reserves capacity or calls a provider. Recovery must not re-run a now-disabled cohort/rate/admission gate to discover an old reservation. Add a distinct Research audit reader on the D1 sink/contract that reads only the owner's exact deterministic Research/Repair attempt IDs, validates the allowlisted record, and returns null for absence; never expose these records in the public run view.
+
+```ts
+export type ResearchQuotaReservation = {
+  reservationId: string;
+  createdAt: number;
+  finalStatus: EntitlementFinalStatus | null;
+};
+
+// Optional only for old preview-only adapters. Research composition requires it.
+readResearchReservation?(
+  userId: string,
+  idempotencyKey: string,
+): Promise<ResearchQuotaReservation | null>;
+
+// AiRunRecord gains the strict Research variant described below in this task.
+export interface ResearchAiRunReader {
+  readResearchAttempt(
+    userId: string,
+    requestId: string,
+  ): Promise<Extract<AiRunRecord, {
+    purpose: "role-research" | "role-research-repair";
+  }> | null>;
+}
+```
+
+For an expired active run, win the state-version CAS to Failed before releasing its user quota; do not reclaim a live run or allow a stale original request to call the provider after losing that CAS. A queued run never passed the Researching transition and may release a cost reservation as not charged. An interrupted Researching/Validating attempt may already have incurred a Research or Repair charge: incomplete receipts must retain a conservative hold rather than summing a known first call and assuming the missing second call cost zero. GET/start replay/explicit retry may reconcile durable state and ledgers, but never invoke Research/Repair implicitly. Retry creates a new request and reservation only after old-run recovery, with no call authority reused.
+
+Terminal reconciliation must survive a crash between terminal persistence and settlement. Ready/Needs-review publication is preceded by durable records for every completed provider attempt, so their validated records can support exact cost summation; missing or inconsistent records make the result unavailable and preserve cost conservatively. Repair-disabled/no-repair and cache paths must remain distinguishable by the persisted run state and exact audit records, not by a new process's mutable configuration. A failed attempt or storage error with uncertain attempt completeness cannot be treated as a zero-charge run. Finalizing accepted quota for Ready and zero quota for Failed/Needs-review is idempotent; a foreign owner, conflicting terminal ledger or unreadable storage fails closed. Existing settled/released reservations must not be overwritten with a different recovery guess.
+
+Write fault-injection tests with fresh orchestrator/dependency instances over the same real SQLite database, not shared JS maps: interrupt after quota admission, cost reservation, Researching, Research/Repair receipt, terminal persistence and before each settlement; recover/retry without provider replay, verify original quota/bucket IDs and totals, preserve unknown holds, and prove a losing/stale request cannot publish Ready or grant a call. Include expired versus still-live runs, prior UTC-day quota, missing audit data, audit storage failure and owner isolation. Extend the entitlement test commands below to include both policy and D1 recovery tests.
 
 **Model-audit integration requirement:** Source inspection found that the existing `AiRunRecord` supports only `role-research-preview` and `D1AiRunSink` always writes `'{}'` to `usage_json`. Reusing it unchanged would omit the approved model/usage audit. Extend the run-record contract and recorder with a strict research-specific record variant for `role-research` and `role-research-repair`, while keeping old preview records compatible. Store the bounded actual model returned by the adapter, provider identifier, prompt/input/output versions, sanitized terminal code/status, latency, and an allowlisted usage summary (token counts, integer cost micros, bounded search count, or explicit unknown-usage state). Do not store input text, prompts, annotations, candidate JSON, raw provider errors, credentials, or routing configuration in this record.
 
@@ -595,14 +634,14 @@ export class ResearchOrchestrator {
 
 - [ ] **Step 4: Run orchestrator and dependency regressions**
 
-Run: `npm run test:unit -- tests/server/research-orchestrator.test.ts tests/server/research-package-validator.test.ts tests/server/d1-research-repository.test.ts tests/server/d1-research-budget-repository.test.ts`
+Run: `npm run test:unit -- tests/server/research-orchestrator.test.ts tests/server/research-package-validator.test.ts tests/server/d1-research-repository.test.ts tests/server/d1-research-budget-repository.test.ts tests/server/d1-research-run-recorder.test.ts tests/server/d1-entitlement-repository.test.ts tests/server/entitlements.test.ts tests/server/ai-gateway.test.ts`
 
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add app/server/research/orchestrator.ts tests/server/research-orchestrator.test.ts
+git add app/server/research/orchestrator.ts tests/server/research-orchestrator.test.ts app/server/ai/gateway.ts app/server/ai/d1-run-recorder.ts tests/server/d1-research-run-recorder.test.ts app/server/entitlements/repository.ts app/server/entitlements/d1-entitlement-repository.ts app/server/entitlements/policy.ts tests/server/d1-entitlement-repository.test.ts tests/server/entitlements.test.ts
 git commit -m "feat: orchestrate recoverable role research"
 ```
 
