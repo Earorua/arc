@@ -30,6 +30,10 @@
 >
 > **Task 5 最终关闭（覆盖上方阶段性状态）：** 质量审查未发现 Critical/Important，提出的两项 Minor 已在 `870a207ba2d1dfc3b792709edf0075e867010743` 关闭：类型禁止 replay 同时授予 Provider 权限；新增跨月 actual/not-charged 结算只改变原日/月桶的回归。该提交仅修改类型及测试，不改变运行时 SQL/行为；类型测试已验证 RED→GREEN，跨月用例为现有正确行为的补强。独立规格及质量复审均通过，剩余发现为零。主代理在最终提交独立完整回归 **115 files / 1679 tests**、TypeScript、完整 ESLint、build **5/5**、rendered HTML **3/3**、diff-check 均通过。计划 Task 5 五项已勾选；下一步按 Task 6 五文件范围创建服务端 Provider 接口、OpenRouter 传输及 Fake，不重做 Tasks 1–5。没有真实模型请求、合并、推送或部署。
 >
+> **Task 6 已启动：** Task 5 关闭文档为 `68148c8`。新实现代理 `task6_openrouter_adapter` 负责计划中的五个 Provider/测试文件，已报告缺失模块 RED、接口骨架下 88/88 失败及七项请求/密钥/Fake 行为 RED，正在实现。传输输入仅 role/locale，Repair 另带原内容/annotations；版本为固定服务端导出，结果保留有界 content/candidate/annotations/actualModel/usage，错误不带上游原始消息。没有真实密钥读取或真实 Provider 请求。恢复先检查代理状态和未提交差异，不并行重派实现；Task 6 尚未审查或完成。
+>
+> 主代理在 Task 6 期间补跑实际研究仓库的本地 Miniflare D1 smoke：同一有效包保存为 Ready、原 mutation 重放、他人运行不可见，以及第二所有者经独立运行复用缓存均通过；结果为 2 runs / 1 package / 3 skills / 2 edges / 6 resource links / 6 source audits，外键异常 0，无外部模型或持久化数据库。Task 7 计划已在 `b1ff3ac` 补齐原配额和模型审计的 owner-bound 恢复读取、跨进程故障注入与结算要求；配置变更后不得用旧 retry 的缓存身份调用新模型。此补充不改变已批准的产品语义，不是提前实施 Task 7。
+>
 > 主代理核对实际消费者后，在计划提交 `1cbb136` 补齐了 Tasks 9–11 的研究数据接线范围：Ready 公共规划投影、规划 HTTP/source context、刷新后的客户端恢复、Path/Today/Stack/Proof 与服务端 Proof 的同源数据、工作区岗位标题和完整链路测试。这些都是既有 Goal 2 可用闭环的必要接入，不能只实现 Ready 面板或服务器生成就宣称完成。
 >
 > **待用户确认、尚未改变规格的规则：** 已提出“研究缓存到期只禁止新建计划，既有计划仍使用锁定版本完成/延期/重排”的建议；现有文字把有效期也用于历史解析，可能使长周期学习中断。用户回复前不得新增历史过期绕过；Task 4 仍实施严格 Ready 新用途有效期检查，Tasks 4–8 可继续，不在这里停止全部目标。到 Task 9 的 `resolveForReplay` 前必须核对用户决定并更新规格/测试。
