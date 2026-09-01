@@ -22,6 +22,24 @@ async function admit(repository: D1EntitlementRepository, key = "research-role-a
 }
 
 describe("D1EntitlementRepository", () => {
+  it("reads original owner-bound Research reservation across UTC days without admission", async () => {
+    const { repository, setNow } = setup(); const id = await admit(repository);
+    setNow(day + 2 * 86_400_000);
+    await expect(repository.readResearchReservation("owner-a", "research-role-a")).resolves.toEqual({ reservationId: id, createdAt: day + 1000, finalStatus: null });
+    await expect(repository.readResearchReservation("owner-b", "research-role-a")).resolves.toBeNull();
+    await repository.finalize(id, "accepted", 1);
+    await expect(repository.readResearchReservation("owner-a", "research-role-a")).resolves.toEqual({ reservationId: id, createdAt: day + 1000, finalStatus: "accepted" });
+  });
+
+  it("fails recovery closed for wrong purpose and corrupt related terminals", async () => {
+    const { repository, db } = setup();
+    await repository.reserve("owner-a", "preview", "preview-recovery", 1);
+    await expect(repository.readResearchReservation("owner-a", "preview-recovery")).rejects.toMatchObject({ code: "CONFLICT" });
+    const id = await admit(repository); await repository.finalize(id, "failed", 0);
+    db.database.prepare("UPDATE quota_ledger SET user_id='owner-b' WHERE entry_kind='failed'").run();
+    await expect(repository.readResearchReservation("owner-a", "research-role-a")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    await expect(repository.readResearchReservation(" owner-a", "research-role-a")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+  });
   it("preserves preview accepted-only usage and replay without another charge", async () => {
     const { repository } = setup();
     const first = await repository.reserve("owner-a", "preview", "request-preview", 1);

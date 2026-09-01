@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RESEARCH_QUOTA_PURPOSE, type ResearchQuotaDecision } from "./repository";
+import { EntitlementRepositoryError, RESEARCH_QUOTA_PURPOSE, type ResearchQuotaDecision, type ResearchQuotaReservation } from "./repository";
 import type {
   EntitlementFinalStatus,
   EntitlementRepository,
@@ -111,6 +111,17 @@ export class EntitlementGate {
     acceptedUnits: number,
   ): Promise<void> {
     return this.repository.finalize(reservationId, status, acceptedUnits);
+  }
+
+  // Recovery is owner-bound, but deliberately independent of today's admission policy.
+  async readResearchReservation(userId: string, idempotencyKey: string): Promise<ResearchQuotaReservation | null> {
+    try {
+      const identity = z.string().min(1).max(160).refine((value) => value === value.trim() && !value.includes("\0"));
+      identity.parse(userId); identity.min(8).max(128).parse(idempotencyKey);
+      if (!this.repository.readResearchReservation) throw new Error();
+      const row = await this.repository.readResearchReservation(userId, idempotencyKey);
+      return row === null ? null : z.object({ reservationId: identity, createdAt: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER), finalStatus: z.enum(["accepted", "rejected", "failed"]).nullable() }).strict().parse(row);
+    } catch { throw new EntitlementRepositoryError("ENTITLEMENT_UNAVAILABLE"); }
   }
 }
 

@@ -412,6 +412,37 @@ describe("D1ResearchRepository", () => {
     await expect(expired.resolveReadyPackage("owner-a", next.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
+  it("reads only immutable audit versions for an owner Ready run after package expiry", async () => {
+    const { repository, db } = setup(); const { current } = await validating(repository);
+    await repository.saveValidation(saveCommand(current));
+    const expires = Date.parse("2026-09-30T00:00:00Z");
+    const expired = new D1ResearchRepository(db as unknown as D1Database, { now: () => expires });
+    const versions = await expired.readReadyPackageAuditVersions("owner-a", current.id);
+    expect(versions).toEqual({ promptVersion: context.promptVersion, inputSchemaVersion: context.inputSchemaVersion, outputSchemaVersion: context.outputSchemaVersion });
+    expect(Object.keys(versions).sort()).toEqual(["inputSchemaVersion", "outputSchemaVersion", "promptVersion"]);
+    await expect(expired.resolveReadyPackage("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(expired.getPublicRun("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+  });
+
+  it("owner-isolates audit version evidence and requires a Ready run", async () => {
+    const { repository } = setup(); const run = (await repository.createOrReplay(command())).run;
+    await expect(repository.readReadyPackageAuditVersions("owner-b", run.id)).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(repository.readReadyPackageAuditVersions("owner-a", run.id)).rejects.toMatchObject({ code: "NOT_READY" });
+  });
+
+  it.each(["missing-package", "cache-linkage", "package-content", "run-quality"])("rejects %s corruption when reading audit version evidence", async (kind) => {
+    const { repository, db } = setup(); const { current } = await validating(repository);
+    await repository.saveValidation(saveCommand(current));
+    if (kind === "missing-package") {
+      db.database.exec("PRAGMA foreign_keys=OFF");
+      db.database.prepare("DELETE FROM research_packages WHERE id=?1").run(validated.package.id);
+    }
+    if (kind === "cache-linkage") db.database.prepare("UPDATE research_packages SET normalized_role_key='other-role' WHERE id=?1").run(validated.package.id);
+    if (kind === "package-content") db.database.prepare("UPDATE research_packages SET package_json='{}' WHERE id=?1").run(validated.package.id);
+    if (kind === "run-quality") db.database.prepare("UPDATE research_runs SET quality_json=?1 WHERE id=?2").run(JSON.stringify({ ...validated.quality, sourceCount: 0 }), current.id);
+    await expect(repository.readReadyPackageAuditVersions("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+  });
+
   it("creates a run then replays the same owner mutation without a second row", async () => {
     const { db, repository } = setup();
     const first = await repository.createOrReplay(command());

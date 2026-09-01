@@ -82,6 +82,17 @@ export class D1EntitlementRepository implements EntitlementRepository {
     if (row.purpose !== purpose || row.units !== units) throw new EntitlementRepositoryError("CONFLICT");
   }
 
+  readResearchReservation(userId: string, idempotencyKey: string) {
+    return guarded(async () => {
+      parse(identifier, userId); parse(keySchema, idempotencyKey);
+      await this.assertLedger(exactScope, [userId, idempotencyKey]);
+      const row = await this.findReservation(userId, idempotencyKey);
+      if (!row) return null;
+      this.validateReplay(row, RESEARCH_QUOTA_PURPOSE, 1);
+      return { reservationId: row.reservation_id, createdAt: row.created_at, finalStatus: (await this.finalRow(row.reservation_id))?.entry_kind ?? null };
+    });
+  }
+
   readUsage(userId: string, purpose: string, period: EntitlementPeriod): Promise<EntitlementUsage> {
     return guarded(async () => {
       parse(identifier, userId); parse(purposeSchema, purpose); parse(periodSchema, period);

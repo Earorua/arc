@@ -9,6 +9,7 @@ export type EntitlementUsage = {
 };
 
 export type EntitlementFinalStatus = "accepted" | "rejected" | "failed";
+export type ResearchQuotaReservation = { reservationId: string; createdAt: number; finalStatus: EntitlementFinalStatus | null };
 
 export const RESEARCH_QUOTA_PURPOSE = "role-research";
 export type ResearchQuotaAdmission = {
@@ -26,6 +27,7 @@ export class EntitlementRepositoryError extends Error {
 export interface EntitlementRepository {
   // Optional for legacy preview adapters; Research must never fall back to reserve.
   admitResearch?(command: ResearchQuotaAdmission): Promise<ResearchQuotaDecision>;
+  readResearchReservation?(userId: string, idempotencyKey: string): Promise<ResearchQuotaReservation | null>;
   readUsage(
     userId: string,
     purpose: string,

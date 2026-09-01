@@ -4,7 +4,7 @@ import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
 import { validateRoleBlueprint } from "../../lib/intelligence-validation";
 import { validateUnitRegistry } from "../../lib/planning/registry-validation";
 import { canonicalizePublicCitationUrl, readBoundedResearchJson } from "./source-audit";
-import type { AttachCachedPackageCommand, CreateResearchRetryCommand, CreateResearchRunCommand, ResearchCacheLookup, ResearchRepository, ResearchRunRecord, SaveResearchValidationCommand, TransitionResearchRunCommand } from "./repository";
+import type { AttachCachedPackageCommand, CreateResearchRetryCommand, CreateResearchRunCommand, ResearchCacheLookup, ResearchReadyPackageAuditVersions, ResearchRepository, ResearchRunRecord, SaveResearchValidationCommand, TransitionResearchRunCommand } from "./repository";
 import { ResearchRepositoryError } from "./repository";
 
 const PACKAGE_MAX = 1_900_000;
@@ -82,19 +82,19 @@ export class D1ResearchRepository implements ResearchRepository {
       WHERE normalized_role_key=?1 AND locale=?2 AND config_fingerprint=?3 AND expires_at>?4 ORDER BY created_at DESC LIMIT 1`)
       .bind(input.normalizedRoleKey, input.locale, input.configFingerprint, now).first<Row>());
     if (!row) return null;
-    return parsePackage(row, now);
+    return parsePackage(row, { kind: "require-fresh", now });
   }
 
   async attachCachedPackage(command: AttachCachedPackageCommand): Promise<ResearchRunRecord> {
     const bounded = parseContract(attachSchema, command, ["package"]);
-    command = { ...bounded, package: validatePackage(bounded.package, this.now()) };
+    command = { ...bounded, package: validatePackage(bounded.package, { kind: "require-fresh", now: this.now() }) };
     const run = await this.getRun(command.ownerId, command.id);
     if (!run) throw new ResearchRepositoryError("NOT_FOUND");
     const stored = await storage(() => this.db.prepare("SELECT * FROM research_packages WHERE id=?1 LIMIT 1").bind(command.package.id).first<Row>());
     if (!stored) throw new ResearchRepositoryError("CONFLICT");
     assertCacheIdentity(run, stored, "CONFLICT");
-    const pack = parsePackage(stored, this.now());
-    if (canonicalJson(pack) !== canonicalJson(validatePackage(command.package, this.now()))) throw new ResearchRepositoryError("CONFLICT");
+    const pack = parsePackage(stored, { kind: "require-fresh", now: this.now() });
+    if (canonicalJson(pack) !== canonicalJson(validatePackage(command.package, { kind: "require-fresh", now: this.now() }))) throw new ResearchRepositoryError("CONFLICT");
     const result = await storage(() => this.db.prepare(`UPDATE research_runs SET state='ready',state_version=state_version+1,active_slot=NULL,active_expires_at=NULL,package_id=?1,quality_json=?2,updated_at=?3
       WHERE id=?4 AND user_id=?5 AND state_version=?6 AND state='queued'`).bind(pack.id, serialize(pack.qualityReport, QUALITY_MAX), this.now(), command.id, command.ownerId, command.expectedVersion).run());
     if ((result.meta?.changes ?? 0) !== 1) throw new ResearchRepositoryError("CONFLICT");
@@ -124,14 +124,14 @@ export class D1ResearchRepository implements ResearchRepository {
     if (!run) throw new ResearchRepositoryError("NOT_FOUND");
     if (run.normalizedRoleKey !== command.normalizedRoleKey || run.locale !== command.locale || run.configFingerprint !== command.configFingerprint) throw new ResearchRepositoryError("CONFLICT");
     if (!command.result.ready) return this.saveNeedsReview({ ...command, result: command.result });
-    const packageValue = validatePackage(command.result.package, this.now());
+    const packageValue = validatePackage(command.result.package, { kind: "require-fresh", now: this.now() });
     if (canonicalJson(validateQuality(command.result.quality)) !== canonicalJson(packageValue.qualityReport)) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
     if (bytes(JSON.stringify(packageValue)) > PACKAGE_MAX) return this.transition({ id: command.id, ownerId: command.ownerId, expectedVersion: command.expectedVersion, from: "validating", to: "failed", errorCode: "result-too-large", failureCategory: "invalid-result", retryable: false });
     const existing = await storage(() => this.db.prepare("SELECT * FROM research_packages WHERE content_fingerprint=?1 AND config_fingerprint=?2 LIMIT 1")
       .bind(packageValue.contentFingerprint, command.configFingerprint).first<Row>());
     if (existing) {
       assertCacheIdentity(run, existing, "CONFLICT");
-      const exact = parsePackage(existing, this.now());
+      const exact = parsePackage(existing, { kind: "require-fresh", now: this.now() });
       if (canonicalJson(exact) !== canonicalJson(packageValue)) throw new ResearchRepositoryError("CONFLICT");
       return this.attachReady(command, exact, []);
     }
@@ -163,13 +163,22 @@ export class D1ResearchRepository implements ResearchRepository {
   }
 
   async resolveReadyPackage(ownerId: string, runId: string): Promise<ResearchPackage> {
+    return this.readReadyPackage(ownerId, runId, { kind: "require-fresh", now: this.now() });
+  }
+
+  async readReadyPackageAuditVersions(ownerId: string, runId: string): Promise<ResearchReadyPackageAuditVersions> {
+    const { promptVersion, inputSchemaVersion, outputSchemaVersion } = await this.readReadyPackage(ownerId, runId, { kind: "ignore-for-audit" });
+    return Object.freeze({ promptVersion, inputSchemaVersion, outputSchemaVersion });
+  }
+
+  private async readReadyPackage(ownerId: string, runId: string, expiration: ExpirationPolicy): Promise<ResearchPackage> {
     const run = await this.getRun(ownerId, runId);
     if (!run) throw new ResearchRepositoryError("NOT_FOUND");
     if (run.state !== "ready") throw new ResearchRepositoryError("NOT_READY");
     const row = await storage(() => this.db.prepare("SELECT * FROM research_packages WHERE id=?1 LIMIT 1").bind(run.packageId).first<Row>());
     if (!row) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
     assertCacheIdentity(run, row, "RESEARCH_UNAVAILABLE");
-    const pack = parsePackage(row, this.now());
+    const pack = parsePackage(row, expiration);
     if (canonicalJson(run.quality) !== canonicalJson(pack.qualityReport)) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
     return pack;
   }
@@ -253,13 +262,14 @@ function bytes(value: string) { return new TextEncoder().encode(value).byteLengt
 function serialize(value: unknown, limit: number) { try { const bounded = readBoundedResearchJson(value); const result = JSON.stringify(bounded); if (typeof result !== "string" || bytes(result) > limit) throw new Error(); return result; } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
 function parseJson(value: string, limit: number) { if (bytes(value) > limit) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); try { return readBoundedResearchJson(JSON.parse(value) as unknown); } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
 function validateQuality(value: unknown) { try { return researchQualityReportSchema.parse(readBoundedResearchJson(value)); } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
-function validatePackage(value: unknown, now: number) {
+type ExpirationPolicy = { kind: "require-fresh"; now: number } | { kind: "ignore-for-audit" };
+function validatePackage(value: unknown, expiration: ExpirationPolicy) {
   try {
     const snapshot = readBoundedResearchJson(value);
     const packageValue = researchPackageSchema.parse(snapshot);
     if (canonicalJson(snapshot) !== canonicalJson(packageValue)
       || !packageValue.qualityReport.passed
-      || expiryMs(packageValue.expiresAt) <= now) {
+      || expiration.kind === "require-fresh" && expiryMs(packageValue.expiresAt) <= expiration.now) {
       throw new Error();
     }
     const { contentFingerprint, ...rest } = packageValue;
@@ -298,11 +308,11 @@ function assertPackageIntegrity(packageValue: ResearchPackage) {
     if (resources.get(template.primaryResourceId)!.cost !== "free" && !template.alternativeResourceIds.some((id) => resources.get(id)!.cost === "free")) throw new Error();
   }
 }
-function parsePackage(row: Row, now: number) {
+function parsePackage(row: Row, expiration: ExpirationPolicy) {
   if (typeof row.package_json !== "string" || typeof row.quality_json !== "string" || typeof row.content_fingerprint !== "string") throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
   parseContract(z.object(cacheShape).strict(), { normalizedRoleKey: row.normalized_role_key, locale: row.locale, configFingerprint: row.config_fingerprint });
   parseContract(integerSchema, row.created_at);
-  const packageValue = validatePackage(parseJson(row.package_json, PACKAGE_MAX), now);
+  const packageValue = validatePackage(parseJson(row.package_json, PACKAGE_MAX), expiration);
   const quality = validateQuality(parseJson(row.quality_json, QUALITY_MAX));
   if (row.id !== packageValue.id || !quality.passed || canonicalJson(quality) !== canonicalJson(packageValue.qualityReport)
     || packageValue.contentFingerprint !== row.content_fingerprint || row.blueprint_id !== packageValue.blueprint.id

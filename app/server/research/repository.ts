@@ -15,6 +15,7 @@ export type AttachCachedPackageCommand = { id: string; ownerId: string; expected
 export type TransitionResearchRunCommand = { id: string; ownerId: string; expectedVersion: number; from: ResearchState; to: ResearchState; retryable?: boolean; errorCode?: string; failureCategory?: ResearchPublicFailureCategory };
 export type SaveResearchValidationCommand = { id: string; ownerId: string; expectedVersion: number; result: ResearchValidationResult; normalizedRoleKey: string; locale: "zh-CN" | "en-US"; configFingerprint: string };
 export type CreateResearchRetryCommand = { ownerId: string; requestId: string; mutationId: string; runId: string; activeExpiresAt: number };
+export type ResearchReadyPackageAuditVersions = Readonly<Pick<ResearchPackage, "promptVersion" | "inputSchemaVersion" | "outputSchemaVersion">>;
 
 export interface ResearchRepository {
   // Owners must come from the authenticated session, never from a request body.
@@ -28,6 +29,7 @@ export interface ResearchRepository {
   getPublicRun(ownerId: string, runId: string): Promise<ResearchRunPublicView | null>;
   createRetry(command: CreateResearchRetryCommand): Promise<{ run: ResearchRunRecord; replayed: boolean }>;
   resolveReadyPackage(ownerId: string, runId: string): Promise<ResearchPackage>;
+  readReadyPackageAuditVersions(ownerId: string, runId: string): Promise<ResearchReadyPackageAuditVersions>;
 }
 
 export class ResearchRepositoryError extends Error {

@@ -30,6 +30,21 @@ function request(overrides: Record<string, unknown> = {}) {
 }
 
 describe("EntitlementGate", () => {
+  it("forwards durable Research lookup while disabled without running admission", async () => {
+    const found = { reservationId: "old-reservation", createdAt: 1000, finalStatus: null };
+    const repo = { ...repository(), readResearchReservation: vi.fn().mockResolvedValue(found), admitResearch: vi.fn() };
+    const gate = new EntitlementGate(repo, { ARC_AI_ENABLED: "false" });
+    await expect(gate.readResearchReservation("owner-a", "research-old")).resolves.toEqual(found);
+    expect(repo.readResearchReservation).toHaveBeenCalledWith("owner-a", "research-old");
+    expect(repo.admitResearch).not.toHaveBeenCalled(); expect(repo.reserve).not.toHaveBeenCalled();
+    await expect(gate.readResearchReservation(" owner-a", "research-old")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+  });
+
+  it("fails durable Research lookup closed for missing or unreadable capability", async () => {
+    await expect(new EntitlementGate(repository(), {}).readResearchReservation("owner-a", "research-old")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    const repo = { ...repository(), readResearchReservation: vi.fn().mockRejectedValue(new Error("private database detail")) };
+    await expect(new EntitlementGate(repo, {}).readResearchReservation("owner-a", "research-old")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+  });
   it("admits Research atomically without the legacy global-units setting", async () => {
     const repo = { ...repository(), admitResearch: vi.fn().mockResolvedValue({ allowed: true, reservationId: "research-reservation", replayed: false, finalStatus: null }) };
     const gate = new EntitlementGate(repo, { ARC_AI_ENABLED: "true", ARC_AI_USER_DAILY_QUOTA: "1", ARC_AI_RATE_LIMIT_PER_MINUTE: "2" }, { now: () => new Date("2026-08-31T12:00:00Z") });
