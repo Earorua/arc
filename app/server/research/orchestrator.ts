@@ -98,6 +98,9 @@ export class ResearchOrchestrator {
         run = await this.dependencies.repository.attachCachedPackage({ id: run.id, ownerId: run.ownerId, expectedVersion: run.stateVersion, package: cached });
       } else {
         const gate = z.object({ cohortEnabled: z.boolean(), rateAllowed: z.boolean() }).strict().parse(context);
+        const existingResearch = await this.dependencies.audits.readResearchAttempt(run.ownerId, attemptId(run, "role-research"));
+        const existingRepair = await this.dependencies.audits.readResearchAttempt(run.ownerId, attemptId(run, "role-research-repair"));
+        if (existingResearch || existingRepair) throw unavailable();
         // A legacy admission adapter without durable lookup cannot own a paid run.
         await this.dependencies.entitlements.readResearchReservation(run.ownerId, quotaKey(run));
         const quota = await this.dependencies.entitlements.authorizeResearch({ userId: run.ownerId, purpose: "role-research", idempotencyKey: quotaKey(run), units: 1, ...gate });
@@ -242,7 +245,8 @@ export class ResearchOrchestrator {
       if (quota?.finalStatus && quota.finalStatus !== status) throw unavailable();
       if (!complete && (run.state === "ready" || run.state === "needs-review")) throw unavailable();
       if (!noProvider && (!quota || !cost)) throw unavailable();
-      const settlement = noProvider && complete ? { kind: "not-charged" as const } : !complete || reclaimed ? { kind: "unknown" as const } : receiptSettlement([first, repair].filter((value): value is ResearchAiRunRecord => value !== null));
+      const firstInterruptedHold = interrupted && cost?.status === "reserved";
+      const settlement = noProvider && complete ? { kind: "not-charged" as const } : !complete || reclaimed || firstInterruptedHold ? { kind: "unknown" as const } : receiptSettlement([first, repair].filter((value): value is ResearchAiRunRecord => value !== null));
       assertCostConsistency(cost, settlement);
       if (quota) await this.dependencies.entitlements.finalize(quota.reservationId, status, status === "accepted" ? 1 : 0);
       await this.settleCost(run, cost, settlement);

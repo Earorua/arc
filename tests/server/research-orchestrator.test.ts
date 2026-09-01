@@ -7,6 +7,7 @@ import { D1AiRunSink } from "../../app/server/ai/d1-run-recorder";
 import { EntitlementGate } from "../../app/server/entitlements/policy";
 import { RESEARCH_PROVIDER_VERSIONS, ResearchProviderError, type ProviderResearchResult } from "../../app/server/research/provider";
 import { researchCandidateSchema, researchRunPublicViewSchema } from "../../app/contracts/research";
+import { deterministicId } from "../../app/lib/planning/fingerprint";
 import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 import { createResearchD1, seedUser } from "../helpers/sqlite-d1";
 
@@ -196,6 +197,36 @@ describe("ResearchOrchestrator state machine", () => {
     expect(f.provider.research).not.toHaveBeenCalled(); expect(ledger(f).costs).toHaveLength(0);
   });
 
+  it("preflights both exact audit attempts before authority and fails closed when recovery read rejects", async () => {
+    const f = setup(); const reads: Array<[string, string]> = [];
+    const audits = { record: f.audits.record.bind(f.audits), readResearchAttempt: vi.fn(async (ownerId: string, requestId: string) => {
+      reads.push([ownerId, requestId]); if (reads.length === 1) return null; throw new Error("private reader failure");
+    }) };
+    await expect(f.fresh({ audits }).orchestrator.start("owner-a", input, context)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    const run = f.db.database.prepare("SELECT id,request_id,state FROM research_runs").get() as { id: string; request_id: string; state: string };
+    expect(reads.slice(0, 2)).toEqual((["role-research", "role-research-repair"] as const).map((purpose) => ["owner-a", deterministicId("research-attempt", ["owner-a", run.id, run.request_id, purpose])]));
+    expect(run.state).toBe("failed"); expect(ledger(f)).toEqual({ quotas: [], costs: [], audits: [] });
+    expect(f.provider.research).not.toHaveBeenCalled(); expect(f.provider.repair).not.toHaveBeenCalled();
+  });
+
+  it.each(["role-research", "role-research-repair"] as const)("rejects a pre-existing exact %s attempt before granting authority", async (purpose) => {
+    const f = setup(); const lookup = f.repository.findFreshPackage.bind(f.repository);
+    const reader = vi.spyOn(f.audits, "readResearchAttempt");
+    vi.spyOn(f.repository, "findFreshPackage").mockImplementation(async (request) => {
+      const cached = await lookup(request);
+      const run = f.db.database.prepare("SELECT id,request_id FROM research_runs").get() as { id: string; request_id: string };
+      await f.audits.record({ userId: "owner-a", requestId: deterministicId("research-attempt", ["owner-a", run.id, run.request_id, purpose]), purpose,
+        provider: config.providerName, model: null, promptVersion: config.versions.promptVersion, inputSchemaVersion: config.versions.inputSchemaVersion,
+        outputSchemaVersion: config.versions.outputSchemaVersion, status: "failed", latencyMs: 0, errorCode: "unavailable", usage: null, charged: "unknown" });
+      reader.mockClear(); return cached;
+    });
+    await expect(f.orchestrator.start("owner-a", input, context)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    const run = f.db.database.prepare("SELECT id,request_id,state FROM research_runs").get() as { id: string; request_id: string; state: string };
+    expect(reader.mock.calls.slice(0, 2)).toEqual((["role-research", "role-research-repair"] as const).map((candidatePurpose) => ["owner-a", deterministicId("research-attempt", ["owner-a", run.id, run.request_id, candidatePurpose])]));
+    expect(run.state).toBe("failed"); expect(ledger(f).quotas).toEqual([]); expect(ledger(f).costs).toEqual([]); expect(ledger(f).audits).toHaveLength(1);
+    expect(f.provider.research).not.toHaveBeenCalled(); expect(f.provider.repair).not.toHaveBeenCalled();
+  });
+
   it("preserves known actual cost/model when a successful transport contains unsafe annotations", async () => {
     const f = setup(); f.provider.research.mockResolvedValue(output(110, { annotations: [{ type: "url_citation", url: validAnnotations[0].url, title: "<script>alert(1)</script>" }] }));
     expect((await f.orchestrator.start("owner-a", input, context)).state).toBe("failed");
@@ -278,6 +309,22 @@ describe("durable recovery across new instances on the same real SQLite", () => 
     expect((await f.fresh().orchestrator.get("owner-a", row.id))?.state).toBe("failed");
     expect(ledger(f).audits).toHaveLength(1); expect(ledger(f).costs).toEqual([expect.objectContaining({ status: "settled", settled_micros: 110 })]);
     expect(f.provider.repair).not.toHaveBeenCalled();
+  });
+
+  it("holds the first self-reclaimed expired success then settles it on a fresh reconciliation", async () => {
+    const f = setup();
+    f.provider.research.mockImplementation(async () => { f.setNow(day + 70_000); return output(110); });
+    const first = await f.orchestrator.start("owner-a", input, context);
+    expect(first.state).toBe("failed");
+    expect(ledger(f).costs).toEqual([expect.objectContaining({ maximum_reserved_micros: 1200, status: "conservative-hold", settled_micros: 0 })]);
+    expect(ledger(f).quotas).toContainEqual(expect.objectContaining({ entry_kind: "failed", units: 0 }));
+    expect(ledger(f).audits).toEqual([expect.objectContaining({ purpose: "role-research", status: "rejected", error_code: "invalid-result" })]);
+    expect(f.provider.research).toHaveBeenCalledTimes(1); expect(f.provider.repair).not.toHaveBeenCalled();
+    const before = ledger(f);
+    expect((await f.fresh({}, true).orchestrator.get("owner-a", first.id))?.state).toBe("failed");
+    expect(ledger(f).costs).toEqual([expect.objectContaining({ id: before.costs[0].id, status: "settled", settled_micros: 110 })]);
+    expect(ledger(f).quotas).toEqual(before.quotas); expect(ledger(f).audits).toEqual(before.audits);
+    expect(f.provider.research).toHaveBeenCalledTimes(1); expect(f.provider.repair).not.toHaveBeenCalled();
   });
 
   it("missing audit at unfinalized Ready never accepts quota and keeps a conservative hold", async () => {
