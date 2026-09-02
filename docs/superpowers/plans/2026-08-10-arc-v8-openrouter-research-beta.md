@@ -602,7 +602,7 @@ Use a deterministic, bounded attempt request ID derived from the parent run/requ
 
 Write a real-SQLite recorder test using the Task 4 helper: research and repair rows coexist, same-attempt replay does not duplicate rows, conflicting reuse is rejected rather than silently accepted, usage is bounded/allowlisted, and the old preview record still works. Orchestrator tests inject audit failure before Ready and assert no usable package is exposed, accepted quota is not falsely charged, and provider calls are not replayed. Also test successful research, repair, invalid-domain response, timeout with unknown cost, and cached replay for the exact audit/settlement counts. Run `tests/server/d1-research-run-recorder.test.ts` and `tests/server/ai-gateway.test.ts` with the Task 7 focused regressions.
 
-- [ ] **Step 1: Write state-machine tests before implementation**
+- [x] **Step 1: Write state-machine tests before implementation**
 
 Cover exact order: create/replay -> cache -> cohort/quota/rate decision passed in -> cost reserve -> Researching -> provider -> Validating -> validator -> terminal -> settlements. Assert duplicate mutation and concurrent active requests call provider once. Assert a fresh shared package creates an owner-bound Ready run without provider cost or duplicate accepted quota. Assert repair occurs once only for repairable transport/schema failure and never for missing citation/domain/source-policy failure. Assert every error terminal is sanitized.
 
@@ -614,13 +614,13 @@ expect(entitlements.finalize).toHaveBeenCalledWith(expect.any(String), "accepted
 expect(budget.settle).toHaveBeenCalledWith(expect.any(String), { kind: "actual", actualMicros: 410 });
 ```
 
-- [ ] **Step 2: Run orchestrator tests and verify RED**
+- [x] **Step 2: Run orchestrator tests and verify RED**
 
 Run: `npm run test:unit -- tests/server/research-orchestrator.test.ts`
 
 Expected: FAIL because `ResearchOrchestrator` does not exist.
 
-- [ ] **Step 3: Implement the bounded orchestration state machine**
+- [x] **Step 3: Implement the bounded orchestration state machine**
 
 Expose only three methods:
 
@@ -634,13 +634,13 @@ export class ResearchOrchestrator {
 
 `start` validates first, normalizes role with Unicode NFKC/lowercase/space collapse, creates/replays, checks fresh cache, reserves quota and cost only for a new provider attempt, executes one request stage, then persists one terminal. A repair is permitted only when the initial result contains bounded candidate content and fails JSON/schema structure; the repair input includes that content plus original annotation metadata, disables tools, and may not introduce a URL absent from the original annotations. On Ready, settle accepted quota once and cost by actual usage. On Needs review, accepted quota is zero while actual cost is settled. On provider failure, use `charged` to settle actual/not-charged/unknown without exposing provider detail.
 
-- [ ] **Step 4: Run orchestrator and dependency regressions**
+- [x] **Step 4: Run orchestrator and dependency regressions**
 
 Run: `npm run test:unit -- tests/server/research-orchestrator.test.ts tests/server/research-package-validator.test.ts tests/server/d1-research-repository.test.ts tests/server/d1-research-budget-repository.test.ts tests/server/d1-research-run-recorder.test.ts tests/server/d1-entitlement-repository.test.ts tests/server/entitlements.test.ts tests/server/ai-gateway.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/server/research/orchestrator.ts tests/server/research-orchestrator.test.ts app/server/ai/gateway.ts app/server/ai/d1-run-recorder.ts tests/server/d1-research-run-recorder.test.ts app/server/entitlements/repository.ts app/server/entitlements/d1-entitlement-repository.ts app/server/entitlements/policy.ts tests/server/d1-entitlement-repository.test.ts tests/server/entitlements.test.ts

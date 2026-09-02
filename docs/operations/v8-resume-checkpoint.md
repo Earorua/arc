@@ -1,6 +1,6 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-08-31 目标 2 Research Beta：Task 1–6 已完成，进入 Task 7 研究编排与恢复**
+> **2026-09-02 目标 2 Research Beta：Task 1–7 已完成，进入 Task 8 认证 Research API 接线**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
 >
@@ -51,6 +51,10 @@
 > 主代理核对实际消费者后，在计划提交 `1cbb136` 补齐了 Tasks 9–11 的研究数据接线范围：Ready 公共规划投影、规划 HTTP/source context、刷新后的客户端恢复、Path/Today/Stack/Proof 与服务端 Proof 的同源数据、工作区岗位标题和完整链路测试。这些都是既有 Goal 2 可用闭环的必要接入，不能只实现 Ready 面板或服务器生成就宣称完成。
 >
 > **待用户确认、尚未改变规格的规则：** 已提出“研究缓存到期只禁止新建计划，既有计划仍使用锁定版本完成/延期/重排”的建议；现有文字把有效期也用于历史解析，可能使长周期学习中断。用户回复前不得新增历史过期绕过；Task 4 仍实施严格 Ready 新用途有效期检查，Tasks 4–8 可继续，不在这里停止全部目标。到 Task 9 的 `resolveForReplay` 前必须核对用户决定并更新规格/测试。
+>
+> **Task 7 最终关闭（覆盖上方阶段性状态）：** 可恢复研究编排初版提交为 `8bb6cbe758f708020cbca929189510994b7842e3`，恢复预检修复为 `f1ebf7d26136cbac1c4cc517e9414b09e197943a`。独立规格审查确认 Research / Repair 审计预检、过期运行首次保守持有及后续精确结算均符合规格。质量审查发现 `readResearchReservation` 的缺失键路径会先物化全局配额账本；该问题已按 TDD 在 `f7918843f7b42ccaec4128c0eec5c976d5530326` 修复为先走现有 `(user_id,idempotency_key,entry_kind)` 唯一索引，只有找到父预留后才执行一次受限关系读取。质量复审在真实 SQLite 的 100,000 条无关记录上确认查询计划为 `SEARCH quota_ledger USING INDEX quota_ledger_user_idempotency_idx`、约 0.026 ms，且无全表扫描、分组物化或临时 B 树；剩余 Critical / Important / Minor 均为 0。
+>
+> 主代理在精确提交 `f791884` 独立运行 Research / entitlement 相关 11 文件 **470/470**、完整单元回归 **119 files / 1883 tests**、TypeScript、完整 ESLint、生产构建 **5/5**、rendered HTML **3/3**、diff-check 与工作树洁净检查，全部通过。Task 7 五项已勾选；从 Task 8 的认证 Research Beta HTTP 路由、严格公共响应包及恢复读取继续，不重做 Tasks 1–7。关闭 AI / Research、缺少密钥或 cohort 改变时，旧运行 GET 与结算仍须可用且绝不调用 Provider；新调用权限仍要求双旗标和完整可信配置。
 >
 > 此时不能宣称目标 2 已完成。真实密钥、付费请求、生产变量、生产旗标、生产 D1/R2、Sites 候选及部署仍是独立授权门槛。本轮没有调用真实模型、合并或推送。恢复以此条及实际 Git 状态为准，下方目标 1 / Phase 2 记录均为历史。
 
