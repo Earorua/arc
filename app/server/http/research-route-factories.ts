@@ -44,6 +44,11 @@ type RouteConfig = Readonly<{
   kind: "read" | "write";
 }>;
 
+type RouteResult = Readonly<{
+  resultCode: ResearchErrorCode | "OK";
+  response: Response;
+}>;
+
 class InvalidResearchRequestError extends Error {}
 class HiddenResearchNotFoundError extends Error {}
 class ResearchRouteUnavailableError extends Error {}
@@ -82,29 +87,29 @@ function publicError(
   });
 }
 
-function errorResponse(error: unknown, requestId: string) {
-  if (error instanceof UnauthenticatedError) return { code: "UNAUTHENTICATED", response: publicError(
+function errorResponse(error: unknown, requestId: string): RouteResult {
+  if (error instanceof UnauthenticatedError) return { resultCode: "UNAUTHENTICATED", response: publicError(
     "UNAUTHENTICATED", "Sign in to use Arc research.", 401, requestId, "sign-in",
   ) };
-  if (error instanceof InvalidResearchRequestError || error instanceof z.ZodError) return {
-    code: "INVALID_INPUT", response: publicError("INVALID_INPUT", "Research input is invalid.", 400, requestId),
+  if (error instanceof InvalidResearchRequestError) return {
+    resultCode: "INVALID_INPUT", response: publicError("INVALID_INPUT", "Research input is invalid.", 400, requestId),
   };
   if (error instanceof HiddenResearchNotFoundError
     || error instanceof ResearchRepositoryError && error.code === "NOT_FOUND") return {
-    code: "NOT_FOUND", response: publicError("NOT_FOUND", "Research run was not found.", 404, requestId),
+    resultCode: "NOT_FOUND", response: publicError("NOT_FOUND", "Research run was not found.", 404, requestId),
   };
   if (error instanceof ResearchRepositoryError && error.code === "CONFLICT") return {
-    code: "CONFLICT", response: publicError(
+    resultCode: "CONFLICT", response: publicError(
       "CONFLICT", "Research state changed. Refresh and try again.", 409, requestId, "refresh",
     ),
   };
   if (error instanceof RateLimitUnavailableError || error instanceof ResearchRouteUnavailableError
     || error instanceof ResearchRepositoryError && error.code === "RESEARCH_UNAVAILABLE") return {
-    code: "RESEARCH_UNAVAILABLE", response: publicError(
+    resultCode: "RESEARCH_UNAVAILABLE", response: publicError(
       "RESEARCH_UNAVAILABLE", "Research is temporarily unavailable.", 503, requestId, "retry-or-flagship",
     ),
   };
-  return { code: "INTERNAL", response: publicError(
+  return { resultCode: "INTERNAL", response: publicError(
     "INTERNAL", "Arc could not complete this research request.", 500, requestId,
   ) };
 }
@@ -156,7 +161,16 @@ async function readBoundedBody(request: Request) {
     if (error instanceof InvalidResearchRequestError) throw error;
     await reader.cancel().catch(() => undefined);
     throw new InvalidResearchRequestError();
+  } finally {
+    try { reader.releaseLock(); }
+    catch { /* A body lifecycle failure cannot replace the boundary result. */ }
   }
+}
+
+async function cancelUnreadBody(request: Request) {
+  if (!request.body || request.body.locked) return;
+  try { await request.body.cancel(); }
+  catch { /* Body cleanup cannot replace the primary route result. */ }
 }
 
 async function parseBody<T>(request: Request, schema: z.ZodType<T>) {
@@ -194,28 +208,40 @@ function successResponse(run: unknown, requestId: string) {
   return apiJson(researchSuccessEnvelopeSchema.parse({ run: parsed.data, requestId }), requestId);
 }
 
-function writeResponse(run: unknown, requestId: string) {
+function writeResponse(run: unknown, requestId: string): RouteResult {
   const parsed = researchRunPublicViewSchema.safeParse(run);
   if (!parsed.success) throw new ResearchRouteUnavailableError();
-  if (parsed.data.state === "needs-review") return publicError(
-    "RESEARCH_NEEDS_REVIEW", "Research needs review before it can be used.", 422,
-    requestId, "retry-or-flagship", parsed.data,
-  );
-  if (parsed.data.state === "failed") {
-    if (parsed.data.failureCategory === "rate-limited") return publicError(
-      "RATE_LIMITED", "Too many research requests. Try again shortly.", 429,
-      requestId, "retry", parsed.data, 60,
-    );
-    if (parsed.data.failureCategory === "allowance-reached") return publicError(
-      "ALLOWANCE_REACHED", "The current Research allowance has been reached.", 429,
-      requestId, "use-flagship", parsed.data, 60,
-    );
-    return publicError(
-      "RESEARCH_UNAVAILABLE", "Research is temporarily unavailable.", 503,
+  if (parsed.data.state === "needs-review") return {
+    resultCode: "RESEARCH_NEEDS_REVIEW",
+    response: publicError(
+      "RESEARCH_NEEDS_REVIEW", "Research needs review before it can be used.", 422,
       requestId, "retry-or-flagship", parsed.data,
-    );
+    ),
+  };
+  if (parsed.data.state === "failed") {
+    if (parsed.data.failureCategory === "rate-limited") return {
+      resultCode: "RATE_LIMITED",
+      response: publicError(
+        "RATE_LIMITED", "Too many research requests. Try again shortly.", 429,
+        requestId, "retry", parsed.data, 60,
+      ),
+    };
+    if (parsed.data.failureCategory === "allowance-reached") return {
+      resultCode: "ALLOWANCE_REACHED",
+      response: publicError(
+        "ALLOWANCE_REACHED", "The current Research allowance has been reached.", 429,
+        requestId, "use-flagship", parsed.data, 60,
+      ),
+    };
+    return {
+      resultCode: "RESEARCH_UNAVAILABLE",
+      response: publicError(
+        "RESEARCH_UNAVAILABLE", "Research is temporarily unavailable.", 503,
+        requestId, "retry-or-flagship", parsed.data,
+      ),
+    };
   }
-  return successResponse(parsed.data, requestId);
+  return { resultCode: "OK", response: successResponse(parsed.data, requestId) };
 }
 
 async function recordSafely(deps: ResearchRouteDependencies, input: Parameters<typeof createOperationalEvent>[0]) {
@@ -228,7 +254,13 @@ async function runRoute<T>(
   deps: ResearchRouteDependencies,
   config: RouteConfig,
   prepare: () => Promise<T>,
-  action: (service: ResearchRouteService, userId: string, input: T, gate: ResearchGateContext, requestId: string) => Promise<Response>,
+  action: (
+    service: ResearchRouteService,
+    userId: string,
+    input: T,
+    gate: ResearchGateContext,
+    requestId: string,
+  ) => Promise<RouteResult>,
   beforeCohort?: (service: ResearchRouteService, userId: string, input: T) => Promise<void>,
 ) {
   let requestId = "request-unavailable";
@@ -277,19 +309,24 @@ async function runRoute<T>(
             requestId, "use-flagship", undefined, 60,
           );
         } else {
-          response = await action(service, user.id, input, { cohortEnabled: true, rateAllowed: true }, requestId);
-          resultCode = response.status === 200 ? "OK" : response.status === 422
-            ? "RESEARCH_NEEDS_REVIEW" : response.status === 429
-              ? "ALLOWANCE_REACHED" : "RESEARCH_UNAVAILABLE";
+          const result = await action(
+            service, user.id, input, { cohortEnabled: true, rateAllowed: true }, requestId,
+          );
+          response = result.response;
+          resultCode = result.resultCode;
         }
       }
     } else {
-      response = await action(service, user.id, input, { cohortEnabled: false, rateAllowed: false }, requestId);
-      resultCode = "OK";
+      const result = await action(
+        service, user.id, input, { cohortEnabled: false, rateAllowed: false }, requestId,
+      );
+      response = result.response;
+      resultCode = result.resultCode;
     }
   } catch (error) {
+    if (config.kind === "write") await cancelUnreadBody(request);
     const mapped = errorResponse(error, requestId);
-    resultCode = mapped.code;
+    resultCode = mapped.resultCode;
     response = mapped.response;
   }
   await recordSafely(deps, {
@@ -330,7 +367,7 @@ export function createResearchGetHandler(deps: ResearchRouteDependencies, runIdI
     }, async () => pathRunId(runIdInput), async (service, userId, runId, _gate, requestId) => {
       const run = await service.get(userId, runId);
       if (!run) throw new HiddenResearchNotFoundError();
-      return successResponse(run, requestId);
+      return { resultCode: "OK", response: successResponse(run, requestId) };
     });
 }
 

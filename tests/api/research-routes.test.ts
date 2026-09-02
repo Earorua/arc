@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { researchCandidateSchema, type ResearchRunPublicView } from "../../app/contracts/research";
 import {
   createResearchGetHandler,
@@ -102,6 +103,39 @@ function mutationRequest(path = "/api/intelligence/research", body: unknown = {
   });
 }
 
+function openMutationRequest(path = "/api/intelligence/research", body: unknown = {
+  mutationId: "mutation-research-00000001",
+  role: "Data Product Manager",
+  locale: "en-US",
+}) {
+  const cancelled = vi.fn();
+  const bytes = new TextEncoder().encode(JSON.stringify(body));
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) { controller.enqueue(bytes); },
+    cancel: cancelled,
+  });
+  const request = new Request(`${origin}${path}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      origin,
+      "sec-fetch-site": "same-origin",
+      "cf-connecting-ip": "203.0.113.7",
+    },
+    body: stream,
+    duplex: "half",
+  } as RequestInit);
+  return { request, cancelled };
+}
+
+function internalZodError() {
+  const result = z.object({ privateField: z.literal("expected-private-value") }).safeParse({
+    privateField: "secret-invalid-value",
+  });
+  if (result.success) throw new Error("Expected an internal Zod failure");
+  return result.error;
+}
+
 async function json(response: Response) {
   return await response.json() as Record<string, unknown>;
 }
@@ -118,7 +152,8 @@ describe("Research HTTP routes", () => {
 
   it("returns the exact unauthenticated envelope before any admission or service work", async () => {
     const f = harness({ requireUser: async () => { throw new UnauthenticatedError(); } });
-    const response = await createResearchStartHandler(f.deps)(mutationRequest());
+    const { request, cancelled } = openMutationRequest();
+    const response = await createResearchStartHandler(f.deps)(request);
 
     expect(response.status).toBe(401);
     expect(await json(response)).toEqual({
@@ -127,22 +162,55 @@ describe("Research HTTP routes", () => {
     });
     expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
     expect(f.deps.createWriteService).not.toHaveBeenCalled();
+    expect(cancelled).toHaveBeenCalledOnce();
+    expect(request.body?.locked).toBe(false);
     expectSafety(response);
   });
 
-  it.each([
-    ["malformed JSON", "application/json", "{"],
-    ["non-JSON media", "text/plain", "{}"],
-  ])("rejects %s before rate, run, quota, audit, or provider mutations", async (_label, contentType, body) => {
+  it("rejects malformed JSON and releases the consumed body stream", async () => {
     const f = harness();
     const request = mutationRequest();
-    request.headers.set("content-type", contentType);
-    const replacement = new Request(request, { body });
+    const replacement = new Request(request, { body: "{" });
     const response = await createResearchStartHandler(f.deps)(replacement);
     expect(response.status).toBe(400);
     expect(await json(response)).toMatchObject({ error: { code: "INVALID_INPUT" }, requestId });
+    expect(replacement.body?.locked).toBe(false);
     expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
     expect(f.deps.createWriteService).not.toHaveBeenCalled();
+    expect(f.writeService.start).not.toHaveBeenCalled();
+  });
+
+  it("cancels an unread non-JSON body before mutation work", async () => {
+    const f = harness();
+    const { request, cancelled } = openMutationRequest();
+    request.headers.set("content-type", "text/plain");
+    const response = await createResearchStartHandler(f.deps)(request);
+    expect(response.status).toBe(400);
+    expect(cancelled).toHaveBeenCalledOnce();
+    expect(request.body?.locked).toBe(false);
+    expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
+    expect(f.deps.createWriteService).not.toHaveBeenCalled();
+    expect(f.writeService.start).not.toHaveBeenCalled();
+  });
+
+  it("releases the body stream after a fatal UTF-8 decoding failure", async () => {
+    const f = harness();
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array([0xc3, 0x28]));
+        controller.close();
+      },
+    });
+    const request = new Request(`${origin}/api/intelligence/research`, {
+      method: "POST",
+      headers: { "content-type": "application/json", origin, "sec-fetch-site": "same-origin" },
+      body: stream,
+      duplex: "half",
+    } as RequestInit);
+    const response = await createResearchStartHandler(f.deps)(request);
+    expect(response.status).toBe(400);
+    expect(request.body?.locked).toBe(false);
+    expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
     expect(f.writeService.start).not.toHaveBeenCalled();
   });
 
@@ -162,16 +230,19 @@ describe("Research HTTP routes", () => {
     const response = await createResearchStartHandler(f.deps)(request);
     expect(response.status).toBe(400);
     expect(cancelled).toBe(true);
+    expect(request.body?.locked).toBe(false);
     expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
     expect(f.writeService.start).not.toHaveBeenCalled();
   });
 
-  it("rejects a mismatching Origin before any mutation", async () => {
+  it("rejects a mismatching Origin and cancels the unread body before any mutation", async () => {
     const f = harness();
-    const request = mutationRequest();
+    const { request, cancelled } = openMutationRequest();
     request.headers.set("origin", "https://attacker.example");
     const response = await createResearchStartHandler(f.deps)(request);
     expect(response.status).toBe(400);
+    expect(cancelled).toHaveBeenCalledOnce();
+    expect(request.body?.locked).toBe(false);
     expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
     expect(f.writeService.start).not.toHaveBeenCalled();
   });
@@ -182,11 +253,13 @@ describe("Research HTTP routes", () => {
     ["cross-site", "cross-site"],
   ])("rejects %s Fetch Metadata before any mutation", async (_label, fetchSite) => {
     const f = harness();
-    const request = mutationRequest();
+    const { request, cancelled } = openMutationRequest();
     if (fetchSite === null) request.headers.delete("sec-fetch-site");
     else request.headers.set("sec-fetch-site", fetchSite);
     const response = await createResearchStartHandler(f.deps)(request);
     expect(response.status).toBe(400);
+    expect(cancelled).toHaveBeenCalledOnce();
+    expect(request.body?.locked).toBe(false);
     expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
     expect(f.deps.createWriteService).not.toHaveBeenCalled();
     expect(f.writeService.start).not.toHaveBeenCalled();
@@ -216,6 +289,7 @@ describe("Research HTTP routes", () => {
     });
     expect(f.rateLimiter.reserve.mock.calls.map(([input]) => input.subject)).toEqual(["owner-a", "ip:hashed-subject"]);
     expect(f.writeService.start).not.toHaveBeenCalled();
+    expect(f.deps.recordEvent).toHaveBeenCalledWith(expect.objectContaining({ resultCode: "RATE_LIMITED" }));
   });
 
   it("stops on the account rate gate before deriving or storing an IP subject", async () => {
@@ -227,6 +301,7 @@ describe("Research HTTP routes", () => {
     expect(f.rateLimiter.reserve).toHaveBeenCalledTimes(1);
     expect(f.deps.deriveIpSubject).not.toHaveBeenCalled();
     expect(f.writeService.start).not.toHaveBeenCalled();
+    expect(f.deps.recordEvent).toHaveBeenCalledWith(expect.objectContaining({ resultCode: "RATE_LIMITED" }));
   });
 
   it("denies disabled or incomplete new-call authority without constructing a provider service", async () => {
@@ -252,6 +327,7 @@ describe("Research HTTP routes", () => {
     const response = await createResearchStartHandler(f.deps)(mutationRequest());
     expect(response.status).toBe(status);
     expect(await json(response)).toMatchObject({ error: { code, recovery }, run, requestId });
+    expect(f.deps.recordEvent).toHaveBeenCalledWith(expect.objectContaining({ resultCode: code }));
     expectSafety(response);
   });
 
@@ -265,6 +341,7 @@ describe("Research HTTP routes", () => {
       requestId,
     });
     expect(f.writeService.start).not.toHaveBeenCalled();
+    expect(f.deps.recordEvent).toHaveBeenCalledWith(expect.objectContaining({ resultCode: "ALLOWANCE_REACHED" }));
   });
 
   it("preflights retry ownership before cohort denial and never creates a retry", async () => {
@@ -283,6 +360,7 @@ describe("Research HTTP routes", () => {
     expect(f.writeService.get).toHaveBeenCalledWith("owner-a", "research-run-3");
     expect(cohortEnabled).toHaveBeenCalledWith("owner-a");
     expect(f.writeService.retry).not.toHaveBeenCalled();
+    expect(f.deps.recordEvent).toHaveBeenCalledWith(expect.objectContaining({ resultCode: "ALLOWANCE_REACHED" }));
   });
 
   it("keeps a foreign retry hidden before evaluating the cohort", async () => {
@@ -344,6 +422,42 @@ describe("Research HTTP routes", () => {
     expect(serialized).toContain("Arc could not complete this research request.");
     expect(serialized).not.toMatch(/secret\/model|private/iu);
     expect(JSON.stringify(vi.mocked(unknown.deps.recordEvent).mock.calls)).not.toMatch(/secret\/model|private/iu);
+  });
+
+  it("treats an auth-layer Zod error as a sanitized internal failure and cancels the unread body", async () => {
+    const f = harness({ requireUser: async () => { throw internalZodError(); } });
+    const { request, cancelled } = openMutationRequest();
+    const response = await createResearchStartHandler(f.deps)(request);
+    const serialized = JSON.stringify(await json(response));
+    expect(response.status).toBe(500);
+    expect(serialized).toContain("Arc could not complete this research request.");
+    expect(serialized).not.toMatch(/privateField|expected-private-value|secret-invalid-value/u);
+    expect(cancelled).toHaveBeenCalledOnce();
+    expect(request.body?.locked).toBe(false);
+    expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
+    expect(f.deps.createWriteService).not.toHaveBeenCalled();
+    expect(f.deps.recordEvent).toHaveBeenCalledWith(expect.objectContaining({ resultCode: "INTERNAL" }));
+  });
+
+  it("treats a service-layer Zod error as a sanitized internal failure and releases the body", async () => {
+    const f = harness();
+    vi.mocked(f.writeService.start).mockRejectedValue(internalZodError());
+    const request = mutationRequest();
+    const response = await createResearchStartHandler(f.deps)(request);
+    const serialized = JSON.stringify(await json(response));
+    expect(response.status).toBe(500);
+    expect(serialized).toContain("Arc could not complete this research request.");
+    expect(serialized).not.toMatch(/privateField|expected-private-value|secret-invalid-value/u);
+    expect(request.body?.locked).toBe(false);
+    expect(f.deps.recordEvent).toHaveBeenCalledWith(expect.objectContaining({ resultCode: "INTERNAL" }));
+  });
+
+  it("releases the body stream after a successful start", async () => {
+    const f = harness();
+    const request = mutationRequest();
+    const response = await createResearchStartHandler(f.deps)(request);
+    expect(response.status).toBe(200);
+    expect(request.body?.locked).toBe(false);
   });
 
   it("supports explicit retry after a refreshed Needs-review run", async () => {
