@@ -22,6 +22,33 @@ async function admit(repository: D1EntitlementRepository, key = "research-role-a
 }
 
 describe("D1EntitlementRepository", () => {
+  it("uses only the indexed direct lookup when a recovery key is absent from a large ledger", async () => {
+    const { repository, db } = setup();
+    const insert = db.database.prepare("INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at) VALUES(?1,'owner-a','preview',?2,?3,?4,1,?5)");
+    db.database.exec("BEGIN");
+    for (let index = 0; index < 1500; index++) {
+      for (const kind of ["reserved", "accepted"]) insert.run(`recovery-history-${index}-${kind}`, `recovery-history-${index}`, `recovery-key-${index}`, kind, day - 86_400_000);
+    }
+    db.database.exec("COMMIT");
+
+    const statements: Array<{ sql: string; values: unknown[] }> = [];
+    const prepare = db.prepare.bind(db);
+    db.prepare = (sql) => {
+      const statement = prepare(sql); const bind = statement.bind.bind(statement);
+      statement.bind = (...values) => { statements.push({ sql, values }); return bind(...values); };
+      return statement;
+    };
+
+    await expect(repository.readResearchReservation("owner-b", "missing-recovery-key")).resolves.toBeNull();
+    expect(statements).toHaveLength(1);
+    const [{ sql, values }] = statements;
+    expect(sql).not.toMatch(/GROUP BY|MATERIALIZED/i);
+    const plan = db.database.prepare(`EXPLAIN QUERY PLAN ${sql}`).all(...values as never[]);
+    const details = plan.map((row) => String(row.detail)).join("\n");
+    expect(details).toMatch(/SEARCH quota_ledger USING INDEX quota_ledger_user_idempotency_idx \(user_id=\? AND idempotency_key=\?\)/);
+    expect(details).not.toMatch(/SCAN quota_ledger|MATERIALIZE|USE TEMP B-TREE/i);
+  });
+
   it("reads original owner-bound Research reservation across UTC days without admission", async () => {
     const { repository, setNow } = setup(); const id = await admit(repository);
     setNow(day + 2 * 86_400_000);
@@ -29,6 +56,49 @@ describe("D1EntitlementRepository", () => {
     await expect(repository.readResearchReservation("owner-b", "research-role-a")).resolves.toBeNull();
     await repository.finalize(id, "accepted", 1);
     await expect(repository.readResearchReservation("owner-a", "research-role-a")).resolves.toEqual({ reservationId: id, createdAt: day + 1000, finalStatus: "accepted" });
+  });
+
+  it("uses one bounded direct read and one bounded reservation read for valid recovery", async () => {
+    const { repository, db } = setup(); const id = await admit(repository); await repository.finalize(id, "failed", 0);
+    const statements: Array<{ sql: string; values: unknown[] }> = [];
+    const prepare = db.prepare.bind(db);
+    db.prepare = (sql) => {
+      const statement = prepare(sql); const bind = statement.bind.bind(statement);
+      statement.bind = (...values) => { statements.push({ sql, values }); return bind(...values); };
+      return statement;
+    };
+
+    await expect(repository.readResearchReservation("owner-a", "research-role-a")).resolves.toEqual({ reservationId: id, createdAt: day + 1000, finalStatus: "failed" });
+    expect(statements).toHaveLength(2);
+    expect(statements[0]).toMatchObject({ values: ["owner-a", "research-role-a"] });
+    expect(statements[0].sql).toMatch(/WHERE user_id=\?1 AND idempotency_key=\?2[\s\S]*LIMIT 3/i);
+    expect(statements[1]).toMatchObject({ values: [id] });
+    expect(statements[1].sql).toMatch(/WHERE reservation_id=\?1[\s\S]*LIMIT 3/i);
+  });
+
+  it("fails recovery closed for direct orphans and split reservation identifiers", async () => {
+    const orphan = setup();
+    orphan.db.database.prepare("INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at) VALUES('orphan-terminal','owner-a','role-research','orphan-reservation','orphan-recovery','accepted',1,?1)").run(day);
+    await expect(orphan.repository.readResearchReservation("owner-a", "orphan-recovery")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+
+    const split = setup();
+    split.db.database.prepare("INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at) VALUES('split-parent','owner-a','role-research','split-parent-reservation','split-recovery','reserved',1,?1)").run(day);
+    split.db.database.prepare("INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at) VALUES('split-terminal','owner-a','role-research','split-child-reservation','split-recovery','failed',0,?1)").run(day + 1);
+    await expect(split.repository.readResearchReservation("owner-a", "split-recovery")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+  });
+
+  it("fails recovery closed for malformed row identifiers and excess terminals", async () => {
+    const malformed = setup(); await admit(malformed.repository);
+    malformed.db.database.prepare("UPDATE quota_ledger SET id='' WHERE entry_kind='reserved'").run();
+    await expect(malformed.repository.readResearchReservation("owner-a", "research-role-a")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+
+    const invalidUnits = setup(); await admit(invalidUnits.repository);
+    invalidUnits.db.database.prepare("UPDATE quota_ledger SET units=2 WHERE entry_kind='reserved'").run();
+    await expect(invalidUnits.repository.readResearchReservation("owner-a", "research-role-a")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+
+    const overflow = setup(); const id = await admit(overflow.repository); await overflow.repository.finalize(id, "accepted", 1);
+    overflow.db.database.prepare("INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at) VALUES('overflow-terminal','owner-a','role-research',?1,'research-role-a','failed',0,?2)").run(id, day + 2000);
+    await expect(overflow.repository.readResearchReservation("owner-a", "research-role-a")).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
   });
 
   it("fails recovery closed for wrong purpose and corrupt related terminals", async () => {

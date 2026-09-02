@@ -10,6 +10,18 @@ const periodSchema = z.object({ startMs: integer, endMs: integer }).strict().ref
 const reservationSchema = z.object({ user_id: identifier, purpose: purposeSchema, reservation_id: identifier, idempotency_key: keySchema, units: z.number().int().min(1).max(1000), created_at: integer });
 type ReservationRow = z.infer<typeof reservationSchema>;
 type FinalRow = { entry_kind: EntitlementFinalStatus; units: number };
+const ledgerEntryKindSchema = z.enum(["reserved", "accepted", "rejected", "failed"]);
+const recoveryDirectRowSchema = z.object({ reservation_id: identifier, entry_kind: ledgerEntryKindSchema }).strict();
+const recoveryLedgerRowSchema = z.object({
+  id: identifier,
+  user_id: identifier,
+  purpose: purposeSchema,
+  reservation_id: identifier,
+  idempotency_key: keySchema,
+  entry_kind: ledgerEntryKindSchema,
+  units: integer.max(1000),
+  created_at: integer,
+}).strict();
 const researchCommandSchema = z.object({ userId: identifier, purpose: z.literal(RESEARCH_QUOTA_PURPOSE), idempotencyKey: keySchema, units: z.literal(1), dailyQuota: integer.max(100_000), period: periodSchema.refine((value) => value.startMs % 86_400_000 === 0 && value.endMs - value.startMs === 86_400_000) }).strict();
 // SQLite's default trim removes only ASCII spaces; use ECMAScript trim's exact
 // whitespace set so stored keys cannot disagree with the command schemas.
@@ -85,11 +97,30 @@ export class D1EntitlementRepository implements EntitlementRepository {
   readResearchReservation(userId: string, idempotencyKey: string) {
     return guarded(async () => {
       parse(identifier, userId); parse(keySchema, idempotencyKey);
-      await this.assertLedger(exactScope, [userId, idempotencyKey]);
-      const row = await this.findReservation(userId, idempotencyKey);
-      if (!row) return null;
-      this.validateReplay(row, RESEARCH_QUOTA_PURPOSE, 1);
-      return { reservationId: row.reservation_id, createdAt: row.created_at, finalStatus: (await this.finalRow(row.reservation_id))?.entry_kind ?? null };
+      const directResult = await this.db.prepare(`SELECT reservation_id,entry_kind FROM quota_ledger
+        WHERE user_id=?1 AND idempotency_key=?2 LIMIT 3`).bind(userId, idempotencyKey).all();
+      const directRows = parse(z.array(recoveryDirectRowSchema).max(2), directResult.results);
+      if (directRows.length === 0) return null;
+      const reservationIds = new Set(directRows.map((row) => row.reservation_id));
+      if (reservationIds.size !== 1 || directRows.filter((row) => row.entry_kind === "reserved").length !== 1) unavailable();
+      const reservationId = directRows[0].reservation_id;
+
+      const relationshipResult = await this.db.prepare(`SELECT id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at
+        FROM quota_ledger WHERE reservation_id=?1 LIMIT 3`).bind(reservationId).all();
+      const relationship = parse(z.array(recoveryLedgerRowSchema).min(1).max(2), relationshipResult.results);
+      const parents = relationship.filter((row) => row.entry_kind === "reserved");
+      if (parents.length !== 1) unavailable();
+      const parent = parents[0];
+      if (parent.purpose !== RESEARCH_QUOTA_PURPOSE) throw new EntitlementRepositoryError("CONFLICT");
+      for (const row of relationship) {
+        if (row.reservation_id !== reservationId || row.user_id !== userId || row.idempotency_key !== idempotencyKey || row.purpose !== RESEARCH_QUOTA_PURPOSE) unavailable();
+        const expectedUnits = row.entry_kind === "reserved" || row.entry_kind === "accepted" ? 1 : 0;
+        if (row.units !== expectedUnits) unavailable();
+      }
+      const terminal = relationship.find((row) => row.entry_kind !== "reserved");
+      const finalStatus = terminal?.entry_kind;
+      if (finalStatus === "reserved") unavailable();
+      return { reservationId, createdAt: parent.created_at, finalStatus: finalStatus ?? null };
     });
   }
 
