@@ -176,6 +176,29 @@ function generateRequest() {
 }
 
 describe("planning contract resource and security boundaries", () => {
+  it("keeps legacy planning error envelopes distinct from Research top-level request IDs", async () => {
+    const dependencies: PlanningRouteDependencies = {
+      requireUser: async () => { throw new Error("legacy planning auth failure"); },
+      createService: () => ({
+        getWorkspace: async () => null,
+        generate: async () => { throw new Error("not used"); },
+        appendEvent: async () => { throw new Error("not used"); },
+        acceptReplan: async () => { throw new Error("not used"); },
+        discardReplan: async () => { throw new Error("not used"); },
+      }),
+      rateLimiter: { reserve: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
+      recordEvent: async () => undefined,
+      createRequestId: () => "00000000-0000-4000-8000-000000000001",
+    };
+    const response = await createPlanningGenerateHandler(dependencies)(new Request("https://arc.example/api/planning/generate", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(generateRequest()),
+    }));
+    const body = await response.json() as Record<string, unknown>;
+    expect(body).not.toHaveProperty("requestId");
+    expect(body).toHaveProperty("error.requestId", "00000000-0000-4000-8000-000000000001");
+    expect(body).not.toHaveProperty("error.recovery");
+  });
+
   it("accepts exact audit/evidence maxima and rejects the first item beyond either cap", () => {
     const answers = Array.from({ length: 64 }, (_, answerIndex) => ({
       skillId: `security-skill-${answerIndex}`,

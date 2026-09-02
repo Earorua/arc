@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  researchErrorEnvelopeSchema,
+  researchHttpEnvelopeSchema,
   researchCandidateSchema,
   providerCitationAnnotationSchema,
   providerUsageSchema,
@@ -7,12 +9,79 @@ import {
   researchQualityReportSchema,
   researchRequestSchema,
   researchRunPublicViewSchema,
+  researchSuccessEnvelopeSchema,
   researchStateSchema,
 } from "../../app/contracts/research";
 import { validResearchCandidate } from "../fixtures/research/valid-candidate";
 import { invalidResearchCandidates } from "../fixtures/research/invalid-candidates";
 
 describe("research contracts", () => {
+  it("accepts the Research-only success and terminal error envelopes", () => {
+    const requestId = "00000000-0000-4000-8000-000000000008";
+    const ready = validReadyPublicView();
+    const needsReview = {
+      id: "research-run-2",
+      state: "needs-review" as const,
+      role: "Data Product Manager",
+      locale: "en-US" as const,
+      retryable: true,
+      quality: { issueCodes: ["missing-unit" as const], skillCount: 3, sourceCount: 6, unitCount: 2 },
+    };
+
+    expect(researchSuccessEnvelopeSchema.parse({ run: ready, requestId })).toEqual({ run: ready, requestId });
+    expect(researchErrorEnvelopeSchema.parse({
+      error: {
+        code: "RESEARCH_NEEDS_REVIEW",
+        message: "Research needs review before it can be used.",
+        recovery: "retry-or-flagship",
+      },
+      run: needsReview,
+      requestId,
+    })).toMatchObject({ run: needsReview, requestId });
+    expect(researchHttpEnvelopeSchema.safeParse({ run: ready, requestId }).success).toBe(true);
+  });
+
+  it("rejects contradictory, malformed, or private Research envelopes", () => {
+    const requestId = "00000000-0000-4000-8000-000000000008";
+    const failed = {
+      id: "research-run-3",
+      state: "failed" as const,
+      role: "Data Product Manager",
+      locale: "en-US" as const,
+      failureCategory: "timeout" as const,
+      retryable: true,
+    };
+    const base = {
+      error: {
+        code: "RESEARCH_UNAVAILABLE" as const,
+        message: "Research is temporarily unavailable.",
+        recovery: "retry-or-flagship" as const,
+      },
+      run: failed,
+      requestId,
+    };
+
+    expect(researchErrorEnvelopeSchema.safeParse({
+      ...base,
+      error: { ...base.error, code: "RESEARCH_NEEDS_REVIEW" },
+    }).success).toBe(false);
+    expect(researchErrorEnvelopeSchema.safeParse({
+      ...base,
+      error: { ...base.error, recovery: "sign-in" },
+    }).success).toBe(false);
+    expect(researchErrorEnvelopeSchema.safeParse({ ...base, provider: "openrouter" }).success).toBe(false);
+    expect(researchErrorEnvelopeSchema.safeParse({
+      ...base,
+      run: { ...failed, model: "private/model", costMicros: 100 },
+    }).success).toBe(false);
+    expect(researchHttpEnvelopeSchema.safeParse({
+      error: base.error,
+      run: failed,
+      requestId,
+      success: true,
+    }).success).toBe(false);
+  });
+
   it("accepts the bounded public request", () => {
     const request = {
       mutationId: "mutation-research-00000001",

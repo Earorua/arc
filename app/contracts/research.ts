@@ -279,7 +279,85 @@ export const researchRequestSchema = z.object({
   locale: z.enum(["zh-CN", "en-US"]),
 }).strict();
 
+export const researchRetryRequestSchema = z.object({
+  mutationId: researchRequestSchema.shape.mutationId,
+}).strict();
+
+export const researchErrorCodeSchema = z.enum([
+  "UNAUTHENTICATED",
+  "INVALID_INPUT",
+  "NOT_FOUND",
+  "CONFLICT",
+  "RATE_LIMITED",
+  "ALLOWANCE_REACHED",
+  "RESEARCH_NEEDS_REVIEW",
+  "RESEARCH_UNAVAILABLE",
+  "INTERNAL",
+]);
+
+export const researchRecoverySchema = z.enum([
+  "sign-in",
+  "refresh",
+  "retry",
+  "use-flagship",
+  "retry-or-flagship",
+]);
+
+const researchRequestIdSchema = z.string().min(1).max(128)
+  .refine((value) => value === value.trim() && !/[\u0000-\u001f\u007f-\u009f]/u.test(value));
+
+const expectedRecovery = {
+  UNAUTHENTICATED: "sign-in",
+  INVALID_INPUT: undefined,
+  NOT_FOUND: undefined,
+  CONFLICT: "refresh",
+  RATE_LIMITED: "retry",
+  ALLOWANCE_REACHED: "use-flagship",
+  RESEARCH_NEEDS_REVIEW: "retry-or-flagship",
+  RESEARCH_UNAVAILABLE: "retry-or-flagship",
+  INTERNAL: undefined,
+} as const;
+
+export const researchPublicErrorSchema = z.object({
+  code: researchErrorCodeSchema,
+  message: z.string().trim().min(1).max(240),
+  recovery: researchRecoverySchema.optional(),
+}).strict().superRefine((error, context) => {
+  if (error.recovery !== expectedRecovery[error.code]) {
+    context.addIssue({ code: "custom", path: ["recovery"], message: "Recovery must match the public Research error" });
+  }
+});
+
+export const researchSuccessEnvelopeSchema = z.object({
+  run: researchRunPublicViewSchema,
+  requestId: researchRequestIdSchema,
+}).strict();
+
+function expectedRunError(run: ResearchRunPublicView): z.infer<typeof researchErrorCodeSchema> | null {
+  if (run.state === "needs-review") return "RESEARCH_NEEDS_REVIEW";
+  if (run.state !== "failed") return null;
+  if (run.failureCategory === "rate-limited") return "RATE_LIMITED";
+  if (run.failureCategory === "allowance-reached") return "ALLOWANCE_REACHED";
+  return "RESEARCH_UNAVAILABLE";
+}
+
+export const researchErrorEnvelopeSchema = z.object({
+  error: researchPublicErrorSchema,
+  run: researchRunPublicViewSchema.optional(),
+  requestId: researchRequestIdSchema,
+}).strict().superRefine((envelope, context) => {
+  if (envelope.run && expectedRunError(envelope.run) !== envelope.error.code) {
+    context.addIssue({ code: "custom", path: ["run"], message: "Terminal run contradicts the public Research error" });
+  }
+});
+
+export const researchHttpEnvelopeSchema = z.union([
+  researchSuccessEnvelopeSchema,
+  researchErrorEnvelopeSchema,
+]);
+
 export type ResearchRequest = z.infer<typeof researchRequestSchema>;
+export type ResearchRetryRequest = z.infer<typeof researchRetryRequestSchema>;
 export type ResearchRoleSummary = z.infer<typeof researchRoleSummarySchema>;
 export type ResearchCandidateSkill = z.infer<typeof researchCandidateSkillSchema>;
 export type ResearchPrerequisiteEdge = z.infer<typeof researchPrerequisiteEdgeSchema>;
@@ -301,3 +379,9 @@ export type AuditedSource = z.infer<typeof auditedSourceSchema>;
 export type ResearchPackage = z.infer<typeof researchPackageSchema>;
 export type ResearchPublicFailureCategory = z.infer<typeof researchPublicFailureCategorySchema>;
 export type ResearchRunPublicView = z.infer<typeof researchRunPublicViewSchema>;
+export type ResearchErrorCode = z.infer<typeof researchErrorCodeSchema>;
+export type ResearchRecovery = z.infer<typeof researchRecoverySchema>;
+export type ResearchPublicError = z.infer<typeof researchPublicErrorSchema>;
+export type ResearchSuccessEnvelope = z.infer<typeof researchSuccessEnvelopeSchema>;
+export type ResearchErrorEnvelope = z.infer<typeof researchErrorEnvelopeSchema>;
+export type ResearchHttpEnvelope = z.infer<typeof researchHttpEnvelopeSchema>;
