@@ -123,7 +123,7 @@ function requireMutationSecurity(request: Request, deps: ResearchRouteDependenci
     actual = new URL(request.headers.get("origin") ?? "invalid:").origin;
   } catch { throw new InvalidResearchRequestError(); }
   const fetchSite = request.headers.get("sec-fetch-site");
-  if (actual !== expected || fetchSite !== null && fetchSite !== "same-origin" && fetchSite !== "same-site") {
+  if (actual !== expected || fetchSite !== "same-origin") {
     throw new InvalidResearchRequestError();
   }
   if (!contentTypeIsJson(request.headers.get("content-type"))) throw new InvalidResearchRequestError();
@@ -229,6 +229,7 @@ async function runRoute<T>(
   config: RouteConfig,
   prepare: () => Promise<T>,
   action: (service: ResearchRouteService, userId: string, input: T, gate: ResearchGateContext, requestId: string) => Promise<Response>,
+  beforeCohort?: (service: ResearchRouteService, userId: string, input: T) => Promise<void>,
 ) {
   let requestId = "request-unavailable";
   const now = deps.now ?? Date.now;
@@ -267,11 +268,20 @@ async function runRoute<T>(
           requestId, "retry", undefined, ip.retryAfterSeconds,
         );
       } else {
+        await beforeCohort?.(service, user.id, input);
         const cohortEnabled = await deps.cohortEnabled(user.id);
-        response = await action(service, user.id, input, { cohortEnabled, rateAllowed: true }, requestId);
-        resultCode = response.status === 200 ? "OK" : response.status === 422
-          ? "RESEARCH_NEEDS_REVIEW" : response.status === 429
-            ? "ALLOWANCE_REACHED" : "RESEARCH_UNAVAILABLE";
+        if (!cohortEnabled) {
+          resultCode = "ALLOWANCE_REACHED";
+          response = publicError(
+            "ALLOWANCE_REACHED", "The current Research allowance has been reached.", 429,
+            requestId, "use-flagship", undefined, 60,
+          );
+        } else {
+          response = await action(service, user.id, input, { cohortEnabled: true, rateAllowed: true }, requestId);
+          resultCode = response.status === 200 ? "OK" : response.status === 422
+            ? "RESEARCH_NEEDS_REVIEW" : response.status === 429
+              ? "ALLOWANCE_REACHED" : "RESEARCH_UNAVAILABLE";
+        }
       }
     } else {
       response = await action(service, user.id, input, { cohortEnabled: false, rateAllowed: false }, requestId);
@@ -307,10 +317,11 @@ function createWriteHandler<T>(
   config: RouteConfig,
   prepare: (request: Request) => Promise<T>,
   invoke: (service: ResearchRouteService, userId: string, input: T, gate: ResearchGateContext) => Promise<ResearchRunPublicView>,
+  beforeCohort?: (service: ResearchRouteService, userId: string, input: T) => Promise<void>,
 ) {
   return (request: Request) => runRoute(request, deps, config, () => prepare(request),
     async (service, userId, input, gate, requestId) =>
-      writeResponse(await invoke(service, userId, input, gate), requestId));
+      writeResponse(await invoke(service, userId, input, gate), requestId), beforeCohort);
 }
 
 export function createResearchGetHandler(deps: ResearchRouteDependencies, runIdInput: string) {
@@ -331,7 +342,10 @@ export function createResearchRetryHandler(deps: ResearchRouteDependencies, runI
     const runId = pathRunId(runIdInput);
     const input = await parseBody(request, researchRetryRequestSchema);
     return { runId, mutationId: input.mutationId };
-  }, (service, userId, input, gate) => service.retry(userId, input.runId, input.mutationId, gate));
+  }, (service, userId, input, gate) => service.retry(userId, input.runId, input.mutationId, gate),
+  async (service, userId, input) => {
+    if (!await service.get(userId, input.runId)) throw new HiddenResearchNotFoundError();
+  });
 }
 
 const productionServiceFactory = createResearchServiceFactory();

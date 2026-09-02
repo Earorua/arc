@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { ResearchRunPublicView } from "../../app/contracts/research";
+import { researchCandidateSchema, type ResearchRunPublicView } from "../../app/contracts/research";
 import {
   createResearchGetHandler,
   createResearchRetryHandler,
@@ -16,6 +16,7 @@ import { ResearchRepositoryError } from "../../app/server/research/repository";
 import { UnauthenticatedError } from "../../app/server/auth/session";
 import { ResearchProviderError } from "../../app/server/research/provider";
 import { createResearchD1, seedUser, type SqliteD1 } from "../helpers/sqlite-d1";
+import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 
 const requestId = "00000000-0000-4000-8000-000000000008";
 const origin = "https://arc.example";
@@ -165,16 +166,29 @@ describe("Research HTTP routes", () => {
     expect(f.writeService.start).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ["mismatching Origin", { origin: "https://attacker.example" }],
-    ["cross-site fetch metadata", { "sec-fetch-site": "cross-site" }],
-  ])("rejects %s before any mutation", async (_label, headers) => {
+  it("rejects a mismatching Origin before any mutation", async () => {
     const f = harness();
     const request = mutationRequest();
-    for (const [name, value] of Object.entries(headers)) request.headers.set(name, value);
+    request.headers.set("origin", "https://attacker.example");
     const response = await createResearchStartHandler(f.deps)(request);
     expect(response.status).toBe(400);
     expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
+    expect(f.writeService.start).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["missing", null],
+    ["same-site", "same-site"],
+    ["cross-site", "cross-site"],
+  ])("rejects %s Fetch Metadata before any mutation", async (_label, fetchSite) => {
+    const f = harness();
+    const request = mutationRequest();
+    if (fetchSite === null) request.headers.delete("sec-fetch-site");
+    else request.headers.set("sec-fetch-site", fetchSite);
+    const response = await createResearchStartHandler(f.deps)(request);
+    expect(response.status).toBe(400);
+    expect(f.rateLimiter.reserve).not.toHaveBeenCalled();
+    expect(f.deps.createWriteService).not.toHaveBeenCalled();
     expect(f.writeService.start).not.toHaveBeenCalled();
   });
 
@@ -241,15 +255,48 @@ describe("Research HTTP routes", () => {
     expectSafety(response);
   });
 
-  it("passes cohort denial to orchestration without provider authority and preserves its failed run", async () => {
+  it("denies a removed-cohort start without creating or returning a run", async () => {
     const f = harness({ cohortEnabled: vi.fn(async () => false) });
-    vi.mocked(f.writeService.start).mockImplementation(async (_owner, _input, context) => {
-      expect(context).toEqual({ cohortEnabled: false, rateAllowed: true });
-      return failedRun("service-unavailable");
-    });
     const response = await createResearchStartHandler(f.deps)(mutationRequest());
-    expect(response.status).toBe(503);
-    expect(await json(response)).toMatchObject({ error: { code: "RESEARCH_UNAVAILABLE" }, run: failedRun("service-unavailable") });
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("60");
+    expect(await json(response)).toEqual({
+      error: { code: "ALLOWANCE_REACHED", message: "The current Research allowance has been reached.", recovery: "use-flagship" },
+      requestId,
+    });
+    expect(f.writeService.start).not.toHaveBeenCalled();
+  });
+
+  it("preflights retry ownership before cohort denial and never creates a retry", async () => {
+    const cohortEnabled = vi.fn(async () => false);
+    const f = harness({ cohortEnabled });
+    vi.mocked(f.writeService.get).mockResolvedValue(failedRun("timeout"));
+    const response = await createResearchRetryHandler(f.deps, "research-run-3")(mutationRequest(
+      "/api/intelligence/research/research-run-3/retry",
+      { mutationId: "mutation-retry-00000003" },
+    ));
+    expect(response.status).toBe(429);
+    expect(await json(response)).toEqual({
+      error: { code: "ALLOWANCE_REACHED", message: "The current Research allowance has been reached.", recovery: "use-flagship" },
+      requestId,
+    });
+    expect(f.writeService.get).toHaveBeenCalledWith("owner-a", "research-run-3");
+    expect(cohortEnabled).toHaveBeenCalledWith("owner-a");
+    expect(f.writeService.retry).not.toHaveBeenCalled();
+  });
+
+  it("keeps a foreign retry hidden before evaluating the cohort", async () => {
+    const cohortEnabled = vi.fn(async () => false);
+    const f = harness({ cohortEnabled });
+    vi.mocked(f.writeService.get).mockResolvedValue(null);
+    const response = await createResearchRetryHandler(f.deps, "research-run-foreign")(mutationRequest(
+      "/api/intelligence/research/research-run-foreign/retry",
+      { mutationId: "mutation-retry-00000004" },
+    ));
+    expect(response.status).toBe(404);
+    expect(await json(response)).toMatchObject({ error: { code: "NOT_FOUND" }, requestId });
+    expect(cohortEnabled).not.toHaveBeenCalled();
+    expect(f.writeService.retry).not.toHaveBeenCalled();
   });
 
   it("returns every owned persisted state from GET as a 200 success envelope", async () => {
@@ -426,6 +473,65 @@ describe("Research production composition", () => {
     } finally { db.close(); }
   });
 
+  it("denies removed-cohort start/cache attachment and retry before orchestration", async () => {
+    const db = createResearchD1();
+    try {
+      seedUser(db, "owner-a");
+      seedUser(db, "owner-b");
+      const provider = {
+        research: vi.fn(async () => ({
+          content: JSON.stringify(validResearchCandidate),
+          candidate: researchCandidateSchema.parse(validResearchCandidate),
+          annotations: structuredClone(validAnnotations),
+          actualModel: "test/research-fixed",
+          usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30, costMicros: 100, webSearchRequests: 1 },
+        })),
+        repair: vi.fn(async () => { throw new Error("repair must not run"); }),
+      };
+      const factory = createResearchServiceFactory({
+        environment: validEnvironment,
+        getD1: () => db as unknown as D1Database,
+        createProvider: () => provider,
+        now: () => Date.parse("2026-09-02T12:00:00Z"),
+      });
+      const ownerA = factoryDependencies(factory);
+      const ready = await createResearchStartHandler(ownerA)(mutationRequest());
+      const readyBody = await json(ready) as { run: ResearchRunPublicView };
+      expect(ready.status).toBe(200);
+      expect(readyBody.run.state).toBe("ready");
+      expect(provider.research).toHaveBeenCalledTimes(1);
+
+      const before = durableLedgerSnapshot(db);
+      const ownerBRemoved = factoryDependencies(factory, { ownerId: "owner-b", cohortEnabled: false });
+      const deniedStart = await createResearchStartHandler(ownerBRemoved)(mutationRequest(undefined, {
+        mutationId: "mutation-cohort-cache-00000001",
+        role: "Data Product Manager",
+        locale: "en-US",
+      }));
+      expect(deniedStart.status).toBe(429);
+      expect(await json(deniedStart)).not.toHaveProperty("run");
+      expect(durableLedgerSnapshot(db)).toEqual(before);
+
+      const ownerARemoved = factoryDependencies(factory, { cohortEnabled: false });
+      const deniedRetry = await createResearchRetryHandler(ownerARemoved, readyBody.run.id)(mutationRequest(
+        `/api/intelligence/research/${readyBody.run.id}/retry`,
+        { mutationId: "mutation-cohort-retry-00000001" },
+      ));
+      expect(deniedRetry.status).toBe(429);
+      expect(await json(deniedRetry)).not.toHaveProperty("run");
+      expect(durableLedgerSnapshot(db)).toEqual(before);
+
+      const foreignRetry = await createResearchRetryHandler(ownerBRemoved, readyBody.run.id)(mutationRequest(
+        `/api/intelligence/research/${readyBody.run.id}/retry`,
+        { mutationId: "mutation-cohort-retry-foreign-00000001" },
+      ));
+      expect(foreignRetry.status).toBe(404);
+      expect(durableLedgerSnapshot(db)).toEqual(before);
+      expect(provider.research).toHaveBeenCalledTimes(1);
+      expect(provider.repair).not.toHaveBeenCalled();
+    } finally { db.close(); }
+  });
+
   it("recovers persisted Failed runs with original ledgers after flags and key are removed", async () => {
     const db = createResearchD1();
     try {
@@ -501,13 +607,17 @@ describe("Research production composition", () => {
 
 type ServiceFactory = ReturnType<typeof createResearchServiceFactory>;
 
-function factoryDependencies(factory: ServiceFactory): ResearchRouteDependencies {
+function factoryDependencies(
+  factory: ServiceFactory,
+  options: { ownerId?: string; cohortEnabled?: boolean } = {},
+): ResearchRouteDependencies {
+  const ownerId = options.ownerId ?? "owner-a";
   return {
-    requireUser: async () => ({ id: "owner-a", name: "Owner", email: "owner@example.test" }),
+    requireUser: async () => ({ id: ownerId, name: "Owner", email: `${ownerId}@example.test` }),
     createReadService: () => factory.createRecoveryService(),
     createWriteService: () => factory.createNewCallService(),
     rateLimiter: { reserve: async () => ({ allowed: true, retryAfterSeconds: 1 }) },
-    cohortEnabled: async () => true,
+    cohortEnabled: async () => options.cohortEnabled ?? true,
     deriveIpSubject: (request) => factory.deriveIpSubject(request),
     configuredOrigin: () => factory.configuredOrigin(),
     recordEvent: async () => undefined,
