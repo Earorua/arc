@@ -1,6 +1,6 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-02 目标 2 Research Beta：Task 1–7 已完成，进入 Task 8 认证 Research API 接线**
+> **2026-09-02 目标 2 Research Beta：Task 1–8 已完成；Task 9 等待历史缓存到期规则确认**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
 >
@@ -55,6 +55,10 @@
 > **Task 7 最终关闭（覆盖上方阶段性状态）：** 可恢复研究编排初版提交为 `8bb6cbe758f708020cbca929189510994b7842e3`，恢复预检修复为 `f1ebf7d26136cbac1c4cc517e9414b09e197943a`。独立规格审查确认 Research / Repair 审计预检、过期运行首次保守持有及后续精确结算均符合规格。质量审查发现 `readResearchReservation` 的缺失键路径会先物化全局配额账本；该问题已按 TDD 在 `f7918843f7b42ccaec4128c0eec5c976d5530326` 修复为先走现有 `(user_id,idempotency_key,entry_kind)` 唯一索引，只有找到父预留后才执行一次受限关系读取。质量复审在真实 SQLite 的 100,000 条无关记录上确认查询计划为 `SEARCH quota_ledger USING INDEX quota_ledger_user_idempotency_idx`、约 0.026 ms，且无全表扫描、分组物化或临时 B 树；剩余 Critical / Important / Minor 均为 0。
 >
 > 主代理在精确提交 `f791884` 独立运行 Research / entitlement 相关 11 文件 **470/470**、完整单元回归 **119 files / 1883 tests**、TypeScript、完整 ESLint、生产构建 **5/5**、rendered HTML **3/3**、diff-check 与工作树洁净检查，全部通过。Task 7 五项已勾选；从 Task 8 的认证 Research Beta HTTP 路由、严格公共响应包及恢复读取继续，不重做 Tasks 1–7。关闭 AI / Research、缺少密钥或 cohort 改变时，旧运行 GET 与结算仍须可用且绝不调用 Provider；新调用权限仍要求双旗标和完整可信配置。
+>
+> **Task 8 最终关闭：** 认证 Research API 初版提交为 `a03706b664aef21ae2a9bfd3cec402caf93339ce`。规格审查发现 cohort 拒绝晚于运行/缓存附着，以及写请求接受缺失或 `same-site` Fetch Metadata；两项均在 `19d23e7ea5b12d8336c90d039ed329d6afa61466` 按 TDD 修复为无 run 的 `429 ALLOWANCE_REACHED` 前置拒绝、retry 所有者预检和精确 `same-origin`。独立规格复审确认双旗标/完整配置、新调用与无 Provider 恢复分离、盐化 `cf-connecting-ip`、严格公共响应包、终态连续性与旧 Preview / Planning 隔离均符合规格，无剩余问题。
+>
+> 质量审查随后发现 429 终态遥测误分类、内部 Zod 错误误报 400 和请求体 reader lock 未释放；`1cf43ef55154f23077754670a297ee4ebde68b53` 以受验证语义结果码、边界错误收窄和完整流取消/解锁修复，质量复审确认 Critical / Important / Minor 均为 0。主代理在精确 `1cf43ef` 独立运行 Task 8 五文件 **93/93**、完整单元回归 **120 files / 1924 tests**、TypeScript、完整 ESLint、生产构建 **5/5**、rendered HTML **3/3**、diff-check 与工作树洁净检查，全部通过。Task 8 五项已勾选；没有真实密钥、模型请求、生产变量值、合并、推送或部署。
 >
 > 此时不能宣称目标 2 已完成。真实密钥、付费请求、生产变量、生产旗标、生产 D1/R2、Sites 候选及部署仍是独立授权门槛。本轮没有调用真实模型、合并或推送。恢复以此条及实际 Git 状态为准，下方目标 1 / Phase 2 记录均为历史。
 

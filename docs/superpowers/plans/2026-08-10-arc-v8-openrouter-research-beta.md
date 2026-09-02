@@ -669,7 +669,7 @@ The shared `apiError` helper currently lacks Research error codes and uses `erro
 - Modify: `app/contracts/research.ts` (shared Research HTTP envelopes; preserve existing run/package schemas)
 - Modify: `tests/contracts/research-contracts.test.ts`
 
-- [ ] **Step 1: Write route security, gate-order, and public-error tests**
+- [x] **Step 1: Write route security, gate-order, and public-error tests**
 
 Test unauthenticated 401, malformed/oversized body 400 before provider, account and salted-IP 429 with bounded `Retry-After`, cohort/quota/budget denial as `ALLOWANCE_REACHED`, owner-only GET/retry 404, CAS 409, Needs review 422, unavailable 503, and unknown 500. Assert response safety headers and Request ID. Assert client fields `ownerId`, `model`, `package`, `provider`, and `maxCost` are rejected.
 
@@ -682,13 +682,13 @@ expect(response.headers.get("cache-control")).toContain("no-store");
 expect(provider.research).not.toHaveBeenCalled();
 ```
 
-- [ ] **Step 2: Run route tests and verify RED**
+- [x] **Step 2: Run route tests and verify RED**
 
 Run: `npm run test:unit -- tests/api/research-routes.test.ts tests/server/planning-security.test.ts`
 
 Expected: FAIL because the route factory and routes do not exist.
 
-- [ ] **Step 3: Implement route factories and fail-closed production composition**
+- [x] **Step 3: Implement route factories and fail-closed production composition**
 
 Use `requireArcUser`, D1 endpoint rate buckets, a server-derived salted IP subject, bounded JSON readers, Zod contracts, and operational events. The production factory must return disabled behavior unless all required values parse and `ARC_AI_ENABLED === "true"`; missing key must never instantiate call authority. Public mappings are exactly:
 
@@ -707,13 +707,13 @@ const publicResearchErrors = {
 
 Thin route files export `dynamic = "force-dynamic"` and delegate to one production dependency composition. GET reads the dynamic id from route params but never accepts owner identity from URL/query/body.
 
-- [ ] **Step 4: Run API and security tests**
+- [x] **Step 4: Run API and security tests**
 
 Run: `npm run test:unit -- tests/api/research-routes.test.ts tests/contracts/research-contracts.test.ts tests/server/planning-security.test.ts tests/server/auth-policy.test.ts tests/server/rate-limit.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/server/research/service-factory.ts app/server/http/research-route-factories.ts app/api/intelligence/research tests/api/research-routes.test.ts tests/server/planning-security.test.ts worker-configuration.d.ts app/contracts/research.ts tests/contracts/research-contracts.test.ts
