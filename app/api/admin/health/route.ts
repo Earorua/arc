@@ -2,7 +2,10 @@ import { env } from "cloudflare:workers";
 import { getD1 } from "../../../../db/d1";
 import { D1AdminRepository } from "../../../server/admin/d1-admin-repository";
 import { readAdminPolicy, type AdminEnvironment } from "../../../server/admin/policy";
-import type { AdminRepository } from "../../../server/admin/repository";
+import {
+  adminHealthSnapshotSchema,
+  type AdminRepository,
+} from "../../../server/admin/repository";
 import { requireArcUser, UnauthenticatedError, type ArcUser } from "../../../server/auth/session";
 import { apiError, apiJson } from "../../../server/http/api-response";
 
@@ -22,13 +25,13 @@ export function createAdminHealthHandler(deps: AdminHealthRouteDependencies) {
         return apiError("FORBIDDEN", "This Arc account cannot access operations.", 403, requestId);
       }
       const health = await deps.repository.getHealthSnapshot();
-      const effectiveHealth = {
+      const effectiveHealth = adminHealthSnapshotSchema.parse({
         ...health,
         ai: {
           ...health.ai,
           enabled: health.ai.enabled && deps.environment.ARC_AI_ENABLED === "true",
         },
-      };
+      });
       return apiJson({ health: effectiveHealth }, requestId, {
         headers: { "Cache-Control": "private, no-store" },
       });

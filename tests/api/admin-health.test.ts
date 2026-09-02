@@ -9,6 +9,17 @@ import { expectApiError, requestId } from "./cloud-route-test-helpers";
 const snapshot = {
   service: "ok" as const,
   ai: { enabled: false, callsToday: 0, acceptedToday: 0, budgetUnitsToday: 0 },
+  research: {
+    queued: 0,
+    researching: 0,
+    validating: 0,
+    ready: 0,
+    needsReview: 0,
+    failed: 0,
+    reservedMicros: 0,
+    settledMicros: 0,
+    conservativeHoldMicros: 0,
+  },
   migrations: { pending: 0, failed24h: 0, completed24h: 3 },
   failures: [],
 };

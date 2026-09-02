@@ -26,6 +26,5 @@ declare namespace Cloudflare {
     ARC_AI_REPAIR_MAX_COST_MICROS?: string;
     ARC_AI_IP_HASH_SALT?: string;
     OPENROUTER_API_KEY?: string;
-    OPENAI_API_KEY?: string;
   }
 }

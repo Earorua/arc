@@ -7,6 +7,17 @@ afterEach(cleanup);
 const snapshot = {
   service: "degraded" as const,
   ai: { enabled: false, callsToday: 7, acceptedToday: 5, budgetUnitsToday: 5 },
+  research: {
+    queued: 1,
+    researching: 0,
+    validating: 1,
+    ready: 2,
+    needsReview: 1,
+    failed: 1,
+    reservedMicros: 1_200,
+    settledMicros: 430,
+    conservativeHoldMicros: 700,
+  },
   migrations: { pending: 1, failed24h: 2, completed24h: 9 },
   failures: [{
     requestId: "00000000-0000-4000-8000-000000000009",
