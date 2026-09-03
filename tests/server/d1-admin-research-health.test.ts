@@ -82,8 +82,8 @@ function insertReservation(
   db: ReturnType<typeof createResearchD1>,
   id: string,
   runId: string,
-  status: "reserved" | "settled" | "conservative-hold" | "released",
-  maximum: number,
+  status: string,
+  maximum: number | string,
   settled: number,
 ) {
   db.database.prepare(`
@@ -152,7 +152,7 @@ describe("D1 admin Research Beta health", () => {
 
     const queryPlans = [
       db.database.prepare("EXPLAIN QUERY PLAN SELECT state, COUNT(*) FROM research_runs GROUP BY state").all(),
-      db.database.prepare("EXPLAIN QUERY PLAN SELECT status, SUM(maximum_reserved_micros) FROM ai_budget_reservations WHERE status IN ('reserved','conservative-hold') GROUP BY status").all(),
+      db.database.prepare("EXPLAIN QUERY PLAN SELECT status, COUNT(*) FROM ai_budget_reservations GROUP BY status ORDER BY status").all(),
       db.database.prepare("EXPLAIN QUERY PLAN SELECT settled_micros FROM ai_budget_buckets WHERE scope='site' AND period_kind='day' AND period_start=?1 LIMIT 1").all(DAY),
     ].flat().map((row) => JSON.stringify(row)).join("\n");
     expect(queryPlans).toMatch(/research_runs_active_expiry_idx/);
@@ -166,6 +166,22 @@ describe("D1 admin Research Beta health", () => {
     db.database.exec("PRAGMA ignore_check_constraints = ON");
     db.database.prepare("UPDATE ai_budget_buckets SET settled_micros=?1 WHERE id='day-current'")
       .run(Number.MAX_SAFE_INTEGER + 1);
+
+    await expect(new D1AdminRepository(
+      db as unknown as D1Database,
+      () => new Date(NOW),
+    ).getHealthSnapshot()).rejects.toThrow();
+  });
+
+  it.each([
+    ["unknown status", "unknown", 1_200],
+    ["non-integer maximum", "reserved", "not-a-number"],
+  ])("fails closed for a corrupt reservation %s", async (_case, status, maximum) => {
+    const db = database();
+    insertRun(db, "queued-corrupt", "queued");
+    seedBuckets(db);
+    db.database.exec("PRAGMA ignore_check_constraints = ON");
+    insertReservation(db, "reservation-corrupt", "queued-corrupt", status, maximum, 0);
 
     await expect(new D1AdminRepository(
       db as unknown as D1Database,

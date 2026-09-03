@@ -8,7 +8,7 @@ type FlagRow = { enabled: number };
 type AiRow = { calls_today: number; accepted_today: number };
 type BudgetRow = { budget_units_today: number };
 type ResearchStateRow = { state: string; total: number };
-type ResearchExposureRow = { status: string; total_micros: number };
+type ResearchExposureRow = { status: string; total_micros: number; invalid_rows: number };
 type ResearchSettledRow = { settled_micros: number };
 type MigrationRow = { pending: number; failed_24h: number; completed_24h: number };
 type FailureRow = {
@@ -31,6 +31,7 @@ function count(value: unknown): number {
 }
 
 const researchStates = ["queued", "researching", "validating", "ready", "needs-review", "failed"] as const;
+const reservationStatuses = ["reserved", "settled", "conservative-hold", "released"] as const;
 
 function researchSnapshot(
   states: ResearchStateRow[],
@@ -46,7 +47,11 @@ function researchSnapshot(
   }
   const exposureCounts = new Map<string, number>();
   for (const row of exposures) {
-    if (!["reserved", "conservative-hold"].includes(row.status) || exposureCounts.has(row.status)) {
+    if (
+      !reservationStatuses.includes(row.status as typeof reservationStatuses[number])
+      || count(row.invalid_rows) !== 0
+      || exposureCounts.has(row.status)
+    ) {
       throw new Error("Admin health aggregate is unavailable.");
     }
     exposureCounts.set(row.status, count(row.total_micros));
@@ -102,9 +107,25 @@ export class D1AdminRepository implements AdminRepository {
         ORDER BY state
       `).all<ResearchStateRow>(),
       this.db.prepare(`
-        SELECT status, COALESCE(SUM(maximum_reserved_micros), 0) AS total_micros
+        SELECT
+          status,
+          COALESCE(SUM(CASE
+            WHEN typeof(maximum_reserved_micros) = 'integer'
+              AND maximum_reserved_micros BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
+            THEN maximum_reserved_micros
+            ELSE 0
+          END), 0) AS total_micros,
+          COALESCE(SUM(CASE
+            WHEN status NOT IN ('reserved', 'settled', 'conservative-hold', 'released')
+              OR typeof(maximum_reserved_micros) <> 'integer'
+              OR maximum_reserved_micros NOT BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
+              OR typeof(settled_micros) <> 'integer'
+              OR settled_micros NOT BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
+              OR (status <> 'settled' AND settled_micros <> 0)
+            THEN 1
+            ELSE 0
+          END), 0) AS invalid_rows
         FROM ai_budget_reservations
-        WHERE status IN ('reserved', 'conservative-hold')
         GROUP BY status
         ORDER BY status
       `).all<ResearchExposureRow>(),
