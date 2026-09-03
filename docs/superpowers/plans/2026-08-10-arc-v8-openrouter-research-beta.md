@@ -940,11 +940,21 @@ git commit -m "feat: embed research beta in setup"
 - Modify: `app/server/admin/repository.ts`
 - Modify: `app/server/admin/d1-admin-repository.ts`
 - Modify: `app/api/admin/health/route.ts`
+- Modify: `db/schema.ts`
+- Create: `drizzle/0006_research_health_indexes.sql`
+- Create: `drizzle/meta/0006_snapshot.json`
+- Modify: `drizzle/meta/_journal.json`
 - Modify: `tests/server/admin-policy.test.ts`
 - Create: `tests/server/research-environment.test.ts`
 - Create: `tests/server/d1-admin-research-health.test.ts`
+- Modify: `tests/api/admin-health.test.ts`
+- Modify: `tests/pages/admin.test.tsx`
+- Modify: `tests/helpers/sqlite-d1.ts`
+- Modify: `tests/db/schema.test.ts`
+- Modify: `tests/db/migration-safety.test.ts`
+- Modify: `tests/db/research-migration.test.ts`
 
-- [ ] **Step 1: Write failing environment and aggregate-health tests**
+- [x] **Step 1: Write failing environment and aggregate-health tests**
 
 Assert missing/invalid AI values fail closed, model fields are never returned by admin health, and health includes counts by research state plus reserved/settled/conservative-hold micros. Admin output remains aggregate and reveals no owner, role, URL, request body, or secret.
 
@@ -956,13 +966,13 @@ expect(snapshot.research).toEqual({
 expect(JSON.stringify(snapshot)).not.toMatch(/owner-a|sk-or-|openrouter\//iu);
 ```
 
-- [ ] **Step 2: Run admin/runtime tests and verify RED**
+- [x] **Step 2: Run admin/runtime tests and verify RED**
 
 Run: `npm run test:unit -- tests/server/admin-policy.test.ts tests/server/research-environment.test.ts tests/server/d1-admin-research-health.test.ts`
 
 Expected: FAIL because Research Beta environment and health fields do not exist.
 
-- [ ] **Step 3: Add documented disabled examples and server-only bindings**
+- [x] **Step 3: Add documented disabled examples and server-only bindings**
 
 Add empty or false values only:
 
@@ -983,18 +993,20 @@ OPENROUTER_API_KEY=
 
 Remove the obsolete `OPENAI_API_KEY` example only if `rg` proves no supported route consumes it; otherwise keep it separately labeled. Extend Worker bindings with optional strings, never with values. Update health queries to aggregate new D1 tables by UTC ranges and return the bounded research snapshot. Effective enablement requires both existing AI kill switch and Research Beta flag/config validity.
 
-- [ ] **Step 4: Run admin/runtime tests**
+- [x] **Step 4: Run admin/runtime tests**
 
 Run: `npm run test:unit -- tests/server/admin-policy.test.ts tests/server/research-environment.test.ts tests/server/d1-admin-research-health.test.ts tests/server/operational-events.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add .env.example worker-configuration.d.ts app/server/admin/policy.ts app/server/admin/repository.ts app/server/admin/d1-admin-repository.ts app/api/admin/health/route.ts tests/server/admin-policy.test.ts tests/server/research-environment.test.ts tests/server/d1-admin-research-health.test.ts
 git commit -m "feat: expose research beta operational health"
 ```
+
+Execution evidence (2026-09-03): Task 12 was implemented in `2518b68`, then hardened in `5d3b26e` and `e35c4d7`. The final implementation uses the real `role-research-beta` cohort flag, requires the complete Task 8 runtime policy before publishing effective enablement, returns only strict aggregate health, and fails closed on malformed current-window D1 values. Research state counts and reservation exposure are bounded to the current UTC day. Additive migration `0006` contributes only `research_runs_updated_state_idx` and `ai_budget_reservations_day_status_idx`; production-SQL `EXPLAIN QUERY PLAN` tests verify those indexes plus the existing bucket-period index and reject full historical scans. The same specification reviewer and quality reviewer both approved the final source; the quality result was Critical 0 / Important 0 / Minor 0. Fresh controller verification at `e35c4d7` passed 9 focused files / 181 tests, all 122 files / 1963 tests, TypeScript, full ESLint, vinext build 5/5, rendered HTML 3/3, complete Task 12 diff-check, and a clean worktree. No real credential, provider request, production value, flag change, D1/R2 mutation, merge, push, or deployment occurred.
 
 ### Task 13: Run offline acceptance gates, reviews, and checkpoint documentation
 

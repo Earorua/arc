@@ -1,6 +1,6 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-02 目标 2 Research Beta：Task 1–8 已完成；Task 9 等待历史缓存到期规则确认**
+> **2026-09-03 目标 2 Research Beta：Task 1–8、12 已完成；Task 9 等待历史缓存到期规则确认**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
 >
@@ -59,6 +59,14 @@
 > **Task 8 最终关闭：** 认证 Research API 初版提交为 `a03706b664aef21ae2a9bfd3cec402caf93339ce`。规格审查发现 cohort 拒绝晚于运行/缓存附着，以及写请求接受缺失或 `same-site` Fetch Metadata；两项均在 `19d23e7ea5b12d8336c90d039ed329d6afa61466` 按 TDD 修复为无 run 的 `429 ALLOWANCE_REACHED` 前置拒绝、retry 所有者预检和精确 `same-origin`。独立规格复审确认双旗标/完整配置、新调用与无 Provider 恢复分离、盐化 `cf-connecting-ip`、严格公共响应包、终态连续性与旧 Preview / Planning 隔离均符合规格，无剩余问题。
 >
 > 质量审查随后发现 429 终态遥测误分类、内部 Zod 错误误报 400 和请求体 reader lock 未释放；`1cf43ef55154f23077754670a297ee4ebde68b53` 以受验证语义结果码、边界错误收窄和完整流取消/解锁修复，质量复审确认 Critical / Important / Minor 均为 0。主代理在精确 `1cf43ef` 独立运行 Task 8 五文件 **93/93**、完整单元回归 **120 files / 1924 tests**、TypeScript、完整 ESLint、生产构建 **5/5**、rendered HTML **3/3**、diff-check 与工作树洁净检查，全部通过。Task 8 五项已勾选；没有真实密钥、模型请求、生产变量值、合并、推送或部署。
+>
+> **Task 12 最终关闭（提前完成不依赖 Task 9 的独立范围）：** disabled-by-default 环境契约与聚合管理员健康初版提交为 `2518b68677443b31f31fe4c9ab0c6f836915a069`。规格审查发现有效启用状态没有复用完整 Task 8 运行时校验，以及损坏 reservation 可能被 SQL 过滤或强制转零；`5d3b26e402fa4c88d165286dc36fd275ece35aab` 以完整环境校验和显式损坏行检测修复，规格复审确认 SPEC COMPLIANT。
+>
+> 质量审查随后发现管理员健康读取旧 `role-research-preview` 旗标、两条全历史聚合不符合 UTC 有界查询要求，以及存在但损坏为 `NULL` 的日 bucket 会静默归零。`e35c4d7346c45d40bcbb244b4a1d3f1bbf5264b2` 按 TDD 改为真实 `role-research-beta` 旗标、当前 UTC 日 `[dayStart, dayEnd)` 状态窗口、当前日 site bucket reservation 关联和严格 bucket 值校验，并以纯增量 `0006` 只新增 `research_runs_updated_state_idx` 与 `ai_budget_reservations_day_status_idx`。真实生产 SQL 的 EXPLAIN 测试确认使用这两个新索引及既有 bucket-period 索引，不再扫描全历史表；质量复审为 Critical / Important / Minor 全部 0。
+>
+> 主代理在精确 `e35c4d7` 独立完成最终验证：Task 12 九文件 **181/181**、完整单元回归 **122 files / 1963 tests**、TypeScript、完整 ESLint、生产构建 **5/5**、rendered HTML **3/3**、完整 Task 12 diff-check 与工作树洁净检查均通过。计划 Task 12 五项已勾选。没有创建或读取真实密钥、真实/付费模型请求、生产变量值、功能旗标变更、生产 D1/R2 操作、合并、推送或部署。
+>
+> **当前下一步：** Task 9 仍只等待用户决定缓存到期语义。A（推荐）为“到期只禁止新计划；已有计划继续使用不可变锁定研究包完成、延期和重排”；B 为“到期后已有计划也必须先刷新研究才能重放或重排”。不得在用户选择前新增历史到期绕过。Task 10–11 依赖 Task 9 的规划来源契约，Task 13 则在 9–11 完成后执行最终离线验收与检查点。目标 2 尚未完成。
 >
 > 此时不能宣称目标 2 已完成。真实密钥、付费请求、生产变量、生产旗标、生产 D1/R2、Sites 候选及部署仍是独立授权门槛。本轮没有调用真实模型、合并或推送。恢复以此条及实际 Git 状态为准，下方目标 1 / Phase 2 记录均为历史。
 
