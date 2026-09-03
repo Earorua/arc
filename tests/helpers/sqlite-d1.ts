@@ -38,9 +38,11 @@ class SqliteStatement {
 export class SqliteD1 {
   readonly database = new DatabaseSync(":memory:");
   readonly batches: string[][] = [];
+  readonly preparedSql: string[] = [];
   failAtBatchStatement: number | null = null;
   prepare(sql: string): D1PreparedStatement {
     if (new TextEncoder().encode(sql).byteLength > 100_000) throw new Error("D1 SQL too large");
+    this.preparedSql.push(sql);
     return new SqliteStatement(this, sql) as unknown as D1PreparedStatement;
   }
   async batch(statements: D1PreparedStatement[]) {
@@ -73,7 +75,7 @@ export class SqliteD1 {
 export function createResearchD1(): SqliteD1 {
   const db = new SqliteD1();
   db.database.exec("PRAGMA foreign_keys = ON");
-  for (const file of ["0000_beta_foundation.sql", "0001_secure_account_linking.sql", "0002_product_intelligence.sql", "0003_adaptive_planning.sql", "0004_proof_backed_stack.sql", "0005_openrouter_research_beta.sql"]) {
+  for (const file of ["0000_beta_foundation.sql", "0001_secure_account_linking.sql", "0002_product_intelligence.sql", "0003_adaptive_planning.sql", "0004_proof_backed_stack.sql", "0005_openrouter_research_beta.sql", "0006_research_health_indexes.sql"]) {
     const sql = readFileSync(resolve(process.cwd(), "drizzle", file), "utf8").replaceAll("--> statement-breakpoint", ";");
     db.database.exec(sql);
   }

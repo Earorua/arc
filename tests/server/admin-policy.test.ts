@@ -68,9 +68,9 @@ describe("D1AdminRepository", () => {
       { state: "needs-review", total: 1 },
       { state: "failed", total: 1 },
     ]);
-    db.when("FROM ai_budget_reservations", [
-      { status: "reserved", total_micros: 1_200 },
-      { status: "conservative-hold", total_micros: 700 },
+    db.when("JOIN ai_budget_reservations", [
+      { status: "reserved", total_micros: 1_200, invalid_rows: 0 },
+      { status: "conservative-hold", total_micros: 700, invalid_rows: 0 },
     ]);
     db.when("FROM ai_budget_buckets", { settled_micros: 430 });
     db.when("FROM migration_runs", { pending: 1, failed_24h: 2, completed_24h: 9 });
@@ -119,6 +119,23 @@ describe("D1AdminRepository", () => {
     expect(sql).toMatch(/operational_events/);
     expect(sql).not.toMatch(/\busers\b|proof_items|proof_assets|career_goals|account|session|oauth|user_id|email|raw_role|canonical_url|candidate_json|package_json|role_description|proof_text/);
     expect(JSON.stringify(snapshot)).not.toMatch(/owner-a|sk-or-|openrouter\//iu);
+  });
+
+  it.each([null, undefined])("fails closed when the current UTC-day bucket has corrupt settled value %s", async (settledMicros) => {
+    const db = new FakeD1();
+    db.when("FROM feature_flags", null);
+    db.when("FROM ai_runs", { calls_today: 0, accepted_today: 0 });
+    db.when("FROM quota_ledger", { budget_units_today: 0 });
+    db.when("FROM research_runs", []);
+    db.when("JOIN ai_budget_reservations", []);
+    db.when("FROM ai_budget_buckets", { settled_micros: settledMicros });
+    db.when("FROM migration_runs", { pending: 0, failed_24h: 0, completed_24h: 0 });
+    db.when("FROM operational_events", []);
+
+    await expect(new D1AdminRepository(
+      db as unknown as D1Database,
+      () => new Date("2026-09-03T12:00:00.000Z"),
+    ).getHealthSnapshot()).rejects.toThrow();
   });
 });
 

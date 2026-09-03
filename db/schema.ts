@@ -867,6 +867,7 @@ export const researchRuns = sqliteTable("research_runs", {
   uniqueIndex("research_runs_owner_id_idx").on(table.userId, table.id),
   uniqueIndex("research_runs_active_idx").on(table.userId, table.normalizedRoleKey, table.locale, table.configFingerprint, table.activeSlot),
   index("research_runs_active_expiry_idx").on(table.state, table.activeExpiresAt),
+  index("research_runs_updated_state_idx").on(table.updatedAt, table.state),
   check("research_runs_state_check", sql`${table.state} IN ('queued', 'researching', 'validating', 'ready', 'needs-review', 'failed')`),
   check("research_runs_state_version_check", nonnegativeSafeInteger(table.stateVersion)),
   check("research_runs_retryable_check", sql`${table.retryable} IN (0, 1)`),
@@ -938,6 +939,7 @@ export const aiBudgetReservations = sqliteTable("ai_budget_reservations", {
 }, (table) => [
   uniqueIndex("ai_budget_reservations_request_idx").on(table.requestId),
   index("ai_budget_reservations_expiry_idx").on(table.status, table.expiresAt),
+  index("ai_budget_reservations_day_status_idx").on(table.dayBucketId, table.status),
   check("ai_budget_reservations_maximum_check", nonnegativeSafeInteger(table.maximumReservedMicros)),
   check("ai_budget_reservations_settled_check", nonnegativeSafeInteger(table.settledMicros)),
   check("ai_budget_reservations_status_check", sql`${table.status} IN ('reserved', 'settled', 'conservative-hold', 'released')`),

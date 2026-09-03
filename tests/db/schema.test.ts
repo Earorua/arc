@@ -127,6 +127,8 @@ describe("Arc beta persistence schema", () => {
       [schema.aiBudgetBuckets, "ai_budget_bucket_period_idx"],
       [schema.aiBudgetReservations, "ai_budget_reservations_request_idx"],
     ] as Array<[SQLiteTable, string]>) expect(isUniqueIndex(table, name), name).toBe(true);
+    expect(nonUniqueIndexNames(schema.researchRuns)).toContain("research_runs_updated_state_idx");
+    expect(nonUniqueIndexNames(schema.aiBudgetReservations)).toContain("ai_budget_reservations_day_status_idx");
     expect(foreignKeyConfig(schema.researchRuns, "research_runs_retry_owner_fk")).toEqual({
       columns: ["user_id", "retry_of_run_id"], foreignColumns: ["user_id", "id"],
       foreignTable: "research_runs", onDelete: "no action",

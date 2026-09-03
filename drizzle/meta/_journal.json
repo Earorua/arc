@@ -43,6 +43,13 @@
       "when": 1788085003002,
       "tag": "0005_openrouter_research_beta",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1788396095241,
+      "tag": "0006_research_health_indexes",
+      "breakpoints": true
     }
   ]
 }

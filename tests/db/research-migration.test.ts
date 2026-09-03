@@ -4,7 +4,7 @@ import { DatabaseSync, type SQLInputValue } from "node:sqlite";
 import { describe, expect, it } from "vitest";
 
 const migrationNames = ["0000_beta_foundation", "0001_secure_account_linking", "0002_product_intelligence",
-  "0003_adaptive_planning", "0004_proof_backed_stack", "0005_openrouter_research_beta"];
+  "0003_adaptive_planning", "0004_proof_backed_stack", "0005_openrouter_research_beta", "0006_research_health_indexes"];
 type Database = InstanceType<typeof DatabaseSync>;
 type Row = Record<string, SQLInputValue>;
 const midnight = Date.UTC(2026, 8, 1);
@@ -226,6 +226,8 @@ describe("research beta SQLite migration", () => {
       ["SELECT * FROM research_runs WHERE state='researching' AND active_expires_at<1", "research_runs_active_expiry_idx"],
       ["SELECT * FROM research_packages WHERE normalized_role_key='r' AND locale='en-US' AND config_fingerprint='c' AND expires_at>1", "research_packages_cache_idx"],
       ["SELECT * FROM ai_budget_buckets WHERE scope='r' AND period_kind='day' AND period_start=1", "ai_budget_bucket_period_idx"],
+      ["SELECT state,COUNT(*) FROM research_runs WHERE updated_at>=1 AND updated_at<2 GROUP BY state", "research_runs_updated_state_idx"],
+      ["SELECT status,COUNT(*) FROM ai_budget_reservations WHERE day_bucket_id='d' GROUP BY status", "ai_budget_reservations_day_status_idx"],
     ]) expect(JSON.stringify(db.prepare(`EXPLAIN QUERY PLAN ${query}`).all())).toContain(index);
   }));
 });

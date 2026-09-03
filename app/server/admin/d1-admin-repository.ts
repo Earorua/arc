@@ -7,9 +7,9 @@ import {
 type FlagRow = { enabled: number };
 type AiRow = { calls_today: number; accepted_today: number };
 type BudgetRow = { budget_units_today: number };
-type ResearchStateRow = { state: string; total: number };
-type ResearchExposureRow = { status: string; total_micros: number; invalid_rows: number };
-type ResearchSettledRow = { settled_micros: number };
+type ResearchStateRow = { state: unknown; total: unknown };
+type ResearchExposureRow = { status: unknown; total_micros: unknown; invalid_rows: unknown };
+type ResearchSettledRow = { settled_micros: unknown };
 type MigrationRow = { pending: number; failed_24h: number; completed_24h: number };
 type FailureRow = {
   request_id: string;
@@ -22,12 +22,15 @@ function utcDayStart(date: Date): number {
   return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
-function count(value: unknown): number {
-  if (value === null || value === undefined) return 0;
+function requiredCount(value: unknown): number {
   if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) {
     throw new Error("Admin health aggregate is unavailable.");
   }
   return value;
+}
+
+function count(value: unknown): number {
+  return value === null || value === undefined ? 0 : requiredCount(value);
 }
 
 const researchStates = ["queued", "researching", "validating", "ready", "needs-review", "failed"] as const;
@@ -40,21 +43,24 @@ function researchSnapshot(
 ) {
   const stateCounts = new Map<string, number>();
   for (const row of states) {
-    if (!researchStates.includes(row.state as typeof researchStates[number]) || stateCounts.has(row.state)) {
+    if (typeof row.state !== "string"
+      || !researchStates.includes(row.state as typeof researchStates[number])
+      || stateCounts.has(row.state)) {
       throw new Error("Admin health aggregate is unavailable.");
     }
-    stateCounts.set(row.state, count(row.total));
+    stateCounts.set(row.state, requiredCount(row.total));
   }
   const exposureCounts = new Map<string, number>();
   for (const row of exposures) {
     if (
-      !reservationStatuses.includes(row.status as typeof reservationStatuses[number])
-      || count(row.invalid_rows) !== 0
+      typeof row.status !== "string"
+      || !reservationStatuses.includes(row.status as typeof reservationStatuses[number])
+      || requiredCount(row.invalid_rows) !== 0
       || exposureCounts.has(row.status)
     ) {
       throw new Error("Admin health aggregate is unavailable.");
     }
-    exposureCounts.set(row.status, count(row.total_micros));
+    exposureCounts.set(row.status, requiredCount(row.total_micros));
   }
   return {
     queued: stateCounts.get("queued") ?? 0,
@@ -64,7 +70,7 @@ function researchSnapshot(
     needsReview: stateCounts.get("needs-review") ?? 0,
     failed: stateCounts.get("failed") ?? 0,
     reservedMicros: exposureCounts.get("reserved") ?? 0,
-    settledMicros: count(settled?.settled_micros),
+    settledMicros: settled === null ? 0 : requiredCount(settled.settled_micros),
     conservativeHoldMicros: exposureCounts.get("conservative-hold") ?? 0,
   };
 }
@@ -79,6 +85,7 @@ export class D1AdminRepository implements AdminRepository {
     const now = this.now();
     const nowMs = now.getTime();
     const today = utcDayStart(now);
+    const tomorrow = today + 24 * 60 * 60 * 1000;
     const since24h = nowMs - 24 * 60 * 60 * 1000;
 
     const [flag, ai, budget, researchStateResult, researchExposureResult, researchSettled, migrations, failureResult] = await Promise.all([
@@ -87,7 +94,7 @@ export class D1AdminRepository implements AdminRepository {
         FROM feature_flags
         WHERE key = ?1
         LIMIT 1
-      `).bind("role-research-preview").first<FlagRow>(),
+      `).bind("role-research-beta").first<FlagRow>(),
       this.db.prepare(`
         SELECT
           COUNT(*) AS calls_today,
@@ -103,32 +110,39 @@ export class D1AdminRepository implements AdminRepository {
       this.db.prepare(`
         SELECT state, COUNT(*) AS total
         FROM research_runs
+        WHERE updated_at >= ?1 AND updated_at < ?2
         GROUP BY state
         ORDER BY state
-      `).all<ResearchStateRow>(),
+      `).bind(today, tomorrow).all<ResearchStateRow>(),
       this.db.prepare(`
         SELECT
-          status,
+          reservation.status AS status,
           COALESCE(SUM(CASE
-            WHEN typeof(maximum_reserved_micros) = 'integer'
-              AND maximum_reserved_micros BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
-            THEN maximum_reserved_micros
+            WHEN reservation.status IN ('reserved', 'conservative-hold')
+              AND typeof(reservation.maximum_reserved_micros) = 'integer'
+              AND reservation.maximum_reserved_micros BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
+            THEN reservation.maximum_reserved_micros
             ELSE 0
           END), 0) AS total_micros,
           COALESCE(SUM(CASE
-            WHEN status NOT IN ('reserved', 'settled', 'conservative-hold', 'released')
-              OR typeof(maximum_reserved_micros) <> 'integer'
-              OR maximum_reserved_micros NOT BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
-              OR typeof(settled_micros) <> 'integer'
-              OR settled_micros NOT BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
-              OR (status <> 'settled' AND settled_micros <> 0)
+            WHEN reservation.status NOT IN ('reserved', 'settled', 'conservative-hold', 'released')
+              OR typeof(reservation.maximum_reserved_micros) <> 'integer'
+              OR reservation.maximum_reserved_micros NOT BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
+              OR typeof(reservation.settled_micros) <> 'integer'
+              OR reservation.settled_micros NOT BETWEEN 0 AND ${Number.MAX_SAFE_INTEGER}
+              OR (reservation.status <> 'settled' AND reservation.settled_micros <> 0)
             THEN 1
             ELSE 0
           END), 0) AS invalid_rows
-        FROM ai_budget_reservations
-        GROUP BY status
-        ORDER BY status
-      `).all<ResearchExposureRow>(),
+        FROM ai_budget_buckets AS day_bucket
+        JOIN ai_budget_reservations AS reservation
+          ON reservation.day_bucket_id = day_bucket.id
+        WHERE day_bucket.scope = 'site'
+          AND day_bucket.period_kind = 'day'
+          AND day_bucket.period_start = ?1
+        GROUP BY reservation.status
+        ORDER BY reservation.status
+      `).bind(today).all<ResearchExposureRow>(),
       this.db.prepare(`
         SELECT settled_micros
         FROM ai_budget_buckets

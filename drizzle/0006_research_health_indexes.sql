@@ -1,0 +1,2 @@
+CREATE INDEX `ai_budget_reservations_day_status_idx` ON `ai_budget_reservations` (`day_bucket_id`,`status`);--> statement-breakpoint
+CREATE INDEX `research_runs_updated_state_idx` ON `research_runs` (`updated_at`,`state`);
