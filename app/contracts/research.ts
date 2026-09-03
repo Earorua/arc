@@ -206,6 +206,12 @@ export const researchPackageSchema = z.object({
   expiresAt: calendarDateSchema,
 }).strict();
 
+export const researchPlanningDataSchema = researchPackageSchema.pick({
+  id: true,
+  blueprint: true,
+  registry: true,
+});
+
 const publicRunIdentityShape = {
   id: idSchema,
   role: z.string().trim().min(2).max(160),
@@ -231,6 +237,7 @@ const readyResearchRunPublicViewSchema = z.object({
     passed: z.literal(true),
     issueCodes: z.array(researchIssueCodeSchema).max(0),
   }).strict(),
+  planningData: researchPlanningDataSchema.optional(),
 }).strict();
 
 const needsReviewResearchRunPublicViewSchema = z.object({
@@ -377,6 +384,7 @@ export type ResearchProviderCitationAnnotation = ProviderCitationAnnotation;
 export type ResearchProviderUsage = ProviderUsage;
 export type AuditedSource = z.infer<typeof auditedSourceSchema>;
 export type ResearchPackage = z.infer<typeof researchPackageSchema>;
+export type ResearchPlanningData = z.infer<typeof researchPlanningDataSchema>;
 export type ResearchPublicFailureCategory = z.infer<typeof researchPublicFailureCategorySchema>;
 export type ResearchRunPublicView = z.infer<typeof researchRunPublicViewSchema>;
 export type ResearchErrorCode = z.infer<typeof researchErrorCodeSchema>;

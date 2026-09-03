@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { calendarDateSchema as baseCalendarDateSchema, isIanaTimeZoneIdentifier, publicHttpsUrlSchema as basePublicHttpsUrlSchema } from "./intelligence";
+import { calendarDateSchema as baseCalendarDateSchema, isIanaTimeZoneIdentifier, publicHttpsUrlSchema as basePublicHttpsUrlSchema, roleBlueprintSchema } from "./intelligence";
 
 export const PLANNING_SCHEMA_VERSION = "2026.08.1" as const;
 
@@ -28,6 +28,26 @@ export const planGenerationSchema = z.enum(["initial", "automatic", "proposed"])
 export const learningEventKindSchema = z.enum([
   "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed",
   "replan_accepted", "replan_discarded",
+]);
+
+export const planningGenerateSourceSchema = z.discriminatedUnion("source", [
+  z.object({ source: z.literal("flagship"), roleId: z.literal("ai-native-full-stack-engineer") }).strict(),
+  z.object({ source: z.literal("research"), researchRunId: idSchema }).strict(),
+]);
+
+export const planningSourceReferenceSchema = z.discriminatedUnion("source", [
+  z.object({ source: z.literal("flagship"), roleId: z.literal("ai-native-full-stack-engineer") }).strict(),
+  z.object({
+    source: z.literal("research"),
+    researchRunId: idSchema,
+    packageId: idSchema,
+    blueprintId: idSchema,
+    blueprintVersion: versionSchema,
+    registryId: idSchema,
+    registryVersion: versionSchema,
+    configFingerprint: fingerprintSchema,
+    contentFingerprint: fingerprintSchema,
+  }).strict(),
 ]);
 
 export const skillEvidenceSchema = z.object({
@@ -181,6 +201,29 @@ export const unitRegistrySchema = z.object({
   tracks: z.array(skillUnitTrackSchema).min(1).max(64),
 }).strict().superRefine((registry, ctx) => {
   issueDuplicateIds(ctx, registry.tracks.map(({ skillId }) => skillId), ["tracks"], "Registry tracks must have unique skill IDs");
+});
+
+export const planningSourceContextSchema = z.object({
+  reference: planningSourceReferenceSchema,
+  blueprint: roleBlueprintSchema,
+  registry: unitRegistrySchema,
+}).strict().superRefine((context, ctx) => {
+  const reference = context.reference;
+  const blueprintId = reference.source === "flagship" ? reference.roleId : reference.blueprintId;
+  if (context.blueprint.id !== blueprintId) {
+    ctx.addIssue({ code: "custom", path: ["blueprint", "id"], message: "Source blueprint identity must match" });
+  }
+  if (reference.source === "research" && context.blueprint.version !== reference.blueprintVersion) {
+    ctx.addIssue({ code: "custom", path: ["blueprint", "version"], message: "Source blueprint version must match" });
+  }
+  if (context.registry.blueprintId !== context.blueprint.id
+    || context.registry.blueprintVersion !== context.blueprint.version) {
+    ctx.addIssue({ code: "custom", path: ["registry"], message: "Source registry domain must match its blueprint" });
+  }
+  if (reference.source === "research"
+    && (context.registry.id !== reference.registryId || context.registry.version !== reference.registryVersion)) {
+    ctx.addIssue({ code: "custom", path: ["registry"], message: "Source registry identity must match" });
+  }
 });
 
 export const pathUnitSchema = z.object({
@@ -519,6 +562,9 @@ export type UnitCheckpoint = z.infer<typeof unitCheckpointSchema>;
 export type UnitTemplate = z.infer<typeof unitTemplateSchema>;
 export type SkillUnitTrack = z.infer<typeof skillUnitTrackSchema>;
 export type UnitRegistry = z.infer<typeof unitRegistrySchema>;
+export type PlanningGenerateSource = z.infer<typeof planningGenerateSourceSchema>;
+export type PlanningSourceReference = z.infer<typeof planningSourceReferenceSchema>;
+export type PlanningSourceContext = z.infer<typeof planningSourceContextSchema>;
 export type PathUnit = z.infer<typeof pathUnitSchema>;
 export type LearningPathPhase = z.infer<typeof learningPathPhaseSchema>;
 export type DeferredSkill = z.infer<typeof deferredSkillSchema>;

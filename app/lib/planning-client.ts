@@ -9,7 +9,7 @@ import {
   type PlanningEventRequest,
   type ReplanDecisionRequest,
 } from "../contracts/planning-api";
-import type { PlanningMutationResult, PlanningWorkspace } from "../contracts/planning";
+import { planningSourceContextSchema, type PlanningMutationResult, type PlanningSourceContext, type PlanningWorkspace } from "../contracts/planning";
 import { ArcApiError } from "./cloud-client";
 
 const MAX_PLANNING_RESPONSE_BYTES = 4 * 1024 * 1024;
@@ -32,10 +32,12 @@ export interface PlanningClient {
   appendEvent(input: PlanningEventRequest): Promise<PlanningMutationResult>;
   acceptReplan(input: ReplanDecisionRequest): Promise<PlanningMutationResult>;
   discardReplan(input: ReplanDecisionRequest): Promise<PlanningMutationResult>;
+  getSourceContext?(): PlanningSourceContext | null;
 }
 
 export function createPlanningClient(options: { fetch?: ArcFetch } = {}): PlanningClient {
   const fetcher = options.fetch ?? ((input, init) => fetch(input, init));
+  let sourceContext: PlanningSourceContext | null = null;
 
   async function request<T>(path: string, schema: z.ZodType<T>, init: RequestInit): Promise<T> {
     const response = await fetcher(path, {
@@ -70,18 +72,21 @@ export function createPlanningClient(options: { fetch?: ArcFetch } = {}): Planni
       method: "POST",
       body: JSON.stringify(parsedInput),
     });
+    sourceContext = response.sourceContext ? planningSourceContextSchema.parse(response.sourceContext) : null;
     return response.result;
   }
 
   return {
     async loadWorkspace() {
       const response = await request("/api/planning/workspace", planningWorkspaceResponseSchema, { method: "GET" });
+      sourceContext = response.sourceContext ? planningSourceContextSchema.parse(response.sourceContext) : null;
       return response.workspace;
     },
     generate: (input) => mutation("/api/planning/generate", input, generatePlanningRequestSchema),
     appendEvent: (input) => mutation("/api/planning/events", input, planningEventRequestSchema),
     acceptReplan: (input) => mutation("/api/planning/replans/accept", input, replanDecisionRequestSchema),
     discardReplan: (input) => mutation("/api/planning/replans/discard", input, replanDecisionRequestSchema),
+    getSourceContext: () => sourceContext === null ? null : structuredClone(sourceContext),
   };
 }
 

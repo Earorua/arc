@@ -1,9 +1,71 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createPlanningClient } from "../../app/lib/planning-client";
 import { ArcApiError } from "../../app/lib/cloud-client";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { createLocalPlanningRepository } from "../../app/lib/planning/local-repository";
+
+class MemoryStorage implements Storage {
+  private readonly values = new Map<string, string>();
+  get length() { return this.values.size; }
+  clear() { this.values.clear(); }
+  getItem(key: string) { return this.values.get(key) ?? null; }
+  key(index: number) { return [...this.values.keys()][index] ?? null; }
+  removeItem(key: string) { this.values.delete(key); }
+  setItem(key: string, value: string) { this.values.set(key, value); }
+}
+
+let locksDescriptor: PropertyDescriptor | undefined;
+beforeEach(() => {
+  locksDescriptor = Object.getOwnPropertyDescriptor(navigator, "locks");
+  Object.defineProperty(navigator, "locks", {
+    configurable: true,
+    value: { request: (_name: string, _options: unknown, action: () => unknown) => Promise.resolve().then(action) },
+  });
+});
+afterEach(() => {
+  if (locksDescriptor) Object.defineProperty(navigator, "locks", locksDescriptor);
+  else Reflect.deleteProperty(navigator, "locks");
+});
 
 describe("adaptive planning browser client", () => {
+  it("retains strict source context in memory and clears it on a later context-free reload", async () => {
+    const repository = createLocalPlanningRepository({
+      storage: new MemoryStorage(), createId: () => "planning-client-workspace",
+      now: () => new Date("2026-08-17T00:00:00.000Z"),
+    });
+    const generated = await repository.generate({
+      mutationId: "mutation-client-context", roleId: "ai-native-full-stack-engineer",
+      planningDate: "2026-08-17",
+      audit: {
+        id: "audit-client", schemaVersion: "2026.08.1", blueprintId: flagshipBlueprint.id,
+        blueprintVersion: flagshipBlueprint.version,
+        answers: flagshipBlueprint.skills.map(({ id: skillId }) => ({ skillId, level: "conceptual", evidenceRefs: [] })),
+        evidence: [], createdBy: "learner", inputFingerprint: "audit-client-fingerprint",
+      },
+      availability: {
+        id: "availability-client", schemaVersion: "2026.08.1", timeZone: "Asia/Shanghai",
+        weekdays: { monday: 60, tuesday: 60, wednesday: 60, thursday: 60, friday: 60, saturday: 60, sunday: 60 },
+        exceptions: [], weeklyMinutes: 420, inputFingerprint: "availability-client-fingerprint",
+      },
+      target: { id: "target-client", schemaVersion: "2026.08.1", targetWeeks: 18, inputFingerprint: "target-client-fingerprint" },
+      selectedScope: "full-scope",
+    });
+    const sourceContext = {
+      reference: { source: "flagship" as const, roleId: "ai-native-full-stack-engineer" as const },
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+    };
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(Response.json({ workspace: generated.workspace, sourceContext }))
+      .mockResolvedValueOnce(Response.json({ workspace: null }));
+    const client = createPlanningClient({ fetch: fetcher });
+    await expect(client.loadWorkspace()).resolves.toEqual(generated.workspace);
+    expect(client.getSourceContext?.()).toEqual(sourceContext);
+    await expect(client.loadWorkspace()).resolves.toBeNull();
+    expect(client.getSourceContext?.()).toBeNull();
+  });
+
   it("loads a strict nullable workspace with credentials and no caching", async () => {
     const fetcher = vi.fn().mockResolvedValue(Response.json({ workspace: null }));
     const client = createPlanningClient({ fetch: fetcher });

@@ -146,7 +146,7 @@ export class D1ResearchRepository implements ResearchRepository {
     try {
       if (run.state === "ready") {
         const packageValue = await this.resolveReadyPackage(ownerId, runId);
-        return researchRunPublicViewSchema.parse({ id: run.id, role: run.rawRole, locale: run.locale, state: "ready", retryable: false, packageId: packageValue.id, summary: packageValue.blueprint.summary, skillCount: packageValue.blueprint.skills.length, sourceCount: packageValue.sourceEvidence.length, observedAt: packageValue.observedAt, quality: { passed: true, issueCodes: [] } });
+        return researchRunPublicViewSchema.parse({ id: run.id, role: run.rawRole, locale: run.locale, state: "ready", retryable: false, packageId: packageValue.id, summary: packageValue.blueprint.summary, skillCount: packageValue.blueprint.skills.length, sourceCount: packageValue.sourceEvidence.length, observedAt: packageValue.observedAt, quality: { passed: true, issueCodes: [] }, planningData: { id: packageValue.id, blueprint: packageValue.blueprint, registry: packageValue.registry } });
       }
       if (run.state === "needs-review") return researchRunPublicViewSchema.parse({ id: run.id, role: run.rawRole, locale: run.locale, state: run.state, retryable: run.retryable, quality: { issueCodes: run.quality?.issueCodes ?? ["invalid-schema"], skillCount: run.quality?.skillCount ?? 0, sourceCount: run.quality?.sourceCount ?? 0, unitCount: run.quality?.unitCount ?? 0 } });
       if (run.state === "failed") return researchRunPublicViewSchema.parse({ id: run.id, role: run.rawRole, locale: run.locale, state: run.state, retryable: run.retryable, failureCategory: run.failureCategory ?? "internal" });
@@ -164,6 +164,10 @@ export class D1ResearchRepository implements ResearchRepository {
 
   async resolveReadyPackage(ownerId: string, runId: string): Promise<ResearchPackage> {
     return this.readReadyPackage(ownerId, runId, { kind: "require-fresh", now: this.now() });
+  }
+
+  async resolveReadyPackageForPlanningReplay(ownerId: string, runId: string): Promise<ResearchPackage> {
+    return this.readReadyPackage(ownerId, runId, { kind: "ignore-for-audit" });
   }
 
   async readReadyPackageAuditVersions(ownerId: string, runId: string): Promise<ResearchReadyPackageAuditVersions> {

@@ -14,6 +14,11 @@ import { requireArcUser, UnauthenticatedError, type ArcUser } from "../auth/sess
 import { D1OperationalEventSink } from "../observability/d1-events";
 import { createOperationalEvent, type OperationalEvent } from "../observability/events";
 import { D1ProofRepository } from "../proof/d1-proof-repository";
+import { D1PlanningRepository } from "../planning/d1-planning-repository";
+import { PlanningSourceResolver } from "../planning/source-resolver";
+import { D1ResearchRepository } from "../research/d1-repository";
+import { BuiltinIntelligenceRepository } from "../intelligence/builtin-repository";
+import { IntelligenceService } from "../intelligence/service";
 import { ProofService, ProofServiceError } from "../proof/service";
 import { R2ProofStorage, readProofJson } from "../proof/storage";
 import { apiError, apiJson, applyResponseSafety, resolveRequestId } from "./api-response";
@@ -235,10 +240,20 @@ export function createProofVisibilityHandler(deps: ProofRouteDependencies, proof
 export const productionProofRouteDependencies: ProofRouteDependencies = {
   requireUser: (headers) => requireArcUser(headers),
   createService: () => {
-    const repository = new D1ProofRepository(getD1());
+    const db = getD1();
+    const repository = new D1ProofRepository(db);
     const storage = new R2ProofStorage(env.PROOF_ASSETS);
+    const sourceResolver = new PlanningSourceResolver({
+      intelligence: new IntelligenceService(new BuiltinIntelligenceRepository()),
+      flagshipRegistry: flagshipUnitRegistry,
+      researchRepository: new D1ResearchRepository(db),
+    });
     return new ProofService({
       repository, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry,
+      planningSource: {
+        repository: new D1PlanningRepository(db, { sourceResolver }),
+        resolver: sourceResolver,
+      },
       readJsonAsset: (key) => readProofJson(storage, key),
     });
   },

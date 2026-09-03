@@ -29,6 +29,7 @@ export interface ResearchRepository {
   getPublicRun(ownerId: string, runId: string): Promise<ResearchRunPublicView | null>;
   createRetry(command: CreateResearchRetryCommand): Promise<{ run: ResearchRunRecord; replayed: boolean }>;
   resolveReadyPackage(ownerId: string, runId: string): Promise<ResearchPackage>;
+  resolveReadyPackageForPlanningReplay(ownerId: string, runId: string): Promise<ResearchPackage>;
   readReadyPackageAuditVersions(ownerId: string, runId: string): Promise<ResearchReadyPackageAuditVersions>;
 }
 

@@ -1,8 +1,9 @@
 import { act, cleanup, render, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { GeneratePlanningRequest } from "../../app/contracts/planning-api";
-import { PLANNING_SCHEMA_VERSION, type PlanningMutationResult } from "../../app/contracts/planning";
+import { PLANNING_SCHEMA_VERSION, type PlanningMutationResult, type PlanningSourceContext } from "../../app/contracts/planning";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import type { PlanningClient } from "../../app/lib/planning-client";
 import {
   createLocalPlanningRepository,
@@ -162,6 +163,29 @@ describe("usePlanningWorkspace", () => {
     expect(client.loadWorkspace).toHaveBeenCalledTimes(1);
     expect(repository.load).not.toHaveBeenCalled();
     expect(repository.readImportSource).not.toHaveBeenCalled();
+  });
+
+  it("keeps authenticated source context only in memory and clears it across identity changes", async () => {
+    const { generated } = await generatedFixture();
+    const context: PlanningSourceContext = {
+      reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+    };
+    let session = signed();
+    const client = cloud({
+      loadWorkspace: vi.fn().mockResolvedValue(generated.workspace),
+      getSourceContext: () => context,
+    });
+    const { result, rerender } = renderHook(() => usePlanningWorkspace({
+      local: local(), client, useSession: () => session,
+    }));
+    await waitFor(() => expect(result.current.sourceContext).toEqual(context));
+    expect(window.localStorage.length).toBe(0);
+
+    session = signedAs("user-2");
+    rerender();
+    expect(result.current.sourceContext).toBeNull();
   });
 
   it("never imports automatically and rejects a second in-flight cloud write", async () => {

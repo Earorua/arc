@@ -6,6 +6,7 @@ import {
   providerCitationAnnotationSchema,
   providerUsageSchema,
   researchPackageSchema,
+  researchPlanningDataSchema,
   researchQualityReportSchema,
   researchRequestSchema,
   researchRunPublicViewSchema,
@@ -278,6 +279,33 @@ describe("research contracts", () => {
     })).toThrow();
   });
 
+  it("exposes only the bounded package identity, blueprint, and registry in Ready planning data", () => {
+    const planningData = validReadyPublicView().planningData;
+    expect(researchPlanningDataSchema.parse(planningData)).toEqual(planningData);
+    for (const [field, value] of [
+      ["contentFingerprint", "sha256-private-fingerprint"],
+      ["sourceEvidence", validResearchPackage().sourceEvidence],
+      ["qualityReport", validResearchPackage().qualityReport],
+      ["provider", "private-provider"],
+    ] as const) {
+      expect(researchPlanningDataSchema.safeParse({ ...planningData, [field]: value }).success).toBe(false);
+    }
+    expect(researchPlanningDataSchema.safeParse({ ...planningData, id: "x".repeat(257) }).success).toBe(false);
+  });
+
+  it("rejects a planning projection on Needs-review and Failed public envelopes", () => {
+    const planningData = validReadyPublicView().planningData;
+    expect(researchRunPublicViewSchema.safeParse({
+      id: "research-run-3", state: "needs-review", role: "Data Product Manager", locale: "en-US", retryable: true,
+      quality: { issueCodes: ["missing-unit"], skillCount: 3, sourceCount: 6, unitCount: 2 },
+      planningData,
+    }).success).toBe(false);
+    expect(researchRunPublicViewSchema.safeParse({
+      id: "research-run-4", state: "failed", role: "Data Product Manager", locale: "en-US", retryable: true,
+      failureCategory: "timeout", planningData,
+    }).success).toBe(false);
+  });
+
   it("limits Needs-review quality to issue codes and bounded counts", () => {
     const view = {
       id: "research-run-3",
@@ -439,5 +467,10 @@ function validReadyPublicView() {
     sourceCount: 6,
     observedAt: "2026-08-27",
     quality: { passed: true as const, issueCodes: [] },
+    planningData: researchPlanningDataSchema.parse({
+      id: validResearchPackage().id,
+      blueprint: validResearchPackage().blueprint,
+      registry: validResearchPackage().registry,
+    }),
   };
 }

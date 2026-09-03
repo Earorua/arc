@@ -262,7 +262,7 @@ describe("PlanningService", () => {
     const replay = await service.generate(userId, generateRequest());
 
     expect(replay).toEqual(stored);
-    expect(getPublished).not.toHaveBeenCalled();
+    expect(getPublished).toHaveBeenCalledOnce();
     expect(repository.saveGeneration).not.toHaveBeenCalled();
   });
 

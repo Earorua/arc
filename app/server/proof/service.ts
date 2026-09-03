@@ -15,7 +15,9 @@ import {
   type ProofVersion,
   type ReviseProofRequest,
 } from "../../contracts/proof-ledger";
-import type { UnitRegistry } from "../../contracts/planning";
+import type { PlanningSourceContext, UnitRegistry } from "../../contracts/planning";
+import type { PlanningRepository } from "../planning/repository";
+import type { PlanningSourceResolver } from "../planning/source-resolver";
 import { projectSkillEvidence } from "../../lib/proof/projection";
 import type {
   ProofAssetMetadata,
@@ -47,23 +49,26 @@ type ServiceOptions = {
   createId?: () => string;
   now?: () => Date;
   readJsonAsset?: (objectKey: string) => Promise<unknown>;
+  planningSource?: {
+    repository: Pick<PlanningRepository, "load">;
+    resolver: Pick<PlanningSourceResolver, "resolveForReplay">;
+  };
 };
 
 export class ProofService {
   private readonly createId: () => string;
   private readonly now: () => Date;
   private readonly readJsonAsset: (objectKey: string) => Promise<unknown>;
-  private readonly skillIds: Set<string>;
 
   constructor(private readonly dependencies: ServiceOptions) {
     this.createId = dependencies.createId ?? (() => `proof-${crypto.randomUUID()}`);
     this.now = dependencies.now ?? (() => new Date());
     this.readJsonAsset = dependencies.readJsonAsset ?? (async () => { throw new Error("asset reader unavailable"); });
-    this.skillIds = new Set(dependencies.blueprint.skills.map(({ id }) => id));
   }
 
   async getWorkspace(userId: string): Promise<ProofLedgerWorkspace | null> {
     const scope = await this.resolveScope(userId);
+    await this.resolveAuthority(scope);
     const workspace = await this.repositoryRead(() => this.dependencies.repository.load(scope));
     return workspace ? this.parseWorkspace(workspace, scope) : null;
   }
@@ -71,29 +76,32 @@ export class ProofService {
   async create(userId: string, input: unknown): Promise<ProofLedgerMutationResult> {
     const request = parseRequest(createProofRequestSchema, input);
     const scope = await this.resolveScope(userId);
+    const authority = await this.resolveAuthority(scope);
     const replay = await this.loadReplay(scope, request.mutationId);
     if (replay) return replay;
     const current = await this.repositoryRead(() => this.dependencies.repository.load(scope));
     const workspace = current ? this.parseWorkspace(current, scope) : null;
     if (request.baseRevision !== (workspace?.revision ?? 0)) throw new ProofServiceError("CONFLICT");
     const proofId = this.createId();
-    return this.saveVersion(scope, request, workspace, proofId, null);
+    return this.saveVersion(scope, request, workspace, proofId, null, authority);
   }
 
   async revise(userId: string, proofId: string, input: unknown): Promise<ProofLedgerMutationResult> {
     const request = parseRequest(reviseProofRequestSchema, input);
     const scope = await this.resolveScope(userId);
+    const authority = await this.resolveAuthority(scope);
     const replay = await this.loadReplay(scope, request.mutationId);
     if (replay) return replay;
     const workspace = await this.requiredWorkspace(scope);
     if (request.baseRevision !== workspace.revision) throw new ProofServiceError("CONFLICT");
     const previous = latestVersion(workspace, proofId);
-    return this.saveVersion(scope, request, workspace, proofId, previous);
+    return this.saveVersion(scope, request, workspace, proofId, previous, authority);
   }
 
   async withdraw(userId: string, proofId: string, input: unknown): Promise<ProofLedgerMutationResult> {
     const request = parseRequest(withdrawProofRequestSchema, input);
     const scope = await this.resolveScope(userId);
+    const authority = await this.resolveAuthority(scope);
     const replay = await this.loadReplay(scope, request.mutationId);
     if (replay) return replay;
     const workspace = await this.requiredWorkspace(scope);
@@ -110,13 +118,14 @@ export class ProofService {
       ...workspace,
       revision: workspace.revision + 1,
       reviews: [...workspace.reviews, review],
-      projections: projections(this.dependencies.blueprint, workspace.versions, [...workspace.reviews, review]),
+      projections: projections(authority.blueprint, workspace.versions, [...workspace.reviews, review]),
     });
   }
 
   async setVisibility(userId: string, proofId: string, input: unknown): Promise<ProofLedgerMutationResult> {
     const request = parseRequest(setProofVisibilityRequestSchema, input);
     const scope = await this.resolveScope(userId);
+    const authority = await this.resolveAuthority(scope);
     const replay = await this.loadReplay(scope, request.mutationId);
     if (replay) return replay;
     const workspace = await this.requiredWorkspace(scope);
@@ -133,7 +142,7 @@ export class ProofService {
       ...workspace,
       revision: workspace.revision + 1,
       reviews: [...workspace.reviews, review],
-      projections: projections(this.dependencies.blueprint, workspace.versions, [...workspace.reviews, review]),
+      projections: projections(authority.blueprint, workspace.versions, [...workspace.reviews, review]),
     });
   }
 
@@ -143,8 +152,9 @@ export class ProofService {
     workspace: ProofLedgerWorkspace | null,
     proofId: string,
     previous: ProofVersion | null,
+    authority: PlanningSourceContext,
   ): Promise<ProofLedgerMutationResult> {
-    const asset = await this.validateStructure(scope, proofId, request);
+    const asset = await this.validateStructure(scope, proofId, request, authority);
     const occurredAt = this.now().toISOString();
     const version: ProofVersion = {
       id: this.createId(), proofId, versionNumber: (previous?.versionNumber ?? 0) + 1,
@@ -173,7 +183,7 @@ export class ProofService {
       id: workspace?.id ?? this.createId(), goalId: scope.goalId,
       schemaVersion: PROOF_LEDGER_SCHEMA_VERSION, revision: request.baseRevision + 1,
       versions, reviews: allReviews,
-      projections: projections(this.dependencies.blueprint, versions, allReviews),
+      projections: projections(authority.blueprint, versions, allReviews),
     });
   }
 
@@ -181,8 +191,10 @@ export class ProofService {
     scope: ProofOwnerGoal,
     proofId: string,
     request: MutationRequest,
+    authority: PlanningSourceContext,
   ): Promise<ProofAssetMetadata | null> {
-    if (request.skillIds.some((id) => !this.skillIds.has(id))) invalid("skill");
+    const skillIds = new Set(authority.blueprint.skills.map(({ id }) => id));
+    if (request.skillIds.some((id) => !skillIds.has(id))) invalid("skill");
     if (request.dailyUnitId !== null) {
       const unit = await this.repositoryRead(() =>
         this.dependencies.repository.getOwnedDailyUnit(scope, request.dailyUnitId!));
@@ -279,6 +291,28 @@ export class ProofService {
     catch { throw new ProofServiceError("UNAVAILABLE"); }
     if (!scope || scope.ownerId !== owner.data || !scope.goalId) throw new ProofServiceError("NOT_FOUND");
     return scope;
+  }
+
+  private async resolveAuthority(scope: ProofOwnerGoal): Promise<PlanningSourceContext> {
+    if (!this.dependencies.planningSource) {
+      return {
+        reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+        blueprint: this.dependencies.blueprint,
+        registry: this.dependencies.registry,
+      };
+    }
+    try {
+      const stored = await this.dependencies.planningSource.repository.load(scope);
+      if (!stored) return {
+        reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+        blueprint: this.dependencies.blueprint,
+        registry: this.dependencies.registry,
+      };
+      if (!stored.sourceReference) throw new Error("missing planning source");
+      return await this.dependencies.planningSource.resolver.resolveForReplay(scope.ownerId, stored.sourceReference);
+    } catch {
+      throw new ProofServiceError("UNAVAILABLE");
+    }
   }
 
   private async loadReplay(scope: ProofOwnerGoal, mutationId: string) {

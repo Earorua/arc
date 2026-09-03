@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
 import type { PlanningMutationResult } from "../../app/contracts/planning";
+import type { SavePlanningEventCommand, SavePlanningGenerationCommand } from "../../app/server/planning/repository";
 import { PlanningService } from "../../app/server/planning/service";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
@@ -8,6 +9,7 @@ import { fingerprint } from "../../app/lib/planning/fingerprint";
 
 type PreparedCall = { sql: string; values: unknown[] };
 const D1_SAFE_LIMIT = 1_900_000;
+const flagshipSourceReference = { source: "flagship", roleId: "ai-native-full-stack-engineer" } as const;
 
 class FakeStatement {
   values: unknown[] = [];
@@ -51,10 +53,24 @@ class FakeD1 {
 
 function repositoryWith(db: FakeD1) {
   let id = 0;
-  return new D1PlanningRepository(db as unknown as D1Database, {
+  const repository = new D1PlanningRepository(db as unknown as D1Database, {
     createId: () => `stored-${++id}`,
     now: () => new Date("2026-08-17T00:00:00.000Z"),
   });
+  type TestRepository = Omit<D1PlanningRepository, "saveGeneration" | "saveEvent"> & {
+    saveGeneration(command: Omit<SavePlanningGenerationCommand, "sourceReference">): ReturnType<D1PlanningRepository["saveGeneration"]>;
+    saveEvent(command: Omit<SavePlanningEventCommand, "sourceReference">): ReturnType<D1PlanningRepository["saveEvent"]>;
+  };
+  return new Proxy(repository, {
+    get(target, property, receiver) {
+      if (property === "saveGeneration") return (command: Omit<SavePlanningGenerationCommand, "sourceReference">) =>
+        target.saveGeneration({ ...command, sourceReference: flagshipSourceReference });
+      if (property === "saveEvent") return (command: Omit<SavePlanningEventCommand, "sourceReference">) =>
+        target.saveEvent({ ...command, sourceReference: flagshipSourceReference });
+      const value = Reflect.get(target, property, receiver) as unknown;
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  }) as TestRepository;
 }
 
 async function validResult(): Promise<PlanningMutationResult> {
@@ -164,6 +180,7 @@ function generationRecord(result: PlanningMutationResult, ownerId = "user-1", st
     ownerId,
     goalId: storedGoalId,
     kind: "generation",
+    sourceReference: flagshipSourceReference,
     result,
   });
 }
@@ -608,7 +625,7 @@ describe("D1PlanningRepository", () => {
 
     await expect(repositoryWith(replayDb).findMutation({
       ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-event-1",
-    })).resolves.toEqual({ ownerId: "user-1", goalId: "goal-1", payload: next });
+    })).resolves.toEqual({ ownerId: "user-1", goalId: "goal-1", payload: next, sourceReference: flagshipSourceReference });
 
     const tamperedDb = new FakeD1();
     const event = structuredClone(next.workspace.events[0]!);
@@ -668,7 +685,7 @@ describe("D1PlanningRepository", () => {
     seedHistory(winning, previous, next);
     winning.batchError = new Error("UNIQUE constraint failed: planning_events.workspace_id, planning_events.sequence");
     await expect(repositoryWith(winning).saveEvent(command)).resolves.toEqual({
-      ownerId: "user-1", goalId: "goal-1", payload: next,
+      ownerId: "user-1", goalId: "goal-1", payload: next, sourceReference: flagshipSourceReference,
     });
 
     const losing = new FakeD1();

@@ -366,6 +366,7 @@ describe("D1ResearchRepository", () => {
     await second.repository.saveValidation(saveCommand(saved.current));
     second.db.database.prepare("UPDATE research_packages SET package_json=?1,quality_json=?2,content_fingerprint=?3").run(JSON.stringify(forged), JSON.stringify(forged.qualityReport), forged.contentFingerprint);
     await expect(second.repository.resolveReadyPackage("owner-a", saved.current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(second.repository.resolveReadyPackageForPlanningReplay("owner-a", saved.current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
   it("rejects mismatched external quality rather than trusting package quality alone", async () => {
@@ -396,6 +397,7 @@ describe("D1ResearchRepository", () => {
     db.database.prepare(`UPDATE research_packages SET ${field}=?1`).run(value);
     if (field === "id") db.database.prepare("UPDATE research_runs SET package_id='tampered'").run();
     await expect(repository.resolveReadyPackage("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(repository.resolveReadyPackageForPlanningReplay("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
   it("uses an exclusive UTC-midnight cache expiry without renewing attachments", async () => {
@@ -421,6 +423,8 @@ describe("D1ResearchRepository", () => {
     expect(versions).toEqual({ promptVersion: context.promptVersion, inputSchemaVersion: context.inputSchemaVersion, outputSchemaVersion: context.outputSchemaVersion });
     expect(Object.keys(versions).sort()).toEqual(["inputSchemaVersion", "outputSchemaVersion", "promptVersion"]);
     await expect(expired.resolveReadyPackage("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(expired.resolveReadyPackageForPlanningReplay("owner-a", current.id)).resolves.toEqual(validated.package);
+    await expect(expired.resolveReadyPackageForPlanningReplay("owner-b", current.id)).rejects.toMatchObject({ code: "NOT_FOUND" });
     await expect(expired.getPublicRun("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
@@ -441,6 +445,7 @@ describe("D1ResearchRepository", () => {
     if (kind === "package-content") db.database.prepare("UPDATE research_packages SET package_json='{}' WHERE id=?1").run(validated.package.id);
     if (kind === "run-quality") db.database.prepare("UPDATE research_runs SET quality_json=?1 WHERE id=?2").run(JSON.stringify({ ...validated.quality, sourceCount: 0 }), current.id);
     await expect(repository.readReadyPackageAuditVersions("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(repository.resolveReadyPackageForPlanningReplay("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
   it("creates a run then replays the same owner mutation without a second row", async () => {
@@ -553,7 +558,9 @@ describe("D1ResearchRepository", () => {
     await repository.saveValidation({ id: run.id, ownerId: "owner-a", expectedVersion: current.stateVersion, result: validated, configFingerprint: "config-fingerprint-1", normalizedRoleKey: "data-product-manager", locale: "en-US" });
     const publicRun = await repository.getPublicRun("owner-a", run.id);
     expect(publicRun).toMatchObject({ id: run.id, state: "ready" });
-    expect(Object.keys(publicRun!).sort()).toEqual(["id", "role", "locale", "state", "retryable", "packageId", "summary", "skillCount", "sourceCount", "observedAt", "quality"].sort());
+    expect(Object.keys(publicRun!).sort()).toEqual(["id", "role", "locale", "state", "retryable", "packageId", "summary", "skillCount", "sourceCount", "observedAt", "quality", "planningData"].sort());
+    if (publicRun?.state !== "ready") throw new Error("Expected Ready public view");
+    expect(publicRun.planningData).toEqual({ id: validated.package.id, blueprint: validated.package.blueprint, registry: validated.package.registry });
     db.database.exec("UPDATE research_packages SET package_json='{}'");
     await expect(repository.resolveReadyPackage("owner-a", run.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });

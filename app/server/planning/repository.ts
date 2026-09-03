@@ -1,4 +1,4 @@
-import type { PlanningMutationResult } from "../../contracts/planning";
+import type { PlanningMutationResult, PlanningSourceReference } from "../../contracts/planning";
 
 export type PlanningOwnerGoal = Readonly<{
   ownerId: string;
@@ -7,6 +7,7 @@ export type PlanningOwnerGoal = Readonly<{
 
 export type PlanningRepositoryPayload = PlanningOwnerGoal & Readonly<{
   payload: unknown;
+  sourceReference?: PlanningSourceReference;
 }>;
 
 export type PlanningMutationLookup = PlanningOwnerGoal & Readonly<{
@@ -15,6 +16,7 @@ export type PlanningMutationLookup = PlanningOwnerGoal & Readonly<{
 
 export type SavePlanningGenerationCommand = PlanningMutationLookup & Readonly<{
   result: PlanningMutationResult;
+  sourceReference: PlanningSourceReference;
 }>;
 
 export type SavePlanningEventCommand = SavePlanningGenerationCommand & Readonly<{

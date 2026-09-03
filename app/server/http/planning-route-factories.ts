@@ -15,6 +15,8 @@ import { D1OperationalEventSink } from "../observability/d1-events";
 import { createOperationalEvent, type OperationalEvent } from "../observability/events";
 import { PlanningInputError } from "../../lib/planning/path-builder";
 import { D1PlanningRepository } from "../planning/d1-planning-repository";
+import { PlanningSourceResolver } from "../planning/source-resolver";
+import { D1ResearchRepository } from "../research/d1-repository";
 import {
   PlanningConflictError,
   PlanningInvalidInputError,
@@ -28,7 +30,8 @@ import { D1RateLimiter, RateLimitUnavailableError, type RateLimiter } from "./ra
 const MAX_PLANNING_REQUEST_BYTES = 4 * 1024 * 1024;
 
 type PlanningRouteService = Pick<PlanningService,
-  "getWorkspace" | "generate" | "appendEvent" | "acceptReplan" | "discardReplan">;
+  "getWorkspace" | "generate" | "appendEvent" | "acceptReplan" | "discardReplan"> &
+  Partial<Pick<PlanningService, "getSourceContext">>;
 
 export type PlanningRouteDependencies = {
   requireUser(headers: Headers): Promise<ArcUser>;
@@ -215,7 +218,10 @@ const writeConfig = (route: string, scope: string): RouteConfig => ({ route, sco
 export function createPlanningWorkspaceHandler(deps: PlanningRouteDependencies) {
   return (request: Request) => runPlanningRoute(request, deps, readConfig, async (service, userId) => {
     const workspace = await service.getWorkspace(userId);
-    return { body: parseOutput(planningWorkspaceResponseSchema, { workspace }) };
+    const sourceContext = await service.getSourceContext?.(userId);
+    return { body: parseOutput(planningWorkspaceResponseSchema, {
+      workspace, ...(service.getSourceContext ? { sourceContext: sourceContext ?? null } : {}),
+    }) };
   });
 }
 
@@ -224,7 +230,10 @@ export function createPlanningGenerateHandler(deps: PlanningRouteDependencies) {
     writeConfig("/api/planning/generate", "planning:generate"), async (service, userId) => {
       const input = await parseBody(request, generatePlanningRequestSchema);
       const result = await service.generate(userId, input);
-      return { body: parseOutput(planningMutationResponseSchema, { result }), counters: {
+      const sourceContext = await service.getSourceContext?.(userId);
+      return { body: parseOutput(planningMutationResponseSchema, {
+        result, ...(service.getSourceContext ? { sourceContext: sourceContext ?? null } : {}),
+      }), counters: {
         writes: 1, plans: result.workspace.planVersions.length, daily_units: result.workspace.dailyUnits.length,
       } };
     });
@@ -235,7 +244,10 @@ export function createPlanningEventHandler(deps: PlanningRouteDependencies) {
     writeConfig("/api/planning/events", "planning:events"), async (service, userId) => {
       const input = await parseBody(request, planningEventRequestSchema);
       const result = await service.appendEvent(userId, input);
-      return { body: parseOutput(planningMutationResponseSchema, { result }), counters: { writes: 1, events: 1 } };
+      const sourceContext = await service.getSourceContext?.(userId);
+      return { body: parseOutput(planningMutationResponseSchema, {
+        result, ...(service.getSourceContext ? { sourceContext: sourceContext ?? null } : {}),
+      }), counters: { writes: 1, events: 1 } };
     });
 }
 
@@ -247,7 +259,10 @@ export function createPlanningReplanHandler(deps: PlanningRouteDependencies, dec
       const result = decision === "accept"
         ? await service.acceptReplan(userId, input)
         : await service.discardReplan(userId, input);
-      return { body: parseOutput(planningMutationResponseSchema, { result }), counters: { writes: 1, events: 1 } };
+      const sourceContext = await service.getSourceContext?.(userId);
+      return { body: parseOutput(planningMutationResponseSchema, {
+        result, ...(service.getSourceContext ? { sourceContext: sourceContext ?? null } : {}),
+      }), counters: { writes: 1, events: 1 } };
     });
 }
 
@@ -259,11 +274,16 @@ function parseOutput<T>(schema: z.ZodType<T>, value: unknown): T {
 
 export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
   requireUser: (headers) => requireArcUser(headers),
-  createService: () => new PlanningService({
-    repository: new D1PlanningRepository(getD1()),
-    intelligence: new IntelligenceService(new BuiltinIntelligenceRepository()),
-    registry: flagshipUnitRegistry,
-  }),
+  createService: () => {
+    const db = getD1();
+    const intelligence = new IntelligenceService(new BuiltinIntelligenceRepository());
+    const sourceResolver = new PlanningSourceResolver({
+      intelligence, flagshipRegistry: flagshipUnitRegistry, researchRepository: new D1ResearchRepository(db),
+    });
+    return new PlanningService({
+      repository: new D1PlanningRepository(db, { sourceResolver }), sourceResolver,
+    });
+  },
   rateLimiter: { reserve: (request) => new D1RateLimiter(getD1()).reserve(request) },
   recordEvent: (event) => new D1OperationalEventSink(getD1()).record(event),
 };

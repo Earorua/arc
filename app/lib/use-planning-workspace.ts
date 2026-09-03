@@ -5,10 +5,12 @@ import type { GeneratePlanningRequest, PlanningEventRequest, ReplanDecisionReque
 import {
   planningEventInputSchema,
   planningMutationResultSchema,
+  planningSourceContextSchema,
   planningWorkspaceSchema,
   type PlanningEvent,
   type PlanningEventInput,
   type PlanningMutationResult,
+  type PlanningSourceContext,
   type PlanningWorkspace,
 } from "../contracts/planning";
 import { authClient } from "./auth-client";
@@ -28,6 +30,7 @@ export type PlanningRecoveryState = "none" | "session-expired" | "conflict" | "u
 
 export type PlanningWorkspaceController = {
   workspace: PlanningWorkspace | null;
+  sourceContext: PlanningSourceContext | null;
   source: PlanningStateSource;
   migration: PlanningMigrationState;
   recovery: PlanningRecoveryState;
@@ -79,6 +82,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   const createMutationIdRef = useRef(options.createMutationId ?? (() =>
     `mutation-${nowRef.current().getTime().toString(36)}-${crypto.randomUUID()}`));
   const [workspace, setWorkspace] = useState<PlanningWorkspace | null>(null);
+  const [sourceContext, setSourceContext] = useState<PlanningSourceContext | null>(null);
   const [source, setSource] = useState<PlanningStateSource>("restoring");
   const [migration, setMigration] = useState<PlanningMigrationState>("none");
   const [recovery, setRecovery] = useState<PlanningRecoveryState>("none");
@@ -108,6 +112,12 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     setSource(value);
   }, []);
 
+  const publishSourceContext = useCallback((value: unknown) => {
+    const parsed = value === null || value === undefined ? null : planningSourceContextSchema.parse(value);
+    setSourceContext(parsed);
+    return parsed;
+  }, []);
+
   const publishVisibleIdentity = useCallback((value: PlanningIdentity) => {
     visibleIdentityRef.current = value;
     setVisibleIdentity(value);
@@ -124,6 +134,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       const localWorkspace = await localRef.current.load();
       if (!sessionIsCurrent()) return;
       publishWorkspace(localWorkspace);
+      publishSourceContext(null);
       publishVisibleIdentity(identity);
       importSourceRef.current = null;
       setMigration("none");
@@ -135,6 +146,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       if (!sessionIsCurrent()) return;
       if (cloudWorkspace) {
         publishWorkspace(cloudWorkspace);
+        publishSourceContext(clientRef.current.getSourceContext?.() ?? null);
         publishVisibleIdentity(identity);
         importSourceRef.current = null;
         setMigration("none");
@@ -148,11 +160,13 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         const progress = await localRef.current.readImportProgress(userId, localSource.workspaceFingerprint);
         if (!sessionIsCurrent()) return;
         publishWorkspace(localSource.workspace);
+        publishSourceContext(null);
         publishVisibleIdentity(identity);
         setMigration(progress?.completed ? "imported" : "available");
         publishSource("local");
       } else {
         publishWorkspace(null);
+        publishSourceContext(null);
         publishVisibleIdentity(identity);
         setMigration("none");
         publishSource("cloud");
@@ -161,6 +175,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       if (!sessionIsCurrent()) return;
       if (visibleIdentityRef.current !== identity) {
         publishWorkspace(null);
+        publishSourceContext(null);
         importSourceRef.current = null;
         setMigration("none");
       }
@@ -169,7 +184,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       if (workspaceRef.current && sourceRef.current === "cloud") publishSource("offline-cloud");
       else if (!workspaceRef.current) publishSource("offline-cloud");
     }
-  }, [publishSource, publishVisibleIdentity, publishWorkspace]);
+  }, [publishSource, publishSourceContext, publishVisibleIdentity, publishWorkspace]);
 
   useEffect(() => {
     const lifecycle = lifecycleRef.current;
@@ -241,11 +256,12 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     const result = planningMutationResultSchema.parse(value);
     if (!isOperationCurrent(token)) return false;
     publishWorkspace(result.workspace);
+    publishSourceContext(nextSource === "cloud" ? clientRef.current.getSourceContext?.() ?? null : null);
     publishVisibleIdentity(token.identity);
     publishSource(nextSource);
     setRecovery("none");
     return true;
-  }, [isOperationCurrent, publishSource, publishVisibleIdentity, publishWorkspace]);
+  }, [isOperationCurrent, publishSource, publishSourceContext, publishVisibleIdentity, publishWorkspace]);
 
   const mutate = useCallback(async (
     expectedIdentity: PlanningIdentity,
@@ -365,6 +381,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       await localRef.current.updateImportProgress(sourceSnapshot.workspaceFingerprint, { ...progress, completed: true });
       if (!isOperationCurrent(token)) return false;
       publishWorkspace(loaded);
+      publishSourceContext(clientRef.current.getSourceContext?.() ?? null);
       publishVisibleIdentity(token.identity);
       publishSource("cloud");
       setMigration("imported");
@@ -376,10 +393,11 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       handleFailure(error, setRecovery);
       return false;
     }
-  }), [currentIdentity, isOperationCurrent, publishSource, publishVisibleIdentity, publishWorkspace, runOperation, visibleIdentity]);
+  }), [currentIdentity, isOperationCurrent, publishSource, publishSourceContext, publishVisibleIdentity, publishWorkspace, runOperation, visibleIdentity]);
 
   return {
     workspace: visibleIdentity === currentIdentity ? workspace : null,
+    sourceContext: visibleIdentity === currentIdentity ? sourceContext : null,
     source: visibleIdentity === currentIdentity ? source : "restoring",
     migration: visibleIdentity === currentIdentity ? migration : "none",
     recovery: visibleIdentity === currentIdentity ? recovery : "none",

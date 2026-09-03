@@ -19,6 +19,8 @@ import {
 } from "../../app/server/proof/repository";
 import type { ProofLedgerMutationResult, ProofLedgerWorkspace } from "../../app/contracts/proof-ledger";
 import type { DailyUnit } from "../../app/contracts/planning";
+import { validateResearchCandidate } from "../../app/server/research/package-validator";
+import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 
 class MemoryProofRepository implements ProofRepository {
   scope: ProofOwnerGoal | null = { ownerId: "user-1", goalId: "goal-1" };
@@ -90,6 +92,79 @@ function harness(repo = new MemoryProofRepository()) {
 }
 
 describe("ProofService", () => {
+  it("retains Flagship Proof behavior when a legacy goal has no planning workspace", async () => {
+    const repo = new MemoryProofRepository();
+    const service = new ProofService({
+      repository: repo, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry,
+      planningSource: {
+        repository: { load: vi.fn(async () => null) },
+        resolver: { resolveForReplay: vi.fn(async () => { throw new Error("must not resolve absent legacy state"); }) },
+      },
+      createId: (() => { let id = 0; return () => `legacy-proof-${++id}`; })(),
+      now: () => new Date("2026-08-17T00:00:00.000Z"),
+    });
+    await expect(service.create("user-1", createRequest())).resolves.toMatchObject({ outcome: "demonstrated" });
+  });
+
+  it("never falls back to Flagship for a stored Research workspace missing its source reference", async () => {
+    const repo = new MemoryProofRepository();
+    const service = new ProofService({
+      repository: repo, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry,
+      planningSource: {
+        repository: { load: vi.fn(async () => ({ ownerId: "user-1", goalId: "goal-1", payload: {
+          audit: { blueprintId: "data-product-manager" },
+        } })) },
+        resolver: { resolveForReplay: vi.fn(async () => { throw new Error("must not receive missing reference"); }) },
+      },
+    });
+    await expect(service.create("user-1", createRequest())).rejects.toMatchObject({ code: "UNAVAILABLE" });
+    expect(repo.saves).toHaveLength(0);
+  });
+
+  it("uses the authenticated goal's persisted Research source as skill authority", async () => {
+    const validated = validateResearchCandidate(validResearchCandidate, validAnnotations, {
+      packageId: "research-package-proof", blueprintVersion: "2026.08.1", registryVersion: "2026.08.2",
+      templateVersion: "2026.08.3", promptVersion: "prompt-v1", inputSchemaVersion: "input-v1",
+      outputSchemaVersion: "output-v1", qualityVersion: "quality-v1", modelConfigVersion: "model-v1",
+      observedAt: "2026-08-30", expiresAt: "2026-09-30",
+    });
+    if (!validated.ready) throw new Error("Expected Ready research fixture");
+    const sourceReference = {
+      source: "research" as const, researchRunId: "research-run-proof", packageId: validated.package.id,
+      blueprintId: validated.package.blueprint.id, blueprintVersion: validated.package.blueprint.version,
+      registryId: validated.package.registry.id, registryVersion: validated.package.registry.version,
+      configFingerprint: "config-fingerprint-proof", contentFingerprint: validated.package.contentFingerprint,
+    };
+    const repo = new MemoryProofRepository();
+    const resolveForReplay = vi.fn(async () => ({
+      reference: sourceReference, blueprint: validated.package.blueprint, registry: validated.package.registry,
+    }));
+    const service = new ProofService({
+      repository: repo,
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+      planningSource: {
+        repository: { load: vi.fn(async () => ({ ownerId: "user-1", goalId: "goal-1", payload: {}, sourceReference })) },
+        resolver: { resolveForReplay },
+      },
+      createId: (() => { let id = 0; return () => `research-proof-${++id}`; })(),
+      now: () => new Date("2026-10-15T00:00:00.000Z"),
+    });
+    const researchSkillId = validated.package.blueprint.skills[0]!.id;
+    const created = await service.create("user-1", createRequest({ skillIds: [researchSkillId] }));
+    expect(created.outcome).toBe("demonstrated");
+    expect(created.workspace.projections.find(({ skillId }) => skillId === researchSkillId)?.status).toBe("demonstrated");
+    expect(resolveForReplay).toHaveBeenCalledWith("user-1", sourceReference);
+
+    await expect(service.create("user-1", createRequest({
+      mutationId: "mutation-foreign", baseRevision: 1, skillIds: ["testing"],
+    }))).rejects.toMatchObject({ code: "INVALID_INPUT", issues: ["skill"] });
+    const withdrawn = await service.withdraw("user-1", created.workspace.versions[0]!.proofId, {
+      mutationId: "mutation-withdraw-research", baseRevision: 1,
+    });
+    expect(withdrawn.workspace.projections.find(({ skillId }) => skillId === researchSkillId)?.status).toBe("exploring");
+  });
+
   it("returns NOT_FOUND for an unaffiliated owner", async () => {
     const { repo, service } = harness();
     repo.scope = null;
