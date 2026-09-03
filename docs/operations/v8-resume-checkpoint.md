@@ -1,6 +1,6 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-03 目标 2 Research Beta：Task 1–8、12 已完成；Task 9 等待历史缓存到期规则确认**
+> **2026-09-04 目标 2 Research Beta：Task 1–8、12 已完成；Task 9 历史缓存规则已选择 A，进入实现**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
 >
@@ -50,7 +50,7 @@
 >
 > 主代理核对实际消费者后，在计划提交 `1cbb136` 补齐了 Tasks 9–11 的研究数据接线范围：Ready 公共规划投影、规划 HTTP/source context、刷新后的客户端恢复、Path/Today/Stack/Proof 与服务端 Proof 的同源数据、工作区岗位标题和完整链路测试。这些都是既有 Goal 2 可用闭环的必要接入，不能只实现 Ready 面板或服务器生成就宣称完成。
 >
-> **待用户确认、尚未改变规格的规则：** 已提出“研究缓存到期只禁止新建计划，既有计划仍使用锁定版本完成/延期/重排”的建议；现有文字把有效期也用于历史解析，可能使长周期学习中断。用户回复前不得新增历史过期绕过；Task 4 仍实施严格 Ready 新用途有效期检查，Tasks 4–8 可继续，不在这里停止全部目标。到 Task 9 的 `resolveForReplay` 前必须核对用户决定并更新规格/测试。
+> **历史缓存到期规则已由用户于 2026-09-04 选择 A：** 到期只禁止缓存附着和新计划生成；已有计划继续以持久化、不可变、owner-bound 的精确 package / blueprint / registry 引用完成、延期和重排。历史重放不再检查当前有效期，但必须重新校验所有者、ID、版本、配置/内容指纹和领域完整性；缺失、损坏、跨用户或不匹配时失败关闭且绝不回退 Flagship。该例外不授予新计划、来源切换、Research retry 或跨用户使用权限。规格和 Task 9 计划已同步；实现必须先写 expired-new-use rejection 与 expired-locked-replay RED。
 >
 > **Task 7 最终关闭（覆盖上方阶段性状态）：** 可恢复研究编排初版提交为 `8bb6cbe758f708020cbca929189510994b7842e3`，恢复预检修复为 `f1ebf7d26136cbac1c4cc517e9414b09e197943a`。独立规格审查确认 Research / Repair 审计预检、过期运行首次保守持有及后续精确结算均符合规格。质量审查发现 `readResearchReservation` 的缺失键路径会先物化全局配额账本；该问题已按 TDD 在 `f7918843f7b42ccaec4128c0eec5c976d5530326` 修复为先走现有 `(user_id,idempotency_key,entry_kind)` 唯一索引，只有找到父预留后才执行一次受限关系读取。质量复审在真实 SQLite 的 100,000 条无关记录上确认查询计划为 `SEARCH quota_ledger USING INDEX quota_ledger_user_idempotency_idx`、约 0.026 ms，且无全表扫描、分组物化或临时 B 树；剩余 Critical / Important / Minor 均为 0。
 >
@@ -66,7 +66,7 @@
 >
 > 主代理在精确 `e35c4d7` 独立完成最终验证：Task 12 九文件 **181/181**、完整单元回归 **122 files / 1963 tests**、TypeScript、完整 ESLint、生产构建 **5/5**、rendered HTML **3/3**、完整 Task 12 diff-check 与工作树洁净检查均通过。计划 Task 12 五项已勾选。没有创建或读取真实密钥、真实/付费模型请求、生产变量值、功能旗标变更、生产 D1/R2 操作、合并、推送或部署。
 >
-> **当前下一步：** Task 9 仍只等待用户决定缓存到期语义。A（推荐）为“到期只禁止新计划；已有计划继续使用不可变锁定研究包完成、延期和重排”；B 为“到期后已有计划也必须先刷新研究才能重放或重排”。不得在用户选择前新增历史到期绕过。Task 10–11 依赖 Task 9 的规划来源契约，Task 13 则在 9–11 完成后执行最终离线验收与检查点。目标 2 尚未完成。
+> **当前下一步：** 从 Task 9 的 owner-bound Research planning source、不可变 source reference 与上述 A 规则开始 TDD；完成规格/质量双审后再接续 Task 10–11。此前一次 Task 10 子代理在写入任何文件前因代理额度终止，工作树经核对保持干净，因此没有可保留或覆盖的 Task 10 实现。Task 13 在 9–11 完成后执行最终离线验收与检查点。目标 2 尚未完成。
 >
 > 此时不能宣称目标 2 已完成。真实密钥、付费请求、生产变量、生产旗标、生产 D1/R2、Sites 候选及部署仍是独立授权门槛。本轮没有调用真实模型、合并或推送。恢复以此条及实际 Git 状态为准，下方目标 1 / Phase 2 记录均为历史。
 

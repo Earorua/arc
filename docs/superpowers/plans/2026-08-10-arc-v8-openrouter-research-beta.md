@@ -724,7 +724,7 @@ git commit -m "feat: expose protected role research routes"
 
 **Cross-flow closure found by source inspection, 2026-08-30:** Merely changing `PlanningService.generate` does not satisfy the approved Research -> Audit -> Build -> Path -> Today flow. `app/path/page.tsx` and `app/today/page.tsx` currently select adaptive rendering only when the legacy role equals Flagship; their adaptive components otherwise receive default Flagship sources. Stack, Proof, the workspace heading, Proof client projections, and the production Proof service also have fixed Flagship inputs. Tasks 9 and 11 must remove those assumptions for an authenticated, owner-bound research workspace, while retaining the exact existing Guest/Flagship/legacy behavior. This is required integration within Goal 2, not a new product goal or AI Proof review feature.
 
-**Historical-expiry decision gate:** A question has been sent to the user: should cache expiry prevent only new-plan generation, while existing plans continue replaying their immutable locked package? Current approved prose applies expiry at resolution and could stop a long-running plan after cache expiry. Do not silently add an expiry bypass. Tasks 4–8 can proceed with strict new-use expiry; settle this rule before implementing `resolveForReplay` and record the user's answer in the design and tests.
+**Historical-expiry decision resolved (2026-09-04, option A):** Cache expiry prevents cache attachment and new-plan generation only. An existing plan continues completing, delaying, and replanning from its immutable owner-bound locked package after expiry. `resolveForGenerate` must require a currently valid Ready package. `resolveForReplay` must revalidate owner, exact package / blueprint / registry IDs and versions, content/config identity, fingerprints, and domain integrity, but deliberately must not reapply the current cache-expiry check. Missing, corrupt, cross-owner, mismatched, or substituted data fails closed with no Flagship fallback. This exception grants no new-plan, source-switch, Research retry, or cross-owner authority.
 
 **Files:**
 - Modify: `app/contracts/planning-api.ts`
@@ -763,7 +763,7 @@ const researchSourceSchema = z.object({
 }).strict();
 ```
 
-Test owner Ready generation, Needs review/Failed/expired/cross-owner rejection, deterministic equality for identical validated inputs, and event replay after a fresh service/repository instance. The replay test must prove `Complete`, `Delay`, and replan use the research registry rather than Flagship templates.
+Test owner Ready generation; Needs review/Failed/cross-owner rejection; expired package rejection for every new-plan path; deterministic equality for identical validated inputs; and event replay after a fresh service/repository instance. The replay tests must advance time beyond package expiry and prove `Complete`, `Delay`, and replan still use the exact locked research registry rather than Flagship templates. Also prove an expired locked package that is missing, corrupt, cross-owner, or mismatched by package / blueprint / registry identity, version, config/content fingerprint, or domain integrity fails closed with no Flagship fallback and no new-plan authority.
 
 - [ ] **Step 2: Run focused planning tests and verify RED**
 
@@ -786,7 +786,7 @@ export const planningSourceReferenceSchema = z.discriminatedUnion("source", [
 ]);
 ```
 
-`PlanningSourceResolver.resolveForGenerate(ownerId, request.source)` returns `{reference, blueprint, registry}` and resolves research only through `ResearchRepository.resolveReadyPackage`. `resolveForReplay(ownerId, sourceReference)` validates the immutable package/version/fingerprint again for event/replan. It must not fall back to Flagship when research resolution fails.
+`PlanningSourceResolver.resolveForGenerate(ownerId, request.source)` returns `{reference, blueprint, registry}` and resolves research only through `ResearchRepository.resolveReadyPackage` with current-expiry enforcement. `resolveForReplay(ownerId, sourceReference)` uses a separate owner-bound repository read that permits an expired package only for the exact persisted source reference, then validates package / blueprint / registry identity and version, config/content fingerprints, and domain integrity again for event/replan. It must not fall back to Flagship when research resolution fails, and the replay-only read must not be callable as a new-plan resolver.
 
 Extend `PlanningRepositoryPayload`, `SavePlanningGenerationCommand`, and `SavePlanningEventCommand` with `sourceReference`. Store it inside the bounded `storedGenerationSchema` envelope and return it on every repository load/mutation replay. Make the envelope field optional only while reading historical generations; derive the Flagship reference only when the stored workspace has the exact Flagship blueprint and registry ids. New writes always include the explicit reference. This avoids changing `PLANNING_SCHEMA_VERSION`, nested planning fingerprints, or canonical workspace snapshots.
 

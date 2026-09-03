@@ -197,6 +197,8 @@ Queued -> Researching -> Validating -> Ready | Needs review | Failed
 - 已净化、非个人、同配置且未过期的 `Ready` 研究包可作为共享缓存；每位使用者仍需建立自己的 owner-bound Research Run。
 - 用户身份、审计、Proof、计划和个人行为从不进入共享缓存键或缓存内容。
 - 过期缓存不会静默续期。新的研究生成新的不可变包版本。
+- 用户于 2026-09-04 选择历史到期规则 A：研究包到期只阻止缓存复用和新的计划生成。已经生成的计划继续使用其持久化、不可变且 owner-bound 的精确 package / blueprint / registry 引用完成、延期和重排；历史重放仍须重新校验所有者、ID、版本、内容指纹和领域完整性，但不重新套用当前缓存有效期。
+- 历史到期例外不授予任何新用途：不得用过期包创建另一份计划、切换来源、附着另一位用户、重试研究或替代新 Research。锁定包缺失、损坏、身份或版本不匹配时必须失败关闭，且绝不回退 Flagship。
 
 ## 11. 数据模型
 
@@ -336,7 +338,7 @@ HTTP 429 必须给出有界 `Retry-After`。不可重试错误不显示 Retry �
 
 - 未登录、跨用户读取/重试、客户端 owner 注入、非法 researchRunId；
 - 账户/IP/任务/cohort/预算 gate 在 Provider 前生效；
-- `Ready` 所有者可以规划，`Needs review`、`Failed`、过期、跨用户和篡改版本不能规划；
+- `Ready` 所有者可以用未过期包创建新计划；`Needs review`、`Failed`、已过期的新用途、跨用户和篡改版本不能创建计划。已有计划可在包到期后继续重放其不可变锁定版本，但缺失、损坏、跨用户或身份/版本/指纹不匹配仍必须拒绝；
 - Flagship API、Setup、Planning、Today、Proof 和 Stack 保持回归。
 
 ### 17.5 UI 与人工验收
