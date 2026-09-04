@@ -1,5 +1,21 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-04 暂停保存：Task 9 第二轮规格修复已提交，复审在结论前按用户要求中止**
+>
+> 当前权威工作树仍为 `.worktrees/v8-openrouter-research-beta`，分支仍为 `codex/v8-openrouter-research-beta`。用户要求暂停时，工作树干净，HEAD 为 `767a0bf3125e1226f1a723594f4c95da68299a22`（`fix: reject expired research planning commits`）；其上一个检查点提交为 `f01a517`，六项首轮修复提交 `9b599dc` 仍完整存在。Task 1–8、12 已关闭；Task 9 尚未关闭，Tasks 10–11 尚未开始。
+>
+> 从下方 `f01a517` 检查点恢复后，全新独立规格 reviewer 对 `4ab6790..9b599dc` 完成只读复审，结论为 **Critical 0 / Important 2 / Minor 0 / READY NO**。原六项中 A（Proof legacy fallback 仅 exact Flagship role）、B（Ready `planningData` required）、D（Flagship source context canonical blueprint/registry ID+version）和 F（11 类真实 D1 过期损坏矩阵、四类动作零写入且零 Flagship fallback）通过；C 仍因 `D1PlanningRepository.saveGeneration` 调用允许过期的 replay resolver 而失败，存在 fresh resolve 后构建跨过 expiry 仍写入新计划的 TOCTOU；E 的真实 Research → completed unit → Proof demonstrated → withdrawal 闭环存在，但缺少真实 SQLite wrong-owner / wrong-goal 历史 daily-unit 负向证据。其余 Task 9 规格未发现新缺口。
+>
+> 修复代理按 TDD 创建 `767a0bf`，仅修改 3 个文件（138 insertions / 2 deletions）：先用真实 SQLite 复现 I1 RED——fresh resolve 后把 Research repository 时钟推进至过期，旧实现错误完成 generation；随后新增独立的 fresh exact-reference `resolveForGenerationCommit`，要求 Research 重新经过通用 Ready/fresh repository 校验并完整比较 canonical source reference，`saveGeneration` 改走该能力，既有 generation 的 load/event replay/Complete/Delay/replan 仍走 replay-only reader。I1 GREEN 为 1/1，规划表零增量。I2 新增第二 owner + active goal 和同 owner 第二 inactive goal 的真实 SQLite 证据，正确 owner+goal 可读已完成历史单元，wrong owner / wrong goal 均返回 `null`，Proof 四表零增量；该测试首次即 GREEN，因此是规格证据补强，不是生产 bug 修复。代理报告七文件 211 tests、TypeScript、目标 ESLint、diff-check 全通过并提交，工作树干净。
+>
+> 主代理已独立核对 `767a0bf` 的三文件差异和 diff-check。根侧首次运行 `tests/server/research-planning-integration.test.ts` 被 Windows 沙箱的 Vite `spawn EPERM` 阻止启动；在不改源码的情况下以获批沙箱外同命令重跑，得到 **1 file / 29 tests 全通过**。这只是交接真实性验证，不替代 Task 9 最终完整根验证。
+>
+> 第二名全新只读规格 reviewer 已开始审查 `767a0bf`，但在给出任何结论前，用户明确要求暂停并关闭 Codex；该 reviewer 已被中止，不能把进行中检查视为通过。审阅提交时另识别出一个必须在恢复后由全新 reviewer 明确裁定的边界：`saveGeneration` 目前在 `findMutation` 之前执行 fresh commit validation；若同一已成功 generation 的**幂等重放**发生在 package expiry 后，它可能被拒绝。需要对照既有 planning idempotency 与规则 A 判断：已存在 generation 的同 mutation replay 是否应返回原响应，同时只有真正的新 mutation 才执行 fresh commit 校验。不要在未完成独立审查前自行假定结论。
+>
+> **恢复时的权威下一步：** 先运行 `git status --short --branch`、`git log -5 --oneline`、`git rev-parse HEAD`，确认工作树干净且 HEAD 包含 `767a0bf`。然后派发一名全新的只读规格 reviewer，完整复核 `4ab6790..767a0bf`，重点复核上一轮 I1/I2、原 A–F，以及上述“过期后的同 mutation generation 幂等重放”排序边界。若有任何 Critical/Important/Minor，按 TDD 最小修复并再次独立复审；只有规格清零后，才启动全新的质量/安全 reviewer。两轮均清零后，再由主代理在精确最终提交上执行 Task 9 完整相关回归、全量单元测试、TypeScript、完整 ESLint、production build、rendered HTML、diff/秘密/生产边界扫描，更新 Task 9 计划勾选和检查点。Task 9 完整关闭后才进入 Tasks 10–11；不要重做 Tasks 1–8 或 12。
+>
+> 本轮没有创建或读取真实密钥，没有真实或付费模型请求，没有生产变量/旗标、生产 D1/R2、合并、推送、Sites 候选保存或部署。公开生产仍为 Arc. v7.2 / Sites version 9。关闭 Codex 后不要假定任何代理或本地预览仍在运行；以 Git 历史、此检查点和实际工作树为准。
+
 > **2026-09-04 暂停保存：目标 2 Task 9 规格修复已提交，下一门槛为全新独立规格复审**
 >
 > 当前分支仍为 `codex/v8-openrouter-research-beta`，隔离工作树仍为 `.worktrees/v8-openrouter-research-beta`。Task 1–8、12 已关闭；Task 9 初版实现提交为 `4ab67902ece6decfaac4c427ea4dbf33ca09412f`，首次独立规格审查结论为 Critical 0 / Important 6 / Minor 0，因此 Task 9 没有提前关闭。
