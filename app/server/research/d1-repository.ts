@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { researchCandidateSchema, researchPackageSchema, researchQualityReportSchema, researchRunPublicViewSchema, researchRequestSchema, researchStateSchema, researchPublicFailureCategorySchema, type ResearchPackage, type ResearchRunPublicView } from "../../contracts/research";
+import { planningSourceReferenceSchema } from "../../contracts/planning";
+import type { PlanningReplayPackageReader, ResearchPlanningSourceReference } from "../planning/source-resolver";
 import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
 import { validateRoleBlueprint } from "../../lib/intelligence-validation";
 import { validateUnitRegistry } from "../../lib/planning/registry-validation";
@@ -166,10 +168,6 @@ export class D1ResearchRepository implements ResearchRepository {
     return this.readReadyPackage(ownerId, runId, { kind: "require-fresh", now: this.now() });
   }
 
-  async resolveReadyPackageForPlanningReplay(ownerId: string, runId: string): Promise<ResearchPackage> {
-    return this.readReadyPackage(ownerId, runId, { kind: "ignore-for-audit" });
-  }
-
   async readReadyPackageAuditVersions(ownerId: string, runId: string): Promise<ResearchReadyPackageAuditVersions> {
     const { promptVersion, inputSchemaVersion, outputSchemaVersion } = await this.readReadyPackage(ownerId, runId, { kind: "ignore-for-audit" });
     return Object.freeze({ promptVersion, inputSchemaVersion, outputSchemaVersion });
@@ -256,6 +254,46 @@ export class D1ResearchRepository implements ResearchRepository {
   private readyUpdate(command: SaveResearchValidationCommand, packageValue: ResearchPackage) {
     return this.db.prepare(`UPDATE research_runs SET state='ready',state_version=state_version+1,retryable=0,active_slot=NULL,active_expires_at=NULL,package_id=?1,quality_json=?2,candidate_json=NULL,error_code=NULL,public_failure_category=NULL,updated_at=?3
       WHERE id=?4 AND user_id=?5 AND state_version=?6 AND state='validating'`).bind(packageValue.id, serialize(packageValue.qualityReport, QUALITY_MAX), this.now(), command.id, command.ownerId, command.expectedVersion);
+  }
+}
+
+/** Replay-only owner-bound capability. It deliberately permits an expired package,
+ * but only when every immutable planning reference field still matches D1. */
+export class D1PlanningReplayPackageReader implements PlanningReplayPackageReader {
+  constructor(private readonly db: D1Database) {}
+
+  async resolveLockedPackage(ownerId: string, input: ResearchPlanningSourceReference): Promise<ResearchPackage> {
+    let reference: ResearchPlanningSourceReference;
+    try {
+      const parsed = planningSourceReferenceSchema.parse(readBoundedResearchJson(input));
+      if (parsed.source !== "research") throw new Error();
+      reference = parsed;
+    } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); }
+    const runRow = await storage(() => this.db.prepare(
+      "SELECT * FROM research_runs WHERE user_id=?1 AND id=?2 LIMIT 1",
+    ).bind(ownerId, reference.researchRunId).first<Row>());
+    if (!runRow) throw new ResearchRepositoryError("NOT_FOUND");
+    const run = parseRun(runRow);
+    if (run.ownerId !== ownerId || run.state !== "ready" || run.packageId !== reference.packageId
+      || run.configFingerprint !== reference.configFingerprint) {
+      throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+    }
+    const packageRow = await storage(() => this.db.prepare(
+      "SELECT * FROM research_packages WHERE id=?1 LIMIT 1",
+    ).bind(reference.packageId).first<Row>());
+    if (!packageRow) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+    assertCacheIdentity(run, packageRow, "RESEARCH_UNAVAILABLE");
+    const packageValue = parsePackage(packageRow, { kind: "ignore-for-audit" });
+    if (canonicalJson(run.quality) !== canonicalJson(packageValue.qualityReport)
+      || packageValue.id !== reference.packageId
+      || packageValue.blueprint.id !== reference.blueprintId
+      || packageValue.blueprint.version !== reference.blueprintVersion
+      || packageValue.registry.id !== reference.registryId
+      || packageValue.registry.version !== reference.registryVersion
+      || packageValue.contentFingerprint !== reference.contentFingerprint) {
+      throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+    }
+    return packageValue;
   }
 }
 

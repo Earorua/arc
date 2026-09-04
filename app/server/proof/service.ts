@@ -21,6 +21,7 @@ import type { PlanningSourceResolver } from "../planning/source-resolver";
 import { projectSkillEvidence } from "../../lib/proof/projection";
 import type {
   ProofAssetMetadata,
+  ActiveProofGoal,
   ProofOwnerGoal,
   ProofRepository,
 } from "./repository";
@@ -283,18 +284,19 @@ export class ProofService {
     return this.parseWorkspace(workspace, scope);
   }
 
-  private async resolveScope(userId: string): Promise<ProofOwnerGoal> {
+  private async resolveScope(userId: string): Promise<ActiveProofGoal> {
     const owner = ownerSchema.safeParse(userId);
     if (!owner.success) throw new ProofServiceError("UNAVAILABLE");
-    let scope: ProofOwnerGoal | null;
+    let scope: ActiveProofGoal | null;
     try { scope = await this.dependencies.repository.findActiveGoal(owner.data); }
     catch { throw new ProofServiceError("UNAVAILABLE"); }
     if (!scope || scope.ownerId !== owner.data || !scope.goalId) throw new ProofServiceError("NOT_FOUND");
     return scope;
   }
 
-  private async resolveAuthority(scope: ProofOwnerGoal): Promise<PlanningSourceContext> {
+  private async resolveAuthority(scope: ActiveProofGoal): Promise<PlanningSourceContext> {
     if (!this.dependencies.planningSource) {
+      if (scope.roleId !== "ai-native-full-stack-engineer") throw new ProofServiceError("UNAVAILABLE");
       return {
         reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
         blueprint: this.dependencies.blueprint,
@@ -303,11 +305,14 @@ export class ProofService {
     }
     try {
       const stored = await this.dependencies.planningSource.repository.load(scope);
-      if (!stored) return {
-        reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
-        blueprint: this.dependencies.blueprint,
-        registry: this.dependencies.registry,
-      };
+      if (!stored) {
+        if (scope.roleId !== "ai-native-full-stack-engineer") throw new ProofServiceError("UNAVAILABLE");
+        return {
+          reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+          blueprint: this.dependencies.blueprint,
+          registry: this.dependencies.registry,
+        };
+      }
       if (!stored.sourceReference) throw new Error("missing planning source");
       return await this.dependencies.planningSource.resolver.resolveForReplay(scope.ownerId, stored.sourceReference);
     } catch {

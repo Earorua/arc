@@ -224,6 +224,15 @@ export const planningSourceContextSchema = z.object({
     && (context.registry.id !== reference.registryId || context.registry.version !== reference.registryVersion)) {
     ctx.addIssue({ code: "custom", path: ["registry"], message: "Source registry identity must match" });
   }
+  if (reference.source === "flagship") {
+    if (context.blueprint.version !== "2026.08.1") {
+      ctx.addIssue({ code: "custom", path: ["blueprint", "version"], message: "Flagship blueprint version must match" });
+    }
+    if (context.registry.id !== "ai-native-full-stack-engineer-units"
+      || context.registry.version !== "2026.08.1") {
+      ctx.addIssue({ code: "custom", path: ["registry"], message: "Flagship registry identity must match" });
+    }
+  }
 });
 
 export const pathUnitSchema = z.object({

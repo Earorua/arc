@@ -3,6 +3,7 @@ import {
   availabilityVersionSchema,
   MAX_PLANNING_WORKSPACE_BYTES,
   planningWorkspaceSchema,
+  planningSourceContextSchema,
   PLANNING_SCHEMA_VERSION,
   parsePlanningWorkspaceAtRepositoryBoundary,
   skillAuditVersionSchema,
@@ -11,6 +12,7 @@ import {
   type PlanVersion,
   type PlanningWorkspace,
 } from "../../app/contracts/planning";
+import { planningMutationResponseSchema, planningWorkspaceResponseSchema } from "../../app/contracts/planning-api";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { buildLearningPaths } from "../../app/lib/planning/path-builder";
@@ -176,6 +178,25 @@ function generateRequest() {
 }
 
 describe("planning contract resource and security boundaries", () => {
+  it.each([
+    ["blueprint version", { blueprint: { ...flagshipBlueprint, version: "2026.08.999" } }],
+    ["registry id", { registry: { ...flagshipUnitRegistry, id: "tampered-flagship-registry" } }],
+    ["registry version", { registry: { ...flagshipUnitRegistry, version: "2026.08.999" } }],
+  ] as const)("rejects a tampered Flagship %s in workspace and mutation HTTP envelopes", (_label, override) => {
+    const workspace = baseWorkspace();
+    const sourceContext = {
+      reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+      ...override,
+    };
+    expect(planningSourceContextSchema.safeParse(sourceContext).success).toBe(false);
+    expect(planningWorkspaceResponseSchema.safeParse({ workspace, sourceContext }).success).toBe(false);
+    expect(planningMutationResponseSchema.safeParse({
+      result: { outcome: "active", workspace, diff: null }, sourceContext,
+    }).success).toBe(false);
+  });
+
   it("keeps legacy planning error envelopes distinct from Research top-level request IDs", async () => {
     const dependencies: PlanningRouteDependencies = {
       requireUser: async () => { throw new Error("legacy planning auth failure"); },

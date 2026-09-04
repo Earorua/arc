@@ -331,7 +331,7 @@ describe("D1ProofRepository", () => {
     expect(db.calls[0].sql).toContain("WHERE user_id = ?1 AND id = ?2");
   });
 
-  it("resolves a linked Daily Unit by unit ID within the active plan", async () => {
+  it("resolves a linked historical Daily Unit by unit ID within the owner goal workspace", async () => {
     const db = new FakeD1();
     db.when("FROM daily_units", { payload_json: JSON.stringify(dailyUnit()) });
 
@@ -340,7 +340,9 @@ describe("D1ProofRepository", () => {
 
     expect(db.calls[0].values).toEqual(["user-owner", "goal-1", "daily-unit-1"]);
     expect(db.calls[0].sql).toMatch(/unit_id\s*=\s*\?3/u);
-    expect(db.calls[0].sql).toMatch(/active_plan_version_id/u);
+    expect(db.calls[0].sql).toMatch(/INNER JOIN planning_workspaces/u);
+    expect(db.calls[0].sql).toMatch(/ORDER BY daily_units\.created_at DESC/u);
+    expect(db.calls[0].sql).not.toMatch(/active_plan_version_id/u);
   });
 
   it("writes searchable asset metadata and reads it through owner scope", async () => {

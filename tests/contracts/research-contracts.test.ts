@@ -293,6 +293,12 @@ describe("research contracts", () => {
     expect(researchPlanningDataSchema.safeParse({ ...planningData, id: "x".repeat(257) }).success).toBe(false);
   });
 
+  it("requires planning data on every Ready public view", () => {
+    const withoutPlanningData: Partial<ReturnType<typeof validReadyPublicView>> = validReadyPublicView();
+    delete withoutPlanningData.planningData;
+    expect(researchRunPublicViewSchema.safeParse(withoutPlanningData).success).toBe(false);
+  });
+
   it("rejects a planning projection on Needs-review and Failed public envelopes", () => {
     const planningData = validReadyPublicView().planningData;
     expect(researchRunPublicViewSchema.safeParse({

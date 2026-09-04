@@ -16,11 +16,19 @@ import {
 import { ResearchRepositoryError } from "../../app/server/research/repository";
 import { UnauthenticatedError } from "../../app/server/auth/session";
 import { ResearchProviderError } from "../../app/server/research/provider";
+import { validateResearchCandidate } from "../../app/server/research/package-validator";
 import { createResearchD1, seedUser, type SqliteD1 } from "../helpers/sqlite-d1";
 import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 
 const requestId = "00000000-0000-4000-8000-000000000008";
 const origin = "https://arc.example";
+const readyValidation = validateResearchCandidate(validResearchCandidate, validAnnotations, {
+  packageId: "research-package-1", blueprintVersion: "2026.08.1", registryVersion: "2026.08.2",
+  templateVersion: "2026.08.3", promptVersion: "prompt-v1", inputSchemaVersion: "input-v1",
+  outputSchemaVersion: "output-v1", qualityVersion: "quality-v1", modelConfigVersion: "model-v1",
+  observedAt: "2026-09-02", expiresAt: "2026-10-02",
+});
+if (!readyValidation.ready) throw new Error("Expected Ready route fixture");
 const readyRun: ResearchRunPublicView = {
   id: "research-run-1",
   state: "ready",
@@ -33,6 +41,11 @@ const readyRun: ResearchRunPublicView = {
   sourceCount: 6,
   observedAt: "2026-09-02",
   quality: { passed: true, issueCodes: [] },
+  planningData: {
+    id: readyValidation.package.id,
+    blueprint: readyValidation.package.blueprint,
+    registry: readyValidation.package.registry,
+  },
 };
 const needsReviewRun: ResearchRunPublicView = {
   id: "research-run-2",
@@ -386,6 +399,25 @@ describe("Research HTTP routes", () => {
       expect(await json(response)).toEqual({ run, requestId });
       expectSafety(response);
     }
+  });
+
+  it("fails closed when an owned Ready service result omits planning data", async () => {
+    const f = harness();
+    const incompleteReady: Partial<typeof readyRun> = structuredClone(readyRun);
+    delete incompleteReady.planningData;
+    vi.mocked(f.readService.get).mockResolvedValue(incompleteReady as unknown as ResearchRunPublicView);
+    const response = await createResearchGetHandler(f.deps, readyRun.id)(
+      new Request(`${origin}/api/intelligence/research/${readyRun.id}`),
+    );
+    expect(response.status).toBe(503);
+    expect(await json(response)).toEqual({
+      error: {
+        code: "RESEARCH_UNAVAILABLE",
+        message: "Research is temporarily unavailable.",
+        recovery: "retry-or-flagship",
+      },
+      requestId,
+    });
   });
 
   it("hides invalid and cross-owner GET/retry as NOT_FOUND", async () => {

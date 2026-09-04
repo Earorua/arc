@@ -237,7 +237,7 @@ const readyResearchRunPublicViewSchema = z.object({
     passed: z.literal(true),
     issueCodes: z.array(researchIssueCodeSchema).max(0),
   }).strict(),
-  planningData: researchPlanningDataSchema.optional(),
+  planningData: researchPlanningDataSchema,
 }).strict();
 
 const needsReviewResearchRunPublicViewSchema = z.object({

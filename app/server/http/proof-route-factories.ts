@@ -16,7 +16,7 @@ import { createOperationalEvent, type OperationalEvent } from "../observability/
 import { D1ProofRepository } from "../proof/d1-proof-repository";
 import { D1PlanningRepository } from "../planning/d1-planning-repository";
 import { PlanningSourceResolver } from "../planning/source-resolver";
-import { D1ResearchRepository } from "../research/d1-repository";
+import { D1PlanningReplayPackageReader, D1ResearchRepository } from "../research/d1-repository";
 import { BuiltinIntelligenceRepository } from "../intelligence/builtin-repository";
 import { IntelligenceService } from "../intelligence/service";
 import { ProofService, ProofServiceError } from "../proof/service";
@@ -247,6 +247,7 @@ export const productionProofRouteDependencies: ProofRouteDependencies = {
       intelligence: new IntelligenceService(new BuiltinIntelligenceRepository()),
       flagshipRegistry: flagshipUnitRegistry,
       researchRepository: new D1ResearchRepository(db),
+      replayPackageReader: new D1PlanningReplayPackageReader(db),
     });
     return new ProofService({
       repository, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry,

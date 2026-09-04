@@ -36,6 +36,7 @@ export type ActiveProofShare = {
 };
 
 export type ProofOwnerGoal = Readonly<{ ownerId: string; goalId: string }>;
+export type ActiveProofGoal = ProofOwnerGoal & Readonly<{ roleId: string }>;
 export type ProofMutationLookup = ProofOwnerGoal & Readonly<{ mutationId: string }>;
 export type SaveProofMutationCommand = ProofMutationLookup & Readonly<{
   baseRevision: number;
@@ -55,7 +56,7 @@ export class ProofRepositoryUnavailableError extends Error {
 }
 
 export interface ProofRepository {
-  findActiveGoal(ownerId: string): Promise<ProofOwnerGoal | null>;
+  findActiveGoal(ownerId: string): Promise<ActiveProofGoal | null>;
   load(scope: ProofOwnerGoal): Promise<ProofLedgerWorkspace | null>;
   findMutation(input: ProofMutationLookup): Promise<ProofLedgerMutationResult | null>;
   saveMutation(command: SaveProofMutationCommand): Promise<ProofLedgerMutationResult>;

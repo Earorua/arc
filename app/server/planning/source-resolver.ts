@@ -23,13 +23,21 @@ type ResearchPlanningRun = Pick<NonNullable<Awaited<ReturnType<ResearchRepositor
 type ResearchPlanningRepository = {
   getRun(ownerId: string, runId: string): Promise<ResearchPlanningRun | null>;
   resolveReadyPackage(ownerId: string, runId: string): Promise<ResearchPackage>;
-  resolveReadyPackageForPlanningReplay(ownerId: string, runId: string): Promise<ResearchPackage>;
 };
+
+export type ResearchPlanningSourceReference = Readonly<
+  Extract<PlanningSourceReference, { source: "research" }>
+>;
+
+export interface PlanningReplayPackageReader {
+  resolveLockedPackage(ownerId: string, reference: ResearchPlanningSourceReference): Promise<ResearchPackage>;
+}
 
 export type PlanningSourceResolverDependencies = {
   intelligence: Pick<IntelligenceService, "getPublished">;
   flagshipRegistry: unknown;
   researchRepository?: ResearchPlanningRepository;
+  replayPackageReader?: PlanningReplayPackageReader;
 };
 
 export class PlanningSourceUnavailableError extends Error {
@@ -47,7 +55,7 @@ export class PlanningSourceContractError extends Error {
 }
 
 export class PlanningSourceResolver {
-  constructor(readonly dependencies: PlanningSourceResolverDependencies) {}
+  constructor(private readonly dependencies: PlanningSourceResolverDependencies) {}
 
   async resolveForGenerate(ownerId: string, input: unknown): Promise<PlanningSourceContext> {
     const source = parseGenerateSource(input);
@@ -71,14 +79,11 @@ export class PlanningSourceResolver {
   async resolveForReplay(ownerId: string, input: unknown): Promise<PlanningSourceContext> {
     const reference = parseReference(input);
     if (reference.source === "flagship") return this.resolveFlagship(reference);
-    const repository = this.dependencies.researchRepository;
-    if (!repository) throw new PlanningSourceUnavailableError();
+    const reader = this.dependencies.replayPackageReader;
+    if (!reader) throw new PlanningSourceUnavailableError();
     try {
-      const run = await repository.getRun(ownerId, reference.researchRunId);
-      if (!run || run.ownerId !== ownerId || run.state !== "ready" || run.packageId !== reference.packageId
-        || run.configFingerprint !== reference.configFingerprint) throw new PlanningSourceUnavailableError();
-      const packageValue = await repository.resolveReadyPackageForPlanningReplay(ownerId, reference.researchRunId);
-      const canonicalReference = researchReference(reference.researchRunId, run.configFingerprint, packageValue);
+      const packageValue = await reader.resolveLockedPackage(ownerId, reference);
+      const canonicalReference = researchReference(reference.researchRunId, reference.configFingerprint, packageValue);
       if (canonicalJson(canonicalReference) !== canonicalJson(reference)) throw new PlanningSourceUnavailableError();
       return validateContext({ reference, blueprint: packageValue.blueprint, registry: packageValue.registry });
     } catch {

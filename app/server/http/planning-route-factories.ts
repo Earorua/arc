@@ -16,7 +16,7 @@ import { createOperationalEvent, type OperationalEvent } from "../observability/
 import { PlanningInputError } from "../../lib/planning/path-builder";
 import { D1PlanningRepository } from "../planning/d1-planning-repository";
 import { PlanningSourceResolver } from "../planning/source-resolver";
-import { D1ResearchRepository } from "../research/d1-repository";
+import { D1PlanningReplayPackageReader, D1ResearchRepository } from "../research/d1-repository";
 import {
   PlanningConflictError,
   PlanningInvalidInputError,
@@ -278,7 +278,10 @@ export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
     const db = getD1();
     const intelligence = new IntelligenceService(new BuiltinIntelligenceRepository());
     const sourceResolver = new PlanningSourceResolver({
-      intelligence, flagshipRegistry: flagshipUnitRegistry, researchRepository: new D1ResearchRepository(db),
+      intelligence,
+      flagshipRegistry: flagshipUnitRegistry,
+      researchRepository: new D1ResearchRepository(db),
+      replayPackageReader: new D1PlanningReplayPackageReader(db),
     });
     return new PlanningService({
       repository: new D1PlanningRepository(db, { sourceResolver }), sourceResolver,

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { researchCandidateSchema, type ResearchPackage } from "../../app/contracts/research";
-import { D1ResearchRepository } from "../../app/server/research/d1-repository";
+import { D1PlanningReplayPackageReader, D1ResearchRepository } from "../../app/server/research/d1-repository";
 import type { ResearchRepositoryError } from "../../app/server/research/repository";
 import { validateResearchCandidate } from "../../app/server/research/package-validator";
 import { canonicalJson, fingerprint } from "../../app/lib/planning/fingerprint";
@@ -33,6 +33,19 @@ function rehash(pack: ResearchPackage) {
   pack.contentFingerprint = fingerprint(canonicalJson(content));
   return { ready: true as const, package: pack, quality: pack.qualityReport };
 }
+function replayReference(pack: ResearchPackage = validated.package) {
+  return {
+    source: "research" as const,
+    researchRunId: "research-run-1",
+    packageId: pack.id,
+    blueprintId: pack.blueprint.id,
+    blueprintVersion: pack.blueprint.version,
+    registryId: pack.registry.id,
+    registryVersion: pack.registry.version,
+    configFingerprint: "config-fingerprint-1",
+    contentFingerprint: pack.contentFingerprint,
+  };
+}
 function fanoutCandidate() {
   const candidate = researchCandidateSchema.parse(validResearchCandidate);
   const resource = candidate.resources[0]!;
@@ -60,6 +73,10 @@ async function validating(repository: D1ResearchRepository, suppliedRun?: Awaite
 }
 
 describe("D1ResearchRepository", () => {
+  it("does not expose expiry bypass through the general Research repository", () => {
+    const { repository } = setup();
+    expect("resolveReadyPackageForPlanningReplay" in repository).toBe(false);
+  });
   it("keeps long canonical identifiers and shared URLs within D1 bind limits", async () => {
     const { repository, db } = setup(); const { current } = await validating(repository);
     const candidate = fanoutCandidate();
@@ -366,7 +383,9 @@ describe("D1ResearchRepository", () => {
     await second.repository.saveValidation(saveCommand(saved.current));
     second.db.database.prepare("UPDATE research_packages SET package_json=?1,quality_json=?2,content_fingerprint=?3").run(JSON.stringify(forged), JSON.stringify(forged.qualityReport), forged.contentFingerprint);
     await expect(second.repository.resolveReadyPackage("owner-a", saved.current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
-    await expect(second.repository.resolveReadyPackageForPlanningReplay("owner-a", saved.current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(new D1PlanningReplayPackageReader(second.db as unknown as D1Database)
+      .resolveLockedPackage("owner-a", { ...replayReference(), researchRunId: saved.current.id }))
+      .rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
   it("rejects mismatched external quality rather than trusting package quality alone", async () => {
@@ -397,7 +416,9 @@ describe("D1ResearchRepository", () => {
     db.database.prepare(`UPDATE research_packages SET ${field}=?1`).run(value);
     if (field === "id") db.database.prepare("UPDATE research_runs SET package_id='tampered'").run();
     await expect(repository.resolveReadyPackage("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
-    await expect(repository.resolveReadyPackageForPlanningReplay("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(new D1PlanningReplayPackageReader(db as unknown as D1Database)
+      .resolveLockedPackage("owner-a", { ...replayReference(), researchRunId: current.id }))
+      .rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
   it("uses an exclusive UTC-midnight cache expiry without renewing attachments", async () => {
@@ -423,8 +444,9 @@ describe("D1ResearchRepository", () => {
     expect(versions).toEqual({ promptVersion: context.promptVersion, inputSchemaVersion: context.inputSchemaVersion, outputSchemaVersion: context.outputSchemaVersion });
     expect(Object.keys(versions).sort()).toEqual(["inputSchemaVersion", "outputSchemaVersion", "promptVersion"]);
     await expect(expired.resolveReadyPackage("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
-    await expect(expired.resolveReadyPackageForPlanningReplay("owner-a", current.id)).resolves.toEqual(validated.package);
-    await expect(expired.resolveReadyPackageForPlanningReplay("owner-b", current.id)).rejects.toMatchObject({ code: "NOT_FOUND" });
+    const replay = new D1PlanningReplayPackageReader(db as unknown as D1Database);
+    await expect(replay.resolveLockedPackage("owner-a", { ...replayReference(), researchRunId: current.id })).resolves.toEqual(validated.package);
+    await expect(replay.resolveLockedPackage("owner-b", { ...replayReference(), researchRunId: current.id })).rejects.toMatchObject({ code: "NOT_FOUND" });
     await expect(expired.getPublicRun("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
@@ -445,7 +467,9 @@ describe("D1ResearchRepository", () => {
     if (kind === "package-content") db.database.prepare("UPDATE research_packages SET package_json='{}' WHERE id=?1").run(validated.package.id);
     if (kind === "run-quality") db.database.prepare("UPDATE research_runs SET quality_json=?1 WHERE id=?2").run(JSON.stringify({ ...validated.quality, sourceCount: 0 }), current.id);
     await expect(repository.readReadyPackageAuditVersions("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
-    await expect(repository.resolveReadyPackageForPlanningReplay("owner-a", current.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(new D1PlanningReplayPackageReader(db as unknown as D1Database)
+      .resolveLockedPackage("owner-a", { ...replayReference(), researchRunId: current.id }))
+      .rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
   });
 
   it("creates a run then replays the same owner mutation without a second row", async () => {

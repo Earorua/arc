@@ -9,11 +9,11 @@ import {
 import {
   ProofRepositoryConflictError,
   type ActiveProofShare,
+  type ActiveProofGoal,
   type OwnedProof,
   type OwnedProofSnapshot,
   type ProofAssetMetadata,
   type ProofMutationLookup,
-  type ProofOwnerGoal,
   type ProofRepository,
   type SaveProofMutationCommand,
 } from "../../app/server/proof/repository";
@@ -23,7 +23,9 @@ import { validateResearchCandidate } from "../../app/server/research/package-val
 import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 
 class MemoryProofRepository implements ProofRepository {
-  scope: ProofOwnerGoal | null = { ownerId: "user-1", goalId: "goal-1" };
+  scope: ActiveProofGoal | null = {
+    ownerId: "user-1", goalId: "goal-1", roleId: "ai-native-full-stack-engineer",
+  };
   workspace: ProofLedgerWorkspace | null = null;
   asset: ProofAssetMetadata | null = null;
   dailyUnit: DailyUnit | null = null;
@@ -104,6 +106,43 @@ describe("ProofService", () => {
       now: () => new Date("2026-08-17T00:00:00.000Z"),
     });
     await expect(service.create("user-1", createRequest())).resolves.toMatchObject({ outcome: "demonstrated" });
+  });
+
+  it("refuses Flagship fallback when the active goal is not provably Flagship", async () => {
+    const repo = new MemoryProofRepository();
+    repo.scope = { ownerId: "user-1", goalId: "goal-1", roleId: "data-product-manager" };
+    const service = new ProofService({
+      repository: repo, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry,
+      planningSource: {
+        repository: { load: vi.fn(async () => null) },
+        resolver: { resolveForReplay: vi.fn(async () => { throw new Error("must not resolve absent state"); }) },
+      },
+    });
+    await expect(service.create("user-1", createRequest())).rejects.toMatchObject({ code: "UNAVAILABLE" });
+    expect(repo.saves).toHaveLength(0);
+  });
+
+  it("refuses implicit Flagship authority for a non-Flagship goal when no planning adapter is configured", async () => {
+    const repo = new MemoryProofRepository();
+    repo.scope = { ownerId: "user-1", goalId: "goal-1", roleId: "data-product-manager" };
+    const service = new ProofService({
+      repository: repo, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry,
+    });
+    await expect(service.create("user-1", createRequest())).rejects.toMatchObject({ code: "UNAVAILABLE" });
+    expect(repo.saves).toHaveLength(0);
+  });
+
+  it("refuses Flagship fallback when the active goal role authority is missing", async () => {
+    const repo = new MemoryProofRepository();
+    repo.scope = { ownerId: "user-1", goalId: "goal-1" } as unknown as ActiveProofGoal;
+    const service = new ProofService({
+      repository: repo, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry,
+      planningSource: {
+        repository: { load: vi.fn(async () => null) },
+        resolver: { resolveForReplay: vi.fn(async () => { throw new Error("must not resolve absent state"); }) },
+      },
+    });
+    await expect(service.getWorkspace("user-1")).rejects.toMatchObject({ code: "UNAVAILABLE" });
   });
 
   it("never falls back to Flagship for a stored Research workspace missing its source reference", async () => {
