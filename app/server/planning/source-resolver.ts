@@ -91,6 +91,28 @@ export class PlanningSourceResolver {
     }
   }
 
+  async resolveForGenerationCommit(ownerId: string, input: unknown): Promise<PlanningSourceContext> {
+    const reference = parseReference(input);
+    if (reference.source === "flagship") return this.resolveFlagship(reference);
+    const repository = this.dependencies.researchRepository;
+    if (!repository) throw new PlanningSourceUnavailableError();
+    try {
+      const run = await repository.getRun(ownerId, reference.researchRunId);
+      if (!run || run.ownerId !== ownerId || run.state !== "ready" || !run.packageId) {
+        throw new PlanningSourceUnavailableError();
+      }
+      const packageValue = await repository.resolveReadyPackage(ownerId, reference.researchRunId);
+      const canonicalReference = researchReference(reference.researchRunId, run.configFingerprint, packageValue);
+      if (run.packageId !== canonicalReference.packageId
+        || canonicalJson(canonicalReference) !== canonicalJson(reference)) {
+        throw new PlanningSourceUnavailableError();
+      }
+      return validateContext({ reference, blueprint: packageValue.blueprint, registry: packageValue.registry });
+    } catch {
+      throw new PlanningSourceUnavailableError();
+    }
+  }
+
   private async resolveFlagship(
     reference: Extract<PlanningGenerateSource | PlanningSourceReference, { source: "flagship" }>,
   ): Promise<PlanningSourceContext> {

@@ -373,12 +373,93 @@ describe("Research planning source integration", () => {
     db.close();
   });
 
-  it("projects and withdraws Proof for a completed Research daily unit through one real D1 database", async () => {
+  it("rejects a new Research generation when its package expires before the repository commit boundary", async () => {
     const db = createResearchD1();
     seedUser(db, ownerId);
     db.database.prepare(`INSERT INTO career_goals
       (id,user_id,role_id,level,weekly_minutes,target_weeks,status,active_slot)
       VALUES (?1,?2,?3,'beginner',420,18,'active',1)`).run(goalId, ownerId, researchPackage.blueprint.id);
+    let researchNow = Date.parse("2026-09-01T00:00:00.000Z");
+    const research = new D1ResearchRepository(db as unknown as D1Database, {
+      now: () => researchNow, createId: () => researchRunId,
+    });
+    const created = await research.createOrReplay({
+      ownerId, requestId: "request-expiry-race", mutationId: "mutation-expiry-race-research",
+      rawRole: "Data Product Manager", normalizedRoleKey: "data-product-manager", locale: "en-US",
+      inputFingerprint: "input-expiry-race", configFingerprint,
+      activeExpiresAt: Date.parse("2026-09-01T00:01:00.000Z"),
+    });
+    const researching = await research.transition({
+      id: created.run.id, ownerId, expectedVersion: 0, from: "queued", to: "researching",
+    });
+    const validating = await research.transition({
+      id: researching.id, ownerId, expectedVersion: 1, from: "researching", to: "validating",
+    });
+    await research.saveValidation({
+      id: validating.id, ownerId, expectedVersion: 2, result: validation,
+      normalizedRoleKey: "data-product-manager", locale: "en-US", configFingerprint,
+    });
+    const sourceResolver = new PlanningSourceResolver({
+      intelligence: { getPublished: vi.fn(async () => flagshipBlueprint) },
+      flagshipRegistry: flagshipUnitRegistry,
+      researchRepository: research,
+      replayPackageReader: new D1PlanningReplayPackageReader(db as unknown as D1Database),
+    });
+    let id = 0;
+    const persisted = new D1PlanningRepository(db as unknown as D1Database, {
+      sourceResolver, createId: () => `expiry-race-planning-${++id}`,
+      now: () => new Date("2026-10-15T00:00:00.000Z"),
+    });
+    const repository: PlanningRepository = {
+      findActiveGoal: (candidateOwner) => persisted.findActiveGoal(candidateOwner),
+      findMutation: (input) => persisted.findMutation(input),
+      load: (scope) => persisted.load(scope),
+      saveEvent: (command) => persisted.saveEvent(command),
+      saveGeneration: (command) => {
+        researchNow = Date.parse("2026-10-15T00:00:00.000Z");
+        return persisted.saveGeneration(command);
+      },
+    };
+    const planningTables = [
+      "planning_workspaces", "planning_events", "skill_audit_versions", "availability_versions",
+      "learning_path_versions", "plan_versions", "daily_units",
+    ] as const;
+    const tableCounts = () => Object.fromEntries(planningTables.map((table) => [
+      table,
+      (db.database.prepare(`SELECT count(*) count FROM ${table}`).get() as { count: number }).count,
+    ]));
+    const before = tableCounts();
+
+    await expect(new PlanningService({
+      repository, sourceResolver, createId: () => `expiry-race-domain-${++id}`,
+      now: () => new Date("2026-09-01T00:00:00.000Z"),
+    }).generate(ownerId, { ...request(), mutationId: "mutation-expiry-race-generation" }))
+      .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+
+    expect(tableCounts()).toEqual(before);
+    db.close();
+  });
+
+  it("projects and withdraws Proof for a completed Research daily unit through one real D1 database", async () => {
+    const db = createResearchD1();
+    seedUser(db, ownerId);
+    const otherOwnerId = "owner-proof-other";
+    const otherGoalId = "goal-proof-other";
+    const sameOwnerOtherGoalId = "goal-research-other";
+    seedUser(db, otherOwnerId);
+    db.database.prepare(`INSERT INTO career_goals
+      (id,user_id,role_id,level,weekly_minutes,target_weeks,status,active_slot)
+      VALUES (?1,?2,?3,'beginner',420,18,'active',1)`).run(goalId, ownerId, researchPackage.blueprint.id);
+    db.database.prepare(`INSERT INTO career_goals
+      (id,user_id,role_id,level,weekly_minutes,target_weeks,status,active_slot)
+      VALUES (?1,?2,?3,'beginner',420,18,'inactive',NULL)`).run(
+      sameOwnerOtherGoalId, ownerId, researchPackage.blueprint.id,
+    );
+    db.database.prepare(`INSERT INTO career_goals
+      (id,user_id,role_id,level,weekly_minutes,target_weeks,status,active_slot)
+      VALUES (?1,?2,?3,'beginner',420,18,'active',1)`).run(
+      otherGoalId, otherOwnerId, researchPackage.blueprint.id,
+    );
     const research = new D1ResearchRepository(db as unknown as D1Database, {
       now: () => Date.parse("2026-09-01T00:00:00.000Z"), createId: () => researchRunId,
     });
@@ -427,6 +508,20 @@ describe("Research planning source integration", () => {
     expect(completed.workspace.events.at(-1)?.kind).toBe("completed");
 
     const proofRepository = new D1ProofRepository(db as unknown as D1Database, () => Date.parse("2026-09-01T01:00:00.000Z"));
+    const proofTables = ["proof_items", "proof_versions", "proof_review_events", "user_skill_projections"] as const;
+    const proofTableCounts = () => Object.fromEntries(proofTables.map((table) => [
+      table,
+      (db.database.prepare(`SELECT count(*) count FROM ${table}`).get() as { count: number }).count,
+    ]));
+    const beforeRejectedReads = proofTableCounts();
+    await expect(proofRepository.getOwnedDailyUnit({ ownerId, goalId }, completedUnit.id))
+      .resolves.toMatchObject({ id: completedUnit.id });
+    await expect(proofRepository.getOwnedDailyUnit({ ownerId, goalId: sameOwnerOtherGoalId }, completedUnit.id))
+      .resolves.toBeNull();
+    await expect(proofRepository.getOwnedDailyUnit({ ownerId: otherOwnerId, goalId: otherGoalId }, completedUnit.id))
+      .resolves.toBeNull();
+    expect(proofTableCounts()).toEqual(beforeRejectedReads);
+
     const proof = new ProofService({
       repository: proofRepository,
       blueprint: flagshipBlueprint,

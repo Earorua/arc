@@ -64,12 +64,17 @@ type StoredMutation = StoredGeneration | StoredEvent;
 type RepositoryOptions = {
   createId: () => string;
   now: () => Date;
-  sourceResolver: Pick<PlanningSourceResolver, "resolveForReplay">;
+  sourceResolver: Pick<PlanningSourceResolver, "resolveForGenerationCommit" | "resolveForReplay">;
 };
 const defaultOptions: RepositoryOptions = {
   createId: () => crypto.randomUUID(),
   now: () => new Date(),
   sourceResolver: {
+    async resolveForGenerationCommit(_ownerId, reference) {
+      const parsed = planningSourceReferenceSchema.parse(reference);
+      if (parsed.source !== "flagship") throw new PlanningUnavailableError();
+      return { reference: parsed, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry };
+    },
     async resolveForReplay(_ownerId, reference) {
       const parsed = planningSourceReferenceSchema.parse(reference);
       if (parsed.source !== "flagship") throw new PlanningUnavailableError();
@@ -192,7 +197,7 @@ export class D1PlanningRepository implements PlanningRepository {
     const result = parseMutationResult(command.result);
     if (result.workspace.goalId !== command.goalId || result.workspace.revision !== 0) throw new PlanningUnavailableError();
     const sourceReference = parseSourceReference(command.sourceReference);
-    await this.resolveReplaySource(command.ownerId, sourceReference, result.workspace);
+    await this.resolveGenerationSource(command.ownerId, sourceReference, result.workspace);
     const replay = await this.findMutation(command);
     if (replay) return replay;
     const now = this.options.now().getTime();
@@ -398,6 +403,20 @@ export class D1PlanningRepository implements PlanningRepository {
   ): Promise<PlanningSourceContext> {
     try {
       const context = await this.options.sourceResolver.resolveForReplay(ownerId, reference);
+      assertWorkspaceSource(workspace, context);
+      return context;
+    } catch {
+      throw new PlanningUnavailableError();
+    }
+  }
+
+  private async resolveGenerationSource(
+    ownerId: string,
+    reference: PlanningSourceReference,
+    workspace: PlanningWorkspace,
+  ): Promise<PlanningSourceContext> {
+    try {
+      const context = await this.options.sourceResolver.resolveForGenerationCommit(ownerId, reference);
       assertWorkspaceSource(workspace, context);
       return context;
     } catch {
