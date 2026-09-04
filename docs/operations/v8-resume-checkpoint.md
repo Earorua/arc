@@ -1,5 +1,17 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-04 暂停保存：目标 2 Task 9 规格修复已提交，下一门槛为全新独立规格复审**
+>
+> 当前分支仍为 `codex/v8-openrouter-research-beta`，隔离工作树仍为 `.worktrees/v8-openrouter-research-beta`。Task 1–8、12 已关闭；Task 9 初版实现提交为 `4ab67902ece6decfaac4c427ea4dbf33ca09412f`，首次独立规格审查结论为 Critical 0 / Important 6 / Minor 0，因此 Task 9 没有提前关闭。
+>
+> 六项规格修复已按 TDD 保存在本地提交 `9b599dc`（`fix: close research planning replay gaps`）：只有服务端确认 exact Flagship role 的旧目标才能在无 planning workspace 时使用 Flagship Proof authority；Ready owner view 的 `planningData` 改为必填；过期 package 读取从通用 `ResearchRepository` 移入只接受完整 immutable Research source reference 的专用 planning-replay reader；Flagship source context 锁定 canonical blueprint / registry ID 与版本；真实同库 SQLite/D1 覆盖 Research plan Complete → Proof demonstrated → withdrawal；11 类过期后 missing/corrupt/cross-owner/substitution/identity/version/config/content/domain 损坏矩阵覆盖 load、Complete、Delay、accept replan，并要求规划表零增量和 Flagship resolver 零调用。为保持完成单元可提交 Proof，D1 Proof 的 daily-unit 所有权读取从仅 active plan 扩展为同 owner + goal planning workspace 内的历史单元，仍不接受跨账户或跨目标单元。
+>
+> 修复代理记录的判别性证据：首批 3 files / 71 tests 有 4 项预期 RED，最小修复后 71/71 GREEN；通用仓库仍暴露过期旁路的能力测试先 1/107 RED，能力拆分后 GREEN；真实 D1 Proof 闭环先因已完成单元离开 active plan 而 RED，修复后相应范围 17/17 GREEN；11 类真实 D1 失败矩阵 28/28 GREEN；最终相关范围 17 files / 495 tests GREEN，fresh `npx tsc --noEmit` exit 0，变更文件 ESLint 0 error / 0 warning，`git diff --check` 0。代理在边界扫描和提交前因其独立额度终止；主代理确认全部修复已暂存、cached diff-check 通过，并原样创建 `9b599dc`，没有在提交前后改写实现。上述修复后验证目前是实现代理证据，仍需主代理 fresh 复验，不能冒充 Task 9 最终门槛。
+>
+> **恢复时的权威下一步：** 先检查 `git status --short --branch`、`git log -5 --oneline` 和 `git rev-parse HEAD`，确认工作树干净且包含 `9b599dc`。然后派发一名全新的只读规格 reviewer，逐项复核首次审查的 6 项 Important；若规格清零，再派发全新的只读质量/安全 reviewer。两轮均清零后，由主代理在精确最终提交上运行 Task 9 完整相关回归、全量单元测试、TypeScript、完整 ESLint、production build 5/5、rendered HTML、diff/秘密/生产边界扫描，并更新 Task 9 计划勾选与本检查点。只有 Task 9 完整关闭后才进入 Tasks 10–11；不要重做 Tasks 1–8 或 12。
+>
+> 本次暂停没有创建或读取真实密钥，没有真实或付费模型请求，没有生产变量或生产旗标修改，没有生产 D1/R2 操作，没有合并到 `master`、GitHub 推送、Sites 候选保存或部署。公开生产继续保持 Arc. v7.2 / Sites version 9。关闭 Codex 后不要假定任何代理或本地预览进程仍在运行；以 Git 历史、此检查点和实际工作树为准。
+
 > **2026-09-04 目标 2 Research Beta：Task 1–8、12 已完成；Task 9 历史缓存规则已选择 A，进入实现**
 >
 > 用户已批准目标 2 书面规格及后续最优选项，执行方式为子代理驱动、逐任务 TDD 与规格/质量双阶段审查。目标 2 分支为 `codex/v8-openrouter-research-beta`，工作树为 `.worktrees/v8-openrouter-research-beta`；不要在根目录的 `master` 重做实现。
