@@ -197,9 +197,9 @@ export class D1PlanningRepository implements PlanningRepository {
     const result = parseMutationResult(command.result);
     if (result.workspace.goalId !== command.goalId || result.workspace.revision !== 0) throw new PlanningUnavailableError();
     const sourceReference = parseSourceReference(command.sourceReference);
-    await this.resolveGenerationSource(command.ownerId, sourceReference, result.workspace);
     const replay = await this.findMutation(command);
     if (replay) return replay;
+    await this.resolveGenerationSource(command.ownerId, sourceReference, result.workspace);
     const now = this.options.now().getTime();
     const statements: D1PreparedStatement[] = [];
     statements.push(...immutableGenerationStatements(this.db, command.ownerId, command.goalId, result.workspace, now));

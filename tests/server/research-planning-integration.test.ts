@@ -318,6 +318,10 @@ describe("Research planning source integration", () => {
       repository: beforePlanning, sourceResolver: beforeResolver,
       createId: () => "research-workspace-1", now: () => new Date("2026-09-01T00:00:00.000Z"),
     }).generate(ownerId, request());
+    const storedGeneration = await beforePlanning.findMutation({
+      ownerId, goalId, mutationId: "mutation-generate-1",
+    });
+    if (!storedGeneration?.sourceReference) throw new Error("Expected stored Research generation");
 
     const expiredResearch = new D1ResearchRepository(db as unknown as D1Database, {
       now: () => Date.parse("2026-10-15T00:00:00.000Z"),
@@ -333,6 +337,31 @@ describe("Research planning source integration", () => {
       sourceResolver: expiredResolver, createId: () => `planning-record-${++planningId}`,
       now: () => new Date("2026-10-15T00:00:00.000Z"),
     });
+    const planningTables = [
+      "planning_workspaces", "planning_events", "skill_audit_versions", "availability_versions",
+      "learning_path_versions", "plan_versions", "daily_units",
+    ] as const;
+    const tableCounts = () => Object.fromEntries(planningTables.map((table) => [
+      table,
+      (db.database.prepare(`SELECT count(*) count FROM ${table}`).get() as { count: number }).count,
+    ]));
+    const beforeGenerationReplay = tableCounts();
+    const replayedGeneration = await expiredPlanning.saveGeneration({
+      ownerId, goalId, mutationId: "mutation-generate-1",
+      sourceReference: storedGeneration.sourceReference,
+      result: generated,
+    });
+    expect(replayedGeneration).toEqual(storedGeneration);
+    expect(canonicalJson(replayedGeneration)).toBe(canonicalJson(storedGeneration));
+    expect(tableCounts()).toEqual(beforeGenerationReplay);
+
+    await expect(expiredPlanning.saveGeneration({
+      ownerId, goalId, mutationId: "mutation-generate-expired-new",
+      sourceReference: storedGeneration.sourceReference,
+      result: generated,
+    })).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+    expect(tableCounts()).toEqual(beforeGenerationReplay);
+
     let eventId = 0;
     const expiredService = new PlanningService({
       repository: expiredPlanning, sourceResolver: expiredResolver,
