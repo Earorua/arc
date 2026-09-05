@@ -865,6 +865,8 @@ git commit -m "feat: recover role research in setup"
 
 ### Task 11: Embed Research Beta in Setup without breaking existing paths
 
+**Setup eligibility integration (2026-09-05 source inspection):** The existing client has no Research cohort capability read. Add a minimal authenticated, no-store `GET /api/intelligence/research/eligibility` returning only a strict `{ eligible: boolean, requestId }` view. Reuse the existing full Research configuration validator and `role-research-beta` cohort reader; fail closed on unavailable configuration/storage. This is a UI capability hint, never permission to start Research: the existing POST gates remain authoritative. The read must not construct a Provider, start/recover a run, reserve quota/cost, or expose configuration, cohort membership lists, owner IDs, or denial details. Apply a bounded account read-rate policy and existing response safety. The Setup client must abort and discard stale eligibility on session change, default to ineligible while unresolved, and retain owner-run recovery separately from new-call eligibility. Include contract/route and client lifecycle tests. Keep this small integration within Task 11; do not reopen Tasks 8 or 12.
+
 **Files:**
 - Create: `app/components/setup/role-research-panel.tsx`
 - Modify: `app/components/setup/setup-flow.tsx`
@@ -886,6 +888,12 @@ git commit -m "feat: recover role research in setup"
 - Modify: `app/components/proof/proof-editor.tsx` (skill input type only if needed)
 - Create: `tests/components/research-workspace-pages.test.tsx`
 - Modify: `tests/lib/use-proof-ledger.test.tsx`
+- Create: `app/api/intelligence/research/eligibility/route.ts`
+- Create: `app/server/http/research-eligibility-route.ts`
+- Create: `app/lib/use-research-eligibility.ts`
+- Modify: `app/contracts/research.ts` (eligibility view only)
+- Create: `tests/api/research-eligibility.test.ts`
+- Create: `tests/lib/use-research-eligibility.test.tsx`
 
 - [ ] **Step 1: Write failing Setup state and accessibility tests**
 
@@ -1011,6 +1019,8 @@ git commit -m "feat: expose research beta operational health"
 Execution evidence (2026-09-03): Task 12 was implemented in `2518b68`, then hardened in `5d3b26e` and `e35c4d7`. The final implementation uses the real `role-research-beta` cohort flag, requires the complete Task 8 runtime policy before publishing effective enablement, returns only strict aggregate health, and fails closed on malformed current-window D1 values. Research state counts and reservation exposure are bounded to the current UTC day. Additive migration `0006` contributes only `research_runs_updated_state_idx` and `ai_budget_reservations_day_status_idx`; production-SQL `EXPLAIN QUERY PLAN` tests verify those indexes plus the existing bucket-period index and reject full historical scans. The same specification reviewer and quality reviewer both approved the final source; the quality result was Critical 0 / Important 0 / Minor 0. Fresh controller verification at `e35c4d7` passed 9 focused files / 181 tests, all 122 files / 1963 tests, TypeScript, full ESLint, vinext build 5/5, rendered HTML 3/3, complete Task 12 diff-check, and a clean worktree. No real credential, provider request, production value, flag change, D1/R2 mutation, merge, push, or deployment occurred.
 
 ### Task 13: Run offline acceptance gates, reviews, and checkpoint documentation
+
+**Current execution boundary (user instruction, 2026-09-05):** Complete the authorized offline gates and checkpoint only. Do not create/read real keys, make real/paid Provider requests, alter production variables/flags, operate production D1/R2, merge into `master`, push, save a Sites candidate, or deploy. This explicitly supersedes the historical live-request and integration actions in Steps 5–6 and 8 below: record them as not performed under the current authorization, and do not request permission to perform them during this run. Agent-assisted browser UAT is engineering evidence; user acceptance remains pending until the user explicitly accepts it.
 
 **Files:**
 - Create: `docs/operations/v8-goal2-local-uat.md`
