@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createDemoState } from "../../app/lib/demo-store";
 import { createWorkspaceHandlers } from "../../app/server/http/cloud-route-factories";
+import { ResearchSetupConflictError } from "../../app/server/cloud/repository";
 import {
   createRouteHarness,
   denyRateLimit,
@@ -24,6 +25,16 @@ function setup() {
 }
 
 describe("/api/workspace", () => {
+  it("maps the atomic Research guard to a bounded stable conflict", async () => {
+    const harness = setup(); harness.service.saveSetup.mockRejectedValue(new ResearchSetupConflictError());
+    const response = await createWorkspaceHandlers(harness.deps).PUT(jsonRequest("https://arc.example/api/workspace", "PUT", { mutationId: "research-setup-guarded", setup: snapshot.state.setup, intent: "research-setup" }));
+    await expectApiError(response, 409, "CONFLICT");
+  });
+  it("preserves the explicit Research guard in the authenticated setup command", async () => {
+    const harness = setup(); const body = { mutationId: "research-setup-guarded", setup: snapshot.state.setup, intent: "research-setup" };
+    const response = await createWorkspaceHandlers(harness.deps).PUT(jsonRequest("https://arc.example/api/workspace", "PUT", body));
+    expect(response.status).toBe(200); expect(harness.service.saveSetup).toHaveBeenCalledWith("user-owner", body);
+  });
   it("keeps a strict legacy verified proof in the v7 response schema", async () => {
     const legacyState = createDemoState();
     legacyState.proofs = [{

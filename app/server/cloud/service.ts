@@ -94,7 +94,9 @@ export class CloudService {
     const request = workspaceMutationSchema.parse(input);
     return publicSnapshot(
       userId,
-      await this.repository.saveSetup(userId, request.mutationId, request.setup),
+      await (request.intent
+        ? this.repository.saveSetup(userId, request.mutationId, request.setup, request.intent)
+        : this.repository.saveSetup(userId, request.mutationId, request.setup)),
     );
   }
 

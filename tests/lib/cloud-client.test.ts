@@ -13,6 +13,18 @@ const snapshot = {
 };
 
 describe("Arc cloud client", () => {
+  it("sends the explicit Research guard only for current Research save and activation commands", async () => {
+    const fetcher = vi.fn().mockResolvedValueOnce(Response.json({ snapshot })).mockResolvedValueOnce(Response.json({ result: {
+      migrationId: "activation-guarded", status: "imported", activeGoalId: "goal-1", importedCompletionCount: 0, importedProofCount: 0, availableResolutions: [],
+    } }));
+    const client = createArcCloudClient({ fetch: fetcher });
+    await client.saveSetup(snapshot.state.setup, "setup-guarded", undefined, "research-setup");
+    await client.importLocal(snapshot.state, "reject", "activation-guarded", undefined, "research-setup");
+    expect(fetcher.mock.calls.map(([, init]) => JSON.parse(String(init.body)))).toEqual([
+      { mutationId: "setup-guarded", setup: snapshot.state.setup, intent: "research-setup" },
+      { migrationId: "activation-guarded", consent: true, state: snapshot.state, conflictResolution: "reject", intent: "research-setup" },
+    ]);
+  });
   it.each(["activation", "load"])("cancels the %s transport used by Research setup", async (operation) => {
     const cancellation = new AbortController();
     let resolveResponse!: (response: Response) => void;

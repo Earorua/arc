@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createDemoState } from "../../app/lib/demo-store";
 import { createMigrationHandler } from "../../app/server/http/cloud-route-factories";
+import { ResearchSetupConflictError } from "../../app/server/cloud/repository";
 import {
   createRouteHarness,
   denyRateLimit,
@@ -34,6 +35,24 @@ function setup() {
 }
 
 describe("POST /api/migrations/local-state", () => {
+  it("preserves the explicit Research guard in the authenticated command", async () => {
+    const harness = setup(); const body = { ...migrationBody(), intent: "research-setup" };
+    const response = await createMigrationHandler(harness.deps)(jsonRequest("https://arc.example/api/migrations/local-state", "POST", body));
+    expect(response.status).toBe(200); expect(harness.service.importLocalState).toHaveBeenCalledWith("user-owner", body);
+  });
+  it.each(["history", "proof", "replace", "archive", "unknown"])("rejects a Research activation with %s before the service", async (invalid) => {
+    const harness = setup(); const body = { ...migrationBody(), intent: invalid === "unknown" ? "unknown" : "research-setup", conflictResolution: invalid === "replace" ? "activate-import" : "reject" };
+    if (invalid === "history") body.state.completedUnitIds.push("unrelated-unit");
+    if (invalid === "proof") body.state.proofs.push({ id: "unrelated-proof", title: "Device proof", kind: "note", skillIds: [], verified: false });
+    if (invalid === "archive") body.conflictResolution = "archive-import";
+    const response = await createMigrationHandler(harness.deps)(jsonRequest("https://arc.example/api/migrations/local-state", "POST", body));
+    await expectApiError(response, 400, "INVALID_INPUT"); expect(harness.service.importLocalState).not.toHaveBeenCalled();
+  });
+  it("maps the atomic Research guard to a bounded stable conflict", async () => {
+    const harness = setup(); harness.service.importLocalState.mockRejectedValue(new ResearchSetupConflictError());
+    const response = await createMigrationHandler(harness.deps)(jsonRequest("https://arc.example/api/migrations/local-state", "POST", { ...migrationBody(), intent: "research-setup" }));
+    await expectApiError(response, 409, "CONFLICT");
+  });
   it("returns 401 for an anonymous import", async () => {
     const harness = setup();
     makeAnonymous(harness);

@@ -128,7 +128,7 @@ describe("research workspace page adapters with real controllers and determinist
     for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Build my path" }));
     await waitFor(() => expect(injected.planningClient.generate).toHaveBeenCalledOnce());
-    expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal));
+    expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal), "research-setup");
     expect(vi.mocked(injected.arcClient.saveSetup).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(injected.planningClient.generate).mock.invocationCallOrder[0]!);
     await waitFor(() => expect(injected.navigate).toHaveBeenCalledWith("/path"));
     const request = vi.mocked(injected.planningClient.generate).mock.calls[0]![0];

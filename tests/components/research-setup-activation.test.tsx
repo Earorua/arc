@@ -85,7 +85,7 @@ beforeEach(async () => {
   }));
   localStorage.setItem("arc:role-research:v1", JSON.stringify({ runId: researchRunId, role: data.blueprint.name, locale: "en-US" }));
 });
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); db.close(); if (locksDescriptor) Object.defineProperty(navigator, "locks", locksDescriptor); else Reflect.deleteProperty(navigator, "locks"); });
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); db.close(); if (locksDescriptor) Object.defineProperty(navigator, "locks", locksDescriptor); else Reflect.deleteProperty(navigator, "locks"); });
 
 async function reachBuild() {
   const user = userEvent.setup();
@@ -94,6 +94,128 @@ async function reachBuild() {
   return user;
 }
 describe("new Research setup through real clients, routes, services and SQLite", () => {
+  it.each(["save", "activation"])("returns a stable 409 for the real atomic %s guard through its authenticated route", async (operation) => {
+    const state = createDemoState();
+    await cloud.importLocalState("owner-a", { migrationId: "route-guard-original", consent: true, conflictResolution: "reject", state });
+    await planning.generate("owner-a", guestRequest());
+    const original = await cloud.getWorkspace("owner-a");
+    const migrations = count("migration_runs"); const receipts = count("idempotency_records");
+    const setup = { ...state.setup, weeklyMinutes: 300 };
+    const response = await fetch(operation === "save" ? "/api/workspace" : "/api/migrations/local-state", {
+      method: operation === "save" ? "PUT" : "POST",
+      body: JSON.stringify(operation === "save"
+        ? { mutationId: "route-guard-save", setup, intent: "research-setup" }
+        : { migrationId: "route-guard-activation", consent: true, conflictResolution: "reject", state: { ...state, setup }, intent: "research-setup" }),
+    });
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: { code: "CONFLICT", message: "An active cloud goal already exists.", requestId: "request-setup-activation" } });
+    expect(await cloud.getWorkspace("owner-a")).toEqual(original);
+    expect(count("migration_runs")).toBe(migrations); expect(count("idempotency_records")).toBe(receipts);
+  });
+  it.each(["save", "activation"])("replays an accepted guarded %s without writing after an immutable plan is created", async (operation) => {
+    const state = createDemoState();
+    const activation = { migrationId: "activation-replay-guarded", state, consent: true, conflictResolution: "reject", intent: "research-setup" };
+    await cloud.importLocalState("owner-a", activation);
+    const save = { mutationId: "save-replay-guarded", setup: state.setup, intent: "research-setup" };
+    if (operation === "save") await cloud.saveSetup("owner-a", save);
+    await planning.generate("owner-a", guestRequest());
+    const original = await cloud.getWorkspace("owner-a");
+    const batches = db.batches.length;
+    if (operation === "save") await expect(cloud.saveSetup("owner-a", save)).resolves.toMatchObject({ state });
+    else await expect(cloud.importLocalState("owner-a", activation)).resolves.toMatchObject({ status: "already-imported" });
+    expect(db.batches).toHaveLength(batches);
+    expect(await cloud.getWorkspace("owner-a")).toEqual(original);
+    expect(count("planning_workspaces")).toBe(1);
+  });
+  it("keeps legacy saves and imports unchanged while separating Research save receipts", async () => {
+    const state = createDemoState();
+    await cloud.importLocalState("owner-a", { migrationId: "legacy-original-goal", consent: true, conflictResolution: "reject", state });
+    await planning.generate("owner-a", guestRequest());
+    const setup = { ...state.setup, weeklyMinutes: 300 };
+    await expect(cloud.saveSetup("owner-a", { mutationId: "shared-save-receipt", setup })).resolves.toMatchObject({ state: { setup } });
+    const imported = { ...state, setup: { ...setup, weeklyMinutes: 360 } };
+    await expect(cloud.importLocalState("owner-a", { migrationId: "legacy-planned-update", consent: true, conflictResolution: "reject", state: imported })).resolves.toMatchObject({ status: "imported" });
+    await expect(cloud.saveSetup("owner-a", { mutationId: "shared-save-receipt", setup, intent: "research-setup" })).rejects.toMatchObject({ code: "CONFLICT" });
+    expect((await cloud.getWorkspace("owner-a"))!.state.setup).toEqual(imported.setup);
+    expect(db.database.prepare("SELECT scope FROM idempotency_records WHERE mutation_id='shared-save-receipt'").all()).toEqual([{ scope: "setup" }]);
+    expect(count("planning_workspaces")).toBe(1);
+  });
+  it.each(["save", "activation"])("rolls back %s on an ordinary storage fault and returns INTERNAL rather than CONFLICT", async (operation) => {
+    const state = createDemoState();
+    if (operation === "save") await cloud.importLocalState("owner-a", { migrationId: "storage-fault-goal", consent: true, conflictResolution: "reject", state });
+    const original = await cloud.getWorkspace("owner-a");
+    const goalCount = count("career_goals"); const profileCount = count("learner_profiles"); const migrationCount = count("migration_runs"); const receiptCount = count("idempotency_records");
+    // Fail only after the update/insert has run, exercising real SQLite rollback.
+    db.failAtBatchStatement = operation === "save" ? 1 : 2;
+    const setup = { ...state.setup, roleId: data.blueprint.name };
+    const response = await fetch(operation === "save" ? "/api/workspace" : "/api/migrations/local-state", {
+      method: operation === "save" ? "PUT" : "POST",
+      body: JSON.stringify(operation === "save"
+        ? { mutationId: "storage-fault-save", setup, intent: "research-setup" }
+        : { migrationId: "storage-fault-activation", consent: true, conflictResolution: "reject", state: { ...state, setup }, intent: "research-setup" }),
+    });
+    expect(response.status).toBe(500);
+    expect(await response.json()).toMatchObject({ error: { code: "INTERNAL", requestId: "request-setup-activation" } });
+    expect(await cloud.getWorkspace("owner-a")).toEqual(original);
+    expect(count("career_goals")).toBe(goalCount); expect(count("learner_profiles")).toBe(profileCount);
+    expect(count("migration_runs")).toBe(migrationCount); expect(count("idempotency_records")).toBe(receiptCount);
+  });
+  it.each(["save", "activation"].flatMap((operation) => ["plan", "replacement"].map((race) => ({ operation, race }))))("atomically rejects $operation after a concurrent $race at the batch boundary", async ({ operation, race }) => {
+    const state = { ...createDemoState(), setup: { ...createDemoState().setup, roleId: data.blueprint.name } };
+    await cloud.importLocalState("owner-a", { migrationId: "migration-before-batch", consent: true, conflictResolution: "reject", state });
+    const original = await cloud.getWorkspace("owner-a");
+    const batch = db.batch.bind(db);
+    vi.spyOn(db, "batch").mockImplementationOnce(async (statements) => {
+      if (race === "replacement") {
+        db.database.prepare("UPDATE career_goals SET active_slot=NULL,status='archived' WHERE user_id=?1 AND active_slot=1").run("owner-a");
+        await cloud.importLocalState("owner-a", { migrationId: "migration-racing-goal", consent: true, conflictResolution: "reject", state: createDemoState() });
+      }
+      await planning.generate("owner-a", guestRequest());
+      return batch(statements);
+    });
+    const setup = { ...state.setup, weeklyMinutes: 300 };
+    const command = operation === "save"
+      ? cloud.saveSetup("owner-a", { mutationId: "guarded-save-race", setup, intent: "research-setup" })
+      : cloud.importLocalState("owner-a", { migrationId: "guarded-activation-race", state: { ...state, setup }, consent: true, conflictResolution: "reject", intent: "research-setup" });
+    await expect(command).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(count("planning_workspaces")).toBe(1);
+    expect(db.database.prepare("SELECT role_id,weekly_minutes FROM career_goals WHERE id=?1").get(original!.activeGoalId)).toMatchObject({ role_id: data.blueprint.name, weekly_minutes: 420 });
+    expect(db.database.prepare("SELECT count(*) count FROM idempotency_records WHERE mutation_id='guarded-save-race'").get()).toMatchObject({ count: 0 });
+    expect(db.database.prepare("SELECT count(*) count FROM migration_runs WHERE migration_id='guarded-activation-race'").get()).toMatchObject({ count: 0 });
+  });
+  it("rejects activation atomically when its previously absent goal is created and planned by another tab", async () => {
+    const batch = db.batch.bind(db);
+    vi.spyOn(db, "batch").mockImplementationOnce(async (statements) => {
+      await cloud.importLocalState("owner-a", { migrationId: "migration-racing-new-goal", consent: true, conflictResolution: "reject", state: createDemoState() });
+      await planning.generate("owner-a", guestRequest());
+      return batch(statements);
+    });
+    await expect(cloud.importLocalState("owner-a", { migrationId: "guarded-new-activation", intent: "research-setup", consent: true, conflictResolution: "reject", state: { ...createDemoState(), setup: { ...createDemoState().setup, roleId: data.blueprint.name } } })).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(count("career_goals")).toBe(1); expect(count("learner_profiles")).toBe(1);
+    expect(count("planning_workspaces")).toBe(1); expect(count("migration_runs")).toBe(1);
+    expect((await cloud.getWorkspace("owner-a"))!.state.setup).toEqual(createDemoState().setup);
+  });
+  it("preserves an immutable plan when another tab builds after preflight reads empty", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing-empty", consent: true, conflictResolution: "reject", state: createDemoState() });
+    const original = await cloud.getWorkspace("owner-a");
+    render(<SetupPage />); const user = await reachBuild();
+    let raced = false;
+    intercept = async (request) => {
+      if (!raced && request.url.endsWith("/api/planning/workspace")) {
+        raced = true;
+        const response = await planning.getWorkspaceResponse("owner-a");
+        expect(response.workspace).toBeNull();
+        await planning.generate("owner-a", guestRequest());
+        return Response.json(response);
+      }
+      return null;
+    };
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    expect(raced).toBe(true); expect(count("planning_workspaces")).toBe(1);
+    expect(session.navigate).not.toHaveBeenCalled();
+    expect((await cloud.getWorkspace("owner-a"))!.state.setup).toEqual(original!.state.setup);
+  });
   it("does not enqueue a failed current Research save when the account already has an empty goal", async () => {
     await cloud.importLocalState("owner-a", { migrationId: "migration-empty-goal", consent: true, conflictResolution: "reject", state: createDemoState() });
     render(<SetupPage />); const user = await reachBuild();
@@ -184,7 +306,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(count("learning_events")).toBe(0); expect(count("proof_items")).toBe(0);
     expect(localStorage.getItem(DEMO_STORAGE_KEY)).toBe(history); expect(localStorage.getItem(PLANNING_STORAGE_KEY)).toBe(localPlan);
     expect(localStorage.getItem("arc-offline-queue-v1")).toBeNull();
-    expect(calls.find(({ path }) => path === "/api/migrations/local-state")?.body).toMatchObject({ consent: true, conflictResolution: "reject", state: snapshot?.state });
+    expect(calls.find(({ path }) => path === "/api/migrations/local-state")?.body).toMatchObject({ consent: true, conflictResolution: "reject", intent: "research-setup", state: snapshot?.state });
   });
   it("rejects an existing immutable workspace before changing its common role", async () => {
     await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });

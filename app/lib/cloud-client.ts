@@ -57,8 +57,9 @@ export interface ArcCloudClient {
     resolution?: "reject" | "archive-import" | "activate-import",
     migrationId?: string,
     signal?: AbortSignal,
+    intent?: "research-setup",
   ): Promise<MigrationResult>;
-  saveSetup(setup: SetupAnswersInput, mutationId?: string, signal?: AbortSignal): Promise<CloudSnapshot>;
+  saveSetup(setup: SetupAnswersInput, mutationId?: string, signal?: AbortSignal, intent?: "research-setup"): Promise<CloudSnapshot>;
   completeUnit(unit: LearningUnit, mutationId?: string): Promise<CloudSnapshot>;
   replay(mutation: OfflineMutation): Promise<CloudSnapshot>;
 }
@@ -108,8 +109,8 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
     return parsed.data;
   }
 
-  async function sendSetup(setup: SetupAnswersInput, mutationId: string, signal?: AbortSignal) {
-    const mutation = workspaceMutationSchema.parse({ mutationId, setup });
+  async function sendSetup(setup: SetupAnswersInput, mutationId: string, signal?: AbortSignal, intent?: "research-setup") {
+    const mutation = workspaceMutationSchema.parse({ mutationId, setup, ...(intent ? { intent } : {}) });
     const response = await request("/api/workspace", snapshotResponseSchema, {
       method: "PUT",
       body: JSON.stringify(mutation),
@@ -138,12 +139,13 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
       const response = await request("/api/workspace", cloudWorkspaceResponseSchema, { method: "GET", signal });
       return response.snapshot;
     },
-    async importLocal(state, resolution = "reject", migrationId = createMutationId(), signal) {
+    async importLocal(state, resolution = "reject", migrationId = createMutationId(), signal, intent) {
       const mutation = migrationRequestSchema.parse({
         migrationId,
         consent: true,
         state,
         conflictResolution: resolution,
+        ...(intent ? { intent } : {}),
       });
       const response = await request("/api/migrations/local-state", migrationResponseSchema, {
         method: "POST",
@@ -152,8 +154,8 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
       });
       return response.result;
     },
-    saveSetup(setup, mutationId = createMutationId(), signal) {
-      return sendSetup(setup, mutationId, signal);
+    saveSetup(setup, mutationId = createMutationId(), signal, intent) {
+      return sendSetup(setup, mutationId, signal, intent);
     },
     completeUnit(unit, mutationId = createMutationId()) {
       return sendCompletion(unit, mutationId);

@@ -259,7 +259,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
         let snapshot;
         if (previous === null) {
           // Explicit Research Build activates only its current answers, never device history.
-          const activation = migrationResultSchema.parse(await clientRef.current.importLocal({ setup: currentSetup, completedUnitIds: [], proofs: [] }, "reject", options.researchActivationId, cancellation.signal));
+          const activation = migrationResultSchema.parse(await clientRef.current.importLocal({ setup: currentSetup, completedUnitIds: [], proofs: [] }, "reject", options.researchActivationId, cancellation.signal, "research-setup"));
           if (cancellation.signal.aborted || activation.migrationId !== options.researchActivationId
             || !["imported", "already-imported"].includes(activation.status) || !activation.activeGoalId
             || activation.importedCompletionCount !== 0 || activation.importedProofCount !== 0 || activation.availableResolutions.length !== 0) return false;
@@ -267,7 +267,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
           if (snapshot.activeGoalId !== activation.activeGoalId || snapshot.state.completedUnitIds.length !== 0 || snapshot.state.proofs.length !== 0) return false;
         } else {
           const existing = cloudSnapshotSchema.parse(previous);
-          snapshot = cloudSnapshotSchema.parse(await clientRef.current.saveSetup(currentSetup, options.researchActivationId, cancellation.signal));
+          snapshot = cloudSnapshotSchema.parse(await clientRef.current.saveSetup(currentSetup, options.researchActivationId, cancellation.signal, "research-setup"));
           if (snapshot.activeGoalId !== existing.activeGoalId) return false;
         }
         if (cancellation.signal.aborted || Object.entries(currentSetup).some(([key, value]) => snapshot.state.setup[key as keyof SetupAnswers] !== value)) return false;
