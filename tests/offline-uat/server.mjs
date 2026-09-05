@@ -27,7 +27,7 @@ export function allowsOfflineAsset(path, cacheDir) {
   return ["/app/components/", "/app/contracts/", "/app/data/", "/app/domain/", "/app/lib/", "/node_modules/"].some((prefix) => asset.startsWith(prefix))
     || ["/app/setup/page.tsx", "/app/path/page.tsx", "/app/today/page.tsx", "/app/stack/page.tsx", "/app/proof/page.tsx", "/app/globals.css",
       "/app/server/auth/policy.ts", "/app/server/account-link/contracts.ts",
-      "/tests/offline-uat/main.tsx", "/tests/offline-uat/browser-runtime.tsx", "/tests/offline-uat/security.ts", "/tests/offline-uat/controls.css",
+      "/tests/offline-uat/main.tsx", "/tests/offline-uat/browser-runtime.tsx", "/tests/offline-uat/security.ts", "/tests/offline-uat/api-trace.ts", "/tests/offline-uat/controls.css",
       "/@vite/client", "/@vite/env", "/@react-refresh"].includes(asset);
 }
 export function offlineAliases() {

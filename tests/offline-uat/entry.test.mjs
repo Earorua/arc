@@ -62,6 +62,7 @@ test("loopback entry serves actual modules while rejecting origin spoofing, unsa
     for (const path of [
       "/app/setup/page.tsx", "/app/path/page.tsx", "/app/today/page.tsx", "/app/stack/page.tsx", "/app/proof/page.tsx",
       "/app/server/auth/policy.ts", "/app/server/account-link/contracts.ts", "/app/globals.css",
+      "/tests/offline-uat/api-trace.ts",
       "/node_modules/@fontsource-variable/manrope/index.css", "/node_modules/@fontsource-variable/newsreader/index.css",
     ]) await context.test(`preserves required client asset ${path}`, async () => {
       assert.equal((await request(server.origin, path)).status, 200);

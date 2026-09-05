@@ -11,12 +11,14 @@ import StackPage from "../../app/stack/page";
 import ProofPage from "../../app/proof/page";
 import { setOfflineOwner, usePathname, navigate } from "./browser-runtime";
 import { allowsApplicationFetch } from "./security";
+import { createOfflineApiTrace } from "./api-trace";
 import { completeDemoUnit, createDemoState, DEMO_STORAGE_KEY, saveDemoState } from "../../app/lib/demo-store";
 import { flagshipRole } from "../../app/data/flagship-role";
 import { PLANNING_STORAGE_KEY } from "../../app/lib/planning/local-repository";
 
 const recoveryKey = "arc:role-research:v1";
 const nativeFetch = window.fetch.bind(window);
+const apiTrace = createOfflineApiTrace();
 const nonce = document.querySelector<HTMLMetaElement>('meta[name="arc-uat-control"]')!.content;
 let outboundDenials = 0;
 window.fetch = (input, options) => {
@@ -24,7 +26,7 @@ window.fetch = (input, options) => {
   const request = new Request(input instanceof Request ? input : new URL(String(input), location.origin), options);
   const headers = new Headers(request.headers);
   if (request.method !== "GET" && request.method !== "HEAD") headers.set("x-arc-uat-control", nonce);
-  return nativeFetch(new Request(request, { headers }));
+  return apiTrace.observe(request, () => nativeFetch(new Request(request, { headers })));
 };
 document.addEventListener("click", (event) => {
   const anchor = (event.target as Element | null)?.closest("a");
@@ -41,7 +43,7 @@ function storageDiagnostics() {
   try { identity = recovery ? JSON.parse(recovery) : null; } catch { identity = "invalid JSON"; }
   let localHistory = { completions: 0, proofs: 0 };
   try { const state = JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY) ?? "null"); localHistory = { completions: state?.completedUnitIds?.length ?? 0, proofs: state?.proofs?.length ?? 0 }; } catch { /* Diagnostic only. */ }
-  return { recoveryIdentity: identity, localHistory, localPlanningPresent: localStorage.getItem(PLANNING_STORAGE_KEY) !== null, offlineQueuePresent: localStorage.getItem("arc-offline-queue-v1") !== null, outboundDenials };
+  return { recoveryIdentity: identity, localHistory, localPlanningPresent: localStorage.getItem(PLANNING_STORAGE_KEY) !== null, offlineQueuePresent: localStorage.getItem("arc-offline-queue-v1") !== null, outboundDenials, apiResults: apiTrace.snapshot() };
 }
 function App() {
   const path = usePathname();
