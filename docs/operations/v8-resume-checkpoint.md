@@ -1,16 +1,18 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-05 持续执行中：Task 11 原子写入修复尚未关闭，Task 13 尚未开始**
+> **2026-09-05 持续执行中：Task 11 回退路径质量问题尚未关闭，Task 13 尚未开始**
 >
-> 继续使用下方相同权威工作树和 `codex/v8-openrouter-research-beta` 分支。Task 10 已关闭；Task 11 初版为 `5b35f8e34fbf5a1449aea9a7458d71288847daff`，首轮修复为 `82359d257dcdf76eeb0afd8b1c8b16beacafc35c`，随后 `272dc1a41a675527f28e8c374755b25fdb83b238` 仅记录文档。恢复时核对实际 Git 状态与历史，保留正在进行的修复文件，不按旧记录重做实现。
+> 继续使用下方相同权威工作树和 `codex/v8-openrouter-research-beta` 分支。Task 10 已关闭；Task 11 当前代码为 `79e90dd13193e34870f1a73b45b5f1adf684ae1c`，此前 `137e028a831a151b0db9a6a7c39b47b18b9f81cd` 仅记录文档。恢复时核对实际 Git 状态与历史，保留正在进行的修复文件，不按旧记录重做实现。
 >
 > `82359d2` 修复了已知 Flagship 别名误开新 Research、账户切换/卸载后的保存结果进入离线队列，以及客户端产物携带未使用的 Provider 用量 schema。独立规格复审为 **Critical 0 / Important 0 / Minor 0 / READY YES**，15 files / 301 tests。根侧在干净 `272dc1a` 上通过 **129 files / 2200 tests**、非增量 TypeScript、完整 ESLint、build **5/5**、rendered/client artifact **4/4**、diff/client/生产配置边界检查。这些是当前代码的中间验证，不是 Task 11 或最终离线验收完成声明。
 >
 > 新账户激活修复已提交为 `8253f585b799f4ab74bc63fde21d0ce1598e8d90`。真实页面/客户端/路由/服务/SQLite 回归仅预置 users 和已验证的 Ready 研究数据，不预置 career goal 或 planning workspace；当前 Research 设置通过既有能力单独激活，无关设备 completion/proof/local planning 保持原样。根侧在干净的该提交上通过 **130 files / 2230 tests**、非增量 TypeScript、完整 ESLint、build **5/5**、rendered/client artifact **4/4**、diff/client/生产配置边界检查。这些仍是中间验证，不能替代最终双审。
 >
-> **规格复审仍为 Critical 0 / Important 1 / Minor 0 / READY NO。** `8253f58` 的 16 files / 353 tests 独立聚焦回归通过，但新增真实 SQLite 并发回归失败：另一个标签页在空 workspace 预检后提交不可变计划，当前页面仍先改写 common role，随后生成才被拒绝。永久页面回归已确认 **1 FAIL / 13 PASS**。因此必须在服务端同一 D1 batch 中原子保护写入，不能用第二次客户端读取或缩小保证替代。
+> `79e90dd` 已修复预检后出现计划/替换目标的并发漏洞：严格 Research intent、同一 D1 batch 的原子保护、整体回滚、独立幂等作用域、409/500 区分。永久 SQLite 并发测试先为 **6 FAIL / 13 PASS**；最终实现聚焦 **16 files / 240 tests**。独立规格复审正式为 **Critical 0 / Important 0 / Minor 0 / READY YES**，**20 files / 404 tests**、非增量 TypeScript、局部 lint、rendered **4/4** 与范围检查通过。根侧在精确干净提交上通过 **130 files / 2253 tests**、非增量 TypeScript、完整 ESLint、build **5/5**、rendered/client artifact **4/4**、diff/client/生产配置边界检查。沙箱内子进程 `spawn EPERM` 仅以相同离线命令提权复跑，未改配置或测试。
 >
-> **当前下一步：** 原 Task 11 实现代理继续有界修复：通过现有 Cloud PUT/migration 契约传递严格可选的 `intent: "research-setup"`，该意图只允许当前设置、空历史和冲突拒绝；同一批次检查所捕获的 owner/active goal 身份及无 planning workspace，失败整体回滚、返回稳定冲突且不留下假成功记录。隔离 Research setup 的幂等作用域，保留默认 legacy/import 行为，不加迁移或新路由。具体文件范围已写入详细计划；根代理的三份操作/计划文档修改应与实现文件分开暂存。修复提交后先独立规格复审，再质量/安全复审，清零后由根侧重新验证并关闭 Task 11，随后才执行 Task 13。Task 13 还需在真正的本地 Miniflare/workerd D1 上验证原子回滚语义。
+> **质量审查尚未通过，已确认两项 Important。** 新登录且无 cloud goal 的账户完成普通自定义岗位 Setup 后，四个工作区页面都被精确 no-goal 404 导向重试边界；Research unavailable/declined 两模式合计 **8 FAIL**，仅在内存换回 Task 11 前的四页源码则同例 **8 PASS**。另外新面板 `Use Flagship` 和默认 Flagship 都无法为该新账户完成 Build（**2 FAIL**，goal/workspace/navigation 均为 0）；基线默认 Flagship 也失败，因此准确归类为既有初始化缺陷导致新回退承诺未闭合。独立质量结论已正式为 Critical 0 / Important 2 / Minor 0 / READY NO；15 files / 260 tests、四页空值/错误矩阵 32 项、TypeScript、局部 lint、rendered 4/4 均通过，但不能覆盖这两项失败。
+>
+> **当前下一步：** 原实现代理已获批按永久 RED 修复两项回退链路：增加 owner-bound 的明确无目标视图，仅与已恢复的本地 Arc 状态共同允许 legacy；已登录 adaptive Setup 的 Research/Flagship 共用当前设置激活与重新加载。内部方法可泛化命名，保持既有 wire intent 和 SQL guard 不变。权威无 goal/plan 必须与认证、限流、网络、坏响应和损坏 Research context 区分；已登录 Flagship adaptive Build 仅激活当前设置，沿用空历史、取消、幂等和原子保护，不替换已有计划。Guest Flagship 和普通 custom 的设备流程保持原语义；不更改已完成 Planning service/API、迁移、生产或外部接线。范围已写入详细计划，三份操作/计划文档由根代理单独维护。最终仍需规格后质量双审及根侧新验证，关闭 Task 11 后才开始 Task 13；其浏览器验收必须包含这两个新账户回退场景及实际 Miniflare/workerd D1 原子回滚。
 >
 > Task 13 的本地 UAT 记录目前全部待执行。新账户浏览器验收必须从没有 career goal/planning workspace 开始，不能用预置目标隐藏初始化缺口。Tasks 1–10、12 保持关闭，不重做。持续目标仍有效，当前仅授权离线工程范围；真实密钥/Provider 请求、生产变量/旗标/D1/R2、merge、push、Sites candidate、部署均禁止。用户验收与真实 Provider 证据仍未完成。
 
