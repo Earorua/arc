@@ -750,7 +750,7 @@ git commit -m "feat: expose protected role research routes"
 - Modify: `tests/server/proof-service.test.ts`
 - Modify: `tests/server/d1-research-repository.test.ts`
 
-- [ ] **Step 1: Write compatibility, ownership, and replay tests**
+- [x] **Step 1: Write compatibility, ownership, and replay tests**
 
 Keep the historical flagship request accepted by normalization, and accept the new explicit source union:
 
@@ -765,13 +765,13 @@ const researchSourceSchema = z.object({
 
 Test owner Ready generation; Needs review/Failed/cross-owner rejection; expired package rejection for every new-plan path; deterministic equality for identical validated inputs; and event replay after a fresh service/repository instance. The replay tests must advance time beyond package expiry and prove `Complete`, `Delay`, and replan still use the exact locked research registry rather than Flagship templates. Also prove an expired locked package that is missing, corrupt, cross-owner, or mismatched by package / blueprint / registry identity, version, config/content fingerprint, or domain integrity fails closed with no Flagship fallback and no new-plan authority.
 
-- [ ] **Step 2: Run focused planning tests and verify RED**
+- [x] **Step 2: Run focused planning tests and verify RED**
 
 Run: `npm run test:unit -- tests/server/planning-service.test.ts tests/server/d1-planning-repository.test.ts tests/server/research-planning-integration.test.ts`
 
 Expected: FAIL because planning only resolves the Flagship source.
 
-- [ ] **Step 3: Add immutable source references and a resolver**
+- [x] **Step 3: Add immutable source references and a resolver**
 
 Add an immutable source reference to the planning repository envelope, not to the current `PlanningWorkspace` schema:
 
@@ -804,18 +804,20 @@ Add `sourceContext` to the planning HTTP response envelopes (not `PlanningWorksp
 
 Inject the same authenticated goal's resolved source into the production Proof service. Research skill IDs must be accepted for that goal, arbitrary foreign skill IDs rejected, and existing structural/deterministic review rules unchanged. Add an integration test for a Research plan's completed unit -> Proof submission -> demonstrated projection -> withdrawal, alongside the existing Flagship Proof regressions. Never use a package from a client request as Proof validation authority.
 
-- [ ] **Step 4: Run planning, Today, and proof regressions**
+- [x] **Step 4: Run planning, Today, and proof regressions**
 
 Run: `npm run test:unit -- tests/server/planning-service.test.ts tests/server/d1-planning-repository.test.ts tests/server/research-planning-integration.test.ts tests/components/adaptive-setup-flow.test.tsx tests/components/adaptive-today-session.test.tsx tests/server/proof-service.test.ts`
 
 Expected: PASS; research events replay across repository instances and Flagship tests remain unchanged.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/contracts/planning-api.ts app/contracts/planning.ts app/server/planning/source-resolver.ts app/server/planning/repository.ts app/server/planning/service.ts app/server/planning/d1-planning-repository.ts app/server/http/planning-route-factories.ts tests/server/planning-service.test.ts tests/server/d1-planning-repository.test.ts tests/server/planning-security.test.ts tests/server/research-planning-integration.test.ts
 git commit -m "feat: plan from owner bound research packages"
 ```
+
+**Closure evidence (2026-09-05):** Task 9 was implemented in `4ab6790` and repaired through `9b599dc`, `767a0bf`, `cc0e9a2`, and `f97ca80`. Fresh independent specification and quality/security reviews on the final code both reported Critical 0 / Important 0 / Minor 0 / READY YES. Root verification on `f97ca80` passed the 12-file relevant suite (343 tests), full unit suite (123 files / 2012 tests), TypeScript, full ESLint, production build (5/5), rendered HTML (3/3), diff-check, and secret/production-boundary scans. No live Provider call, real key, production flag/configuration, production D1/R2 operation, merge, push, candidate save, or deployment was performed. Continue with Task 10.
 
 ### Task 10: Add the refresh-resumable Research Beta client controller
 

@@ -1,5 +1,15 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-05 模型切换保存：目标 2 Task 9 已关闭，下一步从 Task 10 继续**
+>
+> 权威项目根目录为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2`；本目标的权威隔离工作树为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`，分支为 `codex/v8-openrouter-research-beta`。Task 9 的最终代码 HEAD 为 `f97ca800cbf959da78b4878a288386e429f753fb`（`fix: close planning response integrity gaps`）；包含本记录的后续文档提交是当前模型切换检查点。恢复时先核对实际 `git status --short --branch`、`git rev-parse HEAD` 与 `git log -5 --oneline`。
+>
+> Task 1–9 与提前独立完成的 Task 12 均已关闭。Task 9 初版为 `4ab6790`，后续修复为 `9b599dc`、`767a0bf`、`cc0e9a2`、`f97ca80`。最终全新规格复审和质量/安全复审均为 **Critical 0 / Important 0 / Minor 0 / READY YES**。主代理在精确代码提交 `f97ca80` 上完成：相关 12 files / 343 tests、完整 123 files / 2012 tests、TypeScript、完整 ESLint、production build 5/5、rendered HTML 3/3、diff-check 与生产边界检查全部通过。Windows 沙箱内 build 和 rendered HTML 的首次运行仅因子进程 `spawn EPERM` 失败；未改源码后以相同命令在沙箱外复跑通过。
+>
+> **恢复后的权威下一步：** 从详细计划的 Task 10 开始，随后完成 Task 11；Task 13 在 10–11 完成后执行目标 2 的最终离线验收和检查点。不要重做 Tasks 1–9 或 12。继续沿用已批准的子代理驱动、逐任务 TDD、规格审查与质量/安全审查门槛。
+>
+> 本轮没有创建或读取真实密钥，没有真实或付费 Provider 请求，没有修改生产变量或生产旗标，没有生产 D1/R2 操作，没有合并到 `master`、GitHub 推送、Sites 候选保存或部署。公开生产仍保持 Arc. v7.2 / Sites version 9。
+
 > **2026-09-04 暂停保存：Task 9 第二轮规格修复已提交，复审在结论前按用户要求中止**
 >
 > 当前权威工作树仍为 `.worktrees/v8-openrouter-research-beta`，分支仍为 `codex/v8-openrouter-research-beta`。用户要求暂停时，工作树干净，HEAD 为 `767a0bf3125e1226f1a723594f4c95da68299a22`（`fix: reject expired research planning commits`）；其上一个检查点提交为 `f01a517`，六项首轮修复提交 `9b599dc` 仍完整存在。Task 1–8、12 已关闭；Task 9 尚未关闭，Tasks 10–11 尚未开始。
