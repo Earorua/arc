@@ -268,6 +268,69 @@ describe("role Research controller", () => {
     expect(localStorage.getItem(key)).toBeNull();
   });
 
+  it.each(["hidden", "inactive", "external abort"] as const)("returns an interrupted initial POST to idle after %s and explicitly replays its mutation", async (interruption) => {
+    const pending = deferred<ReturnType<typeof response>>();
+    const client = fakeClient({ startResearch: vi.fn().mockReturnValueOnce(pending.promise).mockResolvedValue(response(active)) });
+    let mutations = 0;
+    let hidden = false;
+    vi.spyOn(document, "visibilityState", "get").mockImplementation(() => hidden ? "hidden" : "visible");
+    const abort = new AbortController();
+    const { result, rerender } = renderHook(({ active: setupActive, signal }) => useRoleResearch({
+      ...options(client), active: setupActive, signal, createMutationId: () => `mutation-${++mutations}`,
+    }), { initialProps: { active: true, signal: abort.signal } });
+    await flush();
+    let first!: Promise<boolean>;
+    act(() => { first = result.current.start(input); });
+    expect(result.current).toMatchObject({ state: { kind: "submitting" }, run: null, busy: true });
+    if (interruption === "hidden") act(() => { hidden = true; document.dispatchEvent(new Event("visibilitychange")); });
+    else if (interruption === "inactive") rerender({ active: false, signal: abort.signal });
+    else act(() => abort.abort());
+    expect(vi.mocked(client.startResearch).mock.calls[0]![1].aborted).toBe(true);
+    if (interruption === "hidden") act(() => { hidden = false; document.dispatchEvent(new Event("visibilitychange")); });
+    else rerender({ active: true, signal: interruption === "external abort" ? new AbortController().signal : abort.signal });
+    await flush();
+    expect(result.current).toMatchObject({ state: { kind: "idle" }, run: null, planningData: null, busy: false, restoring: false, error: null });
+    await act(() => vi.advanceTimersByTimeAsync(60_000));
+    expect(client.startResearch).toHaveBeenCalledTimes(1);
+    expect(client.getResearch).not.toHaveBeenCalled();
+    await expect(result.current.refresh()).resolves.toBe(false);
+    expect(localStorage.getItem(key)).toBeNull();
+    expect(await timerCount()).toBe(0);
+
+    await act(() => result.current.start(input));
+    expect(vi.mocked(client.startResearch).mock.calls.map(([request]) => request.mutationId)).toEqual(["mutation-1", "mutation-1"]);
+    expect(result.current.state).toEqual({ kind: "researching", runId: active.id });
+    await act(async () => { pending.resolve(response(ready)); await first; });
+    await expect(first).resolves.toBe(false);
+    expect(result.current.state.kind).toBe("researching");
+    expect(result.current.planningData).toBeNull();
+    expect(JSON.parse(localStorage.getItem(key)!)).toEqual(identity);
+  });
+
+  it.each(["reset", "new input"] as const)("creates a new logical mutation after interrupting an initial POST then choosing %s", async (nextAction) => {
+    const pending = deferred<ReturnType<typeof response>>();
+    const nextInput = nextAction === "new input" ? { ...input, role: "Security Engineer" } : input;
+    const nextRun = { ...ready, id: "research-run-2", role: nextInput.role };
+    const client = fakeClient({ startResearch: vi.fn().mockReturnValueOnce(pending.promise).mockResolvedValue(response(nextRun)) });
+    let mutations = 0;
+    const { result, rerender } = renderHook(({ active: setupActive }) => useRoleResearch({
+      ...options(client), active: setupActive, createMutationId: () => `mutation-${++mutations}`,
+    }), { initialProps: { active: true } });
+    await flush();
+    let first!: Promise<boolean>;
+    act(() => { first = result.current.start(input); });
+    rerender({ active: false });
+    rerender({ active: true });
+    await flush();
+    if (nextAction === "reset") act(() => result.current.reset());
+    await act(() => result.current.start(nextInput));
+    expect(vi.mocked(client.startResearch).mock.calls.map(([request]) => request.mutationId)).toEqual(["mutation-1", "mutation-2"]);
+    await act(async () => { pending.resolve(response(ready)); await first; });
+    expect(result.current.run).toEqual(nextRun);
+    expect(JSON.parse(localStorage.getItem(key)!)).toEqual({ runId: nextRun.id, ...nextInput });
+    expect(client.getResearch).not.toHaveBeenCalled();
+  });
+
   it("hides previous-owner run, source and error immediately and rejects late callbacks", async () => {
     const pending = deferred<ReturnType<typeof response>>();
     const client = fakeClient({ getResearch: vi.fn(() => pending.promise) });

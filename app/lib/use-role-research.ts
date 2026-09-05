@@ -96,7 +96,10 @@ function createController(initial: RoleResearchOptions, publish: (value: Snapsho
     clearTimer();
     operation?.abort();
     operation = null;
-    view = { ...view, busy: false, restoring: false };
+    // A cancelled initial POST has no run to refresh. Return to an actionable
+    // form while keeping `submit` so an explicit resubmission replays its ID.
+    view = { ...view, busy: false, restoring: false,
+      state: !view.run && view.state.kind === "submitting" ? { kind: "idle" } : view.state };
   }
   function available(caller: string | null, write = false) {
     return mounted && caller !== null && caller === owner && caller === context.userId
