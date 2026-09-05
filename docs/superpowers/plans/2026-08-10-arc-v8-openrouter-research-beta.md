@@ -1048,6 +1048,8 @@ Execution evidence (2026-09-03): Task 12 was implemented in `2518b68`, then hard
 
 ### Task 13: Run offline acceptance gates, reviews, and checkpoint documentation
 
+**Execution progress (2026-09-06, final root gates pending):** Final code `81c4c26be2a82c2611c1ae0363b14b90ad3586c3` passed independent specification (8 files / 153 tests) then quality/security (6 files / 55 tests), both 0/0/0 READY YES; each passed entry 19/19 and actual HTTP clients 1/1. Actual nonpersistent workerd D1 passed the 9-step chain and five atomic conflicts, false receipts/foreign-key violations zero. Root completed the authorized Fake browser inventory, including full Research planning/Proof/replay, Guest and authenticated Flagship, legacy unavailable/declined, terminal/recovery/budget/owner/visual cases. The earlier history-bearing Build failure did not recur after the root restarted the final reviewed service: actual migration/generation succeeded and device history stayed device-only, without a product workaround. Initial-POST interruption and stale async source races are explicitly automated evidence, not browser timing claims. The complete detailed record is in the local UAT document. Commit these observations, then run all final root gates from that clean commit and record closure; final Task 13 closure is not yet claimed.
+
 **Current execution boundary (user instruction, 2026-09-05):** Complete the authorized offline gates and checkpoint only. Do not create/read real keys, make real/paid Provider requests, alter production variables/flags, operate production D1/R2, merge into `master`, push, save a Sites candidate, or deploy. This explicitly supersedes the historical live-request and integration actions in Steps 5–6 and 8 below: record them as not performed under the current authorization, and do not request permission to perform them during this run. Agent-assisted browser UAT is engineering evidence; user acceptance remains pending until the user explicitly accepts it.
 
 **Offline browser composition (2026-09-05 preflight):** Add a test-only harness under `tests/offline-uat/` when executing Step 4. Mount the actual Setup/Path/Today/Stack/Proof page adapters, hooks, clients, and route factory handlers through an isolated loopback Vite entry; do not load the normal Vite configuration, environment files, OAuth, Sites lifecycle, or production bindings. Compose the real services/repositories with `FakeResearchProvider` and disposable SQLite using the existing D1-interface test helper; label this accurately as SQLite implementing the D1 interface. Separately verify the same storage path with an isolated, nonpersistent Miniflare/workerd D1 binding. Keep harness-only session/scenario controls outside product routes, enforce same-origin control writes, reject unknown API routes, and block outbound application requests. For Researching/Validating refresh evidence, prestart a real owner-bound run and pause its provider/committed validation transition, then use the ordinary Research action to recover that active run ID before reload. This tests active-run replay and refresh recovery; it does not claim an initial POST without a returned run ID survives a reload. Production build/render gates remain separate from this browser harness.
@@ -1081,11 +1083,11 @@ rg -n -g 'app/**' "dangerouslySetInnerHTML|OPENROUTER_API_KEY|ARC_AI_MODEL_RESEA
 
 Expected: focused tests pass; secret scan has no committed value; client/app surface scan shows no secret usage and provider/cost identifiers occur only in server modules or explicitly reviewed admin aggregate types.
 
-- [ ] **Step 3: Perform two-stage review per implementation task and remediate**
+- [x] **Step 3: Perform two-stage review per implementation task and remediate**
 
 For each Task 1–12 commit, run a specification-compliance review against the approved design and this plan, then a code-quality review covering correctness, owner isolation, concurrency, bounded parsing, Worker compatibility, test quality, accessibility, and scope. Fix every critical/high issue with a new failing regression test, rerun the focused suite, and commit the remediation. Record reviewer commit ids and findings in the plan.
 
-- [ ] **Step 4: Start local Fake Provider preview and perform user-visible UAT**
+- [x] **Step 4: Start local Fake Provider preview and perform user-visible UAT**
 
 Run the development server with only local fake mode and local D1; keep all paid/production settings disabled. Validate these exact flows without external network:
 

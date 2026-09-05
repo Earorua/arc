@@ -1,5 +1,19 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：Task 13 双审与浏览器验收已通过，最终根侧门槛待执行（覆盖下方阶段性状态）**
+>
+> Tasks 1–12 均已关闭，不重做。权威工作树仍为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`，分支 `codex/v8-openrouter-research-beta`。Task 13 最终代码为 `81c4c26be2a82c2611c1ae0363b14b90ad3586c3`；本次仅先提交已核对的验收记录，使最终门槛可从干净工作树运行。
+>
+> harness `e8bfaca`、两项 RED 后的稀疏审计修复 `efb1e25`、四项 RED 后的 Windows/Vite 资产路径边界修复 `504e3aa`、有界诊断与真实 HTTP 客户端回归 `81c4c26` 均已提交。精确 `81c4c26` 的独立规格与质量/安全复审均为 **Critical 0 / Important 0 / Minor 0，READY YES**；规格 8 files / 153 tests，质量 6 files / 55 tests，各自入口 19/19 与 HTTP 链 1/1。质量另通过真实非持久 Miniflare/workerd D1 的 9 步链路及 5 类原子竞争，错误成功记录与外键违规为 0。
+>
+> 根侧已实际完成 Guest Flagship、Research Ready→audit→Build→Path/Today/Stack/Proof、Ready/Researching/Validating 刷新、Needs review/Failed 与显式重试、禁用/预算、全新账号 Use Flagship、legacy custom unavailable/declined 四页、Complete/Delay Keep/Accept 与刷新、Proof 历史单元提交/撤回、账号隔离、320/1440 布局、键盘/焦点/live、已编写 reduced-motion CSS 分支与同来源 Back。精确机制及可复现命令见 `docs/operations/v8-goal2-local-uat.md`。初次 POST 无 run ID 的中断和异步过期结果以自动化竞态证据记录，不冒称浏览器实测。
+>
+> 此前设备历史 Build 失败在重启至最终已审查服务后未复现：run `608f2718-9b64-4f72-ba4d-3946daa316bd` 从 Guest 本地计划和设备 completion/proof 1/1 开始，为全新 Owner A 成功激活并生成 Research 计划；cloud history/Proof 仍为 0，设备历史 1/1 与本地计划保留。真实 trace 为 planning 404→activation 200→planning 200→generate 200。没有为此增加产品绕过，也没有声称已确定历史失败原因。根侧预览已停止，视口已还原。
+>
+> **下一步仅剩：** 先提交这三份进度文档，再从精确干净提交执行根侧全量 unit、非增量 TypeScript、完整 lint、build/render、明确 migration/security、入口/HTTP、实际本地 D1、提交源码/客户端/生产边界扫描；记录实际退出码与数量后提交关闭检查点。Task 13 最终关闭尚未声明。持续目标仅覆盖已授权离线工程范围；真实 Provider 证据和用户明确验收仍未执行。
+>
+> 不读取/创建真实密钥、不发真实或付费 Provider 请求、不改生产变量/旗标、不操作生产 D1/R2、不 merge、push、保存 Sites candidate 或部署。历史线上和集成步骤由用户当前限制覆盖；本轮不索取这些操作的授权。
+
 > **2026-09-06：Task 11 已关闭，下一步 Task 13 离线验收（覆盖下方阶段性状态）**
 >
 > 权威工作树：`C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`；分支：`codex/v8-openrouter-research-beta`。Task 11 最终代码为 `1575a1e0272609cfe426d361a8c3851654e70acc`；本关闭记录随后单独本地提交。恢复先核对实际状态和历史，保留后续 Task 13 未提交文件。
