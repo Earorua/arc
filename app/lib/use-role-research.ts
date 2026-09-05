@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { z } from "zod";
 import {
   researchRequestSchema,
@@ -257,7 +257,9 @@ export function useRoleResearch(options: RoleResearchOptions): RoleResearchContr
   const [snapshot, setSnapshot] = useState<Snapshot>(() => ({ ...emptyView(), owner: null }));
   const [controller] = useState(() => createController(options, setSnapshot));
   const { userId, eligible, active, signal } = options;
-  useEffect(() => controller.connect({ userId, eligible, active, signal }), [controller, userId, eligible, active, signal]);
+  // Synchronize committed authorization before a caller's layout effect can
+  // invoke either current or retained commands. Abandoned renders do not connect.
+  useLayoutEffect(() => controller.connect({ userId, eligible, active, signal }), [controller, userId, eligible, active, signal]);
   // Mask in render, before effect cleanup, so account transitions never flash
   // another owner's source, errors, or Request ID.
   const visible = userId !== null && snapshot.owner === userId && active && !signal?.aborted;

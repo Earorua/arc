@@ -1,4 +1,5 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
+import { startTransition, Suspense, useLayoutEffect, useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ResearchRunPublicView } from "../../app/contracts/research";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
@@ -39,6 +40,60 @@ afterEach(async () => {
   finally { vi.useRealTimers(); vi.restoreAllMocks(); }
 });
 describe("role Research controller", () => {
+  const committedTransitions = [
+    { label: "logout", userId: null, eligible: true, active: true },
+    { label: "eligibility revoked", userId: "owner-a", eligible: false, active: true },
+    { label: "Setup inactive", userId: "owner-a", eligible: true, active: false },
+  ];
+  const commitCases = committedTransitions.flatMap((transition) =>
+    (["retained", "current"] as const).flatMap((callback) =>
+      (["start", "retry", "refresh"] as const).map((command) => ({ ...transition, callback, command }))));
+
+  it.each(commitCases)("guards $callback $command during a committed $label layout effect", async ({ callback, command, ...transition }) => {
+    const pending = deferred<ReturnType<typeof response>>();
+    const client = fakeClient({ startResearch: vi.fn(async () => response(failed)),
+      getResearch: vi.fn(() => pending.promise), retryResearch: vi.fn(() => pending.promise) });
+    let operation!: Promise<boolean>;
+    const { result, rerender } = renderHook(({ userId, eligible, active: setupActive, invoke }) => {
+      const controller = useRoleResearch({ ...options(client), userId, eligible, active: setupActive });
+      const invoked = useRef(false);
+      useLayoutEffect(() => {
+        if (!invoke || invoked.current) return;
+        invoked.current = true;
+        const target = callback === "retained" ? retained : controller;
+        operation = command === "start" ? target.start(input) : target[command]();
+      }, [controller, invoke]);
+      return controller;
+    }, { initialProps: { userId: "owner-a" as string | null, eligible: true, active: true, invoke: false } });
+    await flush();
+    if (command !== "start") await act(() => result.current.start(input));
+    vi.mocked(client.startResearch).mockClear().mockImplementation(() => pending.promise);
+    const retained = result.current;
+    rerender({ userId: transition.userId, eligible: transition.eligible, active: transition.active, invoke: true });
+    const allowedGet = command === "refresh" && transition.label === "eligibility revoked";
+    expect(client.startResearch).not.toHaveBeenCalled();
+    expect(client.retryResearch).not.toHaveBeenCalled();
+    expect(client.getResearch).toHaveBeenCalledTimes(allowedGet ? 1 : 0);
+    await act(async () => { pending.resolve(response(failed)); await operation; });
+    await expect(operation).resolves.toBe(allowedGet);
+    expect(await timerCount()).toBe(0);
+  });
+
+  it("does not change committed authorization during an abandoned suspended render", async () => {
+    const suspended = deferred<void>();
+    const client = fakeClient({ startResearch: vi.fn(async () => response(failed)) });
+    const { result, rerender } = renderHook(({ eligible, suspend }) => {
+      const controller = useRoleResearch({ ...options(client), eligible });
+      if (suspend) throw suspended.promise;
+      return controller;
+    }, { initialProps: { eligible: true, suspend: false }, wrapper: ({ children }) => <Suspense fallback={null}>{children}</Suspense> });
+    await flush();
+    const retained = result.current;
+    act(() => { startTransition(() => rerender({ eligible: false, suspend: true })); });
+    await act(() => retained.start(input));
+    expect(client.startResearch).toHaveBeenCalledTimes(1);
+  });
+
   it("submits once and persists only the recovery identity", async () => {
     const pending = deferred<ReturnType<typeof response>>();
     const client = fakeClient({ startResearch: vi.fn(() => pending.promise) });
