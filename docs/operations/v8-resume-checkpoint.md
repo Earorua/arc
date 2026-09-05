@@ -1,14 +1,16 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-05 持续执行中：Task 11 质量修复尚未关闭，Task 13 尚未开始**
+> **2026-09-05 持续执行中：Task 11 原子写入修复尚未关闭，Task 13 尚未开始**
 >
 > 继续使用下方相同权威工作树和 `codex/v8-openrouter-research-beta` 分支。Task 10 已关闭；Task 11 初版为 `5b35f8e34fbf5a1449aea9a7458d71288847daff`，首轮修复为 `82359d257dcdf76eeb0afd8b1c8b16beacafc35c`，随后 `272dc1a41a675527f28e8c374755b25fdb83b238` 仅记录文档。恢复时核对实际 Git 状态与历史，保留正在进行的修复文件，不按旧记录重做实现。
 >
 > `82359d2` 修复了已知 Flagship 别名误开新 Research、账户切换/卸载后的保存结果进入离线队列，以及客户端产物携带未使用的 Provider 用量 schema。独立规格复审为 **Critical 0 / Important 0 / Minor 0 / READY YES**，15 files / 301 tests。根侧在干净 `272dc1a` 上通过 **129 files / 2200 tests**、非增量 TypeScript、完整 ESLint、build **5/5**、rendered/client artifact **4/4**、diff/client/生产配置边界检查。这些是当前代码的中间验证，不是 Task 11 或最终离线验收完成声明。
 >
-> **质量审查仍为 Critical 0 / Important 1 / Minor 0 / READY NO。** 新的已登录且符合资格的账户没有云端目标时，普通 `arc.saveSetup` 只写设备状态；云端 `saveSetup` 也要求既有目标，随后 Planning 因无目标而不能生成。真实 SQLite 页面回归已复现：仅预置 users、保留无关设备 completion/proof/local planning 后无法完成 Build；另一例还确认已有 immutable workspace 在生成被拒绝前会先改变 common role。修复正在按 TDD 进行，尚未提交最终结论。
+> 新账户激活修复已提交为 `8253f585b799f4ab74bc63fde21d0ce1598e8d90`。真实页面/客户端/路由/服务/SQLite 回归仅预置 users 和已验证的 Ready 研究数据，不预置 career goal 或 planning workspace；当前 Research 设置通过既有能力单独激活，无关设备 completion/proof/local planning 保持原样。根侧在干净的该提交上通过 **130 files / 2230 tests**、非增量 TypeScript、完整 ESLint、build **5/5**、rendered/client artifact **4/4**、diff/client/生产配置边界检查。这些仍是中间验证，不能替代最终双审。
 >
-> **当前下一步：** 完成 Task 11 的有界 Research 当前设置激活、云端 preflight、规划刷新及取消链修复。只在严格读取确认没有已有计划时，使用既有能力保存本次 Research 设置；不导入设备历史，不写共享离线队列，不覆盖既有 immutable 计划。精确 `404/NOT_FOUND` 与网络/权限/格式错误必须区分；默认 legacy/import 行为保留。新真实数据库测试为 `tests/components/research-setup-activation.test.tsx`，具体允许范围已写入详细计划。修复提交后先独立规格复审，再质量/安全复审，清零后由根侧重新验证并关闭 Task 11，随后才执行 Task 13。
+> **规格复审仍为 Critical 0 / Important 1 / Minor 0 / READY NO。** `8253f58` 的 16 files / 353 tests 独立聚焦回归通过，但新增真实 SQLite 并发回归失败：另一个标签页在空 workspace 预检后提交不可变计划，当前页面仍先改写 common role，随后生成才被拒绝。永久页面回归已确认 **1 FAIL / 13 PASS**。因此必须在服务端同一 D1 batch 中原子保护写入，不能用第二次客户端读取或缩小保证替代。
+>
+> **当前下一步：** 原 Task 11 实现代理继续有界修复：通过现有 Cloud PUT/migration 契约传递严格可选的 `intent: "research-setup"`，该意图只允许当前设置、空历史和冲突拒绝；同一批次检查所捕获的 owner/active goal 身份及无 planning workspace，失败整体回滚、返回稳定冲突且不留下假成功记录。隔离 Research setup 的幂等作用域，保留默认 legacy/import 行为，不加迁移或新路由。具体文件范围已写入详细计划；根代理的三份操作/计划文档修改应与实现文件分开暂存。修复提交后先独立规格复审，再质量/安全复审，清零后由根侧重新验证并关闭 Task 11，随后才执行 Task 13。Task 13 还需在真正的本地 Miniflare/workerd D1 上验证原子回滚语义。
 >
 > Task 13 的本地 UAT 记录目前全部待执行。新账户浏览器验收必须从没有 career goal/planning workspace 开始，不能用预置目标隐藏初始化缺口。Tasks 1–10、12 保持关闭，不重做。持续目标仍有效，当前仅授权离线工程范围；真实密钥/Provider 请求、生产变量/旗标/D1/R2、merge、push、Sites candidate、部署均禁止。用户验收与真实 Provider 证据仍未完成。
 
