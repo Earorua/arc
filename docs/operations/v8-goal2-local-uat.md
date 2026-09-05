@@ -44,7 +44,8 @@ Browser observations must use ordinary visible controls. Read-only DOM measureme
 | Scenario | Observable acceptance criteria | Result |
 | --- | --- | --- |
 | Guest Flagship | Role confirmation, real skill audit, availability, target and Build lead to usable Path and Today. | Pending |
-| Eligible custom role | Explicit Research action reaches Ready; summary, skill/source counts, observed date and quality check are visible; Use opens the research skill audit and builds a research-backed plan. | Pending |
+| Eligible custom role | A new authenticated owner starts with no cloud goal or planning workspace. Explicit Research reaches Ready; summary, skill/source counts, observed date and quality check are visible; Use opens the research skill audit and Build activates only the current setup before generating a research-backed plan. | Pending |
+| Device history and existing cloud plan | Unrelated device completions, Proof and local planning import candidates remain device-only when starting the current Research plan. An existing immutable cloud plan is preserved; a rejected new Build does not first change its common role metadata. | Pending |
 | Research workspace | Path shows research phase/unit content; Today shows research resource, steps and minutes; Stack and Proof show researched skills; heading uses the researched role. Refresh preserves the same source with no browser-stored package. | Pending |
 | Active refresh recovery | Researching and Validating each survive reload after receipt of the persisted run ID; recovery does not create another Provider call. | Pending |
 | Needs review | Stable issues appear; Use is absent; only allowed Retry and Flagship actions are offered; retry can reach a usable terminal state. | Pending |

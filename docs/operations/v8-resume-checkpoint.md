@@ -1,5 +1,17 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-05 持续执行中：Task 11 质量修复尚未关闭，Task 13 尚未开始**
+>
+> 继续使用下方相同权威工作树和 `codex/v8-openrouter-research-beta` 分支。Task 10 已关闭；Task 11 初版为 `5b35f8e34fbf5a1449aea9a7458d71288847daff`，首轮修复为 `82359d257dcdf76eeb0afd8b1c8b16beacafc35c`，随后 `272dc1a41a675527f28e8c374755b25fdb83b238` 仅记录文档。恢复时核对实际 Git 状态与历史，保留正在进行的修复文件，不按旧记录重做实现。
+>
+> `82359d2` 修复了已知 Flagship 别名误开新 Research、账户切换/卸载后的保存结果进入离线队列，以及客户端产物携带未使用的 Provider 用量 schema。独立规格复审为 **Critical 0 / Important 0 / Minor 0 / READY YES**，15 files / 301 tests。根侧在干净 `272dc1a` 上通过 **129 files / 2200 tests**、非增量 TypeScript、完整 ESLint、build **5/5**、rendered/client artifact **4/4**、diff/client/生产配置边界检查。这些是当前代码的中间验证，不是 Task 11 或最终离线验收完成声明。
+>
+> **质量审查仍为 Critical 0 / Important 1 / Minor 0 / READY NO。** 新的已登录且符合资格的账户没有云端目标时，普通 `arc.saveSetup` 只写设备状态；云端 `saveSetup` 也要求既有目标，随后 Planning 因无目标而不能生成。真实 SQLite 页面回归已复现：仅预置 users、保留无关设备 completion/proof/local planning 后无法完成 Build；另一例还确认已有 immutable workspace 在生成被拒绝前会先改变 common role。修复正在按 TDD 进行，尚未提交最终结论。
+>
+> **当前下一步：** 完成 Task 11 的有界 Research 当前设置激活、云端 preflight、规划刷新及取消链修复。只在严格读取确认没有已有计划时，使用既有能力保存本次 Research 设置；不导入设备历史，不写共享离线队列，不覆盖既有 immutable 计划。精确 `404/NOT_FOUND` 与网络/权限/格式错误必须区分；默认 legacy/import 行为保留。新真实数据库测试为 `tests/components/research-setup-activation.test.tsx`，具体允许范围已写入详细计划。修复提交后先独立规格复审，再质量/安全复审，清零后由根侧重新验证并关闭 Task 11，随后才执行 Task 13。
+>
+> Task 13 的本地 UAT 记录目前全部待执行。新账户浏览器验收必须从没有 career goal/planning workspace 开始，不能用预置目标隐藏初始化缺口。Tasks 1–10、12 保持关闭，不重做。持续目标仍有效，当前仅授权离线工程范围；真实密钥/Provider 请求、生产变量/旗标/D1/R2、merge、push、Sites candidate、部署均禁止。用户验收与真实 Provider 证据仍未完成。
+
 > **2026-09-05 持续目标执行：Task 10 已关闭，下一步 Task 11，然后 Task 13 离线验收**
 >
 > 权威工作树为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`，分支为 `codex/v8-openrouter-research-beta`。本轮从已核对干净的 `2a82567f1a6dfd0a49cb4ff59b07deff564ed356` 恢复。Task 10 初版 `ad58a3e`，修复 `a06adf7`，最终代码 `0cdfe0ac565d5e15da9c6d16730ed38fe27105a4`；之后 `cebb22e` 仅补充离线浏览器验收方案，代码未变。本记录随后以文档提交保存；恢复时以实际 `git status --short --branch`、`git rev-parse HEAD` 和历史为准。
