@@ -896,6 +896,12 @@ git commit -m "feat: recover role research in setup"
 - Modify: `app/contracts/research.ts` (eligibility view only)
 - Create: `tests/api/research-eligibility.test.ts`
 - Create: `tests/lib/use-research-eligibility.test.tsx`
+- Create: `app/lib/workspace-presentation.ts` (shared strict source-context resolution and completed-unit selection)
+- Modify: `app/lib/proof-profile.ts` (narrow skill input while preserving readiness weights)
+- Modify: `app/components/today/adaptive-today-session.tsx` (pass the resolved registry to replan review)
+- Modify: `tests/pages/path.test.tsx` (actual published role-name expectation)
+
+**Bounded integration adjustments (2026-09-05):** The adjacent files above were approved during Task 11 source inspection. They prevent fixed Flagship assumptions in research workspace rendering and preserve existing proof readiness semantics; they do not reopen the completed planning or Proof implementations. Account-bound page contents are keyed by session, while Setup's Research and eligibility controllers remain outside that key so their existing owner-change cleanup runs before new recovery.
 
 - [ ] **Step 1: Write failing Setup state and accessibility tests**
 
