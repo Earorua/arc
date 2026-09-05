@@ -1,5 +1,17 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：Task 11 已关闭，下一步 Task 13 离线验收（覆盖下方阶段性状态）**
+>
+> 权威工作树：`C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`；分支：`codex/v8-openrouter-research-beta`。Task 11 最终代码为 `1575a1e0272609cfe426d361a8c3851654e70acc`；本关闭记录随后单独本地提交。恢复先核对实际状态和历史，保留后续 Task 13 未提交文件。
+>
+> Task 11 已接通只读资格提示、Research 状态/Ready/Use/audit/Build，以及使用同一真实来源的 Path/Today/Stack/Proof。已修复 known Flagship aliases、账户切换/卸载后的迟到保存和离线队列、客户端未使用 Provider schema、新账户当前设置激活、同批次原子并发保护，以及新账户 legacy custom 和 Use Flagship 回退链路。当前设置激活仅保存本次答案，不导入设备历史；Guest Flagship 与普通 custom 保留设备流程。已知无目标必须由当前 owner 的严格读取确认，普通失败或损坏 Research context 继续关闭。
+>
+> 最终独立规格审查为 **Critical 0 / Important 0 / Minor 0 / READY YES**，**22 files / 428 tests**；质量/安全审查亦为 **Critical 0 / Important 0 / Minor 0 / READY YES**，**18 files / 383 tests**、非增量 TypeScript、13 个文件 lint、rendered **4/4** 与 diff-check 通过。根侧在精确干净的 `1575a1e` 上通过 **130 files / 2324 tests**（38.58s）、非增量 TypeScript、完整 ESLint、build **5/5**、rendered/client artifact **4/4**、diff-check、客户端敏感标识零匹配及生产配置/迁移/依赖边界无差异。源码扫描匹配的两份既有负向夹具相对初始 `2a82567` 未变。Windows 子进程权限按同一离线命令解决，未改测试或运行配置。
+>
+> **当前下一步：** Tasks 1–11 与 Task 12 均已关闭，不重做。按已批准 Task 13 范围派发新的 test-only harness 实现代理，限定 `tests/offline-uat/`；使用实际页面、hooks、clients、route factories、services/repositories、Fake Provider 和一次性本地存储。根侧完成浏览器 UAT、最终所有门槛、双审及验收/检查点记录。必须区分 SQLite 的 D1 接口适配与真正 Miniflare/workerd D1，并在后者验证同批次冲突回滚。新账户 Research、legacy custom 和 Flagship 验收都不能预置 cloud goal 来隐藏初始化问题。
+>
+> **Task 13 尚未执行，浏览器 UAT、真实本地 D1 验收、最终离线验收和用户验收均不能据上述中间门槛宣称完成。** 继续仅执行用户授权的离线范围；不读取/创建真实密钥，不发真实/付费 Provider 请求，不改生产变量/旗标，不操作生产 D1/R2，不 merge `master`、push、保存 Sites candidate 或部署。真实 Provider 证据与用户明确验收仍未完成。
+
 > **2026-09-05 持续执行中：Task 11 回退路径质量问题尚未关闭，Task 13 尚未开始**
 >
 > 继续使用下方相同权威工作树和 `codex/v8-openrouter-research-beta` 分支。Task 10 已关闭；Task 11 当前代码为 `79e90dd13193e34870f1a73b45b5f1adf684ae1c`，此前 `137e028a831a151b0db9a6a7c39b47b18b9f81cd` 仅记录文档。恢复时核对实际 Git 状态与历史，保留正在进行的修复文件，不按旧记录重做实现。

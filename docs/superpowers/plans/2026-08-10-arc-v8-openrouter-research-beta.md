@@ -921,7 +921,9 @@ Its cloud-only preflight must use a strict, cancelable workspace GET and allow a
 
 **Fallback correction (2026-09-05 quality review):** The atomic write fix is committed at `79e90dd` and has passed specification review, but the fresh quality review confirmed two remaining integration gaps. First, a new signed-in account with no cloud goal can finish ordinary custom-role Setup when Research is unavailable or declined, yet all four workspace pages show a planning retry boundary. The same eight real-page cases pass with the pre-Task-11 page adapters and fail with the current adapters. Restore the existing proportional/sample path only on authoritative absence of a cloud goal/plan; authentication, rate, network, malformed responses, and missing/corrupt Research context must still fail closed. Second, the new `Use Flagship` action leads a fresh account to an adaptive Build that cannot initialize its cloud goal. The direct Flagship initialization defect also exists in the baseline; record that distinction while completing the newly offered fallback flow. Reuse the bounded current-setup-only cloud activation pattern for this explicit signed-in adaptive Build, including empty history, idempotency, owner cancellation, and atomic protection against replacing an existing plan. Preserve Guest Flagship and ordinary custom-role device behavior. The existing Task 11 page/helper/hook/client/contract/cloud repository/route files and associated tests may receive the minimum necessary integration adjustments; do not change the completed Planning service/API semantics, migrations, production configuration, or external behavior. Write permanent real-page/SQLite RED cases before implementation, then repeat independent specification and quality/security reviews and root verification. Task 13 must exercise both fresh-account legacy custom fallback and `Use Flagship` through actual Build.
 
-- [ ] **Step 1: Write failing Setup state and accessibility tests**
+**Task 11 closure (2026-09-06):** Final code `1575a1e0272609cfe426d361a8c3851654e70acc` closes the findings recorded above. Independent specification review returned Critical 0 / Important 0 / Minor 0 / READY YES with 22 files / 428 tests; independent quality/security review returned the same clear result with 18 files / 383 tests, TypeScript, focused lint and rendered 4/4. The root verified the exact clean commit with 130 files / 2324 tests (38.58s), nonincremental TypeScript, full lint, build 5/5, rendered/client artifact 4/4, diff-check, zero client secret/usage identifiers and no production configuration/migration/dependency changes. The final fallback fix was preceded by 10 permanent real-page/SQLite failures; its 89-case SQLite suite covers both authenticated adaptive sources, ordinary custom fallback, negative reads, cancellation, history preservation and immutable-plan protection. Internal preflight/activation names are now source-neutral; the previously reviewed wire intent and SQL guards are unchanged. Task 13 browser and local workerd D1 evidence remain pending.
+
+- [x] **Step 1: Write failing Setup state and accessibility tests**
 
 Test Guest Flagship and legacy custom-role paths unchanged; signed-in/cohort non-Flagship exposes `Research this role`; active states use a polite live region and no fake percent; Ready shows role summary, skill/source counts, observed date, `Quality checks passed`, and `Use this research`; Needs review/Failed show stable issue copy and only valid Retry/fallback actions. Test keyboard order, focus after state changes, 44px controls via class contract, reduced motion, no provider/cost/confidence copy, and no `dangerouslySetInnerHTML`.
 
@@ -932,13 +934,13 @@ await user.click(screen.getByRole("button", { name: "Use this research" }));
 expect(onUse).toHaveBeenCalledWith("research-run-1");
 ```
 
-- [ ] **Step 2: Run Setup tests and verify RED**
+- [x] **Step 2: Run Setup tests and verify RED**
 
 Run: `npm run test:unit -- tests/components/role-research-panel.test.tsx tests/components/setup-flow.test.tsx tests/components/adaptive-setup-flow.test.tsx tests/components/accessibility-contracts.test.tsx`
 
 Expected: FAIL because the Research Beta panel and source-aware adaptive flow do not exist.
 
-- [ ] **Step 3: Implement the Editorial Precision Setup flow**
+- [x] **Step 3: Implement the Editorial Precision Setup flow**
 
 Visual thesis: a calm editorial decision point that reads as one continuous Setup sequence, with the research state expressed through typography and rules rather than cards.
 
@@ -954,13 +956,13 @@ Use Ready `planningData` for the actual skill audit and target preview; submit o
 
 CSS must reuse existing variables/typefaces/accent, remain cardless, collapse to one column at 320px, enforce `min-height: 44px` for actions, and add no gradient or second accent color.
 
-- [ ] **Step 4: Run focused UI and route integration tests**
+- [x] **Step 4: Run focused UI and route integration tests**
 
 Run: `npm run test:unit -- tests/components/role-research-panel.test.tsx tests/components/setup-flow.test.tsx tests/components/adaptive-setup-flow.test.tsx tests/components/accessibility-contracts.test.tsx tests/server/research-planning-integration.test.ts`
 
 Expected: PASS for Guest, Flagship, legacy custom, Ready, Needs review, Failed, refresh, retry, and use flows.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/components/setup/role-research-panel.tsx app/components/setup/setup-flow.tsx app/components/setup/adaptive-setup-flow.tsx app/setup/page.tsx app/globals.css tests/components/role-research-panel.test.tsx tests/components/setup-flow.test.tsx tests/components/adaptive-setup-flow.test.tsx tests/components/accessibility-contracts.test.tsx

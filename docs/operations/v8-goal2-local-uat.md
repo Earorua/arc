@@ -1,8 +1,8 @@
 # Arc v8 Goal 2 — offline acceptance record
 
-Status: **Preparation only. Task 11 is in progress; Task 13 gates and browser UAT have not run.**
+Status: **Task 11 is closed. Task 13 final gates and browser UAT are pending.**
 
-This record distinguishes engineering checks, browser observations, and user acceptance. A pending row is not acceptance evidence. The latest completed prerequisite is Task 10: code `0cdfe0ac565d5e15da9c6d16730ed38fe27105a4`, closure checkpoint `3be96e9ad32251ef177739fb79c514fb42384a47`. Its verification is recorded in the resume checkpoint and must not be substituted for the final Task 13 gate.
+This record distinguishes engineering checks, browser observations, and user acceptance. A pending row is not acceptance evidence. The latest completed prerequisite is Task 11 at code `1575a1e0272609cfe426d361a8c3851654e70acc`: independent specification review (22 files / 428 tests) and quality/security review (18 files / 383 tests) both returned Critical 0 / Important 0 / Minor 0 / READY YES. The root verified the exact clean code with 130 files / 2324 tests, nonincremental TypeScript, full lint, build 5/5, rendered/client artifact 4/4, and diff/client/production-boundary checks. These prerequisite results must not be substituted for the final Task 13 gate after the harness is added.
 
 ## Execution boundary
 
@@ -26,8 +26,8 @@ Record the exact tested commit, clean-tree status, command exit codes, and actua
 | Explicit migration/security suite | Pending |
 | Committed-source secret and production-boundary scans | Pending |
 | Diff check | Pending |
-| Independent Task 11 specification review | Pending |
-| Independent Task 11 quality/security review | Pending |
+| Independent Task 11 specification review | Passed on `1575a1e`: 0/0/0, READY YES; 22 files / 428 tests. |
+| Independent Task 11 quality/security review | Passed on `1575a1e`: 0/0/0, READY YES; 18 files / 383 tests; rendered 4/4. |
 
 ## Browser composition and evidence limits
 
