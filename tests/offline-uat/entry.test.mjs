@@ -1,7 +1,24 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { request as httpRequest } from "node:http";
-import { createHarnessServer } from "./server.mjs";
+import { fileURLToPath } from "node:url";
+import { allowsOfflineAsset, createHarnessServer } from "./server.mjs";
+
+test("asset classification rejects Windows aliases and private resolved paths without opening files", () => {
+  const cache = "C:/offline-cache";
+  for (const path of [
+    "/app/Server./auth/session.ts", "/app/server%20/auth/session.ts", "/app/%2553erver/auth/session.ts",
+    "/app/components/%2e%2e/server/auth/session.ts", "/app/components/%5cserver/auth/session.ts",
+    "/app/components/.ENV.local", "/node_modules/.GiT/config", "/app/lib/.CODEX/config.toml", "/app/lib/.AGENTS/config",
+    "/node_modules/WRANGLER.jsonc", "/node_modules/VITE.config.ts", "/app/api/workspace/route.ts",
+    "/tests/offline-uat/server.mjs", "/tests/offline-uat/composition.ts", "/@id/__x00__private-module",
+    "/@fs/C:/offline-cache-other/react.js", "/@fs/C:/offline-cache/../outside.ts", "/@fs/C:/outside/session.ts",
+    "/@fs/C:/offline-cache/deps/react.js::$DATA", "/app/server/auth/policy.ts%3fraw", "/app/lib/%00unknown.ts",
+  ]) assert.equal(allowsOfflineAsset(path, cache), false, path);
+  for (const path of ["/app/Server/auth/policy.ts", "/app/server/account-link/contracts.ts", "/@fs/c:/OFFLINE-CACHE/deps/react.js"]) {
+    assert.equal(allowsOfflineAsset(path, cache), true, path);
+  }
+});
 
 function request(origin, path, options = {}) {
   return new Promise((resolve, reject) => {
@@ -13,7 +30,7 @@ function request(origin, path, options = {}) {
     req.on("error", reject); req.end(options.body);
   });
 }
-test("loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files", async () => {
+test("loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files", async (context) => {
   const server = await createHarnessServer({ port: 4181 });
   try {
     const html = await request(server.origin, "/setup");
@@ -35,5 +52,19 @@ test("loopback entry serves actual modules while rejecting origin spoofing, unsa
     assert.equal(state.serverOutboundDenials, 0); assert.equal(JSON.stringify(state).includes(token), false);
     await assert.rejects(fetch("https://example.com/never-sent"), /blocks outbound/u);
     assert.equal(JSON.parse((await request(server.origin, "/__uat/state")).body).serverOutboundDenials, 1);
+    const sessionSource = fileURLToPath(new URL("../../app/server/auth/session.ts", import.meta.url)).replaceAll("\\", "/");
+    for (const path of [
+      "/app/server/auth/session.ts", "/app/Server/auth/session.ts", "/app/sErVeR/auth/session.ts",
+      "/app/%53erver/auth/session.ts", `/@id/${sessionSource}`, `/@id/${encodeURIComponent(sessionSource)}`,
+    ]) await context.test(`rejects non-client source through alternate asset path ${path}`, async () => {
+      assert.equal((await request(server.origin, path)).status, 404);
+    });
+    for (const path of [
+      "/app/setup/page.tsx", "/app/path/page.tsx", "/app/today/page.tsx", "/app/stack/page.tsx", "/app/proof/page.tsx",
+      "/app/server/auth/policy.ts", "/app/server/account-link/contracts.ts", "/app/globals.css",
+      "/node_modules/@fontsource-variable/manrope/index.css", "/node_modules/@fontsource-variable/newsreader/index.css",
+    ]) await context.test(`preserves required client asset ${path}`, async () => {
+      assert.equal((await request(server.origin, path)).status, 200);
+    });
   } finally { await server.close(); }
 });

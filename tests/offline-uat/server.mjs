@@ -9,6 +9,27 @@ import { fileURLToPath } from "node:url";
 const harnessRoot = dirname(fileURLToPath(import.meta.url));
 const workspace = resolve(harnessRoot, "../..");
 const normalize = (path) => path.replaceAll("\\", "/");
+export function allowsOfflineAsset(path, cacheDir) {
+  let decoded;
+  try { decoded = decodeURIComponent(path); } catch { return false; }
+  // Classify the same spelling Windows opens. Reject ambiguous separators,
+  // re-encoding and trailing-dot/space aliases before Vite performs any resolution.
+  if (!decoded.startsWith("/") || /[%\\?#\u0000-\u001f\u007f]/u.test(decoded)
+    || decoded.slice(1).split("/").some((part) => !part || /[. ]$/u.test(part))) return false;
+  const asset = decoded.toLowerCase();
+  if (/(?:^|\/)\.(?:env[^/]*|git|codex|agents)(?:\/|$)/u.test(asset)
+    || /(?:^|\/)(?:wrangler[^/]*|vite\.config[^/]*|package(?:-lock)?\.json)$/u.test(asset)) return false;
+  const cachePrefix = `/@fs/${normalize(cacheDir).toLowerCase()}/`;
+  if (asset.startsWith(cachePrefix)) return !asset.slice(cachePrefix.length).includes(":");
+  if (asset.includes(":")) return false;
+  // No resolved-ID URLs are needed by this entry. In particular, /@id/ can
+  // name arbitrary absolute sources, so it never inherits a directory allowance.
+  return ["/app/components/", "/app/contracts/", "/app/data/", "/app/domain/", "/app/lib/", "/node_modules/"].some((prefix) => asset.startsWith(prefix))
+    || ["/app/setup/page.tsx", "/app/path/page.tsx", "/app/today/page.tsx", "/app/stack/page.tsx", "/app/proof/page.tsx", "/app/globals.css",
+      "/app/server/auth/policy.ts", "/app/server/account-link/contracts.ts",
+      "/tests/offline-uat/main.tsx", "/tests/offline-uat/browser-runtime.tsx", "/tests/offline-uat/security.ts", "/tests/offline-uat/controls.css",
+      "/@vite/client", "/@vite/env", "/@react-refresh"].includes(asset);
+}
 export function offlineAliases() {
   const client = normalize(resolve(workspace, "app/lib/auth-client"));
   const authRuntime = normalize(resolve(workspace, "app/server/auth/runtime"));
@@ -114,12 +135,7 @@ export async function createHarnessServer({ port = 4179 } = {}) {
             const html = (await readFile(resolve(harnessRoot, "index.html"), "utf8")).replace("__CONTROL_NONCE__", nonce);
             outgoing.setHeader("Content-Type", "text/html; charset=utf-8"); outgoing.end(await vite.transformIndexHtml(path, html)); return;
           }
-          const decoded = decodeURIComponent(path);
-          const denied = /(?:^|\/)\.(?:env[^/]*|git|codex|agents)(?:\/|$)/u.test(decoded)
-            || /(?:^|\/)(?:wrangler[^/]*|vite\.config[^/]*|package(?:-lock)?\.json)$/u.test(decoded);
-          const cacheAsset = decoded.startsWith(`/@fs/${normalize(vite.config.cacheDir)}/`);
-          const allowed = cacheAsset || decoded.startsWith("/app/") || decoded.startsWith("/node_modules/") || decoded.startsWith("/tests/offline-uat/") || decoded.startsWith("/@vite/") || decoded === "/@react-refresh" || decoded.startsWith("/@id/");
-          if (denied || !allowed || decoded.includes("/../") || decoded.includes("\\") || decoded.startsWith("/app/server/") && !["/app/server/auth/policy.ts", "/app/server/account-link/contracts.ts"].includes(decoded)) {
+          if (!allowsOfflineAsset(path, vite.config.cacheDir)) {
             outgoing.statusCode = 404; outgoing.end("Offline asset not available"); return;
           }
           next();
