@@ -60,6 +60,7 @@ export function SkillAuditStep({ blueprint, value, onChange }: {
     <p className="setup-disclosure" id="audit-disclosure">Self-assessment, not Arc verification. Choose the level you can work at today; links are optional context.</p>
     {categories.map((category) => {
       const skills = blueprint.skills.filter((skill) => skill.category === category);
+      if (skills.length === 0) return null;
       return <fieldset className="audit-category" key={category}>
         <legend>{category[0]!.toUpperCase() + category.slice(1)} skills</legend>
         <div className="category-actions" aria-label={`${category} quick set`}>
