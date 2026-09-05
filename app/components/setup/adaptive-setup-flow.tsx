@@ -34,9 +34,10 @@ function toTarget(targetWeeks: number): PlanningTarget {
 }
 function safely<T>(build: () => T): T | null { try { return build(); } catch { return null; } }
 
-export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navigate, createMutationId, now, timeZone, onBackToRole, active = true, buildPaths = buildLearningPaths, buildPathsForSubmit = buildLearningPaths, scheduleForSubmit = buildPlanVersion }: {
+export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navigate, createMutationId, now, timeZone, onBackToRole, active = true, savesToAccount = false, buildPaths = buildLearningPaths, buildPathsForSubmit = buildLearningPaths, scheduleForSubmit = buildPlanVersion }: {
   blueprint: RoleBlueprint; registry: UnitRegistry; generate: (request: GeneratePlanningRequest) => Promise<boolean>;
   source?: SetupSource;
+  savesToAccount?: boolean;
   navigate: (path: string) => void; createMutationId: () => string; now: () => Date; timeZone: string; onBackToRole?: () => void; active?: boolean;
   buildPaths?: (input: PathBuildInput) => ReturnType<typeof buildLearningPaths>;
   buildPathsForSubmit?: (input: PathBuildInput) => ReturnType<typeof buildLearningPaths> | Promise<ReturnType<typeof buildLearningPaths>>;
@@ -124,7 +125,7 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
     {stage === "audit" && <SkillAuditStep blueprint={blueprint} onChange={(next) => { setAuditDraft(next); setSelectedScope(null); }} value={auditDraft} />}
     {stage === "availability" && <AvailabilityStep onChange={(next) => { setAvailabilityDraft(next); setSelectedScope(null); }} planningDate={planningDate} value={availabilityDraft} />}
     {stage === "target" && audit && availability && <TargetStep blueprint={blueprint} error={targetBuild.failed ? "Arc could not compare these paths. Review the inputs and try again." : undefined} onScopeChange={setSelectedScope} onTargetChange={(weeks) => { setTargetWeeks(weeks); setSelectedScope(null); }} result={targetPaths} selectedScope={scopeAvailable ? selectedScope : null} target={targetDraft} />}
-    {stage === "build" && <div className="build-ledger">{source?.source === "research" && <p>Build saves this research plan to your account. Your existing device history stays on this device.</p>}<p role={buildStatus.includes("could not") ? "alert" : "status"}>{buildStatus}</p><button className="setup-next" disabled={building} onClick={() => void build()} type="button">Build my path</button></div>}
+    {stage === "build" && <div className="build-ledger">{savesToAccount && <p>Build saves this plan to your account. Your existing device history stays on this device.</p>}<p role={buildStatus.includes("could not") ? "alert" : "status"}>{buildStatus}</p><button className="setup-next" disabled={building} onClick={() => void build()} type="button">Build my path</button></div>}
     <nav className="setup-actions" aria-label="Setup steps">
       <button className="setup-back text-action" disabled={building} onClick={back} type="button">Back</button>
       {stage !== "build" && <button className="setup-next" disabled={!canContinue} onClick={advance} type="button">Continue</button>}

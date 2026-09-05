@@ -136,6 +136,52 @@ afterEach(() => {
 });
 
 describe("usePlanningWorkspace", () => {
+  it("invalidates confirmed cloud absence as soon as a new read begins", async () => {
+    const next = deferred<PlanningWorkspaceResponse>();
+    const read = vi.fn().mockRejectedValueOnce(new ArcApiError(404, "NOT_FOUND", "No goal", "request-absence")).mockReturnValueOnce(next.promise);
+    const hook = renderHook(() => usePlanningWorkspace({ client: cloud({ loadWorkspace: read }), local: local(), useSession: signed }));
+    await waitFor(() => expect(hook.result.current.cloudGoalMissing).toBe(true));
+    let pending!: Promise<void>;
+    act(() => { pending = hook.result.current.retry(); });
+    expect(hook.result.current.cloudGoalMissing).toBe(false);
+    await act(async () => { next.resolve(workspaceResponse(null)); await pending; });
+    expect(hook.result.current.cloudGoalMissing).toBe(false);
+  });
+  it.each(["sign-in", "rebuild", "retry", "refresh"] as const)("never treats a 404 with %s action as authoritative absence", async (action) => {
+    const read = vi.fn().mockRejectedValue(new ArcApiError(404, "NOT_FOUND", "Conflicting action", "request-absence", action));
+    const hook = renderHook(() => usePlanningWorkspace({ client: cloud({ loadWorkspace: read }), local: local(), useSession: signed }));
+    await waitFor(() => expect(hook.result.current.source).toBe("offline-cloud"));
+    expect(hook.result.current.cloudGoalMissing).toBe(false);
+  });
+  it("does not turn an existing validated workspace or source into an absence fallback", async () => {
+    const { generated } = await generatedFixture();
+    const read = vi.fn().mockResolvedValueOnce(workspaceResponse(generated.workspace)).mockRejectedValueOnce(new ArcApiError(404, "NOT_FOUND", "No goal", "request-absence"));
+    const hook = renderHook(() => usePlanningWorkspace({ client: cloud({ loadWorkspace: read }), local: local(), useSession: signed }));
+    await waitFor(() => expect(hook.result.current.source).toBe("cloud"));
+    await act(() => hook.result.current.retry());
+    expect(hook.result.current.cloudGoalMissing).toBe(false);
+    expect(hook.result.current.workspace).toEqual(generated.workspace);
+    expect(hook.result.current.sourceContext).toEqual(flagshipSourceContext);
+  });
+  it("masks absence across account roundtrips and discards a late read after unmount", async () => {
+    const oldRead = deferred<void>(); const newRead = deferred<PlanningWorkspaceResponse>();
+    const read = vi.fn().mockRejectedValueOnce(new ArcApiError(404, "NOT_FOUND", "No goal", "request-absence"))
+      .mockImplementationOnce(() => oldRead.promise.then(() => { throw new ArcApiError(404, "NOT_FOUND", "Old no goal", "request-old"); }))
+      .mockReturnValue(newRead.promise);
+    const client = cloud({ loadWorkspace: read });
+    const hook = renderHook(({ owner }) => usePlanningWorkspace({ client, local: local(), useSession: () => signedAs(owner) }), { initialProps: { owner: "owner-a" } });
+    await waitFor(() => expect(hook.result.current.cloudGoalMissing).toBe(true));
+    hook.rerender({ owner: "owner-b" }); expect(hook.result.current.cloudGoalMissing).toBe(false);
+    await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+    hook.rerender({ owner: "owner-a" }); expect(hook.result.current.cloudGoalMissing).toBe(false);
+    await waitFor(() => expect(read).toHaveBeenCalledTimes(3));
+    hook.unmount();
+    const fresh = renderHook(() => usePlanningWorkspace({ client, local: local(), useSession: () => signedAs("owner-a") }));
+    await act(async () => { oldRead.resolve(); });
+    expect(fresh.result.current.cloudGoalMissing).toBe(false);
+    await act(async () => { newRead.resolve(workspaceResponse(null)); });
+    expect(fresh.result.current.cloudGoalMissing).toBe(false);
+  });
   it("loads guest state only from the local planning repository", async () => {
     const repository = local();
     const client = cloud();
@@ -236,13 +282,14 @@ describe("usePlanningWorkspace", () => {
     expect(result.current.workspace).toBeNull(); expect(result.current.migration).toBe("none");
     expect(result.current.source).toBe("cloud");
   });
-  it.each(["empty", "missing", "existing", "unauthorized", "rate", "unavailable", "wrong-not-found", "malformed"])("limits Research setup preflight for %s cloud state", async (kind) => {
+  it.each(["empty", "missing", "existing", "unauthorized", "rate", "unavailable", "wrong-not-found", "contradictory-action", "malformed"])("limits current setup preflight for %s cloud state", async (kind) => {
     const { generated } = await generatedFixture();
     const client = cloud();
     const { result } = renderHook(() => usePlanningWorkspace({ local: local(), client, useSession: signed, cloudOnly: true }));
     await waitFor(() => expect(result.current.source).toBe("cloud"));
     const load = vi.mocked(client.loadWorkspace);
     if (kind === "missing") load.mockRejectedValue(new ArcApiError(404, "NOT_FOUND", "Missing", "request-preflight"));
+    else if (kind === "contradictory-action") load.mockRejectedValue(new ArcApiError(404, "NOT_FOUND", "Sign in", "request-preflight", "sign-in"));
     else if (kind === "wrong-not-found") load.mockRejectedValue(new ArcApiError(500, "NOT_FOUND", "Missing", "request-preflight"));
     else if (kind === "unauthorized") load.mockRejectedValue(new ArcApiError(401, "UNAUTHENTICATED", "Sign in", "request-preflight"));
     else if (kind === "rate") load.mockRejectedValue(new ArcApiError(429, "RATE_LIMITED", "Busy", "request-preflight"));
@@ -250,14 +297,14 @@ describe("usePlanningWorkspace", () => {
     else if (kind === "existing") load.mockResolvedValue(workspaceResponse(generated.workspace));
     else if (kind === "malformed") load.mockResolvedValue({ workspace: null, sourceContext: null, owner: "foreign" } as unknown as PlanningWorkspaceResponse);
     const signal = new AbortController().signal;
-    await act(async () => { expect(await result.current.preflightResearchSetup(signal)).toBe(kind === "empty" || kind === "missing"); });
+    await act(async () => { expect(await result.current.preflightCurrentSetup(signal)).toBe(kind === "empty" || kind === "missing"); });
     expect(client.generate).not.toHaveBeenCalled();
   });
   it.each(["roundtrip", "unmount", "mode", "abort"])("cancels and discards setup preflight after %s while preserving operation exclusion", async (transition) => {
     const client = cloud();
     const hook = renderHook(({ owner, cloudOnly }) => usePlanningWorkspace({ client, local: local(), useSession: () => signedAs(owner), cloudOnly }), { initialProps: { owner: "user-1", cloudOnly: true } });
     await waitFor(() => expect(hook.result.current.source).toBe("cloud"));
-    const retained = hook.result.current.preflightResearchSetup;
+    const retained = hook.result.current.preflightCurrentSetup;
     const deferredRead = deferred<PlanningWorkspaceResponse>();
     vi.mocked(client.loadWorkspace).mockReturnValueOnce(deferredRead.promise);
     const cancellation = new AbortController(); let pending!: Promise<boolean>;

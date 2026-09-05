@@ -38,6 +38,7 @@ export type PlanningRecoveryState = "none" | "session-expired" | "conflict" | "u
 export type PlanningWorkspaceController = {
   workspace: PlanningWorkspace | null;
   sourceContext: PlanningSourceContext | null;
+  cloudGoalMissing: boolean;
   source: PlanningStateSource;
   migration: PlanningMigrationState;
   recovery: PlanningRecoveryState;
@@ -48,7 +49,7 @@ export type PlanningWorkspaceController = {
   importLocal(): Promise<boolean>;
   dismissMigration(): void;
   retry(signal?: AbortSignal): Promise<void>;
-  preflightResearchSetup(signal: AbortSignal): Promise<boolean>;
+  preflightCurrentSetup(signal: AbortSignal): Promise<boolean>;
 };
 
 type ArcSessionState = {
@@ -99,6 +100,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   const [visibleIdentity, setVisibleIdentity] = useState<PlanningIdentity | null>(null);
   const visibleIdentityRef = useRef<PlanningIdentity | null>(null);
   const workspaceRef = useRef<PlanningWorkspace | null>(null);
+  const sourceContextRef = useRef<PlanningSourceContext | null>(null);
   const sourceRef = useRef<PlanningStateSource>("restoring");
   const userIdRef = useRef<string | null>(session.data?.user.id ?? null);
   const importSourceRef = useRef<LocalPlanningImportSource | null>(null);
@@ -110,6 +112,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   const lifecycleRef = useRef({ mounted: false, epoch: 0 });
   const activeOperationRef = useRef<PlanningOperationToken | null>(null);
   const setupIdentity = useMemo(() => ({ currentIdentity, cloudOnly, pending: session.isPending }), [currentIdentity, cloudOnly, session.isPending]);
+  const [missingGoalRead, setMissingGoalRead] = useState<{ identity: typeof setupIdentity } | null>(null);
   const setupLifetimeRef = useRef<{ identity: typeof setupIdentity; controller: AbortController } | null>(null);
   useLayoutEffect(() => {
     const controller = new AbortController(); setupLifetimeRef.current = { identity: setupIdentity, controller };
@@ -130,6 +133,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
 
   const publishSourceContext = useCallback((value: unknown) => {
     const parsed = value === null || value === undefined ? null : planningSourceContextSchema.parse(value);
+    sourceContextRef.current = parsed;
     setSourceContext(parsed);
     return parsed;
   }, []);
@@ -143,6 +147,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     const readSignal = signal ?? (cloudOnly ? setupLifetimeRef.current?.controller.signal : undefined);
     if (readSignal?.aborted) return;
     const loadGeneration = ++loadGenerationRef.current;
+    setMissingGoalRead(null);
     const userId = userIdRef.current;
     const identity: PlanningIdentity = userId ? `user:${userId}` : "guest";
     operationContextRef.current = { identity, generation: loadGeneration };
@@ -199,11 +204,14 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         setMigration("none");
       }
       publishVisibleIdentity(identity);
+      if (isMissingCloudGoal(error) && !workspaceRef.current && !sourceContextRef.current) {
+        setMissingGoalRead({ identity: setupIdentity });
+      }
       handleFailure(error, setRecovery);
       if (workspaceRef.current && sourceRef.current === "cloud") publishSource("offline-cloud");
       else if (!workspaceRef.current) publishSource("offline-cloud");
     }
-  }, [cloudOnly, publishSource, publishSourceContext, publishVisibleIdentity, publishWorkspace]);
+  }, [cloudOnly, publishSource, publishSourceContext, publishVisibleIdentity, publishWorkspace, setupIdentity]);
 
   useEffect(() => {
     const lifecycle = lifecycleRef.current;
@@ -317,7 +325,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     return generate(input);
   }, [currentIdentity, generate, visibleIdentity]);
 
-  const preflightResearchSetup = useCallback((signal: AbortSignal) => {
+  const preflightCurrentSetup = useCallback((signal: AbortSignal) => {
     const lifetime = setupLifetimeRef.current;
     if (!cloudOnly || session.isPending || currentIdentity === "guest" || visibleIdentity !== currentIdentity
       || !lifetime || lifetime.identity !== setupIdentity || lifetime.controller.signal.aborted || signal.aborted) return Promise.resolve(false);
@@ -331,7 +339,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         return !cancellation.signal.aborted && isOperationCurrent(token) && response.workspace === null;
       } catch (error) {
         return !cancellation.signal.aborted && isOperationCurrent(token)
-          && isArcApiError(error) && error.status === 404 && error.code === "NOT_FOUND";
+          && isMissingCloudGoal(error);
       } finally {
         signal.removeEventListener("abort", abort);
         lifetime.controller.signal.removeEventListener("abort", abort);
@@ -441,6 +449,8 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   return {
     workspace: visibleIdentity === currentIdentity ? workspace : null,
     sourceContext: visibleIdentity === currentIdentity ? sourceContext : null,
+    cloudGoalMissing: !session.isPending && visibleIdentity === currentIdentity
+      && missingGoalRead?.identity === setupIdentity && workspace === null && sourceContext === null,
     source: visibleIdentity === currentIdentity ? source : "restoring",
     migration: visibleIdentity === currentIdentity ? migration : "none",
     recovery: visibleIdentity === currentIdentity ? recovery : "none",
@@ -451,8 +461,12 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     importLocal,
     dismissMigration: () => setMigration("none"),
     retry: load,
-    preflightResearchSetup,
+    preflightCurrentSetup,
   };
+}
+
+function isMissingCloudGoal(error: unknown): boolean {
+  return isArcApiError(error) && error.status === 404 && error.code === "NOT_FOUND" && error.action === undefined;
 }
 
 async function generateImportWorkspace(

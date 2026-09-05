@@ -18,8 +18,8 @@ import { useResearchEligibility } from "../lib/use-research-eligibility";
 import { useRoleResearch, type RoleResearchController } from "../lib/use-role-research";
 import type { ResearchPlanningData } from "../contracts/research";
 
-function AdaptiveSetupConnector({ navigate, onBackToRole, active, saveCommonRole, source, planningData }: { navigate: (path: string) => void; onBackToRole: () => void; active: boolean; saveCommonRole: (request: GeneratePlanningRequest, roleId: string, signal: AbortSignal) => Promise<boolean>; source: SetupSource; planningData: ResearchPlanningData | null }) {
-  const planning = usePlanningWorkspace({ cloudOnly: source.source === "research" });
+function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, saveCommonRole, source, planningData }: { navigate: (path: string) => void; onBackToRole: () => void; active: boolean; signedIn: boolean; saveCommonRole: (request: GeneratePlanningRequest, roleId: string, signal: AbortSignal) => Promise<boolean>; source: SetupSource; planningData: ResearchPlanningData | null }) {
+  const planning = usePlanningWorkspace({ cloudOnly: signedIn });
   const connected = useRef(false);
   const epoch = useRef(0);
   const saveCancellation = useRef<AbortController | null>(null);
@@ -38,11 +38,11 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, saveCommonRole
     const started = epoch.current;
     const signal = saveCancellation.current?.signal;
     if (!signal || signal.aborted) return false;
-    if (source.source === "research" && !await planning.preflightResearchSetup(signal)) return false;
+    if (signedIn && !await planning.preflightCurrentSetup(signal)) return false;
     if (signal.aborted || !connected.current || started !== epoch.current) return false;
     if (!await saveCommonRole(request, source.source === "research" ? blueprint.name : blueprint.id, signal)) return false;
     if (!connected.current || started !== epoch.current) return false;
-    if (source.source === "research") await planning.retry(signal);
+    if (signedIn) await planning.retry(signal);
     if (signal.aborted || !connected.current || started !== epoch.current) return false;
     return planning.generate(request);
   };
@@ -55,6 +55,7 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, saveCommonRole
     now={() => new Date()}
     onBackToRole={onBackToRole}
     active={active}
+    savesToAccount={signedIn}
     registry={registry}
     timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"}
   />;
@@ -78,7 +79,7 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
   const router = useRouter();
   const arc = useArcState();
   const [saveError, setSaveError] = useState<string | null>(null);
-  const researchActivation = useRef<{ key: string; id: string } | null>(null);
+  const setupActivation = useRef<{ key: string; id: string } | null>(null);
   const pageCancellation = useRef<AbortController | null>(null);
   useLayoutEffect(() => {
     const cancellation = new AbortController(); pageCancellation.current = cancellation;
@@ -107,14 +108,13 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
       weeklyMinutes: request.availability.weeklyMinutes,
       targetWeeks: request.target.targetWeeks,
     };
-    const isResearch = "source" in request && request.source.source === "research";
-    if (isResearch) {
-      const key = JSON.stringify({ source: request.source, setup });
-      if (researchActivation.current?.key !== key) researchActivation.current = { key, id: `research-setup-${crypto.randomUUID()}` };
+    if (userId !== null) {
+      const key = JSON.stringify({ owner: userId, source: "source" in request ? request.source : { source: "flagship", roleId }, setup });
+      if (setupActivation.current?.key !== key) setupActivation.current = { key, id: `current-setup-${crypto.randomUUID()}` };
     }
-    const saved = await arc.saveSetup(setup, signal, isResearch ? { researchActivationId: researchActivation.current!.id } : undefined);
+    const saved = await arc.saveSetup(setup, signal, userId !== null ? { currentSetupActivationId: setupActivation.current!.id } : undefined);
     if (signal.aborted) return false;
-    if (!saved) setSaveError(isResearch ? "Arc could not save this research setup to your account. Try again." : "无法保存到此设备，请检查浏览器存储设置后重试。");
+    if (!saved) setSaveError(userId !== null ? "Arc could not save this setup to your account. Try again." : "无法保存到此设备，请检查浏览器存储设置后重试。");
     return saved;
   };
 
@@ -127,7 +127,7 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
         renderResearch={({ role, onUseResearch, onFlagship }) => <RoleResearchPanel controller={research} role={role} eligible={eligible}
           onStart={() => void research.start({ role, locale: /[\u3400-\u9fff]/u.test(role) ? "zh-CN" : "en-US" })}
           onUse={(runId) => { if (research.planningData) onUseResearch(runId, research.planningData); }} onFlagship={onFlagship} />}
-        renderAdaptive={({ active, onBackToRole, source, planningData }) => <AdaptiveSetupConnector active={active} navigate={router.push} onBackToRole={onBackToRole} saveCommonRole={saveCommonRole} source={source} planningData={planningData} />} />
+        renderAdaptive={({ active, onBackToRole, source, planningData }) => <AdaptiveSetupConnector active={active} signedIn={userId !== null} navigate={router.push} onBackToRole={onBackToRole} saveCommonRole={saveCommonRole} source={source} planningData={planningData} />} />
       {arc.recovery === "session-expired" && <CloudStatus kind="session-expired" />}
       {saveError && arc.recovery === "none" && <p className="setup-save-error" role="alert">{saveError}</p>}
     </main>

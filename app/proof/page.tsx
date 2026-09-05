@@ -21,7 +21,7 @@ function SessionProofPage() {
   const arc = useArcState();
   const planning = usePlanningWorkspace();
   const { state } = arc;
-  const resolved = resolveWorkspacePresentation(planning);
+  const resolved = resolveWorkspacePresentation(planning, state !== null && arc.source === "local" && arc.recovery === "none");
   const workspace = resolved.kind === "adaptive" ? resolved.workspace : null;
   const blueprint = resolved.kind === "adaptive" ? resolved.blueprint : flagshipBlueprint;
   const proof = useProofLedger({

@@ -4,9 +4,10 @@ import { flagshipBlueprint } from "../data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../data/flagship-unit-registry";
 import type { PlanningWorkspaceController } from "./use-planning-workspace";
 
-export function resolveWorkspacePresentation(planning: PlanningWorkspaceController) {
+export function resolveWorkspacePresentation(planning: PlanningWorkspaceController, localSetupReady = false) {
   if (planning.source === "restoring") return { kind: "loading" as const };
   if (!planning.workspace) {
+    if (planning.cloudGoalMissing && !planning.sourceContext && localSetupReady) return { kind: "legacy" as const };
     if (planning.recovery === "version-unavailable") return { kind: "unavailable" as const };
     if (planning.source === "offline-cloud" || planning.recovery !== "none") return { kind: "retry" as const };
     return { kind: "legacy" as const };

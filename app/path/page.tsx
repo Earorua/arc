@@ -33,7 +33,7 @@ function SessionPathPage({ authenticated }: { authenticated: boolean }) {
 function SourceAdaptivePath({ arc }: { arc: ReturnType<typeof useArcState> }) {
   const planning = usePlanningWorkspace();
   const [decisionMessage, setDecisionMessage] = useState<string | null>(null);
-  const resolved = resolveWorkspacePresentation(planning);
+  const resolved = resolveWorkspacePresentation(planning, arc.state !== null && arc.source === "local" && arc.recovery === "none");
   if (resolved.kind === "unavailable") return <WorkspaceShell sourceUnresolved current="Path" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
     <PlanningVersionBoundary />
   </WorkspaceShell>;

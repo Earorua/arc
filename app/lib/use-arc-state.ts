@@ -39,7 +39,7 @@ export type ArcStateController = {
   recovery: ArcRecoveryState;
   dismissMigration(): void;
   importLocal(resolution?: ArcMigrationResolution): Promise<void>;
-  saveSetup(setup: SetupAnswers, signal?: AbortSignal, options?: { researchActivationId: string }): Promise<boolean>;
+  saveSetup(setup: SetupAnswers, signal?: AbortSignal, options?: { currentSetupActivationId: string }): Promise<boolean>;
   completeUnit(unit: LearningUnit): Promise<boolean>;
   retry(): Promise<void>;
 };
@@ -242,7 +242,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     return result.accepted;
   }, [publishSource]);
 
-  const saveSetup = useCallback(async (setup: SetupAnswers, signal?: AbortSignal, options?: { researchActivationId: string }): Promise<boolean> => {
+  const saveSetup = useCallback(async (setup: SetupAnswers, signal?: AbortSignal, options?: { currentSetupActivationId: string }): Promise<boolean> => {
     const lifetime = setupLifetimeRef.current;
     if (!lifetime || lifetime.identity !== setupIdentity || !lifetime.ready) return false;
     const lifetimeSignal = lifetime.controller.signal;
@@ -258,16 +258,17 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
         if (cancellation.signal.aborted) return false;
         let snapshot;
         if (previous === null) {
-          // Explicit Research Build activates only its current answers, never device history.
-          const activation = migrationResultSchema.parse(await clientRef.current.importLocal({ setup: currentSetup, completedUnitIds: [], proofs: [] }, "reject", options.researchActivationId, cancellation.signal, "research-setup"));
-          if (cancellation.signal.aborted || activation.migrationId !== options.researchActivationId
+          // The existing research-setup wire guard also protects the panel's
+          // reviewed Flagship fallback: current answers only, never device history.
+          const activation = migrationResultSchema.parse(await clientRef.current.importLocal({ setup: currentSetup, completedUnitIds: [], proofs: [] }, "reject", options.currentSetupActivationId, cancellation.signal, "research-setup"));
+          if (cancellation.signal.aborted || activation.migrationId !== options.currentSetupActivationId
             || !["imported", "already-imported"].includes(activation.status) || !activation.activeGoalId
             || activation.importedCompletionCount !== 0 || activation.importedProofCount !== 0 || activation.availableResolutions.length !== 0) return false;
           snapshot = cloudSnapshotSchema.parse(await clientRef.current.loadWorkspace(cancellation.signal));
           if (snapshot.activeGoalId !== activation.activeGoalId || snapshot.state.completedUnitIds.length !== 0 || snapshot.state.proofs.length !== 0) return false;
         } else {
           const existing = cloudSnapshotSchema.parse(previous);
-          snapshot = cloudSnapshotSchema.parse(await clientRef.current.saveSetup(currentSetup, options.researchActivationId, cancellation.signal, "research-setup"));
+          snapshot = cloudSnapshotSchema.parse(await clientRef.current.saveSetup(currentSetup, options.currentSetupActivationId, cancellation.signal, "research-setup"));
           if (snapshot.activeGoalId !== existing.activeGoalId) return false;
         }
         if (cancellation.signal.aborted || Object.entries(currentSetup).some(([key, value]) => snapshot.state.setup[key as keyof SetupAnswers] !== value)) return false;
