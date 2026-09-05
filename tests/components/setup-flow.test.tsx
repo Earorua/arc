@@ -9,6 +9,31 @@ import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 afterEach(cleanup);
 
 describe("SetupFlow", () => {
+  it("preserves Back edits for the same research source and remounts the audit for another run", async () => {
+    const user = userEvent.setup();
+    const data = { id: "research-package-one", blueprint: flagshipBlueprint, registry: flagshipUnitRegistry };
+    render(<SetupFlow onComplete={vi.fn()} signedIn researchEligible researchRecoveryAvailable
+      renderResearch={({ onUseResearch }) => <><button onClick={() => onUseResearch("research-one", data)}>Use first research</button><button onClick={() => onUseResearch("research-two", data)}>Use second research</button></>}
+      renderAdaptive={({ active, onBackToRole, source }) => <AdaptiveSetupFlow source={source} active={active} blueprint={flagshipBlueprint} registry={flagshipUnitRegistry} generate={vi.fn()} navigate={vi.fn()} createMutationId={() => "mutation-setup"} now={() => new Date("2026-09-05T00:00:00Z")} timeZone="UTC" onBackToRole={onBackToRole} />} />);
+    await user.click(screen.getByRole("button", { name: "Use first research" }));
+    await user.click(screen.getByRole("button", { name: "Set Foundations to Guided" }));
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    await user.click(screen.getByRole("button", { name: "Use first research" }));
+    expect(screen.getAllByRole("radio", { name: "Guided", checked: true })).toHaveLength(2);
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    await user.click(screen.getByRole("button", { name: "Use second research" }));
+    expect(screen.queryAllByRole("radio", { name: "Guided", checked: true })).toHaveLength(0);
+  });
+  it("offers the research slot only to eligible signed-in custom roles", async () => {
+    const user = userEvent.setup();
+    const renderResearch = vi.fn(({ role }) => <button>Research {role}</button>);
+    render(<SetupFlow onComplete={vi.fn()} signedIn researchEligible renderResearch={renderResearch} />);
+    expect(renderResearch).not.toHaveBeenCalled();
+    await user.type(screen.getByLabelText("Custom role"), "Data Product Manager");
+    expect(screen.getByRole("button", { name: "Research Data Product Manager" })).toBeInTheDocument();
+    expect(screen.queryByText(/Full skill audit and adaptive scheduling currently require/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Continue keeps the proportional v7 path/)).toBeInTheDocument();
+  });
   async function reachWeeklyStep(user: ReturnType<typeof userEvent.setup>) {
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Continue" }));

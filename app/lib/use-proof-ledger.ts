@@ -41,6 +41,7 @@ export type ProofLedgerController = {
 type Options = {
   planningWorkspace: PlanningWorkspace | null;
   legacyProofs: readonly ProofItem[];
+  skillIds?: readonly string[];
   client?: ProofClient;
   local?: LocalProofRepository;
   createMutationId?: () => string;
@@ -179,11 +180,12 @@ export function useProofLedger(options: Options): ProofLedgerController {
   const exposedWorkspace = isVisible ? workspace : null;
   const exposedSource: ProofStateSource = isVisible ? source : "restoring";
   const exposedRecovery: ProofRecoveryState = isVisible ? recovery : "none";
-  const projections = useMemo(() => deriveProjections(
+  const projections = useMemo(() => isVisible ? deriveProjections(
     exposedWorkspace,
     options.planningWorkspace,
     options.legacyProofs,
-  ), [exposedWorkspace, options.legacyProofs, options.planningWorkspace]);
+    options.skillIds ?? flagshipBlueprint.skills.map(({ id }) => id),
+  ) : [], [exposedWorkspace, isVisible, options.legacyProofs, options.planningWorkspace, options.skillIds]);
 
   return {
     workspace: exposedWorkspace,
@@ -202,12 +204,13 @@ function deriveProjections(
   workspace: ProofLedgerWorkspace | null,
   planning: PlanningWorkspace | null,
   legacyProofs: readonly ProofItem[],
+  skillIds: readonly string[],
 ) {
   const completedUnits = planning ? completedSkillEvidenceFromPlanning(planning) : [];
   const completedSkillIds = new Set(completedUnits.map(({ skillId }) => skillId));
   for (const skillId of legacyProofsToPracticingSkills(legacyProofs)) completedSkillIds.add(skillId);
   const base = {
-    skillIds: flagshipBlueprint.skills.map(({ id }) => id),
+    skillIds,
     completedSkillIds,
     completedUnits,
     versions: workspace?.versions ?? [],

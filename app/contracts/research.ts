@@ -313,6 +313,11 @@ export const researchRecoverySchema = z.enum([
 const researchRequestIdSchema = z.string().min(1).max(128)
   .refine((value) => value === value.trim() && !/[\u0000-\u001f\u007f-\u009f]/u.test(value));
 
+export const researchEligibilityViewSchema = z.object({
+  eligible: z.boolean(),
+  requestId: researchRequestIdSchema,
+}).strict();
+
 const expectedRecovery = {
   UNAUTHENTICATED: "sign-in",
   INVALID_INPUT: undefined,

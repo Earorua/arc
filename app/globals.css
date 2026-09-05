@@ -147,6 +147,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .setup-next:disabled { cursor: not-allowed; opacity: 0.55; }
 .setup-save-error { width: min(760px, 100%); margin: 18px auto 0; color: #ffb4a3; }
 .custom-role-disclosure { margin: 22px 0 0; border-top: 1px solid #4b4c48; padding: 18px 0; color: #d2d0ca; font-size: 0.82rem; line-height: 1.65; }
+.role-research-panel { min-width: 0; margin-top: 28px; padding: 28px 0; border-block: 1px solid color-mix(in srgb, var(--hairline) 30%, transparent); line-height: 1.65; overflow-wrap: anywhere; }
+.role-research-panel h2 { margin: 0 0 18px; font-family: var(--display); font-size: clamp(1.8rem, 4vw, 2.7rem); font-weight: 440; line-height: 1.1; }
+.role-research-panel p { max-width: 65ch; }
+.research-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 24px 0; }
+.research-facts dt, .research-request-id { font-size: 0.75rem; }
+.research-facts dd { margin: 6px 0 0; }
+.research-action { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.research-actions { flex-wrap: wrap; gap: 12px 24px; }
+.research-actions .setup-next { margin: 0; }
+.research-ready { animation: adaptive-review-in 180ms ease-out; }
 .adaptive-setup-flow { width: min(1040px, 100%); margin-top: 7vh; }
 .adaptive-setup-flow h1 { max-width: 920px; margin-bottom: 34px; font-size: clamp(2.8rem, 5.6vw, 5.2rem); }
 .setup-disclosure, .role-ledger p, .scope-summary span { color: #bfc1be; line-height: 1.65; }
@@ -442,6 +452,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .admin-failures li span, .admin-failures li small { color: var(--stone); font: 0.68rem ui-monospace, monospace; overflow-wrap: anywhere; }
 
 @media (max-width: 760px) {
+  .research-facts { grid-template-columns: minmax(0, 1fr); }
+  .research-actions { align-items: stretch; flex-direction: column; }
   :root { --content: calc(100vw - 32px); }
   .site-header { grid-template-columns: 1fr auto; height: 62px; }
   .public-actions { position: relative; display: flex; align-items: center; justify-self: end; gap: 16px; }
@@ -552,6 +564,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .research-ready { animation: none; transition: none; transform: none; opacity: 1; }
   html { scroll-behavior: auto; }
   .account-popover,
   .account-link-notice,

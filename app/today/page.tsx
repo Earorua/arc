@@ -9,35 +9,40 @@ import { flagshipRole } from "../data/flagship-role";
 import { assessTodayBudget } from "../lib/personalized-plan";
 import { useArcState } from "../lib/use-arc-state";
 import { usePlanningWorkspace } from "../lib/use-planning-workspace";
-import { parsePlanningWorkspaceAtRepositoryBoundary } from "../contracts/planning";
+import { authClient } from "../lib/auth-client";
+import { resolveWorkspacePresentation } from "../lib/workspace-presentation";
 import { AdaptiveTodaySession } from "../components/today/adaptive-today-session";
 import { PlanningLoadBoundary, PlanningVersionBoundary } from "../components/workspace/planning-version-boundary";
 
 export default function TodayPage() {
+  const session = authClient.useSession();
+  if (session.isPending) return <WorkspaceShell current="Today" state={null} />;
+  return <SessionTodayPage key={session.data?.user.id ?? "guest"} authenticated={Boolean(session.data?.user)} />;
+}
+
+function SessionTodayPage({ authenticated }: { authenticated: boolean }) {
   const arc = useArcState();
   const { state } = arc;
 
   if (state === null) return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={null} />;
 
-  if (state.setup.roleId === flagshipRole.id) return <FlagshipAdaptiveToday arc={arc} />;
+  if (authenticated || state.setup.roleId === flagshipRole.id) return <SourceAdaptiveToday arc={arc} />;
   return <LegacyToday arc={arc} />;
 }
 
-function FlagshipAdaptiveToday({ arc }: { arc: ReturnType<typeof useArcState> }) {
+function SourceAdaptiveToday({ arc }: { arc: ReturnType<typeof useArcState> }) {
   const planning = usePlanningWorkspace();
-  let workspace = null;
-  let workspaceInvalid = false;
-  try { workspace = planning.workspace ? parsePlanningWorkspaceAtRepositoryBoundary(planning.workspace) : null; }
-  catch { workspaceInvalid = planning.workspace !== null; }
-  if (!workspace && (workspaceInvalid || planning.recovery === "version-unavailable")) return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
+  const resolved = resolveWorkspacePresentation(planning);
+  if (resolved.kind === "unavailable") return <WorkspaceShell sourceUnresolved current="Today" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
     <PlanningVersionBoundary />
   </WorkspaceShell>;
-  if (!workspace && (planning.source === "restoring" || planning.source === "offline-cloud")) return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
-    <PlanningLoadBoundary loading={planning.source === "restoring"} onRetry={planning.retry} />
+  if (resolved.kind === "loading" || resolved.kind === "retry") return <WorkspaceShell sourceUnresolved current="Today" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
+    <PlanningLoadBoundary loading={resolved.kind === "loading"} onRetry={planning.retry} />
   </WorkspaceShell>;
-  if (!workspace) return <LegacyToday arc={arc} />;
-  return <WorkspaceShell current="Today" migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>
-    <AdaptiveTodaySession accept={planning.accept} discard={planning.discard} record={planning.record} recovery={planning.recovery} workspace={workspace} />
+  if (resolved.kind === "legacy") return <LegacyToday arc={arc} />;
+  const { workspace, blueprint, registry } = resolved;
+  return <WorkspaceShell current="Today" roleName={blueprint.name} migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>
+    <AdaptiveTodaySession blueprint={blueprint} registry={registry} accept={planning.accept} discard={planning.discard} record={planning.record} recovery={planning.recovery} workspace={workspace} />
   </WorkspaceShell>;
 }
 

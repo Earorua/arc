@@ -66,7 +66,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
       <div className="today-actions"><button disabled={pending || hasCandidate || !canComplete} onClick={() => void send("completed")} type="button">Complete</button>{actionEvents.map(([label, kind]) => <button disabled={pending || hasCandidate} key={kind} onClick={() => void send(kind)} type="button">{label}</button>)}</div>
       {hasCandidate ? <p role="status">{candidateReadyMessage}</p> : message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "This plan changed on another device. Refresh before continuing." : message.text}{message.text === completedPracticingMessage && <> <Link href="/proof">Open Proof</Link></>}</p>}
     </article>
-    {resolved.workspace.pendingPlanVersionId && <PlanDiffReview workspace={resolved.workspace} recovery={recovery} onAccept={accept} onDiscard={discard} onSuccess={(text) => setMessage({ kind: "status", text })} />}
+    {resolved.workspace.pendingPlanVersionId && <PlanDiffReview registry={registry} workspace={resolved.workspace} recovery={recovery} onAccept={accept} onDiscard={discard} onSuccess={(text) => setMessage({ kind: "status", text })} />}
     <SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} />
   </>;
 }

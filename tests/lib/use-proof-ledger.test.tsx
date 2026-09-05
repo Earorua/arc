@@ -54,6 +54,15 @@ const input = {
 };
 
 describe("useProofLedger", () => {
+  it("projects the selected research skills and masks every source-derived projection during account change", async () => {
+    const planning = { dailyUnits: [{ id: "daily-research", planVersionId: "plan-research", skillId: "data-modeling" }], events: [{ kind: "completed", unitId: "daily-research", targetPlanVersionId: "plan-research", occurredAt: "2026-09-05T00:00:00Z" }] } as unknown as PlanningWorkspace;
+    const cloud = client({ loadWorkspace: vi.fn().mockResolvedValueOnce(null).mockImplementation(() => new Promise(() => {})) });
+    const { result, rerender } = renderHook(({ id }) => useProofLedger({ planningWorkspace: planning, legacyProofs: [], skillIds: ["data-modeling"], client: cloud, useSession: session(id) }), { initialProps: { id: "user-a" } });
+    await waitFor(() => expect(result.current.source).toBe("cloud"));
+    expect(result.current.projections.find(({ skillId, audience }) => skillId === "data-modeling" && audience === "internal")?.status).toBe("practicing");
+    rerender({ id: "user-b" });
+    expect(result.current.projections).toEqual([]);
+  });
   it("loads guest local state and derives practicing from planning and legacy evidence", async () => {
     const legacy: ProofItem[] = [{
       id: "legacy-1", title: "Legacy", kind: "completion", skillIds: ["react"], verified: true,

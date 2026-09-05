@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { LearnerLevel, SetupAnswers } from "../../lib/demo-store";
+import type { ResearchPlanningData } from "../../contracts/research";
+
+export type SetupSource = { source: "flagship"; roleId: "ai-native-full-stack-engineer" } | { source: "research"; researchRunId: string };
+type AdaptiveControls = { active: boolean; onBackToRole: () => void; source: SetupSource; planningData: ResearchPlanningData | null };
+type ResearchControls = { role: string; onUseResearch: (runId: string, data: ResearchPlanningData) => void; onFlagship: () => void };
 
 const flagshipRoleId = "ai-native-full-stack-engineer";
 
@@ -9,10 +14,18 @@ function isFiniteIntegerInRange(value: number, minimum: number, maximum: number)
   return Number.isFinite(value) && Number.isInteger(value) && value >= minimum && value <= maximum;
 }
 
-export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers: SetupAnswers) => void | Promise<void>; renderAdaptive?: (controls: { active: boolean; onBackToRole: () => void }) => ReactNode }) {
+export function SetupFlow({ onComplete, renderAdaptive, signedIn = false, researchEligible = false, researchRecoveryAvailable = false, renderResearch, onResearchActiveChange, onRoleChange }: {
+  onComplete: (answers: SetupAnswers) => void | Promise<void>;
+  renderAdaptive?: (controls: AdaptiveControls) => ReactNode;
+  signedIn?: boolean; researchEligible?: boolean; researchRecoveryAvailable?: boolean;
+  renderResearch?: (controls: ResearchControls) => ReactNode;
+  onResearchActiveChange?: (active: boolean) => void;
+  onRoleChange?: () => void;
+}) {
   const [step, setStep] = useState(0);
   const [adaptiveSelected, setAdaptiveSelected] = useState(false);
   const [adaptiveStarted, setAdaptiveStarted] = useState(false);
+  const [selection, setSelection] = useState<{ source: SetupSource; planningData: ResearchPlanningData | null }>({ source: { source: "flagship", roleId: flagshipRoleId }, planningData: null });
   const previousStep = useRef(step);
   const questionRef = useRef<HTMLHeadingElement>(null);
   const [customRole, setCustomRole] = useState("");
@@ -24,21 +37,30 @@ export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers
   });
 
   const advance = () => {
-    if (step === 0 && !hasCustomRole && renderAdaptive) { setAdaptiveStarted(true); setAdaptiveSelected(true); return; }
+    if (step === 0 && !hasCustomRole && renderAdaptive) { setSelection({ source: { source: "flagship", roleId: flagshipRoleId }, planningData: null }); setAdaptiveStarted(true); setAdaptiveSelected(true); return; }
     setStep((current) => Math.min(current + 1, 3));
   };
 
   const selectFlagshipRole = () => {
+    onRoleChange?.();
     setCustomRole("");
     setAnswers((current) => ({ ...current, roleId: flagshipRoleId }));
   };
 
   const updateCustomRole = (value: string) => {
+    onRoleChange?.();
     setCustomRole(value);
     setAnswers((current) => ({ ...current, roleId: value.trim() || flagshipRoleId }));
   };
 
   const hasCustomRole = customRole.trim().length > 0;
+  const researchActive = step === 0 && !adaptiveSelected;
+  useLayoutEffect(() => { onResearchActiveChange?.(researchActive); }, [onResearchActiveChange, researchActive]);
+  const useResearch = (researchRunId: string, planningData: ResearchPlanningData) => {
+    if (!signedIn || !renderAdaptive) return;
+    setSelection({ source: { source: "research", researchRunId }, planningData });
+    setAdaptiveStarted(true); setAdaptiveSelected(true);
+  };
   const weeklyMinutesValid = isFiniteIntegerInRange(answers.weeklyMinutes, 30, 2400);
   const targetWeeksValid = isFiniteIntegerInRange(answers.targetWeeks, 4, 52);
 
@@ -74,7 +96,10 @@ export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers
               value={customRole}
             />
           </label>
-          {hasCustomRole && <p className="custom-role-disclosure">Full skill audit and adaptive scheduling currently require Arc&apos;s reviewed AI-Native Full-Stack Engineer blueprint. This custom role will keep the proportional v7 path.</p>}
+          {hasCustomRole && <p className="custom-role-disclosure">{signedIn && renderResearch && (researchEligible || researchRecoveryAvailable)
+            ? "Research this role to use a source-backed skill audit and adaptive schedule. Continue keeps the proportional v7 path."
+            : <>Full skill audit and adaptive scheduling currently require Arc&apos;s reviewed AI-Native Full-Stack Engineer blueprint. This custom role will keep the proportional v7 path.</>}</p>}
+          {signedIn && renderResearch && (researchRecoveryAvailable || researchEligible && hasCustomRole) && renderResearch({ role: customRole.trim(), onUseResearch: useResearch, onFlagship: selectFlagshipRole })}
           <button className="setup-next" lang="en" onClick={advance} type="button">Continue</button>
         </>
       )}
@@ -144,7 +169,7 @@ export function SetupFlow({ onComplete, renderAdaptive }: { onComplete: (answers
         </>
       )}
     </section>
-    {renderAdaptive && adaptiveStarted && <div hidden={!adaptiveSelected}>{renderAdaptive({ active: adaptiveSelected, onBackToRole: () => setAdaptiveSelected(false) })}</div>}
+    {renderAdaptive && adaptiveStarted && <div key={selection.source.source === "research" ? selection.source.researchRunId : "flagship"} hidden={!adaptiveSelected}>{renderAdaptive({ ...selection, active: adaptiveSelected, onBackToRole: () => setAdaptiveSelected(false) })}</div>}
     </>
   );
 }

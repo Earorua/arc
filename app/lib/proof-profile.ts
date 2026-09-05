@@ -21,7 +21,7 @@ const statusRank: Record<SkillEvidenceProjection["status"], number> = {
 };
 
 export function getLinkedSkillIds(
-  skills: ReadonlyArray<SkillNode>,
+  skills: ReadonlyArray<Pick<SkillNode, "id">>,
   skillIds: ReadonlyArray<string>,
 ): string[] {
   const allowedSkillIds = new Set(skills.map((skill) => skill.id));
@@ -29,7 +29,7 @@ export function getLinkedSkillIds(
 }
 
 export function calculateReadiness(
-  skills: ReadonlyArray<SkillNode>,
+  skills: ReadonlyArray<Pick<SkillNode, "id" | "importance">>,
   projections: ReadonlyArray<SkillEvidenceProjection>,
 ): ReadinessProfile {
   const uniqueSkills = new Map(skills.map((skill) => [skill.id, skill]));

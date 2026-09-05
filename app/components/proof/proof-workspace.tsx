@@ -23,7 +23,7 @@ type Props = {
   retry: () => Promise<void>;
   reviseProof: (proofId: string, input: ProofEditorInput) => Promise<boolean>;
   setVisibility: (proofId: string, visibility: ProofVisibility) => Promise<boolean>;
-  skills: readonly SkillNode[];
+  skills: readonly Pick<SkillNode, "id" | "name">[];
   source: ProofStateSource;
   uploadAsset?: (proofId: string, file: File) => Promise<string | null>;
   withdrawProof: (proofId: string) => Promise<boolean>;
