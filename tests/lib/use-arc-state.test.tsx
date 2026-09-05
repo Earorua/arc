@@ -34,6 +34,51 @@ beforeEach(() => window.localStorage.clear());
 afterEach(cleanup);
 
 describe("useArcState", () => {
+  it.each(["account", "roundtrip", "unmount", "signal"].flatMap((transition) => ["resolve", "reject"].map((settlement) => ({ transition, settlement }))))("discards $settlement after $transition cancels a setup save", async ({ transition, settlement }) => {
+    const initial = createDemoState();
+    const snapshot = { state: initial, activeGoalId: "goal-cloud", revision: "revision-cloud" };
+    let resolveSave!: (value: typeof snapshot) => void;
+    let rejectSave!: (error: unknown) => void;
+    const client = fakeClient({ loadWorkspace: vi.fn().mockResolvedValue(snapshot), saveSetup: vi.fn(() => new Promise((resolve, reject) => { resolveSave = resolve; rejectSave = reject; })) });
+    const hook = renderHook(({ owner }) => useArcState({ client, useSession: signedInSessionFor(owner) }), { initialProps: { owner: "owner-a" } });
+    await waitFor(() => expect(hook.result.current.source).toBe("cloud"));
+    const retained = hook.result.current.saveSetup;
+    const cancellation = new AbortController();
+    const setup = { ...initial.setup, roleId: "Data Product Manager" };
+    let pending!: Promise<boolean>;
+    act(() => { pending = retained(setup, cancellation.signal); });
+    if (transition === "unmount") hook.unmount();
+    else if (transition === "signal") cancellation.abort();
+    else {
+      hook.rerender({ owner: "owner-b" });
+      if (transition === "roundtrip") hook.rerender({ owner: "owner-a" });
+      await waitFor(() => expect(hook.result.current.source).toBe("cloud"));
+    }
+    let saved: boolean | undefined;
+    await act(async () => {
+      if (settlement === "resolve") resolveSave({ ...snapshot, state: mergeSetup(initial, setup) });
+      else rejectSave(new TypeError("synthetic offline"));
+      saved = await pending;
+    });
+    expect(saved).toBe(false);
+    expect(readOfflineQueue()).toEqual([]);
+    expect(hook.result.current.state?.setup.roleId).toBe(initial.setup.roleId);
+    expect(vi.mocked(client.saveSetup).mock.calls[0]![2]?.aborted).toBe(true);
+    if (transition !== "signal") {
+      await act(async () => { expect(await retained(setup)).toBe(false); });
+      expect(client.saveSetup).toHaveBeenCalledOnce();
+    }
+  });
+  it("does not retry cancellation as an offline setup mutation, but preserves ordinary offline saves", async () => {
+    const snapshot = { state: createDemoState(), activeGoalId: "goal-cloud", revision: "revision-cloud" };
+    const client = fakeClient({ loadWorkspace: vi.fn().mockResolvedValue(snapshot), saveSetup: vi.fn().mockRejectedValueOnce(new DOMException("Cancelled", "AbortError")).mockRejectedValueOnce(new TypeError("synthetic offline")) });
+    const { result } = renderHook(() => useArcState({ client, useSession: signedInSession }));
+    await waitFor(() => expect(result.current.source).toBe("cloud"));
+    await act(async () => { expect(await result.current.saveSetup(snapshot.state.setup)).toBe(false); });
+    expect(readOfflineQueue()).toEqual([]);
+    await act(async () => { expect(await result.current.saveSetup(snapshot.state.setup)).toBe(true); });
+    expect(readOfflineQueue()).toMatchObject([{ kind: "save-setup", payload: { setup: snapshot.state.setup } }]);
+  });
   it("retains guarded local behavior for an anonymous learner", async () => {
     const local = mergeSetup(createDemoState(), {
       ...createDemoState().setup,

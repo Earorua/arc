@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SetupFlow } from "../../app/components/setup/setup-flow";
@@ -9,6 +9,24 @@ import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 afterEach(cleanup);
 
 describe("SetupFlow", () => {
+  it.each([
+    "ai-native-full-stack-engineer", "  AI-NATIVE-FULL-STACK-ENGINEER  ",
+    "AI-Native Full-Stack Engineer", "  ai-native   full-stack\tengineer ",
+    "ＡＩ-Native Full-Stack Engineer", flagshipBlueprint.name, "  ai　原生全栈工程师  ",
+  ])("does not offer new research for the known Flagship alias %s", async (role) => {
+    const renderResearch = vi.fn(() => <p>Research controls</p>);
+    const renderAdaptive = vi.fn(() => <p>Flagship audit</p>);
+    const page = render(<SetupFlow onComplete={vi.fn()} signedIn researchEligible renderResearch={renderResearch} renderAdaptive={renderAdaptive} />);
+    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: role } });
+    expect(renderResearch).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Research this role to use/)).not.toBeInTheDocument();
+    // Excluding new Research must not hide an existing owner run.
+    page.rerender(<SetupFlow onComplete={vi.fn()} signedIn researchRecoveryAvailable renderResearch={renderResearch} renderAdaptive={renderAdaptive} />);
+    expect(screen.getByText("Research controls")).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByRole("heading", { name: "你现在处于哪个阶段？" })).toBeInTheDocument();
+    expect(renderAdaptive).not.toHaveBeenCalled();
+  });
   it("preserves Back edits for the same research source and remounts the audit for another run", async () => {
     const user = userEvent.setup();
     const data = { id: "research-package-one", blueprint: flagshipBlueprint, registry: flagshipUnitRegistry };

@@ -139,19 +139,22 @@ export const providerCitationAnnotationSchema = z.object({
   title: z.string().trim().min(1).max(500),
 }).strict();
 
-const providerTokenCountSchema = z.number().int().min(0).max(10_000_000);
-
-export const providerUsageSchema = z.object({
-  promptTokens: providerTokenCountSchema,
-  completionTokens: providerTokenCountSchema,
-  totalTokens: providerTokenCountSchema,
-  costMicros: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
-  webSearchRequests: z.number().int().min(0).max(10),
-}).strict().superRefine((usage, ctx) => {
-  if (usage.totalTokens !== usage.promptTokens + usage.completionTokens) {
-    ctx.addIssue({ code: "custom", path: ["totalTokens"], message: "Total tokens must equal prompt plus completion tokens" });
-  }
-});
+// This local initialization has no side effects. Client imports of public views
+// can omit the unused server accounting schema without changing its validation.
+export const providerUsageSchema = /* @__PURE__ */ (() => {
+  const providerTokenCountSchema = z.number().int().min(0).max(10_000_000);
+  return z.object({
+    promptTokens: providerTokenCountSchema,
+    completionTokens: providerTokenCountSchema,
+    totalTokens: providerTokenCountSchema,
+    costMicros: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
+    webSearchRequests: z.number().int().min(0).max(10),
+  }).strict().superRefine((usage, ctx) => {
+    if (usage.totalTokens !== usage.promptTokens + usage.completionTokens) {
+      ctx.addIssue({ code: "custom", path: ["totalTokens"], message: "Total tokens must equal prompt plus completion tokens" });
+    }
+  });
+})();
 
 export const researchProviderCitationAnnotationSchema = providerCitationAnnotationSchema;
 export const researchProviderUsageSchema = providerUsageSchema;

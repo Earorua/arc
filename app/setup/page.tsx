@@ -18,18 +18,27 @@ import { useResearchEligibility } from "../lib/use-research-eligibility";
 import { useRoleResearch, type RoleResearchController } from "../lib/use-role-research";
 import type { ResearchPlanningData } from "../contracts/research";
 
-function AdaptiveSetupConnector({ navigate, onBackToRole, active, saveCommonRole, source, planningData }: { navigate: (path: string) => void; onBackToRole: () => void; active: boolean; saveCommonRole: (request: GeneratePlanningRequest, roleId: string) => Promise<boolean>; source: SetupSource; planningData: ResearchPlanningData | null }) {
+function AdaptiveSetupConnector({ navigate, onBackToRole, active, saveCommonRole, source, planningData }: { navigate: (path: string) => void; onBackToRole: () => void; active: boolean; saveCommonRole: (request: GeneratePlanningRequest, roleId: string, signal: AbortSignal) => Promise<boolean>; source: SetupSource; planningData: ResearchPlanningData | null }) {
   const planning = usePlanningWorkspace();
   const connected = useRef(false);
   const epoch = useRef(0);
-  useLayoutEffect(() => { connected.current = active; epoch.current += 1; return () => { connected.current = false; epoch.current += 1; }; }, [active]);
+  const saveCancellation = useRef<AbortController | null>(null);
+  const sourceKey = source.source === "research" ? source.researchRunId : source.roleId;
+  useLayoutEffect(() => {
+    const cancellation = new AbortController();
+    saveCancellation.current = cancellation;
+    connected.current = active; epoch.current += 1;
+    return () => { cancellation.abort(); connected.current = false; epoch.current += 1; };
+  }, [active, sourceKey]);
   const blueprint = source.source === "research" ? planningData?.blueprint : flagshipBlueprint;
   const registry = source.source === "research" ? planningData?.registry : flagshipUnitRegistry;
   if (!blueprint || !registry) return <p role="alert">Research is unavailable. Return to Role and restore the research.</p>;
   const generate = async (request: GeneratePlanningRequest) => {
     if (!connected.current) return false;
     const started = epoch.current;
-    if (!await saveCommonRole(request, source.source === "research" ? blueprint.name : blueprint.id)) return false;
+    const signal = saveCancellation.current?.signal;
+    if (!signal || signal.aborted) return false;
+    if (!await saveCommonRole(request, source.source === "research" ? blueprint.name : blueprint.id, signal)) return false;
     if (!connected.current || started !== epoch.current) return false;
     return planning.generate(request);
   };
@@ -65,10 +74,18 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
   const router = useRouter();
   const arc = useArcState();
   const [saveError, setSaveError] = useState<string | null>(null);
+  const pageCancellation = useRef<AbortController | null>(null);
+  useLayoutEffect(() => {
+    const cancellation = new AbortController(); pageCancellation.current = cancellation;
+    return () => cancellation.abort();
+  }, []);
 
   const finish = async (answers: SetupAnswers) => {
+    const signal = pageCancellation.current?.signal;
+    if (!signal || signal.aborted) return;
     setSaveError(null);
-    const saved = await arc.saveSetup(answers);
+    const saved = await arc.saveSetup(answers, signal);
+    if (signal.aborted) return;
     if (!saved) {
       setSaveError("无法保存到此设备，请检查浏览器存储设置后重试。");
       return;
@@ -76,14 +93,16 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
     router.push("/path");
   };
 
-  const saveCommonRole = async (request: GeneratePlanningRequest, roleId: string) => {
+  const saveCommonRole = async (request: GeneratePlanningRequest, roleId: string, signal: AbortSignal) => {
+    if (signal.aborted) return false;
     setSaveError(null);
     const saved = await arc.saveSetup({
       roleId,
       level: arc.state?.setup.level ?? "beginner",
       weeklyMinutes: request.availability.weeklyMinutes,
       targetWeeks: request.target.targetWeeks,
-    });
+    }, signal);
+    if (signal.aborted) return false;
     if (!saved) setSaveError("无法保存到此设备，请检查浏览器存储设置后重试。");
     return saved;
   };

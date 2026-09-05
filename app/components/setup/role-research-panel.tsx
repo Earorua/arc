@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import type { ResearchIssueCode, ResearchPublicFailureCategory } from "../../contracts/research";
 import type { RoleResearchController } from "../../lib/use-role-research";
+import { isFlagshipRoleInput } from "./setup-flow";
 
 const issueCopy: Record<ResearchIssueCode, string> = {
   "invalid-schema": "The research needs a complete, consistent structure.",
@@ -42,6 +43,7 @@ export function RoleResearchPanel({ controller, role, eligible, onStart, onUse, 
   }, [state.kind]);
   const active = restoring || busy || ["submitting", "queued", "researching", "validating"].includes(state.kind);
   const canStart = eligible && !run && !active && role.trim().length >= 2 && role.trim().length <= 160
+    && !isFlagshipRoleInput(role)
     && (!error || error.recovery === "retry" || error.recovery === "retry-or-flagship" || error.code === "INVALID_INPUT" || error.code === "NOT_FOUND");
   return <section className="role-research-panel" aria-label="Role research">
     <div role="status" aria-live="polite" aria-busy={active}>

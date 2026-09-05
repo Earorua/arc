@@ -22,6 +22,7 @@ const injected = vi.hoisted(() => ({
   owner: "owner-a" as string | null, pending: false, planningClient: {} as PlanningClient,
   loadProof: vi.fn(async () => null),
   arcClient: {} as ArcCloudClient,
+  navigate: vi.fn(),
 }));
 vi.mock("../../app/lib/auth-client", () => ({ authClient: { useSession: () => ({ data: injected.owner ? { user: { id: injected.owner, name: "Learner", email: "learner@example.test" } } : null, isPending: injected.pending }) } }));
 vi.mock("../../app/lib/use-arc-state", async (original) => {
@@ -36,7 +37,7 @@ vi.mock("../../app/lib/use-proof-ledger", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-proof-ledger")>();
   return { ...actual, useProofLedger: (options: Parameters<typeof actual.useProofLedger>[0]) => actual.useProofLedger({ ...options, client: { loadWorkspace: injected.loadProof, createProof: vi.fn(), reviseProof: vi.fn(), withdrawProof: vi.fn(), setVisibility: vi.fn() } }) };
 });
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: injected.navigate }) }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>Account</span> }));
 
 const validation = validateResearchCandidate(validResearchCandidate, validAnnotations, {
@@ -50,7 +51,7 @@ let service: PlanningService;
 let initial: PlanningWorkspace;
 
 beforeEach(async () => {
-  localStorage.clear(); injected.owner = "owner-a"; injected.pending = false; injected.loadProof.mockReset().mockResolvedValue(null);
+  localStorage.clear(); injected.owner = "owner-a"; injected.pending = false; injected.loadProof.mockReset().mockResolvedValue(null); injected.navigate.mockReset();
   const snapshot = { state: mergeSetup(createDemoState(), { roleId: data.blueprint.name, level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }), activeGoalId: "goal-pages", revision: "revision-pages" };
   injected.arcClient = { loadWorkspace: vi.fn(async () => snapshot), importLocal: vi.fn(), saveSetup: vi.fn(async (setup) => ({ ...snapshot, state: mergeSetup(snapshot.state, setup) })), completeUnit: vi.fn(), replay: vi.fn() };
   let stored: PlanningRepositoryPayload | null = null;
@@ -87,13 +88,38 @@ async function headingReady() { await screen.findByTitle(`${data.blueprint.name}
 describe("research workspace page adapters with real controllers and deterministic service", () => {
   function researchReply() { return Response.json({ requestId: "request-research-pages", run: { id: "research-run-pages", role: data.blueprint.name, locale: "en-US", state: "ready", retryable: false, packageId: data.id, summary: data.blueprint.summary, skillCount: data.blueprint.skills.length, sourceCount: data.sourceEvidence.length, observedAt: data.observedAt, quality: { passed: true, issueCodes: [] }, planningData: { id: data.id, blueprint: data.blueprint, registry: data.registry } } }); }
   function storedResearch() { localStorage.setItem("arc:role-research:v1", JSON.stringify({ runId: "research-run-pages", role: data.blueprint.name, locale: "en-US" })); }
+  it.each(["account", "roundtrip", "unmount"].flatMap((transition) => ["resolve", "reject"].map((settlement) => ({ transition, settlement }))))("drops common-role save $settlement after $transition invalidates the connector", async ({ transition, settlement }) => {
+    storedResearch(); const user = userEvent.setup();
+    vi.stubGlobal("fetch", vi.fn(async (input) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply()));
+    let rejectSave!: (error: unknown) => void;
+    let resolveSave!: (snapshot: Awaited<ReturnType<ArcCloudClient["saveSetup"]>>) => void;
+    injected.arcClient.saveSetup = vi.fn(() => new Promise<Awaited<ReturnType<ArcCloudClient["saveSetup"]>>>((resolve, reject) => { resolveSave = resolve; rejectSave = reject; }));
+    const page = render(<SetupPage />);
+    await user.click(await screen.findByRole("button", { name: "Use this research" }));
+    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await waitFor(() => expect(injected.arcClient.saveSetup).toHaveBeenCalledOnce());
+    if (transition === "unmount") page.unmount();
+    else {
+      injected.owner = "owner-b"; page.rerender(<SetupPage />);
+      if (transition === "roundtrip") { injected.owner = "owner-a"; page.rerender(<SetupPage />); }
+    }
+    await act(async () => {
+      if (settlement === "resolve") resolveSave({ state: mergeSetup(createDemoState(), { roleId: data.blueprint.name, level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }), activeGoalId: "goal-pages", revision: "revision-pages" });
+      else rejectSave(new Error("synthetic-offline"));
+    });
+    expect(injected.planningClient.generate).not.toHaveBeenCalled();
+    expect(injected.navigate).not.toHaveBeenCalled();
+    expect(localStorage.getItem("arc-offline-queue-v1")).toBeNull();
+    expect(vi.mocked(injected.arcClient.saveSetup).mock.calls[0]![2]?.aborted).toBe(true);
+  });
   it("restores an owner Ready run while ineligible and saves its actual role before submitting only source plus answers", async () => {
     storedResearch(); const user = userEvent.setup();
     const fetcher = vi.fn(async (input: RequestInfo | URL) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply());
     vi.stubGlobal("fetch", fetcher);
     const context = (await service.getWorkspaceResponse("owner-a")).sourceContext;
     injected.planningClient.generate = vi.fn(async () => {
-      expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String));
+      expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal));
       return { result: { outcome: "active" as const, workspace: initial, diff: null }, sourceContext: context };
     });
     render(<SetupPage />);

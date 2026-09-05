@@ -14,6 +14,23 @@ const ready = { ...identity, state: "ready" as const, retryable: false as const,
 function props(controller = base) { return { controller, role: identity.role, eligible: true, onStart: vi.fn(), onUse: vi.fn(), onFlagship: vi.fn() }; }
 
 describe("RoleResearchPanel", () => {
+  it.each(["ai-native-full-stack-engineer", " AI-NATIVE-FULL-STACK-ENGINEER ", "AI-Native Full-Stack Engineer", " ai-native   full-stack\tengineer ", "ＡＩ-Native Full-Stack Engineer", flagshipBlueprint.name, " ai　原生全栈工程师 "])("excludes only new starts for Flagship alias %s", async (role) => {
+    const p = props(); const page = render(<RoleResearchPanel {...p} role={role} />);
+    expect(screen.queryByRole("button", { name: "Research this role" })).not.toBeInTheDocument();
+    expect(p.onStart).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Use Flagship" })).toBeInTheDocument();
+    page.rerender(<RoleResearchPanel {...p} role={role} eligible={false} controller={{ ...base, state: { kind: "ready", runId: identity.id }, run: ready }} />);
+    await userEvent.setup().click(screen.getByRole("button", { name: "Use this research" }));
+    expect(p.onUse).toHaveBeenCalledWith(identity.id);
+    const retry = vi.fn();
+    page.rerender(<RoleResearchPanel {...p} role={role} controller={{ ...base, retry, state: { kind: "failed", runId: identity.id }, run: { ...identity, state: "failed", failureCategory: "timeout", retryable: true } }} />);
+    await userEvent.setup().click(screen.getByRole("button", { name: "Retry research" }));
+    expect(retry).toHaveBeenCalledOnce();
+  });
+  it.each(["Senior AI-Native Full-Stack Engineer", "AI 原生全栈工程师导师", "ai-native-full-stack-engineer-educator"])("does not fuzzy-match another role %s", (role) => {
+    render(<RoleResearchPanel {...props()} role={role} />);
+    expect(screen.getByRole("button", { name: "Research this role" })).toBeInTheDocument();
+  });
   it("requires an explicit keyboard action and keeps a Flagship fallback", async () => {
     const p = props(); const user = userEvent.setup(); render(<RoleResearchPanel {...p} />);
     const start = screen.getByRole("button", { name: "Research this role" });

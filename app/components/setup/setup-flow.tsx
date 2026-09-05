@@ -3,12 +3,21 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { LearnerLevel, SetupAnswers } from "../../lib/demo-store";
 import type { ResearchPlanningData } from "../../contracts/research";
+import { flagshipRole } from "../../data/flagship-role";
+import { getRoleDisplayName } from "../../lib/personalized-plan";
 
 export type SetupSource = { source: "flagship"; roleId: "ai-native-full-stack-engineer" } | { source: "research"; researchRunId: string };
 type AdaptiveControls = { active: boolean; onBackToRole: () => void; source: SetupSource; planningData: ResearchPlanningData | null };
 type ResearchControls = { role: string; onUseResearch: (runId: string, data: ResearchPlanningData) => void; onFlagship: () => void };
 
 const flagshipRoleId = "ai-native-full-stack-engineer";
+
+export function isFlagshipRoleInput(role: string): boolean {
+  // Match only known aliases using the same normalization as research input.
+  const normalize = (value: string) => value.normalize("NFKC").trim().replace(/\s+/gu, " ").toLowerCase();
+  return [flagshipRoleId, flagshipRole.name, getRoleDisplayName(flagshipRoleId)]
+    .some((alias) => normalize(alias) === normalize(role));
+}
 
 function isFiniteIntegerInRange(value: number, minimum: number, maximum: number) {
   return Number.isFinite(value) && Number.isInteger(value) && value >= minimum && value <= maximum;
@@ -54,6 +63,7 @@ export function SetupFlow({ onComplete, renderAdaptive, signedIn = false, resear
   };
 
   const hasCustomRole = customRole.trim().length > 0;
+  const canResearchRole = hasCustomRole && !isFlagshipRoleInput(customRole);
   const researchActive = step === 0 && !adaptiveSelected;
   useLayoutEffect(() => { onResearchActiveChange?.(researchActive); }, [onResearchActiveChange, researchActive]);
   const useResearch = (researchRunId: string, planningData: ResearchPlanningData) => {
@@ -96,10 +106,10 @@ export function SetupFlow({ onComplete, renderAdaptive, signedIn = false, resear
               value={customRole}
             />
           </label>
-          {hasCustomRole && <p className="custom-role-disclosure">{signedIn && renderResearch && (researchEligible || researchRecoveryAvailable)
+          {hasCustomRole && <p className="custom-role-disclosure">{signedIn && renderResearch && canResearchRole && (researchEligible || researchRecoveryAvailable)
             ? "Research this role to use a source-backed skill audit and adaptive schedule. Continue keeps the proportional v7 path."
             : <>Full skill audit and adaptive scheduling currently require Arc&apos;s reviewed AI-Native Full-Stack Engineer blueprint. This custom role will keep the proportional v7 path.</>}</p>}
-          {signedIn && renderResearch && (researchRecoveryAvailable || researchEligible && hasCustomRole) && renderResearch({ role: customRole.trim(), onUseResearch: useResearch, onFlagship: selectFlagshipRole })}
+          {signedIn && renderResearch && (researchRecoveryAvailable || researchEligible && canResearchRole) && renderResearch({ role: customRole.trim(), onUseResearch: useResearch, onFlagship: selectFlagshipRole })}
           <button className="setup-next" lang="en" onClick={advance} type="button">Continue</button>
         </>
       )}

@@ -57,7 +57,7 @@ export interface ArcCloudClient {
     resolution?: "reject" | "archive-import" | "activate-import",
     migrationId?: string,
   ): Promise<MigrationResult>;
-  saveSetup(setup: SetupAnswersInput, mutationId?: string): Promise<CloudSnapshot>;
+  saveSetup(setup: SetupAnswersInput, mutationId?: string, signal?: AbortSignal): Promise<CloudSnapshot>;
   completeUnit(unit: LearningUnit, mutationId?: string): Promise<CloudSnapshot>;
   replay(mutation: OfflineMutation): Promise<CloudSnapshot>;
 }
@@ -71,6 +71,7 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
     schema: z.ZodType<T>,
     init: RequestInit,
   ): Promise<T> {
+    init.signal?.throwIfAborted();
     const response = await fetcher(path, {
       ...init,
       cache: "no-store",
@@ -79,12 +80,15 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
         ? { "content-type": "application/json", ...init.headers }
         : init.headers,
     });
+    init.signal?.throwIfAborted();
     let payload: unknown;
     try {
       payload = await response.json();
     } catch {
+      init.signal?.throwIfAborted();
       throw new Error("Arc returned an invalid response.");
     }
+    init.signal?.throwIfAborted();
 
     if (!response.ok) {
       const parsedError = apiErrorSchema.safeParse(payload);
@@ -103,11 +107,12 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
     return parsed.data;
   }
 
-  async function sendSetup(setup: SetupAnswersInput, mutationId: string) {
+  async function sendSetup(setup: SetupAnswersInput, mutationId: string, signal?: AbortSignal) {
     const mutation = workspaceMutationSchema.parse({ mutationId, setup });
     const response = await request("/api/workspace", snapshotResponseSchema, {
       method: "PUT",
       body: JSON.stringify(mutation),
+      signal,
     });
     return response.snapshot;
   }
@@ -145,8 +150,8 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
       });
       return response.result;
     },
-    saveSetup(setup, mutationId = createMutationId()) {
-      return sendSetup(setup, mutationId);
+    saveSetup(setup, mutationId = createMutationId(), signal) {
+      return sendSetup(setup, mutationId, signal);
     },
     completeUnit(unit, mutationId = createMutationId()) {
       return sendCompletion(unit, mutationId);

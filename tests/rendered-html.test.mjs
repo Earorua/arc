@@ -65,6 +65,13 @@ test("keeps server secret identifiers out of the client bundle", async () => {
   }
 });
 
+test("omits unused Provider usage and cost schema from built client artifacts", async () => {
+  const bundle = await readBundleText(fileURLToPath(new URL("../dist/client", import.meta.url)));
+  const leaked = ["promptTokens", "completionTokens", "totalTokens", "costMicros", "webSearchRequests"]
+    .filter((identifier) => bundle.includes(identifier));
+  assert.deepEqual(leaked, [], "Provider accounting fields belong only in the server bundle");
+});
+
 test("ships the adaptive workspace recovery and review copy without replacing the public shell", async () => {
   const clientDirectory = fileURLToPath(new URL("../dist/client", import.meta.url));
   const bundle = await readBundleText(clientDirectory);
