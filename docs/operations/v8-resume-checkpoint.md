@@ -1,5 +1,15 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-05 持续目标执行：Task 10 已关闭，下一步 Task 11，然后 Task 13 离线验收**
+>
+> 权威工作树为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`，分支为 `codex/v8-openrouter-research-beta`。本轮从已核对干净的 `2a82567f1a6dfd0a49cb4ff59b07deff564ed356` 恢复。Task 10 初版 `ad58a3e`，修复 `a06adf7`，最终代码 `0cdfe0ac565d5e15da9c6d16730ed38fe27105a4`；之后 `cebb22e` 仅补充离线浏览器验收方案，代码未变。本记录随后以文档提交保存；恢复时以实际 `git status --short --branch`、`git rev-parse HEAD` 和历史为准。
+>
+> Task 10 已完成严格公共响应客户端和可刷新恢复控制器。规格审查的权限切换时序问题以 15 项 RED 和提交阶段同步修复；质量审查的首次提交中断卡住问题以 3 项 RED 和保留同 mutation ID 的显式恢复修复。最终独立规格与质量/安全审查均为 **Critical 0 / Important 0 / Minor 0 / READY YES**，各自独立通过 92 项相关测试。主代理在干净 `cebb22e` 上完成完整 **125 files / 2104 tests**、非增量 TypeScript、完整 ESLint、build **5/5**、rendered HTML **3/3**、diff-check、客户端敏感标识及生产边界检查，全部通过。
+>
+> **当前权威下一步：** Tasks 1–10 与 Task 12 已关闭，不重做。派发新的 Task 11 实现子代理，按 TDD 接通 Setup Research Beta、只读资格提示以及 Path/Today/Stack/Proof 的真实研究来源；先规格审查，再质量/安全审查，清零并复验后执行 Task 13。Task 11 的最小资格读取和 Task 13 的隔离浏览器/一次性本地 D1 验收方案已写入详细计划。浏览器验收必须覆盖完整页面链路，不能仅凭 Ready 面板或服务端单测关闭目标。
+>
+> 用户已设置持续目标，要求持续推进当前已授权范围。**目标 2 尚未完成；Task 11、Task 13 离线验收、真实 Provider 证据及用户验收仍待完成。** 当前执行只覆盖离线工程范围；不读取/创建真实密钥、不发真实/付费 Provider 请求、不修改生产变量/旗标、不操作生产 D1/R2、不合并 `master`、不推送、不保存 Sites 候选、不部署。详细计划的历史线上/集成步骤由本轮限制覆盖，记录未执行，不在本轮索取这些操作的授权。
+
 > **2026-09-05 模型切换保存：目标 2 Task 9 已关闭，下一步从 Task 10 继续**
 >
 > 权威项目根目录为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2`；本目标的权威隔离工作树为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`，分支为 `codex/v8-openrouter-research-beta`。Task 9 的最终代码 HEAD 为 `f97ca800cbf959da78b4878a288386e429f753fb`（`fix: close planning response integrity gaps`）；包含本记录的后续文档提交是当前模型切换检查点。恢复时先核对实际 `git status --short --branch`、`git rev-parse HEAD` 与 `git log -5 --oneline`。

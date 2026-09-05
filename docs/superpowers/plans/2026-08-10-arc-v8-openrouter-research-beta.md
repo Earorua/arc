@@ -827,7 +827,7 @@ git commit -m "feat: plan from owner bound research packages"
 - Create: `tests/lib/research-client.test.ts`
 - Create: `tests/lib/use-role-research.test.tsx`
 
-- [ ] **Step 1: Write failing client and controller tests**
+- [x] **Step 1: Write failing client and controller tests**
 
 Cover safe response parsing, Request ID preservation, stable recovery actions, submit, refresh by run id, retry with a fresh mutation id, clearing stale errors, abort on unmount, and no timer polling after a terminal state. Browser storage may contain only `{runId, role, locale}` under one versioned key and is not authoritative.
 
@@ -838,30 +838,32 @@ expect(result.current.state).toMatchObject({ kind: "ready", runId: "research-run
 expect(localStorage.getItem("arc:role-research:v1")).not.toContain("package");
 ```
 
-- [ ] **Step 2: Run client tests and verify RED**
+- [x] **Step 2: Run client tests and verify RED**
 
 Run: `npm run test:unit -- tests/lib/research-client.test.ts tests/lib/use-role-research.test.tsx`
 
 Expected: FAIL because client modules do not exist.
 
-- [ ] **Step 3: Implement bounded client parsing and state controller**
+- [x] **Step 3: Implement bounded client parsing and state controller**
 
 `research-client.ts` exposes `startResearch`, `getResearch`, and `retryResearch`, each requiring an AbortSignal and parsing the public contract or stable Arc error envelope. `useRoleResearch` owns the state union `idle | submitting | queued | researching | validating | ready | needs-review | failed`, persists only recovery identity, refreshes on mount, and exposes `start`, `refresh`, `retry`, and `reset`. Active status refresh uses one bounded timer with exponential delays capped at 5 seconds and stops on terminal state, hidden/inactive Setup, unmount, or AbortSignal.
 
 Use Task 8's shared Research HTTP envelope: a valid persisted terminal returned with non-2xx POST status is a recoverable `needs-review`/`failed` run, not a lost connection. Preserve its run ID and issue/retry state; a subsequent GET can restore it without another provider call. Reject malformed or contradictory envelopes and never trust a browser-stored status/package over the server. Errors with no run remain ordinary stable Arc errors. Add explicit initial 422 Needs-review and 503 Failed response tests through refresh and retry so the panel can render the approved recovery actions.
 
-- [ ] **Step 4: Run client tests**
+- [x] **Step 4: Run client tests**
 
 Run: `npm run test:unit -- tests/lib/research-client.test.ts tests/lib/use-role-research.test.tsx`
 
 Expected: PASS with fake timers fully drained.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add app/lib/research-client.ts app/lib/use-role-research.ts tests/lib/research-client.test.ts tests/lib/use-role-research.test.tsx
 git commit -m "feat: recover role research in setup"
 ```
+
+**Closure evidence (2026-09-05):** Task 10 implementation `ad58a3e` was repaired in `a06adf7` and final code `0cdfe0ac565d5e15da9c6d16730ed38fe27105a4`. TDD covered strict terminal envelopes, bounded streaming and cancellation, one capped polling timer, identity masking, recovery-only browser storage, and idempotent explicit retry. Specification review found a passive-effect authorization race; 15 discriminating failures led to commit-phase lifecycle synchronization with retained/current command and abandoned-render coverage. Quality review found interrupted initial submissions stranded in `submitting`; three RED interruption cases led to idle recovery with the original mutation retained and no automatic POST. Both independent final reviews reported Critical 0 / Important 0 / Minor 0 / READY YES and independently passed 92 focused tests. Root verification on clean `cebb22e` (only a plan note above identical final code) passed all 125 files / 2104 tests, TypeScript without incremental caching, full ESLint, build 5/5, rendered HTML 3/3, diff-check, and client/production-boundary scans. Windows Vite/build/render subprocesses used the approved sandbox escalation. No real credentials, Provider requests, production changes, merge, push, Sites candidate, or deployment occurred. Continue with Task 11; Task 13 acceptance remains pending.
 
 ### Task 11: Embed Research Beta in Setup without breaking existing paths
 
