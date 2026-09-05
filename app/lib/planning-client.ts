@@ -28,7 +28,7 @@ const planningErrorSchema = z.object({
 type ArcFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
 export interface PlanningClient {
-  loadWorkspace(): Promise<PlanningWorkspaceResponse>;
+  loadWorkspace(signal?: AbortSignal): Promise<PlanningWorkspaceResponse>;
   generate(input: GeneratePlanningRequest): Promise<PlanningMutationResponse>;
   appendEvent(input: PlanningEventRequest): Promise<PlanningMutationResponse>;
   acceptReplan(input: ReplanDecisionRequest): Promise<PlanningMutationResponse>;
@@ -39,13 +39,19 @@ export function createPlanningClient(options: { fetch?: ArcFetch } = {}): Planni
   const fetcher = options.fetch ?? ((input, init) => fetch(input, init));
 
   async function request<T>(path: string, schema: z.ZodType<T>, init: RequestInit): Promise<T> {
+    init.signal?.throwIfAborted();
     const response = await fetcher(path, {
       ...init,
       cache: "no-store",
       credentials: "include",
       headers: init.body ? { "content-type": "application/json", ...init.headers } : init.headers,
     });
-    const raw = await readBoundedResponse(response);
+    if (init.signal?.aborted) {
+      void response.body?.cancel().catch(() => undefined);
+      init.signal.throwIfAborted();
+    }
+    const raw = await readBoundedResponse(response, init.signal ?? undefined);
+    init.signal?.throwIfAborted();
     let payload: unknown;
     try { payload = JSON.parse(raw) as unknown; }
     catch { throw new Error("Arc returned an invalid response."); }
@@ -75,8 +81,8 @@ export function createPlanningClient(options: { fetch?: ArcFetch } = {}): Planni
   }
 
   return {
-    async loadWorkspace() {
-      const response = await request("/api/planning/workspace", planningWorkspaceResponseSchema, { method: "GET" });
+    async loadWorkspace(signal) {
+      const response = await request("/api/planning/workspace", planningWorkspaceResponseSchema, { method: "GET", signal });
       return response;
     },
     generate: (input) => mutation("/api/planning/generate", input, generatePlanningRequestSchema),
@@ -90,7 +96,8 @@ function invalidResponse(): ArcApiError {
   return new ArcApiError(500, "INTERNAL", "Arc returned an invalid response.", invalidResponseId);
 }
 
-async function readBoundedResponse(response: Response): Promise<string> {
+async function readBoundedResponse(response: Response, signal?: AbortSignal): Promise<string> {
+  signal?.throwIfAborted();
   const contentLength = response.headers.get("content-length");
   if (contentLength !== null) {
     const parsed = Number(contentLength);
@@ -101,11 +108,14 @@ async function readBoundedResponse(response: Response): Promise<string> {
   }
   if (!response.body) throw invalidResponse();
   const reader = response.body.getReader();
+  const abort = () => { void reader.cancel().catch(() => undefined); };
+  signal?.addEventListener("abort", abort, { once: true });
   const chunks: Uint8Array[] = [];
   let bytes = 0;
   try {
     while (true) {
       const { done, value } = await reader.read();
+      signal?.throwIfAborted();
       if (done) break;
       bytes += value.byteLength;
       if (bytes > MAX_PLANNING_RESPONSE_BYTES) {
@@ -115,9 +125,13 @@ async function readBoundedResponse(response: Response): Promise<string> {
       chunks.push(value);
     }
   } catch (error) {
+    signal?.throwIfAborted();
     if (error instanceof ArcApiError) throw error;
     await reader.cancel().catch(() => undefined);
     throw invalidResponse();
+  } finally {
+    signal?.removeEventListener("abort", abort);
+    reader.releaseLock();
   }
   const combined = new Uint8Array(bytes);
   let offset = 0;

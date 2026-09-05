@@ -226,6 +226,54 @@ describe("usePlanningWorkspace", () => {
     expect(client.generate).not.toHaveBeenCalled();
   });
 
+  it("keeps Research setup cloud-only without restoring an unrelated local import candidate", async () => {
+    const { source } = await generatedFixture();
+    const repository = local({ readImportSource: vi.fn().mockResolvedValue(source) });
+    const client = cloud();
+    const { result } = renderHook(() => usePlanningWorkspace({ local: repository, client, useSession: signed, cloudOnly: true }));
+    await waitFor(() => expect(result.current.source).not.toBe("restoring"));
+    expect(repository.readImportSource).not.toHaveBeenCalled();
+    expect(result.current.workspace).toBeNull(); expect(result.current.migration).toBe("none");
+    expect(result.current.source).toBe("cloud");
+  });
+  it.each(["empty", "missing", "existing", "unauthorized", "rate", "unavailable", "wrong-not-found", "malformed"])("limits Research setup preflight for %s cloud state", async (kind) => {
+    const { generated } = await generatedFixture();
+    const client = cloud();
+    const { result } = renderHook(() => usePlanningWorkspace({ local: local(), client, useSession: signed, cloudOnly: true }));
+    await waitFor(() => expect(result.current.source).toBe("cloud"));
+    const load = vi.mocked(client.loadWorkspace);
+    if (kind === "missing") load.mockRejectedValue(new ArcApiError(404, "NOT_FOUND", "Missing", "request-preflight"));
+    else if (kind === "wrong-not-found") load.mockRejectedValue(new ArcApiError(500, "NOT_FOUND", "Missing", "request-preflight"));
+    else if (kind === "unauthorized") load.mockRejectedValue(new ArcApiError(401, "UNAUTHENTICATED", "Sign in", "request-preflight"));
+    else if (kind === "rate") load.mockRejectedValue(new ArcApiError(429, "RATE_LIMITED", "Busy", "request-preflight"));
+    else if (kind === "unavailable") load.mockRejectedValue(new Error("synthetic offline"));
+    else if (kind === "existing") load.mockResolvedValue(workspaceResponse(generated.workspace));
+    else if (kind === "malformed") load.mockResolvedValue({ workspace: null, sourceContext: null, owner: "foreign" } as unknown as PlanningWorkspaceResponse);
+    const signal = new AbortController().signal;
+    await act(async () => { expect(await result.current.preflightResearchSetup(signal)).toBe(kind === "empty" || kind === "missing"); });
+    expect(client.generate).not.toHaveBeenCalled();
+  });
+  it.each(["roundtrip", "unmount", "mode", "abort"])("cancels and discards setup preflight after %s while preserving operation exclusion", async (transition) => {
+    const client = cloud();
+    const hook = renderHook(({ owner, cloudOnly }) => usePlanningWorkspace({ client, local: local(), useSession: () => signedAs(owner), cloudOnly }), { initialProps: { owner: "user-1", cloudOnly: true } });
+    await waitFor(() => expect(hook.result.current.source).toBe("cloud"));
+    const retained = hook.result.current.preflightResearchSetup;
+    const deferredRead = deferred<PlanningWorkspaceResponse>();
+    vi.mocked(client.loadWorkspace).mockReturnValueOnce(deferredRead.promise);
+    const cancellation = new AbortController(); let pending!: Promise<boolean>;
+    act(() => { pending = retained(cancellation.signal); });
+    expect(await retained(new AbortController().signal)).toBe(false);
+    const signal = vi.mocked(client.loadWorkspace).mock.calls.at(-1)![0]!;
+    if (transition === "unmount") hook.unmount();
+    else if (transition === "abort") cancellation.abort();
+    else if (transition === "mode") hook.rerender({ owner: "user-1", cloudOnly: false });
+    else { hook.rerender({ owner: "user-2", cloudOnly: true }); hook.rerender({ owner: "user-1", cloudOnly: true }); }
+    await act(async () => { deferredRead.resolve(workspaceResponse(null)); expect(await pending).toBe(false); });
+    expect(signal.aborted).toBe(true);
+    if (transition !== "abort") expect(await retained(new AbortController().signal)).toBe(false);
+    expect(client.generate).not.toHaveBeenCalled();
+  });
+
   it("keeps the last cloud snapshot visible and refuses writes after cloud loss", async () => {
     const { generated } = await generatedFixture();
     const loadWorkspace = vi.fn()

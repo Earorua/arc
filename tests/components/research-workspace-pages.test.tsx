@@ -31,7 +31,7 @@ vi.mock("../../app/lib/use-arc-state", async (original) => {
 });
 vi.mock("../../app/lib/use-planning-workspace", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-planning-workspace")>();
-  return { ...actual, usePlanningWorkspace: () => actual.usePlanningWorkspace({ client: injected.planningClient }) };
+  return { ...actual, usePlanningWorkspace: (options: Parameters<typeof actual.usePlanningWorkspace>[0]) => actual.usePlanningWorkspace({ ...options, client: injected.planningClient }) };
 });
 vi.mock("../../app/lib/use-proof-ledger", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-proof-ledger")>();
@@ -49,6 +49,7 @@ const data = validation.package;
 const today = () => new Date().toISOString().slice(0, 10);
 let service: PlanningService;
 let initial: PlanningWorkspace;
+let clearPlanningForSetup: () => void;
 
 beforeEach(async () => {
   localStorage.clear(); injected.owner = "owner-a"; injected.pending = false; injected.loadProof.mockReset().mockResolvedValue(null); injected.navigate.mockReset();
@@ -56,6 +57,7 @@ beforeEach(async () => {
   injected.arcClient = { loadWorkspace: vi.fn(async () => snapshot), importLocal: vi.fn(), saveSetup: vi.fn(async (setup) => ({ ...snapshot, state: mergeSetup(snapshot.state, setup) })), completeUnit: vi.fn(), replay: vi.fn() };
   let stored: PlanningRepositoryPayload | null = null;
   const mutations = new Map<string, PlanningRepositoryPayload>();
+  clearPlanningForSetup = () => { stored = null; mutations.clear(); };
   const save: PlanningRepository["saveEvent"] = async (command) => {
     stored = { ownerId: command.ownerId, goalId: command.goalId, payload: command.result.workspace, sourceReference: command.sourceReference };
     const result = { ...stored, payload: command.result }; mutations.set(command.mutationId, result); return structuredClone(result);
@@ -89,6 +91,7 @@ describe("research workspace page adapters with real controllers and determinist
   function researchReply() { return Response.json({ requestId: "request-research-pages", run: { id: "research-run-pages", role: data.blueprint.name, locale: "en-US", state: "ready", retryable: false, packageId: data.id, summary: data.blueprint.summary, skillCount: data.blueprint.skills.length, sourceCount: data.sourceEvidence.length, observedAt: data.observedAt, quality: { passed: true, issueCodes: [] }, planningData: { id: data.id, blueprint: data.blueprint, registry: data.registry } } }); }
   function storedResearch() { localStorage.setItem("arc:role-research:v1", JSON.stringify({ runId: "research-run-pages", role: data.blueprint.name, locale: "en-US" })); }
   it.each(["account", "roundtrip", "unmount"].flatMap((transition) => ["resolve", "reject"].map((settlement) => ({ transition, settlement }))))("drops common-role save $settlement after $transition invalidates the connector", async ({ transition, settlement }) => {
+    clearPlanningForSetup();
     storedResearch(); const user = userEvent.setup();
     vi.stubGlobal("fetch", vi.fn(async (input) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply()));
     let rejectSave!: (error: unknown) => void;
@@ -114,14 +117,10 @@ describe("research workspace page adapters with real controllers and determinist
     expect(vi.mocked(injected.arcClient.saveSetup).mock.calls[0]![2]?.aborted).toBe(true);
   });
   it("restores an owner Ready run while ineligible and saves its actual role before submitting only source plus answers", async () => {
+    clearPlanningForSetup();
     storedResearch(); const user = userEvent.setup();
     const fetcher = vi.fn(async (input: RequestInfo | URL) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply());
     vi.stubGlobal("fetch", fetcher);
-    const context = (await service.getWorkspaceResponse("owner-a")).sourceContext;
-    injected.planningClient.generate = vi.fn(async () => {
-      expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal));
-      return { result: { outcome: "active" as const, workspace: initial, diff: null }, sourceContext: context };
-    });
     render(<SetupPage />);
     await user.click(await screen.findByRole("button", { name: "Use this research" }));
     expect(screen.getByRole("group", { name: `${data.blueprint.skills[0]!.name} self-assessment` })).toBeInTheDocument();
@@ -129,6 +128,9 @@ describe("research workspace page adapters with real controllers and determinist
     for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Build my path" }));
     await waitFor(() => expect(injected.planningClient.generate).toHaveBeenCalledOnce());
+    expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal));
+    expect(vi.mocked(injected.arcClient.saveSetup).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(injected.planningClient.generate).mock.invocationCallOrder[0]!);
+    await waitFor(() => expect(injected.navigate).toHaveBeenCalledWith("/path"));
     const request = vi.mocked(injected.planningClient.generate).mock.calls[0]![0];
     expect(request).toMatchObject({ source: { source: "research", researchRunId: "research-run-pages" }, audit: { blueprintId: data.blueprint.id } });
     expect(Object.keys(request).sort()).toEqual(["audit", "availability", "mutationId", "planningDate", "selectedScope", "source", "target"]);

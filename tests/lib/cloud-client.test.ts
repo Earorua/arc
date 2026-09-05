@@ -13,6 +13,16 @@ const snapshot = {
 };
 
 describe("Arc cloud client", () => {
+  it.each(["activation", "load"])("cancels the %s transport used by Research setup", async (operation) => {
+    const cancellation = new AbortController();
+    let resolveResponse!: (response: Response) => void;
+    const fetcher = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(() => new Promise<Response>((resolve) => { resolveResponse = resolve; }));
+    const client = createArcCloudClient({ fetch: fetcher });
+    const pending = operation === "activation" ? client.importLocal(snapshot.state, "reject", "activation-current", cancellation.signal) : client.loadWorkspace(cancellation.signal);
+    expect(fetcher.mock.calls[0]?.[1]).toMatchObject({ signal: cancellation.signal });
+    cancellation.abort(); resolveResponse(Response.json({ snapshot }));
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  });
   it("cancels setup transport and discards responses from a transport that resolves after abort", async () => {
     let resolveFetch!: (response: Response) => void;
     const fetcher = vi.fn(() => new Promise<Response>((resolve) => { resolveFetch = resolve; }));

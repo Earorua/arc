@@ -51,11 +51,12 @@ type CloudClientOptions = {
 };
 
 export interface ArcCloudClient {
-  loadWorkspace(): Promise<CloudSnapshot | null>;
+  loadWorkspace(signal?: AbortSignal): Promise<CloudSnapshot | null>;
   importLocal(
     state: DemoState,
     resolution?: "reject" | "archive-import" | "activate-import",
     migrationId?: string,
+    signal?: AbortSignal,
   ): Promise<MigrationResult>;
   saveSetup(setup: SetupAnswersInput, mutationId?: string, signal?: AbortSignal): Promise<CloudSnapshot>;
   completeUnit(unit: LearningUnit, mutationId?: string): Promise<CloudSnapshot>;
@@ -133,11 +134,11 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
   }
 
   return {
-    async loadWorkspace() {
-      const response = await request("/api/workspace", cloudWorkspaceResponseSchema, { method: "GET" });
+    async loadWorkspace(signal) {
+      const response = await request("/api/workspace", cloudWorkspaceResponseSchema, { method: "GET", signal });
       return response.snapshot;
     },
-    async importLocal(state, resolution = "reject", migrationId = createMutationId()) {
+    async importLocal(state, resolution = "reject", migrationId = createMutationId(), signal) {
       const mutation = migrationRequestSchema.parse({
         migrationId,
         consent: true,
@@ -147,6 +148,7 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
       const response = await request("/api/migrations/local-state", migrationResponseSchema, {
         method: "POST",
         body: JSON.stringify(mutation),
+        signal,
       });
       return response.result;
     },

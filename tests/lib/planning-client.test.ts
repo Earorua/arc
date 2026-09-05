@@ -30,6 +30,28 @@ afterEach(() => {
 });
 
 describe("adaptive planning browser client", () => {
+  it("cancels an unread late response body when a setup read was already aborted", async () => {
+    const cancel = vi.fn();
+    const response = new Response(new ReadableStream({ cancel }));
+    let resolveFetch!: (value: Response) => void;
+    const fetcher = vi.fn(() => new Promise<Response>((resolve) => { resolveFetch = resolve; }));
+    const cancellation = new AbortController();
+    const pending = createPlanningClient({ fetch: fetcher }).loadWorkspace(cancellation.signal);
+    cancellation.abort(); resolveFetch(response);
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+  it("cancels a pending bounded response read and rejects an already cancelled read before fetching", async () => {
+    const cancel = vi.fn(); const stream = new ReadableStream({ cancel });
+    const fetcher = vi.fn().mockResolvedValue(new Response(stream));
+    const client = createPlanningClient({ fetch: fetcher });
+    const cancellation = new AbortController(); const pending = client.loadWorkspace(cancellation.signal);
+    await vi.waitFor(() => expect(stream.locked).toBe(true));
+    cancellation.abort(); await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    expect(cancel).toHaveBeenCalledOnce();
+    fetcher.mockClear(); await expect(client.loadWorkspace(cancellation.signal)).rejects.toMatchObject({ name: "AbortError" });
+    expect(fetcher).not.toHaveBeenCalled();
+  });
   it("returns each workspace and source context atomically across out-of-order responses", async () => {
     const repository = createLocalPlanningRepository({
       storage: new MemoryStorage(), createId: () => "planning-client-workspace",

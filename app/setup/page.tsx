@@ -19,7 +19,7 @@ import { useRoleResearch, type RoleResearchController } from "../lib/use-role-re
 import type { ResearchPlanningData } from "../contracts/research";
 
 function AdaptiveSetupConnector({ navigate, onBackToRole, active, saveCommonRole, source, planningData }: { navigate: (path: string) => void; onBackToRole: () => void; active: boolean; saveCommonRole: (request: GeneratePlanningRequest, roleId: string, signal: AbortSignal) => Promise<boolean>; source: SetupSource; planningData: ResearchPlanningData | null }) {
-  const planning = usePlanningWorkspace();
+  const planning = usePlanningWorkspace({ cloudOnly: source.source === "research" });
   const connected = useRef(false);
   const epoch = useRef(0);
   const saveCancellation = useRef<AbortController | null>(null);
@@ -38,8 +38,12 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, saveCommonRole
     const started = epoch.current;
     const signal = saveCancellation.current?.signal;
     if (!signal || signal.aborted) return false;
+    if (source.source === "research" && !await planning.preflightResearchSetup(signal)) return false;
+    if (signal.aborted || !connected.current || started !== epoch.current) return false;
     if (!await saveCommonRole(request, source.source === "research" ? blueprint.name : blueprint.id, signal)) return false;
     if (!connected.current || started !== epoch.current) return false;
+    if (source.source === "research") await planning.retry(signal);
+    if (signal.aborted || !connected.current || started !== epoch.current) return false;
     return planning.generate(request);
   };
   return <AdaptiveSetupFlow
@@ -74,6 +78,7 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
   const router = useRouter();
   const arc = useArcState();
   const [saveError, setSaveError] = useState<string | null>(null);
+  const researchActivation = useRef<{ key: string; id: string } | null>(null);
   const pageCancellation = useRef<AbortController | null>(null);
   useLayoutEffect(() => {
     const cancellation = new AbortController(); pageCancellation.current = cancellation;
@@ -96,14 +101,20 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
   const saveCommonRole = async (request: GeneratePlanningRequest, roleId: string, signal: AbortSignal) => {
     if (signal.aborted) return false;
     setSaveError(null);
-    const saved = await arc.saveSetup({
+    const setup = {
       roleId,
       level: arc.state?.setup.level ?? "beginner",
       weeklyMinutes: request.availability.weeklyMinutes,
       targetWeeks: request.target.targetWeeks,
-    }, signal);
+    };
+    const isResearch = "source" in request && request.source.source === "research";
+    if (isResearch) {
+      const key = JSON.stringify({ source: request.source, setup });
+      if (researchActivation.current?.key !== key) researchActivation.current = { key, id: `research-setup-${crypto.randomUUID()}` };
+    }
+    const saved = await arc.saveSetup(setup, signal, isResearch ? { researchActivationId: researchActivation.current!.id } : undefined);
     if (signal.aborted) return false;
-    if (!saved) setSaveError("无法保存到此设备，请检查浏览器存储设置后重试。");
+    if (!saved) setSaveError(isResearch ? "Arc could not save this research setup to your account. Try again." : "无法保存到此设备，请检查浏览器存储设置后重试。");
     return saved;
   };
 

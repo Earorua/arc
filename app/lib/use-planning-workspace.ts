@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   planningMutationResponseSchema,
   planningWorkspaceResponseSchema,
@@ -47,7 +47,8 @@ export type PlanningWorkspaceController = {
   discard(candidatePlanVersionId: string): Promise<boolean>;
   importLocal(): Promise<boolean>;
   dismissMigration(): void;
-  retry(): Promise<void>;
+  retry(signal?: AbortSignal): Promise<void>;
+  preflightResearchSetup(signal: AbortSignal): Promise<boolean>;
 };
 
 type ArcSessionState = {
@@ -61,6 +62,7 @@ type PlanningWorkspaceOptions = {
   createMutationId: () => string;
   now: () => Date;
   useSession: () => ArcSessionState;
+  cloudOnly: boolean;
 };
 
 type PlanningIdentity = "guest" | `user:${string}`;
@@ -80,6 +82,7 @@ function useRuntimeSession(): ArcSessionState {
 export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> = {}): PlanningWorkspaceController {
   const useSession = options.useSession ?? useRuntimeSession;
   const session = useSession();
+  const cloudOnly = options.cloudOnly ?? false;
   const currentIdentity: PlanningIdentity = session.data?.user.id
     ? `user:${session.data.user.id}`
     : "guest";
@@ -106,6 +109,12 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   });
   const lifecycleRef = useRef({ mounted: false, epoch: 0 });
   const activeOperationRef = useRef<PlanningOperationToken | null>(null);
+  const setupIdentity = useMemo(() => ({ currentIdentity, cloudOnly, pending: session.isPending }), [currentIdentity, cloudOnly, session.isPending]);
+  const setupLifetimeRef = useRef<{ identity: typeof setupIdentity; controller: AbortController } | null>(null);
+  useLayoutEffect(() => {
+    const controller = new AbortController(); setupLifetimeRef.current = { identity: setupIdentity, controller };
+    return () => controller.abort();
+  }, [setupIdentity]);
 
   const publishWorkspace = useCallback((value: unknown) => {
     const parsed = value === null ? null : planningWorkspaceSchema.parse(value);
@@ -130,12 +139,14 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     setVisibleIdentity(value);
   }, []);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal?: AbortSignal) => {
+    const readSignal = signal ?? (cloudOnly ? setupLifetimeRef.current?.controller.signal : undefined);
+    if (readSignal?.aborted) return;
     const loadGeneration = ++loadGenerationRef.current;
     const userId = userIdRef.current;
     const identity: PlanningIdentity = userId ? `user:${userId}` : "guest";
     operationContextRef.current = { identity, generation: loadGeneration };
-    const sessionIsCurrent = () => userIdRef.current === userId && loadGenerationRef.current === loadGeneration;
+    const sessionIsCurrent = () => !readSignal?.aborted && userIdRef.current === userId && loadGenerationRef.current === loadGeneration;
     setRecovery("none");
     if (!userId) {
       const localWorkspace = await localRef.current.load();
@@ -149,7 +160,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       return;
     }
     try {
-      const cloudEnvelope = planningWorkspaceResponseSchema.parse(await clientRef.current.loadWorkspace());
+      const cloudEnvelope = planningWorkspaceResponseSchema.parse(await (readSignal ? clientRef.current.loadWorkspace(readSignal) : clientRef.current.loadWorkspace()));
       if (!sessionIsCurrent()) return;
       const cloudWorkspace = cloudEnvelope.workspace;
       if (cloudWorkspace) {
@@ -161,7 +172,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         publishSource("cloud");
         return;
       }
-      const localSource = await localRef.current.readImportSource();
+      const localSource = cloudOnly ? null : await localRef.current.readImportSource();
       if (!sessionIsCurrent()) return;
       importSourceRef.current = localSource;
       if (localSource) {
@@ -192,7 +203,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       if (workspaceRef.current && sourceRef.current === "cloud") publishSource("offline-cloud");
       else if (!workspaceRef.current) publishSource("offline-cloud");
     }
-  }, [publishSource, publishSourceContext, publishVisibleIdentity, publishWorkspace]);
+  }, [cloudOnly, publishSource, publishSourceContext, publishVisibleIdentity, publishWorkspace]);
 
   useEffect(() => {
     const lifecycle = lifecycleRef.current;
@@ -306,6 +317,28 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     return generate(input);
   }, [currentIdentity, generate, visibleIdentity]);
 
+  const preflightResearchSetup = useCallback((signal: AbortSignal) => {
+    const lifetime = setupLifetimeRef.current;
+    if (!cloudOnly || session.isPending || currentIdentity === "guest" || visibleIdentity !== currentIdentity
+      || !lifetime || lifetime.identity !== setupIdentity || lifetime.controller.signal.aborted || signal.aborted) return Promise.resolve(false);
+    return runOperation(currentIdentity, async (token) => {
+      const cancellation = new AbortController();
+      const abort = () => cancellation.abort();
+      signal.addEventListener("abort", abort, { once: true });
+      lifetime.controller.signal.addEventListener("abort", abort, { once: true });
+      try {
+        const response = planningWorkspaceResponseSchema.parse(await clientRef.current.loadWorkspace(cancellation.signal));
+        return !cancellation.signal.aborted && isOperationCurrent(token) && response.workspace === null;
+      } catch (error) {
+        return !cancellation.signal.aborted && isOperationCurrent(token)
+          && isArcApiError(error) && error.status === 404 && error.code === "NOT_FOUND";
+      } finally {
+        signal.removeEventListener("abort", abort);
+        lifetime.controller.signal.removeEventListener("abort", abort);
+      }
+    });
+  }, [cloudOnly, currentIdentity, isOperationCurrent, runOperation, session.isPending, setupIdentity, visibleIdentity]);
+
   const record = useCallback((input: PlanningEventInput) => {
     if (visibleIdentity !== currentIdentity) return Promise.resolve(false);
     let parsed: PlanningEventInput;
@@ -418,6 +451,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     importLocal,
     dismissMigration: () => setMigration("none"),
     retry: load,
+    preflightResearchSetup,
   };
 }
 

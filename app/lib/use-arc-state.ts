@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { LearningUnit } from "../domain/learning";
+import { cloudSnapshotSchema, migrationResultSchema, setupAnswersSchema } from "../contracts/cloud-state";
 import { authClient } from "./auth-client";
 import { arcCloudClient, isArcApiError, type ArcCloudClient } from "./cloud-client";
 import {
@@ -38,7 +39,7 @@ export type ArcStateController = {
   recovery: ArcRecoveryState;
   dismissMigration(): void;
   importLocal(resolution?: ArcMigrationResolution): Promise<void>;
-  saveSetup(setup: SetupAnswers, signal?: AbortSignal): Promise<boolean>;
+  saveSetup(setup: SetupAnswers, signal?: AbortSignal, options?: { researchActivationId: string }): Promise<boolean>;
   completeUnit(unit: LearningUnit): Promise<boolean>;
   retry(): Promise<void>;
 };
@@ -241,11 +242,44 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     return result.accepted;
   }, [publishSource]);
 
-  const saveSetup = useCallback(async (setup: SetupAnswers, signal?: AbortSignal): Promise<boolean> => {
+  const saveSetup = useCallback(async (setup: SetupAnswers, signal?: AbortSignal, options?: { researchActivationId: string }): Promise<boolean> => {
     const lifetime = setupLifetimeRef.current;
     if (!lifetime || lifetime.identity !== setupIdentity || !lifetime.ready) return false;
     const lifetimeSignal = lifetime.controller.signal;
     if (lifetimeSignal.aborted || signal?.aborted) return false;
+    if (options) {
+      if (!setupIdentity.userId || setupIdentity.pending) return false;
+      const cancellation = new AbortController();
+      const cancel = () => cancellation.abort();
+      lifetimeSignal.addEventListener("abort", cancel, { once: true }); signal?.addEventListener("abort", cancel, { once: true });
+      try {
+        const currentSetup = setupAnswersSchema.parse(setup);
+        const previous = await clientRef.current.loadWorkspace(cancellation.signal);
+        if (cancellation.signal.aborted) return false;
+        let snapshot;
+        if (previous === null) {
+          // Explicit Research Build activates only its current answers, never device history.
+          const activation = migrationResultSchema.parse(await clientRef.current.importLocal({ setup: currentSetup, completedUnitIds: [], proofs: [] }, "reject", options.researchActivationId, cancellation.signal));
+          if (cancellation.signal.aborted || activation.migrationId !== options.researchActivationId
+            || !["imported", "already-imported"].includes(activation.status) || !activation.activeGoalId
+            || activation.importedCompletionCount !== 0 || activation.importedProofCount !== 0 || activation.availableResolutions.length !== 0) return false;
+          snapshot = cloudSnapshotSchema.parse(await clientRef.current.loadWorkspace(cancellation.signal));
+          if (snapshot.activeGoalId !== activation.activeGoalId || snapshot.state.completedUnitIds.length !== 0 || snapshot.state.proofs.length !== 0) return false;
+        } else {
+          const existing = cloudSnapshotSchema.parse(previous);
+          snapshot = cloudSnapshotSchema.parse(await clientRef.current.saveSetup(currentSetup, options.researchActivationId, cancellation.signal));
+          if (snapshot.activeGoalId !== existing.activeGoalId) return false;
+        }
+        if (cancellation.signal.aborted || Object.entries(currentSetup).some(([key, value]) => snapshot.state.setup[key as keyof SetupAnswers] !== value)) return false;
+        publishState(snapshot.state); publishSource("cloud"); setRecovery("none");
+        return true;
+      } catch (error) {
+        if (!cancellation.signal.aborted && isArcApiError(error) && error.status === 401) setRecovery("session-expired");
+        return false;
+      } finally {
+        lifetimeSignal.removeEventListener("abort", cancel); signal?.removeEventListener("abort", cancel);
+      }
+    }
     const current = stateRef.current;
     if (!current) return false;
     const signedIn = Boolean(userIdRef.current);
