@@ -3,10 +3,13 @@ import {
   generatePlanningRequestSchema,
   planningEventRequestSchema,
   replanDecisionRequestSchema,
+  type PlanningMutationResponse,
+  type PlanningWorkspaceResponse,
 } from "../../contracts/planning-api";
 import {
   planningEventSchema,
   planningMutationResultSchema,
+  planningSourceContextSchema,
   planningWorkspaceSchema,
   type PlanningEvent,
   type PlanningMutationResult,
@@ -15,7 +18,9 @@ import {
   type PlanningSourceReference,
 } from "../../contracts/planning";
 import { applyPlanningEvent, PlanningEventError, type PlanningTransition } from "../../lib/planning/event-reducer";
+import { validateRoleBlueprint } from "../../lib/intelligence-validation";
 import { buildLearningPaths, PlanningInputError } from "../../lib/planning/path-builder";
+import { validateUnitRegistry } from "../../lib/planning/registry-validation";
 import { buildPlanVersion, PlanningScheduleError } from "../../lib/planning/scheduler";
 import type { IntelligenceService } from "../intelligence/service";
 import type {
@@ -47,7 +52,7 @@ export class PlanningConflictError extends PlanningServiceError {
 export class PlanningUnavailableError extends PlanningServiceError {
   constructor(
     issues: readonly string[] = [],
-    readonly reason: "unavailable" | "version-mismatch" = "unavailable",
+    readonly reason: "unavailable" | "version-mismatch" | "response-too-large" = "unavailable",
   ) {
     super("PLANNING_UNAVAILABLE", [...new Set(issues)].sort());
     this.name = "PlanningUnavailableError";
@@ -89,13 +94,21 @@ export class PlanningService {
   }
 
   async getWorkspace(userId: string): Promise<PlanningWorkspace | null> {
+    return (await this.getWorkspaceResponse(userId)).workspace;
+  }
+
+  async getWorkspaceResponse(userId: string): Promise<PlanningWorkspaceResponse> {
     const scope = await this.resolveScope(userId);
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
-    if (!stored) return null;
-    return (await this.parseOwnedWorkspace(stored, scope)).workspace;
+    if (!stored) return { workspace: null, sourceContext: null };
+    return this.parseOwnedWorkspace(stored, scope);
   }
 
   async generate(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    return (await this.generateResponse(userId, input)).result;
+  }
+
+  async generateResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     const ownerId = parseOwner(userId);
     const request = parseContract(generatePlanningRequestSchema, input);
     const scope = await this.resolveScope(ownerId);
@@ -154,19 +167,27 @@ export class PlanningService {
       const saved = await this.dependencies.repository.saveGeneration({
         ...scope, mutationId: request.mutationId, result, sourceReference,
       });
-      return (await this.parseOwnedResult(saved, scope, sourceReference)).result;
+      return this.parseOwnedResult(saved, scope, sourceReference);
     } catch (error) {
       throw normalizeError(error);
     }
   }
 
   async appendEvent(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    return (await this.appendEventResponse(userId, input)).result;
+  }
+
+  async appendEventResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     parseOwner(userId);
     const request = parseContract(planningEventRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, request.event);
   }
 
   async acceptReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    return (await this.acceptReplanResponse(userId, input)).result;
+  }
+
+  async acceptReplanResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     parseOwner(userId);
     const request = parseContract(replanDecisionRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, {
@@ -176,6 +197,10 @@ export class PlanningService {
   }
 
   async discardReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    return (await this.discardReplanResponse(userId, input)).result;
+  }
+
+  async discardReplanResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     parseOwner(userId);
     const request = parseContract(replanDecisionRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, {
@@ -189,7 +214,7 @@ export class PlanningService {
     mutationId: string,
     baseVersionId: string,
     body: Record<string, unknown>,
-  ): Promise<PlanningMutationResult> {
+  ): Promise<PlanningMutationResponse> {
     const ownerId = parseOwner(userId);
     const scope = await this.resolveScope(ownerId);
     const replay = await this.loadReplay(scope, mutationId);
@@ -220,7 +245,7 @@ export class PlanningService {
         result,
         sourceReference,
       });
-      return (await this.parseOwnedResult(saved, scope, sourceReference)).result;
+      return this.parseOwnedResult(saved, scope, sourceReference);
     } catch (error) {
       throw normalizeError(error);
     }
@@ -239,16 +264,9 @@ export class PlanningService {
     return { ownerId, goalId: scope.goalId };
   }
 
-  private async loadReplay(scope: PlanningOwnerGoal, mutationId: string): Promise<PlanningMutationResult | null> {
+  private async loadReplay(scope: PlanningOwnerGoal, mutationId: string): Promise<PlanningMutationResponse | null> {
     const stored = await repositoryRead(() => this.dependencies.repository.findMutation({ ...scope, mutationId }));
-    return stored ? (await this.parseOwnedResult(stored, scope)).result : null;
-  }
-
-  async getSourceContext(userId: string): Promise<PlanningSourceContext | null> {
-    const scope = await this.resolveScope(userId);
-    const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
-    if (!stored) return null;
-    return (await this.parseOwnedWorkspace(stored, scope)).sourceContext;
+    return stored ? this.parseOwnedResult(stored, scope) : null;
   }
 
   private async parseOwnedWorkspace(stored: PlanningRepositoryPayload, scope: PlanningOwnerGoal): Promise<{
@@ -260,7 +278,7 @@ export class PlanningService {
       const workspace = planningWorkspaceSchema.parse(cloneUnknown(stored.payload));
       if (workspace.goalId !== scope.goalId) throw new PlanningNotFoundError();
       const sourceReference = resolveStoredReference(stored.sourceReference, workspace);
-      const sourceContext = await this.sourceResolver.resolveForReplay(scope.ownerId, sourceReference);
+      const sourceContext = await this.resolveStoredContext(stored, scope.ownerId, sourceReference);
       assertWorkspaceSource(workspace, sourceContext);
       return { workspace, sourceContext };
     }
@@ -283,13 +301,31 @@ export class PlanningService {
       if (expectedReference && JSON.stringify(sourceReference) !== JSON.stringify(expectedReference)) {
         throw new PlanningUnavailableError();
       }
-      const sourceContext = await this.sourceResolver.resolveForReplay(scope.ownerId, sourceReference);
+      const sourceContext = await this.resolveStoredContext(stored, scope.ownerId, sourceReference);
       assertWorkspaceSource(result.workspace, sourceContext);
       return { result, sourceContext };
     } catch (error) {
       if (error instanceof PlanningServiceError) throw error;
       throw new PlanningUnavailableError();
     }
+  }
+
+  private async resolveStoredContext(
+    stored: PlanningRepositoryPayload,
+    ownerId: string,
+    sourceReference: PlanningSourceReference,
+  ): Promise<PlanningSourceContext> {
+    const context = stored.sourceContext === undefined
+      ? await this.sourceResolver.resolveForReplay(ownerId, sourceReference)
+      : planningSourceContextSchema.parse(cloneUnknown(stored.sourceContext));
+    if (JSON.stringify(context.reference) !== JSON.stringify(sourceReference)) {
+      throw new PlanningUnavailableError();
+    }
+    if (validateRoleBlueprint(context.blueprint).issues.length
+      || validateUnitRegistry(context.registry, context.blueprint).issues.length) {
+      throw new PlanningUnavailableError();
+    }
+    return context;
   }
 }
 

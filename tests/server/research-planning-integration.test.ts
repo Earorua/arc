@@ -225,7 +225,7 @@ describe("Research planning source integration", () => {
       now: () => new Date("2026-10-15T00:00:00.000Z"),
     });
     const first = await create().generate(ownerId, request());
-    const sourceContext = await create().getSourceContext(ownerId);
+    const sourceContext = (await create().getWorkspaceResponse(ownerId)).sourceContext;
     expect(planningWorkspaceResponseSchema.parse({ workspace: first.workspace, sourceContext })).toEqual({
       workspace: first.workspace, sourceContext,
     });
@@ -318,6 +318,13 @@ describe("Research planning source integration", () => {
       repository: beforePlanning, sourceResolver: beforeResolver,
       createId: () => "research-workspace-1", now: () => new Date("2026-09-01T00:00:00.000Z"),
     }).generate(ownerId, request());
+    const replayResolution = vi.spyOn(beforeResolver, "resolveForReplay");
+    replayResolution.mockClear();
+    const loadedEnvelope = await new PlanningService({
+      repository: beforePlanning, sourceResolver: beforeResolver,
+    }).getWorkspaceResponse(ownerId);
+    expect(loadedEnvelope.workspace).toEqual(generated.workspace);
+    expect(replayResolution).toHaveBeenCalledTimes(1);
     const storedGeneration = await beforePlanning.findMutation({
       ownerId, goalId, mutationId: "mutation-generate-1",
     });
@@ -402,13 +409,13 @@ describe("Research planning source integration", () => {
     db.close();
   });
 
-  it("rejects a new Research generation when its package expires before the repository commit boundary", async () => {
+  it("rolls back a new Research generation when expiry passes after source resolution but before the D1 batch", async () => {
     const db = createResearchD1();
     seedUser(db, ownerId);
     db.database.prepare(`INSERT INTO career_goals
       (id,user_id,role_id,level,weekly_minutes,target_weeks,status,active_slot)
       VALUES (?1,?2,?3,'beginner',420,18,'active',1)`).run(goalId, ownerId, researchPackage.blueprint.id);
-    let researchNow = Date.parse("2026-09-01T00:00:00.000Z");
+    const researchNow = Date.parse("2026-09-01T00:00:00.000Z");
     const research = new D1ResearchRepository(db as unknown as D1Database, {
       now: () => researchNow, createId: () => researchRunId,
     });
@@ -434,21 +441,18 @@ describe("Research planning source integration", () => {
       researchRepository: research,
       replayPackageReader: new D1PlanningReplayPackageReader(db as unknown as D1Database),
     });
+    let commitNow = Date.parse("2026-09-01T00:00:00.000Z");
+    const resolveForGenerationCommit = sourceResolver.resolveForGenerationCommit.bind(sourceResolver);
+    vi.spyOn(sourceResolver, "resolveForGenerationCommit").mockImplementation(async (candidateOwner, reference) => {
+      const context = await resolveForGenerationCommit(candidateOwner, reference);
+      commitNow = Date.parse("2026-10-15T00:00:00.000Z");
+      return context;
+    });
     let id = 0;
     const persisted = new D1PlanningRepository(db as unknown as D1Database, {
       sourceResolver, createId: () => `expiry-race-planning-${++id}`,
-      now: () => new Date("2026-10-15T00:00:00.000Z"),
+      now: () => new Date(commitNow),
     });
-    const repository: PlanningRepository = {
-      findActiveGoal: (candidateOwner) => persisted.findActiveGoal(candidateOwner),
-      findMutation: (input) => persisted.findMutation(input),
-      load: (scope) => persisted.load(scope),
-      saveEvent: (command) => persisted.saveEvent(command),
-      saveGeneration: (command) => {
-        researchNow = Date.parse("2026-10-15T00:00:00.000Z");
-        return persisted.saveGeneration(command);
-      },
-    };
     const planningTables = [
       "planning_workspaces", "planning_events", "skill_audit_versions", "availability_versions",
       "learning_path_versions", "plan_versions", "daily_units",
@@ -460,7 +464,7 @@ describe("Research planning source integration", () => {
     const before = tableCounts();
 
     await expect(new PlanningService({
-      repository, sourceResolver, createId: () => `expiry-race-domain-${++id}`,
+      repository: persisted, sourceResolver, createId: () => `expiry-race-domain-${++id}`,
       now: () => new Date("2026-09-01T00:00:00.000Z"),
     }).generate(ownerId, { ...request(), mutationId: "mutation-expiry-race-generation" }))
       .rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });

@@ -625,7 +625,11 @@ describe("D1PlanningRepository", () => {
 
     await expect(repositoryWith(replayDb).findMutation({
       ownerId: "user-1", goalId: "goal-1", mutationId: "mutation-event-1",
-    })).resolves.toEqual({ ownerId: "user-1", goalId: "goal-1", payload: next, sourceReference: flagshipSourceReference });
+    })).resolves.toMatchObject({
+      ownerId: "user-1", goalId: "goal-1", payload: next,
+      sourceReference: flagshipSourceReference,
+      sourceContext: { reference: flagshipSourceReference },
+    });
 
     const tamperedDb = new FakeD1();
     const event = structuredClone(next.workspace.events[0]!);
@@ -684,8 +688,9 @@ describe("D1PlanningRepository", () => {
     });
     seedHistory(winning, previous, next);
     winning.batchError = new Error("UNIQUE constraint failed: planning_events.workspace_id, planning_events.sequence");
-    await expect(repositoryWith(winning).saveEvent(command)).resolves.toEqual({
+    await expect(repositoryWith(winning).saveEvent(command)).resolves.toMatchObject({
       ownerId: "user-1", goalId: "goal-1", payload: next, sourceReference: flagshipSourceReference,
+      sourceContext: { reference: flagshipSourceReference },
     });
 
     const losing = new FakeD1();

@@ -144,14 +144,82 @@ describe("PlanningService", () => {
     expect(repository.load).toHaveBeenCalledWith({ ownerId: userId, goalId });
   });
 
-  it("requests only the flagship intelligence and validates every generation input before writing", async () => {
-    const repository = fakeRepository();
+  it("builds a workspace HTTP envelope with one repository load and one source reconstruction", async () => {
+    const result = await generatedResult();
+    const repository = fakeRepository({
+      load: vi.fn(async () => ({ ownerId: userId, goalId, payload: result.workspace })),
+    });
     const { service, getPublished } = createService(repository);
 
-    const result = await service.generate(userId, generateRequest());
+    const response = await service.getWorkspaceResponse(userId);
+
+    expect(response).toEqual({
+      workspace: result.workspace,
+      sourceContext: {
+        reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+        blueprint: flagshipBlueprint,
+        registry: flagshipUnitRegistry,
+      },
+    });
+    expect(repository.load).toHaveBeenCalledTimes(1);
+    expect(getPublished).toHaveBeenCalledTimes(1);
+  });
+
+  it("revalidates a repository-supplied in-memory source context without resolving it again", async () => {
+    const result = await generatedResult();
+    const cyclicBlueprint = structuredClone(flagshipBlueprint);
+    const [firstSkill, secondSkill] = cyclicBlueprint.skills;
+    firstSkill!.prerequisiteIds = [secondSkill!.id];
+    secondSkill!.prerequisiteIds = [firstSkill!.id];
+    const sourceReference = { source: "flagship", roleId: "ai-native-full-stack-engineer" } as const;
+    const repository = fakeRepository({
+      load: vi.fn(async () => ({
+        ownerId: userId,
+        goalId,
+        payload: result.workspace,
+        sourceReference,
+        sourceContext: {
+          reference: sourceReference,
+          blueprint: cyclicBlueprint,
+          registry: flagshipUnitRegistry,
+        },
+      })),
+    });
+    const { service, getPublished } = createService(repository);
+
+    await expect(service.getWorkspaceResponse(userId)).rejects.toBeInstanceOf(PlanningUnavailableError);
+    expect(repository.load).toHaveBeenCalledTimes(1);
+    expect(getPublished).not.toHaveBeenCalled();
+  });
+
+  it("requests only the flagship intelligence and validates every generation input before writing", async () => {
+    const sourceReference = { source: "flagship", roleId: "ai-native-full-stack-engineer" } as const;
+    const sourceContext = {
+      reference: sourceReference,
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+    };
+    const repository = fakeRepository({
+      saveGeneration: vi.fn(async (command) => ({
+        ownerId: command.ownerId,
+        goalId: command.goalId,
+        payload: command.result,
+        sourceReference,
+        sourceContext,
+      })),
+    });
+    const { service, getPublished } = createService(repository);
+
+    const response = await service.generateResponse(userId, generateRequest());
+    const result = response.result;
 
     expect(getPublished).toHaveBeenCalledWith("ai-native-full-stack-engineer");
+    expect(response.sourceContext).toMatchObject({
+      reference: sourceReference,
+    });
+    expect(getPublished).toHaveBeenCalledTimes(1);
     expect(result.outcome).toBe("active");
+    expect(repository.load).toHaveBeenCalledTimes(1);
     expect(repository.saveGeneration).toHaveBeenCalledOnce();
     expect(result.workspace.goalId).toBe(goalId);
   });

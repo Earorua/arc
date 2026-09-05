@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { GeneratePlanningRequest, PlanningEventRequest, ReplanDecisionRequest } from "../contracts/planning-api";
+import {
+  planningMutationResponseSchema,
+  planningWorkspaceResponseSchema,
+  type GeneratePlanningRequest,
+  type PlanningEventRequest,
+  type PlanningMutationResponse,
+  type ReplanDecisionRequest,
+} from "../contracts/planning-api";
 import {
   planningEventInputSchema,
   planningMutationResultSchema,
@@ -142,11 +149,12 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       return;
     }
     try {
-      const cloudWorkspace = await clientRef.current.loadWorkspace();
+      const cloudEnvelope = planningWorkspaceResponseSchema.parse(await clientRef.current.loadWorkspace());
       if (!sessionIsCurrent()) return;
+      const cloudWorkspace = cloudEnvelope.workspace;
       if (cloudWorkspace) {
         publishWorkspace(cloudWorkspace);
-        publishSourceContext(clientRef.current.getSourceContext?.() ?? null);
+        publishSourceContext(cloudEnvelope.sourceContext ?? null);
         publishVisibleIdentity(identity);
         importSourceRef.current = null;
         setMigration("none");
@@ -253,10 +261,11 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     token: PlanningOperationToken,
   ) => {
     if (!isOperationCurrent(token)) return false;
-    const result = planningMutationResultSchema.parse(value);
+    const envelope = nextSource === "cloud" ? planningMutationResponseSchema.parse(value) : null;
+    const result = envelope?.result ?? planningMutationResultSchema.parse(value);
     if (!isOperationCurrent(token)) return false;
     publishWorkspace(result.workspace);
-    publishSourceContext(nextSource === "cloud" ? clientRef.current.getSourceContext?.() ?? null : null);
+    publishSourceContext(envelope?.sourceContext ?? null);
     publishVisibleIdentity(token.identity);
     publishSource(nextSource);
     setRecovery("none");
@@ -266,7 +275,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
   const mutate = useCallback(async (
     expectedIdentity: PlanningIdentity,
     localAction: (repository: LocalPlanningRepository) => Promise<PlanningMutationResult>,
-    cloudAction: (client: PlanningClient) => Promise<PlanningMutationResult>,
+    cloudAction: (client: PlanningClient) => Promise<PlanningMutationResponse>,
   ) => runOperation(expectedIdentity, async (token) => {
     try {
       if (token.identity === "guest") {
@@ -361,7 +370,8 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
       if (!isOperationCurrent(token)) return false;
 
       if (progress.lastImportedSequence > 0) {
-        cloudWorkspace = planningWorkspaceSchema.parse(await clientRef.current.loadWorkspace());
+        const resumed = planningWorkspaceResponseSchema.parse(await clientRef.current.loadWorkspace());
+        cloudWorkspace = planningWorkspaceSchema.parse(resumed.workspace);
         if (!isOperationCurrent(token)) return false;
       }
 
@@ -374,14 +384,14 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
         await localRef.current.updateImportProgress(sourceSnapshot.workspaceFingerprint, progress);
         if (!isOperationCurrent(token)) return false;
       }
-      const loadedValue = await clientRef.current.loadWorkspace();
+      const loadedEnvelope = planningWorkspaceResponseSchema.parse(await clientRef.current.loadWorkspace());
       if (!isOperationCurrent(token)) return false;
-      const loaded = planningWorkspaceSchema.parse(loadedValue);
+      const loaded = planningWorkspaceSchema.parse(loadedEnvelope.workspace);
       if (!importMatches(sourceSnapshot.workspace, loaded)) throw new Error("Planning import verification failed.");
       await localRef.current.updateImportProgress(sourceSnapshot.workspaceFingerprint, { ...progress, completed: true });
       if (!isOperationCurrent(token)) return false;
       publishWorkspace(loaded);
-      publishSourceContext(clientRef.current.getSourceContext?.() ?? null);
+      publishSourceContext(loadedEnvelope.sourceContext ?? null);
       publishVisibleIdentity(token.identity);
       publishSource("cloud");
       setMigration("imported");
@@ -429,21 +439,21 @@ async function generateImportWorkspace(
     target: initial.target,
     selectedScope: activePath.scopeMode,
   });
-  return planningMutationResultSchema.parse(result).workspace;
+  return planningMutationResponseSchema.parse(result).result.workspace;
 }
 
-function replayImportEvent(client: PlanningClient, workspace: PlanningWorkspace, event: PlanningEvent) {
+async function replayImportEvent(client: PlanningClient, workspace: PlanningWorkspace, event: PlanningEvent) {
   const request = {
     mutationId: event.mutationId,
     baseVersionId: workspace.activePlanVersionId,
   };
   if (event.kind === "replan_accepted") {
-    return client.acceptReplan({ ...request, candidatePlanVersionId: event.candidatePlanVersionId });
+    return (await client.acceptReplan({ ...request, candidatePlanVersionId: event.candidatePlanVersionId })).result;
   }
   if (event.kind === "replan_discarded") {
-    return client.discardReplan({ ...request, candidatePlanVersionId: event.candidatePlanVersionId });
+    return (await client.discardReplan({ ...request, candidatePlanVersionId: event.candidatePlanVersionId })).result;
   }
-  return client.appendEvent({ ...request, event: planningEventInputSchema.parse(stripEventMetadata(event)) });
+  return (await client.appendEvent({ ...request, event: planningEventInputSchema.parse(stripEventMetadata(event)) })).result;
 }
 
 function stripEventMetadata(event: Exclude<PlanningEvent, { kind: "replan_accepted" | "replan_discarded" }>): PlanningEventInput {

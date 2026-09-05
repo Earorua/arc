@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { researchCandidateSchema, researchPackageSchema, researchQualityReportSchema, researchRunPublicViewSchema, researchRequestSchema, researchStateSchema, researchPublicFailureCategorySchema, type ResearchPackage, type ResearchRunPublicView } from "../../contracts/research";
+import { MAX_RESEARCH_PACKAGE_JSON_BYTES, researchCandidateSchema, researchPackageSchema, researchQualityReportSchema, researchRunPublicViewSchema, researchRequestSchema, researchStateSchema, researchPublicFailureCategorySchema, type ResearchPackage, type ResearchRunPublicView } from "../../contracts/research";
 import { planningSourceReferenceSchema } from "../../contracts/planning";
 import type { PlanningReplayPackageReader, ResearchPlanningSourceReference } from "../planning/source-resolver";
 import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
@@ -9,7 +9,7 @@ import { canonicalizePublicCitationUrl, readBoundedResearchJson } from "./source
 import type { AttachCachedPackageCommand, CreateResearchRetryCommand, CreateResearchRunCommand, ResearchCacheLookup, ResearchReadyPackageAuditVersions, ResearchRepository, ResearchRunRecord, SaveResearchValidationCommand, TransitionResearchRunCommand } from "./repository";
 import { ResearchRepositoryError } from "./repository";
 
-const PACKAGE_MAX = 1_900_000;
+const PACKAGE_MAX = MAX_RESEARCH_PACKAGE_JSON_BYTES;
 const QUALITY_MAX = 16_384;
 const CANDIDATE_MAX = 1_048_576;
 const IDEMPOTENCY_SCOPE = "role-research";

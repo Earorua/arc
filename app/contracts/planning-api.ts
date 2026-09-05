@@ -8,8 +8,18 @@ import {
   planningTargetSchema,
   planningWorkspaceSchema,
   skillAuditVersionSchema,
+  MAX_PLANNING_WORKSPACE_BYTES,
 } from "./planning";
 import { calendarDateSchema } from "./intelligence";
+import { MAX_RESEARCH_PACKAGE_JSON_BYTES } from "./research";
+
+// Use one shared body cap on both sides of the HTTP boundary. The component
+// ceilings establish the budget; the server still measures the final JSON so
+// envelope fields and mutation diffs cannot exceed it.
+export const PLANNING_RESPONSE_WRAPPER_MAX_BYTES = 64 * 1024;
+export const MAX_PLANNING_RESPONSE_BYTES = MAX_PLANNING_WORKSPACE_BYTES
+  + MAX_RESEARCH_PACKAGE_JSON_BYTES
+  + PLANNING_RESPONSE_WRAPPER_MAX_BYTES;
 
 const idSchema = z.string().max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
 const planningDateSchema = calendarDateSchema.max(10);

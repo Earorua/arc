@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createPlanningClient } from "../../app/lib/planning-client";
+import { MAX_PLANNING_RESPONSE_BYTES } from "../../app/contracts/planning-api";
 import { ArcApiError } from "../../app/lib/cloud-client";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
@@ -29,7 +30,7 @@ afterEach(() => {
 });
 
 describe("adaptive planning browser client", () => {
-  it("retains strict source context in memory and clears it on a later context-free reload", async () => {
+  it("returns each workspace and source context atomically across out-of-order responses", async () => {
     const repository = createLocalPlanningRepository({
       storage: new MemoryStorage(), createId: () => "planning-client-workspace",
       now: () => new Date("2026-08-17T00:00:00.000Z"),
@@ -56,20 +57,33 @@ describe("adaptive planning browser client", () => {
       blueprint: flagshipBlueprint,
       registry: flagshipUnitRegistry,
     };
-    const fetcher = vi.fn()
-      .mockResolvedValueOnce(Response.json({ workspace: generated.workspace, sourceContext }))
-      .mockResolvedValueOnce(Response.json({ workspace: null }));
+    const workspaceA = structuredClone(generated.workspace);
+    workspaceA.id = "planning-client-workspace-a";
+    const workspaceB = structuredClone(generated.workspace);
+    workspaceB.id = "planning-client-workspace-b";
+    const contextA = structuredClone(sourceContext);
+    const contextB = structuredClone(sourceContext);
+    contextA.blueprint = { ...contextA.blueprint, summary: "Context A provides a complete and independently valid planning catalogue." };
+    contextB.blueprint = { ...contextB.blueprint, summary: "Context B provides a complete and independently valid planning catalogue." };
+    let resolveA!: (value: Response) => void;
+    let resolveB!: (value: Response) => void;
+    const responseA = new Promise<Response>((resolve) => { resolveA = resolve; });
+    const responseB = new Promise<Response>((resolve) => { resolveB = resolve; });
+    const fetcher = vi.fn().mockReturnValueOnce(responseA).mockReturnValueOnce(responseB);
     const client = createPlanningClient({ fetch: fetcher });
-    await expect(client.loadWorkspace()).resolves.toEqual(generated.workspace);
-    expect(client.getSourceContext?.()).toEqual(sourceContext);
-    await expect(client.loadWorkspace()).resolves.toBeNull();
-    expect(client.getSourceContext?.()).toBeNull();
+    const pendingA = client.loadWorkspace();
+    const pendingB = client.loadWorkspace();
+    resolveB(Response.json({ workspace: workspaceB, sourceContext: contextB }));
+    await expect(pendingB).resolves.toEqual({ workspace: workspaceB, sourceContext: contextB });
+    resolveA(Response.json({ workspace: workspaceA, sourceContext: contextA }));
+    await expect(pendingA).resolves.toEqual({ workspace: workspaceA, sourceContext: contextA });
+    expect(client).not.toHaveProperty("getSourceContext");
   });
 
   it("loads a strict nullable workspace with credentials and no caching", async () => {
     const fetcher = vi.fn().mockResolvedValue(Response.json({ workspace: null }));
     const client = createPlanningClient({ fetch: fetcher });
-    await expect(client.loadWorkspace()).resolves.toBeNull();
+    await expect(client.loadWorkspace()).resolves.toEqual({ workspace: null });
     expect(fetcher).toHaveBeenCalledWith("/api/planning/workspace", expect.objectContaining({
       method: "GET", credentials: "include", cache: "no-store",
     }));
@@ -145,7 +159,7 @@ describe("adaptive planning browser client", () => {
     const unknownError = vi.fn().mockResolvedValue(Response.json({ error: {
       code: "CONFLICT", message: "safe", requestId: "request-1", action: "refresh", debug: "private",
     } }, { status: 409 }));
-    const oversized = vi.fn().mockResolvedValue(new Response(" ".repeat(4 * 1024 * 1024 + 1)));
+    const oversized = vi.fn().mockResolvedValue(new Response(" ".repeat(MAX_PLANNING_RESPONSE_BYTES + 1)));
     await expect(createPlanningClient({ fetch: unknownSuccess }).loadWorkspace()).rejects.toThrow("invalid response");
     await expect(createPlanningClient({ fetch: unknownError }).loadWorkspace()).rejects.toThrow("invalid response");
     await expect(createPlanningClient({ fetch: oversized }).loadWorkspace()).rejects.toThrow("invalid response");
@@ -156,7 +170,7 @@ describe("adaptive planning browser client", () => {
     const cancel = vi.fn();
     const stream = new ReadableStream<Uint8Array>({ pull, cancel }, { highWaterMark: 0 });
     const fetcher = vi.fn().mockResolvedValue(new Response(stream, {
-      headers: { "content-length": String(4 * 1024 * 1024 + 1) },
+      headers: { "content-length": String(MAX_PLANNING_RESPONSE_BYTES + 1) },
     }));
     await expect(createPlanningClient({ fetch: fetcher }).loadWorkspace())
       .rejects.toMatchObject({ code: "INTERNAL" });
@@ -180,7 +194,7 @@ describe("adaptive planning browser client", () => {
     Object.defineProperty(response, "text", { value: vi.fn(() => { throw new Error("response.text forbidden"); }) });
     await expect(createPlanningClient({ fetch: vi.fn().mockResolvedValue(response) }).loadWorkspace())
       .rejects.toMatchObject({ code: "INTERNAL" });
-    expect(pulls).toBeLessThanOrEqual(5);
+    expect(pulls).toBeLessThanOrEqual(Math.ceil(MAX_PLANNING_RESPONSE_BYTES / chunk.byteLength));
     expect(cancel).toHaveBeenCalledTimes(1);
     expect(response.text).not.toHaveBeenCalled();
   });
@@ -204,14 +218,16 @@ describe("adaptive planning browser client", () => {
   it("counts Unicode response limits by raw UTF-8 bytes", async () => {
     const prefix = '{"workspace":null,"padding":"';
     const suffix = '"}';
-    const budget = 4 * 1024 * 1024;
+    const budget = MAX_PLANNING_RESPONSE_BYTES;
     const exactCount = Math.floor((budget - new TextEncoder().encode(prefix + suffix).byteLength) / 4);
     const exact = `${prefix}${"😀".repeat(exactCount)}${suffix}`;
     const over = `${prefix}${"😀".repeat(exactCount + 1)}${suffix}`;
     expect(new TextEncoder().encode(exact).byteLength).toBeLessThanOrEqual(budget);
     expect(new TextEncoder().encode(over).byteLength).toBeGreaterThan(budget);
-    await expect(createPlanningClient({ fetch: vi.fn().mockResolvedValue(new Response(exact)) }).loadWorkspace())
-      .rejects.toThrow("invalid response");
+    const withinWireLimit = await createPlanningClient({ fetch: vi.fn().mockResolvedValue(new Response(exact)) })
+      .loadWorkspace().catch((error) => error);
+    expect(withinWireLimit).toBeInstanceOf(Error);
+    expect(withinWireLimit).not.toBeInstanceOf(ArcApiError);
     await expect(createPlanningClient({ fetch: vi.fn().mockResolvedValue(new Response(over)) }).loadWorkspace())
       .rejects.toMatchObject({ code: "INTERNAL" });
   });

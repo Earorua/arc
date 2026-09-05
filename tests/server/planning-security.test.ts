@@ -201,11 +201,11 @@ describe("planning contract resource and security boundaries", () => {
     const dependencies: PlanningRouteDependencies = {
       requireUser: async () => { throw new Error("legacy planning auth failure"); },
       createService: () => ({
-        getWorkspace: async () => null,
-        generate: async () => { throw new Error("not used"); },
-        appendEvent: async () => { throw new Error("not used"); },
-        acceptReplan: async () => { throw new Error("not used"); },
-        discardReplan: async () => { throw new Error("not used"); },
+        getWorkspaceResponse: async () => ({ workspace: null, sourceContext: null }),
+        generateResponse: async () => { throw new Error("not used"); },
+        appendEventResponse: async () => { throw new Error("not used"); },
+        acceptReplanResponse: async () => { throw new Error("not used"); },
+        discardReplanResponse: async () => { throw new Error("not used"); },
       }),
       rateLimiter: { reserve: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
       recordEvent: async () => undefined,
@@ -387,11 +387,11 @@ describe("planning contract resource and security boundaries", () => {
     const dependencies: PlanningRouteDependencies = {
       requireUser: async () => ({ id: "security-owner", name: "Private Learner", email: "private@example.com" }),
       createService: () => ({
-        getWorkspace: async () => null,
-        generate: async () => { throw new Error("token=private-token body=private-audit"); },
-        appendEvent: async () => { throw new Error("not used"); },
-        acceptReplan: async () => { throw new Error("not used"); },
-        discardReplan: async () => { throw new Error("not used"); },
+        getWorkspaceResponse: async () => ({ workspace: null, sourceContext: null }),
+        generateResponse: async () => { throw new Error("token=private-token body=private-audit"); },
+        appendEventResponse: async () => { throw new Error("not used"); },
+        acceptReplanResponse: async () => { throw new Error("not used"); },
+        discardReplanResponse: async () => { throw new Error("not used"); },
       }),
       rateLimiter: { reserve: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
       recordEvent,

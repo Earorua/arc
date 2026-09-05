@@ -393,3 +393,4 @@ export type ResearchPublicError = z.infer<typeof researchPublicErrorSchema>;
 export type ResearchSuccessEnvelope = z.infer<typeof researchSuccessEnvelopeSchema>;
 export type ResearchErrorEnvelope = z.infer<typeof researchErrorEnvelopeSchema>;
 export type ResearchHttpEnvelope = z.infer<typeof researchHttpEnvelopeSchema>;
+export const MAX_RESEARCH_PACKAGE_JSON_BYTES = 1_900_000;
