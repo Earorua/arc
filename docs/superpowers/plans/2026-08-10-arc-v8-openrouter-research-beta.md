@@ -1048,7 +1048,7 @@ Execution evidence (2026-09-03): Task 12 was implemented in `2518b68`, then hard
 
 ### Task 13: Run offline acceptance gates, reviews, and checkpoint documentation
 
-**Execution progress (2026-09-06, final root gates pending):** Final code `81c4c26be2a82c2611c1ae0363b14b90ad3586c3` passed independent specification (8 files / 153 tests) then quality/security (6 files / 55 tests), both 0/0/0 READY YES; each passed entry 19/19 and actual HTTP clients 1/1. Actual nonpersistent workerd D1 passed the 9-step chain and five atomic conflicts, false receipts/foreign-key violations zero. Root completed the authorized Fake browser inventory, including full Research planning/Proof/replay, Guest and authenticated Flagship, legacy unavailable/declined, terminal/recovery/budget/owner/visual cases. The earlier history-bearing Build failure did not recur after the root restarted the final reviewed service: actual migration/generation succeeded and device history stayed device-only, without a product workaround. Initial-POST interruption and stale async source races are explicitly automated evidence, not browser timing claims. The complete detailed record is in the local UAT document. Commit these observations, then run all final root gates from that clean commit and record closure; final Task 13 closure is not yet claimed.
+**Execution closure (2026-09-06, authorized offline scope):** Tasks 10, 11 and 13 are complete; Tasks 1–9 and 12 were not redone. Final Task 13 code `81c4c26be2a82c2611c1ae0363b14b90ad3586c3` passed specification then quality/security review, both 0/0/0 READY YES (8 files / 153 tests and 6 files / 55 tests; each entry 19/19 + HTTP 1/1). Root gates on clean `6dd64286b23dedf6180d6b48bdfeb31ff063a915` passed: 134 files / 2358 tests, nonincremental TypeScript, full ESLint, build 5/5, rendered/client 4/4, migration/security 5 files / 256 tests, HTTP 20/20, actual nonpersistent D1 9-step chain + 5 atomic conflicts with zero false receipts/foreign-key violations, diff/source/client/production-boundary checks. The tree was clean before and after verification, with code identical to reviewed `81c4c26`. Root Fake browser UAT passed the full authorized inventory; deterministic initial-POST and stale-source races are recorded separately from browser evidence. The final history-bearing Research Build passed with device history preserved; no historical-cause or product-workaround claim is made. This documentation commit records closure. **Offline Research Beta complete; no live OpenRouter evidence claimed.** User acceptance and live evidence remain unperformed; the branch/worktree are retained locally.
 
 **Current execution boundary (user instruction, 2026-09-05):** Complete the authorized offline gates and checkpoint only. Do not create/read real keys, make real/paid Provider requests, alter production variables/flags, operate production D1/R2, merge into `master`, push, save a Sites candidate, or deploy. This explicitly supersedes the historical live-request and integration actions in Steps 5–6 and 8 below: record them as not performed under the current authorization, and do not request permission to perform them during this run. Agent-assisted browser UAT is engineering evidence; user acceptance remains pending until the user explicitly accepts it.
 
@@ -1060,12 +1060,12 @@ Execution evidence (2026-09-03): Task 12 was implemented in `2518b68`, then hard
 - Modify: `docs/operations/v8-resume-checkpoint.md`
 - Modify: `docs/superpowers/plans/2026-08-10-arc-v8-openrouter-research-beta.md`
 
-- [ ] **Step 1: Run the complete automated gate from a clean feature worktree**
+- [x] **Step 1: Run the complete automated gate from a clean feature worktree**
 
 ```powershell
 npm run test:unit
 npm run lint
-npx tsc --noEmit
+node node_modules/typescript/bin/tsc --noEmit --incremental false
 npm run build
 node --test tests/rendered-html.test.mjs
 git diff --check
@@ -1073,15 +1073,15 @@ git diff --check
 
 Expected: every command exits 0. Record fresh file/test counts and build route output.
 
-- [ ] **Step 2: Run explicit migration and security gates**
+- [x] **Step 2: Run explicit migration and security gates**
 
 ```powershell
 npm run test:unit -- tests/db/migration-safety.test.ts tests/db/research-migration.test.ts tests/server/planning-security.test.ts tests/server/openrouter-provider.test.ts tests/api/research-routes.test.ts
-rg -n --hidden -g '!node_modules/**' -g '!dist/**' -g '!.git/**' "OPENROUTER_API_KEY\s*=\s*[^[:space:]]+|sk-or-v1-|Authorization:\s*Bearer\s+[A-Za-z0-9]" .
-rg -n -g 'app/**' "dangerouslySetInnerHTML|OPENROUTER_API_KEY|ARC_AI_MODEL_RESEARCH|costMicros|promptTokens|completionTokens"
+git grep -I -l -E 'sk-or-v1-|OPENROUTER_API_KEY[[:space:]]*=[[:space:]]*[^[:space:]]+|Authorization:[[:space:]]*Bearer[[:space:]]+[A-Za-z0-9]' HEAD -- app tests scripts db migrations docs
+git grep -I -l -E 'dangerouslySetInnerHTML|OPENROUTER_API_KEY|ARC_AI_MODEL_RESEARCH|costMicros|promptTokens|completionTokens' HEAD -- app ':!app/server/**'
 ```
 
-Expected: focused tests pass; secret scan has no committed value; client/app surface scan shows no secret usage and provider/cost identifiers occur only in server modules or explicitly reviewed admin aggregate types.
+Expected: focused tests pass; filename-only committed-source scanning avoids untracked environment files and does not print possible values. Triage known negative fixtures without reading real credentials. Client/app surface scan shows no secret usage; reviewed server/admin/contracts fields must be absent from the generated client bundle where unused.
 
 - [x] **Step 3: Perform two-stage review per implementation task and remediate**
 
@@ -1102,15 +1102,15 @@ Run the development server with only local fake mode and local D1; keep all paid
 
 Record each result and any user observations in `docs/operations/v8-goal2-local-uat.md`.
 
-- [ ] **Step 5: Stop at the real-request approval gate**
+- [x] **Step 5: Record the live-evidence boundary**
 
-Do not request, store, or use a real key automatically. Present the verified offline evidence and ask for a separate authorization for one minimal, fixed-model, maximum-cost-bounded real request using an ephemeral server secret. If authorization is not granted, record exactly: “Offline Research Beta complete; no live OpenRouter evidence claimed.” Goal 2 remains at the live-evidence gate and is not described as fully complete.
+The user's current instruction explicitly excludes live requests and overrides the historical permission question. No key or live authorization was requested. Recorded: “Offline Research Beta complete; no live OpenRouter evidence claimed.” Full Goal 2 retains its live-evidence and explicit user-acceptance gates.
 
-- [ ] **Step 6: If separately authorized, run one minimal live request and sanitize evidence**
+- [ ] **Step 6: If separately authorized, run one minimal live request and sanitize evidence — not authorized or performed in this run**
 
 Use only the separately approved ephemeral secret mechanism and bounded Research model/config. Verify HTTP success, strict structured output, citation annotations, reported usage/cost, Ready/Needs review state, and no secret/client/log leakage. Immediately remove the ephemeral local secret after the request. Record only provider-neutral result category, request time, citation count, usage totals, actual cost micros, and secret-scan result; do not record the key, raw prompt, raw result, or source excerpts.
 
-- [ ] **Step 7: Update the recovery checkpoint and commit Goal 2 evidence**
+- [x] **Step 7: Update the recovery checkpoint and commit Goal 2 evidence**
 
 Update `docs/operations/v8-resume-checkpoint.md` with feature branch/head, worktree, completed tasks, exact verification counts, local UAT status, live-request status, and the explicit remaining gates: local merge, GitHub push, production variables/secret/flags, production D1/R2, Sites candidate, and deployment. Mark completed checkboxes in this plan.
 
@@ -1119,9 +1119,9 @@ git add docs/operations/v8-goal2-local-uat.md docs/operations/v8-resume-checkpoi
 git commit -m "docs: record research beta acceptance"
 ```
 
-- [ ] **Step 8: Finish the branch without deploying**
+- [x] **Step 8: Retain the completed feature branch and worktree locally**
 
-After all authorized acceptance evidence is green, use `superpowers:finishing-a-development-branch`. The already-approved optimal route is local merge into `master`, followed by a normal GitHub backup only after verifying local/remote refs and obtaining any network permission required by the environment. Re-run the complete automated gate on merged `master`, push only the reviewed commits, verify remote `master` equals local `HEAD`, and update the checkpoint. Do not call Sites hosting, create a candidate version, apply production migrations, configure runtime values, or deploy.
+All authorized offline evidence is green. The finishing-a-development-branch workflow uses the user's explicit current selection: keep `codex/v8-openrouter-research-beta` and its worktree locally. No merge, push, Sites hosting/candidate, production migration/configuration or deployment was performed. The historical integration route is superseded by the current execution boundary.
 
 ## Completion definition
 

@@ -1,6 +1,8 @@
 # Arc v8 Goal 2 — offline acceptance record
 
-Status: **Agent-assisted browser UAT and Task 13 independent reviews passed. Final root gates and closure commit are pending.**
+Status: **Tasks 10, 11 and 13 are closed for the authorized offline engineering scope.**
+
+**Offline Research Beta complete; no live OpenRouter evidence claimed.**
 
 ## Execution boundary
 
@@ -26,20 +28,36 @@ Final independent reviews at exact `81c4c26`:
 
 ## Final root automated gates
 
-These gates must run from a clean committed feature worktree after the final reviews.
+All commands below ran after both final reviews on exact clean commit `6dd64286b23dedf6180d6b48bdfeb31ff063a915`. The worktree was still clean afterwards. Its application/test/script code is identical to reviewed `81c4c26`; this closure update changes only documentation.
 
 | Gate | Result |
 | --- | --- |
-| Full unit suite | Pending final root run |
-| Full ESLint | Pending final root run |
-| TypeScript without incremental caching | Pending final root run |
-| Local production build | Pending final root run |
-| Rendered HTML and client bundle checks | Pending final root run |
-| Explicit migration/security suite | 5 files / 256 tests passed on `504e3aa`; final root run pending |
-| HTTP harness entry and actual clients | Independent 19/19 + 1/1 passed on `81c4c26`; final root run pending |
-| Local nonpersistent Miniflare/workerd D1 | Independent 9-step chain + 5 atomic conflicts passed on `81c4c26`; final root run pending |
-| Committed-source secret and production-boundary scans | Pending final root run |
-| Diff and clean-tree check | Pending final root run |
+| Full unit suite | PASS, exit 0: **134 files / 2358 tests**, 42.68s. |
+| Full ESLint | PASS, exit 0. |
+| TypeScript without incremental caching | PASS, exit 0, `--noEmit --incremental false`. |
+| Local production build | PASS, exit 0, all 5 build stages; Research eligibility/start/GET/retry, planning, Proof and workspace routes present. |
+| Rendered HTML and client bundle checks | PASS, exit 0, **4/4**; no secret identifiers or unused Provider usage/cost schema in client artifacts. |
+| Explicit migration/security suite | PASS, exit 0, **5 files / 256 tests**, 3.44s, on final tested commit. |
+| HTTP harness entry and actual clients | PASS, exit 0, **20/20** (entry 19 plus actual HTTP chain 1), temporary server closed. |
+| Local nonpersistent Miniflare/workerd D1 | PASS, exit 0, **9-step chain + 5 atomic conflicts**, false success receipts 0, foreign-key violations 0; disposed. |
+| Committed-source secret and production-boundary scans | PASS: filename-only source matches were the plan's scan expression and two pre-existing negative-test fixtures, both byte-unchanged from `2a82567`. Client `rg` returned 1 with zero matches (expected no-match result). Production configuration, environment example, bindings, migrations and dependencies had no changed paths from `2a82567`. |
+| Diff and clean-tree check | PASS, exit 0 for Task 13 commit-range diff; branch/path/HEAD rechecked, clean before and after all gates. |
+
+Reproduction commands (already installed dependencies; no installation or live secret required):
+
+```powershell
+npm run test:unit
+npm run lint
+node node_modules/typescript/bin/tsc --noEmit --incremental false
+npm run build
+node --test tests/rendered-html.test.mjs
+npm run test:unit -- tests/db/migration-safety.test.ts tests/db/research-migration.test.ts tests/server/planning-security.test.ts tests/server/openrouter-provider.test.ts tests/api/research-routes.test.ts
+node --test --test-concurrency=1 tests/offline-uat/entry.test.mjs tests/offline-uat/http-clients.test.mjs
+node tests/offline-uat/miniflare-smoke.mjs
+git diff --check 0c06f97d3cfc4e15a14e12ca3a684100ac69f4ca HEAD
+```
+
+For a new disposable browser session only: `node tests/offline-uat/start.mjs`, then open `http://127.0.0.1:4179/setup`. This harness is not the production server.
 
 ## Browser composition and evidence limits
 
@@ -80,8 +98,8 @@ Active refresh tests first pause a genuinely persisted owner-bound Researching o
 | Keyboard/live state | Ready heading received focus; Tab reached Use Research then Flagship, Shift+Tab returned, and Enter opened the focused audit. Ready was polite/nonbusy; Researching was busy. Existing component tests cover additional state transitions. |
 | Reduced motion | The visible test control applied the already authored reduced-motion CSS branch. Computed action transition/animation durations became 0.00001s; Research Ready rules have no motion. This is authored-branch browser evidence, not an OS preference change. The control and viewport were restored. |
 | Same-source Back | A 45-minute Monday edit survived Back to audit and Continue. This is actual browser evidence. |
-| Interrupted initial submission | Deterministic hook tests cover hidden/inactive/external abort before the initial response, return to idle, explicit same-mutation replay and no automatic POST on resume. No browser initial-POST/no-run-ID refresh claim is made. Final suite rerun pending. |
-| Stale source/account during Build | Deterministic component/hook/actual setup tests cover obsolete preflight results, cancellation, no stale save/navigation/queue, and owner-bound reads. No manual race-timing claim is made. Final suite rerun pending. |
+| Interrupted initial submission | Deterministic hook tests cover hidden/inactive/external abort before the initial response, return to idle, explicit same-mutation replay and no automatic POST on resume. No browser initial-POST/no-run-ID refresh claim is made. Passed in the final 2358-test suite. |
+| Stale source/account during Build | Deterministic component/hook/actual setup tests cover obsolete preflight results, cancellation, no stale save/navigation/queue, and owner-bound reads. No manual race-timing claim is made. Passed in the final 2358-test suite. |
 
 At the recorded browser checkpoints both application outbound-denial counters were zero. Fake output has conservative budget accounting; no actual Provider cost or zero-cost live request is claimed.
 
@@ -90,10 +108,10 @@ At the recorded browser checkpoints both application outbound-denial counters we
 | Storage path | Evidence |
 | --- | --- |
 | SQLite implementing D1 | Real migrations 0000–0006, foreign keys enabled, actual route/service/repository composition. Unit smoke covers fresh owner Research → current setup → planning → Complete/fresh-service replay → wrong-owner 404 → Proof submission/withdrawal, plus five atomic conflicts. Browser observations above use this separate adapter. |
-| Actual local Miniflare/workerd D1 | Nonpersistent local D1 binding, no production identifiers or persisted directory. Independently passed the 9-step service chain and five same-batch conflict cases on `81c4c26`, with false receipts 0 and foreign-key violations 0; binding disposed after execution. Final root rerun pending. |
+| Actual local Miniflare/workerd D1 | Nonpersistent local D1 binding, no production identifiers or persisted directory. Independently passed the 9-step service chain and five same-batch conflict cases on `81c4c26`, with false receipts 0 and foreign-key violations 0; binding disposed after execution. The root independently repeated the same checks on the final clean tested commit; all passed. |
 
 ## Remaining gates
 
-Final root automated gates and closure commit: pending. Agent-assisted browser UAT: completed with the evidence limits above. Explicit user acceptance: pending. Live Provider evidence: not authorized and not performed. Merge, push, production configuration/storage changes, Sites candidate and deployment: not authorized and not performed.
+Final root automated gates and agent-assisted browser UAT: **passed**, with the evidence limits above. Closure is recorded by this documentation commit. The feature branch and worktree are retained locally. Explicit user acceptance: pending. Live Provider evidence: not authorized and not performed. Merge, push, production configuration/storage changes, Sites candidate and deployment: not authorized and not performed.
 
 Full Goal 2 live validation is not claimed.

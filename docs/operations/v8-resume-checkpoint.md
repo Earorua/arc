@@ -1,18 +1,22 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-06：Task 13 双审与浏览器验收已通过，最终根侧门槛待执行（覆盖下方阶段性状态）**
+> **2026-09-06：Tasks 10、11、13 已完成本轮授权的离线范围（覆盖下方所有阶段性状态）**
 >
-> Tasks 1–12 均已关闭，不重做。权威工作树仍为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`，分支 `codex/v8-openrouter-research-beta`。Task 13 最终代码为 `81c4c26be2a82c2611c1ae0363b14b90ad3586c3`；本次仅先提交已核对的验收记录，使最终门槛可从干净工作树运行。
+> **Offline Research Beta complete; no live OpenRouter evidence claimed.**
 >
-> harness `e8bfaca`、两项 RED 后的稀疏审计修复 `efb1e25`、四项 RED 后的 Windows/Vite 资产路径边界修复 `504e3aa`、有界诊断与真实 HTTP 客户端回归 `81c4c26` 均已提交。精确 `81c4c26` 的独立规格与质量/安全复审均为 **Critical 0 / Important 0 / Minor 0，READY YES**；规格 8 files / 153 tests，质量 6 files / 55 tests，各自入口 19/19 与 HTTP 链 1/1。质量另通过真实非持久 Miniflare/workerd D1 的 9 步链路及 5 类原子竞争，错误成功记录与外键违规为 0。
+> 权威工作树：`C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`；保留本地分支 `codex/v8-openrouter-research-beta`。Task 10 最终代码 `0cdfe0a`，Task 11 最终代码 `1575a1e`，Task 13 最终代码 `81c4c26be2a82c2611c1ae0363b14b90ad3586c3`。Tasks 1–9 和 12 未重做。最终根侧门槛在精确干净提交 `6dd64286b23dedf6180d6b48bdfeb31ff063a915` 上运行，前后工作树均干净；本关闭记录随后作为仅文档提交保存，实际 HEAD 以 Git 为准。
 >
-> 根侧已实际完成 Guest Flagship、Research Ready→audit→Build→Path/Today/Stack/Proof、Ready/Researching/Validating 刷新、Needs review/Failed 与显式重试、禁用/预算、全新账号 Use Flagship、legacy custom unavailable/declined 四页、Complete/Delay Keep/Accept 与刷新、Proof 历史单元提交/撤回、账号隔离、320/1440 布局、键盘/焦点/live、已编写 reduced-motion CSS 分支与同来源 Back。精确机制及可复现命令见 `docs/operations/v8-goal2-local-uat.md`。初次 POST 无 run ID 的中断和异步过期结果以自动化竞态证据记录，不冒称浏览器实测。
+> Task 13 精确 `81c4c26` 的独立规格和质量/安全复审均为 **Critical 0 / Important 0 / Minor 0，READY YES**。规格 8 files / 153 tests，质量 6 files / 55 tests；各自入口 19/19 与真实 HTTP 链 1/1。发现并修复的问题均保留判别 RED：稀疏审计空分类两项（`efb1e25`），Windows/Vite 私有源码路径绕过四项（`504e3aa`）。最终有界诊断与真实 HTTP 链回归在 `81c4c26`。
 >
-> 此前设备历史 Build 失败在重启至最终已审查服务后未复现：run `608f2718-9b64-4f72-ba4d-3946daa316bd` 从 Guest 本地计划和设备 completion/proof 1/1 开始，为全新 Owner A 成功激活并生成 Research 计划；cloud history/Proof 仍为 0，设备历史 1/1 与本地计划保留。真实 trace 为 planning 404→activation 200→planning 200→generate 200。没有为此增加产品绕过，也没有声称已确定历史失败原因。根侧预览已停止，视口已还原。
+> **根侧最终门槛全部退出 0：** 全量 **134 files / 2358 tests**（42.68s）、非增量 TypeScript、完整 ESLint、build **5/5**、render/client **4/4**、明确 migration/security **5 files / 256 tests**、入口与真实 HTTP 客户端 **20/20**、实际非持久 Miniflare/workerd D1 **9 步链路 + 5 类原子冲突**（错误成功记录 0、外键违规 0）。提交范围 diff-check 通过。源码扫描仅命中计划扫描表达式和两份相对初始 `2a82567` 未变的负向夹具；客户端敏感标识零匹配（`rg` 的无匹配退出码 1 属预期）。生产配置、环境示例、bindings、迁移和依赖无本轮差异。
 >
-> **下一步仅剩：** 先提交这三份进度文档，再从精确干净提交执行根侧全量 unit、非增量 TypeScript、完整 lint、build/render、明确 migration/security、入口/HTTP、实际本地 D1、提交源码/客户端/生产边界扫描；记录实际退出码与数量后提交关闭检查点。Task 13 最终关闭尚未声明。持续目标仅覆盖已授权离线工程范围；真实 Provider 证据和用户明确验收仍未执行。
+> **根侧实际 Fake 浏览器验收已完成：** Guest Flagship；新账号 Research Ready→audit→Build→Path/Today/Stack/Proof；Ready/Researching/Validating 刷新；Needs review/Failed、显式重试与安全回退；禁用/预算与缓存；新账号 Use Flagship；legacy custom unavailable/declined 四页；Complete、Delay Keep/Accept 与刷新；历史单元 Proof 提交/撤回；账号隔离；320/1440 布局、键盘/焦点/live、已编写 reduced-motion CSS 分支和同来源 Back。初次 POST 无 ID 的中断及异步过期结果使用确定性自动化证据，不冒称手动浏览器竞态或系统偏好改变。
 >
-> 不读取/创建真实密钥、不发真实或付费 Provider 请求、不改生产变量/旗标、不操作生产 D1/R2、不 merge、push、保存 Sites candidate 或部署。历史线上和集成步骤由用户当前限制覆盖；本轮不索取这些操作的授权。
+> 带 Guest 本地计划和设备 completion/proof 1/1 的最终 Research run `608f2718-9b64-4f72-ba4d-3946daa316bd` 成功创建当前账号 goal/plan/receipt 各 1；设备历史仍为 1/1，cloud history/Proof 为 0。实际 trace 为 planning 404→activation 200→planning 200→generate 200。此前失败在最终根侧服务中未复现，没有增加产品绕过，也未声称已确定历史失败原因。已有不可变计划的新 Build 被拒绝，原角色、计划、事件与证据完整保留。两种一次性数据库的证据分开记录。浏览器预览与测试 binding 已停止/释放，视口还原。
+>
+> **本轮已授权范围无待办。** 完整验收、命令、实际 run ID 和证据边界见 `docs/operations/v8-goal2-local-uat.md`。真实 Provider 证据和用户明确验收仍未执行，因此不声称完整目标 2 已经过线上验证或可生产发布。
+>
+> 未读取/创建真实密钥，未发送真实/付费 Provider 请求，未更改生产变量/旗标或生产 D1/R2，未合并 master、推送、保存 Sites candidate 或部署。保留当前本地分支和工作树；历史线上与集成步骤由用户当前限制覆盖。后续只有用户改变授权范围时才考虑这些操作。
 
 > **2026-09-06：Task 11 已关闭，下一步 Task 13 离线验收（覆盖下方阶段性状态）**
 >
