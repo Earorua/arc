@@ -900,8 +900,12 @@ git commit -m "feat: recover role research in setup"
 - Modify: `app/lib/proof-profile.ts` (narrow skill input while preserving readiness weights)
 - Modify: `app/components/today/adaptive-today-session.tsx` (pass the resolved registry to replan review)
 - Modify: `tests/pages/path.test.tsx` (actual published role-name expectation)
+- Modify: `app/lib/use-arc-state.ts` and `app/lib/cloud-client.ts` (bounded optional Setup-save lifecycle cancellation)
+- Modify: related Arc-state/client tests and `tests/rendered-html.test.mjs` (stale-save and built-client boundary regressions)
 
 **Bounded integration adjustments (2026-09-05):** The adjacent files above were approved during Task 11 source inspection. They prevent fixed Flagship assumptions in research workspace rendering and preserve existing proof readiness semantics; they do not reopen the completed planning or Proof implementations. Account-bound page contents are keyed by session, while Setup's Research and eligibility controllers remain outside that key so their existing owner-change cleanup runs before new recovery.
+
+**Review remediation scope (2026-09-05):** Specification review of `5b35f8e` found two Important gaps: known Flagship names entered as a custom role could start new Research, and a common-role save rejected after account change could enqueue the old role in the shared offline queue. Narrowly extend Setup-save cancellation through its hook/client boundaries, preserving normal offline behavior. The root build scan also found unused Provider usage schema identifiers in the client artifact; a minimal side-effect-free schema initialization adjustment in `app/contracts/research.ts` and a built-artifact regression are authorized to remove that unused client code without changing server validation. These are unresolved Task 11 integration findings until repaired and independently re-reviewed; they do not authorize broader legacy queue or contract redesign.
 
 - [ ] **Step 1: Write failing Setup state and accessibility tests**
 
