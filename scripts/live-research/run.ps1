@@ -13,7 +13,7 @@ try {
     $validationNode = (Get-Command node -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
     if ($ExecuteOne) {
         if ([Console]::IsInputRedirected) { throw 'Interactive terminal required' }
-        Write-Host 'One live Research request: openai/gpt-5.6-sol; dedicated unused USD 1 key; no repair or retry.'
+        Write-Host 'One live Research request: openai/gpt-5.6-sol; dedicated unused USD 5 key; no repair or retry.'
         $validationSecret = Read-Host 'Paste dedicated OpenRouter key (masked)' -AsSecureString
         $validationBstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($validationSecret)
         $validationPlain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($validationBstr)

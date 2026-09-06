@@ -16,7 +16,7 @@ export function verifyKeyPolicy(payload: unknown) {
   const data = payload && typeof payload === "object" && !Array.isArray(payload) && "data" in payload ? payload.data : null;
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new SafeValidationError("key-policy-denied");
   const value = data as Record<string, unknown>;
-  if (typeof value.limit !== "number" || !Number.isFinite(value.limit) || value.limit <= 0 || value.limit > 1
+  if (typeof value.limit !== "number" || !Number.isFinite(value.limit) || value.limit <= 0 || value.limit > 5
     || value.limit_remaining !== value.limit || value.limit_reset !== null || value.usage !== 0
     || value.is_management_key !== false || (value.is_provisioning_key !== undefined && value.is_provisioning_key !== false)
     || value.byok_usage !== 0) throw new SafeValidationError("key-policy-denied");

@@ -11,10 +11,11 @@
 ## User authorization and limits
 
 - User requested: “带我继续完成真实验证、合并与github备份”. This supersedes the previous prohibition on those three actions once their prerequisites are met.
-- User selected **USD 1** as the total real-validation budget and said they have an account and can create a limited test key.
-- User requested a more advanced model, then explicitly selected **“GPT-5.6 Sol，维持 1 美元（推荐）”** after comparing it with GPT-6 Astra at a larger budget. Use fixed `openai/gpt-5.6-sol` for the first run; the budget remains USD 1.
+- User initially selected **USD 1** as the total real-validation budget and said they have an account and can create a limited test key.
+- User requested a more advanced model, then explicitly selected **“GPT-5.6 Sol，维持 1 美元（推荐）”** after comparing it with GPT-6 Astra at a larger budget. The model remains fixed `openai/gpt-5.6-sol`.
+- After creating the key, the user said **“另外我设置了5美元的限额，会宽裕一点”**. Root acknowledged the revised **USD 5** ceiling for this remaining one-request validation. This supersedes the earlier USD 1 limit; it does not authorize another Research request, automatic retry, Repair or deployment.
 - One Research POST only. No automatic retry, Repair request, alternative model or second paid attempt. Failure or incomplete evidence stops real execution for review.
-- The user creates a dedicated, unused, non-management API key with a USD 1 limit and no periodic reset. A short expiry is preferred. The key must not be pasted into chat, stored in a file/environment variable, passed in command arguments or logged.
+- The user creates a dedicated, unused, non-management API key with a USD 5 limit and no periodic reset. A short expiry is preferred. The key must not be pasted into chat, stored in a file/environment variable, passed in command arguments or logged.
 - No production variables, flags, D1/R2 operations, Sites candidate or deployment. Keep the feature worktree and branch after integration; cleanup is not necessary for backup.
 
 ## Exact first-run policy
@@ -28,7 +29,7 @@
 | Provider request | Existing strict JSON schema, `require_parameters: true`, `data_collection: deny`, `zdr: true` |
 | Search | Exa fast; at most 2 uses/tool calls, 5 results per search, 10 results total, 2,000 characters per result |
 | Output and deadline | Existing 12,000 output-token parameter; 120,000 ms local Research deadline |
-| Local accounting | 1,000,000 micros reservation; Repair reservation 0 |
+| Local accounting | 5,000,000 micros reservation; Repair reservation 0 |
 | Transport | Exact destination/method allowlist, no redirects, no repeat POST, no other application outbound requests |
 | Local data | Fresh memory SQLite D1 adapter, disposed in `finally`; actual Ready resolution/planning checked locally |
 | Output | Safe summary in ignored `outputs/live-research/`; no raw prompt, result, source excerpt, key label/hash or account identity |
@@ -94,4 +95,10 @@ Read-only preflight at `28fc14277ae1176bfdcbd82d862468ad46aa3107` found:
 
 ## Current status
 
-The fixed-model helper is saved in local commit `8ed27cb96c48f148f5046c35305f6951cd333576` after specification and quality/security reviews, root offline tests and the actual default PowerShell dry-run. User-only masked credential input is the next step. **No real key was read, no real Research request sent, and no merge or push performed yet.** The new authorization replaces historical pending-authorization wording only for this documented scope.
+The original USD 1 helper was saved in `8ed27cb96c48f148f5046c35305f6951cd333576`; its handoff HEAD was `320bd2d9ed90d9c38f4770b391e8a279d6fed925`. At that HEAD the user invoked the masked launcher. The allowlisted report `outputs/live-research/summary-2026-09-06T03-14-44-044Z.json` records `mode: live-one`, `outcome: incomplete`, `reason: key-policy-denied`, key GET HTTP 200, **Research POST 0**, Repair 0, no run and no usage. The USD 5 key exceeds the original USD 1 policy, so it did not reach Research. Root read only this safe report, not the credential or key metadata.
+
+The narrowly revised USD 5 helper passed TDD and independent specification followed by quality/security review. Both final reviews were static and reported P0/P1/P2: 0/0/0, READY YES. Implementer RED was 16 failures after the tests were changed first; focused GREEN was 38/38. Root verified the final full suite: **135 files / 2,396 tests passed**, 44.11s, exit 0; nonincremental TypeScript, targeted ESLint and diff check also passed.
+
+Root's actual default PowerShell dry-run passed at `outputs/live-research/summary-2026-09-06T03-22-31-042Z.json`: `offline-dry-run`, real requests 0, Ready, 5,000,000-micros reservation, owner/fresh-account/planning/disposal checks true. Its reported cost is a fixture, not an actual charge. Application code, request parameters, production configuration and existing offline preview files were unchanged.
+
+After local save, the user can invoke the masked launcher again: it will perform fresh key preflight and the still-unconsumed sole Research request. They can simply report “已运行”; root can then inspect the new allowlisted **`live-one`** report directly. **No real Research request, merge or push has occurred.** The earlier 2,394-test evidence above belongs to the original helper, and the new 2,396-test result applies to this USD 5 change. Production operations and deployment remain excluded.

@@ -1,5 +1,7 @@
 # Arc v8 Goal 2 — offline acceptance record
 
+**Latest live-preflight update (2026-09-06):** The user set the dedicated key limit to USD 5, superseding the original USD 1 ceiling for the remaining one-shot validation. At `320bd2d9ed90d9c38f4770b391e8a279d6fed925`, the user's launcher invocation produced safe report `outputs/live-research/summary-2026-09-06T03-14-44-044Z.json`: `live-one`, `incomplete`, `key-policy-denied`, key GET 200, Research POST **0**, Repair 0, no run or usage. Root read only that allowlisted summary. The USD 5 helper update now has both independent reviews READY with no P0/P1/P2 findings, root full tests **135 files / 2,396 passed**, type/lint checks and actual zero-network default PowerShell dry-run passed. The sole real Research request remains unconsumed. This is preflight and offline evidence, not a completed real Research validation. No merge, push or deployment has occurred.
+
 Status: **Tasks 10, 11 and 13 are closed for the authorized offline engineering scope.**
 
 User acceptance: **the user explicitly accepted this guided local UAT round on 2026-09-06**, at unchanged application code on `976903c105a10e71cf4f73cfd40f05b1b82489d8`. See the separate user acceptance record below.

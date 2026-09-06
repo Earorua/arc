@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：用户将专用 Key 限额调整为 5 美元；首个终端结果停在 Key 预检，Research 请求仍为 0（覆盖下方 1 美元状态）**
+>
+> 用户问 `outcome` 和 `Summary` 在哪里获取，并说明“另外我设置了5美元的限额，会宽裕一点”。已告知终端会打印 `outcome`，末行 `Summary:` 是摘要完整路径；摘要位于 `outputs/live-research/`。按最新设置将本轮上限同步到 **5 美元**，仍固定 `openai/gpt-5.6-sol`、只执行一次 Research、无自动重试/Repair。
+>
+> 在干净 `320bd2d9ed90d9c38f4770b391e8a279d6fed925` 上，用户已手动启动工具。安全摘要 `outputs/live-research/summary-2026-09-06T03-14-44-044Z.json` 为 `live-one / incomplete / key-policy-denied`，Key GET HTTP 200、Research POST **0**、Repair 0、无 run/usage。5 美元 Key 超过旧入口的 1 美元上限，尚未调用模型。主代理仅读取白名单摘要，未读取 Key 或原始账户元数据。
+>
+> 5 美元更新已完成 TDD（16 RED→38 GREEN）、规格和质量/安全审查（两轮 P0/P1/P2 均为 0/0/0）。Root 最终完整单测 **135 文件 / 2,396 测试通过，44.11 秒**，非增量类型、目标静态、diff 检查通过。默认 PowerShell 演练摘要 `outputs/live-research/summary-2026-09-06T03-22-31-042Z.json` 为 `offline-dry-run / passed`、真实请求 0、5,000,000 micros 预留及 Ready/账户/规划/销毁检查通过，不能作为真实结果。完成本地保存后，用户再次从隐藏提示启动，执行新的 Key 预检和仍未消耗的唯一 Research；运行完成后只需说“已运行”，主代理可直接读取新生成的 `live-one` 白名单摘要。已有 4179 预览保留。真实验证、合并、推送仍未完成，生产操作及部署仍禁止。
+
 > **2026-09-06：真实验证入口已通过离线检查和两轮审查，等待用户在隐藏提示中输入专用 Key（覆盖下方相关未授权状态）**
 >
 > 用户指示“带我继续完成真实验证、合并与github备份”，确认本轮总预算 **1 美元**，已有账户并可创建限额测试 Key；随后要求更先进模型，并明确选择 **“GPT-5.6 Sol，维持 1 美元（推荐）”**。首轮固定为 `openai/gpt-5.6-sol`，仅一次 Research，无自动重试/Repair。密钥由用户在本机隐藏终端提示中输入，不能发送到聊天、写入文件/环境变量或输出到日志。

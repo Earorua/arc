@@ -18,7 +18,7 @@ import { createResearchD1, seedUser } from "../../tests/helpers/sqlite-d1";
 import { validResearchCandidate, validAnnotations } from "../../tests/fixtures/research/valid-candidate";
 import { createGuardedTransport, SafeValidationError, verifyKeyPolicy } from "./transport";
 
-export const LIVE_POLICY = Object.freeze({ model: "openai/gpt-5.6-sol", maximumMicros: 1_000_000, timeoutMs: 120_000 });
+export const LIVE_POLICY = Object.freeze({ model: "openai/gpt-5.6-sol", maximumMicros: 5_000_000, timeoutMs: 120_000 });
 const OWNER = "live-validation-owner";
 const WRONG_OWNER = "live-validation-other-owner";
 const ROLE = "Data Product Manager";
@@ -69,7 +69,7 @@ export async function runValidation(options: { executeOne?: boolean; key?: strin
       transport = createGuardedTransport(key!, options.fetch);
       await transport.inspectKey();
     } else {
-      const fixture = { data: { limit: 1, limit_remaining: 1, limit_reset: null, usage: 0, is_management_key: false, byok_usage: 0 } };
+      const fixture = { data: { limit: 5, limit_remaining: 5, limit_reset: null, usage: 0, is_management_key: false, byok_usage: 0 } };
       verifyKeyPolicy(fixture);
       let rejected = false;
       try { verifyKeyPolicy({ data: { ...fixture.data, limit: null } }); } catch { rejected = true; }

@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 const key = "synthetic-live-validation-key";
-const safeKeyData = { data: { limit: 1, limit_remaining: 1, limit_reset: null, usage: 0, is_management_key: false,
+const safeKeyData = { data: { limit: 5, limit_remaining: 5, limit_reset: null, usage: 0, is_management_key: false,
   is_provisioning_key: false, byok_usage: 0, expires_at: null } };
 const KEY_URL = "https://openrouter.ai/api/v1/key";
 const RESEARCH_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -40,12 +40,12 @@ describe("isolated live Research validation", () => {
     expect(fetch).toHaveBeenCalledTimes(2);
     expect(result).toMatchObject({ mode: "live-one", outcome: "passed", realRequestCount: 2, researchRequestCount: 1,
       repairRequestCount: 0, auditCount: 1, actualModel: LIVE_POLICY.model, usage: { totalTokens: 9000, costMicros: 100000 },
-      reservation: { status: "settled", maximumMicros: 1000000, settledMicros: 100000 }, secondResearchRejected: true,
+      reservation: { status: "settled", maximumMicros: 5000000, settledMicros: 100000 }, secondResearchRejected: true,
       ownerWrongReadRejected: true, freshAccountActivated: true, planningGenerated: true, databaseDisposed: true });
   });
 
   it.each([
-    { limit: null }, { limit: 2 }, { limit: 0 }, { limit: "1" }, { usage: 0.1 }, { limit_remaining: 0.9 },
+    { limit: null }, { limit: 5.000001, limit_remaining: 5.000001 }, { limit: 0 }, { limit: "5" }, { usage: 0.1 }, { limit_remaining: 0.9 },
     { limit_reset: "daily" }, { is_management_key: true }, { is_provisioning_key: true }, { byok_usage: 1 },
   ])("denies unsafe key limits before Research: %j", async (override) => {
     const fetch = vi.fn(async () => Response.json({ data: { ...safeKeyData.data, ...override } }));
@@ -53,6 +53,23 @@ describe("isolated live Research validation", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(result).toMatchObject({ mode: "live-one", outcome: "incomplete", reason: "key-policy-denied",
       researchRequestCount: 0, runState: null, databaseDisposed: true });
+  });
+
+  it.each([[5, "passed"], [5.000001, "incomplete"]] as const)("applies the USD 5 receipt ceiling to cost %s without another request", async (cost, outcome) => {
+    const fetch = vi.fn(async (url: string | URL | Request) => {
+      // A smaller still-unused cap isolates the accounting predicate from the key-policy boundary.
+      if (url === KEY_URL) return Response.json({ data: { ...safeKeyData.data, limit: 1, limit_remaining: 1 } });
+      const payload = await fixtureResponse().json() as { usage: Record<string, unknown> };
+      payload.usage.cost = cost;
+      return Response.json(payload);
+    });
+    const result = await runValidation({ executeOne: true, key, fetch });
+    expect(result).toMatchObject({ outcome, runState: "ready", quality: { passed: true }, planningGenerated: true,
+      realRequestCount: 2, researchRequestCount: 1, repairRequestCount: 0, databaseDisposed: true,
+      reservation: { status: "settled", maximumMicros: 5000000, settledMicros: cost === 5 ? 5000000 : 5000001 },
+    });
+    expect(result.reason).toBe(outcome === "passed" ? null : "validation-incomplete");
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 
   it("ignores key and transport without explicit execution", async () => {
@@ -182,6 +199,7 @@ describe("isolated live Research validation", () => {
     expect(source).toContain("StandardInput.Write");
     expect(source).toContain("StandardInput.Close");
     expect(source).toContain("ZeroFreeBSTR");
+    expect(source).toContain("USD 5 key");
     expect(source).not.toMatch(/Set-Content|Out-File|SetEnvironmentVariable|\$env:.*KEY|Write-(?:Output|Host).*\$plain/u);
   });
 
