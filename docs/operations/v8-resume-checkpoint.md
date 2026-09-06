@@ -6,6 +6,8 @@
 >
 > 执行方案见 `docs/superpowers/plans/2026-09-06-arc-v8-live-validation-and-backup.md`。从干净 `28fc14277ae1176bfdcbd82d862468ad46aa3107` 继续；隔离命令行工具已完成 TDD、规格复审和质量/安全审查，两轮最终均无 P0/P1/P2 问题。Root 最终完整单测 **135 文件 / 2,394 测试通过**，类型/静态检查通过；实际默认 PowerShell 演练真实请求 0，Ready、全新账户初始化、所有权拒绝、规划生成及数据库销毁通过。仍使用实际 Provider/校验/账户限定仓储/规划和一次性本地数据库，保留现有 4179 Fake 预览。下一步由用户执行 `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/live-research/run.ps1 -ExecuteOne`，仅在隐藏提示中输入专用限额 Key；安全摘要保存到已忽略的 `outputs/live-research/`。先核对摘要，任何失败均不自动重试；真实证据通过后继续合并与备份。
 >
+> 验证入口及测试已保存到本地提交 **`8ed27cb96c48f148f5046c35305f6951cd333576`**，提交后工作树干净；随后仅补充本次交接记录。真实执行前核对当前 HEAD，结果中应为 `mode: live-one`、`researchRequestCount: 1`，且 `outcome: passed`；默认演练的 `offline-dry-run` 不能作为真实证据。无需重做已验收页面流程。
+>
 > 只读预检：主工作树干净，local master `f0f88b2` 是当前分支祖先；GitHub `Earorua/arc` 的 master 为 `f6c3cdd`，公开仓库且具有推送权限。仓库 webhook 列表为空、Pages 未启用，提交内 CI 无部署步骤。真实证据和最终检查通过后才 fast-forward、普通 push 并核对远端精确哈希，不 force push。
 >
 > **当前尚未读取真实 Key、发真实 Research 请求、合并或推送；不声称真实验证完成。** 这次授权仅覆盖文档所列范围，生产变量/旗标/D1/R2、Sites candidate 和部署仍禁止。限额及有限请求不等同于超时零费用；失败或费用/质量证据不完整时停止，不自动消费第二次请求。

@@ -50,7 +50,7 @@ Published rates support planning, not a fixed charge quote. The local budget led
 - [x] Implement `run.ps1` with explicit `-ExecuteOne`, `Read-Host -AsSecureString`, redirected child stdin, BSTR clearing and stable error output. Default invocation performs only an offline dry-run. Do not install dependencies or load normal Vite/environment configuration.
 - [x] Emit a bounded allowlisted summary with mode, exact requested/recognized actual model, request counts/status, run state, quality codes/counts, usage/cost, local accounting, owner/planning checks and database disposal. Use a fresh ignored output filename per attempt.
 - [x] Run focused tests, nonincremental TypeScript and relevant lint; then fresh independent specification review followed by quality/security review. Fix findings under TDD. Root runs the dry-run itself before guiding user credential input.
-- [ ] Commit the reviewed helper and plan locally. Record the exact commit used for the real attempt.
+- [x] Commit the reviewed helper and plan locally: **`8ed27cb96c48f148f5046c35305f6951cd333576`**, clean after commit. Subsequent handoff documentation does not change this helper code; record the then-current HEAD alongside the eventual live report.
 
 Root verification on the helper worktree, based on `28fc142` (2026-09-06):
 
@@ -94,4 +94,4 @@ Read-only preflight at `28fc14277ae1176bfdcbd82d862468ad46aa3107` found:
 
 ## Current status
 
-The fixed-model helper has passed specification and quality/security reviews, root offline tests and the actual default PowerShell dry-run. Local commit and user-only masked credential input are the next steps. **No real key was read, no real Research request sent, and no merge or push performed yet.** The new authorization replaces historical pending-authorization wording only for this documented scope.
+The fixed-model helper is saved in local commit `8ed27cb96c48f148f5046c35305f6951cd333576` after specification and quality/security reviews, root offline tests and the actual default PowerShell dry-run. User-only masked credential input is the next step. **No real key was read, no real Research request sent, and no merge or push performed yet.** The new authorization replaces historical pending-authorization wording only for this documented scope.
