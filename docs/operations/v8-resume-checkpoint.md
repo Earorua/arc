@@ -1,5 +1,15 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：真实验证入口已通过离线检查和两轮审查，等待用户在隐藏提示中输入专用 Key（覆盖下方相关未授权状态）**
+>
+> 用户指示“带我继续完成真实验证、合并与github备份”，确认本轮总预算 **1 美元**，已有账户并可创建限额测试 Key；随后要求更先进模型，并明确选择 **“GPT-5.6 Sol，维持 1 美元（推荐）”**。首轮固定为 `openai/gpt-5.6-sol`，仅一次 Research，无自动重试/Repair。密钥由用户在本机隐藏终端提示中输入，不能发送到聊天、写入文件/环境变量或输出到日志。
+>
+> 执行方案见 `docs/superpowers/plans/2026-09-06-arc-v8-live-validation-and-backup.md`。从干净 `28fc14277ae1176bfdcbd82d862468ad46aa3107` 继续；隔离命令行工具已完成 TDD、规格复审和质量/安全审查，两轮最终均无 P0/P1/P2 问题。Root 最终完整单测 **135 文件 / 2,394 测试通过**，类型/静态检查通过；实际默认 PowerShell 演练真实请求 0，Ready、全新账户初始化、所有权拒绝、规划生成及数据库销毁通过。仍使用实际 Provider/校验/账户限定仓储/规划和一次性本地数据库，保留现有 4179 Fake 预览。下一步由用户执行 `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/live-research/run.ps1 -ExecuteOne`，仅在隐藏提示中输入专用限额 Key；安全摘要保存到已忽略的 `outputs/live-research/`。先核对摘要，任何失败均不自动重试；真实证据通过后继续合并与备份。
+>
+> 只读预检：主工作树干净，local master `f0f88b2` 是当前分支祖先；GitHub `Earorua/arc` 的 master 为 `f6c3cdd`，公开仓库且具有推送权限。仓库 webhook 列表为空、Pages 未启用，提交内 CI 无部署步骤。真实证据和最终检查通过后才 fast-forward、普通 push 并核对远端精确哈希，不 force push。
+>
+> **当前尚未读取真实 Key、发真实 Research 请求、合并或推送；不声称真实验证完成。** 这次授权仅覆盖文档所列范围，生产变量/旗标/D1/R2、Sites candidate 和部署仍禁止。限额及有限请求不等同于超时零费用；失败或费用/质量证据不完整时停止，不自动消费第二次请求。
+
 > **2026-09-06：用户已明确确认本轮本地验收通过（覆盖下方历史“用户验收待完成”状态）**
 >
 > 用户原话：**“确认本轮本地验收通过”**。本轮在干净 `976903c105a10e71cf4f73cfd40f05b1b82489d8` 启动的隔离 Fake 预览上完成，期间应用、测试和运行配置未改；本次仅更新验收记录、检查点和详细计划并本地提交。权威工作树仍为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`，分支仍为 `codex/v8-openrouter-research-beta`；含本记录的实际 HEAD 以 Git 为准。

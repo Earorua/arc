@@ -4,6 +4,8 @@ Status: **Tasks 10, 11 and 13 are closed for the authorized offline engineering 
 
 User acceptance: **the user explicitly accepted this guided local UAT round on 2026-09-06**, at unchanged application code on `976903c105a10e71cf4f73cfd40f05b1b82489d8`. See the separate user acceptance record below.
 
+**Subsequent authorization (2026-09-06):** The user requested real validation, local merge and GitHub backup, confirmed a USD 1 total budget and explicitly selected GPT-5.6 Sol after requesting a stronger model. Preparation now follows `docs/superpowers/plans/2026-09-06-arc-v8-live-validation-and-backup.md` with fixed `openai/gpt-5.6-sol`, one Research and no automatic retry/Repair. This supersedes the historical unauthorized wording below only for that bounded scope. No real request, merge or push has been performed yet; the offline evidence and user sign-off remain unchanged. Production operations and deployment remain excluded.
+
 **Offline Research Beta complete; no live OpenRouter evidence claimed.**
 
 ## Execution boundary
