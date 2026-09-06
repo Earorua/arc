@@ -17,6 +17,7 @@ const workspace = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 let vite;
 let key;
 let exitCode = 1;
+let failureCode = "validation-incomplete";
 
 async function readKey() {
   if (process.stdin.isTTY) throw new Error("MASKED_LAUNCHER_REQUIRED");
@@ -34,15 +35,20 @@ async function readKey() {
 
 try {
   const args = process.argv.slice(2);
+  if (args.includes("--execute-one") && args.includes("--check-key-only")) {
+    failureCode = "mode-conflict";
+    throw new Error("MODES_CONFLICT");
+  }
   const executeOne = args.length === 1 && args[0] === "--execute-one";
-  if (args.length && !executeOne) throw new Error("ARGUMENTS_INVALID");
+  const checkKeyOnly = args.length === 1 && args[0] === "--check-key-only";
+  if (args.length && !executeOne && !checkKeyOnly) throw new Error("ARGUMENTS_INVALID");
   process.chdir(workspace);
-  if (executeOne) key = await readKey();
+  if (executeOne || checkKeyOnly) key = await readKey();
   const { createOfflineVite } = await import("../../tests/offline-uat/server.mjs");
   vite = await createOfflineVite({ logLevel: "silent", optimizeDeps: { noDiscovery: true, include: [] },
     server: { middlewareMode: true, watch: null, hmr: false, ws: false, cors: false } });
   const { runValidation } = await vite.ssrLoadModule("/scripts/live-research/validation.ts");
-  const summary = await runValidation(executeOne ? { executeOne: true, key, fetch: outboundFetch } : {});
+  const summary = await runValidation(executeOne || checkKeyOnly ? { executeOne, checkKeyOnly, key, fetch: outboundFetch } : {});
   key = undefined;
   const outputDirectory = resolve(workspace, "outputs/live-research");
   await mkdir(outputDirectory, { recursive: true });
@@ -53,7 +59,7 @@ try {
   process.stdout.write(`${serialized}\nSummary: ${outputPath}\n`);
   exitCode = summary.outcome === "passed" ? 0 : 1;
 } catch {
-  process.stderr.write("Live validation stopped (validation-incomplete).\n");
+  process.stderr.write(`Live validation stopped (${failureCode}).\n`);
 } finally {
   key = undefined;
   try {

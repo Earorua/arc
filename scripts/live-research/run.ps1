@@ -1,5 +1,10 @@
 [CmdletBinding()]
-param([switch]$ExecuteOne)
+param([switch]$ExecuteOne, [switch]$CheckKeyOnly)
+
+if ($ExecuteOne -and $CheckKeyOnly) {
+    [Console]::Error.WriteLine('Live validation stopped (launcher-mode-conflict).')
+    exit 1
+}
 
 $ErrorActionPreference = 'Stop'
 $validationExitCode = 1
@@ -11,9 +16,13 @@ $validationChild = $null
 try {
     $validationRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
     $validationNode = (Get-Command node -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
-    if ($ExecuteOne) {
+    if ($ExecuteOne -or $CheckKeyOnly) {
         if ([Console]::IsInputRedirected) { throw 'Interactive terminal required' }
-        Write-Host 'One live Research request: openai/gpt-5.6-sol; dedicated unused USD 5 key; no repair or retry.'
+        if ($CheckKeyOnly) {
+            Write-Host 'Key-only check: one key GET; no Research request. Dedicated unused USD 5 key required.'
+        } else {
+            Write-Host 'One live Research request: openai/gpt-5.6-sol; dedicated unused USD 5 key; no repair or retry.'
+        }
         $validationSecret = Read-Host 'Paste dedicated OpenRouter key (masked)' -AsSecureString
         $validationBstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($validationSecret)
         $validationPlain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($validationBstr)
@@ -27,6 +36,7 @@ try {
     $validationStart.WorkingDirectory = $validationRoot
     $validationStart.Arguments = 'scripts/live-research/runner.mjs'
     if ($ExecuteOne) { $validationStart.Arguments += ' --execute-one' }
+    if ($CheckKeyOnly) { $validationStart.Arguments += ' --check-key-only' }
     $validationStart.UseShellExecute = $false
     $validationStart.CreateNoWindow = $true
     $validationStart.RedirectStandardInput = $true
@@ -37,7 +47,7 @@ try {
     $validationChild.StartInfo = $validationStart
     [void]$validationChild.Start()
     try {
-        if ($ExecuteOne) { $validationChild.StandardInput.Write($validationPlain) }
+        if ($ExecuteOne -or $CheckKeyOnly) { $validationChild.StandardInput.Write($validationPlain) }
         $validationChild.StandardInput.Close()
     } finally {
         $validationPlain = $null

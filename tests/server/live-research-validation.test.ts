@@ -4,6 +4,8 @@ import { fixtureResponse, LIVE_POLICY, runValidation } from "../../scripts/live-
 import { createGuardedTransport, verifyKeyPolicy } from "../../scripts/live-research/transport";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { OpenRouterResearchProvider } from "../../app/server/research/openrouter-provider";
+import { SqliteD1 } from "../helpers/sqlite-d1";
 
 const key = "synthetic-live-validation-key";
 const safeKeyData = { data: { limit: 5, limit_remaining: 5, limit_reset: null, usage: 0, is_management_key: false,
@@ -20,6 +22,55 @@ describe("isolated live Research validation", () => {
       runState: "ready", quality: { passed: true },
       ownerWrongReadRejected: true, planningGenerated: true, databaseDisposed: true,
     });
+  });
+
+  it("checks only the key with one GET and no Research, accounting or planning operations", async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => Response.json(safeKeyData));
+    const provider = vi.spyOn(OpenRouterResearchProvider.prototype, "research");
+    const database = vi.spyOn(SqliteD1.prototype, "prepare");
+    try {
+      const result = await runValidation({ checkKeyOnly: true, key, fetch });
+      expect(result).toMatchObject({ mode: "key-check-only", outcome: "passed", realRequestCount: 1,
+        keyHttpStatus: 200, researchHttpStatus: null, researchRequestCount: 0, repairRequestCount: 0,
+        runId: null, runState: null, auditCount: 0, usage: null, reservation: null,
+        planningGenerated: false, freshAccountActivated: false, databaseDisposed: true,
+        keyDiagnostics: { phase: "complete", failure: null } });
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(fetch.mock.calls[0]![0]).toBe(KEY_URL);
+      expect(provider).not.toHaveBeenCalled();
+      expect(database).not.toHaveBeenCalled();
+    } finally { provider.mockRestore(); database.mockRestore(); }
+  });
+
+  it("denies Research in a key-only transport even after the key passes", async () => {
+    const fetch = vi.fn(async () => Response.json(safeKeyData));
+    const transport = createGuardedTransport(key, fetch, { checkKeyOnly: true });
+    await transport.inspectKey();
+    await expect(transport.fetch(RESEARCH_URL, { method: "POST", redirect: "error", headers: { Authorization: `Bearer ${key}` }, body: "{}" }))
+      .rejects.toThrow("transport-denied");
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(transport.counts()).toMatchObject({ getCount: 1, postCount: 0 });
+    transport.clear();
+  });
+
+  it.each([
+    ["network-error", "request", null], ["http-error", "response", 401],
+    ["invalid-response", "body", 200], ["policy-denied", "policy", 200],
+  ] as const)("reports only safe key diagnostic fields for %s", async (failure, phase, keyHttpStatus) => {
+    const fetch = vi.fn(async () => {
+      if (failure === "network-error") throw new Error("CANARY-private-network-error");
+      if (failure === "http-error") return new Response("CANARY-private-http-body", { status: 401 });
+      if (failure === "invalid-response") return new Response("CANARY-private-invalid-json");
+      return Response.json({ data: { ...safeKeyData.data, limit: null, label: "CANARY-private-label" } });
+    });
+    const result = await runValidation({ checkKeyOnly: true, key, fetch });
+    expect(result).toMatchObject({ mode: "key-check-only", outcome: "incomplete", keyHttpStatus,
+      realRequestCount: 1, researchRequestCount: 0, runState: null, auditCount: 0, reservation: null,
+      keyDiagnostics: { phase, failure } });
+    expect(result.keyDiagnostics!.elapsedMs).toBeGreaterThanOrEqual(0);
+    expect(result.keyDiagnostics!.elapsedMs).toBeLessThanOrEqual(10000);
+    expect(JSON.stringify(result)).not.toContain("CANARY");
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it("executes exactly one key GET and one unchanged Research POST through actual adapter, audit and planning", async () => {
@@ -163,14 +214,19 @@ describe("isolated live Research validation", () => {
     expect(() => verifyKeyPolicy(payload)).not.toThrow();
   });
 
-  it("times out stalled key inspection and never releases a POST", async () => {
+  it.each(["request", "body"] as const)("distinguishes a stalled key %s timeout without releasing a POST", async (phase) => {
     vi.useFakeTimers();
     try {
-      const transport = createGuardedTransport(key, async () => new Promise<Response>(() => undefined));
+      const transport = createGuardedTransport(key, async () => phase === "request" ? new Promise<Response>(() => undefined)
+        : new Response(new ReadableStream<Uint8Array>({ start(controller) { controller.enqueue(new TextEncoder().encode('{"CANARY":"partial-body"')); } })));
       const failure = expect(transport.inspectKey()).rejects.toThrow("key-check-failed");
       await vi.advanceTimersByTimeAsync(10000);
       await failure;
       expect(transport.counts()).toMatchObject({ getCount: 1, postCount: 0 });
+      expect(transport.diagnostics()).toEqual({ phase, failure: `${phase}-timeout`, elapsedMs: 10000 });
+      await expect(transport.fetch(RESEARCH_URL, { method: "POST", redirect: "error", headers: { Authorization: `Bearer ${key}` }, body: "{}" }))
+        .rejects.toThrow("transport-denied");
+      expect(JSON.stringify(transport.diagnostics())).not.toContain("CANARY");
       transport.clear();
     } finally { vi.useRealTimers(); }
   });
@@ -178,6 +234,7 @@ describe("isolated live Research validation", () => {
   it.each([
     ["default offline dry-run", [], ""],
     ["malformed stdin", ["--execute-one"], "CANARY bad-key"],
+    ["malformed key-only stdin", ["--check-key-only"], "CANARY bad-key"],
     ["unexpected CLI argument", ["--key=CANARY-secret"], ""],
   ] as const)("runs one bounded child for %s without echoing input", (_label, args, input) => {
     const child = spawnSync(process.execPath, ["scripts/live-research/runner.mjs", ...args], { encoding: "utf8", input, timeout: 30000 });
@@ -200,6 +257,7 @@ describe("isolated live Research validation", () => {
     expect(source).toContain("StandardInput.Close");
     expect(source).toContain("ZeroFreeBSTR");
     expect(source).toContain("USD 5 key");
+    expect(source).toContain("$CheckKeyOnly");
     expect(source).not.toMatch(/Set-Content|Out-File|SetEnvironmentVariable|\$env:.*KEY|Write-(?:Output|Host).*\$plain/u);
   });
 
@@ -209,5 +267,20 @@ describe("isolated live Research validation", () => {
     expect(child.stdout).toContain('"mode": "offline-dry-run"');
     expect(child.stdout).toContain('"realRequestCount": 0');
     expect(child.stdout).toContain('"databaseDisposed": true');
+  }, 35000);
+
+  it("rejects conflicting CLI modes before reading a key", () => {
+    const child = spawnSync(process.execPath, ["scripts/live-research/runner.mjs", "--execute-one", "--check-key-only"], { encoding: "utf8", input: "", timeout: 30000 });
+    expect(child.status).toBe(1);
+    expect(child.stderr).toContain("mode-conflict");
+    expect(child.stdout).not.toContain("Summary:");
+  }, 35000);
+
+  it.runIf(process.platform === "win32")("rejects conflicting PowerShell modes before any masked prompt", () => {
+    const child = spawnSync("powershell", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "scripts/live-research/run.ps1", "-ExecuteOne", "-CheckKeyOnly"], { encoding: "utf8", input: "", timeout: 30000 });
+    expect(child.status).toBe(1);
+    expect(child.stderr).toContain("launcher-mode-conflict");
+    expect(child.stdout).not.toContain("Paste dedicated");
+    expect(child.stdout).not.toContain("Summary:");
   }, 35000);
 });

@@ -106,3 +106,27 @@ After local save, the user can invoke the masked launcher again: it will perform
 Latest user invocation on clean USD 5 helper commit **`9fbf233ed3f9bc7b5d1fc5fc4bc54b4cf7c8a4b5`** produced `outputs/live-research/summary-2026-09-06T03-30-05-252Z.json`: `mode: live-one`, `outcome: incomplete`, `reason: key-check-failed`, key/Research HTTP statuses null, one key GET attempt, **Research POST 0**, Repair 0, no run/audit/usage/reservation, database disposed. The report was written approximately 10 seconds after its timestamp, consistent with the existing 10-second key-preflight deadline; the safe report does not establish the exact network cause.
 
 Root then made two unauthenticated, non-inference connectivity checks against the public Sol endpoints metadata URL, reading no credentials: Node v24.14.1 returned HTTP 200 in 905 ms, and the system PowerShell client returned HTTP 200 in 650 ms. These checks show that public metadata was reachable at that later time, not that the earlier authenticated key check succeeded or that its cause is proven. No code or timeout change was made. Both user invocations still have zero Research POSTs; the user may manually invoke the same reviewed command again for fresh key preflight and the sole unconsumed Research. There is no automatic retry and no completed live-validation claim.
+
+## Key-only diagnostic continuation
+
+The user subsequently requested “继续帮我解决api key的问题”. The latest clean starting HEAD is `6e14cbaad0644f2bc7b5de1545a753988f39cacb`; no new user report appeared after the 03:30 preflight. Root repeated unauthenticated connectivity checks with the launcher's actual child-process settings, including removal of `OPENROUTER_API_KEY` and `NODE_OPTIONS`, no interactive input and no visible child window. Public model metadata returned HTTP 200 in 1,362 ms; the key endpoint without authorization returned the expected HTTP 401 in 2,200 ms. The response bodies were discarded. There is no demonstrated need to restore arbitrary Node startup options, change proxy settings or relax TLS.
+
+The current `key-check-failed` summary cannot distinguish a request deadline, body-read deadline, network exception, unsuccessful HTTP status or malformed response. Implement the smallest diagnostic extension under the existing TDD and independent specification/quality-review workflow:
+
+- Add explicit `-CheckKeyOnly` / `--check-key-only`, mutually exclusive with real Research execution. Continue using the masked PowerShell prompt and anonymous stdin pipe. Invalid mode combinations must fail before prompting or network access.
+- Key-only mode performs one key GET and cannot issue a Research POST, even if key preflight passes. Enforce that restriction in the transport. Do not create a Research run, audit, reservation or plan. Use a distinct `key-check-only` report mode; a successful key check is not successful live Research validation.
+- Add allowlisted diagnostic stages, failure categories and bounded elapsed time. Preserve the existing safe overall reason and HTTP status, and never output raw exception text, headers, response bodies or opaque key metadata.
+- Keep the 10-second key deadline, 120-second Research deadline, fixed Sol, USD 5 ceiling and no automatic retry. Do not change product, production or browser-preview configuration.
+- Observe discriminating RED/GREEN tests for key-only admission and POST rejection, conflicting modes, request/body timeout classification, HTTP/format failures and canary-output exclusion. Complete independent specification then quality/security review and root verification before local commit and user credential input.
+
+The implementation observed **11 RED failures / 48 tests**, then **48/48 GREEN**. Final independent specification review followed by quality/security review both reported **P0/P1/P2: 0/0/0, READY YES** (static reviews). Root verified **135 files / 2,406 tests passed**, 45.95s, exit 0; nonincremental TypeScript, targeted ESLint and diff check passed. Root's actual default PowerShell invocation also passed: `outputs/live-research/summary-2026-09-06T03-55-04-760Z.json`, `offline-dry-run`, real requests 0, Ready/account/planning/disposal checks true. This is offline fixture evidence only.
+
+The new report field is `keyDiagnostics`, containing only `phase`, `failure`, and elapsed milliseconds clamped to 0–10,000. Key-only pass requires the existing key policy to pass, and reports `mode: key-check-only`, `outcome: passed`, key HTTP 200, phase `complete`, one GET and zero Research. It is distinct from live Research success. Request/body timeouts, network exceptions, HTTP failures, malformed responses and policy failures each receive a fixed diagnostic category.
+
+Next user step after local save is the masked `-CheckKeyOnly` command:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/live-research/run.ps1 -CheckKeyOnly
+```
+
+The user need only reply “已运行”; root will inspect the new `key-check-only` allowlisted report and use the specific failure evidence to choose the next action. No new inference request is authorized by this diagnostic mode, and no successful API-key or live-Research result is claimed yet. The original `-ExecuteOne` command remains for the separately authorized sole Research after key diagnosis is resolved.

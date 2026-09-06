@@ -16,7 +16,7 @@ import { RESEARCH_PROVIDER_VERSIONS, ResearchProviderError, type ResearchProvide
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { createResearchD1, seedUser } from "../../tests/helpers/sqlite-d1";
 import { validResearchCandidate, validAnnotations } from "../../tests/fixtures/research/valid-candidate";
-import { createGuardedTransport, SafeValidationError, verifyKeyPolicy } from "./transport";
+import { createGuardedTransport, SafeValidationError, verifyKeyPolicy, type KeyCheckDiagnostics } from "./transport";
 
 export const LIVE_POLICY = Object.freeze({ model: "openai/gpt-5.6-sol", maximumMicros: 5_000_000, timeoutMs: 120_000 });
 const OWNER = "live-validation-owner";
@@ -33,10 +33,11 @@ export function fixtureResponse() {
 }
 
 export type ValidationSummary = {
-  mode: "offline-dry-run" | "live-one";
+  mode: "offline-dry-run" | "live-one" | "key-check-only";
   timestamp: string; outcome: "passed" | "incomplete";
   reason: string | null; requestedModel: string; actualModel: string | null;
   keyHttpStatus: number | null; researchHttpStatus: number | null;
+  keyDiagnostics: KeyCheckDiagnostics | null;
   realRequestCount: number; researchRequestCount: number; repairRequestCount: number;
   runId: string | null; runState: ResearchRunPublicView["state"] | null;
   quality: { passed: boolean; issueCodes: ResearchIssueCode[]; issueCount: number };
@@ -48,10 +49,10 @@ export type ValidationSummary = {
 };
 
 /** No network, environment, application factory or persistent database is used by default. */
-export async function runValidation(options: { executeOne?: boolean; key?: string; fetch?: typeof globalThis.fetch } = {}): Promise<ValidationSummary> {
+export async function runValidation(options: { executeOne?: boolean; checkKeyOnly?: boolean; key?: string; fetch?: typeof globalThis.fetch } = {}): Promise<ValidationSummary> {
   const summary: ValidationSummary = {
-    mode: options.executeOne === true ? "live-one" : "offline-dry-run", timestamp: new Date().toISOString(), outcome: "incomplete", reason: null,
-    requestedModel: LIVE_POLICY.model, actualModel: null, keyHttpStatus: null, researchHttpStatus: null,
+    mode: options.checkKeyOnly === true ? "key-check-only" : options.executeOne === true ? "live-one" : "offline-dry-run", timestamp: new Date().toISOString(), outcome: "incomplete", reason: null,
+    requestedModel: LIVE_POLICY.model, actualModel: null, keyHttpStatus: null, researchHttpStatus: null, keyDiagnostics: null,
     realRequestCount: 0, researchRequestCount: 0, repairRequestCount: 0,
     runId: null, runState: null, quality: { passed: false, issueCodes: [], issueCount: 0 },
     citationCount: 0, skillCount: 0, auditCount: 0, usage: null, reservation: null,
@@ -62,12 +63,15 @@ export async function runValidation(options: { executeOne?: boolean; key?: strin
   const d1 = db as unknown as D1Database;
   let provider: ResearchProvider | null = null;
   let transport: ReturnType<typeof createGuardedTransport> | null = null;
-  let key = options.executeOne === true ? options.key : "offline-fixture-key";
+  let key: string | undefined = "offline-fixture-key";
   try {
-    if (options.executeOne === true) {
+    if (options.executeOne === true && options.checkKeyOnly === true) throw new SafeValidationError("transport-denied");
+    if (options.executeOne === true || options.checkKeyOnly === true) {
+      key = options.key;
       if (!options.fetch) throw new SafeValidationError("transport-denied");
-      transport = createGuardedTransport(key!, options.fetch);
+      transport = createGuardedTransport(key!, options.fetch, { checkKeyOnly: options.checkKeyOnly });
       await transport.inspectKey();
+      if (options.checkKeyOnly === true) { summary.outcome = "passed"; return summary; }
     } else {
       const fixture = { data: { limit: 5, limit_remaining: 5, limit_reset: null, usage: 0, is_management_key: false, byok_usage: 0 } };
       verifyKeyPolicy(fixture);
@@ -173,6 +177,7 @@ export async function runValidation(options: { executeOne?: boolean; key?: strin
       summary.researchRequestCount = counts.postCount;
       summary.keyHttpStatus = counts.keyHttpStatus;
       summary.researchHttpStatus = counts.researchHttpStatus;
+      summary.keyDiagnostics = transport.diagnostics();
       transport.clear();
     }
     key = undefined; provider = null; db.close(); summary.databaseDisposed = true;

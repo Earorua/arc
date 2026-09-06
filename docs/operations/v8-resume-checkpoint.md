@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：Key-only 诊断入口已通过检查，下一步由用户运行 `-CheckKeyOnly`**
+>
+> 用户要求“继续帮我解决api key的问题”。从干净 `6e14cbaad0644f2bc7b5de1545a753988f39cacb` 继续，最新用户摘要仍为 03:30 的 `key-check-failed / Research POST 0`。按启动器相同的子进程环境设置，无认证公开模型接口返回 200 / 1,362 ms，无认证 Key 接口返回预期 401 / 2,200 ms；未读取 Key，未调用模型。不能据此证明用户 Key 有效，也没有证据要求恢复 `NODE_OPTIONS`、改代理或放宽 TLS。
+>
+> 最小诊断扩展已完成 TDD（11 RED→48 GREEN）、独立规格后质量/安全审查（两轮 P0/P1/P2 均 0/0/0、READY）。Root 最终完整单测 **135 文件 / 2,406 测试通过，45.95 秒**，非增量类型/目标静态/diff 检查通过；实际默认 PowerShell 演练 `outputs/live-research/summary-2026-09-06T03-55-04-760Z.json` 为 `offline-dry-run / passed`、真实请求 0。
+>
+> 新入口为 `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/live-research/run.ps1 -CheckKeyOnly`，仅一次 GET，传输层强制禁止 POST，独立 `key-check-only` 模式；新字段 `keyDiagnostics` 只含固定阶段/失败类别及 0–10,000 ms 耗时。用户仍在隐藏提示输入 Key，运行后说“已运行”即可；主代理读取新 `key-check-only` 摘要，依据 HTTP 状态和阶段类别判断。仍保留 10 秒 Key 检查期限、120 秒 Research、Sol、5 美元、无自动重试。**Key-only 的 passed 仅代表密钥检查通过，不能作为真实研究成功证据。** 目前尚未证明用户 Key 有效，也未完成真实研究、合并或推送。
+
 > **2026-09-06：5 美元入口已保存；前两次用户启动均停在 Key 预检，Research 请求仍为 0（覆盖下方 1 美元状态）**
 >
 > 用户问 `outcome` 和 `Summary` 在哪里获取，并说明“另外我设置了5美元的限额，会宽裕一点”。已告知终端会打印 `outcome`，末行 `Summary:` 是摘要完整路径；摘要位于 `outputs/live-research/`。按最新设置将本轮上限同步到 **5 美元**，仍固定 `openai/gpt-5.6-sol`、只执行一次 Research、无自动重试/Repair。
