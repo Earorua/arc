@@ -1,10 +1,12 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-06：用户将专用 Key 限额调整为 5 美元；首个终端结果停在 Key 预检，Research 请求仍为 0（覆盖下方 1 美元状态）**
+> **2026-09-06：5 美元入口已保存；前两次用户启动均停在 Key 预检，Research 请求仍为 0（覆盖下方 1 美元状态）**
 >
 > 用户问 `outcome` 和 `Summary` 在哪里获取，并说明“另外我设置了5美元的限额，会宽裕一点”。已告知终端会打印 `outcome`，末行 `Summary:` 是摘要完整路径；摘要位于 `outputs/live-research/`。按最新设置将本轮上限同步到 **5 美元**，仍固定 `openai/gpt-5.6-sol`、只执行一次 Research、无自动重试/Repair。
 >
 > 在干净 `320bd2d9ed90d9c38f4770b391e8a279d6fed925` 上，用户已手动启动工具。安全摘要 `outputs/live-research/summary-2026-09-06T03-14-44-044Z.json` 为 `live-one / incomplete / key-policy-denied`，Key GET HTTP 200、Research POST **0**、Repair 0、无 run/usage。5 美元 Key 超过旧入口的 1 美元上限，尚未调用模型。主代理仅读取白名单摘要，未读取 Key 或原始账户元数据。
+>
+> 用户在干净的 5 美元入口提交 **`9fbf233ed3f9bc7b5d1fc5fc4bc54b4cf7c8a4b5`** 上再次运行。最新摘要 `outputs/live-research/summary-2026-09-06T03-30-05-252Z.json` 为 `live-one / incomplete / key-check-failed`，Key/Research HTTP 状态均为空，一次 GET 尝试、Research POST **0**、Repair 0、无 run/audit/usage/reservation，数据库已销毁。生成耗时约 10 秒，与 Key 预检期限吻合，但不能从安全摘要断言具体网络原因。随后无密钥的公开模型元数据连通性检查：Node HTTP 200 / 905 ms，系统 PowerShell HTTP 200 / 650 ms；不代表刚才的认证预检成功。未修改实现或超时。下一步仍为用户手动执行原隐藏输入命令；两次均未消耗唯一 Research 请求，不自动重试，也不提前合并/推送。
 >
 > 5 美元更新已完成 TDD（16 RED→38 GREEN）、规格和质量/安全审查（两轮 P0/P1/P2 均为 0/0/0）。Root 最终完整单测 **135 文件 / 2,396 测试通过，44.11 秒**，非增量类型、目标静态、diff 检查通过。默认 PowerShell 演练摘要 `outputs/live-research/summary-2026-09-06T03-22-31-042Z.json` 为 `offline-dry-run / passed`、真实请求 0、5,000,000 micros 预留及 Ready/账户/规划/销毁检查通过，不能作为真实结果。完成本地保存后，用户再次从隐藏提示启动，执行新的 Key 预检和仍未消耗的唯一 Research；运行完成后只需说“已运行”，主代理可直接读取新生成的 `live-one` 白名单摘要。已有 4179 预览保留。真实验证、合并、推送仍未完成，生产操作及部署仍禁止。
 
