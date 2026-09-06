@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：用户已明确授权额外 1 次真实 Research；等待用户运行隐藏输入入口（当前最高优先级）**
+>
+> 用户在诊断实现双审及本地保存完成后回复“授权再运行 1 次真实 Research”。本次核对实现提交 **`31755b39ccef8592512b23711c3b8a9278534c08`**、`codex/v8-openrouter-research-beta` 分支和干净工作树。该授权覆盖同一 `openai/gpt-5.6-sol`、真实验证总预算至多 **5 美元**、一次新的 Key GET 预检和通过后的至多 **1 次额外 Research POST**；无自动重试、Repair 或模型切换。原 04:23 Research 的授权仍已消耗，不得与本次新增许可重复计算。
+>
+> 实现和执行入口未变。本次仅保存授权文档；用户在本地交互 PowerShell 运行 `scripts/live-research/run.ps1 -ExecuteOne`，仅在隐藏提示输入原限额测试 Key，不向代理提供 Key。脚本会重新核对限额、剩余、usage/BYOK、有效期及非管理 Key 条件；预检不通过即停止。当前尚未运行本次入口、没有新增真实请求或结果。交接前最后摘要文件名为 `summary-2026-09-06T09-36-14-251Z.json`；此前确认其为 offline/realRequestCount 0。
+>
+> 用户回复“已运行”后，只读取此次新增的白名单 `live-one` 摘要，核对 `researchFailureDiagnostic`、请求计数、HTTP、usage/cost 和原验收门槛；保留精确摘要哈希及执行代码提交。无论失败、超时或结果缺失，都先检查证据，不能自行再运行命令或假定尚未消耗许可。恢复时先判断本次是否已执行，不要因下方旧授权状态重复索取同一许可。若仍无已识别错误类型，保持 403 原因未知并转向未发送客服草稿，不能猜测或反复请求。真实验收通过前不合并、推送；生产操作、Sites 候选和部署仍禁止。
+
 > **2026-09-06：已完成暂停 RED 后的错误诊断实现、离线验证和双审（当前恢复入口，覆盖下方历史暂停状态）**
 >
 > 已完整读取本检查点和 `docs/superpowers/plans/2026-09-06-arc-v8-provider-error-observation.md`，核对权威工作树、`codex/v8-openrouter-research-beta` 分支及干净暂停 HEAD。首个 callback RED 已新鲜复现；仅四个实现/测试文件接入纯白名单提取、已有三个错误边界的可选回调和本地 summary 独立快照。HTTP 状态/数值错误码及其有效性、27 个精确错误类型及 missing/invalid/unrecognized 状态可以记录，原始 message/metadata/标识符不输出；不改变模型请求、错误映射、计费判断、取消或超时。
