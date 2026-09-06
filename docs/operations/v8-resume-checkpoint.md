@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-07：本次 Research 关闭版 v8 公开部署成功（当前最高优先级）**
+>
+> 用户明确设置目标“完成这次的部署尝试”，保持此前选择的公开访问；API 问题由用户解决后再通知继续。本次由已验证的干净 `cd2b9abead3a98d635850461e2b49bb650618a6d` 出发，精确同树 Sites 源码 `2b0ed9376e8693250277c194c297076ff975a257` 保存为 version 10：`appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_165fcb7248a081919299de873212df6f`。一次公开部署 `appgdep_6a9da1f1f8748191a6a32e8ce6b591b8` 于北京时间 2026-09-07 01:25:22 返回 **succeeded**，URL 为 `https://arc-precision-path.jiahe-xu.chatgpt.site`，环境 revision 2 已应用；ARC_AI_ENABLED 保持 false，新增 ARC_AI_RESEARCH_ENABLED=false。本条覆盖下方“v8 尚未部署”“本轮生产操作禁止”的旧阶段状态，不授权后续新的发布或 Provider 调用。
+>
+> 七个公开页面 HTTP 200，每份 HTML 精确开发提示一次且在 main 前；认证 providers 返回 google/github，匿名 session 为 null，匿名 Research eligibility 返回 401。DB 用户表 20→41，原目标/学习档案数量仍各 1，其余已观测的任务/事件/Proof/资产/分享表仍为空，新 research_runs 为空。没有发出真实 Provider 请求，没有读取生产秘密值或保存原始行；没有改 GitHub master、认证配置、访问策略或域名。详细来源、归档哈希、证据及边界见 `docs/operations/v8-deployment-attempt-2026-09-07.md`。
+>
+> **未完成项保持真实：** Sites 当前接口不能提供平台 migration ledger 或 D1/R2 原生恢复操作，本轮没有完整恢复点、远端 artifact 字节恢复、真实 OAuth 往返或登录后全流程验收；不是用户同意丢弃重要数据。迁移预审确认只新增表/索引、保留旧 SQL/metadata，按本次部署尝试授权执行；旧版不能直接接管 v8 数据的结论不变。open_in_codex 交接返回 queued，未做浏览器 QA。保存本轮结果后停止扩展工作，等待用户通知 API 修复或下一步搭建；不重做已完成测试/演练，不重复使用两次已消耗的 Research 许可。
+
 > **2026-09-07：保持公开访问、关闭 Research 的 v8 本地发布准备、双审与备份完成（当前最高优先级）**
 >
 > 用户接受“关闭 Research 入口的小范围 v8 发布”准备路线，并要求网站顶部显示 `The website is currently under development.`。Root 核对权威 worktree、既有分支及干净 `e2871a667dd2ded23f429f362024a00125c316a6`，设计/计划先保存为 `f7e0583`，见 `docs/superpowers/plans/2026-09-07-arc-v8-research-closed-release.md`。本轮新路线不要求先取得 Research 真实成功，后续开启 Research 才继续其独立验收；登录、数据迁移和恢复等发布条件仍保留。
