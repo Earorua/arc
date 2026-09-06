@@ -2,6 +2,7 @@ import { z } from "zod";
 import { providerCitationAnnotationSchema, providerUsageSchema, researchCandidateSchema, type ProviderCitationAnnotation } from "../../contracts/research";
 import { candidateFromContent, fitsUtf8, parseProviderRepairRequest, parseProviderRequest, RESEARCH_PROVIDER_LIMITS, RESEARCH_PROVIDER_VERSIONS, ResearchProviderError,
   type ProviderAuditMetadata, type ProviderRepairRequest, type ProviderResearchRequest, type ProviderResearchResult, type ResearchProvider, type ResearchProviderErrorCode } from "./provider";
+import { extractProviderFailureDiagnostic, type ProviderFailureDiagnostic } from "./provider-failure-diagnostic";
 
 export const OPENROUTER_LIMITS = RESEARCH_PROVIDER_LIMITS;
 export interface OpenRouterResearchConfig {
@@ -14,9 +15,11 @@ export interface OpenRouterResearchConfig {
 export class OpenRouterResearchProvider implements ResearchProvider {
   private readonly config: OpenRouterResearchConfig;
   private readonly fetch: typeof globalThis.fetch;
-  constructor(config: OpenRouterResearchConfig, dependencies: { fetch?: typeof globalThis.fetch } = {}) {
+  private readonly onFailureDiagnostic?: (diagnostic: ProviderFailureDiagnostic) => void;
+  constructor(config: OpenRouterResearchConfig, dependencies: { fetch?: typeof globalThis.fetch; onFailureDiagnostic?: (diagnostic: ProviderFailureDiagnostic) => void } = {}) {
     this.config = { ...config };
     this.fetch = dependencies.fetch ?? globalThis.fetch;
+    this.onFailureDiagnostic = dependencies.onFailureDiagnostic;
   }
   async research(request: ProviderResearchRequest): Promise<ProviderResearchResult> {
     return this.send(parseProviderRequest(request), false);
@@ -85,7 +88,7 @@ export class OpenRouterResearchProvider implements ResearchProvider {
         text += decode();
         let outer: unknown;
         try { outer = JSON.parse(text); } catch { throw new ResearchProviderError("invalid-transport", false, "unknown"); }
-        return readResponse(outer, response.status, repair);
+        return readResponse(outer, response.status, repair, this.onFailureDiagnostic);
       };
       // One subscription for the whole body, not one retained deadline reaction per chunk.
       return await Promise.race([readBody(), deadline]);
@@ -144,7 +147,7 @@ function creditsToMicros(value: unknown): number | null {
   return micros <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(micros) : null;
 }
 
-function readResponse(value: unknown, status: number, repair: boolean): ProviderResearchResult {
+function readResponse(value: unknown, status: number, repair: boolean, onFailureDiagnostic?: (diagnostic: ProviderFailureDiagnostic) => void): ProviderResearchResult {
   const outer = record(value);
   if (!outer) throw new ResearchProviderError("invalid-transport", false, "unknown");
   const audit = auditMetadata(outer, repair);
@@ -155,21 +158,27 @@ function readResponse(value: unknown, status: number, repair: boolean): Provider
       : knownNoExecution && !Object.hasOwn(outer, "usage") ? false : "unknown";
     throw new ResearchProviderError(code, retryable, charged, audit);
   };
-  const upstreamError = (code: unknown, http: boolean): never => {
+  const upstreamError = (code: unknown, http: boolean, location: ProviderFailureDiagnostic["location"], error: unknown): never => {
+    if (onFailureDiagnostic) {
+      try {
+        // Observe a fresh flat value; neither throws nor async rejection can change this failure.
+        void Promise.resolve(onFailureDiagnostic(extractProviderFailureDiagnostic(status, location, error))).catch(() => undefined);
+      } catch { /* Optional observation cannot alter rejection or billing decisions. */ }
+    }
     if (code === 429) return fail("rate", true, http);
     if (code === 402) return fail("balance", false, http);
     if (code === 401 || code === 403) return fail("unavailable", false, http);
     if (typeof code === "number" && code >= 500) return fail("unavailable", true);
     return fail("invalid-transport", false, http && code === 400);
   };
-  if (status !== 200) return upstreamError(status, true);
-  if (outer.error !== undefined && outer.error !== null) return upstreamError(record(outer.error)?.code, false);
+  if (status !== 200) return upstreamError(status, true, "http-error", outer.error);
+  if (outer.error !== undefined && outer.error !== null) return upstreamError(record(outer.error)?.code, false, "top-level-error", outer.error);
   const choices = outer.choices;
   if (!Array.isArray(choices) || choices.length < 1 || choices.length > 8) return fail("invalid-transport");
   for (const value of choices) {
     const item = record(value);
     if (!item) return fail("invalid-transport");
-    if (item.error !== undefined && item.error !== null) return upstreamError(record(item.error)?.code, false);
+    if (item.error !== undefined && item.error !== null) return upstreamError(record(item.error)?.code, false, "choice-error", item.error);
     if (item.finish_reason === "error") return fail("unavailable", true);
     if (item.finish_reason === "content_filter" || record(item.message)?.refusal) return fail("filtered");
     if (item.finish_reason !== "stop") return fail("invalid-transport");

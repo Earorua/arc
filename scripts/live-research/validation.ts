@@ -11,6 +11,7 @@ import { PlanningService } from "../../app/server/planning/service";
 import { D1ResearchRepository, D1PlanningReplayPackageReader } from "../../app/server/research/d1-repository";
 import { D1ResearchBudgetRepository } from "../../app/server/research/d1-budget-repository";
 import { OpenRouterResearchProvider } from "../../app/server/research/openrouter-provider";
+import { type ProviderFailureDiagnostic } from "../../app/server/research/provider-failure-diagnostic";
 import { ResearchOrchestrator } from "../../app/server/research/orchestrator";
 import { RESEARCH_PROVIDER_VERSIONS, ResearchProviderError, type ResearchProvider } from "../../app/server/research/provider";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
@@ -38,6 +39,7 @@ export type ValidationSummary = {
   reason: string | null; requestedModel: string; actualModel: string | null;
   keyHttpStatus: number | null; researchHttpStatus: number | null;
   keyDiagnostics: KeyCheckDiagnostics | null;
+  researchFailureDiagnostic: ProviderFailureDiagnostic | null;
   realRequestCount: number; researchRequestCount: number; repairRequestCount: number;
   runId: string | null; runState: ResearchRunPublicView["state"] | null;
   quality: { passed: boolean; issueCodes: ResearchIssueCode[]; issueCount: number };
@@ -52,7 +54,7 @@ export type ValidationSummary = {
 export async function runValidation(options: { executeOne?: boolean; checkKeyOnly?: boolean; key?: string; fetch?: typeof globalThis.fetch } = {}): Promise<ValidationSummary> {
   const summary: ValidationSummary = {
     mode: options.checkKeyOnly === true ? "key-check-only" : options.executeOne === true ? "live-one" : "offline-dry-run", timestamp: new Date().toISOString(), outcome: "incomplete", reason: null,
-    requestedModel: LIVE_POLICY.model, actualModel: null, keyHttpStatus: null, researchHttpStatus: null, keyDiagnostics: null,
+    requestedModel: LIVE_POLICY.model, actualModel: null, keyHttpStatus: null, researchHttpStatus: null, keyDiagnostics: null, researchFailureDiagnostic: null,
     realRequestCount: 0, researchRequestCount: 0, repairRequestCount: 0,
     runId: null, runState: null, quality: { passed: false, issueCodes: [], issueCount: 0 },
     citationCount: 0, skillCount: 0, auditCount: 0, usage: null, reservation: null,
@@ -89,6 +91,12 @@ export async function runValidation(options: { executeOne?: boolean; checkKeyOnl
     const adapter = new OpenRouterResearchProvider({ OPENROUTER_API_KEY: key,
       ARC_AI_MODEL_RESEARCH: LIVE_POLICY.model, researchTimeoutMs: LIVE_POLICY.timeoutMs }, {
       fetch: transport?.fetch ?? (async () => { summary.researchRequestCount++; summary.researchHttpStatus = 200; return fixtureResponse(); }),
+      onFailureDiagnostic: (diagnostic) => {
+        summary.researchFailureDiagnostic = {
+          httpStatus: diagnostic.httpStatus, location: diagnostic.location, errorCode: diagnostic.errorCode,
+          errorCodeState: diagnostic.errorCodeState, errorType: diagnostic.errorType, errorTypeState: diagnostic.errorTypeState,
+        };
+      },
     });
     let invoked = false;
     provider = {
