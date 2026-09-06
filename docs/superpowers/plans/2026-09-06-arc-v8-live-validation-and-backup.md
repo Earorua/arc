@@ -25,7 +25,7 @@
 | Model | `openai/gpt-5.6-sol`, fixed; no automatic model fallback |
 | Test input | `Data Product Manager`, `en-US`; synthetic owner only |
 | Research endpoint | One POST to `https://openrouter.ai/api/v1/chat/completions` |
-| Key check | One read-only GET to `https://openrouter.ai/api/v1/key` before Research; bounded response and deadline |
+| Key check | One read-only GET to `https://openrouter.ai/api/v1/key` before Research; bounded response and 30-second deadline |
 | Provider request | Existing strict JSON schema, `require_parameters: true`, `data_collection: deny`, `zdr: true` |
 | Search | Exa fast; at most 2 uses/tool calls, 5 results per search, 10 results total, 2,000 characters per result |
 | Output and deadline | Existing 12,000 output-token parameter; 120,000 ms local Research deadline |
@@ -66,7 +66,7 @@ Root verification on the helper worktree, based on `28fc142` (2026-09-06):
 ## Task 2: User-assisted one-request live verification
 
 - [x] Present the reviewed command, exact policy above and where its safe report will be saved. User enters their dedicated key only in the local hidden prompt.
-- [ ] Key preflight must confirm a fresh limited inference key before the sole Research POST. Never print full key metadata or raw error bodies.
+- [x] Key-only preflight confirmed a fresh limited inference key in the 04:02 report below. The real-execution mode still performs fresh key preflight before its sole Research POST. Never print full key metadata or raw error bodies.
 - [ ] Record the allowlisted result and inspect the safe report. Require actual live mode, one Research POST, credible usage/cost within budget, real citations, validated owner-bound Ready package and local planning integration. A Failed or Needs review result remains an incomplete live gate, even if HTTP succeeded.
 - [ ] Confirm key revocation with the user after the attempt; do not request or read the key. Save sanitized evidence in the UAT record and resume checkpoint, with exact code commit and evidence limits. No automatic retry.
 
@@ -130,3 +130,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/live-research/run.ps
 ```
 
 The user need only reply “已运行”; root will inspect the new `key-check-only` allowlisted report and use the specific failure evidence to choose the next action. No new inference request is authorized by this diagnostic mode, and no successful API-key or live-Research result is claimed yet. The original `-ExecuteOne` command remains for the separately authorized sole Research after key diagnosis is resolved.
+
+## Key accepted; read-only deadline adjustment
+
+On clean diagnostic helper commit **`0fb4305cf9b850b91abe692392b78b834513c027`**, the user generated `outputs/live-research/summary-2026-09-06T04-02-11-596Z.json`. It records `mode: key-check-only`, `outcome: passed`, key HTTP **200**, `keyDiagnostics.phase: complete`, failure null and **9,863 ms** elapsed. There was one key GET, **Research POST 0**, Repair 0, no run/audit/usage/reservation and disposal true. The credential and configured key policy are accepted at this check; this is not live Research evidence or proof of account credit balance.
+
+The successful check had only 137 ms of margin under the old 10-second deadline. To make the next preflight less sensitive to that observed latency, widen only the read-only key deadline and diagnostic elapsed cap to **30 seconds**. The actual Research deadline remains 120 seconds, and the PowerShell child deadline remains 180 seconds. A 30-second key check plus 120-second Research leaves 30 seconds of wrapper allowance. Model, USD 5 ceiling, single POST, key-only POST denial and no automatic retry remain unchanged. This does not establish the exact cause of previous failures.
+
+TDD verified that an authored 12-second key response now succeeds while stalled requests and response bodies fail at 30 seconds: **3 RED failures**, then **49/49 focused GREEN**. Independent specification followed by quality/security review of the two-file code/test change both returned **P0/P1/P2: 0/0/0, READY YES** (static scope). Root verified **135 files / 2,407 tests passed**, 41.82s, exit 0; nonincremental TypeScript, targeted ESLint and diff check passed. Documentation records the observed report without changing application or production code. The next real-execution command is still `-ExecuteOne` with masked input; no additional key-only run is required solely for this deadline change.
+
+Root separately asked the user whether the OpenRouter account has usable credit, because a key spending cap and account funding are separate; no balance or credential was fetched. References: [current key information](https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key) and [account credits](https://openrouter.ai/docs/api/api-reference/credits/get-remaining-credits). No credit purchase or new paid attempt is authorized by this check. Await the user's answer before guiding the first paid Research.

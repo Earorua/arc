@@ -1,12 +1,12 @@
 const KEY_URL = "https://openrouter.ai/api/v1/key";
 const RESEARCH_URL = "https://openrouter.ai/api/v1/chat/completions";
 const KEY_MAX_BYTES = 32_768;
-const KEY_TIMEOUT_MS = 10_000;
+const KEY_TIMEOUT_MS = 30_000;
 
 export type KeyCheckDiagnostics = {
   phase: "not-started" | "request" | "response" | "body" | "policy" | "complete";
   failure: "request-timeout" | "body-timeout" | "network-error" | "http-error" | "invalid-response" | "policy-denied" | null;
-  /** Elapsed observation, bounded by this check's 10-second deadline. */
+  /** Elapsed observation, bounded by this check's 30-second deadline. */
   elapsedMs: number;
 };
 

@@ -1,5 +1,11 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：用户 Key 已通过认证及限额检查；尚未调用 Research**
+>
+> 在干净 `0fb4305cf9b850b91abe692392b78b834513c027` 上，新摘要 `outputs/live-research/summary-2026-09-06T04-02-11-596Z.json` 为 `key-check-only / passed`、Key HTTP **200**、阶段 complete、failure 为空、耗时 **9,863 ms**；GET 1、Research POST **0**、Repair 0、无 run/audit/usage/reservation，数据库销毁。主代理仅读取白名单摘要，没有读取 Key。现在已验证密钥和既定额度策略通过，不能将此当成真实 Research 成功。
+>
+> 成功检查距旧 10 秒期限只有 137 ms 余量，现已将只读 Key 期限放宽到 **30 秒**；TDD 3 RED→49 GREEN，规格和质量/安全两轮对代码/测试均为 P0/P1/P2 0/0/0、READY。Root 完整单测 **135 文件 / 2,407 测试通过，41.82 秒**，非增量类型/目标静态/diff 检查通过。Research 仍 120 秒，PowerShell 子进程仍 180 秒，模型 Sol、预算 5 美元、一次 POST、Key-only 禁止 POST、无自动重试均不变。该调整不证明前两次失败的具体原因。已异步询问用户账户是否有可用余额（Key 限额不等于充值余额）；待回答且改动保存后，下一步使用原 `-ExecuteOne` 命令进行唯一真实研究，不必为期限修改再跑一次 Key-only。尚未合并、推送或部署。
+
 > **2026-09-06：Key-only 诊断入口已通过检查，下一步由用户运行 `-CheckKeyOnly`**
 >
 > 用户要求“继续帮我解决api key的问题”。从干净 `6e14cbaad0644f2bc7b5de1545a753988f39cacb` 继续，最新用户摘要仍为 03:30 的 `key-check-failed / Research POST 0`。按启动器相同的子进程环境设置，无认证公开模型接口返回 200 / 1,362 ms，无认证 Key 接口返回预期 401 / 2,200 ms；未读取 Key，未调用模型。不能据此证明用户 Key 有效，也没有证据要求恢复 `NODE_OPTIONS`、改代理或放宽 TLS。

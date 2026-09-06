@@ -68,7 +68,7 @@ describe("isolated live Research validation", () => {
       realRequestCount: 1, researchRequestCount: 0, runState: null, auditCount: 0, reservation: null,
       keyDiagnostics: { phase, failure } });
     expect(result.keyDiagnostics!.elapsedMs).toBeGreaterThanOrEqual(0);
-    expect(result.keyDiagnostics!.elapsedMs).toBeLessThanOrEqual(10000);
+    expect(result.keyDiagnostics!.elapsedMs).toBeLessThanOrEqual(30000);
     expect(JSON.stringify(result)).not.toContain("CANARY");
     expect(fetch).toHaveBeenCalledTimes(1);
   });
@@ -214,16 +214,31 @@ describe("isolated live Research validation", () => {
     expect(() => verifyKeyPolicy(payload)).not.toThrow();
   });
 
+  it("allows a key response after twelve seconds within the read-only deadline", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetch = vi.fn(async () => new Promise<Response>((resolve) => setTimeout(() => resolve(Response.json(safeKeyData)), 12000)));
+      const transport = createGuardedTransport(key, fetch, { checkKeyOnly: true });
+      const check = transport.inspectKey().then(() => true, () => false);
+      await vi.advanceTimersByTimeAsync(12000);
+      expect(await check).toBe(true);
+      expect(transport.diagnostics()).toEqual({ phase: "complete", failure: null, elapsedMs: 12000 });
+      expect(transport.counts()).toMatchObject({ getCount: 1, postCount: 0, keyHttpStatus: 200 });
+      expect(fetch).toHaveBeenCalledTimes(1);
+      transport.clear();
+    } finally { vi.useRealTimers(); }
+  });
+
   it.each(["request", "body"] as const)("distinguishes a stalled key %s timeout without releasing a POST", async (phase) => {
     vi.useFakeTimers();
     try {
       const transport = createGuardedTransport(key, async () => phase === "request" ? new Promise<Response>(() => undefined)
         : new Response(new ReadableStream<Uint8Array>({ start(controller) { controller.enqueue(new TextEncoder().encode('{"CANARY":"partial-body"')); } })));
       const failure = expect(transport.inspectKey()).rejects.toThrow("key-check-failed");
-      await vi.advanceTimersByTimeAsync(10000);
+      await vi.advanceTimersByTimeAsync(30000);
       await failure;
       expect(transport.counts()).toMatchObject({ getCount: 1, postCount: 0 });
-      expect(transport.diagnostics()).toEqual({ phase, failure: `${phase}-timeout`, elapsedMs: 10000 });
+      expect(transport.diagnostics()).toEqual({ phase, failure: `${phase}-timeout`, elapsedMs: 30000 });
       await expect(transport.fetch(RESEARCH_URL, { method: "POST", redirect: "error", headers: { Authorization: `Bearer ${key}` }, body: "{}" }))
         .rejects.toThrow("transport-denied");
       expect(JSON.stringify(transport.diagnostics())).not.toContain("CANARY");
