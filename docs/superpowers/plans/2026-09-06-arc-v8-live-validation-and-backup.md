@@ -4,6 +4,8 @@
 
 **Goal:** Complete one bounded real Research validation, then integrate the verified branch locally and back up its exact commit to GitHub.
 
+**Latest status (2026-09-06):** The user confirmed available account credit and ran the sole authorized Research on clean `31f80525c0efe556146f2830b1c049f1055de964`. It returned HTTP 403 after successful key preflight; live validation remains incomplete. The one-POST allowance is consumed. Do not follow historical instructions below to execute an unconsumed first request again. Preserve the failed evidence, obtain only a non-sensitive account-side error/charge description, and confirm test-key revocation. No second Research, model change, merge, push or deployment has occurred. See the latest attempt record at the end of this plan.
+
 **Architecture:** A standalone terminal runner composes the existing OpenRouter adapter, Research orchestrator, quality validation, owner-bound repositories and planning service over fresh in-memory SQLite implementing D1. It does not change the running Fake browser preview or production configuration. Credentials enter through a masked local PowerShell prompt and child stdin; only an allowlisted summary is written.
 
 **Tech stack:** Existing Node, PowerShell, TypeScript/Vite, Vitest and SQLite dependencies. No installation, new hosted service or production storage.
@@ -67,7 +69,8 @@ Root verification on the helper worktree, based on `28fc142` (2026-09-06):
 
 - [x] Present the reviewed command, exact policy above and where its safe report will be saved. User enters their dedicated key only in the local hidden prompt.
 - [x] Key-only preflight confirmed a fresh limited inference key in the 04:02 report below. The real-execution mode still performs fresh key preflight before its sole Research POST. Never print full key metadata or raw error bodies.
-- [ ] Record the allowlisted result and inspect the safe report. Require actual live mode, one Research POST, credible usage/cost within budget, real citations, validated owner-bound Ready package and local planning integration. A Failed or Needs review result remains an incomplete live gate, even if HTTP succeeded.
+- [x] Inspect and record the first actual `live-one` report: 04:23 HTTP 403 / failed, one Research POST; detailed evidence below. This records the attempt, not acceptance.
+- [ ] Pass the live acceptance gate: actual live mode, one authorized Research POST, credible usage/cost within budget, real citations, validated owner-bound Ready package and local planning integration. A Failed or Needs review result remains incomplete. The first request allowance is consumed; another attempt requires fresh explicit authorization after diagnosis.
 - [ ] Confirm key revocation with the user after the attempt; do not request or read the key. Save sanitized evidence in the UAT record and resume checkpoint, with exact code commit and evidence limits. No automatic retry.
 
 After Task 1 review and local commit, the user runs the following from an interactive PowerShell terminal in the authoritative feature worktree:
@@ -140,3 +143,18 @@ The successful check had only 137 ms of margin under the old 10-second deadline.
 TDD verified that an authored 12-second key response now succeeds while stalled requests and response bodies fail at 30 seconds: **3 RED failures**, then **49/49 focused GREEN**. Independent specification followed by quality/security review of the two-file code/test change both returned **P0/P1/P2: 0/0/0, READY YES** (static scope). Root verified **135 files / 2,407 tests passed**, 41.82s, exit 0; nonincremental TypeScript, targeted ESLint and diff check passed. Documentation records the observed report without changing application or production code. The next real-execution command is still `-ExecuteOne` with masked input; no additional key-only run is required solely for this deadline change.
 
 Root separately asked the user whether the OpenRouter account has usable credit, because a key spending cap and account funding are separate; no balance or credential was fetched. References: [current key information](https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key) and [account credits](https://openrouter.ai/docs/api/api-reference/credits/get-remaining-credits). No credit purchase or new paid attempt is authorized by this check. Await the user's answer before guiding the first paid Research.
+
+## First actual Research: HTTP 403, live gate incomplete
+
+The user answered **“OpenRouter 账户本身已有可用余额”**, then manually ran `-ExecuteOne` and reported **“已运行”**. Root verified the authoritative path, branch, clean worktree and HEAD **`31f80525c0efe556146f2830b1c049f1055de964`**, then inspected only `outputs/live-research/summary-2026-09-06T04-23-53-054Z.json`:
+
+- `mode: live-one`, `outcome: incomplete`, `reason: research-failed`.
+- Key HTTP 200, phase complete, failure null, 2,078 ms; Research HTTP **403**.
+- Real request count 2 = one Key GET plus **one Research POST**; Repair 0. No automatic retry.
+- Requested model `openai/gpt-5.6-sol`; actual model null. Run `62288a2f-5218-40ae-9c1a-8e33ebd4ac73`, state failed, quality false, zero citations/skills, one audit, usage null.
+- Local reservation released: maximum 5,000,000 micros, settled 0. Wrong-owner and second-Research rejection checks true; fresh-account activation/planning false, planning units 0, database disposed true.
+- Report SHA-256: `61583f2d3999c2f7c93d92ccd32362602f0628cb9a2a3769c84799048d4819f7`.
+
+The local ledger result is not proof of no OpenRouter charge. The adapter maps HTTP 403 to non-retryable `unavailable`; the safe summary does not retain raw error text or distinguish the exact upstream cause. No authenticated follow-up, real retry, credential/environment read or application change was performed by root. Official [error documentation](https://openrouter.ai/docs/api/reference/errors-and-debugging) and [guardrail documentation](https://openrouter.ai/docs/guides/features/guardrails/overview) describe permission, rule and content blocks as possible 403 causes; these are possibilities, not a diagnosis of this account. There is no evidence to justify adding credit, changing the fixed model, relaxing privacy restrictions or changing network settings.
+
+Next user action: inspect [OpenRouter Activity](https://openrouter.ai/activity) around **2026-09-06 12:23 Asia/Shanghai (04:23 UTC)** and provide only a non-sensitive error short description and charge, or report that no record is visible. Revoke the dedicated test key after the attempt and confirm without sharing it. This is account-side inspection, not a new inference call. Any second Research requires a diagnosed next step and fresh explicit authorization; remaining budget alone does not authorize another POST. The live gate is incomplete, so Task 3 integration and backup remain pending. This update only saves documentation; no new full-suite or production verification is claimed.

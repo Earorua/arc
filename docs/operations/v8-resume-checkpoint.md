@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：首次真实 Research 返回 HTTP 403；唯一一次 POST 已使用，真实验收未通过**
+>
+> 用户确认“OpenRouter 账户本身已有可用余额”后，在干净 `31f80525c0efe556146f2830b1c049f1055de964` 上手动运行 `-ExecuteOne`。脱敏摘要 `outputs/live-research/summary-2026-09-06T04-23-53-054Z.json` 为 `live-one / incomplete / research-failed`：Key HTTP 200、complete / 2,078 ms；Research HTTP **403**、POST **1**、Repair 0，总真实请求 2（含 Key GET）。run `62288a2f-5218-40ae-9c1a-8e33ebd4ac73` 为 failed；实际模型和 usage 均为空，引用/技能为 0，audit 1；本地 5,000,000 micros 预留 released、settled 0，所有权及第二次 Research 拒绝检查通过，未激活账户或生成规划，数据库已销毁。
+>
+> 摘要 SHA-256：`61583f2d3999c2f7c93d92ccd32362602f0628cb9a2a3769c84799048d4819f7`。主代理仅读取白名单摘要，没有读取 Key、环境文件或原始错误正文。账本释放不等于 OpenRouter 零扣费证明；实际费用待用户账户活动记录核对。403 不能单独确定具体权限、规则或内容拦截原因；现有适配器将其归为不可重试的 unavailable，没有保留更细错误消息。没有证据支持更换模型、增加余额、放宽隐私策略或修改代理配置。
+>
+> **恢复下一步：** 请用户在 OpenRouter Activity 查看北京时间 2026-09-06 12:23 左右这次 Sol 记录，仅提供不含密钥/账户标识的错误短句及费用；没有记录时如实说明。按既定计划撤销本次测试 Key，确认情况即可。不得再次运行 `-ExecuteOne`；任何第二次 Research 必须先查明原因并取得新的明确授权。真实门槛仍未通过，因此尚未合并、推送或部署。本次仅保存证据文档，不改代码或运行配置，不重跑已通过的全量离线测试。下方更早的“尚未调用 Research / 唯一请求未使用”均为历史状态，由本条覆盖。
+
 > **2026-09-06：用户 Key 已通过认证及限额检查；尚未调用 Research**
 >
 > 在干净 `0fb4305cf9b850b91abe692392b78b834513c027` 上，新摘要 `outputs/live-research/summary-2026-09-06T04-02-11-596Z.json` 为 `key-check-only / passed`、Key HTTP **200**、阶段 complete、failure 为空、耗时 **9,863 ms**；GET 1、Research POST **0**、Repair 0、无 run/audit/usage/reservation，数据库销毁。主代理仅读取白名单摘要，没有读取 Key。现在已验证密钥和既定额度策略通过，不能将此当成真实 Research 成功。
