@@ -75,7 +75,7 @@ expect(fetch).toHaveBeenCalledTimes(2);
 - [x] Independent quality/security review after specification approval; one P2 remediated under TDD, then sequential specification and quality/security re-reviews returned no unresolved P0/P1/P2 findings.
 - [x] Root inspects the final remediated diff and runs full unit suite, nonincremental types and targeted lint. The suite includes the default no-network PowerShell launcher. No fresh build/D1/UI gate is required for metadata-only helper code that does not change application behavior.
 - [x] Record results and user updates in the operational checkpoint and live plan. This delivery contains only the seven reviewed source/tests/docs files. Root locally commits this snapshot and reports the verified clean HEAD in the handoff; ignored diagnostic outputs are excluded.
-- [ ] Await user execution of the verified absolute-path command using `-CheckAccountOnly`. User enters the existing key privately and replies “已运行”; root reads only the new `account-check-only` report. No new Research request is authorized by this command. Revisit key revocation after the read-only observation; do not claim it has already happened.
+- [x] User ran the masked `-CheckAccountOnly` command on clean `748cc264e57a35171b43cfee1f336b6a07e4b139` and replied “已运行”. Root read only the new `account-check-only` report below. No new Research request is authorized by this command. Key revocation remains unconfirmed and will be revisited after the chosen follow-up diagnostic route.
 
 ## Source and interpretation boundaries
 
@@ -95,4 +95,13 @@ Model listing is a metadata observation. It cannot prove successful inference, c
 - Account-mode child tests use explicit synthetic fetch injection and remove only their own verified fixture report; retained latest reports are `offline-dry-run / passed / realRequestCount: 0`. They are not user account observations. No actual account GET, new Research, credential read, production operation, merge, push or deployment has occurred during preparation.
 - Initial independent specification review returned **P0/P1/P2: 0/0/0, READY** (static review). The final specification re-review again returned **0/0/0, READY** and independently passed **22/22** direct Node synthetic assertions. Its selected Vitest invocation could not start because sandbox process creation returned `EPERM`; that attempt is not counted as passing. Root's separately authorized full suite above executed successfully.
 - Final independent quality/security re-review returned **P0/P1/P2: 0/0/0, READY**, closing the original P2. It statically inspected the final changes and independently passed **6/6** in-memory synthetic assertions covering contradictory envelopes and absent/null controls. It did not repeat the full suite or send real requests.
-- The helper is ready for local save and the masked user-run handoff. Actual account observation remains pending; no second Research is authorized. Root verifies the containing commit and clean worktree before handing off the command.
+- The helper was locally saved at clean `748cc264e57a35171b43cfee1f336b6a07e4b139` and the reviewed command handed off. The user-run observation is recorded below; no second Research is authorized.
+
+## Actual user-run account observation
+
+- Report: `outputs/live-research/summary-2026-09-06T05-49-11-188Z.json`, timestamp **2026-09-06 05:49:11.188 UTC** (13:49 Beijing), mode `account-check-only`, outcome `completed`, reason null.
+- Key HTTP **200**, complete/no failure, **5,408 ms**. Catalog HTTP **200**, complete/no failure, **1,386 ms**. Exact `openai/gpt-5.6-sol` membership **true**.
+- Observed Key limit **USD 5**, remaining **USD 5**, usage **USD 0**, BYOK usage **USD 0**. This is a per-key aggregate at that timestamp; it is not an account-balance query or final settlement proof for the earlier request.
+- Actual requests **2 GETs**, Research **0**, Repair **0**. This report is distinct from the cleaned account-mode test fixtures and retained offline summaries. SHA256: `ed18cec0a545bac31b77b0204c9f260c984e30dc1a753b2def8955e7af551b0b`.
+- Root confirmed branch and clean execution HEAD before reading the allowlisted report. No credential, environment, raw error or private account record was read. The original Research 403 remains unresolved; successful catalog membership does not validate the full schema/search/privacy combination.
+- Next local preparation is `2026-09-06-arc-v8-provider-error-observation.md`: fixed typed-error observations at the existing parsed boundary, plus a provider-support note. No second POST, merge, push or deployment has been authorized by these metadata results.

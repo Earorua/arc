@@ -1,5 +1,23 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：用户主动暂停，准备关闭 Codex；本条为最高优先级恢复入口**
+>
+> 权威工作树：`C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`；分支 `codex/v8-openrouter-research-beta`。最后完整验证通过的实现提交为 **`748cc264e57a35171b43cfee1f336b6a07e4b139`**（136 文件 / 2,533 测试）。本次只保存其后的账户实测证据、诊断计划、未发送的客服说明和一个明确未完成的 RED 测试；不是诊断实现通过或真实验收通过。
+>
+> **已完成：** 用户只读实测 Key/Catalog 200/200、Sol 列出、限额/剩余 5/5 美元、usage/BYOK 0/0，详见紧接下方证据。唯一一次 Research 仍为此前 403，原因未知，无新增 POST。最新 Key 状态仍为用户确认未撤销。客服草稿 `docs/operations/v8-openrouter-support-note.md` 未发送。
+>
+> **暂停位置：** `docs/superpowers/plans/2026-09-06-arc-v8-provider-error-observation.md` 的首个 TDD RED 已观察：`tests/server/provider-failure-diagnostic.test.ts` 唯一测试因回调应调用 1 次、实际 0 次而失败，exit 1；旧错误映射/计费断言先通过。纯提取器尚未创建，`app/server/research/openrouter-provider.ts` 和 `scripts/live-research/validation.ts` 均未修改；无 GREEN、无新实现的规格/质量审查。当前快照故意保留该 RED，不应称为全套测试通过。实现代理已停止，没有未结束的测试或真实请求。
+>
+> **恢复顺序：** 先运行 `pwd`、`git status --short --branch`、`git rev-parse HEAD`，核对本暂停快照及干净工作树；完整读取本检查点和上述错误观察计划，从现有 RED 接着实施可选白名单错误观察。遵循子代理 TDD、规格审查、质量/安全审查和 root 验证流程，完成后再决定是否申请另一次单独授权的真实验证。不要重做 Tasks 1–9、Task 12 或已验收的本地主流程，不要把“继续”当作额外付费请求授权。
+>
+> 继续保留 **Sol / 总预算至多 5 美元 / 无自动重试与 Repair** 的边界；第二次 Research **尚未获准**。不读取或保存真实 Key、环境文件、原始 Provider 错误；不操作生产变量/旗标/D1/R2，不合并、推送、保存 Sites 候选或部署。4179 Fake 预览未主动停止或重置；其数据库为进程内临时状态，关闭应用/进程后不保证保留。恢复先检查原预览，勿自动重置；代码和已写入文件的验收证据已保存在本地仓库，不等同于 GitHub 备份。
+
+> **2026-09-06：只读账户实测完成；Key/目录均 200，Sol 列出，Research 403 尚未定因**
+>
+> 用户在干净 `748cc264e57a35171b43cfee1f336b6a07e4b139` 上运行 `-CheckAccountOnly` 并回复“已运行”。新摘要 `outputs/live-research/summary-2026-09-06T05-49-11-188Z.json` 为 `account-check-only / completed`：Key **200 / 5,408 ms**、目录 **200 / 1,386 ms**，均 complete 且无 failure；`openai/gpt-5.6-sol` 列出。Key 限额/剩余 **5/5 美元**，观察用量/BYOK **0/0 美元**；总真实请求 **2 GET**，Research/Repair **0/0**。SHA256：`ed18cec0a545bac31b77b0204c9f260c984e30dc1a753b2def8955e7af551b0b`。这不是账户余额查询或此前最终零扣费证明，也没有验证完整 Research 参数组合。
+>
+> 独立只读检查未发现可证明的请求构造错误。已定位证据缺口：现有适配器丢弃 Provider 的固定错误类型，仅把 403 归为 unavailable。依照 `docs/superpowers/plans/2026-09-06-arc-v8-provider-error-observation.md` 准备可选白名单错误观察及客服说明；不重新读取响应、回显原始错误或修改请求参数。完成 TDD、规格后质量/安全双审、本地验证和保存后，才能提出另一次单独授权的验证。当前唯一 Research 授权已消耗，没有新增 POST；密钥仍未确认撤销。合并、推送、生产操作和部署均未执行。
+
 > **2026-09-06：只读账户诊断已通过本地验证与双审；等待用户运行**
 >
 > 用户最新确认“个人账户。本次测试 Key 没有撤销”，此前答复 Activity“未找到记录”。企业专用 IP 允许列表不适用于所述个人账户；其他拒绝原因仍未知。已依照 `docs/superpowers/plans/2026-09-06-arc-v8-readonly-account-diagnostics.md` 完成独立 `-CheckAccountOnly`：最多一次 Key GET 和一次账户模型列表 GET，仅输出经验证的 Key 用量数字、状态/固定失败类别及 Sol 是否列出，不创建 Research、审计、预算预留或数据库。密钥仍由用户在本机隐藏提示输入；原有 live/key-only 的未使用 Key 策略不变。
