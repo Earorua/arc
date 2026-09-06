@@ -2,6 +2,10 @@
 
 本地源码审查、构建验证、迁移清单和配置/回滚准备已完成。**真实 Research 验收仍未通过，本文不是生产发布或完整目标 3 验收。** 本轮不修改产品代码、迁移、依赖或运行配置。
 
+**2026-09-06 保留旧应用实测：** 固定七份 v7.2 服务源码在实际非持久化 D1/R2 上执行，root 初版演练 3/3（30,383.445 ms），应用回归 137 文件/2,641 测试（53.74 秒）、非增量类型检查与完整 lint 均通过。八类实际差异使 `rollbackEligible: false`，不能对已有 v8 数据直接部署 v7.2 回退。有效的新 Research POST 在进程内关闭准入后返回 503/RESEARCH_UNAVAILABLE，已有终态 Research、规划、Proof 保留，额外 Fake 调用为 0。三项规格证据缺口已修正，root 最终演练 3/3（39,150.1438 ms）及再次类型/lint 通过，独立规格审查 0/0/0 READY，随后独立质量/安全审查也为 0/0/0 READY，本轮提交与备份待执行；详见 `v8-retained-compatibility.md` 和 `v8-release-gates.md`。下文“旧应用兼容性尚未实测”的描述保留为历史；artifact 恢复、生产基线和真实验收仍未完成。
+
+**2026-09-06 公开版本只读核对：** 按用户询问核对 Sites 元数据，v7.2 对应 version 9，源码与历史记录一致，已记录部署返回 succeeded，站点 active/public，公开地址为 `https://arc-precision-path.jiahe-xu.chatgpt.site`。此记录更新下文“没有新鲜线上版本核对”的历史状态；未下载 artifact、未验证其恢复部署能力，Arc v8 没有部署。
+
 **2026-09-06 后续演练：** 用户继续推进后，已完成本地合成旧数据升级/逻辑恢复的实际运行与 root 复核：v7.2 的 20 张表、50 行和 2 个 R2 对象，升级至 41 张表；27 张表时注入真实 SQL 失败，再从原始快照恢复到独立空库/桶并完成升级。五组断言、七项恢复前拒绝和六项约束/原子失败检查通过。完整证据、审查状态与范围见 `v8-legacy-recovery-rehearsal.md`。下方第 3、6 节关于尚缺该演练的描述保留为本报告起草时的历史状态；生产迁移 ledger、原生备份/恢复及保留旧应用兼容性等门槛仍待验证。实际使用 `quick_check` + `foreign_key_check`，不声称完整 `integrity_check` 或真实 Research 通过。
 
 授权范围来自用户“按照你说的继续”：先备份开发分支，再做本地发布准备。执行计划为 `docs/superpowers/plans/2026-09-06-arc-v8-branch-backup-local-readiness.md`。备份与 master 合并分开；master 合并、PR、生产变量/旗标/D1/R2、Sites 候选与部署均不在本轮范围。

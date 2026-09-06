@@ -1,5 +1,17 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：保留旧版本兼容性演练与双审完成，等待本轮提交备份（当前最高优先级）**
+>
+> 用户在收到下一步兼容性方案后指示“逐步完成你认为目前可以做的任务”。Root 从干净 `271f957fad68b14c764c7432c97290bac641cabb`、既有 `codex/v8-openrouter-research-beta` 开始，已在 `3ce529a` 保存设计与计划：`docs/superpowers/plans/2026-09-06-arc-v8-retained-compatibility.md`。只新增隔离测试及文档，继续子代理/TDD/规格后质量审查；完成后普通备份同一已授权公开开发分支。不要新建 worktree 或重做产品 Tasks 1–12。
+>
+> 独立只读归档审查已完成。有效首个 RED：0/1，exit 1，263.484 ms，明确为 `Retained compatibility not implemented`；此前 spawn EPERM 只是无效启动。Root 初版新演练 **3/3（30,383.445 ms）**、应用回归 **137 文件/2,641 测试（53.74 秒）**、非增量类型检查、完整 lint 均通过。实际八类差异使 `rollbackEligible: false`；5 库健康、非目标 owner 54 行保留、生产 factory/adapter 未加载，Research fallback 503 且额外 Fake 调用为 0。独立规格审查提出的三项 P2 证据缺口已修正，代码复审无剩余发现。Root 修正后演练 **3/3（39,150.1438 ms）**、非增量类型检查与完整 lint 均通过；混合基线 50 行/2 对象在生成和混合操作后相等，foreign 负例与非空分享前后相等。独立规格审查 **0/0/0 READY**；随后独立质量/安全审查也为 **0/0/0 READY**；本轮提交与备份待执行。
+>
+> 演练已经观察旧服务与 v8 规划完成、Proof 版本/状态、目标切换和分享格式的差异。旧归档无 Proof ledger 修订/撤回/Proof 删除/用户删除入口，不能以 SQL 探针冒充这些旧功能。完整矩阵见 `docs/operations/v8-retained-compatibility.md`；回滚及外部门槛见 `docs/operations/v8-release-gates.md`。真实 Research 403、OAuth、生产恢复点/ledger/绑定和 artifact 恢复执行仍未验证。
+>
+> 用户询问当前公开版本后，已只读核对 Sites：站点 active/public，version 9 源码为 `7ca5b530dfc58f3cbc700b44a7a881a9bd661209`，v7.2 已记录部署 `appgdep_6a728790e0608191bf1286c3a9a3ccfd` 返回 succeeded，与版本 ID 和公开 URL 一致。当前公开仍为 Arc v7.2，Arc v8 尚未上线；该元数据核对不是 artifact 可恢复性验收。
+>
+> 恢复时先核对 Git 状态及本轮新文件，接续实现/验证，不重复消耗任何真实请求许可。本轮不新增 Provider GET/Research/Repair/换模型、不读取真实 Key/env/原始输出，不操作生产、master 合并、PR、Sites 候选或部署。
+
 > **2026-09-06：合成旧数据演练、双审及开发分支备份已完成（当前最高优先级）**
 >
 > 用户在公开开发分支备份完成后回复“继续推进”，继续前述本地合成旧数据升级/恢复演练。起点为干净 `f2874d95aa5f8bbe48494aef3768be29c197dcee`；设计与计划已在 `9a6e78885abbe57db9c5806494f50b7f8af85178` 保存，见 `docs/superpowers/plans/2026-09-06-arc-v8-legacy-recovery.md`。只增加隔离的测试工具、合成 fixture 和证据文档；产品代码、迁移、依赖和生产配置不变。用户已批准子代理驱动、TDD、独立规格审查后质量/安全审查；不要重复询问同一流程许可。
