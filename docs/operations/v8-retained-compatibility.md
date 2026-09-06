@@ -1,6 +1,6 @@
 # Arc v8 保留旧版本兼容性实测
 
-**实测发现八类兼容性差异，`rollbackEligible: false`。审查提出的三项证据缺口已修正，root 修正后复验通过；独立规格审查 0/0/0 READY，随后独立质量/安全审查也为 0/0/0 READY，本轮提交与备份待执行。** 归档 v7.2 不能作为已有 v8 数据的直接应用回退目标。测试通过表示正确观察这些差异，并非旧版本兼容。
+**实测发现八类兼容性差异，`rollbackEligible: false`。审查提出的三项证据缺口已修正，root 修正后复验通过；独立规格审查 0/0/0 READY，随后独立质量/安全审查也为 0/0/0 READY，本轮实现已在 `03fc035f98d33831a42874acee3bcb96273de957` 本地提交并完成普通 GitHub 开发分支备份。** 归档 v7.2 不能作为已有 v8 数据的直接应用回退目标。测试通过表示正确观察这些差异，并非旧版本兼容。
 
 用户授权“逐步完成你认为目前可以做的任务”后，本轮从干净 `271f957fad68b14c764c7432c97290bac641cabb` 开始，设计/计划先保存为 `3ce529a`。只新增测试和操作记录，不改变产品、归档、SQL、依赖或运行配置。
 
@@ -60,4 +60,4 @@ Root 独立加载七份源码：**7 个 blob/模块验证通过，TypeScript 5.9
 
 按用户询问只读核对 Sites：v7.2 对应 version 9，源码 `7ca5b530dfc58f3cbc700b44a7a881a9bd661209`；已记录部署 `appgdep_6a728790e0608191bf1286c3a9a3ccfd` 当前返回 succeeded，版本 ID 与保存记录一致，站点 active/public，公开 URL 为 `https://arc-precision-path.jiahe-xu.chatgpt.site`。保存版本的 archive 哈希与历史记录相同；这属于元数据核对，没有下载、重新构建或恢复 artifact，不能据此宣布可回滚。Arc v8 尚未保存 Sites 候选或部署。
 
-两次真实 Research 403 原因仍未知，许可已消耗。未新增 Provider 请求或读取 Key/env/原始输出；未改生产、master/PR、Sites 候选和部署。后续只有经验证及双审的测试/文档进入已授权公开开发分支备份。
+两次真实 Research 403 原因仍未知，许可已消耗。未新增 Provider 请求或读取 Key/env/原始输出；未改生产、master/PR、Sites 候选和部署。11 个范围内文件已通过 root 验证与双审，作为 `03fc035f98d33831a42874acee3bcb96273de957` 普通备份至已授权公开开发分支；精确远端 SHA 匹配，远端 master 未变。此后只补写本完成记录，不改测试源码。

@@ -2,7 +2,7 @@
 
 本地源码审查、构建验证、迁移清单和配置/回滚准备已完成。**真实 Research 验收仍未通过，本文不是生产发布或完整目标 3 验收。** 本轮不修改产品代码、迁移、依赖或运行配置。
 
-**2026-09-06 保留旧应用实测：** 固定七份 v7.2 服务源码在实际非持久化 D1/R2 上执行，root 初版演练 3/3（30,383.445 ms），应用回归 137 文件/2,641 测试（53.74 秒）、非增量类型检查与完整 lint 均通过。八类实际差异使 `rollbackEligible: false`，不能对已有 v8 数据直接部署 v7.2 回退。有效的新 Research POST 在进程内关闭准入后返回 503/RESEARCH_UNAVAILABLE，已有终态 Research、规划、Proof 保留，额外 Fake 调用为 0。三项规格证据缺口已修正，root 最终演练 3/3（39,150.1438 ms）及再次类型/lint 通过，独立规格审查 0/0/0 READY，随后独立质量/安全审查也为 0/0/0 READY，本轮提交与备份待执行；详见 `v8-retained-compatibility.md` 和 `v8-release-gates.md`。下文“旧应用兼容性尚未实测”的描述保留为历史；artifact 恢复、生产基线和真实验收仍未完成。
+**2026-09-06 保留旧应用实测：** 固定七份 v7.2 服务源码在实际非持久化 D1/R2 上执行，root 初版演练 3/3（30,383.445 ms），应用回归 137 文件/2,641 测试（53.74 秒）、非增量类型检查与完整 lint 均通过。八类实际差异使 `rollbackEligible: false`，不能对已有 v8 数据直接部署 v7.2 回退。有效的新 Research POST 在进程内关闭准入后返回 503/RESEARCH_UNAVAILABLE，已有终态 Research、规划、Proof 保留，额外 Fake 调用为 0。三项规格证据缺口已修正，root 最终演练 3/3（39,150.1438 ms）及再次类型/lint 通过，独立规格审查 0/0/0 READY，随后独立质量/安全审查也为 0/0/0 READY，本轮实现已在 `03fc035f98d33831a42874acee3bcb96273de957` 本地提交并完成普通 GitHub 开发分支备份；详见 `v8-retained-compatibility.md` 和 `v8-release-gates.md`。下文“旧应用兼容性尚未实测”的描述保留为历史；artifact 恢复、生产基线和真实验收仍未完成。
 
 **2026-09-06 公开版本只读核对：** 按用户询问核对 Sites 元数据，v7.2 对应 version 9，源码与历史记录一致，已记录部署返回 succeeded，站点 active/public，公开地址为 `https://arc-precision-path.jiahe-xu.chatgpt.site`。此记录更新下文“没有新鲜线上版本核对”的历史状态；未下载 artifact、未验证其恢复部署能力，Arc v8 没有部署。
 
