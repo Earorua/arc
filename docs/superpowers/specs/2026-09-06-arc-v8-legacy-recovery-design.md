@@ -37,4 +37,6 @@
 
 本地逻辑恢复演练不证明 Cloudflare 原生备份/Time Travel、生产已应用迁移 ledger、部署工具的部分失败/重试、线上保留 artifact、旧应用完整兼容、真实 OAuth 或真实 Research 成功。现有 `migration_runs` 是产品设备迁移回执，不能冒充 D1 schema migration ledger。后续发布门槛必须继续保留这些区别。
 
+实现时验证了 workerd 的检查能力：完整 `PRAGMA integrity_check` 被 SQLITE_AUTH 拒绝。本地健康检查采用受支持的 `PRAGMA quick_check` 加 `PRAGMA foreign_key_check`，并结合完整旧行/索引和约束断言；报告必须准确保留这一范围，不能写成完整 integrity_check 通过。
+
 仍禁止新增真实 Provider 请求、Key 读取、生产 D1/R2/变量/旗标、master 合并、PR、Sites 候选与部署。本轮完成后 root 保存本地交付和恢复检查点；开发分支源码备份沿用已明确确认的公开仓库和范围，不扩大到其他分支或目标。
