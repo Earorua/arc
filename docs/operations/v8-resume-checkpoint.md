@@ -1,5 +1,17 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：用户已明确确认本轮本地验收通过（覆盖下方历史“用户验收待完成”状态）**
+>
+> 用户原话：**“确认本轮本地验收通过”**。本轮在干净 `976903c105a10e71cf4f73cfd40f05b1b82489d8` 启动的隔离 Fake 预览上完成，期间应用、测试和运行配置未改；本次仅更新验收记录、检查点和详细计划并本地提交。权威工作树仍为 `C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta`，分支仍为 `codex/v8-openrouter-research-beta`；含本记录的实际 HEAD 以 Git 为准。
+>
+> 用户逐步确认：Owner A 的 Data Product Manager Research→Ready→Path；完成两个单元后刷新仍为 Practicing；Proof 提交后 Demonstrated、撤回后 Practicing；切换账号再返回 A，两个完成单元仍保留；Owner B 的 Delay 预览、Keep 后刷新不变、Accept 后刷新保留新计划。根侧核对了对应页面，最终 B 的 2026-09-06 为休息日，任务在 09-07、09-08，各 60 分钟。A、B 分别使用自己的研究运行和计划，未导入旧设备历史。
+>
+> **验收范围：** 本轮本地主流程由用户明确接受；此前完整工程、负向、视觉和并发证据仍独立保留，不冒称用户逐项重测。验收详情和两个实际 run ID 见 `docs/operations/v8-goal2-local-uat.md`。本次文档更新未重跑此前全量测试，既有门槛仍绑定下方记载的精确提交。
+>
+> **Offline Research Beta complete; no live OpenRouter evidence claimed.** 本地用户验收门槛已关闭；完整目标 2 仍有经单独授权的最小真实 Provider 验证及本地集成/GitHub 备份门槛，当前尚未执行。未读取/创建真实密钥，未发真实/付费请求，未改生产变量/旗标或 D1/R2，未合并 master、推送、保存 Sites candidate 或部署。本次验收确认不扩大这些操作的授权范围。
+>
+> **恢复位置：** 最后页面为 Owner B 的 `http://127.0.0.1:4179/today`，已确认延期；预览使用一次性本地数据库，先检查已有进程和页面，不自动 Reset fresh scenario 或重启。证据记录已保存，临时数据库不视作持久备份。恢复先核对 `pwd`、`git status --short --branch`、`git rev-parse HEAD`；不重做已完成的离线实现、工程验收和本轮主流程。后续按用户指示处理仍未授权的门槛。
+
 > **2026-09-06：Tasks 10、11、13 已完成本轮授权的离线范围（覆盖下方所有阶段性状态）**
 >
 > **Offline Research Beta complete; no live OpenRouter evidence claimed.**

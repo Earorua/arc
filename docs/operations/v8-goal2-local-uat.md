@@ -2,6 +2,8 @@
 
 Status: **Tasks 10, 11 and 13 are closed for the authorized offline engineering scope.**
 
+User acceptance: **the user explicitly accepted this guided local UAT round on 2026-09-06**, at unchanged application code on `976903c105a10e71cf4f73cfd40f05b1b82489d8`. See the separate user acceptance record below.
+
 **Offline Research Beta complete; no live OpenRouter evidence claimed.**
 
 ## Execution boundary
@@ -11,7 +13,7 @@ Status: **Tasks 10, 11 and 13 are closed for the authorized offline engineering 
 - Task 13 code: `81c4c26be2a82c2611c1ae0363b14b90ad3586c3`; prerequisite Task 11 code: `1575a1e0272609cfe426d361a8c3851654e70acc`.
 - Only authored Fake Provider results, synthetic test owners and disposable local databases were used. Source/document URLs were displayed or saved as test metadata; no source or submitted artifact was fetched.
 - No real credentials, real or paid Provider calls, production variables/flags/D1/R2, merge into `master`, push, Sites candidate or deployment.
-- Explicit user acceptance and live Provider evidence remain separate, unperformed gates.
+- Explicit acceptance of this guided local UAT round is recorded below. Live Provider evidence remains a separate, unauthorized and unperformed gate.
 
 ## Reviews and remediation
 
@@ -110,8 +112,27 @@ At the recorded browser checkpoints both application outbound-denial counters we
 | SQLite implementing D1 | Real migrations 0000–0006, foreign keys enabled, actual route/service/repository composition. Unit smoke covers fresh owner Research → current setup → planning → Complete/fresh-service replay → wrong-owner 404 → Proof submission/withdrawal, plus five atomic conflicts. Browser observations above use this separate adapter. |
 | Actual local Miniflare/workerd D1 | Nonpersistent local D1 binding, no production identifiers or persisted directory. Independently passed the 9-step service chain and five same-batch conflict cases on `81c4c26`, with false receipts 0 and foreign-key violations 0; binding disposed after execution. The root independently repeated the same checks on the final clean tested commit; all passed. |
 
+## User acceptance — guided local round, 2026-09-06
+
+The user explicitly stated: **“确认本轮本地验收通过”** after the following guided checks. This is acceptance of the observed local main flow, not a claim that the user personally repeated every earlier engineering, negative, visual or concurrency test.
+
+The root started a new isolated Fake preview on clean `976903c105a10e71cf4f73cfd40f05b1b82489d8`, with the same application/test code as reviewed `81c4c26`. No source code changed during this round. The previous automated counts above remain evidence from their recorded commits; the documentation-only acceptance update does not claim a fresh rerun of those suites.
+
+| Check | User report and root observation |
+| --- | --- |
+| Research and Build | Owner A researched Data Product Manager, reached Ready with 1 skill, 1 source, observed 2026-09-06 and quality checks passed, then built the 18-week Measurement foundations Path with two units. User confirmed Ready and Path. |
+| Completion and refresh | The user completed both units and confirmed Practicing after refresh. Root observed Data modeling, Practicing, 2 completed units and None yet as strongest Proof. |
+| Proof round trip | User reported Demonstrated after submitting the prepared private Document proof, then Practicing after withdrawal. Root observed Practicing with both completions retained, one proof/version, and successful create/withdraw responses. The authored example.com artifact URL was metadata only; no artifact was fetched. |
+| Account round trip | After the user signed out of A, root used the synthetic test selector to open B. Root observed sample skills with zero completions and no A research skill. The user switched back to A and reported its progress retained; root independently observed Data modeling, Practicing and 2 completed units. |
+| Delay preview and Keep | Root prepared a separate B Research plan with two uncompleted units on September 6 and 7, preserving A. User opened Delay; root observed two moves, September 6→7 and 7→8, with no added/removed units and the current plan unchanged. User selected Keep current plan and confirmed no change after refresh; root verified the original dates. |
+| Delay Accept and refresh | User selected Delay again, accepted the candidate and confirmed persistence after refresh. Root observed September 6 as “Rest is part of the plan.” / Open, with the two 60-minute tasks on September 7 and 8. |
+
+Owner A Research run: `cff1e4e9-18e9-4d00-a026-6104bde24d61`. Owner B Research run: `60b256cd-0d76-466a-bba7-7bdcb5f3d077`. At the post-B-Build diagnostic checkpoint there were two owner-bound goals/workspaces/runs, two activation receipts, two planning events, one proof/version and one Fake call/audit; B reused the validated cache without another Fake call. Both outbound-denial counters were zero at that checkpoint. These counts are not presented as diagnostics freshly read after the later Delay acceptance.
+
+The last observed page was Owner B at `http://127.0.0.1:4179/today`, showing the accepted September 7/8 schedule. The preview was left available during sign-off; it uses disposable local data, so a future resume must check the existing process/page before resetting or starting a fresh scenario. This record preserves the evidence and acceptance, not a durable backup of the temporary database.
+
 ## Remaining gates
 
-Final root automated gates and agent-assisted browser UAT: **passed**, with the evidence limits above. Closure is recorded by this documentation commit. The feature branch and worktree are retained locally. Explicit user acceptance: pending. Live Provider evidence: not authorized and not performed. Merge, push, production configuration/storage changes, Sites candidate and deployment: not authorized and not performed.
+Final root automated gates and agent-assisted browser UAT: **passed**, with the evidence limits above. Explicit user acceptance of this guided local round: **passed, 2026-09-06**. The acceptance is saved by this documentation-only update; the feature branch and worktree are retained locally. Live Provider evidence: not authorized and not performed. Merge, push, production configuration/storage changes, Sites candidate and deployment: not authorized and not performed.
 
 Full Goal 2 live validation is not claimed.
