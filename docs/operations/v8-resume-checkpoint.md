@@ -1,14 +1,14 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-07：保持公开访问、关闭 Research 的 v8 本地发布准备与双审完成（当前最高优先级）**
+> **2026-09-07：保持公开访问、关闭 Research 的 v8 本地发布准备、双审与备份完成（当前最高优先级）**
 >
 > 用户接受“关闭 Research 入口的小范围 v8 发布”准备路线，并要求网站顶部显示 `The website is currently under development.`。Root 核对权威 worktree、既有分支及干净 `e2871a667dd2ded23f429f362024a00125c316a6`，设计/计划先保存为 `f7e0583`，见 `docs/superpowers/plans/2026-09-07-arc-v8-research-closed-release.md`。本轮新路线不要求先取得 Research 真实成功，后续开启 Research 才继续其独立验收；登录、数据迁移和恢复等发布条件仍保留。
 >
 > 新提示采用根布局静态 note、精确英文、自然换行与正常文档流；同时修正关闭新准入但存在恢复槽时仍邀请 Research this role 的文案。独立只读审查确认无需后端改造，显式 `ARC_AI_RESEARCH_ENABLED=false` 可关闭新建/重试，Ready/recovery/Flagship/规划/Proof 保留既有路径及过期限制。旧 preview 单独使用 MockAiProvider，本轮不改全局 ARC_AI_ENABLED。cohort `{}` 不是空名单；关闭也不会取消在途 Research/Repair，GET 恢复可能对账写入。
 >
-> Root 新鲜完整单测 **138 文件/2,643 测试（72.11 秒）**、非增量类型、完整 lint、五阶段 build 均通过。实际产物 HTML 使用惰性 DOM 检查，最终 **4/4（2,027.1421 ms）**；修正的是把 React script 中的同一文字计成第二条横幅的测试断言，产品实际只有一个 note。Root 最后定向回归 **20/20（7.82 秒）**；独立规格审查 **0/0/0 READY**，随后独立质量/安全审查也 **0/0/0 READY**。最终提交与备份待完成，尚不能宣称本轮提示已在公开站点显示。
+> Root 新鲜完整单测 **138 文件/2,643 测试（72.11 秒）**、非增量类型、完整 lint、五阶段 build 均通过。实际产物 HTML 使用惰性 DOM 检查，最终 **4/4（2,027.1421 ms）**；修正的是把 React script 中的同一文字计成第二条横幅的测试断言，产品实际只有一个 note。Root 最后定向回归 **20/20（7.82 秒）**；独立规格审查 **0/0/0 READY**，随后独立质量/安全审查也 **0/0/0 READY**。实现与说明已提交为 **`c2104b7e723b82f574bc2a46405693e88eecf8af`** 并普通快进备份同一已授权公开开发分支，独立远端 SHA 匹配；远端 master 仍为 `f6c3cddbe6d3f177f3681b355142daad84f2330e`，主工作树干净且仍为 `f0f88b2ebdb61e2951c9d1d6c0004319c131eafa`，开发工作树提交后干净。该分支/提交 Actions 为 0 次运行，不声称新 CI 通过。本完成记录随后以文档提交同步；最新完整记录 SHA 以交接时实际 Git 核对为准。
 >
-> 操作清单在 `docs/operations/v8-research-closed-release.md`；用户已明确选择 **保持公开访问，仅关闭 Research**，替代本人验收的初稿假设，“小范围”指功能范围。当前阶段不操作生产变量/旗标/D1/R2/访问策略，不保存 Sites 候选或部署，不合并 master/创建 PR，不读取真实 Key/env/原始输出或发新 Provider 请求。完成后沿用已批准普通开发分支备份，无需再次询问同一许可。
+> 操作清单在 `docs/operations/v8-research-closed-release.md`；用户已明确选择 **保持公开访问，仅关闭 Research**，替代本人验收的初稿假设，“小范围”指功能范围。当前阶段没有操作生产变量/旗标/D1/R2/访问策略，没有保存 Sites 候选或部署，没有合并 master/创建 PR，没有读取真实 Key/env/原始输出或发新 Provider 请求。公开站点尚未显示本轮提示，仍为最近核对的 v7.2。恢复后从清单第 2 步准备目标环境、认证、存储/ledger/协调恢复点与兼容 artifact 核对；本轮本地工作已完成，不重复演练或消耗旧真实请求许可。沿用已批准普通开发分支备份，无需再次询问同一许可。
 
 > **2026-09-06：保留旧版本兼容性演练、双审与开发分支备份完成（当前最高优先级）**
 >
