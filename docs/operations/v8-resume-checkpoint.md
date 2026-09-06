@@ -1,5 +1,11 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：用户批准先备份开发分支，再做本地发布准备（当前最高优先级执行范围）**
+>
+> 用户针对客服等待时间提出继续推进，并接受“先将当前开发分支备份到 GitHub，再推进本地发布准备”，回复“按照你说的继续”。按 `docs/superpowers/plans/2026-09-06-arc-v8-branch-backup-local-readiness.md` 从干净 **`d59af3388cc2dbeb0a63dff2d8c0c2e96b8824b6`** 开始。本授权允许在 Research 真实验收未通过时，单独普通推送 **`codex/v8-openrouter-research-beta`** 到已确认的 `https://github.com/Earorua/arc.git`，并完成本地迁移、配置、备份/回滚准备；覆盖下方“所有推送均等待真实验收”的旧顺序。先做公开源码和推送触发检查、必要本地验证，再推送并核对远端精确 SHA。
+>
+> **本轮不合并 master、不创建 PR、不保存 Sites 候选、不部署、不操作生产变量/旗标/D1/R2。** 两次 Research 许可仍已消耗，不新增真实请求、Repair 或模型切换；403 未定因，客服草稿未发送，测试 Key 撤销未确认。GitHub 备份不代表完整目标 2 或目标 3 验收通过。具体任务和验证结果以新计划及本地 readiness 文档为准；此授权记录尚不宣称推送已成功。
+
 > **2026-09-06：额外 1 次真实 Research 已执行并再次 403；授权已消耗，转向客服核查（当前最高优先级）**
 >
 > 用户在授权后运行隐藏入口并回复“已运行”。Root 核对权威工作树、`codex/v8-openrouter-research-beta` 和干净执行 HEAD **`7409fbd8c509bc567a68dd35a61551b1e44258d6`**（诊断实现 `31755b39ccef8592512b23711c3b8a9278534c08`），只读取新增白名单摘要 `outputs/live-research/summary-2026-09-06T09-57-33-859Z.json`。结果 **live-one / incomplete / research-failed**：Key **200 / complete / 1,390 ms**，Research **403**；真实请求 **2**（Key GET 1、Research POST **1**）、Repair **0**。
