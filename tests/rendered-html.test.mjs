@@ -3,6 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { register } from "node:module";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { JSDOM } from "jsdom";
 
 register("./cloudflare-workers-loader.mjs", import.meta.url);
 
@@ -27,6 +28,16 @@ test("server-renders the Arc landing page", async () => {
   assert.match(html, /Learn only what moves you forward/);
   assert.match(html, /Build my precise path/);
   assert.match(html, /<main[\s>]/);
+  const document = new JSDOM(html).window.document;
+  const notices = document.querySelectorAll("p.development-notice");
+  const notice = notices[0];
+  const main = document.querySelector("main");
+  assert.equal(notices.length, 1);
+  assert.ok(notice && main, "development notice and main content are rendered");
+  assert.equal(notice.textContent, "The website is currently under development.");
+  assert.equal(notice.getAttribute("role"), "note");
+  assert.equal(notice.getAttribute("lang"), "en");
+  assert.ok(notice.compareDocumentPosition(main) & 4, "development notice precedes main content");
   assert.match(html, /aria-label="Public navigation"/);
   assert.match(html, /property="og:image" content="https:\/\/arc-precision-path\.jiahe-xu\.chatgpt\.site\/og\.png"/);
   assert.match(html, /property="og:image:width" content="1672"/);

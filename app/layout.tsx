@@ -41,6 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="zh-CN">
       <body>
         <a className="skip-link" href="#main-content">跳到主要内容</a>
+        <p className="development-notice" role="note" lang="en">The website is currently under development.</p>
         {children}
       </body>
     </html>

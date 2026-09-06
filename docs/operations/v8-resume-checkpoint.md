@@ -1,5 +1,15 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-07：保持公开访问、关闭 Research 的 v8 本地发布准备与双审完成（当前最高优先级）**
+>
+> 用户接受“关闭 Research 入口的小范围 v8 发布”准备路线，并要求网站顶部显示 `The website is currently under development.`。Root 核对权威 worktree、既有分支及干净 `e2871a667dd2ded23f429f362024a00125c316a6`，设计/计划先保存为 `f7e0583`，见 `docs/superpowers/plans/2026-09-07-arc-v8-research-closed-release.md`。本轮新路线不要求先取得 Research 真实成功，后续开启 Research 才继续其独立验收；登录、数据迁移和恢复等发布条件仍保留。
+>
+> 新提示采用根布局静态 note、精确英文、自然换行与正常文档流；同时修正关闭新准入但存在恢复槽时仍邀请 Research this role 的文案。独立只读审查确认无需后端改造，显式 `ARC_AI_RESEARCH_ENABLED=false` 可关闭新建/重试，Ready/recovery/Flagship/规划/Proof 保留既有路径及过期限制。旧 preview 单独使用 MockAiProvider，本轮不改全局 ARC_AI_ENABLED。cohort `{}` 不是空名单；关闭也不会取消在途 Research/Repair，GET 恢复可能对账写入。
+>
+> Root 新鲜完整单测 **138 文件/2,643 测试（72.11 秒）**、非增量类型、完整 lint、五阶段 build 均通过。实际产物 HTML 使用惰性 DOM 检查，最终 **4/4（2,027.1421 ms）**；修正的是把 React script 中的同一文字计成第二条横幅的测试断言，产品实际只有一个 note。Root 最后定向回归 **20/20（7.82 秒）**；独立规格审查 **0/0/0 READY**，随后独立质量/安全审查也 **0/0/0 READY**。最终提交与备份待完成，尚不能宣称本轮提示已在公开站点显示。
+>
+> 操作清单在 `docs/operations/v8-research-closed-release.md`；用户已明确选择 **保持公开访问，仅关闭 Research**，替代本人验收的初稿假设，“小范围”指功能范围。当前阶段不操作生产变量/旗标/D1/R2/访问策略，不保存 Sites 候选或部署，不合并 master/创建 PR，不读取真实 Key/env/原始输出或发新 Provider 请求。完成后沿用已批准普通开发分支备份，无需再次询问同一许可。
+
 > **2026-09-06：保留旧版本兼容性演练、双审与开发分支备份完成（当前最高优先级）**
 >
 > 用户在收到下一步兼容性方案后指示“逐步完成你认为目前可以做的任务”。Root 从干净 `271f957fad68b14c764c7432c97290bac641cabb`、既有 `codex/v8-openrouter-research-beta` 开始，已在 `3ce529a` 保存设计与计划：`docs/superpowers/plans/2026-09-06-arc-v8-retained-compatibility.md`。只新增隔离测试及文档，继续子代理/TDD/规格后质量审查；完成后普通备份同一已授权公开开发分支。不要新建 worktree 或重做产品 Tasks 1–12。

@@ -52,6 +52,17 @@ describe("SetupFlow", () => {
     expect(screen.queryByText(/Full skill audit and adaptive scheduling currently require/)).not.toBeInTheDocument();
     expect(screen.getByText(/Continue keeps the proportional v7 path/)).toBeInTheDocument();
   });
+  it("keeps the research slot visible during recovery without inviting new research", async () => {
+    const user = userEvent.setup();
+    const renderResearch = vi.fn(() => <button>Research controls</button>);
+    render(<SetupFlow onComplete={vi.fn()} signedIn researchRecoveryAvailable renderResearch={renderResearch} />);
+
+    await user.type(screen.getByLabelText("Custom role"), "Data Product Manager");
+
+    expect(screen.getByRole("button", { name: "Research controls" })).toBeInTheDocument();
+    expect(screen.queryByText(/Research this role to use/)).not.toBeInTheDocument();
+    expect(screen.getByText("New research is currently unavailable. Continue keeps the proportional v7 path.")).toBeInTheDocument();
+  });
   async function reachWeeklyStep(user: ReturnType<typeof userEvent.setup>) {
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Continue" }));

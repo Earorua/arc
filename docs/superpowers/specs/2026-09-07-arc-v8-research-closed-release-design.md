@@ -24,7 +24,11 @@
 
 先审查当前源码和已有测试，只有发现影响此关闭方案的实际缺口才扩大实现，并先记录范围及测试证据。不新增持久化模型、访问控制系统或公开功能旗标。本次最小发布不需要依赖真实 Research 成功；以后开启 Research 仍要单独完成真实结果、来源质量、usage/cost 与预算验证。关闭准入不取消在途调用，恢复 GET 可能对过期运行对账，不称全部 GET 无写入。
 
-访问范围已询问用户。未收到答复时，文档暂按“仅用户本人先验收”起草，不据此变更真实访问策略，也不把 Research cohort 当作全站访问控制。当前 Sites 为 public；实际限制访问必须在未来获准操作中核对精确访问范围。自定义域名不是本轮发布前置条件。
+只读审查发现一个实际 UI 文案缺口：`SetupFlow` 把 `researchRecoveryAvailable` 也当成可以发起新 Research 的条件，关闭后恢复槽存在时仍显示 Research this role 的引导。本轮仅把该分支改为 **New research is currently unavailable. Continue keeps the proportional v7 path.**；保持已 eligible 的原始引导、恢复槽渲染、Ready 使用、Flagship 和 Continue 逻辑不变。在已有 setup-flow 测试文件中新增非 Flagship 岗位的 ineligible+recovery 场景，先观察文案 RED，再修改条件。不扩大到一般错误文案改写。
+
+关闭链的精确限制：`role-research-beta` enabled=1 且 cohort `{}` 会放行所有用户，不能当作空名单；但 Research 专用开关为 false 已使新调用不可构建。旧 deterministic preview 与该开关独立，本轮不改 `ARC_AI_ENABLED`。旧计划/Proof 保留不代表所有历史 Research 包永久可重新激活；过期包读取可能返回 503。已准入的调用及其 Repair 不会被旗标即时取消，未来切换必须检查在途状态。
+
+用户已明确选择 **保持公开访问，仅关闭 Research**，覆盖早先暂按本人验收起草的假设。“小范围”指本轮功能范围，不限制访客名单；方案沿用 public，不改变全站访问策略，也不把 Research cohort 当作全站访问控制。实际部署仍须核对目标站点与公开访问状态，自定义域名不是本轮发布前置条件。
 
 ## 发布准备的完成条件
 

@@ -106,9 +106,11 @@ export function SetupFlow({ onComplete, renderAdaptive, signedIn = false, resear
               value={customRole}
             />
           </label>
-          {hasCustomRole && <p className="custom-role-disclosure">{signedIn && renderResearch && canResearchRole && (researchEligible || researchRecoveryAvailable)
+          {hasCustomRole && <p className="custom-role-disclosure">{signedIn && renderResearch && canResearchRole && researchEligible
             ? "Research this role to use a source-backed skill audit and adaptive schedule. Continue keeps the proportional v7 path."
-            : <>Full skill audit and adaptive scheduling currently require Arc&apos;s reviewed AI-Native Full-Stack Engineer blueprint. This custom role will keep the proportional v7 path.</>}</p>}
+            : signedIn && renderResearch && canResearchRole && researchRecoveryAvailable && !researchEligible
+              ? "New research is currently unavailable. Continue keeps the proportional v7 path."
+              : <>Full skill audit and adaptive scheduling currently require Arc&apos;s reviewed AI-Native Full-Stack Engineer blueprint. This custom role will keep the proportional v7 path.</>}</p>}
           {signedIn && renderResearch && (researchRecoveryAvailable || researchEligible && canResearchRole) && renderResearch({ role: customRole.trim(), onUseResearch: useResearch, onFlagship: selectFlagshipRole })}
           <button className="setup-next" lang="en" onClick={advance} type="button">Continue</button>
         </>
