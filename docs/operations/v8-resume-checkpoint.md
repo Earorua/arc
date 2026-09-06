@@ -1,6 +1,16 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
-> **2026-09-06：用户已明确授权额外 1 次真实 Research；等待用户运行隐藏输入入口（当前最高优先级）**
+> **2026-09-06：额外 1 次真实 Research 已执行并再次 403；授权已消耗，转向客服核查（当前最高优先级）**
+>
+> 用户在授权后运行隐藏入口并回复“已运行”。Root 核对权威工作树、`codex/v8-openrouter-research-beta` 和干净执行 HEAD **`7409fbd8c509bc567a68dd35a61551b1e44258d6`**（诊断实现 `31755b39ccef8592512b23711c3b8a9278534c08`），只读取新增白名单摘要 `outputs/live-research/summary-2026-09-06T09-57-33-859Z.json`。结果 **live-one / incomplete / research-failed**：Key **200 / complete / 1,390 ms**，Research **403**；真实请求 **2**（Key GET 1、Research POST **1**）、Repair **0**。
+>
+> 新诊断实际生效：`httpStatus: 403`、`location: http-error`、`errorCode: 403`、`errorCodeState: recognized`、`errorType: null`、`errorTypeState: missing`。这表示已解析错误未提供可用的标准类型，不证明具体拒绝原因，也不证明一定到达了上游 Provider；不读取原始 message/metadata 或新增实验诊断请求。固定请求模型 Sol，actualModel/usage 均 null；run `1017b0b3-d011-4b17-ad0f-62e8af4d33f2` failed，引用/技能 0、audit 1。本地 5,000,000 micros 预留 released、settled 0；owner 和第二次 Research 拒绝检查 true，未激活账户/生成规划，数据库 disposed。**本地释放预留不是 Provider 最终零扣费证明。** 摘要 SHA256：`eba89578f1ca457974d1d8c45d74b31aea3bae4991e54c71c40d6eeef58c1a87`。
+>
+> 两次分别授权的 Research 均已使用、均为 403；当前没有第三次或自动重试/Repair/换模型授权。按诊断计划，标准类型缺失后保持原因未知，更新 `docs/operations/v8-openrouter-support-note.md` 供用户提交官方支持；草稿仍未发送。用户在本次 **北京时间 2026-09-06 17:57（UTC 09:57）** 实测后提供 Activity 截图：Overview、GMT+8、Past 1 Month，Total spend **$0.00**、Requests **0**、Token volume **0**，Top API Keys/Top Apps 显示 No data in this window。这只证明截图中当前范围的概览未显示用量，不冒充单条 Explore 明细、最终结算或具体拒绝原因。测试 Key 的事后撤销尚未确认。下一步由用户撤销测试 Key，并提交含两次时间窗及概览观察的脱敏说明；不要直接重跑 `-ExecuteOne`。真实验收、合并与 GitHub 备份仍未完成；生产变量/旗标/D1/R2、Sites 候选和部署仍禁止。
+>
+> 本次仅保存实测证据和客服草稿，不改实现或重跑已通过的离线测试；原 137 文件 / 2,641 测试及双审仍只对应已记录的诊断实现。安全摘要继续保留在 Git 忽略的本地输出目录，不附加目录、凭据或原始日志到客服材料。
+
+> **2026-09-06 历史授权：额外 1 次真实 Research 的隐藏输入交接（已执行，见上方）**
 >
 > 用户在诊断实现双审及本地保存完成后回复“授权再运行 1 次真实 Research”。本次核对实现提交 **`31755b39ccef8592512b23711c3b8a9278534c08`**、`codex/v8-openrouter-research-beta` 分支和干净工作树。该授权覆盖同一 `openai/gpt-5.6-sol`、真实验证总预算至多 **5 美元**、一次新的 Key GET 预检和通过后的至多 **1 次额外 Research POST**；无自动重试、Repair 或模型切换。原 04:23 Research 的授权仍已消耗，不得与本次新增许可重复计算。
 >
