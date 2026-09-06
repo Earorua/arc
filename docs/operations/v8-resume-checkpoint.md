@@ -1,5 +1,13 @@
 # Arc. v8 Phase 2 规格恢复检查点
 
+> **2026-09-06：只读账户诊断已通过本地验证与双审；等待用户运行**
+>
+> 用户最新确认“个人账户。本次测试 Key 没有撤销”，此前答复 Activity“未找到记录”。企业专用 IP 允许列表不适用于所述个人账户；其他拒绝原因仍未知。已依照 `docs/superpowers/plans/2026-09-06-arc-v8-readonly-account-diagnostics.md` 完成独立 `-CheckAccountOnly`：最多一次 Key GET 和一次账户模型列表 GET，仅输出经验证的 Key 用量数字、状态/固定失败类别及 Sol 是否列出，不创建 Research、审计、预算预留或数据库。密钥仍由用户在本机隐藏提示输入；原有 live/key-only 的未使用 Key 策略不变。
+>
+> 最终专项 **175/175**、root 全套 **136 文件 / 2,533 测试**（58.95 秒）、非增量 TypeScript、定向 ESLint 和 diff 检查通过。初次质量审查的一个 P2（HTTP 200 同时携带 data/error 被误判完成）经 **18 RED** 后修复；规格复审和质量/安全复审均 **P0/P1/P2 0/0/0，READY**，另分别独立通过 22/22、6/6 合成验证。本地保存后的交接命令为 `powershell -NoProfile -ExecutionPolicy Bypass -File "<authoritative-worktree>\scripts\live-research\run.ps1" -CheckAccountOnly`；用户输入现有测试 Key 后回复“已运行”，只读取新 `account-check-only` 脱敏摘要。
+>
+> 当前没有新增真实账户查询结果或 Research 成功证据；唯一 Research POST 已消耗，未经另行明确授权不可重试。测试生成的 account-mode 摘要已仅按自身精确路径清理，保留的新摘要均为 offline/realRequestCount 0，原 Research 403 摘要 SHA256 不变。没有 Activity 记录不证明零扣费，目录列出模型也不证明完整 Research 请求可用。撤销 Key 尚未完成，待本次只读观察后再次处理；不宣称已撤销。合并、推送及部署仍未执行。
+
 > **2026-09-06：首次真实 Research 返回 HTTP 403；唯一一次 POST 已使用，真实验收未通过**
 >
 > 用户确认“OpenRouter 账户本身已有可用余额”后，在干净 `31f80525c0efe556146f2830b1c049f1055de964` 上手动运行 `-ExecuteOne`。脱敏摘要 `outputs/live-research/summary-2026-09-06T04-23-53-054Z.json` 为 `live-one / incomplete / research-failed`：Key HTTP 200、complete / 2,078 ms；Research HTTP **403**、POST **1**、Repair 0，总真实请求 2（含 Key GET）。run `62288a2f-5218-40ae-9c1a-8e33ebd4ac73` 为 failed；实际模型和 usage 均为空，引用/技能为 0，audit 1；本地 5,000,000 micros 预留 released、settled 0，所有权及第二次 Research 拒绝检查通过，未激活账户或生成规划，数据库已销毁。

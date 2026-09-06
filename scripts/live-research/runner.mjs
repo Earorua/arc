@@ -35,20 +35,28 @@ async function readKey() {
 
 try {
   const args = process.argv.slice(2);
-  if (args.includes("--execute-one") && args.includes("--check-key-only")) {
+  const modes = ["--execute-one", "--check-key-only", "--check-account-only"];
+  if (args.filter((argument) => modes.includes(argument)).length > 1) {
     failureCode = "mode-conflict";
     throw new Error("MODES_CONFLICT");
   }
   const executeOne = args.length === 1 && args[0] === "--execute-one";
   const checkKeyOnly = args.length === 1 && args[0] === "--check-key-only";
-  if (args.length && !executeOne && !checkKeyOnly) throw new Error("ARGUMENTS_INVALID");
+  const checkAccountOnly = args.length === 1 && args[0] === "--check-account-only";
+  if (args.length && !executeOne && !checkKeyOnly && !checkAccountOnly) throw new Error("ARGUMENTS_INVALID");
   process.chdir(workspace);
-  if (executeOne || checkKeyOnly) key = await readKey();
+  if (executeOne || checkKeyOnly || checkAccountOnly) key = await readKey();
   const { createOfflineVite } = await import("../../tests/offline-uat/server.mjs");
   vite = await createOfflineVite({ logLevel: "silent", optimizeDeps: { noDiscovery: true, include: [] },
     server: { middlewareMode: true, watch: null, hmr: false, ws: false, cors: false } });
-  const { runValidation } = await vite.ssrLoadModule("/scripts/live-research/validation.ts");
-  const summary = await runValidation(executeOne || checkKeyOnly ? { executeOne, checkKeyOnly, key, fetch: outboundFetch } : {});
+  let summary;
+  if (checkAccountOnly) {
+    const { runAccountCheck } = await vite.ssrLoadModule("/scripts/live-research/account-check.ts");
+    summary = await runAccountCheck({ key, fetch: outboundFetch });
+  } else {
+    const { runValidation } = await vite.ssrLoadModule("/scripts/live-research/validation.ts");
+    summary = await runValidation(executeOne || checkKeyOnly ? { executeOne, checkKeyOnly, key, fetch: outboundFetch } : {});
+  }
   key = undefined;
   const outputDirectory = resolve(workspace, "outputs/live-research");
   await mkdir(outputDirectory, { recursive: true });
@@ -57,7 +65,7 @@ try {
   // Exclusive creation preserves every earlier run's evidence.
   await writeFile(outputPath, `${serialized}\n`, { encoding: "utf8", flag: "wx" });
   process.stdout.write(`${serialized}\nSummary: ${outputPath}\n`);
-  exitCode = summary.outcome === "passed" ? 0 : 1;
+  exitCode = summary.outcome === (checkAccountOnly ? "completed" : "passed") ? 0 : 1;
 } catch {
   process.stderr.write(`Live validation stopped (${failureCode}).\n`);
 } finally {
