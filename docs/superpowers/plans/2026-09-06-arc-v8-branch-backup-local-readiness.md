@@ -19,7 +19,7 @@ Starting checkpoint: clean `d59af3388cc2dbeb0a63dff2d8c0c2e96b8824b6` in the aut
 **Read:** `.github/workflows/ci.yml`, `.gitignore`, tracked source/history, local hook metadata, remote ref and repository metadata.
 
 - [x] Verify branch, clean starting HEAD, exact push destination and current remote refs. A failed network query is not evidence that a branch is absent.
-- [ ] Inspect publication scope for credential/private-data patterns, reporting only filenames/categories/counts. Never read ignored `.env*`, keys, live output directories or raw logs for this scan. The tracked `.env.example` may be inspected only as a template. Record scope and limitations.
+- [x] Inspect publication scope for credential/private-data patterns, reporting only filenames/categories/counts. Never read ignored `.env*`, keys, live output directories or raw logs for this scan. The tracked `.env.example` may be inspected only as a template. Record scope and limitations.
 - [x] Confirm committed push/PR workflows and Git hooks do not deploy; inspect repository webhook/Pages metadata without secret fields. Do not claim a complete audit of external GitHub Apps.
 - [x] Run the full unit suite by itself, then nonincremental TypeScript, full lint, production build and rendered checks. Existing expected Fake/offline behavior does not prove live acceptance.
 
@@ -40,7 +40,7 @@ The build uses only local placeholder bindings. No actual environment file exist
 
 **Modify:** `docs/operations/v8-resume-checkpoint.md`, the top status of `docs/superpowers/plans/2026-09-06-arc-v8-live-validation-and-backup.md`, this plan.
 
-- [ ] Record that Research is incomplete and branch backup is now independently authorized; root locally commits exact reviewed documents.
+- [x] Record that Research is incomplete and branch backup is now independently authorized; root locally commits exact reviewed documents.
 - [ ] Push only `HEAD:refs/heads/codex/v8-openrouter-research-beta` to `origin`, without force, tags or master updates. If the branch exists, first verify the push is a fast-forward; preserve independent changes.
 - [ ] Verify remote branch SHA equals local HEAD and remote master remains unchanged. Confirm clean local status. Inspect whether any workflow was actually triggered; absence of a branch-push trigger is not a passing CI result.
 
@@ -60,8 +60,10 @@ If Git transport resets, inspect remote state before retrying a possibly complet
 - [x] Independent migration audit: enumerate order/effects, seeded upgrade evidence, compatibility constraints and missing legacy coverage. Do not equate an empty-database smoke with a production-data migration rehearsal.
 - [x] Independent configuration/rollback audit: list required variable/binding names, defaults and staged enablement; record backup/restore requirements and distinguish historical Sites version 9 from a freshly verified rollback artifact.
 - [x] Execute the existing isolated real D1 smoke and record its exact scope, disposal and Fake-only provider boundary.
-- [ ] Write a local readiness report with verified facts, concrete remaining release gates and a backup/rollback runbook. No production backup/restore command is executed; no migration is rewritten.
-- [ ] Review the report against source and independent audit findings, verify document diff, locally commit only the readiness documents and ordinarily update the same backup branch. Re-verify remote SHA and unchanged master.
+- [x] Write a local readiness report with verified facts, concrete remaining release gates and a backup/rollback runbook. No production backup/restore command is executed; no migration is rewritten.
+- [x] Review the report against source and independent audit findings; specification review then quality/security review both READY with no P0/P1/P2 findings.
+- Local delivery: verify the document diff and commit only the readiness report and its two progress records. Root's handoff reports the actual containing commit and clean status.
+- [ ] After explicit public-destination/payload confirmation, ordinarily update the same backup branch. Re-verify remote SHA and unchanged master. While waiting, root may generate and verify a local Git bundle of the final branch; this does not substitute for successful remote verification.
 
 ```powershell
 node tests/offline-uat/miniflare-smoke.mjs
@@ -81,3 +83,6 @@ Root records actual results here and in the readiness report as tasks finish; un
 - Root fresh unit suite: **137 files / 2,641 tests passed, 47.95 seconds, exit 0**. Nonincremental TypeScript, full ESLint, production build **5/5** and rendered/client checks **4/4** passed. Source is unchanged from `d59af33`; only this turn's documentation is being added. No dependency update was performed.
 - Root actual isolated Miniflare/workerd D1: migrations **0000–0006**, **9 application steps + 5 atomic conflicts**, zero false success receipts and FK violations, nonpersistent, disposed, exit 0. Only Fake Provider data was used. This is fresh-final-schema evidence, not full populated-v7.2 migration or restore evidence.
 - Independent audits distinguish minimal seeded `0004→0006` preservation from the missing comprehensive legacy upgrade/restore rehearsal. They also identify unconditional Research-table health queries, a broad `{}` cohort, provider-free GET reconciliation writes, and historical rollback artifacts requiring later verification. The readiness report will preserve these boundaries.
+- Independent publication audit returned **READY, P0/P1/P2 0/0/0** for clean `304e0eff096cb5c8d37e17dc7a1ea5e53abf9b77`: 105 commits/431 unique blobs/164 paths through `d59af33`, then the three new documents and commit message. This is bounded static evidence, not an external Apps or runtime-secret audit.
+- The first ordinary branch push was **rejected by automatic approval review before process creation**: it required explicit confirmation of public destination and full source/history payload. Root asked the user to confirm `https://github.com/Earorua/arc`, branch `codex/v8-openrouter-research-beta`, reviewed code/history and this round's readiness documents. No push occurred and no workaround was used. Local report preparation continues while this question is pending.
+- Local readiness report complete with seven migration hashes, a source-backed configuration inventory, exact evidence limitations and the backup/rollback runbook. Its independent specification review corrected one doc-only P2 concerning flag-corruption wording, then returned **0/0/0 READY**; the subsequent independent quality/security review of the report and two progress updates returned **0/0/0 READY** without further findings. No product source, migration or production configuration changed.
