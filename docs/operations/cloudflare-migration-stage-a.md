@@ -34,19 +34,30 @@ Native Wrangler authenticated through the already-authorized local HTTP proxy, u
 | Account | 54eaadb89014252836694203c1e22546 | Existing OAuth login and account verified |
 | D1 | arc-v8-migration-db-20260922 | Created successfully; UUID 83a47917-a4f4-4121-baad-1032677f18a8; WNAM |
 | R2 | arc-v8-migration-proofs-20260922 | Created successfully; Standard; r2.dev public access disabled; no custom domains |
-| Proposed Worker | arc-v8-migration-shadow-20260922 | Native deployments lookup returned not found, code 10007; deployment next |
+| Worker | arc-v8-migration-shadow-20260922 | Deployed successfully; version 7f6766af-f5b6-4d7a-ada5-ac67b1c2b227 |
 
-The Worker-name lookup then encountered a Windows libuv exit assertion. The API response explicitly reports that this exact Worker does not exist; the command is not recorded as a successful deployment. No source or existing smoke resource was changed.
+The initial Worker-name lookup encountered a Windows libuv exit assertion after API code 10007. That initial lookup is not recorded as a successful command. The later native deployment succeeded separately. No source or existing smoke resource was changed.
 
 The exact non-secret target is `cloudflare.shadow.json`. Required application bindings are `DB` and `PROOF_ASSETS`, not the suggested generated binding names printed by resource creation. This inventory has no routes, production custom domain, triggers, model key or authentication secrets. After the local checks, a native query confirmed that the new remote D1 contained only Cloudflare's `_cf_KV` table. The seven baseline migrations were then applied successfully to this exact new database. No source user data was imported.
 
 Existing smoke D1 UUIDs fe4952d0-da78-4c85-b1fa-8a5706d42fa3 and 81d44533-40d9-4544-a03d-81a01e2719ae, their Workers and arc-v8-smoke-receipts-20260921 remain untouched. arcmaps.net still serves the existing Sites version.
 
+## Shadow deployment and remote checks
+
+- Reviewed source commit: a57455f1497d2dd67ea3479ea002c18cecf48b8a. The three build/inventory hashes were checked against root-a1-verification.json immediately before deployment. That earlier receipt correctly says no cloud deployment had occurred at its timestamp; do not rewrite historical receipts.
+- Native Wrangler deployment exited 0, uploaded 36 assets, and reported version `7f6766af-f5b6-4d7a-ada5-ac67b1c2b227`, created 2026-09-22T09:36:37.83412Z. Native deployments list confirmed 100% traffic; a subsequent versions view confirmed the exact version and bindings.
+- URL: https://arc-v8-migration-shadow-20260922.23711031.workers.dev/ . Script etag: 1d432b37226fc491123ff684f68c1f267228a5764b4d4647792c324265a1aa6d.
+- Bindings are exactly ASSETS, the new DB, the private PROOF_ASSETS bucket and four plain variables: ARC_ENVIRONMENT=production, BETTER_AUTH_URL=the shadow origin, ARC_AI_ENABLED=false and ARC_AI_RESEARCH_ENABLED=false. The initial version has no auth/model secrets, workflows or scheduled handler. It does not attach arcmaps.net.
+- Native remote D1 checks found 41 application tables, the seven baseline migrations, no foreign-key violations, and zero users/accounts/Research runs. Safe result: ignored outputs/cloudflare-migration-20260922/cloud-d1-receipt.json. This is an empty target schema, not a restored source database.
+- HTTPS checks through the authorized local proxy returned 200 for Setup, Today, Path and Stack. Initial homepage/login attempts failed before receiving HTTP; the first receipt retains two null observations. Follow-up checks returned 200 for homepage, login, CSS and og.png, and verified the development notice and arcmaps.net canonical metadata. Both cloud-http-receipt.json and cloud-http-followup.json are retained; the first is not described as an entirely passing run.
+- Auth providers returned an empty list and Research eligibility returned 503/UNAVAILABLE while auth is unconfigured. No real login, authenticated ownership test or cloud attachment write has occurred. Page responses through the observed LAX edge do not establish universal regional access or load capacity.
+- Worker startup time was 91 ms. This is not per-request CPU time, Research duration or a billing estimate. The version's usage_model=standard is not evidence that the user's pending Workers Paid subscription has activated.
+
 ## Authentication and transfer dependencies
 
-User searched Bitwarden and did not find the original BETTER_AUTH_SECRET. The three smoke secrets A/B/C are unrelated. Read-only dependency audit is evaluating how to preserve provider/user/owner identity while forcing fresh authentication; no old secret has been changed and no encrypted token has been read or transformed.
+User searched Bitwarden and did not find the original BETTER_AUTH_SECRET. The three smoke secrets A/B/C are unrelated. The read-only dependency audit has documented the conditions for preserving provider/user/owner identity while forcing fresh authentication; no old secret has been changed and no encrypted token has been read or transformed.
 
-User found both the Arc GitHub OAuth app and the matching Google OAuth client. No client ID/secret was requested or exposed and existing callback URLs have not been changed. Actual availability of client secrets remains to be checked through a safe configuration process.
+User found both the Arc GitHub OAuth app and the matching Google OAuth client and confirmed that both Client Secrets are saved. The values have not been read or validated; existing callback URLs have not been changed. The next guided step is saving a new shadow-only BETTER_AUTH_SECRET in Bitwarden, followed by direct Dashboard Secret entry and additive callback setup. See cloudflare-shadow-auth-setup.md. The currently deployed version remains usable for that configuration; subsequent code redeployment requires the secret-preservation checks documented there.
 
 The read-only auth audit found that fresh provider login can preserve existing user IDs without decrypting old OAuth tokens first, conditional on exact provider-account continuity. Residual encrypted refresh tokens and in-flight account-link state require deliberate destination-only handling. This fallback is documented in auth-migration-readiness.md and has not been implemented or tested against real accounts.
 

@@ -4,7 +4,7 @@
 
 ## Current finding
 
-The user did not find the original BETTER_AUTH_SECRET in Bitwarden. The original Sites environment lists it and both Google/GitHub integrations as configured; encrypted values have not been retrieved. The user subsequently found both the Arc GitHub OAuth app and the matching Google OAuth client; actual credential availability is not yet verified. Neither app was changed. Losing the application secret does not inherently require recreating users or losing their business data.
+The user did not find the original BETTER_AUTH_SECRET in Bitwarden. The original Sites environment lists it and both Google/GitHub integrations as configured; encrypted values have not been retrieved. The user subsequently found both the Arc GitHub OAuth app and the matching Google OAuth client and confirmed both Client Secrets are saved. This is user-reported availability, not value validation or successful new-site authentication. Neither app was changed. Losing the application secret does not inherently require recreating users or losing their business data.
 
 Locked and installed versions are better-auth 1.6.24, @better-auth/drizzle-adapter 1.6.24 and @better-auth/core 1.6.25. Arc resolves the existing user using `(provider_id, account_id)` and the stored `user_id`. A fresh OAuth callback can update new tokens and create a new session without decrypting previous OAuth tokens first. This is source evidence only; real provider subject continuity remains unverified.
 
@@ -38,7 +38,7 @@ Prefer the original OAuth apps if the user can administer them. New apps may wor
 6. Existing cross-owner and direct-link-bypass protections remain effective.
 7. Before cutover, controlled real login for each supported provider proves callback reachability, provider subject continuity, the original Arc user ID and existing workspace data.
 
-No transformation script or synthetic migration test has been implemented yet. Real provider coverage, ownership of OAuth apps, complete database export and source snapshot consistency remain unresolved. Do not change the old site's secret or delete its sessions to test this proposal.
+No transformation script or synthetic migration test has been implemented yet. The user has located both original OAuth apps and saved secrets; actual provider coverage, complete database export and source snapshot consistency remain unresolved. Do not change the old site's secret or delete its sessions to test this proposal. The shadow auth setup guide uses a new secret and an empty isolated database; its login test cannot establish preservation of an original account ID.
 
 ## Locate the OAuth applications without changing them
 
