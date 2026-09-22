@@ -1,0 +1,14 @@
+{
+  "stage": "shadow",
+  "accountId": "54eaadb89014252836694203c1e22546",
+  "workerName": "arc-v8-migration-shadow-20260922",
+  "runtimeOrigin": "https://arc-v8-migration-shadow-20260922.23711031.workers.dev",
+  "d1": {
+    "databaseId": "83a47917-a4f4-4121-baad-1032677f18a8",
+    "databaseName": "arc-v8-migration-db-20260922"
+  },
+  "r2": {
+    "bucketName": "arc-v8-migration-proofs-20260922",
+    "public": false
+  }
+}

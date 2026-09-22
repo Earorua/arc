@@ -1,0 +1,13 @@
+{
+  "stage": "local",
+  "workerName": "arc-local-only",
+  "runtimeOrigin": "http://localhost:3000",
+  "d1": {
+    "databaseId": "00000000-0000-4000-8000-000000000000",
+    "databaseName": "arc-local-only-db"
+  },
+  "r2": {
+    "bucketName": "arc-local-only-proofs",
+    "public": false
+  }
+}
