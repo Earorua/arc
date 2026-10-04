@@ -594,7 +594,7 @@ Expected: four cases pass. The `access_denied` controls prove genuine state pars
 
 **Files:** Create `tests/helpers/auth-migration-link.ts`; create `tests/server/auth-migration-link-reset.test.ts`.
 
-- [ ] **Step 1: Add this focused link fixture helper.** It seeds data only in the current in-memory fixture. Native Arc crypto, repositories, handlers, hooks, sessions and account queries remain real. Seeded `consumed` and `completing` rows deliberately have past deadlines.
+- [x] **Step 1: Add this focused link fixture helper.** It seeds data only in the current in-memory fixture. Native Arc crypto, repositories, handlers, hooks, sessions and account queries remain real. Seeded `consumed` and `completing` rows deliberately have past deadlines.
 
 ```ts
 import type { AccountLinkStatus } from "../../app/server/account-link/contracts";
@@ -634,7 +634,7 @@ export function arcRequest(route: "start" | "continue" | "status", cookie: strin
 }
 ```
 
-- [ ] **Step 2: Add the acceptance file below.** Each parameterized case uses its own fixture, keeping per-route rate limits below their production thresholds.
+- [x] **Step 2: Add the acceptance file below.** Each parameterized case uses its own fixture, keeping per-route rate limits below their production thresholds.
 
 ```ts
 // @vitest-environment node
@@ -747,7 +747,7 @@ describe("auth migration Arc reset acceptance", () => {
 });
 ```
 
-- [ ] **Step 3: Run the focused acceptance and type gates.**
+- [x] **Step 3: Run the focused acceptance and type gates.**
 
 ```powershell
 npm run test:unit -- tests/server/auth-migration-link-reset.test.ts
@@ -756,7 +756,9 @@ npx tsc --noEmit --incremental false
 
 Expected: nine cases pass, no provider fetch, no changed historical rows, no revived reset intent. Fresh-start acceptance must reach actual Better Auth state insertion via Arc's internal proof hook. A generic 503 is an integration defect, not an acceptable rejection. Record first-run GREEN or genuine fixture/acceptance failure accurately.
 
-- [ ] **Step 4: Obtain SPEC then QUALITY review and stop this worker.** Review the exact historical row comparison, two independent proof-key controls, expired consumed/completing fixtures, and target mapping preservation. No commit.
+- [x] **Step 4: Obtain SPEC then QUALITY review and stop this worker.** Review the exact historical row comparison, two independent proof-key controls, expired consumed/completing fixtures, and target mapping preservation. No commit.
+
+**C3.4 execution record (2026-10-04):** All nine actual-library/Arc-handler cases passed on their first valid characterization run. Typecheck, targeted lint and whitespace checks passed. Root's C3.1–C3.4 focused integration passed 21 tests across four files. Historical rows remain exact; each reset active intent refuses continuation and both old/current-key proofs, while a fresh missing-target start reaches genuine OAuth state insertion. An already inserted target mapping stays authoritative after an expired completing intent is reset. No existing helper, application, dependency or schema was changed. Evidence is under ignored `outputs/cloudflare-migration-20261004/c3-4/`; helper SHA256 `e51c77da4b5eeb62cc1232ad5fb5eb5987acf9792348e7876049659e03ebef49`, test SHA256 `43aa53170a83c5e7aff4c179a69b20352749942aa409ba19a2f33276245f1b60`. Independent SPEC PASS was followed by a distinct QUALITY/security and bounded five-file review READY, with no actionable findings. Root handles the reviewed commit/backup separately. This is synthetic local acceptance, not a successful external account-link callback.
 
 ## C3.5: Actual callback finish hooks and owner isolation
 
@@ -1035,7 +1037,7 @@ Drafting is read-only except this plan. No acceptance test, runtime probe, build
 - [x] C3.1 actual result and independent reviews recorded by root.
 - [x] C3.2 actual result and independent reviews recorded by root.
 - [x] C3.3 actual result and independent reviews recorded by root.
-- [ ] C3.4 actual result and independent reviews recorded by root.
+- [x] C3.4 actual result and independent reviews recorded by root.
 - [ ] C3.5 actual result and independent reviews recorded by root.
 - [ ] C3.6 actual integrated results and final SPEC then QUALITY verdicts recorded by root.
 

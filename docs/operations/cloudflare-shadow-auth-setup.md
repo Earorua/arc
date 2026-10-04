@@ -1,5 +1,9 @@
 # 独立测试站登录配置
 
+**2026-10-04 23:37 北京时间最新核验：五项 Secret 已全部配置并生效。** 用户逐项配置后，原生 Secret 列表及当前部署绑定均确认 BETTER_AUTH_SECRET、GOOGLE_CLIENT_ID、GOOGLE_CLIENT_SECRET、GITHUB_CLIENT_ID、GITHUB_CLIENT_SECRET 恰好五项 secret_text。最后一项最初为 plain_text，已由用户修正；不要重复要求配置或重新生成。当前 Dashboard 部署版本 `72fbb334-c989-40b3-ade1-008e92811a9e`，100% 流量。DB/R2/ASSETS、四项普通变量及两个 false 开关均匹配，脚本 etag 与原 a57455f 部署相同，没有代理代码重部署。匿名 providers 接口 HTTP200、恰好 google/github；这不证明凭据值有效或真实登录成功。
+
+**当前从第四步 Google 真实登录继续。** 用户已分别回复 Google、GitHub 精确 shadow 回调新增完成；按指引保留旧地址，GitHub 新增项不启用 wildcard matching。此处是用户报告，尚未通过真实登录核验。已指导在普通 Chrome/Edge 打开 shadow `/sign-in`，用原 Arc Google 账号登录，返回后确认账户菜单/退出登录；不要复制授权参数、密码或验证码。2026-10-04重新查阅 GitHub 官方文档及 2026-08-14 changelog，确认支持同一 OAuth 应用多回调。真实登录、完整原账号/数据迁移和 Paid 生效仍未核实。检查依据保存在 ignored `outputs/cloudflare-migration-20261004/auth-secrets-corrected-observation.json`、`auth-deployment-corrected-observation.json`、`auth-version-corrected-observation.json`、`auth-providers-observation.json`。没有显示秘密值，修正前的观察保留。下方尚待五项配置等描述均为历史。
+
 **2026-10-04恢复：** 用户明确继续迁移，并确认五项Cloudflare Secret尚未配置，已重新给出逐项配置指引。Bitwarden随机值已保存，不重新生成。密钥继承本地产物预检、102项回归、4项页面/客户端测试、类型与定向lint均已通过；最终独立整合审查READY，无阻断项。提交备份结果以主恢复检查点记录为准。本轮没有代码部署；Paid仍待核实，但不阻碍这一配置步骤。下方2026-09-24暂停状态为历史。
 
 2026-09-22。只配置新测试站，不替换旧站密钥、不删除旧回调、不切换 arcmaps.net。用户已确认能进入原 Google/GitHub 应用，且两份 Client Secret 均有保存。不要把任何秘密值发到聊天或写入项目文件。
