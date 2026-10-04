@@ -354,7 +354,7 @@ The shared helper uses a fixture-scoped WeakMap sequence for UUID-shaped request
 
 **Files:** Create `tests/server/auth-migration-credentials.test.ts`. Use C3.1's helper unchanged.
 
-- [ ] **Step 1: Add these acceptance tests.** The old/new encryption configurations deliberately use the same envelope version. A wrong-key failure must be cryptographic, not an unknown-version or bare-string envelope parse failure.
+- [x] **Step 1: Add these acceptance tests.** The old/new encryption configurations deliberately use the same envelope version. A wrong-key failure must be cryptographic, not an unknown-version or bare-string envelope parse failure.
 
 ```ts
 // @vitest-environment node
@@ -455,7 +455,7 @@ describe("auth migration token and session acceptance", () => {
 });
 ```
 
-- [ ] **Step 2: Run the focused acceptance file.**
+- [x] **Step 2: Run the focused acceptance file.**
 
 ```powershell
 npm run test:unit -- tests/server/auth-migration-credentials.test.ts
@@ -463,13 +463,15 @@ npm run test:unit -- tests/server/auth-migration-credentials.test.ts
 
 Expected: three cases pass and fetch remains uncalled. If installed behavior passes immediately, record first-run GREEN. Do not change authentication behavior to manufacture a RED. The synthetic signed session cookie exercises validation; it does not claim provider callback cookie issuance.
 
-- [ ] **Step 3: Run types and obtain independent SPEC then QUALITY review.**
+- [x] **Step 3: Run types and obtain independent SPEC then QUALITY review.**
 
 ```powershell
 npx tsc --noEmit --incremental false
 ```
 
 Expected: no type errors. Review especially the valid imported-token positive control before cleanup and matching envelope versions. Record results, then stop this worker without a commit.
+
+**C3.2 execution record (2026-10-04):** First actual-library execution was GREEN, all three cases passed without a fixture or product failure. Typecheck and targeted lint exited 0. Root's focused C3.1/C3.2 integration passed eight tests in two files. The shared fixture is unchanged; only the new credentials test was added. The old/new keys share envelope version 1, and the same imported database token is accepted under the current signature before cleanup and rejected after deletion. Evidence is under ignored `outputs/cloudflare-migration-20261004/c3-2/`; test SHA256 is `b8156021ac18b355882c981108c088530535b6b05ca8d61c4114b90b4764b9db`. Independent SPEC PASS was followed by a distinct QUALITY/security and bounded three-file review READY, with no actionable findings. Root handles the authorized reviewed commit/backup separately. Synthetic cookie validation does not establish external callback issuance or actual cloud login.
 
 ## C3.3: Actual OAuth state creation and invalidation
 
@@ -1029,7 +1031,7 @@ Drafting is read-only except this plan. No acceptance test, runtime probe, build
 - [x] Kept production code, dependency versions, engine declarations, migrations and remote resources outside the edit map.
 - [x] Checked code names/signatures across tasks and scanned the plan for incomplete implementation placeholders.
 - [x] C3.1 actual result and independent reviews recorded by root.
-- [ ] C3.2 actual result and independent reviews recorded by root.
+- [x] C3.2 actual result and independent reviews recorded by root.
 - [ ] C3.3 actual result and independent reviews recorded by root.
 - [ ] C3.4 actual result and independent reviews recorded by root.
 - [ ] C3.5 actual result and independent reviews recorded by root.
