@@ -1,5 +1,21 @@
 # Authentication migration readiness
 
+## October 4 local rehearsal progress
+
+C1 synthetic cleanup is implemented and independently reviewed: SPEC PASS, then a distinct QUALITY/security reviewer READY. Root ran the cleanup and schema suites together: 64 tests passed; the implementer's final cleanup suite has 46 passing tests, with typecheck and targeted lint exit 0. Exact source/destination row snapshots, ownership and account mapping preservation, bounded rollback failures and zero-write repeated application are covered. All data is synthetic and local.
+
+An initial quality finding exposed SQLite unnamed temporary databases sharing an empty filename with memory databases. The retained regression first failed, then passed after a read-only journal profile guard was added before BEGIN. Empty SQLite temp bookkeeping is permitted, but temp objects, ordinary unnamed temporary mode and other attachments are refused. The trusted caller constructs ':memory:' explicitly; this internal fixture helper is not a provenance sandbox for arbitrary reconfigured handles or an operational real-data converter.
+
+Final C1 source SHA256: module `f0f538a001bb23a8111c66ae78b92980071f135b793de3b9df4a277e207ee55e`; test `e2bcc4f6f92066f1dda175437bf9d6ef00188d3da4f15e7d066387aa8d081c54`. Local evidence is under ignored `outputs/cloudflare-migration-20261004/c1/`, with final revision in `r2/`; original failures/reviews remain. Implementation: `scripts/cloudflare-migration/rehearse-auth-cleanup.mjs` and `tests/server/auth-migration-cleanup.test.ts`.
+
+C2 installed-library characterization now has six passing tests after an observed six-test RED. It uses the real locked Better Auth public helper, Arc options/hooks and Drizzle D1 adapter: for each Google/GitHub provider, the unchanged subject resolves owner-a even when the incoming email belongs to owner-b; users, account mapping and profile ownership remain, and no old refresh token/expiry survives. Outbound fetch is denied and asserted unused. This is public-helper characterization, not an actual OAuth callback/cookie test or verification of a real provider's subject.
+
+The test D1 helper now supplies ordered raw arrays using native setReturnArrays, retaining duplicate column values, binding/order and row limits. A fixed unsupported-capability error documents that this new rehearsal requires Node 22.16+ (checked on 24.14.1), while the application engine declaration is unchanged. No application code or dependency was modified. Root's nine-suite integration run passed 226 tests, including auth policy/options, account-link protections, schema, C1 and C2; C2 typecheck/lint also passed. Frozen C2 hashes and review records are in ignored `outputs/cloudflare-migration-20261004/c2/`. Independent C2 SPEC passed; a distinct QUALITY/security and final C1–C2 integration review returned READY with no remaining P1/P2 findings. This authorizes reviewed local commit/backup only. The main recovery checkpoint records the resulting commit and remote verification separately.
+
+C3 actual cookie/state/link handling remains separately planned after this gate. None of these local checks establishes real OAuth subject continuity, source export completeness, destination restore or production-cutover readiness. Five shadow Dashboard auth Secrets still await user configuration; Workers Paid remains unverified.
+
+## Original dependency audit and remaining operational scope
+
 2026-09-22. Read-only dependency audit; no real secrets, user rows or provider calls inspected. This is a proposed fallback for later verification, not an executed data transformation.
 
 ## Current finding
@@ -38,7 +54,7 @@ Prefer the original OAuth apps if the user can administer them. New apps may wor
 6. Existing cross-owner and direct-link-bypass protections remain effective.
 7. Before cutover, controlled real login for each supported provider proves callback reachability, provider subject continuity, the original Arc user ID and existing workspace data.
 
-No transformation script or synthetic migration test has been implemented yet. The user has located both original OAuth apps and saved secrets; actual provider coverage, complete database export and source snapshot consistency remain unresolved. Do not change the old site's secret or delete its sessions to test this proposal. The shadow auth setup guide uses a new secret and an empty isolated database; its login test cannot establish preservation of an original account ID.
+The October 4 C1 helper above performs synthetic in-memory cleanup only; no real-data transformation runner is implemented. The user has located both original OAuth apps and saved secrets; actual provider coverage, complete database export and source snapshot consistency remain unresolved. Do not change the old site's secret or delete its sessions to test this proposal. The shadow auth setup guide uses a new secret and an empty isolated database; its login test cannot establish preservation of an original account ID.
 
 ## Locate the OAuth applications without changing them
 

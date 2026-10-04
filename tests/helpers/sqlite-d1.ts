@@ -27,6 +27,9 @@ class SqliteStatement {
   async all<T = Record<string, unknown>>() {
     return { success: true, results: this.database.execute(this.sql, this.bindings, "all") as T[], meta: {} };
   }
+  async raw() {
+    return this.database.execute(this.sql, this.bindings, "raw") as unknown[][];
+  }
   async run() {
     const result = this.runSync();
     return { success: true, meta: { changes: result.changes ?? 0 } };
@@ -62,11 +65,16 @@ export class SqliteD1 {
       throw error;
     }
   }
-  execute(sql: string, values: Bindings, mode: "get" | "all" | "run"): unknown {
+  execute(sql: string, values: Bindings, mode: "get" | "all" | "run" | "raw"): unknown {
     if (values.length > 100) throw new Error("D1 parameter limit");
     const statement = this.database.prepare(sql);
     if (mode === "get") return boundedRow(statement.get(...values as never[]));
     if (mode === "all") return statement.all(...values as never[]).map(boundedRow);
+    if (mode === "raw") {
+      if (typeof statement.setReturnArrays !== "function") throw new Error("SQLITE_RAW_ARRAYS_UNSUPPORTED");
+      statement.setReturnArrays(true);
+      return statement.all(...values as never[]).map(boundedRow);
+    }
     return statement.run(...values as never[]) as { changes?: number };
   }
   close() { this.database.close(); }
