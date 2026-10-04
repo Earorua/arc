@@ -477,7 +477,7 @@ Expected: no type errors. Review especially the valid imported-token positive co
 
 **Files:** Create `tests/helpers/auth-migration-oauth.ts`; create `tests/server/auth-migration-oauth-state.test.ts`.
 
-- [ ] **Step 1: Add the test file below and run it before creating the new helper.** Missing helper is a harness RED only.
+- [x] **Step 1: Add the test file below and run it before creating the new helper.** Missing helper is a harness RED only.
 
 ```ts
 // @vitest-environment node
@@ -530,7 +530,7 @@ describe("auth migration actual OAuth state acceptance", () => {
 npm run test:unit -- tests/server/auth-migration-oauth-state.test.ts
 ```
 
-- [ ] **Step 2: Create the helper, which sends only in-process Requests and never follows redirects.**
+- [x] **Step 2: Create the helper, which sends only in-process Requests and never follows redirects.**
 
 ```ts
 import { expect } from "vitest";
@@ -579,7 +579,7 @@ export function callback(
 }
 ```
 
-- [ ] **Step 3: Re-run the focused file and types, then obtain SPEC and QUALITY reviews.**
+- [x] **Step 3: Re-run the focused file and types, then obtain SPEC and QUALITY reviews.**
 
 ```powershell
 npm run test:unit -- tests/server/auth-migration-oauth-state.test.ts
@@ -587,6 +587,8 @@ npx tsc --noEmit --incremental false
 ```
 
 Expected: four cases pass. The `access_denied` controls prove genuine state parsing/consumption works, while invalidated-state callbacks carry a code and must fail at state validation before any fetch. Do not accept a generic 4xx/5xx or a network-denial exception as state rejection evidence. Stop this worker after reviews; no commit.
+
+**C3.3 execution record (2026-10-04):** The missing-helper harness RED exited 1 with zero collected cases, then the first valid actual-handler run passed all four cases. Types and targeted lint exited 0. Root's three-file C3.1/C3.2/C3.3 integration passed 12 tests. Genuine social-start state is consumed by the cancellation callback; replay and cleaned state return the exact `state_mismatch` result for both providers, including a current-key signed state cookie after cleanup. The protected fixture is unchanged. Evidence is under ignored `outputs/cloudflare-migration-20261004/c3-3/`; helper SHA256 `af5268e6560d188a2601c318d28f2b195dc3876d688aa6147fec3bf5eac18154`, test SHA256 `f47219e0902b92a4de93e7bf82f96e6a641cae05b0c66f6e3509024d85dfd780`. Independent SPEC PASS was followed by a distinct QUALITY/security and bounded four-file review READY, with no actionable findings. Root handles reviewed commit/backup separately. The initial npm run emitted an update notice of unknown cached/notifier provenance; later commands used offline mode with update notifications disabled. Runtime fetch guards passed; no process-wide network audit or successful external OAuth exchange is claimed.
 
 ## C3.4: Reset Arc credentials, internal proofs, and authoritative mappings
 
@@ -1032,7 +1034,7 @@ Drafting is read-only except this plan. No acceptance test, runtime probe, build
 - [x] Checked code names/signatures across tasks and scanned the plan for incomplete implementation placeholders.
 - [x] C3.1 actual result and independent reviews recorded by root.
 - [x] C3.2 actual result and independent reviews recorded by root.
-- [ ] C3.3 actual result and independent reviews recorded by root.
+- [x] C3.3 actual result and independent reviews recorded by root.
 - [ ] C3.4 actual result and independent reviews recorded by root.
 - [ ] C3.5 actual result and independent reviews recorded by root.
 - [ ] C3.6 actual integrated results and final SPEC then QUALITY verdicts recorded by root.
