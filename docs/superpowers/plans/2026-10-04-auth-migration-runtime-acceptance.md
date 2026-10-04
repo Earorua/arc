@@ -770,7 +770,7 @@ For the adversarial reset-proof tests, preserve one genuine generated verificati
 
 **Source-checked transport distinction, pending runtime confirmation:** For callback **after-hook** denial, installed `better-auth/dist/api/dispatch.mjs` replaces the response with the after-hook APIError but retains the callback's original `result.status` (302). Installed `better-call/dist/to-response.mjs` gives `init.status` precedence over `APIError.statusCode`. Therefore these callback tests expect HTTP **302 with the exact denial body and no Location**, while direct **before-hook** bypass remains HTTP **403**. This is a pre-execution contract correction based on both source files, not a relaxation following an observed failure. A bare 302 never proves denial: the exact body, removed Location, consumed verification and unchanged DB assertions are mandatory. Record the actual transport result when run; do not change production code within C3.
 
-- [ ] **Step 1: Add the complete integration file below.**
+- [x] **Step 1: Add the complete integration file below.**
 
 ```ts
 // @vitest-environment node
@@ -950,7 +950,7 @@ describe("auth migration Arc callback acceptance", () => {
 });
 ```
 
-- [ ] **Step 2: Run the focused file and types.**
+- [x] **Step 2: Run the focused file and types.**
 
 ```powershell
 npm run test:unit -- tests/server/auth-migration-link-callback.test.ts
@@ -959,7 +959,9 @@ npx tsc --noEmit --incremental false
 
 Expected: eight cases pass. The two phase controls must settle as `OAUTH_CANCELLED`; the four reset cases must consume restored state but deny both old/new proofs; the cross-owner and bypass cases must not mutate ownership. Record exact handler results; do not widen expected statuses or codes to make a failing case pass.
 
-- [ ] **Step 3: Obtain independent SPEC then QUALITY review and stop this worker.** Reviewers must inspect genuine-state provenance, the request-state API boundary, current-key state cookie, fresh authenticated owner, and actual callback after hook. A callback response without unchanged owner/mapping evidence is insufficient. No commit.
+- [x] **Step 3: Obtain independent SPEC then QUALITY review and stop this worker.** Reviewers must inspect genuine-state provenance, the request-state API boundary, current-key state cookie, fresh authenticated owner, and actual callback after hook. A callback response without unchanged owner/mapping evidence is insufficient. No commit.
+
+**C3.5 execution record (2026-10-05):** The initial focused run passed seven cases and failed account-list scope acceptance because the test omitted its required initial cleanup. Root also identified missing initial cleanups in other cases and an incomplete proof loop that had not dispatched both old/current-key proofs through the callback. These were fixture/test omissions, not demonstrated production defects. The corrections retain all acceptance requirements: each case begins after cleanup, and each reset state now dispatches two genuine callbacks with independently signed proofs and unchanged-database assertions inside the loop. Final focused and root verification both passed eight tests; typecheck, targeted lint and full-file whitespace checks passed. Existing helpers and production files remain unchanged. Source SHA256 `d9e63f32e37f13f4b5f07530d82b68080e73626356e2f21f27c54a970498ccb4`; ignored evidence under `outputs/cloudflare-migration-20261004/c3-5/` preserves the earlier failed/incomplete runs. Independent SPEC PASS was followed by a distinct QUALITY/security and bounded four-file review READY, with no actionable findings. No external provider exchange is exercised by these cancellation callbacks.
 
 ## C3.6: Integrated gate and bounded completion receipt
 
@@ -1038,7 +1040,7 @@ Drafting is read-only except this plan. No acceptance test, runtime probe, build
 - [x] C3.2 actual result and independent reviews recorded by root.
 - [x] C3.3 actual result and independent reviews recorded by root.
 - [x] C3.4 actual result and independent reviews recorded by root.
-- [ ] C3.5 actual result and independent reviews recorded by root.
+- [x] C3.5 actual result and independent reviews recorded by root.
 - [ ] C3.6 actual integrated results and final SPEC then QUALITY verdicts recorded by root.
 
 The public API shapes are source-checked; handler transport integration remains to be executed. Predicted 200/302/303/403/409 statuses and exact denial codes above are acceptance expectations, not observed results. An installed-library discrepancy must be diagnosed and recorded; do not broaden assertions to accept whatever appears. Local authorization and the chosen subagent/review workflow are already established, so no new execution-choice or approval question is needed.
