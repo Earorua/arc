@@ -33,8 +33,19 @@ describe("standalone Cloudflare target", () => {
       r2_buckets: [{ binding: "PROOF_ASSETS", bucket_name: shadow().r2.bucketName }],
       vars: { ARC_ENVIRONMENT: "production", BETTER_AUTH_URL: shadow().runtimeOrigin, ARC_AI_ENABLED: "false", ARC_AI_RESEARCH_ENABLED: "false" },
     });
+    expect(config.secrets).toEqual({ required: [
+      "BETTER_AUTH_SECRET", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET",
+    ] });
     expect(config).not.toHaveProperty("images");
     expect(config).not.toHaveProperty("routes");
+  });
+
+  it("creates a fresh required-name array for each shadow config", () => {
+    const first = createCloudflareConfig(parseRemoteTarget(shadow()));
+    const second = createCloudflareConfig(parseRemoteTarget(shadow()));
+    expect(first.secrets).toEqual(second.secrets);
+    expect(first.secrets).not.toBe(second.secrets);
+    expect(first.secrets?.required).not.toBe(second.secrets?.required);
   });
 
   it.each([
@@ -42,6 +53,7 @@ describe("standalone Cloudflare target", () => {
     ["workerName", "arc-v8-migration-smoke-test"], ["workerName", "arc-v8-migration-shadow-"],
     ["routes", []], ["custom_domains", []], ["triggers", {}], ["services", []], ["workflows", []],
     ["OPENROUTER_API_KEY", "synthetic-secret"], ["vars", { ARC_AI_RESEARCH_ENABLED: "true" }],
+    ["secrets", { required: ["BETTER_AUTH_SECRET"] }],
   ])("rejects invalid or unrecognized field %s", (key, value) => {
     expect(() => parseRemoteTarget({ ...shadow(), [key]: value })).toThrow();
   });
@@ -90,6 +102,7 @@ describe("standalone Cloudflare target", () => {
     expect(config.name).toBe("arc-local-only");
     expect(config.workers_dev).toBe(false);
     expect(config).not.toHaveProperty("account_id");
+    expect(config).not.toHaveProperty("secrets");
     expect(config.vars).toMatchObject({ ARC_ENVIRONMENT: "development", ARC_AI_ENABLED: "false", ARC_AI_RESEARCH_ENABLED: "false" });
   });
 

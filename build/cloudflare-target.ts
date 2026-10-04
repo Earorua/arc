@@ -70,7 +70,12 @@ export function createCloudflareConfig(value: CloudflareTarget): Partial<WorkerC
   const target = value.stage === "local" ? parseLocalTarget(value) : parseRemoteTarget(value);
   return {
     name: target.workerName,
-    ...(target.stage === "shadow" ? { account_id: target.accountId } : {}),
+    ...(target.stage === "shadow" ? {
+      account_id: target.accountId,
+      secrets: { required: [
+        "BETTER_AUTH_SECRET", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET",
+      ] },
+    } : {}),
     main: "./worker/index.ts",
     compatibility_date: "2026-05-15",
     compatibility_flags: ["nodejs_compat"],

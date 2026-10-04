@@ -20,6 +20,7 @@ function manifest(): Record<string, unknown> {
     topLevelName: target.workerName, name: target.workerName, account_id: target.accountId,
     dev: { ip: "127.0.0.1", local_protocol: "http", upstream_protocol: "http", enable_containers: true, generate_types: false },
     compatibility_date: "2026-05-15", compatibility_flags: ["nodejs_compat"],
+    secrets: { required: ["BETTER_AUTH_SECRET", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"] },
     vars: { ARC_ENVIRONMENT: "production", BETTER_AUTH_URL: target.runtimeOrigin, ARC_AI_ENABLED: "false", ARC_AI_RESEARCH_ENABLED: "false" },
     durable_objects: { bindings: [] }, kv_namespaces: [], queues: { producers: [], consumers: [] },
     r2_buckets: [{ binding: "PROOF_ASSETS", bucket_name: target.r2.bucketName }],
@@ -76,6 +77,36 @@ describe("read-only Cloudflare artifact preflight", () => {
     await expect(checkCloudflareBuild(await fixture({ ...manifest(), [key]: value }))).rejects.toThrow();
   });
 
+  it("rejects a missing secrets declaration", async () => {
+    const config = manifest();
+    delete config.secrets;
+    await expect(checkCloudflareBuild(await fixture(config))).rejects.toThrow();
+  });
+
+  const malformedRequired: Array<[string, string[]]> = [
+    ["empty required list", []],
+    ...["BETTER_AUTH_SECRET", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"]
+      .map((missing): [string, string[]] => [`missing ${missing}`, (manifest().secrets as { required: string[] }).required.filter((name) => name !== missing)]),
+    ["extra AI secret", ["BETTER_AUTH_SECRET", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "OPENROUTER_API_KEY"]],
+    ["duplicate name", ["BETTER_AUTH_SECRET", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "BETTER_AUTH_SECRET"]],
+  ];
+  it.each(malformedRequired)("rejects %s", async (_case, required) => {
+    await expect(checkCloudflareBuild(await fixture({ ...manifest(), secrets: { required } }))).rejects.toThrow();
+  });
+
+  it.each([
+    ["unknown nested field", { ...manifest().secrets as object, values: {} }],
+    ["literal secret value", { required: { BETTER_AUTH_SECRET: "do-not-print-this" } }],
+  ])("rejects %s in secrets", async (_case, secrets) => {
+    await expect(checkCloudflareBuild(await fixture({ ...manifest(), secrets }))).rejects.toThrow();
+  });
+
+  it("rejects plaintext auth secret in vars and keep_vars=true", async () => {
+    const config = manifest();
+    await expect(checkCloudflareBuild(await fixture({ ...config, vars: { ...config.vars as object, BETTER_AUTH_SECRET: "do-not-print-this" } }))).rejects.toThrow();
+    await expect(checkCloudflareBuild(await fixture({ ...config, keep_vars: true }))).rejects.toThrow();
+  });
+
   it.each([
     ["ARC_AI_ENABLED", "true"], ["ARC_AI_RESEARCH_ENABLED", "true"], ["ARC_ENVIRONMENT", "development"],
     ["BETTER_AUTH_URL", "https://arcmaps.net"], ["OPENROUTER_API_KEY", "do-not-print-this"],
@@ -122,6 +153,16 @@ describe("read-only Cloudflare artifact preflight", () => {
     const failure = run(options.targetPath);
     expect(failure.status).toBe(1);
     expect(failure.stderr).not.toContain("do-not-print-this");
+    expect(failure.stdout).not.toContain("do-not-print-this");
     expect(failure.stderr.length).toBeLessThan(512);
+    await writeFile(options.targetPath, JSON.stringify(target));
+    const config = manifest();
+    config.secrets = { required: ["BETTER_AUTH_SECRET"], BETTER_AUTH_SECRET: "do-not-print-this" };
+    await writeFile(join(options.rootDirectory, "dist/server/wrangler.json"), JSON.stringify(config));
+    const secretFailure = run(options.targetPath);
+    expect(secretFailure.status).toBe(1);
+    expect(secretFailure.stdout).not.toContain("do-not-print-this");
+    expect(secretFailure.stderr).not.toContain("do-not-print-this");
+    expect(secretFailure.stderr.length).toBeLessThan(512);
   });
 });

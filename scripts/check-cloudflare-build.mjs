@@ -58,7 +58,7 @@ export async function checkCloudflareBuild(options = {}) {
     main: "index.js",
     assets: { binding: "ASSETS", directory: "../client" },
   };
-  // Exact comparison rejects unknown keys (including secrets) at every depth,
+  // Exact comparison rejects unknown keys, secret values and extra secret names at every depth,
   // extra resource bindings, live origins, and any changed runtime flags.
   if (!isDeepStrictEqual(generated, expected)) throw new Error("Generated Cloudflare config does not match the shadow target.");
   await requireFile(join(serverDirectory, "index.js"));

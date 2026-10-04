@@ -1,5 +1,7 @@
 # 独立测试站登录配置
 
+**2026-10-04恢复：** 用户明确继续迁移，并确认五项Cloudflare Secret尚未配置，已重新给出逐项配置指引。Bitwarden随机值已保存，不重新生成。密钥继承本地产物预检、102项回归、4项页面/客户端测试、类型与定向lint均已通过；最终独立整合审查READY，无阻断项。提交备份结果以主恢复检查点记录为准。本轮没有代码部署；Paid仍待核实，但不阻碍这一配置步骤。下方2026-09-24暂停状态为历史。
+
 2026-09-22。只配置新测试站，不替换旧站密钥、不删除旧回调、不切换 arcmaps.net。用户已确认能进入原 Google/GitHub 应用，且两份 Client Secret 均有保存。不要把任何秘密值发到聊天或写入项目文件。
 
 ## 当前目标
@@ -14,9 +16,15 @@ Worker：`arc-v8-migration-shadow-20260922`。
 
 ## 第一步：保存新的测试站登录密钥
 
-在 Bitwarden 新建一条名为 `Arc Cloudflare shadow BETTER_AUTH_SECRET 20260922` 的记录，用密码生成器生成并保存一段64字符随机值。这是本测试站的应用登录密钥，不是 OpenRouter Key，也不是之前的演练密钥A/B/C。不要复用它们。
+BETTER_AUTH_SECRET是Arc服务器用于登录会话签名和保护认证数据的随机密钥，由服务器使用，用户无需记忆。它只用于这个独立测试站；不要复用OpenRouter Key或演练密钥A/B/C。
 
-此时只需回复“测试站登录密钥已保存”，不用发送值。原BETTER_AUTH_SECRET未找到的问题仍按单独的账户迁移方案处理；新随机值不能解密原站已有OAuth令牌。
+2026-09-24用户已确认保存到以下Bitwarden记录；第一步完成，不要重新生成或覆盖。2026-10-04用户确认Cloudflare五项Secret尚未配置，当前从第二步继续。以下生成操作保留供参考：
+
+1. 登录原先使用的Bitwarden网页版，搜索 `Arc Cloudflare shadow BETTER_AUTH_SECRET 20260922`。若同名记录已经保存随机值，保留它，不重复生成或覆盖。
+2. 若没有，进入 **工具Tools → 生成器Generator**，选择 **密码Password**，长度设为 **64**，启用大写字母、小写字母和数字，生成并复制。
+3. 回到密码库，新建 **安全笔记**，名称填写上述完整名称，将生成内容粘贴到备注，再点击保存。不要只停留在生成器历史中。
+
+用户已回复“已保存”，不用再次确认生成或发送值。原BETTER_AUTH_SECRET未找到的问题仍按单独的账户迁移方案处理；新随机值不能解密原站已有OAuth令牌。
 
 ## 第二步：在指定 Worker 配置
 
@@ -60,14 +68,16 @@ https://arc-v8-migration-shadow-20260922.23711031.workers.dev/api/auth/callback/
 
 本次先在已有部署上配置和测试登录，不需要重传代码。添加Secret后，不直接复用最初没有认证配置的构建产物进行代码部署。
 
-锁定Wrangler4.92.0源码中，普通deploy的keepSecrets取决于keepVars或secretsFile；单独配置secrets.required时，addRequiredSecretsInheritBindings会为缺失于本地bindings的指定名称建立inherit绑定。当前构建尚未声明这五个名称，因此不能假定后续普通代码deploy必定继承Dashboard配置。
+锁定Wrangler4.92.0源码中，普通deploy的keepSecrets取决于keepVars或secretsFile；单独配置secrets.required时，addRequiredSecretsInheritBindings会为缺失于本地bindings的指定名称建立inherit绑定。2026-09-24本地实现已声明五个名称，B1独立SPEC和QUALITY/安全审查通过；修改尚未提交推送部署，不能据此认定远端Secret存在或实际继承成功。
 
-下一次代码部署前，在构建配置和产物预检中以测试驱动方式显式声明这五项必需Secret名称，并完成独立规格及质量审查；核对原生远端绑定名称/类型和四项普通变量，验证缺失Secret时拒绝部署。该小项尚未实施，不阻碍在现有版本上进行Dashboard配置。不要用包含真实值的本地文件，也不要通过keep-vars无差别保留未知运行开关。完成这些检查后才部署代码，并再次核对五项Secret名称仍在。
+2026-10-04已重新通过Root102项整合测试、类型/定向lint，并对9月24日实际shadow构建完成严格产物预检及4项rendered/client测试，记录了92个文件的哈希；未重复构建，也未修改旧部署回执。B2最后整合审查和提交备份正在收尾。参见2026-09-24-cloudflare-auth-secret-inheritance.md。下一次代码部署前仍须核对原生远端绑定名称/Secret类型和四项普通变量，并验证缺失Secret时拒绝部署；离线测试没有证明远端行为。不阻碍在现有版本上进行Dashboard配置。不要用包含真实值的本地文件，也不要通过keep-vars无差别保留未知运行开关。完成这些检查后才部署代码，并再次核对五项Secret名称仍在。
 
-独立质量/安全复核：当前保存新秘密以及Dashboard配置后测试既有代码的流程PASS；普通代码重部署的继承保证尚未就绪。锁定源码依据为cli.js:299192（按名称inherit）、308314（普通deploy的keepSecrets）、162846（keep_bindings）及308424/308481（bindings_inherit=strict）。版本上传路径的keepSecrets:true不能用于推断普通deploy。离线审查没有证明服务端必定删除，只确认不能保证自动保留。审查提出的Dashboard部署与代码部署区分已补充到第二、四步。
+独立质量/安全复核：保存新秘密以及Dashboard配置后测试既有代码的流程PASS；本地继承实现B1已双审通过，10月4日最终独立整合审查READY，远端继承尚未验收。锁定源码依据为cli.js:299192（按名称inherit）、308314（普通deploy的keepSecrets）、162846（keep_bindings）及308424/308481（bindings_inherit=strict）。版本上传路径的keepSecrets:true不能用于推断普通deploy。离线审查没有证明服务端必定删除，只确认不能保证自动保留。Dashboard部署与代码部署区分见第二、四步。
 
 官方依据（2026-09-22查阅）：
 - https://developers.cloudflare.com/workers/configuration/secrets/
 - https://github.blog/changelog/2026-08-14-multiple-redirect-uris-and-token-refresh-for-oauth-apps/
 - https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app
 - https://developers.google.com/identity/protocols/oauth2/web-server
+
+Bitwarden生成器操作于2026-09-24核对：https://bitwarden.com/help/generator/ 。如需要截图辅助定位，只提供不含生成值的界面。
