@@ -967,7 +967,7 @@ Expected: eight cases pass. The two phase controls must settle as `OAUTH_CANCELL
 
 **Files:** Update only this plan's execution receipt after the commands and reviews actually finish. Do not prefill passing totals or claim full migration readiness.
 
-- [ ] **Step 1: Run all C1/C2/C3 auth and existing protection suites together.**
+- [x] **Step 1: Run all C1/C2/C3 auth and existing protection suites together.**
 
 ```powershell
 npm run test:unit -- tests/server/auth-migration-cleanup.test.ts tests/server/auth-migration-runtime.test.ts tests/server/auth-migration-identity.test.ts tests/server/auth-migration-credentials.test.ts tests/server/auth-migration-oauth-state.test.ts tests/server/auth-migration-link-reset.test.ts tests/server/auth-migration-link-callback.test.ts tests/server/auth-runtime.test.ts tests/server/account-link-crypto.test.ts tests/server/account-link-service.test.ts tests/server/account-link-auth-hooks.test.ts tests/server/d1-account-link-repository.test.ts tests/api/auth-link-bypass.test.ts tests/db/schema.test.ts
@@ -975,7 +975,7 @@ npm run test:unit -- tests/server/auth-migration-cleanup.test.ts tests/server/au
 
 Expected: all selected tests pass and the global fetch guards remain uncalled. Record the actual suite/test totals, including any initially failing runs and their explained fixture repair or unresolved production defect. Do not run the unrelated build, provider authentication, remote database operations, or full application release gates as part of this test-only task.
 
-- [ ] **Step 2: Run type, focused lint, and whitespace checks.**
+- [x] **Step 2: Run type, focused lint, and whitespace checks.**
 
 ```powershell
 npx tsc --noEmit --incremental false
@@ -987,9 +987,11 @@ git diff --stat
 
 Expected: no type/lint/whitespace errors and only the planned test/helper/document files changed. Never print auth contexts, tokens, fixture row payloads, raw SQL errors or cookie/proof values into an execution summary. Assertion failures are local synthetic evidence; human summaries retain only check names, bounded error categories and counts.
 
-- [ ] **Step 3: Perform the final integrated SPEC review, then a separate QUALITY/security review.** SPEC checks every matrix item below; QUALITY checks that the tests can fail for the intended reason, global state restoration, no hidden fallback mocks, fixed timestamps, scope accounting, no network, and unchanged production/dependency/schema/engine files. Address fixture/test defects within this scope; report production defects instead of silently changing auth behavior.
+- [x] **Step 3: Perform the final integrated SPEC review, then a separate QUALITY/security review.** SPEC checks every matrix item below; QUALITY checks that the tests can fail for the intended reason, global state restoration, no hidden fallback mocks, fixed timestamps, scope accounting, no network, and unchanged production/dependency/schema/engine files. Address fixture/test defects within this scope; report production defects instead of silently changing auth behavior.
 
-- [ ] **Step 4: Record only achieved evidence in the execution receipt.** Include command names, actual totals/results, review verdicts, any bounded API/fixture corrections, and remaining release gates. Explicitly state that synthetic public-helper login success is not a full OAuth callback success; cancellation callbacks prove state and Arc finish rejection/settlement without external exchange. Default-signup success for a changed subject/new email is a failed preservation scenario. C3 completion does not configure Secrets, establish original provider subject continuity, recover/export/restore real data, verify Paid status, enable Research, change DNS, or complete cutover. Root decides the reviewed commit/backup separately under existing authorization.
+- [x] **Step 4: Record only achieved evidence in the execution receipt.** Include command names, actual totals/results, review verdicts, any bounded API/fixture corrections, and remaining release gates. Explicitly state that synthetic public-helper login success is not a full OAuth callback success; cancellation callbacks prove state and Arc finish rejection/settlement without external exchange. Default-signup success for a changed subject/new email is a failed preservation scenario. C3 completion does not configure Secrets, establish original provider subject continuity, recover/export/restore real data, verify Paid status, enable Research, change DNS, or complete cutover. Root decides the reviewed commit/backup separately under existing authorization.
+
+**C3.6 execution record (2026-10-05):** The exact fourteen-file command above passed 255 tests together. Typecheck, the eight-file focused lint command and whitespace checks exited 0. The gate ran once at `0e47738e43a884a28b417a3dcd80f56d8948c5d5`, with a clean checkout before and after and identical recorded source hashes. Commands used offline npm and disabled update notifications; the tests' unused-fetch guards passed, which is not a process-wide network audit. Ignored evidence is in `outputs/cloudflare-migration-20261004/c3-6/`; the initially empty-output type/lint runs are recorded in commands.txt with exit 0, and their empty log files were created afterward. Earlier C3 task failures and corrections remain in their individual evidence directories. Final independent integrated SPEC PASS was followed by a distinct QUALITY/security READY, with no actionable findings; all eleven acceptance-matrix rows were checked and all twenty-nine recorded source hashes matched. Public-helper identity results and cancellation callbacks do not prove successful external OAuth exchange, real source export/restore, original-user continuity, Paid activation, public Research or cutover. Root controls the reviewed completion receipt and backup separately.
 
 ## Coverage and source evidence
 
@@ -1026,7 +1028,7 @@ Read-only local source evidence, inspected during drafting:
 
 ## Draft self-review and execution receipt
 
-Drafting is read-only except this plan. No acceptance test, runtime probe, build, commit, provider request or cloud write was executed by the plan author. Existing C1/C2 results belong to their recorded checkpoint, not this unexecuted C3 plan.
+The drafting phase was read-only except this plan. The plan author had not executed acceptance tests, runtime probes, builds, commits, provider requests or cloud writes at that point. The task-specific execution records above now contain the observed C3 results; existing C1/C2 history remains in its own checkpoint. Final integrated reviews are tracked below.
 
 - [x] Checked both parent specs and mapped every remaining C3 requirement to a task above.
 - [x] Inspected installed exports and relevant real source before selecting public APIs; no internal deep-import workaround or query mock is proposed.
@@ -1041,6 +1043,6 @@ Drafting is read-only except this plan. No acceptance test, runtime probe, build
 - [x] C3.3 actual result and independent reviews recorded by root.
 - [x] C3.4 actual result and independent reviews recorded by root.
 - [x] C3.5 actual result and independent reviews recorded by root.
-- [ ] C3.6 actual integrated results and final SPEC then QUALITY verdicts recorded by root.
+- [x] C3.6 actual integrated results and final SPEC then QUALITY verdicts recorded by root.
 
-The public API shapes are source-checked; handler transport integration remains to be executed. Predicted 200/302/303/403/409 statuses and exact denial codes above are acceptance expectations, not observed results. An installed-library discrepancy must be diagnosed and recorded; do not broaden assertions to accept whatever appears. Local authorization and the chosen subagent/review workflow are already established, so no new execution-choice or approval question is needed.
+During drafting, the public API shapes and transport statuses were source-checked expectations. C3.1–C3.5 have now exercised the planned local integration, and C3.6 has recorded the combined passing gate with final independent SPEC PASS followed by distinct QUALITY/security READY. Any later installed-library discrepancy must still be diagnosed and recorded without broadening assertions. These results are synthetic local evidence and do not establish external OAuth success or migration/cutover readiness. Local authorization and the chosen subagent/review workflow remain established.
