@@ -1,5 +1,11 @@
 # 独立测试站登录配置
 
+**2026-10-05 最新：Google 真实登录及刷新会话已通过，GitHub 已到官方登录页待用户接手。** 迁移树基线 9f281c607dddbac0b1293d60a4b3240a0aa99b08 已备份且本轮实查干净。Google 密钥由用户按 Markdown 预览值私下修正，当前部署版本 458830cc-bfed-4d31-9b9d-de0269c9bcbc；详情及安全证据见 cloudflare-auth-diagnostic-2026-10-05.md。随后真实账户菜单显示 Google connected，GitHub 尚未关联。代理仅点击 Sign out 验证退出，页面出现 Sign in，再到登录页点击一次 Continue with GitHub，实际跳转 github.com/login，显示账号/密码输入和 Sign in。GitHub 回调还未发生，不能算登录成功；已请用户用原 Arc GitHub 账号完成个人登录，遇授权页先停留供权限核对，或报告自动返回测试站。未点击 Link GitHub，不按邮箱合并。没有模型请求或源数据/DNS变更。
+
+当前等待的是 GitHub 个人登录，旧 Google 私下核对阻塞已解除。完整发布目标仍 active。本轮已实际完成退出及 GitHub 入口验证，不是全目标完成；Workers Paid、源数据完整导出恢复、原账号连续性和公开 Research 独立门槛仍未通过。现有 connector 没有 Cloudflare 套餐查询；原生 usage_model=standard 不能证明 Paid，未为核实而创建凭据或购买套餐。保留 IAB2 的页3 Google、页4 GitHub登录、页5 Cloudflare登录；用户输入密码/验证码期间不检查页面字段。
+
+以下为历史配置记录，当前登录结论以上述更新为准。
+
 **2026-10-04 23:37 北京时间最新核验：五项 Secret 已全部配置并生效。** 用户逐项配置后，原生 Secret 列表及当前部署绑定均确认 BETTER_AUTH_SECRET、GOOGLE_CLIENT_ID、GOOGLE_CLIENT_SECRET、GITHUB_CLIENT_ID、GITHUB_CLIENT_SECRET 恰好五项 secret_text。最后一项最初为 plain_text，已由用户修正；不要重复要求配置或重新生成。当前 Dashboard 部署版本 `72fbb334-c989-40b3-ade1-008e92811a9e`，100% 流量。DB/R2/ASSETS、四项普通变量及两个 false 开关均匹配，脚本 etag 与原 a57455f 部署相同，没有代理代码重部署。匿名 providers 接口 HTTP200、恰好 google/github；这不证明凭据值有效或真实登录成功。
 
 **当前定位第四步 Google 登录未完成。** 用户已分别回复 Google、GitHub 精确 shadow 回调新增完成；按指引保留旧地址，GitHub 新增项不启用 wildcard matching。随后用户报告 Google 按钮无反应、Network 200，再确认 `accounts.google.com` 的 auth 请求为 302，页面仍是 Arc 登录页。Root 匿名公开页面/脚本 GET 正常，匹配 UI 参数的 social-start POST 返回 200、redirect:true 和 Google 授权主机；未跟随授权地址或交换凭据，只保存安全投影。一项 HttpClient TLS 失败和后续 curl 成功保留，浏览器控制超时。用户未找到 Type 列，已提供官方 Chrome 表头右键显示 Type 的指引；另已询问当前 Arc 地址末尾是否有 error=…，只需布尔回复，不收完整网址。当前等待这两种有限观察之一，无需重试；根因未确定，不据 200/302 宣称真实登录成功，也不因此重置密钥。诊断在 ignored `outputs/cloudflare-migration-20261004/login-click-diagnostic/`。五项 Secret 核验证据见同目录上一级的 `auth-secrets-corrected-observation.json`、`auth-deployment-corrected-observation.json`、`auth-version-corrected-observation.json`、`auth-providers-observation.json`。真实登录、完整原账号/数据迁移和 Paid 生效仍未核实。没有显示秘密值，修正前的观察保留。下方尚待五项配置等描述均为历史。

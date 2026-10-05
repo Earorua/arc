@@ -1,5 +1,11 @@
 # Authentication migration readiness
 
+## October 5 actual Google login and pending GitHub login
+
+The user corrected only the shadow GOOGLE_CLIENT_SECRET after identifying a Markdown escaped underscore in their private saved note. Native metadata verifies version 458830cc-bfed-4d31-9b9d-de0269c9bcbc, all five secret_text bindings, expected storage/vars and both AI flags false. One real Google login reached /today; the account menu reports Google connected, and a page reload preserves the session. This proves shadow Google authentication, not imported identity continuity. No secret values were read.
+
+The actual Sign out control returned the page to an anonymous Sign in state. One Continue with GitHub action then reached github.com/login. The user must now complete their personal GitHub login; an authorization page, if shown, must be inspected before expanding access. No GitHub callback or linking operation has occurred, so GitHub acceptance remains pending. See cloudflare-shadow-auth-setup.md and cloudflare-auth-diagnostic-2026-10-05.md for the current operational result; older pending-Google statements below are historical.
+
 ## October 4 local rehearsal progress
 
 C1 synthetic cleanup is implemented and independently reviewed: SPEC PASS, then a distinct QUALITY/security reviewer READY. Root ran the cleanup and schema suites together: 64 tests passed; the implementer's final cleanup suite has 46 passing tests, with typecheck and targeted lint exit 0. Exact source/destination row snapshots, ownership and account mapping preservation, bounded rollback failures and zero-write repeated application are covered. All data is synthetic and local.
