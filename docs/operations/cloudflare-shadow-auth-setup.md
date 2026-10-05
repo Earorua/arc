@@ -1,5 +1,9 @@
 # 独立测试站登录配置
 
+**2026-10-05 更新：Workers Paid 已确认是当前套餐，Google/GitHub 测试站登录及刷新保持均已通过。** Workers plans 页面显示 Paid / Current plan、Free / Downgrade；客服 case 02342328 确认后端自 2026-09-22 激活，首次发票为 $0 且已支付，Processing 属于控制台显示同步问题。不要重复购买。首次零元不代表持续免费；试用结束和续费时间未核验。下方 Paid 未验证、等待 Cloudflare 登录等描述均为历史。
+
+Paid 与旧演练的最新证据、后续范围见 [迁移记录](cloudflare-migration-stage-a.md)。真实旧账号/数据连续性仍需单独验收。
+
 **2026-10-05 最新：Google 与 GitHub 均已通过测试站真实登录和刷新会话验收。** 用户完成 GitHub 个人登录后曾返回登录方式页，再自行选择 Continue with GitHub 后进入 Today；中间返回原因未观测，不推断为密钥或回调错误。Root 在原 IAB2 页4实际展开账户菜单，确认 GitHub connected、Sign out、shadow /today、无允许列表中的错误码；刷新后再次展开，四项结果保持。本轮代理没有再发起登录、没有读取凭据或操作账户关联。安全证据：迁移树 outputs/cloudflare-migration-20261005/auth-diagnostic/github-login-success.json。旧“等待 GitHub 个人登录”的前置条件已解除。
 
 下一步只读核对 Workers Paid。原 IAB2 页5现仍为 dash.cloudflare.com/login，已请用户登录持有 arcmaps.net 的原账户并回复进度；不重新订阅/购买，不读取个人密码/验证码。页3 Google控制台、页4已登录测试站、页5Cloudflare均保留。真实旧账号/数据连续性、完整源 D1/R2 导出恢复、Paid生效与公开Research发布仍未通过；本轮没有模型调用、DNS/源数据/旗标变更。下方登录等待状态为历史；goal工具本轮仍报告上一阶段的blocked，未将全目标标记完成，也不把该管理状态当作当前GitHub失败。

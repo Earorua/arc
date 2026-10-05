@@ -1,5 +1,9 @@
 # Authentication migration readiness
 
+**2026-10-05 更新：Workers Paid 已确认是当前套餐，Google/GitHub 测试站登录及刷新保持均已通过。** Workers plans 页面显示 Paid / Current plan、Free / Downgrade；客服 case 02342328 确认后端自 2026-09-22 激活，首次发票为 $0 且已支付，Processing 属于控制台显示同步问题。不要重复购买。首次零元不代表持续免费；试用结束和续费时间未核验。下方 Paid 未验证、等待 Cloudflare 登录等描述均为历史。
+
+These shadow login checks do not prove original owner continuity. See the latest section of cloudflare-migration-stage-a.md for Paid and original smoke final-state evidence; complete source export/restore and cutover remain pending.
+
 ## October 5 both live sign-in providers accepted
 
 The user completed the GitHub login handoff and selected Continue with GitHub again after an intermediate return to the provider-selection page. Root verified the actual shadow /today page and its open account menu: GitHub connected and Sign out are present, with no allowlisted OAuth error query values. Reloading the page and reopening the menu preserves those results. The intermediate return cause was not observed; no credential values were read and no linking or email-based merge was attempted. The earlier Google login and refresh acceptance is also retained.

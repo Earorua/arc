@@ -1,5 +1,21 @@
 # Arc standalone Cloudflare migration evidence
 
+## 2026-10-05: Paid confirmed and original smoke failure reconciled
+
+**2026-10-05 更新：Workers Paid 已确认是当前套餐，Google/GitHub 测试站登录及刷新保持均已通过。** Workers plans 页面显示 Paid / Current plan、Free / Downgrade；客服 case 02342328 确认后端自 2026-09-22 激活，首次发票为 $0 且已支付，Processing 属于控制台显示同步问题。不要重复购买。首次零元不代表持续免费；试用结束和续费时间未核验。下方 Paid 未验证、等待 Cloudflare 登录等描述均为历史。
+
+The read-only browser check found support case 02342328 in Engineering Investigation, last modified September 30 at 01:25 Beijing time. The September 24 reply confirms backend activation, a paid zero-dollar setup invoice under trial terms, and a dashboard synchronization mismatch affecting Workers Paid and Images Stream Basic. No payment, subscription change or support message was sent. Safe receipt: outputs/cloudflare-migration-20261005/auth-diagnostic/paid-plan-support-verification.json. Account-plan evidence is not a CPU-duration measurement or a new Workflow acceptance result.
+
+原 9 月 21 日 after-D1 演练 ...0153 的新鲜原生只读核验已完成：failed/interrupted、import phase5、active slot 已释放、唯一 failed/0-unit 配额终态、预算 settled 一次、交付确认和正文清理已完成；没有 Ready package。原 reserved 行为追加式账本历史，不是仍未结算；expiry-recovery 无记录，不把迟到 receipt 的收尾路径宣称为 expiry scanner 验收。原失败不得改判成功，也不能据此证明 Paid 下的新故障成功恢复。证据详见 cloudflare-migration-stage-a.md 最新节。
+
+At 09:49:35–09:49:41Z, eight fixed metadata/SELECT projections succeeded with zero writes. A supplementary single SELECT at 09:50:58–09:51:00Z confirmed exactly one failed quota terminal row with zero units, matching the import resolution. The original synthetic provider call count remains one, repair count zero. Recorded terminal/cleanup timestamps are September 21, not a new action triggered by this read: failed at 11:11:40Z, import complete at 11:12:40Z, delivery acknowledged at 11:14:32Z and body removal recorded at 11:14:36Z. We did not perform a new R2 object probe or re-establish Cron provenance/Workflow status; prior history remains intact. Execution closed_at is null and the separate expiry-recovery table has no row; this observation is the completed receipt-import failure path, not proof of that separate expiry path.
+
+Evidence remains in the original Research worktree under outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20260921/long-run/: native-after-d1-upgrade-check-20261005.json and native-after-d1-quota-20261005.json, with corresponding bounded collectors. The old collector and all earlier observations were preserved. Each collector uses the fixed isolated resource IDs/config hashes, neutral CLI directory, existing process proxy, no dev vars or raw stderr output, and no automatic retry. No application source, cloud bindings, data, AI flags or DNS were changed.
+
+下一步：恢复此前用户明确暂缓的六步签名回放本地实施（重复提交、状态读取、A/B 找回与隔离），候选设计已有独立 PASS，但仍待用户解除“先完成套餐升级，暂不实施”的暂缓指令。此时尚未实施/部署回放、未启动新演练或真实模型请求；新的 Paid 成功补测资源及操作需另行核对。旧账号与完整源 D1/R2 导出恢复、域名切换和公开 Research 验收仍未完成。
+
+The reviewed candidate is in the Research worktree at docs/superpowers/specs/2026-09-21-arc-v8-cloud-smoke-replay-design.md; design SHA256 fa5e7c81fb575a94d03a314d260f521f15b05d484210fcc5c491b30264e858aa. Its independent review PASS is design-only. The historical title paragraph still says pending review; the dated review receipt is authoritative for review status, while the user's local implementation deferral remains in effect.
+
 Date: 2026-09-22. This is an isolated migration rehearsal of the public Research-closed baseline, not a production cutover or completed data migration.
 
 ## Source and local baseline
