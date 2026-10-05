@@ -12,9 +12,13 @@ Google Arc Web 原站和测试站回调已通过真实浏览器核对，测试�
 
 ## 本地与部署门槛
 
-Task 1 已完成并备份；Task 2 收集器正在实施，没有新代码部署。真实 callback 首次有效 RED：原 marker 仅为 `[Arc Auth] ERROR`，预期分类 invalid_client/401；此前 state、请求字段、单次兑换、原重定向与数据库不变断言通过。随后 formatter RED 为 46 failed / 28 passed；GREEN 及独立复核均为 6 文件 / 97 项通过（67 formatter、7 genuine callback，另有原有回归），类型与限定 lint 通过。独立 SPEC PASS 后不同 QUALITY/security READY，零未解决问题。提交 `1a465ee7fecf3c3e9e4daf75146469565437d9d1` 已推送 GitHub 同名迁移分支并 ls-remote 匹配；未合并 master。
+Task 1 已完成并备份；Task 2 收集器完成 SPEC 与不同 QUALITY/安全复审，提交 bddd676；最终独立整合审查 READY；部署待执行。真实 callback 首次有效 RED：原 marker 仅为 `[Arc Auth] ERROR`，预期分类 invalid_client/401；此前 state、请求字段、单次兑换、原重定向与数据库不变断言通过。随后 formatter RED 为 46 failed / 28 passed；GREEN 及独立复核均为 6 文件 / 97 项通过（67 formatter、7 genuine callback，另有原有回归），类型与限定 lint 通过。独立 SPEC PASS 后不同 QUALITY/security READY，零未解决问题。提交 `1a465ee7fecf3c3e9e4daf75146469565437d9d1` 已推送 GitHub 同名迁移分支并 ls-remote 匹配；未合并 master。
 
 最初类型检查的 BigInt 字面量及 lint 未用参数问题已在实施时修正。成功命令无输出，Tee-Object 遗留旧输出导致回执失真；旧失败分别保存为 historical 文件，已重新验证并写入含时间和退出码的成功回执。不得将旧日志误作当前失败，也不得丢弃失败历史。
+
+Task 2 首次独立 QUALITY 发现终端 stdout 异步错误可能绕过子进程清理（Q1）。实施者先复现 RED，再加入输出错误监听、写入回调及待完成写入跟踪，确保关闭私有流、终止并等待子进程关闭。同步 throwing emit 回归也已补齐；56 项测试通过，SPEC 复审 PASS → 不同 QUALITY/安全复审 READY，Q1 已关闭；原始失败与 52/55 项历史保留。Root 最终相关测试为 97 项认证 + 56 项收集器全部通过，类型检查及七文件 lint 均 exit 0。
+
+本轮 shadow 实际构建、严格预检均 exit 0，现有页面检查 4/4 通过。92 个 dist 文件及八个构建/应用源文件哈希保存在 `outputs/cloudflare-migration-20261005/auth-diagnostic/artifact-manifest.json`，清单 SHA256 为 `595b079ba5d751a6e959ae6338551771b85c06ed148c52445d0c3ac35dc04635`。构建包含已提交的诊断 formatter；之后改动仅本地收集器和测试，不进入 Worker 包。部署前必须再次匹配全部哈希，五项 required Secret 名称、四项变量与隔离绑定保持精确限制。
 
 按顺序完成：新 formatter / genuine callback 测试 → 独立 SPEC → 不同 QUALITY/security；安全收集器同样 TDD/双审；相关回归、类型、限定 lint、实际 shadow 构建和严格预检；最终独立整合审查。未通过前不部署。
 
@@ -46,3 +50,7 @@ node scripts/cloudflare-migration/auth-tail.mjs
 有限诊断的完成条件是本地门槛、审查、限定部署均通过，并取得实际可行动错误类别或验证登录成功。当前尚未达到。即使测试站登录成功，旧账号连续性、源数据完整导出恢复、Workers Paid 生效及 Research 公开发布仍是后续独立验收，不可混为已经完成。
 
 本轮安全证据存于 ignored `outputs/cloudflare-migration-20261005/auth-diagnostic/`。
+
+## 最终整合门槛通过
+
+2026-10-05T03:03:03Z，独立最终审查 READY、零未解决问题。审查者重新验证 97+56 项测试、九项离线操作脚本探针、操作脚本语法与严格预检，并逐一匹配 92 个构建文件、八个源文件及三个操作脚本哈希。报告 final-integration-review.json 保存在本轮 ignored 证据目录。03:01:13Z 新鲜原生配置检查 accepted=true，旧版本仍为 72fbb334-c989-40b3-ade1-008e92811a9e。准备提交说明、备份迁移分支后部署；本段不构成云部署或登录成功证明。

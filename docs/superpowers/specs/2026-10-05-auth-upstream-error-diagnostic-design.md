@@ -1,6 +1,6 @@
 # Bounded authentication upstream-error diagnosis
 
-Status: approved by the user on 2026-10-05 ("批准有限诊断"). Implementation and diagnostic deployment are pending the plan's TDD and independent review gates.
+Status: approved by the user on 2026-10-05 ("批准有限诊断"). Local implementation passed TDD, SPEC and distinct QUALITY/security reviews. Final integration review and isolated diagnostic deployment remain pending.
 
 ## Problem and verified context
 
@@ -104,6 +104,10 @@ If the operator's private configuration check resolves login first, do not deplo
 - `node_modules/wrangler/wrangler-dist/cli.js`: `shouldLogToDisk` at 49773, JSON logger at 49853, disk-write guard at 49923, full pretty/JSON tail event emitters at 240824–240898. These sources require private framing/projection in addition to disabling disk logs.
 - Google official token endpoint reference: https://developers.google.com/identity/openid-connect/reference
 
-Self-review: no credential-changing action, unbounded diagnostic field, whole-request capture, source-data migration, public release claim or expanded paid-request authorization is part of this design. Implementation and deployment remain unperformed.
+Self-review: no credential-changing action, unbounded diagnostic field, whole-request capture, source-data migration, public release claim or expanded paid-request authorization is part of this design. This original design self-review preceded implementation. Current execution status is recorded at the top and in the implementation plan.
 
 Independent design review proposed two targeted revisions: require the real callback seam and specify safe Wrangler collection. Both are incorporated above. The ignored report is `outputs/cloudflare-migration-20261005/diagnostic-design-review.json`; this design review does not replace implementation SPEC/QUALITY reviews or user design approval.
+
+### Collector termination clarification
+
+The 300-second bound applies to receiving/projecting log data. At every terminal condition the collector destroys private stdout/stderr streams immediately. It requests same-user native SIGKILL and confirms child close before claiming cleanup. If the OS refuses termination (kill false/throw), emit fixed child-failure, retain private error guards, and wait for actual close; do not claim successful cleanup, detach an orphan, retry collection or start the login attempt. An OS-level kill refusal requires operator/controller intervention and can keep cleanup waiting beyond the collection deadline. Synthetic refusal-then-close tests must prove no subsequent input is projected. This is an explicit failure condition, not a guarantee that software can override OS process termination policy.
