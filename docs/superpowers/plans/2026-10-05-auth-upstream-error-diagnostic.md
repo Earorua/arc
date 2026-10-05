@@ -1,6 +1,6 @@
 # Bounded Authentication Diagnostic Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Obtain an actionable, secret-free observation of the shadow site's real Google login failure without changing authentication policy.
 
@@ -154,15 +154,15 @@ node --experimental-strip-types scripts/check-cloudflare-build.mjs cloudflare.sh
 
 Expected: build and exact-target preflight exit 0. Record SHA256 for deployed dist files and relevant source; do not read or package real env files. Verify five required Secret names, four plain vars, isolated DB/R2/ASSETS and both AI flags false in generated config. No auth payload fixtures in dist.
 - [x] Create `docs/operations/cloudflare-auth-diagnostic-2026-10-05.md` describing approved scope, commands above, collector exact command `node scripts/cloudflare-migration/auth-tail.mjs`, its permitted fields and inconclusive timeout semantics. Add actual test/build evidence; do not preclaim cloud success.
-- [ ] Final independent integration reviewer examines all implementation, tests, collector, build metadata and operational sequence; fix issues with required regression/re-review. Root commit and authorized migration-branch backup; verify remote HEAD rather than assume push success.
+- [x] Final independent integration reviewer examines all implementation, tests, collector, build metadata and operational sequence; fix issues with required regression/re-review. Root commit and authorized migration-branch backup; verify remote HEAD rather than assume push success.
 
 ### Task 4: Shadow-only deployment and one observed login
 
-- [ ] Fresh native metadata check, restricted projection only: current version/rollback target, exactly five secret names/types, four known plain vars and isolated bindings. Follow existing secret-inheritance path documented in `docs/operations/cloudflare-auth-secret-inheritance-2026-10-04.md` and `cloudflare-shadow-auth-setup.md`. Unknown differences stop deployment for diagnosis.
-- [ ] Deploy only reviewed `dist/server/wrangler.json` artifact with locked CLI, child log/metrics/reporting flags off and no raw credential output. Recheck hashes immediately before deployment. Preserve required Secrets through the reviewed path. Record resulting version and verify names/types/bindings, public pages and provider availability. Do not interpret configuration presence as working credentials.
-- [ ] Run reviewed collector, then use Computer Use to open the shadow sign-in page for one Google attempt. Operator handles personal authentication if needed. Stop collector after the attempt (or 300 s maximum); do not repeat login automatically or collect raw URLs/HAR. Record only safe category/status/native outcome and verified logged-in UI where available.
-- [ ] Interpret measured evidence: invalid_client => private pair check; invalid_grant => investigate code/redirect/PKCE; generic/missing/timeout => unknown, not network proof. Record next evidence-driven step. If no actionable observation, task remains incomplete.
-- [ ] Update M operations note and W recovery documents with exact HEAD, gates, deployment and safe result; commit/backup only reviewed M paths. Goal remains active until the broader public Arc release actually passes.
+- [x] Fresh native metadata check, restricted projection only: current version/rollback target, exactly five secret names/types, four known plain vars and isolated bindings. Follow existing secret-inheritance path documented in `docs/operations/cloudflare-auth-secret-inheritance-2026-10-04.md` and `cloudflare-shadow-auth-setup.md`. Unknown differences stop deployment for diagnosis.
+- [x] Deploy only reviewed `dist/server/wrangler.json` artifact with locked CLI, child log/metrics/reporting flags off and no raw credential output. Recheck hashes immediately before deployment. Preserve required Secrets through the reviewed path. Record resulting version and verify names/types/bindings, public pages and provider availability. Do not interpret configuration presence as working credentials.
+- [x] Run reviewed collector, then use Computer Use to open the shadow sign-in page for one Google attempt. Operator handles personal authentication if needed. Stop collector after the attempt (or 300 s maximum); do not repeat login automatically or collect raw URLs/HAR. Record only safe category/status/native outcome and verified logged-in UI where available.
+- [x] Interpret measured evidence: invalid_client => private pair check; invalid_grant => investigate code/redirect/PKCE; generic/missing/timeout => unknown, not network proof. Record next evidence-driven step. If no actionable observation, task remains incomplete.
+- [x] Update M operations note and W recovery documents with exact HEAD, gates, deployment and safe result; commit/backup only reviewed M paths. Goal remains active until the broader public Arc release actually passes.
 
 ## Plan self-review
 
@@ -171,3 +171,6 @@ Coverage: Task 1 covers exact logger invocation, own-data access, fallback and g
 ### Collector termination clarification
 
 The 300-second bound applies to receiving/projecting log data. At every terminal condition the collector destroys private stdout/stderr streams immediately. It requests same-user native SIGKILL and confirms child close before claiming cleanup. If the OS refuses termination (kill false/throw), emit fixed child-failure, retain private error guards, and wait for actual close; do not claim successful cleanup, detach an orphan, retry collection or start the login attempt. An OS-level kill refusal requires operator/controller intervention and can keep cleanup waiting beyond the collection deadline. Synthetic refusal-then-close tests must prove no subsequent input is projected. This is an explicit failure condition, not a guarantee that software can override OS process termination policy.
+## Execution outcome — 2026-10-05
+
+All four bounded diagnostic tasks completed. Final integration READY; reviewed shadow deployed as b75bd747-a8d5-4873-b084-e9b5f14401bc and exact bindings/public checks passed. One observed Google attempt produced invalid_client / HTTP 401 at 03:07:00.202Z; collector stopped with child closure and exit 0. Browser still returned to sign-in with oauth/invalid_code. Next step is operator-private same-client ID/Secret pairing and enabled-status check, not an automatic retry or credential reset. Overall Arc public-release goal remains active and incomplete. See the operations note for safe evidence and exact rollback reference.

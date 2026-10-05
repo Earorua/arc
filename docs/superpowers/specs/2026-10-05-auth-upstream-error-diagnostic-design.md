@@ -1,6 +1,6 @@
 # Bounded authentication upstream-error diagnosis
 
-Status: approved by the user on 2026-10-05 ("批准有限诊断"). Local implementation passed TDD, SPEC and distinct QUALITY/security reviews. Final integration review and isolated diagnostic deployment remain pending.
+Status: approved by the user on 2026-10-05 ("批准有限诊断"). Bounded diagnosis completed: TDD, SPEC, distinct QUALITY/security and final integration passed; reviewed shadow deployment verified; one Google attempt yielded invalid_client / HTTP 401. Authentication itself remains unresolved; operator-private client credential pairing is next.
 
 ## Problem and verified context
 

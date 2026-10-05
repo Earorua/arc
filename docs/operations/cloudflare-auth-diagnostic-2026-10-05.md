@@ -1,5 +1,23 @@
 # 有限登录诊断：隔离测试站
 
+## 2026-10-05 最终结果：已定位客户端认证失败，登录尚未修复
+
+本轮有限诊断四项任务完成。独立整合审查 READY 后，迁移分支 `daf8196044254b048e407abdd1a23ff4a6660ab6` 已备份并核对远端一致；再次匹配已审查代码/操作脚本哈希、新鲜云端元数据及全部 92 个构建文件后，只部署了 migration-shadow。
+
+部署成功且原生复查通过：新版本 `b75bd747-a8d5-4873-b084-e9b5f14401bc`、部署 `31067373-568e-43a1-b1e0-f46ad2a21ebe`、100% 流量。五项 Secret 均继承为 secret_text，四项普通变量和 DB/R2/ASSETS 精确匹配；两个 AI 开关仍 false。旧版本回滚参考 `72fbb334-c989-40b3-ade1-008e92811a9e`。匿名首页、登录页、providers 均 HTTP 200，开发提示存在、providers 恰好 google/github；这不证明凭据有效。
+
+安全观测从 03:04:45Z 至 03:07:02Z（约 137 秒），先通过公开页面请求获得新原生事件，确认真实连接，再在既有内置浏览器仅点击一次 Google 登录。03:07:00.202Z 记录：
+
+```text
+[Arc Auth] ERROR upstream_error=invalid_client http_status=401
+```
+
+对应 Cloudflare outcome=ok；它表示 Worker 正常返回，不表示 OAuth 成功。收集器收到分类 marker 后自动停止、确认子进程关闭，退出码 0。最终浏览器仍在测试站 `/sign-in`，只读投影的 error 值为 oauth、invalid_code；未登录。没有第二次点击，没有 raw 日志、完整授权网址、code/state/Cookie/token 或秘密值输出/落盘。
+
+Google 官方 token endpoint 参考将 invalid_client / 401 定义为客户端认证失败，可能涉及 Client ID、Client Secret 或客户端类型；不能仅凭此确定哪一项配置错误。已核对 Arc Web 为网页客户端，原站/测试站回调均正确，下一步由用户私下核对同一 Arc Web 的 ID/Secret 配对及密钥启用状态；不自动新建、重置或删除密钥。官方依据：https://developers.google.com/identity/openid-connect/reference 。已发起仅询问核对进度的用户步骤，不索取值。
+
+安全结果：`pre-deploy-metadata.json`、`deploy-receipt.json`、`post-deploy-metadata.json`、`post-deploy-public.json`、`one-login-observation.json`、`browser-google-result.json`，均在下述 ignored 证据目录。本次没有 OpenRouter 请求、源 Sites/DNS/原数据变动或公开 Research 上线。有限诊断完成不等于认证修复、旧账号连续性或完整公开发布完成；总体目标仍 active。以下是保留的过程记录。
+
 ## 当前范围与证据
 
 2026-10-05 用户批准有限诊断；计划为 `docs/superpowers/plans/2026-10-05-auth-upstream-error-diagnostic.md`。本次只处理 `arc-v8-migration-shadow-20260922` 的登录错误观测，不改变认证策略、原 Sites、arcmaps.net、真实源数据或 Research 开关，也不调用 OpenRouter。
