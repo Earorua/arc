@@ -1,5 +1,9 @@
 # 独立测试站登录配置
 
+**2026-10-05 最新：Google 与 GitHub 均已通过测试站真实登录和刷新会话验收。** 用户完成 GitHub 个人登录后曾返回登录方式页，再自行选择 Continue with GitHub 后进入 Today；中间返回原因未观测，不推断为密钥或回调错误。Root 在原 IAB2 页4实际展开账户菜单，确认 GitHub connected、Sign out、shadow /today、无允许列表中的错误码；刷新后再次展开，四项结果保持。本轮代理没有再发起登录、没有读取凭据或操作账户关联。安全证据：迁移树 outputs/cloudflare-migration-20261005/auth-diagnostic/github-login-success.json。旧“等待 GitHub 个人登录”的前置条件已解除。
+
+下一步只读核对 Workers Paid。原 IAB2 页5现仍为 dash.cloudflare.com/login，已请用户登录持有 arcmaps.net 的原账户并回复进度；不重新订阅/购买，不读取个人密码/验证码。页3 Google控制台、页4已登录测试站、页5Cloudflare均保留。真实旧账号/数据连续性、完整源 D1/R2 导出恢复、Paid生效与公开Research发布仍未通过；本轮没有模型调用、DNS/源数据/旗标变更。下方登录等待状态为历史；goal工具本轮仍报告上一阶段的blocked，未将全目标标记完成，也不把该管理状态当作当前GitHub失败。
+
 **2026-10-05 最新：Google 真实登录及刷新会话已通过，GitHub 已到官方登录页待用户接手。** 迁移树基线 9f281c607dddbac0b1293d60a4b3240a0aa99b08 已备份且本轮实查干净。Google 密钥由用户按 Markdown 预览值私下修正，当前部署版本 458830cc-bfed-4d31-9b9d-de0269c9bcbc；详情及安全证据见 cloudflare-auth-diagnostic-2026-10-05.md。随后真实账户菜单显示 Google connected，GitHub 尚未关联。代理仅点击 Sign out 验证退出，页面出现 Sign in，再到登录页点击一次 Continue with GitHub，实际跳转 github.com/login，显示账号/密码输入和 Sign in。GitHub 回调还未发生，不能算登录成功；已请用户用原 Arc GitHub 账号完成个人登录，遇授权页先停留供权限核对，或报告自动返回测试站。未点击 Link GitHub，不按邮箱合并。没有模型请求或源数据/DNS变更。
 
 当前等待的是 GitHub 个人登录，旧 Google 私下核对阻塞已解除。完整发布目标仍 active。本轮已实际完成退出及 GitHub 入口验证，不是全目标完成；Workers Paid、源数据完整导出恢复、原账号连续性和公开 Research 独立门槛仍未通过。现有 connector 没有 Cloudflare 套餐查询；原生 usage_model=standard 不能证明 Paid，未为核实而创建凭据或购买套餐。保留 IAB2 的页3 Google、页4 GitHub登录、页5 Cloudflare登录；用户输入密码/验证码期间不检查页面字段。

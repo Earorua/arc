@@ -1,5 +1,11 @@
 # Authentication migration readiness
 
+## October 5 both live sign-in providers accepted
+
+The user completed the GitHub login handoff and selected Continue with GitHub again after an intermediate return to the provider-selection page. Root verified the actual shadow /today page and its open account menu: GitHub connected and Sign out are present, with no allowlisted OAuth error query values. Reloading the page and reopening the menu preserves those results. The intermediate return cause was not observed; no credential values were read and no linking or email-based merge was attempted. The earlier Google login and refresh acceptance is also retained.
+
+Both supported providers now pass independent shadow login/session acceptance. This does not establish imported identity continuity or transferred business data. Complete consistent source export/restore, real migrated owner isolation, Workers Paid activation and public Research acceptance remain outstanding. Safe evidence: outputs/cloudflare-migration-20261005/auth-diagnostic/github-login-success.json. Cloudflare tab5 still requires personal login before read-only subscription inspection; a user handoff has been requested. Older pending-login sections below are historical.
+
 ## October 5 actual Google login and pending GitHub login
 
 The user corrected only the shadow GOOGLE_CLIENT_SECRET after identifying a Markdown escaped underscore in their private saved note. Native metadata verifies version 458830cc-bfed-4d31-9b9d-de0269c9bcbc, all five secret_text bindings, expected storage/vars and both AI flags false. One real Google login reached /today; the account menu reports Google connected, and a page reload preserves the session. This proves shadow Google authentication, not imported identity continuity. No secret values were read.
