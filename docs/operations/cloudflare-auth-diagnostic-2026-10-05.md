@@ -1,6 +1,18 @@
 # 有限登录诊断：隔离测试站
 
-## 2026-10-05 最终结果：已定位客户端认证失败，登录尚未修复
+## 2026-10-05 16:54：Google Secret 修正后真实登录成功，刷新保持
+
+用户逐步私下核对 Google Arc Web 密钥已启用、已保存 Client ID 完全一致、Secret 尾部相同。随后发现 VS Code 打开的 Markdown 笔记源码含 `\_`，预览中只显示下划线；用户从预览重新复制完整值，在 migration-shadow 的 GOOGLE_CLIENT_SECRET 中自行替换并保存部署。代理没有读取秘密值，也没有重置/新增 Google 凭据。
+
+08:48:31Z 原生元数据检查 accepted=true：用户部署后版本 458830cc-bfed-4d31-9b9d-de0269c9bcbc，部署 0f3260cb-f9fd-4d66-9906-c7addcf48098，流量100%；五项配置仍是 secret_text，四项普通变量与 DB/R2/ASSETS 精确匹配，两个 AI 开关 false。使用既有安全收集器、现有进程代理取得公开 GET 原生事件后，只点击一次 Continue with Google。浏览器实际到 shadow /today，出现 Sign out，错误参数为空；随后刷新同一页，仍 /today 且 signedIn=true。Google 真实登录和页面刷新后的会话保持已通过。修正前 invalid_client/401、修正后登录成功，与 Markdown 转义误复制一致；代理未读取旧值，不能声称逐字符证实旧值差异。
+
+安全证据：迁移树 outputs/cloudflare-migration-20261005/auth-diagnostic/secret-correction-login-result.json 及新的 pre-deploy-metadata.json。此前同名元数据、观测和浏览器结果已带时间戳归档，未丢弃失败历史。首次未显式设置进程代理的收集器在登录操作前 child-failure；使用既有代理重建后取得事件，实际 Google 按钮共一次。没有新增代码或模型调用，源 Sites/arcmaps.net DNS/源数据及 smoke 未变。
+
+原“等待 Google 私下核对”的阻塞已解除，goal 实查 active。下一步为 GitHub 真实登录验收；旧账号/数据连续性、完整备份恢复、Workers Paid 生效和公开 Research 发布仍未完成，不能用本次 shadow 登录成功替代。以下 blocked/登录失败条目均为历史。
+
+收集器收尾：本轮本地执行会话 stdin 已关闭，stop 输入未送入；收集器随后达到300秒预设边界，报告 collector-timeout、exit1，并按实现等待子进程关闭后退出。它是观测时限终止，不能解释为 Google 登录失败；登录成功来自浏览器真实 /today + Sign out 以及刷新后的会话。没有遗留收集进程。以后需要人工提前停止的同一操作脚本应以保留 stdin 的交互会话启动，不能把 collector-started 本身当作云端连接证明。
+
+## 2026-10-05 早先结果（历史）：已定位客户端认证失败，登录尚未修复
 
 本轮有限诊断四项任务完成。独立整合审查 READY 后，迁移分支 `daf8196044254b048e407abdd1a23ff4a6660ab6` 已备份并核对远端一致；再次匹配已审查代码/操作脚本哈希、新鲜云端元数据及全部 92 个构建文件后，只部署了 migration-shadow。
 
