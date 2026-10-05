@@ -1,18 +1,18 @@
 # Bounded authentication upstream-error diagnosis
 
-Status: proposed; implementation and diagnostic deployment have not started. User design review pending.
+Status: approved by the user on 2026-10-05 ("批准有限诊断"). Implementation and diagnostic deployment are pending the plan's TDD and independent review gates.
 
 ## Problem and verified context
 
 The operator's browser returned to the isolated migration site's sign-in page with `error=oauth` and a second `error=invalid_code`. The first value is Arc's fixed error-return marker. The installed Better Auth callback maps an exception during authorization-code validation, or an absent token result, to `invalid_code`. That value alone does not identify a bad client secret, expired/reused code, mismatched redirect/PKCE, transport failure, or token-response parsing failure.
 
-Arc deliberately emits only `[Arc Auth] ERROR` or the corresponding severity. Raw OAuth exceptions can contain secrets and must stay private. Current Computer Use cannot complete browser verification: the native helper stopped because it could not confidently establish the current Chrome URL. Do not bypass that stop with another desktop-control mechanism. The operator has not yet confirmed that the privately saved Google ID/secret pair belongs to the same enabled original web client.
+Arc deliberately emits only `[Arc Auth] ERROR` or the corresponding severity. Raw OAuth exceptions can contain secrets and must stay private. The native helper previously stopped because it could not confidently establish the current Chrome URL; that path was not bypassed. Subsequent user-authorized in-app browser inspection verified the original and exact shadow Google callbacks on Arc Web and reproduced the shadow login returning `oauth` / `invalid_code`. It did not inspect secret values or establish that the configured ID/secret pair belongs to the same enabled original web client.
 
 The C3 synthetic authentication migration acceptance is complete at `4cd27cf0c2bccaf674d8f2a5c63eb175fb05b7ac` (14 files / 255 tests, sequential independent SPEC and QUALITY/security approval). It does not establish real OAuth success or actual source-data migration. This small diagnosis must not redo that work or expand into account-policy changes.
 
 ## Alternatives and recommendation
 
-1. **Private operator configuration check only.** No application change, and potentially sufficient if the ID/secret pair is wrong. Currently requires operator access, because browser automation has stopped. It cannot explain another generic failure if the pair is correct.
+1. **Private operator configuration check only.** No application change, and potentially sufficient if the ID/secret pair is wrong. Requires the operator to handle credential values privately. It cannot explain another generic failure if the pair is correct.
 2. **Bounded server-log classification (recommended).** Keep every raw message/object hidden; add only allowlisted provider-error names and numeric HTTP error status to the existing server logger. Deploy the reviewed change only to the isolated shadow Worker, then observe one operator-initiated login. It distinguishes useful failure categories without handling credentials in chat.
 3. **Change the public sign-in error UI.** Useful later for usability, but the existing `invalid_code` still does not reveal the underlying cause. Do not combine that unrelated presentation change into this diagnostic.
 
