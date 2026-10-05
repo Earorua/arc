@@ -1,5 +1,22 @@
 # Arc standalone Cloudflare migration evidence
 
+## 2026-10-05: Original successful samples expired; fresh acceptance required
+
+**2026-10-05 后续只读核验：原 long/...0151 和 after-r2/...0152 的 package 已过期。** 两行均仍为 ready/import phase5/active_slot=null/quota accepted，但 package_expires_at=1791158400000，即 2026-10-05T00:00:00Z（北京时间08:00），09:55:01–09:55:02Z 检查 package_fresh=0。数据库观测为零写入；无新控制调用或模型请求。安全证据在 Research 树 outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20260921/long-run/native-original-freshness-20261005.json。
+
+已检查实际 D1ResearchRepository.resolveReadyPackage 使用 require-fresh，并由 d1-publication.validatePackage 拒绝 expiryMs<=now；因此原两份结果不能作为新的成功 owner-read 回放验收对象。历史成功记录保持有效，不重启旧实例、不改过期时间、不改生产 reader。原 ...0153 保留 failed/interrupted 的合法迟到收尾结果。成功回放必须在新隔离资源集合产生的新鲜样本上补齐，明确记录其与旧场景的区别；不能声称补齐了当时未做的原实例回放。
+
+### Prepared continuation order (not executed)
+
+1. Finish the previously deferred local six-step replay tool after the user confirms resumption. Preserve its production-reader and immutable-identity requirements; it must never admit an expired original sample merely because the stored run says ready.
+2. Before cloud changes, freeze the reviewed artifact, record original resources and observations, and recheck exact live bindings plus old instance/drain status. A missing retained native history must be recorded as unavailable, never recreated by restarting the instance. The current SELECT results alone do not prove that no Workflow remains live.
+3. Prefer the existing feasibility option A: retain the same isolated smoke Worker identities and inherited Secret names, create two distinct D1 databases, a private R2 bucket and a new named Workflow; retain every old resource and the old Workflow binding. Use a coordinated admission-off/Cron-off drained transition, new nonsecret signing key IDs on both peers and the control driver, and exact post-deployment resource validation. Do not infer duplicate-class Workflow support merely from the generic multiple-binding docs. If the account rejects it, stop and use the separately reviewed new-Worker-pair fallback; never delete the original to force deployment.
+4. Run the unchanged long (19m30s synthetic wait), after-R2 and after-D1 sequence on the new stores; preserve actual deadlines and fail-stop behavior. Collect native runtime, accounting and cleanup evidence, then run the six replay/owner checks while each new package remains fresh. Collect actual CPU observations before judging Paid capacity or cost. No OpenRouter key or real model request is part of this smoke suite.
+
+Cloudflare's current [binding documentation](https://developers.cloudflare.com/workflows/build/trigger-workflows/) confirms multiple Workflow bindings per Worker. Its [limits documentation](https://developers.cloudflare.com/workflows/reference/limits/) lists different CPU and state-retention limits by plan; neither establishes retroactive retention of old Free-created history. No same-class account deployment was performed here. Proposed binding/resource manifests remain preparation, not executed cloud changes.
+
+当前回放本地实施确认仍未收到答复，不重复询问或启动实施。确认后先完成已审查六步入口/驱动的本地 TDD、SPEC 和独立 QUALITY；然后在具体云端配置经审查后安排新隔离集合三场演练及及时回放。完整目标本轮 get_goal 实查为 active；前一轮 Paid/旧任务收尾和本轮过期核验均是改变下一步动作的真实进展。
+
 ## 2026-10-05: Paid confirmed and original smoke failure reconciled
 
 **2026-10-05 更新：Workers Paid 已确认是当前套餐，Google/GitHub 测试站登录及刷新保持均已通过。** Workers plans 页面显示 Paid / Current plan、Free / Downgrade；客服 case 02342328 确认后端自 2026-09-22 激活，首次发票为 $0 且已支付，Processing 属于控制台显示同步问题。不要重复购买。首次零元不代表持续免费；试用结束和续费时间未核验。下方 Paid 未验证、等待 Cloudflare 登录等描述均为历史。
