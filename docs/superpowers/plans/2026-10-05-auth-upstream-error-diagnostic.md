@@ -30,8 +30,8 @@ Approved spec: `docs/superpowers/specs/2026-10-05-auth-upstream-error-diagnostic
 
 ### Task 1: Formatter and genuine callback contract
 
-- [ ] Read existing runtime logger, `tests/server/auth-runtime.test.ts`, unchanged `tests/helpers/auth-migration-fixture.ts` and `auth-migration-oauth.ts`, and installed callback/token-exchange catch. No shared helper edits or library monkeypatches.
-- [ ] Add the real callback test first. For each 401/400 case create the fixture, snapshot `preservedRows(f)` plus full accounts, start real Google state, stub only exact `https://oauth2.googleapis.com/token`, then call the real handler. Use synthetic code and secrets from the fixture. Core assertion:
+- [x] Read existing runtime logger, `tests/server/auth-runtime.test.ts`, unchanged `tests/helpers/auth-migration-fixture.ts` and `auth-migration-oauth.ts`, and installed callback/token-exchange catch. No shared helper edits or library monkeypatches.
+- [x] Add the real callback test first. For each 401/400 case create the fixture, snapshot `preservedRows(f)` plus full accounts, start real Google state, stub only exact `https://oauth2.googleapis.com/token`, then call the real handler. Use synthetic code and secrets from the fixture. Core assertion:
 
 ```ts
 const output = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -59,9 +59,9 @@ expect(output.mock.calls).toEqual([["[Arc Auth] ERROR upstream_error=invalid_cli
 
 Extend assertions to the actual locked fetch body (synthetic code, client ID/secret, redirect URI and PKCE verifier). Reject every other endpoint. For 400 use `invalid_grant`. Add transport throw and malformed/unknown response cases; preserve numeric status where the installed library supplies it. Inspect resulting safe marker rather than logging raw inputs. The original fixture denied-fetch remains unused.
 
-- [ ] Run `node node_modules/vitest/vitest.mjs run tests/server/auth-oauth-diagnostics.test.ts`; verify RED is the missing classified marker, not broken fixture or unexpected fetch representation. Save synthetic evidence.
-- [ ] Add pure formatter tests for every accepted code; status bounds 399/400/599/600/fraction/NaN/string; ineligible levels/messages/arg counts/null/arrays; own versus inherited properties; getters, nested causes, cycles, `toJSON`/`toString`, throwing descriptor proxy and revoked proxy. Forbidden sentinels never emitted and accessors never called.
-- [ ] Implement `formatAuthDiagnostic(level: string, message: unknown, args: readonly unknown[]): string`. Use the following algorithm, with exactly the approved allowlist:
+- [x] Run `node node_modules/vitest/vitest.mjs run tests/server/auth-oauth-diagnostics.test.ts`; verify RED is the missing classified marker, not broken fixture or unexpected fetch representation. Save synthetic evidence.
+- [x] Add pure formatter tests for every accepted code; status bounds 399/400/599/600/fraction/NaN/string; ineligible levels/messages/arg counts/null/arrays; own versus inherited properties; getters, nested causes, cycles, `toJSON`/`toString`, throwing descriptor proxy and revoked proxy. Forbidden sentinels never emitted and accessors never called.
+- [x] Implement `formatAuthDiagnostic(level: string, message: unknown, args: readonly unknown[]): string`. Use the following algorithm, with exactly the approved allowlist:
 
 ```ts
 const codes = new Set(["invalid_client", "invalid_grant", "invalid_request", "unauthorized_client", "unsupported_grant_type", "redirect_uri_mismatch", "access_denied", "temporarily_unavailable", "server_error"]);
@@ -96,8 +96,10 @@ log: (level, message, ...args) => {
 
 Do not change provider options or authentication response.
 
-- [ ] Run the two new files plus `tests/server/auth-runtime.test.ts`, `auth-policy.test.ts`, `auth-migration-oauth-state.test.ts`, `auth-migration-link-callback.test.ts`; typecheck with `node node_modules/typescript/bin/tsc --noEmit --incremental false`; focused ESLint. Fix implementation or evidence-driven fixture mismatch, not weakened expectations.
-- [ ] Self-review; fresh SPEC reviewer reads source/spec/tests; after approval a distinct QUALITY/security reviewer checks confidentiality, real callback seam and scope. Fix and re-review findings. Root commits only these four implementation files and reviewed tests after gates pass.
+- [x] Run the two new files plus `tests/server/auth-runtime.test.ts`, `auth-policy.test.ts`, `auth-migration-oauth-state.test.ts`, `auth-migration-link-callback.test.ts`; typecheck with `node node_modules/typescript/bin/tsc --noEmit --incremental false`; focused ESLint. Fix implementation or evidence-driven fixture mismatch, not weakened expectations.
+- [x] Self-review; fresh SPEC reviewer reads source/spec/tests; after approval a distinct QUALITY/security reviewer checks confidentiality, real callback seam and scope. Fix and re-review findings. Root commits only these four implementation files and reviewed tests after gates pass.
+
+Task 1 completed at 1a465ee7fecf3c3e9e4daf75146469565437d9d1: 97 tests / 6 files, typecheck/lint passed; independent SPEC PASS then distinct QUALITY/security READY. Historical stale typecheck/lint files preserved and fresh successful receipts corrected. Task 2 in progress; no deployment.
 
 ### Task 2: Bounded private Wrangler collector
 
@@ -125,16 +127,16 @@ Keep only permitted strings from native `logs[].message[]`; bounded frame alread
 - [ ] Implement `collectAuthTail({spawnChild, emit, signal, timeoutMs})` with safe defaults, `timeoutMs` clamped/validated to 1..300000, and CLI entry calling it for at most 300000 ms. Only root-controlled test injection can replace spawn; CLI takes no worker/command override. Child launch:
 
 ```js
-spawnChild(process.execPath, [lockedWranglerPath, "tail", "arc-v8-migration-shadow-20260922", "--format", "json"], {
+spawnChild(process.execPath, [lockedWranglerPath, "tail", "arc-v8-migration-shadow-20260922", "--format", "json", "--config", shadowConfigPath], {
   cwd: repositoryRoot,
   shell: false,
   windowsHide: true,
   stdio: ["ignore", "pipe", "pipe"],
-  env: { ...process.env, WRANGLER_WRITE_LOGS: "false", WRANGLER_SEND_METRICS: "false", WRANGLER_SEND_ERROR_REPORTS: "false", CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false" }
+  env: { ...process.env, WRANGLER_LOG: "error", WRANGLER_WRITE_LOGS: "false", WRANGLER_SEND_METRICS: "false", WRANGLER_SEND_ERROR_REPORTS: "false", CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false" }
 });
 ```
 
-Derive locked path and repositoryRoot from import.meta.url; no directory search or external binary resolution. Use UTF-8 decoding that retains split multibyte sequences. Drain stderr without output/storage. Emit safe projected records and fixed control codes only: `collector-started`, `collector-timeout`, `collector-stopped`, `child-failure`, plus fixed framing codes. No raw exception text. On all terminal paths kill child, clear deadline/listeners and settle once; no orphan process. CLI uses SIGINT/SIGTERM for operator stop and never retries. A child which exits before requested stop is failure even exit 0. Pending malformed/incomplete JSON remains a fixed failure.
+Derive locked path, shadowConfigPath (dist/server/wrangler.json) and repositoryRoot from import.meta.url; no directory search or external binary resolution. Locked Wrangler tail logger.json directly prints JSON even at error level; error level suppresses unrelated startup messages. Do not apply that setting to deployment metadata logRaw, which it suppresses. Use UTF-8 decoding that retains split multibyte sequences. Drain stderr without output/storage. Emit safe projected records and fixed control codes only: `collector-started`, `collector-timeout`, `collector-stopped`, `child-failure`, plus fixed framing codes. No raw exception text. On all terminal paths kill child, clear deadline/listeners and settle once; no orphan process. CLI uses SIGINT/SIGTERM for operator stop and never retries. A child which exits before requested stop is failure even exit 0. Pending malformed/incomplete JSON remains a fixed failure.
 
 - [ ] Run Node tests, `node --check` on both modules and focused ESLint. Self-review and sequential fresh SPEC then distinct QUALITY/security reviews; root commits only approved modules/tests.
 
