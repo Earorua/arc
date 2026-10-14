@@ -22,7 +22,7 @@ export function LearningCoach() {
       </>}
     </div></section>
   </main>;
-  return <CoachGoal key={agents.workspace?.goalId ?? "no-goal"} />;
+  return <CoachGoal key={JSON.stringify([agents.accountId, agents.workspace?.goalId ?? null])} />;
 }
 function CoachGoal() {
   const agents = useLearningAgents();

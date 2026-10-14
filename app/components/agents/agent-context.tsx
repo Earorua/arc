@@ -9,7 +9,7 @@ import type { AgentRequest, AgentWorkspace, PublicAgentRun } from "../../contrac
 
 export type CompanionView = "pet" | "chat" | "hidden";
 type AgentState = {
-  authenticated: boolean; authPending: boolean;
+  accountId: string | null; authenticated: boolean; authPending: boolean;
   workspace: AgentWorkspace | null; loading: boolean; error: string | null;
   view: CompanionView; setView(view: CompanionView): void; reducedMotion: boolean; setReducedMotion(value: boolean): void;
   draft: string; setDraft(value: string): void; deep: boolean; setDeep(value: boolean): void;
@@ -27,7 +27,7 @@ export function LearningAgentsProvider({ children }: { children: ReactNode }) {
   const session = authClient.useSession();
   const hydrated = useHydrated();
   const identity = !hydrated || session.isPending ? "loading" : session.error ? "guest" : session.data?.user?.id ?? "guest";
-  return <AgentSession key={identity} identity={identity}>{children}</AgentSession>;
+  return <AgentSession identity={identity}>{children}</AgentSession>;
 }
 function AgentSession({ children, identity }: { children: ReactNode; identity: string }) {
   const path = usePathname();
@@ -39,6 +39,14 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
   const [deep, setDeep] = useState(false), [busy, setBusy] = useState(false);
   const [partial, setPartial] = useState(""), [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
   const [handoff, setHandoff] = useState("");
+  const [previousIdentity, setPreviousIdentity] = useState(identity);
+  // Reset private agent state before rendering a different identity, without remounting page forms.
+  if (previousIdentity !== identity) {
+    setPreviousIdentity(identity);
+    setWorkspace(null); setLoading(true); setError(null);
+    updateView("pet"); updateMotion(false); updateDraft(""); setDeep(false);
+    setBusy(false); setPartial(""); setPendingQuestion(null); setHandoff("");
+  }
   const mounted = useRef(true), request = useRef<AbortController | null>(null), read = useRef<AbortController | null>(null);
   const goal = useRef<string | null>(null);
   const draftRef = useRef("");
@@ -55,7 +63,11 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
         updateMotion(preferences.reducedMotion === true);
       } catch { /* Storage is optional for UI preferences. */ }
     });
-    return () => { current = false; mounted.current = false; request.current?.abort(); read.current?.abort(); };
+    return () => {
+      current = false; mounted.current = false;
+      request.current?.abort(); read.current?.abort();
+      request.current = null; read.current = null; goal.current = null; draftRef.current = "";
+    };
   }, [preferencesKey]);
   useEffect(() => {
     let current = true;
@@ -130,7 +142,7 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
       if (!draftRef.current) setDraft(message);
     } finally { if (isCurrent()) setBusy(false); }
   };
-  return <AgentContext.Provider value={{ authenticated, authPending: identity === "loading", workspace, loading, error, view, setView, reducedMotion, setReducedMotion,
+  return <AgentContext.Provider value={{ accountId: authenticated ? identity : null, authenticated, authPending: identity === "loading", workspace, loading, error, view, setView, reducedMotion, setReducedMotion,
     draft, setDraft, deep, setDeep, busy, partial, pendingQuestion, send, stop, refresh, handoff, setHandoff }}>
     {children}
   </AgentContext.Provider>;

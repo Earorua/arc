@@ -13,12 +13,22 @@ function setup(enabled = true) {
   mocks.agents.mockReturnValue({ workspace: { enabled, authenticated: true, goalId: f.workspace.goalId,
     baseVersionId: f.workspace.activePlanVersionId, revision: 0, roleName: "前端工程师", currentTask: "组件基础", history: [],
     reason: enabled ? null : "学习助手尚未启用", plannerModel: "gpt-6-astra" },
-    authenticated: true, authPending: false, loading: false, refresh: vi.fn(), handoff: "", setHandoff: vi.fn(), setView: vi.fn() });
+    accountId: "alice", authenticated: true, authPending: false, loading: false, refresh: vi.fn(), handoff: "", setHandoff: vi.fn(), setView: vi.fn() });
   mocks.planning.mockReturnValue({ workspace: f.workspace, sourceContext: f.sourceContext, source: "cloud",
     recovery: "none", retry: vi.fn(), accept: vi.fn(), discard: vi.fn() });
   return f;
 }
 describe("learning coach", () => {
+  it.each([true, false])("clears the planning draft across accounts even without a goal (loading=%s)", loading => {
+    setup();
+    const state = { ...mocks.agents(), workspace: loading ? null : { ...mocks.agents().workspace, goalId: null } };
+    mocks.agents.mockReturnValue(state);
+    const { rerender } = render(<LearningCoach />);
+    fireEvent.change(screen.getByRole("textbox", { name: "本次规划的重点" }), { target: { value: "Alice private draft" } });
+    mocks.agents.mockReturnValue({ ...state, accountId: "bob" });
+    rerender(<LearningCoach />);
+    expect(screen.getByRole("textbox", { name: "本次规划的重点" })).not.toHaveValue("Alice private draft");
+  });
   it.each([false, true])("gates the planner before mounting private workspace hooks (pending=%s)", pending => {
     setup(); mocks.agents.mockReturnValue({ ...mocks.agents(), authenticated: false, authPending: pending, workspace: null });
     render(<LearningCoach />);

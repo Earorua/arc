@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
+import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LearningAgentsProvider, useLearningAgents } from "../../app/components/agents/agent-context";
 import type { AgentWorkspace } from "../../app/contracts/agents";
@@ -27,6 +28,28 @@ function fixture() {
   return workspace;
 }
 describe("persistent learning companion context", () => {
+  it("preserves unrelated page inputs while guest sessions revalidate and accounts change", async () => {
+    fixture(); mocks.session.mockReturnValue({ data: null, isPending: false });
+    function PageForm() {
+      const [value, setValue] = useState("");
+      return <input aria-label="learning setup" value={value} onChange={event => setValue(event.target.value)} />;
+    }
+    const element = <LearningAgentsProvider><PageForm /><Probe /></LearningAgentsProvider>;
+    const { rerender } = render(element);
+    fireEvent.change(screen.getByLabelText("learning setup"), { target: { value: "my unfinished setup" } });
+    for (const session of [
+      { data: null, isPending: true },
+      { data: null, isPending: false },
+      { data: { user: { id: "alice" } }, isPending: false },
+      { data: { user: { id: "bob" } }, isPending: false },
+      { data: null, isPending: false },
+    ]) {
+      mocks.session.mockReturnValue(session);
+      rerender(<LearningAgentsProvider><PageForm /><Probe /></LearningAgentsProvider>);
+      await act(async () => {});
+      expect(screen.getByLabelText("learning setup")).toHaveValue("my unfinished setup");
+    }
+  });
   it("keeps the initial auth gate stable when the session resolves before hydration", async () => {
     fixture(); mocks.session.mockReturnValue({ data: null, isPending: true });
     const element = <LearningAgentsProvider><Probe /></LearningAgentsProvider>;
