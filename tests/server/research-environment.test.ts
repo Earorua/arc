@@ -27,6 +27,15 @@ const validEnvironment: AdminEnvironment = {
   OPENROUTER_API_KEY: "synthetic-dummy-credential",
 };
 
+const selectedEnvironment: AdminEnvironment = {
+  ...validEnvironment,
+  ARC_AI_RESEARCH_PROFILE: "kimi-low-output32k-v3",
+  ARC_AI_MODEL_RESEARCH: "moonshotai/kimi-k3",
+  ARC_AI_RESEARCH_TIMEOUT_MS: "1200000",
+  ARC_AI_RESEARCH_MAX_COST_MICROS: "5000000",
+  ARC_AI_REPAIR_MAX_COST_MICROS: "0",
+};
+
 describe("Research Beta runtime environment", () => {
   it("documents only the exact disabled and empty Research Beta examples", () => {
     const source = readFileSync(resolve(process.cwd(), ".env.example"), "utf8");
@@ -47,6 +56,8 @@ describe("Research Beta runtime environment", () => {
       expect(source.split(/\r?\n/u)).toContain(line);
     }
     expect(source).toContain("ARC_AI_ENABLED=false");
+    expect(source).toContain("# Optional ARC_AI_RESEARCH_PROFILE=kimi-low-output32k-v3 requires moonshotai/kimi-k3, Research timeout1200000, Repair budget0, and Research reservation<=5000000; omit for legacy behavior.");
+    expect(source).not.toMatch(/^ARC_AI_RESEARCH_PROFILE=/mu);
     expect(source).not.toMatch(/^OPENAI_API_KEY=/mu);
   });
 
@@ -74,6 +85,15 @@ describe("Research Beta runtime environment", () => {
     fetch.mockRestore();
   });
 
+  it("projects selected and invalid profiles to the enabled bit only", () => {
+    expect(readResearchRuntimePolicy(selectedEnvironment)).toEqual({ enabled: true });
+    for (const ARC_AI_RESEARCH_PROFILE of ["", " ", "unknown-profile"]) {
+      expect(readResearchRuntimePolicy({ ...validEnvironment, ARC_AI_RESEARCH_PROFILE }))
+        .toEqual({ enabled: false });
+    }
+    expect(JSON.stringify(readResearchRuntimePolicy(selectedEnvironment))).toBe('{"enabled":true}');
+  });
+
   it("returns no model, credential, salt, origin, or provider configuration", () => {
     const serialized = JSON.stringify(readResearchRuntimePolicy(validEnvironment));
     expect(serialized).toBe('{"enabled":true}');
@@ -84,6 +104,7 @@ describe("Research Beta runtime environment", () => {
     const source = readFileSync(resolve(process.cwd(), "worker-configuration.d.ts"), "utf8");
     for (const name of [
       "ARC_AI_RESEARCH_ENABLED",
+      "ARC_AI_RESEARCH_PROFILE",
       "ARC_AI_MODEL_RESEARCH",
       "ARC_AI_MODEL_ECONOMY",
       "ARC_AI_SITE_DAILY_BUDGET_MICROS",

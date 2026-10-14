@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   researchErrorEnvelopeSchema,
+  researchRecoverRequestSchema,
   researchRetryRequestSchema,
   researchRunPublicViewSchema,
   researchSuccessEnvelopeSchema,
@@ -15,14 +16,15 @@ import { D1OperationalEventSink } from "../observability/d1-events";
 import { createOperationalEvent, type OperationalEvent } from "../observability/events";
 import { ResearchRepositoryError } from "../research/repository";
 import { createResearchServiceFactory } from "../research/service-factory";
-import type { ResearchGateContext, ResearchOrchestrator } from "../research/orchestrator";
+import type { ResearchGateContext } from "../research/orchestrator";
+import type { ResearchService } from "../research/service";
 import { apiJson, applyResponseSafety, resolveRequestId } from "./api-response";
 import { D1RateLimiter, RateLimitUnavailableError, type RateLimiter } from "./rate-limit";
 
 const MAX_RESEARCH_REQUEST_BYTES = 16 * 1024;
 const runIdSchema = z.string().max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
 
-export type ResearchRouteService = Pick<ResearchOrchestrator, "start" | "get" | "retry">;
+export type ResearchRouteService = ResearchService;
 
 export type ResearchRouteDependencies = {
   requireUser(headers: Headers): Promise<ArcUser>;
@@ -324,7 +326,7 @@ async function runRoute<T>(
       resultCode = result.resultCode;
     }
   } catch (error) {
-    if (config.kind === "write") await cancelUnreadBody(request);
+    await cancelUnreadBody(request);
     const mapped = errorResponse(error, requestId);
     resultCode = mapped.resultCode;
     response = mapped.response;
@@ -369,6 +371,19 @@ export function createResearchGetHandler(deps: ResearchRouteDependencies, runIdI
       if (!run) throw new HiddenResearchNotFoundError();
       return { resultCode: "OK", response: successResponse(run, requestId) };
     });
+}
+
+export function createResearchRecoverHandler(deps: ResearchRouteDependencies) {
+  return (request: Request) => runRoute(request, deps, {
+    route: "/api/intelligence/research/recover", scope: "research:recover", kind: "read",
+  }, async () => {
+    requireMutationSecurity(request, deps);
+    return parseBody(request, researchRecoverRequestSchema);
+  }, async (service, userId, input, _gate, requestId) => {
+    const run = await service.recover(userId, input);
+    if (!run) throw new HiddenResearchNotFoundError();
+    return { resultCode: "OK", response: successResponse(run, requestId) };
+  });
 }
 
 export function createResearchRetryHandler(deps: ResearchRouteDependencies, runIdInput: string) {

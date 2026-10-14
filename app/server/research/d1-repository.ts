@@ -1,21 +1,29 @@
 import { z } from "zod";
-import { MAX_RESEARCH_PACKAGE_JSON_BYTES, researchCandidateSchema, researchPackageSchema, researchQualityReportSchema, researchRunPublicViewSchema, researchRequestSchema, researchStateSchema, researchPublicFailureCategorySchema, type ResearchPackage, type ResearchRunPublicView } from "../../contracts/research";
+import { MAX_RESEARCH_PACKAGE_JSON_BYTES, researchPackageSchema, researchRunPublicViewSchema, researchRequestSchema, researchStateSchema, researchPublicFailureCategorySchema, type ResearchPackage, type ResearchRunPublicView } from "../../contracts/research";
 import { planningSourceReferenceSchema } from "../../contracts/planning";
 import type { PlanningReplayPackageReader, ResearchPlanningSourceReference } from "../planning/source-resolver";
-import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
-import { validateRoleBlueprint } from "../../lib/intelligence-validation";
-import { validateUnitRegistry } from "../../lib/planning/registry-validation";
-import { canonicalizePublicCitationUrl, readBoundedResearchJson } from "./source-audit";
-import type { AttachCachedPackageCommand, CreateResearchRetryCommand, CreateResearchRunCommand, ResearchCacheLookup, ResearchReadyPackageAuditVersions, ResearchRepository, ResearchRunRecord, SaveResearchValidationCommand, TransitionResearchRunCommand } from "./repository";
+import { canonicalJson, deterministicId } from "../../lib/planning/fingerprint";
+import { readBoundedResearchJson } from "./source-audit";
+import { bytes, normalizedPackageInserts, parseJson, parseStoredPackage, serialize, validateCandidate, validatePackage, validateQuality, type ExpirationPolicy } from "./d1-publication";
+import type { AttachCachedPackageCommand, CreateRemoteResearchRetryCommand, CreateRemoteResearchRunCommand, CreateResearchRetryCommand, CreateResearchRunCommand, RecoverResearchRunCommand, RemoteCreationPolicy, RemoteCreationResult, RemoteResearchCreationRepository, ResearchCacheLookup, ResearchReadyPackageAuditVersions, ResearchRepository, ResearchRunRecord, SaveResearchValidationCommand, TransitionResearchRunCommand } from "./repository";
 import { ResearchRepositoryError } from "./repository";
+import { BRIDGE_AUTH_PROTOCOL } from "./executor/auth";
+import { BRIDGE_EXECUTOR_MODE, BRIDGE_QUEUE_TTL_MS, hashBridgeJob, parseBridgeJob } from "./executor/job";
+import { KIMI_RESEARCH_EXECUTION_POLICY } from "./execution-policy";
+import { parseResearchValidationContext } from "./package-validator";
+import { RESEARCH_CONFIGURATION_VERSIONS } from "./production-policy";
+import { parseProviderRequest } from "./provider";
+import { buildSiteExecutionInsert, D1SiteExecutionRepository } from "./d1-site-execution-repository";
+import type { SiteAdmissionResult, SiteExecutionIdentity, SiteExecutionRecord } from "./site-execution-repository";
 
 const PACKAGE_MAX = MAX_RESEARCH_PACKAGE_JSON_BYTES;
 const QUALITY_MAX = 16_384;
 const CANDIDATE_MAX = 1_048_576;
 const IDEMPOTENCY_SCOPE = "role-research";
 type Row = Record<string, unknown>;
-type Options = { now?: () => number; createId?: () => string };
+type Options = { now?: () => number; createId?: () => string; createJobId?: () => string };
 const boundedText = z.string().min(1).max(256).refine((value) => value === value.trim() && !/[\u0000-\u001f\u007f]/u.test(value));
+const remoteIdentityText = z.string().min(1).max(160).refine((value) => value === value.trim() && !/[\u0000-\u001f\u007f]/u.test(value));
 const idSchema = researchPackageSchema.shape.id;
 const integerSchema = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 const identityShape = { ownerId: boundedText, id: idSchema };
@@ -26,49 +34,233 @@ const casShape = { ...identityShape, expectedVersion: integerSchema.max(Number.M
 const errorCodeSchema = z.string().max(64).regex(/^[a-z]+(?:-[a-z]+)*$/u);
 const transitionSchema = z.object({ ...casShape, from: researchStateSchema, to: researchStateSchema, retryable: z.boolean().optional(), errorCode: errorCodeSchema.optional(), failureCategory: researchPublicFailureCategorySchema.optional() }).strict();
 const attachSchema = z.object({ ...casShape, package: z.unknown() }).strict();
+const remoteAttachSchema = z.object({
+  ownerId: remoteIdentityText,
+  runId: idSchema,
+  requestId: remoteIdentityText,
+  jobId: z.uuid(),
+  requestHash: z.string().length(64).regex(/^[0-9a-f]{64}$/u),
+  expectedRunVersion: integerSchema.max(Number.MAX_SAFE_INTEGER - 1),
+  expectedExecutionVersion: integerSchema.max(Number.MAX_SAFE_INTEGER - 1),
+  package: z.unknown(),
+}).strict();
 const saveSchema = z.object({ ...casShape, ...cacheShape, result: z.unknown() }).strict();
 const retrySchema = z.object({ ownerId: boundedText, requestId: boundedText, mutationId: researchRequestSchema.shape.mutationId, runId: idSchema, activeExpiresAt: integerSchema }).strict();
+const remotePolicySchema = z.object({
+  cacheDays: z.number().int().min(1).max(365),
+  userDailyQuota: z.number().int().min(1).max(100_000),
+  dailyBudgetMicros: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+  monthlyBudgetMicros: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+  maximumMicros: z.number().int().min(1).max(5_000_000),
+}).strict();
+const remoteCreateSchema = z.object({
+  ...cacheShape,
+  ownerId: remoteIdentityText,
+  requestId: remoteIdentityText,
+  mutationId: researchRequestSchema.shape.mutationId,
+  rawRole: researchRequestSchema.shape.role,
+  inputFingerprint: boundedText,
+  policy: remotePolicySchema,
+}).strict();
+const remoteRetrySchema = z.object({
+  ownerId: remoteIdentityText,
+  runId: idSchema,
+  requestId: remoteIdentityText,
+  mutationId: researchRequestSchema.shape.mutationId,
+  currentConfigFingerprint: boundedText,
+  policy: remotePolicySchema,
+}).strict();
 const aliasSchema = z.object({ runId: idSchema, ...cacheShape, inputFingerprint: boundedText, retryOfRunId: idSchema.nullable() }).strict();
+const recoverySchema = z.object({
+  ownerId: boundedText,
+  mutationId: researchRequestSchema.shape.mutationId,
+  normalizedRoleKey: boundedText,
+  locale: z.enum(["zh-CN", "en-US"]),
+  inputFingerprint: boundedText,
+  retryOfRunId: idSchema.nullable(),
+}).strict();
 
-export class D1ResearchRepository implements ResearchRepository {
+export class D1ResearchRepository implements ResearchRepository, RemoteResearchCreationRepository {
   private readonly now: () => number;
   private readonly createId: () => string;
+  private readonly createJobId: () => string;
+  private readonly executions: D1SiteExecutionRepository;
   constructor(private readonly db: D1Database, options: Options = {}) {
     this.now = () => parseContract(integerSchema, (options.now ?? Date.now)());
     this.createId = () => parseContract(idSchema, (options.createId ?? (() => crypto.randomUUID()))());
+    this.createJobId = () => parseContract(z.uuid(), (options.createJobId ?? (() => crypto.randomUUID()))());
+    this.executions = new D1SiteExecutionRepository(db, this);
   }
 
   async createOrReplay(command: CreateResearchRunCommand) {
-    return this.create(parseContract(createSchema, command), null);
+    const result = await this.create(parseContract(createSchema, command), null);
+    return { run: result.run, replayed: result.replayed };
   }
 
-  private async create(command: CreateResearchRunCommand, retryOfRunId: string | null) {
-    const alias = await this.findAlias(command, retryOfRunId);
-    if (alias) return { run: alias, replayed: true };
-    const direct = await this.getRunByMutation(command.ownerId, command.mutationId);
-    if (direct) return { run: assertSameInput(direct, command, retryOfRunId), replayed: true };
-    const active = await this.findActive(command);
-    if (active) return this.persistAlias(command, active, retryOfRunId);
-    const id = parseContract(idSchema, this.createId()); const now = parseContract(integerSchema, this.now());
-    const stored = aliasJson(command, id, retryOfRunId);
+  async createRemoteOrReplay(command: CreateRemoteResearchRunCommand): Promise<RemoteCreationResult> {
+    const bounded = parseContract(remoteCreateSchema, command);
+    const provider = parseRemoteProviderRequest(bounded.rawRole, bounded.locale);
+    return this.create({ ...bounded, rawRole: provider.role, activeExpiresAt: 0 }, null, Object.freeze(bounded.policy));
+  }
+
+  async attachRemoteCachedPackage(input: SiteExecutionIdentity & Readonly<{
+    expectedRunVersion: number;
+    expectedExecutionVersion: number;
+    package: ResearchPackage;
+  }>): Promise<SiteAdmissionResult> {
+    const bounded = parseContract(remoteAttachSchema, input, ["package"]);
+    const now = this.now();
+    const candidate = validatePackage(bounded.package, { kind: "require-fresh", now });
+    const run = await this.getRun(bounded.ownerId, bounded.runId);
+    if (!run) throw new ResearchRepositoryError("NOT_FOUND");
+    const pack = await this.validateCachedAttachment(run, candidate, "CONFLICT", now);
+    const execution = await this.executions.read(bounded.ownerId, bounded.runId);
+    if (!execution || execution.requestId !== bounded.requestId || execution.jobId !== bounded.jobId
+      || execution.requestHash !== bounded.requestHash) throw new ResearchRepositoryError("CONFLICT");
+
+    const exactReplay = await this.exactRemoteCacheResult(bounded, pack, run, execution);
+    if (exactReplay) return exactReplay;
+    if (run.state !== "queued" || run.stateVersion !== bounded.expectedRunVersion
+      || execution.admissionState !== "pending" || execution.version !== bounded.expectedExecutionVersion
+      || execution.quotaReservationId !== null || execution.budgetReservationId !== null
+      || execution.admittedAt !== null || execution.closedAt !== null || execution.closeReason !== null
+      || execution.beganAt !== null) throw new ResearchRepositoryError("CONFLICT");
+
+    const sqlNow = "CAST(ROUND(unixepoch('subsec') * 1000) AS INTEGER)";
+    const closeExecution = this.db.prepare(`UPDATE research_site_executions AS e
+      SET admission_state='closed',closed_at=${sqlNow},close_reason='cached',version=version+1,updated_at=${sqlNow}
+      WHERE e.user_id=?1 AND e.run_id=?2 AND e.request_id=?3 AND e.job_id=?4 AND e.request_hash=?5
+        AND e.version=?6 AND e.version<${Number.MAX_SAFE_INTEGER} AND e.admission_state='pending'
+        AND e.quota_reservation_id IS NULL AND e.budget_reservation_id IS NULL AND e.admitted_at IS NULL
+        AND e.began_at IS NULL AND e.closed_at IS NULL AND e.close_reason IS NULL
+        AND ${sqlNow}<e.queue_expires_at
+        AND NOT EXISTS(SELECT 1 FROM quota_ledger q WHERE q.user_id=e.user_id AND q.idempotency_key=e.quota_key)
+        AND NOT EXISTS(SELECT 1 FROM ai_budget_reservations b WHERE b.run_id=e.run_id OR b.request_id=e.request_id)
+        AND EXISTS(SELECT 1 FROM research_runs r
+          WHERE r.id=e.run_id AND r.user_id=e.user_id AND r.request_id=e.request_id
+            AND r.execution_mode='cloudflare-workflow-v1' AND r.remote_quota_key=e.quota_key
+            AND r.state='queued' AND r.state_version=?7 AND r.state_version<${Number.MAX_SAFE_INTEGER}
+            AND r.active_slot=1 AND r.active_expires_at=e.queue_expires_at)
+        AND EXISTS(SELECT 1 FROM research_packages p
+          WHERE p.id=?8 AND p.normalized_role_key=?9 AND p.locale=?10 AND p.config_fingerprint=?11
+            AND p.content_fingerprint=?12 AND p.package_json=?13 AND p.quality_json=?14
+            AND p.expires_at>${sqlNow})`).bind(
+      bounded.ownerId, bounded.runId, bounded.requestId, bounded.jobId, bounded.requestHash,
+      bounded.expectedExecutionVersion, bounded.expectedRunVersion, pack.id,
+      run.normalizedRoleKey, run.locale, run.configFingerprint, pack.contentFingerprint,
+      serialize(pack, PACKAGE_MAX), serialize(pack.qualityReport, QUALITY_MAX),
+    );
+    const assertOne = () => this.db.prepare("SELECT CASE WHEN changes()=1 THEN 1 ELSE json('') END AS lifecycle_assertion");
+    const readyRun = this.db.prepare(`UPDATE research_runs AS r
+      SET state='ready',state_version=state_version+1,retryable=0,active_slot=NULL,active_expires_at=NULL,
+        package_id=?1,quality_json=?2,candidate_json=NULL,error_code=NULL,public_failure_category=NULL,updated_at=${sqlNow}
+      WHERE r.id=?3 AND r.user_id=?4 AND r.request_id=?5 AND r.state='queued' AND r.state_version=?6
+        AND r.state_version<${Number.MAX_SAFE_INTEGER} AND r.execution_mode='cloudflare-workflow-v1'
+        AND EXISTS(SELECT 1 FROM research_site_executions e
+          WHERE e.run_id=r.id AND e.user_id=r.user_id AND e.request_id=r.request_id
+            AND e.job_id=?7 AND e.request_hash=?8 AND e.quota_key=r.remote_quota_key
+            AND e.admission_state='closed' AND e.close_reason='cached' AND e.closed_at IS NOT NULL
+            AND e.began_at IS NULL AND e.version=?9)
+        AND EXISTS(SELECT 1 FROM research_packages p
+          WHERE p.id=?1 AND p.normalized_role_key=?10 AND p.locale=?11 AND p.config_fingerprint=?12
+            AND p.content_fingerprint=?13 AND p.package_json=?14 AND p.quality_json=?2
+            AND p.expires_at>${sqlNow})`)
+      .bind(pack.id, serialize(pack.qualityReport, QUALITY_MAX), bounded.runId, bounded.ownerId,
+        bounded.requestId, bounded.expectedRunVersion, bounded.jobId, bounded.requestHash,
+        bounded.expectedExecutionVersion + 1, run.normalizedRoleKey, run.locale,
+        run.configFingerprint, pack.contentFingerprint, serialize(pack, PACKAGE_MAX));
     try {
-      await this.db.batch([
-        this.db.prepare(`INSERT INTO research_runs (id,user_id,request_id,mutation_id,raw_role,normalized_role_key,locale,input_fingerprint,config_fingerprint,state,state_version,retryable,active_slot,active_expires_at,created_at,updated_at,retry_of_run_id)
-          VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,'queued',0,0,1,?10,?11,?11,?12)`).bind(id, command.ownerId, command.requestId, command.mutationId, command.rawRole, command.normalizedRoleKey, command.locale, command.inputFingerprint, command.configFingerprint, command.activeExpiresAt, now, retryOfRunId),
-        this.db.prepare("INSERT INTO idempotency_records (id,user_id,scope,mutation_id,response_json,created_at) VALUES (?1,?2,?3,?4,?5,?6)").bind(this.createId(), command.ownerId, IDEMPOTENCY_SCOPE, command.mutationId, stored, now),
-      ]);
+      await storage(() => this.db.batch([closeExecution, assertOne(), readyRun, assertOne()]));
+    } catch (error) {
+      const recoveredRun = await this.getRun(bounded.ownerId, bounded.runId);
+      const recoveredExecution = await this.executions.read(bounded.ownerId, bounded.runId);
+      const recovered = await this.exactRemoteCacheResult(bounded, pack, recoveredRun, recoveredExecution);
+      if (recovered) return recovered;
+      if (error instanceof ResearchRepositoryError) throw error;
+      throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+    }
+    const savedRun = await this.requiredRun(bounded.ownerId, bounded.runId);
+    const savedExecution = await this.executions.read(bounded.ownerId, bounded.runId);
+    const saved = await this.exactRemoteCacheResult(bounded, pack, savedRun, savedExecution);
+    if (!saved) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+    return saved;
+  }
+
+  async findRecoveryRun(command: RecoverResearchRunCommand): Promise<ResearchRunRecord | null> {
+    command = parseContract(recoverySchema, command);
+    const row = await storage(() => this.db.prepare(
+      "SELECT response_json FROM idempotency_records WHERE user_id=?1 AND scope=?2 AND mutation_id=?3 LIMIT 1",
+    ).bind(command.ownerId, IDEMPOTENCY_SCOPE, command.mutationId).first<Row>());
+    if (row) {
+      if (typeof row.response_json !== "string") throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+      const alias = parseContract(aliasSchema, parseJson(row.response_json, 4096));
+      if (alias.retryOfRunId !== command.retryOfRunId
+        || alias.inputFingerprint !== command.inputFingerprint
+        || alias.normalizedRoleKey !== command.normalizedRoleKey
+        || alias.locale !== command.locale) return null;
+      const run = await this.requiredRun(command.ownerId, alias.runId);
+      if (run.normalizedRoleKey !== alias.normalizedRoleKey
+        || run.locale !== alias.locale
+        || run.inputFingerprint !== alias.inputFingerprint
+        || run.configFingerprint !== alias.configFingerprint) {
+        throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+      }
+      return run;
+    }
+    const direct = await this.getRunByMutation(command.ownerId, command.mutationId);
+    if (!direct) return null;
+    return direct.retryOfRunId === command.retryOfRunId
+      && direct.inputFingerprint === command.inputFingerprint
+      && direct.normalizedRoleKey === command.normalizedRoleKey
+      && direct.locale === command.locale ? direct : null;
+  }
+
+  private async create(command: CreateResearchRunCommand, retryOfRunId: string | null, remotePolicy?: RemoteCreationPolicy): Promise<RemoteCreationResult> {
+    const alias = await this.findAlias(command, retryOfRunId);
+    if (alias) return this.creationResult(alias, true);
+    const direct = await this.getRunByMutation(command.ownerId, command.mutationId);
+    if (direct) return this.creationResult(assertSameInput(direct, command, retryOfRunId), true);
+    const active = await this.findActive(command);
+    if (active) {
+      await this.executionForWinner(active);
+      const replay = await this.persistAlias(command, active, retryOfRunId);
+      return this.creationResult(replay.run, replay.replayed);
+    }
+    const id = parseContract(idSchema, this.createId());
+    const now = parseContract(integerSchema, this.now());
+    const stored = aliasJson(command, id, retryOfRunId);
+    let initial: SiteExecutionRecord | null = null;
+    if (remotePolicy) {
+      initial = await this.buildRemoteExecution(command, id, now, remotePolicy);
+    }
+    try {
+      const runInsert = initial
+        ? this.db.prepare(`INSERT INTO research_runs (id,user_id,request_id,mutation_id,raw_role,normalized_role_key,locale,input_fingerprint,config_fingerprint,state,state_version,retryable,active_slot,active_expires_at,created_at,updated_at,retry_of_run_id,execution_mode,remote_quota_key)
+          VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,'queued',0,0,1,?10,?11,?11,?12,?13,?14)`).bind(id, command.ownerId, command.requestId, command.mutationId, command.rawRole, command.normalizedRoleKey, command.locale, command.inputFingerprint, command.configFingerprint, initial.job.queueExpiresAt, now, retryOfRunId, BRIDGE_EXECUTOR_MODE, initial.quotaKey)
+        : this.db.prepare(`INSERT INTO research_runs (id,user_id,request_id,mutation_id,raw_role,normalized_role_key,locale,input_fingerprint,config_fingerprint,state,state_version,retryable,active_slot,active_expires_at,created_at,updated_at,retry_of_run_id)
+          VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,'queued',0,0,1,?10,?11,?11,?12)`).bind(id, command.ownerId, command.requestId, command.mutationId, command.rawRole, command.normalizedRoleKey, command.locale, command.inputFingerprint, command.configFingerprint, command.activeExpiresAt, now, retryOfRunId);
+      const aliasInsert = this.db.prepare("INSERT INTO idempotency_records (id,user_id,scope,mutation_id,response_json,created_at) VALUES (?1,?2,?3,?4,?5,?6)")
+        .bind(this.createId(), command.ownerId, IDEMPOTENCY_SCOPE, command.mutationId, stored, now);
+      const statements = initial
+        ? [runInsert, aliasInsert, buildSiteExecutionInsert(this.db, initial), this.db.prepare("SELECT CASE WHEN changes()=1 THEN 1 ELSE json('') END AS lifecycle_assertion")]
+        : [runInsert, aliasInsert];
+      await this.db.batch(statements);
     } catch {
       const replay = await this.findAlias(command, retryOfRunId);
-      if (replay) return { run: replay, replayed: true };
+      if (replay) return this.creationResult(replay, true);
       const won = await this.getRunByMutation(command.ownerId, command.mutationId);
-      if (won) return { run: assertSameInput(won, command, retryOfRunId), replayed: true };
+      if (won) return this.creationResult(assertSameInput(won, command, retryOfRunId), true);
       const joined = await this.findActive(command);
-      if (joined) return this.persistAlias(command, joined, retryOfRunId);
+      if (joined) {
+        await this.executionForWinner(joined);
+        const result = await this.persistAlias(command, joined, retryOfRunId);
+        return this.creationResult(result.run, result.replayed);
+      }
       throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
     }
     const run = await this.getRun(command.ownerId, id);
     if (!run) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
-    return { run, replayed: false };
+    return this.creationResult(run, false);
   }
 
   async getRun(ownerId: string, runId: string): Promise<ResearchRunRecord | null> {
@@ -84,7 +276,7 @@ export class D1ResearchRepository implements ResearchRepository {
       WHERE normalized_role_key=?1 AND locale=?2 AND config_fingerprint=?3 AND expires_at>?4 ORDER BY created_at DESC LIMIT 1`)
       .bind(input.normalizedRoleKey, input.locale, input.configFingerprint, now).first<Row>());
     if (!row) return null;
-    return parsePackage(row, { kind: "require-fresh", now });
+    return parseStoredPackage(row, { kind: "require-fresh", now });
   }
 
   async attachCachedPackage(command: AttachCachedPackageCommand): Promise<ResearchRunRecord> {
@@ -92,15 +284,57 @@ export class D1ResearchRepository implements ResearchRepository {
     command = { ...bounded, package: validatePackage(bounded.package, { kind: "require-fresh", now: this.now() }) };
     const run = await this.getRun(command.ownerId, command.id);
     if (!run) throw new ResearchRepositoryError("NOT_FOUND");
-    const stored = await storage(() => this.db.prepare("SELECT * FROM research_packages WHERE id=?1 LIMIT 1").bind(command.package.id).first<Row>());
-    if (!stored) throw new ResearchRepositoryError("CONFLICT");
-    assertCacheIdentity(run, stored, "CONFLICT");
-    const pack = parsePackage(stored, { kind: "require-fresh", now: this.now() });
-    if (canonicalJson(pack) !== canonicalJson(validatePackage(command.package, { kind: "require-fresh", now: this.now() }))) throw new ResearchRepositoryError("CONFLICT");
+    const pack = await this.validateCachedAttachment(run, command.package, "CONFLICT", this.now());
     const result = await storage(() => this.db.prepare(`UPDATE research_runs SET state='ready',state_version=state_version+1,active_slot=NULL,active_expires_at=NULL,package_id=?1,quality_json=?2,updated_at=?3
-      WHERE id=?4 AND user_id=?5 AND state_version=?6 AND state='queued'`).bind(pack.id, serialize(pack.qualityReport, QUALITY_MAX), this.now(), command.id, command.ownerId, command.expectedVersion).run());
+      WHERE id=?4 AND user_id=?5 AND state_version=?6 AND state='queued' AND execution_mode='synchronous'`).bind(pack.id, serialize(pack.qualityReport, QUALITY_MAX), this.now(), command.id, command.ownerId, command.expectedVersion).run());
     if ((result.meta?.changes ?? 0) !== 1) throw new ResearchRepositoryError("CONFLICT");
     return this.requiredRun(command.ownerId, command.id);
+  }
+
+  private async validateCachedAttachment(
+    run: ResearchRunRecord,
+    candidate: ResearchPackage,
+    code: "CONFLICT" | "RESEARCH_UNAVAILABLE",
+    now: number,
+  ): Promise<ResearchPackage> {
+    const stored = await storage(() => this.db.prepare("SELECT * FROM research_packages WHERE id=?1 LIMIT 1")
+      .bind(candidate.id).first<Row>());
+    if (!stored) throw new ResearchRepositoryError(code);
+    assertCacheIdentity(run, stored, code);
+    const pack = parseStoredPackage(stored, { kind: "require-fresh", now });
+    if (canonicalJson(pack) !== canonicalJson(validatePackage(candidate, { kind: "require-fresh", now }))) {
+      throw new ResearchRepositoryError(code);
+    }
+    return pack;
+  }
+
+  private async exactRemoteCacheResult(
+    command: z.infer<typeof remoteAttachSchema>,
+    pack: ResearchPackage,
+    run: ResearchRunRecord | null,
+    execution: SiteExecutionRecord | null,
+  ): Promise<SiteAdmissionResult | null> {
+    if (!run || !execution || run.ownerId !== command.ownerId || run.id !== command.runId
+      || run.requestId !== command.requestId || execution.ownerId !== command.ownerId
+      || execution.runId !== command.runId || execution.requestId !== command.requestId
+      || execution.jobId !== command.jobId || execution.requestHash !== command.requestHash
+      || execution.version !== command.expectedExecutionVersion + 1
+      || execution.admissionState !== "closed" || execution.closeReason !== "cached"
+      || execution.closedAt === null || execution.beganAt !== null
+      || execution.quotaReservationId !== null || execution.budgetReservationId !== null
+      || execution.admittedAt !== null || run.executionMode !== "cloudflare-workflow-v1"
+      || run.remoteQuotaKey !== execution.quotaKey || run.state !== "ready"
+      || run.stateVersion !== command.expectedRunVersion + 1
+      || run.activeExpiresAt !== null || run.packageId !== pack.id
+      || canonicalJson(run.quality) !== canonicalJson(pack.qualityReport)) return null;
+    const reservations = await storage(() => this.db.prepare(`SELECT
+      EXISTS(SELECT 1 FROM quota_ledger WHERE user_id=?1 AND idempotency_key=?2) AS has_quota,
+      EXISTS(SELECT 1 FROM ai_budget_reservations WHERE run_id=?3 OR request_id=?4) AS has_budget`)
+      .bind(command.ownerId, execution.quotaKey, command.runId, command.requestId).first<Row>());
+    if (!reservations || reservations.has_quota !== 0 || reservations.has_budget !== 0) {
+      throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+    }
+    return Object.freeze({ run, execution });
   }
 
   async transition(command: TransitionResearchRunCommand): Promise<ResearchRunRecord> {
@@ -109,7 +343,7 @@ export class D1ResearchRepository implements ResearchRepository {
     const terminal = command.to === "ready" || command.to === "needs-review" || command.to === "failed";
     const result = await storage(() => this.db.prepare(`UPDATE research_runs SET state=?1,state_version=state_version+1,retryable=?2,error_code=?3,public_failure_category=?4,
       active_slot=CASE WHEN ?5 THEN NULL ELSE 1 END,active_expires_at=CASE WHEN ?5 THEN NULL ELSE active_expires_at END,updated_at=?6
-      WHERE id=?7 AND user_id=?8 AND state_version=?9 AND state=?10`)
+      WHERE id=?7 AND user_id=?8 AND state_version=?9 AND state=?10 AND execution_mode='synchronous'`)
       .bind(command.to, command.retryable ? 1 : 0, command.errorCode ?? null, command.failureCategory ?? null, terminal ? 1 : 0, this.now(), command.id, command.ownerId, command.expectedVersion, command.from).run());
     if ((result.meta?.changes ?? 0) !== 1) throw new ResearchRepositoryError("CONFLICT");
     return this.requiredRun(command.ownerId, command.id);
@@ -124,6 +358,7 @@ export class D1ResearchRepository implements ResearchRepository {
     command = { ...bounded, result: envelope as SaveResearchValidationCommand["result"] };
     const run = await this.getRun(command.ownerId, command.id);
     if (!run) throw new ResearchRepositoryError("NOT_FOUND");
+    if (run.executionMode !== "synchronous") throw new ResearchRepositoryError("CONFLICT");
     if (run.normalizedRoleKey !== command.normalizedRoleKey || run.locale !== command.locale || run.configFingerprint !== command.configFingerprint) throw new ResearchRepositoryError("CONFLICT");
     if (!command.result.ready) return this.saveNeedsReview({ ...command, result: command.result });
     const packageValue = validatePackage(command.result.package, { kind: "require-fresh", now: this.now() });
@@ -133,7 +368,7 @@ export class D1ResearchRepository implements ResearchRepository {
       .bind(packageValue.contentFingerprint, command.configFingerprint).first<Row>());
     if (existing) {
       assertCacheIdentity(run, existing, "CONFLICT");
-      const exact = parsePackage(existing, { kind: "require-fresh", now: this.now() });
+      const exact = parseStoredPackage(existing, { kind: "require-fresh", now: this.now() });
       if (canonicalJson(exact) !== canonicalJson(packageValue)) throw new ResearchRepositoryError("CONFLICT");
       return this.attachReady(command, exact, []);
     }
@@ -160,8 +395,31 @@ export class D1ResearchRepository implements ResearchRepository {
     command = parseContract(retrySchema, command);
     const source = await this.getRun(command.ownerId, command.runId);
     if (!source) throw new ResearchRepositoryError("NOT_FOUND");
-    if (!["needs-review", "failed"].includes(source.state) || !source.retryable || command.requestId === source.requestId) throw new ResearchRepositoryError("CONFLICT");
-    return this.create({ ownerId: command.ownerId, requestId: command.requestId, mutationId: command.mutationId, rawRole: source.rawRole, normalizedRoleKey: source.normalizedRoleKey, locale: source.locale, inputFingerprint: source.inputFingerprint, configFingerprint: source.configFingerprint, activeExpiresAt: command.activeExpiresAt }, source.id);
+    if (source.executionMode !== "synchronous" || !["needs-review", "failed"].includes(source.state) || !source.retryable || command.requestId === source.requestId) throw new ResearchRepositoryError("CONFLICT");
+    const result = await this.create({ ownerId: command.ownerId, requestId: command.requestId, mutationId: command.mutationId, rawRole: source.rawRole, normalizedRoleKey: source.normalizedRoleKey, locale: source.locale, inputFingerprint: source.inputFingerprint, configFingerprint: source.configFingerprint, activeExpiresAt: command.activeExpiresAt }, source.id);
+    return { run: result.run, replayed: result.replayed };
+  }
+
+  async createRemoteRetry(command: CreateRemoteResearchRetryCommand): Promise<RemoteCreationResult> {
+    const bounded = parseContract(remoteRetrySchema, command);
+    const source = await this.getRun(bounded.ownerId, bounded.runId);
+    if (!source) throw new ResearchRepositoryError("NOT_FOUND");
+    if (!["needs-review", "failed"].includes(source.state) || !source.retryable
+      || bounded.requestId === source.requestId || bounded.currentConfigFingerprint !== source.configFingerprint) {
+      throw new ResearchRepositoryError("CONFLICT");
+    }
+    const provider = parseRemoteProviderRequest(source.rawRole, source.locale);
+    return this.create({
+      ownerId: bounded.ownerId,
+      requestId: bounded.requestId,
+      mutationId: bounded.mutationId,
+      rawRole: provider.role,
+      normalizedRoleKey: source.normalizedRoleKey,
+      locale: source.locale,
+      inputFingerprint: source.inputFingerprint,
+      configFingerprint: source.configFingerprint,
+      activeExpiresAt: 0,
+    }, source.id, Object.freeze(bounded.policy));
   }
 
   async resolveReadyPackage(ownerId: string, runId: string): Promise<ResearchPackage> {
@@ -180,7 +438,7 @@ export class D1ResearchRepository implements ResearchRepository {
     const row = await storage(() => this.db.prepare("SELECT * FROM research_packages WHERE id=?1 LIMIT 1").bind(run.packageId).first<Row>());
     if (!row) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
     assertCacheIdentity(run, row, "RESEARCH_UNAVAILABLE");
-    const pack = parsePackage(row, expiration);
+    const pack = parseStoredPackage(row, expiration);
     if (canonicalJson(run.quality) !== canonicalJson(pack.qualityReport)) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
     return pack;
   }
@@ -209,6 +467,63 @@ export class D1ResearchRepository implements ResearchRepository {
     catch { const replay = await this.findAlias(command, retryOfRunId); if (replay) return { run: replay, replayed: true }; throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); }
     return { run, replayed: true };
   }
+  private async creationResult(run: ResearchRunRecord, replayed: boolean): Promise<RemoteCreationResult> {
+    return { run, replayed, execution: await this.executionForWinner(run) };
+  }
+  private async executionForWinner(run: ResearchRunRecord): Promise<SiteExecutionRecord | null> {
+    return run.executionMode === BRIDGE_EXECUTOR_MODE ? this.executions.read(run.ownerId, run.id) : null;
+  }
+  private async buildRemoteExecution(command: CreateResearchRunCommand, id: string, createdAt: number, policy: RemoteCreationPolicy): Promise<SiteExecutionRecord> {
+    try {
+      const quotaKey = deterministicId("research-quota", [command.ownerId, id, command.requestId]);
+      const job = parseBridgeJob({
+        protocol: BRIDGE_AUTH_PROTOCOL,
+        executor: BRIDGE_EXECUTOR_MODE,
+        jobId: this.createJobId(),
+        runId: id,
+        requestId: command.requestId,
+        inputFingerprint: command.inputFingerprint,
+        configFingerprint: command.configFingerprint,
+        policyId: KIMI_RESEARCH_EXECUTION_POLICY.profileId,
+        role: command.rawRole,
+        locale: command.locale,
+        createdAt,
+        queueExpiresAt: createdAt + BRIDGE_QUEUE_TTL_MS,
+      });
+      const requestHash = await hashBridgeJob(job);
+      const validationContext = parseResearchValidationContext({
+        ...RESEARCH_CONFIGURATION_VERSIONS,
+        packageId: deterministicId("research-package", [command.ownerId, id, command.requestId]),
+        observedAt: calendarDate(createdAt),
+        expiresAt: calendarDate(createdAt + policy.cacheDays * 86_400_000),
+      });
+      return Object.freeze({
+        ownerId: command.ownerId,
+        runId: id,
+        requestId: command.requestId,
+        jobId: job.jobId,
+        requestHash,
+        job,
+        validationContext,
+        quotaKey,
+        policy,
+        reservationExpiresAt: createdAt + 1_380_000,
+        admissionState: "pending",
+        version: 0,
+        quotaReservationId: null,
+        budgetReservationId: null,
+        admittedAt: null,
+        closedAt: null,
+        closeReason: null,
+        beganAt: null,
+        executionExpiresAt: null,
+        createdAt,
+        updatedAt: createdAt,
+      });
+    } catch {
+      throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+    }
+  }
   private async requiredRun(ownerId: string, id: string) { const run = await this.getRun(ownerId, id); if (!run) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); return run; }
   private async saveNeedsReview(command: SaveResearchValidationCommand & { result: Extract<SaveResearchValidationCommand["result"], { ready: false }> }) {
     const quality = validateQuality(command.result.quality); if (quality.passed || quality.issueCodes.length === 0) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
@@ -221,7 +536,7 @@ export class D1ResearchRepository implements ResearchRepository {
       candidate = bytes(serialized) <= CANDIDATE_MAX ? serialized : null;
     } catch { /* Null, unsafe or structurally incomplete results fail; never persist raw input. */ }
     const result = await storage(() => this.db.prepare(`UPDATE research_runs SET state=?7,state_version=state_version+1,retryable=1,active_slot=NULL,active_expires_at=NULL,quality_json=?1,candidate_json=?2,error_code=?8,public_failure_category=?9,updated_at=?3
-      WHERE id=?4 AND user_id=?5 AND state_version=?6 AND state='validating'`).bind(serialize(quality, QUALITY_MAX), candidate, this.now(), command.id, command.ownerId, command.expectedVersion, state, state === "failed" ? "invalid-result" : null, state === "failed" ? "invalid-result" : null).run());
+      WHERE id=?4 AND user_id=?5 AND state_version=?6 AND state='validating' AND execution_mode='synchronous'`).bind(serialize(quality, QUALITY_MAX), candidate, this.now(), command.id, command.ownerId, command.expectedVersion, state, state === "failed" ? "invalid-result" : null, state === "failed" ? "invalid-result" : null).run());
     if ((result.meta?.changes ?? 0) !== 1) throw new ResearchRepositoryError("CONFLICT"); return this.requiredRun(command.ownerId, command.id);
   }
   private async attachReady(command: SaveResearchValidationCommand, packageValue: ResearchPackage, extra: D1PreparedStatement[]) {
@@ -229,31 +544,19 @@ export class D1ResearchRepository implements ResearchRepository {
     if ((result.at(-1)?.meta?.changes ?? 0) !== 1) throw new ResearchRepositoryError("CONFLICT"); return this.requiredRun(command.ownerId, command.id);
   }
   private readyStatements(command: SaveResearchValidationCommand, packageValue: ResearchPackage): D1PreparedStatement[] {
-    const now = this.now(); const ids = normalizedIds(packageValue.id);
+    const now = this.now();
     const gated = (sql: string, values: unknown[]) => {
       const guard = guardArgs(command, values.length);
       return this.db.prepare(`${sql} WHERE EXISTS (${guard.sql})`).bind(...values, ...guard.values);
     };
-    // Expand relationships inside SQLite. Repeating long URLs/IDs per link in JS
-    // can exceed D1's bind limit even for a package below the canonical limit.
-    const skills = serialize(packageValue.blueprint.skills, PACKAGE_MAX);
-    const resources = serialize(packageValue.blueprint.resources, PACKAGE_MAX);
-    const audits = serialize(packageValue.sourceEvidence, PACKAGE_MAX);
     return [
-      gated("INSERT INTO role_blueprints (id,slug,name,status,current_version,created_at,updated_at) SELECT ?1,?2,?3,'ready',?4,?5,?5", [ids.roleId, ids.roleSlug, packageValue.blueprint.name, packageValue.blueprint.version, now]),
-      gated("INSERT INTO role_blueprint_versions (id,role_id,version,status,blueprint_json,source_coverage_json,published_at,created_at) SELECT ?1,?2,?3,'ready',?4,?5,?6,?6", [ids.versionId, ids.roleId, packageValue.blueprint.version, serialize(packageValue.blueprint, PACKAGE_MAX), "{}", now]),
-      gated("INSERT INTO role_skill_definitions (id,blueprint_version_id,skill_key,name,category,importance,payload_json,created_at) SELECT ?4||':'||(value->>'id'),?1,value->>'id',value->>'name',value->>'category',value->>'importance',value,?2 FROM json_each(?3)", [ids.versionId, now, skills, packageValue.id]),
-      gated("INSERT INTO role_skill_edges (id,blueprint_version_id,from_skill_key,to_skill_key,relation,created_at) SELECT ?4||':'||edge.value||':'||(skill.value->>'id'),?1,edge.value,skill.value->>'id','prerequisite',?2 FROM json_each(?3) skill JOIN json_each(skill.value->'prerequisiteIds') edge", [ids.versionId, now, skills, packageValue.id]),
-      gated("INSERT OR IGNORE INTO learning_resources (id,canonical_url,title,provider,language,cost,format,source_tier,last_verified_at,created_at,updated_at) SELECT ?3||':'||(value->>'id'),value->>'url',value->>'title',value->>'provider',value->>'language',value->>'cost',value->>'format',value->>'sourceTier',value->>'lastVerifiedAt',?1,?1 FROM json_each(?2)", [now, resources, packageValue.id]),
-      gated("INSERT INTO resource_skill_links (id,blueprint_version_id,skill_key,resource_id,purpose,created_at) SELECT ?4||':'||(resource.value->>'id')||':'||skill.value||':'||(resource.value->>'purpose'),?1,skill.value,(SELECT lr.id FROM learning_resources lr WHERE lr.canonical_url=resource.value->>'url'),resource.value->>'purpose',?2 FROM json_each(?3) resource JOIN json_each(resource.value->'skillIds') skill", [ids.versionId, now, resources, packageValue.id]),
-      gated("INSERT INTO research_packages (id,normalized_role_key,locale,config_fingerprint,content_fingerprint,package_json,quality_json,blueprint_id,blueprint_version,blueprint_version_id,registry_id,registry_version,observed_at,expires_at,created_at) SELECT ?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15", [packageValue.id, command.normalizedRoleKey, command.locale, command.configFingerprint, packageValue.contentFingerprint, serialize(packageValue, PACKAGE_MAX), serialize(packageValue.qualityReport, QUALITY_MAX), packageValue.blueprint.id, packageValue.blueprint.version, ids.versionId, packageValue.registry.id, packageValue.registry.version, packageValue.observedAt, expiryMs(packageValue.expiresAt), now]),
-      gated("INSERT INTO research_source_audits (id,package_id,canonical_url,title,hostname,source_tier,observed_at,citation_hash) SELECT ?1||':'||(value->>'canonicalUrl'),?1,value->>'canonicalUrl',value->>'title',value->>'hostname',value->>'sourceTier',value->>'observedAt',value->>'citationHash' FROM json_each(?2)", [packageValue.id, audits]),
+      ...normalizedPackageInserts(packageValue, command, now, gated),
       this.readyUpdate(command, packageValue),
     ];
   }
   private readyUpdate(command: SaveResearchValidationCommand, packageValue: ResearchPackage) {
     return this.db.prepare(`UPDATE research_runs SET state='ready',state_version=state_version+1,retryable=0,active_slot=NULL,active_expires_at=NULL,package_id=?1,quality_json=?2,candidate_json=NULL,error_code=NULL,public_failure_category=NULL,updated_at=?3
-      WHERE id=?4 AND user_id=?5 AND state_version=?6 AND state='validating'`).bind(packageValue.id, serialize(packageValue.qualityReport, QUALITY_MAX), this.now(), command.id, command.ownerId, command.expectedVersion);
+      WHERE id=?4 AND user_id=?5 AND state_version=?6 AND state='validating' AND execution_mode='synchronous'`).bind(packageValue.id, serialize(packageValue.qualityReport, QUALITY_MAX), this.now(), command.id, command.ownerId, command.expectedVersion);
   }
 }
 
@@ -283,7 +586,7 @@ export class D1PlanningReplayPackageReader implements PlanningReplayPackageReade
     ).bind(reference.packageId).first<Row>());
     if (!packageRow) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
     assertCacheIdentity(run, packageRow, "RESEARCH_UNAVAILABLE");
-    const packageValue = parsePackage(packageRow, { kind: "ignore-for-audit" });
+    const packageValue = parseStoredPackage(packageRow, { kind: "ignore-for-audit" });
     if (canonicalJson(run.quality) !== canonicalJson(packageValue.qualityReport)
       || packageValue.id !== reference.packageId
       || packageValue.blueprint.id !== reference.blueprintId
@@ -297,72 +600,7 @@ export class D1PlanningReplayPackageReader implements PlanningReplayPackageReade
   }
 }
 
-function guardArgs(command: SaveResearchValidationCommand, offset: number) { return { sql: `SELECT 1 FROM research_runs WHERE id=?${offset + 1} AND user_id=?${offset + 2} AND state_version=?${offset + 3} AND state='validating'`, values: [command.id, command.ownerId, command.expectedVersion] }; }
-function normalizedIds(packageId: string) { return { roleId: `research-role-${packageId}`, roleSlug: `research-${packageId}`, versionId: `research-role-version-${packageId}` }; }
-function expiryMs(date: string) { const value = Date.parse(`${date}T00:00:00.000Z`); if (!Number.isSafeInteger(value)) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); return value; }
-function bytes(value: string) { return new TextEncoder().encode(value).byteLength; }
-function serialize(value: unknown, limit: number) { try { const bounded = readBoundedResearchJson(value); const result = JSON.stringify(bounded); if (typeof result !== "string" || bytes(result) > limit) throw new Error(); return result; } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
-function parseJson(value: string, limit: number) { if (bytes(value) > limit) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); try { return readBoundedResearchJson(JSON.parse(value) as unknown); } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
-function validateQuality(value: unknown) { try { return researchQualityReportSchema.parse(readBoundedResearchJson(value)); } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); } }
-type ExpirationPolicy = { kind: "require-fresh"; now: number } | { kind: "ignore-for-audit" };
-function validatePackage(value: unknown, expiration: ExpirationPolicy) {
-  try {
-    const snapshot = readBoundedResearchJson(value);
-    const packageValue = researchPackageSchema.parse(snapshot);
-    if (canonicalJson(snapshot) !== canonicalJson(packageValue)
-      || !packageValue.qualityReport.passed
-      || expiration.kind === "require-fresh" && expiryMs(packageValue.expiresAt) <= expiration.now) {
-      throw new Error();
-    }
-    const { contentFingerprint, ...rest } = packageValue;
-    if (fingerprint(canonicalJson(rest)) !== contentFingerprint) throw new Error();
-    assertPackageIntegrity(packageValue);
-    return packageValue;
-  } catch {
-    throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
-  }
-}
-function validateCandidate(value: unknown) {
-  try {
-    const candidate = researchCandidateSchema.parse(readBoundedResearchJson(value));
-    for (const resource of candidate.resources) if (canonicalizePublicCitationUrl(resource.url) !== resource.url) throw new Error();
-    return candidate;
-  } catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); }
-}
-function assertPackageIntegrity(packageValue: ResearchPackage) {
-  const { blueprint, registry, sourceEvidence, qualityReport } = packageValue;
-  if (blueprint.status !== "ready" || blueprint.updatedAt !== packageValue.observedAt || packageValue.expiresAt <= packageValue.observedAt || registry.blueprintId !== blueprint.id || registry.blueprintVersion !== blueprint.version || qualityReport.observedAt !== packageValue.observedAt || qualityReport.skillCount !== blueprint.skills.length || qualityReport.sourceCount !== sourceEvidence.length || qualityReport.unitCount !== registry.tracks.reduce((total, track) => total + track.templates.length, 0)) throw new Error();
-  if (validateRoleBlueprint(blueprint).issues.length || validateUnitRegistry(registry, blueprint).issues.length) throw new Error();
-  const evidence = new Map(sourceEvidence.map((source) => [source.canonicalUrl, source]));
-  if (evidence.size !== sourceEvidence.length || evidence.size !== blueprint.resources.length) throw new Error();
-  for (const resource of blueprint.resources) {
-    const source = evidence.get(resource.url);
-    // Citation titles come from annotations and need not equal resource titles.
-    if (!source || source.sourceTier !== resource.sourceTier || source.observedAt !== packageValue.observedAt || resource.lastVerifiedAt !== packageValue.observedAt || source.hostname !== new URL(resource.url).hostname || canonicalizePublicCitationUrl(resource.url) !== resource.url || source.citationHash !== fingerprint({ canonicalUrl: resource.url })) throw new Error();
-  }
-  const phaseSkills = blueprint.phases.flatMap((phase) => phase.skillIds);
-  if (new Set(phaseSkills).size !== phaseSkills.length) throw new Error();
-  const resources = new Map(blueprint.resources.map((resource) => [resource.id, resource]));
-  for (const skill of blueprint.skills) {
-    if (!skill.resourceIds.length || (skill.importance === "core" && !skill.resourceIds.some((id) => ["primary", "institutional"].includes(resources.get(id)!.sourceTier)))) throw new Error();
-  }
-  for (const template of registry.tracks.flatMap((track) => track.templates)) {
-    if (resources.get(template.primaryResourceId)!.cost !== "free" && !template.alternativeResourceIds.some((id) => resources.get(id)!.cost === "free")) throw new Error();
-  }
-}
-function parsePackage(row: Row, expiration: ExpirationPolicy) {
-  if (typeof row.package_json !== "string" || typeof row.quality_json !== "string" || typeof row.content_fingerprint !== "string") throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
-  parseContract(z.object(cacheShape).strict(), { normalizedRoleKey: row.normalized_role_key, locale: row.locale, configFingerprint: row.config_fingerprint });
-  parseContract(integerSchema, row.created_at);
-  const packageValue = validatePackage(parseJson(row.package_json, PACKAGE_MAX), expiration);
-  const quality = validateQuality(parseJson(row.quality_json, QUALITY_MAX));
-  if (row.id !== packageValue.id || !quality.passed || canonicalJson(quality) !== canonicalJson(packageValue.qualityReport)
-    || packageValue.contentFingerprint !== row.content_fingerprint || row.blueprint_id !== packageValue.blueprint.id
-    || row.blueprint_version !== packageValue.blueprint.version || row.blueprint_version_id !== normalizedIds(packageValue.id).versionId
-    || row.registry_id !== packageValue.registry.id || row.registry_version !== packageValue.registry.version
-    || row.observed_at !== packageValue.observedAt || row.expires_at !== expiryMs(packageValue.expiresAt)) throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
-  return packageValue;
-}
+function guardArgs(command: SaveResearchValidationCommand, offset: number) { return { sql: `SELECT 1 FROM research_runs WHERE id=?${offset + 1} AND user_id=?${offset + 2} AND state_version=?${offset + 3} AND state='validating' AND execution_mode='synchronous'`, values: [command.id, command.ownerId, command.expectedVersion] }; }
 function assertCacheIdentity(run: ResearchRunRecord, row: Row, code: "CONFLICT" | "RESEARCH_UNAVAILABLE") {
   if (run.normalizedRoleKey !== row.normalized_role_key || run.locale !== row.locale || run.configFingerprint !== row.config_fingerprint) throw new ResearchRepositoryError(code);
 }
@@ -371,8 +609,14 @@ function parseRun(row: Row): ResearchRunRecord {
     ownerId: row.user_id, requestId: row.request_id, mutationId: row.mutation_id, rawRole: row.raw_role,
     normalizedRoleKey: row.normalized_role_key, locale: row.locale, inputFingerprint: row.input_fingerprint, configFingerprint: row.config_fingerprint,
   });
+  const executionMode = parseContract(z.enum(["synchronous", "cloudflare-workflow-v1"]), row.execution_mode);
+  const remoteQuotaKey = parseContract(z.string().min(8).max(128).nullable(), row.remote_quota_key);
+  if ((executionMode === "synchronous") !== (remoteQuotaKey === null)) {
+    throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE");
+  }
   const run: ResearchRunRecord = {
-    ...identity, id: parseContract(idSchema, row.id), state: parseContract(researchStateSchema, row.state),
+    ...identity, id: parseContract(idSchema, row.id), executionMode, remoteQuotaKey,
+    state: parseContract(researchStateSchema, row.state),
     stateVersion: parseContract(integerSchema, row.state_version), retryable: parseContract(z.union([z.literal(0), z.literal(1)]), row.retryable) === 1,
     activeExpiresAt: parseContract(integerSchema.nullable(), row.active_expires_at), packageId: parseContract(idSchema.nullable(), row.package_id),
     errorCode: parseContract(errorCodeSchema.nullable(), row.error_code), failureCategory: parseContract(researchPublicFailureCategorySchema.nullable(), row.public_failure_category),
@@ -388,6 +632,11 @@ function parseRun(row: Row): ResearchRunRecord {
   return run;
 }
 function string(value: unknown) { if (typeof value !== "string") throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); return value; }
+function calendarDate(value: number) { return new Date(value).toISOString().slice(0, 10); }
+function parseRemoteProviderRequest(role: string, locale: "zh-CN" | "en-US") {
+  try { return parseProviderRequest({ role, locale }); }
+  catch { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); }
+}
 function assertSameInput(run: ResearchRunRecord, command: CreateResearchRunCommand, retryOfRunId: string | null) { if (run.retryOfRunId !== retryOfRunId || run.inputFingerprint !== command.inputFingerprint || run.normalizedRoleKey !== command.normalizedRoleKey || run.locale !== command.locale || run.configFingerprint !== command.configFingerprint) throw new ResearchRepositoryError("CONFLICT"); return run; }
 function assertTransition(command: TransitionResearchRunCommand) {
   const normal = (command.from === "queued" && command.to === "researching")

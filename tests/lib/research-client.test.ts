@@ -6,7 +6,7 @@ import { ArcApiError } from "../../app/lib/cloud-client";
 import { createResearchClient } from "../../app/lib/research-client";
 
 const input = { role: "Data Product Manager", locale: "en-US" as const, mutationId: "mutation-start-1" };
-const active: ResearchRunPublicView = { id: "research-run-1", role: input.role, locale: input.locale, state: "researching", retryable: false };
+const active: ResearchRunPublicView = { id: "research-run-1", role: input.role, locale: input.locale, state: "researching", retryable: false, backgroundAccepted: false };
 const needsReview: ResearchRunPublicView = { ...active, state: "needs-review", retryable: true, quality: { issueCodes: ["missing-unit"], skillCount: 3, sourceCount: 6, unitCount: 2 } };
 const failed: ResearchRunPublicView = { ...active, state: "failed", retryable: true, failureCategory: "timeout" };
 const ready: ResearchRunPublicView = {
@@ -20,6 +20,66 @@ const wire = (value: unknown, status = 200, headers?: HeadersInit) => new Respon
 const success = (run: ResearchRunPublicView = active) => ({ run, requestId: "request-safe-1" });
 
 describe("Research client public boundary", () => {
+  it.each(["queued", "researching", "validating"] as const)("accepts HTTP 200 background %s while retaining the public run identity", async (state) => {
+    const run: ResearchRunPublicView = { ...active, state, backgroundAccepted: true };
+    const fetcher = vi.fn<typeof fetch>(async () => wire(success(run), 200));
+    const client = createResearchClient({ fetch: fetcher });
+    await expect(client.startResearch(input, signal())).resolves.toEqual({ ...success(run), error: null });
+    expect(JSON.parse(fetcher.mock.calls[0]![1]!.body as string)).toEqual(input);
+    await expect(client.getResearch(active.id, signal())).resolves.toEqual({ ...success(run), error: null });
+    await expect(client.recoverResearch({ kind: "start", ...input }, signal())).resolves.toEqual({ ...success(run), error: null });
+  });
+
+  it.each([
+    { ownerId: "owner-a" }, { executor: "remote" }, { model: "private-model" },
+    { url: "https://private.invalid" }, { backgroundAccepted: true },
+  ])("rejects caller-supplied private or acceptance controls #%# before fetching", async (controls) => {
+    const fetcher = vi.fn<typeof fetch>();
+    const client = createResearchClient({ fetch: fetcher });
+    await expect(client.startResearch({ ...input, ...controls }, signal())).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    await expect(client.recoverResearch({ kind: "start", ...input, ...controls }, signal())).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it("defaults background acceptance for a legacy wire response that omits the field", async () => {
+    const run = {
+      id: active.id, role: input.role, locale: input.locale, state: "researching", retryable: false,
+    };
+    const client = createResearchClient({ fetch: async () => wire({ run, requestId: "request-legacy" }) });
+
+    await expect(client.getResearch(active.id, signal())).resolves.toEqual({
+      run: { ...run, backgroundAccepted: false }, requestId: "request-legacy", error: null,
+    });
+  });
+
+  it.each([active, ready, needsReview, failed])("posts recovery as query semantics and accepts the 200 public state $state", async (run) => {
+    const fetcher = vi.fn<typeof fetch>(async () => wire(success(run)));
+    const recovery = { kind: "start" as const, ...input };
+    await expect(createResearchClient({ fetch: fetcher }).recoverResearch(recovery, signal())).resolves.toMatchObject({ run, error: null });
+    expect(fetcher).toHaveBeenCalledWith("/api/intelligence/research/recover", expect.objectContaining({
+      method: "POST", headers: { "content-type": "application/json" },
+    }));
+    expect(JSON.parse(fetcher.mock.calls[0]![1]!.body as string)).toEqual(recovery);
+  });
+
+  it("validates recovery role and locale while allowing retry to return a successor id", async () => {
+    const next = { ...active, id: "research-run-successor" };
+    const client = createResearchClient({ fetch: async () => wire(success(next)) });
+    await expect(client.recoverResearch({ kind: "retry", ...input, sourceRunId: active.id }, signal())).resolves.toMatchObject({ run: next });
+    await expect(client.recoverResearch({ kind: "start", ...input, role: "Other role" }, signal())).rejects.toMatchObject({ code: "INTERNAL" });
+    await expect(client.recoverResearch({ kind: "start", ...input, locale: "zh-CN" }, signal())).rejects.toMatchObject({ code: "INTERNAL" });
+  });
+
+  it("does not fetch malformed recovery identities and preserves strict mutation response checks", async () => {
+    const fetcher = vi.fn<typeof fetch>();
+    const client = createResearchClient({ fetch: fetcher });
+    await expect(client.recoverResearch({ kind: "retry", ...input } as never, signal())).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    await expect(client.recoverResearch({ kind: "start", ...input, ownerId: "owner-a" } as never, signal())).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    expect(fetcher).not.toHaveBeenCalled();
+
+    const mutationClient = createResearchClient({ fetch: async () => wire(success(failed)) });
+    await expect(mutationClient.startResearch(input, signal())).rejects.toMatchObject({ code: "INTERNAL" });
+  });
   it("submits only validated input with the caller signal and uncached credentials", async () => {
     const fetcher = vi.fn<typeof fetch>(async () => wire(success()));
     const client = createResearchClient({ fetch: fetcher });
@@ -81,6 +141,8 @@ describe("Research client public boundary", () => {
     [200, { error: { code: "INTERNAL", message: "raw" }, requestId: "request-1" }],
     [503, success(active)], [422, success(needsReview)], [201, success(active)],
     [200, { ...success(), extra: "private" }],
+    [200, { ...success(), run: { ...active, backgroundAccepted: true, executor: "private-executor" } }],
+    [200, { backgroundAccepted: true, requestId: "request-ambiguous" }],
     [200, { ...success(), run: { ...active, retryable: true } }],
     [200, { ...success(), requestId: " bad-id " }],
     [200, { ...success(), requestId: "bad\u0001id" }],

@@ -1,3 +1,9 @@
+import {
+  buildNativeFetchDiagnostic,
+  projectNativeFetchDiagnostic,
+  type NativeFetchDiagnostic,
+} from "./fetch-diagnostic";
+
 const KEY_URL = "https://openrouter.ai/api/v1/key";
 const RESEARCH_URL = "https://openrouter.ai/api/v1/chat/completions";
 const KEY_MAX_BYTES = 32_768;
@@ -33,9 +39,14 @@ export function verifyKeyPolicy(payload: unknown) {
   }
 }
 
-export function createGuardedTransport(key: string, fetch: typeof globalThis.fetch, options: { checkKeyOnly?: boolean } = {}) {
+export function createGuardedTransport(key: string, fetch: typeof globalThis.fetch, options: {
+  checkKeyOnly?: boolean;
+  onResearchFetchDiagnostic?: (diagnostic: NativeFetchDiagnostic) => unknown;
+} = {}) {
   validateKey(key);
   const researchAllowed = options.checkKeyOnly !== true;
+  let onResearchFetchDiagnostic = options.onResearchFetchDiagnostic;
+  let observationOpen = true;
   const diagnostic: KeyCheckDiagnostics = { phase: "not-started", failure: null, elapsedMs: 0 };
   let checked = false;
   let getCount = 0;
@@ -45,7 +56,8 @@ export function createGuardedTransport(key: string, fetch: typeof globalThis.fet
   const cancel = (response: Response) => { void response.body?.cancel().catch(() => undefined); };
   const guardedFetch: typeof globalThis.fetch = async (url, init) => {
     const method = init?.method;
-    if (typeof url !== "string" || init?.redirect !== "error"
+    if (typeof url !== "string" || !init
+      || (init.redirect !== "error" && (url !== RESEARCH_URL || init.redirect !== "manual"))
       || new Headers(init.headers).get("authorization") !== `Bearer ${key}`
       || (url !== KEY_URL && url !== RESEARCH_URL)
       || (url === KEY_URL && (method !== "GET" || getCount !== 0 || init.body != null))
@@ -54,8 +66,19 @@ export function createGuardedTransport(key: string, fetch: typeof globalThis.fet
     }
     if (url === KEY_URL) getCount++; else postCount++;
     let response: Response;
-    try { response = await fetch(url, init); } catch {
+    try { response = await fetch(url, init); } catch (error) {
       if (url === KEY_URL) diagnostic.failure ??= "network-error";
+      else if (observationOpen && typeof onResearchFetchDiagnostic === "function") {
+        let nativeDiagnostic: NativeFetchDiagnostic;
+        try { nativeDiagnostic = buildNativeFetchDiagnostic(error); }
+        catch { nativeDiagnostic = Object.freeze({ version: "native-fetch-diagnostic-v1", kind: "other" }); }
+        let projected: NativeFetchDiagnostic | null = null;
+        try { projected = projectNativeFetchDiagnostic(nativeDiagnostic); } catch { /* Diagnostic projection is optional. */ }
+        if (projected) {
+          try { void Promise.resolve(onResearchFetchDiagnostic(projected)).catch(() => undefined); }
+          catch { /* Observers cannot change the guarded failure. */ }
+        }
+      }
       throw new SafeValidationError(url === KEY_URL ? "key-check-failed" : "transport-denied");
     }
     if (url === KEY_URL) {
@@ -136,6 +159,6 @@ export function createGuardedTransport(key: string, fetch: typeof globalThis.fet
   return { fetch: guardedFetch, inspectKey,
     counts: () => ({ getCount, postCount, keyHttpStatus, researchHttpStatus }),
     diagnostics: (): KeyCheckDiagnostics => ({ phase: diagnostic.phase, failure: diagnostic.failure, elapsedMs: diagnostic.elapsedMs }),
-    clear: () => { key = ""; checked = false; },
+    clear: () => { observationOpen = false; onResearchFetchDiagnostic = undefined; key = ""; checked = false; },
   };
 }

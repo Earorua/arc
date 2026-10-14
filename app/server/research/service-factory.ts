@@ -1,151 +1,69 @@
 import { env } from "cloudflare:workers";
 import { z } from "zod";
 import { getD1 } from "../../../db/d1";
-import { fingerprint } from "../../lib/planning/fingerprint";
 import { D1AiRunSink } from "../ai/d1-run-recorder";
 import { D1EntitlementRepository } from "../entitlements/d1-entitlement-repository";
 import { D1FeatureCohort } from "../entitlements/d1-feature-cohort";
 import { EntitlementGate } from "../entitlements/policy";
-import { parseResearchBudgetEnvironment, type ResearchBudgetLimits } from "./budget";
 import { D1ResearchBudgetRepository } from "./d1-budget-repository";
 import { D1ResearchRepository } from "./d1-repository";
+import { D1SiteExecutionRepository } from "./d1-site-execution-repository";
+import { D1SiteBridgeRepository } from "./d1-site-bridge-repository";
+import { readResearchBridgeConnection } from "./executor/connection-config";
+import { D1BridgeNonceStore } from "./executor/d1-nonce-store";
+import { ExecutorBridgeClient } from "./executor/executor-client";
+import { BridgeTransport } from "./executor/http-transport";
 import { OpenRouterResearchProvider, type OpenRouterResearchConfig } from "./openrouter-provider";
 import { ResearchOrchestrator, type ResearchOrchestratorConfig } from "./orchestrator";
-import { RESEARCH_PROVIDER_LIMITS, RESEARCH_PROVIDER_VERSIONS, ResearchProviderError, type ResearchProvider } from "./provider";
+import {
+  readConfiguredResearchOrigin,
+  readResearchPolicyConfiguration,
+  RESEARCH_CONFIGURATION_VERSIONS,
+  type ResearchProductionConfiguration,
+  type ResearchProductionEnvironment,
+} from "./production-policy";
+import { ResearchProviderError, type ResearchProvider } from "./provider";
+import { RemoteResearchReader } from "./remote-public-reader";
+import { RemoteResearchService } from "./remote-public-service";
+import { ResearchRepositoryError } from "./repository";
+import type { ResearchService } from "./service";
+import { createGuardedD1, createSiteBridgeOperations } from "./site-bridge-factory";
 
-export type ResearchProductionEnvironment = {
-  ARC_ENVIRONMENT?: string;
-  BETTER_AUTH_URL?: string;
-  ARC_AI_ENABLED?: string;
-  ARC_AI_RESEARCH_ENABLED?: string;
-  ARC_AI_USER_DAILY_QUOTA?: string;
-  ARC_AI_RATE_LIMIT_PER_MINUTE?: string;
-  ARC_AI_MODEL_RESEARCH?: string;
-  ARC_AI_MODEL_ECONOMY?: string;
-  ARC_AI_RESEARCH_TIMEOUT_MS?: string;
-  ARC_AI_REPAIR_TIMEOUT_MS?: string;
-  ARC_AI_RESEARCH_CACHE_DAYS?: string;
-  ARC_AI_SITE_DAILY_BUDGET_MICROS?: string;
-  ARC_AI_SITE_MONTHLY_BUDGET_MICROS?: string;
-  ARC_AI_RESEARCH_MAX_COST_MICROS?: string;
-  ARC_AI_REPAIR_MAX_COST_MICROS?: string;
-  ARC_AI_IP_HASH_SALT?: string;
-  OPENROUTER_API_KEY?: string;
-};
+export {
+  type ResearchProductionConfiguration,
+  type ResearchProductionEnvironment,
+} from "./production-policy";
 
-const decimal = (minimum: number, maximum: number) => z.string().regex(/^\d+$/u)
-  .transform(Number).pipe(z.number().int().min(minimum).max(maximum));
-const fixedModelSchema = z.string().min(3).max(128)
-  .regex(/^[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*(?::free)?$/u)
-  .refine((value) => ![
-    "openrouter/auto", "openrouter/free", "openrouter/bodybuilder", "openrouter/pareto",
-    "openrouter/pareto-code", "openrouter/fusion", "openrouter/fusion-flash",
-  ].includes(value.replace(/:free$/u, "")));
 const secretSchema = z.string().min(1).max(512).regex(/^[A-Za-z0-9._-]+$/u);
 const saltSchema = z.string().min(16).max(256)
   .refine((value) => value === value.trim() && !/[\u0000-\u001f\u007f-\u009f]/u.test(value));
-
-const environmentSchema = z.object({
-  ARC_ENVIRONMENT: z.string().optional(),
-  BETTER_AUTH_URL: z.string().min(1).max(2_048),
-  ARC_AI_ENABLED: z.literal("true"),
-  ARC_AI_RESEARCH_ENABLED: z.literal("true"),
-  ARC_AI_USER_DAILY_QUOTA: decimal(1, 100_000),
-  ARC_AI_RATE_LIMIT_PER_MINUTE: decimal(1, 10_000),
-  ARC_AI_MODEL_RESEARCH: fixedModelSchema,
-  ARC_AI_MODEL_ECONOMY: fixedModelSchema,
-  ARC_AI_RESEARCH_TIMEOUT_MS: decimal(1, 120_000),
-  ARC_AI_REPAIR_TIMEOUT_MS: decimal(1, 120_000),
-  ARC_AI_RESEARCH_CACHE_DAYS: decimal(1, 365),
-  ARC_AI_SITE_DAILY_BUDGET_MICROS: z.string(),
-  ARC_AI_SITE_MONTHLY_BUDGET_MICROS: z.string(),
-  ARC_AI_RESEARCH_MAX_COST_MICROS: z.string(),
-  ARC_AI_REPAIR_MAX_COST_MICROS: z.string(),
-  ARC_AI_IP_HASH_SALT: saltSchema,
-  OPENROUTER_API_KEY: secretSchema,
-}).strict();
-
-const VERSIONS = Object.freeze({
-  ...RESEARCH_PROVIDER_VERSIONS,
-  blueprintVersion: "2026.09.1",
-  registryVersion: "2026.09.1",
-  templateVersion: "2026.09.1",
-});
-const POLICY = Object.freeze({
-  provider: "openrouter-chat-completions-v1",
-  tool: "openrouter-web-search-exa-fast-v1",
-  privacy: "deny-zdr-require-parameters-v1",
-  researchMaxTokens: 12_000,
-  repairMaxTokens: 8_000,
-  requestBytes: RESEARCH_PROVIDER_LIMITS.requestBytes,
-  responseBytes: RESEARCH_PROVIDER_LIMITS.responseBytes,
-  contentBytes: RESEARCH_PROVIDER_LIMITS.contentBytes,
-  activeTtlMs: 60_000,
-});
-
-export type ResearchProductionConfiguration = {
-  configuredOrigin: string;
-  configFingerprint: string;
-  modelResearch: string;
-  modelEconomy: string;
-  researchTimeoutMs: number;
-  repairTimeoutMs: number;
-  cacheDays: number;
-  userDailyQuota: number;
-  rateLimitPerMinute: number;
-  budget: ResearchBudgetLimits;
-};
 
 type TrustedConfiguration = ResearchProductionConfiguration & {
   apiKey: string;
   ipHashSalt: string;
 };
 
-function readConfiguredOrigin(environment: ResearchProductionEnvironment): string | null {
-  try {
-    const url = new URL(environment.BETTER_AUTH_URL ?? "invalid:");
-    if (url.username || url.password || url.search || url.hash || (environment.ARC_ENVIRONMENT === "production" && url.protocol !== "https:")) return null;
-    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
-    return url.origin;
-  } catch { return null; }
-}
-
 function trustedConfiguration(environment: ResearchProductionEnvironment): TrustedConfiguration | null {
-  const input = Object.fromEntries(Object.keys(environmentSchema.shape).map((key) => [key, environment[key as keyof ResearchProductionEnvironment]]));
-  const parsed = environmentSchema.safeParse(input);
-  const configuredOrigin = readConfiguredOrigin(environment);
-  if (!parsed.success || !configuredOrigin) return null;
-  const budget = parseResearchBudgetEnvironment(parsed.data);
-  if (!budget || !budget.dailyBudgetMicros || !budget.monthlyBudgetMicros || !budget.researchMaximumMicros) return null;
-  const stablePolicy = {
-    models: { research: parsed.data.ARC_AI_MODEL_RESEARCH, repair: parsed.data.ARC_AI_MODEL_ECONOMY },
-    timeouts: { research: parsed.data.ARC_AI_RESEARCH_TIMEOUT_MS, repair: parsed.data.ARC_AI_REPAIR_TIMEOUT_MS },
-    cacheDays: parsed.data.ARC_AI_RESEARCH_CACHE_DAYS,
-    userDailyQuota: parsed.data.ARC_AI_USER_DAILY_QUOTA,
-    rateLimitPerMinute: parsed.data.ARC_AI_RATE_LIMIT_PER_MINUTE,
-    budget,
-    versions: VERSIONS,
-    policy: POLICY,
-  };
-  return {
-    configuredOrigin,
-    configFingerprint: fingerprint(stablePolicy),
-    modelResearch: parsed.data.ARC_AI_MODEL_RESEARCH,
-    modelEconomy: parsed.data.ARC_AI_MODEL_ECONOMY,
-    researchTimeoutMs: parsed.data.ARC_AI_RESEARCH_TIMEOUT_MS,
-    repairTimeoutMs: parsed.data.ARC_AI_REPAIR_TIMEOUT_MS,
-    cacheDays: parsed.data.ARC_AI_RESEARCH_CACHE_DAYS,
-    userDailyQuota: parsed.data.ARC_AI_USER_DAILY_QUOTA,
-    rateLimitPerMinute: parsed.data.ARC_AI_RATE_LIMIT_PER_MINUTE,
-    budget,
-    apiKey: parsed.data.OPENROUTER_API_KEY,
-    ipHashSalt: parsed.data.ARC_AI_IP_HASH_SALT,
-  };
+  const selection = readResearchPolicyConfiguration(environment);
+  if (!selection || selection.executor !== "synchronous") return null;
+  try {
+    const key = secretSchema.safeParse(environment.OPENROUTER_API_KEY);
+    const salt = saltSchema.safeParse(environment.ARC_AI_IP_HASH_SALT);
+    if (!key.success || !salt.success) return null;
+    return { ...selection.configuration, apiKey: key.data, ipHashSalt: salt.data };
+  } catch {
+    return null;
+  }
 }
 
 export function readResearchProductionConfiguration(
   environment: ResearchProductionEnvironment,
 ): ResearchProductionConfiguration | null {
+  const selection = readResearchPolicyConfiguration(environment);
+  if (!selection) return null;
+  if (selection.executor === "cloudflare-workflow-v1") {
+    return readResearchBridgeConnection(environment) ? selection.configuration : null;
+  }
   const trusted = trustedConfiguration(environment);
   if (!trusted) return null;
   return {
@@ -159,6 +77,8 @@ export function readResearchProductionConfiguration(
     userDailyQuota: trusted.userDailyQuota,
     rateLimitPerMinute: trusted.rateLimitPerMinute,
     budget: trusted.budget,
+    ...(trusted.researchProfile ? { researchProfile: trusted.researchProfile } : {}),
+    activeTtlMs: trusted.activeTtlMs,
   };
 }
 
@@ -168,6 +88,8 @@ export type ResearchServiceFactoryRuntime = {
   createProvider?: (config: OpenRouterResearchConfig) => ResearchProvider;
   now?: () => number;
   createId?: () => string;
+  fetch?: typeof fetch;
+  monoNow?: () => number;
 };
 
 const defaultRuntime: ResearchServiceFactoryRuntime = {
@@ -196,8 +118,8 @@ function orchestratorConfig(configuration: ResearchProductionConfiguration): Res
   return {
     configFingerprint: configuration.configFingerprint,
     providerName: "openrouter",
-    versions: VERSIONS,
-    activeTtlMs: POLICY.activeTtlMs,
+    versions: RESEARCH_CONFIGURATION_VERSIONS,
+    activeTtlMs: configuration.activeTtlMs,
     cacheDays: configuration.cacheDays,
     budget: configuration.budget,
   };
@@ -211,6 +133,7 @@ export function createResearchServiceFactory(runtime: ResearchServiceFactoryRunt
       ...(runtime.createId ? { createId: runtime.createId } : {}),
     };
     const repository = new D1ResearchRepository(db, options);
+    const executions = new D1SiteExecutionRepository(db, repository);
     const budget = new D1ResearchBudgetRepository(db, options);
     const entitlements = new EntitlementGate(new D1EntitlementRepository(db, options), {
       ARC_AI_ENABLED: runtime.environment.ARC_AI_ENABLED,
@@ -218,57 +141,96 @@ export function createResearchServiceFactory(runtime: ResearchServiceFactoryRunt
       ARC_AI_RATE_LIMIT_PER_MINUTE: runtime.environment.ARC_AI_RATE_LIMIT_PER_MINUTE,
     }, runtime.now ? { now: () => new Date(runtime.now!()) } : {});
     const audits = new D1AiRunSink(db, options);
-    return { db, repository, budget, entitlements, audits, options };
+    return { db, repository, executions, budget, entitlements, audits, options };
+  };
+
+  const recoveryDelegate = (dependencies: ReturnType<typeof repositoryDependencies>) => {
+    const { repository, executions, budget, entitlements, audits } = dependencies;
+    const provider: ResearchProvider = {
+      research: async () => { throw new ResearchProviderError("unavailable", false, false); },
+      repair: async () => { throw new ResearchProviderError("unavailable", false, false); },
+    };
+    return new ResearchOrchestrator({ repository, budget, entitlements, audits, provider,
+      readRemoteExecution: (owner, run) => executions.read(owner, run),
+      config: { configFingerprint: "recovery-only-v1", providerName: "openrouter",
+        versions: RESEARCH_CONFIGURATION_VERSIONS, activeTtlMs: 1, cacheDays: 1,
+        budget: { dailyBudgetMicros: 0, monthlyBudgetMicros: 0, maximumMicros: 0, researchMaximumMicros: 0, repairMaximumMicros: 0 } },
+      now: runtime.now, createRequestId: runtime.createId });
+  };
+
+  const remoteComposition = (dependencies: ReturnType<typeof repositoryDependencies>) => {
+    const { db, options } = dependencies;
+    const wallNow = runtime.now ?? Date.now;
+    const monoNow = runtime.monoNow ?? (() => performance.now());
+    // Recovery parses connection only, independently of new-call switches, profile and credentials.
+    const connection = readResearchBridgeConnection(runtime.environment);
+    const createReadRepositories = (guard: () => void) => {
+      const guarded = createGuardedD1(db, guard);
+      const research = new D1ResearchRepository(guarded, options);
+      const executions = new D1SiteExecutionRepository(guarded, research);
+      return { research, executions, bridge: new D1SiteBridgeRepository(guarded, research, executions) };
+    };
+    const createOperations = (guard: () => void) => createSiteBridgeOperations(db, guard, wallNow);
+    const createExecutor = (guard: () => void) => connection
+      ? new ExecutorBridgeClient(new BridgeTransport({ connection,
+        nonces: new D1BridgeNonceStore(createGuardedD1(db, guard)),
+        fetch: runtime.fetch ?? fetch, wallNow, monoNow })) : null;
+    const reader = new RemoteResearchReader({ createReadRepositories, createOperations, createExecutor,
+      legacy: recoveryDelegate(dependencies), monoNow });
+    return { reader, createReadRepositories, createOperations, createExecutor, monoNow };
   };
 
   return {
-    createRecoveryService(): ResearchOrchestrator {
-      const { repository, budget, entitlements, audits } = repositoryDependencies();
-      const provider: ResearchProvider = {
-        research: async () => { throw new ResearchProviderError("unavailable", false, false); },
-        repair: async () => { throw new ResearchProviderError("unavailable", false, false); },
-      };
-      return new ResearchOrchestrator({
-        repository, budget, entitlements, audits, provider,
-        config: {
-          configFingerprint: "recovery-only-v1",
-          providerName: "openrouter",
-          versions: VERSIONS,
-          activeTtlMs: 1,
-          cacheDays: 1,
-          budget: { dailyBudgetMicros: 0, monthlyBudgetMicros: 0, maximumMicros: 0, researchMaximumMicros: 0, repairMaximumMicros: 0 },
-        },
-        now: runtime.now,
-        createRequestId: runtime.createId,
-      });
+    createRecoveryService(): ResearchService {
+      const { reader } = remoteComposition(repositoryDependencies());
+      const unavailable = async () => { throw new ResearchRepositoryError("RESEARCH_UNAVAILABLE"); };
+      return { start: unavailable, retry: unavailable,
+        get: (owner, run) => reader.get(owner, run), recover: (owner, input) => reader.recover(owner, input) };
     },
-    createNewCallService(): ResearchOrchestrator | null {
+    createNewCallService(): ResearchService | null {
+      const selection = readResearchPolicyConfiguration(runtime.environment);
+      if (!selection) return null;
+      if (selection.executor === "cloudflare-workflow-v1") {
+        if (!readResearchBridgeConnection(runtime.environment)) return null;
+        const { reader, createReadRepositories, createOperations, createExecutor, monoNow } = remoteComposition(repositoryDependencies());
+        return new RemoteResearchService({ reader, configuration: selection.configuration, createExecutor, monoNow,
+          createRequestId: runtime.createId,
+          newCallsAllowed: () => readResearchPolicyConfiguration(runtime.environment)?.executor === "cloudflare-workflow-v1",
+          createWriteRepositories: (guard) => ({ ...createReadRepositories(guard), admission: createOperations(guard).admission }) });
+      }
       const trusted = trustedConfiguration(runtime.environment);
       if (!trusted) return null;
-      const { repository, budget, entitlements, audits } = repositoryDependencies();
+      const dependencies = repositoryDependencies();
+      const { repository, executions, budget, entitlements, audits } = dependencies;
       const providerConfig: OpenRouterResearchConfig = {
         OPENROUTER_API_KEY: trusted.apiKey,
         ARC_AI_MODEL_RESEARCH: trusted.modelResearch,
         ARC_AI_MODEL_ECONOMY: trusted.modelEconomy,
         researchTimeoutMs: trusted.researchTimeoutMs,
         repairTimeoutMs: trusted.repairTimeoutMs,
+        ...(trusted.researchProfile ? { researchProfile: trusted.researchProfile } : {}),
       };
       const provider = (runtime.createProvider ?? ((config) => new OpenRouterResearchProvider(config)))(providerConfig);
-      return new ResearchOrchestrator({
+      const legacy = new ResearchOrchestrator({
         repository, budget, entitlements, audits, provider,
+        readRemoteExecution: (owner, run) => executions.read(owner, run),
         config: orchestratorConfig(trusted),
         now: runtime.now,
         createRequestId: runtime.createId,
       });
+      const { reader } = remoteComposition(dependencies);
+      return { start: (owner, input, gate) => legacy.start(owner, input, gate),
+        retry: (owner, run, mutation, gate) => legacy.retry(owner, run, mutation, gate),
+        get: (owner, run) => reader.get(owner, run), recover: (owner, input) => reader.recover(owner, input) };
     },
     cohortEnabled(userId: string) {
       return new D1FeatureCohort(runtime.getD1()).allows("role-research-beta", userId);
     },
     configuredOrigin() {
-      return readConfiguredOrigin(runtime.environment);
+      return readConfiguredResearchOrigin(runtime.environment);
     },
     rateLimitPerMinute() {
-      return trustedConfiguration(runtime.environment)?.rateLimitPerMinute ?? 0;
+      return readResearchProductionConfiguration(runtime.environment)?.rateLimitPerMinute ?? 0;
     },
     async deriveIpSubject(request: Request) {
       const salt = saltSchema.safeParse(runtime.environment.ARC_AI_IP_HASH_SALT);

@@ -842,6 +842,8 @@ export const researchRuns = sqliteTable("research_runs", {
   locale: text("locale", { enum: ["zh-CN", "en-US"] }).notNull(),
   inputFingerprint: text("input_fingerprint").notNull(),
   configFingerprint: text("config_fingerprint").notNull(),
+  executionMode: text("execution_mode", { enum: ["synchronous", "cloudflare-workflow-v1"] }).notNull().default("synchronous"),
+  remoteQuotaKey: text("remote_quota_key"),
   state: text("state", { enum: ["queued", "researching", "validating", "ready", "needs-review", "failed"] }).notNull(),
   stateVersion: integer("state_version").notNull().default(0),
   retryable: integer("retryable", { mode: "boolean" }).notNull().default(false),
@@ -865,6 +867,7 @@ export const researchRuns = sqliteTable("research_runs", {
   }).onDelete("no action"),
   uniqueIndex("research_runs_owner_mutation_idx").on(table.userId, table.mutationId),
   uniqueIndex("research_runs_owner_id_idx").on(table.userId, table.id),
+  uniqueIndex("research_runs_remote_quota_idx").on(table.userId, table.remoteQuotaKey).where(sql`${table.remoteQuotaKey} IS NOT NULL`),
   uniqueIndex("research_runs_active_idx").on(table.userId, table.normalizedRoleKey, table.locale, table.configFingerprint, table.activeSlot),
   index("research_runs_active_expiry_idx").on(table.state, table.activeExpiresAt),
   index("research_runs_updated_state_idx").on(table.updatedAt, table.state),
@@ -872,6 +875,9 @@ export const researchRuns = sqliteTable("research_runs", {
   check("research_runs_state_version_check", nonnegativeSafeInteger(table.stateVersion)),
   check("research_runs_retryable_check", sql`${table.retryable} IN (0, 1)`),
   check("research_runs_locale_check", sql`${table.locale} IN ('zh-CN', 'en-US')`),
+  check("research_runs_execution_mode_check", sql`typeof(${table.executionMode}) = 'text' AND ${table.executionMode} IN ('synchronous', 'cloudflare-workflow-v1')`),
+  check("research_runs_remote_quota_key_check", sql`(${table.executionMode} = 'synchronous' AND ${table.remoteQuotaKey} IS NULL)
+    OR (${table.executionMode} = 'cloudflare-workflow-v1' AND typeof(${table.remoteQuotaKey}) = 'text' AND length(${table.remoteQuotaKey}) BETWEEN 8 AND 128)`),
   check("research_runs_active_slot_check", sql`(${table.state} IN ('queued', 'researching', 'validating') AND ${table.activeSlot} IS NOT NULL AND ${table.activeSlot} = 1)
     OR (${table.state} IN ('ready', 'needs-review', 'failed') AND ${table.activeSlot} IS NULL)`),
   check("research_runs_active_expiry_check", sql`(${table.state} NOT IN ('queued', 'researching', 'validating') OR ${table.activeExpiresAt} IS NOT NULL)
@@ -885,6 +891,215 @@ export const researchRuns = sqliteTable("research_runs", {
     IN ('timeout', 'rate-limited', 'allowance-reached', 'service-unavailable', 'content-rejected', 'invalid-result', 'internal')`),
   check("research_runs_quality_check", boundedJson(table.qualityJson, 16_384)),
   check("research_runs_candidate_check", boundedJson(table.candidateJson, 1_048_576)),
+]);
+
+export const researchSiteExecutions = sqliteTable("research_site_executions", {
+  runId: text("run_id").primaryKey().references(() => researchRuns.id, { onDelete: "restrict" }),
+  userId: text("user_id").notNull(),
+  requestId: text("request_id").notNull(),
+  jobId: text("job_id").notNull(),
+  requestHash: text("request_hash").notNull(),
+  jobJson: text("job_json").notNull(),
+  validationContextJson: text("validation_context_json").notNull(),
+  quotaKey: text("quota_key").notNull(),
+  cacheDays: integer("cache_days").notNull(),
+  userDailyQuota: integer("user_daily_quota").notNull(),
+  dailyBudgetMicros: integer("daily_budget_micros").notNull(),
+  monthlyBudgetMicros: integer("monthly_budget_micros").notNull(),
+  maximumMicros: integer("maximum_micros").notNull(),
+  queueExpiresAt: integer("queue_expires_at", { mode: "timestamp_ms" }).notNull(),
+  reservationExpiresAt: integer("reservation_expires_at", { mode: "timestamp_ms" }).notNull(),
+  admissionState: text("admission_state", { enum: ["pending", "admitted", "closed"] }).notNull().default("pending"),
+  version: integer("version").notNull().default(0),
+  quotaReservationId: text("quota_reservation_id"),
+  budgetReservationId: text("budget_reservation_id"),
+  admittedAt: integer("admitted_at", { mode: "timestamp_ms" }),
+  closedAt: integer("closed_at", { mode: "timestamp_ms" }),
+  closeReason: text("close_reason", { enum: ["cached", "denied", "expired", "interrupted"] }),
+  beganAt: integer("began_at", { mode: "timestamp_ms" }),
+  executionExpiresAt: integer("execution_expires_at", { mode: "timestamp_ms" }),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId, table.runId],
+    foreignColumns: [researchRuns.userId, researchRuns.id],
+    name: "research_site_executions_owner_run_fk",
+  }).onDelete("restrict"),
+  uniqueIndex("research_site_executions_request_idx").on(table.requestId),
+  uniqueIndex("research_site_executions_job_idx").on(table.jobId),
+  uniqueIndex("research_site_executions_owner_quota_idx").on(table.userId, table.quotaKey),
+  index("research_site_executions_maintenance_idx").on(table.admissionState, table.queueExpiresAt, table.runId),
+  check("research_site_executions_text_identity_check", sql`typeof(${table.runId}) = 'text' AND length(${table.runId}) > 0
+    AND typeof(${table.userId}) = 'text' AND length(${table.userId}) > 0
+    AND typeof(${table.requestId}) = 'text' AND length(${table.requestId}) > 0
+    AND typeof(${table.jobId}) = 'text' AND length(${table.jobId}) > 0
+    AND typeof(${table.quotaKey}) = 'text' AND length(${table.quotaKey}) BETWEEN 8 AND 128`),
+  check("research_site_executions_request_hash_check", sql`typeof(${table.requestHash}) = 'text' AND length(${table.requestHash}) = 64
+    AND length(CAST(${table.requestHash} AS BLOB)) = 64 AND ${table.requestHash} NOT GLOB '*[^0-9a-f]*'`),
+  check("research_site_executions_job_json_check", sql`typeof(${table.jobJson}) = 'text' AND json_valid(${table.jobJson})
+    AND length(CAST(${table.jobJson} AS BLOB)) <= 4096 AND json_type(${table.jobJson}, '$') IS 'object'
+    AND json_type(${table.jobJson}, '$.jobId') IS 'text' AND json_extract(${table.jobJson}, '$.jobId') IS ${table.jobId}
+    AND json_type(${table.jobJson}, '$.runId') IS 'text' AND json_extract(${table.jobJson}, '$.runId') IS ${table.runId}
+    AND json_type(${table.jobJson}, '$.requestId') IS 'text' AND json_extract(${table.jobJson}, '$.requestId') IS ${table.requestId}
+    AND json_type(${table.jobJson}, '$.createdAt') IS 'integer' AND json_extract(${table.jobJson}, '$.createdAt') IS ${table.createdAt}
+    AND json_type(${table.jobJson}, '$.queueExpiresAt') IS 'integer' AND json_extract(${table.jobJson}, '$.queueExpiresAt') IS ${table.queueExpiresAt}`),
+  check("research_site_executions_context_json_check", sql`typeof(${table.validationContextJson}) = 'text' AND json_valid(${table.validationContextJson})
+    AND length(CAST(${table.validationContextJson} AS BLOB)) <= 4096`),
+  check("research_site_executions_cache_days_check", sql`typeof(${table.cacheDays}) = 'integer' AND ${table.cacheDays} BETWEEN 1 AND 365`),
+  check("research_site_executions_user_quota_check", sql`typeof(${table.userDailyQuota}) = 'integer' AND ${table.userDailyQuota} BETWEEN 1 AND 100000`),
+  check("research_site_executions_daily_budget_check", sql`typeof(${table.dailyBudgetMicros}) = 'integer' AND ${table.dailyBudgetMicros} BETWEEN 1 AND 9007199254740991`),
+  check("research_site_executions_monthly_budget_check", sql`typeof(${table.monthlyBudgetMicros}) = 'integer' AND ${table.monthlyBudgetMicros} BETWEEN 1 AND 9007199254740991`),
+  check("research_site_executions_maximum_check", sql`typeof(${table.maximumMicros}) = 'integer' AND ${table.maximumMicros} BETWEEN 1 AND 5000000`),
+  check("research_site_executions_created_time_check", sql`typeof(${table.createdAt}) = 'integer' AND ${table.createdAt} BETWEEN 0 AND 9007199253360991
+    AND typeof(${table.updatedAt}) = 'integer' AND ${table.updatedAt} BETWEEN ${table.createdAt} AND 9007199254740991`),
+  check("research_site_executions_expiry_check", sql`typeof(${table.queueExpiresAt}) = 'integer' AND ${table.queueExpiresAt} BETWEEN 0 AND 9007199254740991
+    AND typeof(${table.reservationExpiresAt}) = 'integer' AND ${table.reservationExpiresAt} BETWEEN 0 AND 9007199254740991
+    AND ${table.queueExpiresAt} = ${table.createdAt} + 120000 AND ${table.reservationExpiresAt} = ${table.createdAt} + 1380000`),
+  check("research_site_executions_state_check", sql`typeof(${table.admissionState}) = 'text' AND ${table.admissionState} IN ('pending', 'admitted', 'closed')`),
+  check("research_site_executions_version_check", nonnegativeSafeInteger(table.version)),
+  check("research_site_executions_reservation_markers_check", sql`(${table.quotaReservationId} IS NULL AND ${table.budgetReservationId} IS NULL AND ${table.admittedAt} IS NULL)
+    OR (typeof(${table.quotaReservationId}) = 'text' AND length(${table.quotaReservationId}) > 0
+      AND typeof(${table.budgetReservationId}) = 'text' AND length(${table.budgetReservationId}) > 0
+      AND typeof(${table.admittedAt}) = 'integer' AND ${table.admittedAt} BETWEEN ${table.createdAt} AND 9007199254740991 AND ${table.admittedAt} <= ${table.updatedAt})`),
+  check("research_site_executions_closure_markers_check", sql`(${table.closedAt} IS NULL AND ${table.closeReason} IS NULL)
+    OR (typeof(${table.closedAt}) = 'integer' AND ${table.closedAt} BETWEEN ${table.createdAt} AND 9007199254740991
+      AND ${table.closedAt} <= ${table.updatedAt} AND typeof(${table.closeReason}) = 'text' AND ${table.closeReason} IN ('cached', 'denied', 'expired', 'interrupted'))`),
+  check("research_site_executions_begin_marker_check", sql`${table.beganAt} IS NULL OR (typeof(${table.beganAt}) = 'integer'
+    AND ${table.beganAt} BETWEEN ${table.admittedAt} AND ${table.updatedAt} AND ${table.beganAt} < ${table.queueExpiresAt})`),
+  check("research_site_executions_execution_expiry_check", sql`${table.executionExpiresAt} IS NULL OR (
+    typeof(${table.executionExpiresAt}) = 'integer' AND ${table.beganAt} IS NOT NULL
+    AND ${table.beganAt} <= 9007199253480991
+    AND ${table.executionExpiresAt} = ${table.beganAt} + 1260000
+    AND ${table.executionExpiresAt} <= ${table.reservationExpiresAt})`),
+  check("research_site_executions_state_markers_check", sql`(${table.admissionState} = 'pending' AND ${table.quotaReservationId} IS NULL
+    AND ${table.budgetReservationId} IS NULL AND ${table.admittedAt} IS NULL AND ${table.closedAt} IS NULL AND ${table.closeReason} IS NULL AND ${table.beganAt} IS NULL)
+    OR (${table.admissionState} = 'admitted' AND ${table.quotaReservationId} IS NOT NULL AND ${table.budgetReservationId} IS NOT NULL
+      AND ${table.admittedAt} IS NOT NULL AND ${table.closedAt} IS NULL AND ${table.closeReason} IS NULL)
+    OR (${table.admissionState} = 'closed' AND ${table.closedAt} IS NOT NULL AND ${table.closeReason} IS NOT NULL AND ${table.beganAt} IS NULL)`),
+]);
+
+export const researchSiteImports = sqliteTable("research_site_imports", {
+  runId: text("run_id").primaryKey().references(() => researchSiteExecutions.runId, { onDelete: "restrict" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+  requestId: text("request_id").notNull(),
+  jobId: text("job_id").notNull().unique(),
+  requestHash: text("request_hash").notNull(),
+  configFingerprint: text("config_fingerprint").notNull(),
+  validationContextJson: text("validation_context_json").notNull(),
+  executionVersion: integer("execution_version").notNull(),
+  mode: text("mode", { enum: ["body", "metadata-only"] }).notNull(),
+  receiptHash: text("receipt_hash").notNull(),
+  receiptMetadataJson: text("receipt_metadata_json").notNull(),
+  auditJson: text("audit_json").notNull(),
+  settlementJson: text("settlement_json").notNull(),
+  decisionHash: text("decision_hash").notNull(),
+  decisionJson: text("decision_json"),
+  phase: integer("phase").notNull().default(0),
+  version: integer("version").notNull().default(0),
+  resolutionJson: text("resolution_json"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  uniqueIndex("research_site_imports_owner_request_idx").on(table.userId, table.requestId),
+  check("research_site_imports_owner_check", sql`typeof(${table.userId})='text' AND length(${table.userId}) BETWEEN 1 AND 160 AND ${table.userId}=trim(${table.userId})`),
+  check("research_site_imports_run_check", sql`typeof(${table.runId})='text' AND length(${table.runId}) BETWEEN 1 AND 256 AND ${table.runId}=trim(${table.runId})`),
+  check("research_site_imports_request_check", sql`typeof(${table.requestId})='text' AND length(${table.requestId}) BETWEEN 1 AND 160 AND ${table.requestId}=trim(${table.requestId})`),
+  check("research_site_imports_job_check", sql`typeof(${table.jobId})='text' AND length(${table.jobId})=36`),
+  check("research_site_imports_hashes_check", sql`typeof(${table.requestHash})='text' AND length(${table.requestHash})=64
+    AND ${table.requestHash} NOT GLOB '*[^0-9a-f]*' AND typeof(${table.receiptHash})='text'
+    AND length(${table.receiptHash})=64 AND ${table.receiptHash} NOT GLOB '*[^0-9a-f]*'
+    AND typeof(${table.decisionHash})='text' AND length(${table.decisionHash})=64
+    AND ${table.decisionHash} NOT GLOB '*[^0-9a-f]*'`),
+  check("research_site_imports_config_check", sql`typeof(${table.configFingerprint})='text' AND length(${table.configFingerprint}) BETWEEN 1 AND 160`),
+  check("research_site_imports_context_check", sql`typeof(${table.validationContextJson})='text' AND length(CAST(${table.validationContextJson} AS BLOB)) BETWEEN 2 AND 4096
+    AND json_valid(${table.validationContextJson}) AND json_type(${table.validationContextJson})='object'`),
+  check("research_site_imports_metadata_check", sql`typeof(${table.receiptMetadataJson})='text' AND length(CAST(${table.receiptMetadataJson} AS BLOB)) BETWEEN 2 AND 4096
+    AND json_valid(${table.receiptMetadataJson}) AND json_type(${table.receiptMetadataJson})='object'`),
+  check("research_site_imports_audit_check", sql`typeof(${table.auditJson})='text' AND length(CAST(${table.auditJson} AS BLOB)) BETWEEN 2 AND 4096
+    AND json_valid(${table.auditJson}) AND json_type(${table.auditJson})='object'`),
+  check("research_site_imports_settlement_check", sql`typeof(${table.settlementJson})='text' AND length(CAST(${table.settlementJson} AS BLOB)) BETWEEN 2 AND 256
+    AND json_valid(${table.settlementJson}) AND json_type(${table.settlementJson})='object'`),
+  check("research_site_imports_decision_check", sql`${table.decisionJson} IS NULL OR (typeof(${table.decisionJson})='text'
+    AND length(CAST(${table.decisionJson} AS BLOB)) BETWEEN 2 AND 1950000 AND json_valid(${table.decisionJson})
+    AND json_type(${table.decisionJson})='object')`),
+  check("research_site_imports_resolution_check", sql`${table.resolutionJson} IS NULL OR (typeof(${table.resolutionJson})='text'
+    AND length(CAST(${table.resolutionJson} AS BLOB)) BETWEEN 2 AND 4096 AND json_valid(${table.resolutionJson})
+    AND json_type(${table.resolutionJson})='object')`),
+  check("research_site_imports_mode_check", sql`${table.mode} IN ('body','metadata-only')`),
+  check("research_site_imports_phase_check", sql`typeof(${table.phase})='integer' AND ${table.phase} BETWEEN 0 AND 5`),
+  check("research_site_imports_version_check", nonnegativeSafeInteger(table.version)),
+  check("research_site_imports_execution_version_check", nonnegativeSafeInteger(table.executionVersion)),
+  check("research_site_imports_time_check", sql`typeof(${table.createdAt})='integer' AND ${table.createdAt} BETWEEN 0 AND 9007199254740991
+    AND typeof(${table.updatedAt})='integer' AND ${table.updatedAt} BETWEEN ${table.createdAt} AND 9007199254740991`),
+  check("research_site_imports_lifecycle_check", sql`(${table.phase}<2 AND ${table.resolutionJson} IS NULL OR ${table.phase}>=2 AND ${table.resolutionJson} IS NOT NULL)
+    AND (${table.phase}=5 AND ${table.decisionJson} IS NULL OR ${table.phase}<5 AND ${table.decisionJson} IS NOT NULL)`),
+]);
+
+export const researchSiteAcceptances = sqliteTable("research_site_acceptances", {
+  jobId: text("job_id").primaryKey().references(() => researchSiteExecutions.jobId, { onDelete: "restrict" }),
+  requestHash: text("request_hash").notNull(),
+  workflowId: text("workflow_id").notNull(),
+  workflowAcceptedAt: integer("workflow_accepted_at", { mode: "timestamp_ms" }).notNull(),
+  recordedAt: integer("recorded_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  check("research_site_acceptances_identity_check", sql`typeof(${table.jobId})='text' AND length(${table.jobId})=36
+    AND substr(${table.jobId},9,1)='-' AND substr(${table.jobId},14,1)='-'
+    AND substr(${table.jobId},19,1)='-' AND substr(${table.jobId},24,1)='-'
+    AND length(replace(${table.jobId},'-',''))=32 AND replace(${table.jobId},'-','') NOT GLOB '*[^0-9a-f]*'
+    AND typeof(${table.requestHash})='text' AND length(${table.requestHash})=64
+    AND ${table.requestHash} NOT GLOB '*[^0-9a-f]*' AND ${table.workflowId}=${table.jobId}`),
+  check("research_site_acceptances_time_check", sql`${nonnegativeSafeInteger(table.workflowAcceptedAt)}
+    AND ${nonnegativeSafeInteger(table.recordedAt)}`),
+]);
+
+export const researchSiteRecoveries = sqliteTable("research_site_recoveries", {
+  jobId: text("job_id").primaryKey().references(() => researchSiteExecutions.jobId, { onDelete: "restrict" }),
+  requestHash: text("request_hash").notNull(),
+  executionVersion: integer("execution_version").notNull(),
+  runVersion: integer("run_version").notNull(),
+  terminalHash: text("terminal_hash").notNull(),
+  reason: text("reason", { enum: ["expired-unknown", "executor-unsent"] }).notNull(),
+  unsentJson: text("unsent_json"),
+  terminalAt: integer("terminal_at", { mode: "timestamp_ms" }).notNull(),
+  quotaDone: integer("quota_done", { mode: "boolean" }).notNull().default(false),
+  budgetDone: integer("budget_done", { mode: "boolean" }).notNull().default(false),
+  version: integer("version").notNull().default(0),
+}, (table) => [
+  check("research_site_recoveries_identity_check", sql`typeof(${table.jobId})='text' AND length(${table.jobId})=36
+    AND substr(${table.jobId},9,1)='-' AND substr(${table.jobId},14,1)='-'
+    AND substr(${table.jobId},19,1)='-' AND substr(${table.jobId},24,1)='-'
+    AND length(replace(${table.jobId},'-',''))=32 AND replace(${table.jobId},'-','') NOT GLOB '*[^0-9a-f]*'
+    AND typeof(${table.requestHash})='text' AND length(${table.requestHash})=64
+    AND ${table.requestHash} NOT GLOB '*[^0-9a-f]*'
+    AND typeof(${table.terminalHash})='text' AND length(${table.terminalHash})=64
+    AND ${table.terminalHash} NOT GLOB '*[^0-9a-f]*'`),
+  check("research_site_recoveries_version_check", sql`${nonnegativeSafeInteger(table.executionVersion)}
+    AND ${nonnegativeSafeInteger(table.runVersion)} AND ${nonnegativeSafeInteger(table.version)}`),
+  check("research_site_recoveries_time_check", nonnegativeSafeInteger(table.terminalAt)),
+  check("research_site_recoveries_state_check", sql`${table.reason} IN ('expired-unknown','executor-unsent')
+    AND (${table.reason}='executor-unsent')=(${table.unsentJson} IS NOT NULL)
+    AND (${table.unsentJson} IS NULL OR (typeof(${table.unsentJson})='text'
+      AND length(CAST(${table.unsentJson} AS BLOB)) BETWEEN 2 AND 4096
+      AND json_valid(${table.unsentJson}) AND json_type(${table.unsentJson})='object'))
+    AND ${table.quotaDone} IN (0,1) AND ${table.budgetDone} IN (0,1)`),
+]);
+
+export const researchSiteScanCursors = sqliteTable("research_site_scan_cursors", {
+  name: text("name", { enum: ["maintenance", "outbox"] }).primaryKey(),
+  afterCreatedAt: integer("after_created_at", { mode: "timestamp_ms" }),
+  afterJobId: text("after_job_id"),
+  version: integer("version").notNull().default(0),
+}, (table) => [
+  check("research_site_scan_cursors_name_check", sql`${table.name} IN ('maintenance','outbox')`),
+  check("research_site_scan_cursors_position_check", sql`(${table.afterCreatedAt} IS NULL)=(${table.afterJobId} IS NULL)
+    AND (${table.afterCreatedAt} IS NULL OR (${nonnegativeSafeInteger(table.afterCreatedAt)}
+      AND typeof(${table.afterJobId})='text' AND length(${table.afterJobId})=36
+      AND substr(${table.afterJobId},9,1)='-' AND substr(${table.afterJobId},14,1)='-'
+      AND substr(${table.afterJobId},19,1)='-' AND substr(${table.afterJobId},24,1)='-'
+      AND length(replace(${table.afterJobId},'-',''))=32
+      AND replace(${table.afterJobId},'-','') NOT GLOB '*[^0-9a-f]*'))
+    AND ${nonnegativeSafeInteger(table.version)}`),
 ]);
 
 export const researchSourceAudits = sqliteTable("research_source_audits", {
@@ -944,4 +1159,25 @@ export const aiBudgetReservations = sqliteTable("ai_budget_reservations", {
   check("ai_budget_reservations_settled_check", nonnegativeSafeInteger(table.settledMicros)),
   check("ai_budget_reservations_status_check", sql`${table.status} IN ('reserved', 'settled', 'conservative-hold', 'released')`),
   check("ai_budget_reservations_expiry_check", nonnegativeSafeInteger(table.expiresAt)),
+]);
+
+export const researchBridgeNonces = sqliteTable("research_bridge_nonces", {
+  scope: text("scope").notNull(),
+  nonce: text("nonce").notNull(),
+  expiresAt: integer("expires_at").notNull(),
+  createdAt: integer("created_at").notNull(),
+}, (table) => [
+  primaryKey({ columns: [table.scope, table.nonce] }),
+  index("research_bridge_nonces_expiry_idx").on(table.expiresAt),
+  check("research_bridge_nonces_scope_check", sql`length(${table.scope}) BETWEEN 18 AND 49
+    AND length(CAST(${table.scope} AS BLOB)) = length(${table.scope})
+    AND substr(${table.scope},1,17) IN ('site-to-executor:', 'executor-to-site:')
+    AND substr(${table.scope},18) NOT GLOB '*[^A-Za-z0-9_-]*'`),
+  check("research_bridge_nonces_nonce_check", sql`length(${table.nonce}) = 32
+    AND length(CAST(${table.nonce} AS BLOB)) = 32
+    AND ${table.nonce} NOT GLOB '*[^0-9a-f]*'`),
+  check("research_bridge_nonces_time_check", sql`${nonnegativeSafeInteger(table.createdAt)}
+    AND ${nonnegativeSafeInteger(table.expiresAt)}
+    AND ${table.expiresAt} > ${table.createdAt}
+    AND ${table.expiresAt} - ${table.createdAt} <= 150001`),
 ]);

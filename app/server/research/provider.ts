@@ -1,9 +1,21 @@
 import { z } from "zod";
 import { providerCitationAnnotationSchema, providerUsageSchema, researchCandidateSchema, type ProviderCitationAnnotation, type ProviderUsage, type ResearchCandidate } from "../../contracts/research";
+import { buildResearchCandidateDiagnostic, type ResearchCandidateDiagnosticObserver,
+  type ResearchCandidateDiagnosticReason } from "./result-diagnostic";
+
+export const RESEARCH_SEARCH_POLICY = Object.freeze({
+  policyId: "openrouter-web-search-exa-fast-v2",
+  engine: "exa",
+  mode: "fast",
+  maxUses: 10,
+  maxResults: 5,
+  maxTotalResults: 50,
+  maxCharacters: 2000,
+});
 
 export const RESEARCH_PROVIDER_VERSIONS = Object.freeze({
-  promptVersion: "research-prompt-v1", inputSchemaVersion: "research-input-v1", outputSchemaVersion: "research-output-v1",
-  qualityVersion: "research-quality-v1", modelConfigVersion: "research-model-config-v1",
+  promptVersion: "research-prompt-v2", inputSchemaVersion: "research-input-v1", outputSchemaVersion: "research-output-v1",
+  qualityVersion: "research-quality-v1", modelConfigVersion: "research-model-config-v2",
 });
 export const RESEARCH_PROVIDER_LIMITS = Object.freeze({ requestBytes: 262_144, responseBytes: 524_288, contentBytes: 196_608 });
 
@@ -79,23 +91,36 @@ export function fitsUtf8(value: string, maximum: number): boolean {
 }
 
 /** Shape only; preserve original content separately so mechanical repair stays explicit. */
-export function candidateFromContent(content: string): ResearchCandidate | null {
-  if (!fitsUtf8(content, RESEARCH_PROVIDER_LIMITS.contentBytes)) return null;
+export function candidateFromContent(content: string, observer?: ResearchCandidateDiagnosticObserver): ResearchCandidate | null {
+  const emit = (reason: ResearchCandidateDiagnosticReason | null, issues: readonly z.core.$ZodIssue[] = []) => {
+    if (!observer) return;
+    let diagnostic;
+    try { diagnostic = buildResearchCandidateDiagnostic(reason, issues); }
+    catch { return; }
+    try { void Promise.resolve(observer(diagnostic)).catch(() => undefined); }
+    catch { /* Observation only. */ }
+  };
+  if (!fitsUtf8(content, RESEARCH_PROVIDER_LIMITS.contentBytes)) { emit("content-limit"); return null; }
+  let input: unknown;
+  try { input = JSON.parse(content); }
+  catch { emit("json-syntax"); return null; }
   try {
-    const input: unknown = JSON.parse(content);
     const pending = [{ value: input, depth: 0 }];
     let nodes = 0;
     while (pending.length) {
       const { value, depth } = pending.pop()!;
-      if (++nodes > 25_000 || depth > 12) return null;
-      if (typeof value === "string" && value.length > 8_192) return null;
+      if (++nodes > 25_000) { emit("node-limit"); return null; }
+      if (depth > 12) { emit("depth-limit"); return null; }
+      if (typeof value === "string" && value.length > 8_192) { emit("string-limit"); return null; }
       if (value && typeof value === "object") {
         const values = Object.values(value);
-        if (values.length > (Array.isArray(value) ? 4_096 : 64)) return null;
+        if (Array.isArray(value) && values.length > 4_096) { emit("array-limit"); return null; }
+        if (!Array.isArray(value) && values.length > 64) { emit("object-limit"); return null; }
         for (const child of values) pending.push({ value: child, depth: depth + 1 });
       }
     }
     const parsed = researchCandidateSchema.safeParse(input);
+    emit(parsed.success ? null : "schema-rejected", parsed.success ? [] : parsed.error.issues);
     return parsed.success ? parsed.data : null;
-  } catch { return null; }
+  } catch { emit("json-syntax"); return null; }
 }

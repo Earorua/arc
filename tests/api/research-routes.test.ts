@@ -1,8 +1,11 @@
+// @vitest-environment node
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { researchCandidateSchema, type ResearchRunPublicView } from "../../app/contracts/research";
 import {
   createResearchGetHandler,
+  createResearchRecoverHandler,
   createResearchRetryHandler,
   createResearchStartHandler,
   type ResearchRouteDependencies,
@@ -19,6 +22,33 @@ import { ResearchProviderError } from "../../app/server/research/provider";
 import { validateResearchCandidate } from "../../app/server/research/package-validator";
 import { createResearchD1, seedUser, type SqliteD1 } from "../helpers/sqlite-d1";
 import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
+import { D1RateLimiter } from "../../app/server/http/rate-limit";
+import { TEST_PRODUCTION_ENVIRONMENT } from "../helpers/research-bridge-fixture";
+import { createSiteAdmissionFixture } from "../helpers/site-admission-fixture";
+
+function remoteRouteFixture() {
+  const f = createSiteAdmissionFixture();
+  f.db.database.prepare("INSERT INTO feature_flags (key,enabled,cohort_json) VALUES (?,?,?)")
+    .run("role-research-beta", 1, '{"userIds":["owner-a","owner-b"]}');
+  const keyRead = vi.fn(() => { throw new Error("No Site Provider credential"); });
+  const createProvider = vi.fn(() => { throw new Error("No Site Provider construction"); });
+  const environment: ResearchProductionEnvironment = { ...TEST_PRODUCTION_ENVIRONMENT, BETTER_AUTH_URL: "https://arc.example" };
+  Object.defineProperty(environment, "OPENROUTER_API_KEY", { get: keyRead });
+  const bridgeFetch = vi.fn(async () => { throw new TypeError("Synthetic lost submit response"); });
+  const now = Date.parse("2026-09-15T12:00:00.000Z"); let ids = 0; let owner = "owner-a";
+  const factory = createResearchServiceFactory({ environment, getD1: () => f.db as unknown as D1Database,
+    createProvider, fetch: bridgeFetch, now: () => now, createId: () => `http-factory-${++ids}` });
+  const deps: ResearchRouteDependencies = {
+    requireUser: async () => { if (!owner) throw new UnauthenticatedError(); return { id: owner, name: owner, email: `${owner}@example.test` }; },
+    createReadService: () => factory.createRecoveryService(), createWriteService: () => factory.createNewCallService(),
+    rateLimiter: new D1RateLimiter(f.db as unknown as D1Database, { now: () => now }),
+    cohortEnabled: factory.cohortEnabled, deriveIpSubject: factory.deriveIpSubject,
+    configuredOrigin: factory.configuredOrigin, rateLimitPerMinute: factory.rateLimitPerMinute,
+    recordEvent: async () => undefined, createRequestId: () => requestId, now: () => now,
+  };
+  return { f, deps, environment, bridgeFetch, setOwner: (value: string) => { owner = value; },
+    dispose: () => { expect(keyRead).not.toHaveBeenCalled(); expect(createProvider).not.toHaveBeenCalled(); f.db.close(); } };
+}
 
 const requestId = "00000000-0000-4000-8000-000000000008";
 const origin = "https://arc.example";
@@ -31,6 +61,7 @@ const readyValidation = validateResearchCandidate(validResearchCandidate, validA
 if (!readyValidation.ready) throw new Error("Expected Ready route fixture");
 const readyRun: ResearchRunPublicView = {
   id: "research-run-1",
+  backgroundAccepted: false,
   state: "ready",
   role: "Data Product Manager",
   locale: "en-US",
@@ -49,6 +80,7 @@ const readyRun: ResearchRunPublicView = {
 };
 const needsReviewRun: ResearchRunPublicView = {
   id: "research-run-2",
+  backgroundAccepted: false,
   state: "needs-review",
   role: "Data Product Manager",
   locale: "en-US",
@@ -57,6 +89,7 @@ const needsReviewRun: ResearchRunPublicView = {
 };
 const failedRun = (failureCategory: "timeout" | "rate-limited" | "allowance-reached" | "service-unavailable" = "timeout"): ResearchRunPublicView => ({
   id: "research-run-3",
+  backgroundAccepted: false,
   state: "failed",
   role: "Data Product Manager",
   locale: "en-US",
@@ -69,6 +102,7 @@ function service(overrides: Partial<ResearchRouteService> = {}): ResearchRouteSe
     start: vi.fn(async () => readyRun),
     get: vi.fn(async () => readyRun),
     retry: vi.fn(async () => readyRun),
+    recover: vi.fn(async () => readyRun),
     ...overrides,
   };
 }
@@ -160,8 +194,175 @@ function expectSafety(response: Response) {
   expect(response.headers.get("x-request-id")).toBe(requestId);
 }
 
+describe("remote production Research HTTP composition", () => {
+  it("serves start/get/recover/retry through the actual factory and hides owners", async () => {
+    const s = remoteRouteFixture();
+    try {
+      const start = await createResearchStartHandler(s.deps)(mutationRequest());
+      expect(start.status).toBe(200); expectSafety(start);
+      const envelope = await start.json() as { run: ResearchRunPublicView };
+      expect(envelope.run).toMatchObject({ state: "queued", backgroundAccepted: false });
+      const run = envelope.run;
+      const getRequest = () => new Request(`${origin}/api/intelligence/research/${run.id}`);
+      expect((await createResearchGetHandler(s.deps, run.id)(getRequest())).status).toBe(200);
+      const recoverInput = { kind: "start", mutationId: "mutation-research-00000001", role: "Data Product Manager", locale: "en-US" };
+      expect(await (await createResearchRecoverHandler(s.deps)(mutationRequest("/api/intelligence/research/recover", recoverInput))).json())
+        .toMatchObject({ run: { id: run.id, state: "queued" } });
+      s.setOwner("owner-b");
+      expect((await createResearchGetHandler(s.deps, run.id)(getRequest())).status).toBe(404);
+      expect((await createResearchRecoverHandler(s.deps)(mutationRequest("/api/intelligence/research/recover", recoverInput))).status).toBe(404);
+      expect((await createResearchRetryHandler(s.deps, run.id)(mutationRequest(`/api/intelligence/research/${run.id}/retry`, { mutationId: "http-retry-other" }))).status).toBe(404);
+      s.setOwner("owner-a");
+      const execution = (await s.f.executions.read("owner-a", run.id))!;
+      await s.f.executions.closeBeforeBegin(s.f.closeCommand(execution));
+      const retry = await createResearchRetryHandler(s.deps, run.id)(mutationRequest(`/api/intelligence/research/${run.id}/retry`, { mutationId: "http-retry-owner" }));
+      expect(retry.status).toBe(200);
+      expect(await retry.json()).toMatchObject({ run: { state: "queued", backgroundAccepted: false } });
+      expect(s.bridgeFetch).toHaveBeenCalledTimes(2);
+      s.environment.ARC_AI_ENABLED = "false"; s.environment.ARC_AI_RESEARCH_ENABLED = "false";
+      expect((await createResearchGetHandler(s.deps, run.id)(getRequest())).status).toBe(200);
+      expect((await createResearchRecoverHandler(s.deps)(mutationRequest("/api/intelligence/research/recover", recoverInput))).status).toBe(200);
+    } finally { s.dispose(); }
+  });
+
+  it.each(["account", "ip"])("enforces the actual %s rate bucket before another remote call", async (limited) => {
+    const s = remoteRouteFixture();
+    try {
+      const start = createResearchStartHandler(s.deps);
+      expect((await start(mutationRequest())).status).toBe(200);
+      s.f.db.database.prepare("UPDATE endpoint_rate_buckets SET count=2 WHERE scope=?")
+        .run(`research:start:${limited}`);
+      const response = await start(mutationRequest());
+      expect(response.status).toBe(429); expect(response.headers.get("retry-after")).toBeTruthy();
+      expect(s.bridgeFetch).toHaveBeenCalledTimes(1); expect(s.f.readCounts().researchRuns).toBe(1);
+    } finally { s.dispose(); }
+  });
+
+  it("enforces actual D1 cohort and session authentication without creating runs", async () => {
+    const s = remoteRouteFixture();
+    try {
+      s.setOwner(""); expect((await createResearchStartHandler(s.deps)(mutationRequest())).status).toBe(401);
+      expect(s.f.db.database.prepare("SELECT count(*) AS n FROM endpoint_rate_buckets").get()).toMatchObject({ n: 0 });
+      s.setOwner("owner-a"); s.f.db.database.prepare("UPDATE feature_flags SET cohort_json=?").run('{"userIds":["owner-b"]}');
+      expect((await createResearchStartHandler(s.deps)(mutationRequest())).status).toBe(429);
+      expect(s.f.readCounts().researchRuns).toBe(0); expect(s.bridgeFetch).not.toHaveBeenCalled();
+    } finally { s.dispose(); }
+  });
+
+  it.each(["origin", "fetch-site", "bounded-body", "executor", "model", "url", "ownerId"])("retains strict public rejection for %s controls", async (kind) => {
+    const s = remoteRouteFixture();
+    try {
+      const body: Record<string, string> = { mutationId: "http-invalid-1", role: "Data Product Manager", locale: "en-US" };
+      if (["executor", "model", "url", "ownerId"].includes(kind)) body[kind] = "untrusted";
+      if (kind === "bounded-body") body.role = "x".repeat(17_000);
+      const request = mutationRequest("/api/intelligence/research", body);
+      if (kind === "origin") request.headers.set("origin", "https://attacker.test");
+      if (kind === "fetch-site") request.headers.set("sec-fetch-site", "cross-site");
+      expect((await createResearchStartHandler(s.deps)(request)).status).toBe(400);
+      expect(s.f.readCounts().researchRuns).toBe(0); expect(s.bridgeFetch).not.toHaveBeenCalled();
+      expect(s.f.db.database.prepare("SELECT count(*) AS n FROM endpoint_rate_buckets").get()).toMatchObject({ n: 0 });
+    } finally { s.dispose(); }
+  });
+});
+
 describe("Research HTTP routes", () => {
   afterEach(() => vi.restoreAllMocks());
+
+  describe.each(["start", "get"] as const)("queued %s response", (operation) => {
+    it.each([true, false])("returns HTTP 200 and only safe keys when backgroundAccepted is %s", async (backgroundAccepted) => {
+      const run = {
+        id: "research-run-queued", role: "Data Product Manager", locale: "en-US" as const,
+        state: "queued" as const, retryable: false as const, backgroundAccepted,
+      };
+      const f = harness();
+      vi.mocked(f.writeService.start).mockResolvedValue(run);
+      vi.mocked(f.readService.get).mockResolvedValue(run);
+      const response = operation === "start"
+        ? await createResearchStartHandler(f.deps)(mutationRequest())
+        : await createResearchGetHandler(f.deps, run.id)(new Request(`${origin}/api/intelligence/research/${run.id}`));
+
+      expect(response.status).toBe(200);
+      expect(await json(response)).toEqual({
+        run: {
+          id: "research-run-queued", role: "Data Product Manager", locale: "en-US",
+          state: "queued", retryable: false, backgroundAccepted,
+        },
+        requestId,
+      });
+      expectSafety(response);
+    });
+  });
+
+  it("handles recovery as an owner-bound POST query with fixed read limits and 200 terminal semantics", async () => {
+    for (const run of [readyRun, needsReviewRun, failedRun()]) {
+      const f = harness({ createWriteService: vi.fn(() => null), cohortEnabled: vi.fn(async () => false) });
+      vi.mocked(f.readService.recover).mockResolvedValue(run);
+      const response = await createResearchRecoverHandler(f.deps)(mutationRequest(
+        "/api/intelligence/research/recover",
+        { kind: "start", mutationId: "mutation-recover-0001", role: "Data Product Manager", locale: "en-US" },
+      ));
+      expect(response.status).toBe(200);
+      expect(await json(response)).toEqual({ run, requestId });
+      expect(f.readService.recover).toHaveBeenCalledWith("owner-a", {
+        kind: "start", mutationId: "mutation-recover-0001", role: "Data Product Manager", locale: "en-US",
+      });
+      expect(f.rateLimiter.reserve).toHaveBeenCalledWith({ scope: "research:recover:account", subject: "owner-a", limit: 120, windowSeconds: 60 });
+      expect(f.deps.createWriteService).not.toHaveBeenCalled();
+      expect(f.deps.cohortEnabled).not.toHaveBeenCalled();
+      expect(f.deps.deriveIpSubject).not.toHaveBeenCalled();
+      expect(f.deps.recordEvent).toHaveBeenCalledWith(expect.objectContaining({ route: "/api/intelligence/research/recover", resultCode: "OK" }));
+      expectSafety(response);
+    }
+  });
+
+  it("hides unknown recovery identities and cancels unread rejected query bodies", async () => {
+    const missing = harness();
+    vi.mocked(missing.readService.recover).mockResolvedValue(null);
+    const response = await createResearchRecoverHandler(missing.deps)(mutationRequest(
+      "/api/intelligence/research/recover",
+      { kind: "retry", mutationId: "mutation-recover-0002", role: "Data Product Manager", locale: "en-US", sourceRunId: "research-run-1" },
+    ));
+    expect(response.status).toBe(404);
+    expect(await json(response)).toMatchObject({ error: { code: "NOT_FOUND" }, requestId });
+
+    const rejected = harness({ requireUser: async () => { throw new UnauthenticatedError(); } });
+    const open = openMutationRequest("/api/intelligence/research/recover", {
+      kind: "start", mutationId: "mutation-recover-0003", role: "Data Product Manager", locale: "en-US",
+    });
+    const rejectedResponse = await createResearchRecoverHandler(rejected.deps)(open.request);
+    expect(rejectedResponse.status).toBe(401);
+    expect(open.cancelled).toHaveBeenCalledOnce();
+    expect(open.request.body?.locked).toBe(false);
+  });
+
+  it("enforces recovery origin, JSON, strict fields, fatal UTF-8, and cumulative body limits", async () => {
+    const invalidCases = [
+      (() => { const value = openMutationRequest("/api/intelligence/research/recover"); value.request.headers.set("origin", "https://attacker.example"); return value; })(),
+      (() => { const value = openMutationRequest("/api/intelligence/research/recover"); value.request.headers.set("content-type", "text/plain"); return value; })(),
+      { request: mutationRequest("/api/intelligence/research/recover", { kind: "start", mutationId: "mutation-recover-0004", role: "Data Product Manager", locale: "en-US", ownerId: "owner-a" }), cancelled: vi.fn() },
+    ];
+    for (const value of invalidCases) {
+      const f = harness();
+      const response = await createResearchRecoverHandler(f.deps)(value.request);
+      expect(response.status).toBe(400);
+      expect(value.request.body?.locked).toBe(false);
+      expect(f.readService.recover).not.toHaveBeenCalled();
+    }
+
+    for (const bytes of [new Uint8Array([0xc3, 0x28]), new Uint8Array(20_000)]) {
+      const f = harness(); const cancel = vi.fn();
+      const body = new ReadableStream<Uint8Array>({ start(controller) { controller.enqueue(bytes); }, cancel });
+      const request = new Request(`${origin}/api/intelligence/research/recover`, {
+        method: "POST", headers: { "content-type": "application/json", origin, "sec-fetch-site": "same-origin" },
+        body, duplex: "half",
+      } as RequestInit);
+      const response = await createResearchRecoverHandler(f.deps)(request);
+      expect(response.status).toBe(400);
+      expect(request.body?.locked).toBe(false);
+      expect(f.readService.recover).not.toHaveBeenCalled();
+      if (bytes.byteLength > 16_384) expect(cancel).toHaveBeenCalledOnce();
+    }
+  });
 
   it("returns the exact unauthenticated envelope before any admission or service work", async () => {
     const f = harness({ requireUser: async () => { throw new UnauthenticatedError(); } });
@@ -749,6 +950,71 @@ describe("Research production composition", () => {
       expect(createProvider).not.toHaveBeenCalled();
     } finally { db.close(); }
   });
+
+  it("POST-recovers through the real disabled factory without paid configuration or owner leakage", async () => {
+    const db = createResearchD1();
+    try {
+      seedUser(db, "owner-a"); seedUser(db, "owner-b");
+      const provider = {
+        research: vi.fn(async () => { throw new ResearchProviderError("timeout", true, false); }),
+        repair: vi.fn(async () => { throw new Error("repair must not run"); }),
+      };
+      const enabledFactory = createResearchServiceFactory({ environment: validEnvironment,
+        getD1: () => db as unknown as D1Database, createProvider: () => provider,
+        now: () => Date.parse("2026-09-02T12:00:00Z") });
+      const started = await createResearchStartHandler(factoryDependencies(enabledFactory))(mutationRequest());
+      const startedBody = await json(started) as { run: ResearchRunPublicView };
+      expect(startedBody.run.state).toBe("failed");
+      expect(provider.research).toHaveBeenCalledOnce();
+
+      const createProvider = vi.fn(() => { throw new Error("paid provider must not be constructed"); });
+      const disabledFactory = createResearchServiceFactory({
+        environment: { ...validEnvironment, ARC_AI_ENABLED: "false", ARC_AI_RESEARCH_ENABLED: "false",
+          OPENROUTER_API_KEY: undefined, ARC_AI_SITE_DAILY_BUDGET_MICROS: "invalid-paid-config",
+          ARC_AI_RESEARCH_MAX_COST_MICROS: "invalid-paid-config" },
+        getD1: () => db as unknown as D1Database, createProvider,
+        now: () => Date.parse("2026-09-02T12:00:00Z"),
+      });
+      const deps = factoryDependencies(disabledFactory, { cohortEnabled: false });
+      deps.createWriteService = vi.fn(() => disabledFactory.createNewCallService());
+      deps.cohortEnabled = vi.fn(async () => false);
+      deps.deriveIpSubject = vi.fn(async () => { throw new Error("IP admission must not run"); });
+      const recover = (ownerId: string, body: unknown) => {
+        deps.requireUser = async () => ({ id: ownerId, name: "Owner", email: `${ownerId}@example.test` });
+        return createResearchRecoverHandler(deps)(mutationRequest("/api/intelligence/research/recover", body));
+      };
+      const identity = { kind: "start", mutationId: "mutation-research-00000001", role: "Data Product Manager", locale: "en-US" };
+      const before = durableLedgerSnapshot(db);
+      const found = await recover("owner-a", identity);
+      expect(found.status).toBe(200);
+      expect(await json(found)).toEqual({ run: startedBody.run, requestId });
+      for (const [ownerId, body] of [
+        ["owner-b", identity],
+        ["owner-a", { ...identity, role: "Other Product Manager" }],
+        ["owner-a", { ...identity, mutationId: "mutation-research-absent-1" }],
+      ] as const) {
+        const hidden = await recover(ownerId, body);
+        expect(hidden.status).toBe(404);
+        expect(await json(hidden)).toEqual({ error: { code: "NOT_FOUND", message: "Research run was not found." }, requestId });
+      }
+      expect(durableLedgerSnapshot(db)).toEqual(before);
+      expect(deps.createWriteService).not.toHaveBeenCalled();
+      expect(deps.cohortEnabled).not.toHaveBeenCalled();
+      expect(deps.deriveIpSubject).not.toHaveBeenCalled();
+      expect(createProvider).not.toHaveBeenCalled();
+      expect(provider.research).toHaveBeenCalledOnce(); expect(provider.repair).not.toHaveBeenCalled();
+
+      db.database.prepare("UPDATE idempotency_records SET response_json=? WHERE user_id=? AND mutation_id=?")
+        .run('{"runId":', "owner-a", "mutation-research-00000001");
+      const corruptBefore = durableLedgerSnapshot(db);
+      const corrupt = await recover("owner-a", identity);
+      expect(corrupt.status).toBe(503);
+      expect(await json(corrupt)).toEqual({ error: { code: "RESEARCH_UNAVAILABLE",
+        message: "Research is temporarily unavailable.", recovery: "retry-or-flagship" }, requestId });
+      expect(durableLedgerSnapshot(db)).toEqual(corruptBefore);
+      expect(createProvider).not.toHaveBeenCalled();
+    } finally { db.close(); }
+  });
 });
 
 type ServiceFactory = ReturnType<typeof createResearchServiceFactory>;
@@ -776,6 +1042,7 @@ function factoryDependencies(
 function durableLedgerSnapshot(db: SqliteD1) {
   return {
     runs: db.database.prepare("SELECT id,request_id,retry_of_run_id,state,state_version FROM research_runs ORDER BY created_at,id").all(),
+    aliases: db.database.prepare("SELECT user_id,scope,mutation_id,response_json FROM idempotency_records ORDER BY created_at,id").all(),
     quotas: db.database.prepare("SELECT reservation_id,idempotency_key,entry_kind,units FROM quota_ledger ORDER BY created_at,id").all(),
     costs: db.database.prepare("SELECT id,request_id,run_id,status,settled_micros,day_bucket_id,month_bucket_id FROM ai_budget_reservations ORDER BY created_at,id").all(),
     audits: db.database.prepare("SELECT request_id,purpose,status,error_code FROM ai_runs ORDER BY created_at,id").all(),
