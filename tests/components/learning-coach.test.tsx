@@ -19,6 +19,20 @@ function setup(enabled = true) {
   return f;
 }
 describe("learning coach", () => {
+  it("shows immediate generation progress and aborts on leaving the page", async () => {
+    const f = setup(); let signal: AbortSignal;
+    mocks.start.mockImplementation((_input, current, started) => {
+      signal = current; started({ id: "run-1", kind: "planner", status: "running", createdAt: Date.now(),
+        baseVersionId: f.workspace.activePlanVersionId, revision: 0, model: "openai/gpt-6-astra", effort: "max" });
+      return new Promise(() => {});
+    });
+    const view = render(<LearningCoach />);
+    expect(screen.getByText(/生成时请保持此页面打开/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "开始深度规划" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "正在深度规划…" })).toBeDisabled());
+    expect(screen.getByText("正在梳理你的学习路线")).toBeInTheDocument();
+    view.unmount(); expect(signal!.aborted).toBe(true);
+  });
   it("explains disabled state without starting a paid request", () => {
     setup(false); render(<LearningCoach />);
     expect(screen.getByText("学习助手尚未启用")).toBeInTheDocument();

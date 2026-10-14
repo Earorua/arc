@@ -4,6 +4,7 @@
 
 1. 登录 Arc 并完成学习设置。现有 Research/Setup 负责岗位来源、技能评估、时间预算和基础路线。
 2. 在导航的 **Learning coach** 或路线页进入 `/coach`。输入本次规划重点，点击“开始深度规划”。
+   规划使用即时生成，等待期间保持此页面打开；离开或刷新会中断请求。完整生成并保存后的方案可再次打开查看。
 3. 规划师返回策略、阶段目标及安排理由。“查看计划差异”生成待确认候选；只有点击现有的 **Accept new plan** 才更新当前计划，**Keep current plan** 保留原计划。
 4. 网站右下角的学习伙伴可展开、最小化、隐藏、重新显示。聊天读取当前目标、任务、已完成进度和已批准的资料目录，可停止流式回复、切换深入讲解。
 5. “交给规划师”把当前问题和答疑摘要带到规划输入框，由用户决定是否提交。
@@ -17,9 +18,9 @@
 | 服务端变量 | 默认值 / 用途 |
 | --- | --- |
 | `ARC_LEARNING_AGENTS_ENABLED` | `false`，显式启用开关 |
-| `OPENAI_API_KEY` | OpenAI API 密钥，服务端保存 |
-| `ARC_AGENT_PLANNER_MODEL` | `gpt-6-astra`，`max` 推理 |
-| `ARC_AGENT_TUTOR_MODEL` | `gpt-6-astra`，常规 `low`，深入讲解 `high` |
+| `OPENROUTER_API_KEY` | OpenRouter API 密钥，服务端保存；两个 Agent 共用 |
+| `ARC_AGENT_PLANNER_MODEL` | `openai/gpt-6-astra`，`max` 推理 |
+| `ARC_AGENT_TUTOR_MODEL` | `openai/gpt-6-astra`，常规 `low`，深入讲解 `high` |
 | `ARC_AGENT_SITE_DAILY_BUDGET_MICROS` | 20,000,000 |
 | `ARC_AGENT_SITE_MONTHLY_BUDGET_MICROS` | 200,000,000 |
 | `ARC_AGENT_USER_DAILY_BUDGET_MICROS` | 5,000,000 |
@@ -28,9 +29,18 @@
 | `ARC_AGENT_INPUT_MICROS_PER_TOKEN` | 13 |
 | `ARC_AGENT_OUTPUT_MICROS_PER_TOKEN` | 50 |
 
-1,000,000 micro-units = 1 美元。按 UTC 日/月统计，两个 Agent 共用额度。所有数值必须为正整数；格式错误时关闭助手。两类请求都固定 `service_tier: "default"`。切换模型前需验证其 Responses、推理档位、结构化输出支持和 Standard 价格，并同步配置输入/输出 token 价格上界。
+1,000,000 micro-units = 1 美元。按 UTC 日/月统计，两个 Agent 共用额度。所有数值必须为正整数，模型名须为 OpenRouter 的 `提供商/模型` 格式；配置错误时关闭助手。两类请求都固定 `service_tier: "default"`，并设置 `provider.require_parameters: true`、`allow_fallbacks: false` 和 `max_price` 输入/输出价格上界及单请求价格 0，避免转入超出预留依据的端点。切换模型前需验证其 Responses、推理档位、结构化输出支持及价格，并同步配置输入/输出 token 价格上界。
 
-这些值与 OpenRouter Research 配置独立。不要把密钥放入客户端代码或任何 `NEXT_PUBLIC_` 变量；浏览器请求始终发送至同源的 `/api/agents/*`。
+助手预算及开关与 Research 独立，复用本站服务端的 `OPENROUTER_API_KEY`。远程 Research executor 仍使用其自身密钥配置。浏览器始终请求同源 `/api/agents/*`，服务端再调用 `https://openrouter.ai/api/v1/responses`；密钥不进入客户端或任何 `NEXT_PUBLIC_` 变量。
+
+本地按现有 Cloudflare 开发方式配置 `.dev.vars`（已被 Git 忽略），保留现有登录配置并添加以下值；重启开发服务器后生效。部署时在站点 Worker 上配置对应变量和密钥。
+
+```dotenv
+OPENROUTER_API_KEY=替换为你的OpenRouter密钥
+ARC_LEARNING_AGENTS_ENABLED=true
+ARC_AGENT_PLANNER_MODEL=openai/gpt-6-astra
+ARC_AGENT_TUTOR_MODEL=openai/gpt-6-astra
+```
 
 ## 请求与数据生命周期
 
@@ -38,8 +48,8 @@
 - 每个付费请求使用 UUID；已提交的重复请求不会再次创建模型任务。结果不确定时不自动重试付费 POST。
 - 预算预留覆盖 UTF-8 字节数估算的输入上界、提示词与 schema 余量、最大输出（含推理 token）。先裁剪较旧的历史，再拒绝超过单次预算的请求。
 - 单次预留额度在失败后仍保留，避免网络中断造成重复放行；实际 token 用量另存。预留额不是实际账单，实际账单以模型服务为准。
-- 规划使用 Responses `background: true, store: true`，保存 provider ID；刷新和重新打开页面查询同一任务。即使返回较晚，也先读取已知任务的结果。只有已知仍在运行超过 24 小时的任务才标记超时。拒答、非法结构、上游任务已不存在均成为可恢复的失败状态。
-- 无 provider ID 的中断提交在 2 分钟后释放进行中状态；中断答疑在 150 秒后标记失败。已发生的预算预留不返还。
+- 规划使用无状态 Responses 流，`store: false`，不发送 `background` 或 `previous_response_id`。本站先保存 running 状态并发出 started，每 15 秒发送心跳；完整结果经当前进度校验并保存后才发出 done。GET 只读取本站 D1，不向 OpenRouter 恢复或重新生成任务。
+- 规划上限 10 分钟，答疑上限 2 分钟；浏览器离开/取消会中止上游连接。异常退出遗留的 starting 记录在 2 分钟后、running 记录在对应超时加 30 秒后标记失败。升级前的遗留后台记录也按此规则到期，不会尝试跨服务恢复。已发生的预算预留不返还。
 - 答疑使用 `store: false`，只转发公开回答文本。完整答复才保存为完成；中断或取消不会把部分回答标记为成功。
 - 本站 D1 保存 owner/goal 隔离的对话、规划、上下文快照、使用量和错误状态。接口返回最近 30 条及仍在进行/最近一次规划。当前没有自动清除策略。
 - 浏览器 localStorage 只保存按账户隔离的展示偏好；sessionStorage 保存按账户和目标隔离的输入草稿。退出或换账户时取消旧请求、清空旧上下文；目标切换后不会接收旧目标迟到的回复。
@@ -50,8 +60,8 @@
 | 方法与路径 | 用途 |
 | --- | --- |
 | GET `/api/agents/workspace` | 可用状态、当前目标与聊天/规划记录 |
-| POST `/api/agents/planner` | 提交一次深度规划 |
-| GET `/api/agents/planner/:id` | 恢复/查询同一规划 |
+| POST `/api/agents/planner` | 即时规划，NDJSON started/heartbeat/done/error |
+| GET `/api/agents/planner/:id` | 读取本站保存的状态与完整结果 |
 | POST `/api/agents/planner/:id/apply` | 将已校验结果放入候选计划审阅 |
 | POST `/api/agents/tutor` | NDJSON 流式答疑 |
 
@@ -61,22 +71,29 @@
 
 本地启动：`npm run dev`，查看 `/coach`。未配置登录或模型服务时，界面会明确显示原因，发送按钮不可用。
 
-自动测试覆盖模型请求参数、流式拆包、拒答/断流、费用并发预留、身份隔离、任务恢复、规划事件重放和候选确认。无需真实密钥即可运行这些测试：
+自动测试覆盖 OpenRouter 请求参数、流式拆包、拒答/断流、取消、费用并发预留、身份隔离、本地记录读取、规划事件重放和候选确认。无需真实密钥即可运行这些测试：
 
 ```powershell
-npm run test:unit -- tests/api/agents.test.ts tests/server/agent-provider.test.ts tests/server/agent-repository.test.ts tests/server/learning-agents.test.ts tests/components/agent-context.test.tsx tests/components/agent-companion.test.tsx tests/components/learning-coach.test.tsx tests/lib/planning/agent-replanned.test.ts
+npm run test:unit -- tests/api/agents.test.ts tests/server/agent-configuration.test.ts tests/server/agent-provider.test.ts tests/server/agent-repository.test.ts tests/server/learning-agents.test.ts tests/lib/agent-client.test.ts tests/components/agent-context.test.tsx tests/components/agent-companion.test.tsx tests/components/learning-coach.test.tsx tests/lib/planning/agent-replanned.test.ts
 npx tsc --noEmit --incremental false
 npm run build
 ```
 
-真实服务验收需要一个已配置登录的测试环境、具有对应模型权限的 OpenAI 项目和小额预算。检查：一次深度规划、刷新后恢复、候选采用/放弃、连续两轮答疑、取消回复、目标/账户切换、服务不可用时保留当前计划。此次开发没有调用真实付费模型，也没有发布或迁移线上数据库。
+真实服务验收需要已配置登录和 D1 的测试环境、具有对应模型权限及余额的 OpenRouter 密钥。检查：保持页面打开完成一次规划、生成中离开后的中断处理、完成后再次查看、候选采用/放弃、连续两轮答疑、取消回复、目标/账户切换、服务不可用时保留当前计划。此次开发没有调用真实付费模型，也没有发布或迁移线上数据库。
 
-模型参数依据：[GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra)、[Responses background](https://developers.openai.com/api/docs/guides/background)、[streaming](https://developers.openai.com/api/docs/guides/streaming-responses)。
+模型参数依据：[OpenRouter GPT-6 Astra](https://openrouter.ai/openai/gpt-6-astra)、[无状态 Responses](https://openrouter.ai/docs/api_reference/responses/overview)、[价格路由](https://openrouter.ai/docs/guides/routing/provider-selection)。
 
-## 本次开发验证记录（2026-10-14）
+## 首版开发验证记录（2026-10-14，OpenRouter 迁移前）
 
 - 相关回归测试：25 个文件、407 项全部通过，包含原有规划、D1、账户切换、计划差异和新 Agent 测试。
 - TypeScript 全项目检查通过；变更涉及的 TS/TSX 文件 ESLint 通过；生产构建通过。
 - 前后端分别经独立审查并复审通过；修复了终态拒答恢复、历史窗口遗漏任务、隔天结果恢复、计费档位、取消时覆盖草稿、候选刷新失败时的重试入口。
 - 浏览器验证：规划页和路线页；桌面及 390 × 844 手机视口；展开、最小化、隐藏、重新显示；跨页面草稿保留；未配置时禁用；手机无横向溢出，桌宠避开底部导航。
 - 独立分支：`codex/dual-learning-agents`。本地预览：`http://localhost:3000/coach`。新数据库迁移已在本地 SQLite 测试库执行验证，线上迁移和真实付费模型联调留待配置后的环境验收。
+
+## OpenRouter 迁移验证（2026-10-14）
+
+- 30 个相关 Vitest 文件、451 项测试通过，包含规划、预算/去重、取消、心跳、客户端流读取、Research 配置及候选审阅。
+- 4 项服务端渲染/构建产物检查通过，包含 OpenRouter 密钥标识不出现在客户端包；TypeScript、ESLint、生产构建通过。
+- 独立审查未发现阻塞项；依据当前公开 [OpenAPI](https://openrouter.ai/openapi.json) 和 [模型元数据](https://openrouter.ai/api/v1/models) 核实 max 推理及 Responses 事件类型。旧版 basic-usage 教程中的 response.done 示例不作为当前事件契约。
+- 浏览器已确认即时规划提示；`/coach` HTTP 200。当前本地登录未配置，助手接口按预期返回 503。没有使用真实密钥发起模型调用；需配置后的登录/D1 环境完成真实验收。

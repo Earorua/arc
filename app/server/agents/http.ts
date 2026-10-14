@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { AgentServiceError } from "./context";
 import type { LearningAgentService } from "./service";
-import type { AgentStreamEvent } from "../../contracts/agents";
+import { agentRequestSchema, type AgentStreamEvent, type PublicAgentRun } from "../../contracts/agents";
 
 type Dependencies = {
   getUser(headers: Headers): Promise<{ id: string } | null>;
@@ -33,28 +33,47 @@ export function createAgentHandlers(deps: Dependencies) {
   }
   return {
     workspace: (request: Request) => guarded(request, async (service, owner) => json(await service.workspace(owner)), true),
-    planner: (request: Request) => guarded(request, async (service, owner) =>
-      json(await service.startPlanner(owner!, await body(request)), 202)),
+    planner: (request: Request) => guarded(request, async (service, owner) => {
+      const input = agentRequestSchema.parse(await body(request));
+      return streamResponse(request, (send, signal) =>
+        service.startPlanner(owner!, input, signal, run => send({ type: "started", run })));
+    }),
     poll: (request: Request, id: string) => guarded(request, async (service, owner) => json(await service.poll(owner!, id))),
     apply: (request: Request, id: string) => guarded(request, async (service, owner) => json(await service.apply(owner!, id))),
     tutor: (request: Request) => guarded(request, async (service, owner) => {
-      const input = await body(request);
-      const abort = new AbortController();
-      const signal = AbortSignal.any([abort.signal, request.signal]);
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream<Uint8Array>({
-        start(controller) {
-          const send = (event: AgentStreamEvent) => { if (!signal.aborted) controller.enqueue(encoder.encode(JSON.stringify(event) + "\n")); };
-          void service.tutor(owner!, input, text => send({ type: "delta", text }), signal)
-            .then(run => send({ type: "done", run }))
-            .catch(error => send({ type: "error", message: error instanceof AgentServiceError ? error.message : "本次回复未完成，请重试。" }))
-            .finally(() => { try { controller.close(); } catch { /* The browser may already have cancelled. */ } });
-        },
-        cancel() { abort.abort(); },
-      });
-      return new Response(stream, { headers: { ...headers, "Content-Type": "application/x-ndjson; charset=utf-8" } });
+      const input = agentRequestSchema.parse(await body(request));
+      return streamResponse(request, (send, signal) => service.tutor(owner!, input, text => send({ type: "delta", text }), signal));
     }),
   };
+}
+function streamResponse(request: Request,
+  task: (send: (event: AgentStreamEvent) => void, signal: AbortSignal) => Promise<PublicAgentRun>) {
+  const abort = new AbortController(), encoder = new TextEncoder();
+  const signal = AbortSignal.any([abort.signal, request.signal]);
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      let closed = false;
+      const send = (event: AgentStreamEvent) => {
+        if (!closed && !signal.aborted) controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+      };
+      // Reasoning can be silent for minutes; keep the browser connection active without exposing it.
+      const timer = setInterval(() => send({ type: "heartbeat" }), 15000);
+      const close = () => {
+        clearInterval(timer); signal.removeEventListener("abort", close);
+        if (closed) return;
+        closed = true;
+        try { controller.close(); } catch { /* Reader may have cancelled already. */ }
+      };
+      signal.addEventListener("abort", close, { once: true });
+      if (signal.aborted) { close(); return; }
+      send({ type: "heartbeat" });
+      void task(send, signal).then(run => send({ type: "done", run }))
+        .catch(error => send({ type: "error", message: error instanceof AgentServiceError ? error.message : "本次生成未完成，请重试。" }))
+        .finally(close);
+    },
+    cancel() { abort.abort(); },
+  });
+  return new Response(stream, { headers: { ...headers, "Content-Type": "application/x-ndjson; charset=utf-8" } });
 }
 async function body(request: Request): Promise<unknown> {
   if (!request.body) throw new AgentServiceError(400, "消息不能为空。");

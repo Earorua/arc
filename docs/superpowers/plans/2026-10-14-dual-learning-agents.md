@@ -38,6 +38,8 @@
 
 ## References
 
+2026-10-14 amendment: the user selected OpenRouter and immediate planning while keeping the page open. Provider configuration and background recovery in this original plan are superseded by [OpenRouter learning agents](2026-10-14-openrouter-learning-agents.md).
+
 - https://developers.openai.com/api/docs/models/gpt-6-astra
 - https://developers.openai.com/api/docs/guides/background
 - https://developers.openai.com/api/docs/guides/streaming-responses

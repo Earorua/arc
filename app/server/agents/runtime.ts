@@ -3,31 +3,12 @@ import { getD1 } from "../../../db/d1";
 import { getArcUser } from "../auth/session";
 import { D1RateLimiter } from "../http/rate-limit";
 import { createProductionPlanningService } from "../http/planning-route-factories";
-import { OpenAIAgentProvider } from "./openai-provider";
+import { OpenRouterAgentProvider } from "./openrouter-provider";
 import { D1AgentRepository } from "./repository";
-import { LearningAgentService, type AgentConfiguration } from "./service";
+import { LearningAgentService } from "./service";
 import { createAgentHandlers } from "./http";
+import { agentConfiguration } from "./configuration";
 
-export function agentConfiguration(values: Record<string, unknown>): AgentConfiguration {
-  const amount = (key: string, fallback: number) => {
-    const raw = values[key]; if (raw === undefined || raw === "") return fallback;
-    const value = Number(raw); return Number.isSafeInteger(value) && value > 0 ? value : 0;
-  };
-  const model = (key: string) => typeof values[key] === "string" && /^gpt-[a-z0-9.-]+$/.test(values[key]) ? values[key] : "gpt-6-astra";
-  const config = {
-    enabled: values.ARC_LEARNING_AGENTS_ENABLED === "true" && typeof values.OPENAI_API_KEY === "string" && values.OPENAI_API_KEY.length > 0,
-    plannerModel: model("ARC_AGENT_PLANNER_MODEL"), tutorModel: model("ARC_AGENT_TUTOR_MODEL"),
-    siteDailyMicros: amount("ARC_AGENT_SITE_DAILY_BUDGET_MICROS", 20000000),
-    siteMonthlyMicros: amount("ARC_AGENT_SITE_MONTHLY_BUDGET_MICROS", 200000000),
-    userDailyMicros: amount("ARC_AGENT_USER_DAILY_BUDGET_MICROS", 5000000),
-    plannerReserveMicros: amount("ARC_AGENT_PLANNER_MAX_COST_MICROS", 2000000),
-    tutorReserveMicros: amount("ARC_AGENT_TUTOR_MAX_COST_MICROS", 500000),
-    inputMicrosPerToken: amount("ARC_AGENT_INPUT_MICROS_PER_TOKEN", 13),
-    outputMicrosPerToken: amount("ARC_AGENT_OUTPUT_MICROS_PER_TOKEN", 50),
-  };
-  config.enabled = config.enabled && Object.values(config).filter(value => typeof value === "number").every(value => value > 0);
-  return config;
-}
 function environment() { return env as unknown as Record<string, unknown>; }
 function configuredOrigin() {
   try { return new URL(String(environment().BETTER_AUTH_URL)).origin; } catch { return null; }
@@ -41,7 +22,7 @@ export const agentHandlers = createAgentHandlers({
     const config = agentConfiguration(environment());
     return new LearningAgentService({
       config, planning: createProductionPlanningService(), repository: new D1AgentRepository(getD1()),
-      provider: new OpenAIAgentProvider({ apiKey: String(environment().OPENAI_API_KEY ?? ""), ...config }),
+      provider: new OpenRouterAgentProvider({ apiKey: String(environment().OPENROUTER_API_KEY ?? "").trim(), ...config }),
     });
   },
 });

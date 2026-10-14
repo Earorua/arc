@@ -33,6 +33,8 @@ export type AgentWorkspace = {
   plannerModel: string; tutorModel: string;
 };
 export type AgentStreamEvent =
+  | { type: "started"; run: PublicAgentRun }
+  | { type: "heartbeat" }
   | { type: "delta"; text: string }
   | { type: "done"; run: PublicAgentRun }
   | { type: "error"; message: string };

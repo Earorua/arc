@@ -44,7 +44,7 @@ function CoachGoal() {
     return () => { current = false; };
   }, [handoff]);
   useEffect(() => {
-    if (!pollingId) return;
+    if (!pollingId || submitting) return;
     const controller = new AbortController(); let timer: ReturnType<typeof setTimeout>;
     let failures = 0;
     const poll = async () => {
@@ -61,7 +61,7 @@ function CoachGoal() {
     };
     timer = setTimeout(() => void poll(), 1500);
     return () => { controller.abort(); clearTimeout(timer); };
-  }, [pollingId, refresh]);
+  }, [pollingId, refresh, submitting]);
   const start = async () => {
     if (!enabled || !workspace?.goalId || !workspace.baseVersionId || workspace.revision === null
       || submitting || pollingId || pending || !message.trim()) return;
@@ -69,7 +69,8 @@ function CoachGoal() {
     setSubmitting(true); setError(null); setNotice(null);
     try {
       const next = await agentClient.start({ requestId: crypto.randomUUID(), goalId: workspace.goalId,
-        baseVersionId: workspace.baseVersionId, revision: workspace.revision, message: message.trim(), page: "coach", deep: true }, signal);
+        baseVersionId: workspace.baseVersionId, revision: workspace.revision, message: message.trim(), page: "coach", deep: true }, signal,
+        started => { if (!signal?.aborted) setLocalRun(started); });
       if (signal?.aborted) return;
       setLocalRun(next); agents.setHandoff(""); await agents.refresh();
     } catch (e) {
@@ -128,8 +129,8 @@ function CoachGoal() {
           {unavailable && <p className="coach-notice">{unavailable} {!workspace?.authenticated && !agents.loading && <Link href="/sign-in">登录 ↗</Link>}</p>}
           {pending && <p className="coach-notice">你有一份待确认的调整，请先处理下方的计划差异。</p>}
           <button className="coach-primary" type="submit" disabled={!enabled || agents.loading || submitting || Boolean(pollingId) || pending || !message.trim()}>
-            {submitting ? "正在提交…" : pollingId ? "正在深度规划…" : "开始深度规划"} <span aria-hidden="true">↗</span></button>
-          <p className="coach-caption">深度规划可能需要几分钟。提交成功后可以离开页面，回来时继续查看。</p>
+            {submitting || pollingId ? "正在深度规划…" : "开始深度规划"} <span aria-hidden="true">↗</span></button>
+          <p className="coach-caption">深度规划可能需要几分钟，生成时请保持此页面打开。离开或刷新会中断生成；完成的方案会自动保存。</p>
         </form>
       </section>
       <aside className="coach-how">

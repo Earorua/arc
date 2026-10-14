@@ -34,7 +34,6 @@ declare namespace Cloudflare {
     ARC_AI_IP_HASH_SALT?: string;
     OPENROUTER_API_KEY?: string;
     ARC_LEARNING_AGENTS_ENABLED?: string;
-    OPENAI_API_KEY?: string;
     ARC_AGENT_PLANNER_MODEL?: string;
     ARC_AGENT_TUTOR_MODEL?: string;
     ARC_AGENT_SITE_DAILY_BUDGET_MICROS?: string;

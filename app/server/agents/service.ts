@@ -3,7 +3,7 @@ import { fingerprint } from "../../lib/planning/fingerprint";
 import type { PlanningService } from "../planning/service";
 import { AgentServiceError, assertCurrent, learningContext, promptContext, proposalEvent, type LearningContext } from "./context";
 import { publicRun, type AgentRepository, type AgentBudgetLimits, type StoredAgentRun } from "./repository";
-import { AgentProviderError, PLANNER_OUTPUT_TOKENS, TUTOR_OUTPUT_TOKENS, type AgentProvider, type ProviderResponse } from "./openai-provider";
+import { PLANNER_OUTPUT_TOKENS, TUTOR_OUTPUT_TOKENS, PLANNER_TIMEOUT_MS, TUTOR_TIMEOUT_MS, type AgentProvider, type ProviderResponse } from "./openrouter-provider";
 
 export type AgentConfiguration = AgentBudgetLimits & {
   enabled: boolean; plannerModel: string; tutorModel: string;
@@ -38,17 +38,27 @@ export class LearningAgentService {
       revision: context.workspace.revision, roleName: context.roleName, currentTask: context.currentTask,
       history: history.map(publicRun) };
   }
-  async startPlanner(owner: string, input: unknown): Promise<PublicAgentRun> {
+  async startPlanner(owner: string, input: unknown, signal: AbortSignal = new AbortController().signal,
+    onStarted?: (run: PublicAgentRun) => void): Promise<PublicAgentRun> {
     const prepared = await this.prepare(owner, input, "planner");
     if (!prepared.fresh) return publicRun(prepared.run);
     try {
-      const response = await this.deps.provider.startPlanner(prepared.run.context);
-      await this.deps.repository.update(prepared.run, { status: "running", providerId: response.id });
-      const run = { ...prepared.run, status: "running" as const, providerId: response.id };
-      return await this.finalizePlanner(run, response, prepared.context);
+      signal.throwIfAborted();
+      await this.deps.repository.update(prepared.run, { status: "running" });
+      const run = { ...prepared.run, status: "running" as const };
+      onStarted?.(publicRun(run));
+      signal.throwIfAborted();
+      const response = await this.deps.provider.startPlanner(run.context, signal);
+      signal.throwIfAborted();
+      // Generation may take minutes. Validate against the latest canonical progress, not the initial snapshot.
+      const context = await this.context(owner);
+      signal.throwIfAborted();
+      await this.deps.repository.update(run, { status: "running", providerId: response.id });
+      return await this.finalizePlanner(run, response, context);
     } catch {
-      await this.deps.repository.update(prepared.run, { status: "failed", error: "规划未完成，原有计划保持可用。请稍后重试。" });
-      throw new AgentServiceError(502, "规划未完成，原有计划保持可用。请稍后重试。");
+      const error = signal.aborted ? "已停止规划，请保持页面打开后重新生成。" : "规划未完成，原有计划保持可用。请稍后重试。";
+      await this.deps.repository.update(prepared.run, { status: signal.aborted ? "cancelled" : "failed", error });
+      throw new AgentServiceError(502, error);
     }
   }
   async poll(owner: string, id: string): Promise<PublicAgentRun> {
@@ -57,19 +67,8 @@ export class LearningAgentService {
     await this.recoverHistory(owner, context.workspace.goalId);
     const run = await this.deps.repository.find(owner, context.workspace.goalId, id);
     if (!run || run.kind !== "planner") throw new AgentServiceError(404, "找不到这次规划。");
-    if (run.status !== "running" || !run.providerId) return publicRun(run);
-    try {
-      const response = await this.deps.provider.getPlanner(run.providerId);
-      return await this.finalizePlanner(run, response, context);
-    } catch (error) {
-      if (error instanceof AgentServiceError) throw error;
-      if (error instanceof AgentProviderError && error.terminal) {
-        await this.deps.repository.update(run, { status: "failed", error: "这次规划已无法恢复，请重新规划。" });
-        return publicRun({ ...run, status: "failed", error: "这次规划已无法恢复，请重新规划。" });
-      }
-      // A failed GET is not evidence that the provider job failed. Never start another paid request here.
-      throw new AgentServiceError(503, "暂时无法读取进度，稍后会继续查询同一次规划。");
-    }
+    // OpenRouter Responses is stateless. Poll only our saved result; never resend or fetch an upstream job.
+    return publicRun(run);
   }
   async apply(owner: string, id: string) {
     const context = await this.context(owner);
@@ -96,6 +95,7 @@ export class LearningAgentService {
     }
     await this.deps.repository.update(run, { status: "running" });
     try {
+      signal.throwIfAborted();
       const result = await this.deps.provider.tutor(run.context, [], prepared.request.deep, onDelta, signal);
       if (signal.aborted) throw new Error("cancelled");
       await this.deps.repository.update(run, { status: "complete", answer: result.text, usage: result.usage });
@@ -150,11 +150,6 @@ export class LearningAgentService {
     return { fresh: true, run, context, request };
   }
   private async finalizePlanner(run: StoredAgentRun, response: ProviderResponse, context: LearningContext) {
-    if (response.status === "queued" || response.status === "in_progress") {
-      if (Date.now() - run.createdAt <= 86400000) return publicRun(run);
-      await this.deps.repository.update(run, { status: "failed", error: "规划运行超时，请重新规划。" });
-      return publicRun({ ...run, status: "failed", error: "规划运行超时，请重新规划。" });
-    }
     if (response.status === "completed" && response.advice) {
       try {
         assertCurrent(context, { goalId: run.goalId, baseVersionId: run.baseVersionId, revision: run.revision });
@@ -165,7 +160,9 @@ export class LearningAgentService {
       }
       await this.deps.repository.update(run, { status: "complete", advice: response.advice,
         answer: response.advice.summary, usage: response.usage });
-      return publicRun({ ...run, status: "complete", advice: response.advice, answer: response.advice.summary });
+      const saved = await this.deps.repository.find(run.ownerId, run.goalId, run.id);
+      if (!saved) throw new AgentServiceError(503, "无法读取已保存的规划。");
+      return publicRun(saved);
     }
     await this.deps.repository.update(run, { status: "failed", error: "模型没有生成完整方案，请重试。" });
     return publicRun({ ...run, status: "failed", error: "模型没有生成完整方案，请重试。" });
@@ -178,7 +175,7 @@ export class LearningAgentService {
     for (const run of history) {
       const age = Date.now() - run.createdAt;
       const expired = run.status === "starting" && age > 120000
-        || run.kind === "tutor" && run.status === "running" && age > 150000;
+        || run.status === "running" && age > (run.kind === "planner" ? PLANNER_TIMEOUT_MS : TUTOR_TIMEOUT_MS) + 30000;
       if (expired) {
         const error = "连接中断或任务超时，本次请求没有完整结果。";
         await this.deps.repository.update(run, { status: "failed", error });

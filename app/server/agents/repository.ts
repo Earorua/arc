@@ -1,5 +1,5 @@
 import { plannerAdviceSchema, type AgentKind, type AgentRunStatus, type PublicAgentRun } from "../../contracts/agents";
-import type { AgentUsage } from "./openai-provider";
+import type { AgentUsage } from "./openrouter-provider";
 
 export type AgentReservation = {
   id: string; ownerId: string; goalId: string; kind: AgentKind; message: string; context: string;
