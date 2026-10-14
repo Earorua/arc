@@ -275,9 +275,7 @@ export function assertPlanningResponseWireSize(value: unknown): void {
   }
 }
 
-export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
-  requireUser: (headers) => requireArcUser(headers),
-  createService: () => {
+export function createProductionPlanningService(): PlanningService {
     const db = getD1();
     const intelligence = new IntelligenceService(new BuiltinIntelligenceRepository());
     const sourceResolver = new PlanningSourceResolver({
@@ -289,7 +287,11 @@ export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
     return new PlanningService({
       repository: new D1PlanningRepository(db, { sourceResolver }), sourceResolver,
     });
-  },
+}
+
+export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
+  requireUser: (headers) => requireArcUser(headers),
+  createService: createProductionPlanningService,
   rateLimiter: { reserve: (request) => new D1RateLimiter(getD1()).reserve(request) },
   recordEvent: (event) => new D1OperationalEventSink(getD1()).record(event),
 };

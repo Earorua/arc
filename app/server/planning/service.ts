@@ -183,6 +183,13 @@ export class PlanningService {
     return this.mutate(userId, request.mutationId, request.baseVersionId, request.event);
   }
 
+  async appendAgentEventResponse(userId: string, input: unknown,
+    expected: { goalId: string; workspaceId: string; revision: number }): Promise<PlanningMutationResponse> {
+    const request = parseContract(planningEventRequestSchema, input);
+    if (request.event.kind !== "agent_replanned") throw new PlanningInvalidInputError();
+    return this.mutate(userId, request.mutationId, request.baseVersionId, request.event, expected);
+  }
+
   async acceptReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
     return (await this.acceptReplanResponse(userId, input)).result;
   }
@@ -214,15 +221,19 @@ export class PlanningService {
     mutationId: string,
     baseVersionId: string,
     body: Record<string, unknown>,
+    expected?: { goalId: string; workspaceId: string; revision: number },
   ): Promise<PlanningMutationResponse> {
     const ownerId = parseOwner(userId);
     const scope = await this.resolveScope(ownerId);
+    if (expected && scope.goalId !== expected.goalId) throw new PlanningConflictError();
     const replay = await this.loadReplay(scope, mutationId);
     if (replay) return replay;
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (!stored) throw new PlanningUnavailableError();
     const parsedStored = await this.parseOwnedWorkspace(stored, scope);
     const { workspace, sourceContext } = parsedStored;
+    if (expected && (workspace.id !== expected.workspaceId || workspace.revision !== expected.revision))
+      throw new PlanningConflictError();
     if (workspace.activePlanVersionId !== baseVersionId) throw new PlanningConflictError();
     try {
       const { blueprint, registry, reference: sourceReference } = sourceContext;

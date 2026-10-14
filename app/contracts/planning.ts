@@ -26,7 +26,7 @@ export const evidenceKindSchema = z.enum(["repository", "deployment", "project",
 export const unitKindSchema = z.enum(["learn", "calibrate", "reinforce"]);
 export const planGenerationSchema = z.enum(["initial", "automatic", "proposed"]);
 export const learningEventKindSchema = z.enum([
-  "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed",
+  "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed", "agent_replanned",
   "replan_accepted", "replan_discarded",
 ]);
 
@@ -414,6 +414,8 @@ const unitEventInputSchema = z.discriminatedUnion("kind", [
 export const planningEventInputSchema = z.discriminatedUnion("kind", [
   ...unitEventInputSchema.options,
   z.object({ kind: z.literal("availability_changed"), availability: availabilityVersionSchema, planningDate: calendarDateSchema }).strict(),
+  z.object({ kind: z.literal("agent_replanned"), baseRevision: z.number().int().nonnegative(),
+    unitOrder: z.array(idSchema).min(1).max(2000), planningDate: calendarDateSchema }).strict(),
 ]);
 
 const eventMetadataSchema = z.object({

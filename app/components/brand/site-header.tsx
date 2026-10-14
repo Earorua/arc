@@ -23,6 +23,7 @@ export function SiteHeader() {
         <nav className="public-nav" id="public-navigation" aria-label="Public navigation">
           <Link href="/method">Method</Link>
           <Link href="/intelligence">Intelligence</Link>
+          <Link href="/coach">Learning coach</Link>
         </nav>
         <div className="header-end">
           <Link className="header-cta" href="/setup">Build my path</Link>
