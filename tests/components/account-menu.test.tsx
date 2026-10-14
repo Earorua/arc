@@ -1,4 +1,6 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 import userEvent from "@testing-library/user-event";
 import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -54,6 +56,20 @@ afterEach(() => {
 });
 
 describe("AccountMenu", () => {
+  it("hydrates consistently when the session resolves before the account menu mounts", async () => {
+    authMocks.useSession.mockReturnValue({ data: null, isPending: true });
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<AccountMenu />);
+    document.body.appendChild(container);
+    authMocks.useSession.mockReturnValue({ data: null, isPending: false });
+    const onRecoverableError = vi.fn();
+    let root!: ReturnType<typeof hydrateRoot>;
+    try {
+      await act(async () => { root = hydrateRoot(container, <AccountMenu />, { onRecoverableError }); });
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(within(container).getByRole("link", { name: "Sign in" })).toBeInTheDocument();
+    } finally { await act(async () => root.unmount()); container.remove(); }
+  });
   beforeEach(() => {
     authMocks.listAccounts.mockReset();
     authMocks.linkSocial.mockReset();

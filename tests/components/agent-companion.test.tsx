@@ -1,9 +1,24 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CompanionPanel } from "../../app/components/agents/agent-companion";
+import { AgentCompanion, CompanionPanel } from "../../app/components/agents/agent-companion";
+const mocks = vi.hoisted(() => ({ agents: vi.fn() }));
+vi.mock("../../app/components/agents/agent-context", async importOriginal => ({
+  ...await importOriginal<typeof import("../../app/components/agents/agent-context")>(), useLearningAgents: mocks.agents,
+}));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 afterEach(cleanup);
 
 describe("learning companion", () => {
+  it("shows the pet for a confirmed account", () => {
+    mocks.agents.mockReturnValue({ authenticated: true, authPending: false, workspace: null, view: "pet" });
+    render(<AgentCompanion />);
+    expect(screen.getByRole("button", { name: "打开学习伙伴" })).toBeInTheDocument();
+  });
+  it.each([false, true])("hides the pet and chat without confirmed login (pending=%s)", authPending => {
+    mocks.agents.mockReturnValue({ authenticated: false, authPending, workspace: null, view: "chat" });
+    const { container } = render(<AgentCompanion />);
+    expect(container).toBeEmptyDOMElement();
+  });
   const props = () => ({
     view: "pet" as const, onView: vi.fn(), messages: [], draft: "", onDraft: vi.fn(), onSend: vi.fn(),
     onStop: vi.fn(), onHandoff: vi.fn(), busy: false, partial: "", error: null,

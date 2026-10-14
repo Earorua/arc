@@ -4,10 +4,12 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { usePathname } from "next/navigation";
 import { authClient } from "../../lib/auth-client";
 import { agentClient } from "../../lib/agent-client";
+import { useHydrated } from "../../lib/use-hydrated";
 import type { AgentRequest, AgentWorkspace, PublicAgentRun } from "../../contracts/agents";
 
 export type CompanionView = "pet" | "chat" | "hidden";
 type AgentState = {
+  authenticated: boolean; authPending: boolean;
   workspace: AgentWorkspace | null; loading: boolean; error: string | null;
   view: CompanionView; setView(view: CompanionView): void; reducedMotion: boolean; setReducedMotion(value: boolean): void;
   draft: string; setDraft(value: string): void; deep: boolean; setDeep(value: boolean): void;
@@ -23,11 +25,13 @@ export function useLearningAgents() {
 }
 export function LearningAgentsProvider({ children }: { children: ReactNode }) {
   const session = authClient.useSession();
-  const identity = session.isPending ? "loading" : session.data?.user?.id ?? "guest";
+  const hydrated = useHydrated();
+  const identity = !hydrated || session.isPending ? "loading" : session.error ? "guest" : session.data?.user?.id ?? "guest";
   return <AgentSession key={identity} identity={identity}>{children}</AgentSession>;
 }
 function AgentSession({ children, identity }: { children: ReactNode; identity: string }) {
   const path = usePathname();
+  const authenticated = identity !== "loading" && identity !== "guest";
   const [workspace, setWorkspace] = useState<AgentWorkspace | null>(null);
   const [loading, setLoading] = useState(true), [error, setError] = useState<string | null>(null);
   const [view, updateView] = useState<CompanionView>("pet");
@@ -74,6 +78,7 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
   const setReducedMotion = (next: boolean) => { updateMotion(next); savePreference(view, next); };
   const refresh = useCallback(async () => {
     if (identity === "loading") return;
+    if (identity === "guest") { setWorkspace(null); setError(null); setLoading(false); return; }
     read.current?.abort(); const controller = new AbortController(); read.current = controller;
     try {
       const value = await agentClient.workspace(controller.signal);
@@ -100,7 +105,7 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
   }, [refresh]);
   const stop = () => { request.current?.abort(); };
   const send = async () => {
-    if (busy || !draft.trim() || !workspace?.enabled || !workspace.authenticated || !workspace.goalId || !workspace.baseVersionId || workspace.revision === null) return;
+    if (!authenticated || busy || !draft.trim() || !workspace?.enabled || !workspace.authenticated || !workspace.goalId || !workspace.baseVersionId || workspace.revision === null) return;
     const message = draft.trim(), requestGoal = workspace.goalId;
     const controller = new AbortController(); request.current = controller;
     const isCurrent = () => mounted.current && request.current === controller && goal.current === requestGoal;
@@ -125,7 +130,7 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
       if (!draftRef.current) setDraft(message);
     } finally { if (isCurrent()) setBusy(false); }
   };
-  return <AgentContext.Provider value={{ workspace, loading, error, view, setView, reducedMotion, setReducedMotion,
+  return <AgentContext.Provider value={{ authenticated, authPending: identity === "loading", workspace, loading, error, view, setView, reducedMotion, setReducedMotion,
     draft, setDraft, deep, setDeep, busy, partial, pendingQuestion, send, stop, refresh, handoff, setHandoff }}>
     {children}
   </AgentContext.Provider>;

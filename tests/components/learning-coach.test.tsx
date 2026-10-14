@@ -13,12 +13,20 @@ function setup(enabled = true) {
   mocks.agents.mockReturnValue({ workspace: { enabled, authenticated: true, goalId: f.workspace.goalId,
     baseVersionId: f.workspace.activePlanVersionId, revision: 0, roleName: "前端工程师", currentTask: "组件基础", history: [],
     reason: enabled ? null : "学习助手尚未启用", plannerModel: "gpt-6-astra" },
-    loading: false, refresh: vi.fn(), handoff: "", setHandoff: vi.fn(), setView: vi.fn() });
+    authenticated: true, authPending: false, loading: false, refresh: vi.fn(), handoff: "", setHandoff: vi.fn(), setView: vi.fn() });
   mocks.planning.mockReturnValue({ workspace: f.workspace, sourceContext: f.sourceContext, source: "cloud",
     recovery: "none", retry: vi.fn(), accept: vi.fn(), discard: vi.fn() });
   return f;
 }
 describe("learning coach", () => {
+  it.each([false, true])("gates the planner before mounting private workspace hooks (pending=%s)", pending => {
+    setup(); mocks.agents.mockReturnValue({ ...mocks.agents(), authenticated: false, authPending: pending, workspace: null });
+    render(<LearningCoach />);
+    expect(screen.queryByRole("textbox", { name: "本次规划的重点" })).not.toBeInTheDocument();
+    expect(mocks.planning).not.toHaveBeenCalled(); expect(mocks.start).not.toHaveBeenCalled();
+    if (pending) expect(screen.getByRole("status")).toHaveTextContent("正在确认登录状态");
+    else expect(screen.getByRole("link", { name: "登录账号" })).toHaveAttribute("href", "/sign-in");
+  });
   it("shows immediate generation progress and aborts on leaving the page", async () => {
     const f = setup(); let signal: AbortSignal;
     mocks.start.mockImplementation((_input, current, started) => {

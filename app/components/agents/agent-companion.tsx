@@ -91,6 +91,7 @@ export function CompanionPanel(props: CompanionProps) {
 }
 export function AgentCompanion() {
   const state = useLearningAgents(); const router = useRouter();
+  if (!state.authenticated || state.authPending) return null;
   return <CompanionPanel view={state.view} onView={state.setView} messages={completedTutorHistory(state.workspace)}
     draft={state.draft} onDraft={state.setDraft} onSend={() => void state.send()} onStop={state.stop}
     busy={state.busy} partial={state.partial} pendingQuestion={state.pendingQuestion}

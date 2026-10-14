@@ -1,4 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LearningAgentsProvider, useLearningAgents } from "../../app/components/agents/agent-context";
 import type { AgentWorkspace } from "../../app/contracts/agents";
@@ -9,7 +11,8 @@ vi.mock("../../app/lib/agent-client", () => ({ agentClient: { workspace: mocks.w
 afterEach(() => { cleanup(); localStorage.clear(); sessionStorage.clear(); vi.resetAllMocks(); });
 function Probe() {
   const state = useLearningAgents();
-  return <><span>{state.workspace?.roleName}</span><span data-testid="view">{state.view}</span>
+  return <><span data-testid="auth">{state.authPending ? "checking" : state.authenticated ? "member" : "guest"}</span>
+    <span>{state.workspace?.roleName}</span><span data-testid="view">{state.view}</span>
     <input aria-label="draft" value={state.draft} onChange={event => state.setDraft(event.target.value)} />
     <button onClick={() => state.setView("hidden")}>hide</button><button onClick={() => void state.send()}>send</button>
     <button onClick={state.stop}>stop</button>
@@ -24,6 +27,58 @@ function fixture() {
   return workspace;
 }
 describe("persistent learning companion context", () => {
+  it("keeps the initial auth gate stable when the session resolves before hydration", async () => {
+    fixture(); mocks.session.mockReturnValue({ data: null, isPending: true });
+    const element = <LearningAgentsProvider><Probe /></LearningAgentsProvider>;
+    const container = document.createElement("div"); container.innerHTML = renderToString(element);
+    document.body.appendChild(container);
+    mocks.session.mockReturnValue({ data: null, isPending: false });
+    const onRecoverableError = vi.fn(); let root!: ReturnType<typeof hydrateRoot>;
+    try {
+      await act(async () => { root = hydrateRoot(container, element, { onRecoverableError }); });
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(screen.getByTestId("auth")).toHaveTextContent("guest");
+      expect(mocks.workspace).not.toHaveBeenCalled();
+    } finally { await act(async () => root.unmount()); container.remove(); }
+  });
+  it.each([
+    { data: null, isPending: false },
+    { data: null, isPending: true },
+    { data: { user: { id: "alice" } }, isPending: false, error: new Error("session unavailable") },
+  ])("does not load agent data or send messages without a confirmed session: %j", async session => {
+    fixture(); mocks.session.mockReturnValue(session);
+    const { rerender } = render(<LearningAgentsProvider><Probe /></LearningAgentsProvider>);
+    await act(async () => {});
+    fireEvent.change(screen.getByLabelText("draft"), { target: { value: "guest question" } });
+    fireEvent.click(screen.getByText("send"));
+    mocks.pathname.mockReturnValue("/coach"); rerender(<LearningAgentsProvider><Probe /></LearningAgentsProvider>);
+    await act(async () => { window.dispatchEvent(new Event("focus")); });
+    expect(mocks.workspace).not.toHaveBeenCalled(); expect(mocks.tutor).not.toHaveBeenCalled();
+    expect(screen.getByTestId("history")).toBeEmptyDOMElement();
+  });
+  it("cancels streaming and clears private content immediately on logout", async () => {
+    fixture(); let reply!: (event: { type: "delta"; text: string }) => void;
+    let signal!: AbortSignal, finish!: () => void;
+    mocks.tutor.mockImplementation((_input, callback, requestSignal) => {
+      reply = callback; signal = requestSignal; return new Promise<void>(resolve => { finish = resolve; });
+    });
+    const { rerender } = render(<LearningAgentsProvider><Probe /></LearningAgentsProvider>);
+    await screen.findByText("前端工程师");
+    fireEvent.change(screen.getByLabelText("draft"), { target: { value: "private question" } });
+    fireEvent.click(screen.getByText("send"));
+    await act(async () => reply({ type: "delta", text: "private answer" }));
+    expect(screen.getByTestId("partial")).toHaveTextContent("private answer");
+    const reads = mocks.workspace.mock.calls.length;
+    mocks.session.mockReturnValue({ data: null, isPending: false });
+    rerender(<LearningAgentsProvider><Probe /></LearningAgentsProvider>);
+    await act(async () => { reply({ type: "delta", text: "late private answer" }); finish(); });
+    expect(signal.aborted).toBe(true);
+    expect(screen.queryByText("前端工程师")).not.toBeInTheDocument();
+    expect(screen.getByTestId("partial")).toBeEmptyDOMElement();
+    expect(screen.getByTestId("history")).toBeEmptyDOMElement();
+    expect(screen.getByLabelText("draft")).toHaveValue("");
+    expect(mocks.workspace).toHaveBeenCalledTimes(reads);
+  });
   it("keeps visibility and drafts across navigation and remount", async () => {
     fixture(); const { rerender, unmount } = render(<LearningAgentsProvider><Probe /></LearningAgentsProvider>);
     await screen.findByText("前端工程师");

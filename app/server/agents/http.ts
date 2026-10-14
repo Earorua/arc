@@ -19,30 +19,30 @@ const errorResult = (error: unknown) => {
   return json({ error: "学习助手暂时无法连接，请稍后重试。" }, 503);
 };
 export function createAgentHandlers(deps: Dependencies) {
-  async function guarded(request: Request, action: (service: LearningAgentService, owner: string | null) => Promise<Response>, publicRead = false) {
+  async function guarded(request: Request, action: (service: LearningAgentService, owner: string) => Promise<Response>) {
     try {
       if (request.method !== "GET") {
         const origin = request.headers.get("origin");
         if (!deps.origin || origin !== deps.origin) throw new AgentServiceError(403, "请从本站发起请求。");
       }
       const user = await deps.getUser(request.headers);
-      if (!user && !publicRead) throw new AgentServiceError(401, "请先登录 Arc。");
-      if (user && !await deps.rateLimit(user.id)) throw new AgentServiceError(429, "请求过于频繁，请稍后再试。");
-      return await action(deps.createService(), user?.id ?? null);
+      if (!user) throw new AgentServiceError(401, "请先登录 Arc。");
+      if (!await deps.rateLimit(user.id)) throw new AgentServiceError(429, "请求过于频繁，请稍后再试。");
+      return await action(deps.createService(), user.id);
     } catch (error) { return errorResult(error); }
   }
   return {
-    workspace: (request: Request) => guarded(request, async (service, owner) => json(await service.workspace(owner)), true),
+    workspace: (request: Request) => guarded(request, async (service, owner) => json(await service.workspace(owner))),
     planner: (request: Request) => guarded(request, async (service, owner) => {
       const input = agentRequestSchema.parse(await body(request));
       return streamResponse(request, (send, signal) =>
-        service.startPlanner(owner!, input, signal, run => send({ type: "started", run })));
+        service.startPlanner(owner, input, signal, run => send({ type: "started", run })));
     }),
-    poll: (request: Request, id: string) => guarded(request, async (service, owner) => json(await service.poll(owner!, id))),
-    apply: (request: Request, id: string) => guarded(request, async (service, owner) => json(await service.apply(owner!, id))),
+    poll: (request: Request, id: string) => guarded(request, async (service, owner) => json(await service.poll(owner, id))),
+    apply: (request: Request, id: string) => guarded(request, async (service, owner) => json(await service.apply(owner, id))),
     tutor: (request: Request) => guarded(request, async (service, owner) => {
       const input = agentRequestSchema.parse(await body(request));
-      return streamResponse(request, (send, signal) => service.tutor(owner!, input, text => send({ type: "delta", text }), signal));
+      return streamResponse(request, (send, signal) => service.tutor(owner, input, text => send({ type: "delta", text }), signal));
     }),
   };
 }

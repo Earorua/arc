@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { authClient } from "../../lib/auth-client";
+import { useHydrated } from "../../lib/use-hydrated";
 import {
   safeAccountLinkStatusSchema,
   type AccountLinkStatus,
@@ -140,7 +141,9 @@ function connectedProviders(accountsResult: unknown): AuthProvider[] {
 }
 
 export function AccountMenu() {
-  const { data, isPending } = authClient.useSession();
+  const { data, isPending: sessionPending } = authClient.useSession();
+  const hydrated = useHydrated();
+  const isPending = !hydrated || sessionPending;
   const userId = data?.user?.id;
   const [connectionState, setConnectionState] = useState<ConnectionState | null>(null);
   const [linkStatusState, setLinkStatusState] = useState<LinkStatusState | null>(null);

@@ -12,6 +12,16 @@ import { useLearningAgents } from "./agent-context";
 
 export function LearningCoach() {
   const agents = useLearningAgents();
+  if (agents.authPending || !agents.authenticated) return <main id="main-content" className="coach-page">
+    <section className="coach-hero"><div>
+      <p className="eyebrow">YOUR LEARNING COACH</p>
+      {agents.authPending ? <p className="coach-lede" role="status">正在确认登录状态…</p> : <>
+        <h1>登录后，<br /><em>一起规划下一步。</em></h1>
+        <p className="coach-lede">学习规划师和学习伙伴需要登录账号才能使用。<br />登录后，即可围绕你的目标制定方案、随时答疑。</p>
+        <Link className="coach-primary" href="/sign-in">登录账号 <span aria-hidden="true">↗</span></Link>
+      </>}
+    </div></section>
+  </main>;
   return <CoachGoal key={agents.workspace?.goalId ?? "no-goal"} />;
 }
 function CoachGoal() {

@@ -7,12 +7,35 @@ describe("learning agent HTTP boundary", () => {
   const service = { startPlanner: vi.fn(), workspace: vi.fn() } as unknown as LearningAgentService;
   const dependencies = { getUser: async () => null, createService: () => service,
     rateLimit: async () => true, origin: "https://arc.example" };
+  it.each(["workspace", "planner", "poll", "apply", "tutor"] as const)("requires a valid session for %s before creating the agent service", async operation => {
+    const createService = vi.fn(() => service), rateLimit = vi.fn(async () => true);
+    const handlers = createAgentHandlers({ ...dependencies, createService, rateLimit });
+    const method = operation === "workspace" || operation === "poll" ? "GET" : "POST";
+    const request = new Request("https://arc.example/api/agents/test", { method,
+      headers: { origin: "https://arc.example", "x-user-id": "forged-user", cookie: "fake-session" },
+      ...(method === "POST" ? { body: "{}" } : {}) });
+    const result = await handlers[operation](request, "run-1");
+    expect(result.status).toBe(401);
+    expect(await result.json()).toEqual({ error: "请先登录 Arc。" });
+    expect(createService).not.toHaveBeenCalled(); expect(rateLimit).not.toHaveBeenCalled();
+  });
   it("rejects unauthenticated writes", async () => {
     const handlers = createAgentHandlers(dependencies);
     const result = await handlers.planner(new Request("https://arc.example/api/agents/planner",
       { method: "POST", headers: { origin: "https://arc.example" }, body: "{}" }));
     expect(result.status).toBe(401);
     expect(service.startPlanner).not.toHaveBeenCalled();
+  });
+  it("rechecks the server session on every read after login expires", async () => {
+    let user: { id: string } | null = { id: "alice" };
+    const workspace = vi.fn(async () => ({ authenticated: true }));
+    const createService = vi.fn(() => ({ workspace }) as unknown as LearningAgentService);
+    const handlers = createAgentHandlers({ ...dependencies, getUser: async () => user, createService });
+    expect((await handlers.workspace(new Request("https://arc.example/api/agents/workspace"))).status).toBe(200);
+    expect(workspace).toHaveBeenCalledWith("alice");
+    user = null;
+    expect((await handlers.workspace(new Request("https://arc.example/api/agents/workspace"))).status).toBe(401);
+    expect(workspace).toHaveBeenCalledOnce(); expect(createService).toHaveBeenCalledOnce();
   });
   it("rejects cross-origin writes before parsing or invoking a model", async () => {
     const handlers = createAgentHandlers({ ...dependencies, getUser: async () => ({ id: "alice" }) });
