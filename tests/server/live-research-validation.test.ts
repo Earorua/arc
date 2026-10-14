@@ -1,11 +1,13 @@
 // @vitest-environment node
-import { describe, expect, it, vi } from "vitest";
-import { fixtureResponse, LIVE_POLICY, runValidation } from "../../scripts/live-research/validation";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { fixtureResponse, runValidation } from "../../scripts/live-research/validation";
 import { createGuardedTransport, verifyKeyPolicy } from "../../scripts/live-research/transport";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { OpenRouterResearchProvider } from "../../app/server/research/openrouter-provider";
 import { SqliteD1 } from "../helpers/sqlite-d1";
+import { candidateWithMissingCitations, candidateWithMinuteMismatch } from "../fixtures/research/invalid-candidates";
+import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 
 const key = "synthetic-live-validation-key";
 const safeKeyData = { data: { limit: 5, limit_remaining: 5, limit_reset: null, usage: 0, is_management_key: false,
@@ -13,15 +15,114 @@ const safeKeyData = { data: { limit: 5, limit_remaining: 5, limit_reset: null, u
 const KEY_URL = "https://openrouter.ai/api/v1/key";
 const RESEARCH_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+
 describe("isolated live Research validation", () => {
+  it.each(["error", "manual"] as const)("permits one guarded POST with %s after the unchanged key check", async (redirect) => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async (url) => url === KEY_URL ? Response.json(safeKeyData) : fixtureResponse());
+    const transport = createGuardedTransport(key, fetch);
+    const post = { method: "POST", redirect, headers: { Authorization: `Bearer ${key}` }, body: "{}" };
+    await expect(transport.fetch(RESEARCH_URL, post)).rejects.toThrow("transport-denied");
+    expect(fetch).not.toHaveBeenCalled();
+    await transport.inspectKey();
+    expect(fetch.mock.calls[0]).toEqual([KEY_URL, expect.objectContaining({ method: "GET", redirect: "error" })]);
+    const firstPost = transport.fetch(RESEARCH_URL, post);
+    await expect(transport.fetch(RESEARCH_URL, post)).rejects.toThrow("transport-denied");
+    await expect(firstPost).resolves.toBeInstanceOf(Response);
+    expect(fetch.mock.calls[1]).toEqual([RESEARCH_URL, post]);
+    await expect(transport.fetch(RESEARCH_URL, post)).rejects.toThrow("transport-denied");
+    await expect(transport.inspectKey()).rejects.toThrow("transport-denied");
+    expect(transport.counts()).toMatchObject({ getCount: 1, postCount: 1 });
+    expect(fetch).toHaveBeenCalledTimes(2);
+    transport.clear();
+  });
+
+  it("rejects missing/follow modes and manual GET without consuming request allowances", async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async (url) => url === KEY_URL ? Response.json(safeKeyData) : fixtureResponse());
+    const transport = createGuardedTransport(key, fetch);
+    const headers = { Authorization: `Bearer ${key}` };
+    for (const redirect of [undefined, "follow", "manual"] as const) {
+      await expect(transport.fetch(KEY_URL, { method: "GET", headers, redirect })).rejects.toThrow("transport-denied");
+    }
+    expect(fetch).not.toHaveBeenCalled();
+    await transport.inspectKey();
+    for (const redirect of [undefined, "follow"] as const) {
+      await expect(transport.fetch(RESEARCH_URL, { method: "POST", headers, body: "{}", redirect })).rejects.toThrow("transport-denied");
+    }
+    expect(transport.counts()).toMatchObject({ getCount: 1, postCount: 0 });
+    await expect(transport.fetch(RESEARCH_URL, { method: "POST", headers, body: "{}", redirect: "manual" })).resolves.toBeInstanceOf(Response);
+    expect(fetch).toHaveBeenCalledTimes(2);
+    transport.clear();
+  });
+
+  it.each(["error", "manual"] as const)("keeps key-only mode closed to %s POST", async (redirect) => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => Response.json(safeKeyData));
+    const transport = createGuardedTransport(key, fetch, { checkKeyOnly: true });
+    await transport.inspectKey();
+    await expect(transport.fetch(RESEARCH_URL, { method: "POST", redirect,
+      headers: { Authorization: `Bearer ${key}` }, body: "{}" })).rejects.toThrow("transport-denied");
+    expect(transport.counts()).toMatchObject({ getCount: 1, postCount: 0 });
+    expect(fetch).toHaveBeenCalledOnce();
+    transport.clear();
+  });
+
+  it.each(["error", "manual"] as const)("rejects a returned redirect with %s without reading or following it", async (redirect) => {
+    const cancel = vi.fn(() => new Promise<void>(() => {}));
+    const body = new ReadableStream<Uint8Array>({ cancel }, { highWaterMark: 0 });
+    const read = vi.spyOn(body, "getReader");
+    const response = new Response(body, { status: 302, headers: { Location: "https://other.invalid" } });
+    const headersGet = vi.spyOn(response.headers, "get");
+    const fetch = vi.fn<typeof globalThis.fetch>(async (url) => url === KEY_URL ? Response.json(safeKeyData) : response);
+    const transport = createGuardedTransport(key, fetch);
+    await transport.inspectKey();
+    await expect(transport.fetch(RESEARCH_URL, { method: "POST", redirect,
+      headers: { Authorization: `Bearer ${key}` }, body: "{}" })).rejects.toThrow("transport-denied");
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(read).not.toHaveBeenCalled();
+    expect(headersGet).not.toHaveBeenCalled();
+    transport.clear();
+  });
+
+  it("rejects an already redirected manual POST response without inspecting Location", async () => {
+    const cancel = vi.fn(() => new Promise<void>(() => {}));
+    const body = new ReadableStream<Uint8Array>({ cancel }, { highWaterMark: 0 });
+    const read = vi.spyOn(body, "getReader");
+    const response = new Response(body, { status: 200 });
+    Object.defineProperty(response, "redirected", { value: true });
+    const headersGet = vi.spyOn(response.headers, "get");
+    const fetch = vi.fn<typeof globalThis.fetch>(async (url) => url === KEY_URL ? Response.json(safeKeyData) : response);
+    const transport = createGuardedTransport(key, fetch);
+    await transport.inspectKey();
+    await expect(transport.fetch(RESEARCH_URL, { method: "POST", redirect: "manual",
+      headers: { Authorization: `Bearer ${key}` }, body: "{}" })).rejects.toThrow("transport-denied");
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(read).not.toHaveBeenCalled();
+    expect(headersGet).not.toHaveBeenCalled();
+    transport.clear();
+  });
+
   it("provides a default zero-network dry-run through Research and planning", async () => {
     const modulePath = "../../scripts/live-research/validation";
     const helper = import(/* @vite-ignore */ modulePath);
     await expect(helper.then((module) => module.runValidation())).resolves.toMatchObject({
       mode: "offline-dry-run", outcome: "passed", realRequestCount: 0,
+      requestedModel: "moonshotai/kimi-k3", actualModel: "moonshotai/kimi-k3",
       runState: "ready", quality: { passed: true },
       ownerWrongReadRejected: true, planningGenerated: true, databaseDisposed: true,
     });
+  });
+
+  it.each([
+    [1_400_000, 1_320_000],
+    [-1, 0],
+    [Number.NaN, null],
+  ] as const)("bounds the monotonic Research elapsed measurement %s to %s", async (elapsed, expected) => {
+    let call = 0;
+    vi.stubGlobal("performance", { now: () => call++ === 0 ? 100 : 100 + elapsed });
+    const result = await runValidation();
+    expect(result).toMatchObject({ outcome: "passed", realRequestCount: 0, researchElapsedMs: expected });
   });
 
   it("checks only the key with one GET and no Research, accounting or planning operations", async () => {
@@ -73,16 +174,16 @@ describe("isolated live Research validation", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it("executes exactly one key GET and one unchanged Research POST through actual adapter, audit and planning", async () => {
+  it("executes exactly one key GET and one full Kimi Research POST through actual adapter, audit and planning", async () => {
     const fetch = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
-      expect(init?.redirect).toBe("error");
+      expect(init?.redirect).toBe(url === KEY_URL ? "error" : "manual");
       if (url === KEY_URL) { expect(init?.method).toBe("GET"); return Response.json(safeKeyData); }
       expect(url).toBe(RESEARCH_URL);
       const body = JSON.parse(init!.body as string);
-      expect(body).toMatchObject({ model: "openai/gpt-5.6-sol", max_tokens: 12000, max_tool_calls: 2, stream: false,
+      expect(body).toMatchObject({ model: "moonshotai/kimi-k3", max_tokens: 32_768, max_tool_calls: 10, stream: false,
         provider: { require_parameters: true, data_collection: "deny", zdr: true },
         response_format: { type: "json_schema", json_schema: { strict: true } },
-        tools: [{ type: "openrouter:web_search", parameters: { engine: "exa", mode: "fast", max_results: 5, max_uses: 2, max_total_results: 10, max_characters: 2000 } }],
+        tools: [{ type: "openrouter:web_search", parameters: { engine: "exa", mode: "fast", max_results: 5, max_uses: 10, max_total_results: 50, max_characters: 2000 } }],
       });
       expect(JSON.parse(body.messages[1].content)).toMatchObject({ role: "Data Product Manager", locale: "en-US" });
       return fixtureResponse();
@@ -90,9 +191,120 @@ describe("isolated live Research validation", () => {
     const result = await runValidation({ executeOne: true, key, fetch });
     expect(fetch).toHaveBeenCalledTimes(2);
     expect(result).toMatchObject({ mode: "live-one", outcome: "passed", realRequestCount: 2, researchRequestCount: 1,
-      repairRequestCount: 0, auditCount: 1, actualModel: LIVE_POLICY.model, usage: { totalTokens: 9000, costMicros: 100000 },
+      requestedModel: "moonshotai/kimi-k3", actualModel: "moonshotai/kimi-k3", runState: "ready", quality: { passed: true, issueCodes: [] },
+      repairRequestCount: 0, auditCount: 1, usage: { totalTokens: 9000, costMicros: 100000 },
       reservation: { status: "settled", maximumMicros: 5000000, settledMicros: 100000 }, secondResearchRejected: true,
       ownerWrongReadRejected: true, freshAccountActivated: true, planningGenerated: true, databaseDisposed: true });
+    expect(result.planningUnitCount).toBeGreaterThan(0);
+  });
+
+  it("waits past the old adapter and lease limits for one complete fixed-profile Research", async () => {
+    vi.useFakeTimers();
+    let reached!: () => void;
+    const reachedPost = new Promise<void>((resolve) => { reached = resolve; });
+    const fetch = vi.fn<typeof globalThis.fetch>(async (url) => {
+      if (url === KEY_URL) return Response.json(safeKeyData);
+      expect(url).toBe(RESEARCH_URL);
+      reached();
+      return new Promise<Response>((resolve) => setTimeout(() => resolve(fixtureResponse()), 330_000));
+    });
+
+    let settled = false;
+    const pending = runValidation({ executeOne: true, key, fetch }).finally(() => { settled = true; });
+    await reachedPost;
+    await vi.advanceTimersByTimeAsync(120_000);
+    expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(150_000);
+    const result = await pending;
+
+    expect(result).toMatchObject({ mode: "live-one", outcome: "passed", reason: null,
+      requestedModel: "moonshotai/kimi-k3", actualModel: "moonshotai/kimi-k3", runState: "ready",
+      quality: { passed: true }, citationCount: validAnnotations.length, skillCount: validResearchCandidate.skills.length,
+      usage: { costMicros: 100_000, webSearchRequests: 2 }, reservation: { status: "settled", settledMicros: 100_000 },
+      realRequestCount: 2, researchRequestCount: 1, repairRequestCount: 0, auditCount: 1,
+      ownerWrongReadRejected: true, secondResearchRejected: true, freshAccountActivated: true, planningGenerated: true,
+      databaseDisposed: true,
+      researchPolicy: { profileId: "kimi-low-output32k-v3", reasoningEffort: "low", maxOutputTokens: 32_768,
+        outputPolicyVersion: "kimi-complete-quality-v2", researchTimeoutMs: 1_200_000,
+        activeTtlMs: 1_260_000, launcherTimeoutMs: 1_320_000 },
+      researchElapsedMs: 330_000,
+    });
+    expect(fetch.mock.calls.map(([url, init]) => [url, init?.method])).toEqual([[KEY_URL, "GET"], [RESEARCH_URL, "POST"]]);
+    const body = JSON.parse(fetch.mock.calls[1]![1]!.body as string);
+    expect(body).toMatchObject({ model: "moonshotai/kimi-k3", reasoning: { effort: "low" }, max_tokens: 32_768, stream: false,
+      max_tool_calls: 10, tools: [{ type: "openrouter:web_search", parameters: { engine: "exa", mode: "fast",
+        max_results: 5, max_uses: 10, max_total_results: 50, max_characters: 2000 } }],
+      provider: { require_parameters: true, data_collection: "deny", zdr: true },
+      response_format: { type: "json_schema", json_schema: { strict: true } },
+    });
+    expect(vi.getTimerCount()).toBe(0);
+    vi.useRealTimers();
+  });
+
+  it("rejects bare OK as full Research and retains its receipt without planning or Repair", async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async (url) => {
+      if (url === KEY_URL) return Response.json(safeKeyData);
+      const payload = await fixtureResponse().json() as { choices: { message: { content: string } }[] };
+      payload.choices[0]!.message.content = "OK";
+      return Response.json(payload);
+    });
+    const result = await runValidation({ executeOne: true, key, fetch });
+    expect(result).toMatchObject({ mode: "live-one", outcome: "incomplete", reason: "research-failed",
+      requestedModel: "moonshotai/kimi-k3", actualModel: "moonshotai/kimi-k3", runState: "failed",
+      quality: { passed: false },
+      usage: { promptTokens: 3000, completionTokens: 6000, totalTokens: 9000, costMicros: 100000, webSearchRequests: 2 },
+      reservation: { status: "settled", maximumMicros: 5000000, settledMicros: 100000 },
+      realRequestCount: 2, researchRequestCount: 1, repairRequestCount: 0, auditCount: 1,
+      secondResearchRejected: true, ownerWrongReadRejected: true,
+      freshAccountActivated: false, planningGenerated: false, planningUnitCount: 0, databaseDisposed: true });
+    expect(fetch.mock.calls.map(([url, init]) => [url, init?.method])).toEqual([[KEY_URL, "GET"], [RESEARCH_URL, "POST"]]);
+  });
+
+  it.each([
+    ["missing citations", () => JSON.stringify(candidateWithMissingCitations()), "missing-skill-source"],
+    ["minute mismatch", () => JSON.stringify(candidateWithMinuteMismatch()), "minute-mismatch"],
+  ] as const)("keeps full Research in needs-review for %s with its receipt and no planning or Repair", async (_label, content, issueCode) => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async (url) => {
+      if (url === KEY_URL) return Response.json(safeKeyData);
+      const payload = await fixtureResponse().json() as {
+        choices: { message: { content: string } }[];
+        usage: { server_tool_use?: { web_search_requests: number }; server_tool_use_details?: { web_search_requests: number } };
+      };
+      const legacy = payload.usage.server_tool_use;
+      payload.usage.server_tool_use_details = legacy;
+      delete payload.usage.server_tool_use;
+      payload.usage.server_tool_use_details = { web_search_requests: 4 };
+      payload.choices[0]!.message.content = content();
+      return Response.json(payload);
+    });
+    const result = await runValidation({ executeOne: true, key, fetch });
+    expect(result).toMatchObject({ mode: "live-one", outcome: "incomplete", reason: "quality-needs-review",
+      requestedModel: "moonshotai/kimi-k3", actualModel: "moonshotai/kimi-k3", runState: "needs-review",
+      quality: { passed: false, issueCodes: expect.arrayContaining([issueCode]) },
+      usage: { promptTokens: 3000, completionTokens: 6000, totalTokens: 9000, costMicros: 100000, webSearchRequests: 4 },
+      reservation: { status: "settled", maximumMicros: 5000000, settledMicros: 100000 },
+      realRequestCount: 2, researchRequestCount: 1, repairRequestCount: 0, auditCount: 1,
+      secondResearchRejected: true, ownerWrongReadRejected: true,
+      freshAccountActivated: false, planningGenerated: false, planningUnitCount: 0, databaseDisposed: true });
+    expect(result.quality.issueCount).toBeGreaterThan(0);
+    expect(fetch.mock.calls.map(([url, init]) => [url, init?.method])).toEqual([[KEY_URL, "GET"], [RESEARCH_URL, "POST"]]);
+  });
+
+  it("rejects a prior Astra model receipt as successful full Kimi acceptance", async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>(async (url) => {
+      if (url === KEY_URL) return Response.json(safeKeyData);
+      const payload = await fixtureResponse().json() as { model: string };
+      payload.model = "openai/gpt-6-astra";
+      return Response.json(payload);
+    });
+    const result = await runValidation({ executeOne: true, key, fetch });
+    expect(result).toMatchObject({ mode: "live-one", outcome: "incomplete", reason: "validation-incomplete",
+      requestedModel: "moonshotai/kimi-k3", actualModel: null, runState: "ready", quality: { passed: true },
+      usage: { totalTokens: 9000, costMicros: 100000, webSearchRequests: 2 },
+      realRequestCount: 2, researchRequestCount: 1, repairRequestCount: 0, auditCount: 1, databaseDisposed: true });
+    expect(fetch.mock.calls.map(([url, init]) => [url, init?.method])).toEqual([[KEY_URL, "GET"], [RESEARCH_URL, "POST"]]);
   });
 
   it.each([
@@ -132,7 +344,7 @@ describe("isolated live Research validation", () => {
   });
 
   it.each([
-    ["more than two searches", { server_tool_use: { web_search_requests: 3 } }],
+    ["more than ten searches", { server_tool_use: { web_search_requests: 11 } }],
     ["all zero tokens", { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 }],
     ["zero prompt tokens", { prompt_tokens: 0, total_tokens: 6000 }],
     ["zero completion tokens", { completion_tokens: 0, total_tokens: 3000 }],
@@ -146,7 +358,11 @@ describe("isolated live Research validation", () => {
     const result = await runValidation({ executeOne: true, key, fetch });
     expect(result).toMatchObject({ runState: "ready", quality: { passed: true }, planningGenerated: true,
       outcome: "incomplete", reason: "validation-incomplete", repairRequestCount: 0, databaseDisposed: true });
-    expect(result.usage).not.toBeNull();
+    if (_label === "more than ten searches") {
+      expect(result).toMatchObject({ usage: null, reservation: { status: "conservative-hold", settledMicros: 0 } });
+    } else {
+      expect(result.usage).not.toBeNull();
+    }
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
@@ -272,6 +488,7 @@ describe("isolated live Research validation", () => {
     expect(source).toContain("StandardInput.Close");
     expect(source).toContain("ZeroFreeBSTR");
     expect(source).toContain("USD 5 key");
+    expect(source).toContain("One live Research request: moonshotai/kimi-k3; reasoning low; 32768 output tokens; Provider deadline 20 minutes; launcher total deadline 22 minutes; dedicated unused USD 5 key; no repair or retry.");
     expect(source).toContain("$CheckKeyOnly");
     expect(source).not.toMatch(/Set-Content|Out-File|SetEnvironmentVariable|\$env:.*KEY|Write-(?:Output|Host).*\$plain/u);
   });

@@ -49,14 +49,18 @@ describe("research beta migration safety", () => {
     "0003_adaptive_planning.sql": "e113c423bb4cef4c46c4cbef7c13a7d9ba40f1e666baa3d458acbd8959c49580",
     "0004_proof_backed_stack.sql": "dd16d381d8b766773a388e46ec6b138e4a8878f649768aa8d0296b3cf6caf19d",
     "0005_openrouter_research_beta.sql": "bbecea2119999103906e3c721d602467124a60f72ad9c672ae847212fe52ee35",
+    "0006_research_health_indexes.sql": "24caea1c12c3ffa16b7b03c4f0a5a9c21736501b6dc2b2f2afbd149e6da78b73",
+    "0007_research_bridge_nonces.sql": "0a2c53031dafa8290fa95a5444de91cd589d9b8e6475da86e86472102bba8908",
+    "0008_research_site_executions.sql": "6e0deea44a54a3d7682ed1688827c3beab3839319fa0508a51259354a3195046",
   };
   const directory = resolve("drizzle");
   const migration = resolve(directory, "0005_openrouter_research_beta.sql");
   const healthMigration = resolve(directory, "0006_research_health_indexes.sql");
 
-  it("keeps only migrations 0000–0006 and preserves normalized-LF prior SQL hashes", () => {
+  it("keeps only migrations 0000–0011 and preserves normalized-LF prior SQL hashes", () => {
     expect(readdirSync(directory).filter((name) => name.endsWith(".sql")).sort()).toEqual([
-      ...Object.keys(priorHashes), "0006_research_health_indexes.sql",
+      ...Object.keys(priorHashes), "0009_research_site_begin_grants.sql", "0010_research_site_imports.sql",
+      "0011_research_site_bridge.sql",
     ]);
     for (const [name, expected] of Object.entries(priorHashes)) {
       const normalized = readFileSync(resolve(directory, name), "utf8").replaceAll("\r\n", "\n");
@@ -66,9 +70,20 @@ describe("research beta migration safety", () => {
 
   it("links the additive health-index snapshot to 0005", () => {
     const journal = JSON.parse(readFileSync(resolve(directory, "meta/_journal.json"), "utf8"));
-    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
     expect(journal.entries[5]).toMatchObject({ tag: "0005_openrouter_research_beta", breakpoints: true });
     expect(journal.entries[6]).toMatchObject({ tag: "0006_research_health_indexes", breakpoints: true });
+    expect(journal.entries[7]).toMatchObject({ tag: "0007_research_bridge_nonces", breakpoints: true });
+    expect(journal.entries[8]).toMatchObject({ tag: "0008_research_site_executions", breakpoints: true });
+    expect(journal.entries[9]).toMatchObject({
+      version: "6", tag: "0009_research_site_begin_grants", breakpoints: true,
+    });
+    expect(journal.entries[10]).toMatchObject({
+      version: "6", tag: "0010_research_site_imports", breakpoints: true,
+    });
+    expect(journal.entries[11]).toMatchObject({
+      version: "6", tag: "0011_research_site_bridge", breakpoints: true,
+    });
     const previous = JSON.parse(readFileSync(resolve(directory, "meta/0005_snapshot.json"), "utf8"));
     const snapshot = JSON.parse(readFileSync(resolve(directory, "meta/0006_snapshot.json"), "utf8"));
     expect(snapshot.prevId).toBe(previous.id);

@@ -38,7 +38,8 @@ The collapsed **Offline UAT · test controls** panel is outside product `main`:
   Data Product Manager and use the normal Research button to coalesce the active
   ID before reload. Resume settles that same run. This proves active-run recovery,
   **not** refresh recovery for an initial POST that never returned a run ID.
-- Clear Research recovery removes only `arc:role-research:v1`. Existing cloud plans
+- Clear Research recovery removes both `arc:role-research:v1` and
+  `arc:role-research:v2`. Existing cloud plans
   must still replay through fresh page controllers without an in-memory package.
 - Seed unrelated device history writes one real sample completion/proof through
   the existing device store. A Guest Flagship Build can also establish a real local
@@ -64,6 +65,7 @@ Verification commands:
 ```powershell
 npx vitest run tests/offline-uat/security.test.ts tests/offline-uat/composition.test.ts tests/offline-uat/storage-smoke.test.ts
 node --test tests/offline-uat/entry.test.mjs
+node --test tests/offline-uat/research-recovery.test.mjs
 node tests/offline-uat/miniflare-smoke.mjs
 npx tsc --noEmit --incremental false
 npx eslint tests/offline-uat
@@ -78,6 +80,12 @@ submission/withdrawal chain. Both also inject five concurrent plan/goal changes
 at the D1 batch boundary and require Conflict, full rollback, zero false success
 receipts and zero foreign-key violations. This explicitly checks JSON1 guard
 compatibility in workerd, not only in the SQLite adapter.
+
+`research-recovery.test.mjs` sends a Start through the actual loopback HTTP client
+and route, discards its completed response in the transport, then recovers the
+same owner run by mutation identity. It requires one Fake Provider call and one
+budget reservation, an indistinguishable 404 for another owner, and read recovery
+while new Research calls are disabled.
 
 Fake usage is `null`; the real accounting code conservatively retains its local
 budget reservation. This is not evidence of actual provider cost being zero.

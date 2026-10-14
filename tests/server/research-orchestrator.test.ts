@@ -1,19 +1,21 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ResearchOrchestrator, type ResearchOrchestratorDependencies } from "../../app/server/research/orchestrator";
 import { D1ResearchRepository } from "../../app/server/research/d1-repository";
+import { D1SiteExecutionRepository } from "../../app/server/research/d1-site-execution-repository";
 import { D1ResearchBudgetRepository } from "../../app/server/research/d1-budget-repository";
 import { D1EntitlementRepository } from "../../app/server/entitlements/d1-entitlement-repository";
 import { D1AiRunSink } from "../../app/server/ai/d1-run-recorder";
 import { EntitlementGate } from "../../app/server/entitlements/policy";
 import { RESEARCH_PROVIDER_VERSIONS, ResearchProviderError, type ProviderResearchResult } from "../../app/server/research/provider";
 import { researchCandidateSchema, researchRunPublicViewSchema } from "../../app/contracts/research";
-import { deterministicId } from "../../app/lib/planning/fingerprint";
+import { deterministicId, fingerprint } from "../../app/lib/planning/fingerprint";
 import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 import { createResearchD1, seedUser } from "../helpers/sqlite-d1";
 
 const day = Date.parse("2026-08-31T00:00:00Z");
 const context = { cohortEnabled: true, rateAllowed: true };
 const input = { mutationId: "mutation-first", role: "Data Product Manager", locale: "en-US" as const };
+const remoteConfigFingerprint = fingerprint(["remote-orchestrator-config"]);
 const config = { configFingerprint: "trusted-config-v1", providerName: "openrouter" as const,
   versions: { ...RESEARCH_PROVIDER_VERSIONS, blueprintVersion: "2026.08.1", registryVersion: "2026.08.1", templateVersion: "2026.08.1" },
   activeTtlMs: 60_000, cacheDays: 7,
@@ -27,6 +29,11 @@ afterEach(() => { vi.restoreAllMocks(); for (const db of databases.splice(0)) db
 function setup() {
   const db = createResearchD1(); databases.push(db); seedUser(db, "owner-a"); seedUser(db, "owner-b");
   let now = day + 1000;
+  db.database.function("unixepoch", { varargs: true }, (...args: unknown[]) => {
+    if (args.length === 0) return Math.floor(now / 1_000);
+    if (args.length === 1 && args[0] === "subsec") return now / 1_000;
+    throw new Error("Unexpected SQL clock call in orchestrator fixture");
+  });
   const provider = { research: vi.fn(async () => output()), repair: vi.fn(async () => output(30, { actualModel: "actual/repair" })) };
   const fresh = (overrides: Partial<ResearchOrchestratorDependencies> = {}, disabled = false) => {
     const d1 = db as unknown as D1Database;
@@ -35,8 +42,10 @@ function setup() {
     const quota = new D1EntitlementRepository(d1, { now: () => now });
     const entitlements = new EntitlementGate(quota, { ARC_AI_ENABLED: disabled ? "false" : "true", ARC_AI_USER_DAILY_QUOTA: "10", ARC_AI_RATE_LIMIT_PER_MINUTE: "5" }, { now: () => new Date(now) });
     const audits = new D1AiRunSink(d1, { now: () => now });
-    const dependencies = { repository, budget, entitlements, audits, provider, config: structuredClone(config), now: () => now, ...overrides };
-    return { orchestrator: new ResearchOrchestrator(dependencies), dependencies, repository, budget, quota, audits, entitlements };
+    const executions = new D1SiteExecutionRepository(d1, repository);
+    const dependencies = { repository, budget, entitlements, audits, provider, config: structuredClone(config), now: () => now,
+      readRemoteExecution: executions.read.bind(executions), ...overrides };
+    return { orchestrator: new ResearchOrchestrator(dependencies), dependencies, repository, executions, budget, quota, audits, entitlements };
   };
   return { db, provider, fresh, setNow: (value: number) => { now = value; }, ...fresh() };
 }
@@ -54,6 +63,314 @@ function pause() {
 }
 
 describe("ResearchOrchestrator state machine", () => {
+  it.each(["queued", "admitted", "closed", "begun"] as const)("observes a persisted remote %s run through get, recover, and start without legacy work", async (state) => {
+    const f = setup();
+    const created = await f.repository.createRemoteOrReplay({
+      ownerId: "owner-a", requestId: "request-remote-observe", mutationId: input.mutationId,
+      rawRole: input.role, normalizedRoleKey: input.role.toLowerCase(), locale: input.locale,
+      inputFingerprint: fingerprint([input.role.toLowerCase(), input.locale]), configFingerprint: remoteConfigFingerprint,
+      policy: { cacheDays: 7, userDailyQuota: 10, dailyBudgetMicros: 10_000, monthlyBudgetMicros: 100_000, maximumMicros: 1200 },
+    });
+    if (!created.execution) throw new Error("expected durable remote execution");
+    if (state === "admitted" || state === "begun") {
+      const identity = { ownerId: created.execution.ownerId, runId: created.execution.runId, requestId: created.execution.requestId,
+        jobId: created.execution.jobId, requestHash: created.execution.requestHash };
+      const quota = await f.quota.admitRemoteResearch({ ...identity, userId: created.execution.ownerId, purpose: "role-research",
+        idempotencyKey: created.execution.quotaKey, units: 1, dailyQuota: created.execution.policy.userDailyQuota,
+        period: { startMs: day, endMs: day + 86_400_000 } });
+      const budget = await f.budget.reserveRemote({ ...identity, expiresAt: created.execution.reservationExpiresAt,
+        dailyBudgetMicros: created.execution.policy.dailyBudgetMicros, monthlyBudgetMicros: created.execution.policy.monthlyBudgetMicros,
+        maximumMicros: created.execution.policy.maximumMicros });
+      if (!quota.allowed || !budget.allowed) throw new Error("expected durable reservations");
+      await f.executions.markAdmitted({ ...identity, expectedVersion: 0, quotaReservationId: quota.reservationId, budgetReservationId: budget.reservation.id });
+      if (state === "begun") {
+        const beganAt = day + 2_000;
+        f.db.database.prepare("UPDATE research_site_executions SET began_at=?1,execution_expires_at=?1+1260000,version=version+1,updated_at=?1 WHERE run_id=?2")
+          .run(beganAt, created.run.id);
+        f.db.database.prepare("UPDATE research_runs SET state='researching',state_version=state_version+1,active_expires_at=?1,updated_at=?2 WHERE id=?3")
+          .run(beganAt + 1_260_000, beganAt, created.run.id);
+      }
+    } else if (state === "closed") {
+      await f.executions.closeBeforeBegin({ ownerId: created.execution.ownerId, runId: created.execution.runId,
+        requestId: created.execution.requestId, jobId: created.execution.jobId, requestHash: created.execution.requestHash, reason: "denied" });
+    }
+
+    const service = f.fresh({ config: { ...structuredClone(config), configFingerprint: remoteConfigFingerprint } }, true);
+    const remoteRead = vi.spyOn(service.executions, "read");
+    service.dependencies.readRemoteExecution = service.executions.read.bind(service.executions);
+    const reserve = vi.spyOn(service.budget, "reserve");
+    const settle = vi.spyOn(service.budget, "settle");
+    const authorize = vi.spyOn(service.entitlements, "authorizeResearch");
+    const finalize = vi.spyOn(service.entitlements, "finalize");
+    const record = vi.spyOn(service.audits, "record");
+    const before = {
+      run: f.db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(created.run.id),
+      execution: f.db.database.prepare("SELECT * FROM research_site_executions WHERE run_id=?1").get(created.run.id),
+      ledger: ledger(f),
+    };
+    const expectedState = state === "closed" ? "failed" : state === "begun" ? "researching" : "queued";
+
+    await expect(service.orchestrator.get("owner-a", created.run.id)).resolves.toMatchObject({ id: created.run.id, state: expectedState });
+    await expect(service.orchestrator.recover("owner-a", { kind: "start", ...input })).resolves.toMatchObject({ id: created.run.id, state: expectedState });
+    await expect(service.orchestrator.start("owner-a", input, { cohortEnabled: false, rateAllowed: false })).resolves
+      .toMatchObject({ id: created.run.id, state: expectedState });
+
+    expect(remoteRead).toHaveBeenCalledTimes(3);
+    expect(reserve).not.toHaveBeenCalled(); expect(settle).not.toHaveBeenCalled();
+    expect(authorize).not.toHaveBeenCalled(); expect(finalize).not.toHaveBeenCalled();
+    expect(record).not.toHaveBeenCalled(); expect(f.provider.research).not.toHaveBeenCalled(); expect(f.provider.repair).not.toHaveBeenCalled();
+    expect({
+      run: f.db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(created.run.id),
+      execution: f.db.database.prepare("SELECT * FROM research_site_executions WHERE run_id=?1").get(created.run.id),
+      ledger: ledger(f),
+    }).toEqual(before);
+  });
+
+  it.each(["queued", "begun"] as const)("observes an expired remote %s run through get, recover, and start without legacy work", async (state) => {
+    const f = setup();
+    const created = await f.repository.createRemoteOrReplay({
+      ownerId: "owner-a", requestId: `request-remote-expired-${state}`, mutationId: input.mutationId,
+      rawRole: input.role, normalizedRoleKey: input.role.toLowerCase(), locale: input.locale,
+      inputFingerprint: fingerprint([input.role.toLowerCase(), input.locale]), configFingerprint: remoteConfigFingerprint,
+      policy: { cacheDays: 7, userDailyQuota: 10, dailyBudgetMicros: 10_000, monthlyBudgetMicros: 100_000, maximumMicros: 1200 },
+    });
+    if (!created.execution) throw new Error("expected durable remote execution");
+    let absoluteExpiresAt = created.execution.job.queueExpiresAt;
+    if (state === "begun") {
+      const identity = { ownerId: created.execution.ownerId, runId: created.execution.runId, requestId: created.execution.requestId,
+        jobId: created.execution.jobId, requestHash: created.execution.requestHash };
+      const quota = await f.quota.admitRemoteResearch({ ...identity, userId: created.execution.ownerId, purpose: "role-research",
+        idempotencyKey: created.execution.quotaKey, units: 1, dailyQuota: created.execution.policy.userDailyQuota,
+        period: { startMs: day, endMs: day + 86_400_000 } });
+      const budget = await f.budget.reserveRemote({ ...identity, expiresAt: created.execution.reservationExpiresAt,
+        dailyBudgetMicros: created.execution.policy.dailyBudgetMicros, monthlyBudgetMicros: created.execution.policy.monthlyBudgetMicros,
+        maximumMicros: created.execution.policy.maximumMicros });
+      if (!quota.allowed || !budget.allowed) throw new Error("expected durable reservations");
+      await f.executions.markAdmitted({ ...identity, expectedVersion: 0,
+        quotaReservationId: quota.reservationId, budgetReservationId: budget.reservation.id });
+      const beganAt = day + 2_000;
+      absoluteExpiresAt = beganAt + 1_260_000;
+      f.db.database.prepare("UPDATE research_site_executions SET began_at=?1,execution_expires_at=?1+1260000,version=version+1,updated_at=?1 WHERE run_id=?2")
+        .run(beganAt, created.run.id);
+      f.db.database.prepare("UPDATE research_runs SET state='researching',state_version=state_version+1,active_expires_at=?1,updated_at=?2 WHERE id=?3")
+        .run(absoluteExpiresAt, beganAt, created.run.id);
+    }
+    f.setNow(absoluteExpiresAt + 1);
+
+    const service = f.fresh({ config: { ...structuredClone(config), configFingerprint: remoteConfigFingerprint } }, true);
+    const remoteRead = vi.spyOn(service.executions, "read");
+    service.dependencies.readRemoteExecution = service.executions.read.bind(service.executions);
+    const reserve = vi.spyOn(service.budget, "reserve");
+    const settle = vi.spyOn(service.budget, "settle");
+    const authorize = vi.spyOn(service.entitlements, "authorizeResearch");
+    const finalize = vi.spyOn(service.entitlements, "finalize");
+    const record = vi.spyOn(service.audits, "record");
+    const before = {
+      run: f.db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(created.run.id),
+      execution: f.db.database.prepare("SELECT * FROM research_site_executions WHERE run_id=?1").get(created.run.id),
+      ledger: ledger(f),
+    };
+    const expectedState = state === "begun" ? "researching" : "queued";
+
+    await expect(service.orchestrator.get("owner-a", created.run.id)).resolves.toMatchObject({ id: created.run.id, state: expectedState });
+    await expect(service.orchestrator.recover("owner-a", { kind: "start", ...input })).resolves.toMatchObject({ id: created.run.id, state: expectedState });
+    await expect(service.orchestrator.start("owner-a", input, { cohortEnabled: false, rateAllowed: false })).resolves
+      .toMatchObject({ id: created.run.id, state: expectedState });
+
+    expect(remoteRead).toHaveBeenCalledTimes(3);
+    expect(reserve).not.toHaveBeenCalled(); expect(settle).not.toHaveBeenCalled();
+    expect(authorize).not.toHaveBeenCalled(); expect(finalize).not.toHaveBeenCalled(); expect(record).not.toHaveBeenCalled();
+    expect(f.provider.research).not.toHaveBeenCalled(); expect(f.provider.repair).not.toHaveBeenCalled();
+    expect({
+      run: f.db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(created.run.id),
+      execution: f.db.database.prepare("SELECT * FROM research_site_executions WHERE run_id=?1").get(created.run.id),
+      ledger: ledger(f),
+    }).toEqual(before);
+  });
+
+  it("fails remote observation closed when its execution reader is absent, missing, or corrupt", async () => {
+    for (const fault of ["absent", "missing", "corrupt"] as const) {
+      const f = setup();
+      const created = await f.repository.createRemoteOrReplay({
+        ownerId: "owner-a", requestId: `request-remote-${fault}`, mutationId: `mutation-remote-${fault}`,
+        rawRole: input.role, normalizedRoleKey: input.role.toLowerCase(), locale: input.locale,
+        inputFingerprint: fingerprint([input.role.toLowerCase(), input.locale]), configFingerprint: remoteConfigFingerprint,
+        policy: { cacheDays: 7, userDailyQuota: 10, dailyBudgetMicros: 10_000, monthlyBudgetMicros: 100_000, maximumMicros: 1200 },
+      });
+      if (fault === "missing") f.db.database.prepare("DELETE FROM research_site_executions WHERE run_id=?1").run(created.run.id);
+      if (fault === "corrupt") {
+        f.db.database.exec("DROP TRIGGER research_site_executions_identity_immutable");
+        f.db.database.prepare("UPDATE research_site_executions SET validation_context_json='{}',version=version+1,updated_at=updated_at WHERE run_id=?1").run(created.run.id);
+      }
+      const overrides = fault === "absent" ? { readRemoteExecution: undefined } : {};
+      const service = f.fresh({ config: { ...structuredClone(config), configFingerprint: remoteConfigFingerprint }, ...overrides }, true);
+      await expect(service.orchestrator.get("owner-a", created.run.id)).rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+      expect(f.provider.research).not.toHaveBeenCalled(); expect(f.provider.repair).not.toHaveBeenCalled();
+    }
+  });
+
+  it("checks remote mode before execute and rechecks persisted mode before catch can fail a run", async () => {
+    const f = setup();
+    const created = await f.repository.createRemoteOrReplay({
+      ownerId: "owner-a", requestId: "request-remote-catch", mutationId: "mutation-remote-catch",
+      rawRole: input.role, normalizedRoleKey: input.role.toLowerCase(), locale: input.locale,
+      inputFingerprint: fingerprint([input.role.toLowerCase(), input.locale]), configFingerprint: remoteConfigFingerprint,
+      policy: { cacheDays: 7, userDailyQuota: 10, dailyBudgetMicros: 10_000, monthlyBudgetMicros: 100_000, maximumMicros: 1200 },
+    });
+    const service = f.fresh({ config: { ...structuredClone(config), configFingerprint: remoteConfigFingerprint } }, true);
+    const create = vi.spyOn(service.repository, "createOrReplay");
+    const find = vi.spyOn(service.repository, "findFreshPackage");
+    const transition = vi.spyOn(service.repository, "transition");
+
+    create.mockResolvedValueOnce({ run: created.run, replayed: false });
+    await expect(service.orchestrator.start("owner-a", { ...input, mutationId: "execute-mode-check" }, context))
+      .resolves.toMatchObject({ id: created.run.id, state: "queued" });
+    expect(find).not.toHaveBeenCalled(); expect(transition).not.toHaveBeenCalled();
+
+    create.mockResolvedValueOnce({ run: { ...created.run, executionMode: "synchronous", remoteQuotaKey: null }, replayed: false });
+    find.mockRejectedValueOnce(new Error("lost cache read"));
+    await expect(service.orchestrator.start("owner-a", { ...input, mutationId: "catch-mode-check" }, context))
+      .resolves.toMatchObject({ id: created.run.id, state: "queued" });
+    expect(transition).not.toHaveBeenCalled();
+    expect(f.provider.research).not.toHaveBeenCalled(); expect(f.provider.repair).not.toHaveBeenCalled();
+  });
+
+  it("recovers a normalized historical-config start identity without admitting or executing paid work", async () => {
+    const f = setup();
+    const normalizedRoleKey = "data product manager";
+    const created = await f.repository.createOrReplay({ ownerId: "owner-a", requestId: "request-recover-start",
+      mutationId: "mutation-recover-start", rawRole: "Data Product Manager", normalizedRoleKey, locale: "en-US",
+      inputFingerprint: fingerprint([normalizedRoleKey, "en-US"]), configFingerprint: "old-config-v0",
+      activeExpiresAt: day + 60_000 });
+    const before = {
+      runs: f.db.database.prepare("SELECT count(*) AS n FROM research_runs").get(),
+      aliases: f.db.database.prepare("SELECT count(*) AS n FROM idempotency_records").get(),
+      audits: f.db.database.prepare("SELECT count(*) AS n FROM ai_runs").get(),
+    };
+    const recovered = f.fresh({ config: { ...structuredClone(config), configFingerprint: "new-config-v2" } }, true);
+    const reserve = vi.spyOn(recovered.budget, "reserve");
+    const authorize = vi.spyOn(recovered.entitlements, "authorizeResearch");
+    const record = vi.spyOn(recovered.audits, "record");
+
+    await expect(recovered.orchestrator.recover("owner-a", {
+      kind: "start", mutationId: "mutation-recover-start", role: " Ｄata   Product Manager ", locale: "en-US",
+    })).resolves.toMatchObject({ id: created.run.id, state: "queued" });
+    await expect(recovered.orchestrator.recover("owner-b", {
+      kind: "start", mutationId: "mutation-recover-start", role: "Data Product Manager", locale: "en-US",
+    })).resolves.toBeNull();
+    expect(f.provider.research).not.toHaveBeenCalled(); expect(f.provider.repair).not.toHaveBeenCalled();
+    expect(reserve).not.toHaveBeenCalled(); expect(authorize).not.toHaveBeenCalled(); expect(record).not.toHaveBeenCalled();
+    expect({ runs: f.db.database.prepare("SELECT count(*) AS n FROM research_runs").get(),
+      aliases: f.db.database.prepare("SELECT count(*) AS n FROM idempotency_records").get(),
+      audits: f.db.database.prepare("SELECT count(*) AS n FROM ai_runs").get() }).toEqual(before);
+  });
+
+  it("recovers terminal known-cost and expired unknown-cost runs without another provider call", async () => {
+    const known = setup();
+    known.provider.research.mockRejectedValue(new ResearchProviderError("timeout", true, true, {
+      actualModel: "actual/research", usage: output(110).usage,
+    }));
+    const terminal = await known.orchestrator.start("owner-a", input, context);
+    const knownLedger = ledger(known);
+    await expect(known.fresh({}, true).orchestrator.recover("owner-a", { kind: "start", ...input }))
+      .resolves.toMatchObject({ id: terminal.id, state: "failed" });
+    expect(ledger(known)).toEqual(knownLedger);
+    expect(known.provider.research).toHaveBeenCalledOnce();
+    expect(known.provider.repair).not.toHaveBeenCalled();
+
+    const unknown = setup(); const pending = pause();
+    unknown.provider.research.mockImplementation(async () => { await pending.stop(); return output(); });
+    const running = unknown.orchestrator.start("owner-a", input, context); await pending.at;
+    unknown.setNow(day + 70_000);
+    await expect(unknown.fresh({}, true).orchestrator.recover("owner-a", { kind: "start", ...input }))
+      .resolves.toMatchObject({ state: "failed", failureCategory: "service-unavailable" });
+    expect(ledger(unknown).costs).toEqual([expect.objectContaining({ status: "conservative-hold", settled_micros: 0 })]);
+    expect(unknown.provider.research).toHaveBeenCalledOnce();
+    expect(unknown.provider.repair).not.toHaveBeenCalled();
+    pending.release(); await running.catch(() => undefined);
+  });
+
+  it("settles late known cost once through recover and never revives an expired Ready package", async () => {
+    const late = setup(); const pending = pause();
+    late.provider.research.mockImplementation(async () => { await pending.stop(); return output(110); });
+    const running = late.orchestrator.start("owner-a", input, context); await pending.at;
+    late.setNow(day + 70_000);
+    const firstService = late.fresh({}, true);
+    const firstReserve = vi.spyOn(firstService.budget, "reserve");
+    const firstAuthorize = vi.spyOn(firstService.entitlements, "authorizeResearch");
+    const firstRecord = vi.spyOn(firstService.audits, "record");
+    const beforeExpiry = {
+      runs: late.db.database.prepare("SELECT count(*) AS n FROM research_runs").get(),
+      aliases: late.db.database.prepare("SELECT count(*) AS n FROM idempotency_records").get(),
+      audits: late.db.database.prepare("SELECT count(*) AS n FROM ai_runs").get(),
+    };
+    await expect(firstService.orchestrator.recover("owner-a", { kind: "start", ...input }))
+      .resolves.toMatchObject({ state: "failed", failureCategory: "service-unavailable" });
+    expect(firstReserve).not.toHaveBeenCalled(); expect(firstAuthorize).not.toHaveBeenCalled(); expect(firstRecord).not.toHaveBeenCalled();
+    expect({ runs: late.db.database.prepare("SELECT count(*) AS n FROM research_runs").get(),
+      aliases: late.db.database.prepare("SELECT count(*) AS n FROM idempotency_records").get(),
+      audits: late.db.database.prepare("SELECT count(*) AS n FROM ai_runs").get() }).toEqual(beforeExpiry);
+    expect(late.provider.research).toHaveBeenCalledOnce(); expect(late.provider.repair).not.toHaveBeenCalled();
+
+    const originalSettle = late.budget.settle.bind(late.budget);
+    let failKnownSettlementOnce = true;
+    const originalSettlement = vi.spyOn(late.budget, "settle").mockImplementation(async (ownerId, id, settlement) => {
+      if (settlement.kind === "actual" && failKnownSettlementOnce) {
+        failKnownSettlementOnce = false;
+        throw new Error("simulated settlement interruption");
+      }
+      return originalSettle(ownerId, id, settlement);
+    });
+    pending.release(); await running.catch(() => undefined);
+    expect(originalSettlement).toHaveBeenCalledWith(expect.any(String), expect.any(String), { kind: "actual", actualMicros: 110 });
+    originalSettlement.mockRestore();
+    expect(ledger(late).costs).toEqual([expect.objectContaining({ status: "conservative-hold", settled_micros: 0 })]);
+    const usageAudit = late.db.database.prepare("SELECT status,error_code,usage_json FROM ai_runs WHERE purpose='role-research'").get() as { status: string; error_code: string | null; usage_json: string };
+    expect({ status: usageAudit.status, errorCode: usageAudit.error_code, usage: JSON.parse(usageAudit.usage_json) }).toEqual({
+      status: "rejected", errorCode: "invalid-result",
+      usage: expect.objectContaining({ charged: true, usage: expect.objectContaining({ costMicros: 110 }) }),
+    });
+    const recovery = late.fresh({}, true);
+    const reserve = vi.spyOn(recovery.budget, "reserve");
+    const settle = vi.spyOn(recovery.budget, "settle");
+    const authorize = vi.spyOn(recovery.entitlements, "authorizeResearch");
+    const record = vi.spyOn(recovery.audits, "record");
+    const beforeKnown = {
+      runs: late.db.database.prepare("SELECT count(*) AS n FROM research_runs").get(),
+      aliases: late.db.database.prepare("SELECT count(*) AS n FROM idempotency_records").get(),
+      audits: late.db.database.prepare("SELECT count(*) AS n FROM ai_runs").get(),
+    };
+    await expect(recovery.orchestrator.recover("owner-a", { kind: "start", ...input })).resolves.toMatchObject({ state: "failed" });
+    expect(settle).toHaveBeenCalledOnce();
+    expect(settle).toHaveBeenCalledWith("owner-a", expect.any(String), { kind: "actual", actualMicros: 110 });
+    expect(ledger(late).costs).toEqual([expect.objectContaining({ status: "settled", settled_micros: 110 })]);
+    const once = ledger(late);
+    await expect(recovery.orchestrator.recover("owner-a", { kind: "start", ...input })).resolves.toMatchObject({ state: "failed" });
+    expect(settle).toHaveBeenCalledOnce();
+    expect(ledger(late)).toEqual(once);
+    expect(reserve).not.toHaveBeenCalled(); expect(authorize).not.toHaveBeenCalled(); expect(record).not.toHaveBeenCalled();
+    expect({ runs: late.db.database.prepare("SELECT count(*) AS n FROM research_runs").get(),
+      aliases: late.db.database.prepare("SELECT count(*) AS n FROM idempotency_records").get(),
+      audits: late.db.database.prepare("SELECT count(*) AS n FROM ai_runs").get() }).toEqual(beforeKnown);
+    expect(late.provider.research).toHaveBeenCalledOnce(); expect(late.provider.repair).not.toHaveBeenCalled();
+
+    const expired = setup();
+    const readyRun = await expired.orchestrator.start("owner-a", input, context);
+    expired.setNow(day + 8 * 86_400_000);
+    const expiredRecovery = expired.fresh({}, true);
+    const expiredReserve = vi.spyOn(expiredRecovery.budget, "reserve");
+    const expiredAuthorize = vi.spyOn(expiredRecovery.entitlements, "authorizeResearch");
+    const expiredRecord = vi.spyOn(expiredRecovery.audits, "record");
+    const beforeExpired = ledger(expired);
+    await expect(expiredRecovery.orchestrator.recover("owner-a", { kind: "start", ...input }))
+      .rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    await expect(expiredRecovery.orchestrator.recover("owner-a", { kind: "start", ...input }))
+      .rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
+    expect((await expired.repository.getRun("owner-a", readyRun.id))?.state).toBe("ready");
+    expect(ledger(expired)).toEqual(beforeExpired);
+    expect(expiredReserve).not.toHaveBeenCalled(); expect(expiredAuthorize).not.toHaveBeenCalled(); expect(expiredRecord).not.toHaveBeenCalled();
+    expect(expired.provider.research).toHaveBeenCalledOnce(); expect(expired.provider.repair).not.toHaveBeenCalled();
+  });
   it("validates strict client input before creating anything", async () => {
     const f = setup();
     for (const bad of [{ ...input, ownerId: "owner-b" }, { ...input, model: "cheap" }, { ...input, role: "x" }]) await expect(f.orchestrator.start("owner-a", bad, context)).rejects.toBeDefined();
@@ -308,6 +625,24 @@ describe("durable recovery across new instances on the same real SQLite", () => 
     pending.release(); await running.catch(() => undefined);
     expect((await f.fresh().orchestrator.get("owner-a", row.id))?.state).toBe("failed");
     expect(ledger(f).audits).toHaveLength(1); expect(ledger(f).costs).toEqual([expect.objectContaining({ status: "settled", settled_micros: 110 })]);
+    expect(f.provider.repair).not.toHaveBeenCalled();
+  });
+
+  it("cannot publish or revive a valid receipt arriving after the 660 second local validation lease", async () => {
+    const f = setup(); const pending = pause();
+    f.provider.research.mockImplementation(async () => { await pending.stop(); return output(110); });
+    const local = f.fresh({ config: { ...structuredClone(config), activeTtlMs: 660_000 } });
+    const running = local.orchestrator.start("owner-a", input, context); await pending.at;
+    const row = f.db.database.prepare("SELECT id FROM research_runs").get() as { id: string };
+    f.setNow(day + 661_001);
+    expect((await f.fresh({ config: { ...structuredClone(config), activeTtlMs: 660_000 } }).orchestrator.get("owner-a", row.id))?.state).toBe("failed");
+    pending.release(); await running.catch(() => undefined);
+    const recovered = f.fresh({ config: { ...structuredClone(config), activeTtlMs: 660_000 } });
+    expect((await recovered.orchestrator.get("owner-a", row.id))?.state).toBe("failed");
+    await expect(recovered.repository.resolveReadyPackage("owner-a", row.id)).rejects.toBeDefined();
+    expect(ledger(f).audits).toHaveLength(1);
+    expect(ledger(f).costs).toEqual([expect.objectContaining({ status: "settled", settled_micros: 110 })]);
+    expect(f.provider.research).toHaveBeenCalledOnce();
     expect(f.provider.repair).not.toHaveBeenCalled();
   });
 

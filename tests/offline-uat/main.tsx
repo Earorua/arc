@@ -16,7 +16,7 @@ import { completeDemoUnit, createDemoState, DEMO_STORAGE_KEY, saveDemoState } fr
 import { flagshipRole } from "../../app/data/flagship-role";
 import { PLANNING_STORAGE_KEY } from "../../app/lib/planning/local-repository";
 
-const recoveryKey = "arc:role-research:v1";
+const recoveryKeys = ["arc:role-research:v1", "arc:role-research:v2"] as const;
 const nativeFetch = window.fetch.bind(window);
 const apiTrace = createOfflineApiTrace();
 const nonce = document.querySelector<HTMLMetaElement>('meta[name="arc-uat-control"]')!.content;
@@ -38,12 +38,15 @@ document.addEventListener("click", (event) => {
 type Diagnostics = { owner: string | null; settings: { mode: string; disabled: boolean; exhausted: boolean }; [key: string]: unknown };
 async function readDiagnostics() { const response = await fetch("/__uat/state"); if (!response.ok) throw new Error("Offline controls unavailable"); return response.json() as Promise<Diagnostics>; }
 function storageDiagnostics() {
-  const recovery = localStorage.getItem(recoveryKey);
-  let identity: unknown = null;
-  try { identity = recovery ? JSON.parse(recovery) : null; } catch { identity = "invalid JSON"; }
+  const recoveryIdentity: Record<string, unknown> = {};
+  for (const key of recoveryKeys) {
+    const recovery = localStorage.getItem(key);
+    try { recoveryIdentity[key] = recovery ? JSON.parse(recovery) : null; }
+    catch { recoveryIdentity[key] = "invalid JSON"; }
+  }
   let localHistory = { completions: 0, proofs: 0 };
   try { const state = JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY) ?? "null"); localHistory = { completions: state?.completedUnitIds?.length ?? 0, proofs: state?.proofs?.length ?? 0 }; } catch { /* Diagnostic only. */ }
-  return { recoveryIdentity: identity, localHistory, localPlanningPresent: localStorage.getItem(PLANNING_STORAGE_KEY) !== null, offlineQueuePresent: localStorage.getItem("arc-offline-queue-v1") !== null, outboundDenials, apiResults: apiTrace.snapshot() };
+  return { recoveryIdentity, localHistory, localPlanningPresent: localStorage.getItem(PLANNING_STORAGE_KEY) !== null, offlineQueuePresent: localStorage.getItem("arc-offline-queue-v1") !== null, outboundDenials, apiResults: apiTrace.snapshot() };
 }
 function App() {
   const path = usePathname();
@@ -88,7 +91,7 @@ function App() {
           <button disabled={busy} onClick={() => void command({ action: "prestart", stage: "researching" })}>Prestart Researching</button>
           <button disabled={busy} onClick={() => void command({ action: "prestart", stage: "validating" })}>Prestart Validating</button>
           <button disabled={busy} onClick={() => void command({ action: "resume" })}>Resume paused run</button>
-          <button onClick={() => { localStorage.removeItem(recoveryKey); setBrowser(storageDiagnostics()); }}>Clear Research recovery only</button>
+          <button onClick={() => { recoveryKeys.forEach((key) => localStorage.removeItem(key)); setBrowser(storageDiagnostics()); }}>Clear Research recovery only</button>
           <button onClick={() => { saveDemoState(completeDemoUnit(createDemoState(), flagshipRole.today)); setBrowser(storageDiagnostics()); }}>Seed unrelated device history</button>
           <button onClick={() => { navigate("/setup"); }}>Open Setup</button>
           <button onClick={() => void refresh().catch(() => setError("Diagnostics unavailable"))}>Refresh diagnostics</button>

@@ -2,11 +2,13 @@ import { z } from "zod";
 import {
   MAX_RESEARCH_PACKAGE_JSON_BYTES,
   researchHttpEnvelopeSchema,
+  researchRecoverRequestSchema,
   researchRequestSchema,
   researchRetryRequestSchema,
   researchSuccessEnvelopeSchema,
   type ResearchErrorCode,
   type ResearchRecovery,
+  type ResearchRecoverRequest,
   type ResearchRequest,
   type ResearchRetryRequest,
   type ResearchRunPublicView,
@@ -52,6 +54,7 @@ export interface ResearchClient {
   startResearch(input: ResearchRequest, signal: AbortSignal): Promise<ResearchClientResult>;
   getResearch(runId: string, signal: AbortSignal): Promise<ResearchClientResult>;
   retryResearch(runId: string, input: ResearchRetryRequest, signal: AbortSignal): Promise<ResearchClientResult>;
+  recoverResearch(input: ResearchRecoverRequest, signal: AbortSignal): Promise<ResearchClientResult>;
 }
 type ArcFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
@@ -111,7 +114,7 @@ async function readResponse(response: Response, signal: AbortSignal, requestId: 
 
 export function createResearchClient(options: { fetch?: ArcFetch } = {}): ResearchClient {
   const fetcher = options.fetch ?? ((input, init) => fetch(input, init));
-  async function request(path: string, signal: AbortSignal, body?: string, expected?: { runId?: string; role?: string; locale?: string }): Promise<ResearchClientResult> {
+  async function request(path: string, signal: AbortSignal, semantics: "query" | "mutation", body?: string, expected?: { runId?: string; role?: string; locale?: string }): Promise<ResearchClientResult> {
     checkAbort(signal);
     let response: Response;
     try {
@@ -144,11 +147,11 @@ export function createResearchClient(options: { fetch?: ArcFetch } = {}): Resear
     if ("error" in envelope) {
       if (response.status !== publicErrors[envelope.error.code].status
         || envelope.error.code === "RESEARCH_NEEDS_REVIEW" && !envelope.run
-        || body === undefined && envelope.run) throw invalidResponse(requestId);
+        || semantics === "query" && envelope.run) throw invalidResponse(requestId);
       error = new ResearchClientError(envelope.error.code, envelope.requestId);
       if (!envelope.run) throw error;
     } else if (response.status !== 200
-      || body !== undefined && (envelope.run.state === "failed" || envelope.run.state === "needs-review")) {
+      || semantics === "mutation" && (envelope.run.state === "failed" || envelope.run.state === "needs-review")) {
       throw invalidResponse(requestId);
     }
     const run = envelope.run!;
@@ -164,16 +167,24 @@ export function createResearchClient(options: { fetch?: ArcFetch } = {}): Resear
     async startResearch(input, signal) {
       const parsed = researchRequestSchema.safeParse(input);
       if (!parsed.success) throw new ResearchClientError("INVALID_INPUT");
-      return request("/api/intelligence/research", signal, JSON.stringify(parsed.data), parsed.data);
+      return request("/api/intelligence/research", signal, "mutation", JSON.stringify(parsed.data), parsed.data);
     },
     async getResearch(runId, signal) {
       if (!runIdSchema.safeParse(runId).success) throw new ResearchClientError("INVALID_INPUT");
-      return request(`/api/intelligence/research/${runId}`, signal, undefined, { runId });
+      return request(`/api/intelligence/research/${runId}`, signal, "query", undefined, { runId });
     },
     async retryResearch(runId, input, signal) {
       const parsed = researchRetryRequestSchema.safeParse(input);
       if (!runIdSchema.safeParse(runId).success || !parsed.success) throw new ResearchClientError("INVALID_INPUT");
-      return request(`/api/intelligence/research/${runId}/retry`, signal, JSON.stringify(parsed.data));
+      return request(`/api/intelligence/research/${runId}/retry`, signal, "mutation", JSON.stringify(parsed.data));
+    },
+    async recoverResearch(input, signal) {
+      const parsed = researchRecoverRequestSchema.safeParse(input);
+      if (!parsed.success) throw new ResearchClientError("INVALID_INPUT");
+      return request("/api/intelligence/research/recover", signal, "query", JSON.stringify(parsed.data), {
+        role: parsed.data.role,
+        locale: parsed.data.locale,
+      });
     },
   };
 }
@@ -182,3 +193,4 @@ export const researchClient = createResearchClient();
 export const startResearch = researchClient.startResearch;
 export const getResearch = researchClient.getResearch;
 export const retryResearch = researchClient.retryResearch;
+export const recoverResearch = researchClient.recoverResearch;

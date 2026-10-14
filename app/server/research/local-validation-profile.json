@@ -1,0 +1,10 @@
+{
+  "profileId": "kimi-low-output32k-v3",
+  "model": "moonshotai/kimi-k3",
+  "reasoningEffort": "low",
+  "maxOutputTokens": 32768,
+  "outputPolicyVersion": "kimi-complete-quality-v2",
+  "researchTimeoutMs": 1200000,
+  "activeTtlMs": 1260000,
+  "launcherTimeoutMs": 1320000
+}

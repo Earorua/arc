@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { researchCandidateSchema, researchPackageSchema, researchQualityReportSchema, type ResearchCandidate, type ResearchIssueCode } from "../../app/contracts/research";
 import { validateRoleBlueprint } from "../../app/lib/intelligence-validation";
 import { validateUnitRegistry } from "../../app/lib/planning/registry-validation";
-import { validateResearchCandidate, ResearchValidationContextError, type ResearchValidationContext } from "../../app/server/research/package-validator";
+import { parseResearchValidationContext, validateResearchCandidate, ResearchValidationContextError, type ResearchValidationContext } from "../../app/server/research/package-validator";
 import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
 import { invalidResearchCandidates } from "../fixtures/research/invalid-candidates";
 
@@ -25,6 +25,17 @@ function rejected(candidate: unknown, code: ResearchIssueCode, retained = true, 
 }
 
 describe("research package hard gates", () => {
+  it("parses one bounded immutable validation context with strict versions and dates", () => {
+    const parsed = parseResearchValidationContext(context);
+    expect(parsed).toEqual(context);
+    expect(Object.isFrozen(parsed)).toBe(true);
+    for (const value of [
+      { ...context, unknown: true },
+      { ...context, observedAt: context.expiresAt, expiresAt: context.observedAt },
+      { ...context, blueprintVersion: "latest" },
+      Object.defineProperty({ ...context }, "packageId", { enumerable: true, get: () => context.packageId }),
+    ]) expect(() => parseResearchValidationContext(value)).toThrow(ResearchValidationContextError);
+  });
   it("builds a canonical Ready package from the golden candidate without network or invented pedagogy", () => {
     const fetch = vi.fn(() => { throw new Error("No network permitted"); });
     vi.stubGlobal("fetch", fetch);

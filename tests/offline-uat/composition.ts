@@ -9,7 +9,7 @@ import { D1EntitlementRepository } from "../../app/server/entitlements/d1-entitl
 import { EntitlementGate } from "../../app/server/entitlements/policy";
 import { createWorkspaceHandlers, createMigrationHandler, createLearningEventHandler } from "../../app/server/http/cloud-route-factories";
 import { createResearchEligibilityHandler } from "../../app/server/http/research-eligibility-route";
-import { createResearchStartHandler, createResearchGetHandler, createResearchRetryHandler } from "../../app/server/http/research-route-factories";
+import { createResearchStartHandler, createResearchGetHandler, createResearchRecoverHandler, createResearchRetryHandler } from "../../app/server/http/research-route-factories";
 import { createPlanningWorkspaceHandler, createPlanningGenerateHandler, createPlanningEventHandler, createPlanningReplanHandler } from "../../app/server/http/planning-route-factories";
 import { createProofWorkspaceHandler, createProofCreateHandler, createProofReviseHandler, createProofWithdrawHandler, createProofVisibilityHandler } from "../../app/server/http/proof-route-factories";
 import { D1RateLimiter } from "../../app/server/http/rate-limit";
@@ -113,6 +113,7 @@ export async function createOfflineComposition(db: D1Database, origin: string) {
     "POST /api/learning/events": createLearningEventHandler(cloudDeps),
     "GET /api/intelligence/research/eligibility": createResearchEligibilityHandler({ ...shared, configured: () => !settings.disabled, cohortEnabled: researchDeps.cohortEnabled }),
     "POST /api/intelligence/research": createResearchStartHandler(researchDeps),
+    "POST /api/intelligence/research/recover": createResearchRecoverHandler(researchDeps),
     "GET /api/planning/workspace": createPlanningWorkspaceHandler(planningDeps),
     "POST /api/planning/generate": createPlanningGenerateHandler(planningDeps),
     "POST /api/planning/events": createPlanningEventHandler(planningDeps),

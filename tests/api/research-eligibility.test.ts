@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { createResearchEligibilityHandler, createResearchEligibilityDependencies } from "../../app/server/http/research-eligibility-route";
 import { UnauthenticatedError } from "../../app/server/auth/session";
+import { TEST_PRODUCTION_ENVIRONMENT } from "../helpers/research-bridge-fixture";
+import { createResearchD1, seedUser } from "../helpers/sqlite-d1";
 
 const environment = { BETTER_AUTH_URL: "https://arc.example", ARC_AI_ENABLED: "true", ARC_AI_RESEARCH_ENABLED: "true", ARC_AI_USER_DAILY_QUOTA: "2", ARC_AI_RATE_LIMIT_PER_MINUTE: "10", ARC_AI_MODEL_RESEARCH: "fixture/research", ARC_AI_MODEL_ECONOMY: "fixture/economy", ARC_AI_RESEARCH_TIMEOUT_MS: "1000", ARC_AI_REPAIR_TIMEOUT_MS: "1000", ARC_AI_RESEARCH_CACHE_DAYS: "7", ARC_AI_SITE_DAILY_BUDGET_MICROS: "10000", ARC_AI_SITE_MONTHLY_BUDGET_MICROS: "100000", ARC_AI_RESEARCH_MAX_COST_MICROS: "100", ARC_AI_REPAIR_MAX_COST_MICROS: "10", ARC_AI_IP_HASH_SALT: "synthetic-test-salt-only", OPENROUTER_API_KEY: "synthetic-test-only" };
 const requireUser = vi.fn(async () => ({ id: "owner-a", name: "A", email: "a@example.test" }));
@@ -8,6 +10,24 @@ const request = () => new Request("https://arc.example/api/intelligence/research
 function db(row: unknown, throws = false) { return { prepare: vi.fn(() => ({ bind: vi.fn(() => ({ first: async () => { if (throws) throw new Error("private storage detail"); return row; } })) })) } as unknown as D1Database; }
 function dependencies() { return { requireUser, configured: () => true, cohortEnabled: vi.fn(async () => true), rateLimiter: { reserve: vi.fn(async () => ({ allowed: true, retryAfterSeconds: 60 })) }, createRequestId: () => "12345678-1234-4234-8234-123456789abc" }; }
 describe("Research eligibility route", () => {
+  it("exposes remote eligibility through actual cohort and account rate storage without a Site Provider key", async () => {
+    const database = createResearchD1(); seedUser(database, "owner-a");
+    const keyRead = vi.fn(() => { throw new Error("No Site Provider credential read"); });
+    const remote = Object.defineProperty({ ...TEST_PRODUCTION_ENVIRONMENT }, "OPENROUTER_API_KEY", { get: keyRead });
+    database.database.prepare("INSERT INTO feature_flags (key,enabled,cohort_json) VALUES (?,?,?)")
+      .run("role-research-beta", 1, '{"userIds":["owner-a"]}');
+    try {
+      const deps = createResearchEligibilityDependencies({ environment: remote, getD1: () => database as unknown as D1Database });
+      const handler = createResearchEligibilityHandler({ ...deps, requireUser });
+      expect(await (await handler(request())).json()).toMatchObject({ eligible: true });
+      database.database.prepare("UPDATE feature_flags SET enabled=0").run();
+      expect(await (await handler(request())).json()).toMatchObject({ eligible: false });
+      database.database.prepare("UPDATE endpoint_rate_buckets SET count=30").run();
+      expect((await handler(request())).status).toBe(429);
+      expect(database.database.prepare("SELECT count(*) AS n FROM research_runs").get()).toMatchObject({ n: 0 });
+      expect(keyRead).not.toHaveBeenCalled();
+    } finally { database.close(); }
+  });
   it("is authenticated, bounded, no-store, and returns only the strict capability view", async () => {
     const deps = dependencies(); const reply = await createResearchEligibilityHandler(deps)(request());
     expect(await reply.json()).toEqual({ eligible: true, requestId: deps.createRequestId() });

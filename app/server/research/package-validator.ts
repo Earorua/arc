@@ -6,6 +6,7 @@ import { validateRoleBlueprint } from "../../lib/intelligence-validation";
 import { canonicalJson, deterministicId, fingerprint } from "../../lib/planning/fingerprint";
 import { validateUnitRegistry } from "../../lib/planning/registry-validation";
 import { auditResearchSources, canonicalizePublicCitationUrl, readBoundedResearchJson, SourcePolicyError } from "./source-audit";
+import { observeResearchQualityDiagnostic, type EvidenceQualityIssueCode, type ResearchQualityDiagnosticObserver } from "./quality-diagnostic";
 
 const versionSchema = z.string().max(32).regex(/^\d{4}\.\d{2}\.\d+$/u);
 const configVersionSchema = z.string().trim().min(1).max(64).regex(/^[^\u0000-\u001f\u007f]+$/u);
@@ -44,14 +45,21 @@ export class ResearchValidationContextError extends Error {
   }
 }
 
+export function parseResearchValidationContext(input: unknown): ResearchValidationContext {
+  try {
+    return Object.freeze(contextSchema.parse(readBoundedResearchJson(input)));
+  } catch {
+    throw new ResearchValidationContextError();
+  }
+}
+
 export type ResearchValidationResult =
   | { ready: true; package: ResearchPackage; quality: ResearchQualityReport }
   | { ready: false; quality: ResearchQualityReport; sanitizedCandidate: ResearchCandidate | null };
 
-export function validateResearchCandidate(candidate: unknown, annotations: unknown, context: ResearchValidationContext): ResearchValidationResult {
-  let trusted: ResearchValidationContext;
-  try { trusted = contextSchema.parse(readBoundedResearchJson(context)); }
-  catch { throw new ResearchValidationContextError(); }
+export function validateResearchCandidate(candidate: unknown, annotations: unknown, context: ResearchValidationContext,
+  options?: { onQualityDiagnostic?: ResearchQualityDiagnosticObserver }): ResearchValidationResult {
+  const trusted = parseResearchValidationContext(context);
 
   const codes = new Set<ResearchIssueCode>();
   let bounded: ResearchCandidate | null = null;
@@ -100,17 +108,32 @@ export function validateResearchCandidate(candidate: unknown, annotations: unkno
     version: trusted.registryVersion, blueprintId: blueprint.id, blueprintVersion: blueprint.version, tracks: [...tracks.values()],
   };
 
-  if (!roleBlueprintSchema.safeParse(blueprint).success) codes.add("invalid-schema");
-  if (!unitRegistrySchema.safeParse(registry).success) codes.add("invalid-registry");
-  for (const issue of validateRoleBlueprint(blueprint).issues) {
+  const blueprintSchema = roleBlueprintSchema.safeParse(blueprint);
+  if (!blueprintSchema.success) codes.add("invalid-schema");
+  const registrySchema = unitRegistrySchema.safeParse(registry);
+  if (!registrySchema.success) codes.add("invalid-registry");
+  const blueprintValidation = validateRoleBlueprint(blueprint);
+  for (const issue of blueprintValidation.issues) {
     codes.add(issue.code === "free-alternative-required" ? "missing-free-alternative" : "invalid-graph");
   }
-  for (const issue of validateUnitRegistry(registry, blueprint).issues) {
+  const registryValidation = validateUnitRegistry(registry, blueprint);
+  for (const issue of registryValidation.issues) {
     codes.add("invalid-registry");
     if (issue.code === "minute-mismatch") codes.add("minute-mismatch");
     if (issue.code === "missing-kind" || issue.code === "missing-skill") codes.add("missing-unit");
   }
-  validateEvidenceAndReferences(bounded, codes);
+  const evidenceIssueCodes: EvidenceQualityIssueCode[] | undefined = options?.onQualityDiagnostic ? [] : undefined;
+  validateEvidenceAndReferences(bounded, codes, evidenceIssueCodes);
+  if (options?.onQualityDiagnostic) {
+    try {
+      observeResearchQualityDiagnostic({
+        blueprintSchema: { success: blueprintSchema.success, issues: blueprintSchema.error?.issues ?? [] },
+        registrySchema: { success: registrySchema.success, issues: registrySchema.error?.issues ?? [] },
+        blueprintIssueCodes: blueprintValidation.issues.map(issue => issue.code),
+        registryIssueCodes: registryValidation.issues.map(issue => issue.code), evidenceIssueCodes: evidenceIssueCodes!,
+      }, options.onQualityDiagnostic);
+    } catch { /* Only diagnostic preparation is isolated; business validation above still throws. */ }
+  }
   if (codes.size) return failure(true);
 
   const report = quality();
@@ -127,16 +150,24 @@ export function validateResearchCandidate(candidate: unknown, annotations: unkno
   return { ready: true, package: parsedPackage.data, quality: report };
 }
 
-function validateEvidenceAndReferences(candidate: ResearchCandidate, codes: Set<ResearchIssueCode>): void {
+function validateEvidenceAndReferences(candidate: ResearchCandidate, codes: Set<ResearchIssueCode>, diagnostics?: EvidenceQualityIssueCode[]): void {
   const skills = new Map(candidate.skills.map((skill) => [skill.id, skill]));
   const resources = new Map(candidate.resources.map((resource) => [resource.id, resource]));
   const duplicated = (values: string[]) => new Set(values).size !== values.length;
-  if (duplicated(candidate.resources.map((resource) => resource.url))
+  if (diagnostics) {
+    if (duplicated(candidate.resources.map(resource => resource.url))) diagnostics.push("duplicate-resource-url");
+    if (duplicated(candidate.stages.flatMap(stage => stage.skillIds))) diagnostics.push("duplicate-stage-skill");
+    if (duplicated(candidate.evidence.map(evidence => evidence.id))) diagnostics.push("duplicate-evidence-id");
+    if (duplicated(candidate.evidence.map(evidence => `${evidence.skillId}/${evidence.resourceId}`))) diagnostics.push("duplicate-evidence-pair");
+    if (diagnostics.length) codes.add("invalid-graph");
+  } else if (duplicated(candidate.resources.map((resource) => resource.url))
     || duplicated(candidate.stages.flatMap((stage) => stage.skillIds))
     || duplicated(candidate.evidence.map((evidence) => evidence.id))
     || duplicated(candidate.evidence.map((evidence) => `${evidence.skillId}/${evidence.resourceId}`))) codes.add("invalid-graph");
   for (const edge of candidate.prerequisiteEdges) {
-    if (!skills.has(edge.skillId) || !skills.has(edge.prerequisiteSkillId)) codes.add("invalid-graph");
+    if (!skills.has(edge.skillId) || !skills.has(edge.prerequisiteSkillId)) {
+      codes.add("invalid-graph"); diagnostics?.push("missing-edge-endpoint");
+    }
   }
 
   const evidenceBySkill = new Map<string, Set<string>>();
@@ -145,6 +176,7 @@ function validateEvidenceAndReferences(candidate: ResearchCandidate, codes: Set<
     const resource = resources.get(evidence.resourceId);
     if (!skill || !resource || !skill.resourceIds.includes(resource.id) || !resource.skillIds.includes(skill.id)) {
       codes.add("invalid-graph");
+      diagnostics?.push("invalid-evidence-link");
       continue;
     }
     const linked = evidenceBySkill.get(skill.id) ?? new Set<string>();
@@ -153,17 +185,17 @@ function validateEvidenceAndReferences(candidate: ResearchCandidate, codes: Set<
   }
   for (const skill of candidate.skills) {
     const resourceIds = evidenceBySkill.get(skill.id) ?? new Set<string>();
-    if (resourceIds.size === 0) codes.add("missing-skill-source");
+    if (resourceIds.size === 0) { codes.add("missing-skill-source"); diagnostics?.push("missing-skill-evidence"); }
     if (skill.importance === "core" && ![...resourceIds].some((id) => {
       const tier = resources.get(id)?.sourceTier;
       return tier === "primary" || tier === "institutional";
-    })) codes.add("missing-core-authority");
+    })) { codes.add("missing-core-authority"); diagnostics?.push("missing-core-authority"); }
   }
   for (const template of candidate.unitTemplates) {
     const primary = resources.get(template.primaryResourceId);
     if (primary && primary.cost !== "free" && !template.alternativeResourceIds.some((id) => {
       const alternative = resources.get(id);
       return alternative?.cost === "free" && alternative.skillIds.includes(template.skillId);
-    })) codes.add("missing-free-alternative");
+    })) { codes.add("missing-free-alternative"); diagnostics?.push("missing-free-alternative"); }
   }
 }

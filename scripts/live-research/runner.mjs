@@ -15,6 +15,7 @@ process.on("unhandledRejection", stop);
 
 const workspace = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 let vite;
+let nativeTransport;
 let key;
 let exitCode = 1;
 let failureCode = "validation-incomplete";
@@ -35,7 +36,7 @@ async function readKey() {
 
 try {
   const args = process.argv.slice(2);
-  const modes = ["--execute-one", "--check-key-only", "--check-account-only"];
+  const modes = ["--execute-one", "--check-key-only", "--check-account-only", "--probe-minimal"];
   if (args.filter((argument) => modes.includes(argument)).length > 1) {
     failureCode = "mode-conflict";
     throw new Error("MODES_CONFLICT");
@@ -43,19 +44,31 @@ try {
   const executeOne = args.length === 1 && args[0] === "--execute-one";
   const checkKeyOnly = args.length === 1 && args[0] === "--check-key-only";
   const checkAccountOnly = args.length === 1 && args[0] === "--check-account-only";
-  if (args.length && !executeOne && !checkKeyOnly && !checkAccountOnly) throw new Error("ARGUMENTS_INVALID");
+  const probeMinimal = args.length === 1 && args[0] === "--probe-minimal";
+  if (args.length && !executeOne && !checkKeyOnly && !checkAccountOnly && !probeMinimal) throw new Error("ARGUMENTS_INVALID");
   process.chdir(workspace);
-  if (executeOne || checkKeyOnly || checkAccountOnly) key = await readKey();
+  if (executeOne || checkKeyOnly || checkAccountOnly || probeMinimal) key = await readKey();
   const { createOfflineVite } = await import("../../tests/offline-uat/server.mjs");
   vite = await createOfflineVite({ logLevel: "silent", optimizeDeps: { noDiscovery: true, include: [] },
     server: { middlewareMode: true, watch: null, hmr: false, ws: false, cors: false } });
   let summary;
-  if (checkAccountOnly) {
+  if (probeMinimal) {
+    const { runMinimalProbe } = await vite.ssrLoadModule("/scripts/live-research/minimal-probe.ts");
+    summary = await runMinimalProbe({ executeOne: true, key, fetch: outboundFetch });
+  } else if (checkAccountOnly) {
     const { runAccountCheck } = await vite.ssrLoadModule("/scripts/live-research/account-check.ts");
     summary = await runAccountCheck({ key, fetch: outboundFetch });
   } else {
     const { runValidation } = await vite.ssrLoadModule("/scripts/live-research/validation.ts");
-    summary = await runValidation(executeOne || checkKeyOnly ? { executeOne, checkKeyOnly, key, fetch: outboundFetch } : {});
+    let validationFetch = outboundFetch;
+    if (executeOne) {
+      const { getKimiLocalValidationProfile } = await vite.ssrLoadModule("/app/server/research/openrouter-provider.ts");
+      const profile = getKimiLocalValidationProfile();
+      const { createNativeResearchTransport } = await import("./native-transport.mjs");
+      nativeTransport = await createNativeResearchTransport(outboundFetch, profile.researchTimeoutMs);
+      validationFetch = nativeTransport.fetch;
+    }
+    summary = await runValidation(executeOne || checkKeyOnly ? { executeOne, checkKeyOnly, key, fetch: validationFetch } : {});
   }
   key = undefined;
   const outputDirectory = resolve(workspace, "outputs/live-research");
@@ -70,12 +83,16 @@ try {
   process.stderr.write(`Live validation stopped (${failureCode}).\n`);
 } finally {
   key = undefined;
+  let cleanupFailed = false;
+  try { await nativeTransport?.destroy(); }
+  catch { cleanupFailed = true; exitCode = 1; }
   try {
     const cache = vite?.config.cacheDir;
     await vite?.close();
     if (cache && dirname(resolve(cache)) === resolve(tmpdir()) && basename(cache).startsWith("arc-v8-offline-vite-")) {
       await rm(resolve(cache), { recursive: true, force: true });
     }
-  } catch { exitCode = 1; process.stderr.write("Live validation stopped (cleanup-incomplete).\n"); }
+  } catch { cleanupFailed = true; exitCode = 1; }
+  if (cleanupFailed) process.stderr.write("Live validation stopped (cleanup-incomplete).\n");
 }
 process.exit(exitCode);

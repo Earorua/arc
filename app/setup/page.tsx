@@ -122,7 +122,7 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
     <main className="setup-page" id="main-content">
       <Link className="wordmark setup-wordmark" href="/" lang="en">Arc.</Link>
       <SetupFlow onComplete={finish} signedIn={userId !== null} researchEligible={eligible}
-        researchRecoveryAvailable={research.restoring || research.run !== null || research.error !== null}
+        researchRecoveryAvailable={research.restoring || research.run !== null || research.error !== null || research.recoveryUncertain || research.replacementPending}
         onResearchActiveChange={onResearchActiveChange} onRoleChange={research.reset}
         renderResearch={({ role, onUseResearch, onFlagship }) => <RoleResearchPanel controller={research} role={role} eligible={eligible}
           onStart={() => void research.start({ role, locale: /[\u3400-\u9fff]/u.test(role) ? "zh-CN" : "en-US" })}

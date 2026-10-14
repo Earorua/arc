@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { EntitlementRepositoryError, RESEARCH_QUOTA_PURPOSE, type EntitlementFinalStatus, type EntitlementPeriod, type EntitlementRepository, type EntitlementUsage, type ResearchQuotaAdmission, type ResearchQuotaDecision } from "./repository";
+import { EntitlementRepositoryError, RESEARCH_QUOTA_PURPOSE, type EntitlementFinalStatus, type EntitlementPeriod, type EntitlementRepository, type EntitlementUsage, type RemoteResearchQuotaAdmission, type ResearchQuotaAdmission, type ResearchQuotaDecision } from "./repository";
+import { quotaLedgerPurposePeriodInvalidRowsSql, researchQuotaInvalidRowsSql, researchQuotaLedgerCte } from "./d1-research-quota-sql";
+import { siteOpenAdmissionSql } from "../research/d1-site-execution-repository";
+import { readBoundedResearchJson } from "../research/source-audit";
 
 const MAX = Number.MAX_SAFE_INTEGER;
 const integer = z.number().int().min(0).max(MAX);
@@ -23,53 +26,14 @@ const recoveryLedgerRowSchema = z.object({
   created_at: integer,
 }).strict();
 const researchCommandSchema = z.object({ userId: identifier, purpose: z.literal(RESEARCH_QUOTA_PURPOSE), idempotencyKey: keySchema, units: z.literal(1), dailyQuota: integer.max(100_000), period: periodSchema.refine((value) => value.startMs % 86_400_000 === 0 && value.endMs - value.startMs === 86_400_000) }).strict();
-// SQLite's default trim removes only ASCII spaces; use ECMAScript trim's exact
-// whitespace set so stored keys cannot disagree with the command schemas.
-const trimCharacters = "char(9,10,11,12,13,32,160,5760,8192,8193,8194,8195,8196,8197,8198,8199,8200,8201,8202,8232,8233,8239,8287,12288,65279)";
-const trimmed = (column: string) => `trim(${column},${trimCharacters})`;
-// The command schemas count UTF-16 units. SQLite length counts code points, so
-// count supplementary pairs only for non-ASCII, bounded to identifier length.
-const utf16Length = (column: string) => `(length(${column}) + CASE WHEN length(CAST(${column} AS BLOB))=length(${column}) THEN 0 ELSE (SELECT count(*) FROM identifier_positions WHERE n<=length(${column}) AND unicode(substr(${column},n,1))>65535) END)`;
-const invalidIdentifier = (column: string, minimum: number, maximum: number) => `(typeof(${column})<>'text' OR instr(${column},char(0))>0 OR ${column}<>${trimmed(column)} OR length(${column})>${maximum} OR ${utf16Length(column)}<${minimum} OR ${utf16Length(column)}>${maximum})`;
-
-// Aggregate once: reservation_id has no index in the legacy schema. Correlated
-// scans here would turn period validation into quadratic work over ledger history.
-const ledgerGroups = `WITH RECURSIVE identifier_positions(n) AS MATERIALIZED (
-  SELECT 1 UNION ALL SELECT n+1 FROM identifier_positions WHERE n<160
-), ledger_groups AS MATERIALIZED (
-  SELECT reservation_id,
-    SUM(entry_kind='reserved') AS reserved_count, SUM(entry_kind<>'reserved') AS terminal_count,
-    MAX(CASE WHEN entry_kind='reserved' THEN user_id END) AS reserved_user,
-    MAX(CASE WHEN entry_kind='reserved' THEN purpose END) AS reserved_purpose,
-    MAX(CASE WHEN entry_kind='reserved' THEN idempotency_key END) AS reserved_key,
-    MAX(CASE WHEN entry_kind='reserved' THEN units END) AS reserved_units,
-    MAX(CASE WHEN entry_kind='reserved' THEN created_at END) AS reserved_created_at
-  FROM quota_ledger GROUP BY reservation_id
-)`;
-// quota_ledger predates CHECK constraints. Only validate rows relevant to this
-// operation, using the aggregate to detect malformed reservation relationships.
-const invalidLedgerRow = `(
-  typeof(q.units)<>'integer' OR q.units<0 OR q.units>1000
-  OR typeof(q.created_at)<>'integer' OR q.created_at<0 OR q.created_at>${MAX}
-  OR q.entry_kind NOT IN ('reserved','accepted','rejected','failed')
-  OR (q.entry_kind='reserved' AND q.units<1)
-  OR (q.entry_kind IN ('rejected','failed') AND q.units<>0)
-  OR (q.purpose='${RESEARCH_QUOTA_PURPOSE}' AND q.entry_kind IN ('reserved','accepted') AND q.units<>1)
-  OR ${invalidIdentifier("q.user_id", 1, 160)}
-  OR ${invalidIdentifier("q.purpose", 1, 120)}
-  OR ${invalidIdentifier("q.reservation_id", 1, 160)}
-  OR ${invalidIdentifier("q.idempotency_key", 8, 128)}
-  OR g.reserved_count<>1 OR g.terminal_count>1
-  OR g.reserved_user<>q.user_id OR g.reserved_purpose<>q.purpose OR g.reserved_key<>q.idempotency_key OR g.reserved_units<q.units
-)`;
-const groupJoin = "quota_ledger q JOIN ledger_groups g ON g.reservation_id=q.reservation_id";
-// Include children through their parent reservation, even if a child's owner,
-// key or purpose is corrupt. Direct-row scope also catches orphan ledger rows.
-const exactScope = "((q.user_id=?1 AND q.idempotency_key=?2) OR (g.reserved_user=?1 AND g.reserved_key=?2))";
-const researchScope = `(${exactScope}
-  OR (g.reserved_user=?1 AND ${trimmed("g.reserved_purpose")}='${RESEARCH_QUOTA_PURPOSE}' AND g.reserved_created_at>=?3 AND g.reserved_created_at<?4)
-  OR (q.user_id=?1 AND ${trimmed("q.purpose")}='${RESEARCH_QUOTA_PURPOSE}' AND q.created_at>=?3 AND q.created_at<?4))`;
-
+const remoteResearchCommandSchema = researchCommandSchema.extend({
+  ownerId: identifier,
+  runId: identifier,
+  requestId: identifier,
+  jobId: z.uuid(),
+  requestHash: z.string().length(64).regex(/^[0-9a-f]{64}$/u),
+}).strict().refine((value) => value.ownerId === value.userId);
+const sqlNow = "CAST(ROUND(unixepoch('subsec') * 1000) AS INTEGER)";
 function unavailable(): never { throw new EntitlementRepositoryError("ENTITLEMENT_UNAVAILABLE"); }
 function parse<T>(schema: z.ZodType<T>, value: unknown): T { const parsed = schema.safeParse(value); return parsed.success ? parsed.data : unavailable(); }
 async function guarded<T>(operation: () => Promise<T>): Promise<T> { try { return await operation(); } catch (error) { if (error instanceof EntitlementRepositoryError) throw error; return unavailable(); } }
@@ -78,8 +42,8 @@ export class D1EntitlementRepository implements EntitlementRepository {
   private readonly options: { createId: () => string; now: () => number };
   constructor(private readonly db: D1Database, options: Partial<{ createId: () => string; now: () => number }> = {}) { this.options = { createId: () => crypto.randomUUID(), now: () => Date.now(), ...options }; }
 
-  private async assertLedger(scope: string, values: unknown[]) {
-    const row = await this.db.prepare(`${ledgerGroups} SELECT count(*) AS invalid FROM ${groupJoin} WHERE ${scope} AND ${invalidLedgerRow}`).bind(...values).first<{ invalid: number }>();
+  private async assertLedger(invalidRowsSql: string, values: unknown[]) {
+    const row = await this.db.prepare(`${researchQuotaLedgerCte} SELECT ${invalidRowsSql} AS invalid`).bind(...values).first<{ invalid: number }>();
     if (!row || row.invalid !== 0) unavailable();
   }
   private async findReservation(userId: string, key: string): Promise<ReservationRow | null> {
@@ -92,6 +56,18 @@ export class D1EntitlementRepository implements EntitlementRepository {
   }
   private validateReplay(row: ReservationRow, purpose: string, units: number) {
     if (row.purpose !== purpose || row.units !== units) throw new EntitlementRepositoryError("CONFLICT");
+  }
+  private async isRemoteQuotaKey(userId: string, key: string): Promise<boolean> {
+    return Boolean(await this.db.prepare("SELECT 1 FROM research_runs WHERE user_id=?1 AND remote_quota_key=?2 LIMIT 1").bind(userId, key).first());
+  }
+  private async assertRemoteContext(command: z.infer<typeof remoteResearchCommandSchema>): Promise<void> {
+    const row = await this.db.prepare(`SELECT 1 FROM research_site_executions e
+      JOIN research_runs r ON r.id=e.run_id AND r.user_id=e.user_id AND r.request_id=e.request_id
+      WHERE e.user_id=?1 AND e.run_id=?2 AND e.request_id=?3 AND e.job_id=?4 AND e.request_hash=?5
+        AND e.quota_key=?6 AND e.user_daily_quota=?7
+        AND r.execution_mode='cloudflare-workflow-v1' AND r.remote_quota_key=e.quota_key
+      LIMIT 1`).bind(command.ownerId, command.runId, command.requestId, command.jobId, command.requestHash, command.idempotencyKey, command.dailyQuota).first();
+    if (!row) throw new EntitlementRepositoryError("CONFLICT");
   }
 
   readResearchReservation(userId: string, idempotencyKey: string) {
@@ -127,8 +103,7 @@ export class D1EntitlementRepository implements EntitlementRepository {
   readUsage(userId: string, purpose: string, period: EntitlementPeriod): Promise<EntitlementUsage> {
     return guarded(async () => {
       parse(identifier, userId); parse(purposeSchema, purpose); parse(periodSchema, period);
-      await this.assertLedger(`((${trimmed("q.purpose")}=?1 AND q.created_at>=?2 AND q.created_at<?3)
-        OR (${trimmed("g.reserved_purpose")}=?1 AND ((q.created_at>=?2 AND q.created_at<?3) OR (g.reserved_created_at>=?2 AND g.reserved_created_at<?3))))`, [purpose, period.startMs, period.endMs]);
+      await this.assertLedger(quotaLedgerPurposePeriodInvalidRowsSql("?1", "?2", "?3"), [purpose, period.startMs, period.endMs]);
       // Research accepted usage belongs to its reservation day, even when Ready
       // arrives after midnight. Legacy preview continues using finalization time.
       const row = await this.db.prepare(`SELECT COALESCE(SUM(CASE WHEN q.user_id=?1 THEN q.units ELSE 0 END),0) AS user_units,COALESCE(SUM(q.units),0) AS global_units
@@ -146,7 +121,7 @@ export class D1EntitlementRepository implements EntitlementRepository {
     return guarded(async () => {
       parse(identifier, userId); parse(purposeSchema, purpose); parse(keySchema, idempotencyKey); parse(z.number().int().min(1).max(1000), units);
       if (purpose === RESEARCH_QUOTA_PURPOSE) unavailable();
-      await this.assertLedger(exactScope, [userId, idempotencyKey]);
+      await this.assertLedger(researchQuotaInvalidRowsSql("?1", "?2"), [userId, idempotencyKey]);
       const existing = await this.findReservation(userId, idempotencyKey);
       if (existing) { this.validateReplay(existing, purpose, units); return existing.reservation_id; }
       const id = parse(identifier, this.options.createId());
@@ -160,8 +135,10 @@ export class D1EntitlementRepository implements EntitlementRepository {
     return guarded(async () => {
       const command = parse(researchCommandSchema, input); const now = parse(integer, this.options.now());
       const scopeValues = [command.userId, command.idempotencyKey, command.period.startMs, command.period.endMs];
-      await this.assertLedger(researchScope, scopeValues);
+      const invalidRowsSql = researchQuotaInvalidRowsSql("?1", "?2", "?3", "?4");
+      await this.assertLedger(invalidRowsSql, scopeValues);
       const replay = async (row: ReservationRow, replayed: boolean): Promise<ResearchQuotaDecision> => {
+        if (await this.isRemoteQuotaKey(command.userId, command.idempotencyKey)) unavailable();
         this.validateReplay(row, command.purpose, command.units);
         return { allowed: true, reservationId: row.reservation_id, replayed, finalStatus: (await this.finalRow(row.reservation_id))?.entry_kind ?? null };
       };
@@ -169,15 +146,64 @@ export class D1EntitlementRepository implements EntitlementRepository {
       if (existing) return replay(existing, true);
       if (now < command.period.startMs || now >= command.period.endMs) unavailable();
       const id = parse(identifier, this.options.createId());
-      const result = await this.db.prepare(`${ledgerGroups} INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at)
+      const result = await this.db.prepare(`${researchQuotaLedgerCte} INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at)
         SELECT ?5,?1,'${RESEARCH_QUOTA_PURPOSE}',?6,?2,'reserved',1,?7
-        WHERE NOT EXISTS(SELECT 1 FROM ${groupJoin} WHERE ${researchScope} AND ${invalidLedgerRow})
+        WHERE NOT ${invalidRowsSql}
+          AND NOT EXISTS(SELECT 1 FROM research_runs r WHERE r.user_id=?1 AND r.remote_quota_key=?2)
           AND (SELECT count(*) FROM quota_ledger r WHERE r.user_id=?1 AND r.purpose='${RESEARCH_QUOTA_PURPOSE}' AND r.entry_kind='reserved' AND r.created_at>=?3 AND r.created_at<?4
             AND NOT EXISTS(SELECT 1 FROM quota_ledger t WHERE t.user_id=r.user_id AND t.idempotency_key=r.idempotency_key AND t.reservation_id=r.reservation_id AND t.purpose=r.purpose AND t.entry_kind IN ('rejected','failed'))) < ?8
         ON CONFLICT(user_id,idempotency_key,entry_kind) DO NOTHING
       `).bind(...scopeValues, parse(identifier, this.options.createId()), id, now, command.dailyQuota).run();
       const saved = await this.findReservation(command.userId, command.idempotencyKey);
-      if (!saved) { await this.assertLedger(researchScope, scopeValues); return { allowed: false, reason: "quota" }; }
+      if (!saved) { await this.assertLedger(invalidRowsSql, scopeValues); return { allowed: false, reason: "quota" }; }
+      return replay(saved, result.meta.changes !== 1);
+    });
+  }
+
+  admitRemoteResearch(input: RemoteResearchQuotaAdmission): Promise<ResearchQuotaDecision> {
+    return guarded(async () => {
+      const command = parse(remoteResearchCommandSchema, readBoundedResearchJson(input));
+      const scopeValues = [command.userId, command.idempotencyKey, command.period.startMs, command.period.endMs];
+      const invalidRowsSql = researchQuotaInvalidRowsSql("?1", "?2", "?3", "?4");
+      await this.assertLedger(invalidRowsSql, scopeValues);
+      const replay = async (row: ReservationRow, replayed: boolean): Promise<ResearchQuotaDecision> => {
+        this.validateReplay(row, command.purpose, command.units);
+        await this.assertRemoteContext(command);
+        return { allowed: true, reservationId: row.reservation_id, replayed, finalStatus: (await this.finalRow(row.reservation_id))?.entry_kind ?? null };
+      };
+      const existing = await this.findReservation(command.userId, command.idempotencyKey);
+      if (existing) return replay(existing, true);
+
+      const reservationId = parse(identifier, this.options.createId());
+      const entryId = parse(identifier, this.options.createId());
+      const open = siteOpenAdmissionSql({ ownerSql: "?1", runSql: "?5", requestSql: "?6", jobSql: "?7", hashSql: "?8" });
+      const result = await this.db.prepare(`${researchQuotaLedgerCte}
+        INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at)
+        SELECT ?9,?1,'${RESEARCH_QUOTA_PURPOSE}',?10,?2,'reserved',1,${sqlNow}
+        FROM research_site_executions e
+        WHERE e.user_id=?1 AND e.run_id=?5 AND e.request_id=?6 AND e.job_id=?7 AND e.request_hash=?8
+          AND e.quota_key=?2 AND e.user_daily_quota=?11
+          AND ${open}
+          AND ${sqlNow}>=?3 AND ${sqlNow}<?4
+          AND NOT ${invalidRowsSql}
+          AND (SELECT count(*) FROM quota_ledger r WHERE r.user_id=?1 AND r.purpose='${RESEARCH_QUOTA_PURPOSE}' AND r.entry_kind='reserved' AND r.created_at>=?3 AND r.created_at<?4
+            AND NOT EXISTS(SELECT 1 FROM quota_ledger t WHERE t.user_id=r.user_id AND t.idempotency_key=r.idempotency_key AND t.reservation_id=r.reservation_id AND t.purpose=r.purpose AND t.entry_kind IN ('rejected','failed'))) < ?11
+        ON CONFLICT(user_id,idempotency_key,entry_kind) DO NOTHING
+      `).bind(
+        ...scopeValues,
+        command.runId,
+        command.requestId,
+        command.jobId,
+        command.requestHash,
+        entryId,
+        reservationId,
+        command.dailyQuota,
+      ).run();
+      const saved = await this.findReservation(command.userId, command.idempotencyKey);
+      if (!saved) {
+        await this.assertLedger(invalidRowsSql, scopeValues);
+        return { allowed: false, reason: "quota" };
+      }
       return replay(saved, result.meta.changes !== 1);
     });
   }
@@ -187,7 +213,7 @@ export class D1EntitlementRepository implements EntitlementRepository {
       parse(identifier, reservationId); parse(z.enum(["accepted", "rejected", "failed"]), status); parse(integer.max(1000), acceptedUnits);
       const row = await this.db.prepare("SELECT user_id,purpose,reservation_id,idempotency_key,units,created_at FROM quota_ledger WHERE reservation_id=?1 AND entry_kind='reserved'").bind(reservationId).first();
       if (!row) unavailable(); const reservation = parse(reservationSchema, row);
-      await this.assertLedger(exactScope, [reservation.user_id, reservation.idempotency_key]);
+      await this.assertLedger(researchQuotaInvalidRowsSql("?1", "?2"), [reservation.user_id, reservation.idempotency_key]);
       if (reservation.purpose === RESEARCH_QUOTA_PURPOSE && acceptedUnits !== (status === "accepted" ? 1 : 0)) unavailable();
       const units = status === "accepted" ? acceptedUnits : 0;
       if (units > reservation.units) unavailable();

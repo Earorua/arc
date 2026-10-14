@@ -36,10 +36,11 @@ class SqliteStatement {
 
 /** Minimal, real-SQLite D1 adapter for repository tests. */
 export class SqliteD1 {
-  readonly database = new DatabaseSync(":memory:");
+  readonly database: DatabaseSync;
   readonly batches: string[][] = [];
   readonly preparedSql: string[] = [];
   failAtBatchStatement: number | null = null;
+  constructor(filename = ":memory:") { this.database = new DatabaseSync(filename); }
   prepare(sql: string): D1PreparedStatement {
     if (new TextEncoder().encode(sql).byteLength > 100_000) throw new Error("D1 SQL too large");
     this.preparedSql.push(sql);
@@ -72,14 +73,21 @@ export class SqliteD1 {
   close() { this.database.close(); }
 }
 
-export function createResearchD1(): SqliteD1 {
-  const db = new SqliteD1();
+export function createResearchD1(filename = ":memory:"): SqliteD1 {
+  const db = new SqliteD1(filename);
   db.database.exec("PRAGMA foreign_keys = ON");
-  for (const file of ["0000_beta_foundation.sql", "0001_secure_account_linking.sql", "0002_product_intelligence.sql", "0003_adaptive_planning.sql", "0004_proof_backed_stack.sql", "0005_openrouter_research_beta.sql", "0006_research_health_indexes.sql"]) {
+  for (const file of ["0000_beta_foundation.sql", "0001_secure_account_linking.sql", "0002_product_intelligence.sql", "0003_adaptive_planning.sql", "0004_proof_backed_stack.sql", "0005_openrouter_research_beta.sql", "0006_research_health_indexes.sql", "0007_research_bridge_nonces.sql", "0008_research_site_executions.sql", "0009_research_site_begin_grants.sql", "0010_research_site_imports.sql"]) {
     const sql = readFileSync(resolve(process.cwd(), "drizzle", file), "utf8").replaceAll("--> statement-breakpoint", ";");
     db.database.exec(sql);
   }
+  applyResearchSiteBridgeMigration(db);
   return db;
+}
+
+export function applyResearchSiteBridgeMigration(db: SqliteD1): void {
+  const sql = readFileSync(resolve(process.cwd(), "drizzle", "0011_research_site_bridge.sql"), "utf8")
+    .replaceAll("--> statement-breakpoint", ";");
+  db.database.exec(sql);
 }
 
 export function seedUser(db: SqliteD1, id: string) {

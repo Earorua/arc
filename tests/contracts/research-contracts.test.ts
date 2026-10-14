@@ -8,6 +8,7 @@ import {
   researchPackageSchema,
   researchPlanningDataSchema,
   researchQualityReportSchema,
+  researchRecoverRequestSchema,
   researchRequestSchema,
   researchRunPublicViewSchema,
   researchSuccessEnvelopeSchema,
@@ -17,6 +18,32 @@ import { validResearchCandidate } from "../fixtures/research/valid-candidate";
 import { invalidResearchCandidates } from "../fixtures/research/invalid-candidates";
 
 describe("research contracts", () => {
+  describe.each(validLegacyPublicViews())("$state background acceptance", (run) => {
+    it("defaults an omitted field to false", () => {
+      expect(researchRunPublicViewSchema.parse(run)).toEqual({ ...run, backgroundAccepted: false });
+    });
+
+    it.each([true, false])("accepts the explicit boolean %s", (backgroundAccepted) => {
+      expect(researchRunPublicViewSchema.parse({ ...run, backgroundAccepted }))
+        .toEqual({ ...run, backgroundAccepted });
+    });
+
+    it.each([null, "true", 1])("rejects the non-boolean %s", (backgroundAccepted) => {
+      expect(researchRunPublicViewSchema.safeParse({ ...run, backgroundAccepted }).success).toBe(false);
+    });
+
+    it("continues to reject unrelated and private fields", () => {
+      for (const [field, value] of [
+        ["unrelated", true], ["jobId", "private-job"], ["requestHash", "private-hash"],
+        ["workerUrl", "https://private.example"], ["receipt", "private-receipt"],
+        ["body", "private-body"], ["secret", "private-secret"],
+      ] as const) {
+        expect(researchRunPublicViewSchema.safeParse({ ...run, backgroundAccepted: true, [field]: value }).success)
+          .toBe(false);
+      }
+    });
+  });
+
   it("accepts the Research-only success and terminal error envelopes", () => {
     const requestId = "00000000-0000-4000-8000-000000000008";
     const ready = validReadyPublicView();
@@ -29,7 +56,8 @@ describe("research contracts", () => {
       quality: { issueCodes: ["missing-unit" as const], skillCount: 3, sourceCount: 6, unitCount: 2 },
     };
 
-    expect(researchSuccessEnvelopeSchema.parse({ run: ready, requestId })).toEqual({ run: ready, requestId });
+    expect(researchSuccessEnvelopeSchema.parse({ run: ready, requestId }))
+      .toEqual({ run: { ...ready, backgroundAccepted: false }, requestId });
     expect(researchErrorEnvelopeSchema.parse({
       error: {
         code: "RESEARCH_NEEDS_REVIEW",
@@ -100,6 +128,22 @@ describe("research contracts", () => {
       locale: "zh-CN",
       model: "attacker/model",
     })).toThrow();
+  });
+
+  it("accepts strict start and retry recovery identities", () => {
+    const shared = {
+      mutationId: "mutation-research-00000001",
+      role: "Data Product Manager",
+      locale: "en-US" as const,
+    };
+
+    expect(researchRecoverRequestSchema.parse({ kind: "start", ...shared })).toEqual({ kind: "start", ...shared });
+    expect(researchRecoverRequestSchema.parse({
+      kind: "retry", ...shared, sourceRunId: "research-run-1",
+    })).toEqual({ kind: "retry", ...shared, sourceRunId: "research-run-1" });
+    expect(researchRecoverRequestSchema.safeParse({ kind: "start", ...shared, sourceRunId: "research-run-1" }).success).toBe(false);
+    expect(researchRecoverRequestSchema.safeParse({ kind: "retry", ...shared }).success).toBe(false);
+    expect(researchRecoverRequestSchema.safeParse({ kind: "start", ...shared, ownerId: "owner-a" }).success).toBe(false);
   });
 
   it("accepts a complete provider-neutral research candidate", () => {
@@ -327,7 +371,7 @@ describe("research contracts", () => {
       },
     };
 
-    expect(researchRunPublicViewSchema.parse(view)).toEqual(view);
+    expect(researchRunPublicViewSchema.parse(view)).toEqual({ ...view, backgroundAccepted: false });
     expect(() => researchRunPublicViewSchema.parse({
       ...view,
       quality: { ...view.quality, passed: false },
@@ -354,6 +398,20 @@ describe("research contracts", () => {
     })).toThrow();
   });
 });
+
+function validLegacyPublicViews() {
+  const identity = { id: "research-run-1", role: "Data Product Manager", locale: "en-US" as const };
+  return [
+    ...(["queued", "researching", "validating"] as const)
+      .map((state) => ({ ...identity, state, retryable: false as const })),
+    validReadyPublicView(),
+    {
+      ...identity, state: "needs-review" as const, retryable: true,
+      quality: { issueCodes: ["missing-unit" as const], skillCount: 3, sourceCount: 6, unitCount: 2 },
+    },
+    { ...identity, state: "failed" as const, retryable: true, failureCategory: "timeout" as const },
+  ];
+}
 
 function validResearchPackage() {
   const resource = {

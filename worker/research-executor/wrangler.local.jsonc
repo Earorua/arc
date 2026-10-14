@@ -1,0 +1,18 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "arc-research-executor-local",
+  "main": "index.ts",
+  "compatibility_date": "2026-05-15",
+  "workers_dev": false,
+  "preview_urls": false,
+  "workflows": [
+    {
+      "binding": "RESEARCH_WORKFLOW",
+      "name": "arc-research-local",
+      "class_name": "ResearchWorkflow"
+    }
+  ],
+  "triggers": {
+    "crons": ["* * * * *"]
+  }
+}

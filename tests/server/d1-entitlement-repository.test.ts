@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { D1EntitlementRepository } from "../../app/server/entitlements/d1-entitlement-repository";
+import { researchQuotaLedgerCte, researchQuotaLiveReservationSql } from "../../app/server/entitlements/d1-research-quota-sql";
 import type { ResearchQuotaAdmission } from "../../app/server/entitlements/repository";
+import { createControlPoint, createSiteAdmissionFixture } from "../helpers/site-admission-fixture";
 import { createResearchD1, seedUser } from "../helpers/sqlite-d1";
 
 const day = Date.parse("2026-08-31T00:00:00Z");
@@ -22,6 +24,215 @@ async function admit(repository: D1EntitlementRepository, key = "research-role-a
 }
 
 describe("D1EntitlementRepository", () => {
+  it("requires one exact live Research reservation relationship", async () => {
+    const { db } = setup();
+    const insert = db.database.prepare("INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at) VALUES(?1,?2,?3,?4,?5,?6,?7,?8)");
+    const live = (ownerId = "owner-a", key = "research-live", reservationId = "reservation-live") => db.database.prepare(
+      `${researchQuotaLedgerCte} SELECT ${researchQuotaLiveReservationSql("?1", "?2", "?3")} AS live`,
+    ).get(ownerId, key, reservationId) as { live: number };
+
+    insert.run("parent", "owner-a", "role-research", "reservation-live", "research-live", "reserved", 1, day);
+    expect(live()).toEqual({ live: 1 });
+    expect(live("owner-b")).toEqual({ live: 0 });
+    expect(live("owner-a", "research-live", "other-reservation")).toEqual({ live: 0 });
+
+    insert.run("terminal", "owner-a", "role-research", "reservation-live", "research-live", "failed", 0, day + 1);
+    expect(live()).toEqual({ live: 0 });
+    db.database.prepare("UPDATE quota_ledger SET user_id='owner-b' WHERE id='terminal'").run();
+    expect(live()).toEqual({ live: 0 });
+
+    db.database.prepare("DELETE FROM quota_ledger WHERE id='terminal'").run();
+    db.database.prepare("UPDATE quota_ledger SET units=2 WHERE id='parent'").run();
+    expect(live()).toEqual({ live: 0 });
+  });
+
+  it("admits and replays quota only for the exact open remote execution", async () => {
+    const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+    const created = await fixture.createRemote();
+    const quotaCommand = fixture.quotaCommand(created.execution);
+
+    const first = await fixture.quota.admitRemoteResearch(quotaCommand);
+    expect(first).toMatchObject({ allowed: true, replayed: false, finalStatus: null });
+    await expect(fixture.quota.admitRemoteResearch(quotaCommand)).resolves.toEqual({ ...first, replayed: true });
+    expect(fixture.db.database.prepare("SELECT user_id,purpose,idempotency_key,units,created_at FROM quota_ledger").all()).toEqual([{
+      user_id: created.execution.ownerId,
+      purpose: "role-research",
+      idempotency_key: created.execution.quotaKey,
+      units: 1,
+      created_at: Date.parse("2026-09-15T12:00:00.000Z"),
+    }]);
+  });
+
+  it("fences the actual remote quota insert when the execution closes after preflight", async () => {
+    const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+    const created = await fixture.createRemote();
+    const control = createControlPoint();
+    const prepare = fixture.db.prepare.bind(fixture.db);
+    fixture.db.prepare = ((sql: string) => {
+      const statement = prepare(sql);
+      if (!sql.includes("INSERT INTO quota_ledger")) return statement;
+      const bind = statement.bind.bind(statement);
+      statement.bind = ((...values: unknown[]) => {
+        const bound = bind(...values);
+        const run = bound.run.bind(bound);
+        bound.run = async () => { await control.wait(); return run(); };
+        return bound;
+      }) as typeof statement.bind;
+      return statement;
+    }) as typeof fixture.db.prepare;
+
+    const pending = fixture.quota.admitRemoteResearch(fixture.quotaCommand(created.execution));
+    await control.entered;
+    fixture.db.database.prepare("UPDATE research_site_executions SET admission_state='closed',closed_at=?1,close_reason='denied',version=version+1,updated_at=?1 WHERE run_id=?2").run(Date.parse("2026-09-15T12:00:01.000Z"), created.run.id);
+    control.resume();
+    await expect(pending).resolves.toEqual({ allowed: false, reason: "quota" });
+    expect(fixture.db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 0 });
+  });
+
+  it("keeps the remote run quota key fenced from legacy admission after execution loss", async () => {
+    const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+    const created = await fixture.createRemote();
+    const legacy = command(created.execution.quotaKey, {
+      userId: created.execution.ownerId,
+      dailyQuota: created.execution.policy.userDailyQuota,
+      period: fixture.quotaCommand(created.execution).period,
+    });
+    fixture.db.database.prepare("DELETE FROM research_site_executions WHERE run_id=?1").run(created.run.id);
+
+    await expect(fixture.quota.admitResearch(legacy)).resolves.toEqual({ allowed: false, reason: "quota" });
+    expect(fixture.db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 0 });
+    fixture.db.database.prepare("INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at) VALUES('legacy-remote','owner-a','role-research','legacy-remote-reservation',?1,'reserved',1,?2)").run(created.execution.quotaKey, legacy.period.startMs);
+    await expect(fixture.quota.admitResearch(legacy)).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+  });
+
+  it("rejects a legacy replay when remote admission wins after its initial read", async () => {
+    const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+    const created = await fixture.createRemote();
+    const remoteCommand = fixture.quotaCommand(created.execution);
+    const prepare = fixture.db.prepare.bind(fixture.db); let injected = false;
+    fixture.db.prepare = ((sql: string) => {
+      const statement = prepare(sql);
+      if (!sql.includes("AND NOT EXISTS(SELECT 1 FROM research_runs r WHERE r.user_id=?1 AND r.remote_quota_key=?2)")) return statement;
+      const bind = statement.bind.bind(statement);
+      statement.bind = ((...values: unknown[]) => {
+        const bound = bind(...values); const run = bound.run.bind(bound);
+        bound.run = async () => {
+          if (!injected) { injected = true; await fixture.quota.admitRemoteResearch(remoteCommand); }
+          return run();
+        };
+        return bound;
+      }) as typeof statement.bind;
+      return statement;
+    }) as typeof fixture.db.prepare;
+    const legacy = command(created.execution.quotaKey, {
+      userId: created.execution.ownerId,
+      dailyQuota: created.execution.policy.userDailyQuota,
+      period: remoteCommand.period,
+    });
+    await expect(fixture.quota.admitResearch(legacy)).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    expect(fixture.db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 1 });
+  });
+
+  it("denies mismatched remote identity and frozen quota before ledger writes", async () => {
+    const overrides = [
+      { ownerId: "owner-b", userId: "owner-b" },
+      { runId: "research-run-other" },
+      { requestId: "request-other" },
+      { jobId: "00000000-0000-4000-8000-999999999999" },
+      { requestHash: "f".repeat(64) },
+      { idempotencyKey: "research-other" },
+      { dailyQuota: 4 },
+    ];
+    for (const override of overrides) {
+      const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+      const created = await fixture.createRemote();
+      await expect(fixture.quota.admitRemoteResearch({ ...fixture.quotaCommand(created.execution), ...override }))
+        .resolves.toEqual({ allowed: false, reason: "quota" });
+      expect(fixture.db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 0 });
+    }
+  });
+
+  it("uses actual SQL time for the UTC quota day after a delayed insert", async () => {
+    const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+    const beforeMidnight = Date.parse("2026-09-15T23:59:30.000Z");
+    fixture.setAppNow(beforeMidnight); fixture.setSqlNow(beforeMidnight);
+    const created = await fixture.createRemote();
+    const control = createControlPoint();
+    const prepare = fixture.db.prepare.bind(fixture.db);
+    fixture.db.prepare = ((sql: string) => {
+      const statement = prepare(sql);
+      if (!sql.includes("INSERT INTO quota_ledger")) return statement;
+      const bind = statement.bind.bind(statement);
+      statement.bind = ((...values: unknown[]) => {
+        const bound = bind(...values); const run = bound.run.bind(bound);
+        bound.run = async () => { await control.wait(); return run(); };
+        return bound;
+      }) as typeof statement.bind;
+      return statement;
+    }) as typeof fixture.db.prepare;
+    const pending = fixture.quota.admitRemoteResearch(fixture.quotaCommand(created.execution));
+    await control.entered;
+    fixture.setSqlNow(Date.parse("2026-09-16T00:00:00.000Z"));
+    control.resume();
+    await expect(pending).resolves.toEqual({ allowed: false, reason: "quota" });
+    expect(fixture.db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 0 });
+    fixture.setAppNow(Date.parse("2026-09-16T00:00:00.000Z"));
+    await expect(fixture.quota.admitRemoteResearch(fixture.quotaCommand(created.execution))).resolves.toMatchObject({ allowed: true, replayed: false });
+    expect(fixture.db.database.prepare("SELECT created_at FROM quota_ledger").get()).toEqual({ created_at: Date.parse("2026-09-16T00:00:00.000Z") });
+  });
+
+  it("rejects remote quota at the exact SQL queue deadline within the same UTC day", async () => {
+    const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+    const created = await fixture.createRemote();
+    fixture.setSqlNow(created.execution.job.queueExpiresAt);
+    await expect(fixture.quota.admitRemoteResearch(fixture.quotaCommand(created.execution))).resolves.toEqual({ allowed: false, reason: "quota" });
+    expect(fixture.db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 0 });
+  });
+
+  it("snapshots the remote quota command before its first storage await", async () => {
+    const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+    const created = await fixture.createRemote();
+    const quotaCommand = fixture.quotaCommand(created.execution);
+    const control = createControlPoint();
+    const prepare = fixture.db.prepare.bind(fixture.db); let paused = false;
+    fixture.db.prepare = ((sql: string) => {
+      const statement = prepare(sql);
+      if (paused || !sql.includes("SELECT EXISTS(SELECT 1 FROM quota_ledger")) return statement;
+      paused = true;
+      const bind = statement.bind.bind(statement);
+      statement.bind = ((...values: unknown[]) => {
+        const bound = bind(...values); const first = bound.first.bind(bound);
+        bound.first = async <T>() => { await control.wait(); return first<T>(); };
+        return bound;
+      }) as typeof statement.bind;
+      return statement;
+    }) as typeof fixture.db.prepare;
+    const pending = fixture.quota.admitRemoteResearch(quotaCommand);
+    await control.entered;
+    const mutable = quotaCommand as { requestHash: string; dailyQuota: number };
+    mutable.requestHash = "f".repeat(64);
+    mutable.dailyQuota = 99;
+    control.resume();
+    await expect(pending).resolves.toMatchObject({ allowed: true, replayed: false });
+  });
+
+  it("rejects unsafe remote quota command shapes before writes", async () => {
+    const fixture = createSiteAdmissionFixture(); databases.push(fixture.db);
+    const created = await fixture.createRemote();
+    const valid = fixture.quotaCommand(created.execution);
+    const values = [
+      Object.assign({ ...valid }, { [Symbol("secret")]: true }),
+      Object.defineProperty({ ...valid }, "dailyQuota", { enumerable: true, get: () => valid.dailyQuota }),
+      Object.assign(Object.create(null), valid),
+      { ...valid, dailyQuota: Number.MAX_SAFE_INTEGER + 1 },
+      { ...valid, ownerId: "o".repeat(161), userId: "o".repeat(161) },
+      { ...valid, idempotencyKey: "q".repeat(129) },
+    ];
+    for (const value of values) {
+      await expect(fixture.quota.admitRemoteResearch(value)).rejects.toMatchObject({ code: "ENTITLEMENT_UNAVAILABLE" });
+    }
+    expect(fixture.db.database.prepare("SELECT count(*) count FROM quota_ledger").get()).toEqual({ count: 0 });
+  });
   it("uses only the indexed direct lookup when a recovery key is absent from a large ledger", async () => {
     const { repository, db } = setup();
     const insert = db.database.prepare("INSERT INTO quota_ledger(id,user_id,purpose,reservation_id,idempotency_key,entry_kind,units,created_at) VALUES(?1,'owner-a','preview',?2,?3,?4,1,?5)");

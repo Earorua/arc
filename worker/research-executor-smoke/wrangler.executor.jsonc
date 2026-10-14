@@ -1,0 +1,49 @@
+{
+  "name": "arc-v8-smoke-executor-20260921",
+  "account_id": "54eaadb89014252836694203c1e22546",
+  "main": "../../outputs/local-durable-executor-20260914/task15-smoke/build/cloud/task15-cloud-candidate-20260921/executor.js",
+  "compatibility_date": "2026-05-15",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "BETTER_AUTH_URL": "https://arc-v8-smoke-site-20260921.23711031.workers.dev",
+    "ARC_AI_RESEARCH_EXECUTOR_URL": "https://arc-v8-smoke-executor-20260921.23711031.workers.dev",
+    "ARC_AI_RESEARCH_SITE_TO_EXECUTOR_KEY_ID": "smoke-site-20260921",
+    "ARC_AI_RESEARCH_EXECUTOR_TO_SITE_KEY_ID": "smoke-executor-20260921",
+    "ARC_RESEARCH_EXECUTOR_ACCEPT_NEW": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "EXECUTOR_DB",
+      "database_name": "arc-v8-smoke-executor-db-20260921",
+      "database_id": "81d44533-40d9-4544-a03d-81a01e2719ae",
+      "migrations_dir": "../../outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20260921/migrations/executor"
+    }
+  ],
+  "services": [
+    {
+      "binding": "SMOKE_SITE",
+      "service": "arc-v8-smoke-site-20260921"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "EXECUTOR_RECEIPTS",
+      "bucket_name": "arc-v8-smoke-receipts-20260921"
+    }
+  ],
+  "workflows": [
+    {
+      "binding": "RESEARCH_WORKFLOW",
+      "name": "arc-v8-smoke-workflow-20260921",
+      "class_name": "ResearchWorkflow"
+    }
+  ],
+  "triggers": {
+    "crons": []
+  }
+}

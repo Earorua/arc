@@ -1,0 +1,50 @@
+{
+  "name": "arc-v8-smoke-site-20260921",
+  "account_id": "54eaadb89014252836694203c1e22546",
+  "main": "../../outputs/local-durable-executor-20260914/task15-smoke/build/cloud/task15-cloud-candidate-20260921/site.js",
+  "compatibility_date": "2026-05-15",
+  "workers_dev": true,
+  "preview_urls": false,
+  "routes": [],
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "ARC_ENVIRONMENT": "test",
+    "ARC_AI_ENABLED": "true",
+    "ARC_AI_RESEARCH_ENABLED": "true",
+    "ARC_AI_RESEARCH_PROFILE": "kimi-low-output32k-v3",
+    "ARC_AI_USER_DAILY_QUOTA": "3",
+    "ARC_AI_RATE_LIMIT_PER_MINUTE": "2",
+    "ARC_AI_MODEL_RESEARCH": "moonshotai/kimi-k3",
+    "ARC_AI_MODEL_ECONOMY": "test/economy-fixed",
+    "ARC_AI_RESEARCH_TIMEOUT_MS": "1200000",
+    "ARC_AI_REPAIR_TIMEOUT_MS": "10000",
+    "ARC_AI_RESEARCH_CACHE_DAYS": "14",
+    "ARC_AI_SITE_DAILY_BUDGET_MICROS": "20000000",
+    "ARC_AI_SITE_MONTHLY_BUDGET_MICROS": "100000000",
+    "ARC_AI_RESEARCH_MAX_COST_MICROS": "5000000",
+    "ARC_AI_REPAIR_MAX_COST_MICROS": "0",
+    "ARC_AI_IP_HASH_SALT": "synthetic-test-salt-value",
+    "ARC_AI_RESEARCH_EXECUTOR": "cloudflare-workflow-v1",
+    "BETTER_AUTH_URL": "https://arc-v8-smoke-site-20260921.23711031.workers.dev",
+    "ARC_AI_RESEARCH_EXECUTOR_URL": "https://arc-v8-smoke-executor-20260921.23711031.workers.dev",
+    "ARC_AI_RESEARCH_SITE_TO_EXECUTOR_KEY_ID": "smoke-site-20260921",
+    "ARC_AI_RESEARCH_EXECUTOR_TO_SITE_KEY_ID": "smoke-executor-20260921",
+    "SMOKE_CONTROL_KEY_ID": "smoke-control-20260921"
+  },
+  "d1_databases": [
+    {
+      "binding": "SMOKE_SITE_DB",
+      "database_name": "arc-v8-smoke-site-db-20260921",
+      "database_id": "fe4952d0-da78-4c85-b1fa-8a5706d42fa3",
+      "migrations_dir": "../../outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20260921/migrations/site"
+    }
+  ],
+  "services": [
+    {
+      "binding": "SMOKE_EXECUTOR",
+      "service": "arc-v8-smoke-executor-20260921"
+    }
+  ]
+}
