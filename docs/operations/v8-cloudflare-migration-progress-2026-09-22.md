@@ -1,3 +1,333 @@
+
+## Saved checkpoint r126 — 2026-10-18T13:36:02.425Z
+
+用户要求保存并暂时关闭 Codex；目标工具已实际返回 paused。Task2 修正版已通过独立 SPEC、另一位 QUALITY，正式配置生成与三项静态部署预演均通过，root 验收 SHA-256 3631c15948b204cfecd02f5e134e581e19a1bc1f90b3e34d093903d46b0d4fa0。这些本地步骤已完成，不得重复运行；Task3 命令和完整交接计时尚未开始。全部代理已结束，无运行中的本机任务。
+
+用户要求必要审核但不过度审核：沿用未改动的验收证据，只针对真实改动与关键连接处补测。演练前剩 Task3 两轮代码审查。用户也希望尽早体验真实 Research；已开始只读核对受限测试路径，找到已构建的 r5 关闭候选，尚未创建实际测试环境或授权模型调用。调整测试顺序仍需形成具体可执行方案；不得借此公开启用或跳过数据保护。
+
+本轮没有云端变更、控制请求或模型调用；最后原生观察仍为 2026-10-18T08:12:32.390Z，仅作历史依据。完整目标还需受限环境、一次有新限额授权的真实测试、剩余完整故障/回放验收，以及数据迁移和公开发布验收。
+
+恢复先读 C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\save-handoff-r126.md。检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r126.json；SHA-256 bdffa26ba1864a1eb6905e49588748ecc5cb70925d8ebb13af59fe34a3926e1c。恢复口令：继续 Arc v8，从 r126 保存检查点继续，优先核对受限真实 Research 测试路径。
+
+
+## Active continuation r125 — 2026-10-18T13:08:19.063Z
+
+Task2 修正版 scenario-ops-r2 已冻结，SHA-256 e859f9ddf3e52c94c034f28a12c83cc2c321417900c12e387b39b3370f3b825d。26 个运行文件仅 evaluate.mjs 有两处小范围修改；实际启动操作保持字节不变。新增回归先复现 2 项失败，修正后 7 项全部通过，17 种占用状态均拒绝新激活。最终 73 项相关测试、38 项语法检查、10 项无参数拒绝检查通过。旧 143 个文件及 2,104 个冻结引用保持原样。
+
+独立 SPEC 已交接给 snapshot_scenario_spec_resume；其完成后由另一位 QUALITY 复核。root 已核对 9 项交付引用。尚未正式准备或部署预演；Task3 完整路径计时尚未完成，单次本地检查 2.788 秒不能替代它。无新增云端操作或模型调用，无待用户输入。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r125.json；SHA-256 ece2c1072e995eb46b24a867c079847b21ad8ab7f827864d3912434a316e18ed。
+
+
+## Active continuation r124 — 2026-10-18T12:50:41.966Z
+
+Task2 独立 SPEC 已通过；另一位 QUALITY 复现并确认一项阻塞问题：历史激活证明错误地重新要求当前交接、控制、回执和报告目录为空。首次合法记录会导致后续校验失败。原候选与全部审查证据保持冻结，禁止正式准备或部署预演。
+
+已安排在新 scenario-ops-r2 中进行局部修复和先失败后通过的组合回归，保留每次实际首次激活前的完整空目录检查以及原始证据、时钟和权限校验。修复后重新独立 SPEC、另一位 QUALITY，再进行 root 准备；Task3 完整终端交接与计时仍在后续。当前无新增云端操作，不需要密钥 C。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r124.json；SHA-256 0782f284a346c3219126cfd1c6169f7cd62adc867639ba3121c4935ae3b15944。
+
+
+## Active continuation r123 — 2026-10-18T12:39:28.281Z
+
+Task2 独立 SPEC 已通过，正式记录 SHA-256 dd66b22d304fe2a9cf0afde1104ec5be50aed3cccce5f412252d508ff4246de9，时间 2026-10-18T12:37:57.655Z。审查新增 59 项离线测试通过，核对 2,067 个冻结文件，独立重建 1,576 文件的子进程依赖清单，并用完整 18 项迁移在内存数据库核对 60 条固定查询；另核对未知写入、原始时钟、清理、账户/结果标识和预算边界。root 已回读并核对审查记录、说明及全部证据引用。
+
+另一位独立 QUALITY 审查者 snapshot_scenario_quality 正在检查同一冻结版本。尚未正式准备、部署预演、Task3 交接计时或云端演练；无新增云端操作或模型调用。无需密钥 C。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r123.json；SHA-256 0b74bc93a2c7b5063555e75fe6b1e8225357270752651a35a0ada6b057a87c35。
+
+
+## Active continuation r122 — 2026-10-18T12:28:25.683Z
+
+用户已从 r121 明确恢复；目标工具实查为 active。r121 检查点、交接、Task2 冻结实现、SPEC 中途交接及批准方案共 6 项引用一致，79 个正式输出仍缺席，原工作分支未变。独立 SPEC 由 snapshot_scenario_spec_resume 接续，从 evaluate.mjs 与故障/回执/回放/恢复/预算和依赖清单开始完成剩余审查。保留全部原始记录，不重跑已验收数据库初始化与 Task1 组装。
+
+尚无 Task2 SPEC PASS、QUALITY、正式准备或新云端演练；本次恢复没有新增云端调用，不需要密钥 C。完成审查后按既定顺序继续，不把本地证据当作线上验收。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r122.json；SHA-256 5df860fdce9bdd48a71afc96786dd36c5f3a9a4d78e21652edf760ce8f020ac2。
+
+
+## Saved checkpoint r121 — 2026-10-18T11:17:23.499Z
+
+用户要求保存当前进度。Schema QUALITY、两库初始化和 Task1 构建组装已验收；Task2 实现冻结，66/66 本地测试通过，独立 SPEC 尚未完成并已停止在可恢复位置，未签发 PASS，QUALITY 尚未开始。所有任务代理已结束，无未完成的本机执行会话。
+
+下次先读取 C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\save-handoff-r121.md，从独立 SPEC 的 evaluate.mjs 与执行/回执/回放/清理链继续；随后另一位 QUALITY、root 准备及三项静态预演，再进行 Task3 终端命令与完整计时。不得重跑已消费的 schema 初始化或 Task1 组装，不得运行旧启动命令。
+
+最近云端回读仍为 2026-10-18T08:12:32.390Z，此后无云端调用；未启动新演练、控制请求或真实模型。最后观察的接单/维护关闭、Cron 为空只作历史依据。无需密钥 C。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r121.json；SHA-256 d512f03a2f19aa3c68331cb7007c1019a21134d852739bbde9b63f6c512bb1cb。恢复口令：继续 Arc v8，从 r121 保存检查点继续，先完成 Task2 演练工具的独立 SPEC 审查。
+
+
+## Active continuation r120 — 2026-10-18T11:07:39.381Z
+
+Task2 演练工具已冻结，独立 SPEC 正在审查。最终本地记录为 66/66 测试、38 项语法检查、10 项无参数拒绝检查通过；root 核对 9 项交付引用及 79 个正式输出缺席。固定 namespace 为 20261017-snapshot-r1。冻结 SHA-256 e378c8a16c0d9c5e949e098d870851e6c39ea08402776ea58d55134a42bc659b。
+
+候选操作预算为 7,022,000 ms（117 分 2 秒），零未匹配启动时需 254 行，容量上限仍为 256；这只是固定上限与本地准备结果，尚未证明实际网络时延或完整终端交接适配。Task3 完整计时、终端命令及独立审查仍待完成。当前只读本地校验实测约 2.105 秒，不能替代完整终端路径计时。
+
+Schema QUALITY、数据库初始化和 Task1 组装已验收。最近云端观察仍为 2026-10-18T08:12:32.390Z，之后无新增云端操作；未启动新演练或真实模型。用户未暂停，无需密钥 C。下一步完成 SPEC、另一位 QUALITY，再由 root 单次准备并完成三项静态部署预演，之后才整合 Task3。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r120.json；SHA-256 0400d55ea87dce7654a0f8819f9db2fadf4c9c3a3984074b18ead604df01281a。
+
+
+## Active continuation r119 — 2026-10-18T09:51:50.455Z
+
+Task1 修正候选已通过独立 SPEC、另一位 QUALITY 和 root 验收。正式构建交接文件已单次生成并回读核对，两个 JS 及其来源清单与已验收文件逐字节一致；报告 SHA-256 0307f90a50137a2c176d0576d1c4ca60137822d3ae8388f6043ba3261bd7753f，root 组装验收 a24416ce7e0424c7d1226fbae396a42fa16a6d9b78e4c5f6aad7e6bcc0d76919。前代失败候选及所有记录保留。
+
+Task2 新演练场景工具正在独立实施，范围为五个 Workflow、新库和新构建报告、正确结果包标识、故障即时核对以及完整回放/清理。之后仍须 SPEC、QUALITY、root 准备及启动器整合。最近云端观察仍为 2026-10-18T08:12:32.390Z，之后无云端操作；未启动新演练或真实模型，不需密钥 C。用户未暂停。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r119.json；SHA-256 968bf3676ca02ad74c2fe7bd821a2f82af2eb0653f8e4ece37d80f9f2cc222d3。
+
+
+## Active continuation r118 — 2026-10-18T09:24:32.089Z
+
+Task1 首个候选的独立 SPEC 发现非真实日期会被解析器自动规范化的问题，已保留全部原始代码与失败证据。修正后的 driver-artifact-ops-r2 已冻结，实施者报告 77/77 本地测试通过；root 已核对四项新冻结引用及前代记录，独立 SPEC 复审进行中，QUALITY 和正式组装尚未进行。Schema QUALITY 与初始化已完成，最近云端观察仍为 2026-10-18T08:12:32.390Z，之后无云端操作。无需密钥 C，用户未暂停。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r118.json；SHA-256 d32c787f1ebfa4df045825a727a1f53ea66b0fbae6a713ce2af039139e2b9cf4。
+
+
+## Active continuation r117 — 2026-10-18T08:52:28.433Z
+
+Schema QUALITY 与新两库初始化已验收；最近实际云端回读仍为 2026-10-18T08:12:32.390Z，接单、维护关闭、Cron 为空，无新 Workflow 实例。之后没有新增云端操作。Task1 构建交接工具已冻结，实施者报告 56/56 本地测试、7 项语法检查和 6 项命令入口检查通过；root 核对四项冻结引用及正式输出缺席，独立 SPEC 正在审查，QUALITY、root 组装仍待完成。未启动新演练，无需密钥 C，用户未暂停。
+
+检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r117.json；SHA-256 dadb45c62ba44d473d43ebfa7eef8d6ad7f90044067e6ac3b565054adc8a336d。
+
+
+## Active continuation r116 — 2026-10-18T08:15:47.932Z
+
+Schema QUALITY 已通过（18/18 新增独立检查），root 已验收工具并单次初始化新两库；49 张 Site 业务表、9 张 Executor 业务表、全部 18 项迁移及初始数据经过最终完整云端回读核对。实际观察时间 2026-10-18T08:12:32.390Z，接单、维护关闭，Cron 为空，新 Workflow 无实例。Schema 验收 SHA-256 35d07ffeb78ebe25030c6d038fb9a1c78c395b4e82663717cba533833784b584。本轮共 85 次固定只读命令和 2 次迁移命令，无部署、启动、控制请求或真实模型调用。
+
+正在按既定计划实施 Task1：把已验收的修复后 Site 与原 Executor 字节组装为安全启动器可核对的构建报告，随后分别 SPEC、QUALITY、root 验收；尚未生成新启动命令，无需密钥 C。用户未暂停，工作继续。检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r116.json；SHA-256 27c2b12022e5fcafbd8a686c23c1c051cb74c50602048f7b68d64173790651ed。
+
+
+## Active continuation r115 — 2026-10-18T07:44:48.320Z
+
+用户已从 r114 明确恢复。检查点、交接、冻结实现和 SPEC 引用匹配；QUALITY 独立审查已恢复，先检查并运行保留的两份未执行审查源码。尚未有 QUALITY PASS、本地准备、数据库初始化或新的云端操作；不需密钥 C。原有云端观察只作历史身份依据，实际变更前必须重新完整读取。目标工具仍显示 paused 且无恢复写接口，本次工作根据用户明确恢复指令处于 active。
+
+恢复检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261018\resume-checkpoint-r115.json；SHA-256 63151632417fe611850ef21a3476d011e85c5f62a9104636ec62308e4d99bbfd。
+
+## Paused checkpoint r114 — 2026-10-17T10:21:31.155Z
+
+用户明确要求保存并关闭 Codex，目标工具已返回 paused。Schema 实现冻结且独立 SPEC 已通过；QUALITY 在运行测试前停止，两份未执行审查源码保留，未出具 PASS。审查代理确认没有运行中的自有子进程或会话。尚未本地准备、初始化数据库或启动新演练；没有新增云端操作、控制请求或真实模型调用。最近实际云端回读仍为2026-10-17T09:30:39.804Z，接单/维护关闭、Cron为空，新两库与新Workflow实例列表为空；该历史记录不可当作新鲜操作门槛。
+
+恢复先读 C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261017\pause-handoff-r114.md，完成 QUALITY 后再由 root 准备和核对，并执行新的分阶段 schema 原生读取及单次迁移。R2 对象列表为空的用户回复已记录，不必重复询问。所有旧命令与时钟不可复用。新启动脚本还须修正旧30秒本机检查上限与约45–47秒完整校验的矛盾。
+
+恢复检查点：C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261017\resume-checkpoint-r114.json；SHA-256 b6d801d24f110c59705c925cbe479930282be6fe6372e69818f88f6dbb822ad4。恢复口令：继续 Arc v8，从 r114 暂停检查点继续，先完成 schema QUALITY 审查。
+
+
+## Active continuation r113 — 2026-10-17T10:02:23.939Z
+
+Schema implementation is frozen: 60 focused tests, one actual accepted-graph check, 18 syntax checks and six guarded CLI refusals passed. Independent SPEC is active; QUALITY and root acceptance/preparation remain pending. No schema application or additional cloud operation occurred. Both new Workers remain at the previously observed closed pair, with new empty databases and empty primary Workflow. No user input is pending.
+
+The new scenario continuation plan records the repaired-Site driver report compatibility, production package-ID and primary Workflow modification-time corrections, and measured local timing requirements. It is a plan only; no scenario tool or C command has been released. Checkpoint: C:\Users\XF\Documents\Codex\2026-07-26\sites-plugin-sites-openai-bundled-2\.worktrees\v8-openrouter-research-beta\outputs\local-durable-executor-20261017\resume-checkpoint-r113.json.
+
+
+## Active continuation r112 — 2026-10-17T09:34:14.516Z
+
+Both new closed deployments and native paired mapping passed. Site d427c1d2-87e6-44fd-9392-4374d3ea7016; Executor 0eaeec45-6d8f-4b25-a06d-c7b1ccb68308; new Workflow 0461e04e-0639-40dc-899a-b4b147887339. The four old Workflow identities/rosters are preserved, the new roster is empty, both new databases are empty, R2 is private, and admission/maintenance/Cron remain closed. No new Research or model call occurred. Root acceptance SHA-256 d3fae9f364e8015a41dd1b1204d5fd6cb75db631194941a5ffc2168873b0d637.
+
+Schema implementation is active under the fixed approved plan; no schema application has occurred. Finish separate SPEC/QUALITY/root review, then the new live schema gates and one-shot migrations. The user R2 Objects-empty response is already accepted; no user input is pending. Task15/16/17 remain incomplete.
+
+Checkpoint: C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/v8-openrouter-research-beta/outputs/local-durable-executor-20261017/resume-checkpoint-r112.json.
+
+
+## Active continuation r111 — 2026-10-17T09:16:41.417Z
+
+No-start SPEC r2 and independent QUALITY r2 passed; root completed actual local preparation and accepted the frozen package. The first new native closed collection is running. No new deployment, schema initialization, Workflow start, control call or model call has yet been confirmed. The R2 Objects-empty answer is already recorded; no user input is pending. Work remains active.
+
+Checkpoint: C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/v8-openrouter-research-beta/outputs/local-durable-executor-20261017/resume-checkpoint-r111.json.
+
+## r110 active continuation — 2026-10-17T08:37:06.813Z
+
+Closed-deployment tooling is under local correction after independent SPEC found an omitted dynamic runtime dependency. The first FAIL/audit remain immutable; corrected r2 SPEC and different QUALITY review are required before successful preparation or cloud execution. Three new resources and both manifest dry runs remain accepted. No new deployment, schema, Workflow start, control or model call has occurred. Work remains active under the user’s resumption; no pause or goal completion was requested.
+
+Checkpoint: `outputs/local-durable-executor-20261017/resume-checkpoint-r110.json`; SHA-256 `74694c979730975767d635465f54e669c7374cfc2cd253d025d78e6ebed57081`. Detailed ongoing work is in `outputs/local-durable-executor-20261017/continuation-from-r107.md`.
+
+> 当前进展（2026-10-17T07:51:14.860Z）：[r109](../../outputs/local-durable-executor-20261017/resume-checkpoint-r109.json)。新演练配置已通过规格与质量审查、生成和两份本地部署预演；18项迁移与五个Workflow声明核对通过。正在实施固定关闭部署与原生回读工具，尚未部署、绑定新资源、应用schema或启动演练。继续工作中；无需输入密钥C。旧观察时限与旧启动命令不可复用，Task15/16/17仍未完成。
+
+> 当前进展（2026-10-17T07:18:40.603Z）：[r108](../../outputs/local-durable-executor-20261017/resume-checkpoint-r108.json)。用户已恢复工作，本轮资源工具通过独立规格与质量审查；两轮各27项原生核对通过，旧任务保持关闭清理完成。三个新 snapshot 资源均已创建回读，私有访问和用户 Objects 空列表核对通过；尚未绑定、应用 schema 或启动新演练。正在实施新 no-start 本地清单，之后独立审查。详情见 continuation-from-r107.md；旧命令和时钟不可复用，Task15/16/17及公开 Research 仍未完成。
+
+> 当前恢复点（2026-10-17T03:42:19.884Z）：[r107](../../outputs/local-durable-executor-20261017/resume-checkpoint-r107.json)。用户明确暂停，目标工具返回 paused。新资源工具部分本地实施已有15项检查通过，完整观察/创建工具、材料绑定和独立审查尚未完成；实现代理已停止，本地测试已退出。本轮没有云端读取/写入、资源创建、部署、控制请求或模型调用；浏览器仅列出可用标签。原任务已确认、清理并关闭排空的历史证据保持。恢复后先读新 pause-handoff-r1.md，不运行旧命令。
+
+> 当前恢复点（2026-10-16T17:42:33.725Z）：[r106](../../outputs/local-durable-executor-20261016/resume-checkpoint-r106.json)。用户明确暂停，目标已设为 paused。原任务回执确认、R2 正文清理、维护关闭、两轮延迟排空及有限调度观察已完成；新一轮演练尚未实施或启动。下一步适配并审查新的 Task15 准备材料，之后再核对当前云端状态和用户输入条件。所有旧命令与时钟不可复用，Task15/16/17 及公开 Research 尚未完成。
+
+> 当前恢复点（2026-10-16T17:30:12.422Z）：[r105](../../outputs/local-durable-executor-20261016/resume-checkpoint-r105.json)。原任务已确认、正文清理已独立验证、维护已关闭且延迟排空通过。下一步准备剩余 Task15 验收；完整历史保留于 r104。
+
+> 当前恢复点（2026-10-16T17:28:02.276Z）：[r104](../../outputs/local-durable-executor-20261016/resume-checkpoint-r104.json)。原任务回执、R2 正文清理、维护关闭和延迟排空核对已完成。继续阅读 after-r3-settlement-next-steps.md，携带已审查的修正与 r5 本地成对构建准备新的有限 Task15 云端模拟验收；原 r9 不能补记通过，任何旧 start/status/replay 命令不得重跑。先完成新材料再确认用户是否方便隐藏输入 C。真实模型验收须新的明确限额授权；Task16/17 和公开发布尚未完成。
+
+> 当前恢复点（2026-10-16T17:12:15.840Z）：[r103](../../outputs/local-durable-executor-20261016/resume-checkpoint-r103.json)。原任务确认、清理标记及 R2 正文移除已核实：固定对象为 615 字节规范清理凭据。维护已关闭，等 2026-10-16T17:20:26.475Z 后按现有 r3 工具做 drain-first，再从首轮结束起至少等待 60 秒做 drain-second，最后 scheduled。总截止 2026-10-16T17:42:52.009Z，不得续期、重跑 begin/close 或启动新任务。
+
+> 当前恢复点（2026-10-16T17:06:45.096Z）：[r102](../../outputs/local-durable-executor-20261016/resume-checkpoint-r102.json)。原模拟任务的回执确认、投递完成和清理标记已通过详情核对，全部待处理计数归零；维护关闭部署和原生回读已通过。须等实际关闭结束后的 931 秒传播时间，再完成两次间隔至少 60 秒的原生排空核对和 95 秒调度观察。源码显示 R2 清理是把正文替换为清理凭据，不能要求键消失；对象列表仍显示旧大小，须独立只读核对真实对象是否为匹配的规范清理凭据，不保存或输出原文。不得重跑 begin 或 close，不得续期既有时钟。Task15/16/17 及公开 Research 尚未验收。
+
+> 当前恢复点（2026-10-16T16:56:43.931Z）：[r101](../../outputs/local-durable-executor-20261016/resume-checkpoint-r101.json)。r3 Site 修复已部署并通过原生回读。仅观察同一原任务，在固定 12 分钟期限及最多两次已提交投递状态变更内核对确认与清理；最多六次手动详情检查，保留第七次给关闭前核对。确认原任务完整结算、清理时间和全部待处理计数后才关闭维护。不得重跑 begin、启动任务或调用模型。
+
+> 当前恢复点（2026-10-16T16:52:13.087Z）：[r100](../../outputs/local-durable-executor-20261016/resume-checkpoint-r100.json)。新的 r3 原任务确认修复工具、独立审查与本地部署预演已就绪。尚未创建新时钟或部署。下一步在唯一新目录开始有限云端核对，若原任务仍待确认且原生前身完全匹配，执行一次已审查的 Site 修复；只在原任务回执、清理和所有待处理计数核对通过后关闭维护。所有旧时限不可复用，不需密钥 C，不得启动新任务。
+
+> 当前恢复点（2026-10-16T16:24:27.695Z）：[r99](../../outputs/local-durable-executor-20261016/resume-checkpoint-r99.json)。本地 r3 批量读取修复已通过规格与质量审查、784 项回归、两项类型检查、新关闭成对构建及隔离产物复现。继续冻结并独立审查新的有限云端工具与部署预演，再对原任务进行新鲜原生核对和单次修复。所有旧时限已过期；原任务回执和清理尚未通过，维护保持开启。不得重跑 r9 启动或请求密钥 C。
+
+> 当前恢复点（2026-10-16T15:55:18.915Z）：[r98](../../outputs/local-durable-executor-20261016/resume-checkpoint-r98.json)。继续已授权的本地 r3 严格导入上下文批量读取修复，先失败回归再实现，通过规格及质量审查后重新构建。原任务仍未确认、未清理，维护保持开启；所有旧操作时限已过期，不可复用。新的有限云端修复必须另行冻结实际构建与当前原生前身，正确使用已提交投递状态变更计数，不冒称实际发送次数上限。
+
+> 当前恢复点（2026-10-16T14:36:45.006Z）：[r97](../../outputs/local-durable-executor-20261016/resume-checkpoint-r97.json)。用户明确暂停。修正已部署，原任务状态以保存的回读为准；恢复时先只读核对原任务和部署版本。旧时限不得续期，不重跑 begin；达到完整结算条件后再按有效关闭方案停止维护。 原 r9、Task15/16/17 仍未验收，公开 Research 未启用；不重提任务、不调用真实模型。
+
+> 当前恢复点（2026-10-16T14:30:38.081Z）：[r96](../../outputs/local-durable-executor-20261016/resume-checkpoint-r96.json)。等待本次 begin 结束并检查真实部署与回读结果，禁止重跑 begin。 原 r9、Task15/16/17 仍未验收，公开 Research 未启用；不重提任务、不调用真实模型。
+
+> 当前恢复点（2026-10-16T14:30:18.436Z）：[r95](../../outputs/local-durable-executor-20261016/resume-checkpoint-r95.json)。独立审查已通过；只运行本次独立修复工具 begin，先验证现网前身，再更新隔离 Site。 原 r9、Task15/16/17 仍未验收，公开 Research 未启用；不重提任务、不调用真实模型。
+
+> 当前恢复点（2026-10-16T14:11:32.908Z）：[r94](../../outputs/local-durable-executor-20261016/resume-checkpoint-r94.json)。本地确认修复已通过独立规格/质量审查和成对构建校验；继续独立云端修复工具审查与部署预演。旧 r9 与第一次修复窗口不得复用，原任务保留维护，不启动新任务或调用真实模型。 公开 Research 尚未启用。
+
+> 当前恢复点（2026-10-16T13:44:43.829Z）：[r93](../../outputs/local-durable-executor-20261016/resume-checkpoint-r93.json)。等待只读诊断结束，完成本地已完成回执的严格确认修复、测试和独立审查；不重复部署，不运行旧 r9 命令，不调用模型。 公开 Research 尚未启用。
+
+> 当前恢复点（2026-10-16T13:36:21.625Z）：[r92](../../outputs/local-durable-executor-20261016/resume-checkpoint-r92.json)。隔离 Site 修复已部署，但观察到的投递次数由 19 增至 21 后仍未确认。停止本修复计划内的后续写操作，保留维护和原任务，转入本地延迟复现与根因诊断。 不要重跑原命令。公开 Research 仍未启用。
+
+> 当前恢复点（2026-10-16T13:26:36.085Z）：[r89](../../outputs/local-durable-executor-20261016/resume-checkpoint-r89.json)。隔离 Site 确认修复已部署并原生回读；继续核对原任务投递与清理。 不要重跑原命令。公开 Research 仍未启用。
+
+> 当前恢复点（2026-10-16T13:24:08.181Z）：[r88](../../outputs/local-durable-executor-20261016/resume-checkpoint-r88.json)。隔离确认修复正在进行；演练入口仍关闭，维护保留。 不要重跑原命令。公开 Research 仍未启用。
+
+> 当前恢复点（2026-10-16T13:04:21.121Z）：[r87](../../outputs/local-durable-executor-20261016/resume-checkpoint-r87.json)。原 LONG 已完成，投递确认尚未完成；本地修复和 213 项测试通过，隔离修复尚未部署。新任务入口关闭，维护保留。Task15/16/17 和公开 Research 均未完成。
+
+> 当前恢复点（2026-10-16T12:30:53.506Z）：[r84](../../outputs/local-durable-executor-20261016/resume-checkpoint-r84.json)。新任务入口已关闭并回读；仍须核对原任务投递确认及维护收尾。 不要重跑原命令。本次不调用 OpenRouter，Task15/16/17 与公开启用未完成。
+
+> 当前恢复点（2026-10-16T12:25:55.163Z）：[r83](../../outputs/local-durable-executor-20261016/resume-checkpoint-r83.json)。原任务 Workflow 已完成、网站 Ready，模拟耗时约19分30秒；完整验收被 package_id 格式解析和更新时间比较规则阻挡。旧关闭流程尚未部署；正在以独立、有限的关闭检查收尾。 不要重跑原命令。本次不调用 OpenRouter，Task15/16/17 与公开启用未完成。
+
+> 当前恢复点（2026-10-16T11:52:17.173Z）：[r82](../../outputs/local-durable-executor-20261016/resume-checkpoint-r82.json)。r9 已完成真实终端交接并收到 accepted，退出码0，原提交程序于 2026-10-16T11:48:15.257Z 退出。静默期截至 2026-10-16T12:07:45.257Z（北京时间20:07:45），期间不得查询云端；随后只核对原任务，不重复启动。本次为模拟任务，不调用 OpenRouter。Task15/16/17 和公开启用仍未完成。
+
+> 当前恢复点（2026-10-16T10:59:37.359Z）：[r80](../../outputs/local-durable-executor-20261016/resume-checkpoint-r80.json)。用户 r8 首次回车已生效，准备子进程因缺少 observations 父目录而失败；原始记录与离线真实路径核对确认在云端读取前停止。r8 已消费，不可重跑。正在新 r9 中共享完整目录初始化并补真实文件系统回归，随后独立审查。当前不需要用户输入密钥；新命令尚未发布，Task15 和公开启用仍未完成。
+
+> 当前恢复点（2026-10-16T11:40:04.415Z）：[r81](../../outputs/local-durable-executor-20261016/resume-checkpoint-r81.json)。r8 初次回车已收到，失败原因是本机准备缺少运行目录；原命令在云端调用前退出，已保留全部83文件/4目录并完成核对，不得重跑。r9 已修正完整目录初始化，并通过58项相关回归、8项验收脚本回归、独立规格/质量审查、三项本地部署预演、实际冷目录准备与 PowerShell 有界检查。新首次命令已准备，等待用户亲自运行一次，模板截止 2026-10-17T11:38:26.047Z；尚无 r9 实际用户调用、云端激活或模型调用。Task15/16/17 及公开启用仍未完成。
+
+
+> 当前恢复点（2026-10-16T10:46:44.902Z）：[r79](../../outputs/local-durable-executor-20261016/resume-checkpoint-r79.json)。r8 首条命令已交付，本地核验已通过；连续三轮仍未观察到用户实际运行记录，目标状态为 blocked，等待本人完成提示确认及本机隐藏输入 C。没有新增云端操作或模型调用，Task15 与公开启用仍未完成。原 r8 材料有效期至 2026-10-17T10:36:15.864Z，未续期或重发。恢复时先核对原始运行记录；已有尝试不得重跑，过期后须重新核对。
+
+> 当前恢复点（2026-10-16T10:37:01.852Z）：[r78](../../outputs/local-durable-executor-20261016/resume-checkpoint-r78.json)。r8 本地整合、独立规格与质量审查、Root 核验和三项实际部署预演通过；最终材料经相同 PowerShell 子进程检查，在 30 秒内正常结束。新 r8 首条命令已准备，等待用户亲自执行及按提示输入。r7 已在首次回车确认处超时且已消费，不能重跑。尚未观察到 r8 实际云端启用；Task15 和 Research 公开启用仍未完成。材料有效期至 2026-10-17T10:36:15.864Z；恢复时先核对是否已有实际运行记录。
+
+> 当前恢复点（2026-10-16T10:14:53.324Z）：[r77](../../outputs/local-durable-executor-20261016/resume-checkpoint-r77.json)。r7 实际命令在第一次回车确认处超时；本地检查子进程正常退出，完整原始记录核对确认本次尚未进入云端准备、启用或密钥输入。r7 已消费且未完成，禁止重跑。用户已允许重新操作，正在新目录准备 r8 并进行针对性回归；尚未发布新命令。历史云端基线仍为已核对关闭的 r6，后续必须重新进行原生检查。Task15 与 Research 公开启用尚未完成。
+
+> 当前恢复点（2026-10-16T10:00:02.664Z）：[r76](../../outputs/local-durable-executor-20261016/resume-checkpoint-r76.json)。本机真实输入检查、r7 静态整合、独立规格与质量审查、Root 核验、三项实际本地部署预演均通过。新的 r7 首条命令已准备，等待用户真实窗口运行及隐藏输入 C；尚未观察到本轮云端启用或模型调用。启动材料到期于 2026-10-17T09:59:48.463Z，恢复时必须先核对是否已有原始运行记录，不能重复执行。Task15 尚未完成；r6 为已关闭的未完成轮次，禁止重跑。
+
+> 当前恢复点（2026-10-16T09:21:47.002Z）：[r75](../../outputs/local-durable-executor-20261016/resume-checkpoint-r75.json)。用户实际本机输入检查 ExitCode 0 已核对，提前输入已清除且新回车生效；r6 历史关闭组件完成 43 项回归、独立规格／质量审查与 Root 复核。正在实施 r7 本地静态整合，尚未发布新云端启动命令。r6 仍为已关闭的未完成轮次，不能重跑。
+
+> 当前恢复点（2026-10-16T08:49:33.884Z）：[r74](../../outputs/local-durable-executor-20261016/resume-checkpoint-r74.json)。r6 云端关闭、两次延迟排空及独立观察已核对完成，本轮无任务启动/模型调用。输入修正完成本地回归、独立规格与质量审查；只交付了不联网、不需密钥的本机检查命令，等待实际结果。不要重跑 r6；新演练命令尚未生成或发布。
+
+> 当前恢复点（2026-10-16T08:29:29.008Z）：[r73](../../outputs/local-durable-executor-20261016/resume-checkpoint-r73.json)。r6 因第二提示前存在输入而停止；云端入口和维护已关闭并回读，延迟排空检查运行中。不要重跑 r6；无需用户输入。并行修正本地输入交互，尚未验收或发布新命令。
+
+> 当前恢复点（2026-10-16T06:57:36.866Z）：[r72](../../outputs/local-durable-executor-20261016/resume-checkpoint-r72.json)。用户已确认现在方便，r6 首次不可变命令已生成并交付，等待实际终端结果；尚未据此证明云端接单。禁止重跑或使用旧命令；后续按原任务记录核对，并遵守 LONG 静默期。
+
+> 当前恢复点（2026-10-16T06:50:57.640Z）：[r71](../../outputs/local-durable-executor-20261016/resume-checkpoint-r71.json)。本地成对构建、数据库结构准备和私有执行器初始化包均已验收；初始化包完成独立规格/质量审查与实际本地部署预演，未部署。Task15仍等待用户确认在场时间；没有新建云端任务、使用模型或改动公开网站。
+
+> 当前恢复点（2026-10-16T06:36:01.508Z）：[r70](../../outputs/local-durable-executor-20261016/resume-checkpoint-r70.json)。本地成对构建已验收；新增受限环境初始化计划，以及17项迁移、网站48表/执行器7表的本地结构核对资料。Task15仍等待用户确认在场时间；未启动云端命令、创建真实资源或调用模型。
+
+> 当前恢复点（2026-10-16T06:20:03.321Z）：[r69](../../outputs/local-durable-executor-20261016/resume-checkpoint-r69.json)。受限 Research 的网站与执行器已在全新目录完成实际成对构建、独立只读校验和保全验收；203 项本地回归通过，规格与质量复审通过。当前产物使用本地关闭状态的模拟资源清单，尚未部署或公开启用。下一步为需用户在场的云端模拟验收，以及真实受限测试环境的配置和核对；不要运行旧命令。
+
+> 当前恢复点（2026-10-16T05:54:22.774Z）：[r68](../../outputs/local-durable-executor-20261016/resume-checkpoint-r68.json)。网站与执行器均已完成实际编译，独立只读核对通过；最终封存前的 CLI 导入循环导致退出码 13，正在补真实入口回归并修正。200 项本地测试与 r7 规格/质量审查通过，但成对产物尚未验收；下一候选必须新建 r3。没有新增云端部署或模型调用。
+
+> 当前恢复点（2026-10-16T05:26:46.306Z）：[r67](../../outputs/local-durable-executor-20261016/resume-checkpoint-r67.json)。网站实际构建与五阶段依赖图回读已通过；成对构建随后在执行器输入元数据校验处失败，已精确定位两条被编译消除的类型引用。正在限定修正这两条已核实引用，保留运行时外部导入限制；尚无成对产物验收或云端部署。本轮进度、失败目录和诊断均已保存。
+
+> 当前恢复点（2026-10-16T04:36:31.302Z）：[r66](../../outputs/local-durable-executor-20261016/resume-checkpoint-r66.json)。用户已恢复工作。全新隔离诊断确认实际页面编译返回成功，依赖图校验误拒绝 81/1731 项输入，并混淆了框架分析与最终输出阶段；正在按已记录的精确范围修复并补回归，随后独立复审与新目录成对构建。原失败目录与凭据边界保留，本轮无云端操作或模型调用。
+
+> 当前恢复点（2026-10-15T14:20:14.939Z）：[r65](../../outputs/local-durable-executor-20261015/resume-checkpoint-r65.json)。按用户要求暂停。受限构建工具 r4 的异步配置加载修复、140 项测试及独立规格/质量复审通过；Root 的全新 r2 实际构建已输出五阶段 Site 产物，但随后以失败退出，尚未写出依赖图，Executor 与成对验收未完成。恢复时先定位构建收尾/依赖图校验的精确失败点，不重跑或覆盖 r1/r2。674 个基线源文件、96 个历史产物与既有配置保持不变；本轮未部署、读取凭据或调用模型，所有本轮进程和审查者已结束。Task15/16/17 与公开启用仍未完成。
+
+> 当前恢复点（2026-10-15T13:42:52.478Z）：[r64](../../outputs/local-durable-executor-20261015/resume-checkpoint-r64.json)。受限构建工具 r3 的 134 项测试及独立规格/质量复审通过；首次实际构建在异步配置加载处失败。已用独立本地诊断确认 Vite 提前关闭配置加载器，并验证先等待配置工厂完成的修复方向。实施者正在补齐修复与回归，尚无成功成对产物；恢复时先核对最新修复报告。旧源文件与产物均保留，本轮无部署、凭据读取或模型调用，Task15/16/17 仍未完成。
+
+> 当前恢复点（2026-10-15T11:30:03.358Z）：[r63](../../outputs/local-durable-executor-20261015/resume-checkpoint-r63.json)。受限 Research 配置 r2 已修复未知特殊字段拒绝问题，300 项回归、两套类型检查、独立规格/质量复审及 Root 本地验收通过。下一步按已保存计划实施隔离构建与完整成对产物校验；实际新构建尚未运行。已验收私有桥接与 r6 静态/三项 dry-run 保留，尚未生成操作模板或云端命令。本轮无部署、模型调用或凭据读取，Task15/16/17 及公开启用仍未完成。
+
+> 当前暂停点（2026-10-15T06:03:00.298Z）：[r62](../../outputs/local-durable-executor-20261015/resume-checkpoint-r62.json)。用户要求保存并暂时关闭 Codex。r61 私有连接本地验收保留：217 项回归、两项类型检查及独立规格/质量审查通过。本轮只完成受限 Research 配置相关源码的只读检查，实施计划和代码尚未开始，检查笔记已保存。恢复后继续本地配置与构建准备；r6 操作模板、云端命令均未创建或发放。本轮无部署、云端/模型调用或运行中子代理/构建。Task15/16/17 与公开启用尚未完成。
+
+> 当前恢复点（2026-10-15T05:59:06.277Z）：[r61](../../outputs/local-durable-executor-20261015/resume-checkpoint-r61.json)。正式私有桥接已通过 217 项相关回归、两项类型检查、独立 SPEC/QUALITY 与 Root 本地验收；只改变整合候选，未部署。下一项本地工作是受限 Research 测试配置与成对构建校验，设计及历次演练资源排除清单已保存。r6 静态验收和三项 dry-run 保留；用户暂不方便，尚未生成操作模板、发放命令或启动云端任务。Task15/16/17 与公开启用仍未完成。
+
+> 当前恢复点（2026-10-15T05:18:14.227Z）：[r60](../../outputs/local-durable-executor-20261015/resume-checkpoint-r60.json)。r6 独立规格及质量审查、Root 本地验收与三项实际本地 dry-run 已通过。用户暂时不方便，已完成本地准备；尚未生成首次操作模板、发放命令或启动云端演练。待用户方便后再生成并发放新 r6 命令，旧 r5 不得重跑。Task15、16、17 仍待完成；Research 尚未公开启用。当前无活动进程／子代理。
+
+> 当前恢复点（2026-10-15T05:01:15.286Z）：[r59](../../outputs/local-durable-executor-20261015/resume-checkpoint-r59.json)。r6 静态整合已冻结，86 项回归与80项诊断检查通过；完整本地校验17.232秒。正在独立规格审查，随后质量审查、Root 验收与三项本地 dry-run。尚无操作模板、新命令发布或云端调用；旧 r5 不得重跑。
+
+> 当前恢复点（2026-10-15T04:42:05.774Z）：[r58](../../outputs/local-durable-executor-20261015/resume-checkpoint-r58.json)。终端诊断组件与关闭状态校验均已独立审查并由 Root 验收；正在独立目录整合 r6 静态工具。用户本机交接检查已通过，无需重跑。新命令尚未生成或发布，无云端激活及模型调用。下一步静态规格/质量审查、三项本地 dry-run，再生成首次模板。
+
+> 当前恢复点（2026-10-15T04:28:31.106Z）：[r57](../../outputs/local-durable-executor-20261015/resume-checkpoint-r57.json)。关闭记录校验规格通过；质量审查复现返回结果共享引用影响后续调用的问题，正在最小修复并补回归。修复后需规格/质量复审再 Root 验收；不得运行仍绑定旧哈希的关闭验收草稿。终端诊断已验收，用户本机交接通过，无新云端激活或命令。
+
+> 当前恢复点（2026-10-15T04:12:38.809Z）：[r56](../../outputs/local-durable-executor-20261015/resume-checkpoint-r56.json)。终端有限诊断已通过规格与质量审查并获 Root 本地验收（80+23+11 项检查）。正在完成 r5 实际关闭与独立排空记录的重建和审查，随后整合 r6。用户实际本机交接已成功，无需重跑；尚无新云端激活或操作命令。原 r5 根因未知且永久 INCOMPLETE，Task15 未完成。
+
+> 当前恢复点（2026-10-15T03:57:09.676Z）：[r55](../../outputs/local-durable-executor-20261015/resume-checkpoint-r55.json)。用户实际本机交接通过，两次回车和子进程返回均成功。正在实现终端固定阶段/错误码/子进程元数据诊断，并独立审查 r6 后续计划；无需用户重复本机测试。已重建既有关闭与独立排空证据索引，没有新云端调用或操作命令。原 r5 根因仍未确认，Task15 未完成。
+
+> 当前恢复点（2026-10-15T03:47:36.093Z）：[r54](../../outputs/local-durable-executor-20261015/resume-checkpoint-r54.json)。用户确认未按第二次回车，可能错过提示。已准备独立本机 r2 重试，只增加中文和彩色提示，时限和检查不变；PS5 两次回车验证通过。等待用户运行新命令，无需密钥 C，不连接云端。原 r1 证据和已消费 r5 保持不变，历史 r5 根因尚未确认。
+
+> 当前恢复点（2026-10-15T03:34:44.138Z）：[r53](../../outputs/local-durable-executor-20261015/resume-checkpoint-r53.json)。用户实际本机诊断已通过第一次确认和子进程返回，第二次提示余约 90 秒，最终未收到有效回车而超时。正在核对是否及时按过第二次回车；不能据此解释原 r5 的 72 ms 内失败。诊断没有云端、密钥或模型调用。
+
+> 当前恢复点（2026-10-15T03:26:23.475Z）：[r52](../../outputs/local-durable-executor-20261015/resume-checkpoint-r52.json)。用户确认原终端已关闭，历史具体错误无法取回。新的纯本机交接诊断已通过 PS5 正常、提前输入、错误按键、非交互四种验证，等待用户在新终端运行一次；不需要密钥 C，不连接云端。原 r5 根因仍未确认，不重跑旧命令。此前独立关闭和排空核对已完成；Task15 尚未通过。
+
+> 当前恢复点（2026-10-15T00:48:08.467Z）：[r51](../../outputs/local-durable-executor-20261015/resume-checkpoint-r51.json)。独立云端只读检查和延迟稳定排空通过，95 秒观察无调度记录。原 r5 仍未完成且不得重跑，恢复窗口未续期。正常离线交接通过；提前输入分支已复现，但原失败根因仍待原终端错误分类，不能据此放宽检查。当前无活动进程。
+
+> 当前恢复点（2026-10-15T00:42:57.135Z）：[r50](../../outputs/local-durable-executor-20261015/resume-checkpoint-r50.json)。已按用户要求恢复。r5 原恢复窗口已过期且未续期；正在独立只读核对关闭状态。离线 PS5 正常结果交接通过，原失败并非确认窗口到期；等待原终端固定错误分类，根因尚未确认。不重跑 r5，不激活演练，不调用模型。
+
+> 当前暂停恢复点（2026-10-14T14:54:29.744Z）：[r49](../../outputs/local-durable-executor-20261014/resume-checkpoint-r49.json)。用户要求关闭 Codex。r5 准备完成后本机交接失败，未提交 LONG、未调用模型；接单与维护开关已关闭、Cron 配置为空并经原生回读确认。延迟传播、两次排空与调度观察尚未完成，Task15 仍未通过。当前无活动子进程/子代理；旧 r5 禁止重跑，原始恢复窗口不得续期。下次继续本机错误诊断及只读关闭核对。
+
+> 当前恢复点（2026-10-14T14:51:15.452Z）：[r48](../../outputs/local-durable-executor-20261014/resume-checkpoint-r48.json)。r5 已实际激活，原生准备检查完成后本机脚本失败；未提交 LONG、未输入 C、未调用模型。正在执行有界不完整关闭流程，不能沿用旧的已关闭状态，也不能重跑 r5。等待原 PowerShell 固定错误分类。
+
+> 当前恢复点（2026-10-14T14:29:50.083Z）：[r47](../../outputs/local-durable-executor-20261014/resume-checkpoint-r47.json)。用户终端登录验证、新 r5 静态工具独立审查及三项本地 dry-run 均通过。首次命令截止 2026-10-15T14:29:49.925Z，等待用户亲自运行；尚未启动 LONG 或调用模型。不得重跑旧 r4 命令。
+
+> 当前恢复点（2026-10-14T13:56:24.890Z）：[r46](../../outputs/local-durable-executor-20261014/resume-checkpoint-r46.json)。用户 PowerShell 官方登录及预期 Site 只读查询均通过（ExitCode 0）。正在本地准备独立审查的新 r5 交接；旧 r4 已消费，禁止重跑。尚未启动新 LONG，也未调用模型；完整云端状态仍需新一轮原生核对。
+
+> 当前恢复点（2026-10-14T13:45:44.257Z）：[r45](../../outputs/local-durable-executor-20261014/resume-checkpoint-r45.json)。用户终端与 Codex 的登录目录哈希相同，但前者无法看到登录文件。已准备并发出用户端官方 Wrangler 登录及一次只读验证命令，等待结果；无需 C，不部署或启动 Research。不得重跑旧 r4 命令。
+
+> 用户已恢复工作（2026-10-14T13:37:47.174Z）。[r44](../../outputs/local-durable-executor-20261014/resume-checkpoint-r44.json)：原始错误已通过完全相同的 stdout/stderr 哈希确认为 Wrangler 非交互登录凭据不可用；当前 Codex 中同一只读查询成功。等待原终端的登录目录存在性检查，不读取密钥。旧 r4 命令禁止重跑；Task15 未完成，无部署、控制或模型调用。
+
+> 已按用户要求暂停（2026-10-14T13:27:08.851Z）。最新恢复点：[r43](../../outputs/local-durable-executor-20261014/resume-checkpoint-r43.json)。用户实际运行 r4 后 ExitCode 1；首条激活前部署状态查询约 655 ms 退出，子进程已结束。无激活部署、密钥 C 输入、控制或模型调用；当前未发现相关进程。根因尚未确认，Task15 未完成。旧 r4 命令已消费，不要重跑；历史云端关闭状态不是本轮实时回读。恢复语：继续 Arc v8，读取恢复检查点，从 r4 激活前部署状态查询失败的诊断继续。
+
+> 当前恢复点（2026-10-14T13:19:37.099Z）：r4 首次命令窗口修复、独立审查和三项本地 dry-run 已通过，等待用户亲自运行新命令。首次静态包截止 2026-10-15T13:19:36.989Z；实际云端新鲜度与运行时限不变。r3 已在云端准备前过期拒绝，禁止重跑；尚未启动新的 LONG。最新检查点：[r42](../../outputs/local-durable-executor-20261014/resume-checkpoint-r42.json)。
+
+> 已恢复继续（2026-10-14T13:01:50.284Z）：[r41](../../outputs/local-durable-executor-20261014/resume-checkpoint-r41.json)。当前进行 r4 调度前报告范围漏检的本地修复与受影响回归；尚无新用户命令、云端操作或模型请求。
+
+> 已按用户要求暂停（2026-10-14T12:27:04.364Z）。最新恢复点：[r40](../../outputs/local-durable-executor-20261014/resume-checkpoint-r40.json)。r4 规格复审已通过；质量审查发现 evaluate.mjs 第44行未覆盖当前 r4 的9个演练报告目录，尚未修复。独立审查已停止。未进行 r4 Root 验收、dry-run、命令发放或云端启动；不要运行旧命令。恢复语：继续 Arc v8，读取恢复检查点，从 r4 质量审查发现的当前演练报告范围漏检修复继续。
+
+> 最新进展（2026-10-14）：r3 命令实际在北京时间19:54:00执行，晚于19:51:05的固定有效期；只读重放确认在首次确认和云端准备前被拒绝，没有密钥输入、云端部署或模型请求。旧命令不得重跑。正在修复首次命令的领取窗口，运行阶段的新鲜度与时限不变。恢复检查点：[r39](../../outputs/local-durable-executor-20261014/resume-checkpoint-r39.json)。
+
+> 当前恢复点（2026-10-14T11:36:05.435Z）：r3 本地实施、独立审查和三项 dry-run 已通过，首次终端命令已准备，等待用户亲自运行。未据此声称云端接单或 LONG 已启动；Task15 尚未完成。模板截止 2026-10-14T11:51:05.309Z，逾期不要运行旧命令。最新检查点：[r37](../../outputs/local-durable-executor-20261014/resume-checkpoint-r37.json)。
+
+> 当前恢复点（2026-10-14T10:56:52.815Z）：r2 已关闭，两次延迟排空及单独调度观察完成；未启动 LONG，Task15 仍未完成。真实关闭记录已交给 r3 终端交接实施。下一步为最终本地回归、独立审查与新命令准备。最新检查点：[r36](../../outputs/local-durable-executor-20261014/resume-checkpoint-r36.json)。不得运行旧命令。
+
+## 2026-10-14 当前：部署已通过，终端交接超时后已关闭演练
+
+新部署、实际回读、LONG 启动前检查均通过。五分钟激活阶段只给终端输入及两次验证留下不足余量，未发启动命令，也未提交任务。用户已确认终端准备好；当前无需输入 C。该轮保持 INCOMPLETE，不能重跑或续期。
+
+停止接单、关闭维护均已实际部署并回读通过；当前执行器 d77ec49a-767b-4ee7-a9e9-fedbce758c62，admission=false、maintenance=false、Cron=[]、私有，任务和预算占用为 0。最早北京时间 18:47:51.590 开始延迟排空核对；进程 85026 已准备等待并执行，勿重复启动。正在测量并修正终端交接，未调用 OpenRouter，Research 尚未公开启用。
+
+[最新恢复记录](../../outputs/local-durable-executor-20261014/resume-checkpoint-r34.json)
+
+## 2026-10-14 当前：新工具与三项部署预演通过，等待当前配合确认
+
+诊断 R2 已验收；后续部署工具的代理提示兼容修复通过规格及质量复审。新材料、当前文件图和九组命令校验通过；激活、停止接单、关闭维护三项实际本地 dry-run 均成功，尚未实际部署新工具、未启动演练、未调用 OpenRouter。没有运行中的命令或子代理。
+
+由于准备耗时较久，已询问用户现在是否仍方便配合约 1–1.5 小时的模拟验收；等待该回复。收到当前确认后，记录实际回复时间，再执行新鲜完整预检、关闭空闲基线验收、一次部署及云端实际回读，之后才发第一条 C 命令。不要运行任何旧命令。旧失败操作及其已过期的原截止时间不变。Research 尚未公开启用。
+
+[最新恢复记录](../../outputs/local-durable-executor-20261014/resume-checkpoint-r31.json) · [新工具验收](../../outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261013-guarded/root-scenario-tools-successor-acceptance-r2.json)
+
+## 2026-10-14 当前：修复部署诊断与代理提示的兼容问题
+
+新部署工具的 135 项测试与独立规格审查通过；质量审查发现一项整合问题：合法诊断行会令原代理提示识别失败，可能误判成功部署。根代理已独立复现，正在本地修复并保留原审查记录。新工具尚未实际部署，没有新演练任务，也不需要输入 C。
+
+旧操作的原截止时间已过，保持永久 INCOMPLETE，不重跑；最近完整云端观测仍为 17:15:40 的关闭空闲版本，不视为当前实时证明。修复与复审后仍需新鲜云端预检及用户当前配合。Research 尚未公开启用。
+
+[最新恢复记录](../../outputs/local-durable-executor-20261014/resume-checkpoint-r30.json) · [质量发现](../../outputs/local-durable-executor-20261014/deployment-successor-quality-review-r1.md)
+
+## 2026-10-14 当前：诊断修复验收完成，后续部署工具回归中
+
+诊断 R2 的 27 项测试通过，独立规格和质量复审通过，已形成本地验收记录。新 scenario-ops-r2 工具仍在回归，尚未部署。最近完整云端核对结束于北京时间 17:15:40：原关闭版本、任务/未结算预算/观察记录均为 0；这是历史观测，不代表当前实时状态。
+
+原激活失败永久 INCOMPLETE，原截止时间 17:48:22.590 不变，不再执行原操作。新工具必须通过独立审查、独立材料与真实新鲜预检后才能进行一次部署。目前无需输入 C，不要运行旧命令。Research 尚未公开启用。
+
+[最新恢复记录](../../outputs/local-durable-executor-20261014/resume-checkpoint-r29.json) · [诊断本地验收](../../outputs/local-durable-executor-20261014/root-deployment-diagnostic-acceptance-r1.json)
+
+## 2026-10-14 当前：失败部署已保留，诊断审查与独立后续工具实施中
+
+第二次完整只读核对结束于北京时间 17:15:40，仍为原关闭版本，任务/未结算预算/观察记录均为 0。本次激活失败保持永久 INCOMPLETE，原操作和截止时间未改，不重跑原命令。没有运行中的云端任务或命令进程。
+
+安全诊断 22 项测试通过，规格审查 PASS，质量/安全审查中。正在独立 scenario-ops-r2 目录实施后续工具，复用尚未使用的同一数据资源；保留原失败记录，加入诊断和新鲜关闭基线校验。新工具尚未验收，不能部署或启动演练；验收后仍需实际预检与当前用户配合。当前无需输入 C，不必运行旧命令。Research 尚未公开启用。
+
+[最新恢复记录](../../outputs/local-durable-executor-20261014/resume-checkpoint-r28.json) · [后续工具计划](../superpowers/plans/2026-10-14-arc-v8-deployment-successor.md)
+
+## 2026-10-14 当前：激活部署失败，旧关闭版本已核对，有限诊断继续
+
+用户已确认方便配合。完整预检 27/27 通过后，只尝试了一次激活部署；子进程约 8.8 秒后退出 1，未确认新版本。随后完整原生回读及版本列表仍为原关闭版本，任务/未结算预算/观察行均为 0。该操作已消费，禁止重跑；Task15 永久记录为本次未完成，未启动模拟长任务，没有控制或模型调用。旧版本仍为当前不等于新的关闭转换成功。
+
+浏览器审计显示部署前的密钥列表和 Workflow 读取；未看到该次上传/发布事件。四个 Workflow 的独立只读请求均成功，但不能据此断定原始失败原因。正在本地补充只保存白名单错误码的诊断；冻结材料不改。原有限关闭核对截止 2026-10-14 17:48:22（北京时间），不可续期或借此开启新演练。当前无需输入控制密钥 C。独立发布候选的既有本地验收保持有效，公开 Research 尚未启用。
+
+[最新恢复记录](../../outputs/local-durable-executor-20261014/resume-checkpoint-r27.json) · [有限诊断计划](../superpowers/plans/2026-10-14-arc-v8-deployment-failure-metadata.md)
+
 ## 2026-10-14 当前：Task15 本地材料与独立发布候选均已验收，云端演练待有人配合
 
 Task15 工具 Task1–3、签名交接与本地整体验收完成，冻结材料保持不变；实际云端演练尚未启动，仍等待已提出的本次 1–1.5 小时有人值守问题答复。旧输入命令不要重跑；收到答复后必须先做当前原生核对。

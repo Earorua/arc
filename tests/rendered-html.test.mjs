@@ -39,7 +39,9 @@ test("server-renders the Arc landing page", async () => {
   assert.equal(notice.getAttribute("lang"), "en");
   assert.ok(notice.compareDocumentPosition(main) & 4, "development notice precedes main content");
   assert.match(html, /aria-label="Public navigation"/);
-  assert.match(html, /property="og:image" content="https:\/\/arc-precision-path\.jiahe-xu\.chatgpt\.site\/og\.png"/);
+  assert.equal(document.querySelector('link[rel="canonical"]')?.getAttribute("href"), "https://arcmaps.net/");
+  assert.equal(document.querySelector('meta[property="og:url"]')?.getAttribute("content"), "https://arcmaps.net/");
+  assert.match(html, /property="og:image" content="https:\/\/arcmaps\.net\/og\.png"/);
   assert.match(html, /property="og:image:width" content="1672"/);
   assert.match(html, /property="og:image:height" content="941"/);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);

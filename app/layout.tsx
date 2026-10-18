@@ -5,7 +5,7 @@ import "./globals.css";
 
 const title = "Arc. — Learn only what moves you forward";
 const description = "Turn any role into an attributable technology map, a precise daily path, and proof of capability.";
-const siteUrl = new URL("https://arc-precision-path.jiahe-xu.chatgpt.site");
+const siteUrl = new URL("https://arcmaps.net");
 const socialImageAlt = "Arc. — Learn only what moves you forward";
 
 export const metadata: Metadata = {

@@ -13,6 +13,7 @@ import { readResearchBridgeConnection } from "./executor/connection-config";
 import { D1BridgeNonceStore } from "./executor/d1-nonce-store";
 import { ExecutorBridgeClient } from "./executor/executor-client";
 import { BridgeTransport } from "./executor/http-transport";
+import { resolveResearchBridgeFetch } from "./executor/service-binding-transport";
 import { OpenRouterResearchProvider, type OpenRouterResearchConfig } from "./openrouter-provider";
 import { ResearchOrchestrator, type ResearchOrchestratorConfig } from "./orchestrator";
 import {
@@ -62,7 +63,8 @@ export function readResearchProductionConfiguration(
   const selection = readResearchPolicyConfiguration(environment);
   if (!selection) return null;
   if (selection.executor === "cloudflare-workflow-v1") {
-    return readResearchBridgeConnection(environment) ? selection.configuration : null;
+    const connection = readResearchBridgeConnection(environment);
+    return connection && resolveResearchBridgeFetch(environment, connection, "executor") ? selection.configuration : null;
   }
   const trusted = trustedConfiguration(environment);
   if (!trusted) return null;
@@ -164,6 +166,7 @@ export function createResearchServiceFactory(runtime: ResearchServiceFactoryRunt
     const monoNow = runtime.monoNow ?? (() => performance.now());
     // Recovery parses connection only, independently of new-call switches, profile and credentials.
     const connection = readResearchBridgeConnection(runtime.environment);
+    const bridgeFetch = connection && resolveResearchBridgeFetch(runtime.environment, connection, "executor", runtime.fetch);
     const createReadRepositories = (guard: () => void) => {
       const guarded = createGuardedD1(db, guard);
       const research = new D1ResearchRepository(guarded, options);
@@ -171,10 +174,10 @@ export function createResearchServiceFactory(runtime: ResearchServiceFactoryRunt
       return { research, executions, bridge: new D1SiteBridgeRepository(guarded, research, executions) };
     };
     const createOperations = (guard: () => void) => createSiteBridgeOperations(db, guard, wallNow);
-    const createExecutor = (guard: () => void) => connection
+    const createExecutor = (guard: () => void) => connection && bridgeFetch
       ? new ExecutorBridgeClient(new BridgeTransport({ connection,
         nonces: new D1BridgeNonceStore(createGuardedD1(db, guard)),
-        fetch: runtime.fetch ?? fetch, wallNow, monoNow })) : null;
+        fetch: bridgeFetch, wallNow, monoNow })) : null;
     const reader = new RemoteResearchReader({ createReadRepositories, createOperations, createExecutor,
       legacy: recoveryDelegate(dependencies), monoNow });
     return { reader, createReadRepositories, createOperations, createExecutor, monoNow };
@@ -191,7 +194,8 @@ export function createResearchServiceFactory(runtime: ResearchServiceFactoryRunt
       const selection = readResearchPolicyConfiguration(runtime.environment);
       if (!selection) return null;
       if (selection.executor === "cloudflare-workflow-v1") {
-        if (!readResearchBridgeConnection(runtime.environment)) return null;
+        const connection = readResearchBridgeConnection(runtime.environment);
+        if (!connection || !resolveResearchBridgeFetch(runtime.environment, connection, "executor", runtime.fetch)) return null;
         const { reader, createReadRepositories, createOperations, createExecutor, monoNow } = remoteComposition(repositoryDependencies());
         return new RemoteResearchService({ reader, configuration: selection.configuration, createExecutor, monoNow,
           createRequestId: runtime.createId,

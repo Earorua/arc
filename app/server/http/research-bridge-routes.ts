@@ -265,6 +265,9 @@ async function execute(dependencies: SiteBridgeHandlerDependencies, operations: 
     const found = await deadline.wait(operations.bridge.lookup({ jobId: notice.jobId, requestHash: notice.requestHash }));
     await deadline.wait(matchReceiptNotice(notice, found.execution.job));
     deadline.ensure();
+    const completed = await deadline.wait(operations.imports.readCompleted(found.identity, notice.receiptHash));
+    if (completed) return acknowledgement(notice, completed.accounting);
+    deadline.ensure();
     const receipt = await deadline.wait(dependencies.executor.result(found.execution.job, notice,
       originalGrant(found.execution), { signal: deadline.controller.signal }));
     deadline.ensure();

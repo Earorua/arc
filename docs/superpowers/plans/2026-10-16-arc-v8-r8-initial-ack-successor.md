@@ -1,0 +1,31 @@
+# Arc v8 r8: fresh invocation after a local initial-confirmation timeout
+
+The user explicitly requests a fresh operation after r7 reports an initial Enter timeout and says they may have missed the sixty-second confirmation. Standing local/deployment approval covers this mock successor. No new paid model attempt is authorized. Use subagent-driven implementation, focused tests, independent SPEC then QUALITY, and distinct Root acceptance. Preserve all consumed evidence.
+
+## Evidence and design
+
+The r7 shell attempt is `05c24315-4804-41a2-b25c-714fef9f37dc`, PID20536. Its inspect child exited0, drained and returned valid JSON after26984ms. The next stage was `initial-enter`, with no buffered input and59998ms remaining. It failed with `LOCAL_ACK_DEADLINE_EXPIRED` about sixty seconds later. The first acknowledged invocation, native preparation, activation, stage clock, masked C prompt and signed control were never reached. The Root reconciliation and full original r7 inventory are in `outputs/local-durable-executor-20261016/r7-initial-timeout-r1/`. This establishes the behavior of the exact recorded command, not global absence of Cloudflare activity.
+
+Do not delete or reset the consumed r7 attempt. Create a fresh `scenario-ops-r8`, sequence `20261016-r8`. Reuse the accepted r7 static orchestration and the exact input correction `750dec4f0749ca86c07ab478739ae9b896d3b9960c1e81764c6e0cc301583d09`. The user will watch the first prompt and press Enter promptly. Do not change prompt semantics, sixty-second initial deadline, buffers, later acknowledgement, masked channel, child bounds, no-retry policy or any other time/budget limit.
+
+The accepted closed-r6 reconstruction remains the current historical cloud baseline: r7 performed no cloud operation and created no newer cloud state to reconstruct. All original observations and recovery deadlines remain historical and unchanged; fresh native preactivation remains mandatory. Do not perform a second expensive closed-cloud reconstruction solely to establish this local timeout.
+
+## Task 1: static successor integration
+
+Create only new static files in `scenario-ops-r8` and local implementation/test evidence in `outputs/local-durable-executor-20261016/r8-integration-r1`. Copy selected reviewed static sources only, never operational attempts, dry-run outputs, templates, observations, clocks, controls, receipts or Root acceptances. Verify all original r7 bytes against the Root inventory before and after work.
+
+Add a narrow read-only loader for the exact r7 initial-confirmation timeout. Pin the distinct Root reconciliation, original inventory, actual shell attempt/failure/template and reviewed r7 material/entry/prepare/contract bytes. Recompute record matching, successful inspect-child exit/drain/JSON status, exact initial-timeout stage/code, original unexpired package at invocation, elapsed initial wait and absence of every downstream role/activation/control artifact. Reject substitutions, mismatched invocation/PID/command/pins, later stages, nonzero/unknown child completion, earlier/later unexpected timing, fabricated readiness or effect counters, and any newly appeared r7 downstream artifact. Inventory metadata may retain originalPath/originalSha256 fields; independently verify its complete set and bytes. No generic JSON opacity, missing-file fallback or caller override is permitted.
+
+Bind this loader and its proof inputs to the new context, successor bindings, generated preparation/template/baseline references and current-pin checks. The old r7 accepted proof graph and the accepted closed-r6 component must stay unchanged. Existing exact original-r4 and superseded-reset-r1 historical boundaries remain the only permitted ones; no new opaque boundary is needed. The timeout loader can validate the pinned local records directly rather than importing and recomputing the complete r7 cloud context a second time. Keep the single accepted closed-r6 reconstruction per new validation context.
+
+Update current sequence/material/report/config-decision names to r8. Keep all historical r1–r7 paths and dates correct: r1–r5 use20261014, r6 uses20261015, r7 and r8 use20261016. Extend dispatch absence checks through r8 without changing historical reconstruction exceptions. Preserve all nine roles, resource identities, artifacts, observers18/0, budget, original clocks and zero Provider allowance.
+
+Regenerate exact static metadata, source diff, manifest, three local configuration files and nine deterministic command/launcher pairs. Tests must cover the actual local timeout, negative cases, complete r7 immutability, report scopes, exact unchanged entry/timing contract, role isolation and no prefilled state. Retain RED/GREEN evidence. Run focused regressions relevant to changed orchestration; reuse unchanged accepted input/PS5 tests rather than repeating whole unrelated suites.
+
+## Task 2: review, Root validation and actual next invocation
+
+Fresh independent SPEC followed by QUALITY review must inspect exact files, direct local timeout reconstruction and complete source/reference coverage. Root then verifies reviewed hashes, source inventory and measured validation reserve. Do not enlarge existing reserves to make checks pass.
+
+Root runs exactly three actual local configuration dry runs, creates one finite first-role package, and performs one actual read-only `inspect` of the final package before releasing it. That check must execute the complete reviewed path, finish within its existing30-second bound, and create no shell attempt, cloud state or readiness. If it fails, diagnose before release rather than sending another doomed command. No arbitrary operational retries are introduced.
+
+Only after these checks does Root provide the new command. The user must invoke it personally and respond to each prompt. User attendance and C never come from this document or historical host proof. No worker activation occurs during static preparation; the actual future terminal flow performs its fresh native gates and bounded activation. Task15 remains incomplete until all actual mock scenarios and closure pass. Restricted real Research, public enablement, migration and Task17 remain separate outstanding work.

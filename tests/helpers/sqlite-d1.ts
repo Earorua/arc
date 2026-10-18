@@ -27,11 +27,24 @@ class SqliteStatement {
   async all<T = Record<string, unknown>>() {
     return { success: true, results: this.database.execute(this.sql, this.bindings, "all") as T[], meta: {} };
   }
+  async raw() {
+    return this.database.execute(this.sql, this.bindings, "raw") as unknown[][];
+  }
   async run() {
     const result = this.runSync();
     return { success: true, meta: { changes: result.changes ?? 0 } };
   }
   runSync() { return this.database.execute(this.sql, this.bindings, "run") as { changes?: number }; }
+  batchSync() {
+    if (this.database.database.prepare(this.sql).columns().length === 0) {
+      const result = this.runSync();
+      return { success: true, results: [], meta: { changes: result.changes ?? 0 } };
+    }
+    const changes = () => (this.database.database.prepare("SELECT total_changes() AS n").get() as { n: number }).n;
+    const before = changes();
+    const results = this.database.execute(this.sql, this.bindings, "all") as unknown[];
+    return { success: true, results, meta: { changes: changes() - before } };
+  }
 }
 
 /** Minimal, real-SQLite D1 adapter for repository tests. */
@@ -53,8 +66,7 @@ export class SqliteD1 {
       const results: unknown[] = [];
       for (let index = 0; index < statements.length; index++) {
         if (this.failAtBatchStatement === index) throw new Error("injected batch failure");
-        const result = (statements[index] as unknown as SqliteStatement).runSync();
-        results.push({ success: true, meta: { changes: result.changes ?? 0 } });
+        results.push((statements[index] as unknown as SqliteStatement).batchSync());
       }
       this.database.exec("COMMIT");
       return results as D1Result<unknown>[];
@@ -63,11 +75,16 @@ export class SqliteD1 {
       throw error;
     }
   }
-  execute(sql: string, values: Bindings, mode: "get" | "all" | "run"): unknown {
+  execute(sql: string, values: Bindings, mode: "get" | "all" | "run" | "raw"): unknown {
     if (values.length > 100) throw new Error("D1 parameter limit");
     const statement = this.database.prepare(sql);
     if (mode === "get") return boundedRow(statement.get(...values as never[]));
     if (mode === "all") return statement.all(...values as never[]).map(boundedRow);
+    if (mode === "raw") {
+      if (typeof statement.setReturnArrays !== "function") throw new Error("SQLITE_RAW_ARRAYS_UNSUPPORTED");
+      statement.setReturnArrays(true);
+      return statement.all(...values as never[]).map(boundedRow);
+    }
     return statement.run(...values as never[]) as { changes?: number };
   }
   close() { this.database.close(); }
@@ -81,6 +98,8 @@ export function createResearchD1(filename = ":memory:"): SqliteD1 {
     db.database.exec(sql);
   }
   applyResearchSiteBridgeMigration(db);
+  db.database.exec(readFileSync(resolve(process.cwd(), "drizzle", "0012_account_recovery.sql"), "utf8")
+    .replaceAll("--> statement-breakpoint", ";"));
   return db;
 }
 

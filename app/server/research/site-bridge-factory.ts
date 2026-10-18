@@ -14,6 +14,7 @@ import { readResearchBridgeConnection } from "./executor/connection-config";
 import { D1BridgeNonceStore } from "./executor/d1-nonce-store";
 import { ExecutorBridgeClient } from "./executor/executor-client";
 import { BridgeTransport } from "./executor/http-transport";
+import { resolveResearchBridgeFetch } from "./executor/service-binding-transport";
 import { readResearchPolicyConfiguration, type ResearchProductionEnvironment } from "./production-policy";
 import { SiteAdmissionCoordinator } from "./site-admission";
 import { SiteExpiryCoordinator } from "./site-expiry";
@@ -114,13 +115,15 @@ export function createSiteBridgeOperations(db: D1Database, guard: () => void,
 export function createProductionSiteBridgeHandler(runtime: ProductionSiteBridgeRuntime) {
   const connection = readResearchBridgeConnection(runtime.environment);
   if (!connection) return unavailable();
+  const bridgeFetch = resolveResearchBridgeFetch(runtime.environment, connection, "executor", runtime.fetch);
+  if (!bridgeFetch) return unavailable();
   try {
     const db = runtime.getD1();
     const wallNow = runtime.wallNow ?? Date.now;
     const monoNow = runtime.monoNow ?? (() => performance.now());
     const nonces = new D1BridgeNonceStore(db);
     const executor = new ExecutorBridgeClient(new BridgeTransport({ connection, nonces,
-      fetch: runtime.fetch ?? fetch, wallNow, monoNow }));
+      fetch: bridgeFetch, wallNow, monoNow }));
     const createOperations = (guard: () => void) => createSiteBridgeOperations(db, guard, wallNow);
     return createSiteBridgeHandler({ connection, nonces, createOperations, executor,
       newExecutionAllowed: () => readResearchPolicyConfiguration(runtime.environment)?.executor === "cloudflare-workflow-v1",

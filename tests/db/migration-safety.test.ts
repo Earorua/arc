@@ -57,10 +57,10 @@ describe("research beta migration safety", () => {
   const migration = resolve(directory, "0005_openrouter_research_beta.sql");
   const healthMigration = resolve(directory, "0006_research_health_indexes.sql");
 
-  it("keeps only migrations 0000–0011 and preserves normalized-LF prior SQL hashes", () => {
+  it("appends recovery migration 0012 after 0000–0011 and preserves normalized-LF prior SQL hashes", () => {
     expect(readdirSync(directory).filter((name) => name.endsWith(".sql")).sort()).toEqual([
       ...Object.keys(priorHashes), "0009_research_site_begin_grants.sql", "0010_research_site_imports.sql",
-      "0011_research_site_bridge.sql",
+      "0011_research_site_bridge.sql", "0012_account_recovery.sql",
     ]);
     for (const [name, expected] of Object.entries(priorHashes)) {
       const normalized = readFileSync(resolve(directory, name), "utf8").replaceAll("\r\n", "\n");
@@ -70,7 +70,7 @@ describe("research beta migration safety", () => {
 
   it("links the additive health-index snapshot to 0005", () => {
     const journal = JSON.parse(readFileSync(resolve(directory, "meta/_journal.json"), "utf8"));
-    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     expect(journal.entries[5]).toMatchObject({ tag: "0005_openrouter_research_beta", breakpoints: true });
     expect(journal.entries[6]).toMatchObject({ tag: "0006_research_health_indexes", breakpoints: true });
     expect(journal.entries[7]).toMatchObject({ tag: "0007_research_bridge_nonces", breakpoints: true });
@@ -110,6 +110,33 @@ describe("research beta migration safety", () => {
       "CREATE INDEX `ai_budget_reservations_day_status_idx` ON `ai_budget_reservations` (`day_bucket_id`,`status`);",
       "CREATE INDEX `research_runs_updated_state_idx` ON `research_runs` (`updated_at`,`state`);",
     ]);
+  });
+  it("adds only an archive relationship and leaves data changes outside migrations", () => {
+    const sql = readFileSync(resolve(directory, "0012_account_recovery.sql"), "utf8");
+    expect(isAdditiveSchemaMigration(sql)).toBe(true);
+    expect([...sql.matchAll(/CREATE TABLE `([^`]+)`/gu)].map((match) => match[1])).toEqual(["account_recoveries"]);
+    const previous = JSON.parse(readFileSync(resolve(directory, "meta/0007_snapshot.json"), "utf8"));
+    const snapshot = JSON.parse(readFileSync(resolve(directory, "meta/0012_snapshot.json"), "utf8"));
+    expect(snapshot.prevId).toBe(previous.id);
+    for (const [name, table] of Object.entries(previous.tables)) {
+      // Research 0008 added these columns/index after its last generated snapshot.
+      // Recovery itself must not change any previously declared table metadata.
+      const current = structuredClone(snapshot.tables[name]);
+      if (name === "research_runs") {
+        expect(Object.keys(current.columns).filter((column) => !(column in previous.tables[name].columns)))
+          .toEqual(["execution_mode", "remote_quota_key"]);
+        expect(Object.keys(current.indexes).filter((index) => !(index in previous.tables[name].indexes)))
+          .toEqual(["research_runs_remote_quota_idx"]);
+        expect(Object.keys(current.checkConstraints).filter((check) => !(check in previous.tables[name].checkConstraints)))
+          .toEqual(["research_runs_execution_mode_check", "research_runs_remote_quota_key_check"]);
+        delete current.columns.execution_mode;
+        delete current.columns.remote_quota_key;
+        delete current.indexes.research_runs_remote_quota_idx;
+        delete current.checkConstraints.research_runs_execution_mode_check;
+        delete current.checkConstraints.research_runs_remote_quota_key_check;
+      }
+      expect(current).toEqual(table);
+    }
   });
 });
 

@@ -9,6 +9,8 @@ import { D1ResearchBudgetRepository } from "./d1-budget-repository";
 import type { BudgetBucket, BudgetReservation } from "./budget";
 import type { BudgetSettlement } from "./budget";
 import { parseJson } from "./d1-publication";
+import { parseRun } from "./d1-repository";
+import { parseStoredExecution } from "./d1-site-execution-repository";
 import { BRIDGE_AUTH_PROTOCOL } from "./executor/auth";
 import { matchBridgeProviderReceipt, parseBridgeProviderReceipt, parseBridgeReceiptMetadata,
   summarizeBridgeProviderReceipt, type BridgeProviderReceipt, type BridgeReceiptMetadata } from "./executor/receipt";
@@ -95,7 +97,7 @@ export class D1SiteImportRepository implements SiteImportRepository {
     runQualityJson: string | null; runCandidateJson: string | null;
   }>> {
     const identity = parseSiteImportIdentity(input);
-    const context = await this.readStrictContext(identity);
+    const context = await this.readStrictSnapshot(identity);
     return { run: context.run, execution: context.execution, journal: context.journal,
       runQualityJson: context.runQualityJson, runCandidateJson: context.runCandidateJson };
   }
@@ -464,6 +466,39 @@ export class D1SiteImportRepository implements SiteImportRepository {
       runPayload = await this.db.prepare("SELECT quality_json,candidate_json FROM research_runs WHERE id=?1 AND user_id=?2")
         .bind(identity.runId, identity.ownerId).first<Row>();
     } catch (error) { if (error instanceof ResearchRepositoryError) throw error; throw unavailable(); }
+    return this.validateContext(identity, run, execution, row, runPayload);
+  }
+
+  private async readStrictSnapshot(identity: SiteExecutionIdentity): Promise<Context> {
+    try {
+      const results = await this.db.batch<Row>([
+        this.db.prepare("SELECT * FROM research_runs WHERE id=?1 AND user_id=?2")
+          .bind(identity.runId, identity.ownerId),
+        this.db.prepare("SELECT * FROM research_site_executions WHERE run_id=?1 AND user_id=?2")
+          .bind(identity.runId, identity.ownerId),
+        this.db.prepare("SELECT * FROM research_site_imports WHERE run_id=?1 AND user_id=?2")
+          .bind(identity.runId, identity.ownerId),
+      ]);
+      if (!Array.isArray(results) || results.length !== 3) throw unavailable();
+      const rows = Array.from(results, (result) => {
+        if (!result || result.success !== true || !Array.isArray(result.results)
+          || result.results.length > 1) throw unavailable();
+        if (result.results.length === 0) return null;
+        const row = result.results[0];
+        if (row === null || typeof row !== "object" || Array.isArray(row)) throw unavailable();
+        return row;
+      });
+      const [runRow, executionRow, journalRow] = rows;
+      if (!runRow && !executionRow && !journalRow) throw new ResearchRepositoryError("NOT_FOUND");
+      if (!runRow || !executionRow) throw unavailable();
+      const run = parseRun(runRow);
+      const execution = await parseStoredExecution(executionRow, run, false);
+      return await this.validateContext(identity, run, execution, journalRow, runRow);
+    } catch (error) { if (error instanceof ResearchRepositoryError) throw error; throw unavailable(); }
+  }
+
+  private async validateContext(identity: SiteExecutionIdentity, run: ResearchRunRecord | null,
+    execution: SiteExecutionRecord | null, row: Row | null, runPayload: Row | null): Promise<Context> {
     if (!run && !execution && !row) throw new ResearchRepositoryError("NOT_FOUND");
     if (!run || !execution || !runPayload) throw unavailable();
     if (!exactIdentity(identity, execution) || run.ownerId !== identity.ownerId || run.id !== identity.runId

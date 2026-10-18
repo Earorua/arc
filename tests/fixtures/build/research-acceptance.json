@@ -1,0 +1,30 @@
+{
+  "stage": "research-acceptance",
+  "accountId": "54eaadb89014252836694203c1e22546",
+  "state": "closed",
+  "site": {
+    "workerName": "arc-v8-migration-research-test-site",
+    "runtimeOrigin": "https://arc-v8-migration-research-test-site.23711031.workers.dev",
+    "d1": {
+      "databaseId": "12345678-1234-4123-8123-123456789abc",
+      "databaseName": "arc-v8-migration-research-test-site-db"
+    },
+    "r2": { "bucketName": "arc-v8-migration-research-test-proofs", "public": false }
+  },
+  "executor": {
+    "workerName": "arc-v8-migration-research-test-executor",
+    "runtimeOrigin": "https://arc-v8-migration-research-test-executor.23711031.workers.dev",
+    "d1": {
+      "databaseId": "87654321-4321-4321-8321-cba987654321",
+      "databaseName": "arc-v8-migration-research-test-executor-db"
+    },
+    "r2": { "bucketName": "arc-v8-migration-research-test-receipts", "public": false },
+    "workflowName": "arc-v8-migration-research-test-workflow"
+  },
+  "bridge": {
+    "transport": "service-binding-v1",
+    "siteToExecutorKeyId": "synthetic-site",
+    "executorToSiteKeyId": "synthetic-executor"
+  },
+  "acceptanceOwnerId": "synthetic-owner-a"
+}

@@ -604,7 +604,7 @@ function guardArgs(command: SaveResearchValidationCommand, offset: number) { ret
 function assertCacheIdentity(run: ResearchRunRecord, row: Row, code: "CONFLICT" | "RESEARCH_UNAVAILABLE") {
   if (run.normalizedRoleKey !== row.normalized_role_key || run.locale !== row.locale || run.configFingerprint !== row.config_fingerprint) throw new ResearchRepositoryError(code);
 }
-function parseRun(row: Row): ResearchRunRecord {
+export function parseRun(row: Row): ResearchRunRecord {
   const identity = parseContract(createSchema.omit({ activeExpiresAt: true }), {
     ownerId: row.user_id, requestId: row.request_id, mutationId: row.mutation_id, rawRole: row.raw_role,
     normalizedRoleKey: row.normalized_role_key, locale: row.locale, inputFingerprint: row.input_fingerprint, configFingerprint: row.config_fingerprint,

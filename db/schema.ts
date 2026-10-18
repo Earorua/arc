@@ -47,6 +47,23 @@ export const accounts = sqliteTable("accounts", {
   uniqueIndex("accounts_provider_account_idx").on(table.providerId, table.accountId),
 ]);
 
+// Retains the original owner of archived learning records after an approved recovery.
+export const accountRecoveries = sqliteTable("account_recoveries", {
+  id: text("id").primaryKey(),
+  sourceUserId: text("source_user_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+  targetUserId: text("target_user_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+  sourceAccountId: text("source_account_id").notNull(),
+  targetAccountId: text("target_account_id").notNull(),
+  sourceProvider: text("source_provider").notNull(),
+  targetProvider: text("target_provider").notNull(),
+  primaryPathId: text("primary_path_id").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+}, (table) => [
+  uniqueIndex("account_recoveries_source_idx").on(table.sourceUserId),
+  index("account_recoveries_target_idx").on(table.targetUserId),
+  check("account_recoveries_distinct_users", sql`${table.sourceUserId} <> ${table.targetUserId}`),
+]);
+
 export const verifications = sqliteTable("verifications", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
@@ -930,6 +947,7 @@ export const researchSiteExecutions = sqliteTable("research_site_executions", {
   uniqueIndex("research_site_executions_job_idx").on(table.jobId),
   uniqueIndex("research_site_executions_owner_quota_idx").on(table.userId, table.quotaKey),
   index("research_site_executions_maintenance_idx").on(table.admissionState, table.queueExpiresAt, table.runId),
+  index("research_site_scan_idx").on(table.createdAt, table.jobId),
   check("research_site_executions_text_identity_check", sql`typeof(${table.runId}) = 'text' AND length(${table.runId}) > 0
     AND typeof(${table.userId}) = 'text' AND length(${table.userId}) > 0
     AND typeof(${table.requestId}) = 'text' AND length(${table.requestId}) > 0

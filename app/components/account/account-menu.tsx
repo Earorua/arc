@@ -270,6 +270,8 @@ export function AccountMenu() {
         <div className="account-popover">
           <strong>Signed in as {data.user.name}</strong>
           <span>{data.user.email}</span>
+          <Link href="/today">Continue learning</Link>
+          <Link href="/path">My learning path</Link>
           <div className="account-connections" aria-label="Sign-in connections">
             <p>Sign-in connections</p>
             {connectionsPending && <span>Checking connections…</span>}

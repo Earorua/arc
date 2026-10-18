@@ -658,8 +658,8 @@ describe("D1ResearchRepository", () => {
     const { db, repository } = setup(); const { run, current } = await validating(repository);
     await repository.saveValidation({ id: run.id, ownerId: "owner-a", expectedVersion: current.stateVersion, result: validated, configFingerprint: "config-fingerprint-1", normalizedRoleKey: "data-product-manager", locale: "en-US" });
     const publicRun = await repository.getPublicRun("owner-a", run.id);
-    expect(publicRun).toMatchObject({ id: run.id, state: "ready" });
-    expect(Object.keys(publicRun!).sort()).toEqual(["id", "role", "locale", "state", "retryable", "packageId", "summary", "skillCount", "sourceCount", "observedAt", "quality", "planningData"].sort());
+    expect(publicRun).toMatchObject({ id: run.id, state: "ready", backgroundAccepted: false });
+    expect(Object.keys(publicRun!).sort()).toEqual(["id", "role", "locale", "state", "retryable", "packageId", "summary", "skillCount", "sourceCount", "observedAt", "quality", "planningData", "backgroundAccepted"].sort());
     if (publicRun?.state !== "ready") throw new Error("Expected Ready public view");
     expect(publicRun.planningData).toEqual({ id: validated.package.id, blueprint: validated.package.blueprint, registry: validated.package.registry });
     db.database.exec("UPDATE research_packages SET package_json='{}'");

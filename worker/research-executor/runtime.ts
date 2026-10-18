@@ -1,6 +1,7 @@
 import { readResearchBridgeConnection } from "../../app/server/research/executor/connection-config";
 import { D1BridgeNonceStore } from "../../app/server/research/executor/d1-nonce-store";
 import { BridgeTransport } from "../../app/server/research/executor/http-transport";
+import { resolveResearchBridgeFetch } from "../../app/server/research/executor/service-binding-transport";
 import { OpenRouterResearchProvider } from "../../app/server/research/openrouter-provider";
 import { ensureWorkflow } from "./bootstrap";
 import { deliverReceipt } from "./delivery";
@@ -108,7 +109,7 @@ function bridge(environment: ExecutorEnvironment, overrides: ExecutorRuntimeOver
   const connection = readResearchBridgeConnection(environment);
   if (!connection) throw new Error("Executor runtime unavailable");
   const { wallNow, monoNow } = clocks(overrides);
-  const bridgeFetch = overrides.bridgeFetch ?? globalThis.fetch;
+  const bridgeFetch = resolveResearchBridgeFetch(environment, connection, "site", overrides.bridgeFetch);
   if (typeof bridgeFetch !== "function" || !validDatabase(database)) {
     throw new Error("Executor runtime unavailable");
   }

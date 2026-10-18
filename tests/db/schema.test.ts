@@ -8,6 +8,7 @@ const expectedTableNames = [
   "users",
   "sessions",
   "accounts",
+  "account_recoveries",
   "verifications",
   "auth_rate_limits",
   "learner_profiles",

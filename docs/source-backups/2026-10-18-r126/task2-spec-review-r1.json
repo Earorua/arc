@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "arc-snapshot-scenario-review-v1",
+  "sequence": "20261017-snapshot-r1",
+  "kind": "SPEC",
+  "status": "PASS",
+  "reviewerId": "/root/snapshot_scenario_spec_resume",
+  "reviewedAt": "2026-10-18T13:17:03.073Z",
+  "freeze": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\implementation-freeze-r1.json",
+    "sha256": "e859f9ddf3e52c94c034f28a12c83cc2c321417900c12e387b39b3370f3b825d"
+  },
+  "priorReview": null,
+  "findings": [],
+  "report": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\spec-review-r1.md",
+    "sha256": "e52e65aa301375104d39432dc81dcc09e5170ad9c728b83c45d51679407fce4b"
+  },
+  "evidence": [
+    {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\spec-focused-r1.log",
+      "sha256": "9a2a24157521ab27fce537db7c97984c3bb27a86b6a4ba39a62b16a122e47c6a"
+    },
+    {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\spec-graph-probe-r1.mjs",
+      "sha256": "37781a4ccbfe4b8c376082aecce258268db54356f1597d9a4f25836529eb6d8d"
+    },
+    {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\spec-graph-probe-r1.json",
+      "sha256": "f7371a975f86e1b7bf012bbf8c6c7e27a12048439f95e81568e3d74880b4a098"
+    },
+    {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\spec-live-guard-probe-r1.mjs",
+      "sha256": "c12ea21900db7057c88ba5b239042dba4ad12e42403fb54fbb251f38dd64b005"
+    },
+    {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\spec-live-guard-probe-r1.json",
+      "sha256": "773b566142d37f694500d38702cf148d5113ce5f48a0e94751589c22d4750414"
+    }
+  ],
+  "resolvedHistoricalFinding": "QUALITY-P1-HISTORICAL-ACTIVATION-UNUSED-SCOPE",
+  "scope": "Exact Task2 scenario-ops-r2 specification successor; prior r1 review is historical background only. Different QUALITY, root preparation/dry-runs, full Task3 timing and native cloud proofs remain outstanding.",
+  "freshChecks": {
+    "focusedTests": 15,
+    "passed": 15,
+    "failed": 0,
+    "uniqueFrozenFiles": 2018,
+    "currentConsumedPins": 2019,
+    "priorDirectoryFilesUnchanged": 143,
+    "toolEntriesCompared": 26,
+    "changedTools": [
+      "evaluate.mjs"
+    ],
+    "exactSourceSubstitutions": 3,
+    "liveGuardCompositionCases": 22,
+    "liveOperationBytesUnchanged": true,
+    "historicalClocksRenewed": false
+  },
+  "operations": {
+    "networkRequests": 0,
+    "wranglerChildren": 0,
+    "credentialReads": 0,
+    "cloudCalls": 0,
+    "controlCalls": 0,
+    "providerCalls": 0,
+    "successfulOperationalOutputs": 0,
+    "liveSessions": 0
+  },
+  "task3TimingAccepted": false,
+  "task15Accepted": false
+}

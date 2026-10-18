@@ -13,6 +13,10 @@ const open: Array<Awaited<ReturnType<typeof createSiteImportFixture>>> = [];
 async function fixture() { const value = await createSiteImportFixture(); open.push(value); return value; }
 afterEach(() => { for (const value of open.splice(0)) value.db.close(); });
 type Fixture = Awaited<ReturnType<typeof fixture>>;
+const readSql = (sql: string) => /^\s*SELECT\b/iu.test(sql);
+const readBatch = (statements: D1PreparedStatement[]) => statements.every((statement) =>
+  readSql((statement as unknown as { sql: string }).sql));
+const writeBatches = (f: Fixture) => f.db.batches.filter((batch) => batch.some((sql) => !readSql(sql)));
 const tables = ["role_blueprints", "role_blueprint_versions", "role_skill_definitions",
   "role_skill_edges", "learning_resources", "resource_skill_links", "research_packages",
   "research_source_audits"] as const;
@@ -116,7 +120,7 @@ describe("D1 site import publication", () => {
       research_packages: 1, research_source_audits: validResearchCandidate.resources.length });
     expect(accounting(f)).toEqual(before);
     expect(await f.executions.read(f.identity.ownerId, f.identity.runId)).toEqual(execution);
-    expect(f.db.batches.at(-1)).toHaveLength(12);
+    expect(writeBatches(f).at(-1)).toHaveLength(12);
   });
 
   it("rolls back every normalized table and terminal fact when any batch statement fails", async () => {
@@ -125,10 +129,18 @@ describe("D1 site import publication", () => {
       const marked = await phase1(f);
       const beforeAccounting = accounting(f);
       const beforeRun = await f.research.getRun(f.identity.ownerId, f.identity.runId);
-      f.db.failAtBatchStatement = statement;
+      const batch = f.db.batch.bind(f.db);
+      let writeAttempts = 0;
+      f.db.batch = async (statements) => {
+        if (readBatch(statements)) return batch(statements);
+        writeAttempts += 1;
+        f.db.failAtBatchStatement = statement;
+        try { return await batch(statements); }
+        finally { f.db.failAtBatchStatement = null; }
+      };
       await expect(publication(f).resolve(f.identity, marked.metadata.receiptHash))
         .rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
-      f.db.failAtBatchStatement = null;
+      expect(writeAttempts).toBe(1);
       expect(Object.values(normalized(f)).every((value) => value === 0)).toBe(true);
       expect(accounting(f)).toEqual(beforeAccounting);
       expect(await f.research.getRun(f.identity.ownerId, f.identity.runId)).toEqual(beforeRun);
@@ -145,7 +157,7 @@ describe("D1 site import publication", () => {
     expect(result.resolution).toMatchObject({ state, quotaStatus, packageId: null });
     expect(Object.values(normalized(f)).every((value) => value === 0)).toBe(true);
     expect(accounting(f)).toEqual(before);
-    expect(f.db.batches.at(-1)).toHaveLength(4);
+    expect(writeBatches(f).at(-1)).toHaveLength(4);
   });
 
   it("resolves actual malformed response content as a safe failed decision", async () => {
@@ -171,7 +183,7 @@ describe("D1 site import publication", () => {
       state: "failed", errorCode: "interrupted", failureCategory: "timeout", retryable: true,
       quality: null, candidate: null, packageId: null });
     expect(Object.values(normalized(f)).every((value) => value === 0)).toBe(true);
-    expect(f.db.batches.at(-1)).toHaveLength(4);
+    expect(writeBatches(f).at(-1)).toHaveLength(4);
   });
 
   it.each(["quota", "budget-bucket"] as const)
@@ -288,6 +300,7 @@ describe("D1 site import publication", () => {
       } else {
         const batch = f.db.batch.bind(f.db);
         f.db.batch = async (statements) => {
+          if (readBatch(statements)) return batch(statements);
           replaceBudgetBucketId(f, bucket, replacement);
           corruptedState = await publicationState(f);
           return batch(statements);
@@ -363,6 +376,7 @@ describe("D1 site import publication", () => {
       let beforeAccounting: ReturnType<typeof accounting> | null = null;
       if (timing === "before-read") { corrupt(); beforeAccounting = accounting(f); }
       else { const batch = f.db.batch.bind(f.db); f.db.batch = async (statements) => {
+        if (readBatch(statements)) return batch(statements);
         corrupt(); beforeAccounting = accounting(f); return batch(statements);
       }; }
       const beforeRun = await f.research.getRun(f.identity.ownerId, f.identity.runId);
@@ -397,6 +411,7 @@ describe("D1 site import publication", () => {
         let beforeAccounting: ReturnType<typeof accounting> | null = null;
         if (timing === "before-read") { corrupt(); beforeAccounting = accounting(f); }
         else { const batch = f.db.batch.bind(f.db); f.db.batch = async (statements) => {
+          if (readBatch(statements)) return batch(statements);
           corrupt(); beforeAccounting = accounting(f); return batch(statements);
         }; }
         const beforeRun = await f.research.getRun(f.identity.ownerId, f.identity.runId);
@@ -417,6 +432,7 @@ describe("D1 site import publication", () => {
     f.setSqlNow(f.execution.executionExpiresAt!);
     const original = f.db.batch.bind(f.db);
     f.db.batch = async (statements) => {
+      if (readBatch(statements)) return original(statements);
       if (kind === "quota") f.db.database.prepare(`UPDATE quota_ledger SET units=0
         WHERE reservation_id=?1 AND entry_kind='reserved'`).run(f.execution.quotaReservationId);
       else f.db.database.prepare(`UPDATE ai_budget_buckets SET period_start=period_start+86400000
@@ -448,10 +464,10 @@ describe("D1 site import publication", () => {
     const f = await fixture();
     const marked = await phase1(f);
     const saved = await publication(f).resolve(f.identity, marked.metadata.receiptHash);
-    const batches = f.db.batches.length;
+    const batches = writeBatches(f).length;
     f.setSqlNow(Date.parse("2026-11-01T00:00:00.000Z"));
     expect(await publication(f).resolve(f.identity, marked.metadata.receiptHash)).toEqual(saved);
-    expect(f.db.batches).toHaveLength(batches);
+    expect(writeBatches(f)).toHaveLength(batches);
   });
 
   it("binds an already failed run unchanged when recording phase 2", async () => {
@@ -464,7 +480,7 @@ describe("D1 site import publication", () => {
     const result = await publication(f).resolve(f.identity, marked.metadata.receiptHash);
     expect(result.resolution).toMatchObject({ state: "failed", runVersion: before?.stateVersion });
     expect(await f.research.getRun(f.identity.ownerId, f.identity.runId)).toEqual(before);
-    expect(f.db.batches.at(-1)).toHaveLength(2);
+    expect(writeBatches(f).at(-1)).toHaveLength(2);
   });
 
   it.each(["run", "journal"] as const)
@@ -492,7 +508,10 @@ describe("D1 site import publication", () => {
     const end = f.execution.executionExpiresAt!;
     if (timing === "before-batch") {
       const original = f.db.batch.bind(f.db);
-      f.db.batch = async (statements) => { f.setSqlNow(end); return original(statements); };
+      f.db.batch = async (statements) => {
+        if (!readBatch(statements)) f.setSqlNow(end);
+        return original(statements);
+      };
     } else {
       const original = f.db.execute.bind(f.db);
       f.db.execute = (sql, values, mode) => {
@@ -514,6 +533,7 @@ describe("D1 site import publication", () => {
     const marked = await phase1(f);
     const original = f.db.batch.bind(f.db);
     f.db.batch = async (statements) => {
+      if (readBatch(statements)) return original(statements);
       if (kind === "quota") f.db.database.prepare(`UPDATE quota_ledger SET units=0
         WHERE reservation_id=?1 AND entry_kind='reserved'`).run(f.execution.quotaReservationId);
       else f.db.database.prepare(`UPDATE ai_budget_reservations SET status='released' WHERE id=?1`)
@@ -561,7 +581,7 @@ describe("D1 site import publication", () => {
     const result = await publication(f).resolve(f.identity, marked.metadata.receiptHash);
     expect(result.resolution?.state).toBe("ready");
     expect(normalized(f)).toEqual(before);
-    expect(f.db.batches.at(-1)).toHaveLength(4);
+    expect(writeBatches(f).at(-1)).toHaveLength(4);
   });
 
   it.each(["corrupt", "foreign", "fingerprint"] as const)
@@ -657,6 +677,7 @@ describe("D1 site import publication", () => {
     const db = {
       prepare: (sql: string) => f.db.prepare(sql),
       batch: async (statements: D1PreparedStatement[]) => {
+        if (readBatch(statements)) return f.db.batch(statements);
         attempts += 1;
         await f.db.batch(statements);
         throw new Error("lost batch acknowledgement");
@@ -680,6 +701,7 @@ describe("D1 site import publication", () => {
     const db = {
       prepare: (sql: string) => f.db.prepare(sql),
       batch: async (statements: D1PreparedStatement[]) => {
+        if (readBatch(statements)) return f.db.batch(statements);
         attempts += 1;
         if (attempts === 1) { entered(); await blocked; }
         return f.db.batch(statements);
@@ -697,44 +719,60 @@ describe("D1 site import publication", () => {
     expect(normalized(f).research_packages).toBe(1);
   });
 
-  it("retries one complete strict observation when a winner commits during the first run read", async () => {
+  it("retries one complete strict observation when a returned batch contains an old run and a winning journal", async () => {
     const f = await fixture();
     const marked = await phase1(f);
-    const stale = await f.research.getRun(f.identity.ownerId, f.identity.runId);
+    const stale = f.db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(f.identity.runId);
     let release!: () => void;
     let entered!: () => void;
     const blocked = new Promise<void>((resolve) => { release = resolve; });
     const reached = new Promise<void>((resolve) => { entered = resolve; });
     let reads = 0;
-    const runs = { getRun: async (ownerId: string, runId: string) => {
-      reads += 1;
-      if (reads === 1) { entered(); await blocked; return stale; }
-      return f.research.getRun(ownerId, runId);
-    } };
-    const waiting = new D1SiteImportPublication(f.db as unknown as D1Database, runs, f.executions)
+    const db = {
+      prepare: (sql: string) => f.db.prepare(sql),
+      batch: async (statements: D1PreparedStatement[]) => {
+        if (!readBatch(statements)) return f.db.batch(statements);
+        reads += 1;
+        if (reads === 1) {
+          entered(); await blocked;
+          const results = await f.db.batch(statements);
+          results[0].results = [stale];
+          return results;
+        }
+        return f.db.batch(statements);
+      },
+    } as unknown as D1Database;
+    const waiting = new D1SiteImportPublication(db, f.research, f.executions)
       .resolve(f.identity, marked.metadata.receiptHash);
     await reached;
     const winner = await publication(f).resolve(f.identity, marked.metadata.receiptHash);
-    const batches = f.db.batches.length;
+    const batches = writeBatches(f).length;
     release();
     expect(await waiting).toEqual(winner);
     expect(reads).toBe(2);
-    expect(f.db.batches).toHaveLength(batches);
+    expect(writeBatches(f)).toHaveLength(batches);
   });
 
   it("stops after two strict observations when a contradictory run snapshot persists", async () => {
     const f = await fixture();
     const marked = await phase1(f);
-    const stale = await f.research.getRun(f.identity.ownerId, f.identity.runId);
+    const stale = f.db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(f.identity.runId);
     await publication(f).resolve(f.identity, marked.metadata.receiptHash);
-    const batches = f.db.batches.length;
+    const batches = writeBatches(f).length;
     let reads = 0;
-    const runs = { getRun: async () => { reads += 1; return stale; } };
-    await expect(new D1SiteImportPublication(f.db as unknown as D1Database, runs, f.executions)
+    const db = {
+      prepare: (sql: string) => f.db.prepare(sql),
+      batch: async (statements: D1PreparedStatement[]) => {
+        const results = await f.db.batch(statements);
+        if (readBatch(statements)) { reads += 1; results[0].results = [stale]; }
+        return results;
+      },
+    } as unknown as D1Database;
+    await expect(new D1SiteImportPublication(db, f.research, f.executions)
       .resolve(f.identity, marked.metadata.receiptHash))
       .rejects.toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
     expect(reads).toBe(2);
-    expect(f.db.batches).toHaveLength(batches);
+    expect(writeBatches(f)).toHaveLength(batches);
   });
 
   it("does not turn an already-failed race into a Ready publication", async () => {
@@ -742,6 +780,7 @@ describe("D1 site import publication", () => {
     const marked = await phase1(f);
     const original = f.db.batch.bind(f.db);
     f.db.batch = async (statements) => {
+      if (readBatch(statements)) return original(statements);
       f.db.database.prepare(`UPDATE research_runs SET state='failed',state_version=state_version+1,
         retryable=1,active_slot=NULL,active_expires_at=NULL,error_code='interrupted',
         public_failure_category='timeout' WHERE id=?1`).run(f.identity.runId);
@@ -784,6 +823,7 @@ describe("D1 site import publication", () => {
     const before = normalized(f);
     const original = f.db.batch.bind(f.db);
     f.db.batch = async (statements) => {
+      if (readBatch(statements)) return original(statements);
       const row = f.db.database.prepare("SELECT package_json FROM research_packages WHERE id=?1")
         .get(marked.decision?.kind === "ready" ? marked.decision.package.id : "") as { package_json: string };
       f.db.database.prepare("UPDATE research_packages SET package_json=?1 WHERE id=?2")

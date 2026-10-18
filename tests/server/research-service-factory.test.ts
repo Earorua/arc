@@ -74,6 +74,34 @@ function setup(changes: ResearchProductionEnvironment = {}) {
 }
 
 describe("production Research factory remote integration", () => {
+  it("rejects private mode without its binding before admission despite a legacy fetch override", () => {
+    const s = setup();
+    Object.assign(s.environment, { ARC_AI_RESEARCH_BRIDGE_TRANSPORT: "service-binding-v1" });
+    expect(s.factory.createNewCallService()).toBeNull();
+    expect(readResearchProductionConfiguration(s.environment)).toBeNull();
+    expect(s.runtime.getD1).not.toHaveBeenCalled();
+    expect(s.f.readCounts()).toMatchObject({ researchRuns: 0, siteExecutions: 0, quotaLedger: 0, aiBudgetReservations: 0 });
+    expect(s.bridgeFetch).not.toHaveBeenCalled();
+  });
+
+  it("submits through the private binding without a runtime fetch override and preserves accepted recovery", async () => {
+    const s = setup();
+    Object.assign(s.environment, { ARC_AI_RESEARCH_BRIDGE_TRANSPORT: "service-binding-v1",
+      ARC_RESEARCH_EXECUTOR: { fetch: s.bridgeFetch } });
+    const factory = createResearchServiceFactory({ ...s.runtime, fetch: undefined });
+    expect(readResearchProductionConfiguration(s.environment)).not.toBeNull();
+    const service = factory.createNewCallService(); expect(service).not.toBeNull();
+    const view = await service!.start("owner-a", input, gate);
+    expect(view).toMatchObject({ state: "queued", backgroundAccepted: true });
+    expect(s.bridgeFetch).toHaveBeenCalledOnce();
+    expect(s.f.readCounts()).toMatchObject({ researchRuns: 1, siteExecutions: 1, quotaLedger: 1, aiBudgetReservations: 1 });
+    Object.assign(s.environment, { ARC_AI_ENABLED: "false", ARC_AI_RESEARCH_ENABLED: "false", ARC_RESEARCH_EXECUTOR: undefined });
+    expect(factory.createNewCallService()).toBeNull();
+    expect(await factory.createRecoveryService().get("owner-a", view.id)).toEqual(view);
+    expect(await factory.createRecoveryService().recover("owner-a", { ...input, kind: "start" })).toEqual(view);
+    expect(s.bridgeFetch).toHaveBeenCalledOnce();
+  });
+
   it("exposes credential-free configuration, rate and fresh service construction", () => {
     const s = setup();
     expect(readResearchProductionConfiguration(s.environment)).toEqual(readResearchPolicyConfiguration(s.environment)!.configuration);
@@ -243,17 +271,22 @@ describe("production Research factory remote integration", () => {
     expect(read).toHaveBeenCalled(); expect(s.bridgeFetch).not.toHaveBeenCalled();
   });
 
-  it.each(["new-call", "recovery"])("pulls a begun remote receipt through the %s factory while never reading Site credentials", async (mode) => {
+  it.each([
+    { mode: "new-call", privateBinding: false }, { mode: "recovery", privateBinding: false },
+    { mode: "new-call", privateBinding: true }, { mode: "recovery", privateBinding: true },
+  ])("pulls a begun remote receipt through the $mode factory with private binding=$privateBinding while never reading Site credentials", async ({ mode, privateBinding }) => {
     const f = await createResearchBridgeFixture();
     cleanup.push(() => { f.db.close(); f.clientDb.close(); });
     const keyRead = vi.fn(() => { throw new Error("No Site key"); });
     const createProvider = vi.fn(() => { throw new Error("No Site Provider"); });
     forbidden.push(keyRead, createProvider, vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("No network")));
     const environment: ResearchProductionEnvironment = { ...TEST_PRODUCTION_ENVIRONMENT };
+    if (privateBinding) Object.assign(environment, { ARC_AI_RESEARCH_BRIDGE_TRANSPORT: "service-binding-v1",
+      ARC_RESEARCH_EXECUTOR: { fetch: f.executorFetch } });
     Object.defineProperty(environment, "OPENROUTER_API_KEY", { get: keyRead });
     if (mode === "recovery") { environment.ARC_AI_ENABLED = "false"; environment.ARC_AI_RESEARCH_EXECUTOR = "unknown"; }
     const factory = createResearchServiceFactory({ environment, getD1: () => f.db as unknown as D1Database,
-      createProvider, fetch: f.executorFetch, now: f.wallNow, monoNow: f.monoNow });
+      createProvider, fetch: privateBinding ? undefined : f.executorFetch, now: f.wallNow, monoNow: f.monoNow });
     const metadata = await f.metadata();
     f.setExecutorStatus({ jobId: f.execution.jobId, requestHash: f.execution.requestHash, dispatchState: "claimed",
       accepted: null, unsent: null, metadata, bodyState: "available" });

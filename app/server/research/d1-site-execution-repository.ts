@@ -317,7 +317,7 @@ function validateInitial(input: SiteExecutionRecord): SiteExecutionRecord {
   return value;
 }
 
-async function parseStoredExecution(row: Row, run: ResearchRunRecord, reportReadSkew: boolean): Promise<SiteExecutionRecord> {
+export async function parseStoredExecution(row: Row, run: ResearchRunRecord, reportReadSkew: boolean): Promise<SiteExecutionRecord> {
   let value: SiteExecutionRecord;
   try {
     if (typeof row.job_json !== "string" || typeof row.validation_context_json !== "string") throw new Error();

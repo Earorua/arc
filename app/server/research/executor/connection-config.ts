@@ -1,5 +1,10 @@
+import type { ResearchServiceBinding } from "./service-binding-transport";
+
 export type ResearchBridgeEnvironment = {
   BETTER_AUTH_URL?: string;
+  ARC_AI_RESEARCH_BRIDGE_TRANSPORT?: string;
+  ARC_RESEARCH_EXECUTOR?: ResearchServiceBinding;
+  ARC_RESEARCH_SITE?: ResearchServiceBinding;
   ARC_AI_RESEARCH_EXECUTOR_URL?: string;
   ARC_AI_RESEARCH_SITE_TO_EXECUTOR_KEY_ID?: string;
   ARC_AI_RESEARCH_SITE_TO_EXECUTOR_SECRET_HEX?: string;

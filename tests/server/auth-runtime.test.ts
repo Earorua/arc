@@ -42,6 +42,7 @@ describe("Arc auth runtime", () => {
     expect(options.hooks?.after).toBeTypeOf("function");
     expect(options.databaseHooks?.account?.create?.before).toBeTypeOf("function");
     expect(options.databaseHooks?.account?.create?.after).toBeTypeOf("function");
+    expect(options.databaseHooks?.session?.create?.after).toBeTypeOf("function");
     expect(options.trustedOrigins).toEqual(["https://arc.example.com"]);
     expect(options.advanced).toMatchObject({
       cookiePrefix: "arc",

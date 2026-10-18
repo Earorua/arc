@@ -3,6 +3,7 @@ import { EntitlementRepositoryError, type EntitlementFinalStatus, type Entitleme
 import { canonicalJson } from "../../lib/planning/fingerprint";
 import { parseSiteImportIdentity } from "./d1-site-import-repository";
 import { ResearchBudgetError, type BudgetReservation, type BudgetSettlement, type ResearchBudgetRepository } from "./budget";
+import { parseReceiptNotice } from "./executor/bridge-contract";
 import { parseBridgeProviderReceipt, parseBridgeReceiptMetadata, summarizeBridgeProviderReceipt,
   type BridgeProviderReceipt, type BridgeReceiptMetadata } from "./executor/receipt";
 import type { ResearchRepository, ResearchRunRecord } from "./repository";
@@ -30,6 +31,20 @@ export type SiteImportCoordinatorDependencies = Readonly<{
 
 export class SiteImportCoordinator {
   constructor(private readonly dependencies: SiteImportCoordinatorDependencies) {}
+
+  async readCompleted(input: SiteExecutionIdentity, receiptHash: string): Promise<SiteImportResult | null> {
+    try {
+      const identity = parseSiteImportIdentity(input);
+      const notice = parseReceiptNotice({ jobId: identity.jobId, requestHash: identity.requestHash, receiptHash });
+      const { journal } = await this.dependencies.imports.readStrictImportContext(identity);
+      if (!journal) return null;
+      if (journal.metadata.receiptHash !== notice.receiptHash) throw conflict();
+      if (journal.phase < 5) return null;
+      return await this.readCompletedResult(identity, journal);
+    } catch (error) {
+      throw preserveOrUnavailable(error);
+    }
+  }
 
   complete(input: SiteExecutionIdentity, receipt: unknown): Promise<SiteImportResult> {
     try {
@@ -97,7 +112,7 @@ export class SiteImportCoordinator {
       record = await this.advanceMarker(identity, record, 4,
         () => this.dependencies.imports.markBudget(identity, hash));
     }
-    if (record.phase >= 4) {
+    if (record.phase === 4) {
       record = await this.advanceMarker(identity, record, 5,
         () => this.dependencies.imports.finish(identity, hash));
     }
