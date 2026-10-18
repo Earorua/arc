@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { getAuth } from "./runtime";
+import { getD1 } from "../../../db/d1";
+import { isRetiredAccount } from "../account-recovery/session-guard";
 
 const sessionPayloadSchema = z.object({
   user: z.object({
@@ -22,7 +24,9 @@ export class UnauthenticatedError extends Error {
 }
 
 async function readRuntimeSession(headers: Headers): Promise<unknown> {
-  return getAuth().api.getSession({ headers });
+  const session = await getAuth().api.getSession({ headers });
+  if (session && await isRetiredAccount(getD1(), session.user.id)) return null;
+  return session;
 }
 
 export async function getArcUser(

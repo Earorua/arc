@@ -14,7 +14,7 @@ export function ProofProfile({
   skills,
 }: {
   projections: ReadonlyArray<SkillEvidenceProjection>;
-  skills: ReadonlyArray<SkillNode>;
+  skills: ReadonlyArray<Pick<SkillNode, "id" | "importance">>;
 }) {
   const readiness = calculateReadiness(skills, projections);
   const visibleStatuses = new Set(projections.filter(({ audience }) => audience === "internal").map(({ status }) => status));

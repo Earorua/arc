@@ -1,0 +1,8 @@
+.uat-controls { border-bottom: 1px solid #bdbdbd; padding: 8px 16px; background: #f2f2ed; color: #252525; font: 13px/1.5 sans-serif; }
+.uat-controls summary { cursor: pointer; min-height: 28px; }
+.uat-controls p { max-width: 85ch; }
+.uat-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.uat-actions label { display: flex; align-items: center; gap: 6px; }
+.uat-actions button, .uat-actions select { border: 1px solid #777; border-radius: 3px; padding: 8px; min-height: 44px; background: white; color: black; }
+.uat-controls pre { max-height: 320px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+.uat-route-boundary { padding: 32px; }

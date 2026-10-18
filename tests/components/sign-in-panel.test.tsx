@@ -6,6 +6,13 @@ import { SignInPanel } from "../../app/components/account/sign-in-panel";
 afterEach(cleanup);
 
 describe("SignInPanel", () => {
+  it("shows an error when the auth client resolves a failed request", async () => {
+    const user = userEvent.setup();
+    render(<SignInPanel providers={["google"]} pending={false} signIn={vi.fn().mockResolvedValue({ error: { code: "INVALID_ORIGIN" } })} />);
+    await user.click(screen.getByRole("button", { name: "Continue with Google" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Sign-in could not start");
+    expect(screen.getByRole("button", { name: "Continue with Google" })).toBeEnabled();
+  });
   it("starts a configured provider flow with same-origin return paths", async () => {
     const user = userEvent.setup();
     const signIn = vi.fn().mockResolvedValue(undefined);

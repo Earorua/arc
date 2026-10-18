@@ -1,0 +1,231 @@
+import { createServer } from "vite";
+import react from "@vitejs/plugin-react";
+import { randomBytes } from "node:crypto";
+import { readFile, mkdtemp, realpath, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { dirname, resolve, relative, isAbsolute, sep } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const harnessRoot = dirname(fileURLToPath(import.meta.url));
+const workspace = resolve(harnessRoot, "../..");
+const normalize = (path) => path.replaceAll("\\", "/");
+let activeHarness = false;
+export function allowsOfflineAsset(path, cacheDir) {
+  let decoded;
+  try { decoded = decodeURIComponent(path); } catch { return false; }
+  // Classify the same spelling Windows opens. Reject ambiguous separators,
+  // re-encoding and trailing-dot/space aliases before Vite performs any resolution.
+  if (!decoded.startsWith("/") || /[%\\?#\u0000-\u001f\u007f]/u.test(decoded)
+    || decoded.slice(1).split("/").some((part) => !part || /[. ]$/u.test(part))) return false;
+  const asset = decoded.toLowerCase();
+  if (/(?:^|\/)\.(?:env[^/]*|git|codex|agents)(?:\/|$)/u.test(asset)
+    || /(?:^|\/)(?:wrangler[^/]*|vite\.config[^/]*|package(?:-lock)?\.json)$/u.test(asset)) return false;
+  const cachePrefix = `/@fs/${normalize(cacheDir).toLowerCase()}/`;
+  if (asset.startsWith(cachePrefix)) return !asset.slice(cachePrefix.length).includes(":");
+  if (asset.includes(":")) return false;
+  // No resolved-ID URLs are needed by this entry. In particular, /@id/ can
+  // name arbitrary absolute sources, so it never inherits a directory allowance.
+  return ["/app/components/", "/app/contracts/", "/app/data/", "/app/domain/", "/app/lib/", "/node_modules/"].some((prefix) => asset.startsWith(prefix))
+    || ["/app/setup/page.tsx", "/app/path/page.tsx", "/app/today/page.tsx", "/app/stack/page.tsx", "/app/proof/page.tsx", "/app/globals.css",
+      "/app/server/auth/policy.ts", "/app/server/account-link/contracts.ts",
+      "/tests/offline-uat/main.tsx", "/tests/offline-uat/browser-runtime.tsx", "/tests/offline-uat/security.ts", "/tests/offline-uat/api-trace.ts", "/tests/offline-uat/controls.css",
+      "/@vite/client", "/@vite/env", "/@react-refresh"].includes(asset);
+}
+export function offlineAliases() {
+  const client = normalize(resolve(workspace, "app/lib/auth-client"));
+  const authRuntime = normalize(resolve(workspace, "app/server/auth/runtime"));
+  return {
+    name: "arc-offline-exact-aliases", enforce: "pre",
+    resolveId(source, importer) {
+      if (source === "next/link" || source === "next/navigation") return resolve(harnessRoot, "browser-runtime.tsx");
+      if (source === "cloudflare:workers") return resolve(harnessRoot, "runtime-unavailable.ts");
+      if (importer && source.startsWith(".")) {
+        const target = normalize(resolve(dirname(importer.split("?")[0]), source)).replace(/\.(?:tsx?|jsx?)$/u, "");
+        if (target === client) return resolve(harnessRoot, "browser-runtime.tsx");
+        if (target === authRuntime) return resolve(harnessRoot, "runtime-unavailable.ts");
+      }
+    },
+  };
+}
+export async function createOfflineVite(extra = {}) {
+  const parent = await realpath(tmpdir());
+  const cacheDir = await mkdtemp(resolve(parent, "arc-v8-offline-vite-"));
+  const removeCache = async () => {
+    const target = await realpath(cacheDir);
+    const child = relative(parent, target);
+    if (!isAbsolute(target) || child.includes(sep) || !child.startsWith("arc-v8-offline-vite-")
+      || resolve(parent, child) !== target) throw new Error("Refusing foreign Vite cache cleanup");
+    await rm(target, { recursive: true, force: true });
+  };
+  try {
+    const server = await createServer({ configFile: false, envFile: false, envDir: false, root: workspace,
+    publicDir: false, cacheDir,
+    optimizeDeps: { entries: [resolve(harnessRoot, "main.tsx")] },
+    plugins: [offlineAliases(), react()],
+    server: { middlewareMode: true, watch: null, cors: false, fs: { strict: true, allow: [workspace], deny: ["**/.env*", "**/.git/**", "**/.codex/**", "**/.agents/**"] } },
+    ...extra,
+    });
+    const close = server.close.bind(server);
+    let closing;
+    server.close = () => closing ??= close().finally(removeCache);
+    return server;
+  } catch (error) { await removeCache(); throw error; }
+}
+
+export async function createHarnessServer({ port = 4179, composition = "compatibility" } = {}) {
+  if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error("Invalid offline port");
+  if (!["compatibility", "public-durable"].includes(composition)) throw new Error("Invalid offline composition");
+  if (activeHarness) throw new Error("Only one offline harness may own global fetch in this process");
+  const durable = composition === "public-durable";
+  const origin = `http://127.0.0.1:${port}`;
+  const nonce = randomBytes(24).toString("hex");
+  let app;
+  let database;
+  let owner = "owner-a";
+  let resetting = false;
+  let closed = false;
+  let controlTail = Promise.resolve();
+  const requests = new Set();
+  let security;
+  let compose;
+  let createDb;
+  let outboundDenials = 0;
+  const originalFetch = globalThis.fetch;
+  activeHarness = true;
+  globalThis.fetch = async () => { outboundDenials++; throw new Error("Offline server blocks outbound application fetch"); };
+  async function send(response, result) {
+    response.statusCode = result.status;
+    result.headers.forEach((value, name) => response.setHeader(name, value));
+    response.end(Buffer.from(await result.arrayBuffer()));
+  }
+  async function reset() {
+    resetting = true;
+    try {
+      if (durable) { await Promise.allSettled([...requests]); await app?.dispose(); app = await compose(origin); }
+      else { await app?.dispose(); await Promise.allSettled([...requests]); database?.close(); database = createDb(); app = await compose(database, origin); }
+    }
+    finally { resetting = false; }
+  }
+  const control = async (request) => {
+    const input = await request.json();
+    if (!input || typeof input !== "object" || Array.isArray(input)) return Response.json({ error: "Invalid control" }, { status: 400 });
+    const keys = { reset: ["action"], owner: ["action", "owner"], configure: ["action", "mode", "disabled", "exhausted"],
+      prestart: ["action", "stage"], resume: ["action"], reopen: ["action"], workflow: ["action", "runId"], cron: ["action"] }[input.action];
+    if (!keys || Object.keys(input).some(key => !keys.includes(key))) return Response.json({ error: "Invalid control" }, { status: 400 });
+    if (input.action === "reset") await reset();
+    else if (input.action === "owner" && [null, "owner-a", "owner-b"].includes(input.owner)) owner = input.owner;
+    else if (input.action === "configure") {
+      const allowed = new Set(["action", "mode", "disabled", "exhausted"]);
+      if (Object.keys(input).some((key) => !allowed.has(key))) return Response.json({ error: "Invalid control" }, { status: 400 });
+      app.configure(input);
+    } else if (!durable && input.action === "prestart" && owner && ["researching", "validating"].includes(input.stage)) await app.prestart(owner, input.stage);
+    else if (input.action === "resume") await app.resume(owner);
+    else if (durable && input.action === "workflow" && typeof input.runId === "string" && /^[a-z0-9-]{1,256}$/u.test(input.runId)) await app.workflow(owner, input.runId);
+    else if (durable && input.action === "cron") await app.cron();
+    else if (durable && input.action === "reopen") {
+      resetting = true;
+      try { await Promise.allSettled([...requests]); await app.reopen(); }
+      finally { resetting = false; }
+    }
+    else return Response.json({ error: "Invalid control" }, { status: 400 });
+    return Response.json({ ok: true });
+  };
+  const middleware = {
+    name: "arc-offline-http-boundary",
+    configureServer(vite) {
+      vite.middlewares.use(async (incoming, outgoing, next) => {
+        let releaseRequest;
+        outgoing.setHeader("Cache-Control", "no-store");
+        outgoing.setHeader("X-Content-Type-Options", "nosniff");
+        outgoing.setHeader("Referrer-Policy", "no-referrer");
+        outgoing.setHeader("Content-Security-Policy", `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://127.0.0.1:${port}; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`);
+        try {
+          if (!security || resetting || closed) { outgoing.statusCode = 503; outgoing.end("Offline harness initializing"); return; }
+          const requestOwner = owner;
+          const method = incoming.method ?? "GET";
+          const headers = new Headers();
+          for (const [name, value] of Object.entries(incoming.headers)) if (value !== undefined) headers.set(name, Array.isArray(value) ? value.join(",") : value);
+          const boundaryRequest = new Request(new URL(incoming.url ?? "/", origin), { method, headers });
+          if (!security.allowsHarnessRequest(boundaryRequest, origin, nonce)) { outgoing.statusCode = 403; outgoing.end("Offline origin boundary rejected request"); return; }
+          const path = new URL(boundaryRequest.url).pathname;
+          if (path.startsWith("/api/") || path.startsWith("/__uat/")) {
+            if (path !== "/__uat/control") {
+              const lifetime = new Promise(resolve => { releaseRequest = () => { requests.delete(lifetime); resolve(); }; });
+              requests.add(lifetime);
+            }
+            const chunks = []; let bytes = 0;
+            for await (const chunk of incoming) {
+              bytes += chunk.length;
+              if (bytes > 4 * 1024 * 1024) { outgoing.statusCode = 413; outgoing.end("Offline request too large"); return; }
+              chunks.push(chunk);
+            }
+            headers.delete("x-arc-uat-owner");
+            if (requestOwner) headers.set("x-arc-uat-owner", requestOwner);
+            if (durable) { headers.delete("cf-connecting-ip"); headers.set("cf-connecting-ip", "127.0.0.1"); }
+            const body = Buffer.concat(chunks);
+            const request = new Request(boundaryRequest.url, { method, headers, ...(method === "GET" || method === "HEAD" ? {} : { body }) });
+            if (path === "/__uat/control" && method === "POST") {
+              const pendingControl = controlTail.then(() => control(request));
+              controlTail = pendingControl.then(() => undefined, () => undefined);
+              return await send(outgoing, await pendingControl);
+            }
+            if (path === "/__uat/state" && method === "GET") {
+              const pendingState = app.diagnostics(); requests.add(pendingState);
+              try { return await send(outgoing, Response.json({ owner: requestOwner, ...await pendingState, serverOutboundDenials: outboundDenials })); }
+              finally { requests.delete(pendingState); }
+            }
+            if (path.startsWith("/__uat/")) return await send(outgoing, Response.json({ error: "Unknown offline control" }, { status: 404 }));
+            const pending = app.dispatch(request);
+            requests.add(pending);
+            try { return await send(outgoing, await pending); }
+            finally { requests.delete(pending); }
+          }
+          if (method !== "GET" && method !== "HEAD") { outgoing.statusCode = 405; outgoing.end(); return; }
+          if (["/", "/setup", "/path", "/today", "/stack", "/proof", "/sign-in", "/__uat"].includes(path)) {
+            const html = (await readFile(resolve(harnessRoot, "index.html"), "utf8")).replace("__CONTROL_NONCE__", nonce);
+            outgoing.setHeader("Content-Type", "text/html; charset=utf-8"); outgoing.end(await vite.transformIndexHtml(path, html)); return;
+          }
+          if (!allowsOfflineAsset(path, vite.config.cacheDir)) {
+            outgoing.statusCode = 404; outgoing.end("Offline asset not available"); return;
+          }
+          next();
+        } catch (error) { outgoing.statusCode = 400; outgoing.setHeader("Content-Type", "application/json"); outgoing.end(JSON.stringify({ error: error instanceof Error && /^Run completed before pause/u.test(error.message) ? error.message : "Offline request rejected" })); }
+        finally { releaseRequest?.(); }
+      });
+    },
+  };
+  let vite;
+  try {
+    vite = await createOfflineVite({ plugins: [middleware, offlineAliases(), react()], server: {
+      host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],
+      fs: { strict: true, allow: [workspace], deny: ["**/.env*", "**/.git/**", "**/.codex/**", "**/.agents/**"] },
+    } });
+    security = await vite.ssrLoadModule("/tests/offline-uat/security.ts");
+    if (durable) ({ createResearchPublicComposition: compose } = await vite.ssrLoadModule("/tests/offline-uat/research-public-composition.ts"));
+    else {
+      ({ createOfflineComposition: compose } = await vite.ssrLoadModule("/tests/offline-uat/composition.ts"));
+      ({ createResearchD1: createDb } = await vite.ssrLoadModule("/tests/helpers/sqlite-d1.ts"));
+    }
+    await reset(); await vite.listen();
+    let closing;
+    return { origin, vite, get app() { return app; }, close: () => closing ??= (async () => {
+      closed = true;
+      try {
+        await controlTail;
+        if (!durable) await app?.dispose();
+        await Promise.allSettled([...requests]);
+        if (durable) await app?.dispose();
+      } finally {
+        try { await vite.close(); }
+        finally { try { database?.close(); } finally { globalThis.fetch = originalFetch; activeHarness = false; } }
+      }
+    })() };
+  } catch (error) {
+    try { await app?.dispose(); }
+    finally {
+      try { await vite?.close(); }
+      finally { try { database?.close(); } finally { globalThis.fetch = originalFetch; activeHarness = false; } }
+    }
+    throw error;
+  }
+}

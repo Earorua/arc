@@ -1,0 +1,29 @@
+# Task15 Task2 source-backed integration clarifications
+
+Status: Root local implementation decision following independent specification review r1, 2026-10-14. Covered by existing local implementation authorization. No cloud operation, driver change, new control permission or paid model call. Preserve the original plan, Task1 and prior evidence; this document resolves the four reported integration findings for Task2 and must be included in the next specification and quality reviews.
+
+## 1. Consume the frozen status projection
+
+The pinned scripts/test-research-cloud-smoke.mjs (SHA256 472e0cecc6ee0f070b71d46174b7151a562689e4fef4dfaffd4e38ae06158099) safeStatus at lines175-183 retains only scenarioId, state, backgroundAccepted, jobId, requestHash, acceptedAt and settled for an accepted result. Do not require fields that the driver discards, manufacture them, or change the frozen driver. Validate the exact successful safe projection against the original scenario/job/request/accepted time and require ready, accepted/backgroundAccepted and settled after the actual native/R2 evidence. Original grant/queue times, run/package hashes and expiry, accounting counts and receipt metadata remain independently required by the existing native joins and R2 production codec. Add a regression using the actual frozen projection rather than an invented expanded view.
+
+## 2. Distinguish bounded internal acceptance probes from later control
+
+The same pinned driver's start invocation sends exactly one start request and may send at most two status acceptance-confirmation requests within its existing ten-second bound. A start report does not retain their exact number; never infer zero or fabricate a per-request history. Root inspected worker/research-executor-smoke/site-entry.ts (SHA256 213cdee24b8bd4bca6e6a04ce7e8d7cd7b382bd58d3a828fd60baaa62aabb8dc): the status handler at148-178/191-219 reads evidence, run, execution, acceptance, counts and settled state. Related repository read methods use SELECTs. Authentication nonce bookkeeping is retained; no start, import, delivery, replay, repair or active recovery is invoked by this status branch.
+
+Resolve the plan's literal gap-before-any-status wording narrowly: the immediate three-query raw fault gap must precede every independent post-start signed status/recover/result/replay control. The bounded internal acceptance probes of this exact immutable start invocation are permitted and represented honestly as possibly present, exact count unavailable, maximum two. They do not replace the raw gap, native Cron/delivery/import correlation or any original identity/receipt proof. The aggregate start's actual confirmed exit bounds all internal requests; LONG quiet still starts no earlier than that exit and the last later actual contact. A standalone control overlapping the original start interval is also forbidden before the fault gap; earlier completed-scenario controls before this scenario's actual start are historical, not evidence of current recovery. Keep actual contact-ledger scope/times explicit so neither hidden independent controls nor a fabricated zero-probe assertion can pass.
+
+No new probe is added, existing retry/timeout bounds are unchanged, and no local or cloud provider behavior changes. Bind this clarified policy to the unchanged driver/handler source pins and test the real frozen start->internal-status branch with fake transport only.
+
+## 3. Require complete cursor coverage
+
+Before comparing delayed drain state, require exact unique executor categories bootstrap/results/site and exact unique Site names maintenance/outbox. All expected cursor position/version fields must pass their native projection schema. Missing, extra or duplicate identity rows fail. Preserve existing complete counters, lease, mapping and the original931000ms/60000ms timing checks. Test healthy populated cursor rows plus empty/missing/extra/duplicate failures. Do not change SQL targets, cursor values, databases or seeds.
+
+## 4. Preserve an observed old revision as unresolved read-only reconciliation
+
+An unknown exclusive write may have applied a new revision, or the native observation may still show the exact predecessor revision/config. Support both as distinct complete read-only observations linked to the actual consumed attempt/result. In the second case use the predecessor config and exact observed predecessor version, not the unproved attempted config. An observed old revision does not prove that a delayed remote write can never take effect.
+
+The old-revision outcome must remain explicitly UNRESOLVED/INCOMPLETE, with the consumed write, original clock/deadline and actual read interval retained. It cannot satisfy activation success, any completed transition/maintenance-close proof, normal continuation, Task15 completion, or permission to retry a write. No new mutation is added. Additional bounded read-only reconciliation may establish a later actual state, within the same fixed recovery allowance when used. Never silently repeat the consumed operation. The applied-new-revision branch retains its strict new-revision/config/current-pair checks. An unresolved old-revision record must not be promoted by loadState or another downstream consumer into a successful post-operation state.
+
+## Local verification and review
+
+Implement each finding with failing regression first, then the smallest Task2-only correction. Keep the WeakSet validation context closed; no public fixture bypass or fabricated operational success files. Preserve frozen driver, Task1 and all previous reports. Pin this clarification in the current tools graph. Write implementation report r2 with exact changed file hashes, tests and remaining integration limitations. Obtain independent specification re-review, then quality/safety review before Task3 or any activation. These changes authorize no cloud contact.

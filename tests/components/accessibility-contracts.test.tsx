@@ -88,6 +88,15 @@ afterEach(() => {
 });
 
 describe("navigation accessibility contracts", () => {
+  it("keeps Research cardless, touch-safe, single-column at 320px and motion-free when requested", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+    const panel = readFileSync("app/components/setup/role-research-panel.tsx", "utf8");
+    expect(css).toMatch(/\.research-action\s*\{[^}]*min-height:\s*44px/u);
+    expect(css).toMatch(/\.research-facts\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/u);
+    expect(css).toMatch(/@media \(max-width:\s*760px\)[\s\S]*?\.research-facts\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/u);
+    expect(css).toMatch(/@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.research-ready\s*\{[^}]*animation:\s*none;[^}]*transform:\s*none;[^}]*opacity:\s*1/u);
+    expect(panel).not.toContain("dangerouslySetInnerHTML");
+  });
   it("exposes the Proof editor through native labelled controls and focused errors", async () => {
     const user = userEvent.setup();
     const planning = adaptiveWorkspace();

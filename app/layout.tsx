@@ -5,7 +5,7 @@ import "./globals.css";
 
 const title = "Arc. — Learn only what moves you forward";
 const description = "Turn any role into an attributable technology map, a precise daily path, and proof of capability.";
-const siteUrl = new URL("https://arc-precision-path.jiahe-xu.chatgpt.site");
+const siteUrl = new URL("https://arcmaps.net");
 const socialImageAlt = "Arc. — Learn only what moves you forward";
 
 export const metadata: Metadata = {
@@ -41,6 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="zh-CN">
       <body>
         <a className="skip-link" href="#main-content">跳到主要内容</a>
+        <p className="development-notice" role="note" lang="en">The website is currently under development.</p>
         {children}
       </body>
     </html>

@@ -9,6 +9,7 @@ import {
 import { getD1 } from "../../../db/d1";
 import { requireArcUser, UnauthenticatedError, type ArcUser } from "../auth/session";
 import { D1CloudRepository } from "../cloud/d1-cloud-repository";
+import { ResearchSetupConflictError } from "../cloud/repository";
 import { CloudService } from "../cloud/service";
 import { D1OperationalEventSink } from "../observability/d1-events";
 import {
@@ -128,7 +129,7 @@ async function runAuthenticatedRoute(
     } else if (error instanceof InvalidInputError) {
       resultCode = "INVALID_INPUT";
       response = apiError("INVALID_INPUT", "The request body is invalid.", 400, requestId);
-    } else if (error instanceof CloudConflictError) {
+    } else if (error instanceof CloudConflictError || error instanceof ResearchSetupConflictError) {
       resultCode = "CONFLICT";
       response = apiError("CONFLICT", "An active cloud goal already exists.", 409, requestId);
     } else if (error instanceof RateLimitUnavailableError) {

@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": { "incremental": false, "strict": true },
+  "files": [
+    "executor-entry.ts", "site-entry.ts", "runtime.ts", "replay.ts", "replay-contract.ts", "replay-admission.ts",
+    "../../tests/fixtures/research/cloud-smoke-local-timing.ts",
+    "../../tests/fixtures/research/cloud-smoke-local-executor-entry.ts",
+    "../../tests/server/research-cloud-smoke-transports.test.ts",
+    "../../tests/server/research-bridge-transport.test.ts",
+    "../../tests/server/research-cloud-smoke-control.test.ts",
+    "../../tests/server/research-cloud-smoke-build.test.ts",
+    "../../tests/server/research-cloud-smoke-replay.test.ts",
+    "../../tests/server/research-cloud-smoke-composition.test.ts",
+    "../../tests/server/research-cloud-smoke-launcher.test.ts",
+    "../../tests/helpers/research-cloud-smoke-fixture.ts"
+  ],
+  "include": []
+}

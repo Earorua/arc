@@ -13,6 +13,51 @@ const snapshot = {
 };
 
 describe("Arc cloud client", () => {
+  it("sends the explicit Research guard only for current Research save and activation commands", async () => {
+    const fetcher = vi.fn().mockResolvedValueOnce(Response.json({ snapshot })).mockResolvedValueOnce(Response.json({ result: {
+      migrationId: "activation-guarded", status: "imported", activeGoalId: "goal-1", importedCompletionCount: 0, importedProofCount: 0, availableResolutions: [],
+    } }));
+    const client = createArcCloudClient({ fetch: fetcher });
+    await client.saveSetup(snapshot.state.setup, "setup-guarded", undefined, "research-setup");
+    await client.importLocal(snapshot.state, "reject", "activation-guarded", undefined, "research-setup");
+    expect(fetcher.mock.calls.map(([, init]) => JSON.parse(String(init.body)))).toEqual([
+      { mutationId: "setup-guarded", setup: snapshot.state.setup, intent: "research-setup" },
+      { migrationId: "activation-guarded", consent: true, state: snapshot.state, conflictResolution: "reject", intent: "research-setup" },
+    ]);
+  });
+  it.each(["activation", "load"])("cancels the %s transport used by Research setup", async (operation) => {
+    const cancellation = new AbortController();
+    let resolveResponse!: (response: Response) => void;
+    const fetcher = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(() => new Promise<Response>((resolve) => { resolveResponse = resolve; }));
+    const client = createArcCloudClient({ fetch: fetcher });
+    const pending = operation === "activation" ? client.importLocal(snapshot.state, "reject", "activation-current", cancellation.signal) : client.loadWorkspace(cancellation.signal);
+    expect(fetcher.mock.calls[0]?.[1]).toMatchObject({ signal: cancellation.signal });
+    cancellation.abort(); resolveResponse(Response.json({ snapshot }));
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  });
+  it("cancels setup transport and discards responses from a transport that resolves after abort", async () => {
+    let resolveFetch!: (response: Response) => void;
+    const fetcher = vi.fn(() => new Promise<Response>((resolve) => { resolveFetch = resolve; }));
+    const client = createArcCloudClient({ fetch: fetcher });
+    const cancellation = new AbortController();
+    const pending = client.saveSetup(snapshot.state.setup, "setup-cancelled", cancellation.signal);
+    expect(fetcher).toHaveBeenCalledWith("/api/workspace", expect.objectContaining({ signal: cancellation.signal }));
+    cancellation.abort(); resolveFetch(Response.json({ snapshot }));
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  });
+  it("rejects already cancelled setup before dispatch and cancellation during body parsing", async () => {
+    const cancellation = new AbortController(); cancellation.abort();
+    const fetcher = vi.fn().mockResolvedValue(Response.json({ snapshot }));
+    const client = createArcCloudClient({ fetch: fetcher });
+    await expect(client.saveSetup(snapshot.state.setup, "setup-cancelled", cancellation.signal)).rejects.toMatchObject({ name: "AbortError" });
+    expect(fetcher).not.toHaveBeenCalled();
+    const parsing = new AbortController();
+    let resolveBody!: (value: unknown) => void;
+    fetcher.mockResolvedValue({ ok: true, json: () => new Promise((resolve) => { resolveBody = resolve; }) });
+    const pending = client.saveSetup(snapshot.state.setup, "setup-parsing", parsing.signal);
+    await Promise.resolve(); parsing.abort(); resolveBody({ snapshot });
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  });
   it("loads a validated workspace with same-origin credentials", async () => {
     const fetcher = vi.fn().mockResolvedValue(Response.json({ snapshot }));
     const client = createArcCloudClient({ fetch: fetcher });

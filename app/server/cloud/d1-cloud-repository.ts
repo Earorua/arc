@@ -11,7 +11,7 @@ import {
   type SetupAnswersInput,
 } from "../../contracts/cloud-state";
 import { completeDemoUnit, mergeSetup } from "../../lib/demo-store";
-import type { CloudRepository } from "./repository";
+import { ResearchSetupConflictError, type CloudRepository } from "./repository";
 
 type GoalRow = {
   id: string;
@@ -59,6 +59,15 @@ function parseStringArray(value: string): string[] {
     throw new Error("D1 returned an invalid string array.");
   }
   return parsed;
+}
+
+function rethrowResearchGuardFailure(error: unknown, guarded: boolean): never {
+  // These batches only invoke JSON1 for the guard's deliberately invalid literal.
+  // All stored payloads are schema-validated and serialized before the batch.
+  if (guarded && error instanceof Error && /malformed JSON/iu.test(error.message)) {
+    throw new ResearchSetupConflictError();
+  }
+  throw error;
 }
 
 export class D1CloudRepository implements CloudRepository {
@@ -167,12 +176,27 @@ export class D1CloudRepository implements CloudRepository {
       availableResolutions: [],
     });
     const statements: D1PreparedStatement[] = [];
+    const guarded = request.intent === "research-setup";
 
+    // Assert the captured goal before any insert can collide with a newer active
+    // goal. JSON1 failure rolls back this entire D1 batch, including its receipt.
     statements.push(this.db.prepare(`
       INSERT INTO learner_profiles (id, user_id, state_version, created_at, updated_at)
-      VALUES (?1, ?2, 1, ?3, ?3)
+      VALUES (?1, ?2, ${guarded ? `CASE WHEN
+        (?4 IS NULL AND NOT EXISTS (
+          SELECT 1 FROM career_goals WHERE user_id = ?2 AND active_slot = 1
+        )) OR (?4 IS NOT NULL AND EXISTS (
+          SELECT 1 FROM career_goals
+          WHERE user_id = ?2 AND id = ?4 AND active_slot = 1 AND role_id = ?5
+            AND NOT EXISTS (
+              SELECT 1 FROM planning_workspaces WHERE user_id = ?2 AND goal_id = ?4
+            )
+        )) THEN 1 ELSE json('') END` : "1"}, ?3, ?3)
       ON CONFLICT(user_id) DO UPDATE SET updated_at = excluded.updated_at
-    `).bind(this.options.createId(), userId, now));
+    `).bind(
+      this.options.createId(), userId, now,
+      ...(guarded ? [activeGoal?.id ?? null, request.state.setup.roleId] : []),
+    ));
 
     if (activeGoal && roleConflicts && request.conflictResolution === "activate-import") {
       statements.push(this.db.prepare(`
@@ -252,7 +276,12 @@ export class D1CloudRepository implements CloudRepository {
       INSERT INTO migration_runs (
         id, user_id, migration_id, request_hash, status,
         checkpoint_json, result_json, started_at, completed_at
-      ) VALUES (?1, ?2, ?3, ?4, 'completed', '{}', ?5, ?6, ?6)
+      ) VALUES (?1, ?2, ?3, ?4, 'completed', '{}', ${guarded ? `CASE WHEN EXISTS (
+        SELECT 1 FROM career_goals
+        WHERE user_id = ?7 AND id = ?8 AND active_slot = 1 AND role_id = ?9
+      ) AND NOT EXISTS (
+        SELECT 1 FROM planning_workspaces WHERE user_id = ?7 AND goal_id = ?8
+      ) THEN ?5 ELSE json('') END` : "?5"}, ?6, ?6)
     `).bind(
       this.options.createId(),
       userId,
@@ -260,6 +289,7 @@ export class D1CloudRepository implements CloudRepository {
       await this.options.hash(JSON.stringify(request)),
       JSON.stringify(result),
       now,
+      ...(guarded ? [userId, importedGoalId, request.state.setup.roleId] : []),
     ));
 
     try {
@@ -267,7 +297,7 @@ export class D1CloudRepository implements CloudRepository {
     } catch (error) {
       const winner = await this.getMigrationResult(userId, request.migrationId);
       if (winner) return winner;
-      throw error;
+      rethrowResearchGuardFailure(error, guarded);
     }
     return { ownerId: userId, ...result };
   }
@@ -292,8 +322,11 @@ export class D1CloudRepository implements CloudRepository {
     userId: string,
     mutationId: string,
     setup: SetupAnswersInput,
+    intent?: "research-setup",
   ): Promise<RepositorySnapshot> {
-    const replay = await this.getIdempotentSnapshot(userId, "setup", mutationId);
+    const guarded = intent === "research-setup";
+    const scope = guarded ? "research-setup" : "setup";
+    const replay = await this.getIdempotentSnapshot(userId, scope, mutationId);
     if (replay) return replay;
     const current = await this.getSnapshot(userId);
     if (!current) throw new Error("Arc cloud workspace is unavailable.");
@@ -304,7 +337,7 @@ export class D1CloudRepository implements CloudRepository {
       revision: mutationId,
     };
     const now = this.options.now().getTime();
-    await this.db.batch([
+    const statements = [
       this.db.prepare(`
         UPDATE career_goals
         SET role_id = ?1, level = ?2, weekly_minutes = ?3, target_weeks = ?4, updated_at = ?5
@@ -320,9 +353,21 @@ export class D1CloudRepository implements CloudRepository {
       ),
       this.db.prepare(`
         INSERT INTO idempotency_records (id, user_id, scope, mutation_id, response_json, created_at)
-        VALUES (?1, ?2, 'setup', ?3, ?4, ?5)
-      `).bind(this.options.createId(), userId, mutationId, JSON.stringify(snapshot), now),
-    ]);
+        VALUES (?1, ?2, '${scope}', ?3, ${guarded ? `CASE WHEN EXISTS (
+          SELECT 1 FROM career_goals WHERE user_id = ?2 AND id = ?6 AND active_slot = 1
+        ) AND NOT EXISTS (
+          SELECT 1 FROM planning_workspaces WHERE user_id = ?2 AND goal_id = ?6
+        ) THEN ?4 ELSE json('') END` : "?4"}, ?5)
+      `).bind(
+        this.options.createId(), userId, mutationId, JSON.stringify(snapshot), now,
+        ...(guarded ? [current.activeGoalId] : []),
+      ),
+    ];
+    try {
+      await this.db.batch(statements);
+    } catch (error) {
+      rethrowResearchGuardFailure(error, guarded);
+    }
     return { ownerId: userId, ...snapshot };
   }
 

@@ -11,6 +11,29 @@ import { buildPlanVersion, type PlanBuildInput } from "../../app/lib/planning/sc
 afterEach(cleanup);
 
 describe("AdaptiveSetupFlow", () => {
+  it("submits only the research run reference and learner answers for an explicit research source", async () => {
+    const user = userEvent.setup();
+    const generate = vi.fn().mockResolvedValue(true);
+    render(<AdaptiveSetupFlow source={{ source: "research", researchRunId: "research-run-one" }} blueprint={flagshipBlueprint} registry={flagshipUnitRegistry} generate={generate} navigate={vi.fn()} createMutationId={() => "mutation-research"} now={() => new Date("2026-09-05T00:00:00Z")} timeZone="UTC" />);
+    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    expect(generate).toHaveBeenCalledWith(expect.objectContaining({ source: { source: "research", researchRunId: "research-run-one" } }));
+    expect(generate.mock.calls[0]![0]).not.toHaveProperty("roleId");
+    expect(generate.mock.calls[0]![0]).not.toHaveProperty("planningData");
+  });
+  it("does not save or navigate when an obsolete source finishes its deferred build preflight", async () => {
+    const user = userEvent.setup();
+    const pending = deferred<ReturnType<typeof buildLearningPaths>>();
+    let built!: ReturnType<typeof buildLearningPaths>;
+    const generate = vi.fn(); const navigate = vi.fn();
+    const properties = { blueprint: flagshipBlueprint, registry: flagshipUnitRegistry, source: { source: "research" as const, researchRunId: "research-run-one" }, generate, navigate, createMutationId: () => "mutation-research", now: () => new Date("2026-09-05T00:00:00Z"), timeZone: "UTC", buildPathsForSubmit: (input: Parameters<typeof buildLearningPaths>[0]) => { built = buildLearningPaths(input); return pending.promise; } };
+    const page = render(<AdaptiveSetupFlow {...properties} />);
+    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Building the learning path");
+    page.unmount(); pending.resolve(built); await pending.promise;
+    expect(generate).not.toHaveBeenCalled(); expect(navigate).not.toHaveBeenCalled();
+  });
   function deferred<T>() {
     let resolve!: (value: T) => void;
     let reject!: (reason?: unknown) => void;

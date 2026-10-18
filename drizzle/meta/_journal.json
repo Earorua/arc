@@ -36,6 +36,62 @@
       "when": 1787589510163,
       "tag": "0004_proof_backed_stack",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1788085003002,
+      "tag": "0005_openrouter_research_beta",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1788396095241,
+      "tag": "0006_research_health_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1789350285212,
+      "tag": "0007_research_bridge_nonces",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1789453172039,
+      "tag": "0008_research_site_executions",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1789529600000,
+      "tag": "0009_research_site_begin_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1789616000000,
+      "tag": "0010_research_site_imports",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1790006400000,
+      "tag": "0011_research_site_bridge",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1791950938620,
+      "tag": "0012_account_recovery",
+      "breakpoints": true
     }
   ]
 }

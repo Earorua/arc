@@ -21,7 +21,7 @@ type Props = {
   onCancel?: () => void;
   onSave: (input: ProofEditorInput) => Promise<boolean>;
   onUpload: (file: File) => Promise<string | null>;
-  skills: readonly SkillNode[];
+  skills: readonly Pick<SkillNode, "id" | "name">[];
 };
 
 const artifactKinds: readonly { value: ProofArtifactKind; label: string }[] = [

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SetupFlow } from "../../app/components/setup/setup-flow";
@@ -9,6 +9,60 @@ import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 afterEach(cleanup);
 
 describe("SetupFlow", () => {
+  it.each([
+    "ai-native-full-stack-engineer", "  AI-NATIVE-FULL-STACK-ENGINEER  ",
+    "AI-Native Full-Stack Engineer", "  ai-native   full-stack\tengineer ",
+    "ＡＩ-Native Full-Stack Engineer", flagshipBlueprint.name, "  ai　原生全栈工程师  ",
+  ])("does not offer new research for the known Flagship alias %s", async (role) => {
+    const renderResearch = vi.fn(() => <p>Research controls</p>);
+    const renderAdaptive = vi.fn(() => <p>Flagship audit</p>);
+    const page = render(<SetupFlow onComplete={vi.fn()} signedIn researchEligible renderResearch={renderResearch} renderAdaptive={renderAdaptive} />);
+    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: role } });
+    expect(renderResearch).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Research this role to use/)).not.toBeInTheDocument();
+    // Excluding new Research must not hide an existing owner run.
+    page.rerender(<SetupFlow onComplete={vi.fn()} signedIn researchRecoveryAvailable renderResearch={renderResearch} renderAdaptive={renderAdaptive} />);
+    expect(screen.getByText("Research controls")).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByRole("heading", { name: "你现在处于哪个阶段？" })).toBeInTheDocument();
+    expect(renderAdaptive).not.toHaveBeenCalled();
+  });
+  it("preserves Back edits for the same research source and remounts the audit for another run", async () => {
+    const user = userEvent.setup();
+    const data = { id: "research-package-one", blueprint: flagshipBlueprint, registry: flagshipUnitRegistry };
+    render(<SetupFlow onComplete={vi.fn()} signedIn researchEligible researchRecoveryAvailable
+      renderResearch={({ onUseResearch }) => <><button onClick={() => onUseResearch("research-one", data)}>Use first research</button><button onClick={() => onUseResearch("research-two", data)}>Use second research</button></>}
+      renderAdaptive={({ active, onBackToRole, source }) => <AdaptiveSetupFlow source={source} active={active} blueprint={flagshipBlueprint} registry={flagshipUnitRegistry} generate={vi.fn()} navigate={vi.fn()} createMutationId={() => "mutation-setup"} now={() => new Date("2026-09-05T00:00:00Z")} timeZone="UTC" onBackToRole={onBackToRole} />} />);
+    await user.click(screen.getByRole("button", { name: "Use first research" }));
+    await user.click(screen.getByRole("button", { name: "Set Foundations to Guided" }));
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    await user.click(screen.getByRole("button", { name: "Use first research" }));
+    expect(screen.getAllByRole("radio", { name: "Guided", checked: true })).toHaveLength(2);
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    await user.click(screen.getByRole("button", { name: "Use second research" }));
+    expect(screen.queryAllByRole("radio", { name: "Guided", checked: true })).toHaveLength(0);
+  });
+  it("offers the research slot only to eligible signed-in custom roles", async () => {
+    const user = userEvent.setup();
+    const renderResearch = vi.fn(({ role }) => <button>Research {role}</button>);
+    render(<SetupFlow onComplete={vi.fn()} signedIn researchEligible renderResearch={renderResearch} />);
+    expect(renderResearch).not.toHaveBeenCalled();
+    await user.type(screen.getByLabelText("Custom role"), "Data Product Manager");
+    expect(screen.getByRole("button", { name: "Research Data Product Manager" })).toBeInTheDocument();
+    expect(screen.queryByText(/Full skill audit and adaptive scheduling currently require/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Continue keeps the proportional v7 path/)).toBeInTheDocument();
+  });
+  it("keeps the research slot visible during recovery without inviting new research", async () => {
+    const user = userEvent.setup();
+    const renderResearch = vi.fn(() => <button>Research controls</button>);
+    render(<SetupFlow onComplete={vi.fn()} signedIn researchRecoveryAvailable renderResearch={renderResearch} />);
+
+    await user.type(screen.getByLabelText("Custom role"), "Data Product Manager");
+
+    expect(screen.getByRole("button", { name: "Research controls" })).toBeInTheDocument();
+    expect(screen.queryByText(/Research this role to use/)).not.toBeInTheDocument();
+    expect(screen.getByText("New research is currently unavailable. Continue keeps the proportional v7 path.")).toBeInTheDocument();
+  });
   async function reachWeeklyStep(user: ReturnType<typeof userEvent.setup>) {
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(screen.getByRole("button", { name: "Continue" }));

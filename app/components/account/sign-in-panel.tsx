@@ -40,11 +40,14 @@ export function SignInPanel({
     setActiveProvider(provider);
     setFailed(false);
     try {
-      await signIn({
+      const result = await signIn({
         provider,
         callbackURL: "/today",
         errorCallbackURL: "/sign-in?error=oauth",
       });
+      if (result && typeof result === "object" && "error" in result && result.error) {
+        setFailed(true);
+      }
     } catch {
       setFailed(true);
     } finally {

@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AccountMenu } from "../account/account-menu";
+import { authClient } from "../../lib/auth-client";
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data } = authClient.useSession();
 
   return (
     <header className="site-header" lang="en">
@@ -25,7 +27,9 @@ export function SiteHeader() {
           <Link href="/intelligence">Intelligence</Link>
         </nav>
         <div className="header-end">
-          <Link className="header-cta" href="/setup">Build my path</Link>
+          <Link className="header-cta" href={data?.user ? "/today" : "/setup"}>
+            {data?.user ? "Continue learning" : "Build my path"}
+          </Link>
           <AccountMenu />
         </div>
       </div>

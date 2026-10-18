@@ -1,0 +1,114 @@
+import { DatabaseSync } from "node:sqlite";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+type Bindings = unknown[];
+const D1_VALUE_MAX = 2_000_000;
+const valueBytes = (value: unknown): number => typeof value === "string" ? new TextEncoder().encode(value).byteLength : value instanceof Uint8Array ? value.byteLength : value === null ? 0 : 8;
+function boundedRow<T>(row: T): T {
+  if (row && typeof row === "object" && Object.values(row).reduce((total, value) => total + valueBytes(value), 0) > D1_VALUE_MAX) throw new Error("D1 row too large");
+  return row;
+}
+
+class SqliteStatement {
+  private bindings: Bindings = [];
+  constructor(private readonly database: SqliteD1, readonly sql: string) {}
+  bind(...values: unknown[]) {
+    if (values.length > 100) throw new Error("D1 parameter limit");
+    if (values.some((value) => valueBytes(value) > D1_VALUE_MAX)) throw new Error("D1 value too large");
+    const bound = new SqliteStatement(this.database, this.sql);
+    bound.bindings = values.map((value) => value instanceof Uint8Array ? value.slice() : value);
+    return bound as unknown as D1PreparedStatement;
+  }
+  async first<T = Record<string, unknown>>() {
+    const row = this.database.execute(this.sql, this.bindings, "get") as T | undefined;
+    return row ?? null;
+  }
+  async all<T = Record<string, unknown>>() {
+    return { success: true, results: this.database.execute(this.sql, this.bindings, "all") as T[], meta: {} };
+  }
+  async raw() {
+    return this.database.execute(this.sql, this.bindings, "raw") as unknown[][];
+  }
+  async run() {
+    const result = this.runSync();
+    return { success: true, meta: { changes: result.changes ?? 0 } };
+  }
+  runSync() { return this.database.execute(this.sql, this.bindings, "run") as { changes?: number }; }
+  batchSync() {
+    if (this.database.database.prepare(this.sql).columns().length === 0) {
+      const result = this.runSync();
+      return { success: true, results: [], meta: { changes: result.changes ?? 0 } };
+    }
+    const changes = () => (this.database.database.prepare("SELECT total_changes() AS n").get() as { n: number }).n;
+    const before = changes();
+    const results = this.database.execute(this.sql, this.bindings, "all") as unknown[];
+    return { success: true, results, meta: { changes: changes() - before } };
+  }
+}
+
+/** Minimal, real-SQLite D1 adapter for repository tests. */
+export class SqliteD1 {
+  readonly database: DatabaseSync;
+  readonly batches: string[][] = [];
+  readonly preparedSql: string[] = [];
+  failAtBatchStatement: number | null = null;
+  constructor(filename = ":memory:") { this.database = new DatabaseSync(filename); }
+  prepare(sql: string): D1PreparedStatement {
+    if (new TextEncoder().encode(sql).byteLength > 100_000) throw new Error("D1 SQL too large");
+    this.preparedSql.push(sql);
+    return new SqliteStatement(this, sql) as unknown as D1PreparedStatement;
+  }
+  async batch(statements: D1PreparedStatement[]) {
+    this.batches.push(statements.map((statement) => (statement as unknown as SqliteStatement).sql));
+    this.database.exec("BEGIN");
+    try {
+      const results: unknown[] = [];
+      for (let index = 0; index < statements.length; index++) {
+        if (this.failAtBatchStatement === index) throw new Error("injected batch failure");
+        results.push((statements[index] as unknown as SqliteStatement).batchSync());
+      }
+      this.database.exec("COMMIT");
+      return results as D1Result<unknown>[];
+    } catch (error) {
+      this.database.exec("ROLLBACK");
+      throw error;
+    }
+  }
+  execute(sql: string, values: Bindings, mode: "get" | "all" | "run" | "raw"): unknown {
+    if (values.length > 100) throw new Error("D1 parameter limit");
+    const statement = this.database.prepare(sql);
+    if (mode === "get") return boundedRow(statement.get(...values as never[]));
+    if (mode === "all") return statement.all(...values as never[]).map(boundedRow);
+    if (mode === "raw") {
+      if (typeof statement.setReturnArrays !== "function") throw new Error("SQLITE_RAW_ARRAYS_UNSUPPORTED");
+      statement.setReturnArrays(true);
+      return statement.all(...values as never[]).map(boundedRow);
+    }
+    return statement.run(...values as never[]) as { changes?: number };
+  }
+  close() { this.database.close(); }
+}
+
+export function createResearchD1(filename = ":memory:"): SqliteD1 {
+  const db = new SqliteD1(filename);
+  db.database.exec("PRAGMA foreign_keys = ON");
+  for (const file of ["0000_beta_foundation.sql", "0001_secure_account_linking.sql", "0002_product_intelligence.sql", "0003_adaptive_planning.sql", "0004_proof_backed_stack.sql", "0005_openrouter_research_beta.sql", "0006_research_health_indexes.sql", "0007_research_bridge_nonces.sql", "0008_research_site_executions.sql", "0009_research_site_begin_grants.sql", "0010_research_site_imports.sql"]) {
+    const sql = readFileSync(resolve(process.cwd(), "drizzle", file), "utf8").replaceAll("--> statement-breakpoint", ";");
+    db.database.exec(sql);
+  }
+  applyResearchSiteBridgeMigration(db);
+  db.database.exec(readFileSync(resolve(process.cwd(), "drizzle", "0012_account_recovery.sql"), "utf8")
+    .replaceAll("--> statement-breakpoint", ";"));
+  return db;
+}
+
+export function applyResearchSiteBridgeMigration(db: SqliteD1): void {
+  const sql = readFileSync(resolve(process.cwd(), "drizzle", "0011_research_site_bridge.sql"), "utf8")
+    .replaceAll("--> statement-breakpoint", ";");
+  db.database.exec(sql);
+}
+
+export function seedUser(db: SqliteD1, id: string) {
+  db.database.prepare("INSERT INTO users (id,name,email,email_verified) VALUES (?1,?2,?3,0)").run(id, id, `${id}@example.test`);
+}

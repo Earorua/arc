@@ -48,6 +48,8 @@ describe("SetupPage", () => {
     const existing = completeDemoUnit(createDemoState(), flagshipRole.today);
     saveDemoState(existing);
     render(<SetupPage />);
+    expect(screen.queryByText("Research is running in the background. You can leave this page and return to check its progress.")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "AI 原生全栈工程师" })).toBeEnabled();
 
     await user.type(screen.getByRole("textbox", { name: "Custom role" }), "数据产品经理");
     await user.click(screen.getByRole("button", { name: "Continue" }));

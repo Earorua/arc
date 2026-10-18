@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { PrecisionPathHero } from "./components/brand/precision-path-hero";
 import { SiteHeader } from "./components/brand/site-header";
+import { LearningEntry } from "./components/account/learning-entry";
 
 export default function Home() {
   return (
-    <>
+    <LearningEntry>
       <SiteHeader />
       <main id="main-content">
         <PrecisionPathHero />
@@ -45,6 +46,6 @@ export default function Home() {
           </Link>
         </section>
       </main>
-    </>
+    </LearningEntry>
   );
 }

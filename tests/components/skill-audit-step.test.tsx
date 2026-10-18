@@ -8,6 +8,52 @@ import { createSkillAuditDraft, isSkillAuditDraftValid, SkillAuditStep, type Ski
 afterEach(cleanup);
 
 describe("SkillAuditStep", () => {
+  it("shows only the populated category and actual skill for a sparse research blueprint", () => {
+    const blueprint = {
+      ...flagshipBlueprint,
+      id: "data-product-manager",
+      name: "Data Product Manager",
+      skills: [{ ...flagshipBlueprint.skills.find(({ id }) => id === "sql")!, id: "data-modeling", name: "Data modeling" }],
+    };
+    render(<SkillAuditStep blueprint={blueprint} onChange={vi.fn()} value={createSkillAuditDraft(blueprint)} />);
+
+    expect(screen.getAllByRole("group", { name: /skills$/i })).toHaveLength(1);
+    expect(screen.getByRole("group", { name: "Data skills" })).toBeInTheDocument();
+    expect(screen.getAllByRole("group", { name: /self-assessment$/i })).toHaveLength(1);
+    expect(screen.getByRole("group", { name: "Data modeling self-assessment" })).toHaveAttribute("aria-describedby", "audit-disclosure");
+    expect(screen.getAllByRole("button", { name: /^Set / })).toHaveLength(4);
+    expect(screen.getAllByRole("button", { name: /^Add evidence link for / })).toHaveLength(1);
+    expect(screen.queryByRole("group", { name: "Foundations skills" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Set Foundations to Guided" })).not.toBeInTheDocument();
+  });
+
+  it("keeps category order and quick-set draft boundaries when other categories are absent", async () => {
+    const user = userEvent.setup();
+    const blueprint = {
+      ...flagshipBlueprint,
+      skills: ["sql", "web-platform", "object-storage"].map((id) => flagshipBlueprint.skills.find((skill) => skill.id === id)!),
+    };
+    const draft = createSkillAuditDraft(blueprint);
+    draft.evidence.sql = [{ id: "evidence-sql-1", kind: "project", url: "https://example.com/model", note: "Model evidence" }];
+    const onChange = vi.fn();
+    const view = render(<SkillAuditStep blueprint={blueprint} onChange={onChange} value={draft} />);
+
+    expect(screen.getAllByRole("group", { name: /skills$/i }).map((group) => group.querySelector("legend")?.textContent)).toEqual(["Foundations skills", "Data skills"]);
+    await user.click(screen.getByRole("button", { name: "Set Data to Guided" }));
+    const dataDraft: SkillAuditDraft = onChange.mock.lastCall![0];
+    expect(dataDraft.levels).toEqual({ sql: "guided", "web-platform": "unseen", "object-storage": "guided" });
+    expect(dataDraft.evidence).toEqual(draft.evidence);
+    view.rerender(<SkillAuditStep blueprint={blueprint} onChange={onChange} value={dataDraft} />);
+    await user.click(screen.getByRole("button", { name: "Set Foundations to Independent" }));
+    const foundationsDraft: SkillAuditDraft = onChange.mock.lastCall![0];
+    expect(foundationsDraft.levels).toEqual({ sql: "guided", "web-platform": "independent", "object-storage": "guided" });
+    expect(foundationsDraft.evidence).toEqual(draft.evidence);
+    view.rerender(<SkillAuditStep blueprint={blueprint} onChange={onChange} value={foundationsDraft} />);
+    expect(within(screen.getByRole("group", { name: "SQL & Relational Modeling self-assessment" })).getByRole("radio", { name: "Guided" })).toBeChecked();
+    expect(within(screen.getByRole("group", { name: "Web Platform self-assessment" })).getByRole("radio", { name: "Independent" })).toBeChecked();
+    expect(screen.getByLabelText("SQL & Relational Modeling evidence URL 1")).toHaveValue("https://example.com/model");
+  });
+
   it("renders the complete grouped self-assessment and supports quick-set plus override", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
@@ -16,6 +62,7 @@ describe("SkillAuditStep", () => {
 
     expect(screen.getAllByRole("group", { name: /self-assessment$/i })).toHaveLength(16);
     expect(screen.getAllByRole("group", { name: /skills$/i })).toHaveLength(8);
+    expect(screen.getAllByRole("group", { name: /skills$/i }).map((group) => group.querySelector("legend")?.textContent)).toEqual(["Foundations skills", "Frontend skills", "Backend skills", "Data skills", "Quality skills", "Cloud skills", "Ai skills", "Product skills"]);
     expect(screen.getByText(/Self-assessment, not Arc verification/i)).toBeInTheDocument();
     expect(screen.queryByText(/Verified|Demonstrated/i)).not.toBeInTheDocument();
 

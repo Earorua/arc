@@ -1,5 +1,6 @@
 import { getTableName } from "drizzle-orm";
-import { getTableConfig, type SQLiteTable } from "drizzle-orm/sqlite-core";
+import { DatabaseSync } from "node:sqlite";
+import { getTableConfig, SQLiteSyncDialect, type SQLiteTable } from "drizzle-orm/sqlite-core";
 import { describe, expect, it } from "vitest";
 import * as schema from "../../db/schema";
 
@@ -7,6 +8,7 @@ const expectedTableNames = [
   "users",
   "sessions",
   "accounts",
+  "account_recoveries",
   "verifications",
   "auth_rate_limits",
   "learner_profiles",
@@ -40,6 +42,17 @@ const expectedTableNames = [
   "proof_versions",
   "proof_review_events",
   "user_skill_projections",
+  "research_runs",
+  "research_packages",
+  "research_source_audits",
+  "ai_budget_buckets",
+  "ai_budget_reservations",
+  "research_bridge_nonces",
+  "research_site_executions",
+  "research_site_imports",
+  "research_site_acceptances",
+  "research_site_recoveries",
+  "research_site_scan_cursors",
 ];
 
 function exportedTableNames() {
@@ -87,6 +100,122 @@ function foreignKeyConfig(table: SQLiteTable, foreignKeyName: string) {
 }
 
 describe("Arc beta persistence schema", () => {
+  it("exports the site bridge sidecars with execution identity foreign keys", () => {
+    expect(getTableName(schema.researchSiteAcceptances)).toBe("research_site_acceptances");
+    expect(getTableName(schema.researchSiteRecoveries)).toBe("research_site_recoveries");
+    expect(getTableName(schema.researchSiteScanCursors)).toBe("research_site_scan_cursors");
+    expect(columnNames(schema.researchSiteAcceptances)).toEqual([
+      "job_id", "recorded_at", "request_hash", "workflow_accepted_at", "workflow_id",
+    ]);
+    expect(columnNames(schema.researchSiteRecoveries)).toEqual([
+      "budget_done", "execution_version", "job_id", "quota_done", "reason", "request_hash",
+      "run_version", "terminal_at", "terminal_hash", "unsent_json", "version",
+    ]);
+    expect(columnNames(schema.researchSiteScanCursors)).toEqual([
+      "after_created_at", "after_job_id", "name", "version",
+    ]);
+    for (const table of [schema.researchSiteAcceptances, schema.researchSiteRecoveries]) {
+      const reference = getTableConfig(table).foreignKeys[0]?.reference();
+      expect(reference && {
+        columns: reference.columns.map((column) => column.name),
+        foreignColumns: reference.foreignColumns.map((column) => column.name),
+        foreignTable: getTableName(reference.foreignTable),
+      }).toEqual({ columns: ["job_id"], foreignColumns: ["job_id"],
+        foreignTable: "research_site_executions" });
+    }
+  });
+  it("exports every 0011 UUID, terminal-time, and marker check", () => {
+    const dialect = new SQLiteSyncDialect();
+    const validJob = "00000000-0000-4000-8000-000000000001";
+    const malformed = `----${"a".repeat(32)}`;
+    const rows = [
+      [schema.researchSiteAcceptances, { job_id: validJob, request_hash: "a".repeat(64),
+        workflow_id: validJob, workflow_accepted_at: 1, recorded_at: 1 },
+      [{ job_id: malformed, workflow_id: malformed }]],
+      [schema.researchSiteRecoveries, { job_id: validJob, request_hash: "a".repeat(64),
+        execution_version: 1, run_version: 2, terminal_hash: "b".repeat(64),
+        reason: "expired-unknown", unsent_json: null, terminal_at: 1,
+        quota_done: 0, budget_done: 0, version: 0 },
+      [{ job_id: malformed }, { terminal_at: -1 }, { terminal_at: Number.MAX_SAFE_INTEGER + 1 },
+        { quota_done: 2 }, { budget_done: 3 }]],
+      [schema.researchSiteScanCursors, { name: "maintenance", after_created_at: 1,
+        after_job_id: validJob, version: 1 }, [{ after_job_id: malformed }]],
+    ] as const;
+    for (const [table, valid, invalids] of rows) {
+      const config = getTableConfig(table);
+      const checks = config.checks.map((entry) => dialect.sqlToQuery(entry.value).sql);
+      const db = new DatabaseSync(":memory:");
+      try {
+        db.exec(`CREATE TABLE ${config.name} (${config.columns.map((column) =>
+          `${column.name} ${column.getSQLType()}`).join(",")},${checks.map((sql) => `CHECK(${sql})`).join(",")})`);
+        const insert = (row: Record<string, unknown>) => db.prepare(`INSERT INTO ${config.name}
+          (${Object.keys(row).join(",")}) VALUES (${Object.keys(row).map(() => "?").join(",")})`)
+          .run(...Object.values(row) as never[]);
+        expect(() => insert(valid)).not.toThrow();
+        for (const invalid of invalids) expect(() => insert({ ...valid, ...invalid })).toThrow();
+      } finally { db.close(); }
+    }
+  });
+  it("exports the import journal with its migration checks and owner request uniqueness", () => {
+    const table = schema.researchSiteImports;
+    expect(columnNames(table)).toEqual([
+      "audit_json", "config_fingerprint", "created_at", "decision_hash", "decision_json",
+      "execution_version", "job_id", "mode", "phase", "receipt_hash", "receipt_metadata_json",
+      "request_hash", "request_id", "resolution_json", "run_id", "settlement_json",
+      "updated_at", "user_id", "validation_context_json", "version",
+    ]);
+    expect(isUniqueIndex(table, "research_site_imports_owner_request_idx")).toBe(true);
+    expect(getTableConfig(table).checks.map((check) => check.name).sort()).toEqual([
+      "research_site_imports_owner_check", "research_site_imports_run_check", "research_site_imports_request_check",
+      "research_site_imports_job_check", "research_site_imports_hashes_check", "research_site_imports_config_check",
+      "research_site_imports_context_check", "research_site_imports_metadata_check", "research_site_imports_audit_check",
+      "research_site_imports_settlement_check", "research_site_imports_decision_check", "research_site_imports_resolution_check",
+      "research_site_imports_mode_check", "research_site_imports_phase_check", "research_site_imports_version_check",
+      "research_site_imports_execution_version_check", "research_site_imports_time_check", "research_site_imports_lifecycle_check",
+    ].sort());
+  });
+  it("exports the research tables with SQL checks and exact persistence boundaries", () => {
+    const tables = [schema.researchRuns, schema.researchPackages, schema.researchSourceAudits,
+      schema.aiBudgetBuckets, schema.aiBudgetReservations];
+    for (const table of tables) expect(table).toBeDefined();
+    expect(columnNames(schema.researchRuns)).toEqual([
+      "active_expires_at", "active_slot", "candidate_json", "config_fingerprint", "created_at",
+      "error_code", "execution_mode", "id", "input_fingerprint", "locale", "mutation_id", "normalized_role_key",
+      "package_id", "public_failure_category", "quality_json", "raw_role", "remote_quota_key",
+      "request_id", "retry_of_run_id", "retryable", "state", "state_version", "updated_at", "user_id",
+    ]);
+    expect(columnNames(schema.researchPackages)).toEqual([
+      "blueprint_id", "blueprint_version", "blueprint_version_id", "config_fingerprint",
+      "content_fingerprint", "created_at", "expires_at", "id", "locale", "normalized_role_key",
+      "observed_at", "package_json", "quality_json", "registry_id", "registry_version",
+    ]);
+    expect(columnNames(schema.researchSourceAudits)).toEqual([
+      "canonical_url", "citation_hash", "hostname", "id", "observed_at", "package_id", "source_tier", "title",
+    ]);
+    expect(columnNames(schema.aiBudgetBuckets)).toEqual([
+      "created_at", "id", "period_kind", "period_start", "reserved_micros", "scope", "settled_micros", "updated_at", "version",
+    ]);
+    expect(columnNames(schema.aiBudgetReservations)).toEqual([
+      "created_at", "day_bucket_id", "expires_at", "id", "maximum_reserved_micros", "month_bucket_id",
+      "request_id", "run_id", "settled_micros", "status", "updated_at",
+    ]);
+    for (const table of tables) expect(getTableConfig(table).checks.length).toBeGreaterThan(0);
+    for (const [table, name] of [
+      [schema.researchRuns, "research_runs_owner_mutation_idx"],
+      [schema.researchRuns, "research_runs_owner_id_idx"],
+      [schema.researchRuns, "research_runs_active_idx"],
+      [schema.researchPackages, "research_packages_fingerprint_idx"],
+      [schema.researchSourceAudits, "research_source_audits_package_url_idx"],
+      [schema.aiBudgetBuckets, "ai_budget_bucket_period_idx"],
+      [schema.aiBudgetReservations, "ai_budget_reservations_request_idx"],
+    ] as Array<[SQLiteTable, string]>) expect(isUniqueIndex(table, name), name).toBe(true);
+    expect(nonUniqueIndexNames(schema.researchRuns)).toContain("research_runs_updated_state_idx");
+    expect(nonUniqueIndexNames(schema.aiBudgetReservations)).toContain("ai_budget_reservations_day_status_idx");
+    expect(foreignKeyConfig(schema.researchRuns, "research_runs_retry_owner_fk")).toEqual({
+      columns: ["user_id", "retry_of_run_id"], foreignColumns: ["user_id", "id"],
+      foreignTable: "research_runs", onDelete: "no action",
+    });
+  });
   it("exports every foundation table", () => {
     expect(exportedTableNames()).toEqual(expect.arrayContaining(expectedTableNames));
     expect(exportedTableNames()).toHaveLength(expectedTableNames.length);

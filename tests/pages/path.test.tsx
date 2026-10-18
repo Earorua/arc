@@ -131,7 +131,7 @@ describe("PathPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Your precise path." })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Review every change." })).toBeInTheDocument();
-    expect(screen.getByText("AI-Native Full-Stack Engineer · 12 weeks")).toBeInTheDocument();
+    expect(screen.getByText(`${flagshipBlueprint.name} · 12 weeks`)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Keep current plan" }));
     expect(discard).toHaveBeenCalledTimes(1);
   });

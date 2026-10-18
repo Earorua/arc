@@ -1,4 +1,5 @@
 import type { EntitlementAuthorizer } from "../entitlements/policy";
+import type { ProviderUsage } from "../../contracts/research";
 import {
   roleResearchPreviewSchema,
   roleResearchRequestSchema,
@@ -13,7 +14,7 @@ export class InvalidProviderOutputError extends Error {
   }
 }
 
-export type AiRunRecord = {
+type PreviewAiRunRecord = {
   userId: string;
   requestId: string;
   purpose: "role-research-preview";
@@ -26,6 +27,19 @@ export type AiRunRecord = {
   latencyMs: number;
   errorCode: string | null;
 };
+
+export type ResearchAiRunRecord = Omit<PreviewAiRunRecord, "purpose" | "provider" | "model" | "errorCode"> & {
+  purpose: "role-research" | "role-research-repair";
+  provider: "openrouter" | "deterministic-mock";
+  model: string | null;
+  errorCode: "repair-required" | "invalid-result" | "missing-key" | "timeout" | "rate" | "balance" | "unavailable" | "filtered" | "invalid-transport" | null;
+  usage: ProviderUsage | null;
+  charged: boolean | "unknown";
+};
+export type AiRunRecord = PreviewAiRunRecord | ResearchAiRunRecord;
+export interface ResearchAiRunReader {
+  readResearchAttempt(userId: string, requestId: string): Promise<ResearchAiRunRecord | null>;
+}
 
 export interface AiRunSink {
   record(record: AiRunRecord): Promise<void>;
