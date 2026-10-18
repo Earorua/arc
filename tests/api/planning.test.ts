@@ -2,12 +2,19 @@ import { describe, expect, it, vi } from "vitest";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import type { PlanningMutationResult } from "../../app/contracts/planning";
+import { MAX_PLANNING_WORKSPACE_BYTES } from "../../app/contracts/planning";
+import {
+  PLANNING_RESPONSE_WRAPPER_MAX_BYTES,
+} from "../../app/contracts/planning-api";
+import { MAX_RESEARCH_PACKAGE_JSON_BYTES } from "../../app/contracts/research";
 import { UnauthenticatedError } from "../../app/server/auth/session";
 import {
+  assertPlanningResponseWireSize,
   createPlanningEventHandler,
   createPlanningGenerateHandler,
   createPlanningReplanHandler,
   createPlanningWorkspaceHandler,
+  MAX_PLANNING_RESPONSE_BYTES,
   type PlanningRouteDependencies,
 } from "../../app/server/http/planning-route-factories";
 import {
@@ -58,12 +65,17 @@ function generateRequest() {
 }
 
 function setup(result: PlanningMutationResult) {
+  const sourceContext = {
+    reference: { source: "flagship" as const, roleId: "ai-native-full-stack-engineer" as const },
+    blueprint: flagshipBlueprint,
+    registry: flagshipUnitRegistry,
+  };
   const service = {
-    getWorkspace: vi.fn().mockResolvedValue(result.workspace),
-    generate: vi.fn().mockResolvedValue(result),
-    appendEvent: vi.fn().mockResolvedValue(result),
-    acceptReplan: vi.fn().mockResolvedValue(result),
-    discardReplan: vi.fn().mockResolvedValue(result),
+    getWorkspaceResponse: vi.fn().mockResolvedValue({ workspace: result.workspace, sourceContext }),
+    generateResponse: vi.fn().mockResolvedValue({ result, sourceContext }),
+    appendEventResponse: vi.fn().mockResolvedValue({ result, sourceContext }),
+    acceptReplanResponse: vi.fn().mockResolvedValue({ result, sourceContext }),
+    discardReplanResponse: vi.fn().mockResolvedValue({ result, sourceContext }),
   };
   const requireUser = vi.fn().mockResolvedValue({ id: "user-owner", name: "Learner", email: "learner@example.com" });
   const reserve = vi.fn().mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
@@ -76,7 +88,7 @@ function setup(result: PlanningMutationResult) {
     createRequestId: () => requestId,
     now: () => 100,
   };
-  return { deps, service, requireUser, reserve, recordEvent };
+  return { deps, service, sourceContext, requireUser, reserve, recordEvent };
 }
 
 function post(path: string, body: unknown): Request {
@@ -95,13 +107,54 @@ function expectSafety(response: Response) {
 }
 
 describe("authenticated adaptive planning routes", () => {
+  it("enforces the shared response wire limit by UTF-8 bytes", () => {
+    expect(PLANNING_RESPONSE_WRAPPER_MAX_BYTES).toBe(64 * 1024);
+    expect(MAX_PLANNING_RESPONSE_BYTES).toBe(
+      MAX_PLANNING_WORKSPACE_BYTES + MAX_RESEARCH_PACKAGE_JSON_BYTES + PLANNING_RESPONSE_WRAPPER_MAX_BYTES,
+    );
+    const prefixBytes = new TextEncoder().encode('{"value":""}').byteLength;
+    const exactEmojiCount = Math.floor((MAX_PLANNING_RESPONSE_BYTES - prefixBytes) / 4);
+    const exact = { value: "😀".repeat(exactEmojiCount) };
+    const exactBytes = new TextEncoder().encode(JSON.stringify(exact)).byteLength;
+    const over = { value: `${exact.value}${"x".repeat(MAX_PLANNING_RESPONSE_BYTES - exactBytes + 1)}` };
+
+    expect(exactBytes).toBeLessThanOrEqual(MAX_PLANNING_RESPONSE_BYTES);
+    expect(() => assertPlanningResponseWireSize(exact)).not.toThrow();
+    expect(new TextEncoder().encode(JSON.stringify(over)).byteLength).toBe(MAX_PLANNING_RESPONSE_BYTES + 1);
+    try {
+      assertPlanningResponseWireSize(over);
+      throw new Error("Expected an oversized planning response to fail closed");
+    } catch (error) {
+      expect(error).toMatchObject({ code: "PLANNING_UNAVAILABLE", reason: "response-too-large" });
+    }
+  });
+
+  it("maps an oversized response failure to one private-safe 500", async () => {
+    const result = await resultFixture();
+    const harness = setup(result);
+    harness.service.getWorkspaceResponse.mockRejectedValue(
+      new PlanningUnavailableError(["private response body"], "response-too-large"),
+    );
+
+    const response = await createPlanningWorkspaceHandler(harness.deps)(
+      new Request("https://arc.example/api/planning/workspace"),
+    );
+
+    expect(response.status).toBe(500);
+    expect(await body(response)).toEqual({ error: {
+      code: "PLANNING_UNAVAILABLE", message: "Planning is temporarily unavailable.", requestId, action: "retry",
+    } });
+    expect(JSON.stringify(harness.recordEvent.mock.calls)).not.toContain("private response body");
+    expectSafety(response);
+  });
+
   it("returns a strict owner-scoped workspace", async () => {
     const result = await resultFixture();
     const harness = setup(result);
     const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(response.status).toBe(200);
-    expect(await body(response)).toEqual({ workspace: result.workspace });
-    expect(harness.service.getWorkspace).toHaveBeenCalledWith("user-owner");
+    expect(await body(response)).toEqual({ workspace: result.workspace, sourceContext: harness.sourceContext });
+    expect(harness.service.getWorkspaceResponse).toHaveBeenCalledWith("user-owner");
     expectSafety(response);
   });
 
@@ -111,13 +164,13 @@ describe("authenticated adaptive planning routes", () => {
     const generate = generateRequest();
     const generated = await createPlanningGenerateHandler(harness.deps)(post("/api/planning/generate", generate));
     expect(generated.status).toBe(200);
-    expect(await body(generated)).toEqual({ result });
-    expect(harness.service.generate).toHaveBeenCalledWith("user-owner", generate);
+    expect(await body(generated)).toEqual({ result, sourceContext: harness.sourceContext });
+    expect(harness.service.generateResponse).toHaveBeenCalledWith("user-owner", generate);
 
     const event = { mutationId: "mutation-event-1", baseVersionId: result.workspace.activePlanVersionId,
       event: { kind: "skipped" as const, unitId: result.workspace.dailyUnits[0]!.id, planningDate: "2026-08-17" } };
     await createPlanningEventHandler(harness.deps)(post("/api/planning/events", event));
-    expect(harness.service.appendEvent).toHaveBeenCalledWith("user-owner", event);
+    expect(harness.service.appendEventResponse).toHaveBeenCalledWith("user-owner", event);
     const recorded = JSON.stringify(harness.recordEvent.mock.calls);
     expect(recorded).not.toContain("learner@example.com");
     expect(recorded).not.toContain("audit-fingerprint");
@@ -130,8 +183,8 @@ describe("authenticated adaptive planning routes", () => {
     const decision = { mutationId: "mutation-decision-1", baseVersionId: result.workspace.activePlanVersionId, candidatePlanVersionId: result.workspace.activePlanVersionId };
     await createPlanningReplanHandler(harness.deps, "accept")(post("/api/planning/replans/accept", decision));
     await createPlanningReplanHandler(harness.deps, "discard")(post("/api/planning/replans/discard", decision));
-    expect(harness.service.acceptReplan).toHaveBeenCalledWith("user-owner", decision);
-    expect(harness.service.discardReplan).toHaveBeenCalledWith("user-owner", decision);
+    expect(harness.service.acceptReplanResponse).toHaveBeenCalledWith("user-owner", decision);
+    expect(harness.service.discardReplanResponse).toHaveBeenCalledWith("user-owner", decision);
   });
 
   it("rejects invalid JSON, unknown fields, and oversized bodies before service calls", async () => {
@@ -148,7 +201,7 @@ describe("authenticated adaptive planning routes", () => {
       expect(await body(response)).toEqual({ error: { code: "INVALID_INPUT", message: "Planning input is invalid.", requestId } });
       expectSafety(response);
     }
-    expect(harness.service.generate).not.toHaveBeenCalled();
+    expect(harness.service.generateResponse).not.toHaveBeenCalled();
   });
 
   it("maps authentication, not-found, conflict, rate, and unavailable failures exactly", async () => {
@@ -162,7 +215,7 @@ describe("authenticated adaptive planning routes", () => {
     for (const [status, code, action, error] of cases) {
       const harness = setup(result);
       if (status === 401) harness.requireUser.mockRejectedValue(error);
-      else harness.service.getWorkspace.mockRejectedValue(error);
+      else harness.service.getWorkspaceResponse.mockRejectedValue(error);
       const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
       expect(response.status).toBe(status);
       expect(await body(response)).toEqual({ error: {
@@ -177,7 +230,7 @@ describe("authenticated adaptive planning routes", () => {
     expect(response.status).toBe(429);
     expect(response.headers.get("retry-after")).toBe("17");
     expect(await body(response)).toEqual({ error: { code: "RATE_LIMITED", message: "Too many planning requests. Try again shortly.", requestId, action: "retry" } });
-    expect(limited.service.generate).not.toHaveBeenCalled();
+    expect(limited.service.generateResponse).not.toHaveBeenCalled();
 
     const limiterFailure = setup(result);
     limiterFailure.reserve.mockRejectedValue(new RateLimitUnavailableError());
@@ -186,10 +239,10 @@ describe("authenticated adaptive planning routes", () => {
     expect(await body(unavailable)).toEqual({ error: {
       code: "PLANNING_UNAVAILABLE", message: "Planning is temporarily unavailable.", requestId, action: "retry",
     } });
-    expect(limiterFailure.service.getWorkspace).not.toHaveBeenCalled();
+    expect(limiterFailure.service.getWorkspaceResponse).not.toHaveBeenCalled();
 
     const schemaMismatch = setup(result);
-    schemaMismatch.service.getWorkspace.mockRejectedValue(new PlanningUnavailableError([], "version-mismatch"));
+    schemaMismatch.service.getWorkspaceResponse.mockRejectedValue(new PlanningUnavailableError([], "version-mismatch"));
     const rebuild = await createPlanningWorkspaceHandler(schemaMismatch.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(await body(rebuild)).toEqual({ error: {
       code: "PLANNING_UNAVAILABLE", message: "Planning is temporarily unavailable.", requestId, action: "rebuild",
@@ -204,9 +257,9 @@ describe("authenticated adaptive planning routes", () => {
     const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(response.status).toBe(200);
     const payload = JSON.stringify(await body(response));
-    expect(payload).not.toMatch(/private|request id failure|telemetry/iu);
+    expect(payload).not.toMatch(/request id failure|telemetry failure/iu);
     expect(response.headers.get("x-request-id")).toMatch(/^[0-9a-f-]{36}$/u);
-    expect(harness.service.getWorkspace).toHaveBeenCalledTimes(1);
+    expect(harness.service.getWorkspaceResponse).toHaveBeenCalledTimes(1);
 
     const telemetry = setup(result);
     telemetry.deps.recordEvent = vi.fn().mockRejectedValue(new Error("private telemetry failure"));
@@ -215,7 +268,7 @@ describe("authenticated adaptive planning routes", () => {
     expect(JSON.stringify(await body(successful))).not.toContain("private telemetry failure");
 
     const serviceFailure = setup(result);
-    serviceFailure.service.getWorkspace.mockRejectedValue(new Error("private repository SQL and payload"));
+    serviceFailure.service.getWorkspaceResponse.mockRejectedValue(new Error("private repository SQL and payload"));
     const internal = await createPlanningWorkspaceHandler(serviceFailure.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(internal.status).toBe(500);
     expect(JSON.stringify(await body(internal))).not.toMatch(/private|repository|SQL|payload/iu);
@@ -224,7 +277,7 @@ describe("authenticated adaptive planning routes", () => {
   it("strictly validates service output before responding", async () => {
     const result = await resultFixture();
     const harness = setup(result);
-    harness.service.getWorkspace.mockResolvedValue({ ...result.workspace, privateField: "private payload" });
+    harness.service.getWorkspaceResponse.mockResolvedValue({ workspace: { ...result.workspace, privateField: "private payload" }, sourceContext: harness.sourceContext });
     const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(response.status).toBe(503);
     expect(JSON.stringify(await body(response))).not.toContain("private payload");
@@ -233,7 +286,7 @@ describe("authenticated adaptive planning routes", () => {
   it("uses a stable typed version mismatch reason for rebuild recovery", async () => {
     const result = await resultFixture();
     const harness = setup(result);
-    harness.service.getWorkspace.mockRejectedValue(new PlanningUnavailableError([], "version-mismatch"));
+    harness.service.getWorkspaceResponse.mockRejectedValue(new PlanningUnavailableError([], "version-mismatch"));
     const response = await createPlanningWorkspaceHandler(harness.deps)(new Request("https://arc.example/api/planning/workspace"));
     expect(await body(response)).toEqual({ error: {
       code: "PLANNING_UNAVAILABLE", message: "Planning is temporarily unavailable.", requestId, action: "rebuild",
@@ -243,7 +296,7 @@ describe("authenticated adaptive planning routes", () => {
   it("maps direct domain PlanningInputError to a private-safe 400", async () => {
     const result = await resultFixture();
     const harness = setup(result);
-    harness.service.generate.mockRejectedValue(new PlanningInputError([{
+    harness.service.generateResponse.mockRejectedValue(new PlanningInputError([{
       code: "private-input-code", path: "audit.answers[0].private",
     }]));
     const response = await createPlanningGenerateHandler(harness.deps)(post("/api/planning/generate", generateRequest()));
@@ -304,7 +357,7 @@ describe("authenticated adaptive planning routes", () => {
     expect(response.status).toBe(400);
     expect(pull).not.toHaveBeenCalled();
     expect(cancel).toHaveBeenCalledTimes(1);
-    expect(harness.service.generate).not.toHaveBeenCalled();
+    expect(harness.service.generateResponse).not.toHaveBeenCalled();
   });
 
   it("bounds and cancels an oversized streamed body despite a deceptive length", async () => {
@@ -331,6 +384,6 @@ describe("authenticated adaptive planning routes", () => {
     expect(response.status).toBe(400);
     expect(pulls).toBeLessThanOrEqual(5);
     expect(cancel).toHaveBeenCalledTimes(1);
-    expect(harness.service.generate).not.toHaveBeenCalled();
+    expect(harness.service.generateResponse).not.toHaveBeenCalled();
   });
 });

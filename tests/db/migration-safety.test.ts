@@ -1,4 +1,6 @@
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const migrationPaths = {
@@ -38,6 +40,63 @@ function tableStatement(sql: string, tableName: string) {
 
   return statement.replace(/\s+/gu, " ");
 }
+
+describe("research beta migration safety", () => {
+  const priorHashes = {
+    "0000_beta_foundation.sql": "1e92f53ce6aeec38c3c39d4e5c77f86d9e44d08a4b4f30d425094736b99cbde8",
+    "0001_secure_account_linking.sql": "666fb7dc150a1106bd68726e4c8b6286c3908e56b8fc86c5518b2f8d4a384445",
+    "0002_product_intelligence.sql": "52d1203563d185e09a3b098a57df053658f3b44ddd94e8c3c268dde4abab9847",
+    "0003_adaptive_planning.sql": "e113c423bb4cef4c46c4cbef7c13a7d9ba40f1e666baa3d458acbd8959c49580",
+    "0004_proof_backed_stack.sql": "dd16d381d8b766773a388e46ec6b138e4a8878f649768aa8d0296b3cf6caf19d",
+    "0005_openrouter_research_beta.sql": "bbecea2119999103906e3c721d602467124a60f72ad9c672ae847212fe52ee35",
+  };
+  const directory = resolve("drizzle");
+  const migration = resolve(directory, "0005_openrouter_research_beta.sql");
+  const healthMigration = resolve(directory, "0006_research_health_indexes.sql");
+
+  it("keeps only migrations 0000–0006 and preserves normalized-LF prior SQL hashes", () => {
+    expect(readdirSync(directory).filter((name) => name.endsWith(".sql")).sort()).toEqual([
+      ...Object.keys(priorHashes), "0006_research_health_indexes.sql",
+    ]);
+    for (const [name, expected] of Object.entries(priorHashes)) {
+      const normalized = readFileSync(resolve(directory, name), "utf8").replaceAll("\r\n", "\n");
+      expect(createHash("sha256").update(normalized).digest("hex"), name).toBe(expected);
+    }
+  });
+
+  it("links the additive health-index snapshot to 0005", () => {
+    const journal = JSON.parse(readFileSync(resolve(directory, "meta/_journal.json"), "utf8"));
+    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    expect(journal.entries[5]).toMatchObject({ tag: "0005_openrouter_research_beta", breakpoints: true });
+    expect(journal.entries[6]).toMatchObject({ tag: "0006_research_health_indexes", breakpoints: true });
+    const previous = JSON.parse(readFileSync(resolve(directory, "meta/0005_snapshot.json"), "utf8"));
+    const snapshot = JSON.parse(readFileSync(resolve(directory, "meta/0006_snapshot.json"), "utf8"));
+    expect(snapshot.prevId).toBe(previous.id);
+    expect(Object.keys(snapshot.tables)).toEqual(Object.keys(previous.tables));
+  });
+
+  it("only creates the five research tables and indexes on those new tables", () => {
+    expect(existsSync(migration)).toBe(true);
+    const sql = readFileSync(migration, "utf8");
+    const tables = ["ai_budget_buckets", "ai_budget_reservations", "research_packages", "research_runs", "research_source_audits"];
+    expect([...sql.matchAll(/CREATE TABLE `([^`]+)`/gu)].map((match) => match[1]).sort()).toEqual(tables);
+    expect(isAdditiveSchemaMigration(sql)).toBe(true);
+    for (const match of sql.matchAll(/CREATE (?:UNIQUE )?INDEX `[^`]+` ON `([^`]+)`/gu)) expect(tables).toContain(match[1]);
+    for (const name of ["research_runs_owner_mutation_idx", "research_packages_fingerprint_idx", "ai_budget_bucket_period_idx"]) {
+      expect(sql).toContain(`CREATE UNIQUE INDEX \`${name}\``);
+    }
+  });
+
+  it("adds only the two bounded Research health indexes", () => {
+    expect(existsSync(healthMigration)).toBe(true);
+    const sql = readFileSync(healthMigration, "utf8");
+    expect(isAdditiveSchemaMigration(sql)).toBe(true);
+    expect(migrationStatements(sql)).toEqual([
+      "CREATE INDEX `ai_budget_reservations_day_status_idx` ON `ai_budget_reservations` (`day_bucket_id`,`status`);",
+      "CREATE INDEX `research_runs_updated_state_idx` ON `research_runs` (`updated_at`,`state`);",
+    ]);
+  });
+});
 
 describe("product intelligence migration safety", () => {
   const migrationSql = migrations.productIntelligence;

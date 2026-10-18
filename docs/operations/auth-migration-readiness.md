@@ -1,0 +1,97 @@
+# Authentication migration readiness
+
+**2026-10-05 更新：Workers Paid 已确认是当前套餐，Google/GitHub 测试站登录及刷新保持均已通过。** Workers plans 页面显示 Paid / Current plan、Free / Downgrade；客服 case 02342328 确认后端自 2026-09-22 激活，首次发票为 $0 且已支付，Processing 属于控制台显示同步问题。不要重复购买。首次零元不代表持续免费；试用结束和续费时间未核验。下方 Paid 未验证、等待 Cloudflare 登录等描述均为历史。
+
+These shadow login checks do not prove original owner continuity. See the latest section of cloudflare-migration-stage-a.md for Paid and original smoke final-state evidence; complete source export/restore and cutover remain pending.
+
+## October 5 both live sign-in providers accepted
+
+The user completed the GitHub login handoff and selected Continue with GitHub again after an intermediate return to the provider-selection page. Root verified the actual shadow /today page and its open account menu: GitHub connected and Sign out are present, with no allowlisted OAuth error query values. Reloading the page and reopening the menu preserves those results. The intermediate return cause was not observed; no credential values were read and no linking or email-based merge was attempted. The earlier Google login and refresh acceptance is also retained.
+
+Both supported providers now pass independent shadow login/session acceptance. This does not establish imported identity continuity or transferred business data. Complete consistent source export/restore, real migrated owner isolation, Workers Paid activation and public Research acceptance remain outstanding. Safe evidence: outputs/cloudflare-migration-20261005/auth-diagnostic/github-login-success.json. Cloudflare tab5 still requires personal login before read-only subscription inspection; a user handoff has been requested. Older pending-login sections below are historical.
+
+## October 5 actual Google login and pending GitHub login
+
+The user corrected only the shadow GOOGLE_CLIENT_SECRET after identifying a Markdown escaped underscore in their private saved note. Native metadata verifies version 458830cc-bfed-4d31-9b9d-de0269c9bcbc, all five secret_text bindings, expected storage/vars and both AI flags false. One real Google login reached /today; the account menu reports Google connected, and a page reload preserves the session. This proves shadow Google authentication, not imported identity continuity. No secret values were read.
+
+The actual Sign out control returned the page to an anonymous Sign in state. One Continue with GitHub action then reached github.com/login. The user must now complete their personal GitHub login; an authorization page, if shown, must be inspected before expanding access. No GitHub callback or linking operation has occurred, so GitHub acceptance remains pending. See cloudflare-shadow-auth-setup.md and cloudflare-auth-diagnostic-2026-10-05.md for the current operational result; older pending-Google statements below are historical.
+
+## October 4 local rehearsal progress
+
+C1 synthetic cleanup is implemented and independently reviewed: SPEC PASS, then a distinct QUALITY/security reviewer READY. Root ran the cleanup and schema suites together: 64 tests passed; the implementer's final cleanup suite has 46 passing tests, with typecheck and targeted lint exit 0. Exact source/destination row snapshots, ownership and account mapping preservation, bounded rollback failures and zero-write repeated application are covered. All data is synthetic and local.
+
+An initial quality finding exposed SQLite unnamed temporary databases sharing an empty filename with memory databases. The retained regression first failed, then passed after a read-only journal profile guard was added before BEGIN. Empty SQLite temp bookkeeping is permitted, but temp objects, ordinary unnamed temporary mode and other attachments are refused. The trusted caller constructs ':memory:' explicitly; this internal fixture helper is not a provenance sandbox for arbitrary reconfigured handles or an operational real-data converter.
+
+Final C1 source SHA256: module `f0f538a001bb23a8111c66ae78b92980071f135b793de3b9df4a277e207ee55e`; test `e2bcc4f6f92066f1dda175437bf9d6ef00188d3da4f15e7d066387aa8d081c54`. Local evidence is under ignored `outputs/cloudflare-migration-20261004/c1/`, with final revision in `r2/`; original failures/reviews remain. Implementation: `scripts/cloudflare-migration/rehearse-auth-cleanup.mjs` and `tests/server/auth-migration-cleanup.test.ts`.
+
+C2 installed-library characterization now has six passing tests after an observed six-test RED. It uses the real locked Better Auth public helper, Arc options/hooks and Drizzle D1 adapter: for each Google/GitHub provider, the unchanged subject resolves owner-a even when the incoming email belongs to owner-b; users, account mapping and profile ownership remain, and no old refresh token/expiry survives. Outbound fetch is denied and asserted unused. This is public-helper characterization, not an actual OAuth callback/cookie test or verification of a real provider's subject.
+
+The test D1 helper now supplies ordered raw arrays using native setReturnArrays, retaining duplicate column values, binding/order and row limits. A fixed unsupported-capability error documents that this new rehearsal requires Node 22.16+ (checked on 24.14.1), while the application engine declaration is unchanged. No application code or dependency was modified. Root's nine-suite integration run passed 226 tests, including auth policy/options, account-link protections, schema, C1 and C2; C2 typecheck/lint also passed. Frozen C2 hashes and review records are in ignored `outputs/cloudflare-migration-20261004/c2/`. Independent C2 SPEC passed; a distinct QUALITY/security and final C1–C2 integration review returned READY with no remaining P1/P2 findings. This authorizes reviewed local commit/backup only. The main recovery checkpoint records the resulting commit and remote verification separately.
+
+C3 now has a concrete continuation plan at `docs/superpowers/plans/2026-10-04-auth-migration-runtime-acceptance.md`. Its first task, C3.1, has five passing identity cases using actual installed auth/Drizzle and synthetic data: both linked providers preserve the original owner despite a conflicting email, missing mappings refuse guarded identity lookup, and orphan ownership fails cleanup before authentication. An explicit unguarded signup counterexample demonstrates that a successful login can create a different user; that outcome fails migration continuity. Diagnostic `disableSignUp` is a fixture option, not a new production policy. Exact original users, account identities and both owners' seeded business rows are compared.
+
+The missing-helper harness RED and an installed public-context generic type mismatch are retained separately from runtime evidence. A narrow intersection at the shared public-helper context seam fixes the declaration mismatch without substituting the real context or hooks. Final focused tests, types and lint passed; root's ten-suite integration run passed 231 tests with the same frozen source. Independent SPEC passed, followed by a distinct QUALITY/security and bounded four-file integration review returning READY with no actionable findings. Evidence is under ignored `outputs/cloudflare-migration-20261004/c3-1/`; the main recovery checkpoint records the resulting reviewed commit and remote verification separately. This is identity-helper characterization; newly shared cookie/handler fixture utilities are not yet evidence of their later acceptance tasks.
+
+C3.2 token/session acceptance has passed its first three actual-library cases, typecheck and targeted lint; root's focused integration with C3.1 passed eight tests. Both encryption configurations use the same envelope version with different synthetic keys: fresh tokens decrypt only with the new key, and a missing fresh refresh token leaves no old value. A valid imported session supplies the positive control before cleanup; old signatures and deleted sessions are separately rejected, while a fresh session resolves the original owner. The existing shared fixture is unchanged. Independent SPEC PASS was followed by a distinct QUALITY/security and bounded three-file review READY, with no actionable findings; evidence is under ignored `outputs/cloudflare-migration-20261004/c3-2/`.
+
+C3.3 has passed four actual-handler OAuth state cases after a missing-helper harness RED. The genuine state issued by social-start is consumed on cancellation, then refuses replay; cleanup also refuses both original and freshly current-key-signed cookies for the old state. Types/lint passed, and root's C3.1–C3.3 focused integration passed 12 tests. The actual handlers never follow returned redirects and the runtime fetch guard remained unused. Independent SPEC PASS was followed by a distinct QUALITY/security and bounded four-file review READY, with no actionable findings. Evidence in ignored `outputs/cloudflare-migration-20261004/c3-3/` retains the initial npm update notice without inferring whether it came from cache or a notifier connection; later checks explicitly disabled notifications and used offline mode.
+
+C3.4 has passed nine first-run cases through actual Arc handlers and the installed authentication library. Reset active intents remain failed, completed/failed/expired history is unchanged, old and valid-current-key internal proofs are refused, and a fresh missing-target flow reaches real OAuth state insertion. An existing target mapping remains authoritative even when its completing intent is reset. Types/lint/whitespace passed; root's C3.1–C3.4 focused integration passed 21 tests. Independent SPEC PASS was followed by a distinct QUALITY/security and bounded five-file review READY, with no actionable findings. Evidence is under ignored `outputs/cloudflare-migration-20261004/c3-4/`.
+
+C3.5 callback finish/owner isolation now passes eight focused cases, typecheck, lint and whitespace checks; root independently reran the eight tests successfully. Initial test omissions (cleanup preconditions and dispatch of both proof keys through the callback) were corrected without production changes or relaxed assertions, and the earlier evidence remains. Independent SPEC PASS was followed by a distinct QUALITY/security and bounded four-file review READY, with no actionable findings. C3.6 then passed the exact combined fourteen-file command: 255 tests, typecheck, focused lint and whitespace checks, with unchanged source hashes. Final independent integrated SPEC PASS was followed by a distinct QUALITY/security READY, with no actionable findings; all eleven acceptance-matrix rows and twenty-nine recorded source hashes were verified. None of these local checks establishes successful external OAuth callback/session-cookie issuance, real provider subject continuity, source export completeness, destination restore or production-cutover readiness.
+
+October 4 native metadata checks initially found GITHUB_CLIENT_SECRET as plain_text. The user corrected it, and a later native Secret list plus current version inspection confirmed exactly all five expected auth names as secret_text. Dashboard version `72fbb334-c989-40b3-ade1-008e92811a9e` serves 100% of traffic; all original four plain variables, DB/R2/ASSETS bindings and the script etag match the expected shadow deployment. No secret value was displayed. The anonymous providers endpoint returns HTTP200 and exactly google/github. This proves configuration presence/type and provider visibility, not valid credential values or successful external login. The user reports adding both exact shadow callbacks while preserving the originals. Google login is now being guided in a normal browser; actual callback/login results, complete source-data transfer and Workers Paid activation remain unverified. See `cloudflare-shadow-auth-setup.md` for the current operator step and sanitized evidence paths.
+
+## Original dependency audit and remaining operational scope
+
+2026-09-22. Read-only dependency audit; no real secrets, user rows or provider calls inspected. This is a proposed fallback for later verification, not an executed data transformation.
+
+## Current finding
+
+The user did not find the original BETTER_AUTH_SECRET in Bitwarden. The original Sites environment lists it and both Google/GitHub integrations as configured; encrypted values have not been retrieved. The user subsequently found both the Arc GitHub OAuth app and the matching Google OAuth client and confirmed both Client Secrets are saved. This is user-reported availability, not value validation or successful new-site authentication. Neither app was changed. Losing the application secret does not inherently require recreating users or losing their business data.
+
+Locked and installed versions are better-auth 1.6.24, @better-auth/drizzle-adapter 1.6.24 and @better-auth/core 1.6.25. Arc resolves the existing user using `(provider_id, account_id)` and the stored `user_id`. A fresh OAuth callback can update new tokens and create a new session without decrypting previous OAuth tokens first. This is source evidence only; real provider subject continuity remains unverified.
+
+## Secret-dependent state
+
+- `accounts.access_token` and `refresh_token` are encrypted under the application secret. A new secret cannot decrypt the imported ciphertext.
+- The ordinary installed callback writes `id_token` directly; it is still transient sensitive credential material and is not evidence that all token columns are encrypted.
+- Session cookies, OAuth-state cookies and Arc account-link proofs depend on the secret. Session database tokens are random values; verification identifiers are hashed, with state/PKCE information in the verification value.
+- The separate account-link intent cookie is a random credential matched using a hash. Changing the secret alone does not invalidate every resumable intent. Verified intents may mint a new proof after login; consumed/completing states can block another link attempt.
+- Users, durable provider-account mappings and business owner IDs do not depend on the secret in the inspected application code.
+
+Evidence: app/server/auth/runtime.ts; app/server/account-link/crypto.ts; app/server/account-link/service.ts; app/server/account-link/d1-repository.ts; db/schema.ts; installed better-auth/dist/oauth2/link-account.mjs, oauth2/utils.mjs, db/internal-adapter.mjs, api/routes/account.mjs and cookies/index.mjs.
+
+## Fallback to validate before using real data
+
+Preserve the source/export unchanged. In the isolated destination copy, preserve users, provider/account mappings, all business ownership and relationships exactly. Adopt a new securely configured secret only as part of the controlled destination conversion, requiring users to log in again.
+
+Clear imported sessions and pending OAuth verification state. For known social-account rows, clear old access/refresh/ID tokens, expiry fields and stale scope metadata while preserving account rows and identity fields. Do not rewrite unknown account types or password fields. Explicitly terminalize in-flight account-link statuses pending_reauth, verified, consumed and completing while retaining completed history. Do not rely on secret rotation or expiry alone.
+
+This token cleanup is necessary even when ordinary login succeeds: Better Auth omits undefined fields from updates, so a login without a new refresh token can otherwise leave the old undecryptable refresh token behind.
+
+Prefer the original OAuth apps if the user can administer them. New apps may work because Arc does not include client ID in its identity lookup, but cross-client subject continuity must be verified, not assumed. Google uses token `sub`; GitHub uses the profile ID. A matching email is not an identity migration: implicit linking remains disabled. Unexpected new-user creation is a failed migration check, not an empty workspace to accept.
+
+## Required tests and acceptance
+
+1. Exact users/account IDs and all business owner relationships survive conversion; uniqueness and foreign keys remain valid.
+2. Old signed sessions fail; fresh callbacks under a new fixture secret resolve the original user with no duplicates, including changed email and already-linked Google/GitHub cases.
+3. Unknown provider account IDs cannot pass migration validation through email matching or silently created users.
+4. A callback returning no refresh token leaves no old ciphertext. Linked-account listing, fresh login and workspace access still work.
+5. Old OAuth state, proofs and all in-flight link statuses cannot resume or block a new valid link; completed history remains.
+6. Existing cross-owner and direct-link-bypass protections remain effective.
+7. Before cutover, controlled real login for each supported provider proves callback reachability, provider subject continuity, the original Arc user ID and existing workspace data.
+
+The October 4 C1 helper above performs synthetic in-memory cleanup only; no real-data transformation runner is implemented. The user has located both original OAuth apps and saved secrets; actual provider coverage, complete database export and source snapshot consistency remain unresolved. Do not change the old site's secret or delete its sessions to test this proposal. The shadow auth setup guide uses a new secret and an empty isolated database; its login test cannot establish preservation of an original account ID.
+
+## Locate the OAuth applications without changing them
+
+GitHub: profile picture → Settings → Developer settings → OAuth Apps. Find the existing Arc app or a callback pointing at the old Arc hostname. Do not reset its secret, change callback URLs or create a duplicate merely to search for it.
+
+Google: open the existing project in Google Cloud Console → Google Auth Platform → Clients. Look for the web client associated with Arc. If the project is not owned by this account, ask the Site platform about provisioning/ownership. An empty list is not evidence that the old login configuration never existed.
+
+Official instructions checked on 2026-09-22:
+- https://docs.github.com/en/apps/oauth-apps/maintaining-oauth-apps/modifying-an-oauth-app
+- https://developers.google.com/identity/protocols/oauth2/web-server
+
+Only report whether the app exists and is accessible. Secret values should be entered directly through the approved secure configuration channel, never copied to chat or Git.

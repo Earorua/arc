@@ -33,6 +33,8 @@ export function WorkspaceShell({
   onImportPlanning,
   planningRecovery = "none",
   planningState,
+  roleName,
+  sourceUnresolved = false,
   recovery = "none",
   source = "local",
   state,
@@ -50,14 +52,16 @@ export function WorkspaceShell({
   onImportPlanning?: () => Promise<boolean>;
   planningRecovery?: PlanningRecoveryState;
   planningState?: PlanningWorkspace | null;
+  roleName?: string;
+  sourceUnresolved?: boolean;
   recovery?: ArcRecoveryState;
   source?: ArcStateSource;
   state: DemoState | null;
 }) {
   const isRestoring = state === null;
-  const isCustomRole = planningState ? false : state !== null && state.setup.roleId !== flagshipRole.id;
-  const context = planningState
-    ? `AI-Native Full-Stack Engineer · ${planningState.target.targetWeeks} weeks`
+  const isCustomRole = sourceUnresolved || planningState ? false : state !== null && state.setup.roleId !== flagshipRole.id;
+  const context = sourceUnresolved ? "Resolving your plan…" : planningState
+    ? `${roleName ?? "Learning plan"} · ${planningState.target.targetWeeks} weeks`
     : state === null
     ? "Restoring your plan…"
     : `${getRoleDisplayName(state.setup.roleId)} · ${state.setup.targetWeeks} weeks`;

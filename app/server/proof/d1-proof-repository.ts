@@ -15,6 +15,7 @@ import {
 import { dailyUnitSchema, type DailyUnit } from "../../contracts/planning";
 import type {
   ActiveProofShare,
+  ActiveProofGoal,
   OwnedProof,
   ProofAssetMetadata,
   ProofRepository,
@@ -56,7 +57,7 @@ const reasonCodesSchema = z.array(z.string().min(1).max(128)).max(32);
 const D1_PROOF_VALUE_MAX_BYTES = 1_900_000;
 const IDEMPOTENCY_SCOPE_PREFIX = "proof-ledger:";
 
-type GoalRow = { id: string };
+type GoalRow = { id: string; role_id: string };
 type IdempotencyRow = { response_json: string };
 type RevisionRow = { revision: number };
 type PayloadRow = { payload_json: string };
@@ -92,10 +93,12 @@ export class D1ProofRepository implements ProofRepository {
     private readonly now: () => number = () => Date.now(),
   ) {}
 
-  async findActiveGoal(ownerId: string): Promise<ProofOwnerGoal | null> {
-    const row = await this.db.prepare(`SELECT id FROM career_goals
+  async findActiveGoal(ownerId: string): Promise<ActiveProofGoal | null> {
+    const row = await this.db.prepare(`SELECT id, role_id FROM career_goals
       WHERE user_id = ?1 AND active_slot = 1 LIMIT 1`).bind(ownerId).first<GoalRow>();
-    return row ? { ownerId, goalId: row.id } : null;
+    return row && typeof row.role_id === "string"
+      ? { ownerId, goalId: row.id, roleId: row.role_id }
+      : null;
   }
 
   async load(scope: ProofOwnerGoal): Promise<ProofLedgerWorkspace | null> {
@@ -261,9 +264,9 @@ export class D1ProofRepository implements ProofRepository {
         INNER JOIN planning_workspaces
           ON planning_workspaces.user_id = daily_units.user_id
           AND planning_workspaces.goal_id = daily_units.goal_id
-          AND planning_workspaces.active_plan_version_id = daily_units.plan_version_id
         WHERE daily_units.user_id = ?1 AND daily_units.goal_id = ?2
-          AND daily_units.unit_id = ?3 LIMIT 1`)
+          AND daily_units.unit_id = ?3
+        ORDER BY daily_units.created_at DESC LIMIT 1`)
         .bind(scope.ownerId, scope.goalId, dailyUnitId).first<PayloadRow>();
       return row ? parseBoundedJson(row.payload_json, dailyUnitSchema) : null;
     } catch {

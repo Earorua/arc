@@ -6,6 +6,8 @@ import {
   planningWorkspaceResponseSchema,
   replanDecisionRequestSchema,
 } from "../../contracts/planning-api";
+import { MAX_PLANNING_RESPONSE_BYTES } from "../../contracts/planning-api";
+export { MAX_PLANNING_RESPONSE_BYTES } from "../../contracts/planning-api";
 import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
 import { getD1 } from "../../../db/d1";
 import { requireArcUser, UnauthenticatedError, type ArcUser } from "../auth/session";
@@ -15,6 +17,8 @@ import { D1OperationalEventSink } from "../observability/d1-events";
 import { createOperationalEvent, type OperationalEvent } from "../observability/events";
 import { PlanningInputError } from "../../lib/planning/path-builder";
 import { D1PlanningRepository } from "../planning/d1-planning-repository";
+import { PlanningSourceResolver } from "../planning/source-resolver";
+import { D1PlanningReplayPackageReader, D1ResearchRepository } from "../research/d1-repository";
 import {
   PlanningConflictError,
   PlanningInvalidInputError,
@@ -28,7 +32,8 @@ import { D1RateLimiter, RateLimitUnavailableError, type RateLimiter } from "./ra
 const MAX_PLANNING_REQUEST_BYTES = 4 * 1024 * 1024;
 
 type PlanningRouteService = Pick<PlanningService,
-  "getWorkspace" | "generate" | "appendEvent" | "acceptReplan" | "discardReplan">;
+  "getWorkspaceResponse" | "generateResponse" | "appendEventResponse" |
+  "acceptReplanResponse" | "discardReplanResponse">;
 
 export type PlanningRouteDependencies = {
   requireUser(headers: Headers): Promise<ArcUser>;
@@ -134,8 +139,10 @@ function errorResponse(error: unknown, requestId: string): { response: Response;
   if (error instanceof RateLimitUnavailableError || error instanceof PlanningUnavailableError) {
     const action: ApiRecoveryAction = error instanceof PlanningUnavailableError
       && error.reason === "version-mismatch" ? "rebuild" : "retry";
+    const status = error instanceof PlanningUnavailableError
+      && error.reason === "response-too-large" ? 500 : 503;
     return { resultCode: "PLANNING_UNAVAILABLE", response: apiError(
-      "PLANNING_UNAVAILABLE", "Planning is temporarily unavailable.", 503, requestId, undefined, action,
+      "PLANNING_UNAVAILABLE", "Planning is temporarily unavailable.", status, requestId, undefined, action,
     ) };
   }
   return { resultCode: "INTERNAL", response: apiError(
@@ -186,6 +193,7 @@ async function runPlanningRoute(
       );
     } else {
       const outcome = await action(deps.createService(), user.id);
+      assertPlanningResponseWireSize(outcome.body);
       resultCode = "OK";
       counters = outcome.counters ?? {};
       response = apiJson(outcome.body, requestId);
@@ -214,8 +222,7 @@ const writeConfig = (route: string, scope: string): RouteConfig => ({ route, sco
 
 export function createPlanningWorkspaceHandler(deps: PlanningRouteDependencies) {
   return (request: Request) => runPlanningRoute(request, deps, readConfig, async (service, userId) => {
-    const workspace = await service.getWorkspace(userId);
-    return { body: parseOutput(planningWorkspaceResponseSchema, { workspace }) };
+    return { body: parseOutput(planningWorkspaceResponseSchema, await service.getWorkspaceResponse(userId)) };
   });
 }
 
@@ -223,9 +230,10 @@ export function createPlanningGenerateHandler(deps: PlanningRouteDependencies) {
   return (request: Request) => runPlanningRoute(request, deps,
     writeConfig("/api/planning/generate", "planning:generate"), async (service, userId) => {
       const input = await parseBody(request, generatePlanningRequestSchema);
-      const result = await service.generate(userId, input);
-      return { body: parseOutput(planningMutationResponseSchema, { result }), counters: {
-        writes: 1, plans: result.workspace.planVersions.length, daily_units: result.workspace.dailyUnits.length,
+      const response = await service.generateResponse(userId, input);
+      return { body: parseOutput(planningMutationResponseSchema, response), counters: {
+        writes: 1, plans: response.result.workspace.planVersions.length,
+        daily_units: response.result.workspace.dailyUnits.length,
       } };
     });
 }
@@ -234,8 +242,8 @@ export function createPlanningEventHandler(deps: PlanningRouteDependencies) {
   return (request: Request) => runPlanningRoute(request, deps,
     writeConfig("/api/planning/events", "planning:events"), async (service, userId) => {
       const input = await parseBody(request, planningEventRequestSchema);
-      const result = await service.appendEvent(userId, input);
-      return { body: parseOutput(planningMutationResponseSchema, { result }), counters: { writes: 1, events: 1 } };
+      const response = await service.appendEventResponse(userId, input);
+      return { body: parseOutput(planningMutationResponseSchema, response), counters: { writes: 1, events: 1 } };
     });
 }
 
@@ -244,10 +252,10 @@ export function createPlanningReplanHandler(deps: PlanningRouteDependencies, dec
   return (request: Request) => runPlanningRoute(request, deps,
     writeConfig(route, `planning:replans:${decision}`), async (service, userId) => {
       const input = await parseBody(request, replanDecisionRequestSchema);
-      const result = decision === "accept"
-        ? await service.acceptReplan(userId, input)
-        : await service.discardReplan(userId, input);
-      return { body: parseOutput(planningMutationResponseSchema, { result }), counters: { writes: 1, events: 1 } };
+      const response = decision === "accept"
+        ? await service.acceptReplanResponse(userId, input)
+        : await service.discardReplanResponse(userId, input);
+      return { body: parseOutput(planningMutationResponseSchema, response), counters: { writes: 1, events: 1 } };
     });
 }
 
@@ -257,13 +265,31 @@ function parseOutput<T>(schema: z.ZodType<T>, value: unknown): T {
   return parsed.data;
 }
 
+export function assertPlanningResponseWireSize(value: unknown): void {
+  let serialized: string;
+  try { serialized = JSON.stringify(value); }
+  catch { throw new PlanningUnavailableError(["response-serialization"]); }
+  if (typeof serialized !== "string"
+    || new TextEncoder().encode(serialized).byteLength > MAX_PLANNING_RESPONSE_BYTES) {
+    throw new PlanningUnavailableError([], "response-too-large");
+  }
+}
+
 export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
   requireUser: (headers) => requireArcUser(headers),
-  createService: () => new PlanningService({
-    repository: new D1PlanningRepository(getD1()),
-    intelligence: new IntelligenceService(new BuiltinIntelligenceRepository()),
-    registry: flagshipUnitRegistry,
-  }),
+  createService: () => {
+    const db = getD1();
+    const intelligence = new IntelligenceService(new BuiltinIntelligenceRepository());
+    const sourceResolver = new PlanningSourceResolver({
+      intelligence,
+      flagshipRegistry: flagshipUnitRegistry,
+      researchRepository: new D1ResearchRepository(db),
+      replayPackageReader: new D1PlanningReplayPackageReader(db),
+    });
+    return new PlanningService({
+      repository: new D1PlanningRepository(db, { sourceResolver }), sourceResolver,
+    });
+  },
   rateLimiter: { reserve: (request) => new D1RateLimiter(getD1()).reserve(request) },
   recordEvent: (event) => new D1OperationalEventSink(getD1()).record(event),
 };

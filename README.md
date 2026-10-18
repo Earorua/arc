@@ -106,7 +106,7 @@ See [the OAuth feasibility record](./docs/operations/sites-oauth-feasibility.md)
 
 ## Local development
 
-Requires Node.js `>=22.13.0`.
+Requires Node.js `>=24.14.1`; CI uses `24.14.1`. The D1 compatibility tests rely on the built-in SQLite statement APIs available in this runtime.
 
 ```bash
 npm install

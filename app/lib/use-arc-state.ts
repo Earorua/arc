@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { LearningUnit } from "../domain/learning";
+import { cloudSnapshotSchema, migrationResultSchema, setupAnswersSchema } from "../contracts/cloud-state";
 import { authClient } from "./auth-client";
 import { arcCloudClient, isArcApiError, type ArcCloudClient } from "./cloud-client";
 import {
@@ -38,7 +39,7 @@ export type ArcStateController = {
   recovery: ArcRecoveryState;
   dismissMigration(): void;
   importLocal(resolution?: ArcMigrationResolution): Promise<void>;
-  saveSetup(setup: SetupAnswers): Promise<boolean>;
+  saveSetup(setup: SetupAnswers, signal?: AbortSignal, options?: { currentSetupActivationId: string }): Promise<boolean>;
   completeUnit(unit: LearningUnit): Promise<boolean>;
   retry(): Promise<void>;
 };
@@ -101,6 +102,14 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
   const userId = session.data?.user.id ?? null;
   const userIdRef = useRef<string | null>(userId);
   const migrationIdRef = useRef<string | null>(null);
+  // A distinct lifetime also invalidates retained callbacks after A → B → A.
+  const setupIdentity = useMemo(() => ({ userId, pending: session.isPending }), [userId, session.isPending]);
+  const setupLifetimeRef = useRef<{ identity: typeof setupIdentity; controller: AbortController; ready: boolean } | null>(null);
+  useLayoutEffect(() => {
+    const controller = new AbortController();
+    setupLifetimeRef.current = { identity: setupIdentity, controller, ready: false };
+    return () => controller.abort();
+  }, [setupIdentity]);
 
   const publishState = useCallback((next: DemoState | null) => {
     stateRef.current = next;
@@ -114,6 +123,10 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
 
   useEffect(() => {
     userIdRef.current = userId;
+    const markSetupRestored = () => {
+      const lifetime = setupLifetimeRef.current;
+      if (lifetime?.identity === setupIdentity) lifetime.ready = true;
+    };
     if (session.isPending) {
       let active = true;
       queueMicrotask(() => {
@@ -131,6 +144,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     const local = loadDemoState(storageRef.current);
     if (!userId) {
       const hydrationTimer = window.setTimeout(() => {
+        markSetupRestored();
         publishState(local);
         publishSource("local");
         setMigration("none");
@@ -150,6 +164,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     void clientRef.current.loadWorkspace()
       .then((snapshot) => {
         if (!active) return;
+        markSetupRestored();
         const available = hasPendingLocalMigration(local, userId, storageRef.current);
         publishState(snapshot?.state ?? local);
         publishSource(snapshot
@@ -161,6 +176,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       })
       .catch((error) => {
         if (!active) return;
+        markSetupRestored();
         publishState(local);
         publishSource("offline-cloud");
         setRecovery(isArcApiError(error) && error.status === 401 ? "session-expired" : "none");
@@ -172,7 +188,7 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     return () => {
       active = false;
     };
-  }, [publishSource, publishState, session.isPending, userId]);
+  }, [publishSource, publishState, session.isPending, setupIdentity, userId]);
 
   const importLocal = useCallback(async (resolution: ArcMigrationResolution = "reject") => {
     const local = loadDemoState(storageRef.current);
@@ -226,7 +242,45 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
     return result.accepted;
   }, [publishSource]);
 
-  const saveSetup = useCallback(async (setup: SetupAnswers): Promise<boolean> => {
+  const saveSetup = useCallback(async (setup: SetupAnswers, signal?: AbortSignal, options?: { currentSetupActivationId: string }): Promise<boolean> => {
+    const lifetime = setupLifetimeRef.current;
+    if (!lifetime || lifetime.identity !== setupIdentity || !lifetime.ready) return false;
+    const lifetimeSignal = lifetime.controller.signal;
+    if (lifetimeSignal.aborted || signal?.aborted) return false;
+    if (options) {
+      if (!setupIdentity.userId || setupIdentity.pending) return false;
+      const cancellation = new AbortController();
+      const cancel = () => cancellation.abort();
+      lifetimeSignal.addEventListener("abort", cancel, { once: true }); signal?.addEventListener("abort", cancel, { once: true });
+      try {
+        const currentSetup = setupAnswersSchema.parse(setup);
+        const previous = await clientRef.current.loadWorkspace(cancellation.signal);
+        if (cancellation.signal.aborted) return false;
+        let snapshot;
+        if (previous === null) {
+          // The existing research-setup wire guard also protects the panel's
+          // reviewed Flagship fallback: current answers only, never device history.
+          const activation = migrationResultSchema.parse(await clientRef.current.importLocal({ setup: currentSetup, completedUnitIds: [], proofs: [] }, "reject", options.currentSetupActivationId, cancellation.signal, "research-setup"));
+          if (cancellation.signal.aborted || activation.migrationId !== options.currentSetupActivationId
+            || !["imported", "already-imported"].includes(activation.status) || !activation.activeGoalId
+            || activation.importedCompletionCount !== 0 || activation.importedProofCount !== 0 || activation.availableResolutions.length !== 0) return false;
+          snapshot = cloudSnapshotSchema.parse(await clientRef.current.loadWorkspace(cancellation.signal));
+          if (snapshot.activeGoalId !== activation.activeGoalId || snapshot.state.completedUnitIds.length !== 0 || snapshot.state.proofs.length !== 0) return false;
+        } else {
+          const existing = cloudSnapshotSchema.parse(previous);
+          snapshot = cloudSnapshotSchema.parse(await clientRef.current.saveSetup(currentSetup, options.currentSetupActivationId, cancellation.signal, "research-setup"));
+          if (snapshot.activeGoalId !== existing.activeGoalId) return false;
+        }
+        if (cancellation.signal.aborted || Object.entries(currentSetup).some(([key, value]) => snapshot.state.setup[key as keyof SetupAnswers] !== value)) return false;
+        publishState(snapshot.state); publishSource("cloud"); setRecovery("none");
+        return true;
+      } catch (error) {
+        if (!cancellation.signal.aborted && isArcApiError(error) && error.status === 401) setRecovery("session-expired");
+        return false;
+      } finally {
+        lifetimeSignal.removeEventListener("abort", cancel); signal?.removeEventListener("abort", cancel);
+      }
+    }
     const current = stateRef.current;
     if (!current) return false;
     const signedIn = Boolean(userIdRef.current);
@@ -256,13 +310,19 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       return accepted;
     }
 
+    const cancellation = new AbortController();
+    const cancel = () => cancellation.abort();
+    lifetimeSignal.addEventListener("abort", cancel, { once: true });
+    signal?.addEventListener("abort", cancel, { once: true });
     try {
-      const snapshot = await clientRef.current.saveSetup(setup, mutationId);
+      const snapshot = await clientRef.current.saveSetup(setup, mutationId, cancellation.signal);
+      if (cancellation.signal.aborted) return false;
       publishState(snapshot.state);
       publishSource("cloud");
       setRecovery("none");
       return true;
     } catch (error) {
+      if (cancellation.signal.aborted || typeof error === "object" && error !== null && "name" in error && error.name === "AbortError") return false;
       if (isArcApiError(error) && error.status === 401) {
         setRecovery("session-expired");
         return false;
@@ -271,8 +331,11 @@ export function useArcState(options: Partial<ArcStateOptions> = {}): ArcStateCon
       const accepted = enqueue(mutation);
       if (accepted) publishState(mergeSetup(current, setup));
       return accepted;
+    } finally {
+      lifetimeSignal.removeEventListener("abort", cancel);
+      signal?.removeEventListener("abort", cancel);
     }
-  }, [enqueue, publishSource, publishState]);
+  }, [enqueue, publishSource, publishState, setupIdentity]);
 
   const completeUnit = useCallback(async (unit: LearningUnit): Promise<boolean> => {
     const current = stateRef.current;

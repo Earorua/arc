@@ -1,18 +1,21 @@
 import { z } from "zod";
-import { roleBlueprintSchema } from "../../contracts/intelligence";
 import {
   generatePlanningRequestSchema,
   planningEventRequestSchema,
   replanDecisionRequestSchema,
+  type PlanningMutationResponse,
+  type PlanningWorkspaceResponse,
 } from "../../contracts/planning-api";
 import {
   planningEventSchema,
   planningMutationResultSchema,
+  planningSourceContextSchema,
   planningWorkspaceSchema,
-  unitRegistrySchema,
   type PlanningEvent,
   type PlanningMutationResult,
   type PlanningWorkspace,
+  type PlanningSourceContext,
+  type PlanningSourceReference,
 } from "../../contracts/planning";
 import { applyPlanningEvent, PlanningEventError, type PlanningTransition } from "../../lib/planning/event-reducer";
 import { validateRoleBlueprint } from "../../lib/intelligence-validation";
@@ -25,6 +28,7 @@ import type {
   PlanningRepository,
   PlanningRepositoryPayload,
 } from "./repository";
+import { PlanningSourceContractError, PlanningSourceResolver, PlanningSourceUnavailableError } from "./source-resolver";
 
 const FLAGSHIP_SLUG = "ai-native-full-stack-engineer";
 const authenticatedOwnerSchema = z.string().trim().min(1).max(256);
@@ -48,7 +52,7 @@ export class PlanningConflictError extends PlanningServiceError {
 export class PlanningUnavailableError extends PlanningServiceError {
   constructor(
     issues: readonly string[] = [],
-    readonly reason: "unavailable" | "version-mismatch" = "unavailable",
+    readonly reason: "unavailable" | "version-mismatch" | "response-too-large" = "unavailable",
   ) {
     super("PLANNING_UNAVAILABLE", [...new Set(issues)].sort());
     this.name = "PlanningUnavailableError";
@@ -65,8 +69,9 @@ export class PlanningInvalidInputError extends PlanningServiceError {
 
 type ServiceOptions = {
   repository: PlanningRepository;
-  intelligence: Pick<IntelligenceService, "getPublished">;
-  registry: unknown;
+  intelligence?: Pick<IntelligenceService, "getPublished">;
+  registry?: unknown;
+  sourceResolver?: PlanningSourceResolver;
   createId?: () => string;
   now?: () => Date;
 };
@@ -74,20 +79,36 @@ type ServiceOptions = {
 export class PlanningService {
   private readonly createId: () => string;
   private readonly now: () => Date;
+  private readonly sourceResolver: PlanningSourceResolver;
 
   constructor(private readonly dependencies: ServiceOptions) {
     this.createId = dependencies.createId ?? (() => `planning-${crypto.randomUUID()}`);
     this.now = dependencies.now ?? (() => new Date());
+    if (dependencies.sourceResolver) this.sourceResolver = dependencies.sourceResolver;
+    else if (dependencies.intelligence && dependencies.registry) {
+      this.sourceResolver = new PlanningSourceResolver({
+        intelligence: dependencies.intelligence,
+        flagshipRegistry: dependencies.registry,
+      });
+    } else throw new PlanningUnavailableError();
   }
 
   async getWorkspace(userId: string): Promise<PlanningWorkspace | null> {
+    return (await this.getWorkspaceResponse(userId)).workspace;
+  }
+
+  async getWorkspaceResponse(userId: string): Promise<PlanningWorkspaceResponse> {
     const scope = await this.resolveScope(userId);
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
-    if (!stored) return null;
+    if (!stored) return { workspace: null, sourceContext: null };
     return this.parseOwnedWorkspace(stored, scope);
   }
 
   async generate(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    return (await this.generateResponse(userId, input)).result;
+  }
+
+  async generateResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     const ownerId = parseOwner(userId);
     const request = parseContract(generatePlanningRequestSchema, input);
     const scope = await this.resolveScope(ownerId);
@@ -97,13 +118,11 @@ export class PlanningService {
     if (existing) throw new PlanningConflictError();
 
     try {
-      if (request.roleId !== FLAGSHIP_SLUG) throw new PlanningInvalidInputError(["role"]);
-      const registry = unitRegistrySchema.parse(cloneUnknown(this.dependencies.registry));
-      const rawBlueprint = await this.dependencies.intelligence.getPublished(FLAGSHIP_SLUG);
-      if (!rawBlueprint) throw new PlanningUnavailableError();
-      const blueprint = roleBlueprintSchema.parse(cloneUnknown(rawBlueprint));
-      if (blueprint.id !== FLAGSHIP_SLUG) throw new PlanningUnavailableError();
-      validatePlanningSources(blueprint, registry);
+      const requestedSource = "source" in request
+        ? request.source
+        : { source: "flagship" as const, roleId: request.roleId };
+      const sourceContext = await this.sourceResolver.resolveForGenerate(ownerId, requestedSource);
+      const { blueprint, registry, reference: sourceReference } = sourceContext;
       const alternatives = buildLearningPaths({
         blueprint,
         registry,
@@ -145,20 +164,30 @@ export class PlanningService {
         },
         diff: null,
       });
-      const saved = await this.dependencies.repository.saveGeneration({ ...scope, mutationId: request.mutationId, result });
-      return this.parseOwnedResult(saved, scope);
+      const saved = await this.dependencies.repository.saveGeneration({
+        ...scope, mutationId: request.mutationId, result, sourceReference,
+      });
+      return this.parseOwnedResult(saved, scope, sourceReference);
     } catch (error) {
       throw normalizeError(error);
     }
   }
 
   async appendEvent(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    return (await this.appendEventResponse(userId, input)).result;
+  }
+
+  async appendEventResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     parseOwner(userId);
     const request = parseContract(planningEventRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, request.event);
   }
 
   async acceptReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    return (await this.acceptReplanResponse(userId, input)).result;
+  }
+
+  async acceptReplanResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     parseOwner(userId);
     const request = parseContract(replanDecisionRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, {
@@ -168,6 +197,10 @@ export class PlanningService {
   }
 
   async discardReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
+    return (await this.discardReplanResponse(userId, input)).result;
+  }
+
+  async discardReplanResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     parseOwner(userId);
     const request = parseContract(replanDecisionRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, {
@@ -181,22 +214,18 @@ export class PlanningService {
     mutationId: string,
     baseVersionId: string,
     body: Record<string, unknown>,
-  ): Promise<PlanningMutationResult> {
+  ): Promise<PlanningMutationResponse> {
     const ownerId = parseOwner(userId);
     const scope = await this.resolveScope(ownerId);
     const replay = await this.loadReplay(scope, mutationId);
     if (replay) return replay;
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (!stored) throw new PlanningUnavailableError();
-    const workspace = this.parseOwnedWorkspace(stored, scope);
+    const parsedStored = await this.parseOwnedWorkspace(stored, scope);
+    const { workspace, sourceContext } = parsedStored;
     if (workspace.activePlanVersionId !== baseVersionId) throw new PlanningConflictError();
     try {
-      const registry = unitRegistrySchema.parse(cloneUnknown(this.dependencies.registry));
-      const rawBlueprint = await this.dependencies.intelligence.getPublished(FLAGSHIP_SLUG);
-      if (!rawBlueprint) throw new PlanningUnavailableError();
-      const blueprint = roleBlueprintSchema.parse(cloneUnknown(rawBlueprint));
-      if (blueprint.id !== FLAGSHIP_SLUG) throw new PlanningUnavailableError();
-      validatePlanningSources(blueprint, registry);
+      const { blueprint, registry, reference: sourceReference } = sourceContext;
       const event = planningEventSchema.parse({
         ...body,
         eventId: this.createId(),
@@ -214,8 +243,9 @@ export class PlanningService {
         baseVersionId,
         previous: workspace,
         result,
+        sourceReference,
       });
-      return this.parseOwnedResult(saved, scope);
+      return this.parseOwnedResult(saved, scope, sourceReference);
     } catch (error) {
       throw normalizeError(error);
     }
@@ -234,17 +264,23 @@ export class PlanningService {
     return { ownerId, goalId: scope.goalId };
   }
 
-  private async loadReplay(scope: PlanningOwnerGoal, mutationId: string): Promise<PlanningMutationResult | null> {
+  private async loadReplay(scope: PlanningOwnerGoal, mutationId: string): Promise<PlanningMutationResponse | null> {
     const stored = await repositoryRead(() => this.dependencies.repository.findMutation({ ...scope, mutationId }));
     return stored ? this.parseOwnedResult(stored, scope) : null;
   }
 
-  private parseOwnedWorkspace(stored: PlanningRepositoryPayload, scope: PlanningOwnerGoal): PlanningWorkspace {
+  private async parseOwnedWorkspace(stored: PlanningRepositoryPayload, scope: PlanningOwnerGoal): Promise<{
+    workspace: PlanningWorkspace;
+    sourceContext: PlanningSourceContext;
+  }> {
     assertOwned(stored, scope);
     try {
       const workspace = planningWorkspaceSchema.parse(cloneUnknown(stored.payload));
       if (workspace.goalId !== scope.goalId) throw new PlanningNotFoundError();
-      return workspace;
+      const sourceReference = resolveStoredReference(stored.sourceReference, workspace);
+      const sourceContext = await this.resolveStoredContext(stored, scope.ownerId, sourceReference);
+      assertWorkspaceSource(workspace, sourceContext);
+      return { workspace, sourceContext };
     }
     catch (error) {
       if (error instanceof PlanningNotFoundError) throw error;
@@ -252,16 +288,44 @@ export class PlanningService {
     }
   }
 
-  private parseOwnedResult(stored: PlanningRepositoryPayload, scope: PlanningOwnerGoal): PlanningMutationResult {
+  private async parseOwnedResult(
+    stored: PlanningRepositoryPayload,
+    scope: PlanningOwnerGoal,
+    expectedReference?: PlanningSourceReference,
+  ): Promise<{ result: PlanningMutationResult; sourceContext: PlanningSourceContext }> {
     assertOwned(stored, scope);
     try {
       const result = planningMutationResultSchema.parse(cloneUnknown(stored.payload));
       if (result.workspace.goalId !== scope.goalId) throw new PlanningNotFoundError();
-      return result;
+      const sourceReference = resolveStoredReference(stored.sourceReference ?? expectedReference, result.workspace);
+      if (expectedReference && JSON.stringify(sourceReference) !== JSON.stringify(expectedReference)) {
+        throw new PlanningUnavailableError();
+      }
+      const sourceContext = await this.resolveStoredContext(stored, scope.ownerId, sourceReference);
+      assertWorkspaceSource(result.workspace, sourceContext);
+      return { result, sourceContext };
     } catch (error) {
       if (error instanceof PlanningServiceError) throw error;
       throw new PlanningUnavailableError();
     }
+  }
+
+  private async resolveStoredContext(
+    stored: PlanningRepositoryPayload,
+    ownerId: string,
+    sourceReference: PlanningSourceReference,
+  ): Promise<PlanningSourceContext> {
+    const context = stored.sourceContext === undefined
+      ? await this.sourceResolver.resolveForReplay(ownerId, sourceReference)
+      : planningSourceContextSchema.parse(cloneUnknown(stored.sourceContext));
+    if (JSON.stringify(context.reference) !== JSON.stringify(sourceReference)) {
+      throw new PlanningUnavailableError();
+    }
+    if (validateRoleBlueprint(context.blueprint).issues.length
+      || validateUnitRegistry(context.registry, context.blueprint).issues.length) {
+      throw new PlanningUnavailableError();
+    }
+    return context;
   }
 }
 
@@ -271,15 +335,27 @@ function parseOwner(userId: string): string {
   return parsed.data;
 }
 
-function validatePlanningSources(
-  blueprint: z.infer<typeof roleBlueprintSchema>,
-  registry: z.infer<typeof unitRegistrySchema>,
-): void {
-  const issues = [
-    ...validateRoleBlueprint(blueprint).issues.map(({ code, path }) => `blueprint:${code}:${path}`),
-    ...validateUnitRegistry(registry, blueprint).issues.map(({ code, path }) => `registry:${code}:${path}`),
-  ].sort();
-  if (issues.length > 0) throw new PlanningUnavailableError(issues);
+function resolveStoredReference(
+  input: PlanningSourceReference | undefined,
+  workspace: PlanningWorkspace,
+): PlanningSourceReference {
+  if (input) return input;
+  const exactFlagship = workspace.audit.blueprintId === FLAGSHIP_SLUG
+    && workspace.pathVersions.every((path) => path.blueprintId === FLAGSHIP_SLUG
+      && path.blueprintVersion === workspace.audit.blueprintVersion
+      && path.registryId === "ai-native-full-stack-engineer-units");
+  if (!exactFlagship) throw new PlanningUnavailableError();
+  return { source: "flagship", roleId: FLAGSHIP_SLUG };
+}
+
+function assertWorkspaceSource(workspace: PlanningWorkspace, context: PlanningSourceContext): void {
+  const { blueprint, registry } = context;
+  if (workspace.audit.blueprintId !== blueprint.id || workspace.audit.blueprintVersion !== blueprint.version
+    || workspace.pathVersions.some((path) => path.blueprintId !== blueprint.id
+      || path.blueprintVersion !== blueprint.version
+      || path.registryId !== registry.id || path.registryVersion !== registry.version)) {
+    throw new PlanningUnavailableError();
+  }
 }
 
 function parseContract<T>(schema: z.ZodType<T>, value: unknown): T {
@@ -305,6 +381,8 @@ function resultFromTransition(transition: PlanningTransition): PlanningMutationR
 
 function normalizeError(error: unknown): PlanningServiceError {
   if (error instanceof PlanningServiceError) return error;
+  if (error instanceof PlanningSourceContractError) return new PlanningInvalidInputError();
+  if (error instanceof PlanningSourceUnavailableError) return new PlanningUnavailableError();
   if (error instanceof PlanningEventError && error.code === "BASE_REVISION_MISMATCH") return new PlanningConflictError();
   if (error instanceof PlanningInputError) return new PlanningInvalidInputError(error.issues.map(({ code }) => code));
   if (error instanceof PlanningEventError || error instanceof PlanningScheduleError || error instanceof z.ZodError) {

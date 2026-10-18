@@ -28,7 +28,13 @@ export const migrationRequestSchema = z.object({
   consent: z.literal(true),
   state: demoStateSchema,
   conflictResolution: z.enum(["reject", "archive-import", "activate-import"]).default("reject"),
-}).strict();
+  intent: z.literal("research-setup").optional(),
+}).strict().superRefine((request, ctx) => {
+  if (request.intent === "research-setup" && (request.conflictResolution !== "reject"
+    || request.state.completedUnitIds.length !== 0 || request.state.proofs.length !== 0)) {
+    ctx.addIssue({ code: "custom", path: ["intent"], message: "Research setup requires current answers only and no goal replacement." });
+  }
+});
 
 export const migrationResultSchema = z.object({
   migrationId: z.string().min(1),
@@ -42,6 +48,7 @@ export const migrationResultSchema = z.object({
 export const workspaceMutationSchema = z.object({
   mutationId: z.string().trim().min(8).max(128),
   setup: setupAnswersSchema,
+  intent: z.literal("research-setup").optional(),
 }).strict();
 
 export const completionMutationSchema = z.object({

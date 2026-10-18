@@ -51,13 +51,15 @@ type CloudClientOptions = {
 };
 
 export interface ArcCloudClient {
-  loadWorkspace(): Promise<CloudSnapshot | null>;
+  loadWorkspace(signal?: AbortSignal): Promise<CloudSnapshot | null>;
   importLocal(
     state: DemoState,
     resolution?: "reject" | "archive-import" | "activate-import",
     migrationId?: string,
+    signal?: AbortSignal,
+    intent?: "research-setup",
   ): Promise<MigrationResult>;
-  saveSetup(setup: SetupAnswersInput, mutationId?: string): Promise<CloudSnapshot>;
+  saveSetup(setup: SetupAnswersInput, mutationId?: string, signal?: AbortSignal, intent?: "research-setup"): Promise<CloudSnapshot>;
   completeUnit(unit: LearningUnit, mutationId?: string): Promise<CloudSnapshot>;
   replay(mutation: OfflineMutation): Promise<CloudSnapshot>;
 }
@@ -71,6 +73,7 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
     schema: z.ZodType<T>,
     init: RequestInit,
   ): Promise<T> {
+    init.signal?.throwIfAborted();
     const response = await fetcher(path, {
       ...init,
       cache: "no-store",
@@ -79,12 +82,15 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
         ? { "content-type": "application/json", ...init.headers }
         : init.headers,
     });
+    init.signal?.throwIfAborted();
     let payload: unknown;
     try {
       payload = await response.json();
     } catch {
+      init.signal?.throwIfAborted();
       throw new Error("Arc returned an invalid response.");
     }
+    init.signal?.throwIfAborted();
 
     if (!response.ok) {
       const parsedError = apiErrorSchema.safeParse(payload);
@@ -103,11 +109,12 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
     return parsed.data;
   }
 
-  async function sendSetup(setup: SetupAnswersInput, mutationId: string) {
-    const mutation = workspaceMutationSchema.parse({ mutationId, setup });
+  async function sendSetup(setup: SetupAnswersInput, mutationId: string, signal?: AbortSignal, intent?: "research-setup") {
+    const mutation = workspaceMutationSchema.parse({ mutationId, setup, ...(intent ? { intent } : {}) });
     const response = await request("/api/workspace", snapshotResponseSchema, {
       method: "PUT",
       body: JSON.stringify(mutation),
+      signal,
     });
     return response.snapshot;
   }
@@ -128,25 +135,27 @@ export function createArcCloudClient(options: Partial<CloudClientOptions> = {}):
   }
 
   return {
-    async loadWorkspace() {
-      const response = await request("/api/workspace", cloudWorkspaceResponseSchema, { method: "GET" });
+    async loadWorkspace(signal) {
+      const response = await request("/api/workspace", cloudWorkspaceResponseSchema, { method: "GET", signal });
       return response.snapshot;
     },
-    async importLocal(state, resolution = "reject", migrationId = createMutationId()) {
+    async importLocal(state, resolution = "reject", migrationId = createMutationId(), signal, intent) {
       const mutation = migrationRequestSchema.parse({
         migrationId,
         consent: true,
         state,
         conflictResolution: resolution,
+        ...(intent ? { intent } : {}),
       });
       const response = await request("/api/migrations/local-state", migrationResponseSchema, {
         method: "POST",
         body: JSON.stringify(mutation),
+        signal,
       });
       return response.result;
     },
-    saveSetup(setup, mutationId = createMutationId()) {
-      return sendSetup(setup, mutationId);
+    saveSetup(setup, mutationId = createMutationId(), signal, intent) {
+      return sendSetup(setup, mutationId, signal, intent);
     },
     completeUnit(unit, mutationId = createMutationId()) {
       return sendCompletion(unit, mutationId);

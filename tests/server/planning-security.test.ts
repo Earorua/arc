@@ -3,6 +3,7 @@ import {
   availabilityVersionSchema,
   MAX_PLANNING_WORKSPACE_BYTES,
   planningWorkspaceSchema,
+  planningSourceContextSchema,
   PLANNING_SCHEMA_VERSION,
   parsePlanningWorkspaceAtRepositoryBoundary,
   skillAuditVersionSchema,
@@ -11,6 +12,7 @@ import {
   type PlanVersion,
   type PlanningWorkspace,
 } from "../../app/contracts/planning";
+import { planningMutationResponseSchema, planningWorkspaceResponseSchema } from "../../app/contracts/planning-api";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { buildLearningPaths } from "../../app/lib/planning/path-builder";
@@ -176,6 +178,48 @@ function generateRequest() {
 }
 
 describe("planning contract resource and security boundaries", () => {
+  it.each([
+    ["blueprint version", { blueprint: { ...flagshipBlueprint, version: "2026.08.999" } }],
+    ["registry id", { registry: { ...flagshipUnitRegistry, id: "tampered-flagship-registry" } }],
+    ["registry version", { registry: { ...flagshipUnitRegistry, version: "2026.08.999" } }],
+  ] as const)("rejects a tampered Flagship %s in workspace and mutation HTTP envelopes", (_label, override) => {
+    const workspace = baseWorkspace();
+    const sourceContext = {
+      reference: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+      blueprint: flagshipBlueprint,
+      registry: flagshipUnitRegistry,
+      ...override,
+    };
+    expect(planningSourceContextSchema.safeParse(sourceContext).success).toBe(false);
+    expect(planningWorkspaceResponseSchema.safeParse({ workspace, sourceContext }).success).toBe(false);
+    expect(planningMutationResponseSchema.safeParse({
+      result: { outcome: "active", workspace, diff: null }, sourceContext,
+    }).success).toBe(false);
+  });
+
+  it("keeps legacy planning error envelopes distinct from Research top-level request IDs", async () => {
+    const dependencies: PlanningRouteDependencies = {
+      requireUser: async () => { throw new Error("legacy planning auth failure"); },
+      createService: () => ({
+        getWorkspaceResponse: async () => ({ workspace: null, sourceContext: null }),
+        generateResponse: async () => { throw new Error("not used"); },
+        appendEventResponse: async () => { throw new Error("not used"); },
+        acceptReplanResponse: async () => { throw new Error("not used"); },
+        discardReplanResponse: async () => { throw new Error("not used"); },
+      }),
+      rateLimiter: { reserve: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
+      recordEvent: async () => undefined,
+      createRequestId: () => "00000000-0000-4000-8000-000000000001",
+    };
+    const response = await createPlanningGenerateHandler(dependencies)(new Request("https://arc.example/api/planning/generate", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(generateRequest()),
+    }));
+    const body = await response.json() as Record<string, unknown>;
+    expect(body).not.toHaveProperty("requestId");
+    expect(body).toHaveProperty("error.requestId", "00000000-0000-4000-8000-000000000001");
+    expect(body).not.toHaveProperty("error.recovery");
+  });
+
   it("accepts exact audit/evidence maxima and rejects the first item beyond either cap", () => {
     const answers = Array.from({ length: 64 }, (_, answerIndex) => ({
       skillId: `security-skill-${answerIndex}`,
@@ -343,11 +387,11 @@ describe("planning contract resource and security boundaries", () => {
     const dependencies: PlanningRouteDependencies = {
       requireUser: async () => ({ id: "security-owner", name: "Private Learner", email: "private@example.com" }),
       createService: () => ({
-        getWorkspace: async () => null,
-        generate: async () => { throw new Error("token=private-token body=private-audit"); },
-        appendEvent: async () => { throw new Error("not used"); },
-        acceptReplan: async () => { throw new Error("not used"); },
-        discardReplan: async () => { throw new Error("not used"); },
+        getWorkspaceResponse: async () => ({ workspace: null, sourceContext: null }),
+        generateResponse: async () => { throw new Error("token=private-token body=private-audit"); },
+        appendEventResponse: async () => { throw new Error("not used"); },
+        acceptReplanResponse: async () => { throw new Error("not used"); },
+        discardReplanResponse: async () => { throw new Error("not used"); },
       }),
       rateLimiter: { reserve: async () => ({ allowed: true, retryAfterSeconds: 0 }) },
       recordEvent,

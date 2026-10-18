@@ -10,10 +10,11 @@ import {
   type PlanVersion,
   type PlanningEvent,
   type PlanningMutationResult,
+  planningSourceReferenceSchema,
+  type PlanningSourceContext,
+  type PlanningSourceReference,
   type PlanningWorkspace,
 } from "../../contracts/planning";
-import type { RoleBlueprint } from "../../contracts/intelligence";
-import type { UnitRegistry } from "../../contracts/planning";
 import { flagshipBlueprint } from "../../data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
 import { applyPlanningEvent, replayPlanningEvents, type PlanningTransition } from "../../lib/planning/event-reducer";
@@ -27,6 +28,7 @@ import type {
 } from "./repository";
 import { PlanningConflictError, PlanningNotFoundError, PlanningUnavailableError } from "./service";
 import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
+import type { PlanningSourceResolver } from "./source-resolver";
 
 const IDEMPOTENCY_SCOPE_PREFIX = "adaptive-planning:";
 export const D1_PLANNING_VALUE_MAX_BYTES = 1_900_000;
@@ -41,6 +43,7 @@ const storedGenerationSchema = z.object({
   ownerId: z.string().min(1),
   goalId: z.string().min(1),
   kind: z.literal("generation"),
+  sourceReference: planningSourceReferenceSchema.optional(),
   result: z.unknown(),
 }).strict();
 
@@ -61,14 +64,23 @@ type StoredMutation = StoredGeneration | StoredEvent;
 type RepositoryOptions = {
   createId: () => string;
   now: () => Date;
-  blueprint: RoleBlueprint;
-  registry: UnitRegistry;
+  sourceResolver: Pick<PlanningSourceResolver, "resolveForGenerationCommit" | "resolveForReplay">;
 };
 const defaultOptions: RepositoryOptions = {
   createId: () => crypto.randomUUID(),
   now: () => new Date(),
-  blueprint: flagshipBlueprint,
-  registry: flagshipUnitRegistry,
+  sourceResolver: {
+    async resolveForGenerationCommit(_ownerId, reference) {
+      const parsed = planningSourceReferenceSchema.parse(reference);
+      if (parsed.source !== "flagship") throw new PlanningUnavailableError();
+      return { reference: parsed, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry };
+    },
+    async resolveForReplay(_ownerId, reference) {
+      const parsed = planningSourceReferenceSchema.parse(reference);
+      if (parsed.source !== "flagship") throw new PlanningUnavailableError();
+      return { reference: parsed, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry };
+    },
+  },
 };
 
 type GoalRow = { id: string; user_id?: string };
@@ -112,7 +124,9 @@ export class D1PlanningRepository implements PlanningRepository {
     const stored = parseStoredMutation(row.response_json);
     if (stored.ownerId !== input.ownerId || stored.goalId !== input.goalId) throw new PlanningNotFoundError();
     if (stored.kind === "generation") {
-      return { ownerId: stored.ownerId, goalId: stored.goalId, payload: stored.result };
+      const sourceReference = storedReference(stored);
+      const sourceContext = await this.resolveReplaySource(input.ownerId, sourceReference, stored.result.workspace);
+      return { ownerId: stored.ownerId, goalId: stored.goalId, payload: stored.result, sourceReference, sourceContext };
     }
     const history = await this.replayHistory(input, stored.sequence);
     const replay = history.resultAtTarget;
@@ -120,7 +134,10 @@ export class D1PlanningRepository implements PlanningRepository {
       || history.lineageAtTarget !== stored.lineageFingerprint) {
       throw new PlanningUnavailableError();
     }
-    return { ownerId: stored.ownerId, goalId: stored.goalId, payload: replay };
+    return {
+      ownerId: stored.ownerId, goalId: stored.goalId, payload: replay,
+      sourceReference: history.sourceReference, sourceContext: history.sourceContext,
+    };
   }
 
   async load(scope: PlanningOwnerGoal): Promise<PlanningRepositoryPayload | null> {
@@ -172,7 +189,10 @@ export class D1PlanningRepository implements PlanningRepository {
         throw new Error("pointer mismatch");
       }
       if (canonicalJson(workspace) !== canonicalJson(snapshot)) throw new Error("snapshot mismatch");
-      return { ...scope, payload: workspace };
+      return {
+        ...scope, payload: workspace,
+        sourceReference: replayed.sourceReference, sourceContext: replayed.sourceContext,
+      };
     } catch (error) {
       if (error instanceof PlanningUnavailableError && error.reason === "version-mismatch") throw error;
       throw new PlanningUnavailableError();
@@ -182,8 +202,10 @@ export class D1PlanningRepository implements PlanningRepository {
   async saveGeneration(command: SavePlanningGenerationCommand): Promise<PlanningRepositoryPayload> {
     const result = parseMutationResult(command.result);
     if (result.workspace.goalId !== command.goalId || result.workspace.revision !== 0) throw new PlanningUnavailableError();
+    const sourceReference = parseSourceReference(command.sourceReference);
     const replay = await this.findMutation(command);
     if (replay) return replay;
+    const sourceContext = await this.resolveGenerationSource(command.ownerId, sourceReference, result.workspace);
     const now = this.options.now().getTime();
     const statements: D1PreparedStatement[] = [];
     statements.push(...immutableGenerationStatements(this.db, command.ownerId, command.goalId, result.workspace, now));
@@ -206,7 +228,7 @@ export class D1PlanningRepository implements PlanningRepository {
       if (winner) return winner;
       throw isConflictError(error) ? new PlanningConflictError() : new PlanningUnavailableError();
     }
-    return { ownerId: command.ownerId, goalId: command.goalId, payload: result };
+    return { ownerId: command.ownerId, goalId: command.goalId, payload: result, sourceReference, sourceContext };
   }
 
   async saveEvent(command: SavePlanningEventCommand): Promise<PlanningRepositoryPayload> {
@@ -239,6 +261,8 @@ export class D1PlanningRepository implements PlanningRepository {
       workspace.lastSequence + 1, now, command.ownerId, command.goalId, workspace.id,
       command.baseRevision, previous.lastSequence + 1));
     const history = await this.replayHistory(command, previous.lastSequence);
+    const sourceReference = parseSourceReference(command.sourceReference);
+    if (canonicalJson(sourceReference) !== canonicalJson(history.sourceReference)) throw new PlanningUnavailableError();
     const previousLineage = history.lineageAtTarget;
     if (!previousLineage || canonicalJson(history.workspace) !== canonicalJson(previous)) {
       throw new PlanningUnavailableError();
@@ -248,8 +272,8 @@ export class D1PlanningRepository implements PlanningRepository {
       canonicalResult = resultFromTransition(applyPlanningEvent({
         workspace: previous,
         event,
-        blueprint: this.options.blueprint,
-        registry: this.options.registry,
+        blueprint: history.sourceContext.blueprint,
+        registry: history.sourceContext.registry,
       }));
     } catch {
       throw new PlanningUnavailableError();
@@ -265,7 +289,10 @@ export class D1PlanningRepository implements PlanningRepository {
         ? new PlanningConflictError()
         : new PlanningUnavailableError();
     }
-    return { ownerId: command.ownerId, goalId: command.goalId, payload: result };
+    return {
+      ownerId: command.ownerId, goalId: command.goalId, payload: result,
+      sourceReference, sourceContext: history.sourceContext,
+    };
   }
 
   private idempotencyStatement(
@@ -276,10 +303,29 @@ export class D1PlanningRepository implements PlanningRepository {
   ): D1PreparedStatement {
     const workspace = result.workspace;
     const event = workspace.events.at(-1);
+    const sourceReference = parseSourceReference(command.sourceReference);
+    const researchReference = previousLineageFingerprint === undefined && sourceReference.source === "research"
+      ? sourceReference
+      : null;
     const stored = previousLineageFingerprint === undefined
       ? serializeGeneration(command, result)
       : serializeEvent(command, result, previousLineageFingerprint, event);
-    return this.db.prepare(`INSERT INTO idempotency_records
+    // JSON1 is already required by planning replay/migrations. Its malformed-input
+    // abort distinguishes a stale Research source from the outer optimistic-lock
+    // NULL constraint, while still rolling the entire D1 batch back atomically.
+    const researchCommitGuard = researchReference ? `CASE WHEN EXISTS (
+          SELECT 1 FROM research_runs AS run
+          JOIN research_packages AS pkg ON pkg.id = run.package_id
+          WHERE run.user_id = ?17 AND run.id = ?18 AND run.state = 'ready'
+            AND run.package_id = ?19 AND run.config_fingerprint = ?20
+            AND pkg.id = ?19 AND pkg.config_fingerprint = ?20
+            AND pkg.normalized_role_key = run.normalized_role_key AND pkg.locale = run.locale
+            AND pkg.content_fingerprint = ?21
+            AND pkg.blueprint_id = ?22 AND pkg.blueprint_version = ?23
+            AND pkg.registry_id = ?24 AND pkg.registry_version = ?25
+            AND pkg.expires_at > ?26
+        ) THEN ?5 ELSE json('') END` : "?5";
+    const statement = this.db.prepare(`INSERT INTO idempotency_records
       (id,user_id,scope,mutation_id,response_json,created_at)
       VALUES (?1,?2,?3,?4,
         CASE WHEN EXISTS (SELECT 1 FROM career_goals
@@ -290,12 +336,21 @@ export class D1PlanningRepository implements PlanningRepository {
             AND current_audit_version_id = ?12 AND current_availability_version_id = ?13
             AND active_path_version_id = ?14 AND active_plan_version_id = ?15
             AND pending_plan_version_id IS ?16)
-        THEN ?5 ELSE NULL END,
-        ?6)`)
-      .bind(this.options.createId(), command.ownerId, scopeFor(command.goalId), command.mutationId,
-        stored, now, command.ownerId, command.goalId, workspace.id,
-        workspace.revision, workspace.lastSequence + 1, workspace.audit.id, workspace.availability.id,
-        workspace.activePathVersionId, workspace.activePlanVersionId, workspace.pendingPlanVersionId);
+        THEN ${researchCommitGuard} ELSE NULL END,
+        ?6)`);
+    const values = [
+      this.options.createId(), command.ownerId, scopeFor(command.goalId), command.mutationId,
+      stored, now, command.ownerId, command.goalId, workspace.id,
+      workspace.revision, workspace.lastSequence + 1, workspace.audit.id, workspace.availability.id,
+      workspace.activePathVersionId, workspace.activePlanVersionId, workspace.pendingPlanVersionId,
+    ];
+    if (researchReference) values.push(
+      command.ownerId, researchReference.researchRunId, researchReference.packageId,
+      researchReference.configFingerprint, researchReference.contentFingerprint,
+      researchReference.blueprintId, researchReference.blueprintVersion,
+      researchReference.registryId, researchReference.registryVersion, now,
+    );
+    return statement.bind(...values);
   }
 
   private async loadOne(table: string, scope: PlanningOwnerGoal, id: string | null): Promise<unknown | null> {
@@ -319,8 +374,12 @@ export class D1PlanningRepository implements PlanningRepository {
     workspace: PlanningWorkspace;
     resultAtTarget: PlanningMutationResult;
     lineageAtTarget: string;
+    sourceReference: PlanningSourceReference;
+    sourceContext: PlanningSourceContext;
   }> {
     const generation = knownGeneration ?? await this.loadGeneration(scope);
+    const sourceReference = storedReference(generation);
+    const sourceContext = await this.resolveReplaySource(scope.ownerId, sourceReference, generation.result.workspace);
     const [eventRows, mutationRows] = await Promise.all([
       this.db.prepare(`SELECT payload_json FROM planning_events
       WHERE user_id = ?1 AND goal_id = ?2 AND sequence <= ?3
@@ -347,8 +406,8 @@ export class D1PlanningRepository implements PlanningRepository {
       workspace = replayPlanningEvents({
         initial: generation.result.workspace,
         events,
-        blueprint: this.options.blueprint,
-        registry: this.options.registry,
+        blueprint: sourceContext.blueprint,
+        registry: sourceContext.registry,
       }, (transition) => {
         const result = resultFromTransition(transition);
         lineage = mutationLineageFingerprint(lineage, transition.event, result.outcome);
@@ -369,7 +428,37 @@ export class D1PlanningRepository implements PlanningRepository {
       workspace: parsePlanningWorkspaceAtRepositoryBoundary(workspace),
       resultAtTarget,
       lineageAtTarget: lineage,
+      sourceReference,
+      sourceContext,
     };
+  }
+
+  private async resolveReplaySource(
+    ownerId: string,
+    reference: PlanningSourceReference,
+    workspace: PlanningWorkspace,
+  ): Promise<PlanningSourceContext> {
+    try {
+      const context = await this.options.sourceResolver.resolveForReplay(ownerId, reference);
+      assertWorkspaceSource(workspace, context);
+      return context;
+    } catch {
+      throw new PlanningUnavailableError();
+    }
+  }
+
+  private async resolveGenerationSource(
+    ownerId: string,
+    reference: PlanningSourceReference,
+    workspace: PlanningWorkspace,
+  ): Promise<PlanningSourceContext> {
+    try {
+      const context = await this.options.sourceResolver.resolveForGenerationCommit(ownerId, reference);
+      assertWorkspaceSource(workspace, context);
+      return context;
+    } catch {
+      throw new PlanningUnavailableError();
+    }
   }
 
   private async loadGeneration(scope: PlanningOwnerGoal): Promise<StoredGeneration> {
@@ -512,11 +601,38 @@ function serializeGeneration(command: SavePlanningGenerationCommand, result: Pla
     ownerId: command.ownerId,
     goalId: command.goalId,
     kind: "generation",
+    sourceReference: command.sourceReference,
     result,
   });
   const serialized = JSON.stringify(stored);
   if (serializedBytes(serialized) > D1_PLANNING_VALUE_MAX_BYTES) throw new PlanningUnavailableError();
   return serialized;
+}
+
+function storedReference(generation: StoredGeneration): PlanningSourceReference {
+  if (generation.sourceReference) return generation.sourceReference;
+  const workspace = generation.result.workspace;
+  if (workspace.audit.blueprintId !== flagshipBlueprint.id
+    || workspace.audit.blueprintVersion !== flagshipBlueprint.version
+    || workspace.pathVersions.some((path) => path.blueprintId !== flagshipBlueprint.id
+      || path.blueprintVersion !== flagshipBlueprint.version
+      || path.registryId !== flagshipUnitRegistry.id
+      || path.registryVersion !== flagshipUnitRegistry.version)) throw new PlanningUnavailableError();
+  return { source: "flagship", roleId: "ai-native-full-stack-engineer" };
+}
+
+function parseSourceReference(value: unknown): PlanningSourceReference {
+  try { return planningSourceReferenceSchema.parse(structuredClone(value)); }
+  catch { throw new PlanningUnavailableError(); }
+}
+
+function assertWorkspaceSource(workspace: PlanningWorkspace, context: PlanningSourceContext): void {
+  if (workspace.audit.blueprintId !== context.blueprint.id
+    || workspace.audit.blueprintVersion !== context.blueprint.version
+    || workspace.pathVersions.some((path) => path.blueprintId !== context.blueprint.id
+      || path.blueprintVersion !== context.blueprint.version
+      || path.registryId !== context.registry.id
+      || path.registryVersion !== context.registry.version)) throw new PlanningUnavailableError();
 }
 
 function serializeEvent(

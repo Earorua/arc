@@ -1,8 +1,11 @@
 import { z } from "zod";
+import {
+  readResearchProductionConfiguration,
+  type ResearchProductionEnvironment,
+} from "../research/service-factory";
 
-export type AdminEnvironment = {
+export type AdminEnvironment = ResearchProductionEnvironment & {
   ARC_ADMIN_EMAILS?: string;
-  ARC_AI_ENABLED?: string;
 };
 
 export type AdminPolicy = {
@@ -30,4 +33,10 @@ export function readAdminPolicy(environment: AdminEnvironment): AdminPolicy {
       return candidate.success && allowlist.has(candidate.data);
     },
   };
+}
+
+export function readResearchRuntimePolicy(
+  environment: AdminEnvironment,
+): Readonly<{ enabled: boolean }> {
+  return { enabled: readResearchProductionConfiguration(environment) !== null };
 }
