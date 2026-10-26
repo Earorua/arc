@@ -208,6 +208,24 @@ export class D1PlanningRepository implements PlanningRepository {
     const sourceContext = await this.resolveGenerationSource(command.ownerId, sourceReference, result.workspace);
     const now = this.options.now().getTime();
     const statements: D1PreparedStatement[] = [];
+    if (command.newGoal) {
+      if (sourceReference.source !== "research" || command.newGoal.roleId !== sourceContext.blueprint.name
+        || command.newGoal.previousGoalId === command.goalId) throw new PlanningConflictError();
+      // A NULL level aborts the whole batch if another tab changed the active
+      // goal after the service read. The previous immutable workspace is kept.
+      statements.push(this.db.prepare(`INSERT INTO career_goals
+        (id,user_id,role_id,level,weekly_minutes,target_weeks,status,active_slot,created_at,updated_at)
+        VALUES (?1,?2,?3,(SELECT goal.level FROM career_goals AS goal
+          WHERE goal.user_id=?2 AND goal.id=?4 AND goal.active_slot=1
+            AND EXISTS (SELECT 1 FROM planning_workspaces WHERE user_id=?2 AND goal_id=?4)),
+          ?5,?6,'archived',NULL,?7,?7)`).bind(
+        command.goalId, command.ownerId, command.newGoal.roleId, command.newGoal.previousGoalId,
+        result.workspace.availability.weeklyMinutes, result.workspace.target.targetWeeks, now));
+      statements.push(this.db.prepare(`UPDATE career_goals SET status='archived',active_slot=NULL,updated_at=?1
+        WHERE user_id=?2 AND id=?3 AND active_slot=1`).bind(now, command.ownerId, command.newGoal.previousGoalId));
+      statements.push(this.db.prepare(`UPDATE career_goals SET status='active',active_slot=1
+        WHERE user_id=?1 AND id=?2`).bind(command.ownerId, command.goalId));
+    }
     statements.push(...immutableGenerationStatements(this.db, command.ownerId, command.goalId, result.workspace, now));
     statements.push(this.db.prepare(`UPDATE career_goals SET weekly_minutes = ?1, updated_at = ?2
       WHERE user_id = ?3 AND id = ?4 AND active_slot = 1`).bind(

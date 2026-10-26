@@ -15,6 +15,7 @@ const expectedTableNames = [
   "career_goals",
   "learning_tasks",
   "learning_events",
+  "learning_agent_runs",
   "proof_items",
   "proof_assets",
   "public_proof_shares",
@@ -505,12 +506,12 @@ describe("Arc beta persistence schema", () => {
     expect(schema.learningPathVersions.scopeMode.enumValues).toEqual(["full-scope", "target-date"]);
     expect(schema.planVersions.generation.enumValues).toEqual(["initial", "automatic", "proposed"]);
     expect(schema.planVersions.replanReason.enumValues).toEqual([
-      "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed",
+      "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed", "agent_replanned",
       "replan_accepted", "replan_discarded",
     ]);
     expect(schema.dailyUnits.slot.enumValues).toEqual(["primary", "stretch"]);
     expect(schema.planningEvents.kind.enumValues).toEqual([
-      "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed",
+      "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed", "agent_replanned",
       "replan_accepted", "replan_discarded",
     ]);
   });

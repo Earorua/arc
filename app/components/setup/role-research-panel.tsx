@@ -15,6 +15,8 @@ const issueCopy: Record<ResearchIssueCode, string> = {
   "unsafe-url": "Some source links could not be used safely.",
   "unreferenced-url": "Some learning resources need a cited source.",
   "missing-free-alternative": "Some resources need a free alternative.",
+  "unverified-free-access": "Free access to some learning materials needs confirmation.",
+  "unverified-source-authority": "Some learning materials need a verified university or official publisher source.",
   "missing-unit": "Some skills need an executable learning unit.",
   "minute-mismatch": "Some learning steps need consistent time estimates.",
   "unsafe-content": "Some research content could not be used safely.",

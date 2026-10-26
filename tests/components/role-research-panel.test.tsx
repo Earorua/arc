@@ -95,6 +95,16 @@ describe("RoleResearchPanel", () => {
     expect(screen.getByText(/2026-09-05/)).toBeInTheDocument(); expect(screen.getByText("Quality checks passed")).toBeInTheDocument();
     await userEvent.setup().click(screen.getByRole("button", { name: "Use this research" })); expect(p.onUse).toHaveBeenCalledWith(identity.id);
   });
+  it("explains conditional free access without offering plan activation", () => {
+    render(<RoleResearchPanel {...props({ ...base, state: { kind: "needs-review", runId: identity.id }, run: { ...identity, state: "needs-review", retryable: false, quality: { issueCodes: ["unverified-free-access"], skillCount: 3, sourceCount: 6, unitCount: 9 } } })} />);
+    expect(screen.getByRole("alert")).toHaveTextContent("Free access to some learning materials needs confirmation.");
+    expect(screen.queryByRole("button", { name: "Use this research" })).not.toBeInTheDocument();
+  });
+  it("explains unverified publisher authority without offering plan activation", () => {
+    render(<RoleResearchPanel {...props({ ...base, state: { kind: "needs-review", runId: identity.id }, run: { ...identity, state: "needs-review", retryable: false, quality: { issueCodes: ["unverified-source-authority"], skillCount: 3, sourceCount: 6, unitCount: 9 } } })} />);
+    expect(screen.getByRole("alert")).toHaveTextContent("Some learning materials need a verified university or official publisher source.");
+    expect(screen.queryByRole("button", { name: "Use this research" })).not.toBeInTheDocument();
+  });
   it.each([true, false])("offers Retry for Needs review only when retryable is %s", (retryable) => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "needs-review", runId: identity.id }, run: { ...identity, state: "needs-review", retryable, quality: { issueCodes: ["missing-unit"], skillCount: 3, sourceCount: 6, unitCount: 2 } } })} />);
     expect(screen.getByRole("alert")).toHaveTextContent("Some skills need an executable learning unit.");

@@ -17,6 +17,26 @@ export const users = sqliteTable("users", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull().default(nowMs),
 });
 
+export const learningAgentRuns = sqliteTable("learning_agent_runs", {
+  id: text("id").primaryKey(),
+  ownerId: text("owner_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  goalId: text("goal_id").notNull(),
+  kind: text("kind", { enum: ["planner", "tutor"] }).notNull(),
+  status: text("status", { enum: ["starting", "running", "complete", "failed", "cancelled"] }).notNull(),
+  message: text("message").notNull(), context: text("context").notNull(),
+  answer: text("answer").notNull().default(""), advice: text("advice"),
+  workspaceId: text("workspace_id").notNull(), baseVersionId: text("base_version_id").notNull(),
+  revision: integer("revision").notNull(), providerId: text("provider_id"),
+  model: text("model").notNull(), effort: text("effort").notNull(),
+  fingerprint: text("fingerprint").notNull(), reservedMicros: integer("reserved_micros").notNull(),
+  usage: text("usage"), error: text("error"),
+  createdAt: integer("created_at").notNull(), updatedAt: integer("updated_at").notNull(),
+}, table => [
+  index("learning_agent_history_idx").on(table.ownerId, table.goalId, table.createdAt),
+  index("learning_agent_budget_idx").on(table.createdAt),
+  check("learning_agent_budget_nonnegative", sql`${table.reservedMicros} >= 0`),
+]);
+
 export const sessions = sqliteTable("sessions", {
   id: text("id").primaryKey(),
   expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
@@ -502,7 +522,7 @@ export const learningPathVersions = sqliteTable("learning_path_versions", {
 ]);
 
 const planningEventKinds = [
-  "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed",
+  "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed", "agent_replanned",
   "replan_accepted", "replan_discarded",
 ] as const;
 

@@ -249,7 +249,7 @@ describe("production Research factory remote integration", () => {
       createProvider, now: () => NOW, createId: () => "sync-request-1", fetch: s.bridgeFetch });
     const configuration = readResearchProductionConfiguration(environment)!;
     expect(configuration).toEqual(readResearchPolicyConfiguration(environment)!.configuration);
-    expect(configuration.configFingerprint).toBe("p2-6e32d7563ab8083820f1c5128b673744");
+    expect(configuration.configFingerprint).toBe("p2-ec21a59e3b6d716cfc9cd30a75483488");
     // Active aliases require the same frozen configuration; a selector change alone changes its fingerprint.
     const remote = await s.f.research.createRemoteOrReplay({ ...s.f.remoteCommand(), configFingerprint: configuration.configFingerprint });
     const service = factory.createNewCallService()!;

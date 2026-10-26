@@ -113,6 +113,27 @@ describe("first Research quality observer integration", () => {
     expect(ledger(f).audits).toHaveLength(2);
   });
 
+  it.each(["unverified-free-access", "unverified-source-authority"] as const)("settles %s without repair or a plannable package", async issue => {
+    const f = setup(); const observer = vi.fn();
+    const candidate = researchCandidateSchema.parse(validResearchCandidate);
+    candidate.resources[0]!.format = "course";
+    candidate.resources[0]!.title = issue === "unverified-free-access" ? "Data product course — free trial" : "Data product course";
+    candidate.resources[0]!.url = issue === "unverified-free-access" ? "https://developers.google.com/machine-learning/crash-course" : "https://www.woshipm.com/online/3569229.html";
+    candidate.resources[0]!.provider = issue === "unverified-free-access" ? "Google" : "人人都是产品经理";
+    const annotations: { type: "url_citation"; url: string; title: string }[] = structuredClone(validAnnotations);
+    annotations[0]!.url = candidate.resources[0]!.url;
+    f.provider.research.mockResolvedValue(output(110, { candidate, content: JSON.stringify(candidate), annotations }));
+    const active = f.fresh({ onQualityDiagnostic: observer });
+    const result = await active.orchestrator.start("owner-a", input, context);
+    expect(result).toMatchObject({ state: "needs-review", quality: { issueCodes: [issue] } });
+    expect(observer).toHaveBeenCalledOnce();
+    expect(observer.mock.calls[0]![0].evidenceIssueCodes).toContain(issue);
+    expect(f.provider.research).toHaveBeenCalledOnce();
+    expect(f.provider.repair).not.toHaveBeenCalled();
+    await expect(active.repository.resolveReadyPackage("owner-a", result.id)).rejects.toBeDefined();
+    expect(ledger(f).costs).toEqual([expect.objectContaining({ settled_micros: 110, status: "settled" })]);
+  });
+
   it("observes semantic rejection once without a helper or Repair observation", async () => {
     const f = setup(); const observer = vi.fn(); const candidate = researchCandidateSchema.parse(validResearchCandidate);
     candidate.prerequisiteEdges.push({ skillId: "data-modeling", prerequisiteSkillId: "experimentation" });

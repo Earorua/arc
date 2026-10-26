@@ -5,7 +5,7 @@ import { researchCandidateSchema, researchPackageSchema, type AuditedSource, typ
 import { validateRoleBlueprint } from "../../lib/intelligence-validation";
 import { canonicalJson, deterministicId, fingerprint } from "../../lib/planning/fingerprint";
 import { validateUnitRegistry } from "../../lib/planning/registry-validation";
-import { auditResearchSources, canonicalizePublicCitationUrl, readBoundedResearchJson, SourcePolicyError } from "./source-audit";
+import { auditResearchSources, canonicalizePublicCitationUrl, readBoundedResearchJson, SourcePolicyError, type ResearchSourceCoverageObserver } from "./source-audit";
 import { observeResearchQualityDiagnostic, type EvidenceQualityIssueCode, type ResearchQualityDiagnosticObserver } from "./quality-diagnostic";
 
 const versionSchema = z.string().max(32).regex(/^\d{4}\.\d{2}\.\d+$/u);
@@ -58,7 +58,7 @@ export type ResearchValidationResult =
   | { ready: false; quality: ResearchQualityReport; sanitizedCandidate: ResearchCandidate | null };
 
 export function validateResearchCandidate(candidate: unknown, annotations: unknown, context: ResearchValidationContext,
-  options?: { onQualityDiagnostic?: ResearchQualityDiagnosticObserver }): ResearchValidationResult {
+  options?: { onQualityDiagnostic?: ResearchQualityDiagnosticObserver; onSourceCoverage?: ResearchSourceCoverageObserver }): ResearchValidationResult {
   const trusted = parseResearchValidationContext(context);
 
   const codes = new Set<ResearchIssueCode>();
@@ -82,7 +82,10 @@ export function validateResearchCandidate(candidate: unknown, annotations: unkno
     bounded = parsed.data;
     // Canonicalize every resource before audit, so a missing citation cannot mask an unsafe URL.
     bounded.resources = bounded.resources.map((resource) => ({ ...resource, url: canonicalizePublicCitationUrl(resource.url) }));
-    sources = auditResearchSources(bounded, annotations, trusted.observedAt).sources;
+    const audit = auditResearchSources(bounded, annotations, trusted.observedAt, options?.onSourceCoverage);
+    sources = audit.sources;
+    if (audit.unverifiedFreeAccess) codes.add("unverified-free-access");
+    if (audit.unverifiedSourceAuthority) codes.add("unverified-source-authority");
   } catch (error) {
     const code = error instanceof SourcePolicyError ? error.code : "invalid-schema";
     codes.add(code);
@@ -124,6 +127,8 @@ export function validateResearchCandidate(candidate: unknown, annotations: unkno
   }
   const evidenceIssueCodes: EvidenceQualityIssueCode[] | undefined = options?.onQualityDiagnostic ? [] : undefined;
   validateEvidenceAndReferences(bounded, codes, evidenceIssueCodes);
+  if (codes.has("unverified-free-access")) evidenceIssueCodes?.push("unverified-free-access");
+  if (codes.has("unverified-source-authority")) evidenceIssueCodes?.push("unverified-source-authority");
   if (options?.onQualityDiagnostic) {
     try {
       observeResearchQualityDiagnostic({

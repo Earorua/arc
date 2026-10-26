@@ -57,10 +57,10 @@ describe("research beta migration safety", () => {
   const migration = resolve(directory, "0005_openrouter_research_beta.sql");
   const healthMigration = resolve(directory, "0006_research_health_indexes.sql");
 
-  it("appends recovery migration 0012 after 0000–0011 and preserves normalized-LF prior SQL hashes", () => {
+  it("appends learning agents after migration recovery and preserves normalized-LF prior SQL hashes", () => {
     expect(readdirSync(directory).filter((name) => name.endsWith(".sql")).sort()).toEqual([
       ...Object.keys(priorHashes), "0009_research_site_begin_grants.sql", "0010_research_site_imports.sql",
-      "0011_research_site_bridge.sql", "0012_account_recovery.sql",
+      "0011_research_site_bridge.sql", "0012_account_recovery.sql", "0013_learning_agents.sql",
     ]);
     for (const [name, expected] of Object.entries(priorHashes)) {
       const normalized = readFileSync(resolve(directory, name), "utf8").replaceAll("\r\n", "\n");
@@ -70,7 +70,7 @@ describe("research beta migration safety", () => {
 
   it("links the additive health-index snapshot to 0005", () => {
     const journal = JSON.parse(readFileSync(resolve(directory, "meta/_journal.json"), "utf8"));
-    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
     expect(journal.entries[5]).toMatchObject({ tag: "0005_openrouter_research_beta", breakpoints: true });
     expect(journal.entries[6]).toMatchObject({ tag: "0006_research_health_indexes", breakpoints: true });
     expect(journal.entries[7]).toMatchObject({ tag: "0007_research_bridge_nonces", breakpoints: true });
@@ -111,6 +111,18 @@ describe("research beta migration safety", () => {
       "CREATE INDEX `research_runs_updated_state_idx` ON `research_runs` (`updated_at`,`state`);",
     ]);
   });
+  it("adds only the learning agent history table after the migration account-recovery snapshot", () => {
+    const sql = readFileSync(resolve(directory, "0013_learning_agents.sql"), "utf8");
+    expect(isAdditiveSchemaMigration(sql)).toBe(true);
+    expect([...sql.matchAll(/CREATE TABLE `([^`]+)`/gu)].map((match) => match[1])).toEqual(["learning_agent_runs"]);
+    const previous = JSON.parse(readFileSync(resolve(directory, "meta/0012_snapshot.json"), "utf8"));
+    const snapshot = JSON.parse(readFileSync(resolve(directory, "meta/0013_snapshot.json"), "utf8"));
+    expect(snapshot.prevId).toBe(previous.id);
+    for (const [name, table] of Object.entries(previous.tables)) expect(snapshot.tables[name]).toEqual(table);
+    const journal = JSON.parse(readFileSync(resolve(directory, "meta/_journal.json"), "utf8"));
+    expect(journal.entries[13]).toMatchObject({ tag: "0013_learning_agents", breakpoints: true });
+  });
+
   it("adds only an archive relationship and leaves data changes outside migrations", () => {
     const sql = readFileSync(resolve(directory, "0012_account_recovery.sql"), "utf8");
     expect(isAdditiveSchemaMigration(sql)).toBe(true);

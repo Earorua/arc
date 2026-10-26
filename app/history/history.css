@@ -1,0 +1,18 @@
+.plan-history > .workspace-intro h1 { font-size: clamp(2.8rem, 6vw, 5rem); line-height: 1.16; letter-spacing: -.045em; }
+.history-goals { list-style: none; padding: 0; margin: 3rem 0; border-top: 1px solid var(--hairline); }
+.history-goals > li { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: 1.7rem 0; border-bottom: 1px solid var(--hairline); }
+.history-goals strong { font-size: 1.15rem; }
+.history-goals p, .history-goals > li > span { color: var(--stone); font-size: .9rem; }
+.plan-history button { color: var(--charcoal); border: 0; border-bottom: 1px solid currentColor; background: transparent; padding: .4rem 0; font: inherit; cursor: pointer; }
+.plan-history button:focus-visible { outline: 2px solid var(--charcoal); outline-offset: 5px; }
+.history-pagination { display: flex; gap: 2rem; }
+.history-back { margin: 1rem 0 2rem; }
+.history-saved-plan > h2 { margin-top: 2rem; }
+.history-saved-plan .adaptive-path { margin-top: 3rem; }
+.history-saved-plan .adaptive-path-heading h1 { font-size: clamp(2.6rem, 5vw, 4rem); }
+.history-plan-version { border-top: 1px solid var(--hairline); margin-top: 1.5rem; padding: 1.2rem 0; }
+.history-plan-version summary { cursor: pointer; }
+.history-plan-version > ol { padding: 0; list-style: none; }
+.history-plan-version > ol > li { border-top: 1px solid var(--hairline); padding: 2rem 0; margin-top: 1rem; line-height: 1.75; }
+.history-sources { overflow-wrap: anywhere; }
+@media (max-width: 600px) { .history-goals > li { align-items: flex-start; flex-direction: column; gap: .5rem; } }

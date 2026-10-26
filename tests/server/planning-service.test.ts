@@ -99,6 +99,25 @@ async function generatedResult(): Promise<PlanningMutationResult> {
 }
 
 describe("PlanningService", () => {
+  it("guards agent proposals against concurrent goal, workspace and revision changes", async () => {
+    const result = await generatedResult();
+    const workspace = result.workspace;
+    const repository = fakeRepository({ load: vi.fn(async () => ({ ownerId: userId, goalId, payload: workspace })) });
+    const { service } = createService(repository);
+    const input = { mutationId: "agent-guard", baseVersionId: workspace.activePlanVersionId,
+      event: { kind: "agent_replanned", baseRevision: workspace.revision,
+        unitOrder: workspace.pathVersions.find(path => path.id === workspace.activePathVersionId)!.units.map(unit => unit.id),
+        planningDate: "2026-08-17" } };
+    for (const expected of [
+      { goalId: "other", workspaceId: workspace.id, revision: workspace.revision },
+      { goalId, workspaceId: "other", revision: workspace.revision },
+      { goalId, workspaceId: workspace.id, revision: workspace.revision + 1 },
+    ]) await expect(service.appendAgentEventResponse(userId, input, expected)).rejects.toBeInstanceOf(PlanningConflictError);
+    expect(repository.saveEvent).not.toHaveBeenCalled();
+    const proposed = await service.appendAgentEventResponse(userId, input, { goalId, workspaceId: workspace.id, revision: workspace.revision });
+    expect(proposed.result.workspace.activePlanVersionId).toBe(workspace.activePlanVersionId);
+    expect(proposed.result.workspace.pendingPlanVersionId).not.toBeNull();
+  });
   it("rejects an empty authenticated owner before touching the repository", async () => {
     const repository = fakeRepository();
     const { service } = createService(repository);

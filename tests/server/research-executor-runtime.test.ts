@@ -9,6 +9,7 @@ import { BRIDGE_AUTH_PROTOCOL, signBridgeMessage } from "../../app/server/resear
 import { parseBridgeBeginReply } from "../../app/server/research/executor/begin";
 import { BRIDGE_BODY_LIMITS } from "../../app/server/research/executor/body";
 import { encodeBridgeDto } from "../../app/server/research/executor/bridge-contract";
+import { CLOSED_PREFLIGHT_JOB_ID, parseClosedPreflightReply } from "../../app/server/research/executor/closed-preflight";
 import { readResearchBridgeConnection } from "../../app/server/research/executor/connection-config";
 import { D1BridgeNonceStore } from "../../app/server/research/executor/d1-nonce-store";
 import { ExecutorBridgeClient } from "../../app/server/research/executor/executor-client";
@@ -1382,5 +1383,115 @@ describe("research executor runtime", () => {
       expect(delivery.next_attempt_at).toBeGreaterThan(fixture.wallNow());
     }
     executorDb.close();
+  });
+});
+
+describe("closed connectivity Executor", () => {
+  function harness(overrides: Record<string, unknown> = {}) {
+    const db = createExecutorDb();
+    const clientDb = createExecutorDb();
+    const unused = vi.fn(async () => { throw new Error("Forbidden business capability"); });
+    const site = { outbox: vi.fn(async (_options: { signal?: AbortSignal }) => ({ jobs: [], next: null })) };
+    const runtime = { jobs: { get: vi.fn(async () => null), closeUnclaimed: unused },
+      receipts: { recover: unused, acknowledge: unused }, ensureWorkflow: unused,
+      acceptNew: false, maintenanceEnabled: false, closedPreflightAllowed: true, site,
+      connection: readResearchBridgeConnection(TEST_BRIDGE_ENVIRONMENT)!, nonces: new D1BridgeNonceStore(db),
+      wallNow: () => BASE_TIME, monoNow: () => 0, ...overrides } as ExecutorHttpRuntime;
+    const transport = new BridgeTransport({ connection: runtime.connection, nonces: new D1BridgeNonceStore(clientDb),
+      fetch: createExecutorBridgeHandler(runtime), wallNow: runtime.wallNow, monoNow: runtime.monoNow });
+    const call = (body: unknown = {}, jobId = CLOSED_PREFLIGHT_JOB_ID, signal?: AbortSignal) => transport.request({
+      target: "executor", operation: "closed-preflight", signal,
+      prepare: () => ({ jobId, body: new TextEncoder().encode(JSON.stringify(body)) }),
+      decode: bytes => parseClosedPreflightReply(JSON.parse(new TextDecoder().decode(bytes))) });
+    return { runtime, site, call, unused, db, clientDb, dispose() {
+      expect(unused).not.toHaveBeenCalled(); db.close(); clientDb.close();
+    } };
+  }
+
+  it("checks only fixed absence and one bounded outbox before signing strict booleans", async () => {
+    const f = harness();
+    try {
+      expect(await f.call()).toEqual({ executorClosed: true, jobAbsent: true, siteOutboxEmpty: true });
+      expect(f.runtime.jobs.get).toHaveBeenCalledExactlyOnceWith(CLOSED_PREFLIGHT_JOB_ID);
+      expect(f.site.outbox).toHaveBeenCalledOnce();
+      expect(f.site.outbox.mock.calls[0]![0].signal).toBeInstanceOf(AbortSignal);
+    } finally { f.dispose(); }
+  });
+
+  it.each([false, undefined])("fails closed without explicit allowed capability %s", async flag => {
+    const f = harness({ closedPreflightAllowed: flag });
+    try { await expect(f.call()).rejects.toBeDefined(); expect(f.runtime.jobs.get).not.toHaveBeenCalled();
+      expect(f.site.outbox).not.toHaveBeenCalled(); } finally { f.dispose(); }
+  });
+
+  it("rejects a missing outbox capability without reading a job", async () => {
+    const f = harness({ site: undefined });
+    try { await expect(f.call()).rejects.toBeDefined(); expect(f.runtime.jobs.get).not.toHaveBeenCalled(); }
+    finally { f.dispose(); }
+  });
+
+  it("rejects any existing fixed job without receipt recovery, closing or execution", async () => {
+    const f = harness();
+    vi.mocked(f.runtime.jobs.get).mockResolvedValue({ job: job(), dispatchState: "claimed" } as never);
+    try { await expect(f.call()).rejects.toMatchObject({ kind: "conflict" }); expect(f.site.outbox).not.toHaveBeenCalled(); }
+    finally { f.dispose(); }
+  });
+
+  it.each([{ extra: true }, null, []])("rejects nonempty or malformed input %j", async body => {
+    const f = harness();
+    try { await expect(f.call(body)).rejects.toBeDefined(); expect(f.runtime.jobs.get).not.toHaveBeenCalled(); }
+    finally { f.dispose(); }
+  });
+
+  it("rejects another valid UUID before lookup", async () => {
+    const f = harness();
+    try { await expect(f.call({}, JOB_ID)).rejects.toMatchObject({ kind: "conflict" });
+      expect(f.runtime.jobs.get).not.toHaveBeenCalled(); } finally { f.dispose(); }
+  });
+
+  it.each([{ jobs: [job()], next: null }, { jobs: [], next: JOB_ID }])("rejects nonempty outbox %j", async page => {
+    const f = harness(); f.site.outbox.mockResolvedValue(page as never);
+    try { await expect(f.call()).rejects.toBeDefined(); } finally { f.dispose(); }
+  });
+
+  it("aborts the inner outbox within three seconds and rejects its late result", async () => {
+    const f = harness();
+    let signal: AbortSignal | undefined; let release!: () => void; let enter!: () => void;
+    const entered = new Promise<void>(resolve => { enter = resolve; });
+    f.site.outbox.mockImplementation(async options => {
+      signal = options.signal; enter(); await new Promise<void>(resolve => { release = resolve; });
+      return { jobs: [], next: null };
+    });
+    try {
+      const pending = f.call().then(() => "PASS", () => "FAIL");
+      await entered;
+      expect(await pending).toBe("FAIL"); expect(signal?.aborted).toBe(true);
+      release(); await new Promise(resolve => setImmediate(resolve));
+      expect(f.site.outbox).toHaveBeenCalledOnce();
+      expect(f.clientDb.database.prepare("SELECT count(*) n FROM research_bridge_nonces").get()).toEqual({ n: 1 });
+    } finally { release?.(); f.dispose(); }
+  });
+
+  it.each([
+    ["false", "false", "service-binding-v1", true], ["true", "false", "service-binding-v1", false],
+    ["false", "true", "service-binding-v1", false], [undefined, "false", "service-binding-v1", false],
+    ["false", undefined, "service-binding-v1", false], ["FALSE", "false", "service-binding-v1", false],
+    ["false", "false", undefined, false], ["false", "false", "unknown", false],
+  ])("requires exact raw flags/mode %j %j %j", (acceptNew, maintenance, mode, allowed) => {
+    const db = createExecutorDb(); const unused = vi.fn();
+    const environment = { ...TEST_BRIDGE_ENVIRONMENT, EXECUTOR_DB: db as unknown as D1Database,
+      EXECUTOR_RECEIPTS: { get: unused, put: unused, delete: unused } as unknown as R2Bucket,
+      RESEARCH_WORKFLOW: { create: unused, get: unused } as never,
+      ARC_RESEARCH_EXECUTOR_ACCEPT_NEW: acceptNew, ARC_RESEARCH_EXECUTOR_MAINTENANCE_ENABLED: maintenance,
+      ARC_AI_RESEARCH_BRIDGE_TRANSPORT: mode, ARC_RESEARCH_SITE: { fetch: unused } };
+    try {
+      if (mode === "unknown") expect(() => createHttpRuntime(environment)).toThrow();
+      else {
+        const runtime = createHttpRuntime(environment);
+        expect(runtime).toMatchObject({ closedPreflightAllowed: allowed });
+        expect(runtime.forRequest(() => undefined, new AbortController().signal)).toMatchObject({ closedPreflightAllowed: allowed });
+      }
+      expect(unused).not.toHaveBeenCalled();
+    } finally { db.close(); }
   });
 });

@@ -12,8 +12,8 @@ export class PublicOperationScope {
   private closed = false;
   private readonly timer: ReturnType<typeof setTimeout>;
 
-  constructor(private readonly monoNow: () => number, duration: 4500 | 500 = 4500) {
-    if (duration !== 4500 && duration !== 500) throw new PublicOperationTimeout();
+  constructor(private readonly monoNow: () => number, duration: 4500 | 500 | 1500 = 4500) {
+    if (duration !== 4500 && duration !== 500 && duration !== 1500) throw new PublicOperationTimeout();
     this.end = this.read() + duration;
     this.timer = setTimeout(() => this.finish(), duration);
   }

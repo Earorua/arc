@@ -2,6 +2,7 @@ import { z } from "zod";
 import { calendarDateSchema, publicHttpsUrlSchema } from "../../contracts/intelligence";
 import { providerCitationAnnotationSchema, type AuditedSource, type ResearchCandidate, type ResearchIssueCode } from "../../contracts/research";
 import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
+import { hasVerifiedLearningAuthority } from "./source-authority";
 
 const annotationListSchema = z.array(providerCitationAnnotationSchema).max(256);
 const forbiddenSuffixes = ["onion", "alt", "lan", "home", "corp"];
@@ -57,25 +58,72 @@ export function canonicalizePublicCitationUrl(value: string): string {
   }
 }
 
-export function auditResearchSources(candidate: ResearchCandidate, annotations: unknown, observedAt: string): { sources: AuditedSource[] } {
+// These explicit offer restrictions contradict generally free course access.
+// This is a review signal, not a live availability check or an age/domain ban.
+const conditionalFreeOffer = /(?:限时|限额|限量)\s*免费|(?:限)?前\s*\d{1,7}\s*(?:名|位|个名额)\s*免费|免费\s*(?:试用|试听|试学)|\bfree[\s-]+(?:trial|for[\s-]+a[\s-]+limited[\s-]+time)\b|\blimited[\s-]+time[\s-]+free\b|\bfirst\s+\d{1,7}\s+(?:seats?|places?|participants?|students?)\s+free\b/iu;
+// Require an explicit access limit; a "7-day free course" describes course length.
+const numericFreeOffer = /免费\s*\d{1,7}\s*(?:天|日|周|个?月|小时)|\bfree\s+for\s+(?:\d{1,7}\s+(?:hours?|days?|weeks?|months?)|(?:the\s+)?first\s+\d{1,7}\s+(?:seats?|places?|participants?|students?))\b/iu;
+
+function hasConditionalFreeOffer(title: string): boolean {
+  const normalized = title.normalize("NFKC");
+  return conditionalFreeOffer.test(normalized) || numericFreeOffer.test(normalized);
+}
+
+export type ResearchSourceCoverageDiagnostic = Readonly<{
+  version: "source-coverage-v1";
+  resourceCount: number;
+  annotationCount: number;
+  uniqueCitationCount: number;
+  matchedResourceCount: number;
+  missingResourceCount: number;
+  missingResourceIndexes: readonly number[];
+  truncated: boolean;
+}>;
+export type ResearchSourceCoverageObserver = (diagnostic: ResearchSourceCoverageDiagnostic) => unknown;
+
+export function auditResearchSources(candidate: ResearchCandidate, annotations: unknown, observedAt: string,
+  onCoverage?: ResearchSourceCoverageObserver): { sources: AuditedSource[]; unverifiedFreeAccess: boolean; unverifiedSourceAuthority: boolean } {
   if (!calendarDateSchema.safeParse(observedAt).success) throw new SourcePolicyError("invalid-schema");
   const parsed = annotationListSchema.safeParse(readBoundedResearchJson(annotations));
   if (!parsed.success) throw new SourcePolicyError("invalid-schema");
 
   const titles = new Map<string, string>();
+  const conditionalAccessUrls = new Set<string>();
   for (const annotation of parsed.data) {
     const canonicalUrl = canonicalizePublicCitationUrl(annotation.url);
+    // Inspect all duplicates before choosing a stable representative title.
+    if (hasConditionalFreeOffer(annotation.title)) conditionalAccessUrls.add(canonicalUrl);
     // Stable representative even if duplicate annotations arrive in another order.
     const previous = titles.get(canonicalUrl);
     if (previous === undefined || annotation.title < previous) titles.set(canonicalUrl, annotation.title);
   }
 
+  if (onCoverage) {
+    try {
+      // Candidate/annotations have passed the bounded schema at the validation
+      // boundary. Only positions and counts leave this optional observer.
+      const missing = candidate.resources.flatMap((resource, index) => titles.has(canonicalizePublicCitationUrl(resource.url)) ? [] : [index]);
+      const diagnostic: ResearchSourceCoverageDiagnostic = Object.freeze({ version: "source-coverage-v1",
+        resourceCount: candidate.resources.length, annotationCount: parsed.data.length, uniqueCitationCount: titles.size,
+        matchedResourceCount: candidate.resources.length - missing.length, missingResourceCount: missing.length,
+        missingResourceIndexes: Object.freeze(missing.slice(0, 16)), truncated: missing.length > 16 });
+      void Promise.resolve(onCoverage(diagnostic)).catch(() => undefined);
+    } catch { /* Observation never changes validation or the first rejection. */ }
+  }
+
   const sources: AuditedSource[] = [];
+  let unverifiedFreeAccess = false;
+  let unverifiedSourceAuthority = false;
   const seen = new Set<string>();
   for (const resource of candidate.resources) {
     const canonicalUrl = canonicalizePublicCitationUrl(resource.url);
     const title = titles.get(canonicalUrl);
     if (!title) throw new SourcePolicyError("unreferenced-url");
+    if (!hasVerifiedLearningAuthority({ ...resource, url: canonicalUrl })) unverifiedSourceAuthority = true;
+    if (resource.cost === "free" && (resource.format === "course" || resource.format === "practice")
+      && (hasConditionalFreeOffer(resource.title) || conditionalAccessUrls.has(canonicalUrl))) {
+      unverifiedFreeAccess = true;
+    }
     if (seen.has(canonicalUrl)) continue;
     seen.add(canonicalUrl);
     sources.push({ canonicalUrl, title, hostname: new URL(canonicalUrl).hostname,
@@ -83,7 +131,7 @@ export function auditResearchSources(candidate: ResearchCandidate, annotations: 
       citationHash: fingerprint({ canonicalUrl }),
     });
   }
-  return { sources };
+  return { sources, unverifiedFreeAccess, unverifiedSourceAuthority };
 }
 
 /** Snapshot untrusted JSON before schema parsing: never invoke getters/toJSON or retain controls. */

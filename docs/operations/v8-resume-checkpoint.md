@@ -1,3 +1,557 @@
+## Paused checkpoint r188 — actual closed configuration confirmed; final verification pending, 2026-10-26
+
+The user explicitly requested finishing necessary current work, saving progress and pausing. No new rehearsal, credential prompt, model request or public change is to be started. Read `outputs/local-durable-executor-20261026/pause-r188/CHECKPOINT.md` first on resume. All root cloud/driver processes have ended; existing agents saved their work and stopped. Goal is paused at the user's request, not complete.
+
+Original U10 LONG151 was genuinely accepted and reached ready/packagepresent after1170149ms (19min30.149sec). Full pre/post admission closure and pre-maintenance reads proved only LONG present, terminal, all13 pending counters0, observer52/unmatched0 at the last complete scope. Keep the actual original start/report and successful business state; NEVER restart LONG151 to recover a local proof deadline. The original combined U10 profile is permanently incomplete after its first full LONG proof collection exhausted its13:52:03.982Z deadline. Its partial read is not a full proof.
+
+Admission closed successfully. The original maintenance close failed with a Workflow GET500; a distinct read verified the current versions unchanged, although the full read failed on Site export transport. A separately recorded corrective close then succeeded at14:08:28.671Z: Executor **c341bc15-2fc7-4318-9118-27805903ad32**, Site **a1fe6d1d-017e-48e6-b654-8482ef969993**. Actual subsequent deployment/version/export reads confirm both Executor flagsfalse, Cron[], workers_devfalse, preview_urlsfalse. Critical closure record `long-acceptance-r186/critical-closed-confirmation-r188.json` SHA **78f55dfbad3f24a92453be395d7f4e52d748eb4d20a6bd4c6de8ed62674c0947**. This makes pausing safe; it is NOT complete post-close/drain acceptance.
+
+The complete post-close read14:14:51.071–14:15:22.696Z failed at legacy Workflow `arc-v8-smoke-workflow-20261005-replay-definition`, after seven successful observations. Preserve `long-acceptance-r186/closed/post/native.json`; required `closed/post/proof.json` does NOT exist. Final LONG receipt diagnostic r2 is prepared/syntax-checked but never run; its required complete closed proof is absent. First/second drains and95sec Scheduled observation were NOT run. Their old recovery deadline is **2026-10-26T14:55:28.003Z**; the close propagation minimum is14:23:59.671Z. If resumed after expiry, do not run expired scripts or silently renew their clocks. Prepare a separately labelled fresh read-only final-state verification against the actual already closed pair, preserving all failed original attempts; no deployment, task restart or fresh resources is needed merely to read state.
+
+Core accepted-report correction is frozen and narrowly reviewed in E186: only successful `view.scenarioId` versus pending top-level identity, two runtime predicates, explicit amendment execution. Original U10 code/reports stay unchanged. The earlier attended adapter remains unverified/unissued. `close.mjs` gained one later read-only branch; its exact earlier source was archived under source-archive/b7f818b4a47f3d809d2e7d605a874d32f36d81a948d8381c00e9a262293a34fd.mjs with source history recorded. Do not treat old helper references as unchanged current bytes.
+
+Remaining functional plan is `docs/superpowers/plans/2026-10-26-remaining-smoke-continuation.md` (SHA85d163ab41f19943963a3697954af284aac9a9cb2c7771aa37d7399be69951e1). r187 contains only PROGRESS.md: no runtime implementation, tests or issued command. It retains LONG evidence and proposes eight unchanged driver children (two fault starts, three ready status checks, three six-step replays), one user-masked C input held only for a bounded session, same resources, explicit capacity/shutdown budget and no automatic resubmission. Do not call it implemented or approved by tests. User requires necessary review only; reuse accepted product work and do not repeat real model calls or LONG.
+
+Public-release work remains four groups: (1) finish current result/closure evidence and remaining fault/replay acceptance; (2) final old-site write guard, backup and data delta sync preserving new default plan; (3) owned-domain/DNS/OAuth cutover; (4) public Research controls and post-release checks. Real Research r159/new default plan r160, Google/GitHub login, merged owner data and local public configuration/data-delta preparation remain accepted. Public arcmaps.net is not switched. No new paid call occurred in r186–r188.
+
+## Historical continuation r186 — original U10 LONG accepted; continuation validator correction, 2026-10-26
+
+Update after13:57UTC: the explicit amendment passed four branch regressions, actual untouched original-control/gate integration and bounded independent review. Original complete LONG collection was attempted once13:51:32.535–13:52:03.554Z and preserved as incomplete: collector-budget at original13:52:03.982 deadline, not a cloud task failure. Actual rows show ready/packagepresent, importphase5,1170149ms, result delivery complete. No fragment stitching or original-profile PASS. U10 permanent incomplete recovery is now created once; signed controls/replay are forbidden on that sequence. Do not restart LONG or issue the unverified adapter. E186/close.mjs uses existing recovery APIs and explicitly records amended execution.
+
+Full recovery pre-admission native scope passed: only LONG observed, all13 outstanding counters0, complete original Workflow terminal, no unmatched Cron start. Admission closed once: Executor `d947877a-e619-4f15-9f71-0bfffb54dca7`; operation SHA3ed1005cbe41de5b7c7a38c6239fb09607ed5bd502c16712b6598c575c15c1cb. Post-admission complete read passed SHA5421e394f7be49fbf2f903f5f7468ddd21277d134004c644d55c4f641900752f, observer48/unmatched0, safeToClosetrue/fullScenarioCompletionfalse. Maintenance-close command is running in root exec session57494 (Node50720); inspect before any further action. It performs its own complete pre-read, one exact reviewed close deployment and post-read. Do not repeat admission-close/init/LONG proof. Then await actual close end+931000 for first drain, second>=60000later, then95sec Scheduled. Preserve all earlier failures and successes. Separate final original-result verification is being prepared to retain valid long-case evidence without claiming full expired profile; no new model calls/resources/public changes.
+
+The user returned ExitCode0. The ORIGINAL U10 LONG task is accepted and must not be restarted. Activation Executor version4b4a944f-6db5-425c-82f8-929dfd6981e5, Sitea1fe6d1d-017e-48e6-b654-8482ef969993. Activation dispatch13:23:56.709Z/end13:24:18.854Z. Original LONG child13:25:55.550Z–13:26:00.982Z, confirmed exit0; acceptedAt13:26:00.807Z. Job00000000-0000-4000-8000-000000000151, requestHash0a626e01cb662fc57e24a032f92c9b8aa9151423825958c365b3b240d6832914. Original exit SHA91caa7467555849b90d6a11d0d7d2ba227222d7a7f4c3e5beaaf8cf0c0ca01ad, original report SHA0a00216bb600d6a609b9a3f29918e9d8fb16816d43128b4a4441b025bad1535f. Quiet not before **2026-10-26T13:45:30.982Z**, with no root smoke cloud contacts after original dispatch as of this update. Original LONG-proof stage ends13:52:03.982Z; do not renew clocks.
+
+E186 outputs/local-durable-executor-20261026/long-acceptance-r186 records a demonstrated local validator defect: successful frozen driver reports identify scenario in view.scenarioId; evaluate.mjs and fault-continuation.mjs wrongly require top-level scenarioId also for success. Original validator failure ACTUAL_ACCEPTED_OR_DISPATCHED_UNKNOWN_START is preserved. Four focused local tests and original unchanged-report validation passed. No report overlay, cache injection, original evidence/source edit, restart or paid call. A separately hash-bound runtime amendment and explicit continuation child adapter are being prepared; original U10 materials remain immutable, new execution must identify amendment plus original materials truthfully. No new user action currently needed. Goal remains active and incomplete.
+
+## Historical continuation r185 — U10 accepted; new LONG command issued, 2026-10-26
+
+Update13:20:23.438UTC: U10 local acceptance and first template issuance succeeded. Final materials `root-scenario-tools-materials-acceptance-r9.json` SHA `3b3a02ad047c4edb36ce18b2c20600267cf119ca61d24f4661210751ce4eef7f`. Freeze03b22aee0ef1a764662e6bcc1ac43b12074b4d0803b4f5e1c2eed6e60f3c04e4; SPEC4d2dee7c389efe1299b0eef77767335d3ef2bbffb63e7eeb7d073a1a3c557969; QUALITY3384c0660528f10bd773431ae08f2a2270b8195a73cde4a7a8d22247d5818ce5. Four focused successor cases and actual after-d1 start/replay PS5.1 paths passed; conservative total local18670/20000ms, fault7813/10000ms. Older role/LONG CLI measurements remain explicitly prior. Three fresh canonical strict dry-runs and all18 generated PowerShell parses passed; exact-byte/full-pin material reconciliation passed. No further local tests are required absent a new issue.
+
+The user has been sent only `cloud-ops-20261017-snapshot/scenario-ops-r10/long-start-command-r1.ps1` (command SHA c6674ca4d1dde72dd3dfc5dabfa3ebf2eaa4ffe92bcb89e338dad83f913d9ab5). Template SHA445ecc8d99651392bedf08f9b3e22bda2e00d61782203bd89edf0ca511c892f0; validUntil1793107220883. User-only two Enter acknowledgements and masked C are pending. Do not infer attendance, activate independently, repeat U9 or reissue a consumed U10 command. Inspect actual U10 terminal/operation/control/child-exit records on response. If accepted, retain original identity and observe1,170,000ms quiet from confirmed child exit/latest contact without smoke polling. Read successor-r185/PROGRESS.md and first-template-issued.json. All root processes ended; root made no activation/control/model/public mutation. Last actual cloud observation remains the closed E184 pair below. Goal active/incomplete, awaiting user input after concrete progress this turn.
+
+The source-integration/pending-command paragraphs below are earlier chronology, superseded by this issuance update.
+
+The corrected complete readback passed, actual span12:53:51.113–12:54:48.753Z. `paired-store-r184/readback-r2/proof.json` SHA `f6dc9d4c39b03e85e911119402228c7cd4c3e6f0dacfed46afbe50eee4a7e4c4`; root acceptance `paired-store-r184/root-rebind-acceptance.json` SHA `d6ee9f6c9c0a74cfbb40756e23e78a60d7a6541eb12e60bf01042a1cb52e0ab8`. Site a1fe6d1d-017e-48e6-b654-8482ef969993 / Executor f8c1c9ca-e89d-47c6-906c-bba1e68a3a02, new database IDs below, exact native target regions, private Executor/R2, empty Cron, flagsfalse/false, zero business/observer state, all five Workflow rosters empty. This is closed rebind acceptance, not Task15 success or permission to reuse historical freshness. Original U9 remains permanently incomplete; old failed151 and27/1 history are retained. All root cloud sessions ended; no activation/control/model/public mutation followed.
+
+E185 current-baseline.mjs is frozen at SHA56f898c37b3dbc9d1deb21cdd695258bc3adc822ae345bdc58079cfc3e9ca518. Its actual-proof integration plus seven rejection checks passed. Final evidence baseline-evidence-r2.json SHA55d08a77edc14a3c15d3012bca996683e27bcae5b0213c091db0b55c5f089d0f. Root aggregation pins the complete existing runtime dependency union, without recomputing old closure histories. Narrow placement correction SPEC and different-reviewer QUALITY passed, four focused regressions; original failed readback remains untouched.
+
+Next existing implementer is creating source-only `scenario-ops-r10` (U10), sequence20261026-snapshot-r8, materials acceptance-r9, under successor-r185. Changes are limited to actual accepted baseline/two database identities, native placement mapping and dual-role inventory checks. Artifacts, schema history, readiness, deadlines, profile and paid-provider prohibition remain unchanged. Prior measurements must remain labelled prior; test only affected integration paths. After final limited review and necessary local material checks, issue one distinct user command. No U10 command has been issued, and no user C input is needed yet. Do not rerun U9 or any create/migration/deployment/readback command.
+
+## Historical continuation r184 — closed paired deployment succeeded; export projection correction, 2026-10-26
+
+Update12:49UTC: Both reviewed strict dry-runs and the original ordered deployments succeeded once. Current Site version `a1fe6d1d-017e-48e6-b654-8482ef969993`, Executor `f8c1c9ca-e89d-47c6-906c-bba1e68a3a02`, using the two locality stores below. Both Executor switches remain false, Cron empty, unchanged artifacts. Do not redeploy. First complete readback failed at native export projection: pinned Wrangler omits targeted placement from `init --from-dash`; original `readback/native.json` and export folders remain preserved. Separate two-version read `version-placement-result.json` confirmed actual targeted regions `gcp:us-west2` / `gcp:us-south1`. All command processes ended. No activation, signed control, paid model call or public change occurred.
+
+Next: separate pure `rebind-rules-r2.mjs` validates placement from the exact native version and truthfully records its absence from export; root prepares `rebind-readback-r2.mjs` and a distinct `readback-r2/` complete read. This is a readback correction, not another deployment. After actual complete proof, finish E185's current-baseline integration and root aggregation before creating U10. Frozen original files and failed observations stay unchanged. No user command or C input is needed yet. The detached/unexecuted wording below is earlier chronology, now superseded.
+
+Read `outputs/local-durable-executor-20261026/paired-store-r184/PROGRESS.md`. Two fresh detached stores were created, initialized once from original13/5 migrations, and verified with complete native schema/seed/ledger reads. Site `9eea10cc-ddbf-405c-872b-ee9da8b6d3a6` is WNAM/LAX (proofbd257fa1520a1b05ee6d99c83b49a4dfa5d01e3581a1a37cab3172dd95c4af61); Executor `c4b3d3b2-9c72-4c47-a752-c221b6ad8f40` is WNAM/DFW (proof8aa6da583909a03418897ebd5338bee04c8ae26aa9cb7f367f6efa44c1571645). Both names end20261026-locality; neither is bound yet. Preserve old stores/failed history. All root native sessions ended; create/apply/schema commands are consumed.
+
+Selected placement follows actual locations: Site `gcp:us-west2`, Executor `gcp:us-south1`; official source checks and limitations are in PLACEMENT.md. No further resources are needed. Root rebind runner is prepared/unexecuted; pure paired rebind/placement validation and focused tests are being finalized, with one bounded different-reviewer check. Next prepare configs/dry-runs, immediate current pair checks, ordered closed-only deployments, full native mapping/placement readback. No public/model change or successor command yet. Existing agent is preparing only the future successor baseline loader under successor-r185. Original U9 ExitCode1 is handled; no user action currently required.
+
+## Historical continuation r182 — U9 pre-admission timeout and completed shutdown, 2026-10-26
+
+Update12:12UTC: U9 shutdown is fully reconciled as **CLOSED_SETTLED_INCOMPLETE**, not full Task15. `long-acceptance-r182/root-closed-acceptance.json` SHA `ff4ee41d721e2f1cfcd9d4056697960da35462309ed64fe742be3dfa239d9a6c`; last actual observation12:08:39.945Z. The first delayed zero-unmatched check failed because27 rows retain one old unmatched start. Both complete native collections succeeded and a separate explicitly incomplete-observer assessment verified stable terminal business state/no lease/empty rosters, then95,022ms Scheduled observation saw0 invocations. Original failed gate is preserved; no claim of platform invocation absence. All root cloud sessions12973/28903/34357 ended. Do not rerun any closure phase.
+
+Executor's actual primary is **WEUR/LHR**, Site primary **WNAM/LAX**. The missing-end event is the oldest start (`cron-1793014185004`); supplementary logging uses a1sec best-effort bound, so an unmatched start is not itself a running-task lease. It remains archived and counted. The new bounded plan is `paired-store-r184/PLAN.md`: two fresh detached Site/Executor D1 stores with `wnam` hint, verify actual serving metadata, then choose locality-based placement and rebind closed Workers using unchanged artifacts/deadlines. New Site is needed for permanently consumed job151; new Executor preserves capacity without deleting27 rows (264>256). No new Worker/Workflow/R2 or paid model call. Pure provisioning/schema helper is being prepared by existing agent; root has not created/rebound resources or issued a successor command. One bounded closure/resource review is underway. Paragraphs below retain actual earlier chronology; their pending-drain wording is superseded.
+
+The user returned ExitCode1 for snapshot `scenario-ops-r9` (U9). This resumes the active goal; the historical r181 blocked/input-pending state below is superseded. Both actual Enter acknowledgements passed, activation succeeded, the masked control child ran and exited1 with confirmed process close. Do not rerun U9 or ask the user to repeat C. Its one original Site execution was created, reserved quota, never admitted/began and was subsequently closed as expired; no Executor job or Workflow instance was created. The exact awaited operation causing the delay remains unproved. Original failed observations and consumed command evidence are preserved.
+
+Read `outputs/local-durable-executor-20261026/long-acceptance-r182/PROGRESS.md`. Separate shutdown-only verification retained the failed Site record and did not pretend normal scenario acceptance. Both Executor switches were closed and Cron removed once; actual Executor version `e2ea774c-306c-40ac-978e-f7a49f7bd622`, deployment ended **2026-10-26T11:43:19.000Z**. Site remains `d427c1d2-87e6-44fd-9392-4374d3ea7016`. Complete standard29-read plus separate fixed terminal SELECT passed at11:52:40.298Z; `post-confirmed/proof.json` SHA `e0aa8eb00fa75c6b6d6d62a179286c6c75b565042a73a7f955886d5fc46390b2`. No active/reserved work, one closed failed Site-only record, observer27/unmatched1 at that observation; propagation/drain is not yet complete.
+
+First delayed drain is now running through `closed-readback-r2.mjs first` (root session12973), not a user/control retry. Earliest permitted time was **11:58:50.000Z**. Inspect its actual result before advancing. Then second full drain must begin at least60000ms after first complete native end, followed by95sec Scheduled metadata observation. Original recovery deadline is **12:33:44.335Z**, never renewed. Commands `first`, `second`, `scheduled` are each one-use; do not rerun consumed phases. All resulting evidence belongs to a separately labelled closed/incomplete acceptance, not full Task15 PASS.
+
+Narrow placement diagnosis is in `outputs/local-durable-executor-20261026/smoke-admission-placement-r183/`. The actual fixed SELECT metadata identifies Site D1 primary **WNAM/LAX**. A separate unauthenticated HEAD through the approved proxy returned current ingress **LHR**; it is not evidence of the original Worker's execution colo. Current Site config has no placement. Existing agent is evaluating a Site-only explicit placement candidate against pinned Wrangler/docs; no placement deployment, successor or new resources have been authorized by an issued operational packet. Production code/deadlines, accepted real Research r159/r160, owned application and public site are unchanged. Zero new paid model requests authorized or made.
+
+## Historical continuation r181 — public cohort packet prepared; U9 user input pending, 2026-10-26
+
+Goal status update after11:22:54UTC: `update_goal(status="blocked")` returned **blocked**, because the same required user-only masked-C input has remained pending across the command-issue turn and two automatic goal continuations. The first two turns made concrete local/release progress; this final check finds no remaining independent action that advances the required cloud acceptance. Fresh local process inventory again found no matching live command, and U9 terminal/control directories remained empty. This is not a verified live wait, a claim of Task15 completion, or a user-requested pause. Do not keep repeating audits or regenerate the command. Resume when the user runs the issued command or provides an actual result; inspect original records and template expiry before advancing. If the user resumes after blockage, start a fresh blocked audit. No cloud shutdown is newly required because no U9 activation has occurred and r177 closure remains the last actual observation.
+
+The previous goal turn made concrete progress by accepting U9 materials and issuing its first command. This turn made additional concrete release progress: a fixed SELECT-only read confirmed the existing one-owner `role-research-beta` cohort, then prepared conditional public-enable and restricted-restore SQL in `outputs/local-resource-access-20261026/public-cohort-r181/`. Packet SHA `eab439e3dc7aaaff7b394aede4f6a3ea944ba8c2796a9499d9a3c05487705baa`. Local SQLite validation passed for exact one-row enable/restore, stale-state no-write and unrelated-flag preservation. No remote write, model call or public activation occurred. Refresh the actual row at cutover; the rollback remains a template requiring the real public update timestamp.
+
+At11:21:03UTC, U9 terminal/control directories remain empty and the process inventory finds no matching Node/PowerShell command process. This is **pending user input, not a verified running task or timed cloud wait**. The already issued snapshot `scenario-ops-r9/long-start-command-r1.ps1` remains the current command; do not regenerate, repeat or run it on the user's behalf. Inspect its actual records when the user returns. No root process/timer is running. Goal remains active and incomplete; Task15 and public cutover/post-release acceptance remain required. Do not repeat accepted model calls, functionality tests or broad audits while awaiting C.
+
+## Historical continuation r180 — U9 accepted and first new command issued, 2026-10-26
+
+Update 11:13:05.377Z: U9's bounded identity-delta SPEC and different-reviewer QUALITY passed; all three fresh canonical strict dry-runs and 18 PowerShell5.1 parses passed. Final generated-byte/full-pin acceptance passed. Materials SHA `bbaa3a77b761c5ab83ee73f5fee370a211debe9dd4b3b7abfa49f9f440d273b7`; QUALITY SHA `da966e97d4b6d0556b282d108e188378441b0bcfae6f384b377b08f66eb27a0f`. Exact U8 timing remains explicitly prior; no new timing or feature suite was run. The U8 failed dry-run is preserved.
+
+The first U9 template was issued once, SHA `b4650167c05c7fa997d463119475dd5ae312758dbfe29f06fe28ea90eec05586`. User was sent the full `cloud-ops-20261017-snapshot/scenario-ops-r9/long-start-command-r1.ps1` command (SHA `81b84085737dbcedf359d1d8a5013dc6f23fbe3ec3a18b44ff408b173a5b1380`) with two Enter prompts and masked C instructions. Root has not activated or submitted; no live terminal attendance is inferred. Inspect actual U9 terminal/control/operation records before advancing. Never reissue a consumed command or activate separately. If actually accepted, retain the original job and observe the full 1,170,000ms quiet period from confirmed child exit/latest contact. Read `successor-r180/PROGRESS.md` and its actual local acceptance artifacts. Current actual historical cloud state is still r177 closed Executor48f5c6b6-5ffc-4896-a0c6-107eb83388e9, both switches false, Cron empty, rows0/0; fresh preactivation belongs to the user's new command. No root cloud process/timer, new paid model request or public mutation occurred.
+
+The earlier preparation details below are retained as history; their pending-review/no-template wording is superseded by this update.
+
+U8 SPEC and QUALITY passed (QUALITY actual10:49:58.646Z, SHA `b55a66d26cc126d9396db6b7e270a7c0dd5277421b592618e8b15d8650d5bfda`). Static generation and all18 PowerShell parses passed. The first activate **dry-run**, with no deployment mutation, timed out during process exit: original result `scenario-ops-r8/activate-dry-run-result.json` SHA `36a317961fe5a9a0ca85414fe85c759dc7bbfd4687eddecff8be9a5345821d9c`, commandTimeout85807ms, childCloseConfirmedtrue, mutationAttemptedfalse. Preserve it; no U8 first template or command was issued.
+
+Two separately labelled, bounded local diagnostics then exited0: E179/dry-run-diagnostic-r1.json used network denial plus original diagnostic trace (1.13s); r2 used the exact original neutral environment, command and same short config (6.175s). Both output hashes exactly equal the timed-out original: stdout `e8bc2311dbcebd569dabde6b0caa5607ced49933fe6b4334879874aabd5d937b`, stderr `6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a`. They show complete packaging and the dry-run exit marker, expected bindings and no errors. The original stall was after packaging; its specific transient process-exit cause is not proved. Do not label these diagnostics as original canonical success or rewrite that failure.
+
+The frozen validator binds each dry-run to one canonical result/attempt path. To retain truthful records, the existing implementer is creating a narrow source-identical U9 under `scenario-ops-r9` and `successor-r180/`, changing only sequence/material identity. It reuses the same r177 cloud baseline/resources, D178 cap, and accepted U8 timings with explicit identity-only provenance; no new feature tests or full measurements are requested. Root will review the small delta and run new local configuration preparations once. No runtime patch, new cloud activation, user command, paid model call, or resource allocation has occurred. All r177 closure observations and accepted product work remain valid.
+
+## Historical continuation r179 — U8 measurements and SPEC passed, 2026-10-26
+
+U8 is `scenario-ops-r8`, sequence `20261026-snapshot-r6`. The original U7 remains consumed/incomplete. r177 root closure was locally recomputed and written, SHA `0ed72f523172d6b4ceb578a60803d11df12e3f64a4bce47d498280a8f543b632`; actual closed Executor48f5c6b6-5ffc-4896-a0c6-107eb83388e9, observer0/unmatched0. No new resource or cloud mutation occurred after closure.
+
+Five U8 runtime files change only current closed provenance/pins and real-deployment preload composition: guards, accepted-context, closed-baseline, runtime-closure, operate. Evaluator, terminal readiness, profile and read plans remain identical to accepted U7. The fixed D178 cap follows the unchanged diagnostic preload on real deploys only. Baseline5/integration3 and D1788 focused tests passed.
+
+Root executed exactly two complete PowerShell5.1 offline measurements: `successor-r179/fixtures/r179-01` after-d1:start and `r179-02` after-d1:replay; both exit0. Conservative local upper18,157/20,000ms; start203,157/205,000; replay187,958/190,000; fault7,176/10,000. Prior LONG/actual evaluator CLI/nine-role evidence remains explicitly prior, not relabelled as a new run. No credentials or network/model calls were used in those measurements.
+
+Author freeze U8/implementation-freeze-r1.json SHA `10d6633aa6a49cb603de9a816bba983e38e634ea8694313a6a232447b51e02f3`; timing SHA `2e33e88e06b7971e693bdf7233574de74cda426ed78b310ba37ac28dc146cb21`. Independent SPEC passed at10:46:56.712Z; U8/spec-review-r1.json SHA `f02e6ee2347146d6dc499bf1f18118409bb0da252503a5e0948b12886c8e9d53`, no actionable findings. Different reviewer `/root/successor_quality_r169` is performing the bounded QUALITY review. After PASS, use prepared E179 static materialization, three strict dry-runs, generated syntax/exact-byte verification and single first-template issue. No U8 command or operational template is issued yet; do not run old commands. Do not edit frozen sources/supports or repeat passing measurements without a new reason.
+
+Independent release preparation: authenticated Cloudflare UI showed original four DNS records, no www, zero Single Redirects/Page Rules and no Worker routes at10:31UTC. `outputs/local-resource-access-20261026/public-domain-r178/` records this and the exact-host www redirect preparation. No domain/rule mutation; no complete account Bulk Redirect inventory claim. IAB tab1 is the original account's zone Worker Routes page, marked for handoff. Root cloud sessions are all finished; no active timer. Real Research/plan and public cutover packet remain preserved.
+
+## Historical continuation r178 — U7 delayed closure verified; next command preparation, 2026-10-26
+
+The separate partial shutdown remained closed through two complete native drains and the 95,019 ms Scheduled observation. First proof SHA `7a41e824a03643c95c507072c6179e2030952bd7711d6be53dd4d3ab243bec83`, second `3d90aedd618f19629c5d203961d911c2b1070ae2089cc3f6c95a5259654735df`, Scheduled `0e4d51d66348ec673f6ca2fd5c2c8a6f2861f89b862335dd16fff6a9f545c42d`. Both flags false, Cron empty, no jobs/reservations, observer0/unmatched0. Scheduled observed0 does not prove platform invocation absence. All root cloud sessions exited0; U7 is permanently incomplete and must not be rerun. A local root aggregation is being prepared from these original records.
+
+`outputs/local-durable-executor-20261026/deploy-concurrency-r178/` contains a targeted, local-only connection cap: exact-hash Node module transform adds only connections2 to the existing Wrangler proxy agent, leaves installed bytes and proxy/auth/TLS/deadlines unchanged, and adds no write retry. Actual CLI startup initially stalled because the inherited preload also entered esbuild Worker threads. Limiting the hook to process main threads fixed that demonstrated local failure. All8 focused tests passed, including actual wrapper/direct CLI with original diagnostic trace and network denial, six localhost requests with max2 connections, and one synthetic reset without duplicate writes. These facts do not prove the cloud reset origin or eliminate partial deployment risk.
+
+Existing implementer `/root/capacity_successor_r169` owns new `successor-r179/` and `scenario-ops-r8` source preparation plus local r177 aggregation. It is integrating the actual closed baseline and cap into real deployments only; read-only transport remains unchanged. No new resource, paid model call, operational material or user command has been issued. User's current availability remains confirmed; do not ask again for file edits or repeat old commands. Complete only the affected source checks and ordered review before issuing the new command. Real r159 Research/r160 plan and public release preparations remain accepted.
+
+## Historical continuation r177 — U7 partially applied activation; closed, delayed drain pending, 2026-10-26
+
+The issued U7 command was actually run at09:49:41Z and is consumed. All29 preactivation reads passed. Activation failed at09:52:07.484Z with ECONNRESET on a Workflow PUT after version/deployment200. The complete original-identity read found Executor `11bd04c9-1f11-4fc6-a98b-9cde11139abb`, both flags true but Cron empty, all five Workflow latest metadata still at the prior version, and no jobs/control records. Its normal reconcile gate correctly failed NATIVE_PRIVACY_SCHEDULES; never treat it as full activation or rerun the command.
+
+Separate `outputs/local-durable-executor-20261026/activation-closure-r177/partial-shutdown.mjs` narrowly validated the actual partial state and closed both flags once, retaining the empty schedule and all resources/artifacts/secrets. Three focused delta checks passed. Actual closed Executor is `48f5c6b6-5ffc-4896-a0c6-107eb83388e9`; close ended10:00:43.105Z, result SHA `efe252093e7824745ea300a9048257f9ed189a045903dc544ff9adebaa742b45`. Complete readback `post/proof.json` SHA `5a3805c9b253248a71d4da0c73f2220c38b0a233a37ccca438d9b3743fb0ccad` passed: both flags false/Cron empty, no tasks/pending work/budget, observer0/unmatched0. Root sessions22112/17316/90411 ended; no mutation/collection process remains.
+
+Next first delayed drain is allowed at **2026-10-26T10:16:14.105Z**, then a second whole read at least60,000ms later and bounded Scheduled metadata. Use `activation-closure-r177/closed-readback.mjs first|second|scheduled` each once. Original recovery deadline10:56:08.020Z; never renew it. Full Task15 remains incomplete; C was not reached. Prior r175 command, sources, attempts and failed gate remain immutable. Investigate reducing actual Wrangler deployment concurrency before another command; no successor command is prepared. No paid request or public cutover occurred. This turn made concrete reconciliation/shutdown progress, not a blocker-only or completed goal turn.
+
+## Historical continuation r175 — successor accepted; new first command issued, 2026-10-26
+
+Independent continuation r176: six concrete future public configs are prepared in `outputs/local-resource-access-20261026/public-config-r176`; packet SHA `408bebdcf0d14be27745f5a162f0828c9b2e9d124cbea22a59e22a8d718f2998`. All129 accepted artifact bytes match; two representative strict dry-runs passed (result SHA `15589b456c5fa794316a5b73a9df39e67908a58c3a6ec7c4e20b4888d1e13be1`). No public/domain/DNS/cohort/database change or model request. Read that README for scope and remaining preconditions. At09:44:20Z U7 terminal/control directories were empty and no matching live local process was found; user input is pending, not a verified live wait. The previous and current goal turns made concrete progress; no blocked/complete claim was made. Continue from actual U7 records when the user runs the issued command, never repeat it.
+
+Read `outputs/local-durable-executor-20261026/successor-r175/PROGRESS.md`. U7 `scenario-ops-r7` / `20261026-snapshot-r5` is source-frozen and its first template issued. Freeze SHA `4e249fac81e3e7be4abf44b8410eb9ef18cc3846cad9a0918fdda089c43c694b`; timing SHA `85dd0f6b550652b8c420d39d9497e94238ba38c775e13b17b2c84e49cc20f88a`, max16,618/20,000ms. Actual LONG CLI positive/negative and complete PS5.1 LONG/start/replay measurements passed. Fixture-only chronology failure r175-02 is preserved and documented. All runtime and accepted cloud bytes remain frozen.
+
+Final SPEC and different-reviewer QUALITY passed; three strict dry-runs, all18 generated PowerShell parses and exact-byte/full-pin reconciliation passed. Materials SHA `8798d5878f6b84a26a370037c10d06cba5023458acee19afc1fe976ff793c4a9`. New template issued09:37:13.692Z (SHA `fdbceeb61280a6244aa5d6d1668d50933acf6eb1422c60c8cc88338df846be52`), command `scenario-ops-r7/long-start-command-r1.ps1` SHA `ed79e8f513dc0cf679c7adc01711b83dc4001bf282863c4fd3d13b0824ae56e5`. Send only this command to the user, then inspect actual U7 terminal/control/native records before advancing. Root has not activated or submitted. All root cloud sessions ended; last actual both smoke switches false/Cron empty. Actual rebind aggregation SHA `448b6cf0e9cdf144007b8fe84a722d0f43c60923f9ede93b065316ae1ab72595` passed, new Executor rows0/0, old30 preserved. No new paid Research/public mutation. Never regenerate/repeat a consumed command or rerun earlier commands.
+
+## Historical continuation r174 — closed Executor database rebind verified, 2026-10-26
+
+Actual complete 29-read rebind proof passed at 09:03:24.768Z: `outputs/local-durable-executor-20261026/executor-store-r174/readback/proof.json`. Smoke Site remains `d427c1d2-87e6-44fd-9392-4374d3ea7016`; smoke Executor is now `80c027d7-62b6-4b52-b875-6093714bc574`, bound to new Executor-only D1 `arc-v8-smoke-executor-db-20261026` / `0b802abb-820a-40c3-89ac-b4b2c2fcb249`. Both switches false, Cron empty, all jobs/pending/budget zero, observer 0/unmatched 0. Original artifact, Site DB, R2 and five Workflow identities are preserved. Old Executor D1 `ea89c802-37ba-496d-960f-b4e1403c3afe` retains its 30 rows; no deletion/reset. Creation, migration application, dry-run, rebind deployment and readback are consumed and must not be repeated. All root cloud sessions ended; no timer remains.
+
+Root local rebind aggregation and source-only successor U7 preparation are in progress under `executor-store-r174` and `successor-r175`. No U7 operational materials or new command issued yet. The r173 CLI cycle correction remains a separate candidate until the successor integration is tested. Complete remaining focused checks and one final delta review, then issue a new command under the user's existing availability and simulated-test authorization. No paid model call, application cutover or public switch has occurred. U6 remains permanently incomplete.
+
+## Historical continuation r173 — U6 launcher provenance failure and completed shutdown, 2026-10-26
+
+Update08:54Z: all actual delayed drains and Scheduled observation completed. Root U6 closure acceptance `launcher-closure-r173/root-closed-acceptance.json` SHA `c23aa2af4d4b45125eb104f1c95d0d6b26a11af59a9c1b2255b9a5578f58bfa0` is CLOSED_SETTLED_INCOMPLETE, observer30/0, no tasks. All U6 cloud sessions ended; no timer. The local CLI fix has2/2 actual-child checks; still separate candidate. Bounded r174 plan is `outputs/local-durable-executor-20261026/executor-store-r174/PLAN.md`.
+
+One detached new Executor D1 was actually created and read back: `arc-v8-smoke-executor-db-20261026`, ID `0b802abb-820a-40c3-89ac-b4b2c2fcb249`; creation SHA `f89a95160f31a8f1b4714503d750dacb9346b0462c85b893d74bc44f6f9bf978`. Empty-target check and five pinned original Executor migrations passed; apply SHA `a63cb57fd5a0375760f4b85930b175ab4ebf1aa7ad4cf220b047618181c5083a`. Full exact schema readback is running. This DB is not yet bound to the Worker; old Executor DB and all old evidence are unchanged. Do not rerun create/apply. No successor operational materials or start command yet.
+
+U6 first command is consumed. Both Enter acknowledgements passed, all29 preactivation and postactivation reads passed, and Executor activation `056a076e-e111-42dc-8913-76d135e3360c` succeeded at08:17:42.821Z. At08:19:05Z the masked launcher refused `READINESS_NO_DISPATCH_PROVENANCE_REFUSED`, before the C prompt. `controls/` is empty; readiness/handoff files exist. Do not rerun U6, alter its frozen sources, or run the accepted-start quiet reconciliation helper. This is not a user-input timeout.
+
+Update08:34Z: admission-close succeeded and fully read back. Maintenance-close returned ECONNRESET after deployment; read-only original-identity reconciliation proved the new closed Executor `e83986cc-f024-44c5-9e12-1ff1d243d8c0`, both switches false, Cron empty, all tasks/outstanding work zero, observer30/unmatched0. No repeat deployment. Reconcile gate SHA `af00bc893d60016e1aeaba6af40103c4b214a7b4f58dfb4a73c96cfcf80ad7fe`. Full chronology and commands: `outputs/local-durable-executor-20261026/launcher-closure-r173/PROGRESS.md`. Root sessions94245/70069/20857 ended; no timer remains.
+
+The actual maintenance command ended08:30:33.154Z; first delayed drain is allowed after **08:46:04.154Z**, then ≥60000ms separation before second and a bounded Scheduled observation. Incomplete-closure SHA `d25e085e5850fea33d7d202826dbe47f42767aabf531531dbf1cae95a41e525d`, expires09:26:29.488Z; never renew it. Launcher cause reproduced: actual evaluator CLI exits13 due to its top-level-await import cycle. Separate one-line candidate passed local actual CLI with unchanged historical handoff; it is not operationally issued. Product/public Research and paid allowance are unchanged. Capacity236+retained30 now exceeds256, so no successor/start before a bounded capacity solution; no new resources yet.
+
+## Historical continuation r172 — source-only U6 and fixed shared-observation integration, 2026-10-26
+
+Update 08:14Z: QUALITY PASS (actual08:12:15.419Z, SHA `6096f1986f3a441c169bbaa58c4ad10b9d321a263bc03d1a4334ab3f57d17d56`). Three strict dry-runs, all18 PS5.1 syntax checks and final exact-byte/full-pin material validation passed. Actual materials `root-scenario-tools-materials-acceptance-r5.json` SHA `4f6a19a54f3f9a7d4ed4cbdf3920f856c68cf9f275c508d20a8685d134a8fee0`. U6 first template issued at08:13:55.445Z, SHA `0a00856b123d24d354e003c83b1a6cb69f3560e409e0af65de8a9f79ca30fe58`; command SHA `9e3864ca53dc3c5988fc44649583e83527b53a00ca9fcb35f46b69d7edb39317`. The new command was sent once to the user. Root has not activated or submitted. **Inspect actual U6 terminal/control/observation records before any next action. Never regenerate or repeat the command if consumed.** E172/PROGRESS.md and RUNBOOK.md contain the current handoff. Local reconciliation helper is prepared but unexecuted. All root command sessions are finished; user terminal may now start. Earlier pending/no-template wording below is superseded.
+
+Update 08:04Z: final source is frozen (SHA `23f203485b30fa89cf4ae302eb2e55341b8b51bb7fcbdd522866aa8d1bfe2ae3`). Affected tests passed; complete PS5.1 final-source after-d1 replay `F172/r172-03` and start `F172/r172-04` both exited0, retained conservative local max16,036/20,000ms. `r172-02` caught a real projected-clock source-field bug before cloud execution; replay and maintenance now validate the original pinned source clocks. RED/GREEN and failed construction evidence are retained in E172's manifest and measurement-repairs.md. No source changes remain planned.
+
+Independent SPEC passed at `2026-10-26T08:03:57.813Z`, actual U6 review SHA `bcdc8935109ca44220d535d577e7b8829bcd5f22683b145f64adbe53bfdc13d2`, findings empty. Different reviewer `/root/successor_quality_r169` is doing the final bounded QUALITY review. All35 current tool pins and all52 predecessor hashes remain unchanged. Timing SHA `4a7280e586819c390f0238be5aef02ee8f0f3bc646f058bf2fab1a74267d626f`. After QUALITY: actual static materialization, three strict local dry-runs, PS5.1 generated syntax, material reconciliation, then one new template/command. Do not rerun author freeze creation, measurements or old U5 commands. All root command sessions are finished. The paragraphs below retain preparation details; their pending-implementation/measurement wording is superseded.
+
+U6 now exists at `outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/scenario-ops-r6`, sequence `20261026-snapshot-r4`; no static operational materials, command template, cloud activation or control has been issued. Root's current historical baseline loader recomputes r170's actual complete closed native proofs and retains 20 rows. Four focused baseline tests passed after RED; the first implementation run exposed a nested shell diagnostic field mismatch, corrected without changing original evidence. Reviewed r171 scheduler candidate-r2 bytes are integrated. Original U5 remains immutable.
+
+Plan/support: `outputs/local-durable-executor-20261026/successor-r172/PLAN.md`. Capacity design: `read-schedule-r171/capacity-options.md`. Selected exactly three typed uses of complete observations: post-activation for LONG prestart; expanded 41-read post-roster for replay-before (actual29 base +12 distinct scenario reads); settled post-admission-close for maintenance precondition with the original target maintenance-stage clock. No gate cloning, rephasing, timestamp renewal, cap change or observer deletion. Expanded post-roster ceiling130,000; expected total6,531,000 ->236+20=256 with conservative shutdown136/94 retained. Implementation and focused regressions by `/root/capacity_successor_r169` are in progress. Root owns U6 baseline and F172 full-graph fixture; after-d1 start/replay measurements and final delta reviews are not yet done. `prepare-review.mjs`, copied static helpers and `issue-first-template.mjs` are prepared but unexecuted. Do not run them prematurely.
+
+No root cloud child/timer is active. User availability is copied unchanged from r169 (today available, remind when ready), not new attendance. All external application/model state is unchanged. Continue local integration; only issue a new command after actual final evidence/material checks.
+
+## Historical continuation r171 — U5 closure fully verified; local scheduler correction passed, 2026-10-26
+
+Update 07:18Z: the delayed first and second whole native reads, stable drain comparison and 95,007 ms Scheduled metadata observation have all completed. Actual closed acceptance is `outputs/local-durable-executor-20261026/postread-timeout-r170/root-closed-acceptance.json`, SHA `55b8246a451e592021a01ff4306ca0eee48f9f64288f44d494896aede0c38fc8`, status `CLOSED_SETTLED_INCOMPLETE`. Both switches false, Cron empty, no jobs/pending work/reservations, observer rows 20/unmatched 0. Scheduled observed count 0 does not prove invocation absence. No cloud child or timer remains active. Do not rerun U5 or any consumed closure command; its original deadlines and evidence remain unchanged.
+
+The separate local two-read scheduler's original success-path probe completed all 29 reads in 64,967 ms under the unchanged 100,000 ms limit, peak concurrency 2. A focused review found that a failed read must also stop an already-owned peer's transport retry; `read-schedule-r171/candidate-r2` fixes this via a shared before-spawn stop flag. The same reproduction failed before the correction and passed afterward; all six focused tests passed. Focused reviewer `/root/successor_quality_r169` passed the correction, report `peer-stop-review.md` SHA `cb9db029937b697db9c5c86773ef564451bd73cb0470de44de100ff95a759242`. Original probe-pinned sources were preserved, so the prior live probe is not relabeled as a post-fix run.
+
+Next: resolve new successor capacity and integrate the reviewed candidate with the actual r170 closed baseline. Current unchanged full profile requires 246 new rows plus 20 retained = 266, exceeding cap 256. No reset, deletion, hidden cap increase, new operational authority, U6 or new user command has been issued. The user's availability remains recorded in r169; avoid asking to repeat old commands. Real Research r159 and saved plan r160 remain accepted, public/owned apps unchanged, no new paid model call.
+
+The following r170 paragraphs retain historical closure-in-progress details; the update above supersedes their pending wording.
+
+U5 was consumed once. Initial Enter succeeded; activation succeeded with Executor `b1e64e0e-d4d5-48cc-a62d-ce7d75e42e34`. Its postactivation whole collection exhausted the original 100,000 ms allowance at `r2-dev-url`, after 25 successful reads. Original child exited 1 and drained; no C prompt, handoff, control or scenario submission occurred. Do not rerun U5 or treat this as a user-input timeout. The original incomplete collection and frozen tools remain unchanged.
+
+Separate shutdown-only root composition is `outputs/local-durable-executor-20261026/postread-timeout-r170/run.mjs` and PLAN.md. A new complete read verified exact active mapping and empty scope. Admission-close deployed once (`83adef27-c16c-421d-9067-e6c3ace78a6a`) and its whole readback passed. Maintenance-close deployed once (`c3c8560c-0c19-4014-bf83-fbc764322b62`) and its whole readback passed. Both switches false, Cron empty, all tasks/pending/budget counters zero; last observer count 20/unmatched 0. Root sessions 29899, 4861 and 46110 all exited 0.
+
+Maintenance close actually ended **2026-10-26T06:39:27.015Z**; delayed first drain must not start before **2026-10-26T06:54:58.015Z**. Then wait at least 60 seconds after first drain end for the second full read, then run the bounded Scheduled observation. r170's fixed one-hour window is recorded in `clock.json`; do not renew it. Always compute timestamps in Node from original JSON strings (PowerShell ConvertFrom-Json may deserialize dates and lose the intended timezone when reparsed). Closure remains incomplete rehearsal. Public/owned app and paid model state are unchanged.
+
+Local repair is in `outputs/local-durable-executor-20261026/read-schedule-r171/PLAN.md`. A fixed two-read scheduler retains complete command checks and original per-child/collection deadlines, preserves Worker and per-database ordering and drains already-owned reads on failure. Five focused tests failed RED, then passed GREEN. It is only a local candidate; no successor operational materials, new paid test or new user command is issued. Complete collector/mapping integration and targeted latency verification, then use actual final retained rows to assess any successor capacity without resets or hidden cap changes.
+
+## Historical continuation r169 — local acceptance passed, first new command issued, 2026-10-26
+
+Update `2026-10-26T06:22:18.123Z`: actual ordered SPEC and different-reviewer QUALITY both PASS, three strict local configuration dry-runs PASS, all 18 generated PowerShell files parse under 5.1, and final exact-byte/full-pin material validation PASS. Root materials `root-scenario-tools-materials-acceptance-r4.json` SHA `12ae3bc57cb86c84486bd588536a0d1124b13a121f588287cf5e6d6a2df932f9`. QUALITY review SHA `be6536dce2e295822154d56567f5e824d8bcdfc01ef49a5b9be1344098cbffca`, reviewed at `2026-10-26T06:20:50.069Z`. No new source change or model call was required.
+
+The U5 first template was issued once, SHA `25b892615edfaa6d04d39736e9880358df603e02be6553aa3884954b41eadf52`. User was sent `scenario-ops-r5/long-start-command-r1.ps1` (SHA `ca5372acf10f4f2b1b4e79cd956d218588707655a48c6ed4a46d611c0c101ffb`) with the two Enter prompts and masked-C instructions. Root has not activated or submitted. **Inspect actual U5 terminal/controls/observations before any further action; never regenerate/reissue the consumed command or activate separately.** If accepted, use original child exit/latest actual contact to start the full 1,170,000 ms quiet interval without cloud polling. `successor-r169/RUNBOOK.md` contains the remaining ordered steps. First-template/local acceptance artifacts are in that same evidence directory. User availability is confirmed; actual attendance/cloud success are not inferred from it.
+
+The following paragraphs retain preparation details; their earlier pending/no-material wording is superseded by the update above.
+
+U5 is `outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/scenario-ops-r5`, sequence `20261026-snapshot-r3`. This is a source-only successor; no static operational material/template, activation or control has been issued yet. User confirmed today's availability in `outputs/local-durable-executor-20261026/successor-r169/user-availability.json` (question `call_064af34f2807420e8e803f864fcb8028`), actual terminal attendance remains false.
+
+The current closed-baseline loader separately verifies r168 while retaining original schema/Task1/artifact identities. Fault acceptance is consolidated into one full settlement at least 60 seconds after the actual raw gap; standalone fault acceptance and optional followup are removed, with fixed one-use tags. LONG reconciliation and all success/recovery/replay/closure assertions remain. Full profile 6,825,000 ms reserves 246 rows plus retained 8 = 254/256; cap/formula/shutdown maximum remain unchanged. Prompt display uses the checked r166 reminder without changing input/deadlines.
+
+Three baseline tests passed after RED; capacity helper's final respective focused evidence covers 37 changed/adjacent tests plus 5 fault-continuation tests. Complete real PowerShell 5.1 local offline `after-d1:start` and `after-d1:replay` measurements passed in `outputs/local-durable-executor-20261026/task15-successor-fixtures-r169/r169-04` and `r169-05`. Conservative local 16,036/20,000 ms; start 200,550/205,000; replay 186,036/190,000; fault arm/post-input 6,051/10,000. Original nine-role measurements remain explicitly prior. Three earlier construction failures and fixes are preserved in `successor-r169/measurement-repairs.md`; no cloud invocation occurred.
+
+Author freeze SHA `54e43e99004ca3599eb85ead5b4d1b2e897b514866ea6514b7618ce6d8e23b4a`; timing SHA `e6468bc9413baaafb02acf5336c9ec39e0a8eec83dc248161d83cc5c2c377c0d`. Independent SPEC agent `/root/successor_spec_r169` passed at `2026-10-26T06:09:23.347Z`, actual review SHA `52e1ea48ad7d8aff338748e808ebbcc9feb20d7ac8c41a399dfb2c1309932e4c`, findings empty. Different reviewer `/root/successor_quality_r169` is doing one bounded QUALITY review. The current fault-settlement native evaluation costs are actual historical-mode measurements, not a new `fresh:true` run; no extra run or frozen-file masking was performed. After QUALITY, run the existing prepared static helpers and three local dry-runs. Five root helpers parse; `successor-r169/root-native.mjs` is the unchanged r164 composition with only its U5 path adjusted (SHA `eb219d160f77a894d827f61fa44626c91406a7a0bcbc7ed2e640352f7357a17a`). Do not repeat successful measurements or create additional paid Research. No root command session or timer is running. r168 closed state below remains the latest actual cloud observation.
+
+## Active continuation r168 — delayed closure verified, 2026-10-26
+
+The user resumed r167. Original U4 deadlines/records remain unchanged and U4 remains incomplete. A separate twelve-minute READ-ONLY window completed two full native observations at least sixty seconds apart and a 95-second Scheduled metadata observation. Root acceptance: `outputs/local-durable-executor-20261026/resume-closed-r168/root-closed-acceptance.json`, SHA `9d5aa98addd2b4706206f832f65c1618e90d1f9755994212f6e24d3dc1fde77b`. Both switches remain false, Cron empty, no tasks/pending work/reservations, retained observer rows 8/unmatched 0. Scheduled observed count is 0, without claiming platform invocation absence. Smoke versions remain Site `d427c1d2-87e6-44fd-9392-4374d3ea7016` / Executor `a6cd1edb-e975-4725-bd37-5863023f7a1c`. All three command sessions have exited; do not rerun collectors or acceptance creation.
+
+The second collection succeeded, but the initial local drain call supplied native references instead of native payloads. `finish-second-local.mjs` recomputed both original collections and saved the corrected second proof without another cloud query; the original collector and its failure are preserved. `accept-closed.mjs` recomputed the full request/attempt/config/native/proof chain and original maintenance-close. Additional writes, controls and model calls: 0.
+
+Next is a source-only successor using this current closed baseline and retaining the 8 existing observer rows. The old 7,117,000 ms profile still cannot fit with those retained rows. A bounded local capacity design is in progress under `outputs/local-durable-executor-20261026/successor-r169/`; no new operational materials or command have been issued. Preserve the cap/formula and all required proofs; eliminate duplicate work rather than reset records. Integrate the already-local r166 display reminder without changing attendance/deadlines. Today's terminal availability question is pending. Real Research r159 and saved plan r160 remain accepted; no paid retry is authorized or needed. Public cutover remains later.
+
+## Paused checkpoint r167 — closed pair, delayed drain pending, 2026-10-25
+
+User requested save and pause. Read `outputs/local-durable-executor-20261025/terminal-closure-r165/PAUSED-r167.md` first. Root command sessions have exited, the read-only review agent is interrupted, and no background timer/helper is running. Smoke Executor is `a6cd1edb-e975-4725-bd37-5863023f7a1c`; full native readback confirms both switches false, Cron empty, no tasks/pending work. U4 never reached C or a signed start. Do not repeat old commands.
+
+Pending delayed drain can start no earlier than **2026-10-25T14:05:09.209Z**. The original incomplete closure expires **14:42:31.450Z**; if resuming after that deadline, prepare a new bounded **read-only** verification of the same closed pair, rather than renewing or reusing that allowance. U4 remains incomplete. No U5 is prepared/issued.
+
+Successor preparation must account for the new closed revision and retained observer rows (8 at last read). Reviewer identified that old full-profile reservation 256 plus retained 8 exceeds cap 256; do not bypass/erase/reset this. Review was interrupted before written report or PASS. Prompt-display candidate is locally checked but not issued. The r163 migration guard/delta comparator are locally verified and unpublished. Owned/public deployments and the successful r159/r160 Research/plan remain unchanged. Remaining outcome stages: cloud recovery/replay acceptance; final delta/domain/OAuth transition; public enablement and release checks.
+
+## Historical continuation r165 — U4 confirmation expired, closure running, 2026-10-25
+
+U4 preactivation, one actual Executor activation, postactivation and prestart all passed. Preparation child exit 0/close/drain is confirmed. The second Enter was not received before 13:40:52Z; `terminal/long-start-shell-failure.json` records `post-native-enter / LOCAL_ACK_DEADLINE_EXPIRED`. No C stage, handoff or scenario submission occurred. Do not rerun U4 or create attendance records manually.
+
+Read `outputs/local-durable-executor-20261025/terminal-closure-r165/PROGRESS.md` and actual U4 operation/gate files. Admission-close and maintenance-close each succeeded once with full readbacks. Current smoke Executor `a6cd1edb-e975-4725-bd37-5863023f7a1c`; both switches false, Cron empty, no scenarios/pending work, observer rows 8/unmatched 0. Maintenance-close ended 13:49:38.209Z; original propagation horizon ends **14:05:09.209Z**. Next: delayed drains and Scheduled observation via r165/close.mjs, not another start. The original incomplete-closure deadline is 14:42:31.450Z. Root sessions are finished. No public or owned application mutation and no model call. Goal remains active.
+
+Local independent preparation: r166 terminal display candidate adds yellow prompt, short optional beep and a seconds countdown; PowerShell 5.1 check passed, no deadline or input-authority changes. It is not yet an issued successor. Final public migration delta comparator in r163 passed five tests and a private 45-table/835-row baseline self-comparison; this is not a fresh final export. No old site freeze or DNS change has occurred.
+
+## Historical continuation r164 — preactivation failure fixed, new first command issued, 2026-10-25
+
+Update 13:34:03Z: independent SPEC and separate QUALITY both PASS, three U4 strict local deployment dry-runs PASS, all 18 generated PowerShell files parse, and final material/full-pin verification PASS. Actual root materials `root-scenario-tools-materials-acceptance-r3.json` SHA `70841d5465289eff47cbf84dc86bef1cb6f1f8e9f6ea4453278d1e89820f93ad`. The new U4 first template is issued, SHA `9da9f26f5861f8036e3d20d5071bb1c9ecc5c77b699972d6724a8ff63070f696`; command SHA `be06293d0ac161b32ef185de1e015891f3f4167aa9b9e61b06312490877c870d`. User has been sent `scenario-ops-r4/long-start-command-r1.ps1`, under existing readiness/authorization. Root has not activated or submitted; inspect its actual terminal/controls/observations before taking any next action. The in-progress review/material wording below is superseded. Do not regenerate any one-shot material or run old U3.
+
+The first r162/U3 attended command has been consumed. User Enter was recorded at 13:15:17Z. All 29 read-only native queries completed 13:16:57Z, then historical roster equality failed: the 2026-10-18 accepted snapshot contained one already-completed 20261013-guarded Workflow instance, now absent. The new snapshot primary lists, D1 lifecycle and observer rows are zero, the pair remains on its original closed versions, and there is no activation decision/attempt or C/control submission. Preparation child close and exit 1 are confirmed. Do not rerun U3 or ask the user to input C into an old command.
+
+Diagnosis and bounded plan: `outputs/local-durable-executor-20261025/preactivation-diagnostic-r164/`. The saved native error was reproduced locally; absence is consistent with finite platform retention, not proof of a specific deletion cause. A new source-only `scenario-ops-r4` successor (sequence `20261025-snapshot-r2`) allows absence only of an originally completed historical row after seven days from the pinned observation; every retained row, primary identity, current config and lifecycle check remain strict. U3 evidence and sources remain unchanged.
+
+Regression RED then 18 focused GREEN checks passed. Current complete U4 after-d1 start and heaviest replay measurements both passed without expanding any budget; prior nine-role/complete measurements remain explicitly prior evidence. Conservative maximum local bound remains 15071/20000ms. One offline fixture construction failed before measurement due to an uncopied helper; its record is retained, the helper was copied unchanged, and it is not counted as a successful run. U4 freeze is `0cf35048c7275eb950c0a47ecbabeeb54cbfa01af7727b9ab8c84b5c0f7ed830`. SPEC passed at 13:29:15Z; separate limited QUALITY is in progress. No U4 static operational material or cloud authority has yet been issued. Next: inspect actual review/material outputs, finish exact static generation/dry-runs, then issue U4 first command under the existing user authorization. Do not regenerate one-shot files if already present.
+
+Independent r163 old-site cutover guard: eight tests, TypeScript and local build passed. Still only local source; no old Sites publish, migration freeze, DNS or owned-app mutation. Public cutover remains later. Goal active; r159 paid license consumed, no new model call permitted.
+
+## Historical continuation r162 — local acceptance complete, first attended command issued, 2026-10-25
+
+Update 2026-10-25T13:11:34Z: the independent SPEC and separate QUALITY reviews both passed with no findings. Actual static materials, all three strict Wrangler deployment dry-runs, 18 generated PowerShell syntax checks and final full-pin validation passed. No cloud activation or C submission was performed by root. The measured local ceilings remain unchanged; actual terminal attendance and cloud success are still separate facts.
+
+User answered “现在方便，继续” to call_2add18ac1fde47debe229433b81c8009. The first new fixed `scenario-ops-r3/long-start-command-r1.ps1` has now been issued through an asynchronous user question. Its reviewed static template was created exactly once and inspectTerminal returned FIXED_LOCAL_PREPARATION_ONLY. See `outputs/local-durable-executor-20261025/task15-complete-handoff-r162/first-template-issued.json` and `final-local-acceptance.json`. Do not recreate or repeat this command: first inspect the original shell/invocation/preparation/attempt/exit records to determine whether it ran. The actual user command owns preactivation reads, one activation, postactivation reads, fresh Enter and masked C; do not activate separately. After an accepted start, observe the required 1170000ms quiet interval from confirmed child exit/latest contact without cloud polling.
+
+Public cutover preparation is in `outputs/local-resource-access-20261025/public-cutover-r163/RUNBOOK.md`. In the separate old Sites source `work/legacy-export-v18-r144`, a pre-handler freeze/redirect guard and eight focused tests have been added locally; tests pass, build/integration review remain. Nothing there is deployed and no DNS/domain or old-data writes occurred. Complete that independent preparation during the long quiet interval. Keep the canonical owned application in its separate release-integration checkout.
+
+The following paragraphs record the earlier r162 work; the in-progress review/material statements below are superseded by this update.
+
+r159真实Research与r160新默认计划保存沿用已通过结果，不重复模型调用。公开域名仍在旧Sites v19；owned Site/Executor仍为下方r160关闭版本，本段没有云端配置写入、密钥读取或付费调用。
+
+Task15计时修正已取得实际进展：scenario-ops-r3只改guards.mjs，用最多4个并发文件读取保留完整路径、类型、SHA和最终重新读取检查；11项聚焦检查通过。r161九个固定角色本机证明路径全部通过原有20秒窗口，最慢13388.6636ms，所需8个新鲜native评价均低于4秒；首个long:start的native准备另计，不能伪造数值。结果在 `outputs/local-durable-executor-20261025/task15-context-profile-r161/all-role-measurements-r2.json`。早先汇总器把long:start的空native误判，已仅修正汇总逻辑，未重跑成功角色。
+
+r162追加真实PowerShell完整readiness前后检查、实际本机child退出/原子exit发布，以及真实fault continuation到第一个被离线阻断的transport。两个fault start和最重replay均exit0。包括保守计入全部外层启动及额外fixture准备开销后，local上限15071ms<20000；start含保留等待199533ms<205000，replay185071ms<190000，fault关键段5463ms<10000。合成未来证据只在离线fixture中，实际attendance/cloud success均未声称。见 `outputs/local-durable-executor-20261025/task15-complete-handoff-r162/measured-timing.json`、PLAN及三个F/r162-01..03实际measurement。命令session37353、69201、98570均已exit0，无运行计时进程。
+
+实际source/evidence freeze已写入 `outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/scenario-ops-r3/implementation-freeze-r1.json`，SHA `2e37b104bd98743f4b43d294a7b3690e2d893bbf38df4787474e3a2c05cb2d72`，authorAcceptance=false。独立SPEC正在完成，之后按既有顺序进行不同reviewer的限定QUALITY，再生成实际静态材料及三项配置dry-run。未生成操作authority或新C命令，未启用任何timer。恢复不得重跑freeze/一次性measurement；先读已有输出及review结果。
+
+并行只读核对Sites原站仍为active/owner/public v19、arcmaps.net domain active；新连接器database overview返回DB/43张用户表且无截断（不包括系统表），未读取实际行/密钥。旧站最终quiet/delta与正式域名切换方案仍待完成；已通过完整备份恢复不重做。当前goal active，未暂停。
+
+## Active continuation r160 — verified and saved, 2026-10-25
+
+r159 已成功且收尾：run `7d622d5f-07aa-4907-88ea-bb93eb477f0b` / job `0b794e37-da6b-47ed-aa7e-c9c038dc0b13`，ready package `research-package-4b45c29cd486761ecd2b8610ed141e72`，8技能/15资料/24单元，来源检查通过。模型188321ms、10搜索，费用339742micros；Key累计1358547micros，5美元/N/A不变，剩3641453micros。单次许可已消费，不再调用模型。课程已核对为官方Microsoft/MIT/Google/dbt/Kimball资料；区分课程和补充参考。
+
+当前关闭版本 Site `371701fb-1d0e-4015-82bb-2837f2fda595` / Executor `5633d10f-f91a-49a2-a66b-8f64075060f8`。接单与维护false、控制台实际Cron为空、Executor生产/预览URL关闭且无自定义域名。预算预留/活动/导入/回执/交付待办均0，r159原回执已确认清理；保留历史r153无结果终止例外。Live观察已停止，无运行命令或部署进程。
+
+已修正旧流程拒绝已有immutable workspace的问题：Research新目标、完整计划、旧目标归档及幂等回执在同一D1事务提交。Canonical六处生产文件与真实SQLite集成测试完成，282项相关测试、类型检查及129产物构建通过；Executor bundle不变，只部署Site。正常UI保存一次成功：目标3→4、workspace2→3，Research runs保持8；此前workspace/receipt/events/proofs完整保留。新默认 `research-goal-be85ff9c9595b17877de027bdeaed0555536d893c048d46b7723aec024a9dd22`，原默认 `fd153545-8f31-46c9-89d3-1a97e034a120` 归档可读。未再次调用模型。
+
+刷新Path/Today已显示新课程；Today为Microsoft Learn与MIT资料，历史入口仍可查看旧Path和七日安排。测试参数unseen、AsiaShanghai、60分钟/日、18周目标、full-scope是流程测试默认值，不代表已核实用户能力；新路径选用8个入门learn单元，不能宣称一周掌握岗位。15份资源包括补充参考，不等于15门课程。
+
+恢复先读 `outputs/local-resource-access-20261025/research-new-goal-r160/progress-handoff-r160.md`、`final-receipt-r160.json`、`plan-reconciliation.json`、`ui-verification.json`。Canonical应用源码位于 `C:/Users/XF/.codex/worktrees/arc-v8-release-integration/v8-openrouter-research-beta`，不要将本操作工作区旧app源码覆盖过去。公开域名未切换，Task15本轮未修改；剩余为必要故障/恢复验收、旧站最终差量与正式域名/OAuth切换、公开启用及上线验证。不要重新执行已消费的r159提交或旧演练命令；无需为本轮成功结果再做付费测试。
+
+## Historical running continuation r159 — 2026-10-25
+
+用户批准“允许这 1 轮修正验证”（call_e0b9e4ff7441476fbd343c40b6ceeef7），已经恰好提交一次，许可已消费。run `7d622d5f-07aa-4907-88ea-bb93eb477f0b` / job `0b794e37-da6b-47ed-aa7e-c9c038dc0b13`，创建到 begin 4972ms。原任务已派发，不能重提、重启或自动付费重试。
+
+已部署 draining：Site `f50b0a9a-7ab5-46ca-a9ac-121cb86564d1` / Executor `bcf522bf-1978-4849-a233-430f9011312c`；新接单关闭，维护/Cron仍开启，等待原任务结果和回执清理。恢复先读 `outputs/local-resource-access-20261025/source-quality-single-run-r159/checkpoint-running.json`、begin-reconciliation、deploy-draining/summary及最新outcome/closure（若存在）。先核对原任务，不能以旧轮次已关闭为当前状态。Site Live诊断观察仍开启，结束后需停止。
+
+r158 已部署官方课程路径修正、真实搜索网址提示和缺失引用位置诊断；545项相关测试、最终4项聚焦检查、类型检查、129产物构建通过。r157旧原始引用不可恢复，本轮实际结果仍待验证。当前单次预留3.5美元，Key累计上限5/N/A不变；提交前已用1.018805美元。公开域名和默认/旧归档计划保持。Task15本轮没有源码或测时变化。
+
+以下是历史状态。
+
+## Historical closed continuation r158 — 2026-10-25
+
+r157 单次许可已恰好使用并收尾：run `9269a6a7-f196-4255-bc8c-b70bd9cd015d` / job `7fd98f0b-ea51-46a3-b636-a5b09e0feaff`。创建到 begin 3061ms，模型138101ms、2次搜索，费用194107micros（0.194107美元）。本次结构检查通过，6技能/18单元/7资源；Site 为 needs-review/unreferenced-url，候选保留，未发布新计划。sourceCount=0 是检查遇到第一个缺失引用即抛错后的值，不能据此宣称没有任何搜索引用。
+
+已关闭：Site `d2aef398-06c4-4fd3-9ba2-a90f999ef4e5` / Executor `58d87ac9-80a3-4aa4-b5a1-2160afbfa3b5`。接单与维护均false，显式刷新控制台后Cron确认为空，执行器仍私有；活动任务、预算预留、导入、恢复、回执及交付待办均0。原结果已确认并清理；唯一历史无结果job为已核对的r153终止记录，保留。7 Site runs /5 jobs /4 results。已停止Live日志观察，无运行命令。
+
+Key累计1.018805美元（UI四舍五入1.0188），5美元/N/A不变，剩余3.981195美元；没有下一次付费许可。若将来准备新测试，4美元预留将超过剩余额度，需降低预留，不能充值或提高累计上限。公开域名、默认r136计划与旧归档未改。
+
+恢复先读 `outputs/local-resource-access-20261025/source-quality-single-run-r157/closure-reconciliation.json`、`deploy-closed/summary.json`、`closed-ui-readback.json`。候选已只读导出到受保护私有目录，hash `bbe7d348750d8d2232a5269ed536089350a92f5779ed8463bf9eb7c1e493644a`；公开课程元数据在 `source-citation-r158/candidate-summary.json`。下一步用已有候选检查官方来源和引用匹配，进行本地回放；不新建模型任务、不点击Retry。原始provider annotations已按协议清理，不能把新网页核对冒充原调用引用。r157 RUNNING记录与以下版本均为历史，不再代表当前状态。
+
+## Historical running continuation r157 — 2026-10-25
+
+用户批准“允许这 1 轮诊断测试（推荐）”（call_226a43d6588042899cd7a9c0f0ecdfd8）。已恰好提交一次，许可已消费：run `9269a6a7-f196-4255-bc8c-b70bd9cd015d` / job `7fd98f0b-ea51-46a3-b636-a5b09e0feaff`，创建到begin 3061ms。原任务已begin并派发，不能重提、重启或自动付费重试。
+
+已部署draining：Site `9f40410c-9a43-4df1-9b25-87daf2d935ef` / Executor `a189a7fc-2d76-4d13-b899-1048a600912e`；新接单关闭，维护/Cron仍开以等待原任务。先读 `outputs/local-resource-access-20261025/source-quality-single-run-r157/checkpoint-running.json`、begin-reconciliation和deploy-draining/summary。下一步观察原任务结果及Site字段诊断，再核对结算/回执清理并关闭维护。未完成结果验收，不得把r156旧关闭状态当成当前状态。
+
+激活时Site首次部署exit1，原生与UI确认仍为r156关闭版本、没有新任务；限定补齐Site部署成功，未重复整对激活，也没有重复模型提交。代码/课程要求、5美元Key累计上限及4美元预留上限不变。Task15本轮仅阅读已有证据，没有改源码或重跑计时。公开域名与已有计划保持。
+
+以下r156及更早为历史。
+
+## Active continuation r156 — 2026-10-25
+
+r155 单次真实测试已执行并结算：run `4ab32bc4-afc7-4e49-af7a-9f8861c95409` / job `43651c1f-d382-4436-bc7c-9b5096bd3ab1`。创建到 begin 4210ms，启动交接通过；模型返回后被 Site 以 invalid-schema 拒绝，费用223509micros（0.223509美元），未保存新计划。原回执已确认清理；旧日志及 OpenRouter 均无原文，具体字段无法追溯。不能宣称来源质量通过或旧超时根因已完全确定。
+
+当前关闭版本 Site `80c926a8-7b1c-400b-a1e9-5571b848a42d` / Executor `2c3fe78f-07f3-44ce-93e0-01f45d6995f5`。接单与维护 false，实际 Cron 为空、执行器私有，活动任务/预算预留/导入/回执/交付待办均0。签名关闭检查200，五个标志均true。Key累计0.8247美元，5美元上限/N/A未变。r155许可已消费，不自动重提。
+
+r156 已补充并部署 Site 的有界结构/语义拒绝诊断，不记录模型原文或密钥；285项相关测试、最终5项聚焦检查、类型检查及129产物构建通过。这修正了诊断缺失，未知的具体模型字段问题仍待定位。源码在独立 canonical checkout，保留 W 的其他未提交改动。
+
+恢复先读 `outputs/local-resource-access-20261025/site-validation-r156/progress-handoff-r156.md`、`resume-checkpoint-r156.json`。r157仅为下一次单轮诊断方案，尚无付费许可，不激活、不提交。当前目标active、无运行命令；公开域名与默认/归档计划保持。Task15剩余故障/回放、新来源有效结果、最终增量与公开切换/验收仍待完成。不要重跑r155/r156已消费动作。
+
+以下r155及更早为历史。
+
+## Active continuation r155 — 2026-10-25
+
+用户已明确批准 r155 一轮真实测试（call_38ac0555befb424ba6230ab9682f5fda，“允许这 1 轮真实测试（推荐）”），且已恰好提交一次。许可已消费，不自动重提/付费重试。run `4ab32bc4-afc7-4e49-af7a-9f8861c95409` / job `43651c1f-d382-4436-bc7c-9b5096bd3ab1`。创建到 begin 4210ms，Executor 接单到 Workflow 回执727ms；原生18:22:08入队、18:22:10启动、18:24:32完成（GMT+8）。启动环节通过，但旧超时的具体慢await仍不能追溯证明。
+
+本轮已调用 Kimi K3，3次搜索，135878ms，费用223509micros（约0.223509美元）；结果经过导入并以 failed/invalid-result 结束，quality 仅 invalid-schema，candidate未保留，未生成新计划。原始回执按既定协议已确认并清理，不能虚构课程校验成功。6 Site runs /4 Executor jobs /3 results；活动/预留预算/导入/恢复/回执/交付待办均0。旧r153无结果的唯一job已精确核对为无grant/dispatch且已终止，保留不删除。
+
+已完成 draining 部署：Site `f7b8eee5-b0a9-43d2-afde-d8b2bf44f9c3`，Executor `d6cd7afc-c13c-4827-ad0a-e3c9040e3d04`；新接单关闭，维护仍开。正在据 `source-quality-single-run-r155/outcome-r2/summary.json` 完成维护/Cron关闭。首次只读outcome-r1连接查询失败，r2仅SELECT及原生describe已成功，未重发Research。先核对 `deploy-closed/summary.json` 是否存在再决定后续，绝不重跑已消费phase。
+
+恢复目录 `outputs/local-resource-access-20261025/source-quality-single-run-r155/`：human-authorization、submit-intent、submit-reconciliation、begin-reconciliation、observe-result-r1、outcome-r2、closure-reconciliation。下一步完成关闭回读，诊断 invalid-schema 的具体原因，再做必要本地修复与验证。公开域名、已有默认计划/归档未改。r154以下授权与版本信息仅为历史。
+
+## Active continuation r154 — 2026-10-25
+
+用户已从r153恢复，明确授权必要文件修改，不再逐文件询问。目标active；新的付费Research许可尚未给出，r153单次许可已消耗。
+
+原Workflow确认Completed但结果unavailable/null receipt：09:01:28Z入队、09:01:30Z启动，晚于Site排队期限；无grant/dispatch，本轮模型费用0。Executor D1原生primary为SJC，旧Executor为default placement；这是潜在跨区延迟因素，原始慢await缺少日志，尚不能断言根因。
+
+现已部署关闭状态Executor `3b68d451-b4d4-4b66-bc53-9f249ed966c5`：placement `aws:us-west-1`，唯一生产代码变更为bootstrap分阶段限定字段耗时日志。109项相关测试、类型检查、构建和部署回读通过；接单/维护false，实际Cron列表空。Site仍 `333e753a-3c35-4b5a-a8aa-60611895d2a1` / London，公开域名未动。
+
+双向关闭检查前后均200；一次原生无模型Workflow探针 `157e8f4b-e251-4948-8d1a-2111f9357c4d` 在入队3秒后启动并退出，无对应DB任务、无模型调用，DB仍3 jobs/2 results。当前原生Workflow总数4含该探针，不能等同Research次数。初次输出解析因Wrangler双重JSON序列化失败，随后仅只读回读通过，未重触发。Key最新总用量0.6012美元、今日0、5美元累计上限/N/A不变。
+
+恢复入口：`outputs/local-resource-access-20261025/workflow-start-r154/progress-handoff-r154.md`、`resume-checkpoint-r154.json`。相邻r155单次测试方案/config及dry-run/readiness已准备，未获新付费许可、未激活或提交。Task15最后计时失败与其余故障/回放、真实新来源结果、最终增量/公开切换及公开Research验收仍待完成。不要重跑r153或r154已消费的部署/探针。
+
+以下r153及更早为历史状态。
+
+## User-requested pause r153 — 2026-10-25
+
+用户要求保存并暂时关闭 Codex。r153 已获单次许可并恰好提交一次；run `10ace4ca-95d1-4bb7-ac96-1f0dae2d5040` / job `9b36f4bc-f0f1-4013-b6d5-48ab0040c8e6` 被 Site/Executor 接单，但 Workflow 在两分钟窗口过后才入队，Site 已 failed/interrupted/closed，预算 released、settled0。原生 Workflow Completed、单步约1秒；无 begin grant、dispatch unclaimed/null，无本轮模型调用和新计划。Key 刷新仍总用量0.6012美元/今日0。许可已消费，不重提、不重启、不自动付费重试。
+
+暂停收尾已完成：Site `333e753a-3c35-4b5a-a8aa-60611895d2a1`、Executor `aa674c49-6103-46ee-8a13-96eb8452dbf1`，接单与维护均false，部署配置Cron为空，Site London placement保留。原任务未派发所以没有模型回执；已通过新鲜原生Completed、精确job无grant/dispatch/result/delivery、预算释放及其余pending=0的限定核对，仅关闭Executor维护，保留这条终止记录。不要把保留的jobs_without_results=1当成仍有模型运行，也不要虚构回执或删除记录。最终控制台UI遇到Cloudflare安全验证，未绕过；Cron空配置及原生关闭版本已确认，最终UI空列表未确认。全部命令和代理已结束。
+
+Task15 两文件减少重复读取的候选：7项聚焦检查和一次限定复核通过，但唯一新after-d1:start计时r152-09仍FAIL：localProof24865.3807/20000ms、faultArmAndPostInput10215.5233/10000ms；native2433.6504/4000ms通过。未改时限、未碰巧重测、未生成新C命令，allRolesMeasured/fullHandoffMeasured仍false。
+
+恢复先读 `outputs/local-resource-access-20261025/source-quality-single-run-r153/pause-handoff-r153.md` 和 `resume-checkpoint-r153.json`。下一步只读定位原submit/bootstrap为何直到09:01:28Z才创建Workflow，优先检查既有原生事件及Executor/D1区域延迟；不要把workflow_accepted_at的晚补记误作原生启动时间。剩余Task15故障/回放、成功的新课程来源结果、最终旧站静默增量/公开切换、Research公开启用未完成。公开域名及已有计划保持原样。恢复口令：继续 Arc v8，从 r153 暂停检查点继续，先诊断 Workflow 启动超时。
+
+以下 r152 及更早为历史，不再代表当前授权、部署或暂停状态。
+
+## Active continuation r152 — 2026-10-25
+
+用户已恢复完整目标，并批准且已执行 **一次** 新来源质量 Research 提交。任务 `46f8d41e-2e67-44a9-9009-9d80b5cd5b24` / job `5a98f164-8126-4b79-9d78-114a23334e35` 未进入 Executor，现 failed/interrupted；配额与预算均已释放，原任务已经收尾。原模型 Key 用量仍约0.6012美元/今日0；该单次提交许可已消费，不得重复提交。公开域名未切换。
+
+当前已关闭新接单和maintenance/Cron，Site `394c15eb-5af8-41b5-9189-9c82ca9c2ae9` / Executor `9c4848f5-e376-4024-9ce5-7159d0c2eaf2`。发现新整合 D1 primary 为 WEUR/LHR，而 Site 沿用美国西海岸；现已只修正 Site placement 到 `aws:eu-west-2`，代码/绑定/时限不变，实际原生与UI回读通过。维护调用从4536ms降至748ms，预算自动释放，原任务恢复UI可明确读到failed。初始回读不识别 API 的 placement.target 数组，已单独只读核对解决，没有重复部署。不要再调用旧 r152 recovery-closed helper（会回退Site区域），或重跑已消费的placement部署/关闭。Executor公网及预览URL均关闭。
+
+本轮真实 Google/GitHub 重新登录均进入同一整合账号；新默认计划和旧历史/7天安排读取通过。公开域名与两家 OAuth 回调已只读盘点，公开 arcmaps.net 回调已存在，未修改 DNS 或 OAuth。Task15 最慢 replay 本机实测19655.5252ms/原生2579.3991ms通过，补测4角色通过；after-d1:start为20023.1897ms，超20秒门槛23.1897ms，仍FAIL，后3角色未测。正在只处理同context重复文件读取，不放宽门槛，不代表云端验收完成。
+
+恢复入口：`outputs/local-resource-access-20261025/resume-r152/progress-handoff-r152.md`、`resume-checkpoint-r152.json`。相邻 `source-quality-single-run-r153/RUNBOOK.md` 已完成新区域的单次测试准备/预演/只读就绪核对；新的付费许可问题待回复，尚未授权或提交。此为active记录非暂停/完成。下一步继续剩余Task15；若得到r153新许可再做来源质量结果验收，随后最终静默增量与公开迁移/启用。
+
+## User-requested pause r151 — 2026-10-24
+
+用户要求保存并暂时关闭 Codex。正在进行的部署已完成回读，测试站已退出维护。Site 790f8bde-2a96-4252-aa10-6333efbd3cab 现绑定整合库 64e78443-b58a-4d13-bc15-d1a187b52bf8；Executor b6491e06-e61d-4b7a-9ea8-24bd51d47a18 未变。Research 接单/维护仍关闭，模型调用 0，无运行命令。公开域名仍在原 Sites，未切换。
+
+新 Research 数据产品经理为默认计划；旧两目标归档，其中一套旧路线和 7 天安排可从账户菜单“历史学习计划”读取。真实现有 Google 会话 Today、历史列表和详情已通过。新库导入时 51 表/582 行全量原生类型化回读通过。短暂维护后的快照确认业务与身份未变，仅登录续期和限流变化；保留原数据库和私有备份。
+
+恢复入口：outputs/local-resource-access-20261024/history-cloud-r150/pause-handoff-r151.md、receipt-r151.json、resume-checkpoint-r151.json。成对构建 129 产物通过；仅部署 Site，12 个生产文件差异已由 r148 审查覆盖。不要重跑已消费的 create/import/freeze/deploy 或旧密钥 C 命令。
+
+还剩 5 个阶段：重新登录/隔离与学习流程验收；Task15 剩余故障恢复/回放；新来源标准的真实结果验收；旧站最终静默增量及 OAuth/DNS 正式切换；公开 Research 启用和发布后验收。已保存 r136 计划仍含旧来源，新规则不会自动重写它；新增付费请求需新单次许可。
+
+## Active continuation r149 — 2026-10-24
+
+已将 r147 整合候选实际导入新隔离 D1 `arc-v8-migration-release-db-20261024` / `64e78443-b58a-4d13-bc15-d1a187b52bf8`。51 表、582 行及全部原生类型化值/schema 完整回读一致，外键 0、quick_check=ok。创建、导入和核对均已结束，不得重跑。新 Research 默认计划及旧历史均保留；旧完整档案和 live shadow 未改。新库尚未绑定 Worker，公开域名未切换，模型调用 0。
+
+恢复入口：outputs/local-resource-access-20261024/reconciled-cloud-r149/progress-handoff-r149.md、receipt.json、resume-checkpoint-r149.json。r148 历史入口已本地构建/审查通过；下一步核对 shadow 最新差异后接入关闭 Research 的测试站并进行真实登录读取验证。最终旧源静默增量、Task15 故障/回放及 OAuth/DNS/回滚仍待完成。目标 active。
+
+## Active continuation r148 — 2026-10-24
+
+用户已选择新 Research“数据产品经理”作为迁移后的默认计划。r147 已完成真实私有备份本地账号/历史整合：按精确 provider 身份与旧 recovery 映射，保留当前 Google Research 身份；15 条旧学习记录导入、2 个旧目标归档。整合候选 51 表/582 行完整 typed SQL 往返通过，新旧各 7 daily units 的真实 repository 读取通过。原 835 行完整旧档案仍单独保留，不把旧 session/限流等盲目拼入现用表。限定审查 PASS，云端账号尚未修改。
+
+r148 已在 canonical 源码加入账户菜单“历史学习计划”、/history 以及只读历史 API，保留正常 Today/Path 默认行为。所有权、归档状态、分页、账号切换隔离及空计划提示已覆盖；真实候选经新 API 和页面 SSR 读取通过，所有数据与新 Research response 保持不变。9 新测试、66 相关既有测试、类型及 local 构建通过；合成桌面预览已查看并关闭，一次新代码限定审查 PASS。未部署新云端版本、无新模型请求。
+
+恢复入口：outputs/local-resource-access-20261024/history-access-r148/progress-handoff-r148.md、receipt.json、resume-checkpoint-r148.json；映射证据在 account-history-r147。canonical 为 C:/Users/XF/.codex/worktrees/arc-v8-release-integration/v8-openrouter-research-beta；新文件精确 SHA 在 r148 receipt。下一步新隔离云端整合库与完整 native 回读，绑定前核对最新差异；最终静默增量、OAuth/DNS、回滚及 Task15 剩余故障/回放仍未完成。目标 active，旧付费许可已消耗。
+
+## Active continuation r146 — 2026-10-24
+
+独立旧数据副本已完成新版 schema 适配并原生完整回读通过。固定 D1 arc-v8-legacy-restore-db-20261024 / c4d33a7a-4201-4567-b1ad-988c1a4fd011 现为 **51 张表、837 行**；原有 835 行和旧迁移历史/序号保持一致，新增 2 行为扫描游标。仅应用既有 0007–0011，6 张新业务表与 2 字段对应当前规范；49 业务表 + 2 元数据表。应用前后全量 typed count/hash、catalog、FK=0、quick_check=ok 通过，应用只执行一次且已完整确认，不得重跑。
+
+2 项 SQLite 和 1 项真实 D1 runtime 本地验证通过，真实私有备份内存升级保留验证通过，一次限定独立审查 PASS；首次 runtime sandbox loopback EACCES 已正常提权完成。原站、shadow、账号、Worker 绑定与公开域名未改，模型调用 0。全部本轮命令和审查已结束。目标继续 active。
+
+下一步按精确 Google/GitHub provider 身份整合旧计划与新 Research 历史。当前离线快照确认旧主账号有完整旧计划、旧退休账号只有目标/档案等；shadow Google 有新 Research，shadow GitHub 没有学习历史。仍需刷新快照、确定当前目标和历史访问方式；不能按邮箱合并或盲改签名执行记录。Task15 的 22541.4131ms/20000ms 计时未变，剩余故障/回放、最终静默增量与公开切换未完成。
+
+恢复入口：outputs/local-resource-access-20261024/account-history-r146/progress-handoff-r146.md、receipt.json、resume-checkpoint-r146.json；云端成功权威记录 cloud-verify/summary.json。账号只读盘点使用 history-map-inventory-r2.json，早期不含复合归属的第一份已被取代。客服 16497022 的 r143 回复已发送，不重复。下方 r145 “schema 待适配”已完成，其余待办保留。
+
+## Active continuation r145 — 2026-10-24
+
+旧站完整快照已实际重建到用户自己的 Cloudflare 账户，目标仍 active。新隔离 D1 `arc-v8-legacy-restore-db-20261024` / `c4d33a7a-4201-4567-b1ad-988c1a4fd011` 的 **45 张表、835 行**已全部原生类型化回读，schema、逐表 count/hash、FK=0 和 quick_check=ok 与 r144 原备份一致。新私有 R2 `arc-v8-legacy-restore-proofs-20261024` 原生 dev URL/domain 与浏览器 Objects 空列表检查通过，源对象数为 0。不是等待客服、不是仅本机恢复，也尚未公开切换。
+
+首次 SQL 导入失败后已核对空库；一次诊断捕获 FK constraint failure，逐条事务本机复现子记录先于父记录。转换器已按真实 FK 依赖排序，保留值/ID/schema，循环拒绝；2 个新增回归 RED→GREEN，全部 5 项聚焦测试及真实备份逐条事务回读通过，限定增量审查 PASS。修正后导入子进程退出 0，但本地输出投影不识别；未重复导入，改由完整原生回读证明结果正确。保留所有失败证据，不能把缺少 import summary 误判为需要再次导入。
+
+原站及 shadow 数据、部署和域名未改；没有账号合并、新模型请求或新 Task15 演练。离线身份对比确认旧站 Google/GitHub 关联同一账号，shadow 分属两个账号；精确 provider 身份一致，但 user ID 不同。下一步刷新两边快照，设计保留旧计划与新 Research 历史的账号/引用整合，再做最新 schema 适配、最终静默快照与公开切换。不要直接覆盖 shadow，不按邮箱合并，不盲改签名 Research 身份。
+
+恢复先读 `outputs/local-resource-access-20261024/legacy-cloud-restore-r145/progress-handoff-r145.md`、`receipt.json` 和 `migration-inventory.md`。成功权威记录为 `cloud-verify/summary.json`，45 表实测核对完成；所有本轮命令和限定审查已结束。Task15 最后回放仍 22541.4131ms > 20000ms，原生 3044.619ms < 4000ms；继续针对剩余瓶颈，不复用旧命令或新增付费请求。下方 r144 的“下一步云端恢复”已完成，最终迁移/公开发布仍未完成。
+
+## Active continuation r144 — 2026-10-24
+
+用户继续要求自行读取旧站全部待迁移数据并在自有 Cloudflare 重建。现已取得真实完整逻辑备份，并在本机隔离数据库恢复及逐表比对通过；不再把“等待客服提供导出方式”作为该路线的阻塞。完整迁移和 Research 公开发布目标仍 active，未完成。
+
+- 原公开 v18 精确源码 e2c012c01d55935c2eb542ebf3fdd6799f1aea5f 已通过 Sites 官方 helper 打开到 `work/legacy-export-v18-r144`。仅增加默认关闭的临时导出端点、下载页面、配置声明与相关本地验证工具；不改变原站数据库 schema、认证实现或业务记录。源码提交 62f0737c94762784d41f2ec294ace080b2ae13fd 已推送，v19 已保存并发布，当前导出已关闭。保存版本 `appgprj_6a6678d3e3848191a352778c6db1e7b1~appgver_c145ba196ac88191a4e7e0361c151be4`；最后关闭部署 `appgdep_6adca652ca4c8191b33040c0c09157ca`，env revision 11，原公开域名仍归 Sites。
+- 导出仅在已核对旧账号 ID、既有登录会话和 1 小时窗口内启用。真实下载完成后，已删除 owner/start/end 配置，enabled=false 并再次部署成功；浏览器也已读回“临时导出尚未启用或已过期”。没有公开备份链接或把数据送入聊天/Git。
+- 私有备份位于 `C:/Users/XF/.codex/private-backups/arc-v8/legacy-r144/original-download.json`，588387 字节，SHA256 `79c3edb1d4fef3e072d163a2e4c8d5d8c2ca60081426a78896afecbf1f85cb90`。目录及下载文件 ACL 仅 XF 与 SYSTEM；原 Downloads 文件已移入该私有位置。已恢复至同目录 `restore-01`，原始认证字段不得输出、提交或当作日志读取。
+- 本次实际快照为 **45 表、835 行**：43 张业务表，加 `__appgarden_migrations` 和 `sqlite_sequence`。2 users、2 accounts、2 learner_profiles、2 career_goals；availability/skill_audit/planning_workspace/path/plan 各 1；daily_units 7。大量其余行为/限流/会话记录一并保留。旧站 Research 与 Proof 表均空；R2 两次完整列表一致、objects=0、bytes=0，已确认无遗留或未引用附件。当前 Cloudflare shadow 的真实 Research/计划结果是另一份数据，必须保留，不能被旧库覆盖。
+- D1 在单一 batch 内读取完整类型化值、schema、计数与完整性，R2 前后清单相同。私有恢复通过 schema/hash、全部逐表 row/hash、外键与 quick_check；大整数、长文本、BLOB、NULL 和空值保持。跨 D1/R2 不是一个原子快照；当前 R2 为空仍不代表未来切换可略过最终写入静默和增量核对。
+- 13 项最终 D1/HTTP/本地恢复/实际 D1 runtime 检查、61 项 R2 检查、1 项 workerd 流检查、2 项私有文件恢复检查及类型/构建通过。一次限定独立审查 PASS；temp 表遮蔽和 REAL 字节预算两项问题已 RED→GREEN 修正。真实云端 R2 非空对象的 storageClass 未被这次空桶导出覆盖，不伪称已验证。无需无理由重复已通过测试。
+- Task15 r144 激活历史缓存已完成限定审查和相关测试；最后回放完整本机证明实测 **22541.4131 ms，仍超过 20000 ms**，原生上下文+校验 **3044.619 ms** 已低于 4000 ms。allRolesMeasured/fullHandoffMeasured 仍 false；没有新的云端演练、用户密钥 C 命令或付费模型请求。只能继续定位剩余 2.54 秒，不碰巧重测或放宽期限。
+
+当前证据入口：`outputs/local-resource-access-20261024/legacy-export-r144/receipt.json`、`independent-review.md`、`progress-handoff-r144.md`；私有恢复安全摘要 `restored-summary.json`（仅计数/哈希）。源码 helper 首次推送因 sandbox 内无法连接本机代理失败，本地提交保留；经正常提权使用已授权代理后同一提交推送和打包成功，未强推、未跳过检查。没有自动审批拒绝。
+
+**紧接动作：** 先将这份备份导入新的隔离 Cloudflare D1，并验证完整值/关系；空 R2 可新建私有目标桶，不需复制对象。不得直接覆盖 migration-shadow。随后明确旧 provider 身份与 shadow 测试账号的映射，保留两边计划/历史，重新登录验证；旧 session/挑战等短期状态不应作为切换后的有效会话。最终导出/静默切换、DNS/OAuth 和回滚验收仍未完成。Task15 剩余故障/回放验收继续独立推进。工单16497022已发送，不重复发送；新付费模型请求仍需具体单次许可。
+
+以下 r143 及更早描述为历史；“没有导出端点/未取得完整备份”已被 r144 的实际结果取代。
+
+## Active continuation r143 — 2026-10-24
+
+用户已从 r141 恢复完整目标；r142 美国权威课程优先规则保留。v18 与 r142 的关闭候选已部署到 migration-shadow：Site 7e7e256f-de4e-4fc0-984e-a4e85b3ea7e3，Executor b6491e06-e61d-4b7a-9ea8-24bd51d47a18。0013 追加迁移已应用，私有备份与恢复比对确认原有 48 张应用表、523 行数据完整保留；新表为空。原生版本/绑定和浏览器回读通过，Research 接单与维护关闭、Cron 空、执行器私有。公开域名及旧学习计划未改，未调用模型。
+
+Task15 工具引用表与冷上下文两处重复开销已修正；15 项新检查及复用的 37 项检查通过，两文件独立审查无发现。最终源码的首个故障角色实测 19.318 秒（限 20 秒）、故障交接 7.943 秒（限 10 秒）、原生校验 1.838 秒（限 4 秒）。此前缺失的九角色真实验证链已用离线内存证据构建，最终回放及反序拒绝检查通过；这不代表云端通过。最后回放角色实测 29.234 秒，原生校验 4.046 秒，均超限；测量脚本 ExitCode 0 只表示测量完成。allRolesMeasured/fullHandoffMeasured 仍为 false。继续仅定位该新失败，不重复已验收检查或为碰巧达标而重测。
+
+用户询问能否自行读取旧数据并在自己的 Cloudflare 重建，已完成只读可行性盘点：43 张旧表，检查 39 张表的有界第一页；核心观察为 2 条用户记录、2 份档案/目标、1 套学习路径/计划、7 条每日单元。两张运行表有后续分页，4 张含认证字段的表未通过对话读取。learning_path_versions 与 idempotency_records 均出现值截断；现有工具输出不是完整备份，R2 也未枚举。原 v18 完整源码已在 C:/Users/XF/Documents/Codex/arc-logout-showcase-20261015 核对为干净的 e2c012c01d55935c2eb542ebf3fdd6799f1aea5f。准备基于原站绑定的临时受保护只读导出、直接私有下载及隔离恢复路线；尚未实现/发布导出端点，未导入旧数据，不覆盖测试站的新 Research 数据，也不按邮箱静默合并账号。
+
+用户后续“草稿可以发送”已取代先前暂不发送。工单 16497022 的 Message 已发到原 Gmail 线程，SENT message 1a16da16c7f48596 / thread 1a10d60a6a22747e，勿重复发送。已确认个人工作区及 Plus；具体工作区 ID 和国家仍未知，不编造。客服是并行备选，不作为准备自行导出方案的等待条件。
+
+云端完成证据：outputs/local-resource-access-20261024/v18-release-r143/release-verification.json。最新计时在 outputs/local-durable-executor-20261024/task15-full-proof-r140/run-cold-context-r143/measurement.json 与 task15-all-role-fixtures-r143/run-last-replay-r143/measurement.json；针对性诊断在 task15-remaining-cost-r143/。自行迁移盘点和四步路线在 v18-release-r143/legacy-self-export-feasibility.json、legacy-self-export-feasibility.md、migration-next-steps.md。当前为 active；下方 paused、v18 未部署和旧版本描述均为历史。仍待 Task15 剩余故障/回放验收、旧站完整数据导出与公开迁移。新付费请求需新的具体单次许可，旧命令不复用。
+
+## Narrow source-policy update r142 — 2026-10-24T10:35:22.172Z
+
+已完成用户新增要求：美国头部高校公开课程优先；公司课程美国头部公司优先、中国头部公司其次，免费/付费均可，并保留相关性、难度和可访问性要求。旧Today来源来自r136已保存计划，更新规则不会自动替换它；未重建旧计划、未发起新付费Research。
+
+7文件已整合，312项相关测试、类型/lint及一次限定审查通过。以r139已部署源码为基线构建，只改2个运行源码文件；关闭Site d4242611-0ce7-4fe1-82dc-9ae318514059、Executor 2244c237-529f-45f6-adc4-498b2eac6e31部署与原生版本/绑定回读通过。v18整合和0013未上云。完整目标仍按r141保持paused，Task15本机交接计时与剩余故障验收、完整导出和公开切换尚待恢复后处理。
+
+先读 outputs/local-resource-access-20261024/country-r142/progress-handoff-r142.md。检查点resume-checkpoint-r142.json，SHA-256 1cd7d2ba7b89742d95f6bde32c8afbd5903ca054fd9679ff183c9e8fd97640bb。不得复用已消费部署或付费命令。
+
+## User-requested pause r141 — 2026-10-24T09:57:38.613Z
+
+用户要求保存并暂时关闭 Codex。源码、结果与代理报告已落盘，所有代理完成，无本轮运行中命令或模型任务；保存后将目标设为 paused，完整目标未完成。
+
+权威课程来源规则已部署关闭版本；woshipm 不可用于新 Research/新计划，旧已存计划保留。公开 v18 的67个文件已整合到迁移源码，0013迁移未上云、整合源码未部署。Task15准备缓存22项新检查及24项相关回归通过，限定SPEC无P1/P2；本地校验从43.54秒降至24.26秒，仍超20秒，另有冷准备4.45秒，未达到完整交接验收。
+
+恢复先读 outputs/local-durable-executor-20261024/task15-preparation-cache-r141/pause-handoff-r141.md。检查点resume-checkpoint-r141.json，SHA-256 f17f4c3d5c0b330d131df3ccd26c04503f3d78a7fb833b91e9df78c8a1885b94，26项引用已回读核对。下一步定位剩余本机交接开销；不要重跑已验收的真实Research正常流程或旧启动命令。新付费调用仍需具体单次许可；旧D1/R2完整导出及公开切换尚待完成。
+
+恢复口令：继续 Arc v8，从 r141 暂停检查点继续，先处理 Task15 本地交接仍超时的问题。
+
+## Active continuation r140 — 2026-10-24T09:18:10.965Z
+
+权威资料规则已部署关闭版本（r139），woshipm 被拒绝进入新计划，旧已存计划保留。公开站 v18 的 67 个文件已完成本地整合，21 个权威性规则文件完整保留；398项相关测试、类型/lint/构建、4项渲染检查及一次独立整合审查通过。0013为追加本地迁移，尚未云端执行，v18整合源码尚未部署。
+
+Task15期限P2已修复并通过21个真实PS边界/控制用例及6项针对性测试。完整成功交接计时仍在本地代理进行，尚无最终适配结论；不生成运行命令或启用云端。继续从代理报告核对计时和完整账本，再做剩余质量复核。旧D1/R2完整导出和公开切换仍待完成；零新增模型调用。
+
+恢复先读 outputs/local-resource-access-20261024/r138/v18-integration/progress-handoff-r140.md。检查点resume-checkpoint-r140.json，SHA-256 3586f543384b2e76388aed0960ce2d7277857778f2b77d64442d6193122cdc10，16项证据一致。目标active，用户未暂停。
+
+## Active continuation r139 — 2026-10-24T08:54:57.368Z
+
+已落实用户的资料权威性要求：仅核实的官方发布方与限定教学/参考页面可进入新Research和新计划；woshipm页面及伪造权威标签被拒绝，旧已保存计划保持历史原样。21文件已整合，531项/15文件最新去重回归、类型检查及独立小范围复核通过。关闭版本Site 5c8b1b19-ea73-4c89-af87-56f6dd3b8aec、Executor 43e4ec18-2478-4aaa-a4e2-6a9cb6fa6ad0已部署与原生/UI回读核对；Cron空、私有入口关闭，Path刷新恢复通过，零新增模型调用。
+
+继续Task15本机交接期限P2的局部修正、完整实际计时与剩余必要验收；当前实施代理仍在处理局部修正。v18功能合并和旧库/附件完整导出仍未完成。不得重跑已验收应用流程或已消费部署/付费命令。
+
+先读 outputs/local-resource-access-20261024/authority-r139/progress-handoff-r139.md；检查点resume-checkpoint-r139.json，SHA-256 f1c45039790eae491e83e668f516108cc18e934c094ca5f7b42a56e3a3fac24d，20项证据回读一致。目标active，用户未暂停。
+
+## Active continuation r138 — 2026-10-24T08:03:14.730Z
+
+已修正r137唯一P2并部署关闭候选；本轮197项针对性测试通过，最新去重证据504项/13文件。Site dc194bce-4b91-4f49-8a4e-1b3bfeec7b3a，Executor 4c2d5db6-ea84-4076-8f81-71e64222bb59；接单/维护关闭、Cron空、执行器私有、原学习计划刷新恢复通过，无新增模型调用。
+
+下一步是Task15本机时间预算/生命周期修正及剩余故障回放验收。旧公开站现为v18，迁移前需核对其新增源码；完整D1/R2导出仍未取得。已成功的真实Research、登录和计划流程不重跑。
+
+恢复先读 outputs/local-resource-access-20261024/r138/progress-handoff-r138.md；检查点resume-checkpoint-r138.json，SHA-256 793c8b0bcf6d7f661d3c840fd482d07498fa3e323e83d064df78d4217029d941，14项证据回读一致。目标active。
+
+## User-requested pause r137 — 2026-10-23T18:23:07.182Z
+
+用户要求保存并暂时关闭Codex。本轮教材条件免费筛选改动已保存到原发布源码，496项相关测试/13文件、类型检查和变动文件lint通过。唯一复核还有一个P2：free for 7 days／免费7天／free for the first 100 students被遗漏；暂停时尚未修正、未构建或部署。恢复先为这三例补回归并做最小修正，不重做已验收功能或重复审核。
+
+r136真实Research到计划保存已成功，约3分45秒、本次$0.120739、累计约$0.6012。线上仍沿用r136关闭版本，预算/交付/清理已验收，本轮零模型请求、零云端操作。无运行命令，复核代理已完成，旧付费许可已消费。公开迁移与发布目标尚未完成。
+
+先读 outputs/local-resource-access-20261024/pause-handoff-r137.md；检查点resume-checkpoint-r137.json，SHA-256 4e310a2c20d91465dcf122fcf47688d786de3587b3f96f3dcf20acb063c658c6，15项引用已回读核对。保存后调用目标工具暂停。恢复口令：继续 Arc v8，从 r137 暂停检查点继续，先补齐教材免费期限识别遗漏。
+
+## Active continuation r136 — 2026-10-23T17:59:35.599Z
+
+本轮唯一已批准真实Research成功，模型3分45秒，本次$0.120739，累计约$0.6012。10技能/13来源/30学习单元；真实学习计划云端保存、Path刷新恢复、Today与首批7天计划通过。预算、交付与回执清理完成。Site e02ecec9-ea8d-4278-8bf8-69e07b155ee6，Executor 1fbd8a41-c3dc-4286-bdd2-265f2d7aa40d；接单/维护关闭、Cron空、执行器私有。没有运行命令或待执行付费许可。
+
+来源抽查发现主教材是2020年的限额免费培训报名页，当前可执行免费课程未确认；替代课程目录可访问但归属及全课节可用性未核对。因此技术流程验收通过，教材实用性仍待改进。保留published-research.json用于免费本地回归，不重新调用模型；上轮偶发invalid-transport根因仍未知，本轮未触发拒绝。
+
+恢复先读 outputs/local-durable-executor-20261023/progress-handoff-r136.md，优先对资源筛选进行最小改进。真实正常路径、登录、schema及未变构建不重做。公开迁移/发布尚未完成。检查点resume-checkpoint-r136.json，SHA-256 aea2af70795386f8eb2a0c7007a71955406a1315a9520265d69cb5f233b826c3，33项引用回读一致。目标active。
+
+## Active continuation r135 — 2026-10-23T17:26:08.137Z
+
+本轮批准的一次真实调用已执行：约5分15秒，结算$0.48045，invalid-transport失败，无研究包/学习计划。接单、后台运行、刷新恢复、结算和清理已核对。当前 Site 0f7deefb-46ab-4673-934d-5a1ce5cf7558、Executor d9bec19f-634c-4504-976f-ac1160ad5c7a；所有Research接单/维护关闭，Cron空、执行器私有。
+
+已取回最终模型子请求正文并离线通过结构校验，但未取得真实外层响应，根因仍未知。新增最小有界拒绝诊断，522项相关测试、类型检查及一次独立审查通过；关闭部署完成，日志保存开启、自动请求日志与traces关闭。日志配置提交曾返回10000，但原生版本及UI确认已生效，禁止盲目重试。
+
+下一轮r136仅完成方案、三阶段配置与预演；单次预留降至$4，专用Key仍$5累计上限（已用约$0.48045），次数不变。新许可问题已提出，尚未授权/激活/提交；不能重复使用刚消耗的许可。目标active。
+
+恢复先读 outputs/local-durable-executor-20261023/progress-handoff-r135.md。检查点 resume-checkpoint-r135.json，SHA-256 a6a519f8639b1fa1550c40d32d1ff72685609806c8547c7d6c4ce04aebce5200，42项引用回读一致。无运行命令。
+
+## Active continuation r134 — 2026-10-23T16:09:55.454Z
+
+原单次提交在接单前失败；未观察到模型启动，专用Key刷新显示未使用/$0.000。当前仍为原1个失败任务、执行器0任务。已修正最后只读确认期限并保留数据库就近运行配置；140项相关测试及2项延迟场景通过，3种候选及所需部署预演完成。执行器未变，无需重复其验收。
+
+修正版关闭Site版本 c41d1a0d-003b-46f6-881c-94d05036d3f8；Executor 27b06c89-b1b9-4eb1-99cb-766d423b12a5。接单/维护均关闭，公开域名未变。线上查询延迟仍有波动，尚不能声称真实Research成功。下一轮具体操作方案已准备并询问新单次许可；尚未收到、未创建授权文件、未激活或提交。不要复用r132许可或旧演练命令。
+
+恢复先读 outputs/local-durable-executor-20261023/progress-handoff-r134.md。检查点 resume-checkpoint-r134.json，SHA-256 316b71126b24c936c4c26132d5a21f3e993e04012faf1b6eb0eb653f5a15e419，25项引用回读一致。目标active，无未结束命令或代理。
+
+## Active continuation r133 — 2026-10-23T15:28:31.203Z
+
+已获本轮许可并只提交一次真实 Research；任务在执行器接单前失败，未观察到模型启动。原任务与额度已核对收尾，Site/Executor 接单及维护全部关闭，Cron 为空，专用 Key 显示用量 0。不要点击重试或复用本轮许可。
+
+本地已复现数据库往返延迟触发 4.5 秒接单期限的问题；实际两库均在 WNAM，尚未证实具体云端异常。下一步先做关闭状态的定位诊断，再准备最小修正；未修改应用源码。原 A/B、schema 和构建验收无需重做。
+
+恢复先读 outputs/local-durable-executor-20261023/progress-handoff-r133.md；检查点 resume-checkpoint-r133.json，SHA-256 4bec768943c152b41087ed5feefad76c01b04383a7e905efe5bed9f6de97a10d。目标 active，无运行命令。公开域名未变。
+
+## Active continuation r132 — 2026-10-23T14:41:23.270Z
+
+已完成实际关闭状态双向通信和 A/B 账号隔离检查：Google A 五项通过，GitHub B 被拒绝；业务、额度、预算数据保持为空，仅新增四条正常防重放记录。Workflow 无任务，私有回执桶对象列表为空。两个服务仍关闭，未调用模型。无需重跑 A/B 检查或已验收构建。
+
+单轮真实测试已准备好：Google A、数据产品经理、Kimi K3 low、32768 输出、20 分钟模型时限／21 分钟租约、专用 5 美元总额度且不重置、无付费重试。下一步只待这一次具体付费授权；未创建授权记录或激活环境。Task15 和 Task17 仍是公开发布前的后续工作。
+
+恢复先读 outputs/local-durable-executor-20261023/progress-handoff-r132.md。检查点：outputs/local-durable-executor-20261023/resume-checkpoint-r132.json；SHA-256 246c5a07206536c462e672d4088085eb9c058a131f3417980f8d3bad40f8b757。目标 active，无未结束命令或子代理。
+
+## User-requested pause r131 — 2026-10-19T11:14:18.4075496Z
+
+用户要求保存并暂时关闭Codex。已保存暂停交接及r131检查点，核对r130全部20项证据与本次3项引用；所有子代理已完成，无本轮未结束命令或已知后台任务。完成本地保存后将目标工具状态切为paused，不再继续云端操作。
+
+完整关闭版本、全部Secret及仅Google账号的白名单均已完成并核对；Research总开关仍关闭，没有新增模型调用。暂停位置是等待GitHub账号ARC_CLOSED_B检查结果：尚未收到结果，不假定已经或尚未执行，不自动重复。Google双向签名检查与native after仍待完成。下一轮付费推理仍需具体单次新许可。
+
+恢复先读 outputs/local-durable-executor-20261019/pause-handoff-r131.md。检查点：outputs/local-durable-executor-20261019/resume-checkpoint-r131.json；SHA-256 4f38011b0877153e40ec1e770bc22d69b222bb83d60eb88b56ca1ec85d8f685e。恢复口令：继续 Arc v8，从 r131 暂停检查点继续，先核对 GitHub 账号隔离检查的结果。
+
+## Earlier active continuation r130 — 2026-10-19
+
+已完成所有新增Secret，并换为原有余额账户的专用OpenRouter Key（5美元总额度、不重置、用量0）。实际closed/active/draining候选构建、校验和六项部署预演均通过，完整closed产品对已部署。最新Site版本5889eebf-77f1-4bcf-8e02-4e696f728b9a；Executor版本beed7313-f97f-4e8d-a3c5-13dc47d767e9；所有Research总开关保持关闭。
+
+实际Google A/GitHub B已分别登录并确认不同。数据库任务/额度/nonce为空，Workflow无实例，回执桶对象列表为空且私有。经用户明确授权，已单次写入仅A的白名单并原生读回确认；匿名诊断401拒绝。当前等待用户在普通浏览器运行一次B账号的关闭诊断检查，尚未运行A双向签名检查、也未调用模型。继续先读 outputs/local-durable-executor-20261019/progress-handoff-r130.md，不要重复已消费操作。r129冻结记录保持不变，目标active。
+
+Task15本机时间预算障碍已记录，不阻挡受限真实测试准备；Task17公开迁移仍待旧站完整导出。后续真实调用仍需新的具体单次许可。
+
+r130当前进度快照已保存并回读，20项证据引用齐全：outputs/local-durable-executor-20261019/resume-checkpoint-r130.json，SHA-256 3e243be5852530f84fa2c05667447ea892dac506f78eb58420eaef8b13ac0ffd。此为active状态快照，用户未要求暂停；继续先读同目录的progress-handoff-r130.md并处理尚待回复的B账号检查。模型公开元数据已通过无凭据GET读取，未发起推理。
+## Earlier active continuation from r128 — 2026-10-19
+
+用户已明确恢复，目标工具返回 active。r128 的21项保存引用及已合入源码均已核对。之后用户已部署测试站前两项 Research Secret，浏览器已只读核对名称/Secret类型；第三项 ARC_AI_IP_HASH_SALT 等待用户完成。浏览器控制再次超时，已给出手动步骤。不要重新生成三份已保存随机值或读取未提交的 Value；08:44原生版本仅为部署前历史记录。
+
+构建指纹修正独立 SPEC/QUALITY 已通过，两文件已于09:08整合到发布源码并保留原文件备份。单账号限制准备模块已完成38项本地检查和独立 SPEC/QUALITY；尚未云端写入。详情与最新证据见 outputs/local-durable-executor-20261019/resume-r129/continuation.md。剩余配置、真实B登录、实际完整候选/关闭部署和双向检查尚待完成。保持受限真实测试优先；旧迁移与已验收功能不得重做，没有新增模型调用。
+
+## Paused checkpoint r128 — 2026-10-19T05:34:34.623Z
+
+用户明确要求保存并暂时关闭 Codex。两位实施代理均已停止且无运行进程。已保存三份新 Bitwarden 随机值；Cloudflare 测试站第一项 Secret 的保存部署尚未收到确认，下次先核对这一项，不要重新生成密钥或运行旧命令。
+
+已验收的11文件关闭通信检查已合入原发布源码；使用正常系统临时目录后72项执行器运行测试通过。原数据保存、两库迁移/schema与种子核对保持通过，不得重跑。新执行器私有路由/Preview/Cron及新桶实际空对象列表已由浏览器核对。真实登录账号A已从当前会话确定，B仍需登录证明；尚未写入单账号限制。
+
+构建脚本旧指纹问题的两文件修正仅存在隔离副本，21项测试及执行器构建/回读通过，尚待该小范围SPEC/QUALITY及合入。单账号配置工具尚未实施。最终Task15命令存在已测量的本地校验时间超出预留问题，原验收文件未动；此问题不阻挡已批准的受限真实测试准备。没有新增真实模型请求、Workflow任务或公开DNS变更；完整产品对尚未部署。
+
+恢复先读 outputs/local-durable-executor-20261019/pause-handoff-r128.md。检查点：outputs/local-durable-executor-20261019/resume-checkpoint-r128.json；SHA-256 845493051ba7868626fc9dcef3c1fa7a627f81d4f70aa0e7ea40c728b6b1851d。恢复口令：继续 Arc v8，从 r128 暂停检查点继续，先核对测试站第一项 Secret 的保存状态。
+
+
+## Active continuation r127 — 2026-10-19T04:55:14.041Z
+
+已从 r126 推进受限真实 Research 准备，目标仍为 active。测试站六项增量迁移及新私有执行器四项初始化已单次完成；实际前后备份证明原有41张应用表、49条数据和原七条迁移记录全部保留。两套云端语义 schema、关联完整性和执行器初始空状态/四条种子数据核对均通过。不得重跑已消费的云端迁移。
+
+新私有执行器目前仅部署已验收的惰性 bootstrap；未部署完整产品对，未调用模型或启动新 Workflow，公开站/DNS未改。实际路由、Preview/Cron和新桶对象列表仍待核对。新增关闭状态双向通信检查的11文件实现已通过 SPEC 和不同 QUALITY，原发布源码尚未改动。100项相关测试、新20项及类型检查通过；其余31项本机运行检查定位为长临时目录导致启动失败、沙箱阻止本地连接。已准备一次性用户本机验证命令，等待结果，不把31项记作通过。
+
+用户已确认测试站登录；当前待回复：新执行器设置、本次登录方式、本机验证 ExitCode。后续仍需实际A/B账号、专用Secrets、精确候选部署/关闭双向检查和新的单次付费许可。Task15最终模拟及Task17公开迁移仍保留。
+
+恢复先读 outputs/local-durable-executor-20261019/progress-handoff-r127.md。检查点：outputs/local-durable-executor-20261019/resume-checkpoint-r127.json；SHA-256 336075a0388c8e8c4b9354cf317b757d947f9ddacd11efc5a56505760c64fbec。本机验证记录路径已写入交接，若用户已运行，先读取它而非重新执行。
+
 
 ## Saved checkpoint r126 — 2026-10-18T13:36:02.425Z
 

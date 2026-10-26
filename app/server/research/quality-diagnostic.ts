@@ -4,7 +4,7 @@ import type { RegistryIssueCode } from "../../lib/planning/registry-validation";
 
 const BLUEPRINT_CODES = ["duplicate-skill", "duplicate-resource", "duplicate-phase", "duplicate-reference", "missing-prerequisite", "missing-resource", "resource-backlink-mismatch", "missing-resource-skill", "resource-forward-link-mismatch", "missing-phase-skill", "unplanned-skill", "prerequisite-cycle", "free-alternative-required"] as const satisfies readonly IntelligenceIssueCode[];
 const REGISTRY_CODES = ["duplicate-track", "duplicate-template", "duplicate-step", "duplicate-checkpoint", "missing-skill", "missing-resource", "missing-kind", "minute-mismatch", "invalid-checkpoint", "registry-version-mismatch"] as const satisfies readonly RegistryIssueCode[];
-const EVIDENCE_CODES = ["duplicate-resource-url", "duplicate-stage-skill", "duplicate-evidence-id", "duplicate-evidence-pair", "missing-edge-endpoint", "invalid-evidence-link", "missing-skill-evidence", "missing-core-authority", "missing-free-alternative"] as const;
+const EVIDENCE_CODES = ["duplicate-resource-url", "duplicate-stage-skill", "duplicate-evidence-id", "duplicate-evidence-pair", "missing-edge-endpoint", "invalid-evidence-link", "missing-skill-evidence", "missing-core-authority", "missing-free-alternative", "unverified-free-access", "unverified-source-authority"] as const;
 const BLUEPRINT_SCOPES = ["root", "skill", "resource", "stage", "unknown"] as const;
 const REGISTRY_SCOPES = ["root", "track", "template", "alternative-resource-ids", "step", "checkpoint", "checkpoint-step-ids", "completion-criteria", "rubric", "unknown"] as const;
 const SCHEMA_CODES = ["invalid-type", "invalid-value", "invalid-format", "too-small", "too-big", "unrecognized-keys", "other"] as const;

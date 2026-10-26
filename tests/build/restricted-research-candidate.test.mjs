@@ -782,10 +782,10 @@ const elidedTypeReferences = [
   { importer: 'worker/research-executor/receipt-store.ts', importerSha256: '7f17eed75c9d96822c85bac727d08b60f4c6acc7e371b56e66139d44f4a0f824',
     specifier: '../../app/server/research/executor/begin', target: 'app/server/research/executor/begin.ts', targetSha256: '5175ac9f63076b1763e51564798f9721584d4cc4168acdcf1c5152fe793c9db4' },
   { importer: 'worker/research-executor/site-client.ts', importerSha256: 'ef1286423fe539498e50b84e3175db46e0351285e5493c22bbb19b244569ca63',
-    specifier: '../../app/server/research/executor/http-transport', target: 'app/server/research/executor/http-transport.ts', targetSha256: '22a08f764ba30803bcbb31353363fd86cf41e2177b5b85ac5b01fa1ec5d6effa' },
+    specifier: '../../app/server/research/executor/http-transport', target: 'app/server/research/executor/http-transport.ts', targetSha256: '6f88088be37988890b166ffa2826a46615ca6f40c97722f6b2251fbe6a8591cc' },
 ];
 
-async function elidedTypeFixture({ changedPath, renamedImporter } = {}) {
+async function elidedTypeFixture({ changedPath, renamedImporter, runtimeExternal } = {}) {
   const extraFiles = {};
   const stubExports = new Set();
   for (const reference of elidedTypeReferences) {
@@ -805,7 +805,8 @@ async function elidedTypeFixture({ changedPath, renamedImporter } = {}) {
   extraFiles['app/bridge-support.ts'] = [...stubExports].sort().map(name => `export const ${name} = {};`).join('\n');
   const imports = elidedTypeReferences.flatMap(reference => [reference.importer === renamedImporter
     ? reference.importer.replace(/\.ts$/u, '-copy.ts') : reference.importer, reference.target]);
-  const entryText = imports.map(path => `import ${JSON.stringify(path.startsWith('worker/') ? './' + path.slice('worker/research-executor/'.length) : '../../' + path)};`).join('\n') + '\n' + entry;
+  const entryText = imports.map(path => `import ${JSON.stringify(path.startsWith('worker/') ? './' + path.slice('worker/research-executor/'.length) : '../../' + path)};`).join('\n')
+    + (runtimeExternal ? `\nimport ${JSON.stringify(runtimeExternal)};` : '') + '\n' + entry;
   const paths = await fixture({ entryText, extraFiles });
   await mkdir(paths.executorDirectory);
   const allowed = new Set(knownPaths.map(path => join(paths.snapshotRoot, path)));
@@ -814,6 +815,7 @@ async function elidedTypeFixture({ changedPath, renamedImporter } = {}) {
     metafile: true, sourcemap: false, write: true, logLevel: 'silent', plugins: [{ name: 'isolated-type-reference-support', setup(context) {
       context.onResolve({ filter: /.*/ }, args => {
         if (args.kind === 'entry-point') return;
+        if (args.path === runtimeExternal) return { path: args.path, external: true };
         const absolute = resolve(args.resolveDir, args.path);
         if (allowed.has(absolute)) return { path: absolute };
         if (allowed.has(absolute + '.ts')) return { path: absolute + '.ts' };
@@ -851,6 +853,20 @@ for (const stage of ['inspection', 'independent validation']) {
     assert.deepEqual(await readFile(join(paths.workspaceRoot, 'executor-metafile.json')), before);
   });
 }
+
+test('Executor elided type references reject an actual unreviewed runtime external emitted by esbuild', async () => {
+  const runtimeExternal = 'unreviewed:bridge-runtime';
+  const paths = await elidedTypeFixture({ runtimeExternal });
+  const imported = { path: runtimeExternal, kind: 'import-statement', external: true };
+  assert.deepEqual(paths.metafile.inputs['worker/research-executor/index.ts'].imports.filter(item => item.external), [imported]);
+  assert.deepEqual(Object.values(paths.metafile.outputs)[0].imports, [imported]);
+  for (const reference of elidedTypeReferences) {
+    assert.equal(paths.evidence.inputs.find(input => input.path === reference.importer).sha256, reference.importerSha256);
+    assert.equal(paths.evidence.inputs.find(input => input.path === reference.target).sha256, reference.targetSha256);
+  }
+  await assert.rejects(builder.inspectExecutorMetafile(paths), buildFailure);
+  await assert.rejects(builder.validateExecutorEvidence(paths.workspaceRoot), buildFailure);
+});
 
 for (const reference of elidedTypeReferences) {
   for (const mutation of ['unknown-importer', 'changed-importer', 'changed-target', 'unknown-specifier', 'suffix', 'dynamic-import', 'require-call', 'missing-target', 'runtime-output']) {

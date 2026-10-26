@@ -69,9 +69,10 @@ const newEnvironment: ResearchProductionEnvironment = {
   ARC_AI_REPAIR_MAX_COST_MICROS: "0",
 };
 
+// Prompt v6 / quality v5 deliberately give future Research a new cache identity.
 const capturedLegacySnapshot = {
   configuredOrigin: "https://arc.example",
-  configFingerprint: "p2-2f912248ea8be6becb1d8614acbf92ca",
+  configFingerprint: "p2-53f4211866bc6dd6aaaa47e461299792",
   modelResearch: "test/research-fixed",
   modelEconomy: "test/economy-fixed",
   researchTimeoutMs: 20_000,
@@ -91,7 +92,7 @@ const capturedLegacySnapshot = {
 
 const capturedLegacyVariantSnapshot = {
   configuredOrigin: "https://arc.example",
-  configFingerprint: "p2-f20d7dbe8d9fe6c8883212924cff093c",
+  configFingerprint: "p2-6e3e04d6b202e598ea7ffa1a76f56a2c",
   modelResearch: "test/research-fixed",
   modelEconomy: "test/economy-fixed",
   researchTimeoutMs: 35_000,
@@ -111,7 +112,7 @@ const capturedLegacyVariantSnapshot = {
 
 const capturedKimiSnapshot = {
   configuredOrigin: "https://arc.example",
-  configFingerprint: "p2-6e32d7563ab8083820f1c5128b673744",
+  configFingerprint: "p2-bf84466e68fe0508833fac9a35e83654",
   modelResearch: "moonshotai/kimi-k3",
   modelEconomy: "test/economy-fixed",
   researchTimeoutMs: 1_200_000,
@@ -166,6 +167,8 @@ describe("Research production policy migration", () => {
       ARC_AI_RESEARCH_MAX_COST_MICROS: "1300",
     })).toEqual(capturedLegacyVariantSnapshot);
     expect(readResearchProductionConfiguration(newEnvironment)).toEqual(capturedKimiSnapshot);
+    expect(capturedLegacySnapshot.configFingerprint).not.toBe("p2-054fac04713cf4fe6beaa340b3d71dda"); // Prompt v5 / quality v4.
+    expect(capturedKimiSnapshot.configFingerprint).not.toBe("p2-af6dcb56644ebdb499b5e6025619c5b0");
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 

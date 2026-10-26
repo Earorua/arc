@@ -19,6 +19,7 @@ export type PlanningMutationLookup = PlanningOwnerGoal & Readonly<{
 export type SavePlanningGenerationCommand = PlanningMutationLookup & Readonly<{
   result: PlanningMutationResult;
   sourceReference: PlanningSourceReference;
+  newGoal?: Readonly<{ previousGoalId: string; roleId: string }>;
 }>;
 
 export type SavePlanningEventCommand = SavePlanningGenerationCommand & Readonly<{

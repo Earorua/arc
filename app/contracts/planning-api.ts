@@ -39,7 +39,11 @@ const generatePlanningRequestFields = {
 
 export const generatePlanningRequestSchema = z.union([
   z.object({ ...generatePlanningRequestFields, roleId: z.literal("ai-native-full-stack-engineer") }).strict(),
-  z.object({ ...generatePlanningRequestFields, source: planningGenerateSourceSchema }).strict(),
+  z.object({ ...generatePlanningRequestFields, source: planningGenerateSourceSchema,
+    newGoal: z.object({ previousGoalId: idSchema }).strict().optional(),
+  }).strict().refine((request) => !request.newGoal || request.source.source === "research", {
+    message: "A new goal requires a ready Research source", path: ["newGoal"],
+  }),
 ]);
 
 export const planningEventRequestSchema = z.object({

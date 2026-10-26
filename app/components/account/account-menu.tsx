@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { authClient } from "../../lib/auth-client";
+import { useHydrated } from "../../lib/use-hydrated";
 import {
   safeAccountLinkStatusSchema,
   type AccountLinkStatus,
@@ -140,7 +141,9 @@ function connectedProviders(accountsResult: unknown): AuthProvider[] {
 }
 
 export function AccountMenu() {
-  const { data, isPending } = authClient.useSession();
+  const { data, isPending: sessionPending } = authClient.useSession();
+  const hydrated = useHydrated();
+  const isPending = !hydrated || sessionPending;
   const userId = data?.user?.id;
   const [connectionState, setConnectionState] = useState<ConnectionState | null>(null);
   const [linkStatusState, setLinkStatusState] = useState<LinkStatusState | null>(null);
@@ -148,6 +151,8 @@ export function AccountMenu() {
     UserScopedState<AuthProvider | null> | null
   >(null);
   const [noticeState, setNoticeState] = useState<UserScopedState<AccountNotice | null> | null>(null);
+  const [signOutStatus, setSignOutStatus] = useState<"idle" | "pending" | "complete" | "failed">("idle");
+  const signingOut = useRef(false);
   const [capturedResult] = useState<AccountLinkResult | null>(readAccountLinkResult);
   const callbackOwner = useRef<string | null>(null);
   const accountMenuRef = useRef<HTMLDetailsElement | null>(null);
@@ -254,6 +259,28 @@ export function AccountMenu() {
     };
   }, [capturedResult, isPending, userId]);
 
+  async function signOut() {
+    if (signingOut.current) return;
+    signingOut.current = true;
+    setSignOutStatus("pending");
+    try {
+      const result = await authClient.signOut();
+      if (result.error) throw new Error("Sign out failed");
+    } catch {
+      signingOut.current = false;
+      setSignOutStatus("failed");
+      return;
+    }
+    setSignOutStatus("complete");
+    // Discard the entire authenticated React tree and its in-flight page state.
+    // Replacing history also prevents Back from reopening the page just signed out of.
+    globalThis.location.replace("/");
+  }
+
+  if (signOutStatus === "complete") {
+    return <Link className="account-link" href="/sign-in">Sign in</Link>;
+  }
+
   if (isPending) {
     return <span className="account-pending" aria-label="Checking account">•••</span>;
   }
@@ -272,6 +299,7 @@ export function AccountMenu() {
           <span>{data.user.email}</span>
           <Link href="/today">Continue learning</Link>
           <Link href="/path">My learning path</Link>
+          <Link href="/history">历史学习计划</Link>
           <div className="account-connections" aria-label="Sign-in connections">
             <p>Sign-in connections</p>
             {connectionsPending && <span>Checking connections…</span>}
@@ -315,9 +343,10 @@ export function AccountMenu() {
               targetProvider={selectedTarget}
             />
           )}
-          <button className="account-sign-out" onClick={() => void authClient.signOut()} type="button">
-            Sign out
+          <button className="account-sign-out" disabled={signOutStatus === "pending"} onClick={() => void signOut()} type="button">
+            {signOutStatus === "pending" ? "Signing out…" : "Sign out"}
           </button>
+          {signOutStatus === "failed" && <p className="account-sign-out-error" role="alert">Couldn&apos;t sign out. Please try again.</p>}
         </div>
       </details>
       {notice && (

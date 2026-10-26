@@ -13,6 +13,9 @@ import { ResearchRepositoryError } from "./repository";
 import { readBoundedResearchJson } from "./source-audit";
 import type { SiteExecutionRecord } from "./site-execution-repository";
 import type { SiteImportDecision } from "./site-import-repository";
+import type { ResearchCandidateDiagnostic } from "./result-diagnostic";
+import type { ResearchQualityDiagnostic } from "./quality-diagnostic";
+import type { ResearchSourceCoverageDiagnostic } from "./source-audit";
 
 const CANDIDATE_MAX = 1_048_576;
 const QUALITY_MAX = 16_384;
@@ -157,6 +160,27 @@ function settlement(receipt: BridgeProviderReceipt): BudgetSettlement {
   return receipt.outcome.usage === null ? { kind: "unknown" } : { kind: "actual", actualMicros: receipt.outcome.usage.costMicros };
 }
 
+/** Observe the actual Site validation boundary, including transport-success/schema-failure.
+ * Only existing allowlisted diagnostic DTOs and quality codes/counts reach logs. */
+function validateResponse(outcome: Extract<BridgeProviderReceipt["outcome"], { kind: "response" }>,
+  context: ResearchValidationContext): SiteImportDecision {
+  let candidateDiagnostic: ResearchCandidateDiagnostic | null = null;
+  let semanticDiagnostic: Readonly<ResearchQualityDiagnostic> | null = null;
+  let sourceDiagnostic: ResearchSourceCoverageDiagnostic | null = null;
+  const candidate = candidateFromContent(extractResearchJson(outcome.content), value => { candidateDiagnostic = value; });
+  const validation = validateResearchCandidate(candidate, outcome.annotations, context,
+    { onQualityDiagnostic: value => { semanticDiagnostic = value; }, onSourceCoverage: value => { sourceDiagnostic = value; } });
+  const decision = classifySiteValidation(validation, context);
+  if (decision.kind !== "ready") {
+    try {
+      const diagnostic = JSON.stringify({ event: "arc.research.site-validation-rejected",
+        candidate: candidateDiagnostic, semantic: semanticDiagnostic, sources: sourceDiagnostic, quality: validation.quality });
+      if (bytes(diagnostic) <= 16_384) console.warn(diagnostic);
+    } catch { /* Diagnostics cannot change rejection, settlement, or receipt acknowledgement. */ }
+  }
+  return decision;
+}
+
 export function prepareSiteImport(input: SiteExecutionRecord, rawReceipt: unknown): PreparedSiteImport {
   const { execution, context } = snapshotExecution(input);
   let receipt: BridgeProviderReceipt;
@@ -171,8 +195,7 @@ export function prepareSiteImport(input: SiteExecutionRecord, rawReceipt: unknow
   const decision: SiteImportDecision = outcome.kind === "error"
     ? parseSiteImportDecision({ kind: "failed", quality: null, errorCode: outcome.code,
         failureCategory: categories[outcome.code], retryable: outcome.retryable }, context)
-    : classifySiteValidation(validateResearchCandidate(candidateFromContent(extractResearchJson(outcome.content)),
-        outcome.annotations, context), context);
+    : validateResponse(outcome, context);
   const audit: ResearchAiRunRecord = {
     userId: execution.ownerId,
     requestId: deterministicId("research-attempt", [execution.ownerId, execution.runId, execution.requestId, "role-research"]),

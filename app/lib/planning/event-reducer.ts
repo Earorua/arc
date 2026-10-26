@@ -185,7 +185,27 @@ function proposeReplan(
   let path = getPath(workspace, workspace.activePathVersionId);
   let pathVersions = workspace.pathVersions;
 
-  if (event.kind === "availability_changed") {
+  if (event.kind === "agent_replanned") {
+    if (event.baseRevision !== workspace.revision) throw new PlanningEventError("BASE_REVISION_MISMATCH");
+    const unfinished = path.units.filter(unit => !completedHistory.has(unit.id));
+    const byId = new Map(unfinished.map(unit => [unit.id, unit]));
+    if (event.unitOrder.length !== unfinished.length || new Set(event.unitOrder).size !== unfinished.length
+      || event.unitOrder.some(id => !byId.has(id))) throw new PlanningEventError("UNIT_NOT_ACTIVE");
+    const earlier = new Set(completedHistory);
+    const ordered = event.unitOrder.map(id => {
+      const unit = byId.get(id)!;
+      if (unit.prerequisiteUnitIds.some(required => !earlier.has(required))) throw new PlanningEventError("UNIT_NOT_ACTIVE");
+      earlier.add(id);
+      return unit;
+    });
+    let cursor = 0;
+    const units = path.units.map(unit => completedHistory.has(unit.id) ? unit : ordered[cursor++]);
+    path = derivedPath(path, units, path.phases.map(phase => {
+      const ids = new Set(phase.unitIds);
+      return { ...phase, unitIds: units.filter(unit => ids.has(unit.id)).map(unit => unit.id) };
+    }), availability, event.planningDate, "agent-replanned", completedHistory);
+    pathVersions = appendUnique(pathVersions, path);
+  } else if (event.kind === "availability_changed") {
     availability = availabilityVersionSchema.parse(event.availability);
     availabilityVersions = appendAvailability(workspace.availabilityVersions, availability);
     path = derivedPath(

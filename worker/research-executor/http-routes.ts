@@ -10,10 +10,12 @@ import { BridgeJobError, decodeBridgeJob, hashBridgeJob, type BridgeJob } from "
 import { encodeBridgeProviderReceipt } from "../../app/server/research/executor/receipt";
 import { BridgeJobStoreError, type D1BridgeJobStore } from "./d1-job-store";
 import { BridgeReceiptStoreError, type ExecutorReceiptStore } from "./receipt-store";
+import { CLOSED_PREFLIGHT_JOB_ID, parseClosedPreflightRequest } from "../../app/server/research/executor/closed-preflight";
+import type { SiteBridgeClient } from "./site-client";
 
-type Operation = "submit" | "status" | "close" | "result" | "acknowledge";
+type Operation = "submit" | "status" | "close" | "result" | "acknowledge" | "closed-preflight";
 type Route = Readonly<{ operation: Operation; path: string; success: 200 | 202; responseLimit: number }>;
-const OPERATIONS: readonly Operation[] = ["submit", "status", "close", "result", "acknowledge"];
+const OPERATIONS: readonly Operation[] = ["submit", "status", "close", "result", "acknowledge", "closed-preflight"];
 const ROUTES: Readonly<Record<string, Route>> = Object.freeze(Object.fromEntries(OPERATIONS.map((operation) => {
   const path = `/internal/research-bridge/${operation}`;
   return [path, Object.freeze({ operation, path, success: operation === "submit" ? 202 : 200,
@@ -28,6 +30,8 @@ export type ExecutorHttpRuntime = Readonly<{
   ensureWorkflow(job: BridgeJob, guard?: () => void): Promise<AcceptedProof>;
   acceptNew: boolean;
   maintenanceEnabled?: boolean;
+  closedPreflightAllowed?: boolean;
+  site?: Pick<SiteBridgeClient, "outbox">;
   connection: ResearchBridgeConnection;
   nonces: BridgeNonceStore;
   wallNow: () => number;
@@ -121,6 +125,37 @@ async function matchedStored(runtime: ExecutorHttpRuntime, identity: { jobId: st
 
 async function execute(runtime: ExecutorHttpRuntime, route: Route, body: Uint8Array,
   headerJobId: string, deadline: Deadline): Promise<unknown> {
+  if (route.operation === "closed-preflight") {
+    if (runtime.closedPreflightAllowed !== true || typeof runtime.site?.outbox !== "function") throw new ClosedSubmission();
+    parseClosedPreflightRequest(decodeBridgeJson(body));
+    if (headerJobId !== CLOSED_PREFLIGHT_JOB_ID) throw new BridgeContractError("conflict");
+    if (await deadline.wait(() => runtime.jobs.get(CLOSED_PREFLIGHT_JOB_ID))) throw new BridgeContractError("conflict");
+    const budget = Math.min(3_000, deadline.remaining() - 250);
+    if (budget <= 0) throw new DeadlineFailure();
+    const child = new AbortController();
+    const abort = () => child.abort();
+    const parent = deadline.controller.signal;
+    let onAbort: (() => void) | undefined;
+    const aborted = new Promise<never>((_resolve, reject) => {
+      onAbort = () => reject(new DeadlineFailure());
+      child.signal.addEventListener("abort", onAbort, { once: true });
+    });
+    parent.addEventListener("abort", abort, { once: true });
+    if (parent.aborted) abort();
+    const timer = setTimeout(abort, budget);
+    try {
+      const site = runtime.site;
+      const page = await deadline.wait(() => Promise.race([site.outbox({ signal: child.signal }), aborted]));
+      if (child.signal.aborted) throw new DeadlineFailure();
+      if (page.jobs.length !== 0 || page.next !== null) throw new BridgeContractError("conflict");
+      deadline.ensure();
+      return { executorClosed: true, jobAbsent: true, siteOutboxEmpty: true };
+    } finally {
+      clearTimeout(timer);
+      parent.removeEventListener("abort", abort);
+      if (onAbort) child.signal.removeEventListener("abort", onAbort);
+    }
+  }
   if (route.operation === "submit") {
     const job = decodeBridgeJob(body);
     if (job.jobId !== headerJobId) throw new BridgeContractError("conflict");

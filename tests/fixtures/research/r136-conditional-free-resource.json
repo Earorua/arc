@@ -1,0 +1,16 @@
+{
+  "cost": "free",
+  "estimatedMinutes": 90,
+  "format": "course",
+  "id": "r-woshipm-bootcamp",
+  "language": "zh-CN",
+  "provider": "人人都是产品经理",
+  "purpose": "primary",
+  "skillIds": [
+    "product-foundations",
+    "metric-system-design"
+  ],
+  "sourceTier": "community",
+  "title": "3天数据产品经理新人集训（限时免费）",
+  "url": "https://www.woshipm.com/online/3569229.html"
+}

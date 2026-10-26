@@ -28,7 +28,7 @@ import { createResearchD1, seedUser, type SqliteD1 } from "../helpers/sqlite-d1"
 
 const session = vi.hoisted(() => ({ owner: "owner-a" as string | null, navigate: vi.fn() }));
 vi.mock("../../app/lib/auth-client", () => ({ authClient: { useSession: () => ({ data: session.owner ? { user: { id: session.owner, name: "Learner", email: "learner@example.test" } } : null, isPending: false }) } }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: session.navigate }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: session.navigate, replace: session.navigate }) }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>Account</span> }));
 
 const validation = validateResearchCandidate(validResearchCandidate, validAnnotations, {
@@ -109,6 +109,13 @@ async function reachBuild(source: "research" | "flagship" = "research") {
   for (let index = 0; index < (source === "research" ? 3 : 4); index++) await user.click(screen.getByRole("button", { name: "Continue" }));
   return user;
 }
+
+function newResearchRequest(previousGoalId: string, mutationId = "mutation-new-research") {
+  const { roleId: _role, ...base } = guestRequest();
+  return { ...base, mutationId, source: { source: "research", researchRunId }, newGoal: { previousGoalId },
+    audit: { ...base.audit, blueprintId: data.blueprint.id, blueprintVersion: data.blueprint.version,
+      answers: data.blueprint.skills.map(({ id: skillId }) => ({ skillId, level: "unseen", evidenceRefs: [] })) } };
+}
 describe("new Research setup through real clients, routes, services and SQLite", () => {
   it("keeps guest Flagship generation entirely on this device and does not claim account persistence", async () => {
     session.owner = null; localStorage.removeItem("arc:role-research:v1");
@@ -123,9 +130,10 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY)!)).toEqual(history);
   });
   it.each(workspacePages)("hides prior absence permission immediately on an account roundtrip in $pageName", async ({ Page, title }) => {
+    const visibleTitle = Page === StackPage ? "Your role intelligence" : title;
     saveDemoState({ ...createDemoState(), setup: { ...createDemoState().setup, roleId: "Ecologist" } });
     const page = render(<Page />);
-    await screen.findByRole("heading", { level: 1, name: title });
+    await screen.findByRole("heading", { level: 1, name: visibleTitle });
     let release!: () => void; const pending = new Promise<void>((resolve) => { release = resolve; });
     intercept = async (request) => {
       if (!request.url.endsWith("/api/planning/workspace")) return null;
@@ -133,10 +141,10 @@ describe("new Research setup through real clients, routes, services and SQLite",
       return Response.json({ error: { code: "UNAVAILABLE", message: "Synthetic failure", requestId: "request-new-owner" } }, { status: 503 });
     };
     session.owner = "owner-b"; page.rerender(<Page />);
-    expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1, name: visibleTitle })).not.toBeInTheDocument();
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
     session.owner = "owner-a"; page.rerender(<Page />);
-    expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1, name: visibleTitle })).not.toBeInTheDocument();
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
     await act(async () => { release(); });
     await screen.findByText("Arc cannot confirm your saved cloud plan right now.");
@@ -147,11 +155,12 @@ describe("new Research setup through real clients, routes, services and SQLite",
     intercept = async (request) => request.url.endsWith("/api/workspace")
       ? Response.json({ error: { code: "UNAVAILABLE", message: "Synthetic failure", requestId: "request-arc-failure" } }, { status: 503 }) : null;
     render(<Page />);
-    await screen.findByText("Arc cannot confirm your saved cloud plan right now.");
+    if (Page === StackPage) await screen.findByRole("heading", { name: "Your role intelligence" });
+    else await screen.findByText("Arc cannot confirm your saved cloud plan right now.");
     expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
   });
-  it.each(["unavailable", "declined"].flatMap((mode) => workspacePages.map((page) => ({ mode, ...page }))))("preserves legacy $mode $pageName for a fresh owner", async ({ mode, Page, title }) => {
+  it.each(["unavailable", "declined"].flatMap((mode) => workspacePages.map((page) => ({ mode, ...page }))))("handles unsaved $mode $pageName according to its account boundary", async ({ mode, Page, title }) => {
     localStorage.removeItem("arc:role-research:v1");
     intercept = async (request) => request.url.endsWith("/eligibility") ? Response.json({ eligible: mode === "declined", requestId: "request-legacy-eligibility" }) : null;
     const page = render(<SetupPage />); const user = userEvent.setup();
@@ -164,8 +173,11 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY)!).setup.roleId).toBe("Ecologist");
     expect(calls.some(({ method }) => method !== "GET")).toBe(false);
     page.unmount(); render(<Page />);
-    expect(await screen.findByRole("heading", { level: 1, name: title })).toBeInTheDocument();
-    expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "Your role intelligence" : title })).toBeInTheDocument();
+    if (Page === StackPage) {
+      expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
+      expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
+    } else expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Retry adaptive plan" })).not.toBeInTheDocument();
   });
   it.each([true, false])("builds a real Flagship plan for a fresh owner (explicit fallback: %s) without importing device history", async (explicitFallback) => {
@@ -218,7 +230,13 @@ describe("new Research setup through real clients, routes, services and SQLite",
       return Response.json({ error: { code, message: "Synthetic failure", requestId: "request-boundary" } }, { status });
     };
     render(<Page />);
-    if (mode === "empty-200") expect(await screen.findByRole("heading", { level: 1, name: title })).toBeInTheDocument();
+    if (mode === "empty-200") expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "Your role intelligence" : title })).toBeInTheDocument();
+    else if (mode === "401" && Page === StackPage) {
+      await screen.findByText("Sign in to view your role intelligence.");
+      expect(session.navigate).toHaveBeenCalledWith("/sign-in");
+      expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
+      expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
+    }
     else {
       expect(await screen.findByText("Arc cannot confirm your saved cloud plan right now.")).toBeInTheDocument();
       expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
@@ -441,7 +459,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(localStorage.getItem("arc-offline-queue-v1")).toBeNull();
     expect(calls.find(({ path }) => path === "/api/migrations/local-state")?.body).toMatchObject({ consent: true, conflictResolution: "reject", intent: "research-setup", state: snapshot?.state });
   });
-  it.each(["research", "flagship"] as const)("rejects an existing immutable workspace before changing its common role for %s", async (source) => {
+  it.each(["flagship"] as const)("rejects an existing immutable workspace before changing its common role for %s", async (source) => {
     await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
     await planning.generate("owner-a", guestRequest());
     const original = await cloud.getWorkspace("owner-a"); const workspace = await planning.getWorkspaceResponse("owner-a");
@@ -451,5 +469,123 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(await cloud.getWorkspace("owner-a")).toEqual(original);
     expect(await planning.getWorkspaceResponse("owner-a")).toEqual(workspace);
     expect(calls.every(({ method }) => method === "GET")).toBe(true); expect(session.navigate).not.toHaveBeenCalled();
+  });
+  it("creates a new Research goal atomically and keeps the prior plan in history", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
+    await planning.generate("owner-a", guestRequest());
+    const original = (await cloud.getWorkspace("owner-a"))!;
+    const previous = await planning.getWorkspaceResponse("owner-a");
+    render(<SetupPage />); const user = await reachBuild(); calls.length = 0;
+    expect(screen.getByRole("button", { name: "Build my path" })).toBeDisabled();
+    await user.click(screen.getByRole("checkbox", { name: "Create a new plan and keep my current plan in history" }));
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    const current = (await cloud.getWorkspace("owner-a"))!;
+    expect(current.activeGoalId).not.toBe(original.activeGoalId);
+    expect(current.state.setup.roleId).toBe(data.blueprint.name);
+    expect(count("career_goals")).toBe(2); expect(count("planning_workspaces")).toBe(2);
+    expect(await planning.getSavedWorkspaceResponse("owner-a", original.activeGoalId)).toEqual(previous);
+    expect(db.database.prepare("SELECT status,active_slot FROM career_goals WHERE id=?1").get(original.activeGoalId)).toMatchObject({ status: "archived", active_slot: null });
+    expect((await planning.getWorkspaceResponse("owner-a")).sourceContext?.reference).toMatchObject({ source: "research", researchRunId });
+    expect(calls.filter(({ method }) => method !== "GET").map(({ path }) => path)).toEqual(["/api/planning/generate"]);
+    expect(await cloud.getWorkspace("owner-b")).toBeNull();
+  });
+  it("replays a new Research goal after a lost response without creating a second goal", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
+    await planning.generate("owner-a", guestRequest());
+    render(<SetupPage />); const user = await reachBuild();
+    await user.click(screen.getByRole("checkbox", { name: "Create a new plan and keep my current plan in history" }));
+    let lost = false;
+    intercept = async (request) => {
+      if (!request.url.endsWith("/api/planning/generate") || lost) return null;
+      lost = true; await planning.generate("owner-a", await request.json()); throw new TypeError("lost response after commit");
+    };
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    expect(count("career_goals")).toBe(2);
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    expect(count("career_goals")).toBe(2); expect(count("planning_workspaces")).toBe(2);
+    const writes = calls.filter(({ path }) => path === "/api/planning/generate");
+    expect(writes).toHaveLength(2); expect(writes[1]?.body).toEqual(writes[0]?.body);
+  });
+  it("rolls back new Research goal activation if saving the plan fails", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
+    await planning.generate("owner-a", guestRequest());
+    const original = await cloud.getWorkspace("owner-a"); const previous = await planning.getWorkspaceResponse("owner-a");
+    render(<SetupPage />); const user = await reachBuild();
+    await user.click(screen.getByRole("checkbox", { name: "Create a new plan and keep my current plan in history" }));
+    db.failAtBatchStatement = 4;
+    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    expect(await cloud.getWorkspace("owner-a")).toEqual(original);
+    expect(await planning.getWorkspaceResponse("owner-a")).toEqual(previous);
+    expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(1);
+  });
+  it("keeps distinct new-goal mutations separate and replays an archived result without activating it", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
+    await planning.generate("owner-a", guestRequest());
+    const original = (await cloud.getWorkspace("owner-a"))!;
+    const firstRequest = newResearchRequest(original.activeGoalId, "mutation-first-new");
+    const first = await planning.generateResponse("owner-a", firstRequest);
+    const second = await planning.generateResponse("owner-a", newResearchRequest(first.result.workspace.goalId, "mutation-second-new"));
+    expect(second.result.workspace.goalId).not.toBe(first.result.workspace.goalId);
+    expect(count("career_goals")).toBe(3); expect(count("planning_workspaces")).toBe(3);
+    expect(await planning.generateResponse("owner-a", firstRequest)).toEqual(first);
+    expect((await cloud.getWorkspace("owner-a"))?.activeGoalId).toBe(second.result.workspace.goalId);
+  });
+  it("rejects stale or foreign previous goals and Research sources without changing either owner", async () => {
+    for (const owner of ["owner-a", "owner-b"]) {
+      await cloud.importLocalState(owner, { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
+      await planning.generate(owner, guestRequest());
+    }
+    const a = (await cloud.getWorkspace("owner-a"))!; const b = (await cloud.getWorkspace("owner-b"))!;
+    await expect(planning.generate("owner-a", newResearchRequest(b.activeGoalId))).rejects.toMatchObject({ code: "CONFLICT" });
+    await expect(planning.generate("owner-b", newResearchRequest(b.activeGoalId))).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+    await expect(planning.generate("owner-a", { ...guestRequest(), newGoal: { previousGoalId: a.activeGoalId } })).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    expect(await cloud.getWorkspace("owner-a")).toEqual(a); expect(await cloud.getWorkspace("owner-b")).toEqual(b);
+    expect(count("career_goals")).toBe(2);
+  });
+  it("rejects a new Research goal when the active goal changes at the transaction boundary", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
+    await planning.generate("owner-a", guestRequest());
+    const original = (await cloud.getWorkspace("owner-a"))!;
+    const batch = db.batch.bind(db);
+    vi.spyOn(db, "batch").mockImplementationOnce(async (statements) => {
+      db.database.prepare("UPDATE career_goals SET active_slot=NULL,status='archived' WHERE id=?1").run(original.activeGoalId);
+      await cloud.importLocalState("owner-a", { migrationId: "migration-other-tab", consent: true, conflictResolution: "reject", state: createDemoState() });
+      return batch(statements);
+    });
+    await expect(planning.generate("owner-a", newResearchRequest(original.activeGoalId))).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(count("career_goals")).toBe(2); expect(count("planning_workspaces")).toBe(1);
+    expect((await cloud.getWorkspace("owner-a"))?.state.setup.roleId).toBe(flagshipRole.id);
+  });
+  it("settles concurrent copies of the same new Research save to one goal", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
+    await planning.generate("owner-a", guestRequest());
+    const original = (await cloud.getWorkspace("owner-a"))!;
+    const input = newResearchRequest(original.activeGoalId);
+    const batch = db.batch.bind(db); let winner: unknown;
+    vi.spyOn(db, "batch").mockImplementationOnce(async (statements) => {
+      winner = await planning.generateResponse("owner-a", input);
+      return batch(statements);
+    });
+    expect(await planning.generateResponse("owner-a", input)).toEqual(winner);
+    expect(count("career_goals")).toBe(2); expect(count("planning_workspaces")).toBe(2);
+  });
+  it("keeps the previous default when a ready Research source is invalidated during commit", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
+    await planning.generate("owner-a", guestRequest());
+    const original = (await cloud.getWorkspace("owner-a"))!;
+    const previous = await planning.getWorkspaceResponse("owner-a");
+    const batch = db.batch.bind(db);
+    vi.spyOn(db, "batch").mockImplementationOnce(async (statements) => {
+      db.database.prepare("UPDATE research_runs SET state='failed' WHERE id=?1").run(researchRunId);
+      return batch(statements);
+    });
+    await expect(planning.generate("owner-a", newResearchRequest(original.activeGoalId))).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+    expect(await cloud.getWorkspace("owner-a")).toEqual(original);
+    expect(await planning.getWorkspaceResponse("owner-a")).toEqual(previous);
+    expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(1);
   });
 });

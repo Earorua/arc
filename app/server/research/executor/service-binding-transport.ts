@@ -6,7 +6,7 @@ export type ResearchServiceBinding = { fetch(request: Request): Promise<Response
 
 const UNAVAILABLE = "Research bridge transport unavailable";
 const ROUTES: Readonly<Record<ResearchBridgeTarget, ReadonlySet<string>>> = {
-  executor: new Set(["submit", "status", "close", "result", "acknowledge"]
+  executor: new Set(["submit", "status", "close", "result", "acknowledge", "closed-preflight"]
     .map(operation => `/internal/research-bridge/${operation}`)),
   site: new Set(["begin", "accepted", "complete", "metadata", "maintenance", "outbox"]
     .map(operation => `/api/internal/research-bridge/${operation}`)),

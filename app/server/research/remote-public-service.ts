@@ -125,8 +125,10 @@ export class RemoteResearchService implements ResearchService {
       throw unavailable();
     } finally { work.finish(); }
 
-    // Fresh read capabilities only; no status/result or second work window. A failed refresh cannot prove a safe fallback.
-    const refresh = new PublicOperationScope(this.dependencies.monoNow, 500);
+    // Fresh read capabilities only; no status/result or second work window.
+    // Allow serial D1 snapshot reads 1500ms; the preceding 4500ms write fence stays closed.
+    // A failed refresh still cannot prove a safe fallback.
+    const refresh = new PublicOperationScope(this.dependencies.monoNow, 1500);
     try {
       const view = await refresh.run(() => this.dependencies.reader.readLocalView(refresh, ownerId, created.run.id));
       if (!view) throw unavailable();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 import { flagshipRole } from "../data/flagship-role";
 import { PhaseRail } from "../components/workspace/phase-rail";
@@ -44,6 +45,7 @@ function SourceAdaptivePath({ arc }: { arc: ReturnType<typeof useArcState> }) {
   const { workspace, blueprint, registry } = resolved;
   return <WorkspaceShell current="Path" roleName={blueprint.name} migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>
     <AdaptivePath blueprint={blueprint} registry={registry} workspace={workspace} />
+    <p className="workspace-notice">想进一步调整节奏与重点？ <Link href="/coach">让学习规划师梳理路线 ↗</Link></p>
     {decisionMessage && <p className="workspace-notice" role="status">{decisionMessage}</p>}
     {workspace.pendingPlanVersionId && <PlanDiffReview registry={registry} workspace={workspace} recovery={planning.recovery} onAccept={planning.accept} onDiscard={planning.discard} onSuccess={setDecisionMessage} />}
   </WorkspaceShell>;

@@ -288,6 +288,7 @@ export function usePlanningWorkspace(options: Partial<PlanningWorkspaceOptions> 
     publishVisibleIdentity(token.identity);
     publishSource(nextSource);
     setRecovery("none");
+    window.dispatchEvent(new Event("arc:learning-changed"));
     return true;
   }, [isOperationCurrent, publishSource, publishSourceContext, publishVisibleIdentity, publishWorkspace]);
 

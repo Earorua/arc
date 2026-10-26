@@ -197,7 +197,9 @@ describe("successful Research policy migration through production services and r
 
       const oldConfiguration = readResearchProductionConfiguration(legacyEnvironment)!;
       const newConfiguration = readResearchProductionConfiguration(newEnvironment)!;
-      expect(oldConfiguration.configFingerprint).toBe("p2-2f912248ea8be6becb1d8614acbf92ca");
+      expect(oldConfiguration.configFingerprint).toBe("p2-53f4211866bc6dd6aaaa47e461299792");
+      expect(oldConfiguration.configFingerprint).not.toBe("p2-054fac04713cf4fe6beaa340b3d71dda"); // Before citation policy v6.
+      expect(oldConfiguration.configFingerprint).not.toBe("p2-2f912248ea8be6becb1d8614acbf92ca"); // Before authority policy v3.
       expect(newConfiguration.configFingerprint).not.toBe(oldConfiguration.configFingerprint);
       expect(activeDeadlines).toEqual([baseNow + 60_000, baseNow + 1_260_000]);
 
@@ -421,7 +423,7 @@ describe("successful Research policy migration through production services and r
       expect(active).toMatchObject({
         state: "researching",
         active_expires_at: baseNow + 60_000,
-        config_fingerprint: "p2-2f912248ea8be6becb1d8614acbf92ca",
+        config_fingerprint: "p2-53f4211866bc6dd6aaaa47e461299792",
       });
 
       const recovery = recoveryFactory(db, { ...newEnvironment, ARC_AI_ENABLED: "false" }, () => controlledNow);

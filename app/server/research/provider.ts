@@ -14,8 +14,8 @@ export const RESEARCH_SEARCH_POLICY = Object.freeze({
 });
 
 export const RESEARCH_PROVIDER_VERSIONS = Object.freeze({
-  promptVersion: "research-prompt-v2", inputSchemaVersion: "research-input-v1", outputSchemaVersion: "research-output-v1",
-  qualityVersion: "research-quality-v1", modelConfigVersion: "research-model-config-v2",
+  promptVersion: "research-prompt-v6", inputSchemaVersion: "research-input-v1", outputSchemaVersion: "research-output-v1",
+  qualityVersion: "research-quality-v5", modelConfigVersion: "research-model-config-v2",
 });
 export const RESEARCH_PROVIDER_LIMITS = Object.freeze({ requestBytes: 262_144, responseBytes: 524_288, contentBytes: 196_608 });
 

@@ -129,7 +129,10 @@ export function createExecutionRuntime(
   if (typeof providerFetch !== "function") throw new Error("Executor runtime unavailable");
   const adapter = new OpenRouterResearchProvider({ OPENROUTER_API_KEY: environment.OPENROUTER_API_KEY,
     ARC_AI_MODEL_RESEARCH: "moonshotai/kimi-k3", researchProfile: "kimi-low-output32k-v3",
-    researchTimeoutMs: 1_200_000 }, { fetch: providerFetch });
+    researchTimeoutMs: 1_200_000 }, { fetch: providerFetch,
+    onRejectedResponseDiagnostic: (diagnostic) => {
+      console.warn(JSON.stringify({ event: "arc.research.provider-response-rejected", ...diagnostic }));
+    } });
   const provider = Object.freeze({ research: adapter.research.bind(adapter) });
   return Object.freeze({ jobs, receipts, site, provider, wallNow, monoNow });
 }
@@ -140,6 +143,9 @@ export function createHttpRuntime(
 ) {
   const maintenanceEnabled = readExecutorMaintenanceEnabled(environment);
   const acceptNew = maintenanceEnabled && environment.ARC_RESEARCH_EXECUTOR_ACCEPT_NEW === "true";
+  const closedPreflightAllowed = environment.ARC_RESEARCH_EXECUTOR_ACCEPT_NEW === "false"
+    && environment.ARC_RESEARCH_EXECUTOR_MAINTENANCE_ENABLED === "false"
+    && environment.ARC_AI_RESEARCH_BRIDGE_TRANSPORT === "service-binding-v1";
   const { jobs, receipts } = stores(environment);
   if (!validWorkflow(environment.RESEARCH_WORKFLOW)) throw new Error("Executor runtime unavailable");
   const { connection, nonces, site, wallNow, monoNow } = bridge(environment, overrides);
@@ -158,11 +164,11 @@ export function createHttpRuntime(
         wallNow, guard: combined, signal });
     };
     return Object.freeze({ ...requestStores, site: requestBridge.site, ensureWorkflow: requestBootstrap,
-      maintenanceEnabled, acceptNew,
+      maintenanceEnabled, acceptNew, closedPreflightAllowed,
       connection, nonces: requestBridge.nonces, wallNow, monoNow });
   };
   return Object.freeze({ jobs, receipts, site, ensureWorkflow: bootstrap,
-    maintenanceEnabled, acceptNew,
+    maintenanceEnabled, acceptNew, closedPreflightAllowed,
     connection, nonces, wallNow, monoNow, forRequest });
 }
 

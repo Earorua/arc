@@ -74,7 +74,7 @@ describe("Research search policy", () => {
     } }]);
     expect(body.messages[0]!.content).toContain("Make at most 10 search queries in total; use fewer when sufficient. Once that limit is reached, do not perform further searches.");
     expect(JSON.parse(body.messages[1]!.content).versions).toMatchObject({
-      promptVersion: "research-prompt-v2",
+      promptVersion: "research-prompt-v6",
       modelConfigVersion: "research-model-config-v2",
     });
     expect(RESEARCH_PROVIDER_VERSIONS.modelConfigVersion).toBe("research-model-config-v2");

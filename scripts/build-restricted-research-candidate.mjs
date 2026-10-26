@@ -27,7 +27,7 @@ const elidedTypeReferences = [
   { importer: 'worker/research-executor/receipt-store.ts', importerSha256: '7f17eed75c9d96822c85bac727d08b60f4c6acc7e371b56e66139d44f4a0f824',
     specifier: '../../app/server/research/executor/begin', target: 'app/server/research/executor/begin.ts', targetSha256: '5175ac9f63076b1763e51564798f9721584d4cc4168acdcf1c5152fe793c9db4' },
   { importer: 'worker/research-executor/site-client.ts', importerSha256: 'ef1286423fe539498e50b84e3175db46e0351285e5493c22bbb19b244569ca63',
-    specifier: '../../app/server/research/executor/http-transport', target: 'app/server/research/executor/http-transport.ts', targetSha256: '22a08f764ba30803bcbb31353363fd86cf41e2177b5b85ac5b01fa1ec5d6effa' },
+    specifier: '../../app/server/research/executor/http-transport', target: 'app/server/research/executor/http-transport.ts', targetSha256: '6f88088be37988890b166ffa2826a46615ca6f40c97722f6b2251fbe6a8591cc' },
 ];
 
 function inspectedElidedTypeReference(record, imported, sourceFiles, inputs) {

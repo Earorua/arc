@@ -347,7 +347,7 @@ describe("remote public writes", () => {
 });
 
 describe("one public write deadline", () => {
-  it("uses at most 4500ms work plus 500ms read-only refresh across a stalled submit and stalled local read", async () => {
+  it("uses at most 4500ms work plus 1500ms read-only refresh across a stalled submit and stalled local read", async () => {
     const s = setup(); let submitEnter!: () => void; let readEnter!: () => void;
     const submitting = new Promise<void>((resolve) => { submitEnter = resolve; });
     const reading = new Promise<void>((resolve) => { readEnter = resolve; });
@@ -362,7 +362,7 @@ describe("one public write deadline", () => {
       (error: unknown) => { settled = true; return { view: null, error }; });
     await Promise.race([submitting, pending.then((value) => { throw value.error ?? new Error("returned early"); })]);
     await vi.advanceTimersByTimeAsync(4500); await reading; expect(settled).toBe(false);
-    await vi.advanceTimersByTimeAsync(499); expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1499); expect(settled).toBe(false);
     await vi.advanceTimersByTimeAsync(1);
     expect((await pending).error).toMatchObject({ code: "RESEARCH_UNAVAILABLE" });
     releaseSubmit(); await vi.advanceTimersByTimeAsync(0);
@@ -415,7 +415,7 @@ describe("one public write deadline", () => {
     expect(s.fetch).toHaveBeenCalledTimes(1); expect(vi.getTimerCount()).toBe(0);
   });
 
-  it("limits final local refresh to 500ms and never reuses stale queued state after a concurrent begin", async () => {
+  it("limits final local refresh to 1500ms and never reuses stale queued state after a concurrent begin", async () => {
     const s = setup(); let enter!: () => void;
     const entered = new Promise<void>((resolve) => { enter = resolve; });
     const local = s.reader.readLocalView.bind(s.reader);
@@ -430,7 +430,7 @@ describe("one public write deadline", () => {
     const pending = s.service.start("owner-a", input, gate).then(
       (view) => ({ view, error: null }), (error: unknown) => ({ view: null, error }));
     await Promise.race([entered, pending.then((value) => { throw value.error ?? new Error("returned early"); })]);
-    await vi.advanceTimersByTimeAsync(499);
+    await vi.advanceTimersByTimeAsync(1499);
     let settled = false; void pending.then(() => { settled = true; }); await Promise.resolve(); expect(settled).toBe(false);
     await vi.advanceTimersByTimeAsync(1);
     expect((await pending).error).toMatchObject({ code: "RESEARCH_UNAVAILABLE" });

@@ -8,14 +8,14 @@ import StackPage from "../../app/stack/page";
 import ProofPage from "../../app/proof/page";
 import SetupPage from "../../app/setup/page";
 import type { PlanningClient } from "../../app/lib/planning-client";
-import type { ArcCloudClient } from "../../app/lib/cloud-client";
+import { ArcApiError, type ArcCloudClient } from "../../app/lib/cloud-client";
 import type { PlanningRepository, PlanningRepositoryPayload } from "../../app/server/planning/repository";
 import type { PlanningWorkspace } from "../../app/contracts/planning";
 import { PlanningService } from "../../app/server/planning/service";
 import { PlanningSourceResolver } from "../../app/server/planning/source-resolver";
 import { validateResearchCandidate } from "../../app/server/research/package-validator";
 import { validAnnotations, validResearchCandidate } from "../fixtures/research/valid-candidate";
-import { createDemoState, mergeSetup } from "../../app/lib/demo-store";
+import { createDemoState, mergeSetup, saveDemoState } from "../../app/lib/demo-store";
 import { proofSelectableDailyUnits } from "../../app/lib/workspace-presentation";
 
 const injected = vi.hoisted(() => ({
@@ -37,7 +37,7 @@ vi.mock("../../app/lib/use-proof-ledger", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-proof-ledger")>();
   return { ...actual, useProofLedger: (options: Parameters<typeof actual.useProofLedger>[0]) => actual.useProofLedger({ ...options, client: { loadWorkspace: injected.loadProof, createProof: vi.fn(), reviseProof: vi.fn(), withdrawProof: vi.fn(), setVisibility: vi.fn() } }) };
 });
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: injected.navigate }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: injected.navigate, replace: injected.navigate }) }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>Account</span> }));
 
 const validation = validateResearchCandidate(validResearchCandidate, validAnnotations, {
@@ -88,6 +88,44 @@ function noFlagship() { expect(screen.queryByText(/AI-Native Full-Stack Engineer
 async function headingReady() { await screen.findByTitle(`${data.blueprint.name} · 18 weeks`); noFlagship(); }
 
 describe("research workspace page adapters with real controllers and deterministic service", () => {
+  it.each([false, true])("keeps Stack private before a confirmed account (pending: %s)", async (pending) => {
+    injected.owner = pending ? "owner-a" : null;
+    injected.pending = pending;
+    saveDemoState(mergeSetup(createDemoState(), { roleId: "Private device role", level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }));
+    render(<StackPage />);
+    await act(async () => {});
+    expect(injected.arcClient.loadWorkspace).not.toHaveBeenCalled();
+    expect(injected.planningClient.loadWorkspace).not.toHaveBeenCalled();
+    expect(injected.loadProof).not.toHaveBeenCalled();
+    expect(screen.queryAllByText(/Private device role|Web Platform/i)).toHaveLength(0);
+    if (pending) expect(injected.navigate).not.toHaveBeenCalled();
+    else expect(injected.navigate).toHaveBeenCalledWith("/sign-in");
+  });
+
+  it("shows an empty account state instead of device or sample intelligence when no plan is saved", async () => {
+    injected.planningClient.loadWorkspace = vi.fn(async () => ({ workspace: null, sourceContext: null }));
+    injected.arcClient.loadWorkspace = vi.fn(async () => null);
+    saveDemoState(mergeSetup(createDemoState(), { roleId: "Private device role", level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }));
+    render(<StackPage />);
+    expect(await screen.findByRole("heading", { name: "Your role intelligence" })).toBeInTheDocument();
+    expect(screen.getByText("Build a learning path to see the skills and sources saved to your account.")).toBeInTheDocument();
+    expect(screen.queryAllByText(/Private device role|Web Platform/i)).toHaveLength(0);
+    expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
+  });
+
+  it("hides private Stack content when only the proof request reports an expired session", async () => {
+    let rejectProof!: (error: Error) => void;
+    injected.loadProof.mockImplementation(() => new Promise<null>((_, reject) => { rejectProof = reject; }));
+    render(<StackPage />);
+    await headingReady();
+    await act(async () => { rejectProof(new ArcApiError(401, "UNAUTHENTICATED", "Sign in required", "request-proof-expired", "sign-in")); });
+    await screen.findByText("Sign in to view your role intelligence.");
+    expect(injected.navigate).toHaveBeenCalledWith("/sign-in");
+    expect(screen.queryByRole("heading", { name: data.blueprint.skills[0]!.name })).not.toBeInTheDocument();
+    expect(screen.queryByTitle(`${data.blueprint.name} · 18 weeks`)).not.toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
+  });
+
   function researchReply() { return Response.json({ requestId: "request-research-pages", run: { id: "research-run-pages", role: data.blueprint.name, locale: "en-US", state: "ready", retryable: false, packageId: data.id, summary: data.blueprint.summary, skillCount: data.blueprint.skills.length, sourceCount: data.sourceEvidence.length, observedAt: data.observedAt, quality: { passed: true, issueCodes: [] }, planningData: { id: data.id, blueprint: data.blueprint, registry: data.registry } } }); }
   function storedResearch() { localStorage.setItem("arc:role-research:v1", JSON.stringify({ runId: "research-run-pages", role: data.blueprint.name, locale: "en-US" })); }
   it.each(["account", "roundtrip", "unmount"].flatMap((transition) => ["resolve", "reject"].map((settlement) => ({ transition, settlement }))))("drops common-role save $settlement after $transition invalidates the connector", async ({ transition, settlement }) => {
@@ -188,6 +226,12 @@ describe("research workspace page adapters with real controllers and determinist
     proof.unmount(); render(<StackPage />); await headingReady();
     expect(screen.getByRole("heading", { name: data.blueprint.skills[0]!.name })).toBeInTheDocument();
     expect(screen.getAllByText("Practicing").length).toBeGreaterThan(0);
+    const skill = screen.getByRole("heading", { name: data.blueprint.skills[0]!.name }).closest("article")!;
+    const source = data.blueprint.resources.find(({ id }) => id === data.blueprint.skills[0]!.resourceIds[0])!;
+    const sourceLink = within(skill).getByRole("link", { name: source.title });
+    expect(sourceLink).toHaveAttribute("href", source.url);
+    expect(within(sourceLink.closest("li")!).getByText(`Verified ${source.lastVerifiedAt}`)).toBeInTheDocument();
+    expect(within(skill).getByText("Role importance")).toBeInTheDocument();
   });
   it("keeps and accepts researched replan candidates through Today and a fresh Path controller", async () => {
     const user = userEvent.setup(); const page = render(<TodayPage />); await headingReady();

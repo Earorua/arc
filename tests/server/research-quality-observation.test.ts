@@ -75,6 +75,7 @@ describe("semantic quality observation", () => {
   it("observes all four simultaneous duplicates without the dormant OR masking later categories", () => {
     const value = fresh();
     value.resources[1]!.url = value.resources[0]!.url;
+    value.resources[1]!.provider = value.resources[0]!.provider;
     value.stages[1]!.skillIds.push(value.skills[0]!.id);
     value.evidence.push({ ...value.evidence[0]! });
     expect(check(value, ["invalid-graph"]).evidenceIssueCodes).toEqual(["duplicate-evidence-id", "duplicate-evidence-pair", "duplicate-resource-url", "duplicate-stage-skill"]);

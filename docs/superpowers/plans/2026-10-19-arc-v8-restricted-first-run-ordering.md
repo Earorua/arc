@@ -1,0 +1,37 @@
+# Arc v8 restricted first-run ordering addendum
+
+2026-10-19. This applies the user's r126 continuation request to prioritize the restricted real Research path. It changes sequencing, not the public-release acceptance criteria or paid-call permission.
+
+The 2026-10-16 restricted environment initialization plan remains the implementation plan, with these bounded updates:
+
+1. Its baseline, backup, private-resource initialization, exact closed-pair deployment, owner restriction and closed connectivity work may proceed before the final Task15 mock sequence. Do not start or overlap a Task15 quiet observation window. Full Task15 fault/replay/isolation acceptance is still required before public enablement; no unfinished mock is marked passed.
+2. Use `outputs/local-durable-executor-20261019/` for new evidence and separately named exclusive operation directories. Preserve all consumed/historical operation records. The current accepted synthetic closed pair is `research-local-closed-20261016-r5`, not the older r3 named in the original plan. It is a local reference, never a deployable real inventory.
+3. Reuse the accepted inert private bootstrap, production adapters, cohort predicate and browser start/recovery path. Review only actual new code or operational mutations and their critical integration. Do not repeat unchanged SPEC/QUALITY reviews or broad tests.
+4. A closed signed probe may write the bounded replay-protection nonces required by production authentication. It must not change Research business state, create Workflow instances, call a Provider, or fabricate results. Both deployed directions must be exercised; configuration inspection alone is insufficient. The probe needs a bounded invocation mechanism, currently absent.
+5. The owner restriction must be the exact enabled `role-research-beta` row `{"userIds":[A]}`, backed by an authenticated destination account A and distinct authenticated B. Closed `eligible:false` cannot establish this by itself. Preserve the previous row for rollback.
+6. The first real run is an attended single attempt, with an exclusive record, exact owner/candidate/model, dedicated non-renewing provider cap, no automatic paid retry and recovery of the same job after uncertain acknowledgement. Wait for its durable begin grant before draining admission. Existing daily quota does not constitute a lifetime one-shot latch.
+7. A new concrete paid-run authorization is required immediately before the first real request. Past six consumed calls, the approximate monthly Cloudflare budget, and secret configuration do not supply it. Public DNS, old Sites export/cutover and general availability remain later work.
+
+## Reused and fresh evidence
+
+- At 2026-10-19T03:51:57.540Z, root verified all 252 source entries against the authoritative integrated tree, and all 98 artifacts plus 11 provenance files in r5. There were no mismatches; the target state was closed. The five accepted bootstrap references also matched. These local checks do not establish live readiness.
+- Native metadata baseline: `outputs/local-durable-executor-20261019/restricted-real-preflight-r1/baseline-summary.json`. Current shadow version is `458830cc-bfed-4d31-9b9d-de0269c9bcbc`; both AI flags are false, all five existing OAuth/auth bindings are Secret, and the DB/bucket identities match the original selection. No reciprocal Executor binding is present yet.
+- Focused path audit: `outputs/local-durable-executor-20261019/restricted-real-path-audit-r1.md`, SHA256 `6029c35582e1ec92af592391ee032089f9b22dc309743cd92d2c6904f8c0f797`. It identifies the missing bounded invocation and one-attempt operations artifacts; it does not require a new provider implementation or browser rewrite.
+
+Next: finish live schema/resource/account baseline, privately back up and restore the destination, initialize the separate inert Executor, then prepare the exact closed pair and narrow closed invocation.
+
+## Closed connectivity invocation and evidence handoff
+
+The diagnostic uses the fixed absent-job UUID `753e4995-30b1-4c4a-98ec-51e6d04b502d`. Local tests establish code behavior only; the attended deployed observation remains pending.
+
+Before one invocation, record the frozen Site/Executor deployment identities, exact origins and reciprocal binding targets, both Site flags literally `false`, Executor accept-new and maintenance flags literally `false`, and `service-binding-v1` on both sides. Confirm this fixed UUID absent natively. Preserve and read back the exact enabled `role-research-beta` singleton `{"userIds":[A]}` and previous row; establish authenticated A and distinct authenticated B. Freeze configuration for the observation.
+
+In the exclusive operation record, capture before/after Research business state and both nonce stores. Use A's existing session for one same-origin browser `POST /api/intelligence/research/closed-preflight` with `{}`, JSON content type, exact Origin and same-origin fetch metadata. Retain the bounded HTTP outcome and all five strict true booleans only on success, plus A/B access evidence. Success permits four ordinary bridge nonce claims; existing authentication/session bookkeeping is separate. Research business state, quota/budget records, receipts/R2, Workflow and Provider must remain unchanged. Record failures/timeouts and stop; no automatic retry or paid request is authorized. Record the prior outcome before any attended deliberate rerun decision.
+
+## Actual progress on 2026-10-19
+
+The fresh baseline matched the existing shadow identities, five login Secrets and closed flags. Private export restoration and the reviewed six-migration delta passed. The delta and the new Executor's four migrations were applied once at `outputs/local-durable-executor-20261019/restricted-migration-apply-r1`. Actual before/after comparison preserved all 41 original application tables and all 49 rows; both live semantic schemas and ledgers match the pinned migrations. `_cf_KV` is managed metadata outside export-content claims. The final count-only Executor seed read passed in `14-executor-seed-read.json`; all business tables are empty and the three cursor rows plus one schedule row match the exact migration seeds.
+
+New Executor D1: `0ca16ec5-adce-49d0-ae63-1416c631bd90`. New private receipt bucket: `arc-v8-migration-research-receipts`; native r2.dev disabled and no custom domains. Its object-list observation remains pending. The accepted inert bootstrap was deployed as version `45d2cc22-0b14-4c1a-8dc5-0325a4619578`; native metadata shows fetch only and no bindings. Native routing/preview/Cron cross-check remains pending. No full product pair, Workflow instance or provider request was deployed/started.
+
+The closed-preflight implementation is isolated in `work/restricted-closed-preflight-20261019`. Independent SPEC and different QUALITY passed for the exact 11-file diff; authoritative source C remains unchanged. New focused tests and typecheck passed. Automatic review initially prevented elevated execution. After the service recovered, the one-file native-runtime retry actually ran: 41 passed, 31 failed at Miniflare/workerd startup, before the R2 fixture becomes available. Those 31 are not counted as passes; a minimal local environment diagnosis is in progress. Browser control continues to time out during automatic review. Preserve the evidence and resume the exact outstanding checks, without repeating completed migrations, reviews or broad suites.

@@ -3,9 +3,10 @@ import { BridgeAuthError, signBridgeMessage, verifyBridgeMessage, type BridgeMes
 import { BRIDGE_BODY_LIMITS, BridgeBodyError, bridgeByteLength, decodeBridgeJson, readBridgeBody } from "./body";
 import { BridgeContractError, parseBridgeErrorBody } from "./bridge-contract";
 import type { ResearchBridgeConnection } from "./connection-config";
+import { CLOSED_PREFLIGHT_EXECUTOR_PATH } from "./closed-preflight";
 
 export type BridgeOperation =
-  | "submit" | "status" | "close" | "result" | "acknowledge"
+  | "submit" | "status" | "close" | "result" | "acknowledge" | "closed-preflight"
   | "begin" | "accepted" | "complete" | "metadata" | "maintenance" | "outbox";
 
 export type PreparedBridgeRequest = Readonly<{ jobId: string; body: Uint8Array }>;
@@ -22,6 +23,7 @@ type Target = "site" | "executor";
 type Route = Readonly<{ target: Target; path: string; success: number; responseLimit: number; collection: boolean }>;
 
 const ROUTES: Readonly<Record<BridgeOperation, Route>> = Object.freeze({
+  "closed-preflight": Object.freeze({ target: "executor", path: CLOSED_PREFLIGHT_EXECUTOR_PATH, success: 200, responseLimit: BRIDGE_BODY_LIMITS.status, collection: false }),
   submit: Object.freeze({ target: "executor", path: "/internal/research-bridge/submit", success: 202, responseLimit: BRIDGE_BODY_LIMITS.status, collection: false }),
   status: Object.freeze({ target: "executor", path: "/internal/research-bridge/status", success: 200, responseLimit: BRIDGE_BODY_LIMITS.status, collection: false }),
   close: Object.freeze({ target: "executor", path: "/internal/research-bridge/close", success: 200, responseLimit: BRIDGE_BODY_LIMITS.status, collection: false }),

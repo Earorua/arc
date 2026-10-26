@@ -120,6 +120,25 @@ describe("OpenRouter research request boundary", () => {
     expect(body.model).toBe(config.ARC_AI_MODEL_RESEARCH);
   });
 
+  it("sends the requested publisher-country preference without inferring origin from locale", async () => {
+    const { provider, fetch } = harness();
+    await provider.research({ role: request.role, locale: "zh-CN" });
+    const body = JSON.parse(fetch.mock.calls[0]![1]!.body as string);
+    const policy = body.messages[0].content as string;
+    expect(policy).toContain("leading universities in the United States");
+    expect(policy).toContain("US-headquartered technology companies first, then leading Chinese technology companies");
+    expect(policy).toContain("Both free and paid company courses are eligible");
+    expect(policy).toContain("Publisher country is independent of course language, URL locale and hosting location");
+    expect(policy).toContain("relevance, level and accessible teaching content take precedence over geography");
+    expect(policy).toContain("verified free alternative");
+    const catalog = JSON.parse(policy.match(/\[\{"publisher":[\s\S]*?\}\]/u)![0]);
+    expect(catalog.find((entry: { hosts: string[] }) => entry.hosts.includes("developers.google.cn"))).toMatchObject({ publisher: "Google", publisherCountry: "US" });
+    expect(catalog.find((entry: { hosts: string[] }) => entry.hosts.includes("edu.alibabacloud.com"))).toMatchObject({ publisher: "Alibaba Cloud", publisherCountry: "CN" });
+    expect(JSON.parse(body.messages[1].content).locale).toBe("zh-CN");
+    expect(RESEARCH_PROVIDER_VERSIONS.promptVersion).toBe("research-prompt-v6");
+    expect(RESEARCH_PROVIDER_VERSIONS.qualityVersion).toBe("research-quality-v5");
+  });
+
   it.each([undefined, "", " ", "invalid\nkey", "x".repeat(513)])("fails closed without a valid explicit key: %j", async (key) => {
     const { provider, fetch } = harness(undefined, { OPENROUTER_API_KEY: key });
     await failure(provider.research(request), "missing-key", false);

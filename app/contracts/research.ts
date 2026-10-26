@@ -108,6 +108,8 @@ export const researchIssueCodeSchema = z.enum([
   "unsafe-url",
   "unreferenced-url",
   "missing-free-alternative",
+  "unverified-free-access",
+  "unverified-source-authority",
   "missing-unit",
   "minute-mismatch",
   "unsafe-content",

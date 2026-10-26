@@ -6,6 +6,7 @@ import { signBridgeMessage, verifyBridgeMessage, type BridgeMessageContext } fro
 import { parseBridgeBeginGrant } from "../../app/server/research/executor/begin";
 import { encodeBridgeDto, parseAcceptedProof, parseReceiptNotice } from "../../app/server/research/executor/bridge-contract";
 import { readResearchBridgeConnection } from "../../app/server/research/executor/connection-config";
+import { CLOSED_PREFLIGHT_JOB_ID, parseClosedPreflightReply, parseClosedPreflightRequest } from "../../app/server/research/executor/closed-preflight";
 import { D1BridgeNonceStore } from "../../app/server/research/executor/d1-nonce-store";
 import { ExecutorBridgeClient } from "../../app/server/research/executor/executor-client";
 import { BridgeTransport, BridgeTransportError } from "../../app/server/research/executor/http-transport";
@@ -73,6 +74,64 @@ function responseContext(requestContext: BridgeMessageContext, status: number): 
 afterEach(() => vi.restoreAllMocks());
 
 describe("research bridge transport and clients", () => {
+  it("authenticates the fixed closed-preflight route and rejects tampering, replay and unsigned success", async () => {
+    const conn = connection();
+    const db = createResearchD1();
+    const jobId = CLOSED_PREFLIGHT_JOB_ID;
+    const body = encoder.encode(JSON.stringify({ executorClosed: true, jobAbsent: true, siteOutboxEmpty: true }));
+    let headers: Headers | undefined;
+    let mode = "valid";
+    const fetch = vi.fn(async (request: Request) => {
+      expect(new URL(request.url).pathname).toBe("/internal/research-bridge/closed-preflight");
+      headers ??= await signBridgeMessage({ context: { direction: "site-to-executor", kind: "response", method: "POST",
+        path: "/internal/research-bridge/closed-preflight", audience: conn.executorOrigin, jobId, status: 200 },
+        body, keyId: conn.siteToExecutor.keyId, keyBytes: conn.siteToExecutor.copyKeyBytes(), now: () => WALL_NOW });
+      return new Response(mode === "tampered" ? encoder.encode("{}") : body,
+        { status: 200, headers: mode === "unsigned" ? {} : headers });
+    });
+    const transport = new BridgeTransport({ connection: conn, nonces: new D1BridgeNonceStore(db as unknown as D1Database),
+      fetch, wallNow: () => WALL_NOW, monoNow: () => 0 });
+    const options = { target: "executor" as const, operation: "closed-preflight" as const,
+      prepare: () => ({ jobId, body: encoder.encode("{}") }), decode: (bytes: Uint8Array) => parseClosedPreflightReply(JSON.parse(new TextDecoder().decode(bytes))) };
+    try {
+      expect(await transport.request(options)).toEqual({ executorClosed: true, jobAbsent: true, siteOutboxEmpty: true });
+      await expect(transport.request(options)).rejects.toMatchObject({ kind: "authentication" });
+      mode = "tampered";
+      await expect(transport.request(options)).rejects.toMatchObject({ kind: "authentication" });
+      mode = "unsigned";
+      await expect(transport.request(options)).rejects.toMatchObject({ kind: "authentication" });
+      await expect(transport.request({ ...options, target: "site" })).rejects.toMatchObject({ kind: "protocol" });
+      await expect(transport.request({ ...options, operation: "unknown" as never })).rejects.toMatchObject({ kind: "protocol" });
+      expect(fetch).toHaveBeenCalledTimes(4);
+    } finally { db.close(); }
+  });
+
+  it.each(["wrong-path", "wrong-direction", "false", "extra-key"])("rejects a closed-preflight %s signed reply", async mode => {
+    const conn = connection(); const nonces = { claim: vi.fn().mockResolvedValue(true) };
+    const value = { executorClosed: true, jobAbsent: true, siteOutboxEmpty: mode === "false" ? false : true,
+      ...(mode === "extra-key" ? { extra: true } : {}) };
+    const body = encoder.encode(JSON.stringify(value));
+    const headers = await signBridgeMessage({ context: { direction: mode === "wrong-direction" ? "executor-to-site" : "site-to-executor",
+      kind: "response", method: "POST", path: mode === "wrong-path" ? "/internal/research-bridge/status" : "/internal/research-bridge/closed-preflight",
+      audience: conn.executorOrigin, jobId: CLOSED_PREFLIGHT_JOB_ID, status: 200 },
+      body, keyId: conn.siteToExecutor.keyId, keyBytes: conn.siteToExecutor.copyKeyBytes(), now: () => WALL_NOW });
+    const transport = new BridgeTransport({ connection: conn, nonces, fetch: async () => new Response(body, { headers }),
+      wallNow: () => WALL_NOW, monoNow: () => 0 });
+    await expect(transport.request({ target: "executor", operation: "closed-preflight",
+      prepare: () => ({ jobId: CLOSED_PREFLIGHT_JOB_ID, body: encoder.encode("{}") }),
+      decode: bytes => parseClosedPreflightReply(JSON.parse(new TextDecoder().decode(bytes))) }))
+      .rejects.toMatchObject({ kind: mode.startsWith("wrong") ? "authentication" : "protocol" });
+    expect(nonces.claim).toHaveBeenCalledTimes(mode.startsWith("wrong") ? 0 : 1);
+  });
+
+  it("keeps the closed-preflight request and reply schemas strict", () => {
+    expect(parseClosedPreflightRequest({})).toEqual({});
+    for (const value of [null, [], { jobId: CLOSED_PREFLIGHT_JOB_ID }]) expect(() => parseClosedPreflightRequest(value)).toThrow();
+    for (const value of [{}, null, { executorClosed: true, jobAbsent: true, siteOutboxEmpty: "true" }]) {
+      expect(() => parseClosedPreflightReply(value)).toThrow();
+    }
+  });
+
   it("contains nonce rejection when public cancellation precedes the transport wait", async () => {
     const conn = connection();
     let mono = 0;

@@ -5,7 +5,9 @@
 | 用途 | 入口 |
 | --- | --- |
 | 当前停点、已完成任务、恢复指令 | [v8 恢复检查点](v8-resume-checkpoint.md) |
-| 正在收尾的网站持久准入任务 | [Task10 实施计划](../superpowers/plans/2026-09-15-arc-v8-site-durable-admission.md) |
+| 已完成的网站持久准入实现（历史） | [Task10 实施计划](../superpowers/plans/2026-09-15-arc-v8-site-durable-admission.md) |
+| 当前本地演练工具计时修正 | [限定 preparation 缓存计划](../superpowers/plans/2026-10-24-task15-preparation-cache.md) |
+| 新 Research 的学习资料来源要求 | [权威来源规则计划](../superpowers/plans/2026-10-24-research-source-authority.md)、[美国高校/公司优先](../superpowers/plans/2026-10-24-research-publisher-country-preference.md) |
 | 后台执行器总体设计 | [后台执行器设计](../superpowers/specs/2026-09-14-arc-v8-durable-research-executor-design.md) |
 | 本地实施的详细时间记录 | [后台执行器本地进度](v8-durable-executor-local-progress-2026-09-14.md) |
 | 完整公开发布目标及历史 | [首版公开发布目标](v8-first-public-release-goal.md) |
