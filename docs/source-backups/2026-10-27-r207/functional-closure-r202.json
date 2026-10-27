@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "arc-root-complete-functional-closure-v1",
+  "wranglerBannerSuppressed": true,
+  "commandSemanticsUnchanged": true,
+  "cloudMutations": 0,
+  "workerControlCalls": 0,
+  "providerCalls": 0,
+  "controlSecretRead": false,
+  "externalReadOnlyContact": true,
+  "originalOwnerResultUnchanged": true,
+  "originalOwnerClosureRemainsFalse": true,
+  "originalClockRenewed": false,
+  "originalFiniteProfileAccepted": false,
+  "ownerResult": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\result.json",
+    "sha256": "f1bcd5508bac73a30f45b95efd8eb109f537eb0d439362abae7849186f102f2e"
+  },
+  "secretDisposal": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\secret-disposal.json",
+    "sha256": "c602f2cc3316564f224927c15935980f0b9711db290cfa2f9f655881ba8fef96"
+  },
+  "failedSecond": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\observations\\drain-second\\result.json",
+    "sha256": "35b4e063007b09b891665b5ceb915bde320a8fbfaafb709050f2d6a95bf44605"
+  },
+  "firstDrain": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\observations\\drain-first\\result.json",
+    "sha256": "bde33d48effc0b8c6f999fefdad364863ee1eb005ed6e0e640fec1d43f6770fa"
+  },
+  "admissionClose": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\configuration\\admission-close-deploy\\result.json",
+    "sha256": "fad68a71ee7705353ea4c0d43fb552ff7d373eb85be6cba11dd17966845c4baf"
+  },
+  "maintenanceClose": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\configuration\\maintenance-close-deploy\\result.json",
+    "sha256": "17b238d142aae8edfd1ffa031d330341e92157174f195f7f99d15f31ec887611"
+  },
+  "replay": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\replay-result.json",
+    "sha256": "5feaf36574b3363d57b0c6132e76d3156458fe6b80dfb4e2152bfd4875d93def"
+  },
+  "secondDrain": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\read-only-closure-r202\\functional-r198-20261027\\observations\\drain-second\\result.json",
+    "sha256": "c88629b9fbbad6c48ec40be76d2e1b43daf6b9473b8b85a36af52c31b2bb4db9"
+  },
+  "scheduled": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\read-only-closure-r202\\functional-r198-20261027\\observations\\scheduled\\result.json",
+    "sha256": "552cd61c2e938bae1117361321377ad91899d5b0c5d36cac583337094c1d92e9"
+  },
+  "drain": {
+    "applicationSettled": true,
+    "platformInvocationAbsenceProved": false
+  },
+  "applicationClosedVerified": true,
+  "needsRootReconciliation": false,
+  "ownerSecretDisposed": true,
+  "allTask15FunctionalChecksPassed": true,
+  "functionalEvidence": {
+    "long": {
+      "settlement": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\retained-readback-r190\\long-result\\settlement-evidence.json",
+        "sha256": "fb8a0e77e1ba15c6e03ec69dcd2a0b2c725309bf190e1b83282b11b9bc67d15f"
+      },
+      "receipt": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\retained-readback-r190\\long-result\\receipt-evidence.json",
+        "sha256": "fd1e5966e97cca88aa2dcaf7fc05ead737b56c6af7871a0d81846f5f1bed778b"
+      },
+      "status": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261026\\functional-continuation-r187\\runs\\functional-r191-20261027\\controls\\long-status\\exit.json",
+        "sha256": "9baa8ba339323a34683b297a61a544a3536c48aa62ebbe79ad7eeec38a9ec201"
+      }
+    },
+    "after-r2": {
+      "settlement": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\workflow-projection-diagnostic-r192\\settlement-r1\\settlement.json",
+        "sha256": "5272b86135fe432594959133b351eb6040702ad2989bb52971d93dcf86815445"
+      },
+      "receipt": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\workflow-projection-diagnostic-r192\\settlement-r1\\receipt.json",
+        "sha256": "1e8c40a03e56fccc7f01687fda6cb8ab2d26ed37aa1027bbbb7376e001b43bca"
+      },
+      "status": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\controls\\after-r2-status\\exit.json",
+        "sha256": "6c7f9a50c1f83af55609805bec403981e8ed37e51b49f3f3bc4c7b8125248e01"
+      }
+    },
+    "after-d1": {
+      "settlement": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\settlements\\after-d1.json",
+        "sha256": "6abfbcdbb0465ec6f71ce89fe2a4243fe209a5cc6c04ef8db4a68d4ab7a1c40e"
+      },
+      "receipt": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\receipts\\after-d1\\result.json",
+        "sha256": "ebbccf864852fc60545979634dba2927fa2e234c1bf22b579b3281361f43bccb"
+      },
+      "status": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261027\\functional-continuation-r198\\runs\\functional-r198-20261027\\controls\\after-d1-status\\exit.json",
+        "sha256": "2762bb1956b5285afdb526148b279890e107f9655e28714c3299844acbb8a44f"
+      }
+    }
+  },
+  "replayProof": {
+    "allChecksPassed": true,
+    "signedSteps": 18,
+    "exactlyOnce": true
+  },
+  "platformInvocationAbsenceProved": false,
+  "capacity": {
+    "rowsUsed": 132,
+    "unmatchedStarts": 2
+  },
+  "versions": {
+    "site": "b38bd5c0-662f-49fb-90d5-7e2295498034",
+    "executor": "fb78e3d4-ff9d-450e-bc98-bee0ed2cf348"
+  },
+  "endedAt": "2026-10-27T12:27:14.847Z"
+}

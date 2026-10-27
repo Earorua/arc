@@ -1,5 +1,11 @@
 
-## Saved checkpoint r126 — 2026-10-18T13:36:02.425Z
+## Completed r206 — 2026-10-27
+
+完整迁移与首版公开 Research 已完成：arcmaps.net 由用户自有 Worker/D1/R2 提供服务，www 转到主域，旧 Sites 只保留正常访问跳转。Google/GitHub 正式登录、合并账号、新旧计划、实际云端计划保存和 Research 开放入口已核对。最终私有备份、业务零增量核对及 smoke 关闭记录已保存。本次未发模型请求、未增加费用上限。
+
+后续从 [r206 发布记录](../../outputs/local-resource-access-20261027/public-cutover-r199/FINAL-r206.md) 与 [当前检查点](v8-resume-checkpoint.md) 读取状态，不重复下方旧演练/审批/迁移步骤。
+
+## Historical checkpoint r126 — 2026-10-18T13:36:02.425Z
 
 用户要求保存并暂时关闭 Codex；目标工具已实际返回 paused。Task2 修正版已通过独立 SPEC、另一位 QUALITY，正式配置生成与三项静态部署预演均通过，root 验收 SHA-256 3631c15948b204cfecd02f5e134e581e19a1bc1f90b3e34d093903d46b0d4fa0。这些本地步骤已完成，不得重复运行；Task3 命令和完整交接计时尚未开始。全部代理已结束，无运行中的本机任务。
 

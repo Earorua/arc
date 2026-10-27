@@ -1,4 +1,10 @@
-## Active continuation r146 — 2026-10-24
+## Completed r206 — 2026-10-27
+
+Arc v8 首版已在用户自有 Cloudflare 账户公开发布，正式地址 https://arcmaps.net，Research 入口 https://arcmaps.net/setup 对登录用户开放。真实 Research、权威课程来源、后台故障恢复、完整数据迁移、正式域名 Google/GitHub 登录、历史计划与计划持久化均已有验收证据。原 r198 关闭读取超时由独立只读核对补齐，历史失败未改写；无需重复模拟或输入密钥C。现有5美元累计模型额度和所有访问/费用限制保留，本次发布无新增模型调用。
+
+当前精确版本、限制及恢复顺序以 [r206 发布记录](../../outputs/local-resource-access-20261027/public-cutover-r199/FINAL-r206.md) 和 [恢复检查点](v8-resume-checkpoint.md) 顶部为准。以下状态是历史，不再作为待办。
+
+## Historical continuation r146 — 2026-10-24
 
 独立旧数据副本已完成新版 schema 适配并原生完整回读通过。固定 D1 arc-v8-legacy-restore-db-20261024 / c4d33a7a-4201-4567-b1ad-988c1a4fd011 现为 **51 张表、837 行**；原有 835 行和旧迁移历史/序号保持一致，新增 2 行为扫描游标。仅应用既有 0007–0011，6 张新业务表与 2 字段对应当前规范；49 业务表 + 2 元数据表。应用前后全量 typed count/hash、catalog、FK=0、quick_check=ok 通过，应用只执行一次且已完整确认，不得重跑。
 

@@ -235,7 +235,7 @@ function proposeReplan(
   }
 
   const scheduleAvailability = event.kind === "delayed" || event.kind === "skipped"
-    ? availabilityWithDeferredDate(availability, activeDailyUnit(workspace, event.unitId).scheduledDate)
+    ? availabilityWithDeferredDate(availability, event.planningDate)
     : availability;
   const completed = completedIdsForPath(workspace, path);
   const built = buildPlanVersion({
@@ -249,7 +249,7 @@ function proposeReplan(
     completedUnitIds: completed,
   });
   const candidate = event.kind === "delayed" || event.kind === "skipped"
-    ? restoreDisplayedBudget(built.plan, built.dailyUnits, availability, activeDailyUnit(workspace, event.unitId).scheduledDate)
+    ? restoreDisplayedBudget(built.plan, built.dailyUnits, availability, event.planningDate)
     : built;
   const diff = diffPlans({ active: activePlan, candidate: candidate.plan, completedUnitIds: completedHistory });
   const next = finalizeWorkspace(workspace, event, {
