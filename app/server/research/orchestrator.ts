@@ -1,13 +1,17 @@
 import { z } from "zod";
-import { providerCitationAnnotationSchema, providerUsageSchema, researchRequestSchema, type ResearchCandidate, type ResearchPublicFailureCategory, type ResearchRunPublicView } from "../../contracts/research";
+import { providerCitationAnnotationSchema, providerUsageSchema, researchRecoverRequestSchema, researchRequestSchema, type ResearchCandidate, type ResearchPublicFailureCategory, type ResearchRunPublicView } from "../../contracts/research";
 import { canonicalJson, deterministicId, fingerprint } from "../../lib/planning/fingerprint";
 import type { AiRunSink, ResearchAiRunReader, ResearchAiRunRecord } from "../ai/gateway";
 import type { EntitlementGate } from "../entitlements/policy";
 import type { BudgetReservation, BudgetSettlement, ResearchBudgetLimits, ResearchBudgetRepository } from "./budget";
 import { validateResearchCandidate, type ResearchValidationContext, type ResearchValidationResult } from "./package-validator";
 import { candidateFromContent, fitsUtf8, RESEARCH_PROVIDER_LIMITS, ResearchProviderError, type ProviderResearchResult, type ResearchProvider } from "./provider";
+import { extractResearchJson } from "./research-content";
 import { ResearchRepositoryError, type ResearchRepository, type ResearchRunRecord } from "./repository";
+import type { ResearchCandidateDiagnosticObserver } from "./result-diagnostic";
+import type { ResearchQualityDiagnosticObserver } from "./quality-diagnostic";
 import { canonicalizePublicCitationUrl, readBoundedResearchJson } from "./source-audit";
+import type { SiteExecutionRecord } from "./site-execution-repository";
 
 export type ResearchGateContext = { cohortEnabled: boolean; rateAllowed: boolean };
 type Versions = Omit<ResearchValidationContext, "packageId" | "observedAt" | "expiresAt">;
@@ -16,7 +20,9 @@ export type ResearchOrchestratorDependencies = {
   repository: ResearchRepository; budget: ResearchBudgetRepository;
   entitlements: Pick<EntitlementGate, "authorizeResearch" | "readResearchReservation" | "finalize">;
   audits: AiRunSink & ResearchAiRunReader; provider: ResearchProvider; config: ResearchOrchestratorConfig;
-  now?: () => number; createRequestId?: () => string;
+  now?: () => number; createRequestId?: () => string; onCandidateDiagnostic?: ResearchCandidateDiagnosticObserver;
+  onQualityDiagnostic?: ResearchQualityDiagnosticObserver;
+  readRemoteExecution?: (ownerId: string, runId: string) => Promise<SiteExecutionRecord | null>;
 };
 const text = z.string().min(1).max(160).refine((value) => value === value.trim() && !/[\u0000-\u001f\u007f-\u009f]/u.test(value));
 const integer = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
@@ -60,6 +66,21 @@ export class ResearchOrchestrator {
     return run ? this.replay(run) : null;
   }
 
+  async recover(ownerId: string, input: unknown): Promise<ResearchRunPublicView | null> {
+    const request = researchRecoverRequestSchema.parse(readBoundedResearchJson(input));
+    const rawRole = text.min(2).parse(request.role.normalize("NFKC").trim().replace(/\s+/gu, " "));
+    const normalizedRoleKey = rawRole.toLowerCase();
+    const run = await this.dependencies.repository.findRecoveryRun({
+      ownerId,
+      mutationId: request.mutationId,
+      normalizedRoleKey,
+      locale: request.locale,
+      inputFingerprint: fingerprint([normalizedRoleKey, request.locale]),
+      retryOfRunId: request.kind === "retry" ? request.sourceRunId : null,
+    });
+    return run ? this.replay(run) : null;
+  }
+
   async retry(ownerId: string, runId: string, mutationId: string, context: ResearchGateContext): Promise<ResearchRunPublicView> {
     researchRequestSchema.shape.mutationId.parse(mutationId);
     let source = await this.dependencies.repository.getRun(ownerId, runId);
@@ -90,6 +111,7 @@ export class ResearchOrchestrator {
   }
 
   private async execute(initial: ResearchRunRecord, context: ResearchGateContext): Promise<ResearchRunPublicView> {
+    if (initial.executionMode === "cloudflare-workflow-v1") return this.observeRemote(initial);
     let run = initial;
     try {
       const cached = await this.dependencies.repository.findFreshPackage({ normalizedRoleKey: run.normalizedRoleKey, locale: run.locale, configFingerprint: run.configFingerprint, now: this.now() });
@@ -124,6 +146,7 @@ export class ResearchOrchestrator {
       // acknowledgement. Never overwrite that terminal state or its quota verdict.
       const stored = await this.dependencies.repository.getRun(initial.ownerId, initial.id);
       if (!stored) throw unavailable();
+      if (stored.executionMode === "cloudflare-workflow-v1") return this.observeRemote(stored);
       if (active(stored)) {
         try { run = await this.fail(stored, error instanceof ResearchRepositoryError && error.code === "CONFLICT" ? "interrupted" : "storage-failure", "service-unavailable"); }
         catch { return this.replay((await this.dependencies.repository.getRun(initial.ownerId, initial.id))!); }
@@ -150,14 +173,16 @@ export class ResearchOrchestrator {
       throw error;
     }
     const context = this.validationContext(run);
-    let validation = validateResearchCandidate(candidateFromContent(extractJson(first.result.content)), first.result.annotations, context);
+    let validation = validateResearchCandidate(candidateFromContent(
+      extractResearchJson(first.result.content), this.dependencies.onCandidateDiagnostic,
+    ), first.result.annotations, context, { onQualityDiagnostic: this.dependencies.onQualityDiagnostic });
     const repairCandidate = !validation.ready && validation.quality.issueCodes.includes("invalid-schema") && this.config.budget.repairMaximumMicros > 0
       ? mechanicallyRepairable(first.result.content, first.result.annotations, context) : null;
     await this.receipt(run, "role-research", first.result, first.latencyMs, repairCandidate ? "repair-required" : validation.ready ? null : "invalid-result");
     if (repairCandidate) {
       const repaired = await this.call(run, "role-research-repair", () => this.dependencies.provider.repair({ ...request, originalContent: first.result.content, annotations: first.result.annotations }));
       if (repaired instanceof ResearchProviderError) return this.providerFailure(run, repaired);
-      const candidate = candidateFromContent(extractJson(repaired.result.content));
+      const candidate = candidateFromContent(extractResearchJson(repaired.result.content));
       let originalOnly = candidate !== null && canonicalJson(candidate) === canonicalJson(repairCandidate);
       try {
         const urls = new Set(first.result.annotations.map((a) => canonicalizePublicCitationUrl(a.url)));
@@ -199,6 +224,7 @@ export class ResearchOrchestrator {
   }
 
   private async replay(initial: ResearchRunRecord): Promise<ResearchRunPublicView> {
+    if (initial.executionMode === "cloudflare-workflow-v1") return this.observeRemote(initial);
     let run = initial; let reclaimed = false;
     if (active(run)) {
       if (run.activeExpiresAt! > this.now()) return this.view(run);
@@ -211,6 +237,17 @@ export class ResearchOrchestrator {
     }
     await this.reconcile(run, reclaimed);
     return this.view(run);
+  }
+
+  private async observeRemote(run: ResearchRunRecord): Promise<ResearchRunPublicView> {
+    try {
+      const execution = await this.dependencies.readRemoteExecution?.(run.ownerId, run.id);
+      if (!execution || execution.ownerId !== run.ownerId || execution.runId !== run.id
+        || execution.requestId !== run.requestId || execution.quotaKey !== run.remoteQuotaKey) throw unavailable();
+      return await this.view(run);
+    } catch {
+      throw unavailable();
+    }
   }
 
   private async settleCost(run: ResearchRunRecord, cost: BudgetReservation | null, settlement: BudgetSettlement) {
@@ -271,13 +308,9 @@ function receiptSettlement(receipts: ResearchAiRunRecord[]): BudgetSettlement {
   const actualMicros = receipts.reduce((sum, r) => sum + (r.charged === false ? 0 : r.usage!.costMicros), 0);
   return Number.isSafeInteger(actualMicros) ? { kind: "actual", actualMicros } : { kind: "unknown" };
 }
-function extractJson(content: string) {
-  const value = content.trim(); const fence = /^```(?:json)?\s*\n([\s\S]*?)\n```$/u.exec(value);
-  return fence ? fence[1] : value;
-}
 /** Only delete syntactic trailing commas outside strings; never fill missing facts. */
 function mechanicallyRepairable(content: string, annotations: unknown, context: ResearchValidationContext): ResearchCandidate | null {
-  const input = extractJson(content); let result = ""; let quoted = false; let escaped = false;
+  const input = extractResearchJson(content); let result = ""; let quoted = false; let escaped = false;
   for (let i = 0; i < input.length; i++) {
     const char = input[i];
     if (!quoted && char === "," && /^\s*[}\]]/u.test(input.slice(i + 1))) continue;

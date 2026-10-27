@@ -1,5 +1,7 @@
 # Arc v8：关闭 Research 的小范围发布准备
 
+**2026-09-07 后续执行：** 用户随后明确要求完成部署尝试。Research 关闭版 v8 已通过一次公开部署上线为 Sites version 10，环境 revision 2 已应用；七个公开页面的精确顶部提示与 HTTP 检查通过，DB 概览 20→41。实际证据、仍未验证的数据恢复/登录后流程及准备清单的执行边界见 `v8-deployment-attempt-2026-09-07.md`。下文保留部署前准备记录，“尚未发布”不再是当前状态。
+
 **当前状态：本地准备、验证、双审和开发分支备份已完成，尚未发布。** 用户明确接受关闭 Research 入口的小范围 v8 发布准备，并要求顶部显示 `The website is currently under development.`。这条发布路径允许先验收和发布核心规划/Proof 功能，**不以真实 Research 成功作为本阶段前置条件**；真实 Research 的正式启用仍单独验收。
 
 起点：干净开发分支 `codex/v8-openrouter-research-beta` / `e2871a667dd2ded23f429f362024a00125c316a6`。设计与计划先保存为 `f7e0583`。当前阶段只改本地产品文案/样式与相关测试/文档，并普通备份已批准的公开开发分支。没有生产变量/旗标/D1/R2/访问策略操作，没有 Sites 候选或部署、master 合并、PR、真实 Provider 请求或密钥读取。

@@ -143,6 +143,23 @@ function memoryRepository() {
 }
 
 describe("Research planning source integration", () => {
+  it("does not use a historical unverified resource for a new plan, while preserving locked replay", async () => {
+    const historical = structuredClone(researchPackage);
+    historical.blueprint.resources[0]!.url = "https://www.woshipm.com/online/3569229.html";
+    historical.blueprint.resources[0]!.provider = "人人都是产品经理";
+    historical.sourceEvidence[0]!.canonicalUrl = historical.blueprint.resources[0]!.url;
+    historical.sourceEvidence[0]!.hostname = "www.woshipm.com";
+    historical.sourceEvidence[0]!.citationHash = fingerprint({ canonicalUrl: historical.blueprint.resources[0]!.url });
+    const { contentFingerprint: _old, ...content } = historical;
+    historical.contentFingerprint = fingerprint(canonicalJson(content));
+    const reference = { source: "research" as const, researchRunId, packageId: historical.id, blueprintId: historical.blueprint.id,
+      blueprintVersion: historical.blueprint.version, registryId: historical.registry.id, registryVersion: historical.registry.version,
+      configFingerprint, contentFingerprint: historical.contentFingerprint };
+    const sourceResolver = resolver(researchRepository(historical), replayReader(historical));
+    await expect(sourceResolver.resolveForGenerate(ownerId, { source: "research", researchRunId })).rejects.toThrow("Planning source is unavailable");
+    await expect(sourceResolver.resolveForGenerationCommit(ownerId, reference)).rejects.toThrow("Planning source is unavailable");
+    expect((await sourceResolver.resolveForReplay(ownerId, reference)).blueprint.resources[0]!.url).toBe(historical.blueprint.resources[0]!.url);
+  });
   it("keeps legacy Flagship requests and strictly parses the explicit source union", () => {
     const legacy = { ...request(), source: undefined, roleId: "ai-native-full-stack-engineer" };
     delete (legacy as { source?: unknown }).source;

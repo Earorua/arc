@@ -2,6 +2,9 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { WorkerConfig } from "@cloudflare/vite-plugin";
 import { z } from "zod";
+import {
+  createResearchAcceptanceConfigPair, parseResearchAcceptanceTarget, type ResearchAcceptanceTarget,
+} from "./research-acceptance-target.ts";
 
 const ACCOUNT_ID = "54eaadb89014252836694203c1e22546";
 const LOCAL_DATABASE_ID = "00000000-0000-4000-8000-000000000000";
@@ -35,7 +38,7 @@ const localTargetSchema = z.strictObject({
 
 export type RemoteCloudflareTarget = z.infer<typeof remoteTargetSchema>;
 export type LocalCloudflareTarget = z.infer<typeof localTargetSchema>;
-export type CloudflareTarget = RemoteCloudflareTarget | LocalCloudflareTarget;
+export type CloudflareTarget = RemoteCloudflareTarget | LocalCloudflareTarget | ResearchAcceptanceTarget;
 
 export function parseRemoteTarget(value: unknown): RemoteCloudflareTarget {
   const result = remoteTargetSchema.safeParse(value);
@@ -63,10 +66,14 @@ export async function loadCloudflareTarget(options: {
   } catch {
     throw new Error("Cannot read Cloudflare target inventory JSON.");
   }
+  if (explicit && typeof value === "object" && value !== null && "stage" in value && value.stage === "research-acceptance") {
+    return parseResearchAcceptanceTarget(value);
+  }
   return explicit ? parseRemoteTarget(value) : parseLocalTarget(value);
 }
 
 export function createCloudflareConfig(value: CloudflareTarget): Partial<WorkerConfig> {
+  if (value.stage === "research-acceptance") return createResearchAcceptanceConfigPair(value).site;
   const target = value.stage === "local" ? parseLocalTarget(value) : parseRemoteTarget(value);
   return {
     name: target.workerName,

@@ -15,6 +15,7 @@ import { readAuthPolicy, type AuthEnvironment } from "./policy";
 import { formatAuthDiagnostic } from "./diagnostics";
 import { createAccountLinkAuthHooks } from "../account-link/auth-hooks";
 import { D1AccountLinkRepository } from "../account-link/d1-repository";
+import { rejectRetiredSession } from "../account-recovery/session-guard";
 import {
   accountLinkProviderSchema,
   type AccountLinkProvider,
@@ -106,7 +107,10 @@ export function buildAuthOptions(
       },
     },
     hooks: accountLinkHooks.hooks,
-    databaseHooks: accountLinkHooks.databaseHooks,
+    databaseHooks: {
+      ...accountLinkHooks.databaseHooks,
+      session: { create: { after: (session) => rejectRetiredSession(getD1(), session) } },
+    },
     verification: { storeIdentifier: "hashed" },
     rateLimit: {
       enabled: true,

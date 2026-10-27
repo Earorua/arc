@@ -1,0 +1,93 @@
+.showcase-page { width: var(--content); margin: 0 auto; }
+.showcase-intro { display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end; padding: 72px 0 58px; }
+.showcase-intro h1 { margin: 24px 0 0; font: 450 clamp(3.5rem, 6.8vw, 6rem)/.94 var(--display); letter-spacing: -.055em; }
+.showcase-intro h1 em { color: var(--signal); font-weight: inherit; }
+.showcase-lede { max-width: 370px; margin: 0 0 6px; color: var(--stone); line-height: 1.9; font-size: 1rem; }
+.showcase-case { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 2fr); gap: clamp(32px, 5vw, 80px); padding: 44px 0 76px; border-top: 1px solid var(--hairline); align-items: start; }
+.showcase-context { position: sticky; top: 32px; }
+.showcase-context h2 { margin: 24px 0 18px; font: 500 clamp(1.7rem, 2.6vw, 2.6rem)/1.25 var(--display); letter-spacing: -.04em; }
+.showcase-context > p:not(.section-index) { color: var(--stone); font-size: .84rem; line-height: 1.8; }
+.showcase-facts { margin: 32px 0; }
+.showcase-facts > div { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--hairline); }
+.showcase-facts dt { color: var(--stone); font-size: .76rem; }
+.showcase-facts dd { margin: 0; font: 500 2rem var(--display); }
+.showcase-facts dd span { font: .72rem var(--sans); color: var(--stone); }
+.showcase-context .showcase-sample-note { font-size: .72rem; }
+.showcase-preview { min-width: 0; background: var(--chalk); border: 1px solid var(--hairline); }
+.showcase-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--hairline); }
+.showcase-tabs button { position: relative; display: flex; align-items: baseline; justify-content: center; gap: 10px; min-height: 70px; padding: 16px 8px; border: 0; background: transparent; color: var(--stone); font-size: .73rem; cursor: pointer; transition: color 160ms ease, background 160ms ease; }
+.showcase-tabs button span { font: 500 1.4rem var(--display); }
+.showcase-tabs button::after { content: ""; position: absolute; bottom: -1px; left: 16px; right: 16px; height: 2px; background: var(--signal); transform: scaleX(0); transition: transform 180ms ease; }
+.showcase-tabs button[aria-selected="true"] { color: var(--charcoal); }
+.showcase-tabs button[aria-selected="true"]::after { transform: scaleX(1); }
+.showcase-tabs button:hover { background: color-mix(in srgb, var(--ivory) 65%, transparent); color: var(--charcoal); }
+.showcase-tabs button:focus-visible { outline-offset: -6px; }
+.showcase-panel { min-height: 558px; padding: clamp(22px, 3vw, 40px); animation: showcase-reveal 220ms ease both; }
+.showcase-panel[hidden] { display: none; }
+.showcase-panel-heading .section-index { font-size: .6rem; }
+.showcase-panel-heading h3 { margin: 16px 0 10px; font: 500 clamp(1.4rem, 2vw, 1.8rem)/1.4 var(--display); letter-spacing: -.03em; }
+.showcase-panel-heading > p:last-child { max-width: 540px; margin: 0; color: var(--stone); font-size: .8rem; line-height: 1.8; }
+.showcase-roadmap { list-style: none; margin: 28px 0 0; padding: 0; }
+.showcase-roadmap li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 18px; padding: 17px 0; border-top: 1px solid var(--hairline); }
+.showcase-phase-number { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--hairline); border-radius: 50%; color: var(--stone); font: .6rem ui-monospace, monospace; }
+.showcase-roadmap li:first-child .showcase-phase-number { color: white; background: var(--signal); border-color: var(--signal); }
+.showcase-roadmap .showcase-week { margin: 0 0 6px; color: var(--stone); font-size: .65rem; line-height: 1.6; }
+.showcase-week span { margin-left: 6px; }
+.showcase-roadmap h4 { margin: 0 0 6px; font-weight: 600; font-size: .9rem; }
+.showcase-roadmap h4 + p { margin: 0; color: var(--stone); font-size: .75rem; line-height: 1.7; }
+.showcase-task { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 26px; align-items: center; margin: 32px 0 28px; padding: 22px 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+.showcase-duration { display: flex; flex-direction: column; align-items: center; color: var(--signal); }
+.showcase-duration strong { font: 450 4.5rem/.9 var(--display); letter-spacing: -.07em; }
+.showcase-duration > span { margin-top: 8px; font: .58rem ui-monospace, monospace; letter-spacing: .14em; }
+.showcase-task .section-index { font-size: .6rem; }
+.showcase-task h4 { margin: 10px 0 0; font: 500 1.3rem/1.55 var(--display); }
+.showcase-steps { list-style: none; margin: 0; padding: 0; }
+.showcase-steps li { display: flex; gap: 16px; padding: 14px 0; font-size: .83rem; line-height: 1.7; }
+.showcase-steps li > span { padding-top: 3px; color: var(--stone); font: .65rem/1.7 ui-monospace, monospace; }
+.showcase-deliverable { display: flex; flex-direction: column; gap: 8px; margin-top: 26px; padding-left: 18px; border-left: 2px solid var(--signal); }
+.showcase-deliverable > span { color: var(--stone); font-size: .7rem; }
+.showcase-deliverable strong { font-size: .85rem; font-weight: 500; }
+.showcase-skills { margin: 24px 0 0; color: var(--stone); font-size: .66rem; line-height: 1.8; }
+.showcase-proof { margin-top: 30px; border-top: 1px solid var(--hairline); padding-top: 20px; }
+.showcase-proof-label { display: flex; justify-content: space-between; gap: 16px; color: var(--stone); font: .62rem/1.5 ui-monospace, monospace; }
+.showcase-proof-label > span:last-child { color: var(--signal); }
+.showcase-proof h4 { margin: 24px 0 12px; font: 500 1.45rem/1.4 var(--display); }
+.showcase-proof > p { color: var(--stone); font-size: .8rem; line-height: 1.8; }
+.showcase-proof dl { margin: 24px 0 0; }
+.showcase-proof dl > div { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 20px; padding: 15px 0; border-top: 1px solid var(--hairline); font-size: .75rem; line-height: 1.8; }
+.showcase-proof dt { color: var(--stone); }
+.showcase-proof dd { margin: 0; overflow-wrap: anywhere; }
+.showcase-proof code { font-size: .7rem; }
+.showcase-proof-note { margin: 22px 0 0; color: var(--stone); font-size: .66rem; line-height: 1.8; }
+.showcase-preview-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px clamp(22px, 3vw, 40px); border-top: 1px solid var(--hairline); color: var(--stone); font-size: .65rem; }
+.showcase-preview-footer .wordmark { font-size: 1rem; color: var(--charcoal); }
+.showcase-next { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 50px 0 100px; border-top: 1px solid var(--hairline); }
+.showcase-next h2 { margin: 20px 0 0; font: 500 clamp(1.7rem, 3vw, 2.7rem)/1.4 var(--display); letter-spacing: -.04em; }
+.showcase-next .primary-action { margin: 0; gap: 24px; white-space: nowrap; transition: background 160ms ease; }
+.showcase-next .primary-action:hover { background: var(--signal); }
+@keyframes showcase-reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 760px) {
+  .showcase-intro { grid-template-columns: 1fr; gap: 24px; padding: 48px 0 36px; }
+  .showcase-intro h1 { font-size: clamp(3.3rem, 12vw, 4.8rem); }
+  .showcase-lede { max-width: 480px; font-size: .88rem; }
+  .showcase-case { grid-template-columns: 1fr; gap: 24px; padding-top: 26px; padding-bottom: 40px; }
+  .showcase-context { position: static; }
+  .showcase-context h2 { margin: 16px 0 10px; font-size: 1.8rem; }
+  .showcase-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 20px 0 14px; }
+  .showcase-facts > div { flex-direction: column; gap: 8px; }
+  .showcase-facts dd { font-size: 1.7rem; }
+  .showcase-context .showcase-sample-note { margin: 0; }
+  .showcase-tabs button { flex-direction: column; align-items: center; gap: 5px; min-height: 74px; font-size: .68rem; }
+  .showcase-tabs button span { font-size: 1.2rem; }
+  .showcase-panel { min-height: 0; padding: 22px 18px; }
+  .showcase-roadmap li { gap: 12px; }
+  .showcase-week span { display: block; margin-left: 0; }
+  .showcase-task { gap: 20px; }
+  .showcase-task h4 { font-size: 1.15rem; }
+  .showcase-proof dl > div { grid-template-columns: 56px minmax(0, 1fr); gap: 12px; }
+  .showcase-next { align-items: start; flex-direction: column; padding: 32px 0 64px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .showcase-panel { animation: none; }
+  .showcase-tabs button, .showcase-tabs button::after, .showcase-next .primary-action { transition: none; }
+}

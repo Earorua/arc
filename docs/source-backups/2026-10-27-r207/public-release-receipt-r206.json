@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "arc-v8-first-public-release-v1",
+  "status": "PUBLIC_RELEASE_VERIFIED",
+  "recordedAt": "2026-10-27T13:14:22.925Z",
+  "latestLiveEvidenceAt": "2026-10-27T13:09:57.933Z",
+  "siteUrl": "https://arcmaps.net",
+  "researchUrl": "https://arcmaps.net/setup",
+  "site": {
+    "worker": "arc-v8-migration-shadow-20260922",
+    "versionId": "0d8c98f4-c3a8-4b0d-a599-7890dc52237a",
+    "deploymentId": "6719e59b-a450-404f-ac62-4373afae92e3"
+  },
+  "executor": {
+    "worker": "arc-v8-migration-research-executor",
+    "versionId": "58ce29e7-80df-4d78-8a28-c7dcdf614555",
+    "deploymentId": "0d3eb1ac-9378-4d27-b2fa-a70d4a0e1f5d",
+    "private": true,
+    "maintenanceSchedule": "* * * * *"
+  },
+  "smokeClosed": true,
+  "functionalScenariosMustNotBeRepeated": true,
+  "pendingControlSecretInput": false,
+  "originalFailurePreserved": true,
+  "noPermanentAbsenceOfPlatformInvocationsClaim": true,
+  "publicResearchEnabledForSignedInUsers": true,
+  "budget": {
+    "cumulativeKeyLimitUsd": 5,
+    "reset": "none",
+    "lastDisplayedRemainingUsd": 3.64,
+    "perRequestReservationUsd": 3.5,
+    "limitsRaised": false
+  },
+  "agentProviderCallsDuringCutover": 0,
+  "data": {
+    "finalLegacyTables": 45,
+    "finalLegacyRows": 849,
+    "finalLegacyObjects": 0,
+    "finalBusinessDelta": 0,
+    "defaultResearchPlanPreserved": true,
+    "oldHistoryPreserved": true,
+    "privateBackupVerified": true
+  },
+  "authentication": {
+    "googleOnApexPassed": true,
+    "githubOnApexPassed": true,
+    "sameMergedAccount": true,
+    "separateNonOwnerLiveLoginPerformed": false
+  },
+  "writes": {
+    "proposalAndDiscardPassedAcrossReload": true,
+    "activePlanUnchanged": true,
+    "checkboxPersistenceNotClaimed": true
+  },
+  "verification": {
+    "relatedTestsPassed": 74,
+    "isolationHistoryTestsPassed": 21,
+    "typecheckExitCode": 0,
+    "buildVerified": true,
+    "httpChecksPassed": 8
+  },
+  "canonicalSource": "C:/Users/XF/.codex/worktrees/arc-v8-release-integration/v8-openrouter-research-beta",
+  "sourceEvidence": [
+    {
+      "path": "app/lib/planning/event-reducer.ts",
+      "sha256": "27dae64d92bbce32b5eb56432443091f43ae1cdbfabaea0f9ab3d1d5daca2f7c"
+    },
+    {
+      "path": "tests/lib/planning/event-reducer.test.ts",
+      "sha256": "3f09ff0c331eebed2ca1b8f15092080a1528fc7e63a5d7145f4acc5f9cc55932"
+    }
+  ],
+  "newGithubPushThisCutover": false,
+  "frozenCandidate": "C:\\Users\\XF\\.codex\\worktrees\\arc-v8-release-integration\\restricted-research-candidates\\public-planning-overdue-closed-20261027-r203",
+  "candidateManifestSha256": "7bf7bcad7b0fc75cb722b58cb4c23417243fb9537ad2e524a52774c6336caee9",
+  "checkpoint": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\docs\\operations\\v8-resume-checkpoint.md",
+  "evidence": [
+    {
+      "path": "site-active-r203-result.json",
+      "bytes": 764,
+      "sha256": "0d6a0c32e366eb5d8772d5453c359626ea75456696fd94c662a2437672bcfd4d"
+    },
+    {
+      "path": "executor-active-r203-result.json",
+      "bytes": 774,
+      "sha256": "9da17113d86f3c1cde6cc0d913c4868b50fe58d5c7a195a21c60c633017bd51e"
+    },
+    {
+      "path": "public-cohort-applied-r203.json",
+      "bytes": 536,
+      "sha256": "ecef62f9bd9bccb0c3ff2e8383f85006a609741cbb2c199e52d4177d2e8a6863"
+    },
+    {
+      "path": "public-cohort-r205/restore-restricted.sql",
+      "bytes": 532,
+      "sha256": "e58664504ef5b965fe7a9c743c061d972a4ed9b3311c81adc323a2a980460abf"
+    },
+    {
+      "path": "public-entry-ui-verification-r206.json",
+      "bytes": 381,
+      "sha256": "5e57fb33a711e598e5e914ccd5802751f22663979c9a1b0284a1a0a9885ac3fb"
+    },
+    {
+      "path": "public-research-enabled.png",
+      "bytes": 40599,
+      "sha256": "08e7fa93c0e63c3f4a578a4c0cef481a4642ed2b6fb388ec100bc5c9a16bc72d"
+    },
+    {
+      "path": "public-readiness-r203.json",
+      "bytes": 1326,
+      "sha256": "6de552f1624df525cf0af8d73cd1e59b42854beddf64e8de3f3c1d4f418699db"
+    },
+    {
+      "path": "public-http-verification.json",
+      "bytes": 1482,
+      "sha256": "7b9fa1295316295ca05c57f2f47af3549f6d155173e4ba17d4f4a485433d7520"
+    },
+    {
+      "path": "final-delta-disposition.json",
+      "bytes": 992,
+      "sha256": "32b1843198017cb2b05374fdf10e7a1c759d05d22f2c82e2484d8907b146ba77"
+    },
+    {
+      "path": "legacy-final-verification.json",
+      "bytes": 6829,
+      "sha256": "ba7a0eb8f200c9488d60b472939a1f3ddaa9cd9d7dcf6a5f55b820e2b2bc03a5"
+    },
+    {
+      "path": "owned-quiet-backup-result.json",
+      "bytes": 722,
+      "sha256": "e35790b76b59aa4c3f7b2725f81753e52695e6969404fffcb8f11579b77d295f"
+    },
+    {
+      "path": "planning-fix-build-summary.json",
+      "bytes": 620,
+      "sha256": "da287c3686b4a80b45c0004a3f62f2ec4b703a4fe485dcc04de470b6b6f26e15"
+    },
+    {
+      "path": "final-config-packet-r203.json",
+      "bytes": 3421,
+      "sha256": "33e4752dfd844ffccac170dede06eca139124befda339c5c6b5fc21b9653ddad"
+    },
+    {
+      "path": "credits-readback.json",
+      "bytes": 599,
+      "sha256": "b1e748f28e471f13e26849b4b2787f28ac33e500aa9ac488178399bcaa068c9d"
+    },
+    {
+      "path": "FINAL-r206.md",
+      "bytes": 6933,
+      "sha256": "37176d593b04c845e09ae958dde8dcb95ee9c9b061342cbb10ea95f483a0f337"
+    },
+    {
+      "path": "../../local-durable-executor-20261027/closure-reconciliation-r202/result.json",
+      "bytes": 8038,
+      "sha256": "df6e37eb052d2fc2b72711ebc722dd08179f1719356938ed9d1f7d396b125634"
+    }
+  ]
+}

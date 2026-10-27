@@ -1,10 +1,28 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+const mocks = vi.hoisted(() => ({ useSession: vi.fn(), replace: vi.fn() }));
+vi.mock("../../app/lib/auth-client", () => ({ authClient: { useSession: mocks.useSession } }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: mocks.replace }) }));
+vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => null }));
 import Home from "../../app/page";
 
 afterEach(cleanup);
+beforeEach(() => { mocks.useSession.mockReturnValue({ data: null, isPending: false }); });
 
 describe("Arc home", () => {
+  it("takes a signed-in learner to their existing workspace instead of new setup", () => {
+    mocks.useSession.mockReturnValue({ data: { user: { id: "learner" } }, isPending: false });
+    render(<Home />);
+    expect(mocks.replace).toHaveBeenCalledWith("/today");
+    expect(screen.getByRole("link", { name: /Continue learning/i })).toHaveAttribute("href", "/today");
+    expect(screen.queryByRole("link", { name: /Build my precise path/i })).not.toBeInTheDocument();
+  });
+
+  it("does not redirect an unresolved session", () => {
+    mocks.useSession.mockReturnValue({ data: null, isPending: true });
+    render(<Home />);
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
   it("presents one promise, one primary action, and the product loop", () => {
     render(<Home />);
 

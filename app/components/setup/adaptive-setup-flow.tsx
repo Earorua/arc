@@ -34,10 +34,11 @@ function toTarget(targetWeeks: number): PlanningTarget {
 }
 function safely<T>(build: () => T): T | null { try { return build(); } catch { return null; } }
 
-export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navigate, createMutationId, now, timeZone, onBackToRole, active = true, savesToAccount = false, buildPaths = buildLearningPaths, buildPathsForSubmit = buildLearningPaths, scheduleForSubmit = buildPlanVersion }: {
+export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navigate, createMutationId, now, timeZone, onBackToRole, active = true, savesToAccount = false, createsNewGoal = false, buildPaths = buildLearningPaths, buildPathsForSubmit = buildLearningPaths, scheduleForSubmit = buildPlanVersion }: {
   blueprint: RoleBlueprint; registry: UnitRegistry; generate: (request: GeneratePlanningRequest) => Promise<boolean>;
   source?: SetupSource;
   savesToAccount?: boolean;
+  createsNewGoal?: boolean;
   navigate: (path: string) => void; createMutationId: () => string; now: () => Date; timeZone: string; onBackToRole?: () => void; active?: boolean;
   buildPaths?: (input: PathBuildInput) => ReturnType<typeof buildLearningPaths>;
   buildPathsForSubmit?: (input: PathBuildInput) => ReturnType<typeof buildLearningPaths> | Promise<ReturnType<typeof buildLearningPaths>>;
@@ -51,6 +52,8 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
   const [targetWeeks, setTargetWeeks] = useState(18);
   const [selectedScope, setSelectedScope] = useState<"full-scope" | "target-date" | null>(null);
   const [building, setBuilding] = useState(false);
+  const [newPlanConfirmed, setNewPlanConfirmed] = useState(false);
+  const buildAttempt = useRef<{ key: string; mutationId: string } | null>(null);
   const [buildStatus, setBuildStatus] = useState("Ready to build.");
   const [planningInstant] = useState(() => now().toISOString());
   const lifecycle = useRef(0);
@@ -81,7 +84,7 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
   const canContinue = (stage === "audit" && audit !== null) || (stage === "availability" && availability !== null) || (stage === "target" && audit !== null && availability !== null && target !== null && targetPaths !== null && scopeAvailable);
 
   const build = async () => {
-    if (!active || building || !audit || !availability || !target || !targetPaths || !scopeAvailable) return;
+    if (!active || building || (createsNewGoal && !newPlanConfirmed) || !audit || !availability || !target || !targetPaths || !scopeAvailable) return;
     const epoch = lifecycle.current;
     const current = () => epoch === lifecycle.current;
     setBuilding(true); setBuildStatus("Validating your inputs…");
@@ -110,7 +113,10 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
       schedule.dailyUnits.forEach((unit) => dailyUnitSchema.parse(unit));
 
       setBuildStatus("Saving your plan…");
-      const request = generatePlanningRequestSchema.parse({ mutationId: createMutationId(), ...(source ? { source } : { roleId: blueprint.id }), planningDate, ...validated, selectedScope: scope });
+      const input = { ...(source ? { source } : { roleId: blueprint.id }), planningDate, ...validated, selectedScope: scope };
+      const key = JSON.stringify(input);
+      if (buildAttempt.current?.key !== key) buildAttempt.current = { key, mutationId: createMutationId() };
+      const request = generatePlanningRequestSchema.parse({ mutationId: buildAttempt.current.mutationId, ...input });
       const saved = await generate(request);
       if (!current()) return;
       if (!saved) { setBuildStatus("Arc could not save this plan. Your answers are still editable."); return; }
@@ -125,7 +131,13 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
     {stage === "audit" && <SkillAuditStep blueprint={blueprint} onChange={(next) => { setAuditDraft(next); setSelectedScope(null); }} value={auditDraft} />}
     {stage === "availability" && <AvailabilityStep onChange={(next) => { setAvailabilityDraft(next); setSelectedScope(null); }} planningDate={planningDate} value={availabilityDraft} />}
     {stage === "target" && audit && availability && <TargetStep blueprint={blueprint} error={targetBuild.failed ? "Arc could not compare these paths. Review the inputs and try again." : undefined} onScopeChange={setSelectedScope} onTargetChange={(weeks) => { setTargetWeeks(weeks); setSelectedScope(null); }} result={targetPaths} selectedScope={scopeAvailable ? selectedScope : null} target={targetDraft} />}
-    {stage === "build" && <div className="build-ledger">{savesToAccount && <p>Build saves this plan to your account. Your existing device history stays on this device.</p>}<p role={buildStatus.includes("could not") ? "alert" : "status"}>{buildStatus}</p><button className="setup-next" disabled={building} onClick={() => void build()} type="button">Build my path</button></div>}
+    {stage === "build" && <div className="build-ledger">
+      {savesToAccount && <p>Build saves this plan to your account. Your existing device history stays on this device.</p>}
+      {createsNewGoal && <label><input type="checkbox" checked={newPlanConfirmed} disabled={building}
+        onChange={(event) => setNewPlanConfirmed(event.target.checked)} /> Create a new plan and keep my current plan in history</label>}
+      <p role={buildStatus.includes("could not") ? "alert" : "status"}>{buildStatus}</p>
+      <button className="setup-next" disabled={building || (createsNewGoal && !newPlanConfirmed)} onClick={() => void build()} type="button">Build my path</button>
+    </div>}
     <nav className="setup-actions" aria-label="Setup steps">
       <button className="setup-back text-action" disabled={building} onClick={back} type="button">Back</button>
       {stage !== "build" && <button className="setup-next" disabled={!canContinue} onClick={advance} type="button">Continue</button>}

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/newsreader";
 import "./globals.css";
+import "./components/agents/agents.css";
+import { LearningAgentsProvider } from "./components/agents/agent-context";
+import { AgentCompanion } from "./components/agents/agent-companion";
 
 const title = "Arc. — Learn only what moves you forward";
 const description = "Turn any role into an attributable technology map, a precise daily path, and proof of capability.";
@@ -42,7 +45,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <a className="skip-link" href="#main-content">跳到主要内容</a>
         <p className="development-notice" role="note" lang="en">The website is currently under development.</p>
-        {children}
+        <LearningAgentsProvider>
+          {children}
+          <AgentCompanion />
+        </LearningAgentsProvider>
       </body>
     </html>
   );

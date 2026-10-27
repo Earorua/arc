@@ -36,7 +36,6 @@ export default function SignInPage() {
     <main className="sign-in-page" id="main-content" lang="en">
       <header className="sign-in-header">
         <Link className="wordmark" href="/" aria-label="Arc. home">Arc.</Link>
-        <Link href="/today">Explore sample</Link>
       </header>
       <section className="sign-in-composition">
         <div className="sign-in-intro">

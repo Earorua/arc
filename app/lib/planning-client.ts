@@ -96,7 +96,7 @@ function invalidResponse(): ArcApiError {
   return new ArcApiError(500, "INTERNAL", "Arc returned an invalid response.", invalidResponseId);
 }
 
-async function readBoundedResponse(response: Response, signal?: AbortSignal): Promise<string> {
+export async function readBoundedResponse(response: Response, signal?: AbortSignal): Promise<string> {
   signal?.throwIfAborted();
   const contentLength = response.headers.get("content-length");
   if (contentLength !== null) {

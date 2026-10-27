@@ -1,6 +1,6 @@
 const KEY_URL = "https://openrouter.ai/api/v1/key";
 const CATALOG_URL = "https://openrouter.ai/api/v1/models/user";
-const REQUESTED_MODEL = "openai/gpt-5.6-sol";
+const REQUESTED_MODEL = "moonshotai/kimi-k3";
 const DEADLINE_MS = 30_000;
 
 type Diagnostic = {

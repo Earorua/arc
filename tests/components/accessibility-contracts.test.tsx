@@ -182,7 +182,7 @@ describe("navigation accessibility contracts", () => {
     expect(menuButton).toHaveAttribute("aria-expanded", "true");
     expect(publicNavigation).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Method" })).toHaveAttribute("href", "/method");
-    expect(screen.getByRole("link", { name: "Intelligence" })).toHaveAttribute("href", "/intelligence");
+    expect(screen.queryByRole("link", { name: "Intelligence" })).not.toBeInTheDocument();
   });
 
   it("removes the mobile workspace wordmark from focus and layout", () => {

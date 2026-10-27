@@ -15,6 +15,7 @@ import { canonicalJson, fingerprint } from "../../lib/planning/fingerprint";
 import { validateUnitRegistry } from "../../lib/planning/registry-validation";
 import type { IntelligenceService } from "../intelligence/service";
 import type { ResearchRepository } from "../research/repository";
+import { hasVerifiedLearningAuthority } from "../research/source-authority";
 
 const FLAGSHIP_ROLE_ID = "ai-native-full-stack-engineer" as const;
 
@@ -68,6 +69,7 @@ export class PlanningSourceResolver {
         throw new PlanningSourceUnavailableError();
       }
       const packageValue = await repository.resolveReadyPackage(ownerId, source.researchRunId);
+      if (!packageValue.blueprint.resources.every(hasVerifiedLearningAuthority)) throw new PlanningSourceUnavailableError();
       const reference = researchReference(source.researchRunId, run.configFingerprint, packageValue);
       if (run.packageId !== reference.packageId) throw new PlanningSourceUnavailableError();
       return validateContext({ reference, blueprint: packageValue.blueprint, registry: packageValue.registry });
@@ -102,6 +104,7 @@ export class PlanningSourceResolver {
         throw new PlanningSourceUnavailableError();
       }
       const packageValue = await repository.resolveReadyPackage(ownerId, reference.researchRunId);
+      if (!packageValue.blueprint.resources.every(hasVerifiedLearningAuthority)) throw new PlanningSourceUnavailableError();
       const canonicalReference = researchReference(reference.researchRunId, run.configFingerprint, packageValue);
       if (run.packageId !== canonicalReference.packageId
         || canonicalJson(canonicalReference) !== canonicalJson(reference)) {

@@ -1,0 +1,698 @@
+{
+  "schemaVersion": "arc-resume-checkpoint-v3",
+  "savedAt": "2026-10-18T13:36:02.425Z",
+  "previous": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261018\\resume-checkpoint-r125.json",
+    "sha256": "ece2c1072e995eb46b24a867c079847b21ad8ab7f827864d3912434a316e18ed"
+  },
+  "workspace": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta",
+  "status": "paused",
+  "phase": "task2-accepted-task3-pending-restricted-real-feasibility-read-only",
+  "userRequestedWorkResumption": false,
+  "pauseRequested": true,
+  "goalComplete": false,
+  "goalToolLastObservedStatus": "paused",
+  "goalToolNote": "update_goal returned paused at the user explicit save/temporary-close request; do not resume goal work until asked.",
+  "task15Accepted": false,
+  "task16Accepted": false,
+  "task17Accepted": false,
+  "publicResearchEnabled": false,
+  "continuationNotes": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261018\\continuation-from-r114.md",
+  "resourceCreationAcceptance": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\root-resource-creation-acceptance-r1.json",
+    "sha256": "fb7521c24267b6ce7798f3d798f01b5bea98eb9e8514cd60fa0c1f2c8e3c1f9a"
+  },
+  "newResources": {
+    "siteD1": {
+      "name": "arc-v8-smoke-site-db-20261017-snapshot",
+      "id": "ab1c37a2-dd68-482d-8cbf-4175cfd4480b"
+    },
+    "executorD1": {
+      "name": "arc-v8-smoke-executor-db-20261017-snapshot",
+      "id": "ea89c802-37ba-496d-960f-b4e1403c3afe"
+    },
+    "receipts": {
+      "name": "arc-v8-smoke-receipts-20261017-snapshot",
+      "id": "arc-v8-smoke-receipts-20261017-snapshot"
+    }
+  },
+  "newResourcesBound": true,
+  "newSchemaApplied": true,
+  "newWorkflowCreated": true,
+  "newRehearsalStarted": false,
+  "observedClosedPair": {
+    "reference": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\observations\\final\\result.json",
+      "sha256": "eecd348abf4a4d16a86467fd7819b8751a5fa9468c487322dba185ed4a04bbf8"
+    },
+    "observedAt": "2026-10-18T08:12:32.390Z",
+    "siteVersion": "d427c1d2-87e6-44fd-9392-4374d3ea7016",
+    "executorVersion": "0eaeec45-6d8f-4b25-a06d-c7b1ccb68308",
+    "admission": false,
+    "maintenance": false,
+    "cron": [],
+    "newDatabasesEmpty": false,
+    "newDatabasesInitialized": true,
+    "newWorkflowRosterEmpty": true,
+    "platformInvocationAbsenceProved": false,
+    "reusableAsFreshMutationGate": false
+  },
+  "currentLocalPlan": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\docs\\superpowers\\plans\\2026-10-17-arc-v8-snapshot-scenario-continuation.md",
+    "sha256": "5e050612db84afc24998287a39ec54110c0488286429473754b133315577d98d"
+  },
+  "implementer": null,
+  "localReviewStatus": "SCHEMA_TASK1_TASK2_ACCEPTED_TASK3_NOT_STARTED",
+  "next": "Read r126 handoff. Honor proportionate-review direction. Prioritize concrete read-only feasibility/ordering for a restricted first real Research test, reusing accepted source/build/bootstrap work. Task3 remains required before the final mock sequence. Do not rerun consumed Task2 preparation/dry-runs or old cloud commands. No paid request without new explicit cap/authorization.",
+  "cloudOperationsThisContinuation": {
+    "completeNativeCollections": 9,
+    "nativeReads": 229,
+    "immediateDeploymentReads": 4,
+    "resourcesCreated": 3,
+    "creationPreflightAndReadbackQueries": 6,
+    "privacyQueries": 2,
+    "deployments": 2,
+    "newWorkflowDefinitions": 1,
+    "workflowStarts": 0,
+    "workerControlCalls": 0,
+    "modelCalls": 0,
+    "immediateSchemaReads": 6,
+    "postApplyLedgerReads": 2,
+    "schemaApplyCommands": 2,
+    "migrationsApplied": 18
+  },
+  "boundaries": [
+    "Do not rerun consumed collectors or creators.",
+    "Do not edit accepted evidence, old clocks, or original tombstone.",
+    "No A/B/C credential values are needed at this stage.",
+    "Finish all new scenario tooling before asking for attended C input.",
+    "Real model testing still needs new explicit capped authorization."
+  ],
+  "manifestMaterializationAcceptance": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\root-no-start-materialization-acceptance-r1.json",
+    "sha256": "d7534ebf3e26f4aedbc14328efdeb53bf93e147bc5d48b99038262e868877e1c"
+  },
+  "manifestReviews": {
+    "spec": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\manifest-spec-review-r1.json",
+      "sha256": "9936046f4c567163f01166e9191f1214494dbe0174f939902a4c0a8023e1c862"
+    },
+    "quality": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\manifest-quality-review-r1.json",
+      "sha256": "22434d11ec83ab4afb6473b98bc2341cfb4e25e8af5aa7f4a4b9cb2f1ee896ad"
+    }
+  },
+  "noStartFirstSpec": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\spec-review-r1.json",
+    "sha256": "8fcf8daabcb5cbbe166187b9774ad3b5f72ebaf12e0c52bedd786ccc1d5033a6"
+  },
+  "noStartFirstImplementationReport": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\implementation-report-r1.md",
+    "sha256": "7216197869d0272ff8aad1bee424e14351d969813049d56d8b2ef4d03dc8e9c3"
+  },
+  "noStartFailureAudit": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\spec-dynamic-import-audit-r1.log",
+    "sha256": "dd78274869a87cb6603bdb1e35f1fa5d117bf9246cdbcbc7cb1c777d50fcc2fb"
+  },
+  "schemaPreparationPlan": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\docs\\superpowers\\plans\\2026-10-17-arc-v8-snapshot-schema-initialization.md",
+    "sha256": "885b145abe334b9eea6c4615ed413564867ee9985e9042c73c6584f65acf4429"
+  },
+  "schemaStaticExpectations": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-expectations-r1.json",
+    "sha256": "18cb6a903f91a9cb318985cd0dcda9d88e45e2965cc6d254cc6e1d3ede2be318"
+  },
+  "successfulNoStartPreparation": true,
+  "noStartToolingAcceptance": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\root-tooling-acceptance-r1.json",
+    "sha256": "d52be8ecf86f30f4289b3c78a75fc4a45903414dede1628e9019730e9206de96"
+  },
+  "noStartPreparation": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\prepared\\preparation.json",
+    "sha256": "91abb0e0eb0fe98d316efeb98a25325ef77e919bf71844c07b68b0bb2b6b1b77"
+  },
+  "noStartReviews": {
+    "spec": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\spec-review-r2.json",
+      "sha256": "a9904f3c72a518ce929dfc726deedec0f733cd4abfec4f9f80760328b0d8b224"
+    },
+    "quality": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\quality-review-r2.json",
+      "sha256": "0213ec8eb1bad16e1b3baa724cce567cd3fba906670f05e83f0fd91c51ec0dd5"
+    }
+  },
+  "noStartCloudCollectionInProgress": null,
+  "newWorkflow": {
+    "name": "arc-v8-smoke-workflow-20261017-snapshot",
+    "id": "0461e04e-0639-40dc-899a-b4b147887339"
+  },
+  "noStartMappingAcceptance": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\root-no-start-mapping-acceptance-r1.json",
+    "sha256": "d3fae9f364e8015a41dd1b1204d5fd6cb75db631194941a5ffc2168873b0d637"
+  },
+  "preDeploymentClosedPair": {
+    "first": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\observations\\pre-first\\result.json",
+      "sha256": "e37946db8e6231aa7165028fed5aff1f611693683400637f18478a2f593b8b10"
+    },
+    "second": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\no-start-ops-r1\\observations\\pre-second\\result.json",
+      "sha256": "e37698450776640448b1fa3a77ea25fce9375114e4d88533e92a52f37a2823e6"
+    }
+  },
+  "noStartCloudOperations": {
+    "completeNativeCollections": 4,
+    "nativeCollectionReads": 98,
+    "immediateDeploymentReads": 4,
+    "deployments": 2,
+    "newWorkflowDefinitions": 1,
+    "workflowStarts": 0,
+    "workerControlCalls": 0,
+    "providerCalls": 0
+  },
+  "schemaImplementation": {
+    "report": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\implementation-report-r1.md",
+      "sha256": "6668434bccc87bcdae96957360b0fdf81d8f0eedf26e8e5e5d653ea4cab9141c"
+    },
+    "derivation": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\derivation-r1.json",
+      "sha256": "4166857e1d5e6897fc3ae8c8287bd3c71b2a35fb9aa223682589f3a941674c93"
+    },
+    "status": "SPEC_QUALITY_ROOT_PASSED_INITIALIZATION_ACCEPTED",
+    "localTests": 60,
+    "actualGraphTests": 1,
+    "syntaxChecks": 18,
+    "guardedCliRefusals": 6,
+    "runtimeReferences": 210,
+    "inputReferences": 2747,
+    "testReferences": 21,
+    "realChildDispatches": 0,
+    "networkCalls": 0,
+    "prepared": true,
+    "independentQualityFreshChecks": 18
+  },
+  "scenarioContinuationPlan": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\docs\\superpowers\\plans\\2026-10-17-arc-v8-snapshot-scenario-continuation.md",
+    "sha256": "5e050612db84afc24998287a39ec54110c0488286429473754b133315577d98d"
+  },
+  "scenarioContinuationNotes": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261017\\snapshot-scenario-continuation-notes-r1.md",
+    "sha256": "c94d1358894b07b6dd5d037cbe6541c4ad342dd4868f054ba4966e0dc6580ad4"
+  },
+  "scenarioContinuationStatus": "TASK2_STATIC_PREPARATION_AND_THREE_DRY_RUNS_ACCEPTED_PAUSED",
+  "schemaReviews": {
+    "spec": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\spec-review-r1.json",
+      "sha256": "3d7d08caad427f4f1c45e2f632a67a6b79e0d81e97a5b3024db63149963a3c08"
+    },
+    "notes": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\spec-review-r1.md",
+      "sha256": "193581ebab10e50518d87f8ea86d07d0aa10b176f665ce22b637fd6ca52656c0"
+    },
+    "quality": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\quality-review-r1.json",
+      "sha256": "eff707a5efad5568ba8009b152f75f4984fd777683302c2a7fa1d2bf9f1863c5"
+    },
+    "qualityNotes": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\quality-review-r1.md",
+      "sha256": "21c3117539a53da36d1544ecc73b45c71f3d3daab819d5a96208608915aee280"
+    }
+  },
+  "rootHasRunningExecSession": false,
+  "localProcessInventoryAttempt": {
+    "kind": "read-only-CIM-scoped-query",
+    "result": "client-access-unavailable",
+    "globalProcessAbsenceClaimed": false
+  },
+  "rootSchemaAcceptanceAbsent": false,
+  "lastCloudObservationNotRefreshed": true,
+  "terminalTimingFinding": {
+    "historicalIssue": "Prior terminal wrappers had fixed 30-second child checks against historical 45-47-second validation. New Task2 context has changed; historical timings are not current acceptance.",
+    "currentTask2Inspection": {
+      "measurementScope": "LOCAL_OFFLINE_ONLY",
+      "wallMs": 2105.2132,
+      "exitCode": 0,
+      "childClosed": true,
+      "cloudCalls": 0,
+      "contextMs": 1231.2987,
+      "currentPinsMs": 630.5889,
+      "currentPinnedFiles": 2068,
+      "freezeSha256": "e378c8a16c0d9c5e949e098d870851e6c39ea08402776ea58d55134a42bc659b",
+      "task3FullHandoffMeasured": false
+    },
+    "task3FullMultiEntrypointTimingAccepted": false,
+    "requiresMeasuredNewFiniteBudgets": true
+  },
+  "pendingUserInput": null,
+  "remainingToFirstRealOnlineTest": [
+    "Finish Task2 SPEC/QUALITY/root preparation and three static dry-runs, then Task3 attended commands and measured full-path reviews",
+    "Pass the full three-scenario mock cloud acceptance and delayed closure",
+    "Deploy the restricted real test configuration, obtain fresh capped model authorization and run the actual model-backed test"
+  ],
+  "resumptionPrompt": null,
+  "cloudCallsSinceR114": 87,
+  "schemaAcceptance": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\root-schema-initialization-acceptance-r1.json",
+    "sha256": "35d07ffeb78ebe25030c6d038fb9a1c78c395b4e82663717cba533833784b584"
+  },
+  "schemaToolingAcceptance": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\root-tooling-acceptance-r1.json",
+    "sha256": "54c91ef9da13a455bc102eae9c6f3af56394ba47f1c6bab07db8de2e2ef8ca42"
+  },
+  "schemaPreparation": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\schema-ops-r1\\prepared\\preparation.json",
+    "sha256": "61ee0236858033fab47294e30a4c4312c07cfcd003da73800a0c926f0166c385"
+  },
+  "schemaCloudOperations": {
+    "completeNativeCollections": 3,
+    "nativeCollectionReads": 77,
+    "nativeCollectionAttempts": 77,
+    "immediatePreApplyReads": 6,
+    "postApplyLedgerReads": 2,
+    "oneShotMigrationCommands": 2,
+    "migrationsApplied": 18,
+    "workflowStarts": 0,
+    "workerControlCalls": 0,
+    "providerCalls": 0
+  },
+  "cloudCallCountDefinition": "85 read commands and 2 one-shot migration commands; no deployment/start/control/provider commands this turn",
+  "driverArtifactImplementation": {
+    "references": {
+      "implementation": {
+        "path": "outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/driver-artifact-ops-r2/implementation-manifest-r1.json",
+        "sha256": "da9bd6942034b7bb56ee08e18d5b0e92eb9f89521bc4a66366c7c366a63474f3"
+      },
+      "derivation": {
+        "path": "outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/driver-artifact-ops-r2/derivation-r1.json",
+        "sha256": "6e6ca1b9e537c68ffef062b495ed8b2db7163f9cf634b5616efe1c1f7ce3db34"
+      },
+      "runtimeInventory": {
+        "path": "outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/driver-artifact-ops-r2/runtime-dependencies-r1.json",
+        "sha256": "c839e6e22471bf828d3a7a26d91f3a089935b8e15875a6e575ffa80c4d397732"
+      },
+      "contract": {
+        "path": "outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/driver-artifact-ops-r2/review-contract-r1.md",
+        "sha256": "4ce4e310e2e8e58878850fdc5545b0c0df182513629f6adebebf33b533787f1b"
+      }
+    },
+    "implementer": "snapshot_driver_artifact_impl",
+    "reportedFocusedTests": 77,
+    "reportedSyntaxChecks": 7,
+    "reportedCliGuards": 6,
+    "rootVerifiedFourFrozenReferences": true,
+    "predecessorPreserved": true,
+    "predecessorFailure": [
+      {
+        "path": "outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/driver-artifact-ops-r1/spec-findings-r1.md",
+        "sha256": "c94d3f68e08aaa6a0a6f99250a9bcd2828f2ed201a724d9460a923d11157f0e1"
+      },
+      {
+        "path": "outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/driver-artifact-ops-r1/spec-failure-evidence-r1.json",
+        "sha256": "8f7a296f45ffe8f54b062dab3d28916fad9cd9a378c73125bea8e17d5afbf1c0"
+      },
+      {
+        "path": "outputs/local-durable-executor-20260914/task15-smoke/cloud-ops-20261017-snapshot/driver-artifact-ops-r1/spec-final-boundaries-r1.json",
+        "sha256": "b07a2ea705b92752a5f4dc3b890c3a1e0c94868f3f29001f1852d98ffdcab14b"
+      }
+    ],
+    "operationalOutput": "outputs/local-durable-executor-20260914/task15-smoke/build/cloud/task15-snapshot-cloud-20261017-r1",
+    "operationalOutputPresent": true,
+    "independentSpecReviewer": "snapshot_driver_artifact_spec",
+    "specStatus": "PASSED",
+    "qualityStatus": "PASSED",
+    "rootAcceptancePresent": true,
+    "spec": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\driver-artifact-ops-r2\\spec-review-r1.json",
+      "sha256": "2111ec0c6ee1f9432a3d4631910548746b95e29ed297724bc6e88df4d47fe199"
+    },
+    "quality": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\driver-artifact-ops-r2\\quality-review-r1.json",
+      "sha256": "02d33116905541ab929f6aa3e556ef7ad9ab3cdba87e69719c3995a1483d407c"
+    },
+    "toolingAcceptance": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\driver-artifact-ops-r2\\root-tooling-acceptance-r1.json",
+      "sha256": "13b30b504b6230e7ad4660c6f2e9a888acc937cec392b1e4b0fdea208f3c2bdb"
+    },
+    "materializationAcceptance": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\root-driver-artifact-materialization-acceptance-r1.json",
+      "sha256": "a24416ce7e0424c7d1226fbae396a42fa16a6d9b78e4c5f6aad7e6bcc0d76919"
+    },
+    "report": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\build\\cloud\\task15-snapshot-cloud-20261017-r1\\report.json",
+      "sha256": "0307f90a50137a2c176d0576d1c4ca60137822d3ae8388f6043ba3261bd7753f"
+    },
+    "executionEvidence": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\driver-artifact-ops-r2\\root-materialization-execution-r1.json",
+      "sha256": "40fa533c66c4b05312cbbe3bb3b35c40338da90dff8847b9b8b4a3d8a1451844"
+    },
+    "independentByteEqualityVerified": true,
+    "assemblyCalls": 1,
+    "verificationCalls": 1
+  },
+  "noAdditionalCloudCallsSinceSchemaFinal": true,
+  "task2": {
+    "directory": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1",
+    "status": "SPEC_PASSED_QUALITY_FAILED_FROZEN",
+    "implementer": "snapshot_scenario_tools_impl",
+    "independentSpecReviewer": "snapshot_scenario_spec_resume",
+    "successfulPreparation": false,
+    "independentSpec": true,
+    "independentQuality": false,
+    "rootAcceptance": false,
+    "references": {
+      "implementation-freeze-r1.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\implementation-freeze-r1.json",
+        "sha256": "e378c8a16c0d9c5e949e098d870851e6c39ea08402776ea58d55134a42bc659b"
+      },
+      "local-offline-author-delivery-r1.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\local-offline-author-delivery-r1.json",
+        "sha256": "69e5fd4ada0a679655ba3c2279f205b1b87a0244bd68355123e71b5e8b193732"
+      },
+      "derivation-r2.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\derivation-r2.json",
+        "sha256": "6492a77c58c56873c481769f8a39512cf50b10a68d72df2a51d345de8f7c0362"
+      },
+      "local-offline-profile-r2.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\local-offline-profile-r2.json",
+        "sha256": "5d7f94b32de70efedbe9bd6d7c76f4f92033584ba1f02188ccccbc3d353f323f"
+      },
+      "local-offline-runtime-graph-r2.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\local-offline-runtime-graph-r2.json",
+        "sha256": "a229f83541885b316d76a887edee77106783f5e8f10e83f7d43188d6e0d28f66"
+      },
+      "local-offline-child-runtime-inventory-r1.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\local-offline-child-runtime-inventory-r1.json",
+        "sha256": "2562298aa8807fa9f67e5c4c1036abdbd635fc7e02d9be1b09c625c79f12de23"
+      },
+      "review-contract-r1.md": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\review-contract-r1.md",
+        "sha256": "499a6c975c73a8290ddca8feb9a901f9fceaf10c171c2473fb24ec352f21a863"
+      },
+      "local-offline-post-freeze-inspection-r1.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\local-offline-post-freeze-inspection-r1.json",
+        "sha256": "e79a2d25a5b5e1656244f2c4cee48b1fdd109b78e8c5d0ecf5c26ae101f1423c"
+      },
+      "local-offline-post-freeze-measurement-r1.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\local-offline-post-freeze-measurement-r1.json",
+        "sha256": "a3caca091e0877863d85d2cd54c4f7c31b9d2bcd1857357d1ef8385fbb1d4d6a"
+      }
+    },
+    "rootVerifiedAuthorDeliveryReferences": 9,
+    "rootVerifiedAbsentOperationalPaths": 79,
+    "authorFocusedVerification": {
+      "tests": 66,
+      "passed": 66,
+      "failed": 0,
+      "skipped": 0,
+      "actualLog": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\local-offline-final-focused-r3.log",
+        "sha256": "08a3fe9613c07377a69eb16660b9c7575f8a2bbbb2ecb61895fb2ac6daa4856f"
+      },
+      "syntax": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\local-offline-final-syntax-r2.log",
+        "sha256": "c13eb5ecba29943adae27baf734d566adbed002ff1b9cf348c338cfdca1f7e65"
+      }
+    },
+    "authorPostFreezeMeasurement": {
+      "measurementScope": "LOCAL_OFFLINE_ONLY",
+      "wallMs": 2105.2132,
+      "exitCode": 0,
+      "childClosed": true,
+      "cloudCalls": 0,
+      "contextMs": 1231.2987,
+      "currentPinsMs": 630.5889,
+      "currentPinnedFiles": 2068,
+      "freezeSha256": "e378c8a16c0d9c5e949e098d870851e6c39ea08402776ea58d55134a42bc659b",
+      "task3FullHandoffMeasured": false
+    },
+    "profile": {
+      "totalMs": 7022000,
+      "initialRowsAtZeroUnmatched": 254,
+      "observerCap": 256,
+      "shutdownMs": 2202000,
+      "prospectiveShutdownRowsAtZeroUnmatched": 134,
+      "settledShutdownRowsAtZeroUnmatched": 92,
+      "task3FullHandoffFit": false,
+      "networkLatencyFit": false
+    },
+    "sequence": "20261017-snapshot-r1",
+    "immediateGapArchitecture": "One validated process retained across attended fault start; fixed owned confirmed exit, one-use current pins and original clocks; Task3 owns lifecycle and C never enters this helper.",
+    "specReviewerStopped": true,
+    "reviewerPartialReferences": {
+      "spec-initial-snapshot-r1.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\spec-initial-snapshot-r1.json",
+        "sha256": "9b75a9ec2030ae8c7e1e43fa5e4f3a5260f0d8ab07405d459a542af906eec43a"
+      },
+      "spec-partial-handoff-r1.json": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\spec-partial-handoff-r1.json",
+        "sha256": "f33f6694fd8307c09fb0580ec2493a72d063beaecbb6e731b6aa5a81e142ed85"
+      },
+      "spec-partial-handoff-r1.md": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\spec-partial-handoff-r1.md",
+        "sha256": "0e09a1bd19244b012b574fa42203a2828425eecaa04c56dde567734e7b4446cd"
+      }
+    },
+    "specReviewCompletedChecks": [
+      "Pinned Node version is v24.14.1. All seven supplied target/freeze/contract/profile/runtime/derivation/author-delivery hashes matched actual bytes.",
+      "Approved continuation plan Task2 and the base plan Tasks1/2 were read. Root interface decisions and reviewer JSON contract were read; SPEC remains before separate QUALITY and root preparation.",
+      "Current frozen sequence is 20261017-snapshot-r1. Source read shows historical static inventory separately described from mandatory current mapping/state checks. No claim that the entire dispatch chain has passed review.",
+      "Read the actual source modules listed in readSources: identity/context/accepted schema, AST and child inventory derivation, mapping/SQL/projection, static preparation, observation preparation and read transport/collection. This was manual trace work, not a full end-to-end or runtime test.",
+      "Initial top-level directory listing contained no successful operational preparation or reviewer PASS records. No successful operational preparation, mutation, network call, credential access, model call, Wrangler child or test child was performed by this reviewer."
+    ],
+    "specReviewRemaining": [],
+    "confirmedSpecFindings": [],
+    "specNoFindingsConclusion": true,
+    "independentTestsRunBySpecReviewer": 59,
+    "rootVerifiedAbsentOperationalPathsAtSave": 79,
+    "reviewerPrior": "snapshot_scenario_spec",
+    "rootVerifiedResumeReferences": 6,
+    "rootVerifiedAbsentOperationalPathsAtResume": 79,
+    "specReview": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\spec-review-r1.json",
+      "sha256": "dd66b22d304fe2a9cf0afde1104ec5be50aed3cccce5f412252d508ff4246de9"
+    },
+    "specNotes": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\spec-review-r1.md",
+      "sha256": "a28fc937cf347f16c075b454f791e9264f7d2305249e00a6153ade6ca0c07f6b"
+    },
+    "independentSpecChecks": {
+      "focusedTestsPassed": 59,
+      "focusedTestsFailed": 0,
+      "uniqueFrozenFiles": 2067,
+      "childInventoryFiles": 1576,
+      "childPackages": 34,
+      "childDirectories": 234,
+      "uniqueFixedSqlQueries": 60,
+      "inMemorySiteMigrations": 13,
+      "inMemoryExecutorMigrations": 5,
+      "independentProbeGroups": 7,
+      "boundaryProbeGroups": 4,
+      "profileTotalMs": 7022000,
+      "initialRows": 254,
+      "observerCap": 256,
+      "prospectiveShutdownRows": 134,
+      "settledShutdownRows": 92
+    },
+    "independentQualityReviewer": "snapshot_scenario_quality",
+    "qualityReview": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\quality-review-r1.json",
+      "sha256": "390911f7580bc8b625e6975844acc1419627e3e0ad718db22352e2f4799bcbf1"
+    },
+    "qualityNotes": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\quality-review-r1.md",
+      "sha256": "1ef3259aac8c0b1b19f5e139e5e59bf266b91f829e7c2b196d4a57bcf01a6a36"
+    },
+    "confirmedQualityFindings": [
+      {
+        "id": "QUALITY-P1-HISTORICAL-ACTIVATION-UNUSED-SCOPE",
+        "severity": "Important",
+        "priority": 1,
+        "file": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\evaluate.mjs",
+        "line": 52,
+        "relatedLines": [
+          42,
+          44,
+          222
+        ],
+        "title": "Historical activation verification rejects legitimate successor outputs",
+        "impact": "After the first owned handoff/control/receipt/report exists, loadOperation rechecks the current unused namespace while reconstructing the original activation, preventing later handoff, clock and proof/closure validation.",
+        "requiredBehavior": "Preserve the full current-unused-scope guard for actual activation dispatch. Historical reconstruction must retain exact original evidence, identity, configuration, policy and time provenance without reimposing mutable empty-output preconditions.",
+        "evidence": {
+          "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r1\\quality-lifecycle-probe-r1.json",
+          "sha256": "15f50fa02a5f0350b29ac7a150a5fb251f6c0ac5eaaa06d1c7bcf4017fc61f18"
+        }
+      }
+    ],
+    "qualityReviewCompleted": true,
+    "rootPreparationAllowed": false,
+    "qualityReviewerStopped": true
+  },
+  "userRequestedProgressSave": true,
+  "workSuspendedForSave": true,
+  "allTaskSubagentsStopped": true,
+  "goalToolStatusChangedThisSave": true,
+  "saveHandoff": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261018\\save-handoff-r126.md",
+    "sha256": "caec9e37f99aeb5d32e852eda7693f8b0093c21fb5aa7970e892e661ad241444"
+  },
+  "previousGoalTurnClassification": "progress",
+  "previousGoalTurnEvidence": "Task2 lifecycle defect fixed, independent SPEC and QUALITY passed, actual preparation and three static dry-runs verified and root-accepted. User requested pause.",
+  "task2Successor": {
+    "directory": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2",
+    "sequence": "20261017-snapshot-r1",
+    "status": "SPEC_QUALITY_ROOT_ACCEPTED",
+    "implementer": "snapshot_scenario_lifecycle_fix",
+    "correctionNotes": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261018\\scenario-task2-lifecycle-correction-r1.md",
+      "sha256": "9e8cf8aa4f5b40ca52f411e208a4735f5477e72628547d702d6bbdf658350101"
+    },
+    "independentSpec": true,
+    "independentQuality": true,
+    "successfulPreparation": true,
+    "rootAcceptance": true,
+    "cloudCalls": 0,
+    "delivery": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-author-delivery-r1.json",
+      "sha256": "b297f4c000dcee9be6bb028ce6b4022f347c0c8580f10d0c2ddac50360487e79"
+    },
+    "references": {
+      "freeze": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\implementation-freeze-r1.json",
+        "sha256": "e859f9ddf3e52c94c034f28a12c83cc2c321417900c12e387b39b3370f3b825d"
+      },
+      "derivation": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\derivation-r1.json",
+        "sha256": "951a1d2c208333e2de2e7dd1d38672d5a43ac7b69c06a1c75b077cc4fa327116"
+      },
+      "profile": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-profile-r1.json",
+        "sha256": "a8a3327ad8e66294a9ba2e39c23b3b0d0015ec458ed2b10f9a4bf6e56e03edae"
+      },
+      "reviewContract": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\review-contract-r1.md",
+        "sha256": "f281f5942c14bd22ad54f206c5664bb71f85840cb76649512f035a350c370496"
+      },
+      "functionalDiff": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-functional-diff-r1.json",
+        "sha256": "c627642052dca4118514c6c6700f2617902a50178d371ca8d05ef670738e0943"
+      },
+      "preservation": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-preservation-r1.json",
+        "sha256": "1bd0560756cab9a0e05f92095bd83cb6b0478074be308830c7affe4e2f1f250c"
+      },
+      "postFreezeInspection": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-post-freeze-inspection-r1.json",
+        "sha256": "b28830577fbf2cbac3033e89a4714e1cf194d349cb3b0f02e837c2c2bbd48662"
+      },
+      "postFreezeMeasurement": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-post-freeze-measurement-r1.json",
+        "sha256": "91982408679c9f744153e912bc014af77abb72d25aa649a75ee15fc9c5c3c9db"
+      }
+    },
+    "authorVerification": {
+      "focused": {
+        "tests": 73,
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      },
+      "lifecycle": {
+        "tests": 7,
+        "redPassed": 5,
+        "redFailed": 2,
+        "greenPassed": 7,
+        "occupiedScopeCases": 17
+      },
+      "syntaxModules": 38,
+      "cliRefusals": 10,
+      "oldDirectoryFilesUnchanged": 143,
+      "oldFrozenUniqueSourceFilesChecked": 2104,
+      "exactlyOneChangedRuntimeFile": "evaluate.mjs",
+      "unchangedLiveOperation": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\operate.mjs",
+        "sha256": "bf249b2162c53bede07aee18d548476c1daafd5932abb073693e4ef7cf3866f5"
+      },
+      "postFreezeCurrentPins": {
+        "fileCount": 2019,
+        "elapsedMs": 945.7737000000002
+      }
+    },
+    "rootVerifiedDeliveryReferences": 9,
+    "independentSpecReviewer": "snapshot_scenario_spec_resume",
+    "authorAllLocalSessionsClosed": true,
+    "task3TimingFulfilled": false,
+    "specReview": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\spec-review-r1.json",
+      "sha256": "f00bd36e91c608e8f1ec668c0e091d3f0b3fe6bd7b650827f0701ca02c4b0dbe"
+    },
+    "qualityReview": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\quality-review-r1.json",
+      "sha256": "526edb1ada2fff2b6a3f37163b834c2abf19a5b0d32701ab0c999dec3cdcee05"
+    },
+    "rootAcceptanceReference": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\root-task2-acceptance-r1.json",
+      "sha256": "3631c15948b204cfecd02f5e134e581e19a1bc1f90b3e34d093903d46b0d4fa0"
+    },
+    "preparation": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\preparation.json",
+      "sha256": "dbf7072b0321fbf03d34ce3b0d0b511308c98b767f2cd253b2cb416e27e34b9d"
+    },
+    "dryRuns": {
+      "activate": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\activate-dry-run-result.json",
+        "sha256": "ed5b11943b56b4717307222911cea0543ea003fb1840253639e4234bef1333c6"
+      },
+      "admission-close": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\admission-close-dry-run-result.json",
+        "sha256": "dd24ad60c600883453cf35c62d0dde64a3aa05e917a0a0282fc0af7175ae19ce"
+      },
+      "maintenance-close": {
+        "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\maintenance-close-dry-run-result.json",
+        "sha256": "68155a3d7cb2aeff93aba524d2eb011ea79b91db914f0b4b58c585d57e894b3b"
+      }
+    },
+    "profile": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-profile-r1.json",
+      "sha256": "a8a3327ad8e66294a9ba2e39c23b3b0d0015ec458ed2b10f9a4bf6e56e03edae"
+    },
+    "allLocalChildrenClosed": true
+  },
+  "latestCheckpointCloudCalls": 0,
+  "task3": {
+    "status": "NOT_STARTED",
+    "implementation": false,
+    "independentSpec": false,
+    "independentQuality": false,
+    "fullHandoffTimingAccepted": false,
+    "plannedReviewRoundsRemainingBeforeMock": 2
+  },
+  "reviewScopeUserDirection": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20261018\\review-scope-user-direction-r1.md",
+    "sha256": "716123cc9ea8d1b030b0636c596f337fc6087440b5a14cd2622a53ecda747f04"
+  },
+  "firstRestrictedRealTestFeasibility": {
+    "status": "LOCAL_READ_ONLY_INSPECTION_STARTED_NOT_OPERATIONALLY_READY",
+    "candidateDirectory": "C:/Users/XF/.codex/worktrees/arc-v8-release-integration/restricted-research-candidates/research-local-closed-20261016-r5",
+    "candidateManifestStateObserved": "closed",
+    "actualTargetInventoryCreated": false,
+    "cloudResourcesCreated": false,
+    "paidAuthorizationGranted": false,
+    "earlierTestBeforeFullMock": "PROPOSED_ORDERING_UNDER_FEASIBILITY_REVIEW_NOT_A_WAIVER_OF_PUBLIC_ACCEPTANCE",
+    "needs": [
+      "fresh shadow baseline and data preservation",
+      "distinct private executor and resources",
+      "user-configured bridge/provider credentials",
+      "authenticated restricted owner and signed production connectivity",
+      "real-identity pair build/deployment",
+      "new concrete one-shot capped paid permission"
+    ]
+  },
+  "remainingGoalGroups": [
+    "Restricted real-test environment preparation",
+    "Capped real Research and login/account/learning-flow acceptance",
+    "One full LONG/after-r2/after-d1 mock sequence with original status/replay/closure; Task3 preparation still needed",
+    "Complete export/restore, migration, domain/OAuth cutover and public post-release acceptance"
+  ]
+}

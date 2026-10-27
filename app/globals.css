@@ -60,6 +60,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .account-popover strong, .account-popover span { display: block; overflow-wrap: anywhere; }
 .account-popover strong { font-size: 0.84rem; }
 .account-popover span { margin-top: 5px; color: var(--stone); font-size: 0.72rem; }
+.account-popover > a { display: flex; align-items: center; min-height: 32px; padding: 5px 0; color: var(--charcoal); font-size: 0.78rem; line-height: 1.4; }
+.account-popover > span + a { margin-top: 10px; }
+.account-popover > a:hover { color: var(--signal); }
 .account-popover button { margin-top: 18px; border: 0; border-bottom: 1px solid currentColor; background: transparent; padding: 0 0 3px; cursor: pointer; color: var(--charcoal); font-size: 0.72rem; }
 .account-connections { margin-top: 18px; border-top: 1px solid var(--hairline); padding-top: 14px; }
 .account-connections > p { margin: 0 0 8px; color: var(--stone); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -78,6 +81,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .account-popover .account-link-actions button { margin-top: 0; }
 .account-link-deadline { color: var(--stone) !important; font: 0.64rem/1.5 ui-monospace, monospace !important; }
 .account-popover .account-sign-out { margin-top: 16px; color: var(--stone); }
+.account-popover .account-sign-out:disabled { opacity: .55; cursor: wait; }
+.account-sign-out-error { margin: 12px 0 0; color: var(--signal); font-size: .74rem; line-height: 1.5; }
 .account-link-notice {
   position: fixed; top: 76px; right: clamp(16px, 3vw, 48px); z-index: 60;
   display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: start;

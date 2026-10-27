@@ -108,6 +108,8 @@ export const researchIssueCodeSchema = z.enum([
   "unsafe-url",
   "unreferenced-url",
   "missing-free-alternative",
+  "unverified-free-access",
+  "unverified-source-authority",
   "missing-unit",
   "minute-mismatch",
   "unsafe-content",
@@ -219,6 +221,7 @@ const publicRunIdentityShape = {
   id: idSchema,
   role: z.string().trim().min(2).max(160),
   locale: z.enum(["zh-CN", "en-US"]),
+  backgroundAccepted: z.boolean().default(false),
 } as const;
 
 const activeResearchRunPublicViewSchema = z.object({
@@ -292,6 +295,14 @@ export const researchRequestSchema = z.object({
 export const researchRetryRequestSchema = z.object({
   mutationId: researchRequestSchema.shape.mutationId,
 }).strict();
+
+export const researchRecoverRequestSchema = z.discriminatedUnion("kind", [
+  researchRequestSchema.extend({ kind: z.literal("start") }).strict(),
+  researchRequestSchema.extend({
+    kind: z.literal("retry"),
+    sourceRunId: researchPackageSchema.shape.id,
+  }).strict(),
+]);
 
 export const researchErrorCodeSchema = z.enum([
   "UNAUTHENTICATED",
@@ -373,6 +384,7 @@ export const researchHttpEnvelopeSchema = z.union([
 
 export type ResearchRequest = z.infer<typeof researchRequestSchema>;
 export type ResearchRetryRequest = z.infer<typeof researchRetryRequestSchema>;
+export type ResearchRecoverRequest = z.infer<typeof researchRecoverRequestSchema>;
 export type ResearchRoleSummary = z.infer<typeof researchRoleSummarySchema>;
 export type ResearchCandidateSkill = z.infer<typeof researchCandidateSkillSchema>;
 export type ResearchPrerequisiteEdge = z.infer<typeof researchPrerequisiteEdgeSchema>;

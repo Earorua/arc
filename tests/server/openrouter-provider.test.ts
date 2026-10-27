@@ -34,17 +34,71 @@ async function failure(promise: Promise<unknown>, code: string, charged: boolean
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe("OpenRouter research request boundary", () => {
+  it("calls a native-style fetch without an unrelated receiver", async () => {
+    const receivers: unknown[] = [];
+    const fetch = async function (this: unknown) {
+      receivers.push(this);
+      if (this !== undefined && this !== globalThis) throw new TypeError("Illegal invocation");
+      return Response.json(wire());
+    };
+    const provider = new OpenRouterResearchProvider(config, { fetch });
+    await expect(provider.research(request)).resolves.toMatchObject({ candidate: validResearchCandidate });
+    expect(receivers).toEqual([undefined]);
+  });
+
+  it.each([300, 301, 302, 303, 304, 307, 308, 399])("rejects manual redirect %i before body reads with one fixed endpoint call", async (status) => {
+    for (const location of [null, "https://openrouter.ai/other", "https://other.invalid/other"]) {
+      const cancel = vi.fn(() => new Promise<void>(() => {}));
+      const body = new ReadableStream<Uint8Array>({ cancel }, { highWaterMark: 0 });
+      const response = new Response(status === 304 ? null : body, { status,
+        headers: location === null ? {} : { location } });
+      const read = vi.spyOn(body, "getReader");
+      const headersGet = vi.spyOn(response.headers, "get");
+      const { provider, fetch } = harness(response);
+      expect(await failure(provider.research(request), "invalid-transport")).toMatchObject({ retryable: false, charged: "unknown" });
+      expect(fetch).toHaveBeenCalledOnce();
+      expect(fetch.mock.calls[0]![0]).toBe("https://openrouter.ai/api/v1/chat/completions");
+      expect(fetch.mock.calls[0]![1]!.redirect).toBe("manual");
+      expect(read).not.toHaveBeenCalled();
+      expect(headersGet).not.toHaveBeenCalled();
+      expect(cancel).toHaveBeenCalledTimes(status === 304 ? 0 : 1);
+    }
+  });
+
+  it("consumes rejected redirect cancellation without retry or an unhandled rejection", async () => {
+    const cancel = vi.fn(() => Promise.reject(new Error("synthetic cancellation failure")));
+    const { provider, fetch } = harness(new Response(new ReadableStream({ cancel }, { highWaterMark: 0 }), { status: 302 }));
+    await failure(provider.research(request), "invalid-transport");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(fetch.mock.calls[0]![1]!.redirect).toBe("manual");
+  });
+
+  it("rejects an already redirected 200 response before reading its body", async () => {
+    const cancel = vi.fn(() => new Promise<void>(() => {}));
+    const body = new ReadableStream<Uint8Array>({ cancel }, { highWaterMark: 0 });
+    const response = new Response(body, { status: 200 });
+    Object.defineProperty(response, "redirected", { value: true });
+    const read = vi.spyOn(body, "getReader");
+    const { provider, fetch } = harness(response);
+    expect(await failure(provider.research(request), "invalid-transport")).toMatchObject({ retryable: false, charged: "unknown" });
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(read).not.toHaveBeenCalled();
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
   it("posts the exact fixed-model private Exa request with a schema derived from the exported contract", async () => {
     const { provider, fetch } = harness();
     const result = await provider.research({ role: "  Data   Product Manager  ", locale: "en-US" });
     expect(fetch).toHaveBeenCalledOnce();
     const [url, init] = fetch.mock.calls[0]!;
     expect(url).toBe("https://openrouter.ai/api/v1/chat/completions");
-    expect(init).toMatchObject({ method: "POST", redirect: "error", headers: { Authorization: "Bearer synthetic-dummy-credential", "Content-Type": "application/json" }, signal: expect.any(AbortSignal) });
+    expect(init).toMatchObject({ method: "POST", redirect: "manual", headers: { Authorization: "Bearer synthetic-dummy-credential", "Content-Type": "application/json" }, signal: expect.any(AbortSignal) });
     const body = JSON.parse(init!.body as string);
     expect(Object.keys(body).sort()).toEqual(["max_tokens", "max_tool_calls", "messages", "model", "provider", "response_format", "stream", "tools"]);
-    expect(body).toMatchObject({ model: config.ARC_AI_MODEL_RESEARCH, stream: false, max_tokens: 12_000, max_tool_calls: 2,
-      tools: [{ type: "openrouter:web_search", parameters: { engine: "exa", mode: "fast", max_results: 5, max_uses: 2, max_total_results: 10, max_characters: 2000 } }],
+    expect(body).toMatchObject({ model: config.ARC_AI_MODEL_RESEARCH, stream: false, max_tokens: 12_000, max_tool_calls: 10,
+      tools: [{ type: "openrouter:web_search", parameters: { engine: "exa", mode: "fast", max_results: 5, max_uses: 10, max_total_results: 50, max_characters: 2000 } }],
       provider: { require_parameters: true, data_collection: "deny", zdr: true },
       response_format: { type: "json_schema", json_schema: { name: "arc_research_candidate", strict: true, schema: z.toJSONSchema(researchCandidateSchema, { target: "draft-7" }) } },
     });
@@ -64,6 +118,25 @@ describe("OpenRouter research request boundary", () => {
     expect(body.messages[0].content).not.toContain(role);
     expect(JSON.parse(body.messages[1].content).role).toBe(role);
     expect(body.model).toBe(config.ARC_AI_MODEL_RESEARCH);
+  });
+
+  it("sends the requested publisher-country preference without inferring origin from locale", async () => {
+    const { provider, fetch } = harness();
+    await provider.research({ role: request.role, locale: "zh-CN" });
+    const body = JSON.parse(fetch.mock.calls[0]![1]!.body as string);
+    const policy = body.messages[0].content as string;
+    expect(policy).toContain("leading universities in the United States");
+    expect(policy).toContain("US-headquartered technology companies first, then leading Chinese technology companies");
+    expect(policy).toContain("Both free and paid company courses are eligible");
+    expect(policy).toContain("Publisher country is independent of course language, URL locale and hosting location");
+    expect(policy).toContain("relevance, level and accessible teaching content take precedence over geography");
+    expect(policy).toContain("verified free alternative");
+    const catalog = JSON.parse(policy.match(/\[\{"publisher":[\s\S]*?\}\]/u)![0]);
+    expect(catalog.find((entry: { hosts: string[] }) => entry.hosts.includes("developers.google.cn"))).toMatchObject({ publisher: "Google", publisherCountry: "US" });
+    expect(catalog.find((entry: { hosts: string[] }) => entry.hosts.includes("edu.alibabacloud.com"))).toMatchObject({ publisher: "Alibaba Cloud", publisherCountry: "CN" });
+    expect(JSON.parse(body.messages[1].content).locale).toBe("zh-CN");
+    expect(RESEARCH_PROVIDER_VERSIONS.promptVersion).toBe("research-prompt-v6");
+    expect(RESEARCH_PROVIDER_VERSIONS.qualityVersion).toBe("research-quality-v5");
   });
 
   it.each([undefined, "", " ", "invalid\nkey", "x".repeat(513)])("fails closed without a valid explicit key: %j", async (key) => {
@@ -208,11 +281,16 @@ describe("OpenRouter response and billing boundary", () => {
     const { provider } = harness(Response.json(wire(choice({ content: "{}", annotations: [{ type: "other", text: "provider-secret" }, { type: "url_citation", url_citation: { url: "https://example.com/", title: "Example", content: "provider-secret" } }] }))));
     expect((await provider.research(request)).annotations).toEqual([{ type: "url_citation", url: "https://example.com/", title: "Example" }]);
   });
+  it("derives a hostname title when a nested URL citation omits its title", async () => {
+    const url = "https://example.com/guide?utm_source=demo#part";
+    const annotations = [{ type: "url_citation", url_citation: { url } }];
+    const { provider } = harness(Response.json(wire(choice({ content: "{}", annotations }))));
+    expect((await provider.research(request)).annotations).toEqual([{ type: "url_citation", url, title: "example.com" }]);
+  });
   it.each([
     Array(257).fill({ type: "other" }),
     [{ type: "url_citation", url_citation: { url: "x".repeat(2049), title: "Example" } }],
     [{ type: "url_citation", url_citation: { url: "https://example.com/", title: "x".repeat(501) } }],
-    [{ type: "url_citation", url_citation: { url: "https://example.com/" } }],
   ])("rejects invalid/oversized annotations retaining billing metadata", async (annotations) => {
     const { provider } = harness(Response.json(wire(choice({ content: "{}", annotations }))));
     expect(await failure(provider.research(request), "invalid-transport", true)).toMatchObject({ usage: safeUsage });
@@ -263,7 +341,7 @@ describe("OpenRouter byte limits and deadline", () => {
   it("does not follow or accept redirects", async () => {
     const { provider, fetch } = harness(new Response(null, { status: 302, headers: { Location: "https://attacker.test/" } }));
     await failure(provider.research(request), "invalid-transport");
-    expect(fetch.mock.calls[0]![1]!.redirect).toBe("error");
+    expect(fetch.mock.calls[0]![1]!.redirect).toBe("manual");
     expect(fetch).toHaveBeenCalledOnce();
   });
   it.each([undefined, "1"])("bounds actual UTF8 body bytes despite Content-Length %j and cancels the stream", async (length) => {
@@ -328,10 +406,19 @@ describe("OpenRouter byte limits and deadline", () => {
     await failure(provider.research(request), "invalid-transport");
     expect(stream.locked).toBe(false);
   });
-  it.each([0, -1, 120_001, NaN, Infinity, 1.5])("rejects invalid server deadline %s with zero execution", async (researchTimeoutMs) => {
+  it.each([0, -1, 120_001, 600_000, NaN, Infinity, 1.5])("rejects invalid server deadline %s with zero execution", async (researchTimeoutMs) => {
     const { provider, fetch } = harness(undefined, { researchTimeoutMs });
     await failure(provider.research(request), "unavailable", false);
     expect(fetch).not.toHaveBeenCalled();
+  });
+  it("does not let unknown local-profile extras change the standard wire", async () => {
+    const { provider, fetch } = harness(undefined, {
+      localValidationProfile: "kimi-low-bounded-v1", reasoningEffort: "low", launcherTimeoutMs: 720_000,
+    });
+    await provider.research(request);
+    const body = JSON.parse(fetch.mock.calls[0]![1]!.body as string);
+    expect(body).not.toHaveProperty("reasoning");
+    expect(body.model).toBe(config.ARC_AI_MODEL_RESEARCH);
   });
   it("uses the repair-specific deadline and validates its economy model", async () => {
     vi.useFakeTimers();

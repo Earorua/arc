@@ -151,18 +151,18 @@ function errorResponse(error: unknown, requestId: string): { response: Response;
 }
 
 async function recordSafely(
-  deps: PlanningRouteDependencies,
+  deps: Omit<PlanningRouteDependencies, "createService">,
   input: Parameters<typeof createOperationalEvent>[0],
 ): Promise<void> {
   try { await deps.recordEvent(await createOperationalEvent(input)); }
   catch { /* Telemetry cannot alter an API result. */ }
 }
 
-async function runPlanningRoute(
+export async function runPlanningRoute<Service>(
   request: Request,
-  deps: PlanningRouteDependencies,
+  deps: Omit<PlanningRouteDependencies, "createService"> & { createService(): Service },
   config: RouteConfig,
-  action: (service: PlanningRouteService, userId: string) => Promise<RouteOutcome>,
+  action: (service: Service, userId: string) => Promise<RouteOutcome>,
 ): Promise<Response> {
   let requestId = "request-unavailable";
   const now = deps.now ?? (() => Date.now());
@@ -275,9 +275,7 @@ export function assertPlanningResponseWireSize(value: unknown): void {
   }
 }
 
-export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
-  requireUser: (headers) => requireArcUser(headers),
-  createService: () => {
+export function createProductionPlanningService(): PlanningService {
     const db = getD1();
     const intelligence = new IntelligenceService(new BuiltinIntelligenceRepository());
     const sourceResolver = new PlanningSourceResolver({
@@ -289,7 +287,11 @@ export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
     return new PlanningService({
       repository: new D1PlanningRepository(db, { sourceResolver }), sourceResolver,
     });
-  },
+}
+
+export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
+  requireUser: (headers) => requireArcUser(headers),
+  createService: createProductionPlanningService,
   rateLimiter: { reserve: (request) => new D1RateLimiter(getD1()).reserve(request) },
   recordEvent: (event) => new D1OperationalEventSink(getD1()).record(event),
 };

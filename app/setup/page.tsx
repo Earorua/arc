@@ -23,6 +23,7 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, save
   const connected = useRef(false);
   const epoch = useRef(0);
   const saveCancellation = useRef<AbortController | null>(null);
+  const newGoalAttempt = useRef<{ mutationId: string; previousGoalId: string } | null>(null);
   const sourceKey = source.source === "research" ? source.researchRunId : source.roleId;
   useLayoutEffect(() => {
     const cancellation = new AbortController();
@@ -32,12 +33,24 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, save
   }, [active, sourceKey]);
   const blueprint = source.source === "research" ? planningData?.blueprint : flagshipBlueprint;
   const registry = source.source === "research" ? planningData?.registry : flagshipUnitRegistry;
+  const createsNewGoal = signedIn && source.source === "research" && planning.workspace !== null;
   if (!blueprint || !registry) return <p role="alert">Research is unavailable. Return to Role and restore the research.</p>;
   const generate = async (request: GeneratePlanningRequest) => {
     if (!connected.current) return false;
     const started = epoch.current;
     const signal = saveCancellation.current?.signal;
     if (!signal || signal.aborted) return false;
+    if (createsNewGoal || (newGoalAttempt.current !== null && newGoalAttempt.current.mutationId === request.mutationId)) {
+      if (newGoalAttempt.current?.mutationId !== request.mutationId) {
+        if (!planning.workspace) return false;
+        newGoalAttempt.current = { mutationId: request.mutationId, previousGoalId: planning.workspace.goalId };
+      }
+      // Restore connectivity after an ambiguous response, retaining the original
+      // mutation and previous goal so a retry can only replay that same save.
+      if (planning.source !== "cloud") await planning.retry(signal);
+      if (signal.aborted || !connected.current || started !== epoch.current) return false;
+      return planning.generate({ ...request, newGoal: { previousGoalId: newGoalAttempt.current.previousGoalId } });
+    }
     if (signedIn && !await planning.preflightCurrentSetup(signal)) return false;
     if (signal.aborted || !connected.current || started !== epoch.current) return false;
     if (!await saveCommonRole(request, source.source === "research" ? blueprint.name : blueprint.id, signal)) return false;
@@ -56,6 +69,7 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, save
     onBackToRole={onBackToRole}
     active={active}
     savesToAccount={signedIn}
+    createsNewGoal={createsNewGoal}
     registry={registry}
     timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"}
   />;
@@ -122,7 +136,7 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
     <main className="setup-page" id="main-content">
       <Link className="wordmark setup-wordmark" href="/" lang="en">Arc.</Link>
       <SetupFlow onComplete={finish} signedIn={userId !== null} researchEligible={eligible}
-        researchRecoveryAvailable={research.restoring || research.run !== null || research.error !== null}
+        researchRecoveryAvailable={research.restoring || research.run !== null || research.error !== null || research.recoveryUncertain || research.replacementPending}
         onResearchActiveChange={onResearchActiveChange} onRoleChange={research.reset}
         renderResearch={({ role, onUseResearch, onFlagship }) => <RoleResearchPanel controller={research} role={role} eligible={eligible}
           onStart={() => void research.start({ role, locale: /[\u3400-\u9fff]/u.test(role) ? "zh-CN" : "en-US" })}

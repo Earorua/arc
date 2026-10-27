@@ -23,7 +23,35 @@ function setup() {
   const repository = new D1ResearchRepository(db as unknown as D1Database, { now: () => now, createId: () => `research-run-${++sequence}` });
   return { db, repository };
 }
+function repositoryReadingRunRow(
+  db: ReturnType<typeof createResearchD1>,
+  runId: string,
+  overrides: Record<string, unknown>,
+  omitted: string[] = [],
+) {
+  const stored = db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(runId) as Record<string, unknown>;
+  const row = { ...stored, ...overrides };
+  for (const key of omitted) delete row[key];
+  const controlledRead = {
+    prepare(sql: string) {
+      if (sql.startsWith("SELECT * FROM research_runs WHERE user_id=")) {
+        return {
+          bind() {
+            return { first: async () => ({ ...row }) };
+          },
+        };
+      }
+      return db.prepare(sql);
+    },
+  } as unknown as D1Database;
+  return new D1ResearchRepository(controlledRead, { now: () => now });
+}
 function command(mutationId = "mutation-research-1") { return { ownerId: "owner-a", requestId: "request-1", mutationId, rawRole: "Data Product Manager", normalizedRoleKey: "data-product-manager", locale: "en-US" as const, inputFingerprint: "input-fingerprint-1", configFingerprint: "config-fingerprint-1", activeExpiresAt: now + 60_000 }; }
+function remoteCommand(mutationId: string, requestId: string) {
+  return { ownerId: "owner-a", requestId, mutationId, rawRole: "Data Product Manager", normalizedRoleKey: "data-product-manager", locale: "en-US" as const,
+    inputFingerprint: "p2-00000000000000000000000000000000", configFingerprint: "p2-11111111111111111111111111111111",
+    policy: { cacheDays: 30, userDailyQuota: 3, dailyBudgetMicros: 20_000_000, monthlyBudgetMicros: 100_000_000, maximumMicros: 5_000_000 } };
+}
 function saveCommand(run: { id: string; stateVersion: number }, result = validated) {
   return { id: run.id, ownerId: "owner-a", expectedVersion: run.stateVersion, result, configFingerprint: "config-fingerprint-1", normalizedRoleKey: "data-product-manager", locale: "en-US" as const };
 }
@@ -73,6 +101,55 @@ async function validating(repository: D1ResearchRepository, suppliedRun?: Awaite
 }
 
 describe("D1ResearchRepository", () => {
+  it("keeps remote creation details out of the public run DTO", async () => {
+    const { repository } = setup();
+    const commandValue = command("mutation-public-remote") as Omit<ReturnType<typeof command>, "activeExpiresAt"> & { activeExpiresAt?: number; policy: { cacheDays: number; userDailyQuota: number; dailyBudgetMicros: number; monthlyBudgetMicros: number; maximumMicros: number } };
+    delete commandValue.activeExpiresAt;
+    commandValue.inputFingerprint = "p2-00000000000000000000000000000000";
+    commandValue.configFingerprint = "p2-11111111111111111111111111111111";
+    commandValue.policy = { cacheDays: 30, userDailyQuota: 3, dailyBudgetMicros: 20_000_000, monthlyBudgetMicros: 100_000_000, maximumMicros: 5_000_000 };
+    const created = await repository.createRemoteOrReplay(commandValue);
+    const publicRun = await repository.getPublicRun("owner-a", created.run.id);
+    expect(publicRun).not.toHaveProperty("executionMode");
+    expect(publicRun).not.toHaveProperty("remoteQuotaKey");
+  });
+  it("classifies ordinary created runs as synchronous without exposing private admission fields", async () => {
+    const { repository } = setup();
+    const { run } = await repository.createOrReplay(command());
+    expect(run).toMatchObject({
+      executionMode: "synchronous",
+      remoteQuotaKey: null,
+    });
+    await expect(repository.getRun("owner-a", run.id)).resolves.toEqual(run);
+    const publicRun = await repository.getPublicRun("owner-a", run.id);
+    expect(publicRun).not.toHaveProperty("executionMode");
+    expect(publicRun).not.toHaveProperty("remoteQuotaKey");
+  });
+
+  it.each([
+    ["unknown mode", { execution_mode: "other" }, []],
+    ["null mode", { execution_mode: null }, []],
+    ["missing mode", {}, ["execution_mode"]],
+    ["synchronous with key", { execution_mode: "synchronous", remote_quota_key: "quota-key-1" }, []],
+    ["remote without key", { execution_mode: "cloudflare-workflow-v1", remote_quota_key: null }, []],
+    ["remote with missing key", { execution_mode: "cloudflare-workflow-v1" }, ["remote_quota_key"]],
+    ["remote with short key", { execution_mode: "cloudflare-workflow-v1", remote_quota_key: "short" }, []],
+    ["remote with oversized key", { execution_mode: "cloudflare-workflow-v1", remote_quota_key: "q".repeat(129) }, []],
+    ["remote with nontext key", { execution_mode: "cloudflare-workflow-v1", remote_quota_key: new Uint8Array(8) }, []],
+  ])("fails closed when a stored run has invalid execution classification: %s", async (
+    _label,
+    overrides,
+    omitted,
+  ) => {
+    const { repository, db } = setup();
+    const { run } = await repository.createOrReplay(command());
+    const controlled = repositoryReadingRunRow(db, run.id, overrides, omitted);
+    await expect(controlled.getRun("owner-a", run.id)).rejects.toMatchObject({
+      code: "RESEARCH_UNAVAILABLE",
+      message: "RESEARCH_UNAVAILABLE",
+    });
+  });
+
   it("does not expose expiry bypass through the general Research repository", () => {
     const { repository } = setup();
     expect("resolveReadyPackageForPlanningReplay" in repository).toBe(false);
@@ -81,7 +158,7 @@ describe("D1ResearchRepository", () => {
     const { repository, db } = setup(); const { current } = await validating(repository);
     const candidate = fanoutCandidate();
     const ids = candidate.skills.map((_, index) => `skill-${String(index).padStart(2, "0")}-${"a".repeat(247)}`);
-    const resources = Array.from({ length: 32 }, (_, index) => ({ ...candidate.resources[0]!, id: `resource-${index}-${"b".repeat(150)}`, url: `https://docs.example.org/${"a".repeat(1900)}/${index}`, skillIds: ids }));
+    const resources = Array.from({ length: 32 }, (_, index) => ({ ...candidate.resources[0]!, id: `resource-${index}-${"b".repeat(150)}`, url: `https://docs.getdbt.com/docs/${"a".repeat(1900)}/${index}`, skillIds: ids }));
     candidate.skills = candidate.skills.map((skill, index) => ({ ...skill, id: ids[index]!, resourceIds: resources.map((resource) => resource.id) }));
     candidate.prerequisiteEdges = ids.flatMap((skillId, index) => ids.slice(0, index).map((prerequisiteSkillId) => ({ skillId, prerequisiteSkillId })));
     candidate.resources = resources; candidate.stages[0]!.skillIds = ids;
@@ -581,8 +658,8 @@ describe("D1ResearchRepository", () => {
     const { db, repository } = setup(); const { run, current } = await validating(repository);
     await repository.saveValidation({ id: run.id, ownerId: "owner-a", expectedVersion: current.stateVersion, result: validated, configFingerprint: "config-fingerprint-1", normalizedRoleKey: "data-product-manager", locale: "en-US" });
     const publicRun = await repository.getPublicRun("owner-a", run.id);
-    expect(publicRun).toMatchObject({ id: run.id, state: "ready" });
-    expect(Object.keys(publicRun!).sort()).toEqual(["id", "role", "locale", "state", "retryable", "packageId", "summary", "skillCount", "sourceCount", "observedAt", "quality", "planningData"].sort());
+    expect(publicRun).toMatchObject({ id: run.id, state: "ready", backgroundAccepted: false });
+    expect(Object.keys(publicRun!).sort()).toEqual(["id", "role", "locale", "state", "retryable", "packageId", "summary", "skillCount", "sourceCount", "observedAt", "quality", "planningData", "backgroundAccepted"].sort());
     if (publicRun?.state !== "ready") throw new Error("Expected Ready public view");
     expect(publicRun.planningData).toEqual({ id: validated.package.id, blueprint: validated.package.blueprint, registry: validated.package.registry });
     db.database.exec("UPDATE research_packages SET package_json='{}'");
@@ -603,6 +680,102 @@ describe("D1ResearchRepository", () => {
     await expect(repository.transition({ id: ready.id, ownerId: "owner-a", expectedVersion: ready.stateVersion, from: "ready", to: "failed", errorCode: "service-failed", failureCategory: "internal" })).rejects.toMatchObject({ code: "CONFLICT" });
     await expect(repository.attachCachedPackage({ id: ready.id, ownerId: "owner-a", expectedVersion: ready.stateVersion, package: validated.package })).rejects.toMatchObject({ code: "CONFLICT" });
     await expect(repository.getRun("owner-a", ready.id)).resolves.toEqual(ready);
+  });
+
+  it("rejects ordinary transitions for remote runs in the actual SQL predicate", async () => {
+    const { db, repository } = setup();
+    const created = await repository.createRemoteOrReplay(remoteCommand("mutation-remote-transition", "request-remote-transition"));
+    const before = db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(created.run.id);
+    await expect(repository.transition({ id: created.run.id, ownerId: created.run.ownerId, expectedVersion: 0,
+      from: "queued", to: "failed", retryable: true, errorCode: "service-failed", failureCategory: "service-unavailable" }))
+      .rejects.toMatchObject({ code: "CONFLICT" });
+    expect(db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(created.run.id)).toEqual(before);
+  });
+
+  it("rejects remote validation before constructing normalized publication writes", async () => {
+    const { db, repository } = setup();
+    const created = await repository.createRemoteOrReplay(remoteCommand("mutation-remote-ready", "request-remote-ready"));
+    db.database.prepare("UPDATE research_runs SET state='validating',state_version=2 WHERE id=?1").run(created.run.id);
+    const prepared = db.preparedSql.length;
+    const before = {
+      runs: db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(created.run.id),
+      blueprints: db.database.prepare("SELECT count(*) AS n FROM role_blueprints").get(),
+      packages: db.database.prepare("SELECT count(*) AS n FROM research_packages").get(),
+    };
+    await expect(repository.saveValidation({ ...saveCommand({ id: created.run.id, stateVersion: 2 }),
+      configFingerprint: created.run.configFingerprint })).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(db.preparedSql.slice(prepared).some((sql) => sql.startsWith("INSERT INTO role_blueprints"))).toBe(false);
+    expect({
+      runs: db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(created.run.id),
+      blueprints: db.database.prepare("SELECT count(*) AS n FROM role_blueprints").get(),
+      packages: db.database.prepare("SELECT count(*) AS n FROM research_packages").get(),
+    }).toEqual(before);
+  });
+
+  it("keeps actual SQL guards on remote cache, needs-review, and every normalized ready write after a stale synchronous read", async () => {
+    const cached = setup();
+    const syncInput = { ...command("mutation-cache-source"), inputFingerprint: "p2-00000000000000000000000000000000",
+      configFingerprint: "p2-11111111111111111111111111111111" };
+    const sync = (await cached.repository.createOrReplay(syncInput)).run;
+    await cached.repository.transition({ id: sync.id, ownerId: sync.ownerId, expectedVersion: 0, from: "queued", to: "researching" });
+    const validating = await cached.repository.transition({ id: sync.id, ownerId: sync.ownerId, expectedVersion: 1, from: "researching", to: "validating" });
+    await cached.repository.saveValidation({ ...saveCommand(validating), configFingerprint: syncInput.configFingerprint });
+    const remote = await cached.repository.createRemoteOrReplay(remoteCommand("mutation-remote-cache", "request-remote-cache"));
+    const staleCache = repositoryReadingRunRow(cached.db, remote.run.id, { execution_mode: "synchronous", remote_quota_key: null });
+    await expect(staleCache.attachCachedPackage({ id: remote.run.id, ownerId: remote.run.ownerId, expectedVersion: 0,
+      package: validated.package })).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(cached.db.database.prepare("SELECT state FROM research_runs WHERE id=?1").get(remote.run.id)).toEqual({ state: "queued" });
+
+    const review = setup();
+    const reviewRun = await review.repository.createRemoteOrReplay(remoteCommand("mutation-remote-review", "request-remote-review"));
+    review.db.database.prepare("UPDATE research_runs SET state='validating',state_version=2 WHERE id=?1").run(reviewRun.run.id);
+    const staleReview = repositoryReadingRunRow(review.db, reviewRun.run.id, { execution_mode: "synchronous", remote_quota_key: null });
+    await expect(staleReview.saveValidation({ id: reviewRun.run.id, ownerId: reviewRun.run.ownerId, expectedVersion: 2,
+      normalizedRoleKey: reviewRun.run.normalizedRoleKey, locale: reviewRun.run.locale, configFingerprint: reviewRun.run.configFingerprint,
+      result: { ready: false, quality: { ...validated.quality, passed: false, issueCodes: ["invalid-graph"] },
+        sanitizedCandidate: researchCandidateSchema.parse(validResearchCandidate) } })).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(review.db.database.prepare("SELECT state FROM research_runs WHERE id=?1").get(reviewRun.run.id)).toEqual({ state: "validating" });
+
+    const ready = setup();
+    const readyRun = await ready.repository.createRemoteOrReplay(remoteCommand("mutation-remote-race", "request-remote-race"));
+    ready.db.database.prepare("UPDATE research_runs SET state='validating',state_version=2 WHERE id=?1").run(readyRun.run.id);
+    const row = ready.db.database.prepare("SELECT * FROM research_runs WHERE id=?1").get(readyRun.run.id) as Record<string, unknown>;
+    let reads = 0;
+    const controlled = {
+      prepare(sql: string) {
+        if (sql.startsWith("SELECT * FROM research_runs WHERE user_id=") && reads++ === 0) {
+          return { bind: () => ({ first: async () => ({ ...row, execution_mode: "synchronous", remote_quota_key: null }) }) } as unknown as D1PreparedStatement;
+        }
+        return ready.db.prepare(sql);
+      },
+      batch: ready.db.batch.bind(ready.db),
+    } as unknown as D1Database;
+    const staleReady = new D1ResearchRepository(controlled, { now: () => now });
+    const counts = {
+      blueprints: ready.db.database.prepare("SELECT count(*) AS n FROM role_blueprints").get(),
+      versions: ready.db.database.prepare("SELECT count(*) AS n FROM role_blueprint_versions").get(),
+      skills: ready.db.database.prepare("SELECT count(*) AS n FROM role_skill_definitions").get(),
+      edges: ready.db.database.prepare("SELECT count(*) AS n FROM role_skill_edges").get(),
+      resources: ready.db.database.prepare("SELECT count(*) AS n FROM learning_resources").get(),
+      links: ready.db.database.prepare("SELECT count(*) AS n FROM resource_skill_links").get(),
+      packages: ready.db.database.prepare("SELECT count(*) AS n FROM research_packages").get(),
+      audits: ready.db.database.prepare("SELECT count(*) AS n FROM research_source_audits").get(),
+    };
+    await expect(staleReady.saveValidation({ ...saveCommand({ id: readyRun.run.id, stateVersion: 2 }),
+      configFingerprint: readyRun.run.configFingerprint })).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(ready.db.batches.at(-1)).toHaveLength(9);
+    expect(ready.db.batches.at(-1)?.every((sql) => sql.includes("execution_mode='synchronous'"))).toBe(true);
+    expect({
+      blueprints: ready.db.database.prepare("SELECT count(*) AS n FROM role_blueprints").get(),
+      versions: ready.db.database.prepare("SELECT count(*) AS n FROM role_blueprint_versions").get(),
+      skills: ready.db.database.prepare("SELECT count(*) AS n FROM role_skill_definitions").get(),
+      edges: ready.db.database.prepare("SELECT count(*) AS n FROM role_skill_edges").get(),
+      resources: ready.db.database.prepare("SELECT count(*) AS n FROM learning_resources").get(),
+      links: ready.db.database.prepare("SELECT count(*) AS n FROM resource_skill_links").get(),
+      packages: ready.db.database.prepare("SELECT count(*) AS n FROM research_packages").get(),
+      audits: ready.db.database.prepare("SELECT count(*) AS n FROM research_source_audits").get(),
+    }).toEqual(counts);
+    expect(ready.db.database.prepare("SELECT state FROM research_runs WHERE id=?1").get(readyRun.run.id)).toEqual({ state: "validating" });
   });
 
   it("rejects a re-fingerprinted but nonidentical cached package at attachment", async () => {

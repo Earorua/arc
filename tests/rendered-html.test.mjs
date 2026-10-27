@@ -73,6 +73,7 @@ test("keeps server secret identifiers out of the client bundle", async () => {
     "GOOGLE_CLIENT_SECRET",
     "GITHUB_CLIENT_SECRET",
     "OPENAI_API_KEY",
+    "OPENROUTER_API_KEY",
   ]) {
     assert.doesNotMatch(bundle, new RegExp(identifier));
   }

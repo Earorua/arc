@@ -13,7 +13,7 @@ import { buildPlanVersion } from "../../app/lib/planning/scheduler";
 
 const { usePlanningWorkspace } = vi.hoisted(() => ({ usePlanningWorkspace: vi.fn(() => ({ workspace: null, source: "local", migration: "none", recovery: "none", generate: vi.fn(), record: vi.fn(), accept: vi.fn(), discard: vi.fn(), importLocal: vi.fn(), dismissMigration: vi.fn(), retry: vi.fn() })) }));
 vi.mock("../../app/lib/use-planning-workspace", () => ({ usePlanningWorkspace }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn() }) }));
 
 vi.mock("../../app/lib/auth-client", () => ({
   authClient: { useSession: () => ({ data: null, isPending: false }) },
@@ -68,12 +68,18 @@ describe("personalized workspace state", () => {
     expect(usePlanningWorkspace).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ["Stack", StackPage],
-    ["Proof", ProofPage],
-  ])("restores the custom role consistently on %s", async (page, Page) => {
+  it("keeps device-only role details out of the signed-out Stack page", async () => {
     saveDemoState(mergeSetup(createDemoState(), customSetup));
-    render(<Page />);
+    render(<StackPage />);
+    expect(await screen.findByText("Sign in to view your role intelligence.")).toBeInTheDocument();
+    expect(screen.queryByText("数据产品经理 · 10 weeks")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Web Platform" })).not.toBeInTheDocument();
+    expect(usePlanningWorkspace).not.toHaveBeenCalled();
+  });
+
+  it("restores the custom role consistently on Proof", async () => {
+    saveDemoState(mergeSetup(createDemoState(), customSetup));
+    render(<ProofPage />);
 
     expect(screen.getByRole("status")).toHaveTextContent("Restoring your plan");
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
@@ -84,10 +90,6 @@ describe("personalized workspace state", () => {
       expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
     });
 
-    if (page === "Stack") {
-      expect(screen.getByText("岗位重要度与学习证据分开呈现；每条学习建议都能回到经过验证的来源。")).toBeInTheDocument();
-      expect(screen.queryByText(/置信度|confidence/i)).not.toBeInTheDocument();
-    }
   });
 
   it("offers only Daily Units from the active plan when linking proof", async () => {

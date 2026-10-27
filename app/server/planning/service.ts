@@ -33,6 +33,12 @@ import { PlanningSourceContractError, PlanningSourceResolver, PlanningSourceUnav
 const FLAGSHIP_SLUG = "ai-native-full-stack-engineer";
 const authenticatedOwnerSchema = z.string().trim().min(1).max(256);
 
+async function researchGoalId(ownerId: string, mutationId: string): Promise<string> {
+  const bytes = new TextEncoder().encode(JSON.stringify([ownerId, mutationId]));
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return `research-goal-${Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+}
+
 export type PlanningServiceErrorCode = "INVALID_INPUT" | "NOT_FOUND" | "CONFLICT" | "PLANNING_UNAVAILABLE";
 
 export class PlanningServiceError extends Error {
@@ -104,6 +110,16 @@ export class PlanningService {
     return this.parseOwnedWorkspace(stored, scope);
   }
 
+  // Read a saved goal without changing which goal is active. Callers choose an
+  // archived goal only after their owner/status check; repository scope remains
+  // bound to the authenticated owner and the usual source validation is reused.
+  async getSavedWorkspaceResponse(userId: string, goalId: string): Promise<PlanningWorkspaceResponse> {
+    const scope = { ownerId: parseOwner(userId), goalId: parseOwner(goalId) };
+    const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
+    if (!stored) return { workspace: null, sourceContext: null };
+    return this.parseOwnedWorkspace(stored, scope);
+  }
+
   async generate(userId: string, input: unknown): Promise<PlanningMutationResult> {
     return (await this.generateResponse(userId, input)).result;
   }
@@ -111,9 +127,15 @@ export class PlanningService {
   async generateResponse(userId: string, input: unknown): Promise<PlanningMutationResponse> {
     const ownerId = parseOwner(userId);
     const request = parseContract(generatePlanningRequestSchema, input);
-    const scope = await this.resolveScope(ownerId);
+    const activeScope = await this.resolveScope(ownerId);
+    const newGoal = "newGoal" in request ? request.newGoal : undefined;
+    const scope = newGoal
+      ? { ownerId, goalId: await researchGoalId(ownerId, request.mutationId) }
+      : activeScope;
     const replay = await this.loadReplay(scope, request.mutationId);
     if (replay) return replay;
+    if (newGoal && (newGoal.previousGoalId !== activeScope.goalId
+      || !await repositoryRead(() => this.dependencies.repository.load(activeScope)))) throw new PlanningConflictError();
     const existing = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (existing) throw new PlanningConflictError();
 
@@ -166,6 +188,7 @@ export class PlanningService {
       });
       const saved = await this.dependencies.repository.saveGeneration({
         ...scope, mutationId: request.mutationId, result, sourceReference,
+        ...(newGoal ? { newGoal: { previousGoalId: newGoal.previousGoalId, roleId: blueprint.name } } : {}),
       });
       return this.parseOwnedResult(saved, scope, sourceReference);
     } catch (error) {
@@ -181,6 +204,13 @@ export class PlanningService {
     parseOwner(userId);
     const request = parseContract(planningEventRequestSchema, input);
     return this.mutate(userId, request.mutationId, request.baseVersionId, request.event);
+  }
+
+  async appendAgentEventResponse(userId: string, input: unknown,
+    expected: { goalId: string; workspaceId: string; revision: number }): Promise<PlanningMutationResponse> {
+    const request = parseContract(planningEventRequestSchema, input);
+    if (request.event.kind !== "agent_replanned") throw new PlanningInvalidInputError();
+    return this.mutate(userId, request.mutationId, request.baseVersionId, request.event, expected);
   }
 
   async acceptReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
@@ -214,15 +244,19 @@ export class PlanningService {
     mutationId: string,
     baseVersionId: string,
     body: Record<string, unknown>,
+    expected?: { goalId: string; workspaceId: string; revision: number },
   ): Promise<PlanningMutationResponse> {
     const ownerId = parseOwner(userId);
     const scope = await this.resolveScope(ownerId);
+    if (expected && scope.goalId !== expected.goalId) throw new PlanningConflictError();
     const replay = await this.loadReplay(scope, mutationId);
     if (replay) return replay;
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (!stored) throw new PlanningUnavailableError();
     const parsedStored = await this.parseOwnedWorkspace(stored, scope);
     const { workspace, sourceContext } = parsedStored;
+    if (expected && (workspace.id !== expected.workspaceId || workspace.revision !== expected.revision))
+      throw new PlanningConflictError();
     if (workspace.activePlanVersionId !== baseVersionId) throw new PlanningConflictError();
     try {
       const { blueprint, registry, reference: sourceReference } = sourceContext;

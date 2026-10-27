@@ -1,0 +1,213 @@
+{
+  "schemaVersion": "arc-snapshot-scenario-task2-acceptance-v1",
+  "rootReviewed": true,
+  "specPassed": true,
+  "qualityPassed": true,
+  "acceptedAt": "2026-10-18T13:30:21.201Z",
+  "sequence": "20261017-snapshot-r1",
+  "epoch": "20261017-snapshot",
+  "status": "LOCAL_TASK2_PREPARATION_AND_STATIC_DRY_RUNS_ACCEPTED",
+  "reviews": {
+    "freeze": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\implementation-freeze-r1.json",
+      "sha256": "e859f9ddf3e52c94c034f28a12c83cc2c321417900c12e387b39b3370f3b825d"
+    },
+    "specReview": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\spec-review-r1.json",
+      "sha256": "f00bd36e91c608e8f1ec668c0e091d3f0b3fe6bd7b650827f0701ca02c4b0dbe"
+    },
+    "qualityReview": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\quality-review-r1.json",
+      "sha256": "526edb1ada2fff2b6a3f37163b834c2abf19a5b0d32701ab0c999dec3cdcee05"
+    }
+  },
+  "tools": {
+    "budget.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\budget.mjs",
+      "sha256": "01833b5e053bed4b2dc8b4b954a8f150c36ddf6769bc303fc1a75d70955201ee"
+    },
+    "contracts.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\contracts.mjs",
+      "sha256": "11d08a87cf135c1b773e0feaec8c96b62c9e2aed8425e2bae0952fbaf7c8d280"
+    },
+    "guards.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\guards.mjs",
+      "sha256": "f966265482bc613337b22212d852abfeef784a77ea0bfbd35a09872d1eeed313"
+    },
+    "accepted-context.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\accepted-context.mjs",
+      "sha256": "f4929ac20306bdc4a1387d26fe62403768a703782b8c1a2e68fb5f09630730a0"
+    },
+    "accepted-schema.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\accepted-schema.mjs",
+      "sha256": "b6dac208024bb484faf3fb9c7b9ee7895ec628461f159d662a2d5602375fca8f"
+    },
+    "runtime-closure.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\runtime-closure.mjs",
+      "sha256": "c482dffb3e807aa85fd86f74a7f3120ecfa0b5a68123fb58f4c673fda0fecbb1"
+    },
+    "prepare.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\prepare.mjs",
+      "sha256": "8c8d5333565c7b5b9e97f3c1e3598fea325a9160e831b6a28469d9ec39d1b5a1"
+    },
+    "read-transport.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\read-transport.mjs",
+      "sha256": "8ced544ad3961f33189f10798c15ab465f64dfa126d1d485a068362799e7b759"
+    },
+    "read-plans.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\read-plans.mjs",
+      "sha256": "2e9de49bf472aaafd1bc7e48ecccd827f5af6dc69796f33d3425e7cfdf2bb94d"
+    },
+    "project.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\project.mjs",
+      "sha256": "a5044f5cef3c5941429789322712ddf4cb04002449a7e3b98859a3617fb36e5f"
+    },
+    "mapping.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\mapping.mjs",
+      "sha256": "711aada1f528279ff460a66006fbef9400ac73b486b9cb364110433a869daa06"
+    },
+    "prepare-observation.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\prepare-observation.mjs",
+      "sha256": "f91bb797e8c9c214bdb2ef48920a2fccc66912a0ff144e5ff271e65185a60af8"
+    },
+    "collect.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\collect.mjs",
+      "sha256": "d2acb401e664f3b438bdd64ecef012b60e058f9acc19c5403bd14a79bf534f36"
+    },
+    "evaluate.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\evaluate.mjs",
+      "sha256": "597299e1885642e81afd9c632f8fedcf60680d6bcbe6dbb0889e27ac132748e6"
+    },
+    "operate.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\operate.mjs",
+      "sha256": "bf249b2162c53bede07aee18d548476c1daafd5932abb073693e4ef7cf3866f5"
+    },
+    "receipt.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\receipt.mjs",
+      "sha256": "ce95bee80d050530f8c3e206f6eeb81957dac243eb7fc1cf2fb570e83aae73ee"
+    },
+    "roster.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\roster.mjs",
+      "sha256": "bb49303b5c361cfcdfd9bca935e24c9a20aff50c5065edea58dc9b52c9b111cd"
+    },
+    "recovery.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\recovery.mjs",
+      "sha256": "ce721fe72fccc8437600b78a1fe68970e25e7e9dc133dbcb8bf75cc28da5c193"
+    },
+    "runtime-directories.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\runtime-directories.mjs",
+      "sha256": "295a21f8865b8a2027ff2809d940e87b3da22731b6103e87f413809b2f65e686"
+    },
+    "attended-proof.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\attended-proof.mjs",
+      "sha256": "9ec7a009e7a13c14075b4cdc2356aefc37cac86bdb0d88019f6ca6a3b24c43ef"
+    },
+    "reviews.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\reviews.mjs",
+      "sha256": "6bb6c323765c65eb5b9a83713fb7b231c8f67b08e8408bd5ca23f24aa1151cd2"
+    },
+    "fault-continuation.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\fault-continuation.mjs",
+      "sha256": "4660a8000bb8d9530edba895d2a8a1b58afe6399f86db0079a83b40dc286b585"
+    },
+    "profile.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\profile.mjs",
+      "sha256": "b22c3a044e27a9bc79297a34d6725128f03ea18a63bad52e8f19659b9aeb55ed"
+    },
+    "verify.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\verify.mjs",
+      "sha256": "8c8a8dc94220145842c1eebeae531a81b5a97d5256484620298b76f758cf3a2a"
+    },
+    "child-runtime.mjs": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\child-runtime.mjs",
+      "sha256": "6eb29e84c983a836995a303e7b9803fe29ef684b1352f8bf0cadb54c8ce8e334"
+    },
+    "local-offline-child-runtime-inventory-r1.json": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-child-runtime-inventory-r1.json",
+      "sha256": "2562298aa8807fa9f67e5c4c1036abdbd635fc7e02d9be1b09c625c79f12de23"
+    }
+  },
+  "profile": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\local-offline-profile-r1.json",
+    "sha256": "a8a3327ad8e66294a9ba2e39c23b3b0d0015ec458ed2b10f9a4bf6e56e03edae"
+  },
+  "preparation": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\preparation.json",
+    "sha256": "dbf7072b0321fbf03d34ce3b0d0b511308c98b767f2cd253b2cb416e27e34b9d"
+  },
+  "configs": {
+    "activate": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\wrangler.activate.json",
+      "sha256": "c233674116e5d00018aa59f8b18dfd1d9f03b7bb1ba377e125eaaa573866fe0e"
+    },
+    "admission-close": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\wrangler.admission-close.json",
+      "sha256": "0a600c3e55b0986096a438d267c0b8d6ee753e274d4189c5867ecced523d9b89"
+    },
+    "maintenance-close": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\wrangler.maintenance-close.json",
+      "sha256": "859bc1a332c509df689b00cb66c71c48fb7e9d4ebb6bf78bbe5a152f6b1f90b6"
+    }
+  },
+  "inventory": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\isolation-inventory.json",
+    "sha256": "b6669a017dcee911853b3a7ed1d364d12716073398e633a201a9ec1ae62cffb1"
+  },
+  "task1": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\root-driver-artifact-materialization-acceptance-r1.json",
+    "sha256": "a24416ce7e0424c7d1226fbae396a42fa16a6d9b78e4c5f6aad7e6bcc0d76919"
+  },
+  "schemaAcceptance": {
+    "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\root-schema-initialization-acceptance-r1.json",
+    "sha256": "35d07ffeb78ebe25030c6d038fb9a1c78c395b4e82663717cba533833784b584"
+  },
+  "dryRuns": {
+    "activate": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\activate-dry-run-result.json",
+      "sha256": "ed5b11943b56b4717307222911cea0543ea003fb1840253639e4234bef1333c6"
+    },
+    "admission-close": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\admission-close-dry-run-result.json",
+      "sha256": "dd24ad60c600883453cf35c62d0dde64a3aa05e917a0a0282fc0af7175ae19ce"
+    },
+    "maintenance-close": {
+      "path": "C:\\Users\\XF\\Documents\\Codex\\2026-07-26\\sites-plugin-sites-openai-bundled-2\\.worktrees\\v8-openrouter-research-beta\\outputs\\local-durable-executor-20260914\\task15-smoke\\cloud-ops-20261017-snapshot\\scenario-ops-r2\\maintenance-close-dry-run-result.json",
+      "sha256": "68155a3d7cb2aeff93aba524d2eb011ea79b91db914f0b4b58c585d57e894b3b"
+    }
+  },
+  "observed": [
+    {
+      "kind": "activate",
+      "startedAt": "2026-10-18T13:28:25.922Z",
+      "endedAt": "2026-10-18T13:28:27.511Z",
+      "exitCode": 0,
+      "childCloseConfirmed": true,
+      "sha256": "ed5b11943b56b4717307222911cea0543ea003fb1840253639e4234bef1333c6"
+    },
+    {
+      "kind": "admission-close",
+      "startedAt": "2026-10-18T13:28:49.898Z",
+      "endedAt": "2026-10-18T13:28:50.750Z",
+      "exitCode": 0,
+      "childCloseConfirmed": true,
+      "sha256": "dd24ad60c600883453cf35c62d0dde64a3aa05e917a0a0282fc0af7175ae19ce"
+    },
+    {
+      "kind": "maintenance-close",
+      "startedAt": "2026-10-18T13:29:11.003Z",
+      "endedAt": "2026-10-18T13:29:11.884Z",
+      "exitCode": 0,
+      "childCloseConfirmed": true,
+      "sha256": "68155a3d7cb2aeff93aba524d2eb011ea79b91db914f0b4b58c585d57e894b3b"
+    }
+  ],
+  "scope": "LOCAL_ONLY_NOT_TASK3_TIMING_OR_CLOUD_ACCEPTANCE",
+  "cloudMutations": 0,
+  "nativeCloudReads": 0,
+  "controlCalls": 0,
+  "providerCalls": 0,
+  "task3TimingAccepted": false,
+  "task15Accepted": false,
+  "newRehearsalStarted": false,
+  "allLocalChildrenClosed": true
+}

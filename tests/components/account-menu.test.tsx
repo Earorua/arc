@@ -1,4 +1,6 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 import userEvent from "@testing-library/user-event";
 import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -9,6 +11,7 @@ const authMocks = vi.hoisted(() => ({
   linkSocial: vi.fn(),
   signOut: vi.fn(),
 }));
+const replaceDocument = vi.fn();
 
 vi.mock("../../app/lib/auth-client", () => ({
   authClient: authMocks,
@@ -54,10 +57,25 @@ afterEach(() => {
 });
 
 describe("AccountMenu", () => {
+  it("hydrates consistently when the session resolves before the account menu mounts", async () => {
+    authMocks.useSession.mockReturnValue({ data: null, isPending: true });
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<AccountMenu />);
+    document.body.appendChild(container);
+    authMocks.useSession.mockReturnValue({ data: null, isPending: false });
+    const onRecoverableError = vi.fn();
+    let root!: ReturnType<typeof hydrateRoot>;
+    try {
+      await act(async () => { root = hydrateRoot(container, <AccountMenu />, { onRecoverableError }); });
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(within(container).getByRole("link", { name: "Sign in" })).toBeInTheDocument();
+    } finally { await act(async () => root.unmount()); container.remove(); }
+  });
   beforeEach(() => {
     authMocks.listAccounts.mockReset();
     authMocks.linkSocial.mockReset();
     authMocks.signOut.mockReset();
+    replaceDocument.mockReset();
     authMocks.listAccounts.mockResolvedValue({
       data: [{ providerId: "github" }],
       error: null,
@@ -82,18 +100,60 @@ describe("AccountMenu", () => {
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
-  it("shows the Arc user and signs out without exposing session internals", async () => {
+  it("replaces the document with the homepage and removes account identity after sign out", async () => {
+    vi.stubGlobal("location", { replace: replaceDocument });
     const user = userEvent.setup();
     signedInSession();
-    authMocks.signOut.mockResolvedValue(undefined);
+    authMocks.signOut.mockResolvedValue({ data: { success: true }, error: null });
 
     render(<AccountMenu />);
     await user.click(screen.getByText("Arc Learner"));
     await user.click(screen.getByRole("button", { name: "Sign out" }));
 
-    expect(screen.getByText("learner@example.com")).toBeInTheDocument();
+    expect(replaceDocument).toHaveBeenCalledExactlyOnceWith("/");
+    expect(screen.queryByText("learner@example.com")).not.toBeInTheDocument();
+    expect(screen.queryByText("Arc Learner")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sign in" })).toBeInTheDocument();
     expect(authMocks.signOut).toHaveBeenCalledOnce();
     expect(screen.queryByText(/token|ChatGPT/i)).not.toBeInTheDocument();
+  });
+
+  it("waits for session invalidation and blocks duplicate sign-out requests", async () => {
+    vi.stubGlobal("location", { replace: replaceDocument });
+    const user = userEvent.setup();
+    signedInSession();
+    let resolveSignOut!: (value: unknown) => void;
+    authMocks.signOut.mockImplementation(() => new Promise(resolve => { resolveSignOut = resolve; }));
+    render(<AccountMenu />);
+    await user.click(screen.getByText("Arc Learner"));
+    await user.click(screen.getByRole("button", { name: "Sign out" }));
+
+    const pending = screen.getByRole("button", { name: "Signing out…" });
+    expect(pending).toBeDisabled();
+    await user.click(pending);
+    expect(authMocks.signOut).toHaveBeenCalledOnce();
+    expect(replaceDocument).not.toHaveBeenCalled();
+    await act(async () => { resolveSignOut({ data: { success: true }, error: null }); });
+    expect(replaceDocument).toHaveBeenCalledExactlyOnceWith("/");
+  });
+
+  it.each(["response", "network"])("keeps a failed %s sign-out retryable without claiming success", async (failure) => {
+    vi.stubGlobal("location", { replace: replaceDocument });
+    const user = userEvent.setup();
+    signedInSession();
+    if (failure === "response") authMocks.signOut.mockResolvedValueOnce({ data: null, error: { message: "private diagnostic" } });
+    else authMocks.signOut.mockRejectedValueOnce(new Error("private diagnostic"));
+    authMocks.signOut.mockResolvedValueOnce({ data: { success: true }, error: null });
+    render(<AccountMenu />);
+    await user.click(screen.getByText("Arc Learner"));
+    await user.click(screen.getByRole("button", { name: "Sign out" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Couldn't sign out. Please try again.");
+    expect(screen.queryByText("private diagnostic")).not.toBeInTheDocument();
+    expect(replaceDocument).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Sign out" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    expect(replaceDocument).toHaveBeenCalledExactlyOnceWith("/");
   });
 
   it("opens a source-verification panel instead of linking the target directly", async () => {

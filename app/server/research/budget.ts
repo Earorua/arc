@@ -1,3 +1,5 @@
+import type { SiteExecutionIdentity } from "./site-execution-repository";
+
 export type ResearchBudgetEnvironment = {
   ARC_AI_SITE_DAILY_BUDGET_MICROS?: string;
   ARC_AI_SITE_MONTHLY_BUDGET_MICROS?: string;
@@ -6,6 +8,10 @@ export type ResearchBudgetEnvironment = {
 };
 export type ResearchBudgetLimits = { dailyBudgetMicros: number; monthlyBudgetMicros: number; maximumMicros: number; researchMaximumMicros: number; repairMaximumMicros: number };
 export type BudgetReserveCommand = Pick<ResearchBudgetLimits, "dailyBudgetMicros" | "monthlyBudgetMicros" | "maximumMicros"> & { ownerId: string; runId: string; requestId: string; expiresAt: number };
+export type RemoteBudgetReserveCommand = BudgetReserveCommand & SiteExecutionIdentity;
+export type RemoteBudgetReleaseBeforeBeginCommand = SiteExecutionIdentity & Readonly<{
+  reservationId: string;
+}>;
 export type BudgetSettlement = { kind: "actual"; actualMicros: number } | { kind: "not-charged" } | { kind: "unknown" };
 export type BudgetReservation = {
   id: string; ownerId: string; runId: string; requestId: string; dayBucketId: string; monthBucketId: string;
@@ -23,6 +29,10 @@ export interface ResearchBudgetRepository {
   readReservation(ownerId: string, reservationId: string): Promise<BudgetReservation | null>;
   findReservation(ownerId: string, runId: string, requestId: string): Promise<BudgetReservation | null>;
   readBucket(bucketId: string): Promise<BudgetBucket | null>;
+}
+export interface RemoteResearchBudgetRepository {
+  reserveRemote(input: RemoteBudgetReserveCommand): Promise<BudgetDecision>;
+  releaseRemoteBeforeBegin(input: RemoteBudgetReleaseBeforeBeginCommand): Promise<BudgetReservation>;
 }
 export class ResearchBudgetError extends Error {
   constructor(readonly code: "CONFLICT" | "NOT_FOUND" | "BUDGET_UNAVAILABLE") { super(code); this.name = "ResearchBudgetError"; }

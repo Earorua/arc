@@ -9,6 +9,9 @@ const migrations = Object.freeze([
   "0002_product_intelligence.sql", "0003_adaptive_planning.sql",
   "0004_proof_backed_stack.sql", "0005_openrouter_research_beta.sql",
   "0006_research_health_indexes.sql",
+  "0007_research_bridge_nonces.sql", "0008_research_site_executions.sql",
+  "0009_research_site_begin_grants.sql", "0010_research_site_imports.sql",
+  "0011_research_site_bridge.sql", "0012_account_recovery.sql",
 ]);
 const authTables = ["users", "accounts", "sessions", "verifications", "account_link_intents"];
 const socialProviders = new Set(["google", "github"]);

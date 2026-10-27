@@ -120,6 +120,27 @@ function propose(
 }
 
 describe("applyPlanningEvent", () => {
+  it.each(["delayed", "skipped"] as const)("defers overdue work from the current day for %s and can discard the proposal", (kind) => {
+    const initial = workspace();
+    const alpha = activeUnit(initial, "alpha");
+    const proposalEvent = event(initial, { kind, unitId: alpha.id, planningDate: "2026-08-14" });
+    const proposed = applyPlanningEvent({ workspace: initial, blueprint, registry, event: proposalEvent });
+    expect(proposed.kind).toBe("proposed");
+    if (proposed.kind !== "proposed") throw new Error("Expected proposed transition");
+    expect(proposed.workspace.activePlanVersionId).toBe(initial.activePlanVersionId);
+    expect(proposed.diff.items.find(({ unitId }) => unitId === alpha.id)).toMatchObject({
+      change: "moved", fromDate: PLANNING_DATE, toDate: "2026-08-15",
+    });
+    const candidate = proposed.workspace.planVersions.find(({ id }) => id === proposed.workspace.pendingPlanVersionId)!;
+    expect(candidate.days[0]).toMatchObject({ date: "2026-08-14", budgetMinutes: 60, primaryUnitId: null });
+    const discard = event(proposed.workspace, { kind: "replan_discarded", candidatePlanVersionId: candidate.id });
+    const discarded = applyPlanningEvent({ workspace: proposed.workspace, blueprint, registry, event: discard }).workspace;
+    expect(discarded.pendingPlanVersionId).toBeNull();
+    expect(discarded.activePlanVersionId).toBe(initial.activePlanVersionId);
+    expect(discarded.availability).toEqual(initial.availability);
+    expect(replayPlanningEvents({ initial, events: [proposalEvent, discard], blueprint, registry })).toEqual(discarded);
+  });
+
   it("completes atomically, preserves historical placement, and rolls seven dates", () => {
     const initial = workspace();
     const alpha = activeUnit(initial, "alpha");

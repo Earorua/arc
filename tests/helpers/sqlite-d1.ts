@@ -35,14 +35,25 @@ class SqliteStatement {
     return { success: true, meta: { changes: result.changes ?? 0 } };
   }
   runSync() { return this.database.execute(this.sql, this.bindings, "run") as { changes?: number }; }
+  batchSync() {
+    if (this.database.database.prepare(this.sql).columns().length === 0) {
+      const result = this.runSync();
+      return { success: true, results: [], meta: { changes: result.changes ?? 0 } };
+    }
+    const changes = () => (this.database.database.prepare("SELECT total_changes() AS n").get() as { n: number }).n;
+    const before = changes();
+    const results = this.database.execute(this.sql, this.bindings, "all") as unknown[];
+    return { success: true, results, meta: { changes: changes() - before } };
+  }
 }
 
 /** Minimal, real-SQLite D1 adapter for repository tests. */
 export class SqliteD1 {
-  readonly database = new DatabaseSync(":memory:");
+  readonly database: DatabaseSync;
   readonly batches: string[][] = [];
   readonly preparedSql: string[] = [];
   failAtBatchStatement: number | null = null;
+  constructor(filename = ":memory:") { this.database = new DatabaseSync(filename); }
   prepare(sql: string): D1PreparedStatement {
     if (new TextEncoder().encode(sql).byteLength > 100_000) throw new Error("D1 SQL too large");
     this.preparedSql.push(sql);
@@ -55,8 +66,7 @@ export class SqliteD1 {
       const results: unknown[] = [];
       for (let index = 0; index < statements.length; index++) {
         if (this.failAtBatchStatement === index) throw new Error("injected batch failure");
-        const result = (statements[index] as unknown as SqliteStatement).runSync();
-        results.push({ success: true, meta: { changes: result.changes ?? 0 } });
+        results.push((statements[index] as unknown as SqliteStatement).batchSync());
       }
       this.database.exec("COMMIT");
       return results as D1Result<unknown>[];
@@ -80,14 +90,23 @@ export class SqliteD1 {
   close() { this.database.close(); }
 }
 
-export function createResearchD1(): SqliteD1 {
-  const db = new SqliteD1();
+export function createResearchD1(filename = ":memory:"): SqliteD1 {
+  const db = new SqliteD1(filename);
   db.database.exec("PRAGMA foreign_keys = ON");
-  for (const file of ["0000_beta_foundation.sql", "0001_secure_account_linking.sql", "0002_product_intelligence.sql", "0003_adaptive_planning.sql", "0004_proof_backed_stack.sql", "0005_openrouter_research_beta.sql", "0006_research_health_indexes.sql"]) {
+  for (const file of ["0000_beta_foundation.sql", "0001_secure_account_linking.sql", "0002_product_intelligence.sql", "0003_adaptive_planning.sql", "0004_proof_backed_stack.sql", "0005_openrouter_research_beta.sql", "0006_research_health_indexes.sql", "0007_research_bridge_nonces.sql", "0008_research_site_executions.sql", "0009_research_site_begin_grants.sql", "0010_research_site_imports.sql"]) {
     const sql = readFileSync(resolve(process.cwd(), "drizzle", file), "utf8").replaceAll("--> statement-breakpoint", ";");
     db.database.exec(sql);
   }
+  applyResearchSiteBridgeMigration(db);
+  db.database.exec(readFileSync(resolve(process.cwd(), "drizzle", "0012_account_recovery.sql"), "utf8")
+    .replaceAll("--> statement-breakpoint", ";"));
   return db;
+}
+
+export function applyResearchSiteBridgeMigration(db: SqliteD1): void {
+  const sql = readFileSync(resolve(process.cwd(), "drizzle", "0011_research_site_bridge.sql"), "utf8")
+    .replaceAll("--> statement-breakpoint", ";");
+  db.database.exec(sql);
 }
 
 export function seedUser(db: SqliteD1, id: string) {

@@ -6,6 +6,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { betterAuth } from "better-auth";
 import { handleOAuthUserInfo } from "better-auth/oauth2";
 import { drizzle } from "drizzle-orm/d1";
+import { env } from "cloudflare:workers";
 import * as schema from "../../db/schema";
 import { buildAuthOptions } from "../../app/server/auth/runtime";
 import { createResearchD1 } from "../helpers/sqlite-d1";
@@ -17,18 +18,22 @@ const timestamp = now - 10_000;
 const databases: ReturnType<typeof createResearchD1>[] = [];
 let cleanup: (database: DatabaseSync, nowMs: number) => unknown;
 let deniedFetch: ReturnType<typeof vi.fn>;
+let dbDescriptor: PropertyDescriptor | undefined;
 
 beforeAll(async () => {
   const moduleUrl = pathToFileURL(resolve(process.cwd(), "scripts/cloudflare-migration/rehearse-auth-cleanup.mjs"));
   cleanup = (await import(moduleUrl.href)).rehearseAuthCleanup;
 });
 beforeEach(() => {
+  dbDescriptor = Object.getOwnPropertyDescriptor(env, "DB");
   deniedFetch = vi.fn(async () => { throw new Error("SYNTHETIC_AUTH_NETWORK_DENIED"); });
   vi.stubGlobal("fetch", deniedFetch);
 });
 afterEach(() => {
   try { expect(deniedFetch).not.toHaveBeenCalled(); }
   finally {
+    if (dbDescriptor) Object.defineProperty(env, "DB", dbDescriptor);
+    else Reflect.deleteProperty(env, "DB");
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     for (const db of databases.splice(0)) db.close();
@@ -38,6 +43,7 @@ afterEach(() => {
 function fixture() {
   const db = createResearchD1();
   databases.push(db);
+  Object.defineProperty(env, "DB", { configurable: true, writable: true, enumerable: true, value: db });
   return db;
 }
 

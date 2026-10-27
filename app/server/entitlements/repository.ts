@@ -1,3 +1,5 @@
+import type { SiteExecutionIdentity } from "../research/site-execution-repository";
+
 export type EntitlementPeriod = {
   startMs: number;
   endMs: number;
@@ -15,6 +17,14 @@ export const RESEARCH_QUOTA_PURPOSE = "role-research";
 export type ResearchQuotaAdmission = {
   userId: string; purpose: string; idempotencyKey: string; units: number;
   dailyQuota: number; period: EntitlementPeriod;
+};
+export type RemoteResearchQuotaAdmission = SiteExecutionIdentity & {
+  userId: string;
+  purpose: "role-research";
+  idempotencyKey: string;
+  units: 1;
+  dailyQuota: number;
+  period: EntitlementPeriod;
 };
 export type ResearchQuotaDecision =
   | { allowed: false; reason: "quota" }

@@ -45,22 +45,25 @@ async function inspectFiles(directory) {
  * @param {{ targetPath?: string, rootDirectory?: string }} options
  */
 export async function checkCloudflareBuild(options = {}) {
-  if (!options.targetPath?.trim()) throw new Error("An explicit shadow target inventory is required.");
+  if (!options.targetPath?.trim()) throw new Error("An explicit remote target inventory is required.");
   const rootDirectory = resolve(options.rootDirectory ?? process.cwd());
   const target = await loadCloudflareTarget({ rootDirectory, targetPath: options.targetPath });
+  const config = createCloudflareConfig(target);
+  const workerName = config.name;
+  if (typeof workerName !== "string" || !workerName.trim()) throw new Error("Invalid generated Cloudflare worker name.");
   const serverDirectory = join(rootDirectory, "dist/server");
   const clientDirectory = join(rootDirectory, "dist/client");
   const generated = JSON.parse(await readFile(join(serverDirectory, "wrangler.json"), "utf8"));
   const expected = {
     ...frameworkDefaults,
-    ...createCloudflareConfig(target),
-    topLevelName: target.workerName,
+    ...config,
+    topLevelName: workerName,
     main: "index.js",
     assets: { binding: "ASSETS", directory: "../client" },
   };
   // Exact comparison rejects unknown keys, secret values and extra secret names at every depth,
   // extra resource bindings, live origins, and any changed runtime flags.
-  if (!isDeepStrictEqual(generated, expected)) throw new Error("Generated Cloudflare config does not match the shadow target.");
+  if (!isDeepStrictEqual(generated, expected)) throw new Error("Generated Cloudflare config does not match the target.");
   await requireFile(join(serverDirectory, "index.js"));
   await inspectFiles(serverDirectory);
   const clientFiles = await inspectFiles(clientDirectory);
@@ -69,17 +72,18 @@ export async function checkCloudflareBuild(options = {}) {
     if (!candidates.length) throw new Error("Missing client JavaScript or CSS assets.");
     await Promise.all(candidates.map(requireFile));
   }
-  return { stage: "shadow", workerName: target.workerName };
+  return { stage: target.stage, workerName };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     if (process.argv.length !== 3) throw new Error("Expected one target path.");
     const result = await checkCloudflareBuild({ targetPath: process.argv[2] });
-    console.log(`Shadow build preflight passed: ${result.workerName}. No deployment performed.`);
+    const label = result.stage === "research-acceptance" ? "Restricted Research" : "Shadow";
+    console.log(`${label} build preflight passed: ${result.workerName}. No deployment performed.`);
   } catch {
     // No stack, paths, JSON contents or unknown values can reach terminal output.
-    console.error("Cloudflare build preflight failed. Supply one valid shadow target JSON and its matching standalone SSR/client build.");
+    console.error("Cloudflare build preflight failed. Supply one valid remote target JSON and its matching standalone SSR/client build.");
     process.exitCode = 1;
   }
 }

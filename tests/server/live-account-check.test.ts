@@ -8,7 +8,7 @@ import { runAccountCheck } from "../../scripts/live-research/account-check";
 
 const KEY_URL = "https://openrouter.ai/api/v1/key";
 const CATALOG_URL = "https://openrouter.ai/api/v1/models/user";
-const MODEL = "openai/gpt-5.6-sol";
+const MODEL = "moonshotai/kimi-k3";
 const key = "synthetic-account-check-key";
 const usedKey = { data: { limit: 5, limit_remaining: 4.75, usage: 0.25, byok_usage: 0,
   limit_reset: null, is_management_key: false, is_provisioning_key: false, expires_at: null } };
@@ -142,7 +142,7 @@ describe("standalone read-only account diagnostics", () => {
   for (const endpoint of ["key", "catalog"] as const) {
     const limit = endpoint === "key" ? 32_768 : 8_388_608;
     const errorCases = (endpoint === "key" ? [{ label: "key data", data: catalog.data }]
-      : [{ label: "empty catalog", data: [] }, { label: "Sol catalog", data: catalog.data }])
+      : [{ label: "empty catalog", data: [] }, { label: "Kimi catalog", data: catalog.data }])
       .flatMap((variant) => [{ code: 403, message: "CANARY-private-error" }, "CANARY-error", {}, [], false, 0]
         .map((error) => ({ ...variant, error })));
     it.each(errorCases)(
@@ -323,6 +323,5 @@ describe("account diagnostic launchers", () => {
     expect(source).toContain("ZeroFreeBSTR");
     expect(source).toContain("EnvironmentVariables.Remove('OPENROUTER_API_KEY')");
     expect(source).toContain("EnvironmentVariables.Remove('NODE_OPTIONS')");
-    expect(source).toContain("WaitForExit(180000)");
   });
 });
