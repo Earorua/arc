@@ -1,10 +1,15 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import IntelligencePage from "../../app/intelligence/page";
 import MethodPage from "../../app/method/page";
 
 const { redirect } = vi.hoisted(() => ({ redirect: vi.fn((path: string) => { throw new Error(`redirect:${path}`); }) }));
 vi.mock("next/navigation", () => ({ redirect }));
+vi.mock("../../app/lib/auth-client", () => ({
+  authClient: { useSession: () => ({ data: null, isPending: false }) },
+}));
+
+afterEach(cleanup);
 
 describe("public trust pages", () => {
   it("explains the deterministic learning loop", () => {
