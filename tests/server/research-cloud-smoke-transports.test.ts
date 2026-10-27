@@ -237,7 +237,7 @@ describe("sealed service binding fetch", () => {
 describe("synthetic actual-adapter transport", () => {
   it("pins the accepted adapter system policy", async () => {
     const [, init] = await adapterInput(await fixtureJob());
-    expect(createHash("sha256").update(JSON.parse(init.body as string).messages[0].content).digest("hex")).toBe("ace9859a8c99335ae6229083e236989495defb326a66d37720aaa930acc0c076");
+    expect(createHash("sha256").update(JSON.parse(init.body as string).messages[0].content).digest("hex")).toBe("02a12e5a0ed8d2064ee24f1d3670f804649ca03cba11df20d3865b45c8ce8696");
   });
   it("runs two separate jobs through the unchanged adapter with isolated candidates and exact usage", async () => {
     const { db, evidence } = evidenceDb();

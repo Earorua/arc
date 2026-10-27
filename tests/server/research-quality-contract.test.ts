@@ -12,6 +12,7 @@ import { RESEARCH_SOURCE_AUTHORITY_POLICY } from "../../app/server/research/sour
 const REQUEST = { role: "Synthetic Quality Contract Role", locale: "en-US" } as const;
 const REPAIR_ORIGINAL_CONTENT = "{\"synthetic\":true}";
 const KEY = "synthetic-dummy-credential";
+const CITATION_URL_POLICY = "Before authoring the candidate, collect the teaching URLs returned by web search. Copy each resource URL exactly from an actual web-search result in this request. Do not rewrite paths, add /info, replace a year, or change locale/query parameters to fit the publisher catalog. The catalog scopes are eligibility patterns, not source URLs or citation evidence. If a desired teaching page was not returned, search for it within the existing tool limit or choose a relevant cited resource; never fill the citation gap from memory. ";
 const RESOURCE_ACCESS_POLICY = "Choose direct teaching material that supports the assigned steps, not enrollment promotions or course descriptions alone. Check current access to the actual lessons; old free offers, free trials, limited seats, and a reachable landing page do not establish generally free access. Use cost=free only when the assigned material is currently available without payment or a temporary offer; otherwise find a supported alternative rather than guessing. Do not invent lesson contents or require unavailable recordings. Verify publisher identity before assigning institutional or primary authority; unofficial mirrors and course directories do not inherit the original institution's authority. ";
 const STANDARD_RESEARCH_SHA256 = "ca1086cc876a9d1edf3bac26ffea04e410139a4ea3baa37b2c5f72f49878f408";
 const STANDARD_REPAIR_SHA256 = "2fef124876e28a27b73b00e076307168f231fd40e68ff8f4708bc187ebb4f55d";
@@ -133,7 +134,7 @@ describe("local quality request contract", () => {
     const { body } = await captureLocalResearch();
     const policy = body.messages[0]!.content;
     for (const text of [
-      "canonical public HTTPS URLs from provider annotations",
+      "exact public HTTPS URLs returned by web search and referenced in provider annotations",
       "Canonical resource URLs are deduplicated",
       "Evidence IDs and skill-resource pairs are each unique",
       "Each evidence target exists and has reciprocal skill-resource links",
@@ -215,9 +216,9 @@ describe("standard request change boundary", () => {
     const previousBodies = bodies.map(raw => {
       const body = JSON.parse(raw) as CapturedBody;
       const messages = body.messages.map(message => ({ ...message }));
-      messages[0]!.content = messages[0]!.content.replace(RESOURCE_ACCESS_POLICY, "").replace(RESEARCH_SOURCE_AUTHORITY_POLICY + " ", "");
+      messages[0]!.content = messages[0]!.content.replace(CITATION_URL_POLICY, "").replace(RESOURCE_ACCESS_POLICY, "").replace(RESEARCH_SOURCE_AUTHORITY_POLICY + " ", "");
       const user = JSON.parse(messages[1]!.content);
-      expect(user.versions).toMatchObject({ promptVersion: "research-prompt-v4", qualityVersion: "research-quality-v3" });
+      expect(user.versions).toMatchObject({ promptVersion: "research-prompt-v6", qualityVersion: "research-quality-v5" });
       user.versions.promptVersion = "research-prompt-v2";
       user.versions.qualityVersion = "research-quality-v1";
       messages[1]!.content = JSON.stringify(user);

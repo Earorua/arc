@@ -158,7 +158,7 @@ describe("D1ResearchRepository", () => {
     const { repository, db } = setup(); const { current } = await validating(repository);
     const candidate = fanoutCandidate();
     const ids = candidate.skills.map((_, index) => `skill-${String(index).padStart(2, "0")}-${"a".repeat(247)}`);
-    const resources = Array.from({ length: 32 }, (_, index) => ({ ...candidate.resources[0]!, id: `resource-${index}-${"b".repeat(150)}`, url: `https://docs.example.org/${"a".repeat(1900)}/${index}`, skillIds: ids }));
+    const resources = Array.from({ length: 32 }, (_, index) => ({ ...candidate.resources[0]!, id: `resource-${index}-${"b".repeat(150)}`, url: `https://docs.getdbt.com/docs/${"a".repeat(1900)}/${index}`, skillIds: ids }));
     candidate.skills = candidate.skills.map((skill, index) => ({ ...skill, id: ids[index]!, resourceIds: resources.map((resource) => resource.id) }));
     candidate.prerequisiteEdges = ids.flatMap((skillId, index) => ids.slice(0, index).map((prerequisiteSkillId) => ({ skillId, prerequisiteSkillId })));
     candidate.resources = resources; candidate.stages[0]!.skillIds = ids;

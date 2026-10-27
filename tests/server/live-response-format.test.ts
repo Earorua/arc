@@ -307,8 +307,8 @@ describe("response-format request byte identity", () => {
       expect(observer).not.toHaveBeenCalled();
     }
     expect(fingerprints).toEqual([
-      { bytes: 18_038, sha256: "05eb807e4e7ea1c035e34c9f9ad0005a9bbb06fd29f6f52def57a88575bcde57" },
-      { bytes: 18_038, sha256: "05eb807e4e7ea1c035e34c9f9ad0005a9bbb06fd29f6f52def57a88575bcde57" },
+      { bytes: 23_801, sha256: "3063ec32a2b204460913a5ab2b97702c2094936507c77e08143feb9805dd59bf" },
+      { bytes: 23_801, sha256: "3063ec32a2b204460913a5ab2b97702c2094936507c77e08143feb9805dd59bf" },
     ]);
   });
 
@@ -328,8 +328,8 @@ describe("response-format request byte identity", () => {
       expect(observer).not.toHaveBeenCalled();
     }
     expect(fingerprints).toEqual([0, 1].map(() => ({
-      research: { bytes: 15_440, sha256: "ca1086cc876a9d1edf3bac26ffea04e410139a4ea3baa37b2c5f72f49878f408" },
-      repair: { bytes: 7_295, sha256: "2fef124876e28a27b73b00e076307168f231fd40e68ff8f4708bc187ebb4f55d" },
+      research: { bytes: 21_131, sha256: "f50977dc802c04e18e08a073138703d332cf4f8a85444a76bbe167a74f6d2938" },
+      repair: { bytes: 7_295, sha256: "42e8ea328df2aaa618cd684a7f59c7920bc4d181409c582df1d9f9b032d0f2be" },
     })));
   });
 });

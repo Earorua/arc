@@ -1,0 +1,944 @@
+{
+  "schemaVersion": "arc-smoke-build-inputs-v1",
+  "allowedFiles": [
+    "worker/research-executor-smoke/runtime.ts",
+    "worker/research-executor-smoke/executor-entry.ts",
+    "worker/research-executor-smoke/tsconfig.json",
+    "scripts/build-research-executor-smoke.mjs",
+    "tests/fixtures/research/cloud-smoke-local-timing.ts",
+    "tests/fixtures/research/cloud-smoke-local-executor-entry.ts",
+    "tests/server/research-cloud-smoke-build.test.ts"
+  ],
+  "protectedFiles": [
+    {
+      "file": "app/admin/page.tsx"
+    },
+    {
+      "file": "app/api/account-link/cancel/route.ts"
+    },
+    {
+      "file": "app/api/account-link/continue/route.ts"
+    },
+    {
+      "file": "app/api/account-link/start/route.ts"
+    },
+    {
+      "file": "app/api/account-link/status/route.ts"
+    },
+    {
+      "file": "app/api/admin/account-recovery/route.ts"
+    },
+    {
+      "file": "app/api/admin/health/route.ts"
+    },
+    {
+      "file": "app/api/agents/planner/[id]/apply/route.ts"
+    },
+    {
+      "file": "app/api/agents/planner/[id]/route.ts"
+    },
+    {
+      "file": "app/api/agents/planner/route.ts"
+    },
+    {
+      "file": "app/api/agents/tutor/route.ts"
+    },
+    {
+      "file": "app/api/agents/workspace/route.ts"
+    },
+    {
+      "file": "app/api/auth/[...all]/route.ts"
+    },
+    {
+      "file": "app/api/auth/providers/route.ts"
+    },
+    {
+      "file": "app/api/intelligence/flagship/route.ts"
+    },
+    {
+      "file": "app/api/intelligence/preview/route.ts"
+    },
+    {
+      "file": "app/api/intelligence/research/[id]/retry/route.ts"
+    },
+    {
+      "file": "app/api/intelligence/research/[id]/route.ts"
+    },
+    {
+      "file": "app/api/intelligence/research/closed-preflight/route.ts"
+    },
+    {
+      "file": "app/api/intelligence/research/eligibility/route.ts"
+    },
+    {
+      "file": "app/api/intelligence/research/recover/route.ts"
+    },
+    {
+      "file": "app/api/intelligence/research/route.ts"
+    },
+    {
+      "file": "app/api/internal/research-bridge/[operation]/route.ts"
+    },
+    {
+      "file": "app/api/learning/events/route.ts"
+    },
+    {
+      "file": "app/api/migrations/local-state/route.ts"
+    },
+    {
+      "file": "app/api/planning/events/route.ts"
+    },
+    {
+      "file": "app/api/planning/generate/route.ts"
+    },
+    {
+      "file": "app/api/planning/history/route.ts"
+    },
+    {
+      "file": "app/api/planning/replans/accept/route.ts"
+    },
+    {
+      "file": "app/api/planning/replans/discard/route.ts"
+    },
+    {
+      "file": "app/api/planning/workspace/route.ts"
+    },
+    {
+      "file": "app/api/proofs/[id]/asset/route.ts"
+    },
+    {
+      "file": "app/api/proofs/[id]/sharing/route.ts"
+    },
+    {
+      "file": "app/api/proofs/[id]/versions/route.ts"
+    },
+    {
+      "file": "app/api/proofs/[id]/visibility/route.ts"
+    },
+    {
+      "file": "app/api/proofs/[id]/withdraw/route.ts"
+    },
+    {
+      "file": "app/api/proofs/route.ts"
+    },
+    {
+      "file": "app/api/proofs/upload/route.ts"
+    },
+    {
+      "file": "app/api/proofs/workspace/route.ts"
+    },
+    {
+      "file": "app/api/public/proofs/[token]/route.ts"
+    },
+    {
+      "file": "app/api/workspace/route.ts"
+    },
+    {
+      "file": "app/coach/page.tsx"
+    },
+    {
+      "file": "app/components/account/account-link-panel.tsx"
+    },
+    {
+      "file": "app/components/account/account-menu.tsx"
+    },
+    {
+      "file": "app/components/account/learning-entry.tsx"
+    },
+    {
+      "file": "app/components/account/sign-in-panel.tsx"
+    },
+    {
+      "file": "app/components/agents/agent-companion.tsx"
+    },
+    {
+      "file": "app/components/agents/agent-context.tsx"
+    },
+    {
+      "file": "app/components/agents/agents.css"
+    },
+    {
+      "file": "app/components/agents/coach-overview.tsx"
+    },
+    {
+      "file": "app/components/agents/learning-coach.tsx"
+    },
+    {
+      "file": "app/components/brand/precision-path-hero.tsx"
+    },
+    {
+      "file": "app/components/brand/site-header.tsx"
+    },
+    {
+      "file": "app/components/brand/story-rail.tsx"
+    },
+    {
+      "file": "app/components/proof/proof-editor.tsx"
+    },
+    {
+      "file": "app/components/proof/proof-profile.tsx"
+    },
+    {
+      "file": "app/components/proof/proof-workspace.tsx"
+    },
+    {
+      "file": "app/components/setup/adaptive-setup-flow.tsx"
+    },
+    {
+      "file": "app/components/setup/availability-step.tsx"
+    },
+    {
+      "file": "app/components/setup/role-research-panel.tsx"
+    },
+    {
+      "file": "app/components/setup/setup-flow.tsx"
+    },
+    {
+      "file": "app/components/setup/skill-audit-step.tsx"
+    },
+    {
+      "file": "app/components/setup/target-step.tsx"
+    },
+    {
+      "file": "app/components/showcase/case-showcase.tsx"
+    },
+    {
+      "file": "app/components/showcase/showcase.css"
+    },
+    {
+      "file": "app/components/stack/stack-browser.tsx"
+    },
+    {
+      "file": "app/components/sync/cloud-status.tsx"
+    },
+    {
+      "file": "app/components/sync/migration-banner.tsx"
+    },
+    {
+      "file": "app/components/today/adaptive-today-session.tsx"
+    },
+    {
+      "file": "app/components/today/today-session.tsx"
+    },
+    {
+      "file": "app/components/workspace/adaptive-path.tsx"
+    },
+    {
+      "file": "app/components/workspace/phase-rail.tsx"
+    },
+    {
+      "file": "app/components/workspace/plan-diff-review.tsx"
+    },
+    {
+      "file": "app/components/workspace/plan-history.tsx"
+    },
+    {
+      "file": "app/components/workspace/planning-version-boundary.tsx"
+    },
+    {
+      "file": "app/components/workspace/seven-day-timeline.tsx"
+    },
+    {
+      "file": "app/components/workspace/workspace-shell.tsx"
+    },
+    {
+      "file": "app/contracts/agents.ts"
+    },
+    {
+      "file": "app/contracts/cloud-state.ts"
+    },
+    {
+      "file": "app/contracts/intelligence.ts"
+    },
+    {
+      "file": "app/contracts/planning-api.ts"
+    },
+    {
+      "file": "app/contracts/planning-history.ts"
+    },
+    {
+      "file": "app/contracts/planning.ts"
+    },
+    {
+      "file": "app/contracts/proof-api.ts"
+    },
+    {
+      "file": "app/contracts/proof-ledger.ts"
+    },
+    {
+      "file": "app/contracts/research.ts"
+    },
+    {
+      "file": "app/data/flagship-blueprint.ts"
+    },
+    {
+      "file": "app/data/flagship-role.ts"
+    },
+    {
+      "file": "app/data/flagship-unit-registry.ts"
+    },
+    {
+      "file": "app/domain/learning.ts"
+    },
+    {
+      "file": "app/globals.css"
+    },
+    {
+      "file": "app/history/history.css"
+    },
+    {
+      "file": "app/history/page.tsx"
+    },
+    {
+      "file": "app/intelligence/page.tsx"
+    },
+    {
+      "file": "app/layout.tsx"
+    },
+    {
+      "file": "app/lib/agent-client.ts"
+    },
+    {
+      "file": "app/lib/auth-client.ts"
+    },
+    {
+      "file": "app/lib/cloud-client.ts"
+    },
+    {
+      "file": "app/lib/demo-store.ts"
+    },
+    {
+      "file": "app/lib/intelligence-validation.ts"
+    },
+    {
+      "file": "app/lib/migration-dismissal.ts"
+    },
+    {
+      "file": "app/lib/offline-queue.ts"
+    },
+    {
+      "file": "app/lib/personalized-plan.ts"
+    },
+    {
+      "file": "app/lib/planning-client.ts"
+    },
+    {
+      "file": "app/lib/planning-history-client.ts"
+    },
+    {
+      "file": "app/lib/planning/calendar.ts"
+    },
+    {
+      "file": "app/lib/planning/event-reducer.ts"
+    },
+    {
+      "file": "app/lib/planning/fingerprint.ts"
+    },
+    {
+      "file": "app/lib/planning/local-repository.ts"
+    },
+    {
+      "file": "app/lib/planning/path-builder.ts"
+    },
+    {
+      "file": "app/lib/planning/plan-diff.ts"
+    },
+    {
+      "file": "app/lib/planning/registry-validation.ts"
+    },
+    {
+      "file": "app/lib/planning/scheduler.ts"
+    },
+    {
+      "file": "app/lib/proof-client.ts"
+    },
+    {
+      "file": "app/lib/proof-profile.ts"
+    },
+    {
+      "file": "app/lib/proof/legacy-adapter.ts"
+    },
+    {
+      "file": "app/lib/proof/local-repository.ts"
+    },
+    {
+      "file": "app/lib/proof/projection.ts"
+    },
+    {
+      "file": "app/lib/research-client.ts"
+    },
+    {
+      "file": "app/lib/research-recovery-storage.ts"
+    },
+    {
+      "file": "app/lib/skill-map.ts"
+    },
+    {
+      "file": "app/lib/use-arc-state.ts"
+    },
+    {
+      "file": "app/lib/use-demo-state.ts"
+    },
+    {
+      "file": "app/lib/use-hydrated.ts"
+    },
+    {
+      "file": "app/lib/use-planning-workspace.ts"
+    },
+    {
+      "file": "app/lib/use-proof-ledger.ts"
+    },
+    {
+      "file": "app/lib/use-research-eligibility.ts"
+    },
+    {
+      "file": "app/lib/use-role-research.ts"
+    },
+    {
+      "file": "app/lib/workspace-presentation.ts"
+    },
+    {
+      "file": "app/method/page.tsx"
+    },
+    {
+      "file": "app/page.tsx"
+    },
+    {
+      "file": "app/path/page.tsx"
+    },
+    {
+      "file": "app/proof/page.tsx"
+    },
+    {
+      "file": "app/server/account-link/auth-hooks.ts"
+    },
+    {
+      "file": "app/server/account-link/contracts.ts"
+    },
+    {
+      "file": "app/server/account-link/cookie.ts"
+    },
+    {
+      "file": "app/server/account-link/crypto.ts"
+    },
+    {
+      "file": "app/server/account-link/d1-repository.ts"
+    },
+    {
+      "file": "app/server/account-link/http.ts"
+    },
+    {
+      "file": "app/server/account-link/repository.ts"
+    },
+    {
+      "file": "app/server/account-link/service.ts"
+    },
+    {
+      "file": "app/server/account-recovery/http.ts"
+    },
+    {
+      "file": "app/server/account-recovery/service.ts"
+    },
+    {
+      "file": "app/server/account-recovery/session-guard.ts"
+    },
+    {
+      "file": "app/server/admin/d1-admin-repository.ts"
+    },
+    {
+      "file": "app/server/admin/policy.ts"
+    },
+    {
+      "file": "app/server/admin/repository.ts"
+    },
+    {
+      "file": "app/server/agents/configuration.ts"
+    },
+    {
+      "file": "app/server/agents/context.ts"
+    },
+    {
+      "file": "app/server/agents/http.ts"
+    },
+    {
+      "file": "app/server/agents/openrouter-provider.ts"
+    },
+    {
+      "file": "app/server/agents/repository.ts"
+    },
+    {
+      "file": "app/server/agents/runtime.ts"
+    },
+    {
+      "file": "app/server/agents/service.ts"
+    },
+    {
+      "file": "app/server/ai/contracts.ts"
+    },
+    {
+      "file": "app/server/ai/d1-run-recorder.ts"
+    },
+    {
+      "file": "app/server/ai/gateway.ts"
+    },
+    {
+      "file": "app/server/ai/mock-provider.ts"
+    },
+    {
+      "file": "app/server/auth/diagnostics.ts"
+    },
+    {
+      "file": "app/server/auth/policy.ts"
+    },
+    {
+      "file": "app/server/auth/runtime.ts"
+    },
+    {
+      "file": "app/server/auth/session.ts"
+    },
+    {
+      "file": "app/server/cloud/d1-cloud-repository.ts"
+    },
+    {
+      "file": "app/server/cloud/repository.ts"
+    },
+    {
+      "file": "app/server/cloud/service.ts"
+    },
+    {
+      "file": "app/server/entitlements/d1-entitlement-repository.ts"
+    },
+    {
+      "file": "app/server/entitlements/d1-feature-cohort.ts"
+    },
+    {
+      "file": "app/server/entitlements/d1-research-quota-sql.ts"
+    },
+    {
+      "file": "app/server/entitlements/policy.ts"
+    },
+    {
+      "file": "app/server/entitlements/repository.ts"
+    },
+    {
+      "file": "app/server/http/api-response.ts"
+    },
+    {
+      "file": "app/server/http/cloud-route-factories.ts"
+    },
+    {
+      "file": "app/server/http/planning-history-route.ts"
+    },
+    {
+      "file": "app/server/http/planning-route-factories.ts"
+    },
+    {
+      "file": "app/server/http/proof-route-factories.ts"
+    },
+    {
+      "file": "app/server/http/rate-limit.ts"
+    },
+    {
+      "file": "app/server/http/research-bridge-routes.ts"
+    },
+    {
+      "file": "app/server/http/research-closed-preflight-route.ts"
+    },
+    {
+      "file": "app/server/http/research-eligibility-route.ts"
+    },
+    {
+      "file": "app/server/http/research-route-factories.ts"
+    },
+    {
+      "file": "app/server/intelligence/builtin-repository.ts"
+    },
+    {
+      "file": "app/server/intelligence/repository.ts"
+    },
+    {
+      "file": "app/server/intelligence/service.ts"
+    },
+    {
+      "file": "app/server/observability/d1-events.ts"
+    },
+    {
+      "file": "app/server/observability/events.ts"
+    },
+    {
+      "file": "app/server/planning/d1-planning-repository.ts"
+    },
+    {
+      "file": "app/server/planning/history-reader.ts"
+    },
+    {
+      "file": "app/server/planning/repository.ts"
+    },
+    {
+      "file": "app/server/planning/service.ts"
+    },
+    {
+      "file": "app/server/planning/source-resolver.ts"
+    },
+    {
+      "file": "app/server/proof/d1-proof-repository.ts"
+    },
+    {
+      "file": "app/server/proof/public-view.ts"
+    },
+    {
+      "file": "app/server/proof/repository.ts"
+    },
+    {
+      "file": "app/server/proof/service.ts"
+    },
+    {
+      "file": "app/server/proof/storage.ts"
+    },
+    {
+      "file": "app/server/proof/validators.ts"
+    },
+    {
+      "file": "app/server/research/annotation-diagnostic.ts"
+    },
+    {
+      "file": "app/server/research/budget.ts"
+    },
+    {
+      "file": "app/server/research/d1-budget-repository.ts"
+    },
+    {
+      "file": "app/server/research/d1-publication.ts"
+    },
+    {
+      "file": "app/server/research/d1-repository.ts"
+    },
+    {
+      "file": "app/server/research/d1-site-begin-repository.ts"
+    },
+    {
+      "file": "app/server/research/d1-site-bridge-repository.ts"
+    },
+    {
+      "file": "app/server/research/d1-site-execution-repository.ts"
+    },
+    {
+      "file": "app/server/research/d1-site-expiry-repository.ts"
+    },
+    {
+      "file": "app/server/research/d1-site-import-publication.ts"
+    },
+    {
+      "file": "app/server/research/d1-site-import-repository.ts"
+    },
+    {
+      "file": "app/server/research/execution-policy.ts"
+    },
+    {
+      "file": "app/server/research/executor/auth.ts"
+    },
+    {
+      "file": "app/server/research/executor/begin.ts"
+    },
+    {
+      "file": "app/server/research/executor/body.ts"
+    },
+    {
+      "file": "app/server/research/executor/bridge-contract.ts"
+    },
+    {
+      "file": "app/server/research/executor/closed-preflight.ts"
+    },
+    {
+      "file": "app/server/research/executor/connection-config.ts"
+    },
+    {
+      "file": "app/server/research/executor/d1-nonce-store.ts"
+    },
+    {
+      "file": "app/server/research/executor/executor-client.ts"
+    },
+    {
+      "file": "app/server/research/executor/http-transport.ts"
+    },
+    {
+      "file": "app/server/research/executor/job.ts"
+    },
+    {
+      "file": "app/server/research/executor/receipt.ts"
+    },
+    {
+      "file": "app/server/research/executor/service-binding-transport.ts"
+    },
+    {
+      "file": "app/server/research/fake-provider.ts"
+    },
+    {
+      "file": "app/server/research/local-validation-profile.json"
+    },
+    {
+      "file": "app/server/research/openrouter-provider.ts"
+    },
+    {
+      "file": "app/server/research/orchestrator.ts"
+    },
+    {
+      "file": "app/server/research/package-validator.ts"
+    },
+    {
+      "file": "app/server/research/production-policy.ts"
+    },
+    {
+      "file": "app/server/research/provider-failure-diagnostic.ts"
+    },
+    {
+      "file": "app/server/research/provider.ts"
+    },
+    {
+      "file": "app/server/research/public-operation-scope.ts"
+    },
+    {
+      "file": "app/server/research/quality-diagnostic.ts"
+    },
+    {
+      "file": "app/server/research/remote-public-reader.ts"
+    },
+    {
+      "file": "app/server/research/remote-public-service.ts"
+    },
+    {
+      "file": "app/server/research/repository.ts"
+    },
+    {
+      "file": "app/server/research/research-content.ts"
+    },
+    {
+      "file": "app/server/research/response-format-diagnostic.ts"
+    },
+    {
+      "file": "app/server/research/response-preflight-diagnostic.ts"
+    },
+    {
+      "file": "app/server/research/result-diagnostic.ts"
+    },
+    {
+      "file": "app/server/research/service-factory.ts"
+    },
+    {
+      "file": "app/server/research/service.ts"
+    },
+    {
+      "file": "app/server/research/site-admission.ts"
+    },
+    {
+      "file": "app/server/research/site-begin-repository.ts"
+    },
+    {
+      "file": "app/server/research/site-bridge-factory.ts"
+    },
+    {
+      "file": "app/server/research/site-bridge-operations.ts"
+    },
+    {
+      "file": "app/server/research/site-bridge-repository.ts"
+    },
+    {
+      "file": "app/server/research/site-execution-repository.ts"
+    },
+    {
+      "file": "app/server/research/site-execution-sql.ts"
+    },
+    {
+      "file": "app/server/research/site-expiry.ts"
+    },
+    {
+      "file": "app/server/research/site-import-repository.ts"
+    },
+    {
+      "file": "app/server/research/site-import-validation.ts"
+    },
+    {
+      "file": "app/server/research/site-import.ts"
+    },
+    {
+      "file": "app/server/research/source-audit.ts"
+    },
+    {
+      "file": "app/server/research/source-authority.ts"
+    },
+    {
+      "file": "app/server/research/transport-diagnostic.ts"
+    },
+    {
+      "file": "app/setup/page.tsx"
+    },
+    {
+      "file": "app/showcase/page.tsx"
+    },
+    {
+      "file": "app/sign-in/page.tsx"
+    },
+    {
+      "file": "app/stack/page.tsx"
+    },
+    {
+      "file": "app/today/page.tsx"
+    },
+    {
+      "file": "db/d1.ts"
+    },
+    {
+      "file": "db/index.ts"
+    },
+    {
+      "file": "db/schema.ts"
+    },
+    {
+      "file": "drizzle/0000_beta_foundation.sql"
+    },
+    {
+      "file": "drizzle/0001_secure_account_linking.sql"
+    },
+    {
+      "file": "drizzle/0002_product_intelligence.sql"
+    },
+    {
+      "file": "drizzle/0003_adaptive_planning.sql"
+    },
+    {
+      "file": "drizzle/0004_proof_backed_stack.sql"
+    },
+    {
+      "file": "drizzle/0005_openrouter_research_beta.sql"
+    },
+    {
+      "file": "drizzle/0006_research_health_indexes.sql"
+    },
+    {
+      "file": "drizzle/0007_research_bridge_nonces.sql"
+    },
+    {
+      "file": "drizzle/0008_research_site_executions.sql"
+    },
+    {
+      "file": "drizzle/0009_research_site_begin_grants.sql"
+    },
+    {
+      "file": "drizzle/0010_research_site_imports.sql"
+    },
+    {
+      "file": "drizzle/0011_research_site_bridge.sql"
+    },
+    {
+      "file": "drizzle/0012_account_recovery.sql"
+    },
+    {
+      "file": "drizzle/0013_learning_agents.sql"
+    },
+    {
+      "file": "drizzle/meta/0000_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0001_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0002_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0003_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0004_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0005_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0006_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0007_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0012_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/0013_snapshot.json"
+    },
+    {
+      "file": "drizzle/meta/_journal.json"
+    },
+    {
+      "file": "tests/fixtures/research/smoke-build-inputs.json"
+    },
+    {
+      "file": "tests/fixtures/research/valid-candidate.ts"
+    },
+    {
+      "file": "worker/research-executor-smoke/timing.ts"
+    },
+    {
+      "file": "worker/research-executor/bootstrap.ts"
+    },
+    {
+      "file": "worker/research-executor/d1-job-store.ts"
+    },
+    {
+      "file": "worker/research-executor/delivery.ts"
+    },
+    {
+      "file": "worker/research-executor/environment.ts"
+    },
+    {
+      "file": "worker/research-executor/execute-job.ts"
+    },
+    {
+      "file": "worker/research-executor/http-routes.ts"
+    },
+    {
+      "file": "worker/research-executor/index.ts"
+    },
+    {
+      "file": "worker/research-executor/maintenance-policy.ts"
+    },
+    {
+      "file": "worker/research-executor/maintenance-store.ts"
+    },
+    {
+      "file": "worker/research-executor/maintenance.ts"
+    },
+    {
+      "file": "worker/research-executor/migrations/0000_research_bridge_nonces.sql"
+    },
+    {
+      "file": "worker/research-executor/migrations/0001_research_executor_jobs.sql"
+    },
+    {
+      "file": "worker/research-executor/migrations/0002_research_executor_results.sql"
+    },
+    {
+      "file": "worker/research-executor/migrations/0003_research_executor_maintenance.sql"
+    },
+    {
+      "file": "worker/research-executor/receipt-store.ts"
+    },
+    {
+      "file": "worker/research-executor/runtime.ts"
+    },
+    {
+      "file": "worker/research-executor/site-client.ts"
+    },
+    {
+      "file": "worker/research-executor/tsconfig.json"
+    },
+    {
+      "file": "worker/research-executor/workflow-policy.ts"
+    },
+    {
+      "file": "worker/research-executor/workflow.ts"
+    },
+    {
+      "file": "worker/research-executor/wrangler.local.jsonc"
+    }
+  ]
+}

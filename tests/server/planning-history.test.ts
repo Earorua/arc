@@ -1,8 +1,9 @@
 // @vitest-environment node
-import { DatabaseSync } from "node:sqlite";
+import { DatabaseSync, type SQLInputValue } from "node:sqlite";
 import { describe, expect, it, vi } from "vitest";
 import { D1PlanningHistoryReader } from "../../app/server/planning/history-reader";
 import { PlanningService, PlanningNotFoundError } from "../../app/server/planning/service";
+import type { SavePlanningGenerationCommand } from "../../app/server/planning/repository";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { offlinePlanningRequest } from "../offline-uat/planning-fixture";
@@ -14,7 +15,7 @@ function database() {
  INSERT INTO career_goals VALUES('old','owner','old-role',18,420,100,'archived',NULL),('active','owner','new-role',18,420,200,'active',1),('other','stranger','private-role',18,420,300,'archived',NULL),('empty','owner','empty-role',12,240,90,'archived',NULL);
  INSERT INTO planning_workspaces VALUES('ws-old','owner','old'),('ws-active','owner','active'),('ws-other','stranger','other');`);
  const queries:string[]=[];
- const db={prepare(sql:string){queries.push(sql);if(!/^\s*SELECT\b/i.test(sql))throw Error('READ_ONLY_TEST');return{bind(...args:unknown[]){return{async first(){return sqlite.prepare(sql).get(...args as any[])??null;},async all(){return{success:true,results:sqlite.prepare(sql).all(...args as any[])}}}}}}} as unknown as D1Database;
+ const db={prepare(sql:string){queries.push(sql);if(!/^\s*SELECT\b/i.test(sql))throw Error('READ_ONLY_TEST');return{bind(...args:SQLInputValue[]){return{async first(){return sqlite.prepare(sql).get(...args)??null;},async all(){return{success:true,results:sqlite.prepare(sql).all(...args)}}}}}}} as unknown as D1Database;
  return {sqlite,db,queries};
 }
 describe('saved learning history',()=>{
@@ -26,7 +27,7 @@ describe('saved learning history',()=>{
    const result=await reader.list('owner',0);
    expect(result.goals.map(g=>[g.id,g.hasWorkspace])).toEqual([['old',true],['empty',false]]);
    expect(result.nextOffset).toBeNull();
-   expect((sqlite.prepare("SELECT id FROM career_goals WHERE active_slot=1").get() as any).id).toBe('active');
+   expect(sqlite.prepare("SELECT id FROM career_goals WHERE active_slot=1").get()?.id).toBe('active');
    expect(loader.getSavedWorkspaceResponse).not.toHaveBeenCalled();
   }finally{sqlite.close();}
  });
@@ -52,7 +53,7 @@ describe('saved learning history',()=>{
   }finally{sqlite.close();}
  });
  it('reuses the real workspace parser and source validation, without active-goal reads or mutations',async()=>{
-  const repository={findActiveGoal:vi.fn(async()=>({ownerId:'owner',goalId:'old'})),load:vi.fn(),findMutation:vi.fn(async()=>null),saveGeneration:vi.fn(async(c:any)=>({...c,payload:c.result})),saveEvent:vi.fn()};
+  const repository={findActiveGoal:vi.fn(async()=>({ownerId:'owner',goalId:'old'})),load:vi.fn(),findMutation:vi.fn(async()=>null),saveGeneration:vi.fn(async(c:SavePlanningGenerationCommand)=>({...c,payload:c.result})),saveEvent:vi.fn()};
   const service=new PlanningService({repository,intelligence:{getPublished:async()=>flagshipBlueprint},registry:flagshipUnitRegistry});
   const generated=await service.generate('owner',offlinePlanningRequest(flagshipBlueprint,undefined,'history-fixture'));
   repository.load.mockResolvedValue({ownerId:'owner',goalId:'old',payload:generated.workspace});

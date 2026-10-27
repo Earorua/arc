@@ -22,7 +22,7 @@ import { createResearchD1 } from "../helpers/sqlite-d1";
 
 const legacySnapshot = {
   configuredOrigin: "https://arc.example",
-  configFingerprint: "p2-2f912248ea8be6becb1d8614acbf92ca",
+  configFingerprint: "p2-53f4211866bc6dd6aaaa47e461299792",
   modelResearch: "test/research-fixed",
   modelEconomy: "test/economy-fixed",
   researchTimeoutMs: 20_000,
@@ -42,7 +42,7 @@ const legacySnapshot = {
 
 const legacyVariantSnapshot = {
   configuredOrigin: "https://arc.example",
-  configFingerprint: "p2-f20d7dbe8d9fe6c8883212924cff093c",
+  configFingerprint: "p2-6e3e04d6b202e598ea7ffa1a76f56a2c",
   modelResearch: "test/research-fixed",
   modelEconomy: "test/economy-fixed",
   researchTimeoutMs: 35_000,
@@ -62,7 +62,7 @@ const legacyVariantSnapshot = {
 
 const kimiSnapshot = {
   configuredOrigin: "https://arc.example",
-  configFingerprint: "p2-6e32d7563ab8083820f1c5128b673744",
+  configFingerprint: "p2-bf84466e68fe0508833fac9a35e83654",
   modelResearch: "moonshotai/kimi-k3",
   modelEconomy: "test/economy-fixed",
   researchTimeoutMs: 1_200_000,
@@ -169,7 +169,7 @@ describe("Research executor policy configuration", () => {
     }
   });
 
-  it("preserves the three captured public snapshots and synchronous fingerprints exactly", () => {
+  it("pins the three current public configurations and synchronous fingerprints exactly", () => {
     expect(readResearchPolicyConfiguration(legacyEnvironment)).toEqual({
       executor: "synchronous",
       configuration: legacySnapshot,
@@ -199,17 +199,17 @@ describe("Research executor policy configuration", () => {
       },
     });
     expect(selection?.configuration.configFingerprint)
-      .toBe("p2-ecc682ef09d7350d0ae208636dd30d11");
+      .toBe("p2-d7a7a16769de618514df818ba38c8a19");
     expect(selection?.configuration.configFingerprint).not.toBe(kimiSnapshot.configFingerprint);
     expect(JSON.stringify(selection)).not.toMatch(/synthetic-(?:dummy-credential|test-salt-value)/u);
   });
 
   it("retains all eight configuration versions exactly", () => {
     expect(RESEARCH_CONFIGURATION_VERSIONS).toEqual({
-      promptVersion: "research-prompt-v2",
+      promptVersion: "research-prompt-v6",
       inputSchemaVersion: "research-input-v1",
       outputSchemaVersion: "research-output-v1",
-      qualityVersion: "research-quality-v1",
+      qualityVersion: "research-quality-v5",
       modelConfigVersion: "research-model-config-v2",
       blueprintVersion: "2026.09.1",
       registryVersion: "2026.09.1",

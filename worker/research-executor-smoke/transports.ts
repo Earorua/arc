@@ -61,7 +61,7 @@ const requestSchema = z.object({
 const userSchema = z.object({ role: z.string().max(640), locale: z.literal("en-US"), versions: z.unknown() }).strict();
 const expectedSchema = canonicalJson(JSON.parse(JSON.stringify(z.toJSONSchema(researchCandidateSchema, { target: "draft-7" }))));
 // SHA256 of the accepted real adapter's Kimi system policy. Any drift fails closed.
-const systemPolicyHash = "ace9859a8c99335ae6229083e236989495defb326a66d37720aaa930acc0c076";
+const systemPolicyHash = "02a12e5a0ed8d2064ee24f1d3670f804649ca03cba11df20d3865b45c8ce8696";
 
 function isDelay(ms: number): boolean { return Number.isSafeInteger(ms) && ms >= 0 && ms <= 1_170_000; }
 function snapshotTiming(timing: SmokeTiming): SmokeTiming {
