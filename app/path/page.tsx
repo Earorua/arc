@@ -10,6 +10,7 @@ import { useArcState } from "../lib/use-arc-state";
 import { getRoleDisplayName, redistributePhaseWeeks } from "../lib/personalized-plan";
 import { usePlanningWorkspace } from "../lib/use-planning-workspace";
 import { authClient } from "../lib/auth-client";
+import { useHydrated } from "../lib/use-hydrated";
 import { resolveWorkspacePresentation } from "../lib/workspace-presentation";
 import { AdaptivePath } from "../components/workspace/adaptive-path";
 import { PlanDiffReview } from "../components/workspace/plan-diff-review";
@@ -20,7 +21,8 @@ import { SetupCompletionNotice } from "../components/workspace/setup-completion-
 
 export default function PathPage() {
   const session = authClient.useSession();
-  if (session.isPending) return <WorkspaceShell current="Path" state={null} />;
+  const hydrated = useHydrated();
+  if (!hydrated || session.isPending) return <WorkspaceShell current="Path" state={null} />;
   if (!session.data?.user) return <div className="workspace-shell"><WorkspaceHeader current="Path" /><main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/path" title="你的下一步，有迹可循" description="登录后查看目标、阶段成果与当前学习路线。">{null}</AccountBoundary></main></div>;
   return <SessionPathPage key={session.data?.user.id ?? "guest"} authenticated={Boolean(session.data?.user)} />;
 }

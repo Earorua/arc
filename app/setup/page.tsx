@@ -17,6 +17,7 @@ import { useArcState, type ArcStateController } from "../lib/use-arc-state";
 import { usePlanningWorkspace } from "../lib/use-planning-workspace";
 import { arcCloudClient } from "../lib/cloud-client";
 import { authClient } from "../lib/auth-client";
+import { useHydrated } from "../lib/use-hydrated";
 import { useResearchEligibility } from "../lib/use-research-eligibility";
 import { useRoleResearch, type RoleResearchController } from "../lib/use-role-research";
 import type { ResearchPlanningData } from "../contracts/research";
@@ -102,7 +103,9 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, save
 
 export default function SetupPage() {
   const session = authClient.useSession();
-  const userId = session.isPending ? null : session.data?.user.id ?? null;
+  const hydrated = useHydrated();
+  const pending = !hydrated || session.isPending;
+  const userId = pending ? null : session.data?.user.id ?? null;
   const [researchActive, setResearchActive] = useState(true);
   // A fresh fetch function retriggers the existing owner-bound, abortable check.
   const [eligibilityFetch, setEligibilityFetch] = useState(() => (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init));
@@ -110,7 +113,7 @@ export default function SetupPage() {
   // Keep owner-bound controllers connected across account changes so their
   // reviewed cleanup clears recovery identity; remount only editable page state.
   const research = useRoleResearch({ userId, eligible: eligibility.eligible, active: researchActive });
-  if (session.isPending) return <main className="setup-page" id="main-content" tabIndex={-1}><p role="status">正在确认账户…</p></main>;
+  if (pending) return <main className="setup-page" id="main-content" tabIndex={-1}><p role="status">正在确认账户…</p></main>;
   return <SessionSetupPage key={session.isPending ? "pending" : userId ?? "guest"} userId={userId}
     research={research} eligible={eligibility.eligible} researchChecking={userId !== null && eligibility.resolved === false}
     onRetryResearchAvailability={() => setEligibilityFetch(() => (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init))}

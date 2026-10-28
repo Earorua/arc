@@ -9,6 +9,7 @@ import { assessTodayBudget } from "../lib/personalized-plan";
 import { useArcState } from "../lib/use-arc-state";
 import { usePlanningWorkspace } from "../lib/use-planning-workspace";
 import { authClient } from "../lib/auth-client";
+import { useHydrated } from "../lib/use-hydrated";
 import { resolveWorkspacePresentation } from "../lib/workspace-presentation";
 import { AdaptiveTodaySession } from "../components/today/adaptive-today-session";
 import { PlanningLoadBoundary, PlanningVersionBoundary } from "../components/workspace/planning-version-boundary";
@@ -17,7 +18,8 @@ import { WorkspaceHeader } from "../components/workspace/workspace-header";
 
 export default function TodayPage() {
   const session = authClient.useSession();
-  if (session.isPending) return <WorkspaceShell current="Today" state={null} />;
+  const hydrated = useHydrated();
+  if (!hydrated || session.isPending) return <WorkspaceShell current="Today" state={null} />;
   if (!session.data?.user) return <div className="workspace-shell"><WorkspaceHeader current="Today" /><main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/today" title="从今天的一项任务开始" description="登录后继续你的任务、学习步骤与作品积累。">{null}</AccountBoundary></main></div>;
   return <SessionTodayPage key={session.data?.user.id ?? "guest"} authenticated={Boolean(session.data?.user)} />;
 }
