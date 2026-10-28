@@ -11,11 +11,11 @@ export function CompanionAvatar({ thinking = false }: { thinking?: boolean }) {
     <ellipse cx="44" cy="86" rx="25" ry="4" fill="#171715" opacity=".1" />
     <g className="companion-body">
       <path d="M25 22C25 12 34 7 44 7C54 7 63 12 63 22V30C75 37 78 50 74 65C71 77 61 81 44 81C27 81 17 77 14 65C10 50 13 37 25 30V22Z" fill="#F5EEE0" stroke="#292822" strokeWidth="2.5" />
-      <path d="M30 19C36 13 51 13 57 19" stroke="#F0643E" strokeWidth="6" strokeLinecap="round" />
+      <path d="M30 19C36 13 51 13 57 19" stroke="var(--signal)" strokeWidth="6" strokeLinecap="round" />
       <path d="M15 51L8 56M73 51L80 56" stroke="#292822" strokeWidth="3" strokeLinecap="round" />
       <g className="companion-eyes"><ellipse cx="33" cy="46" rx="3" ry="5" fill="#292822" /><ellipse cx="55" cy="46" rx="3" ry="5" fill="#292822" /></g>
       <path d="M39 58Q44 63 49 58" stroke="#292822" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="25" cy="55" r="4" fill="#F0643E" opacity=".35" /><circle cx="63" cy="55" r="4" fill="#F0643E" opacity=".35" />
+      <circle cx="25" cy="55" r="4" fill="var(--signal)" opacity=".35" /><circle cx="63" cy="55" r="4" fill="var(--signal)" opacity=".35" />
     </g>
   </svg>;
 }

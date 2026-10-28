@@ -1,45 +1,32 @@
-"use client";
-
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
-import { StoryRail } from "./story-rail";
+
+/** Original Arc mark: three open paths, converging toward one direction. */
+function ArcMark() {
+  return (
+    <svg className="discovery-arc" viewBox="0 0 160 140" fill="none" aria-hidden="true" focusable="false">
+      <path d="M132 106C113 139 57 137 29 106C0 74 20 24 62 13C101 3 142 26 145 63" stroke="currentColor" strokeWidth="13" strokeLinecap="round" />
+      <path d="M132 106C112 126 72 126 49 103C25 80 38 43 68 31C98 19 126 36 130 62" stroke="currentColor" strokeWidth="6" strokeLinecap="round" opacity=".65" />
+      <path d="M132 106C116 114 90 111 75 95C61 79 64 60 80 51C96 42 113 49 117 62" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity=".4" />
+    </svg>
+  );
+}
 
 export function PrecisionPathHero() {
-  const reduceMotion = useReducedMotion();
-  // Keep server and client styles identical; always reveal the content, even
-  // when the client requests reduced motion before hydration.
-  const enter = { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 } };
-
   return (
-    <section className="hero-poster" lang="en">
-      <div className="hero-copy">
-        <motion.p
-          {...enter}
-          transition={reduceMotion ? { duration: 0 } : { duration: 0.55 }}
-          className="eyebrow"
-        >
-          Career intelligence · 2026 edition
-        </motion.p>
-        <motion.h1 {...enter} transition={reduceMotion ? { duration: 0 } : { duration: 0.7, delay: 0.06 }}>
-          Learn only what moves you forward.
-        </motion.h1>
-        <motion.p
-          {...enter}
-          transition={reduceMotion ? { duration: 0 } : { duration: 0.65, delay: 0.13 }}
-          className="hero-support"
-          lang="zh-CN"
-        >
-          从岗位目标出发，找到值得学的技能、做得完的任务，以及能展示的成果。
-        </motion.p>
-        <motion.div {...enter} transition={reduceMotion ? { duration: 0 } : { duration: 0.55, delay: 0.2 }}>
-          <Link className="primary-action" href="/setup" lang="zh-CN">
-            建立我的学习路线 →
-          </Link>
-          <Link className="hero-secondary" href="/showcase" lang="zh-CN">先看完整样例 ↗</Link>
-        </motion.div>
+    <section className="discovery-hero" lang="en" aria-labelledby="arc-hero-title">
+      <div className="discovery-hero-center">
+        <h1 id="arc-hero-title" className="discovery-hero-title">
+          <span className="discovery-brand">Arc<span className="discovery-brand-dot">.</span><ArcMark /></span>
+          <span className="discovery-promise">Learn only what moves you forward.</span>
+        </h1>
+        <p className="discovery-tagline">A continuous learning journey</p>
+        <p className="discovery-hero-description" lang="zh-CN">从岗位目标出发，找到值得学的技能、做得完的任务，以及能展示的成果。</p>
+        <div className="discovery-hero-actions" lang="zh-CN">
+          <Link className="primary-action" href="/setup">建立我的学习路线 <span aria-hidden="true">↗</span></Link>
+          <Link className="hero-secondary" href="/showcase">先看完整样例 ↗</Link>
+        </div>
       </div>
-      <StoryRail />
-      <div className="signal-rule" aria-hidden="true" />
+      <a className="discovery-scroll" href="#learning-method" lang="zh-CN"><span>探索学习方法</span><i aria-hidden="true" /></a>
     </section>
   );
 }

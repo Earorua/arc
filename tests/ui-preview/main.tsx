@@ -1,12 +1,18 @@
 import { createRoot } from "react-dom/client";
-import "@fontsource-variable/manrope";
+import "@fontsource-variable/jost";
+import "@fontsource-variable/fraunces";
+import "@fontsource-variable/fraunces/wght-italic.css";
+import "@fontsource-variable/noto-serif-sc";
 import "@fontsource-variable/newsreader";
+import "@fontsource-variable/newsreader/wght-italic.css";
 import "../../app/globals.css";
 import "../../app/components/agents/agents.css";
 import "../../app/components/today/today-refinement.css";
 import "../../app/components/setup/setup-refinement.css";
 import "../../app/components/workspace/workspace-refinement.css";
 import "../../app/ui-refinement.css";
+import "../../app/discovery-theme.css";
+import Home from "../../app/page";
 import { LearningAgentsProvider, AgentPageFrame } from "../../app/components/agents/agent-context";
 import { AgentCompanion } from "../../app/components/agents/agent-companion";
 import { LearningCoach } from "../../app/components/agents/learning-coach";
@@ -21,14 +27,14 @@ import { setOfflineOwner, usePathname } from "../offline-uat/browser-runtime";
 import { fixture, proof } from "./data";
 
 window.fetch = async () => new Response(JSON.stringify({ error: "Local visual preview only" }), { status: 404, headers: { "content-type": "application/json" } });
-setOfflineOwner("owner-a");
+setOfflineOwner(window.location.pathname === "/" ? null : "owner-a");
 const noSave = async () => false;
 function App() {
   const path = usePathname();
   const current = path === "/path" ? "Path" : path === "/stack" ? "Stack" : path === "/proof" ? "Proof" : "Today";
   const { blueprint, registry } = fixture.sourceContext;
   return <LearningAgentsProvider><a className="skip-link" href="#main-content">跳到主要内容</a><AgentPageFrame>
-    {path === "/coach" ? <LearningCoach /> : <WorkspaceShell current={current} state={createDemoState()} planningState={fixture.workspace} roleName={blueprint.name}>
+    {path === "/" ? <Home /> : path === "/coach" ? <LearningCoach /> : <WorkspaceShell current={current} state={createDemoState()} planningState={fixture.workspace} roleName={blueprint.name}>
       {current === "Today" ? <AdaptiveTodaySession workspace={fixture.workspace} blueprint={blueprint} registry={registry} now={() => new Date("2026-10-28T10:00:00Z")} record={noSave} accept={noSave} discard={noSave} />
         : current === "Path" ? <AdaptivePath workspace={fixture.workspace} blueprint={blueprint} registry={registry} />
         : current === "Stack" ? <><section className="workspace-intro"><p className="eyebrow">SKILLS & SOURCES</p><h1>知道为什么学，也知道学到哪里。</h1></section><StackBrowser blueprint={blueprint} projections={proof.projections} evidence={[]} /></>

@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
-import "@fontsource-variable/manrope";
+import "@fontsource-variable/jost";
+import "@fontsource-variable/fraunces";
+import "@fontsource-variable/fraunces/wght-italic.css";
+import "@fontsource-variable/noto-serif-sc";
 import "@fontsource-variable/newsreader";
+import "@fontsource-variable/newsreader/wght-italic.css";
 import "./globals.css";
 import "./components/agents/agents.css";
 import "./components/today/today-refinement.css";
 import "./components/setup/setup-refinement.css";
 import "./components/workspace/workspace-refinement.css";
 import "./ui-refinement.css";
+import "./discovery-theme.css";
 import { AgentPageFrame, LearningAgentsProvider } from "./components/agents/agent-context";
 import { AgentCompanion } from "./components/agents/agent-companion";
 
