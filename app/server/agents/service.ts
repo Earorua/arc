@@ -1,7 +1,7 @@
 import { agentRequestSchema, type AgentWorkspace, type PublicAgentRun } from "../../contracts/agents";
 import { fingerprint } from "../../lib/planning/fingerprint";
 import type { PlanningService } from "../planning/service";
-import { AgentServiceError, assertCurrent, learningContext, promptContext, proposalEvent, type LearningContext } from "./context";
+import { AgentServiceError, AgentSetupRequiredError, assertCurrent, learningContext, promptContext, proposalEvent, type LearningContext } from "./context";
 import { publicRun, type AgentRepository, type AgentBudgetLimits, type StoredAgentRun } from "./repository";
 import { PLANNER_OUTPUT_TOKENS, TUTOR_OUTPUT_TOKENS, PLANNER_TIMEOUT_MS, TUTOR_TIMEOUT_MS, type AgentProvider, type ProviderResponse } from "./openrouter-provider";
 
@@ -19,6 +19,7 @@ export class LearningAgentService {
   async workspace(owner: string | null): Promise<AgentWorkspace> {
     const config = this.deps.config;
     const result: AgentWorkspace = { enabled: config.enabled, authenticated: Boolean(owner),
+      availability: config.enabled ? "ready" : "disabled",
       reason: config.enabled ? null : "学习助手尚未启用，配置模型服务后即可使用。",
       goalId: null, baseVersionId: null, revision: null, roleName: "你的学习旅程", currentTask: null,
       history: [], plannerModel: config.plannerModel, tutorModel: config.tutorModel };
@@ -26,8 +27,8 @@ export class LearningAgentService {
     let context: LearningContext;
     try { context = await this.context(owner); }
     catch (error) {
-      if (error instanceof AgentServiceError || (error as { code?: string })?.code === "NOT_FOUND")
-        return { ...result, reason: "请先完成学习设置，再开始规划或答疑。" };
+      if (error instanceof AgentSetupRequiredError || (error as { code?: string })?.code === "NOT_FOUND")
+        return { ...result, availability: "needs_setup", reason: "请先完成学习设置，再开始规划或答疑。" };
       throw error;
     }
     let history: StoredAgentRun[] = [];
@@ -36,7 +37,7 @@ export class LearningAgentService {
     }
     return { ...result, goalId: context.workspace.goalId, baseVersionId: context.workspace.activePlanVersionId,
       revision: context.workspace.revision, roleName: context.roleName, currentTask: context.currentTask,
-      history: history.map(publicRun) };
+      learningContext: context.learningContext, history: history.map(publicRun) };
   }
   async startPlanner(owner: string, input: unknown, signal: AbortSignal = new AbortController().signal,
     onStarted?: (run: PublicAgentRun) => void): Promise<PublicAgentRun> {
