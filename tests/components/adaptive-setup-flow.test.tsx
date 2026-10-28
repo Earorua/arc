@@ -53,6 +53,7 @@ describe("AdaptiveSetupFlow", () => {
     render(<AdaptiveSetupFlow blueprint={flagshipBlueprint} createMutationId={() => "mutation-setup"} generate={generate} navigate={navigate} now={() => new Date("2026-08-14T02:00:00.000Z")} onBackToRole={onBackToRole} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />);
 
     expect(screen.getByText("02 / 05 · 技能评估")).toBeInTheDocument();
+    await user.click(screen.getByText("基础批量设置"));
     await user.click(screen.getByRole("button", { name: "将基础设为需指导完成" }));
     await user.click(screen.getByRole("button", { name: "返回" }));
     expect(onBackToRole).toHaveBeenCalledTimes(1);
@@ -73,7 +74,7 @@ describe("AdaptiveSetupFlow", () => {
     expect(screen.getByRole("status")).toHaveTextContent(/正在保存/);
     resolveGenerate(true);
     await screen.findByText(/计划已就绪/);
-    expect(navigate).toHaveBeenCalledWith("/path");
+    expect(navigate).toHaveBeenCalledWith("/path?created=1");
   });
 
   it("keeps completed answers editable after a real save failure", async () => {
@@ -169,7 +170,7 @@ describe("AdaptiveSetupFlow", () => {
     expect(navigate).not.toHaveBeenCalled();
     saveWork.resolve(true);
     expect(await screen.findByText("计划已就绪。")).toBeInTheDocument();
-    expect(navigate).toHaveBeenCalledWith("/path");
+    expect(navigate).toHaveBeenCalledWith("/path?created=1");
   });
 
   it("contains a build preflight failure and never saves", async () => {

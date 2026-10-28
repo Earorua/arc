@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { AdminHealthSnapshot } from "../server/admin/repository";
+import { signInHref } from "../lib/navigation-context";
 
 type LoadState =
   | { status: "loading" }
   | { status: "ready"; snapshot: AdminHealthSnapshot }
-  | { status: "failed"; signIn: boolean };
+  | { status: "failed"; signIn: boolean; forbidden: boolean };
 
 export function AdminHealthView({ snapshot }: { snapshot: AdminHealthSnapshot }) {
   return (
@@ -72,7 +73,7 @@ export default function AdminPage() {
         const status = typeof error === "object" && error !== null && "status" in error
           ? Number((error as { status: unknown }).status)
           : 0;
-        setLoad({ status: "failed", signIn: status === 401 });
+        setLoad({ status: "failed", signIn: status === 401, forbidden: status === 403 });
       });
     return () => {
       active = false;
@@ -80,21 +81,21 @@ export default function AdminPage() {
   }, []);
 
   return (
-    <main id="main-content" className="admin-page">
+    <main id="main-content" tabIndex={-1} className="admin-page">
       <header className="admin-header">
         <Link className="wordmark" href="/">Arc.</Link>
-        <span>Owner operations · read only</span>
+        <span>站点管理 · 只读</span>
       </header>
       <div className="admin-intro">
-        <p className="eyebrow">Beta operations / aggregate only</p>
-        <h1>Quiet signals.<br />No learner surveillance.</h1>
-        <p>Health, allowance, migration flow, and sanitized failures—nothing more.</p>
+        <p className="eyebrow">运行状态</p>
+        <h1>站点运行概览</h1>
+        <p>查看服务状态、使用额度、迁移与异常记录。</p>
       </div>
-      {load.status === "loading" && <p className="admin-loading" role="status">Loading aggregate health…</p>}
+      {load.status === "loading" && <p className="admin-loading" role="status">正在读取运行状态…</p>}
       {load.status === "failed" && (
         <div className="cloud-status" role="alert">
-          <p>{load.signIn ? "Your Arc. session expired." : "Operational health is unavailable."}</p>
-          <Link href={load.signIn ? "/sign-in" : "/"}>{load.signIn ? "Sign in again" : "Return to Arc."}</Link>
+          <p>{load.signIn ? "请登录后查看管理页面。" : load.forbidden ? "当前账号没有管理权限。" : "暂时无法读取运行状态。"}</p>
+          <Link href={load.signIn ? signInHref("/admin", true) : "/"}>{load.signIn ? "登录并返回" : "返回首页"}</Link>
         </div>
       )}
       {load.status === "ready" && <AdminHealthView snapshot={load.snapshot} />}

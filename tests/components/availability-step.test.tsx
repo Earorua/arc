@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
@@ -13,9 +13,21 @@ describe("AvailabilityStep", () => {
     return <><AvailabilityStep onChange={setDraft} planningDate={planningDate} value={draft} /><button disabled={!isAvailabilityDraftValid(draft, planningDate)} type="button">继续</button></>;
   }
 
+  it("starts with a weekly budget and discloses daily allocation without changing the total", async () => {
+    const user = userEvent.setup(); render(<Harness />);
+    expect(screen.getByRole("spinbutton", { name: "每周可用分钟" })).toHaveValue(420);
+    expect(screen.queryByRole("spinbutton", { name: "周一分钟数" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole("spinbutton", { name: "每周可用分钟" }), { target: { value: "180" } });
+    await user.click(screen.getByText("按天调整与时区"));
+    const daily = screen.getAllByRole("spinbutton", { name: /周.分钟数$/ });
+    expect(daily.reduce((sum, input) => sum + Number((input as HTMLInputElement).value), 0)).toBe(180);
+    expect(screen.getByRole("button", { name: "继续" })).toBeEnabled();
+  });
+
   it("renders a seven-day ledger with a derived total and visible rest days", async () => {
     const user = userEvent.setup();
     render(<Harness />);
+    await user.click(screen.getByText("按天调整与时区"));
 
     expect(screen.getAllByRole("spinbutton", { name: /分钟数$/ })).toHaveLength(7);
     expect(screen.getByLabelText("时区")).toHaveValue("Asia/Shanghai");
@@ -57,6 +69,8 @@ describe("AvailabilityStep", () => {
   it("associates time, minute, duplicate, and horizon errors and previews exceptions", async () => {
     const user = userEvent.setup();
     render(<Harness />);
+    await user.click(screen.getByText("按天调整与时区"));
+    await user.click(screen.getByText("临时安排（可选）"));
 
     await user.clear(screen.getByLabelText("时区"));
     await user.type(screen.getByLabelText("时区"), "Not/AZone");

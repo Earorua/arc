@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { SiteHeader } from "../components/brand/site-header";
+import { AccountBoundary } from "../components/account/account-boundary";
+import { WorkspaceHeader } from "../components/workspace/workspace-header";
 import { StackBrowser } from "../components/stack/stack-browser";
 import { WorkspaceShell } from "../components/workspace/workspace-shell";
 import { flagshipBlueprint } from "../data/flagship-blueprint";
@@ -14,37 +13,43 @@ import { resolveWorkspacePresentation } from "../lib/workspace-presentation";
 import { PlanningLoadBoundary, PlanningVersionBoundary } from "../components/workspace/planning-version-boundary";
 import { authClient } from "../lib/auth-client";
 import { useHydrated } from "../lib/use-hydrated";
+import { setupHref, signInHref } from "../lib/navigation-context";
+import { useAccountLocation } from "../components/account/use-account-location";
 
 export default function StackPage() {
   const session = authClient.useSession();
   const hydrated = useHydrated();
   const pending = !hydrated || session.isPending;
-  if (pending || !session.data?.user) return <StackSignInBoundary pending={pending} />;
+  if (pending || !session.data?.user) return <div className="workspace-shell">
+    <WorkspaceHeader current="Stack" />
+    <main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/stack" title="登录后查看技能与资料" description="把岗位要求、推荐资料和学习记录集中到你的路线中。">{null}</AccountBoundary></main>
+  </div>;
   return <SessionStackPage key={session.data.user.id} />;
 }
 
-function StackSignInBoundary({ pending }: { pending: boolean }) {
-  const router = useRouter();
-  useEffect(() => { if (!pending) router.replace("/sign-in"); }, [pending, router]);
-  return <>
-    <SiteHeader />
-    <main id="main-content" className="reading-page">
-      <p className="lede" role="status">{pending ? "正在确认账户…" : "登录后查看你的岗位技能与来源。"}</p>
-      {!pending && <Link className="primary-action" href="/sign-in">登录 →</Link>}
+function StackSignInBoundary() {
+  const href = signInHref(typeof window === "undefined" ? "/stack" : `/stack${window.location.search}`, true);
+  return <div className="workspace-shell">
+    <WorkspaceHeader current="Stack" />
+    <main id="main-content" tabIndex={-1} className="workspace-main">
+      <h1>重新登录后继续</h1>
+      <p className="lede" role="status">登录已过期，请重新登录后查看你的技能与资料。</p>
+      <Link className="primary-action" href={href}>重新登录</Link>
     </main>
-  </>;
+  </div>;
 }
 
 function EmptyAccountStack() {
-  return <>
-    <SiteHeader />
-    <main id="main-content" className="reading-page">
-      <p className="eyebrow">你的账户 · 技能与来源</p>
-      <h1>技能与来源</h1>
+  const location = useAccountLocation();
+  return <div className="workspace-shell">
+    <WorkspaceHeader current="Stack" />
+    <main id="main-content" tabIndex={-1} className="workspace-main">
+      <p className="eyebrow">你的账户 · 技能与资料</p>
+      <h1>技能与资料</h1>
       <p className="lede">创建学习路线后，即可查看保存到当前账户的技能和来源。</p>
-      <Link className="primary-action" href="/setup">创建学习路线 →</Link>
+      <Link className="primary-action" href={setupHref(location)}>创建学习路线 →</Link>
     </main>
-  </>;
+  </div>;
 }
 
 function SessionStackPage() {
@@ -61,7 +66,7 @@ function SessionStackPage() {
     title: version.title,
   })) ?? [];
 
-  if ([arc.recovery, planning.recovery, proof.recovery].includes("session-expired")) return <StackSignInBoundary pending={false} />;
+  if ([arc.recovery, planning.recovery, proof.recovery].includes("session-expired")) return <StackSignInBoundary />;
   // This account surface never substitutes device history or a public sample for a saved plan.
   if (planning.cloudGoalMissing || resolved.kind === "legacy") return <EmptyAccountStack />;
   if (state === null) return <WorkspaceShell current="Stack" recovery={arc.recovery} source={arc.source} state={null} />;
@@ -90,8 +95,8 @@ function SessionStackPage() {
     >
       <section className="workspace-intro">
         <p className="eyebrow">岗位资料 · {blueprint.version}</p>
-        <h1>技能与来源</h1>
-        <p>选择技能，查看掌握标准、前置要求和资料来源。学习状态依据你的作品与练习记录。</p>
+        <h1>技能与资料</h1>
+        <p>看清每项技能的价值，找到下一份值得学习的资料。</p>
       </section>
       {(proof.source === "offline-cloud" || proof.recovery === "unavailable") && (
         <p className="workspace-notice" role="status">云端作品状态暂不可用；这里只展示能够安全读取的技能证据。</p>

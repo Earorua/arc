@@ -7,18 +7,27 @@ import { JSDOM } from "jsdom";
 
 register("./cloudflare-workers-loader.mjs", import.meta.url);
 
-async function render() {
+async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html" } }),
+    new Request(`http://localhost${pathname}`, { headers: { accept: "text/html" } }),
     {
       ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) },
     },
     { waitUntil() {}, passThroughOnException() {} },
   );
 }
+
+test("unknown pages retain HTTP 404 and offer branded recovery navigation", async () => {
+  const response = await render("/arc-unknown-page-for-404-verification");
+  assert.equal(response.status, 404);
+  const html = await response.text();
+  assert.match(html, /这个页面暂时找不到了/);
+  assert.match(html, /href="\/today"/);
+  assert.match(html, /返回首页/);
+});
 
 test("server-renders the Arc landing page", async () => {
   const response = await render();
@@ -88,7 +97,7 @@ test("ships the adaptive workspace recovery and review copy without replacing th
   const bundle = await readBundleText(clientDirectory);
 
   assert.match(bundle, /这次调整会改变什么/);
-  assert.match(bundle, /Plan version unavailable\./);
+  assert.match(bundle, /暂时无法读取这个计划/);
   assert.match(bundle, /学习路线/);
   assert.doesNotMatch(bundle, /self-assessment is verified/iu);
 });

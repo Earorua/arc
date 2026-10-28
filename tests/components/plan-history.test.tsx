@@ -6,14 +6,25 @@ import { flagshipBlueprint } from '../../app/data/flagship-blueprint';
 import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry';
 import { offlinePlanningRequest } from '../offline-uat/planning-fixture';
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); sessionStorage.clear(); window.history.replaceState(null, '', '/'); vi.restoreAllMocks(); });
 const goals={goals:[{id:'old',roleId:'Historical role',targetWeeks:18,weeklyMinutes:420,createdAt:100,hasWorkspace:true},{id:'empty',roleId:'Empty goal',targetWeeks:12,weeklyMinutes:240,createdAt:90,hasWorkspace:false}],nextOffset:null};
+it('restores a direct saved-plan URL and the list page on browser Back', async () => {
+ const client={list:vi.fn().mockResolvedValue(goals),load:vi.fn().mockResolvedValue({workspace:null,sourceContext:null})};
+ window.history.replaceState(null,'','/history?goal=old&offset=20');
+ render(<PlanHistory ownerId="owner" client={client}/>);
+ await screen.findByText('这个目标没有已保存的学习计划。');
+ expect(client.load).toHaveBeenCalledWith('old',expect.any(AbortSignal));
+ act(() => { window.history.replaceState(null,'','/history?offset=20'); window.dispatchEvent(new PopStateEvent('popstate')); });
+ await screen.findByRole('button',{name:/Historical role/});
+ expect(client.list).toHaveBeenCalledWith(20,expect.any(AbortSignal));
+});
 it('offers read-only history with an honest no-plan state and no mutation controls',async()=>{
  const client={list:vi.fn().mockResolvedValue(goals),load:vi.fn().mockResolvedValue({workspace:null,sourceContext:null})};
  render(<PlanHistory ownerId="owner" client={client}/>);
  await screen.findByRole('button',{name:/Historical role/});
  expect(screen.getByText('未生成学习计划')).toBeInTheDocument();
  fireEvent.click(screen.getByRole('button',{name:/Historical role/}));
+ expect(new URLSearchParams(window.location.search).get('goal')).toBe('old');
  await screen.findByText('这个目标没有已保存的学习计划。');
  expect(client.load).toHaveBeenCalledWith('old',expect.any(AbortSignal));
  expect(screen.queryByRole('button',{name:/Generate|Accept|Complete|激活|重新生成/})).not.toBeInTheDocument();
@@ -43,6 +54,7 @@ it('renders actual saved route, daily units and resource links without learning 
 });
 
 it('keeps the history page position when returning from a saved plan',async()=>{
+ const scroll=vi.spyOn(window,'scrollTo').mockImplementation(()=>{});
  const client={list:vi.fn().mockResolvedValueOnce({...goals,nextOffset:20}).mockResolvedValue(goals),load:vi.fn().mockResolvedValue({workspace:null,sourceContext:null})};
  render(<PlanHistory ownerId="owner" client={client}/>);
  fireEvent.click(await screen.findByRole('button',{name:'下一页'}));
@@ -52,4 +64,6 @@ it('keeps the history page position when returning from a saved plan',async()=>{
  fireEvent.click(screen.getByRole('button',{name:'返回历史列表'}));
  await waitFor(()=>expect(client.list).toHaveBeenLastCalledWith(20,expect.any(AbortSignal)));
  expect(await screen.findByRole('button',{name:'上一页'})).toBeInTheDocument();
+ await waitFor(()=>expect(scroll).toHaveBeenCalledWith({top:0,behavior:'instant'}));
+ expect(screen.getByRole('button',{name:/Historical role/})).toHaveFocus();
 });

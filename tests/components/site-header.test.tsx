@@ -2,8 +2,11 @@ import { act, cleanup, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 
 const authMocks = vi.hoisted(() => ({ useSession: vi.fn() }));
+const navigation = vi.hoisted(() => ({ pathname: "/" }));
+vi.mock("next/navigation", () => ({ usePathname: () => navigation.pathname }));
 vi.mock("../../app/lib/auth-client", () => ({ authClient: authMocks }));
 
 vi.mock("../../app/components/account/account-menu", () => ({
@@ -12,7 +15,7 @@ vi.mock("../../app/components/account/account-menu", () => ({
 
 import { SiteHeader } from "../../app/components/brand/site-header";
 
-beforeEach(() => authMocks.useSession.mockReturnValue({ data: null, isPending: false }));
+beforeEach(() => { navigation.pathname = "/"; authMocks.useSession.mockReturnValue({ data: null, isPending: false }); });
 afterEach(cleanup);
 
 describe("SiteHeader", () => {
@@ -23,10 +26,20 @@ describe("SiteHeader", () => {
     expect(screen.getByRole("navigation", { name: "网站导航" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "学习方法" })).toHaveAttribute("href", "/method");
     expect(screen.queryByRole("link", { name: "Intelligence" })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "学习规划师" })).toHaveAttribute("href", "/coach");
+    expect(screen.queryByRole("link", { name: "学习规划师" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "产品样例" })).toHaveAttribute("href", "/showcase");
     expect(screen.queryByRole("link", { name: "继续学习" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+  });
+
+  it("marks the current public page and exposes the mobile menu state", async () => {
+    navigation.pathname = "/method";
+    render(<SiteHeader />);
+    expect(screen.getByRole("link", { name: "学习方法" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "产品样例" })).not.toHaveAttribute("aria-current");
+    await userEvent.click(screen.getByRole("button", { name: "浏览" }));
+    expect(screen.getByRole("button", { name: "浏览" })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("navigation", { name: "网站导航" })).toHaveAttribute("data-open", "true");
   });
 
   it("hides the continue-learning entry while the session is still being confirmed", () => {

@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <LearningEntry>
       <SiteHeader />
-      <main id="main-content" className="discovery-home">
+      <main id="main-content" tabIndex={-1} className="discovery-home">
         <PrecisionPathHero />
         <section className="editorial-section discovery-method" id="learning-method">
           <SectionReveal>

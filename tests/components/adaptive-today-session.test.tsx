@@ -96,7 +96,11 @@ describe("AdaptiveTodaySession", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       "任务已完成，技能已进入练习状态。添加作品证据，展示你的能力。",
     );
-    expect(screen.getByRole("link", { name: "添加作品证据" })).toHaveAttribute("href", "/proof");
+    const receipt = new URL(screen.getByRole("link", { name: "添加作品证据" }).getAttribute("href")!, "http://localhost");
+    expect(receipt.pathname).toBe("/proof");
+    expect(receipt.searchParams.get("compose")).toBe("1");
+    expect(receipt.searchParams.get("unit")).toBe(record.mock.calls.at(-1)![0].unitId);
+    expect(receipt.searchParams.get("returnTo")).toBe("/today");
     await openAdjustments(user);
     for (const [label, kind] of [["延后", "delayed"], ["跳过", "skipped"], ["难度太高", "too_hard"], ["已经掌握", "already_known"]] as const) { await user.click(screen.getByRole("button", { name: label })); expect(record).toHaveBeenLastCalledWith(expect.objectContaining({ kind })); }
     expect(screen.getByRole("status")).toHaveTextContent("当前计划尚未改变");
@@ -229,13 +233,13 @@ describe("AdaptiveTodaySession", () => {
     const view = render(<AdaptiveTodaySession workspace={mismatched} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
 
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable");
-    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(screen.getByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
+    expect(screen.getByRole("alert")).toHaveTextContent("原有计划与学习记录已保留");
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
 
     view.rerender(<AdaptiveTodaySession workspace={current} now={fixedNow} registry={{ ...flagshipUnitRegistry, blueprintVersion: "2026.99" }} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveTextContent("A compatible rebuild is not available in this Phase 2 build");
+    expect(screen.getByRole("alert")).toHaveTextContent("当前暂不支持自动转换这个版本");
   });
 
   it("keeps active Today visible but locks learning actions while a candidate diff is pending", async () => {

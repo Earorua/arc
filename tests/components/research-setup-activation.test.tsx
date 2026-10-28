@@ -28,7 +28,7 @@ import { createResearchD1, seedUser, type SqliteD1 } from "../helpers/sqlite-d1"
 
 const session = vi.hoisted(() => ({ owner: "owner-a" as string | null, navigate: vi.fn() }));
 vi.mock("../../app/lib/auth-client", () => ({ authClient: { useSession: () => ({ data: session.owner ? { user: { id: session.owner, name: "Learner", email: "learner@example.test" } } : null, isPending: false }) } }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: session.navigate, replace: session.navigate }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: session.navigate, replace: session.navigate }), usePathname: () => "/" }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>Account</span> }));
 
 const validation = validateResearchCandidate(validResearchCandidate, validAnnotations, {
@@ -112,11 +112,78 @@ async function reachBuild(source: "research" | "flagship" = "research") {
 
 function newResearchRequest(previousGoalId: string, mutationId = "mutation-new-research") {
   const { roleId: _role, ...base } = guestRequest();
+  void _role;
   return { ...base, mutationId, source: { source: "research", researchRunId }, newGoal: { previousGoalId },
     audit: { ...base.audit, blueprintId: data.blueprint.id, blueprintVersion: data.blueprint.version,
       answers: data.blueprint.skills.map(({ id: skillId }) => ({ skillId, level: "unseen", evidenceRefs: [] })) } };
 }
 describe("new Research setup through real clients, routes, services and SQLite", () => {
+  it("creates a first Flagship plan from explicit create mode after authoritative missing-goal recovery", async () => {
+    window.history.replaceState(null, "", "/setup?mode=create");
+    try {
+      render(<SetupPage />);
+      const user = await reachBuild("flagship");
+      await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+      await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
+      expect(count("career_goals")).toBe(1);
+      expect(count("planning_workspaces")).toBe(1);
+    } finally { window.history.replaceState(null, "", "/"); }
+  });
+  it.each(["before", "after"])("recovers explicit first creation across refresh when generation fails %s commit", async (failure) => {
+    window.history.replaceState(null, "", "/setup?mode=create");
+    try {
+      const view = render(<SetupPage />); const user = await reachBuild("flagship");
+      let failed = false;
+      intercept = async (request) => {
+        if (!request.url.endsWith("/api/planning/generate") || failed) return null;
+        failed = true;
+        if (failure === "after") await planning.generate("owner-a", await request.json());
+        throw new TypeError("synthetic first generation failure");
+      };
+      await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+      await screen.findByText("保存结果尚未确认，请按原设置重试。");
+      expect(screen.getByRole("button", { name: "返回" })).toBeDisabled();
+      view.unmount(); render(<SetupPage />);
+      await user.click(await screen.findByRole("button", { name: "重试保存原计划" }));
+      await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
+      expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(1);
+      const writes = calls.filter(({ path }) => path === "/api/planning/generate");
+      expect(writes).toHaveLength(2); expect(writes[1]?.body).toEqual(writes[0]?.body);
+      expect(calls.some(({ method }) => method === "PUT")).toBe(false);
+    } finally { window.history.replaceState(null, "", "/"); }
+  });
+  it("does not replay an unfinished first creation into another active goal", async () => {
+    window.history.replaceState(null, "", "/setup?mode=create");
+    try {
+      const view = render(<SetupPage />); const user = await reachBuild("flagship");
+      intercept = async (request) => request.url.endsWith("/api/planning/generate") ? Promise.reject(new TypeError("before commit")) : null;
+      await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+      await screen.findByText("保存结果尚未确认，请按原设置重试。");
+      view.unmount(); intercept = null;
+      const state = createDemoState(); state.setup.roleId = "Ecologist";
+      await cloud.importLocalState("owner-a", { migrationId: "migration-another-active-goal", consent: true, conflictResolution: "activate-import", state });
+      const replacement = await cloud.getWorkspace("owner-a"); calls.length = 0;
+      render(<SetupPage />);
+      await user.click(await screen.findByRole("button", { name: "重试保存原计划" }));
+      await screen.findByRole("heading", { name: "当前目标已变化" });
+      expect(await cloud.getWorkspace("owner-a")).toEqual(replacement);
+      expect(calls.some(({ path }) => path === "/api/planning/generate")).toBe(false);
+      expect(count("planning_workspaces")).toBe(0);
+    } finally { window.history.replaceState(null, "", "/"); }
+  });
+  it("blocks creation over an existing legacy cloud goal whose history cannot be archived", async () => {
+    await cloud.importLocalState("owner-a", { migrationId: "migration-existing-legacy", consent: true, conflictResolution: "reject", state: createDemoState() });
+    const original = await cloud.getWorkspace("owner-a");
+    window.history.replaceState(null, "", "/setup?mode=create");
+    try {
+      render(<SetupPage />);
+      expect(await screen.findByRole("heading", { name: "先继续当前路线" })).toBeInTheDocument();
+      expect(screen.queryByLabelText("自定义岗位")).not.toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "查看当前路线" })).toHaveAttribute("href", "/path");
+      expect(await cloud.getWorkspace("owner-a")).toEqual(original);
+      expect(calls.every(({ method }) => method === "GET")).toBe(true);
+    } finally { window.history.replaceState(null, "", "/"); }
+  });
   it("keeps guest Flagship generation entirely on this device and does not claim account persistence", async () => {
     session.owner = null; localStorage.removeItem("arc:role-research:v1");
     const history = completeDemoUnit(createDemoState(), flagshipRole.today); saveDemoState(history);
@@ -124,13 +191,13 @@ describe("new Research setup through real clients, routes, services and SQLite",
     for (let index = 0; index < 4; index++) await user.click(screen.getByRole("button", { name: "继续" }));
     expect(screen.queryByText(/saves this plan to your account/)).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "生成学习路径" }));
-    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
     expect(calls).toHaveLength(0); expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
     expect(await createLocalPlanningRepository({ storage: localStorage }).load()).not.toBeNull();
     expect(JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY)!)).toEqual(history);
   });
   it.each(workspacePages)("hides prior absence permission immediately on an account roundtrip in $pageName", async ({ Page, title }) => {
-    const visibleTitle = Page === StackPage ? "技能与来源" : title;
+    const visibleTitle = Page === StackPage ? "技能与资料" : title;
     saveDemoState({ ...createDemoState(), setup: { ...createDemoState().setup, roleId: "Ecologist" } });
     const page = render(<Page />);
     await screen.findByRole("heading", { level: 1, name: visibleTitle });
@@ -147,7 +214,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(screen.queryByRole("heading", { level: 1, name: visibleTitle })).not.toBeInTheDocument();
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
     await act(async () => { release(); });
-    await screen.findByText("Arc cannot confirm your saved cloud plan right now.");
+    await screen.findByText("暂时无法确认已保存的学习计划");
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
   });
   it.each(workspacePages)("does not permit absence fallback until Arc confirms a local setup on $pageName", async ({ Page, title }) => {
@@ -155,8 +222,8 @@ describe("new Research setup through real clients, routes, services and SQLite",
     intercept = async (request) => request.url.endsWith("/api/workspace")
       ? Response.json({ error: { code: "UNAVAILABLE", message: "Synthetic failure", requestId: "request-arc-failure" } }, { status: 503 }) : null;
     render(<Page />);
-    if (Page === StackPage) await screen.findByRole("heading", { name: "技能与来源" });
-    else await screen.findByText("Arc cannot confirm your saved cloud plan right now.");
+    if (Page === StackPage) await screen.findByRole("heading", { name: "技能与资料" });
+    else await screen.findByText("暂时无法确认已保存的学习计划");
     expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
   });
@@ -168,17 +235,18 @@ describe("new Research setup through real clients, routes, services and SQLite",
     if (mode === "declined") await screen.findByRole("button", { name: "研究这个岗位" });
     for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "继续" }));
     await user.click(screen.getByRole("button", { name: "生成学习路径" }));
-    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
     expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
     expect(JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY)!).setup.roleId).toBe("Ecologist");
     expect(calls.some(({ method }) => method !== "GET")).toBe(false);
     page.unmount(); render(<Page />);
-    expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "技能与来源" : title })).toBeInTheDocument();
-    if (Page === StackPage) {
+    expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "技能与资料" : title })).toBeInTheDocument();
+    if (Page === StackPage || Page === ProofPage) {
       expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
       expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "创建学习路线 →" })).toBeInTheDocument();
     } else expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Retry adaptive plan" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "重新读取计划" })).not.toBeInTheDocument();
   });
   it.each([true, false])("builds a real Flagship plan for a fresh owner (explicit fallback: %s) without importing device history", async (explicitFallback) => {
     if (!explicitFallback) localStorage.removeItem("arc:role-research:v1");
@@ -192,7 +260,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(screen.getByText("生成后，计划会保存到你的账户；已有的本地历史记录仍保留在此设备上。")).toBeInTheDocument();
     expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
     await user.click(screen.getByRole("button", { name: "生成学习路径" }));
-    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
     expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(1);
     const snapshot = await cloud.getWorkspace("owner-a");
     expect(snapshot?.state).toEqual({ setup: createDemoState().setup, completedUnitIds: [], proofs: [] });
@@ -233,15 +301,16 @@ describe("new Research setup through real clients, routes, services and SQLite",
       return Response.json({ error: { code, message: "Synthetic failure", requestId: "request-boundary" } }, { status });
     };
     render(<Page />);
-    if (mode === "empty-200") expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "技能与来源" : title })).toBeInTheDocument();
+    if (mode === "empty-200") expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "技能与资料" : title })).toBeInTheDocument();
     else if (mode === "401" && Page === StackPage) {
-      await screen.findByText("登录后查看你的岗位技能与来源。");
-      expect(session.navigate).toHaveBeenCalledWith("/sign-in");
+      await screen.findByText("登录已过期，请重新登录后查看你的技能与资料。");
+      expect(screen.getByRole("link", { name: "重新登录" })).toHaveAttribute("href", "/sign-in?next=%2Fstack&reauth=1");
+      expect(session.navigate).not.toHaveBeenCalled();
       expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
       expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
     }
     else {
-      expect(await screen.findByText("Arc cannot confirm your saved cloud plan right now.")).toBeInTheDocument();
+      expect(await screen.findByText("暂时无法确认已保存的学习计划")).toBeInTheDocument();
       expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
       expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
     }
@@ -435,7 +504,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(0);
     expect(localStorage.getItem("arc-offline-queue-v1")).toBeNull();
     await user.click(screen.getByRole("button", { name: "生成学习路径" }));
-    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
     expect(count("career_goals")).toBe(1); expect(count("migration_runs")).toBe(1);
     const activation = calls.find(({ path }) => path === "/api/migrations/local-state")!.body as { migrationId: string };
     expect(calls.find(({ method }) => method === "PUT")?.body).toMatchObject({ mutationId: activation.migrationId });
@@ -450,7 +519,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     render(<SetupPage />); const user = await reachBuild();
     expect(count("career_goals")).toBe(0);
     await user.click(screen.getByRole("button", { name: "生成学习路径" }));
-    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
     const snapshot = await cloud.getWorkspace("owner-a");
     expect(snapshot?.state).toEqual({ setup: { roleId: data.blueprint.name, level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }, completedUnitIds: [], proofs: [] });
     expect(await cloud.getWorkspace("owner-b")).toBeNull(); expect(count("career_goals")).toBe(1);
@@ -482,7 +551,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(screen.getByRole("button", { name: "生成学习路径" })).toBeDisabled();
     await user.click(screen.getByRole("checkbox", { name: "创建新计划，并将当前计划保留在历史记录中" }));
     await user.click(screen.getByRole("button", { name: "生成学习路径" }));
-    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
     const current = (await cloud.getWorkspace("owner-a"))!;
     expect(current.activeGoalId).not.toBe(original.activeGoalId);
     expect(current.state.setup.roleId).toBe(data.blueprint.name);
@@ -493,10 +562,10 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(calls.filter(({ method }) => method !== "GET").map(({ path }) => path)).toEqual(["/api/planning/generate"]);
     expect(await cloud.getWorkspace("owner-b")).toBeNull();
   });
-  it("replays a new Research goal after a lost response without creating a second goal", async () => {
+  it.each([false, true])("replays a new Research goal after a lost response without creating a second goal (refresh: %s)", async (refresh) => {
     await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
     await planning.generate("owner-a", guestRequest());
-    render(<SetupPage />); const user = await reachBuild();
+    const view = render(<SetupPage />); const user = await reachBuild();
     await user.click(screen.getByRole("checkbox", { name: "创建新计划，并将当前计划保留在历史记录中" }));
     let lost = false;
     intercept = async (request) => {
@@ -506,8 +575,12 @@ describe("new Research setup through real clients, routes, services and SQLite",
     await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await screen.findByText("Arc 未能保存计划，你仍可修改设置。");
     expect(count("career_goals")).toBe(2);
+    if (refresh) {
+      view.unmount(); render(<SetupPage />);
+      await user.click(await screen.findByRole("checkbox", { name: "创建新计划，并将当前计划保留在历史记录中" }));
+    }
     await user.click(screen.getByRole("button", { name: "生成学习路径" }));
-    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
     expect(count("career_goals")).toBe(2); expect(count("planning_workspaces")).toBe(2);
     const writes = calls.filter(({ path }) => path === "/api/planning/generate");
     expect(writes).toHaveLength(2); expect(writes[1]?.body).toEqual(writes[0]?.body);

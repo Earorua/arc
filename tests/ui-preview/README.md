@@ -1,15 +1,40 @@
-# Arc 本地 UI 预览
+# Local experience acceptance
 
-运行 `node tests/ui-preview/start.mjs`，访问 `http://127.0.0.1:4180/today`。
+This harness renders the actual Arc pages against synthetic controllers. It blocks
+external calls and writes no production business records. The fixed preview owner
+is a fixture, not an authenticated account. Creation/plan persistence is verified
+separately by component and service integration tests.
 
-此入口使用实际的 UI 组件、字体和样式，配合合成学习任务、账号和作品数据。它只监听本机地址，不加载环境文件、不使用生产账号、不调用模型；保存操作不会成功写入任何数据。
+Start from the repository root:
 
-- 路由：首页（`/`）、Today、Path、Stack、Proof、Coach。首页使用未登录状态，其余页面使用合成账号。
-- 默认展示助手可用的布局及学习上下文；发送仍会被本地替身拒绝。
-- `/today?assistant=disabled` 用于检查未开放时的说明、资料与禁用输入。
-- 导航与学习伙伴开关可以交互；样例资源链接仅用于核对页面呈现。
-- 历史记录分页、账户隔离和计划接受使用组件与集成测试覆盖，不由该预览模拟。
+```powershell
+node tests/ui-preview/start.mjs
+```
 
-生产运行方式仍是项目原有的 `npm run dev` / `npm run build`。预览入口不属于产品路由。
+Open `http://127.0.0.1:4180/today`. Use `?guest=1` on a workspace page to inspect
+its account boundary. `?simulate=running` on Coach simulates an unresolved request
+for navigation/cancellation checks; it does not call a model.
 
-2026-10-28 Discovery 风格预览与正式应用共用本地字体和 `app/discovery-theme.css`。参考截图及浏览器验收回执位于本地 `outputs/discovery-review/`；预览中的创建、保存与模型操作不能用于真实业务。
+Browser acceptance scripts use the existing isolated Playwright installation at
+`work/ui-tools/node_modules/playwright`. Pass an existing absolute output directory:
+
+```powershell
+node tests/ui-preview/experience-visual.mjs <output-directory>
+node tests/ui-preview/experience-responsive.mjs <output-directory>
+node tests/ui-preview/experience-flows.mjs <output-directory>
+node tests/ui-preview/experience-accessibility.mjs <output-directory>
+```
+
+After the production build, verify SSR routes and the genuine HTTP 404:
+
+```powershell
+npm run build
+node --test tests/rendered-html.test.mjs
+node tests/ui-preview/experience-ssr.mjs <output-directory>
+```
+
+The 720px scenario checks reflow equivalent to a 1440px viewport at 200% zoom.
+It is not actual browser zoom or an accessibility certification. Keyboard focus
+and reduced-motion checks are browser interactions; phone sizes and keyboard
+focus are simulated, not physical-device testing. Screenshots show synthetic
+content and must not be treated as evidence of production data correctness.

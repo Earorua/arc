@@ -12,6 +12,7 @@ import "./components/setup/setup-refinement.css";
 import "./components/workspace/workspace-refinement.css";
 import "./ui-refinement.css";
 import "./discovery-theme.css";
+import "./experience-theme.css";
 import { AgentPageFrame, LearningAgentsProvider } from "./components/agents/agent-context";
 import { AgentCompanion } from "./components/agents/agent-companion";
 

@@ -13,9 +13,14 @@ import { buildPlanVersion } from "../../app/lib/planning/scheduler";
 
 const { usePlanningWorkspace } = vi.hoisted(() => ({ usePlanningWorkspace: vi.fn() }));
 vi.mock("../../app/lib/use-planning-workspace", () => ({ usePlanningWorkspace }));
+vi.mock("../../app/lib/use-arc-state", async (original) => {
+  const actual = await original<typeof import("../../app/lib/use-arc-state")>();
+  return { ...actual, useArcState: () => actual.useArcState({ useSession: () => ({ data: null, isPending: false }) }) };
+});
+vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>账号</span> }));
 
 vi.mock("../../app/lib/auth-client", () => ({
-  authClient: { useSession: () => ({ data: null, isPending: false }) },
+  authClient: { useSession: () => ({ data: { user: { id: "local-owner", name: "Learner", email: "learner@example.test" } }, isPending: false }) },
 }));
 
 function emptyPlanningController() {
@@ -66,16 +71,41 @@ function useDecisionController() {
 }
 
 beforeEach(() => {
+  window.history.replaceState(null, "", "/path");
   window.localStorage.clear();
   usePlanningWorkspace.mockReset();
   usePlanningWorkspace.mockReturnValue(emptyPlanningController());
 });
-afterEach(cleanup);
+afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 describe("PathPage", () => {
+  it.each(["legacy", "adaptive"].flatMap(flow => [
+    { flow, destination: "/stack?skill=research-basics#sources", label: "继续查看技能与资料" },
+    { flow, destination: "/proof?compose=1&unit=old-unit&returnTo=%2Ftoday#draft", label: "继续整理作品" },
+    { flow, destination: "/coach?returnTo=%2Fpath#question", label: "继续学习规划" },
+  ]))("keeps the $flow route overview and offers explicit continuation to $destination", async ({ flow, destination, label }) => {
+    window.history.replaceState(null, "", `/path?created=1&returnTo=${encodeURIComponent(destination)}`);
+    if (flow === "adaptive") usePlanningWorkspace.mockReturnValue({ ...emptyPlanningController(), workspace: pendingWorkspace() });
+    const page = render(<PathPage />);
+    expect(await screen.findByRole("heading", { name: "学习路线" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: label })).toHaveAttribute("href", destination);
+    expect(screen.getByRole("link", { name: "继续今日学习 ↗" })).toHaveAttribute("href", "/today");
+    expect(window.location.pathname).toBe("/path");
+    page.unmount();
+    render(<PathPage />);
+    expect(await screen.findByRole("link", { name: label })).toHaveAttribute("href", destination);
+  });
+
+  it.each(["//outside.example", "/proof?returnTo=%2Fsign-in"])("does not offer unsafe completion destinations %s", async (destination) => {
+    window.history.replaceState(null, "", `/path?created=1&returnTo=${encodeURIComponent(destination)}`);
+    render(<PathPage />);
+    expect(await screen.findByText(/路线已准备好/)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /继续查看技能与资料|继续整理作品|继续学习规划|返回来源页面/ })).not.toBeInTheDocument();
+  });
+
   it("shows the complete 18-week route in four editorial phases", async () => {
     render(<PathPage />);
-    expect(screen.getByRole("status")).toHaveTextContent("Restoring your plan");
+    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     const heading = await screen.findByRole("heading", { name: "学习路线" });
@@ -102,7 +132,7 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("Restoring your plan");
+    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     await waitFor(() => {
@@ -111,7 +141,7 @@ describe("PathPage", () => {
     expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
     expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
 
-    expect(usePlanningWorkspace).not.toHaveBeenCalled();
+    expect(usePlanningWorkspace).toHaveBeenCalled();
     const phaseList = screen.getByRole("list", { name: "Learning phases" });
     const phaseWeeks = within(phaseList).getAllByText(/weeks$/).map((item) => item.textContent);
     expect(phaseWeeks).toEqual(["2 weeks", "3 weeks", "3 weeks", "2 weeks"]);
@@ -144,8 +174,8 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Plan version unavailable");
-    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(await screen.findByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
+    expect(screen.getByRole("alert")).toHaveTextContent("原有计划与学习记录已保留");
     expect(screen.queryByRole("link", { name: /rebuild/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "学习路线" })).not.toBeInTheDocument();
   });
@@ -164,10 +194,10 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(await screen.findByText(source === "restoring" ? "Restoring adaptive plan." : "Adaptive plan temporarily unavailable.")).toBeInTheDocument();
+    expect(await screen.findByText(source === "restoring" ? "正在读取学习计划" : "学习计划暂不可用")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "学习路线" })).not.toBeInTheDocument();
     if (source === "offline-cloud") {
-      await userEvent.click(screen.getByRole("button", { name: /retry/i }));
+      await userEvent.click(screen.getByRole("button", { name: /重新读取计划/ }));
       expect(retry).toHaveBeenCalledTimes(1);
     }
   });

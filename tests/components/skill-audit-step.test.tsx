@@ -8,7 +8,7 @@ import { createSkillAuditDraft, isSkillAuditDraftValid, SkillAuditStep, type Ski
 afterEach(cleanup);
 
 describe("SkillAuditStep", () => {
-  it("shows only the populated category and actual skill for a sparse research blueprint", () => {
+  it("shows only the populated category and actual skill for a sparse research blueprint", async () => {
     const blueprint = {
       ...flagshipBlueprint,
       id: "data-product-manager",
@@ -21,7 +21,9 @@ describe("SkillAuditStep", () => {
     expect(screen.getByRole("group", { name: "数据技能" })).toBeInTheDocument();
     expect(screen.getAllByRole("group", { name: /自我评估$/ })).toHaveLength(1);
     expect(screen.getByRole("group", { name: "Data modeling 自我评估" })).toHaveAttribute("aria-describedby", "audit-disclosure");
+    await userEvent.click(screen.getByText("数据批量设置"));
     expect(screen.getAllByRole("button", { name: /^将/ })).toHaveLength(4);
+    await userEvent.click(screen.getByText("添加作品证据（可选）"));
     expect(screen.getAllByRole("button", { name: /^为 .* 添加证据链接$/ })).toHaveLength(1);
     expect(screen.queryByRole("group", { name: "基础技能" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "将基础设为需指导完成" })).not.toBeInTheDocument();
@@ -38,12 +40,16 @@ describe("SkillAuditStep", () => {
     const onChange = vi.fn();
     const view = render(<SkillAuditStep blueprint={blueprint} onChange={onChange} value={draft} />);
 
+    const dataSummary = screen.getByText("数据技能", { selector: "summary" });
+    if (!(dataSummary.parentElement as HTMLDetailsElement).open) await user.click(dataSummary);
     expect(screen.getAllByRole("group", { name: /技能$/ }).map((group) => group.querySelector("legend")?.textContent)).toEqual(["基础技能", "数据技能"]);
+    await user.click(screen.getByText("数据批量设置"));
     await user.click(screen.getByRole("button", { name: "将数据设为需指导完成" }));
     const dataDraft: SkillAuditDraft = onChange.mock.lastCall![0];
     expect(dataDraft.levels).toEqual({ sql: "guided", "web-platform": "unseen", "object-storage": "guided" });
     expect(dataDraft.evidence).toEqual(draft.evidence);
     view.rerender(<SkillAuditStep blueprint={blueprint} onChange={onChange} value={dataDraft} />);
+    await user.click(screen.getByText("基础批量设置"));
     await user.click(screen.getByRole("button", { name: "将基础设为可独立完成" }));
     const foundationsDraft: SkillAuditDraft = onChange.mock.lastCall![0];
     expect(foundationsDraft.levels).toEqual({ sql: "guided", "web-platform": "independent", "object-storage": "guided" });
@@ -60,12 +66,15 @@ describe("SkillAuditStep", () => {
     const draft = createSkillAuditDraft(flagshipBlueprint);
     const { rerender } = render(<SkillAuditStep blueprint={flagshipBlueprint} onChange={onChange} value={draft} />);
 
+    expect(screen.getAllByRole("group", { name: /自我评估$/ })).toHaveLength(4);
+    for (const disclosure of document.querySelectorAll<HTMLDetailsElement>("details.audit-category-disclosure")) { if (!disclosure.open) await user.click(disclosure.querySelector("summary")!); }
     expect(screen.getAllByRole("group", { name: /自我评估$/ })).toHaveLength(16);
     expect(screen.getAllByRole("group", { name: /技能$/ })).toHaveLength(8);
     expect(screen.getAllByRole("group", { name: /技能$/ }).map((group) => group.querySelector("legend")?.textContent)).toEqual(["基础技能", "前端技能", "后端技能", "数据技能", "质量技能", "云服务技能", "人工智能技能", "产品技能"]);
     expect(screen.getByText(/这是你的自我评估，不代表 Arc 核验/)).toBeInTheDocument();
     expect(screen.queryByText(/Verified|Demonstrated/i)).not.toBeInTheDocument();
 
+    await user.click(screen.getByText("基础批量设置"));
     await user.click(screen.getByRole("button", { name: "将基础设为需指导完成" }));
     const quickSetDraft = onChange.mock.lastCall?.[0];
     rerender(<SkillAuditStep blueprint={flagshipBlueprint} onChange={onChange} value={quickSetDraft} />);
@@ -80,6 +89,7 @@ describe("SkillAuditStep", () => {
     let draft = createSkillAuditDraft(flagshipBlueprint);
     const onChange = vi.fn((next) => { draft = next; });
     const view = render(<SkillAuditStep blueprint={flagshipBlueprint} onChange={onChange} value={draft} />);
+    await user.click(within(screen.getByRole("group", { name: "Web Platform 自我评估" }).parentElement!).getByText("添加作品证据（可选）"));
     const add = screen.getByRole("button", { name: "为 Web Platform 添加证据链接" });
 
     await user.click(add);

@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ProofPage from "../../app/proof/page";
 import StackPage from "../../app/stack/page";
@@ -13,10 +13,19 @@ import { buildPlanVersion } from "../../app/lib/planning/scheduler";
 
 const { usePlanningWorkspace } = vi.hoisted(() => ({ usePlanningWorkspace: vi.fn(() => ({ workspace: null, source: "local", migration: "none", recovery: "none", generate: vi.fn(), record: vi.fn(), accept: vi.fn(), discard: vi.fn(), importLocal: vi.fn(), dismissMigration: vi.fn(), retry: vi.fn() })) }));
 vi.mock("../../app/lib/use-planning-workspace", () => ({ usePlanningWorkspace }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn() }) }));
+vi.mock("../../app/lib/use-arc-state", async (original) => {
+  const actual = await original<typeof import("../../app/lib/use-arc-state")>();
+  return { ...actual, useArcState: () => actual.useArcState({ useSession: () => ({ data: null, isPending: false }) }) };
+});
+vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>账号</span> }));
+vi.mock("../../app/lib/use-proof-ledger", async (original) => {
+  const actual = await original<typeof import("../../app/lib/use-proof-ledger")>();
+  return { ...actual, useProofLedger: (options: Parameters<typeof actual.useProofLedger>[0]) => actual.useProofLedger({ ...options, useSession: () => ({ data: null, isPending: false }) }) };
+});
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn() }), usePathname: () => window.location.pathname }));
 
 vi.mock("../../app/lib/auth-client", () => ({
-  authClient: { useSession: () => ({ data: null, isPending: false }) },
+  authClient: { useSession: () => ({ data: { user: { id: "local-owner", name: "Learner", email: "learner@example.test" } }, isPending: false }) },
 }));
 
 beforeEach(() => {
@@ -53,6 +62,7 @@ describe("personalized workspace state", () => {
 
     if (page === "Today") {
       expect(await screen.findByText(`今日 · ${currentUtcDate} · 主要任务`)).toBeInTheDocument();
+      fireEvent.click(screen.getByText("查看本周安排"));
       expect(screen.getByRole("list", { name: "连续七日学习安排" })).toBeInTheDocument();
     } else {
       expect(await screen.findByRole("list", { name: "学习阶段" })).toBeInTheDocument();
@@ -60,28 +70,28 @@ describe("personalized workspace state", () => {
     expect(usePlanningWorkspace).toHaveBeenCalled();
   });
 
-  it.each([["Today", TodayPage], ["Path", PathPage]])("does not instantiate adaptive planning for a custom role on %s", async (_, Page) => {
+  it.each([["Today", TodayPage], ["Path", PathPage]])("retains the local legacy presentation after planning resolution for a custom role on %s", async (_, Page) => {
     usePlanningWorkspace.mockClear();
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<Page />);
     await waitFor(() => expect(screen.getByTitle("数据产品经理 · 10 周")).toBeInTheDocument());
-    expect(usePlanningWorkspace).not.toHaveBeenCalled();
+    expect(usePlanningWorkspace).toHaveBeenCalled();
   });
 
-  it("keeps device-only role details out of the signed-out Stack page", async () => {
+  it("keeps device-only role details out of a Stack account with no saved plan", async () => {
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<StackPage />);
-    expect(await screen.findByText("登录后查看你的岗位技能与来源。")).toBeInTheDocument();
+    expect(await screen.findByText("创建学习路线后，即可查看保存到当前账户的技能和来源。")).toBeInTheDocument();
     expect(screen.queryByText("数据产品经理 · 10 周")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Web Platform" })).not.toBeInTheDocument();
-    expect(usePlanningWorkspace).not.toHaveBeenCalled();
+    expect(usePlanningWorkspace).toHaveBeenCalled();
   });
 
   it("restores the custom role consistently on Proof", async () => {
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<ProofPage />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("Restoring your plan");
+    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     await waitFor(() => {
@@ -113,6 +123,9 @@ describe("personalized workspace state", () => {
 
     render(<ProofPage />);
 
+    const addProof = await screen.findByRole("button", { name: /添加作品/ });
+    await waitFor(() => expect(addProof).toBeEnabled());
+    fireEvent.click(addProof);
     const select = await screen.findByLabelText("关联学习单元");
     expect(within(select).getAllByRole("option")).toHaveLength(replanned.dailyUnits.length + 1);
     const firstUnit = replanned.dailyUnits[0]!;

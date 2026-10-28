@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { AuthProvider } from "../../server/auth/policy";
+import { safeReturnTo, signInHref } from "../../lib/navigation-context";
 
 type SignInRequest = {
   provider: AuthProvider;
@@ -14,24 +15,26 @@ export function SignInPanel({
   providers,
   pending,
   signIn,
+  destination,
 }: {
   providers: AuthProvider[];
   pending: boolean;
   signIn: (request: SignInRequest) => Promise<unknown>;
+  destination?: string | null;
 }) {
   const [activeProvider, setActiveProvider] = useState<AuthProvider | null>(null);
   const [failed, setFailed] = useState(false);
 
   if (pending) {
-    return <p className="account-availability" role="status">Checking account availability…</p>;
+    return <p className="account-availability" role="status">正在确认登录方式…</p>;
   }
 
   if (providers.length === 0) {
     return (
       <div className="account-unavailable">
-        <p className="account-availability" role="status">Account access is being prepared.</p>
-        <p>You can still use every part of the complete, device-local sample.</p>
-        <Link href="/today">Explore the complete sample</Link>
+        <p className="account-availability" role="status">账号登录暂未开放。</p>
+        <p>你仍可以查看公开样例，了解学习路线与作品记录。</p>
+        <Link href="/showcase">先看公开样例</Link>
       </div>
     );
   }
@@ -42,8 +45,8 @@ export function SignInPanel({
     try {
       const result = await signIn({
         provider,
-        callbackURL: "/today",
-        errorCallbackURL: "/sign-in?error=oauth",
+        callbackURL: destination ? safeReturnTo(destination) : "/sign-in?complete=1",
+        errorCallbackURL: destination ? `${signInHref(destination)}&error=oauth` : "/sign-in?error=oauth",
       });
       if (result && typeof result === "object" && "error" in result && result.error) {
         setFailed(true);
@@ -59,7 +62,7 @@ export function SignInPanel({
     <div className="provider-list">
       {providers.map((provider) => (
         <button
-          aria-label={`Continue with ${provider === "google" ? "Google" : "GitHub"}`}
+          aria-label={`使用 ${provider === "google" ? "Google" : "GitHub"} 继续`}
           className="provider-action"
           disabled={activeProvider !== null}
           key={provider}
@@ -67,17 +70,17 @@ export function SignInPanel({
           type="button"
         >
           <span aria-hidden="true">{provider === "google" ? "G" : "GH"}</span>
-          <strong>Continue with {provider === "google" ? "Google" : "GitHub"}</strong>
-          <small>{activeProvider === provider ? "Opening…" : "→"}</small>
+          <strong>使用 {provider === "google" ? "Google" : "GitHub"} 继续</strong>
+          <small>{activeProvider === provider ? "正在打开…" : "→"}</small>
         </button>
       ))}
       {failed && (
         <p className="account-error" role="alert">
-          Sign-in could not start. Check your connection and try again.
+          暂时无法开始登录，请检查网络后重试。
         </p>
       )}
       <p className="account-assurance">
-        No Arc. password. Your provider verifies identity; Arc. keeps only the account and learning state needed to synchronize your path.
+        无需另设密码。由 Google 或 GitHub 验证身份，Arc. 保存账号与学习进度。
       </p>
     </div>
   );

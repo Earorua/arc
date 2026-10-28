@@ -1,5 +1,6 @@
 "use client";
 
+import { SetupDisclosure } from "./setup-disclosure";
 import type { RoleBlueprint } from "../../contracts/intelligence";
 import { skillEvidenceSchema, type EvidenceKind, type SkillSelfLevel } from "../../contracts/planning";
 
@@ -27,7 +28,7 @@ export function createSkillAuditDraft(blueprint: RoleBlueprint): SkillAuditDraft
 export function isSkillAuditDraftValid(blueprint: RoleBlueprint, draft: SkillAuditDraft): boolean {
   const allIds = blueprint.skills.flatMap((skill) => (draft.evidence[skill.id] ?? []).map(({ id }) => id));
   return new Set(allIds).size === allIds.length && blueprint.skills.every((skill) => {
-    if (!draft.levels[skill.id]) return false;
+    if (!levels.some(({ value }) => value === draft.levels[skill.id])) return false;
     return (draft.evidence[skill.id] ?? []).every((item) => skillEvidenceSchema.safeParse({ ...item, skillId: skill.id }).success);
   });
 }
@@ -58,19 +59,26 @@ export function SkillAuditStep({ blueprint, value, onChange }: {
     onChange({ ...value, evidence: { ...value.evidence, [skillId]: [...rows, { id: `evidence-${skillId}-${suffix}`, kind: "project", url: "", note: "" }] } });
   };
 
+  const groups = categories.flatMap((category) => {
+    const skills = blueprint.skills.filter((skill) => skill.category === category);
+    return Array.from({ length: Math.ceil(skills.length / 4) }, (_, index) => ({ category, skills: skills.slice(index * 4, index * 4 + 4), offset: index * 4, total: skills.length }));
+  });
   return <div className="audit-ledger">
     <p className="setup-disclosure" id="audit-disclosure">这是你的自我评估，不代表 Arc 核验。请选择目前能实际完成的程度，可选填证据链接。</p>
-    {categories.map((category) => {
-      const skills = blueprint.skills.filter((skill) => skill.category === category);
-      if (skills.length === 0) return null;
-      return <fieldset className="audit-category" key={category}>
-        <legend>{categoryLabels[category]}技能</legend>
+    {groups.map(({ category, skills, offset, total }, groupIndex) => {
+      const defaultOpen = groupIndex === 0 || groups.slice(0, groupIndex + 1).reduce((sum, group) => sum + group.skills.length, 0) <= 4;
+      const range = total > 4 ? ` · ${offset + 1}–${offset + skills.length}` : "";
+      return <SetupDisclosure className="audit-category-disclosure" key={`${category}:${offset}`} defaultOpen={defaultOpen} title={<>{categoryLabels[category]}技能{range} <span>{skills.length} 项</span></>}>
+        <fieldset className="audit-category">
+        <legend className="sr-only">{categoryLabels[category]}技能</legend>
+        <SetupDisclosure className="audit-bulk-disclosure" title={`${categoryLabels[category]}批量设置${range}`}>
         <div className="category-actions" aria-label={`${categoryLabels[category]}批量设置`}>
           {levels.map(({ value: level, label }) => <button key={level} onClick={() => onChange({
             ...value,
             levels: { ...value.levels, ...Object.fromEntries(skills.map(({ id }) => [id, level])) },
           })} type="button">将{categoryLabels[category]}设为{label}</button>)}
         </div>
+        </SetupDisclosure>
         {skills.map((skill) => <div className="audit-skill" key={skill.id}>
           <fieldset aria-describedby="audit-disclosure" className="audit-levels">
             <legend>{skill.name} 自我评估</legend>
@@ -82,6 +90,7 @@ export function SkillAuditStep({ blueprint, value, onChange }: {
               </label>)}
             </div>
           </fieldset>
+          <SetupDisclosure className="audit-evidence-disclosure" defaultOpen={(value.evidence[skill.id]?.length ?? 0) > 0} title="添加作品证据（可选）">
           {(value.evidence[skill.id] ?? []).map((item, index) => {
             const errors = evidenceErrors(skill.id, item);
             const urlErrorId = `evidence-url-error-${skill.id}-${index}`;
@@ -99,8 +108,9 @@ export function SkillAuditStep({ blueprint, value, onChange }: {
             </fieldset>;
           })}
           <button className="text-action" disabled={(value.evidence[skill.id]?.length ?? 0) >= 3} onClick={() => addEvidence(skill.id)} type="button">为 {skill.name} 添加证据链接</button>
+          </SetupDisclosure>
         </div>)}
-      </fieldset>;
+      </fieldset></SetupDisclosure>;
     })}
   </div>;
 }

@@ -116,9 +116,14 @@ describe("navigation accessibility contracts", () => {
       workspace={null}
     />);
 
-    for (const label of ["作品标题", "作品类型", "作品说明", "公开 HTTPS 链接", "关联技能", "关联学习单元", "可见范围", "确定性验证器"]) {
+    await user.click(screen.getByRole("button", { name: "添加作品" }));
+    for (const label of ["作品标题", "作品类型", "作品说明", "公开 HTTPS 链接", "关联技能", "关联学习单元", "可见范围"]) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     }
+    expect(screen.queryByLabelText("自动检查")).not.toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText("作品类型"), "test_report");
+    expect(screen.getByLabelText("自动检查")).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText("作品类型"), "repository");
     expect(screen.getByRole("option", {
       name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "主要任务" : "拓展任务"} · ${firstUnit.objective}`,
     })).toBeInTheDocument();
@@ -128,12 +133,12 @@ describe("navigation accessibility contracts", () => {
     expect(submit).toHaveAttribute("type", "button");
     await user.click(submit);
     expect(await screen.findByRole("alert")).toHaveFocus();
-    expect(screen.getByRole("heading", { name: "可查阅的作品" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "添加作品" })).toBeInTheDocument();
     await user.type(screen.getByLabelText("作品标题"), "Accessible trace");
     await user.type(screen.getByLabelText("作品说明"), "A labelled request trace.");
     await user.selectOptions(screen.getByLabelText("关联技能"), "react");
     await user.click(save);
-    expect(await screen.findByRole("status")).toHaveTextContent("作品记录已更新");
+    expect(await screen.findByRole("status")).toHaveTextContent("作品已保存");
   });
 
   it("keeps Stack category filters keyboard-operable", async () => {

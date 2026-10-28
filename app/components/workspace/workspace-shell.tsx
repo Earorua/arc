@@ -67,9 +67,9 @@ export function WorkspaceShell({
   return (
     <div className="workspace-shell">
       <WorkspaceHeader current={current} context={context} />
-      <main id="main-content" className="workspace-main">
+      <main id="main-content" tabIndex={-1} className="workspace-main">
         {isRestoring ? (
-          <p className="workspace-restoring" role="status" lang="en">Restoring your plan…</p>
+          <p className="workspace-restoring" role="status">正在恢复你的学习计划…</p>
         ) : (
           <>
             {onDismissMigration && onImport && migrationState && (

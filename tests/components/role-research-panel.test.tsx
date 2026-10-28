@@ -132,9 +132,11 @@ describe("RoleResearchPanel", () => {
     expect(screen.getByRole("button", { name: "研究这个岗位" })).toBeInTheDocument();
     expect(screen.getByText(/request-safe/)).toBeInTheDocument();
   });
-  it("links session recovery to the existing sign-in route", () => {
+  it("links session recovery back to the exact setup query", () => {
+    window.history.replaceState(null, "", "/setup?mode=create");
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "failed" }, error: new ResearchClientError("UNAUTHENTICATED") })} />);
-    expect(screen.getByRole("link", { name: "登录" })).toHaveAttribute("href", "/sign-in");
+    expect(screen.getByRole("link", { name: "登录" })).toHaveAttribute("href", "/sign-in?next=%2Fsetup%3Fmode%3Dcreate&reauth=1");
+    window.history.replaceState(null, "", "/");
     expect(screen.queryByRole("button", { name: "研究这个岗位" })).not.toBeInTheDocument();
   });
   it("makes an uncertain prior submission queryable without retrying or starting it", async () => {

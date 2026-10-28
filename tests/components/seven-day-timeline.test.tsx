@@ -35,13 +35,13 @@ describe("SevenDayTimeline", () => {
   it("fails closed when the recorded blueprint or registry version is unavailable", () => {
     const current = workspace();
     const view = render(<SevenDayTimeline workspace={current} registry={{ ...flagshipUnitRegistry, version: "2026.08.99" }} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable");
-    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(screen.getByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
+    expect(screen.getByRole("alert")).toHaveTextContent("原有计划与学习记录已保留");
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
 
     view.rerender(<SevenDayTimeline workspace={current} blueprint={{ ...flagshipBlueprint, version: "2026.08.99" }} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("Plan version unavailable");
-    expect(screen.getByRole("alert")).toHaveTextContent("A compatible rebuild is not available in this Phase 2 build");
+    expect(screen.getByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
+    expect(screen.getByRole("alert")).toHaveTextContent("当前暂不支持自动转换这个版本");
   });
 
   it("renders a truthful fallback for an exception without a reason", () => {

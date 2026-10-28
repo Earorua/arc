@@ -27,6 +27,10 @@ export function navigate(path: string, replace = false) {
 export function usePathname() {
   return useSyncExternalStore((listener) => { paths.add(listener); return () => { paths.delete(listener); }; }, () => location.pathname, () => "/setup");
 }
+export function useSearchParams() {
+  const search = useSyncExternalStore((listener) => { paths.add(listener); return () => { paths.delete(listener); }; }, () => location.search, () => "");
+  return new URLSearchParams(search);
+}
 export function useRouter() {
   return { push: (path: string) => navigate(path), replace: (path: string) => navigate(path, true), refresh: () => location.reload(), back: () => history.back() };
 }

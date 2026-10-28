@@ -1,9 +1,10 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ProofWorkspace } from "../../app/components/proof/proof-workspace";
 import { flagshipRole } from "../../app/data/flagship-role";
 import { PROOF_LEDGER_SCHEMA_VERSION, type ProofLedgerWorkspace, type ProofReviewEvent, type ProofVersion } from "../../app/contracts/proof-ledger";
 
+beforeEach(() => { window.history.replaceState(null, "", "/proof"); sessionStorage.clear(); });
 afterEach(cleanup);
 
 const version = (overrides: Partial<ProofVersion> = {}): ProofVersion => ({
@@ -34,6 +35,7 @@ const callbacks = () => ({
 });
 
 function renderWorkspace(options: Partial<React.ComponentProps<typeof ProofWorkspace>> = {}) {
+  window.history.replaceState(null, "", options.workspace ? "/proof?proof=proof-1" : "/proof?compose=1");
   const actions = callbacks();
   render(<ProofWorkspace
     canUpload={false}
@@ -58,11 +60,11 @@ describe("ProofWorkspace", () => {
     expect(history.open).toBe(false);
     fireEvent.click(within(proof).getByText("版本记录 · 1"));
     expect(history.open).toBe(true);
-    expect(proof.compareDocumentPosition(screen.getByRole("heading", { name: "提交可查阅的作品" })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByLabelText("作品标题")).not.toBeInTheDocument();
   });
   it("renders an honest empty state and an inaccessible signed-out upload", () => {
     renderWorkspace();
-    expect(screen.getByText(/还没有提交的作品/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "添加作品" })).toBeInTheDocument();
     expect(screen.getByText(/登录并保存草稿后/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/上传作品文件/i)).not.toBeInTheDocument();
   });
@@ -98,7 +100,7 @@ describe("ProofWorkspace", () => {
     renderWorkspace({ workspace: workspace([version(), verifiedVersion], reviews) });
     expect(screen.getAllByText("已通过验证")).toHaveLength(2);
     expect(screen.getByText("已被新版本替代")).toBeInTheDocument();
-    expect(screen.getAllByText(/已通过确定性验证/i)).toHaveLength(2);
+    expect(screen.getAllByText(/已通过自动检查/i)).toHaveLength(2);
     expect(screen.queryByText("validatorKey")).not.toBeInTheDocument();
   });
 
@@ -118,7 +120,7 @@ describe("ProofWorkspace", () => {
     const revise = screen.getByRole("button", { name: "添加修订" });
     fireEvent.click(revise);
     fireEvent.click(screen.getByRole("button", { name: "取消修订" }));
-    expect(revise).toHaveFocus();
+    expect(screen.getByRole("button", { name: "添加修订" })).toHaveFocus();
   });
 
   it("withdraws evidence and toggles current visibility", async () => {
@@ -126,7 +128,9 @@ describe("ProofWorkspace", () => {
     const item = screen.getByRole("article", { name: "Accessible request trace" });
     fireEvent.click(within(item).getByRole("button", { name: "设为公开" }));
     await waitFor(() => expect(actions.setVisibility).toHaveBeenCalledWith("proof-1", "public"));
+    fireEvent.click(within(item).getByText("更多操作"));
     fireEvent.click(within(item).getByRole("button", { name: "撤回作品" }));
+    fireEvent.click(within(item).getByRole("button", { name: "确认撤回" }));
     await waitFor(() => expect(actions.withdrawProof).toHaveBeenCalledWith("proof-1"));
   });
 
@@ -134,7 +138,9 @@ describe("ProofWorkspace", () => {
     let release!: (value: boolean) => void;
     const pending = new Promise<boolean>((resolve) => { release = resolve; });
     renderWorkspace({ workspace: workspace(), withdrawProof: vi.fn(() => pending) });
+    fireEvent.click(screen.getByText("更多操作"));
     fireEvent.click(screen.getByRole("button", { name: "撤回作品" }));
+    fireEvent.click(screen.getByRole("button", { name: "确认撤回" }));
     expect(screen.getByRole("button", { name: "正在撤回…" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "添加修订" })).toBeDisabled();
     release(true);

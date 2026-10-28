@@ -37,7 +37,7 @@ vi.mock("../../app/lib/use-proof-ledger", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-proof-ledger")>();
   return { ...actual, useProofLedger: (options: Parameters<typeof actual.useProofLedger>[0]) => actual.useProofLedger({ ...options, client: { loadWorkspace: injected.loadProof, createProof: vi.fn(), reviseProof: vi.fn(), withdrawProof: vi.fn(), setVisibility: vi.fn() } }) };
 });
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: injected.navigate, replace: injected.navigate }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: injected.navigate, replace: injected.navigate }), usePathname: () => window.location.pathname }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>Account</span> }));
 
 const validation = validateResearchCandidate(validResearchCandidate, validAnnotations, {
@@ -52,6 +52,7 @@ let initial: PlanningWorkspace;
 let clearPlanningForSetup: () => void;
 
 beforeEach(async () => {
+  window.history.replaceState(null, "", "/");
   localStorage.clear(); injected.owner = "owner-a"; injected.pending = false; injected.loadProof.mockReset().mockResolvedValue(null); injected.navigate.mockReset();
   const snapshot = { state: mergeSetup(createDemoState(), { roleId: data.blueprint.name, level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }), activeGoalId: "goal-pages", revision: "revision-pages" };
   injected.arcClient = { loadWorkspace: vi.fn(async () => snapshot), importLocal: vi.fn(), saveSetup: vi.fn(async (setup) => ({ ...snapshot, state: mergeSetup(snapshot.state, setup) })), completeUnit: vi.fn(), replay: vi.fn() };
@@ -83,11 +84,41 @@ beforeEach(async () => {
     appendEvent: vi.fn((input) => service.appendEventResponse("owner-a", input)), acceptReplan: vi.fn((input) => service.acceptReplanResponse("owner-a", input)), discardReplan: vi.fn((input) => service.discardReplanResponse("owner-a", input)),
   };
 });
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); vi.unstubAllGlobals(); vi.useRealTimers(); });
 function noFlagship() { expect(screen.queryByText(/AI-Native Full-Stack Engineer|AI 原生全栈旗舰样本|Web platform|Typed service boundary/i)).not.toBeInTheDocument(); }
 async function headingReady() { await screen.findByTitle(`${data.blueprint.name} · 18 周`); noFlagship(); }
 
 describe("research workspace page adapters with real controllers and deterministic service", () => {
+  it("preserves the full Stack operation when an empty account needs setup", async () => {
+    const destination = "/stack?skill=research-basics#sources";
+    window.history.replaceState(null, "", destination);
+    injected.planningClient.loadWorkspace = vi.fn(async () => ({ workspace: null, sourceContext: null }));
+    injected.arcClient.loadWorkspace = vi.fn(async () => null);
+    render(<StackPage />);
+    expect(await screen.findByRole("link", { name: "创建学习路线 →" })).toHaveAttribute("href", `/setup?mode=create&returnTo=${encodeURIComponent(destination)}`);
+  });
+
+  it("offers required setup for authoritative missing Proof goal and keeps the original compose URL without prefilling stale tasks", async () => {
+    const destination = "/proof?compose=1&unit=old-unit&returnTo=%2Ftoday#draft";
+    window.history.replaceState(null, "", destination);
+    injected.planningClient.loadWorkspace = vi.fn(async () => { throw new ArcApiError(404, "NOT_FOUND", "No active goal", "missing-goal"); });
+    injected.arcClient.loadWorkspace = vi.fn(async () => null);
+    render(<ProofPage />);
+    expect(await screen.findByRole("link", { name: "创建学习路线 →" })).toHaveAttribute("href", `/setup?mode=create&returnTo=${encodeURIComponent(destination)}`);
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(injected.loadProof).not.toHaveBeenCalled();
+  });
+
+  it.each(["planning-unavailable", "planning-expired", "arc-expired"])("does not mistake %s for an empty Proof account", async (failure) => {
+    const expired = new ArcApiError(401, "UNAUTHENTICATED", "Login required", "expired", "sign-in");
+    injected.planningClient.loadWorkspace = vi.fn(async () => { throw failure === "planning-expired" ? expired : failure === "planning-unavailable" ? new ArcApiError(503, "UNAVAILABLE", "Offline", "offline") : new ArcApiError(404, "NOT_FOUND", "No active goal", "missing-goal"); });
+    injected.arcClient.loadWorkspace = vi.fn(async () => { if (failure === "arc-expired") throw expired; return null; });
+    render(<ProofPage />);
+    await waitFor(() => expect(injected.planningClient.loadWorkspace).toHaveBeenCalled());
+    await act(async () => {});
+    expect(screen.queryByRole("link", { name: "创建学习路线 →" })).not.toBeInTheDocument();
+  });
+
   it.each([false, true])("keeps Stack private before a confirmed account (pending: %s)", async (pending) => {
     injected.owner = pending ? "owner-a" : null;
     injected.pending = pending;
@@ -99,7 +130,7 @@ describe("research workspace page adapters with real controllers and determinist
     expect(injected.loadProof).not.toHaveBeenCalled();
     expect(screen.queryAllByText(/Private device role|Web Platform/i)).toHaveLength(0);
     if (pending) expect(injected.navigate).not.toHaveBeenCalled();
-    else expect(injected.navigate).toHaveBeenCalledWith("/sign-in");
+    else expect(screen.getByRole("link", { name: "登录并继续" })).toHaveAttribute("href", "/sign-in?next=%2Fstack");
   });
 
   it("shows an empty account state instead of device or sample intelligence when no plan is saved", async () => {
@@ -107,7 +138,7 @@ describe("research workspace page adapters with real controllers and determinist
     injected.arcClient.loadWorkspace = vi.fn(async () => null);
     saveDemoState(mergeSetup(createDemoState(), { roleId: "Private device role", level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }));
     render(<StackPage />);
-    expect(await screen.findByRole("heading", { name: "技能与来源" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "技能与资料" })).toBeInTheDocument();
     expect(screen.getByText("创建学习路线后，即可查看保存到当前账户的技能和来源。")).toBeInTheDocument();
     expect(screen.queryAllByText(/Private device role|Web Platform/i)).toHaveLength(0);
     expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
@@ -119,8 +150,8 @@ describe("research workspace page adapters with real controllers and determinist
     render(<StackPage />);
     await headingReady();
     await act(async () => { rejectProof(new ArcApiError(401, "UNAUTHENTICATED", "登录 required", "request-proof-expired", "sign-in")); });
-    await screen.findByText("登录后查看你的岗位技能与来源。");
-    expect(injected.navigate).toHaveBeenCalledWith("/sign-in");
+    await screen.findByText("登录已过期，请重新登录后查看你的技能与资料。");
+    expect(screen.getByRole("link", { name: "重新登录" }).getAttribute("href")).toContain("next=");
     expect(screen.queryByRole("heading", { name: data.blueprint.skills[0]!.name })).not.toBeInTheDocument();
     expect(screen.queryByTitle(`${data.blueprint.name} · 18 周`)).not.toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
@@ -168,7 +199,7 @@ describe("research workspace page adapters with real controllers and determinist
     await waitFor(() => expect(injected.planningClient.generate).toHaveBeenCalledOnce());
     expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal), "research-setup");
     expect(vi.mocked(injected.arcClient.saveSetup).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(injected.planningClient.generate).mock.invocationCallOrder[0]!);
-    await waitFor(() => expect(injected.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(injected.navigate).toHaveBeenCalledWith("/path?created=1"));
     const request = vi.mocked(injected.planningClient.generate).mock.calls[0]![0];
     expect(request).toMatchObject({ source: { source: "research", researchRunId: "research-run-pages" }, audit: { blueprintId: data.blueprint.id } });
     expect(Object.keys(request).sort()).toEqual(["audit", "availability", "mutationId", "planningDate", "selectedScope", "source", "target"]);
@@ -221,6 +252,7 @@ describe("research workspace page adapters with real controllers and determinist
     await waitFor(() => expect(injected.planningClient.appendEvent).toHaveBeenCalledOnce());
     await waitFor(async () => expect((await service.getWorkspace("owner-a"))!.events.some((event) => event.kind === "completed")).toBe(true));
     page.unmount(); const proof = render(<ProofPage />); await headingReady();
+    await user.click(screen.getByRole("button", { name: /添加作品/ }));
     expect(screen.getByRole("option", { name: data.blueprint.skills[0]!.name })).toHaveValue(unit.skillId);
     expect(within(screen.getByRole("combobox", { name: "关联学习单元" })).getAllByRole("option").find((option) => option.getAttribute("value") === unit.id)).toHaveTextContent(unit.objective);
     proof.unmount(); render(<StackPage />); await headingReady();
@@ -263,14 +295,14 @@ describe("research workspace page adapters with real controllers and determinist
   });
   it.each([PathPage, TodayPage, StackPage, ProofPage])("fails closed on missing research source context", async (Page) => {
     injected.planningClient.loadWorkspace = vi.fn(async () => ({ workspace: initial, sourceContext: null }));
-    render(<Page />); await waitFor(() => expect(screen.getByText(/version|unavailable|could not/i)).toBeInTheDocument());
+    render(<Page />); await waitFor(() => expect(screen.getByRole("heading", { name: "暂时无法确认已保存的学习计划" })).toBeInTheDocument());
     expect(screen.queryByText(data.blueprint.name)).not.toBeInTheDocument(); noFlagship();
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });
   it.each([PathPage, TodayPage, StackPage, ProofPage])("fails closed on mismatched research registry context", async (Page) => {
     const response = await service.getWorkspaceResponse("owner-a");
     injected.planningClient.loadWorkspace = vi.fn(async () => ({ workspace: initial, sourceContext: { ...response.sourceContext!, registry: { ...data.registry, version: "2026.08.999" } } }));
-    render(<Page />); await waitFor(() => expect(screen.getByText(/version|unavailable|could not/i)).toBeInTheDocument());
+    render(<Page />); await waitFor(() => expect(screen.getByRole("heading", { name: "暂时无法确认已保存的学习计划" })).toBeInTheDocument());
     expect(screen.queryByText(data.blueprint.name)).not.toBeInTheDocument(); noFlagship();
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });

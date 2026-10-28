@@ -18,6 +18,7 @@ vi.mock("../../app/lib/auth-client", () => ({
 }));
 
 import { AccountMenu } from "../../app/components/account/account-menu";
+vi.mock("next/navigation", () => ({ usePathname: () => window.location.pathname }));
 
 const availableProviders = ["google", "github"];
 const noLinkStatus = {
@@ -88,7 +89,27 @@ describe("AccountMenu", () => {
 
     render(<AccountMenu />);
 
-    expect(screen.getByRole("link", { name: "登录" })).toHaveAttribute("href", "/sign-in");
+    expect(screen.getByRole("link", { name: "登录" })).toHaveAttribute("href", "/sign-in?next=%2F");
+  });
+
+  it("preserves the current page including a safely nested query in the login link", () => {
+    authMocks.useSession.mockReturnValue({ data: null, isPending: false });
+    window.history.replaceState(null, "", "/proof?compose=1&returnTo=%2Ftoday#draft");
+    render(<AccountMenu />);
+    const href = screen.getByRole("link", { name: "登录" }).getAttribute("href")!;
+    expect(new URL(href, "https://arc.example").searchParams.get("next")).toBe("/proof?compose=1&returnTo=%2Ftoday#draft");
+  });
+
+  it.each(["arc:page-query", "arc:evidence-navigation", "popstate", "hashchange"])("updates the login source when %s changes the current selection", (eventName) => {
+    authMocks.useSession.mockReturnValue({ data: null, isPending: false });
+    window.history.replaceState(null, "", "/proof");
+    render(<AccountMenu />);
+    act(() => {
+      window.history.pushState(null, "", "/proof?proof=record-b#details");
+      window.dispatchEvent(new Event(eventName));
+    });
+    const href = screen.getByRole("link", { name: "登录" }).getAttribute("href")!;
+    expect(new URL(href, "https://arc.example").searchParams.get("next")).toBe("/proof?proof=record-b#details");
   });
 
   it("does not compete with the workspace live status while the session loads", () => {

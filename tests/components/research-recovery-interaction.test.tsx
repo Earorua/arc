@@ -10,7 +10,7 @@ import { createKnownResearchRecovery, createPendingResearchRecovery, RESEARCH_RE
 import { useRoleResearch } from "../../app/lib/use-role-research";
 
 const pageMocks = vi.hoisted(() => ({ push: vi.fn(), saveSetup: vi.fn(async () => true) }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pageMocks.push }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pageMocks.push }), usePathname: () => "/setup" }));
 vi.mock("../../app/lib/auth-client", () => ({
   authClient: { useSession: () => ({ data: { user: { id: "owner-a" } }, isPending: false }) },
 }));

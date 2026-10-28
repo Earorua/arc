@@ -34,6 +34,7 @@ describe("SetupFlow", () => {
       renderResearch={({ onUseResearch }) => <><button onClick={() => onUseResearch("research-one", data)}>Use first research</button><button onClick={() => onUseResearch("research-two", data)}>Use second research</button></>}
       renderAdaptive={({ active, onBackToRole, source }) => <AdaptiveSetupFlow source={source} active={active} blueprint={flagshipBlueprint} registry={flagshipUnitRegistry} generate={vi.fn()} navigate={vi.fn()} createMutationId={() => "mutation-setup"} now={() => new Date("2026-09-05T00:00:00Z")} timeZone="UTC" onBackToRole={onBackToRole} />} />);
     await user.click(screen.getByRole("button", { name: "Use first research" }));
+    await user.click(screen.getByText("基础批量设置"));
     await user.click(screen.getByRole("button", { name: "将基础设为需指导完成" }));
     await user.click(screen.getByRole("button", { name: "返回" }));
     await user.click(screen.getByRole("button", { name: "Use first research" }));
@@ -162,10 +163,11 @@ describe("SetupFlow", () => {
     render(<SetupFlow onComplete={vi.fn()} renderAdaptive={({ active, onBackToRole }) => <AdaptiveSetupFlow active={active} blueprint={flagshipBlueprint} createMutationId={() => "mutation"} generate={vi.fn()} navigate={vi.fn()} now={() => new Date("2026-08-14T02:00:00.000Z")} onBackToRole={onBackToRole} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />} />);
     await user.click(screen.getByRole("button", { name: "继续" }));
     expect(screen.getByText("02 / 05 · 技能评估")).toBeInTheDocument();
+    await user.click(screen.getByText("基础批量设置"));
     await user.click(screen.getByRole("button", { name: "将基础设为需指导完成" }));
     await user.click(screen.getByRole("button", { name: "返回" }));
     expect(screen.getByLabelText("自定义岗位")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "你想成为怎样的构建者？" })).toHaveFocus();
+    expect(screen.getByRole("heading", { name: "你想学习哪个岗位或方向？" })).toHaveFocus();
     await user.type(screen.getByLabelText("自定义岗位"), "数据产品经理");
     expect(screen.getByText(/此岗位将使用按时间比例分配的基础路径/)).toBeInTheDocument();
     await user.clear(screen.getByLabelText("自定义岗位"));

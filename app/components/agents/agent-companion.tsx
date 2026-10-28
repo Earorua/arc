@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { AgentLearningContext, AgentWorkspace, PublicAgentRun } from "../../contracts/agents";
 import { completedTutorHistory, useCompanionOverlay, useLearningAgents, type CompanionView } from "./agent-context";
+import { safeReturnTo } from "../../lib/navigation-context";
 
 export function CompanionAvatar({ thinking = false }: { thinking?: boolean }) {
   return <svg viewBox="0 0 88 94" fill="none" aria-hidden="true" className={thinking ? "companion-avatar is-thinking" : "companion-avatar"}>
@@ -169,5 +170,5 @@ export function AgentCompanion() {
     learningContext={state.workspace?.learningContext} roleName={state.workspace?.roleName}
     availability={state.workspace?.availability ?? (state.workspace && !state.workspace.goalId ? "needs_setup" : undefined)}
     deep={state.deep} onDeep={state.setDeep} reducedMotion={state.reducedMotion} onReducedMotion={state.setReducedMotion}
-    onHandoff={value => { state.setHandoff(value); state.setView("pet"); router.push("/coach"); }} />;
+    onHandoff={value => { state.setHandoff(value); state.setView("pet"); const returnTo = safeReturnTo(typeof window === "undefined" ? path : `${path}${window.location.search}`, "/today"); router.push(`/coach?returnTo=${encodeURIComponent(returnTo)}`); }} />;
 }

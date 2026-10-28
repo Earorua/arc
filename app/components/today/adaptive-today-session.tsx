@@ -35,9 +35,10 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
   const resolved = useMemo(() => resolveToday(value, blueprint, registry, now), [blueprint, now, registry, value]);
   const [progress, setProgress] = useState<{ unitId: string; checked: Set<string> }>(() => ({ unitId: "", checked: new Set() }));
   const [pending, setPending] = useState(false);
+  const [completedUnitId, setCompletedUnitId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
   if (!resolved) return <PlanningVersionBoundary />;
-  if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">今日 · {resolved.today}</p><h1>今天留给休息。</h1><p>今天没有必须完成的学习任务。</p>{message && <p role={message.kind}>{message.text}</p>}</section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
+  if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">今日 · {resolved.today}</p><h1>今天留给休息。</h1><p>今天没有必须完成的学习任务。</p>{message && <p role={message.kind}>{message.text}{completedUnitId && message.text === completedPracticingMessage && <> <Link href={proofHref(completedUnitId)}>添加作品证据</Link></>}</p>}<Link href="/path">查看学习路线 ↗</Link></section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
   const requiredSteps = resolved.primary.steps;
   const checked = progress.unitId === resolved.primary.id ? progress.checked : new Set<string>();
   const canComplete = requiredSteps.every(({ id }) => checked.has(id));
@@ -48,7 +49,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
     try {
       const saved = await record({ kind, unitId: resolved.primary!.id, planningDate: resolved.today, ...(kind === "completed" ? { actualMinutes: null } : {}) } as PlanningEventInput);
       if (!saved) setMessage({ kind: "alert", text: recovery === "conflict" ? "计划已在其他设备上更新，请刷新后继续。" : "Arc 未能更新计划，请在连接恢复后重试。" });
-      else if (kind === "completed") setMessage({ kind: "status", text: completedPracticingMessage });
+      else if (kind === "completed") { setCompletedUnitId(resolved.primary!.id); setMessage({ kind: "status", text: completedPracticingMessage }); }
       else setMessage({ kind: "status", text: candidateReadyMessage });
     } catch {
       setMessage({ kind: "alert", text: recovery === "conflict" ? "计划已在其他设备上更新，请刷新后继续。" : "Arc 未能更新计划，请在连接恢复后重试。" });
@@ -66,19 +67,23 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
         <p className="today-objective">{resolved.primary.objective}</p>
       </header>
       <section className="today-deliverable" aria-labelledby="today-deliverable-title"><h2 id="today-deliverable-title">本次交付</h2><p>{resolved.primary.buildTask}</p></section>
-      <section className="today-work" aria-labelledby="today-work-title"><h2 id="today-work-title">学习步骤</h2><ol>{requiredSteps.map((step) => <li key={step.id}><label><input checked={checked.has(step.id)} onChange={(event) => setProgress((current) => { const next = new Set(current.unitId === resolved.primary!.id ? current.checked : []); if (event.target.checked) next.add(step.id); else next.delete(step.id); return { unitId: resolved.primary!.id, checked: next }; })} type="checkbox" /><span>{step.label}</span><time>{step.minutes} 分钟</time></label></li>)}</ol></section>
       <ResourceLinks primary={resolved.primaryResource} alternatives={resolved.alternativeResources} />
+      <section className="today-work" aria-labelledby="today-work-title"><h2 id="today-work-title">学习步骤</h2><ol>{requiredSteps.map((step) => <li key={step.id}><label><input checked={checked.has(step.id)} onChange={(event) => setProgress((current) => { const next = new Set(current.unitId === resolved.primary!.id ? current.checked : []); if (event.target.checked) next.add(step.id); else next.delete(step.id); return { unitId: resolved.primary!.id, checked: next }; })} type="checkbox" /><span>{step.label}</span><time>{step.minutes} 分钟</time></label></li>)}</ol></section>
       <details className="today-criteria"><summary>完成标准与证据要求</summary><section className="today-brief"><div><h2>完成标准</h2><ul>{resolved.primary.completionCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul></div><div><h2>证据要求</h2><p>{resolved.primary.proofRequirement}</p></div><div><h2>评价细则</h2><ol>{resolved.primary.rubric.map((row) => <li key={row}>{row}</li>)}</ol></div><div><h2>为什么现在学习</h2><p>{resolved.primary.whyNow}</p></div></section></details>
       {canComplete && resolved.stretch && <aside className="today-stretch"><p className="section-index">可选拓展 · {resolved.stretch.estimatedMinutes} 分钟</p><h2>{resolved.stretch.objective}</h2><p>{resolved.stretch.whyNow}</p></aside>}
       <div className="today-actions">
         <div className="today-completion"><p id="today-completion-help">勾选仅保留在本次页面中；点击「完成任务」才会记录进度。</p><button aria-describedby="today-completion-help" disabled={pending || hasCandidate || !canComplete} onClick={() => void send("completed")} type="button">完成任务</button></div>
         <details className="today-adjustments"><summary>调整这项任务</summary><p>选择原因后会生成调整方案，审阅并接受后才会替换当前计划。</p><div>{actionEvents.map(([label, kind]) => <button disabled={pending || hasCandidate} key={kind} onClick={() => void send(kind)} type="button">{label}</button>)}</div></details>
       </div>
-      {hasCandidate ? <p role="status">{candidateReadyMessage}</p> : message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "计划已在其他设备上更新，请刷新后继续。" : message.text}{message.text === completedPracticingMessage && <> <Link href="/proof">添加作品证据</Link></>}</p>}
+      {hasCandidate ? <p role="status">{candidateReadyMessage}</p> : message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "计划已在其他设备上更新，请刷新后继续。" : message.text}{message.text === completedPracticingMessage && completedUnitId && <> <Link href={proofHref(completedUnitId)}>添加作品证据</Link></>}</p>}
     </article>
     {resolved.workspace.pendingPlanVersionId && <PlanDiffReview registry={registry} workspace={resolved.workspace} recovery={recovery} onAccept={accept} onDiscard={discard} onSuccess={(text) => setMessage({ kind: "status", text })} />}
-    <SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} />
+    <details className="today-week-disclosure"><summary>查看本周安排</summary><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></details>
   </>;
+}
+
+function proofHref(unitId: string) {
+  return `/proof?${new URLSearchParams({ compose: "1", unit: unitId, returnTo: "/today" })}`;
 }
 
 function resolveToday(value: unknown, blueprint: RoleBlueprint, registry: UnitRegistry, now: () => Date) {

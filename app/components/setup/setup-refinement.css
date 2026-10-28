@@ -60,3 +60,66 @@
   .setup-flow .research-facts { grid-template-columns: 1fr; gap: 12px; }
 }
 .setup-flow .audit-radio-row label:has(input:focus-visible) { outline-color: var(--action, #a8321d); }
+
+/* The setup is a short sequence of decisions; detail stays beside its field. */
+.setup-page .setup-step-names { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 24px; padding: 0; list-style: none; color: var(--stone); font-size: 13px; }
+.setup-page .setup-step-names li { padding-bottom: 7px; border-bottom: 2px solid transparent; }
+.setup-page .setup-step-names [aria-current="step"] { color: var(--action, #a8321d); border-color: currentColor; font-weight: 600; }
+.setup-page .setup-draft-bar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 24px; max-width: 880px; margin-top: 28px; color: var(--stone); font-size: 13px; }
+.setup-page .setup-draft-bar p { margin: 0; }
+.setup-page .setup-draft-bar + .setup-flow { margin-top: 24px; }
+.setup-page summary { cursor: pointer; min-height: 44px; padding-block: 12px; }
+.setup-page details > [hidden] { display: none !important; }
+.setup-page .setup-draft-options, .setup-page .setup-draft-notice { color: var(--stone); font-size: 13px; }
+.setup-page .setup-draft-options { margin-block: 0 12px; }
+.setup-page .setup-intent { color: var(--stone); font-size: 15px; }
+.setup-page .audit-category-disclosure { border-top: 1px solid var(--hairline); }
+.setup-page .audit-category-disclosure > summary { padding-block: 18px; font-weight: 600; }
+.setup-page .audit-category-disclosure > summary span { float: right; color: var(--stone); font-size: 13px; font-weight: 400; }
+.setup-page .audit-category { border: 0; margin: 0; padding: 0; min-width: 0; }
+.setup-page .audit-bulk-disclosure { margin-left: auto; width: fit-content; color: var(--stone); font-size: 13px; }
+.setup-page .audit-bulk-disclosure .category-actions { max-width: 540px; margin: 0; padding: 0 0 12px; }
+.setup-page .audit-bulk-disclosure button { min-height: 44px; }
+.setup-page .audit-skill { padding: 14px 0 18px; }
+.setup-page .audit-levels > legend { font-size: 17px; }
+.setup-page .audit-levels > p { margin: 8px 0; line-height: 1.5; }
+.setup-page .audit-radio-row { margin: 12px 0 4px; }
+.setup-page .audit-radio-row label { min-height: 44px; padding-block: 11px; }
+.setup-page .audit-evidence-disclosure { color: var(--stone); font-size: 13px; }
+.setup-page .audit-evidence-disclosure > summary { min-height: 36px; padding-block: 8px; }
+.setup-page .audit-evidence-disclosure .evidence-row { padding-block: 16px; }
+.setup-page .setup-confirmation { display: grid; gap: 12px; margin: 0 0 20px; }
+.setup-page .setup-confirmation > div { display: grid; grid-template-columns: 88px 1fr; gap: 12px; }
+.setup-page .setup-confirmation dt { color: var(--stone); }
+.setup-page .setup-confirmation dd { margin: 0; }
+.setup-page .setup-back { min-height: 44px; margin: 16px 20px 0 0; }
+.setup-page .setup-actions .setup-back { margin: 0; }
+.setup-page .setup-create-notice { max-width: 880px; margin-top: 30px; padding: 20px 0; border-block: 1px solid var(--hairline); line-height: 1.7; }
+.setup-page .setup-create-notice h2 { font: 600 24px/1.4 var(--sans); }
+.setup-page .time-edit-fields { border: 0; margin: 0; padding: 0; min-width: 0; }
+.setup-page .time-edit-fields:disabled { opacity: .65; }
+.setup-page .setup-completion-links { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 28px; }
+.setup-page .setup-other-action { margin-top: 36px; border-top: 1px solid var(--hairline); }
+.setup-page .setup-other-action p { color: var(--stone); }
+.setup-page :is(input:not([type="radio"]):not([type="checkbox"]), select, textarea) { min-height: 44px; font-size: 16px; }
+.setup-page :is(button, a, summary, input, select):focus-visible { outline: 2px solid var(--action, #a8321d); outline-offset: 4px; }
+@media (max-width: 640px) {
+  .setup-page .setup-flow h1 { margin: 12px 0 20px; font-size: 30px; }
+  .setup-page .setup-step-names { gap: 6px 14px; margin-bottom: 20px; font-size: 12px; }
+  .setup-page .setup-draft-bar { gap: 4px 16px; margin-top: 20px; }
+  .setup-page .audit-radio-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .setup-page .availability-day { padding-block: 12px; }
+  .setup-page .setup-actions { display: flex; flex-wrap: wrap; gap: 16px; }
+}
+
+.setup-page .availability-simple, .setup-page .availability-advanced { grid-column: 1 / -1; }
+.setup-page .availability-simple > p { margin-block: 10px; color: var(--stone); font-size: 14px; }
+.setup-page .availability-simple input { max-width: 220px; }
+.setup-page .availability-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.setup-page .availability-presets button { min-height: 44px; padding: 8px 14px; border: 1px solid var(--hairline); background: transparent; color: var(--charcoal); }
+.setup-page .availability-presets [aria-pressed="true"] { border-color: var(--action, #a8321d); color: var(--action, #a8321d); }
+.setup-page .availability-advanced > summary, .setup-page .exception-ledger > summary { border-top: 1px solid var(--hairline); }
+.setup-page .availability-advanced > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; }
+.setup-page .availability-advanced .ledger-field, .setup-page .availability-advanced > div > [role="alert"] { grid-column: 1 / -1; }
+.setup-page .exception-ledger { margin-top: 8px; }
+@media (max-width: 640px) { .setup-page .availability-advanced > div { grid-template-columns: 1fr; } }

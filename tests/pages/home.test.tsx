@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ useSession: vi.fn(), replace: vi.fn() }));
 vi.mock("../../app/lib/auth-client", () => ({ authClient: { useSession: mocks.useSession } }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: mocks.replace }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: mocks.replace }), usePathname: () => "/" }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => null }));
 import Home from "../../app/page";
 
@@ -10,12 +10,12 @@ afterEach(cleanup);
 beforeEach(() => { mocks.useSession.mockReturnValue({ data: null, isPending: false }); });
 
 describe("Arc home", () => {
-  it("takes a signed-in learner to their existing workspace instead of new setup", () => {
+  it("keeps the homepage reachable for a signed-in learner with a continue action", () => {
     mocks.useSession.mockReturnValue({ data: { user: { id: "learner" } }, isPending: false });
     render(<Home />);
-    expect(mocks.replace).toHaveBeenCalledWith("/today");
-    expect(screen.getByRole("link", { name: /Continue learning/i })).toHaveAttribute("href", "/today");
-    expect(screen.queryAllByRole("link", { name: /建立我的学习路线/i })).toHaveLength(0);
+    expect(mocks.replace).not.toHaveBeenCalled();
+    expect(screen.getByRole("link", { name: "继续学习" })).toHaveAttribute("href", "/today");
+    expect(screen.getByRole("heading", { level: 1, name: /Learn only what moves you forward/i })).toBeInTheDocument();
   });
 
   it("does not redirect an unresolved session", () => {

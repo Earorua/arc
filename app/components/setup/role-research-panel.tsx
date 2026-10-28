@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { signInHref } from "../../lib/navigation-context";
+import { useAccountLocation } from "../account/use-account-location";
 import { useEffect, useRef } from "react";
 import type { ResearchIssueCode, ResearchPublicFailureCategory } from "../../contracts/research";
 import type { RoleResearchController } from "../../lib/use-role-research";
@@ -52,6 +54,7 @@ export function RoleResearchPanel({ controller, role, eligible, onStart, onUse, 
   controller: RoleResearchController; role: string; eligible: boolean;
   onStart(): void; onUse(runId: string): void; onFlagship(): void;
 }) {
+  const location = useAccountLocation();
   const { state, run, busy, error, requestId, restoring, recoveryUncertain, replacementPending } = controller;
   const heading = useRef<HTMLHeadingElement>(null);
   const announcementKey = `${state.kind}:${restoring}:${recoveryUncertain}:${replacementPending}`;
@@ -98,7 +101,7 @@ export function RoleResearchPanel({ controller, role, eligible, onStart, onUse, 
       {replacementPending && <button className="text-action research-action" disabled={busy} onClick={controller.cancelReplacement} type="button">继续查询上一次研究</button>}
       {recoveryUncertain && !replacementPending && <button className="text-action research-action" disabled={busy} onClick={() => void controller.refresh()} type="button">查询研究状态</button>}
       {!recoveryUncertain && error?.recovery === "refresh" && <button className="text-action research-action" disabled={busy} onClick={() => void controller.refresh()} type="button">刷新研究状态</button>}
-      {error?.recovery === "sign-in" && <Link className="text-action research-action" href="/sign-in">登录</Link>}
+      {error?.recovery === "sign-in" && <Link className="text-action research-action" href={signInHref(location, true)}>登录</Link>}
       <button className="text-action research-action" onClick={onFlagship} type="button">使用精选路径</button>
     </div>
   </section>;

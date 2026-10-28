@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ProofProfile } from "../components/proof/proof-profile";
 import { ProofWorkspace } from "../components/proof/proof-workspace";
 import { WorkspaceShell } from "../components/workspace/workspace-shell";
@@ -10,16 +11,46 @@ import { useProofLedger } from "../lib/use-proof-ledger";
 import { proofSelectableDailyUnits, resolveWorkspacePresentation } from "../lib/workspace-presentation";
 import { PlanningLoadBoundary, PlanningVersionBoundary } from "../components/workspace/planning-version-boundary";
 import { authClient } from "../lib/auth-client";
+import { AccountBoundary } from "../components/account/account-boundary";
+import { WorkspaceHeader } from "../components/workspace/workspace-header";
+import { useHydrated } from "../lib/use-hydrated";
+import { setupHref } from "../lib/navigation-context";
+import { useAccountLocation } from "../components/account/use-account-location";
 
 export default function ProofPage() {
   const session = authClient.useSession();
-  if (session.isPending) return <WorkspaceShell current="Proof" state={null} />;
-  return <SessionProofPage key={session.data?.user.id ?? "guest"} />;
+  const hydrated = useHydrated();
+  if (!hydrated || session.isPending || !session.data?.user) return <div className="workspace-shell">
+    <WorkspaceHeader current="Proof" />
+    <main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/proof" title="登录后保存你的作品证据" description="把练习成果保存到账号，记录每一次修订与技能成长。">{null}</AccountBoundary></main>
+  </div>;
+  return <SessionProofPage key={session.data.user.id} ownerKey={`user:${session.data.user.id}`} />;
 }
 
-function SessionProofPage() {
+function SessionProofPage({ ownerKey }: { ownerKey: string }) {
   const arc = useArcState();
   const planning = usePlanningWorkspace();
+  if (arc.source === "restoring" || planning.source === "restoring") return <WorkspaceShell current="Proof" state={null} />;
+  const confirmedMissing = planning.cloudGoalMissing && !planning.workspace && !planning.sourceContext
+    && arc.source === "local" && arc.recovery === "none" && ["none", "unavailable"].includes(planning.recovery);
+  if (confirmedMissing) return <EmptyAccountProof />;
+  return <ProofGoalPage ownerKey={ownerKey} arc={arc} planning={planning} />;
+}
+
+function EmptyAccountProof() {
+  const location = useAccountLocation();
+  return <div className="workspace-shell">
+    <WorkspaceHeader current="Proof" />
+    <main id="main-content" tabIndex={-1} className="workspace-main">
+      <p className="eyebrow">你的账户 · 作品证据</p>
+      <h1>作品证据</h1>
+      <p className="lede">先创建学习路线，再保存与学习目标相关的作品证据。</p>
+      <Link className="primary-action" href={setupHref(location)}>创建学习路线 →</Link>
+    </main>
+  </div>;
+}
+
+function ProofGoalPage({ ownerKey, arc, planning }: { ownerKey: string; arc: ReturnType<typeof useArcState>; planning: ReturnType<typeof usePlanningWorkspace> }) {
   const { state } = arc;
   const resolved = resolveWorkspacePresentation(planning, state !== null && arc.source === "local" && arc.recovery === "none");
   const workspace = resolved.kind === "adaptive" ? resolved.workspace : null;
@@ -56,6 +87,8 @@ function SessionProofPage() {
     >
       <section className="workspace-intro"><p className="eyebrow">作品与技能证据</p><h1>作品证据</h1><p>查看已提交的作品，补充修订，并决定每项作品的可见范围。</p></section>
       <ProofWorkspace
+        ownerKey={ownerKey}
+        profile={<ProofProfile projections={proof.projections} skills={blueprint.skills} />}
         canUpload={proof.source === "cloud"}
         createProof={proof.createProof}
         dailyUnits={proofSelectableDailyUnits(workspace)}
@@ -69,7 +102,6 @@ function SessionProofPage() {
         withdrawProof={proof.withdrawProof}
         workspace={proof.workspace}
       />
-      <ProofProfile projections={proof.projections} skills={blueprint.skills} />
     </WorkspaceShell>
   );
 }
