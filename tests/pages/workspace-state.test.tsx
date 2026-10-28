@@ -52,10 +52,10 @@ describe("personalized workspace state", () => {
     render(<Page />);
 
     if (page === "Today") {
-      expect(await screen.findByText(`Today · ${currentUtcDate} · Primary outcome`)).toBeInTheDocument();
-      expect(screen.getByRole("list", { name: "Seven consecutive learning days" })).toBeInTheDocument();
+      expect(await screen.findByText(`今日 · ${currentUtcDate} · 主要任务`)).toBeInTheDocument();
+      expect(screen.getByRole("list", { name: "连续七日学习安排" })).toBeInTheDocument();
     } else {
-      expect(await screen.findByRole("list", { name: "Ordered learning path" })).toBeInTheDocument();
+      expect(await screen.findByRole("list", { name: "学习阶段" })).toBeInTheDocument();
     }
     expect(usePlanningWorkspace).toHaveBeenCalled();
   });
@@ -64,15 +64,15 @@ describe("personalized workspace state", () => {
     usePlanningWorkspace.mockClear();
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<Page />);
-    await waitFor(() => expect(screen.getByTitle("数据产品经理 · 10 weeks")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTitle("数据产品经理 · 10 周")).toBeInTheDocument());
     expect(usePlanningWorkspace).not.toHaveBeenCalled();
   });
 
   it("keeps device-only role details out of the signed-out Stack page", async () => {
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<StackPage />);
-    expect(await screen.findByText("Sign in to view your role intelligence.")).toBeInTheDocument();
-    expect(screen.queryByText("数据产品经理 · 10 weeks")).not.toBeInTheDocument();
+    expect(await screen.findByText("登录后查看你的岗位技能与来源。")).toBeInTheDocument();
+    expect(screen.queryByText("数据产品经理 · 10 周")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Web Platform" })).not.toBeInTheDocument();
     expect(usePlanningWorkspace).not.toHaveBeenCalled();
   });
@@ -85,7 +85,7 @@ describe("personalized workspace state", () => {
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText("数据产品经理 · 10 weeks")).toBeInTheDocument();
+      expect(screen.getByText("数据产品经理 · 10 周")).toBeInTheDocument();
       expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
       expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
     });
@@ -113,11 +113,11 @@ describe("personalized workspace state", () => {
 
     render(<ProofPage />);
 
-    const select = await screen.findByLabelText("Linked Daily Unit");
+    const select = await screen.findByLabelText("关联学习单元");
     expect(within(select).getAllByRole("option")).toHaveLength(replanned.dailyUnits.length + 1);
     const firstUnit = replanned.dailyUnits[0]!;
     expect(within(select).getAllByRole("option", {
-      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "Primary" : "Stretch"} · ${firstUnit.objective}`,
+      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "主要任务" : "拓展任务"} · ${firstUnit.objective}`,
     })).toHaveLength(1);
   });
 });

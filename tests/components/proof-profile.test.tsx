@@ -20,17 +20,17 @@ describe("ProofProfile", () => {
   it("shows projection-based readiness without inventing progress", () => {
     render(<ProofProfile projections={[]} skills={flagshipRole.skills} />);
 
-    expect(screen.getByLabelText("0% role readiness")).toBeInTheDocument();
-    expect(screen.getByLabelText("0 verified skills")).toBeInTheDocument();
-    expect(screen.getByText(/submit inspectable evidence to demonstrate/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("岗位准备度 0%")).toBeInTheDocument();
+    expect(screen.getByLabelText("0 项技能已通过验证")).toBeInTheDocument();
+    expect(screen.getByText(/提交可查阅的作品/i)).toBeInTheDocument();
   });
 
   it("labels local completion as Practicing and never Verified locally", () => {
     render(<ProofProfile projections={[projection("react", "practicing")]} skills={flagshipRole.skills} />);
 
-    expect(screen.getByText("Practicing")).toBeInTheDocument();
+    expect(screen.getByText("练习中")).toBeInTheDocument();
     expect(screen.queryByText("Verified locally")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("0 verified skills")).toBeInTheDocument();
+    expect(screen.getByLabelText("0 项技能已通过验证")).toBeInTheDocument();
   });
 
   it("uses importance-weighted demonstrated-or-verified readiness and counts verified separately", () => {
@@ -39,10 +39,10 @@ describe("ProofProfile", () => {
       projection("design-systems", "verified"),
     ]} skills={flagshipRole.skills} />);
 
-    expect(screen.getByLabelText("13% role readiness")).toBeInTheDocument();
-    expect(screen.getByLabelText("1 verified skill")).toBeInTheDocument();
-    expect(screen.getByText("Exploring")).toBeInTheDocument();
-    expect(screen.getByText("Demonstrated")).toBeInTheDocument();
-    expect(screen.getByText("Verified")).toBeInTheDocument();
+    expect(screen.getByLabelText("岗位准备度 13%")).toBeInTheDocument();
+    expect(screen.getByLabelText("1 项技能已通过验证")).toBeInTheDocument();
+    expect(screen.getByText("待探索")).toBeInTheDocument();
+    expect(screen.getByText("已有作品证明")).toBeInTheDocument();
+    expect(screen.getByText("已通过验证")).toBeInTheDocument();
   });
 });

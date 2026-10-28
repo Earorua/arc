@@ -48,21 +48,21 @@ describe("SetupPage", () => {
     const existing = completeDemoUnit(createDemoState(), flagshipRole.today);
     saveDemoState(existing);
     render(<SetupPage />);
-    expect(screen.queryByText("Research is running in the background. You can leave this page and return to check its progress.")).not.toBeInTheDocument();
+    expect(screen.queryByText("研究已在后台运行。你可以离开此页面，稍后回来查看进度。")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "AI 原生全栈工程师" })).toBeEnabled();
 
-    await user.type(screen.getByRole("textbox", { name: "Custom role" }), "数据产品经理");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Advanced" }));
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    const minutes = screen.getByRole("spinbutton", { name: "Weekly minutes" });
+    await user.type(screen.getByRole("textbox", { name: "自定义岗位" }), "数据产品经理");
+    await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "熟练" }));
+    await user.click(screen.getByRole("button", { name: "继续" }));
+    const minutes = screen.getByRole("spinbutton", { name: "每周分钟数" });
     await user.clear(minutes);
     await user.type(minutes, "90");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    const weeks = screen.getByRole("spinbutton", { name: "Target weeks" });
+    await user.click(screen.getByRole("button", { name: "继续" }));
+    const weeks = screen.getByRole("spinbutton", { name: "目标周数" });
     await user.clear(weeks);
     await user.type(weeks, "10");
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
 
     const saved = loadDemoState();
     expect(saved.setup).toEqual({
@@ -83,11 +83,11 @@ describe("SetupPage", () => {
     });
     render(<SetupPage />);
 
-    await user.type(screen.getByRole("textbox", { name: "Custom role" }), "数据产品经理");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.type(screen.getByRole("textbox", { name: "自定义岗位" }), "数据产品经理");
+    await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
 
     expect(screen.getByRole("alert")).toHaveTextContent("无法保存到此设备");
     expect(push).not.toHaveBeenCalled();
@@ -104,7 +104,7 @@ describe("SetupPage", () => {
     render(<SetupPage />);
     await screen.findByRole("heading", { name: "你想成为怎样的构建者？" });
 
-    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "继续" }));
     await user.click(screen.getByRole("button", { name: "Finish adaptive setup" }));
 
     expect(planningGenerate).toHaveBeenCalledTimes(1);

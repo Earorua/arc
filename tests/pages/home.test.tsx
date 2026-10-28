@@ -15,7 +15,7 @@ describe("Arc home", () => {
     render(<Home />);
     expect(mocks.replace).toHaveBeenCalledWith("/today");
     expect(screen.getByRole("link", { name: /Continue learning/i })).toHaveAttribute("href", "/today");
-    expect(screen.queryByRole("link", { name: /Build my precise path/i })).not.toBeInTheDocument();
+    expect(screen.queryAllByRole("link", { name: /建立我的学习路线/i })).toHaveLength(0);
   });
 
   it("does not redirect an unresolved session", () => {
@@ -33,7 +33,7 @@ describe("Arc home", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: /Build my precise path/i }),
+      screen.getAllByRole("link", { name: /建立我的学习路线/i })[0],
     ).toHaveAttribute("href", "/setup");
     expect(screen.getByText("Understand")).toBeInTheDocument();
     expect(screen.getByText("Build")).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("Arc home", () => {
     });
     expect(heroHeading.closest("section")).toHaveAttribute("lang", "en");
     expect(
-      screen.getByText("把任意岗位拆成清晰、可信、每天都能完成的成长路径。"),
+      screen.getByText("从岗位目标出发，找到值得学的技能、做得完的任务，以及能展示的成果。"),
     ).toHaveAttribute("lang", "zh-CN");
 
     expect(
@@ -61,13 +61,10 @@ describe("Arc home", () => {
     );
 
     expect(screen.getByText("01 · Method")).toHaveAttribute("lang", "en");
-    expect(screen.getByRole("link", { name: /Explore the method/i })).toHaveAttribute(
-      "lang",
-      "en",
-    );
-    expect(screen.getByText("Today")).toHaveAttribute("lang", "en");
-    expect(screen.getByText("Path")).toHaveAttribute("lang", "en");
-    expect(screen.getByText("Proof")).toHaveAttribute("lang", "en");
+    expect(screen.getByRole("link", { name: "了解学习方法 →" })).toHaveAttribute("href", "/method");
+    expect(screen.getByRole("link", { name: /先看完整样例/ })).toHaveAttribute("href", "/showcase");
+    expect(screen.getByText(/样例每天 45 分钟/)).toBeInTheDocument();
+    expect(screen.getByText(/样例展示 18 周/)).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: /Start with direction/i }).closest("section"),
     ).toHaveAttribute("lang", "en");

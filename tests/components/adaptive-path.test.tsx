@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { AdaptivePath } from "../../app/components/workspace/adaptive-path";
 import { PLANNING_SCHEMA_VERSION, planningWorkspaceSchema } from "../../app/contracts/planning";
@@ -19,13 +19,25 @@ function workspace() {
 
 afterEach(cleanup);
 describe("AdaptivePath", () => {
+  it("opens only the current phase initially and offers explicit expansion of the entire route", () => {
+    const current = workspace();
+    render(<AdaptivePath workspace={current} />);
+    const phases = screen.getByRole("list", { name: "学习阶段" }).querySelectorAll("details");
+    expect(phases.length).toBeGreaterThan(1);
+    expect([...phases].filter((phase) => phase.open)).toHaveLength(1);
+    expect(phases[0].open).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "展开全部阶段" }));
+    expect([...phases].every((phase) => phase.open)).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "仅展开当前阶段" }));
+    expect([...phases].filter((phase) => phase.open)).toHaveLength(1);
+  });
   it("renders the exact ordered scope, current phase, calibration and distinct self-assessment", () => {
     render(<AdaptivePath workspace={workspace()} />);
-    const path = screen.getByRole("list", { name: "Ordered learning path" });
+    const path = screen.getByRole("list", { name: "学习阶段" });
     expect(within(path).getAllByRole("listitem").length).toBeGreaterThan(4);
-    expect(within(path).getAllByText("Current phase")).toHaveLength(1);
-    expect(screen.getAllByText("Calibration").length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Your self-assessment: Conceptual/).length).toBeGreaterThan(0);
+    expect(within(path).getAllByText("当前阶段")).toHaveLength(1);
+    expect(screen.getAllByText("能力校准").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/你的自评：了解概念/).length).toBeGreaterThan(0);
     expect(screen.queryAllByText(/Blueprint claim confidence/i)).toHaveLength(0);
     expect(screen.queryByText(/self-assessment.*verified/i)).not.toBeInTheDocument();
     expect(screen.getByText(/2026-08-14—/)).toBeInTheDocument();

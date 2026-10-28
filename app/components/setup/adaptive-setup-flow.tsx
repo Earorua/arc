@@ -15,7 +15,7 @@ import type { SetupSource } from "./setup-flow";
 
 type AdaptiveSetupStage = "audit" | "availability" | "target" | "build";
 const stages: AdaptiveSetupStage[] = ["audit", "availability", "target", "build"];
-const stageLabel: Record<AdaptiveSetupStage, string> = { audit: "Audit", availability: "Availability", target: "Target", build: "Build" };
+const stageLabel: Record<AdaptiveSetupStage, string> = { audit: "技能评估", availability: "时间安排", target: "目标范围", build: "生成计划" };
 
 function toAudit(blueprint: RoleBlueprint, draft: SkillAuditDraft) {
   const evidence = blueprint.skills.flatMap((skill) => (draft.evidence[skill.id] ?? []).map((item) => ({ ...item, skillId: skill.id })));
@@ -54,7 +54,7 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
   const [building, setBuilding] = useState(false);
   const [newPlanConfirmed, setNewPlanConfirmed] = useState(false);
   const buildAttempt = useRef<{ key: string; mutationId: string } | null>(null);
-  const [buildStatus, setBuildStatus] = useState("Ready to build.");
+  const [buildStatus, setBuildStatus] = useState("已准备好生成计划。");
   const [planningInstant] = useState(() => now().toISOString());
   const lifecycle = useRef(0);
   const sourceKey = source?.source === "research" ? source.researchRunId : blueprint.id;
@@ -87,7 +87,7 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
     if (!active || building || (createsNewGoal && !newPlanConfirmed) || !audit || !availability || !target || !targetPaths || !scopeAvailable) return;
     const epoch = lifecycle.current;
     const current = () => epoch === lifecycle.current;
-    setBuilding(true); setBuildStatus("Validating your inputs…");
+    setBuilding(true); setBuildStatus("正在检查你的设置…");
     try {
       const validated = await Promise.resolve().then(() => ({
         audit: skillAuditVersionSchema.parse(audit),
@@ -98,7 +98,7 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
       const scope = selectedScope ?? (targetPaths.targetDate && targetPaths.targetDate.deferredSkills.length > 0 ? "full-scope" : null);
       if (scope === "target-date" && !targetPaths.targetDate) throw new Error("Path unavailable");
 
-      setBuildStatus("Building the learning path…");
+      setBuildStatus("正在生成学习路径…");
       const submittedPaths = pathBuildResultSchema.parse(await buildPathsForSubmit({ blueprint, registry, ...validated, planningDate }));
       if (!current()) return;
       if (submittedPaths.fullScope.inputFingerprint !== targetPaths.fullScope.inputFingerprint
@@ -106,41 +106,41 @@ export function AdaptiveSetupFlow({ blueprint, registry, source, generate, navig
       const selectedPath = scope === "target-date" ? submittedPaths.targetDate : submittedPaths.fullScope;
       if (!selectedPath) throw new Error("Path unavailable");
 
-      setBuildStatus("Building the seven-day schedule…");
+      setBuildStatus("正在安排未来七天…");
       const schedule = await scheduleForSubmit({ path: selectedPath, registry, availability: validated.availability, planningDate, generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() });
       if (!current()) return;
       planVersionSchema.parse(schedule.plan);
       schedule.dailyUnits.forEach((unit) => dailyUnitSchema.parse(unit));
 
-      setBuildStatus("Saving your plan…");
+      setBuildStatus("正在保存计划…");
       const input = { ...(source ? { source } : { roleId: blueprint.id }), planningDate, ...validated, selectedScope: scope };
       const key = JSON.stringify(input);
       if (buildAttempt.current?.key !== key) buildAttempt.current = { key, mutationId: createMutationId() };
       const request = generatePlanningRequestSchema.parse({ mutationId: buildAttempt.current.mutationId, ...input });
       const saved = await generate(request);
       if (!current()) return;
-      if (!saved) { setBuildStatus("Arc could not save this plan. Your answers are still editable."); return; }
-      setBuildStatus("Plan ready."); navigate("/path");
-    } catch { if (current()) setBuildStatus("Arc could not save this plan. Your answers are still editable."); }
+      if (!saved) { setBuildStatus("Arc 未能保存计划，你仍可修改设置。"); return; }
+      setBuildStatus("计划已就绪。"); navigate("/path");
+    } catch { if (current()) setBuildStatus("Arc 未能保存计划，你仍可修改设置。"); }
     finally { setBuilding(false); }
   };
 
   return <section className="setup-flow adaptive-setup-flow">
     <p className="setup-progress">{String(stageIndex + 2).padStart(2, "0")} / 05 · {stageLabel[stage]}</p>
-    <h1 ref={headingRef} tabIndex={-1}>{stage === "audit" ? "Audit each skill, honestly." : stage === "availability" ? "Write a week you can repeat." : stage === "target" ? "Choose scope against time." : "Build the plan from your answers."}</h1>
+    <h1 ref={headingRef} tabIndex={-1}>{stage === "audit" ? "评估你目前的技能。" : stage === "availability" ? "安排一周可持续的时间。" : stage === "target" ? "确定时间与学习范围。" : "确认并生成学习计划。"}</h1>
     {stage === "audit" && <SkillAuditStep blueprint={blueprint} onChange={(next) => { setAuditDraft(next); setSelectedScope(null); }} value={auditDraft} />}
     {stage === "availability" && <AvailabilityStep onChange={(next) => { setAvailabilityDraft(next); setSelectedScope(null); }} planningDate={planningDate} value={availabilityDraft} />}
-    {stage === "target" && audit && availability && <TargetStep blueprint={blueprint} error={targetBuild.failed ? "Arc could not compare these paths. Review the inputs and try again." : undefined} onScopeChange={setSelectedScope} onTargetChange={(weeks) => { setTargetWeeks(weeks); setSelectedScope(null); }} result={targetPaths} selectedScope={scopeAvailable ? selectedScope : null} target={targetDraft} />}
+    {stage === "target" && audit && availability && <TargetStep blueprint={blueprint} error={targetBuild.failed ? "Arc 未能比较路径，请检查设置后重试。" : undefined} onScopeChange={setSelectedScope} onTargetChange={(weeks) => { setTargetWeeks(weeks); setSelectedScope(null); }} result={targetPaths} selectedScope={scopeAvailable ? selectedScope : null} target={targetDraft} />}
     {stage === "build" && <div className="build-ledger">
-      {savesToAccount && <p>Build saves this plan to your account. Your existing device history stays on this device.</p>}
+      {savesToAccount && <p>生成后，计划会保存到你的账户；已有的本地历史记录仍保留在此设备上。</p>}
       {createsNewGoal && <label><input type="checkbox" checked={newPlanConfirmed} disabled={building}
-        onChange={(event) => setNewPlanConfirmed(event.target.checked)} /> Create a new plan and keep my current plan in history</label>}
-      <p role={buildStatus.includes("could not") ? "alert" : "status"}>{buildStatus}</p>
-      <button className="setup-next" disabled={building || (createsNewGoal && !newPlanConfirmed)} onClick={() => void build()} type="button">Build my path</button>
+        onChange={(event) => setNewPlanConfirmed(event.target.checked)} /> 创建新计划，并将当前计划保留在历史记录中</label>}
+      <p role={buildStatus.includes("未能") ? "alert" : "status"}>{buildStatus}</p>
+      <button className="setup-next" disabled={building || (createsNewGoal && !newPlanConfirmed)} onClick={() => void build()} type="button">生成学习路径</button>
     </div>}
-    <nav className="setup-actions" aria-label="Setup steps">
-      <button className="setup-back text-action" disabled={building} onClick={back} type="button">Back</button>
-      {stage !== "build" && <button className="setup-next" disabled={!canContinue} onClick={advance} type="button">Continue</button>}
+    <nav className="setup-actions" aria-label="设置步骤">
+      <button className="setup-back text-action" disabled={building} onClick={back} type="button">返回</button>
+      {stage !== "build" && <button className="setup-next" disabled={!canContinue} onClick={advance} type="button">继续</button>}
     </nav>
   </section>;
 }

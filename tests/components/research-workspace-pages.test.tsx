@@ -85,7 +85,7 @@ beforeEach(async () => {
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 function noFlagship() { expect(screen.queryByText(/AI-Native Full-Stack Engineer|AI 原生全栈旗舰样本|Web platform|Typed service boundary/i)).not.toBeInTheDocument(); }
-async function headingReady() { await screen.findByTitle(`${data.blueprint.name} · 18 weeks`); noFlagship(); }
+async function headingReady() { await screen.findByTitle(`${data.blueprint.name} · 18 周`); noFlagship(); }
 
 describe("research workspace page adapters with real controllers and deterministic service", () => {
   it.each([false, true])("keeps Stack private before a confirmed account (pending: %s)", async (pending) => {
@@ -107,8 +107,8 @@ describe("research workspace page adapters with real controllers and determinist
     injected.arcClient.loadWorkspace = vi.fn(async () => null);
     saveDemoState(mergeSetup(createDemoState(), { roleId: "Private device role", level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }));
     render(<StackPage />);
-    expect(await screen.findByRole("heading", { name: "Your role intelligence" })).toBeInTheDocument();
-    expect(screen.getByText("Build a learning path to see the skills and sources saved to your account.")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "技能与来源" })).toBeInTheDocument();
+    expect(screen.getByText("创建学习路线后，即可查看保存到当前账户的技能和来源。")).toBeInTheDocument();
     expect(screen.queryAllByText(/Private device role|Web Platform/i)).toHaveLength(0);
     expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
   });
@@ -118,11 +118,11 @@ describe("research workspace page adapters with real controllers and determinist
     injected.loadProof.mockImplementation(() => new Promise<null>((_, reject) => { rejectProof = reject; }));
     render(<StackPage />);
     await headingReady();
-    await act(async () => { rejectProof(new ArcApiError(401, "UNAUTHENTICATED", "Sign in required", "request-proof-expired", "sign-in")); });
-    await screen.findByText("Sign in to view your role intelligence.");
+    await act(async () => { rejectProof(new ArcApiError(401, "UNAUTHENTICATED", "登录 required", "request-proof-expired", "sign-in")); });
+    await screen.findByText("登录后查看你的岗位技能与来源。");
     expect(injected.navigate).toHaveBeenCalledWith("/sign-in");
     expect(screen.queryByRole("heading", { name: data.blueprint.skills[0]!.name })).not.toBeInTheDocument();
-    expect(screen.queryByTitle(`${data.blueprint.name} · 18 weeks`)).not.toBeInTheDocument();
+    expect(screen.queryByTitle(`${data.blueprint.name} · 18 周`)).not.toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
   });
 
@@ -136,9 +136,9 @@ describe("research workspace page adapters with real controllers and determinist
     let resolveSave!: (snapshot: Awaited<ReturnType<ArcCloudClient["saveSetup"]>>) => void;
     injected.arcClient.saveSetup = vi.fn(() => new Promise<Awaited<ReturnType<ArcCloudClient["saveSetup"]>>>((resolve, reject) => { resolveSave = resolve; rejectSave = reject; }));
     const page = render(<SetupPage />);
-    await user.click(await screen.findByRole("button", { name: "Use this research" }));
-    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(await screen.findByRole("button", { name: "使用研究结果" }));
+    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(injected.arcClient.saveSetup).toHaveBeenCalledOnce());
     if (transition === "unmount") page.unmount();
     else {
@@ -160,11 +160,11 @@ describe("research workspace page adapters with real controllers and determinist
     const fetcher = vi.fn(async (input: RequestInfo | URL) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply());
     vi.stubGlobal("fetch", fetcher);
     render(<SetupPage />);
-    await user.click(await screen.findByRole("button", { name: "Use this research" }));
-    expect(screen.getByRole("group", { name: `${data.blueprint.skills[0]!.name} self-assessment` })).toBeInTheDocument();
-    expect(screen.queryByRole("group", { name: "Web Platform self-assessment" })).not.toBeInTheDocument();
-    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(await screen.findByRole("button", { name: "使用研究结果" }));
+    expect(screen.getByRole("group", { name: `${data.blueprint.skills[0]!.name} 自我评估` })).toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Web Platform 自我评估" })).not.toBeInTheDocument();
+    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(injected.planningClient.generate).toHaveBeenCalledOnce());
     expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal), "research-setup");
     expect(vi.mocked(injected.arcClient.saveSetup).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(injected.planningClient.generate).mock.invocationCallOrder[0]!);
@@ -176,9 +176,9 @@ describe("research workspace page adapters with real controllers and determinist
   });
   it("clears prior owner recovery on a live Setup account transition without requesting that run as the next owner", async () => {
     storedResearch(); const fetcher = vi.fn(async (input: RequestInfo | URL) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply());
-    vi.stubGlobal("fetch", fetcher); const page = render(<SetupPage />); await screen.findByRole("button", { name: "Use this research" });
+    vi.stubGlobal("fetch", fetcher); const page = render(<SetupPage />); await screen.findByRole("button", { name: "使用研究结果" });
     fetcher.mockClear(); injected.owner = "owner-b"; page.rerender(<SetupPage />);
-    expect(screen.queryByRole("button", { name: "Use this research" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
     await act(async () => {});
     expect(localStorage.getItem("arc:role-research:v1")).toBeNull();
     expect(fetcher.mock.calls.some(([url]) => String(url).endsWith("/research-run-pages"))).toBe(false);
@@ -190,12 +190,12 @@ describe("research workspace page adapters with real controllers and determinist
       : Response.json({ requestId: "request-active", run: { id: "research-run-pages", role: data.blueprint.name, locale: "en-US", state: "researching", retryable: false } }));
     vi.stubGlobal("fetch", fetcher); render(<SetupPage />);
     await act(async () => {});
-    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: data.blueprint.name } });
+    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: data.blueprint.name } });
     expect(fetcher).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByRole("button", { name: "Research this role" }));
+    fireEvent.click(screen.getByRole("button", { name: "研究这个岗位" }));
     await act(async () => {});
-    expect(screen.getByRole("status")).toHaveTextContent("Researching role skills and sources");
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByRole("status")).toHaveTextContent("正在研究技能与来源");
+    fireEvent.click(screen.getByRole("button", { name: "继续" }));
     const count = fetcher.mock.calls.length;
     await act(async () => { await vi.advanceTimersByTimeAsync(10_000); });
     expect(fetcher).toHaveBeenCalledTimes(count);
@@ -211,40 +211,42 @@ describe("research workspace page adapters with real controllers and determinist
   it("uses research steps, minutes and resources in Today, then completes a unit usable in Proof and Stack", async () => {
     const user = userEvent.setup(); const page = render(<TodayPage />); await headingReady();
     const unit = initial.dailyUnits.find((unit) => unit.scheduledDate === today())!;
-    expect(screen.getByRole("heading", { level: 1, name: unit.objective })).toBeInTheDocument();
-    for (const step of unit.steps) { expect(screen.getByText(step.label)).toBeInTheDocument(); expect(screen.getAllByText(`${step.minutes} min`).length).toBeGreaterThan(0); }
+    expect(screen.getByRole("heading", { level: 1, name: data.registry.tracks.flatMap(({ templates }) => templates).find(({ id }) => id === unit.templateId)!.title })).toBeInTheDocument();
+    for (const step of unit.steps) { expect(screen.getByText(step.label)).toBeInTheDocument(); expect(screen.getAllByText(`${step.minutes} 分钟`).length).toBeGreaterThan(0); }
     expect(screen.getByText(String(unit.estimatedMinutes), { selector: ".today-duration strong" })).toBeInTheDocument();
     const resource = data.blueprint.resources.find(({ id }) => id === unit.primaryResourceId)!;
     expect(screen.getByRole("link", { name: resource.title })).toHaveAttribute("href", resource.url);
     for (const checkbox of screen.getAllByRole("checkbox")) await user.click(checkbox);
-    await user.click(screen.getByRole("button", { name: "Complete" }));
+    await user.click(screen.getByRole("button", { name: "完成任务" }));
     await waitFor(() => expect(injected.planningClient.appendEvent).toHaveBeenCalledOnce());
     await waitFor(async () => expect((await service.getWorkspace("owner-a"))!.events.some((event) => event.kind === "completed")).toBe(true));
     page.unmount(); const proof = render(<ProofPage />); await headingReady();
     expect(screen.getByRole("option", { name: data.blueprint.skills[0]!.name })).toHaveValue(unit.skillId);
-    expect(within(screen.getByRole("combobox", { name: "Linked Daily Unit" })).getAllByRole("option").find((option) => option.getAttribute("value") === unit.id)).toHaveTextContent(unit.objective);
+    expect(within(screen.getByRole("combobox", { name: "关联学习单元" })).getAllByRole("option").find((option) => option.getAttribute("value") === unit.id)).toHaveTextContent(unit.objective);
     proof.unmount(); render(<StackPage />); await headingReady();
     expect(screen.getByRole("heading", { name: data.blueprint.skills[0]!.name })).toBeInTheDocument();
-    expect(screen.getAllByText("Practicing").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("练习中").length).toBeGreaterThan(0);
     const skill = screen.getByRole("heading", { name: data.blueprint.skills[0]!.name }).closest("article")!;
     const source = data.blueprint.resources.find(({ id }) => id === data.blueprint.skills[0]!.resourceIds[0])!;
     const sourceLink = within(skill).getByRole("link", { name: source.title });
     expect(sourceLink).toHaveAttribute("href", source.url);
-    expect(within(sourceLink.closest("li")!).getByText(`Verified ${source.lastVerifiedAt}`)).toBeInTheDocument();
-    expect(within(skill).getByText("Role importance")).toBeInTheDocument();
+    expect(within(sourceLink.closest("li")!).getByText(source.lastVerifiedAt)).toBeInTheDocument();
+    expect(within(skill).getByText("岗位重要度")).toBeInTheDocument();
   });
   it("keeps and accepts researched replan candidates through Today and a fresh Path controller", async () => {
     const user = userEvent.setup(); const page = render(<TodayPage />); await headingReady();
-    await user.click(screen.getByRole("button", { name: "Delay" }));
-    await user.click(await screen.findByRole("button", { name: "Keep current plan" }));
+    if (!screen.getByText("调整这项任务").closest("details")!.open) await user.click(screen.getByText("调整这项任务"));
+    await user.click(screen.getByRole("button", { name: "延后" }));
+    await user.click(await screen.findByRole("button", { name: "保留当前安排" }));
     await waitFor(() => expect(injected.planningClient.discardReplan).toHaveBeenCalledOnce());
     await expect(vi.mocked(injected.planningClient.discardReplan).mock.results[0]!.value).resolves.toHaveProperty("result");
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Keep current plan" })).not.toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: "Delay" }));
-    await screen.findByRole("button", { name: "Accept new plan" });
+    await waitFor(() => expect(screen.queryByRole("button", { name: "保留当前安排" })).not.toBeInTheDocument());
+    if (!screen.getByText("调整这项任务").closest("details")!.open) await user.click(screen.getByText("调整这项任务"));
+    await user.click(screen.getByRole("button", { name: "延后" }));
+    await screen.findByRole("button", { name: "接受新安排" });
     page.unmount(); render(<PathPage />); await headingReady();
-    await user.click(await screen.findByRole("button", { name: "Accept new plan" }));
-    await screen.findByText("Candidate plan accepted.");
+    await user.click(await screen.findByRole("button", { name: "接受新安排" }));
+    await screen.findByText("已接受新安排。");
     expect(injected.planningClient.acceptReplan).toHaveBeenCalledOnce();
     const updated = (await service.getWorkspace("owner-a"))!; expect(updated.activePlanVersionId).not.toBe(initial.activePlanVersionId); noFlagship();
   });
@@ -281,7 +283,7 @@ describe("research workspace page adapters with real controllers and determinist
     injected.owner = owner; page.rerender(<Observe identity={owner} />);
     expect(seen.at(-1)).not.toContain(data.blueprint.name);
     expect(seen.at(-1)).not.toContain(data.blueprint.skills[0]!.name);
-    expect(screen.queryByTitle(`${data.blueprint.name} · 18 weeks`)).not.toBeInTheDocument();
+    expect(screen.queryByTitle(`${data.blueprint.name} · 18 周`)).not.toBeInTheDocument();
     expect(screen.queryByText(data.blueprint.summary)).not.toBeInTheDocument();
     expect(screen.queryByRole("option", { name: data.blueprint.skills[0]!.name })).not.toBeInTheDocument(); noFlagship();
   });

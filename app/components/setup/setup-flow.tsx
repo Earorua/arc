@@ -100,19 +100,19 @@ export function SetupFlow({ onComplete, renderAdaptive, signedIn = false, resear
           <label className="answer-field">
             或输入任意岗位
             <input
-              aria-label="Custom role"
+              aria-label="自定义岗位"
               onChange={(event) => updateCustomRole(event.target.value)}
               placeholder="例如：数据产品经理"
               value={customRole}
             />
           </label>
           {hasCustomRole && <p className="custom-role-disclosure">{signedIn && renderResearch && canResearchRole && researchEligible
-            ? "Research this role to use a source-backed skill audit and adaptive schedule. Continue keeps the proportional v7 path."
+            ? "先研究岗位，可使用有来源依据的技能评估与自适应安排。直接继续将使用按时间比例分配的基础路径。"
             : signedIn && renderResearch && canResearchRole && researchRecoveryAvailable && !researchEligible
-              ? "New research is currently unavailable. Continue keeps the proportional v7 path."
-              : <>Full skill audit and adaptive scheduling currently require Arc&apos;s reviewed AI-Native Full-Stack Engineer blueprint. This custom role will keep the proportional v7 path.</>}</p>}
+              ? "暂时无法发起新研究。直接继续将使用按时间比例分配的基础路径。"
+              : <>完整技能评估与自适应安排目前需要精选岗位蓝图或可用的研究结果。此岗位将使用按时间比例分配的基础路径。</>}</p>}
           {signedIn && renderResearch && (researchRecoveryAvailable || researchEligible && canResearchRole) && renderResearch({ role: customRole.trim(), onUseResearch: useResearch, onFlagship: selectFlagshipRole })}
-          <button className="setup-next" lang="en" onClick={advance} type="button">Continue</button>
+          <button className="setup-next" onClick={advance} type="button">继续</button>
         </>
       )}
 
@@ -124,26 +124,25 @@ export function SetupFlow({ onComplete, renderAdaptive, signedIn = false, resear
               <button
                 className={answers.level === level ? "answer-choice is-selected" : "answer-choice"}
                 key={level}
-                lang="en"
                 aria-pressed={answers.level === level}
                 onClick={() => setAnswers((current) => ({ ...current, level }))}
                 type="button"
               >
-                {level[0].toUpperCase() + level.slice(1)}
+                {{ new: "零基础", beginner: "初学", intermediate: "进阶", advanced: "熟练" }[level]}
               </button>
             ))}
           </div>
-          <button className="setup-next" lang="en" onClick={advance} type="button">Continue</button>
+          <button className="setup-next" onClick={advance} type="button">继续</button>
         </>
       )}
 
       {step === 2 && (
         <>
           <h1 ref={questionRef} tabIndex={-1}>你每周真正拥有多少时间？</h1>
-          <label className="answer-field" lang="en">
-            Weekly minutes
+          <label className="answer-field">
+            每周分钟数
             <input
-              aria-label="Weekly minutes"
+              aria-label="每周分钟数"
               aria-describedby={weeklyMinutesValid ? undefined : "weekly-minutes-error"}
               aria-invalid={!weeklyMinutesValid}
               max="2400"
@@ -154,18 +153,18 @@ export function SetupFlow({ onComplete, renderAdaptive, signedIn = false, resear
               value={answers.weeklyMinutes}
             />
           </label>
-          {!weeklyMinutesValid && <p id="weekly-minutes-error" role="alert">Enter a whole number from 30 to 2400.</p>}
-          <button className="setup-next" disabled={!weeklyMinutesValid} lang="en" onClick={advance} type="button">Continue</button>
+          {!weeklyMinutesValid && <p id="weekly-minutes-error" role="alert">请输入 30 至 2400 的整数。</p>}
+          <button className="setup-next" disabled={!weeklyMinutesValid} onClick={advance} type="button">继续</button>
         </>
       )}
 
       {step === 3 && (
         <>
           <h1 ref={questionRef} tabIndex={-1}>你希望用多少周抵达目标？</h1>
-          <label className="answer-field" lang="en">
-            Target weeks
+          <label className="answer-field">
+            目标周数
             <input
-              aria-label="Target weeks"
+              aria-label="目标周数"
               aria-describedby={targetWeeksValid ? undefined : "target-weeks-error"}
               aria-invalid={!targetWeeksValid}
               max="52"
@@ -176,8 +175,8 @@ export function SetupFlow({ onComplete, renderAdaptive, signedIn = false, resear
               value={answers.targetWeeks}
             />
           </label>
-          {!targetWeeksValid && <p id="target-weeks-error" role="alert">Enter a whole number from 4 to 52.</p>}
-          <button className="setup-next" disabled={!targetWeeksValid} lang="en" onClick={() => void onComplete(answers)} type="button">Build my path</button>
+          {!targetWeeksValid && <p id="target-weeks-error" role="alert">请输入 4 至 52 的整数。</p>}
+          <button className="setup-next" disabled={!targetWeeksValid} onClick={() => void onComplete(answers)} type="button">生成学习路径</button>
         </>
       )}
     </section>

@@ -39,7 +39,7 @@ function OwnedPlanHistory({ client }: { client: PlanningHistoryClient }) {
   }, [client, goal, offset, revision]);
   function navigate(nextGoal: string | null, nextOffset = offset) { setResult(null); setError(null); setGoal(nextGoal); setOffset(nextOffset); }
   return <section className="plan-history">
-    <div className="workspace-intro"><p className="eyebrow">Learning history</p><h1>历史学习计划</h1><p>回看之前保存的目标、路线和学习记录。这里的内容只供查阅，当前学习计划保持不变。</p></div>
+    <div className="workspace-intro"><p className="eyebrow">学习记录</p><h1>历史学习计划</h1><p>回看之前保存的目标、路线和学习记录。这里的内容只供查阅，当前学习计划保持不变。</p></div>
     <p className="workspace-notice"><Link href="/path">返回当前学习路线 ↗</Link></p>
     {goal !== null && <button className="history-back" type="button" onClick={() => navigate(null)}>返回历史列表</button>}
     {error === "sign-in" ? <p role="alert">登录已过期。<Link href="/sign-in">重新登录</Link></p>
@@ -68,9 +68,9 @@ export function SavedPlan({ value }: { value: PlanningWorkspaceResponse }) {
   const eventLabels = { completed: "已完成", delayed: "已延后", skipped: "已跳过", too_hard: "难度较高", already_known: "已掌握" };
   return <div className="history-saved-plan">
     <h2>{blueprint.name}</h2><p className="workspace-notice">历史版本 · 只读</p>
-    <AdaptivePath workspace={workspace} blueprint={blueprint} registry={registry} />
+    <AdaptivePath workspace={workspace} blueprint={blueprint} registry={registry} headingLevel={2} title="已保存的学习路线" />
     <section aria-labelledby="history-days-title"><h2 id="history-days-title">保存的每日安排</h2><p>资料链接保留当时的版本。</p>
-      {workspace.planVersions.map((plan, index) => <details className="history-plan-version" key={plan.id} open={plan.id === workspace.activePlanVersionId}>
+      {workspace.planVersions.map((plan, index) => <details className="history-plan-version" key={plan.id}>
         <summary>安排版本 {index + 1}{plan.id === workspace.activePlanVersionId ? " · 最后使用" : ""}</summary>
         <ol>{workspace.dailyUnits.filter(unit => unit.planVersionId === plan.id).map(unit => <li key={unit.id}>
           <p className="eyebrow">{unit.scheduledDate} · {unit.estimatedMinutes} 分钟</p>

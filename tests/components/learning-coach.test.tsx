@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({ agents: vi.fn(), planning: vi.fn(), start: vi.
 vi.mock("../../app/components/agents/agent-context", () => ({ useLearningAgents: mocks.agents }));
 vi.mock("../../app/lib/use-planning-workspace", () => ({ usePlanningWorkspace: mocks.planning }));
 vi.mock("../../app/lib/agent-client", () => ({ agentClient: { start: mocks.start, apply: mocks.apply, poll: mocks.poll } }));
+vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <button>账号</button> }));
+vi.mock("../../app/components/brand/site-header", () => ({ SiteHeader: () => <header>Arc.</header> }));
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 function setup(enabled = true) {
   const f = agentFixture();
@@ -53,7 +55,7 @@ describe("learning coach", () => {
   });
   it("explains disabled state without starting a paid request", () => {
     setup(false); render(<LearningCoach />);
-    expect(screen.getByText("学习助手尚未启用")).toBeInTheDocument();
+    expect(screen.getByText("学习伙伴暂未开放")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "开始深度规划" })).toBeDisabled();
     expect(mocks.start).not.toHaveBeenCalled();
   });

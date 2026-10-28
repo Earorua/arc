@@ -54,7 +54,7 @@ function SessionProofPage() {
       planningRecovery={planning.recovery}
       planningState={workspace}
     >
-      <ProofProfile projections={proof.projections} skills={blueprint.skills} />
+      <section className="workspace-intro"><p className="eyebrow">作品与技能证据</p><h1>作品证据</h1><p>查看已提交的作品，补充修订，并决定每项作品的可见范围。</p></section>
       <ProofWorkspace
         canUpload={proof.source === "cloud"}
         createProof={proof.createProof}
@@ -69,6 +69,7 @@ function SessionProofPage() {
         withdrawProof={proof.withdrawProof}
         workspace={proof.workspace}
       />
+      <ProofProfile projections={proof.projections} skills={blueprint.skills} />
     </WorkspaceShell>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { authClient } from "../../lib/auth-client";
 import { agentClient } from "../../lib/agent-client";
@@ -22,6 +22,21 @@ export function useLearningAgents() {
   const value = useContext(AgentContext);
   if (!value) throw new Error("Learning agent context is unavailable.");
   return value;
+}
+const overlayQuery = "(max-width: 1050px)";
+function subscribeOverlay(callback: () => void) {
+  const media = window.matchMedia(overlayQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+export function useCompanionOverlay() {
+  return useSyncExternalStore(subscribeOverlay, () => window.matchMedia(overlayQuery).matches, () => false);
+}
+export function AgentPageFrame({ children }: { children: ReactNode }) {
+  const agents = useLearningAgents();
+  const overlay = useCompanionOverlay();
+  const open = agents.authenticated && !agents.authPending && agents.view === "chat";
+  return <div className={open ? "arc-page-content has-companion" : "arc-page-content"} inert={open && overlay}>{children}</div>;
 }
 export function LearningAgentsProvider({ children }: { children: ReactNode }) {
   const session = authClient.useSession();

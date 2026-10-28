@@ -42,7 +42,7 @@ describe("TodayPage", () => {
     expect(screen.queryByText("45")).not.toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText("数据产品经理 · 10 weeks")).toBeInTheDocument();
+      expect(screen.getByText("数据产品经理 · 10 周")).toBeInTheDocument();
       expect(screen.getByText("45")).toBeInTheDocument();
       expect(screen.getByText(/本单元预计45分钟，超出当前每周30分钟预算15分钟/)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /返回 Setup 调整预算/ })).toHaveAttribute("href", "/setup");

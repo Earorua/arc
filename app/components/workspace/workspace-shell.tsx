@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { AccountMenu } from "../account/account-menu";
+import { WorkspaceHeader, type WorkspaceDestination } from "./workspace-header";
 import { MigrationBanner } from "../sync/migration-banner";
 import { CloudStatus } from "../sync/cloud-status";
 import { flagshipRole } from "../../data/flagship-role";
@@ -16,8 +15,7 @@ import type {
 import type { PlanningMigrationState, PlanningRecoveryState } from "../../lib/use-planning-workspace";
 import type { PlanningWorkspace } from "../../contracts/planning";
 
-const links = [["Today", "/today"], ["Path", "/path"], ["Stack", "/stack"], ["Proof", "/proof"]] as const;
-type WorkspaceLabel = (typeof links)[number][0];
+type WorkspaceLabel = Extract<WorkspaceDestination, "Today" | "Path" | "Stack" | "Proof">;
 
 export function WorkspaceShell({
   current,
@@ -60,30 +58,15 @@ export function WorkspaceShell({
 }) {
   const isRestoring = state === null;
   const isCustomRole = sourceUnresolved || planningState ? false : state !== null && state.setup.roleId !== flagshipRole.id;
-  const context = sourceUnresolved ? "Resolving your plan…" : planningState
-    ? `${roleName ?? "Learning plan"} · ${planningState.target.targetWeeks} weeks`
+  const context = sourceUnresolved ? "正在读取学习计划…" : planningState
+    ? `${roleName ?? "学习计划"} · ${planningState.target.targetWeeks} 周`
     : state === null
-    ? "Restoring your plan…"
-    : `${getRoleDisplayName(state.setup.roleId)} · ${state.setup.targetWeeks} weeks`;
+    ? "正在恢复学习计划…"
+    : `${getRoleDisplayName(state.setup.roleId)} · ${state.setup.targetWeeks} 周`;
 
   return (
     <div className="workspace-shell">
-      <header className="workspace-header">
-        <Link className="wordmark" href="/" lang="en">Arc.</Link>
-        <nav aria-label="Learning workspace" lang="en">
-          {links.map(([label, href]) => <Link aria-current={current === label ? "page" : undefined} href={href} key={href}>{label}</Link>)}
-        </nav>
-        <div className="workspace-meta">
-          <span
-            className="workspace-context"
-            lang={isRestoring || state?.setup.roleId === flagshipRole.id ? "en" : undefined}
-            title={context}
-          >
-            {context}
-          </span>
-          <AccountMenu />
-        </div>
-      </header>
+      <WorkspaceHeader current={current} context={context} />
       <main id="main-content" className="workspace-main">
         {isRestoring ? (
           <p className="workspace-restoring" role="status" lang="en">Restoring your plan…</p>

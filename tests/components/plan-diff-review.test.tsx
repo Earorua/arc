@@ -20,6 +20,18 @@ function workspace() {
 
 afterEach(cleanup);
 describe("PlanDiffReview", () => {
+  it("folds the detailed diff and requires an explicit decision after reading effects", async () => {
+    const onAccept = vi.fn();
+    const onDiscard = vi.fn();
+    render(<PlanDiffReview workspace={workspace()} onAccept={onAccept} onDiscard={onDiscard} />);
+    const disclosure = screen.getByText("查看逐项变化").closest("details")!;
+    expect(disclosure.open).toBe(false);
+    await userEvent.click(screen.getByText("查看逐项变化"));
+    expect(disclosure.open).toBe(true);
+    expect(onAccept).not.toHaveBeenCalled();
+    expect(onDiscard).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "接受新安排" })).toBeEnabled();
+  });
   it("focuses review and exposes counts, every row, dates, reasons, and completion change", async () => {
     const current = workspace();
     const active = current.planVersions.find(({ id }) => id === current.activePlanVersionId)!;
@@ -27,11 +39,11 @@ describe("PlanDiffReview", () => {
     const firstUnit = current.dailyUnits.find(({ id, planVersionId }) => id === firstUnitId && planVersionId === active.id)!;
     const firstTemplate = flagshipUnitRegistry.tracks.flatMap(({ templates }) => templates).find(({ id }) => id === firstUnit.templateId)!;
     render(<PlanDiffReview workspace={current} onAccept={vi.fn()} onDiscard={vi.fn()} />);
-    await waitFor(() => expect(screen.getByRole("heading", { name: "Review every change." })).toHaveFocus());
-    const counts = screen.getByText("moved", { selector: "dt" }).parentElement!;
+    await waitFor(() => expect(screen.getByRole("heading", { name: "这次调整会改变什么" })).toHaveFocus());
+    const counts = screen.getByText("调整日期", { selector: "dt" }).parentElement!;
     expect(within(counts).getByRole("definition")).not.toHaveTextContent("0");
-    expect(screen.getByText(/Current completion/)).toBeInTheDocument();
-    expect(screen.getByText(/Candidate completion/)).toBeInTheDocument();
+    expect(screen.getByText(/当前预计完成/)).toBeInTheDocument();
+    expect(screen.getByText(/调整后预计完成/)).toBeInTheDocument();
     expect(screen.getAllByText(/Moved from/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(firstTemplate.title).length).toBeGreaterThan(0);
     expect(screen.queryByText(new RegExp(firstUnitId))).not.toBeInTheDocument();
@@ -42,14 +54,14 @@ describe("PlanDiffReview", () => {
     let resolve!: (value: boolean) => void;
     const onAccept = vi.fn(() => new Promise<boolean>((done) => { resolve = done; }));
     const view = render(<PlanDiffReview workspace={workspace()} onAccept={onAccept} onDiscard={vi.fn()} />);
-    const accept = screen.getByRole("button", { name: "Accept new plan" });
+    const accept = screen.getByRole("button", { name: "接受新安排" });
     await user.click(accept); await user.click(accept);
     expect(onAccept).toHaveBeenCalledTimes(1); expect(accept).toBeDisabled();
     resolve(true);
-    expect(await screen.findByRole("status")).toHaveTextContent("accepted");
+    expect(await screen.findByRole("status")).toHaveTextContent("已接受");
     view.rerender(<PlanDiffReview workspace={workspace()} recovery="conflict" onAccept={vi.fn().mockResolvedValue(false)} onDiscard={vi.fn()} />);
-    await user.click(screen.getByRole("button", { name: "Accept new plan" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("This plan changed on another device. Refresh before deciding.");
+    await user.click(screen.getByRole("button", { name: "接受新安排" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("计划已在另一台设备上发生变化，请刷新后再决定。");
   });
 
   it("contains a rejected decision and restores both decision controls", async () => {
@@ -60,14 +72,14 @@ describe("PlanDiffReview", () => {
     const current = workspace();
     const candidateId = current.pendingPlanVersionId!;
     render(<PlanDiffReview workspace={current} onAccept={vi.fn()} onDiscard={onDiscard} />);
-    const keep = screen.getByRole("button", { name: "Keep current plan" });
+    const keep = screen.getByRole("button", { name: "保留当前安排" });
 
     await user.click(keep);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Arc could not save this decision");
+    expect(await screen.findByRole("alert")).toHaveTextContent("暂时无法保存这个决定");
     expect(screen.getByRole("alert")).not.toHaveTextContent("private repository detail");
     expect(keep).toBeEnabled();
-    expect(screen.getByRole("button", { name: "Accept new plan" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "接受新安排" })).toBeEnabled();
 
     await user.click(keep);
     expect(onDiscard).toHaveBeenLastCalledWith(candidateId);
@@ -96,6 +108,6 @@ describe("PlanDiffReview", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
     expect(screen.getByRole("alert")).toHaveTextContent("A compatible rebuild is not available in this Phase 2 build");
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Accept new plan" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "接受新安排" })).not.toBeInTheDocument();
   });
 });

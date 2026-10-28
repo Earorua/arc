@@ -40,10 +40,10 @@ const data = validation.package;
 const researchRunId = "research-run-activation";
 const now = () => new Date("2026-09-05T00:00:00Z");
 const workspacePages = [
-  { pageName: "Path", Page: PathPage, title: "Your precise path." },
+  { pageName: "Path", Page: PathPage, title: "学习路线" },
   { pageName: "Today", Page: TodayPage, title: flagshipRole.today.title },
   { pageName: "Stack", Page: StackPage, title: "The complete stack." },
-  { pageName: "Proof", Page: ProofPage, title: "Your stack, proven." },
+  { pageName: "Proof", Page: ProofPage, title: "作品证据" },
 ];
 function guestRequest() {
   return {
@@ -105,8 +105,8 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); db.clo
 
 async function reachBuild(source: "research" | "flagship" = "research") {
   const user = userEvent.setup();
-  await user.click(await screen.findByRole("button", { name: source === "research" ? "Use this research" : "Use Flagship" }));
-  for (let index = 0; index < (source === "research" ? 3 : 4); index++) await user.click(screen.getByRole("button", { name: "Continue" }));
+  await user.click(await screen.findByRole("button", { name: source === "research" ? "使用研究结果" : "使用精选路径" }));
+  for (let index = 0; index < (source === "research" ? 3 : 4); index++) await user.click(screen.getByRole("button", { name: "继续" }));
   return user;
 }
 
@@ -121,16 +121,16 @@ describe("new Research setup through real clients, routes, services and SQLite",
     session.owner = null; localStorage.removeItem("arc:role-research:v1");
     const history = completeDemoUnit(createDemoState(), flagshipRole.today); saveDemoState(history);
     render(<SetupPage />); const user = userEvent.setup();
-    for (let index = 0; index < 4; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
+    for (let index = 0; index < 4; index++) await user.click(screen.getByRole("button", { name: "继续" }));
     expect(screen.queryByText(/saves this plan to your account/)).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
     expect(calls).toHaveLength(0); expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
     expect(await createLocalPlanningRepository({ storage: localStorage }).load()).not.toBeNull();
     expect(JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY)!)).toEqual(history);
   });
   it.each(workspacePages)("hides prior absence permission immediately on an account roundtrip in $pageName", async ({ Page, title }) => {
-    const visibleTitle = Page === StackPage ? "Your role intelligence" : title;
+    const visibleTitle = Page === StackPage ? "技能与来源" : title;
     saveDemoState({ ...createDemoState(), setup: { ...createDemoState().setup, roleId: "Ecologist" } });
     const page = render(<Page />);
     await screen.findByRole("heading", { level: 1, name: visibleTitle });
@@ -155,7 +155,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     intercept = async (request) => request.url.endsWith("/api/workspace")
       ? Response.json({ error: { code: "UNAVAILABLE", message: "Synthetic failure", requestId: "request-arc-failure" } }, { status: 503 }) : null;
     render(<Page />);
-    if (Page === StackPage) await screen.findByRole("heading", { name: "Your role intelligence" });
+    if (Page === StackPage) await screen.findByRole("heading", { name: "技能与来源" });
     else await screen.findByText("Arc cannot confirm your saved cloud plan right now.");
     expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
@@ -164,16 +164,16 @@ describe("new Research setup through real clients, routes, services and SQLite",
     localStorage.removeItem("arc:role-research:v1");
     intercept = async (request) => request.url.endsWith("/eligibility") ? Response.json({ eligible: mode === "declined", requestId: "request-legacy-eligibility" }) : null;
     const page = render(<SetupPage />); const user = userEvent.setup();
-    await user.type(screen.getByLabelText("Custom role"), "Ecologist");
-    if (mode === "declined") await screen.findByRole("button", { name: "Research this role" });
-    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.type(screen.getByLabelText("自定义岗位"), "Ecologist");
+    if (mode === "declined") await screen.findByRole("button", { name: "研究这个岗位" });
+    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
     expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
     expect(JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY)!).setup.roleId).toBe("Ecologist");
     expect(calls.some(({ method }) => method !== "GET")).toBe(false);
     page.unmount(); render(<Page />);
-    expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "Your role intelligence" : title })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "技能与来源" : title })).toBeInTheDocument();
     if (Page === StackPage) {
       expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
       expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
@@ -187,11 +187,11 @@ describe("new Research setup through real clients, routes, services and SQLite",
     await local.generate(guestRequest());
     const history = localStorage.getItem(DEMO_STORAGE_KEY); const localPlan = localStorage.getItem(PLANNING_STORAGE_KEY);
     const setupPage = render(<SetupPage />); const user = userEvent.setup();
-    if (explicitFallback) await user.click(await screen.findByRole("button", { name: "Use Flagship" }));
-    for (let index = 0; index < 4; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
-    expect(screen.getByText("Build saves this plan to your account. Your existing device history stays on this device.")).toBeInTheDocument();
+    if (explicitFallback) await user.click(await screen.findByRole("button", { name: "使用精选路径" }));
+    for (let index = 0; index < 4; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    expect(screen.getByText("生成后，计划会保存到你的账户；已有的本地历史记录仍保留在此设备上。")).toBeInTheDocument();
     expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
     expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(1);
     const snapshot = await cloud.getWorkspace("owner-a");
@@ -204,17 +204,20 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(count("learning_events")).toBe(0); expect(count("proof_items")).toBe(0);
     setupPage.unmount();
     const pathPage = render(<PathPage />);
-    expect(await screen.findByRole("list", { name: "Ordered learning path" })).toBeInTheDocument();
+    expect(await screen.findByRole("list", { name: "学习阶段" })).toBeInTheDocument();
     expect(screen.getByText(flagshipBlueprint.summary)).toBeInTheDocument();
     expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
     pathPage.unmount(); render(<TodayPage />);
     const plan = response.workspace!.planVersions.find(({ id }) => id === response.workspace!.activePlanVersionId)!;
     const primaryId = plan.days.find(({ primaryUnitId }) => primaryUnitId !== null)!.primaryUnitId;
     const primary = response.workspace!.dailyUnits.find(({ id }) => id === primaryId)!;
-    expect(await screen.findByRole("heading", { level: 1, name: primary.objective })).toBeInTheDocument();
-    expect(screen.getByRole("article", { name: primary.objective })).toHaveTextContent(`${primary.estimatedMinutes}minutes`);
-    for (const step of primary.steps) expect(screen.getByRole("checkbox", { name: `${step.label}${step.minutes} min` })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Delay" })).toBeInTheDocument();
+    const title = flagshipUnitRegistry.tracks.flatMap(({ templates }) => templates).find(({ id }) => id === primary.templateId)!.title;
+    expect(await screen.findByRole("heading", { level: 1, name: title })).toBeInTheDocument();
+    expect(screen.getByText(primary.objective)).toBeInTheDocument();
+    expect(screen.getByRole("article", { name: title })).toHaveTextContent(`${primary.estimatedMinutes}分钟`);
+    for (const step of primary.steps) expect(screen.getByRole("checkbox", { name: `${step.label}${step.minutes} 分钟` })).toBeInTheDocument();
+    await user.click(screen.getByText("调整这项任务"));
+    expect(screen.getByRole("button", { name: "延后" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: flagshipRole.today.title })).not.toBeInTheDocument();
   });
   it.each(["empty-200", "401", "429", "503", "network", "404-other-code", "500-NOT_FOUND", "malformed"].flatMap((mode) => workspacePages.map((page) => ({ mode, ...page }))))("keeps the $mode read boundary on $pageName", async ({ mode, Page, title }) => {
@@ -230,9 +233,9 @@ describe("new Research setup through real clients, routes, services and SQLite",
       return Response.json({ error: { code, message: "Synthetic failure", requestId: "request-boundary" } }, { status });
     };
     render(<Page />);
-    if (mode === "empty-200") expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "Your role intelligence" : title })).toBeInTheDocument();
+    if (mode === "empty-200") expect(await screen.findByRole("heading", { level: 1, name: Page === StackPage ? "技能与来源" : title })).toBeInTheDocument();
     else if (mode === "401" && Page === StackPage) {
-      await screen.findByText("Sign in to view your role intelligence.");
+      await screen.findByText("登录后查看你的岗位技能与来源。");
       expect(session.navigate).toHaveBeenCalledWith("/sign-in");
       expect(screen.queryByRole("heading", { level: 1, name: title })).not.toBeInTheDocument();
       expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
@@ -360,8 +363,8 @@ describe("new Research setup through real clients, routes, services and SQLite",
       }
       return null;
     };
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
-    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await screen.findByText("Arc 未能保存计划，你仍可修改设置。");
     expect(raced).toBe(true); expect(count("planning_workspaces")).toBe(1);
     expect(session.navigate).not.toHaveBeenCalled();
     expect((await cloud.getWorkspace("owner-a"))!.state.setup).toEqual(original!.state.setup);
@@ -371,8 +374,8 @@ describe("new Research setup through real clients, routes, services and SQLite",
     await cloud.importLocalState("owner-a", { migrationId: "migration-empty-goal", consent: true, conflictResolution: "reject", state: createDemoState() });
     render(<SetupPage />); const user = await reachBuild();
     intercept = async (request) => { if (request.method === "PUT") throw new TypeError("synthetic offline"); return null; };
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
-    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await screen.findByText("Arc 未能保存计划，你仍可修改设置。");
     expect(calls.filter(({ method }) => method === "PUT")).toHaveLength(1);
     expect(localStorage.getItem("arc-offline-queue-v1")).toBeNull();
     expect(count("planning_workspaces")).toBe(0); expect(session.navigate).not.toHaveBeenCalled();
@@ -386,8 +389,8 @@ describe("new Research setup through real clients, routes, services and SQLite",
       if (failure === "invalid") return Response.json({ result: { status: "imported" } });
       return Response.json({ result: { migrationId: failure === "wrong-id" ? "activation-other" : input.migrationId, status: "imported", activeGoalId: "goal-absent", importedCompletionCount: failure === "imported-history" ? 1 : 0, importedProofCount: 0, availableResolutions: [] } });
     };
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
-    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await screen.findByText("Arc 未能保存计划，你仍可修改设置。");
     expect(calls.filter(({ path }) => path === "/api/migrations/local-state")).toHaveLength(1);
     expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
     expect(calls.some(({ path }) => path === "/api/planning/generate")).toBe(false);
@@ -406,7 +409,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
       }
       return null;
     };
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(paused).not.toBeNull());
     if (transition === "unmount") page.unmount();
     else { session.owner = "owner-b"; page.rerender(<SetupPage />); session.owner = "owner-a"; page.rerender(<SetupPage />); }
@@ -427,11 +430,11 @@ describe("new Research setup through real clients, routes, services and SQLite",
       }
       return null;
     };
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
-    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await screen.findByText("Arc 未能保存计划，你仍可修改设置。");
     expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(0);
     expect(localStorage.getItem("arc-offline-queue-v1")).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
     expect(count("career_goals")).toBe(1); expect(count("migration_runs")).toBe(1);
     const activation = calls.find(({ path }) => path === "/api/migrations/local-state")!.body as { migrationId: string };
@@ -446,7 +449,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
     render(<SetupPage />); const user = await reachBuild();
     expect(count("career_goals")).toBe(0);
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
     const snapshot = await cloud.getWorkspace("owner-a");
     expect(snapshot?.state).toEqual({ setup: { roleId: data.blueprint.name, level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }, completedUnitIds: [], proofs: [] });
@@ -464,8 +467,8 @@ describe("new Research setup through real clients, routes, services and SQLite",
     await planning.generate("owner-a", guestRequest());
     const original = await cloud.getWorkspace("owner-a"); const workspace = await planning.getWorkspaceResponse("owner-a");
     render(<SetupPage />); const user = await reachBuild(source); calls.length = 0;
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
-    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await screen.findByText("Arc 未能保存计划，你仍可修改设置。");
     expect(await cloud.getWorkspace("owner-a")).toEqual(original);
     expect(await planning.getWorkspaceResponse("owner-a")).toEqual(workspace);
     expect(calls.every(({ method }) => method === "GET")).toBe(true); expect(session.navigate).not.toHaveBeenCalled();
@@ -476,9 +479,9 @@ describe("new Research setup through real clients, routes, services and SQLite",
     const original = (await cloud.getWorkspace("owner-a"))!;
     const previous = await planning.getWorkspaceResponse("owner-a");
     render(<SetupPage />); const user = await reachBuild(); calls.length = 0;
-    expect(screen.getByRole("button", { name: "Build my path" })).toBeDisabled();
-    await user.click(screen.getByRole("checkbox", { name: "Create a new plan and keep my current plan in history" }));
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    expect(screen.getByRole("button", { name: "生成学习路径" })).toBeDisabled();
+    await user.click(screen.getByRole("checkbox", { name: "创建新计划，并将当前计划保留在历史记录中" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
     const current = (await cloud.getWorkspace("owner-a"))!;
     expect(current.activeGoalId).not.toBe(original.activeGoalId);
@@ -494,16 +497,16 @@ describe("new Research setup through real clients, routes, services and SQLite",
     await cloud.importLocalState("owner-a", { migrationId: "migration-existing", consent: true, conflictResolution: "reject", state: createDemoState() });
     await planning.generate("owner-a", guestRequest());
     render(<SetupPage />); const user = await reachBuild();
-    await user.click(screen.getByRole("checkbox", { name: "Create a new plan and keep my current plan in history" }));
+    await user.click(screen.getByRole("checkbox", { name: "创建新计划，并将当前计划保留在历史记录中" }));
     let lost = false;
     intercept = async (request) => {
       if (!request.url.endsWith("/api/planning/generate") || lost) return null;
       lost = true; await planning.generate("owner-a", await request.json()); throw new TypeError("lost response after commit");
     };
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
-    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await screen.findByText("Arc 未能保存计划，你仍可修改设置。");
     expect(count("career_goals")).toBe(2);
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
     await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path"));
     expect(count("career_goals")).toBe(2); expect(count("planning_workspaces")).toBe(2);
     const writes = calls.filter(({ path }) => path === "/api/planning/generate");
@@ -514,10 +517,10 @@ describe("new Research setup through real clients, routes, services and SQLite",
     await planning.generate("owner-a", guestRequest());
     const original = await cloud.getWorkspace("owner-a"); const previous = await planning.getWorkspaceResponse("owner-a");
     render(<SetupPage />); const user = await reachBuild();
-    await user.click(screen.getByRole("checkbox", { name: "Create a new plan and keep my current plan in history" }));
+    await user.click(screen.getByRole("checkbox", { name: "创建新计划，并将当前计划保留在历史记录中" }));
     db.failAtBatchStatement = 4;
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
-    await screen.findByText("Arc could not save this plan. Your answers are still editable.");
+    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await screen.findByText("Arc 未能保存计划，你仍可修改设置。");
     expect(await cloud.getWorkspace("owner-a")).toEqual(original);
     expect(await planning.getWorkspaceResponse("owner-a")).toEqual(previous);
     expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(1);

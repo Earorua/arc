@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { authClient } from "../lib/auth-client";
-import { AccountMenu } from "../components/account/account-menu";
+import { WorkspaceHeader } from "../components/workspace/workspace-header";
 import { PlanHistory } from "../components/workspace/plan-history";
 import "./history.css";
 
 export default function HistoryPage() {
   const session = authClient.useSession();
   return <div className="workspace-shell">
-    <header className="workspace-header"><Link className="wordmark" href="/">Arc.</Link><nav aria-label="Learning workspace"><Link href="/today">Today</Link><Link href="/path">Path</Link><Link href="/history" aria-current="page">History</Link></nav><div className="workspace-meta"><AccountMenu /></div></header>
+    <WorkspaceHeader current="History" context="历史记录 · 查看已保存的计划与学习事件" />
     <main id="main-content" className="workspace-main">
       {session.isPending ? <p role="status">正在确认登录…</p> : session.data?.user
         ? <PlanHistory ownerId={session.data.user.id} />

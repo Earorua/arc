@@ -26,19 +26,16 @@ test("server-renders the Arc landing page", async () => {
   const html = await response.text();
   assert.match(html, /Arc\./);
   assert.match(html, /Learn only what moves you forward/);
-  assert.match(html, /Build my precise path/);
+  assert.match(html, /建立我的学习路线/);
   assert.match(html, /<main[\s>]/);
   const document = new JSDOM(html).window.document;
   const notices = document.querySelectorAll("p.development-notice");
-  const notice = notices[0];
   const main = document.querySelector("main");
-  assert.equal(notices.length, 1);
-  assert.ok(notice && main, "development notice and main content are rendered");
-  assert.equal(notice.textContent, "The website is currently under development.");
-  assert.equal(notice.getAttribute("role"), "note");
-  assert.equal(notice.getAttribute("lang"), "en");
-  assert.ok(notice.compareDocumentPosition(main) & 4, "development notice precedes main content");
-  assert.match(html, /aria-label="Public navigation"/);
+  assert.equal(notices.length, 0);
+  assert.ok(main, "main content is rendered");
+  assert.equal(document.querySelector(".skip-link")?.getAttribute("href"), "#main-content");
+  assert.match(html, /aria-label="网站导航"/);
+  assert.match(html, /href="\/showcase"/);
   assert.equal(document.querySelector('link[rel="canonical"]')?.getAttribute("href"), "https://arcmaps.net/");
   assert.equal(document.querySelector('meta[property="og:url"]')?.getAttribute("content"), "https://arcmaps.net/");
   assert.match(html, /property="og:image" content="https:\/\/arcmaps\.net\/og\.png"/);
@@ -90,8 +87,8 @@ test("ships the adaptive workspace recovery and review copy without replacing th
   const clientDirectory = fileURLToPath(new URL("../dist/client", import.meta.url));
   const bundle = await readBundleText(clientDirectory);
 
-  assert.match(bundle, /Review every change\./);
+  assert.match(bundle, /这次调整会改变什么/);
   assert.match(bundle, /Plan version unavailable\./);
-  assert.match(bundle, /Your precise path\./);
+  assert.match(bundle, /学习路线/);
   assert.doesNotMatch(bundle, /self-assessment is verified/iu);
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { LearningResource, RoleBlueprint } from "../../contracts/intelligence";
 import type { SkillEvidenceProjection, SkillEvidenceStatus } from "../../contracts/proof-ledger";
 import type { SkillCategory } from "../../domain/learning";
@@ -20,54 +20,60 @@ type StackBrowserProps = {
 };
 
 const categories: ReadonlyArray<readonly [SkillCategory | "all", string]> = [
-  ["all", "All"],
-  ["foundations", "Foundations"],
-  ["frontend", "Frontend"],
-  ["backend", "Backend"],
-  ["data", "Data"],
-  ["quality", "Quality"],
-  ["cloud", "Cloud"],
+  ["all", "全部"],
+  ["foundations", "基础"],
+  ["frontend", "前端"],
+  ["backend", "后端"],
+  ["data", "数据"],
+  ["quality", "质量"],
+  ["cloud", "云服务"],
   ["ai", "AI"],
-  ["product", "Product"],
+  ["product", "产品"],
 ];
 
 const formatLabels: Record<LearningResource["format"], string> = {
-  course: "Course",
-  documentation: "Documentation",
-  guide: "Guide",
-  practice: "Practice",
-  reference: "Reference",
+  course: "课程",
+  documentation: "文档",
+  guide: "指南",
+  practice: "练习",
+  reference: "参考资料",
 };
 
 const languageLabels: Record<LearningResource["language"], string> = {
-  en: "English",
-  "zh-CN": "Chinese (Simplified)",
+  en: "英语",
+  "zh-CN": "简体中文",
 };
 
 const costLabels: Record<LearningResource["cost"], string> = {
-  free: "Free",
-  mixed: "Free and paid",
-  paid: "Paid",
+  free: "免费",
+  mixed: "免费与付费",
+  paid: "付费",
 };
 
 const sourceTierLabels: Record<LearningResource["sourceTier"], string> = {
-  community: "Community source",
-  institutional: "Institutional source",
-  practitioner: "Practitioner source",
-  primary: "Primary source",
+  community: "社区来源",
+  institutional: "机构来源",
+  practitioner: "从业者来源",
+  primary: "一手来源",
 };
 
 const statusLabels: Record<SkillEvidenceStatus, string> = {
-  exploring: "Exploring",
-  practicing: "Practicing",
-  demonstrated: "Demonstrated",
-  verified: "Verified",
+  exploring: "待探索",
+  practicing: "练习中",
+  demonstrated: "已有作品证明",
+  verified: "已通过验证",
 };
 
-const importanceLabels = { core: "Core", strong: "Strong", advantage: "Advantage" } as const;
+const importanceLabels = { core: "核心", strong: "重要", advantage: "加分项" } as const;
 
 export function StackBrowser({ blueprint, evidence, projections }: StackBrowserProps) {
   const [category, setCategory] = useState<SkillCategory | "all">("all");
+  const [selectedId, setSelectedId] = useState(blueprint.skills[0]?.id ?? null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const indexRef = useRef<HTMLUListElement>(null);
+  const focusDetail = useRef(false);
+  const focusIndex = useRef(false);
   const { evidenceByVersion, projectionBySkill, resourcesById, skillNames } = useMemo(() => ({
     evidenceByVersion: new Map(evidence.map((item) => [item.versionId, item])),
     projectionBySkill: new Map(projections.filter(({ audience }) => audience === "internal").map((projection) => [projection.skillId, projection])),
@@ -75,78 +81,116 @@ export function StackBrowser({ blueprint, evidence, projections }: StackBrowserP
     skillNames: new Map(blueprint.skills.map((skill) => [skill.id, skill.name])),
   }), [blueprint, evidence, projections]);
   const filteredSkills = filterSkills(blueprint.skills, category);
+  const selected = filteredSkills.find(({ id }) => id === selectedId) ?? filteredSkills[0];
+  useLayoutEffect(() => {
+    if (focusDetail.current) {
+      headingRef.current?.focus();
+      focusDetail.current = false;
+    }
+    if (focusIndex.current) {
+      indexRef.current?.querySelector<HTMLButtonElement>('button[aria-pressed="true"]')?.focus();
+      focusIndex.current = false;
+    }
+  }, [selected?.id, detailOpen]);
+  function selectCategory(value: SkillCategory | "all") {
+    const nextSkills = filterSkills(blueprint.skills, value);
+    setSelectedId(nextSkills.find(({ id }) => id === selected?.id)?.id ?? nextSkills[0]?.id ?? null);
+    setCategory(value);
+    setDetailOpen(false);
+  }
 
   return (
-    <section lang="en">
-      <div className="stack-filters" role="group" aria-label="Skill categories">
+    <section className={`stack-browser${detailOpen ? " is-detail-open" : ""}`}>
+      <div className="stack-filters" role="group" aria-label="技能分类">
         {categories.map(([value, label]) => (
           <button
             aria-pressed={category === value}
             key={value}
-            onClick={() => setCategory(value)}
+            onClick={() => selectCategory(value)}
             type="button"
           >
             {label}
           </button>
         ))}
       </div>
-      <div className="skill-list">
-        {filteredSkills.map((skill) => {
+      <div className="stack-master-detail">
+        <div className="stack-index">
+          <p className="stack-index-count">{filteredSkills.length} 项技能 · 选择一项查看要求与来源</p>
+          <ul ref={indexRef} aria-label="技能索引">
+            {filteredSkills.map((skill) => <li key={skill.id}>
+              <button type="button" aria-label={`查看 ${skill.name}`} aria-controls="selected-skill-detail" aria-pressed={selected?.id === skill.id} onClick={() => {
+                focusDetail.current = true;
+                setSelectedId(skill.id);
+                setDetailOpen(true);
+                if (selected?.id === skill.id && detailOpen) headingRef.current?.focus();
+              }}>
+                <strong>{skill.name}</strong>
+                <span>{importanceLabels[skill.importance]} · {statusLabels[projectionBySkill.get(skill.id)?.status ?? "exploring"]}</span>
+              </button>
+            </li>)}
+          </ul>
+        </div>
+        <div className="skill-list">
+        {(selected ? [selected] : []).map((skill) => {
           const projection = projectionBySkill.get(skill.id) ?? emptyProjection(skill.id);
           const strongest = projection.strongestVersionId
             ? evidenceByVersion.get(projection.strongestVersionId) ?? null
             : null;
-          const completedLabel = `${projection.completedUnitIds.length} completed ${projection.completedUnitIds.length === 1 ? "unit" : "units"}`;
+          const completedLabel = `已完成 ${projection.completedUnitIds.length} 个学习单元`;
           const next = nextAction(projection.status, projection.strongestProofId);
-          return <article key={skill.id}>
+          return <article id="selected-skill-detail" key={skill.id} aria-labelledby="selected-skill-heading">
+            <button className="stack-back text-action" type="button" onClick={() => {
+              focusIndex.current = true;
+              setDetailOpen(false);
+            }}>返回技能列表</button>
             <header className="skill-summary">
-              <p className="skill-kicker">{skill.category} · {skill.importance}</p>
-              <h2>{skill.name}</h2>
+              <p className="skill-kicker">{categories.find(([value]) => value === skill.category)?.[1]} · {importanceLabels[skill.importance]}</p>
+              <h2 id="selected-skill-heading" ref={headingRef} tabIndex={-1}>{skill.name}</h2>
               <p className="skill-why">{skill.why}</p>
             </header>
             <div className="skill-detail">
               <dl className="skill-facts">
                 <div>
-                  <dt>Learner status</dt>
+                  <dt>学习状态</dt>
                   <dd><strong className={`skill-status skill-status-${projection.status}`}>{statusLabels[projection.status]}</strong></dd>
                 </div>
                 <div>
-                  <dt>Role importance</dt>
+                  <dt>岗位重要度</dt>
                   <dd>{importanceLabels[skill.importance]}</dd>
                 </div>
                 <div>
-                  <dt>Completed work</dt>
+                  <dt>已完成学习</dt>
                   <dd>{completedLabel}</dd>
                 </div>
                 <div>
-                  <dt>Strongest proof</dt>
+                  <dt>最有力的作品</dt>
                   <dd className="skill-proof-link">{projection.strongestProofId
                     ? strongest && strongest.proofId === projection.strongestProofId
                       ? <Link href={`/proof?proof=${encodeURIComponent(strongest.proofId)}`}>{strongest.title}</Link>
-                      : "Evidence unavailable"
-                    : "None yet"}</dd>
+                      : "作品信息暂不可用"
+                    : "暂无"}</dd>
                 </div>
                 <div>
-                  <dt>Latest use</dt>
-                  <dd>{projection.latestUsedAt ? formatLatestUse(projection.latestUsedAt) : "Not recorded"}</dd>
+                  <dt>最近使用</dt>
+                  <dd>{projection.latestUsedAt ? formatLatestUse(projection.latestUsedAt) : "未记录"}</dd>
                 </div>
                 <div>
-                  <dt>Next action</dt>
+                  <dt>下一步</dt>
                   <dd><Link href={next.href}>{next.label}</Link></dd>
                 </div>
                 <div>
-                  <dt>Prerequisites</dt>
+                  <dt>前置技能</dt>
                   <dd>
                     {skill.prerequisiteIds.length > 0
                       ? skill.prerequisiteIds.map((id) => skillNames.get(id) ?? id).join(", ")
-                      : "None"}
+                      : "无"}
                   </dd>
                 </div>
               </dl>
 
               <section className="mastery-block">
-                <h3>Mastery criteria</h3>
-                <ol aria-label="Mastery criteria">
+                <h3>掌握标准</h3>
+                <ol aria-label="掌握标准">
                   {skill.masteryCriteria.map((criterion, index) => (
                     <li key={`${skill.id}-mastery-${index}`}>{criterion}</li>
                   ))}
@@ -154,8 +198,8 @@ export function StackBrowser({ blueprint, evidence, projections }: StackBrowserP
               </section>
 
               <section className="resource-block">
-                <h3>Learning resources</h3>
-                <ul aria-label="Learning resources" className="resource-list">
+                <h3>学习资料</h3>
+                <ul aria-label="学习资料" className="resource-list">
                   {skill.resourceIds.map((resourceId, index) => {
                     const resource = resourcesById.get(resourceId);
 
@@ -165,7 +209,7 @@ export function StackBrowser({ blueprint, evidence, projections }: StackBrowserP
                           className="resource-unavailable"
                           key={`${skill.id}-resource-${resourceId}-${index}`}
                         >
-                          Resource metadata unavailable
+                          资料信息暂不可用
                         </li>
                       );
                     }
@@ -187,11 +231,11 @@ export function StackBrowser({ blueprint, evidence, projections }: StackBrowserP
                           <span>{resource.provider}</span>
                         </div>
                         <dl className="resource-metadata">
-                          <div><dt>Format</dt><dd>{formatLabels[resource.format]}</dd></div>
-                          <div><dt>Language</dt><dd>{languageLabels[resource.language]}</dd></div>
-                          <div><dt>Cost</dt><dd>{costLabels[resource.cost]}</dd></div>
-                          <div><dt>Source tier</dt><dd>{sourceTierLabels[resource.sourceTier]}</dd></div>
-                          <div><dt>Freshness</dt><dd>Verified {resource.lastVerifiedAt}</dd></div>
+                          <div><dt>形式</dt><dd>{formatLabels[resource.format]}</dd></div>
+                          <div><dt>语言</dt><dd>{languageLabels[resource.language]}</dd></div>
+                          <div><dt>费用</dt><dd>{costLabels[resource.cost]}</dd></div>
+                          <div><dt>来源层级</dt><dd>{sourceTierLabels[resource.sourceTier]}</dd></div>
+                          <div><dt>核验日期</dt><dd>{resource.lastVerifiedAt}</dd></div>
                         </dl>
                       </li>
                     );
@@ -202,6 +246,8 @@ export function StackBrowser({ blueprint, evidence, projections }: StackBrowserP
           </article>;
         })}
       </div>
+      </div>
+      {filteredSkills.length === 0 && <p role="status">这个分类暂时没有技能。</p>}
     </section>
   );
 }
@@ -219,12 +265,12 @@ function emptyProjection(skillId: string): SkillEvidenceProjection {
 }
 
 function nextAction(status: SkillEvidenceStatus, proofId: string | null) {
-  if (status === "exploring") return { label: "Start Today", href: "/today" };
-  if (status === "practicing") return { label: "Continue Today", href: "/today" };
-  if (status === "demonstrated") return { label: "Add stronger proof", href: "/proof" };
-  return { label: "Maintain evidence", href: proofId ? `/proof?proof=${encodeURIComponent(proofId)}` : "/proof" };
+  if (status === "exploring") return { label: "开始今日学习", href: "/today" };
+  if (status === "practicing") return { label: "继续今日学习", href: "/today" };
+  if (status === "demonstrated") return { label: "补充作品证明", href: "/proof" };
+  return { label: "维护作品证明", href: proofId ? `/proof?proof=${encodeURIComponent(proofId)}` : "/proof" };
 }
 
 function formatLatestUse(value: string): string {
-  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(value));
+  return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(value));
 }

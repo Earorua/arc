@@ -28,9 +28,9 @@ function StackSignInBoundary({ pending }: { pending: boolean }) {
   useEffect(() => { if (!pending) router.replace("/sign-in"); }, [pending, router]);
   return <>
     <SiteHeader />
-    <main id="main-content" className="reading-page" lang="en">
-      <p className="lede" role="status">{pending ? "Checking account…" : "Sign in to view your role intelligence."}</p>
-      {!pending && <Link className="primary-action" href="/sign-in">Sign in →</Link>}
+    <main id="main-content" className="reading-page">
+      <p className="lede" role="status">{pending ? "正在确认账户…" : "登录后查看你的岗位技能与来源。"}</p>
+      {!pending && <Link className="primary-action" href="/sign-in">登录 →</Link>}
     </main>
   </>;
 }
@@ -38,11 +38,11 @@ function StackSignInBoundary({ pending }: { pending: boolean }) {
 function EmptyAccountStack() {
   return <>
     <SiteHeader />
-    <main id="main-content" className="reading-page" lang="en">
-      <p className="eyebrow">Your account · Skills & sources</p>
-      <h1>Your role intelligence</h1>
-      <p className="lede">Build a learning path to see the skills and sources saved to your account.</p>
-      <Link className="primary-action" href="/setup">Create a learning path →</Link>
+    <main id="main-content" className="reading-page">
+      <p className="eyebrow">你的账户 · 技能与来源</p>
+      <h1>技能与来源</h1>
+      <p className="lede">创建学习路线后，即可查看保存到当前账户的技能和来源。</p>
+      <Link className="primary-action" href="/setup">创建学习路线 →</Link>
     </main>
   </>;
 }
@@ -89,15 +89,15 @@ function SessionStackPage() {
       planningState={workspace}
     >
       <section className="workspace-intro">
-        <p className="eyebrow" lang="en">Role intelligence · {blueprint.version}</p>
-        <h1 lang="en">The complete stack.</h1>
-        <p>岗位重要度与学习证据分开呈现；每条学习建议都能回到经过验证的来源。</p>
+        <p className="eyebrow">岗位资料 · {blueprint.version}</p>
+        <h1>技能与来源</h1>
+        <p>选择技能，查看掌握标准、前置要求和资料来源。学习状态依据你的作品与练习记录。</p>
       </section>
       {(proof.source === "offline-cloud" || proof.recovery === "unavailable") && (
-        <p className="workspace-notice" role="status">Cloud proof status is temporarily unavailable; Stack is showing only evidence Arc can resolve safely.</p>
+        <p className="workspace-notice" role="status">云端作品状态暂不可用；这里只展示能够安全读取的技能证据。</p>
       )}
       {proof.recovery === "conflict" && (
-        <p className="workspace-notice" role="status">Proof evidence changed in another session. Open Proof and reload before making evidence changes.</p>
+        <p className="workspace-notice" role="status">作品证据已在另一处发生变化，请前往作品证据重新加载后再修改。</p>
       )}
       <StackBrowser blueprint={blueprint} evidence={evidence} projections={proof.projections} />
     </WorkspaceShell>

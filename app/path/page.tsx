@@ -7,7 +7,7 @@ import { flagshipRole } from "../data/flagship-role";
 import { PhaseRail } from "../components/workspace/phase-rail";
 import { WorkspaceShell } from "../components/workspace/workspace-shell";
 import { useArcState } from "../lib/use-arc-state";
-import { formatWeeklyBudget, getRoleDisplayName, redistributePhaseWeeks } from "../lib/personalized-plan";
+import { getRoleDisplayName, redistributePhaseWeeks } from "../lib/personalized-plan";
 import { usePlanningWorkspace } from "../lib/use-planning-workspace";
 import { authClient } from "../lib/auth-client";
 import { resolveWorkspacePresentation } from "../lib/workspace-presentation";
@@ -55,7 +55,6 @@ function LegacyPath({ arc }: { arc: ReturnType<typeof useArcState> }) {
   const state = arc.state!;
   const { roleId, targetWeeks, weeklyMinutes } = state.setup;
   const role = getRoleDisplayName(roleId);
-  const budget = formatWeeklyBudget(weeklyMinutes);
   const phases = redistributePhaseWeeks(flagshipRole.phases, targetWeeks);
 
   return (
@@ -71,8 +70,8 @@ function LegacyPath({ arc }: { arc: ReturnType<typeof useArcState> }) {
       state={state}
     >
       <section className="workspace-intro">
-        <p className="eyebrow" lang="en">{role} · {targetWeeks} weeks · {budget}</p>
-        <h1 lang="en">Your precise path.</h1>
+        <p className="eyebrow">{role} · {targetWeeks} 周 · 每周 {weeklyMinutes} 分钟</p>
+        <h1>学习路线</h1>
         <p>每个阶段只承担一个明确结果；时间变化时，后续路线重新分配但历史保持不变。</p>
       </section>
       <PhaseRail phases={phases} />

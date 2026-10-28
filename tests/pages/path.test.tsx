@@ -78,18 +78,17 @@ describe("PathPage", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Restoring your plan");
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
-    const heading = await screen.findByRole("heading", { name: "Your precise path." });
+    const heading = await screen.findByRole("heading", { name: "学习路线" });
     expect(heading).toBeInTheDocument();
-    expect(heading).toHaveAttribute("lang", "en");
-    expect(screen.getByText("AI-Native Full-Stack Engineer · 18 weeks · 7 hours / week")).toBeInTheDocument();
+    expect(screen.getByText("AI-Native Full-Stack Engineer · 18 周 · 每周 420 分钟")).toBeInTheDocument();
     const phaseList = screen.getByRole("list", { name: "Learning phases" });
     const phaseItems = within(phaseList).getAllByRole("listitem");
     expect(phaseItems).toHaveLength(4);
     expect(phaseItems[0]).toHaveAttribute("aria-current", "step");
     expect(screen.getByText("Product Foundations")).toBeInTheDocument();
     expect(screen.getByText("Production Proof")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Learning workspace" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Path" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("navigation", { name: "学习工作区" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "学习路线" })).toHaveAttribute("aria-current", "page");
   });
 
   it("hydrates a custom role, weekly budget, and proportional target path", async () => {
@@ -107,7 +106,7 @@ describe("PathPage", () => {
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText("数据产品经理 · 10 weeks · 1 hour 30 minutes / week")).toBeInTheDocument();
+      expect(screen.getByText("数据产品经理 · 10 周 · 每周 90 分钟")).toBeInTheDocument();
     });
     expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
     expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
@@ -129,10 +128,10 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(await screen.findByRole("heading", { name: "Your precise path." })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Review every change." })).toBeInTheDocument();
-    expect(screen.getByText(`${flagshipBlueprint.name} · 12 weeks`)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Keep current plan" }));
+    expect(await screen.findByRole("heading", { name: "学习路线" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "这次调整会改变什么" })).toBeInTheDocument();
+    expect(screen.getByText(`${flagshipBlueprint.name} · 12 周`)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "保留当前安排" }));
     expect(discard).toHaveBeenCalledTimes(1);
   });
 
@@ -148,7 +147,7 @@ describe("PathPage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Plan version unavailable");
     expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
     expect(screen.queryByRole("link", { name: /rebuild/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Your precise path." })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "学习路线" })).not.toBeInTheDocument();
   });
 
   it.each([
@@ -166,7 +165,7 @@ describe("PathPage", () => {
     render(<PathPage />);
 
     expect(await screen.findByText(source === "restoring" ? "Restoring adaptive plan." : "Adaptive plan temporarily unavailable.")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Your precise path." })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "学习路线" })).not.toBeInTheDocument();
     if (source === "offline-cloud") {
       await userEvent.click(screen.getByRole("button", { name: /retry/i }));
       expect(retry).toHaveBeenCalledTimes(1);
@@ -178,9 +177,9 @@ describe("PathPage", () => {
     const user = userEvent.setup();
 
     render(<PathPage />);
-    await user.click(await screen.findByRole("button", { name: "Accept new plan" }));
+    await user.click(await screen.findByRole("button", { name: "接受新安排" }));
 
-    expect(await screen.findByRole("status")).toHaveTextContent("Candidate plan accepted");
-    expect(screen.queryByRole("heading", { name: "Review every change." })).not.toBeInTheDocument();
+    expect(await screen.findByRole("status")).toHaveTextContent("已接受新安排");
+    expect(screen.queryByRole("heading", { name: "这次调整会改变什么" })).not.toBeInTheDocument();
   });
 });

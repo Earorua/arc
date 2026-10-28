@@ -10,67 +10,67 @@ afterEach(cleanup);
 describe("AvailabilityStep", () => {
   function Harness({ planningDate = "2026-08-14", exceptions = [] }: { planningDate?: string; exceptions?: ReturnType<typeof createAvailabilityDraft>["exceptions"] }) {
     const [draft, setDraft] = useState(() => ({ ...createAvailabilityDraft("Asia/Shanghai"), exceptions }));
-    return <><AvailabilityStep onChange={setDraft} planningDate={planningDate} value={draft} /><button disabled={!isAvailabilityDraftValid(draft, planningDate)} type="button">Continue</button></>;
+    return <><AvailabilityStep onChange={setDraft} planningDate={planningDate} value={draft} /><button disabled={!isAvailabilityDraftValid(draft, planningDate)} type="button">继续</button></>;
   }
 
   it("renders a seven-day ledger with a derived total and visible rest days", async () => {
     const user = userEvent.setup();
     render(<Harness />);
 
-    expect(screen.getAllByRole("spinbutton", { name: /minutes$/i })).toHaveLength(7);
-    expect(screen.getByLabelText("Time zone")).toHaveValue("Asia/Shanghai");
-    expect(screen.getByText("420 minutes / week")).toBeInTheDocument();
-    await user.clear(screen.getByLabelText("Monday minutes"));
-    await user.type(screen.getByLabelText("Monday minutes"), "0");
-    expect(screen.getByText("Monday · Rest")).toBeInTheDocument();
-    expect(screen.getByText("360 minutes / week")).toBeInTheDocument();
+    expect(screen.getAllByRole("spinbutton", { name: /分钟数$/ })).toHaveLength(7);
+    expect(screen.getByLabelText("时区")).toHaveValue("Asia/Shanghai");
+    expect(screen.getByText("420 分钟 / 周")).toBeInTheDocument();
+    await user.clear(screen.getByLabelText("周一分钟数"));
+    await user.type(screen.getByLabelText("周一分钟数"), "0");
+    expect(screen.getByText("周一 · 休息")).toBeInTheDocument();
+    expect(screen.getByText("360 分钟 / 周")).toBeInTheDocument();
   });
 
   it("validates exception minutes and enforces the 90-row limit without crashing", async () => {
     const user = userEvent.setup();
     const exceptions = Array.from({ length: 90 }, (_, index) => ({ date: addCalendarDays("2026-08-14", index), minutes: 0, reason: null }));
     const { rerender } = render(<Harness exceptions={exceptions} key="ninety" />);
-    expect(screen.getByText("Maximum 90 exceptions")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Add date exception" })).toBeDisabled();
+    expect(screen.getByText("最多可添加 90 项临时安排")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "添加临时安排" })).toBeDisabled();
 
     rerender(<Harness exceptions={[...exceptions, { date: addCalendarDays("2026-08-14", 90), minutes: 0, reason: null }]} key="ninety-one" />);
-    expect(screen.getAllByRole("button", { name: /Remove exception/ })).toHaveLength(91);
-    expect(screen.getByRole("button", { name: "Add date exception" })).toBeDisabled();
+    expect(screen.getAllByRole("button", { name: /移除临时安排/ })).toHaveLength(91);
+    expect(screen.getByRole("button", { name: "添加临时安排" })).toBeDisabled();
 
     rerender(<Harness exceptions={[{ date: "2026-08-14", minutes: 0, reason: null }]} key="one" />);
-    const minutes = screen.getByLabelText("Exception minutes 1");
+    const minutes = screen.getByLabelText("临时安排分钟数 1");
     await user.clear(minutes);
     await user.type(minutes, "720");
     expect(minutes).toHaveAttribute("aria-invalid", "false");
     expect(minutes).not.toHaveAttribute("aria-describedby");
-    expect(screen.queryByText(/0 or a whole number from 15 to 720/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    expect(screen.queryByText(/请输入 0 或 15 至 720 的整数/)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "继续" })).toBeEnabled();
 
     await user.clear(minutes);
     await user.type(minutes, "721");
     expect(minutes).toHaveAttribute("aria-invalid", "true");
     expect(minutes).toHaveAttribute("aria-describedby", "exception-minutes-error-0");
-    expect(screen.getByText(/0 or a whole number from 15 to 720/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    expect(screen.getByText(/请输入 0 或 15 至 720 的整数/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "继续" })).toBeDisabled();
   });
 
   it("associates time, minute, duplicate, and horizon errors and previews exceptions", async () => {
     const user = userEvent.setup();
     render(<Harness />);
 
-    await user.clear(screen.getByLabelText("Time zone"));
-    await user.type(screen.getByLabelText("Time zone"), "Not/AZone");
-    expect(screen.getByLabelText("Time zone")).toHaveAttribute("aria-invalid", "true");
+    await user.clear(screen.getByLabelText("时区"));
+    await user.type(screen.getByLabelText("时区"), "Not/AZone");
+    expect(screen.getByLabelText("时区")).toHaveAttribute("aria-invalid", "true");
 
-    await user.click(screen.getByRole("button", { name: "Add date exception" }));
-    expect(screen.getByText(/overrides Friday/i)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Add date exception" }));
-    expect(screen.getAllByText(/Exception dates must be unique/i)).toHaveLength(2);
-    await user.clear(screen.getByLabelText("Exception date 2"));
-    await user.type(screen.getByLabelText("Exception date 2"), "2027-08-16");
-    expect(screen.getByText(/365 days/i)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Remove exception 2" }));
-    expect(screen.queryByLabelText("Exception date 2")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "添加临时安排" }));
+    expect(screen.getByText(/（周五）调整为/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "添加临时安排" }));
+    expect(screen.getAllByText(/临时安排的日期不能重复/)).toHaveLength(2);
+    await user.clear(screen.getByLabelText("临时安排日期 2"));
+    await user.type(screen.getByLabelText("临时安排日期 2"), "2027-08-16");
+    expect(screen.getByText(/365 天/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "移除临时安排 2" }));
+    expect(screen.queryByLabelText("临时安排日期 2")).not.toBeInTheDocument();
   });
 
   it("contains malformed calendar dates and associates the date error", async () => {
@@ -80,11 +80,11 @@ describe("AvailabilityStep", () => {
     expect(isAvailabilityDraftValid(malformed, "not-a-date")).toBe(false);
 
     render(<Harness exceptions={malformed.exceptions} />);
-    const date = screen.getByLabelText("Exception date 1");
+    const date = screen.getByLabelText("临时安排日期 1");
     await user.clear(date);
     expect(date).toHaveAttribute("aria-invalid", "true");
     expect(date).toHaveAttribute("aria-describedby", "exception-date-error-0");
-    expect(screen.getByText("Enter a valid calendar date.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+    expect(screen.getByText("请输入有效日期。")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "继续" })).toBeDisabled();
   });
 });

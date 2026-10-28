@@ -29,12 +29,13 @@ export function PrecisionPathHero() {
           className="hero-support"
           lang="zh-CN"
         >
-          把任意岗位拆成清晰、可信、每天都能完成的成长路径。
+          从岗位目标出发，找到值得学的技能、做得完的任务，以及能展示的成果。
         </motion.p>
         <motion.div {...enter} transition={reduceMotion ? { duration: 0 } : { duration: 0.55, delay: 0.2 }}>
-          <Link className="primary-action" href="/setup">
-            Build my precise path →
+          <Link className="primary-action" href="/setup" lang="zh-CN">
+            建立我的学习路线 →
           </Link>
+          <Link className="hero-secondary" href="/showcase" lang="zh-CN">先看完整样例 ↗</Link>
         </motion.div>
       </div>
       <StoryRail />

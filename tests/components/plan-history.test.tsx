@@ -31,8 +31,25 @@ it('renders actual saved route, daily units and resource links without learning 
  const service=new PlanningService({repository:{findActiveGoal:async()=>({ownerId:'owner',goalId:'old'}),load:async()=>null,findMutation:async()=>null,saveGeneration:async c=>({...c,payload:c.result}),saveEvent:async c=>({...c,payload:c.result})},intelligence:{getPublished:async()=>flagshipBlueprint},registry:flagshipUnitRegistry});
  const result=await service.generateResponse('owner',offlinePlanningRequest(flagshipBlueprint,undefined,'history-ui-fixture'));
  render(<SavedPlan value={{workspace:result.result.workspace,sourceContext:result.sourceContext}}/>);
- expect(screen.getByRole('list',{name:'Ordered learning path'})).toBeInTheDocument();
+ expect(screen.getByRole('heading',{name:'已保存的学习路线'})).toHaveProperty('tagName','H2');
+ expect(screen.getByRole('list',{name:'学习阶段'})).toBeInTheDocument();
  expect(screen.getByRole('heading',{name:'保存的每日安排'})).toBeInTheDocument();
+ const versions = screen.getByText(/安排版本 1/).closest('details')!;
+ expect(versions.open).toBe(false);
+ fireEvent.click(screen.getByText(/安排版本 1/));
  expect(screen.getAllByRole('link').length).toBeGreaterThan(0);
- expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();expect(screen.queryByRole('button')).not.toBeInTheDocument();
+ expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+ expect(screen.queryByRole('button',{name:/接受|完成|激活|重新生成/})).not.toBeInTheDocument();
+});
+
+it('keeps the history page position when returning from a saved plan',async()=>{
+ const client={list:vi.fn().mockResolvedValueOnce({...goals,nextOffset:20}).mockResolvedValue(goals),load:vi.fn().mockResolvedValue({workspace:null,sourceContext:null})};
+ render(<PlanHistory ownerId="owner" client={client}/>);
+ fireEvent.click(await screen.findByRole('button',{name:'下一页'}));
+ await waitFor(()=>expect(client.list).toHaveBeenLastCalledWith(20,expect.any(AbortSignal)));
+ fireEvent.click(await screen.findByRole('button',{name:/Historical role/}));
+ await screen.findByText('这个目标没有已保存的学习计划。');
+ fireEvent.click(screen.getByRole('button',{name:'返回历史列表'}));
+ await waitFor(()=>expect(client.list).toHaveBeenLastCalledWith(20,expect.any(AbortSignal)));
+ expect(await screen.findByRole('button',{name:'上一页'})).toBeInTheDocument();
 });

@@ -18,14 +18,14 @@ export function TargetStep({ blueprint, target, selectedScope, onTargetChange, o
   const equivalent = paths?.targetDate !== null && paths?.targetDate?.deferredSkills.length === 0
     && paths.targetDate.estimatedCompletionDate === paths.fullScope.estimatedCompletionDate;
   return <div className="target-ledger">
-    <label className="ledger-field">Target weeks<input aria-describedby={!targetValid ? "target-weeks-error" : undefined} aria-invalid={!targetValid} aria-label="Target weeks" min="4" max="52" step="1" type="number" value={Number.isNaN(target.targetWeeks) ? "" : target.targetWeeks} onChange={(event) => onTargetChange(event.target.value === "" ? Number.NaN : Number(event.target.value))} /></label>
-    {!targetValid && <p id="target-weeks-error" role="alert">Enter a whole number from 4 to 52.</p>}
+    <label className="ledger-field">目标周数<input aria-describedby={!targetValid ? "target-weeks-error" : undefined} aria-invalid={!targetValid} aria-label="目标周数" min="4" max="52" step="1" type="number" value={Number.isNaN(target.targetWeeks) ? "" : target.targetWeeks} onChange={(event) => onTargetChange(event.target.value === "" ? Number.NaN : Number(event.target.value))} /></label>
+    {!targetValid && <p id="target-weeks-error" role="alert">请输入 4 至 52 的整数。</p>}
     {error && <p role="alert">{error}</p>}
-    {paths && equivalent && <div className="scope-summary"><strong>Full scope fits.</strong><span>Expected by {paths.fullScope.estimatedCompletionDate}; no skills need to move later.</span></div>}
+    {paths && equivalent && <div className="scope-summary"><strong>时间足够覆盖全部技能。</strong><span>预计于 {paths.fullScope.estimatedCompletionDate} 完成，无需延后技能。</span></div>}
     {paths && !equivalent && <fieldset className="scope-choices">
-      <legend>Choose the path Arc should build</legend>
-      <label><input checked={selectedScope === "full-scope"} name="scope" onChange={() => onScopeChange("full-scope")} type="radio" /><span><strong>Full scope</strong> · complete by {paths.fullScope.estimatedCompletionDate}<small>Later skills: none.</small></span></label>
-      <label><input checked={selectedScope === "target-date"} disabled={!paths.targetDate} name="scope" onChange={() => onScopeChange("target-date")} type="radio" /><span><strong>Target date</strong>{paths.targetDate ? ` · complete by ${paths.targetDate.estimatedCompletionDate}` : " · unavailable"}<small>{paths.targetDate ? `Later skills: ${skillNames(paths.targetDate.deferredSkills.map(({ skillId }) => skillId), blueprint) || "none"}.` : paths.infeasibleReason}</small></span></label>
+      <legend>选择要生成的学习范围</legend>
+      <label><input checked={selectedScope === "full-scope"} name="scope" onChange={() => onScopeChange("full-scope")} type="radio" /><span><strong>完整范围</strong> · 预计完成于 {paths.fullScope.estimatedCompletionDate}<small>延后技能：无。</small></span></label>
+      <label><input checked={selectedScope === "target-date"} disabled={!paths.targetDate} name="scope" onChange={() => onScopeChange("target-date")} type="radio" /><span><strong>按目标日期</strong>{paths.targetDate ? ` · 预计完成于 ${paths.targetDate.estimatedCompletionDate}` : " · 暂不可用"}<small>{paths.targetDate ? `延后技能：${skillNames(paths.targetDate.deferredSkills.map(({ skillId }) => skillId), blueprint) || "无"}.` : paths.infeasibleReason}</small></span></label>
     </fieldset>}
   </div>;
 }

@@ -10,22 +10,25 @@ import { PlanDiffReview } from "../workspace/plan-diff-review";
 import { AnswerText } from "./agent-companion";
 import { useLearningAgents } from "./agent-context";
 import { CoachOverview, CoachRouteArt } from "./coach-overview";
+import { SiteHeader } from "../brand/site-header";
+import { WorkspaceHeader } from "../workspace/workspace-header";
+import { learnerAvailability } from "./agent-availability";
 
 export function LearningCoach() {
   const agents = useLearningAgents();
-  if (agents.authPending || !agents.authenticated) return <main id="main-content" className="coach-page">
+  if (agents.authPending || !agents.authenticated) return <><SiteHeader /><main id="main-content" className="coach-page">
     <section className="coach-hero"><div>
       <p className="eyebrow">YOUR LEARNING COACH</p>
       <h1>把方向想清楚，<br /><em>再走下一步。</em></h1>
       <p className="coach-lede">梳理学习重点、拆解阶段成果；遇到卡点时，<br className="coach-desktop-break" />让学习伙伴结合当前任务帮你讲清楚。</p>
       {agents.authPending ? <p className="coach-lede" role="status">正在确认登录状态…</p> : <>
         <Link className="coach-primary" href="/sign-in">登录账号 <span aria-hidden="true">↗</span></Link>
-        <p className="coach-caption">登录并完成学习设置后，即可使用规划与答疑。</p>
+        <p className="coach-caption">登录后可查看你的学习计划；规划与答疑以当前服务开放状态为准。</p>
       </>}
     </div><CoachRouteArt /></section>
     <CoachOverview />
-  </main>;
-  return <CoachGoal key={JSON.stringify([agents.accountId, agents.workspace?.goalId ?? null])} />;
+  </main></>;
+  return <div className="workspace-shell"><WorkspaceHeader current="Coach" context={agents.workspace?.roleName ?? "学习规划"} /><CoachGoal key={JSON.stringify([agents.accountId, agents.workspace?.goalId ?? null])} /></div>;
 }
 function CoachGoal() {
   const agents = useLearningAgents();
@@ -111,16 +114,10 @@ function CoachGoal() {
     try { await planning.retry(signal); await agents.refresh(); }
     finally { if (!signal?.aborted) setRefreshing(false); }
   };
-  const unavailable = agents.loading ? "正在读取你的学习目标…" : agents.error ?? workspace?.reason;
+  const unavailable = agents.loading ? "正在读取你的学习目标…" : agents.error ?? (enabled ? null : learnerAvailability(workspace?.reason));
 
-  return <main id="main-content" className="coach-page">
-    <div className="coach-breadcrumb"><Link href="/path">学习路线</Link><span>/</span><span>学习规划师</span></div>
-    <section className="coach-hero">
-      <div><p className="eyebrow">YOUR LEARNING COACH</p><h1>把方向想清楚，<br /><em>再走下一步。</em></h1>
-        <p className="coach-lede">梳理学习重点、拆解阶段成果；遇到卡点时，<br className="coach-desktop-break" />让学习伙伴结合当前任务帮你讲清楚。</p>
-      </div>
-      <CoachRouteArt />
-    </section>
+  return <main id="main-content" className="coach-page coach-work-page">
+    <section className="workspace-intro"><p className="eyebrow">LEARNING COACH</p><h1>让下一步更清楚。</h1><p>提出一个具体问题，审阅建议，再决定是否调整路线。</p></section>
     <div className="coach-workspace">
       <section className="coach-request" aria-labelledby="coach-request-title">
         <p className="section-index">01 / 深度规划</p><h2 id="coach-request-title">这一次，想解决什么？</h2>
@@ -132,7 +129,7 @@ function CoachGoal() {
             placeholder="例如：每天只有 45 分钟，想先补足基础，再做一个完整项目。" />
           <div className="coach-prompt-shortcuts">{["帮我梳理第一份学习方案", "根据当前进度调整学习重点", "帮我解决基础薄弱的问题"].map(text =>
             <button key={text} type="button" onClick={() => setMessage(text)} disabled={submitting || Boolean(pollingId)}>{text}</button>)}</div>
-          {unavailable && <p className="coach-notice">{unavailable} {!workspace?.authenticated && !agents.loading && <Link href="/sign-in">登录 ↗</Link>}</p>}
+          {unavailable && <p className="coach-notice" role="status">{unavailable}</p>}
           {pending && <p className="coach-notice">你有一份待确认的调整，请先处理下方的计划差异。</p>}
           <button className="coach-primary" type="submit" disabled={!enabled || agents.loading || submitting || Boolean(pollingId) || pending || !message.trim()}>
             {submitting || pollingId ? "正在深度规划…" : "开始深度规划"} <span aria-hidden="true">↗</span></button>
@@ -140,7 +137,7 @@ function CoachGoal() {
         </form>
       </section>
       <aside className="coach-how">
-        <p className="section-index">A LITTLE CLARITY</p><h2>方向有人梳理，<br />问题随时有人听。</h2>
+        <p className="section-index">本次规划会参考</p><h2>目标、基础与可用时间</h2>
         <ol><li><span>01</span><div><h3>先理解你</h3><p>参考学习目标、技能基础、可用时间，以及已经完成的任务。</p></div></li>
           <li><span>02</span><div><h3>把路线说清楚</h3><p>说明学习重点、阶段成果和安排理由，保留已完成的进度。</p></div></li>
           <li><span>03</span><div><h3>由你决定下一步</h3><p>先查看候选方案与当前计划的差异，确认后再更新路线。</p></div></li></ol>
@@ -169,6 +166,5 @@ function CoachGoal() {
     {resolved.kind === "adaptive" && resolved.workspace.pendingPlanVersionId && <PlanDiffReview
       workspace={resolved.workspace} registry={resolved.registry} recovery={planning.recovery}
       onAccept={planning.accept} onDiscard={planning.discard} onSuccess={text => { setNotice(text); void agents.refresh(); }} />}
-    <CoachOverview />
   </main>;
 }
