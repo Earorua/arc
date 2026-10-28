@@ -1,6 +1,6 @@
 # Arc Discovery 风格调整交付 — 2026-10-28
 
-**状态：本地实现及验收完成，尚未发布。** 当前正式站仍为上一轮已发布版本 `09769554-b2dd-4ff5-a09c-2be000d11a97`。本次没有修改生产配置、账户、学习记录或发起付费模型调用。
+**状态：已于 2026-10-28 17:11（北京时间）公开发布。** 正式站 https://arcmaps.net 已运行 Site `78126d3f-7dac-4f71-84a7-ab5227f2e994`，100% 流量。[正式发布与线上验收记录](../../operations/discovery-style-release-2026-10-28.md)。本次未修改账户或学习记录，未发起付费模型调用。
 
 分支：`codex/ui-discovery-20261028`；基线 `5858891`，包含上一轮 UI 和最新学习伙伴的完整整合。工作区：`C:/Users/XF/Documents/Codex/2026-07-26/sites-plugin-sites-openai-bundled-2/.worktrees/v8-openrouter-research-beta/.worktrees/ui-warm-precision`。
 
@@ -40,11 +40,11 @@
 
 未进行真实手机硬件验收，也未逐一登录生产账号重测后端流程。上次全仓库后台烟雾测试的既有问题见 [上一轮交付记录](2026-10-28-ui-delivery.md)；本次没有重跑全仓库测试或将定向测试表述为全仓库通过。
 
-## 查看与后续发布
+## 查看与后续维护
 
 - 本地首页：http://127.0.0.1:4180/
 - 本地学习工作区：http://127.0.0.1:4180/today
 - 启动方式及隔离边界：`tests/ui-preview/README.md`。
 - 源码变更不涉及 `app/server`、`app/contracts`、`worker`、`scripts`、`build`；依赖清单仅添加三种字体。
-- 后续如发布，需从本分支冻结新的候选，核对届时最新云端配置；不要复用上一轮已经消费的单次发布脚本。
+- 本次已从应用提交 `8dcd6eb89965588b85eb527881dfd203ba491eb0` 构建并发布新候选。后续发布仍需核对最新云端配置，不复用已消费的单次发布脚本。
 
