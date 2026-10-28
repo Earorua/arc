@@ -63,7 +63,7 @@ describe("learning companion", () => {
       expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
       const close = screen.getByRole("button", { name: "最小化学习伙伴" });
       close.focus(); fireEvent.keyDown(close, { key: "Tab", shiftKey: true });
-      expect(screen.getByRole("link", { name: "学习规划师 ↗" })).toHaveFocus();
+      expect(screen.getByRole("button", { name: "调整学习计划" })).toHaveFocus();
       fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
       await waitFor(() => expect(screen.getByRole("button", { name: "打开学习伙伴" })).toHaveFocus());
       expect(document.body.style.overflow).not.toBe("hidden");
@@ -139,6 +139,22 @@ describe("learning companion", () => {
     expect(p.onDraft).toHaveBeenCalledWith("帮我拆解任务");
     expect(screen.queryByRole("button", { name: "帮我看报错" })).not.toBeInTheDocument();
     expect(p.onSend).not.toHaveBeenCalled();
+  });
+  it("offers two focused suggestions and hands the current draft to learning planning", () => {
+    const p = props();
+    render(<CompanionPanel {...p} view="chat" draft="我的学习时间不够" learningContext={researchContext()} />);
+    expect(screen.queryByRole("checkbox", { name: "减少动效" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "给我一个例子" })).not.toBeInTheDocument();
+    expect(screen.getByText("正在帮助：")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "调整学习计划" }));
+    expect(p.onHandoff).toHaveBeenCalledWith("我的学习时间不够");
+    expect(p.onSend).not.toHaveBeenCalled();
+  });
+  it("restores focus to the workspace help entry when it replaces the floating launcher", async () => {
+    const p = props();
+    render(<><button data-companion-trigger>工作区帮助</button><CompanionPanel {...p} view="chat" /></>);
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    await waitFor(() => expect(screen.getByRole("button", { name: "工作区帮助" })).toHaveFocus());
   });
   it("keeps resources visible when AI is disabled without directing account setup", () => {
     render(<CompanionPanel {...props()} view="chat" enabled={false} availability="disabled" roleName="产品经理"
@@ -219,7 +235,7 @@ describe("learning companion", () => {
     render(<CompanionPanel {...p} view="chat" busy messages={[message]} pendingQuestion="举一个例子" partial="比如留存率" />);
     fireEvent.click(screen.getByRole("checkbox", { name: "深入讲解" }));
     expect(p.onDeep).toHaveBeenCalledWith(true);
-    fireEvent.click(screen.getByRole("button", { name: /交给规划师/ }));
+    fireEvent.click(screen.getByRole("button", { name: /带到学习规划/ }));
     expect(p.onHandoff).toHaveBeenCalledWith(expect.stringContaining("指标如何拆解？"));
     expect(screen.getByText("比如留存率")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "停止回复" }));

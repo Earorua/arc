@@ -7,18 +7,19 @@ import { flagshipRole } from "../../app/data/flagship-role";
 afterEach(cleanup);
 
 describe("TodaySession", () => {
-  it("shows completion only after every actual step is complete", async () => {
+  it("keeps completion discoverable and enables it only after every actual step is complete", async () => {
     const user = userEvent.setup();
     const onComplete = vi.fn(() => true);
 
     render(<TodaySession onComplete={onComplete} unit={flagshipRole.today} />);
 
-    expect(screen.queryByRole("button", { name: "完成任务" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "完成任务" })).toBeDisabled();
+    expect(screen.getByText("完成并勾选上面的学习步骤后，即可记录进度。")).toBeInTheDocument();
 
     for (const [index, step] of flagshipRole.today.steps.entries()) {
       await user.click(screen.getByRole("checkbox", { name: step.label }));
       if (index < flagshipRole.today.steps.length - 1) {
-        expect(screen.queryByRole("button", { name: "完成任务" })).not.toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "完成任务" })).toBeDisabled();
       }
     }
 
@@ -55,7 +56,7 @@ describe("TodaySession", () => {
     for (const step of nextUnit.steps) {
       expect(screen.getByRole("checkbox", { name: step.label })).not.toBeChecked();
     }
-    expect(screen.queryByRole("button", { name: "完成任务" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "完成任务" })).toBeDisabled();
 
     for (const step of nextUnit.steps) {
       await user.click(screen.getByRole("checkbox", { name: step.label }));

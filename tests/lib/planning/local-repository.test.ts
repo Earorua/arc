@@ -310,6 +310,18 @@ describe("guest adaptive planning repository", () => {
     expect(storage.removeCalls).toEqual([]);
   });
 
+  it("persists and reloads uncertain assessments with calibration followed by learning", async () => {
+    const storage = new MemoryStorage();
+    const input = generateRequest();
+    input.audit.answers[0]!.level = "uncertain";
+    const result = await createRepository(storage).generate(input);
+    const reopened = await createRepository(storage, "reopened").load();
+    expect(reopened).toEqual(result.workspace);
+    expect(reopened!.audit.answers[0]!.level).toBe("uncertain");
+    const path = reopened!.pathVersions.find(({ id }) => id === reopened!.activePathVersionId)!;
+    expect(path.units.filter(({ skillId }) => skillId === input.audit.answers[0]!.skillId).map(({ kind }) => kind)).toEqual(["calibrate", "learn", "learn"]);
+  });
+
   it("constructs, validates, and persists a complete initial envelope with one write", async () => {
     const storage = new MemoryStorage();
     storage.values.set(DEMO_STORAGE_KEY, JSON.stringify(createDemoState()));

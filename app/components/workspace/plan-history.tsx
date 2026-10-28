@@ -69,14 +69,16 @@ function HistoryView({ client, goal, offset, ownerId }: { client: PlanningHistor
     updatePageQuery({ goal: nextGoal, offset: nextOffset > 0 ? String(nextOffset) : null });
   }
   return <section className="plan-history">
-    <div className="workspace-intro workspace-intro-with-return"><p className="eyebrow">学习记录</p><h1>历史学习计划</h1><p>回看之前保存的目标、路线和学习记录。这里的内容只供查阅，当前学习计划保持不变。</p><Link className="workspace-return" href="/path"><span aria-hidden="true">←</span> 返回当前学习路线</Link></div>
-    {goal !== null && <button className="history-back workspace-return" type="button" onClick={() => navigate(null)}><span aria-hidden="true">←</span> 返回历史列表</button>}
+    <div className="workspace-intro workspace-intro-with-return"><p className="eyebrow">学习记录</p><h1>历史学习计划</h1><p>回看之前保存的目标、路线和学习记录。这里的内容只供查阅，当前学习计划保持不变。</p>
+      {goal !== null ? <button className="workspace-return" type="button" onClick={() => navigate(null)}><span aria-hidden="true">←</span> 返回历史列表</button> : <Link className="workspace-return" href="/path"><span aria-hidden="true">←</span> 返回当前学习路线</Link>}
+      {goal !== null && <p className="history-current-return"><Link href="/path">返回当前学习路线</Link></p>}
+    </div>
     {error === "sign-in" ? <p role="alert">登录已过期。<Link href={signInHref(`/history?${new URLSearchParams({ ...(goal ? { goal } : {}), offset: String(offset) })}`, true)}>重新登录</Link></p>
       : error ? <p role="alert">暂时无法读取历史计划。 <button type="button" onClick={() => { setError(null); setResult(null); setRevision(value => value + 1); }}>重试</button></p>
       : !result ? <p role="status">正在读取历史计划…</p>
       : result.kind === "list" ? <>
         {result.value.goals.length === 0 ? <p>还没有历史学习计划。</p> : <ul className="history-goals">{result.value.goals.map(item => <li key={item.id}>
-          <div><strong>{getRoleDisplayName(item.roleId)}</strong><p>{item.targetWeeks} 周 · 每周 {item.weeklyMinutes} 分钟 · {new Date(item.createdAt).toISOString().slice(0, 10)}</p></div>
+          <div><strong>{getRoleDisplayName(item.roleId)}</strong><p>{item.targetWeeks} 周 · 每周 {item.weeklyMinutes} 分钟 · {new Date(item.createdAt).toISOString().slice(0, 10)}</p>{item.progress ? <p className="history-progress">已完成 {item.progress.completedUnits} / {item.progress.totalUnits} 个学习单元</p> : item.hasWorkspace && <p className="history-progress">进度记录暂不可用</p>}</div>
           {item.hasWorkspace ? <button type="button" data-goal={item.id} onClick={() => navigate(item.id)} aria-label={`查看 ${getRoleDisplayName(item.roleId)}`}>查看计划 ↗</button> : <span>未生成学习计划</span>}
         </li>)}</ul>}
         <nav className="history-pagination" aria-label="历史计划分页">
@@ -94,7 +96,7 @@ export function SavedPlan({ value }: { value: PlanningWorkspaceResponse }) {
   const { blueprint, registry } = sourceContext;
   const resources = new Map(blueprint.resources.map(resource => [resource.id, resource]));
   const templates = new Map(registry.tracks.flatMap(track => track.templates).map(template => [template.id, template]));
-  const eventLabels = { completed: "已完成", delayed: "已延后", skipped: "已跳过", too_hard: "难度较高", already_known: "已掌握" };
+  const eventLabels = { completed: "已完成", delayed: "已延后", skipped: "已跳过", too_hard: "难度较高", already_known: "自评已会" };
   return <div className="history-saved-plan">
     <h2>{blueprint.name}</h2><p className="workspace-notice">历史版本 · 只读</p>
     <AdaptivePath readOnly workspace={workspace} blueprint={blueprint} registry={registry} headingLevel={2} title="已保存的学习路线" />

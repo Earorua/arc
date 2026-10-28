@@ -8,6 +8,26 @@ import { createSkillAuditDraft, isSkillAuditDraftValid, SkillAuditStep, type Ski
 afterEach(cleanup);
 
 describe("SkillAuditStep", () => {
+  it("offers uncertainty separately from unseen and preserves evidence when selected", async () => {
+    const user = userEvent.setup();
+    const draft = createSkillAuditDraft(flagshipBlueprint);
+    draft.evidence["web-platform"] = [{ id: "evidence-web-platform-1", kind: "project", url: "https://example.com/work", note: "Existing work" }];
+    const onChange = vi.fn();
+    const view = render(<SkillAuditStep blueprint={flagshipBlueprint} value={draft} onChange={onChange} />);
+    const group = screen.getByRole("group", { name: "Web Platform 自我评估" });
+    expect(within(group).getByRole("radio", { name: "尚未接触" })).toBeChecked();
+    await user.click(within(group).getByRole("radio", { name: "不确定" }));
+    const next: SkillAuditDraft = onChange.mock.lastCall![0];
+    expect(next.levels["web-platform"]).toBe("uncertain");
+    expect(next.evidence).toEqual(draft.evidence);
+    expect(isSkillAuditDraftValid(flagshipBlueprint, next)).toBe(true);
+    view.rerender(<SkillAuditStep blueprint={flagshipBlueprint} value={next} onChange={onChange} />);
+    expect(within(group).getByRole("radio", { name: "不确定" })).toBeChecked();
+    expect(within(group).getByRole("radio", { name: "尚未接触" })).not.toBeChecked();
+    expect(screen.getByText(/选择“不确定”会先安排校准任务/)).toHaveTextContent(/完成校准不代表已掌握，后续学习仍会保留/);
+    expect(screen.getByLabelText("Web Platform 证据链接 1")).toHaveValue("https://example.com/work");
+  });
+
   it("shows only the populated category and actual skill for a sparse research blueprint", async () => {
     const blueprint = {
       ...flagshipBlueprint,
@@ -22,7 +42,7 @@ describe("SkillAuditStep", () => {
     expect(screen.getAllByRole("group", { name: /自我评估$/ })).toHaveLength(1);
     expect(screen.getByRole("group", { name: "Data modeling 自我评估" })).toHaveAttribute("aria-describedby", "audit-disclosure");
     await userEvent.click(screen.getByText("数据批量设置"));
-    expect(screen.getAllByRole("button", { name: /^将/ })).toHaveLength(4);
+    expect(screen.getAllByRole("button", { name: /^将/ })).toHaveLength(5);
     await userEvent.click(screen.getByText("添加作品证据（可选）"));
     expect(screen.getAllByRole("button", { name: /^为 .* 添加证据链接$/ })).toHaveLength(1);
     expect(screen.queryByRole("group", { name: "基础技能" })).not.toBeInTheDocument();

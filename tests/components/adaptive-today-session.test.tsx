@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { useState } from "react";
@@ -28,6 +28,35 @@ async function openAdjustments(user: ReturnType<typeof userEvent.setup>) {
 
 afterEach(cleanup);
 describe("AdaptiveTodaySession", () => {
+  it("shows a completed route after its saved week instead of a version error or a repeated task", () => {
+    const current = workspace();
+    const path = current.pathVersions[0];
+    path.units = path.units.slice(0, 3);
+    path.phases = path.phases.map(phase => ({ ...phase, unitIds: phase.unitIds.filter(id => path.units.some(unit => unit.id === id)) })).filter(phase => phase.unitIds.length > 0);
+    current.events = current.pathVersions[0].units.map((unit, index) => ({ kind: "completed" as const, unitId: unit.id, actualMinutes: null, planningDate: "2026-08-14", occurredAt: "2026-08-14T10:00:00.000Z", eventId: `done-${index}`, mutationId: `done-${index}`, sequence: index + 1, targetPlanVersionId: current.activePlanVersionId }));
+    current.lastSequence = current.events.length;
+    planningWorkspaceSchema.parse(current);
+    render(<AdaptiveTodaySession workspace={current} now={() => new Date("2026-10-28T10:00:00.000Z")} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+    expect(screen.getByRole("heading", { name: "这条路线已完成。" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "完成任务" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "回顾学习路线" })).toHaveAttribute("href", "/path");
+  });
+  it("links the actual task skill and keeps mobile resources available on demand", () => {
+    const previous = window.matchMedia;
+    window.matchMedia = vi.fn(query => ({ matches: query === "(max-width: 760px)", media: query, onchange: null, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: vi.fn() }));
+    try {
+      const current = workspace();
+      const plan = current.planVersions.find(item => item.id === current.activePlanVersionId)!;
+      const task = current.dailyUnits.find(item => item.id === plan.days[0]!.primaryUnitId)!;
+      render(<AdaptiveTodaySession workspace={current} now={fixedNow} record={vi.fn()} accept={vi.fn()} discard={vi.fn()} />);
+      expect(screen.getByRole("link", { name: "查看当前技能与资料" })).toHaveAttribute("href", `/stack?skill=${encodeURIComponent(task.skillId)}&returnTo=%2Ftoday`);
+      const disclosure = screen.getByText("学习资料").closest("details")!;
+      expect(disclosure).not.toHaveAttribute("open");
+      fireEvent.click(screen.getByText("学习资料"));
+      expect(disclosure).toHaveAttribute("open");
+      expect(screen.getByRole("link", { name: flagshipBlueprint.resources[0]!.title })).toBeVisible();
+    } finally { cleanup(); window.matchMedia = previous; }
+  });
   it("uses the short template title and retains the full objective as body copy", () => {
     const current = workspace();
     const plan = current.planVersions.find(({ id }) => id === current.activePlanVersionId)!;

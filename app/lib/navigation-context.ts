@@ -42,6 +42,19 @@ export function safeReturnTo(value: string | null | undefined, fallback = "/toda
   return isSafeDestination(value) ? value : isSafeDestination(fallback) ? fallback : "/today";
 }
 
+/** A contextual back link may cross several pages, but must never loop back to one. */
+export function safeContextReturnTo(value: string | null | undefined, currentPath: string): string {
+  const fallback = safeReturnTo(currentPath);
+  const destination = safeReturnTo(value, fallback);
+  function hasCycle(href: string, visited: ReadonlySet<string>): boolean {
+    const url = new URL(href, "https://arc.invalid");
+    if (visited.has(url.pathname)) return true;
+    const nextVisited = new Set([...visited, url.pathname]);
+    return [...url.searchParams].some(([key, nested]) => redirectParameters.has(key.toLowerCase()) && hasCycle(nested, nextVisited));
+  }
+  return hasCycle(destination, new Set([new URL(fallback, "https://arc.invalid").pathname])) ? fallback : destination;
+}
+
 export function signInHref(destination: string, reauthenticate = false): string {
   return `/sign-in?next=${encodeURIComponent(safeReturnTo(destination))}${reauthenticate ? "&reauth=1" : ""}`;
 }

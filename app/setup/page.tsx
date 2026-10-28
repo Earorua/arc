@@ -44,7 +44,7 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, save
   const createsNewGoal = !pendingFirstSource && signedIn && source.source === "research" && planning.workspace !== null;
   if (sourceChanged) return <section className="setup-flow"><h1>当前目标已变化</h1><p>这份未完成的创建草稿属于另一个目标。请返回当前路线，原草稿不会应用到当前目标。</p><Link className="text-action" href="/path">查看当前路线</Link></section>;
   if (creationMode && !pendingFirstSource && planning.workspace && (source.source !== "research" || !signedIn)) return <section className="setup-flow"><h1>创建新的学习目标</h1><p>当前已有学习计划。现阶段只有登录后的岗位研究支持创建新目标并将当前计划保留在历史记录中。</p><p>精选路径和基础路径暂不支持在已有计划上创建新目标。</p><button className="text-action" type="button" onClick={onBackToRole}>返回，研究新目标</button><Link className="text-action" href="/path">查看当前路线</Link></section>;
-  if (!blueprint || !registry) return <p role="alert">Research is unavailable. Return to Role and restore the research.</p>;
+  if (!blueprint || !registry) return <section className="setup-flow"><h1>暂时无法恢复岗位研究</h1><p role="alert">请返回目标步骤，重新查询研究状态后继续。你的当前路线会保留。</p><button className="text-action" type="button" onClick={onBackToRole}>返回目标步骤</button><Link className="text-action" href="/path">查看当前路线</Link></section>;
   const generate = async (request: GeneratePlanningRequest) => {
     if (!connected.current) return false;
     const started = epoch.current;
@@ -82,6 +82,7 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, save
     return planning.generate(request);
   };
   return <AdaptiveSetupFlow
+    syncUrl
     blueprint={blueprint}
     source={source}
     draftOwner={draftOwner}
@@ -103,17 +104,21 @@ export default function SetupPage() {
   const session = authClient.useSession();
   const userId = session.isPending ? null : session.data?.user.id ?? null;
   const [researchActive, setResearchActive] = useState(true);
-  const eligibility = useResearchEligibility({ userId });
+  // A fresh fetch function retriggers the existing owner-bound, abortable check.
+  const [eligibilityFetch, setEligibilityFetch] = useState(() => (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init));
+  const eligibility = useResearchEligibility({ userId, fetch: eligibilityFetch });
   // Keep owner-bound controllers connected across account changes so their
   // reviewed cleanup clears recovery identity; remount only editable page state.
   const research = useRoleResearch({ userId, eligible: eligibility.eligible, active: researchActive });
   if (session.isPending) return <main className="setup-page" id="main-content" tabIndex={-1}><p role="status">正在确认账户…</p></main>;
   return <SessionSetupPage key={session.isPending ? "pending" : userId ?? "guest"} userId={userId}
-    research={research} eligible={eligibility.eligible} onResearchActiveChange={setResearchActive} />;
+    research={research} eligible={eligibility.eligible} researchChecking={userId !== null && eligibility.resolved === false}
+    onRetryResearchAvailability={() => setEligibilityFetch(() => (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init))}
+    onResearchActiveChange={setResearchActive} />;
 }
 
-function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }: {
-  userId: string | null; research: RoleResearchController; eligible: boolean; onResearchActiveChange: (active: boolean) => void;
+function SessionSetupPage({ userId, research, eligible, researchChecking, onRetryResearchAvailability, onResearchActiveChange }: {
+  userId: string | null; research: RoleResearchController; eligible: boolean; researchChecking: boolean; onRetryResearchAvailability: () => void; onResearchActiveChange: (active: boolean) => void;
 }) {
   const router = useRouter();
   const query = usePageQuery();
@@ -196,13 +201,13 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
         <Link className="wordmark setup-wordmark" href="/" lang="en" aria-label="Arc. 首页">Arc.</Link>
         <Link className="setup-route-back" href="/path"><span aria-hidden="true">←</span> 返回学习路线</Link>
       </header>
-      {mode === null ? <p role="status">正在准备设置…</p> : mode === "time" ? <TimeEditFlow draftOwner={draftOwner} signedIn={userId !== null} onResearchActiveChange={onResearchActiveChange} /> : <CreationGuard enabled={mode === "create"} signedIn={userId !== null} arc={arc} draftOwner={draftOwner} creationStartedHere={creationStartedHere} render={(allowBasic) => <SetupFlow basicCreationAllowed={allowBasic} onComplete={allowBasic ? finish : async () => { setSaveError("当前已有学习计划。请通过岗位研究创建新目标，或返回当前路线调整时间。"); }} draftOwner={draftOwner} creationMode={mode === "create"}
+      {mode === null ? <p role="status">正在准备设置…</p> : mode === "time" ? <TimeEditFlow draftOwner={draftOwner} signedIn={userId !== null} onResearchActiveChange={onResearchActiveChange} /> : <CreationGuard enabled={mode === "create"} signedIn={userId !== null} arc={arc} draftOwner={draftOwner} creationStartedHere={creationStartedHere} render={(allowBasic) => <SetupFlow syncUrl researchChecking={researchChecking} onRetryResearchAvailability={onRetryResearchAvailability} basicCreationAllowed={allowBasic} onComplete={allowBasic ? finish : async () => { setSaveError("当前已有学习计划。请通过岗位研究创建新目标，或返回当前路线调整时间。"); }} draftOwner={draftOwner} creationMode={mode === "create"}
         recoveredResearch={research.run && research.planningData ? { runId: research.run.id, planningData: research.planningData } : null} signedIn={userId !== null} researchEligible={eligible}
         researchRecoveryAvailable={research.restoring || research.run !== null || research.error !== null || research.recoveryUncertain || research.replacementPending}
         onResearchActiveChange={onResearchActiveChange} onRoleChange={research.reset}
         renderResearch={({ role, onUseResearch, onFlagship }) => <RoleResearchPanel controller={research} role={role} eligible={eligible}
           onStart={() => void research.start({ role, locale: /[\u3400-\u9fff]/u.test(role) ? "zh-CN" : "en-US" })}
-          onUse={(runId) => { if (research.planningData) onUseResearch(runId, research.planningData); }} onFlagship={onFlagship} />}
+          onUse={(runId) => { if (research.planningData) onUseResearch(runId, research.planningData); }} onFlagship={allowBasic ? onFlagship : undefined} />}
         renderAdaptive={({ active, onBackToRole, source, planningData }) => <AdaptiveSetupConnector draftOwner={draftOwner} creationMode={mode === "create"} active={active} signedIn={userId !== null} navigate={(path) => router.push(path === "/path?created=1" ? completionHref : path)} onBackToRole={onBackToRole} saveCommonRole={saveCommonRole} source={source} planningData={planningData} />} />} />}
       {arc.recovery === "session-expired" && <CloudStatus kind="session-expired" />}
       {saveError && arc.recovery === "none" && <p className="setup-save-error" role="alert">{saveError}</p>}

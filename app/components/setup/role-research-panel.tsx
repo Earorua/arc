@@ -52,7 +52,7 @@ const labels = { idle: "岗位研究 · Beta", submitting: "正在提交研究",
 
 export function RoleResearchPanel({ controller, role, eligible, onStart, onUse, onFlagship }: {
   controller: RoleResearchController; role: string; eligible: boolean;
-  onStart(): void; onUse(runId: string): void; onFlagship(): void;
+  onStart(): void; onUse(runId: string): void; onFlagship?: () => void;
 }) {
   const location = useAccountLocation();
   const { state, run, busy, error, requestId, restoring, recoveryUncertain, replacementPending } = controller;
@@ -92,7 +92,7 @@ export function RoleResearchPanel({ controller, role, eligible, onStart, onUse, 
     {run?.state === "needs-review" && <div role="alert"><ul>{run.quality.issueCodes.map((issue) => <li key={issue}>{issueCopy[issue]}</li>)}</ul></div>}
     {run?.state === "failed" && <p role="alert">{failureCopy[run.failureCategory]}</p>}
     {showError && <p role="alert">{error.name === "LocalResearchStorageError" ? "Arc 未能将恢复信息保存在此设备上。请允许设备存储后重试。" : localizedErrors[error.message] ?? error.message}</p>}
-    {requestId && showError && <p className="research-request-id">请求编号： {requestId}</p>}
+    {requestId && showError && <details className="research-diagnostics"><summary>详细信息</summary><p className="research-request-id">请求编号： {requestId}</p></details>}
     <div className="setup-actions research-actions">
       {canStart && <button className="setup-next research-action" onClick={onStart} type="button">研究这个岗位</button>}
       {run?.state === "ready" && <button className="setup-next research-action" disabled={busy} onClick={() => onUse(run.id)} type="button">使用研究结果</button>}
@@ -102,7 +102,7 @@ export function RoleResearchPanel({ controller, role, eligible, onStart, onUse, 
       {recoveryUncertain && !replacementPending && <button className="text-action research-action" disabled={busy} onClick={() => void controller.refresh()} type="button">查询研究状态</button>}
       {!recoveryUncertain && error?.recovery === "refresh" && <button className="text-action research-action" disabled={busy} onClick={() => void controller.refresh()} type="button">刷新研究状态</button>}
       {error?.recovery === "sign-in" && <Link className="text-action research-action" href={signInHref(location, true)}>登录</Link>}
-      <button className="text-action research-action" onClick={onFlagship} type="button">使用精选路径</button>
+      {onFlagship && <button className="text-action research-action" onClick={onFlagship} type="button">使用精选路径</button>}
     </div>
   </section>;
 }

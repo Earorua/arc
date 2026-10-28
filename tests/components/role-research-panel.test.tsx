@@ -126,11 +126,15 @@ describe("RoleResearchPanel", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("研究耗时超出预期。");
     expect(Boolean(screen.queryByRole("button", { name: "重试研究" }))).toBe(retryable);
   });
-  it("keeps no-run errors stable with explicit recovery and Request ID", () => {
+  it("keeps recovery visible and request diagnostics collapsed until requested", async () => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "failed" }, error: new ResearchClientError("RESEARCH_UNAVAILABLE", "request-safe"), requestId: "request-safe" })} />);
     expect(screen.getByRole("alert")).toHaveTextContent("研究服务暂时不可用。");
     expect(screen.getByRole("button", { name: "研究这个岗位" })).toBeInTheDocument();
-    expect(screen.getByText(/request-safe/)).toBeInTheDocument();
+    const request = screen.getByText(/request-safe/);
+    expect(request).not.toBeVisible();
+    await userEvent.setup().click(screen.getByText("详细信息", { selector: "summary" }));
+    expect(request).toBeVisible();
+    expect(screen.getByRole("button", { name: "研究这个岗位" })).toBeVisible();
   });
   it("links session recovery back to the exact setup query", () => {
     window.history.replaceState(null, "", "/setup?mode=create");

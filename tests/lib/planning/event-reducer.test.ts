@@ -7,6 +7,7 @@ import {
   type AvailabilityVersion,
   type PlanningEvent,
   type PlanningWorkspace,
+  type SkillSelfLevel,
   type UnitRegistry,
   type UnitTemplate,
 } from "../../../app/contracts/planning";
@@ -17,6 +18,8 @@ import {
   replayPlanningEvents,
   type PlanningTransition,
 } from "../../../app/lib/planning/event-reducer";
+
+import { completedSkillEvidenceFromPlanning, completedSkillIdsFromPlanning, projectSkillEvidence } from "../../../app/lib/proof/projection";
 
 const PLANNING_DATE = "2026-08-12";
 
@@ -74,11 +77,11 @@ function availability(id = "availability-01", firstDayMinutes = 60): Availabilit
   };
 }
 
-function workspace(inputRegistry: UnitRegistry = registry): PlanningWorkspace {
+function workspace(inputRegistry: UnitRegistry = registry, level: SkillSelfLevel = "guided"): PlanningWorkspace {
   const audit = {
     id: "audit-01", schemaVersion: PLANNING_SCHEMA_VERSION, blueprintId: blueprint.id,
     blueprintVersion: blueprint.version,
-    answers: blueprint.skills.map(({ id }) => ({ skillId: id, level: "guided" as const, evidenceRefs: [] })),
+    answers: blueprint.skills.map(({ id }) => ({ skillId: id, level, evidenceRefs: [] })),
     evidence: [], createdBy: "test-user", inputFingerprint: "audit-fingerprint",
   };
   const target = { id: "target-01", schemaVersion: PLANNING_SCHEMA_VERSION, targetWeeks: 8, inputFingerprint: "target-fingerprint" };
@@ -120,6 +123,53 @@ function propose(
 }
 
 describe("applyPlanningEvent", () => {
+  it("schedules uncertain calibration first, then keeps learning after completion with practice-only evidence", () => {
+    const initial = workspace(registry, "uncertain");
+    const calibration = activeUnit(initial, "alpha");
+    expect(calibration.kind).toBe("calibrate");
+    expect(calibration.estimatedMinutes).toBe(30);
+    expect(calibration.steps).toEqual(registry.tracks[0]!.templates.find(({ kind }) => kind === "calibrate")!.steps);
+    const projection = (state: PlanningWorkspace, visibility: "internal" | "public") => projectSkillEvidence({ skillIds: ["alpha"], completedSkillIds: completedSkillIdsFromPlanning(state), completedUnits: completedSkillEvidenceFromPlanning(state), versions: [], reviews: [], visibility });
+    expect(projection(initial, "internal")[0]?.status).toBe("exploring");
+    const transition = applyPlanningEvent({ workspace: initial, blueprint, registry, event: event(initial, { kind: "completed", unitId: calibration.id, actualMinutes: 30, planningDate: PLANNING_DATE }) });
+    expect(transition.kind).toBe("automatic");
+    const next = transition.workspace;
+    expect(next.audit).toEqual(initial.audit);
+    expect(next.activePathVersionId).toBe(initial.activePathVersionId);
+    expect(activeUnit(next, "alpha")).toMatchObject({ kind: "learn", templateId: "alpha-learn-01" });
+    expect(next.pathVersions.find(({ id }) => id === next.activePathVersionId)!.units.filter(({ skillId }) => skillId === "alpha").map(({ kind }) => kind)).toEqual(["calibrate", "learn"]);
+    expect(projection(next, "internal")[0]).toMatchObject({ status: "practicing", strongestProofId: null, strongestVersionId: null });
+    expect(projection(next, "public")[0]?.status).toBe("exploring");
+  });
+
+  it("retains uncertain learning when already-known is claimed before or after calibration completion", () => {
+    const initial = workspace(registry, "uncertain");
+    const calibration = activeUnit(initial, "alpha");
+    const completed = applyPlanningEvent({ workspace: initial, blueprint, registry, event: event(initial, { kind: "completed", unitId: calibration.id, actualMinutes: 30, planningDate: PLANNING_DATE }) }).workspace;
+    for (const state of [initial, completed]) {
+      const proposed = propose(state, "already_known");
+      const candidate = proposed.workspace.planVersions.find(({ id }) => id === proposed.workspace.pendingPlanVersionId)!;
+      expect(candidate.pathVersionId).toBe(state.activePathVersionId);
+      const accepted = applyPlanningEvent({ workspace: proposed.workspace, blueprint, registry, event: event(proposed.workspace, { kind: "replan_accepted", candidatePlanVersionId: candidate.id }) }).workspace;
+      expect(accepted.audit).toEqual(initial.audit);
+      expect(accepted.pathVersions.find(({ id }) => id === accepted.activePathVersionId)!.units.filter(({ skillId }) => skillId === "alpha").map(({ kind }) => kind)).toEqual(["calibrate", "learn"]);
+      expect(accepted.events.filter(({ kind }) => kind === "completed")).toHaveLength(state === initial ? 0 : 1);
+    }
+  });
+
+  it("allows delaying and changing time after an uncertain self-claim is discarded", () => {
+    const initial = workspace(registry, "uncertain");
+    const proposed = propose(initial, "already_known").workspace;
+    const kept = applyPlanningEvent({ workspace: proposed, blueprint, registry, event: event(proposed, { kind: "replan_discarded", candidatePlanVersionId: proposed.pendingPlanVersionId }) }).workspace;
+    expect(kept.pendingPlanVersionId).toBeNull();
+    const delayed = propose(kept, "delayed");
+    expect(delayed.diff.items.find(({ unitId }) => unitId === activeUnit(kept, "alpha").id)).toMatchObject({ change: "moved", toDate: "2026-08-13" });
+    const changed = applyPlanningEvent({ workspace: kept, blueprint, registry, event: event(kept, { kind: "availability_changed", availability: availability("availability-changed", 0), planningDate: PLANNING_DATE }) });
+    expect(changed.kind).toBe("proposed");
+    expect(changed.workspace.pendingPlanVersionId).not.toBeNull();
+    expect(changed.workspace.audit.answers.every(({ level }) => level === "uncertain")).toBe(true);
+  });
+
   it.each(["delayed", "skipped"] as const)("defers overdue work from the current day for %s and can discard the proposal", (kind) => {
     const initial = workspace();
     const alpha = activeUnit(initial, "alpha");

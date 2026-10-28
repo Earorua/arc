@@ -54,7 +54,7 @@ await check('Mobile Stack preserves search through detail Back and Forward',asyn
  await mobile.goto(origin+'/stack'); await mobile.getByLabel('搜索技能',{exact:true}).fill('TypeScript');
  assert.equal(new URL(mobile.url()).searchParams.get('q'),'TypeScript');
  const items=mobile.locator('.stack-index button[aria-controls="selected-skill-detail"]'); await items.first().click(); assert.ok(new URL(mobile.url()).searchParams.get('skill'));
- await mobile.goBack(); await mobile.waitForURL('**/stack?q=TypeScript'); assert.ok(await mobile.locator('.stack-index').isVisible());
+ await mobile.goBack(); await mobile.waitForURL(url=>url.pathname==='/stack' && url.searchParams.get('q')==='TypeScript' && !url.searchParams.has('skill')); assert.ok(await mobile.locator('.stack-index').isVisible());
  assert.equal(await mobile.getByLabel('搜索技能',{exact:true}).inputValue(),'TypeScript');
  await mobile.goForward(); assert.ok(await mobile.locator('.stack-browser.is-detail-open').isVisible());
 });

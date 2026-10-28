@@ -50,6 +50,11 @@ const generateRequest = {
 };
 
 describe("adaptive planning API contracts", () => {
+  it.each(["unseen", "conceptual", "guided", "independent", "uncertain"] as const)("accepts %s assessments at the server request boundary", (level) => {
+    const request = { ...generateRequest, audit: { ...audit, answers: [{ ...audit.answers[0]!, level }] } };
+    expect(generatePlanningRequestSchema.parse(request).audit.answers[0]?.level).toBe(level);
+  });
+
   it.each(["full-scope", "target-date", null] as const)(
     "accepts the exact GeneratePlanningRequest with %s scope",
     (selectedScope) => {

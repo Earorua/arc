@@ -83,7 +83,7 @@
 .proof-workspace .proof-version-list { margin: 0; }
 .proof-workspace .proof-version-list li { gap: 24px; font-size: 14px; }
 .proof-workspace .proof-form-grid { gap: 20px 28px; }
-.proof-workspace .proof-form-grid label, .proof-workspace .proof-upload-zone label { font: 400 13px/1.5 var(--sans); letter-spacing: 0; text-transform: none; }
+.proof-workspace .proof-form-grid label, .proof-workspace .proof-upload-zone label { font: 400 14px/1.5 var(--sans); letter-spacing: 0; text-transform: none; }
 .proof-workspace .proof-form-grid input, .proof-workspace .proof-form-grid select, .proof-workspace .proof-form-grid textarea { font-size: 16px; min-height: 44px; }
 .proof-workspace .proof-upload-zone { margin-top: 24px; }
 .proof-profile { margin-top: 28px; border-top: 1px solid var(--hairline); padding-top: 24px; }

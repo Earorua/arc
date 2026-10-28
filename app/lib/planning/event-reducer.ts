@@ -220,8 +220,11 @@ function proposeReplan(
     pathVersions = appendUnique(pathVersions, path);
   } else if (event.kind === "already_known") {
     const target = activeDailyUnit(workspace, event.unitId);
-    path = alreadyKnownPath(path, target, registry, availability, event.planningDate, completedHistory);
-    pathVersions = appendUnique(pathVersions, path);
+    // An uncertain assessment still needs learning; a self-claim is not reviewed evidence.
+    if (workspace.audit.answers.find(({ skillId }) => skillId === target.skillId)?.level !== "uncertain") {
+      path = alreadyKnownPath(path, target, registry, availability, event.planningDate, completedHistory);
+      pathVersions = appendUnique(pathVersions, path);
+    }
   } else if (event.kind === "too_hard") {
     path = reinforcePath(
       path,

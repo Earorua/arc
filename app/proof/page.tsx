@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ProofProfile } from "../components/proof/proof-profile";
 import { ProofWorkspace } from "../components/proof/proof-workspace";
+import { ProofContextReturn } from "../components/proof/proof-context-return";
 import { WorkspaceShell } from "../components/workspace/workspace-shell";
 import { flagshipBlueprint } from "../data/flagship-blueprint";
 import { useArcState } from "../lib/use-arc-state";
@@ -45,6 +46,7 @@ function EmptyAccountProof() {
       <p className="eyebrow">你的账户 · 作品证据</p>
       <h1>作品证据</h1>
       <p className="lede">先创建学习路线，再保存与学习目标相关的作品证据。</p>
+      <ProofContextReturn />
       <Link className="primary-action" href={setupHref(location)}>创建学习路线 →</Link>
     </main>
   </div>;
@@ -63,6 +65,7 @@ function ProofGoalPage({ ownerKey, arc, planning }: { ownerKey: string; arc: Ret
 
   if (state === null) return <WorkspaceShell current="Proof" recovery={arc.recovery} source={arc.source} state={null} />;
   if (resolved.kind !== "adaptive" && resolved.kind !== "legacy") return <WorkspaceShell current="Proof" sourceUnresolved recovery={arc.recovery} source={arc.source} state={state}>
+    <ProofContextReturn />
     {resolved.kind === "unavailable" ? <PlanningVersionBoundary /> : <PlanningLoadBoundary loading={resolved.kind === "loading"} onRetry={planning.retry} />}
   </WorkspaceShell>;
 

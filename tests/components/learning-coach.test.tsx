@@ -5,7 +5,7 @@ import type { PublicAgentRun } from "../../app/contracts/agents";
 import { agentFixture } from "../helpers/agent-fixture";
 
 const mocks = vi.hoisted(() => ({ agents: vi.fn(), planning: vi.fn(), start: vi.fn(), apply: vi.fn(), poll: vi.fn() }));
-vi.mock("../../app/components/agents/agent-context", () => ({ useLearningAgents: mocks.agents }));
+vi.mock("../../app/components/agents/agent-context", () => ({ useLearningAgents: mocks.agents, useOptionalLearningAgents: mocks.agents }));
 vi.mock("../../app/lib/use-planning-workspace", () => ({ usePlanningWorkspace: mocks.planning }));
 vi.mock("../../app/lib/agent-client", () => ({ agentClient: { start: mocks.start, apply: mocks.apply, poll: mocks.poll } }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <button>账号</button> }));
@@ -17,7 +17,7 @@ function setup(enabled = true) {
   mocks.agents.mockReturnValue({ workspace: { enabled, authenticated: true, goalId: f.workspace.goalId,
     baseVersionId: f.workspace.activePlanVersionId, revision: 0, roleName: "前端工程师", currentTask: "组件基础", history: [],
     reason: enabled ? null : "学习助手尚未启用", plannerModel: "gpt-6-astra" },
-    accountId: "alice", authenticated: true, authPending: false, loading: false, refresh: vi.fn(), handoff: "", setHandoff: vi.fn(), setView: vi.fn() });
+    accountId: "alice", authenticated: true, authPending: false, loading: false, view: "pet", busy: false, refresh: vi.fn(), handoff: "", setHandoff: vi.fn(), setView: vi.fn() });
   mocks.planning.mockReturnValue({ workspace: f.workspace, sourceContext: f.sourceContext, source: "cloud",
     recovery: "none", retry: vi.fn(), accept: vi.fn(), discard: vi.fn() });
   return f;

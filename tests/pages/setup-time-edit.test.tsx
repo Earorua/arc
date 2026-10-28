@@ -65,8 +65,8 @@ describe("time-only setup editing", () => {
     window.history.replaceState(null, "", "/setup?mode=create");
     render(<SetupPage />);
     expect(await screen.findByRole("heading", { name: "创建新的学习目标" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "AI 原生全栈工程师" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "继续" })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "AI 原生全栈工程师" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "继续" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "返回学习路线" })).toHaveAttribute("href", "/path");
     expect(state.planning.generate).not.toHaveBeenCalled();
   });
@@ -84,7 +84,7 @@ describe("time-only setup editing", () => {
     expect(await screen.findByRole("heading", { name: "这次调整会改变什么" })).toBeInTheDocument();
     expect(state.planning.workspace!.activePlanVersionId).toBe(original.activePlanVersionId);
     expect(state.planning.accept).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: decision === "accept" ? "接受新安排" : "保留当前安排" }));
+    await user.click(screen.getByRole("button", { name: decision === "accept" ? "保存调整" : "保留当前安排" }));
     const saved = await repository.load();
     expect(saved!.goalId).toBe(original.goalId);
     expect(saved!.target).toEqual(original.target);

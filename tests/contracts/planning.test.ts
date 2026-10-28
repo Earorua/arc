@@ -250,7 +250,7 @@ describe("adaptive planning contracts", () => {
     expect(() => planningTargetSchema.parse({ ...validTarget(), schemaVersion: "2026.08.2" })).toThrow();
   });
 
-  it.each(["unseen", "conceptual", "guided", "independent"] as const)(
+  it.each(["unseen", "conceptual", "guided", "independent", "uncertain"] as const)(
     "accepts the %s self-assessment level",
     (level) => {
       const audit = { ...validAudit(), answers: [{ ...validAudit().answers[0]!, level }] };

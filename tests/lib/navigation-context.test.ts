@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { safeReturnTo, setupHref, signInHref } from "../../app/lib/navigation-context";
+import { safeContextReturnTo, safeReturnTo, setupHref, signInHref } from "../../app/lib/navigation-context";
 
 describe("safe return navigation", () => {
+  it("retains an acyclic chain from proof through a skill back to Today", () => {
+    const source = "/stack?scope=current&skill=testing&returnTo=%2Ftoday";
+    expect(safeContextReturnTo(source, "/proof")).toBe(source);
+    expect(safeContextReturnTo("/today?unit=unit-a", "/stack")).toBe("/today?unit=unit-a");
+  });
+
+  it.each(["https://outside.example", "/proof?proof=other", "/stack?returnTo=%2Fproof", "/stack?returnTo=%2Fstack", "/today?next=%2Fproof"])("rejects recursive or unsafe contextual destinations %s", (source) => {
+    expect(safeContextReturnTo(source, "/proof")).toBe("/proof");
+  });
+
   it.each([
     "/", "/today", "/path?skill=research-basics#unit-2",
     "/setup?mode=edit&section=time", "/proof?compose=1&unit=unit-a&returnTo=%2Ftoday",

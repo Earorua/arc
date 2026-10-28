@@ -1,7 +1,7 @@
 const capabilities = [
   {
     title: "找到当前最值得学的内容",
-    description: "学习规划师结合你的目标、基础和可用时间，梳理现有路线的学习重点，说明先学什么、为什么这样安排。",
+    description: "学习规划结合你的目标、基础和可用时间，梳理现有路线的学习重点，说明先学什么、为什么这样安排。",
     example: "我每周只有 4 小时，基础也不太扎实，应该先从哪里开始？",
   },
   {
@@ -11,7 +11,7 @@ const capabilities = [
   },
   {
     title: "在进度变化时重新梳理路线",
-    description: "遇到持续卡点，或在设置中调整了学习时间后，可以请规划师重新安排未完成任务。先查看计划差异，再决定是否采用。",
+    description: "遇到持续卡点，或在设置中调整了学习时间后，可以通过学习规划重新安排未完成任务。先查看计划差异，再决定是否采用。",
     example: "最近总卡在基础部分，帮我调整接下来的学习顺序。",
   },
   {
@@ -26,7 +26,7 @@ export function CoachOverview() {
     <div className="coach-overview-heading">
       <p className="section-index">WHAT YOUR COACH CAN DO</p>
       <h2 id="coach-overview-title">从「该学什么」，<br />到「这一步怎么做」。</h2>
-      <p>学习规划师帮你看清整条路线，学习伙伴陪你解决当前的问题。</p>
+      <p>学习规划帮你看清整条路线，学习伙伴陪你解决当前的问题。</p>
     </div>
     <ol className="coach-capabilities">
       {capabilities.map((capability, index) => <li key={capability.title}>
@@ -43,7 +43,7 @@ export function CoachOverview() {
       <ol>
         <li><strong>01 / 完成学习设置</strong><p>登录后，填写目标、当前基础和可用时间，建立自己的学习路线。</p></li>
         <li><strong>02 / 说出当前的困难</strong><p>需要整体安排，就在本页提交规划重点；遇到具体问题，打开右下角的学习伙伴。</p></li>
-        <li><strong>03 / 查看建议，再行动</strong><p>规划建议确认后才会更新路线。答疑中发现需要调整计划，也可以把问题交给规划师继续梳理。</p></li>
+        <li><strong>03 / 查看建议，再行动</strong><p>规划建议确认后才会更新路线。答疑中发现需要调整计划，也可以把问题带到学习规划继续梳理。</p></li>
       </ol>
       <p className="coach-account-note">你的学习目标、对话和规划记录都归属于当前登录账号。</p>
     </div>

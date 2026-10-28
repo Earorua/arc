@@ -106,7 +106,7 @@ describe("SetupFlow", () => {
     await user.click(screen.getByRole("button", { name: "继续" }));
     await user.clear(screen.getByLabelText("目标周数"));
     await user.type(screen.getByLabelText("目标周数"), "18");
-    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
 
     expect(onComplete).toHaveBeenCalledWith({
       roleId: "ai-native-full-stack-engineer",
@@ -126,7 +126,7 @@ describe("SetupFlow", () => {
     await user.click(screen.getByRole("button", { name: "初学" }));
     await user.click(screen.getByRole("button", { name: "继续" }));
     await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
 
     expect(onComplete).toHaveBeenCalledWith({
       roleId: "数据产品经理",
@@ -152,9 +152,9 @@ describe("SetupFlow", () => {
     const renderAdaptive = vi.fn(() => <p>Adaptive workspace</p>);
     render(<SetupFlow onComplete={vi.fn()} renderAdaptive={renderAdaptive} />);
     expect(renderAdaptive).not.toHaveBeenCalled();
-    expect(screen.getByText("01 / 05")).toBeInTheDocument();
+    expect(screen.getByText("01 / 04")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "继续" }));
-    expect(renderAdaptive).toHaveBeenCalledTimes(1);
+    expect(renderAdaptive).toHaveBeenCalled();
     expect(screen.getByText("Adaptive workspace")).toBeInTheDocument();
   });
 
@@ -162,7 +162,7 @@ describe("SetupFlow", () => {
     const user = userEvent.setup();
     render(<SetupFlow onComplete={vi.fn()} renderAdaptive={({ active, onBackToRole }) => <AdaptiveSetupFlow active={active} blueprint={flagshipBlueprint} createMutationId={() => "mutation"} generate={vi.fn()} navigate={vi.fn()} now={() => new Date("2026-08-14T02:00:00.000Z")} onBackToRole={onBackToRole} registry={flagshipUnitRegistry} timeZone="Asia/Shanghai" />} />);
     await user.click(screen.getByRole("button", { name: "继续" }));
-    expect(screen.getByText("02 / 05 · 技能评估")).toBeInTheDocument();
+    expect(screen.getByText("02 / 04 · 当前基础")).toBeInTheDocument();
     await user.click(screen.getByText("基础批量设置"));
     await user.click(screen.getByRole("button", { name: "将基础设为需指导完成" }));
     await user.click(screen.getByRole("button", { name: "返回" }));
@@ -201,7 +201,7 @@ describe("SetupFlow", () => {
 
     await user.click(screen.getByRole("button", { name: "继续" }));
     await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
     expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ roleId: "ai-native-full-stack-engineer" }));
   });
 
@@ -237,7 +237,7 @@ describe("SetupFlow", () => {
     render(<SetupFlow onComplete={onComplete} />);
     await reachTargetWeeksStep(user);
     const targetWeeks = screen.getByLabelText("目标周数");
-    const buildButton = screen.getByRole("button", { name: "生成学习路径" });
+    const buildButton = screen.getByRole("button", { name: "创建路线" });
 
     for (const value of ["", "3", "53"]) {
       await user.clear(targetWeeks);

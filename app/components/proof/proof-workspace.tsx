@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { navigateEvidence, useEvidenceQuery } from "../../lib/evidence-navigation";
-import { safeReturnTo } from "../../lib/navigation-context";
+import { safeContextReturnTo } from "../../lib/navigation-context";
 import "./proof-refinement.css";
 import type { DailyUnit } from "../../contracts/planning";
 import type {
@@ -17,6 +16,7 @@ import type {
 import type { SkillNode } from "../../domain/learning";
 import type { ProofRecoveryState, ProofStateSource } from "../../lib/use-proof-ledger";
 import { ProofEditor, type ProofEditorInput } from "./proof-editor";
+import { ProofContextReturn } from "./proof-context-return";
 
 type Props = {
   ownerKey?: string;
@@ -79,7 +79,7 @@ function ProofWorkspaceContent(props: Props) {
   const allowedUnits = props.dailyUnits.filter((unit) => props.skills.some(({ id }) => id === unit.skillId));
   const unitId = query.get("unit");
   const contextualUnit = composing ? allowedUnits.find(({ id }) => id === unitId) : undefined;
-  const returnTo = safeReturnTo(query.get("returnTo"), "/proof");
+  const returnTo = safeContextReturnTo(query.get("returnTo"), "/proof");
   const draftScope = props.ownerKey ? `${props.ownerKey}:${props.workspace?.goalId ?? "new"}` : undefined;
   const draftKey = draftScope ? `arc:proof-editor:v1:${draftScope}:${revising ? `revision:${latest?.id}` : `compose:${contextualUnit?.id ?? "general"}`}` : undefined;
 
@@ -172,7 +172,7 @@ function ProofWorkspaceContent(props: Props) {
     {(props.recovery === "unavailable" || props.source === "offline-cloud") && <p className="proof-recovery" role="alert">云端作品暂时只读，当前可见的版本未发生变化。</p>}
     {props.recovery === "version-unavailable" && <p className="proof-recovery" role="alert">这个作品版本目前无法读取，请恢复作品记录后再修改。</p>}
     {notice && <p className="proof-save-notice" role="status">{notice}</p>}
-    {returnTo === "/today" && <Link className="text-action proof-context-return" href={returnTo}>返回今日学习</Link>}
+    <ProofContextReturn />
 
     {(composing || requestedProof !== null || overview) && <button className="text-action proof-back" onClick={() => navigate({}, "list")} type="button">返回作品列表</button>}
 

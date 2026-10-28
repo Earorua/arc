@@ -90,7 +90,7 @@ summary { cursor: pointer; }
 .companion-current-task { align-items: flex-start; }
 .companion-context-details { padding-inline: 18px; }
 .companion-resources a { color: var(--action); }
-.companion-window-actions button { width: 40px; height: 40px; }
+.companion-window-actions button { width: 44px; height: 44px; }
 .companion-messages { padding: 20px 18px; }
 .companion-messages:has(+ .companion-notice) { flex: 0 1 auto; min-height: 0; padding-block: 8px; }
 .companion-empty h2 { font: 600 20px/1.6 var(--sans); letter-spacing: 0; }
@@ -98,13 +98,13 @@ summary { cursor: pointer; }
 .companion-notice, .companion-error { font-size: 14px; padding: 16px; margin: 16px; }
 .companion-notice p { margin: 8px 0 14px; color: var(--stone); }
 .companion-notice a { color: var(--action); }
-.companion-suggestions button { font-size: 14px; min-height: 40px; }
+.companion-suggestions button { font-size: 14px; min-height: 44px; }
 .companion-composer textarea { font-size: 16px; }
 .companion-composer:has(textarea:disabled) { margin-top: auto; opacity: .65; }
-.companion-compose-actions label, .companion-footer label, .companion-footer, .companion-handoff { font-size: 12px !important; }
-.companion-send { font-size: 14px !important; min-height: 40px; }
+.companion-compose-actions label, .companion-footer label, .companion-footer, .companion-handoff { font-size: 14px !important; }
+.companion-send { font-size: 14px !important; min-height: 44px; }
 .companion-footer { flex-wrap: wrap; min-height: 52px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-.companion-launcher > span, .companion-restore { font-size: 13px; }
+.companion-launcher > span, .companion-restore { font-size: 14px; }
 .companion-root input[type=checkbox] { width: 16px; height: 16px; }
 .companion-root { bottom: max(18px, env(safe-area-inset-bottom)); }
 @media (min-width: 1051px) {

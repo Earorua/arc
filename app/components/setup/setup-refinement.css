@@ -126,3 +126,23 @@
 .setup-page .availability-advanced .ledger-field, .setup-page .availability-advanced > div > [role="alert"] { grid-column: 1 / -1; }
 .setup-page .exception-ledger { margin-top: 8px; }
 @media (max-width: 640px) { .setup-page .availability-advanced > div { grid-template-columns: 1fr; } }
+
+.setup-page .setup-confirm-fields { min-width: 0; margin: 0; padding: 0; border: 0; }
+.setup-page .setup-research-availability { margin-block: 24px; border-top: 1px solid var(--hairline); }
+.setup-page :is(.setup-progress, .setup-step-names, .setup-draft-bar, .setup-draft-options, .setup-draft-notice, .research-stages, .research-facts dt, .category-actions button) { font-size: 14px; }
+.setup-page .setup-primary-actions { min-height: 72px; gap: 16px; }
+.setup-page .setup-primary-actions > :is(button, a) { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+@media (max-width: 640px) {
+  .setup-page { padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px)); }
+  .setup-page .setup-flow { padding-bottom: 20px; }
+  .setup-page .setup-primary-actions, .setup-page .time-edit-flow .diff-actions {
+    position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: space-between;
+    margin-top: 28px; padding: 14px 0 calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--hairline); background: var(--ivory, #f5f2e9);
+  }
+  .setup-page :is(input, select, textarea, summary) { scroll-margin-block: 100px; }
+  /* Keep controls in document flow while a keyboard is editing the last field. */
+  .setup-page .setup-flow:has(input:focus, textarea:focus, select:focus) .setup-primary-actions { position: static; }
+}
+.role-research-panel .research-diagnostics { margin-block: 16px; color: var(--stone); }
+.role-research-panel .research-diagnostics > summary { display: list-item; min-height: 44px; padding-block: 10px; font: 400 14px/1.7 var(--sans); cursor: pointer; }

@@ -2,14 +2,16 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PlanDiffReview } from "../../app/components/workspace/plan-diff-review";
-import { PLANNING_SCHEMA_VERSION, planningWorkspaceSchema } from "../../app/contracts/planning";
+import { PLANNING_SCHEMA_VERSION, planningWorkspaceSchema, type SkillSelfLevel } from "../../app/contracts/planning";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { buildLearningPaths } from "../../app/lib/planning/path-builder";
 import { buildPlanVersion } from "../../app/lib/planning/scheduler";
 
-function workspace() {
-  const audit = { id: "audit-diff", schemaVersion: PLANNING_SCHEMA_VERSION, blueprintId: flagshipBlueprint.id, blueprintVersion: flagshipBlueprint.version, answers: flagshipBlueprint.skills.map(({ id }) => ({ skillId: id, level: "unseen" as const, evidenceRefs: [] })), evidence: [], createdBy: "learner", inputFingerprint: "audit-diff-fingerprint" };
+import { applyPlanningEvent } from "../../app/lib/planning/event-reducer";
+
+function workspace(level: SkillSelfLevel = "unseen") {
+  const audit = { id: "audit-diff", schemaVersion: PLANNING_SCHEMA_VERSION, blueprintId: flagshipBlueprint.id, blueprintVersion: flagshipBlueprint.version, answers: flagshipBlueprint.skills.map(({ id }) => ({ skillId: id, level, evidenceRefs: [] })), evidence: [], createdBy: "learner", inputFingerprint: "audit-diff-fingerprint" };
   const availability = { id: "availability-diff", schemaVersion: PLANNING_SCHEMA_VERSION, timeZone: "UTC", weekdays: { monday: 60, tuesday: 60, wednesday: 60, thursday: 60, friday: 60, saturday: 60, sunday: 60 }, exceptions: [], weeklyMinutes: 420, inputFingerprint: "availability-diff-fingerprint" };
   const target = { id: "target-diff", schemaVersion: PLANNING_SCHEMA_VERSION, targetWeeks: 18, inputFingerprint: "target-diff-fingerprint" };
   const path = buildLearningPaths({ blueprint: flagshipBlueprint, registry: flagshipUnitRegistry, audit, availability, target, planningDate: "2026-08-14" }).fullScope;
@@ -20,6 +22,20 @@ function workspace() {
 
 afterEach(cleanup);
 describe("PlanDiffReview", () => {
+  it("explains why an uncertain self-claim keeps learning and allows keeping the current arrangement", async () => {
+    const current = workspace("uncertain");
+    current.pendingPlanVersionId = null;
+    const unit = current.dailyUnits.find(item => item.planVersionId === current.activePlanVersionId && item.required)!;
+    const proposed = applyPlanningEvent({ workspace: current, blueprint: flagshipBlueprint, registry: flagshipUnitRegistry, event: { eventId: "event-uncertain", mutationId: "mutation-uncertain", sequence: 1, targetPlanVersionId: current.activePlanVersionId, occurredAt: "2026-08-14T08:00:00.000Z", kind: "already_known", unitId: unit.id, planningDate: "2026-08-14" } }).workspace;
+    const onDiscard = vi.fn().mockResolvedValue(true);
+    render(<PlanDiffReview workspace={proposed} onAccept={vi.fn()} onDiscard={onDiscard} />);
+    expect(screen.getByText(/这项技能的自评是“不确定”/)).toHaveTextContent(/本次自评不会移除学习任务/);
+    expect(screen.getByText(/这项技能的自评是“不确定”/)).toHaveTextContent(/延后任务或调整学习时间/);
+    await userEvent.click(screen.getByRole("button", { name: "保留当前安排" }));
+    expect(onDiscard).toHaveBeenCalledWith(proposed.pendingPlanVersionId);
+    expect(await screen.findByRole("status")).toHaveTextContent("已保留当前安排");
+  });
+
   it("folds the detailed diff and requires an explicit decision after reading effects", async () => {
     const onAccept = vi.fn();
     const onDiscard = vi.fn();

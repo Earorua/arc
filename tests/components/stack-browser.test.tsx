@@ -95,7 +95,7 @@ describe("StackBrowser", () => {
     expect(screen.getByRole("button", { name: "查看 Accessible Design Systems" })).toBeInTheDocument();
     act(() => window.history.back());
     await waitFor(() => expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue("react"));
-    expect(screen.getByRole("button", { name: "全部" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "全部分类" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "查看 React 19" })).toBeInTheDocument();
     act(() => window.history.forward());
     await waitFor(() => expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue("keyboard-safe"));
@@ -126,7 +126,7 @@ describe("StackBrowser", () => {
     await user.click(screen.getByRole("button", { name: "AI" }));
     expect(screen.queryByRole("heading", { name: "React 19" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Structured LLM Contracts" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "全部" }));
+    await user.click(screen.getByRole("button", { name: "全部分类" }));
     expect(screen.getByRole("button", { name: "查看 Structured LLM Contracts" })).toHaveAttribute("aria-pressed", "true");
   });
 
@@ -322,7 +322,7 @@ describe("StackBrowser", () => {
     const demonstrated = screen.getByRole("article");
     expect(within(demonstrated).getByText("已有作品证明")).toBeInTheDocument();
     await user.click(within(demonstrated).getByText("技能要求与学习记录"));
-    expect(within(demonstrated).getByRole("link", { name: "Accessible request trace" })).toHaveAttribute("href", "/proof?proof=proof-react");
+    expect(within(demonstrated).getByRole("link", { name: "Accessible request trace" })).toHaveAttribute("href", "/proof?proof=proof-react&returnTo=%2Fstack%3Fskill%3Dreact");
     expect(within(demonstrated).getByRole("link", { name: "补充作品证明" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "查看 Accessible Design Systems" }));
     const verified = screen.getByRole("article");

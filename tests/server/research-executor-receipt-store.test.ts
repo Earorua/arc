@@ -610,14 +610,22 @@ describe("executor receipt private storage", () => {
         first.save(receipt, BASE_TIME + 30),
         second.save(structuredClone(receipt), BASE_TIME + 31),
       ]);
-      expect(saves.map((item) => item.fixedAt)).toEqual([BASE_TIME + 30, BASE_TIME + 30]);
+      const fixedAt = saves[0]!.fixedAt;
+      expect([BASE_TIME + 30, BASE_TIME + 31]).toContain(fixedAt);
+      expect(saves.map((item) => item.fixedAt)).toEqual([fixedAt, fixedAt]);
+      expect((await first.save(receipt, BASE_TIME + 32)).fixedAt).toBe(fixedAt);
       const hash = saves[0]!.metadata.receiptHash;
       const acknowledgements = await Promise.all([
         first.acknowledge(value.jobId, hash, BASE_TIME + 40),
         second.acknowledge(value.jobId, hash, BASE_TIME + 41),
       ]);
+      const acknowledgedAt = acknowledgements[0]!.siteAcknowledgedAt;
+      expect([BASE_TIME + 40, BASE_TIME + 41]).toContain(acknowledgedAt);
       expect(acknowledgements.map((item) => item.siteAcknowledgedAt))
-        .toEqual([BASE_TIME + 40, BASE_TIME + 40]);
+        .toEqual([acknowledgedAt, acknowledgedAt]);
+      expect(acknowledgements.map((item) => item.fixedAt)).toEqual([fixedAt, fixedAt]);
+      expect(await first.acknowledge(value.jobId, hash, BASE_TIME + 42))
+        .toMatchObject({ fixedAt, siteAcknowledgedAt: acknowledgedAt });
       const cleanups = await Promise.all([
         first.cleanup(value.jobId, BASE_TIME + 50),
         second.cleanup(value.jobId, BASE_TIME + 51),
@@ -628,8 +636,15 @@ describe("executor receipt private storage", () => {
         .toEqual([cleanupIntent, cleanupIntent]);
       expect(cleanups.map((item) => item?.bodyRemovedAt))
         .toEqual([cleanupIntent, cleanupIntent]);
+      for (const cleanup of cleanups) {
+        expect(cleanup).toMatchObject({ fixedAt, siteAcknowledgedAt: acknowledgedAt });
+      }
       expect(cleanups.map((item) => item?.metadata.outcome.usage?.costMicros))
         .toEqual([6_250_000, 6_250_000]);
+      expect(await first.cleanup(value.jobId, BASE_TIME + 52)).toMatchObject({
+        fixedAt, siteAcknowledgedAt: acknowledgedAt,
+        cleanupRequestedAt: cleanupIntent, bodyRemovedAt: cleanupIntent,
+      });
     } finally {
       db.close();
     }

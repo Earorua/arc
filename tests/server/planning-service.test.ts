@@ -99,6 +99,21 @@ async function generatedResult(): Promise<PlanningMutationResult> {
 }
 
 describe("PlanningService", () => {
+  it("generates and reloads uncertain assessments without losing calibration or learning", async () => {
+    const input = generateRequest();
+    const request = { ...input, audit: { ...input.audit, answers: input.audit.answers.map(answer => ({ ...answer, level: "uncertain" as const })) } };
+    const result = await createService(fakeRepository()).service.generate(userId, request);
+    const repository = fakeRepository({ load: vi.fn(async () => ({ ownerId: userId, goalId, payload: JSON.parse(JSON.stringify(result.workspace)) })) });
+    const workspace = await createService(repository).service.getWorkspace(userId);
+    expect(workspace?.audit.answers.every(({ level }) => level === "uncertain")).toBe(true);
+    const path = workspace!.pathVersions.find(({ id }) => id === workspace!.activePathVersionId)!;
+    for (const track of flagshipUnitRegistry.tracks) {
+      const expected = [...track.templates.filter(({ kind }) => kind === "calibrate"), ...track.templates.filter(({ kind }) => kind === "learn")];
+      expect([...new Set(path.units.filter(({ skillId }) => skillId === track.skillId).map(({ templateId }) => templateId))]).toEqual(expected.map(({ id }) => id));
+    }
+    expect(workspace).toEqual(result.workspace);
+  });
+
   it("guards agent proposals against concurrent goal, workspace and revision changes", async () => {
     const result = await generatedResult();
     const workspace = result.workspace;

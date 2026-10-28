@@ -168,8 +168,8 @@ describe("research workspace page adapters with real controllers and determinist
     injected.arcClient.saveSetup = vi.fn(() => new Promise<Awaited<ReturnType<ArcCloudClient["saveSetup"]>>>((resolve, reject) => { resolveSave = resolve; rejectSave = reject; }));
     const page = render(<SetupPage />);
     await user.click(await screen.findByRole("button", { name: "使用研究结果" }));
-    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    for (let index = 0; index < 2; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
     await waitFor(() => expect(injected.arcClient.saveSetup).toHaveBeenCalledOnce());
     if (transition === "unmount") page.unmount();
     else {
@@ -194,8 +194,8 @@ describe("research workspace page adapters with real controllers and determinist
     await user.click(await screen.findByRole("button", { name: "使用研究结果" }));
     expect(screen.getByRole("group", { name: `${data.blueprint.skills[0]!.name} 自我评估` })).toBeInTheDocument();
     expect(screen.queryByRole("group", { name: "Web Platform 自我评估" })).not.toBeInTheDocument();
-    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    for (let index = 0; index < 2; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
     await waitFor(() => expect(injected.planningClient.generate).toHaveBeenCalledOnce());
     expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal), "research-setup");
     expect(vi.mocked(injected.arcClient.saveSetup).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(injected.planningClient.generate).mock.invocationCallOrder[0]!);

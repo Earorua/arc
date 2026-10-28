@@ -24,7 +24,7 @@ export default function StackPage() {
     <WorkspaceHeader current="Stack" />
     <main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/stack" title="登录后查看技能与资料" description="把岗位要求、推荐资料和学习记录集中到你的路线中。">{null}</AccountBoundary></main>
   </div>;
-  return <SessionStackPage key={session.data.user.id} />;
+  return <SessionStackPage key={session.data.user.id} ownerKey={`user:${session.data.user.id}`} />;
 }
 
 function StackSignInBoundary() {
@@ -52,7 +52,7 @@ function EmptyAccountStack() {
   </div>;
 }
 
-function SessionStackPage() {
+function SessionStackPage({ ownerKey }: { ownerKey: string }) {
   const arc = useArcState();
   const planning = usePlanningWorkspace({ cloudOnly: true });
   const { state } = arc;
@@ -104,7 +104,7 @@ function SessionStackPage() {
       {proof.recovery === "conflict" && (
         <p className="workspace-notice" role="status">作品证据已在另一处发生变化，请前往作品证据重新加载后再修改。</p>
       )}
-      <StackBrowser blueprint={blueprint} evidence={evidence} projections={proof.projections} />
+      <StackBrowser key={workspace?.goalId} ownerKey={`${ownerKey}:${workspace?.goalId}`} blueprint={blueprint} evidence={evidence} evidenceReady={proof.source !== "restoring"} projections={proof.projections} planningWorkspace={workspace} />
     </WorkspaceShell>
   );
 }

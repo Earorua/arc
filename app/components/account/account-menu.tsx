@@ -12,6 +12,7 @@ import {
 import { authProviderSchema, type AuthProvider } from "../../server/auth/policy";
 import { AccountLinkPanel } from "./account-link-panel";
 import { useAccountLocation } from "./use-account-location";
+import { LearningPreferences } from "../agents/agent-context";
 
 type AccountNotice = {
   kind: "status" | "alert";
@@ -303,8 +304,8 @@ export function AccountMenu() {
           <span>{data.user.email}</span>
           <Link href="/today">继续学习</Link>
           <Link href="/path">我的学习路线</Link>
-          <Link href="/history">历史学习计划</Link>
           <Link href="/setup?mode=create">新建学习路线</Link>
+          <LearningPreferences />
           <div className="account-connections" aria-label="Sign-in connections">
             <p>Sign-in connections</p>
             {connectionsPending && <span>Checking connections…</span>}

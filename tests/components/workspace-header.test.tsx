@@ -7,15 +7,15 @@ it.each(["Today", "Path", "Stack", "Proof", "History", "Coach"] as const)("keeps
   render(<WorkspaceHeader current={current} context="数据产品经理 · 18 周" />);
   const nav = within(screen.getByRole("navigation", { name: "学习工作区" }));
   expect(nav.getAllByRole("link").map(link => link.getAttribute("href"))).toEqual(["/today", "/path", "/stack", "/proof"]);
-  const tools = screen.getByText("工具").closest("details")!;
+  const tools = screen.getByText(current === "Path" ? "计划管理" : "工具").closest("details")!;
   tools.open = true;
-  expect(screen.getAllByRole("link").filter(link => link.getAttribute("aria-current") === "page")).toHaveLength(1);
+  expect(screen.getAllByRole("link").filter(link => link.getAttribute("aria-current") === "page")).toHaveLength(current === "History" ? 0 : 1);
   expect(screen.getByText("数据产品经理 · 18 周")).toBeInTheDocument();
 });
 
-it("groups planning and route maintenance in one keyboard-accessible tools menu", () => {
-  render(<WorkspaceHeader current="Today" context="数据产品经理 · 18 周" />);
-  const tools = screen.getByText("工具").closest("details")!;
+it("keeps route maintenance on the route page", () => {
+  render(<WorkspaceHeader current="Path" context="数据产品经理 · 18 周" />);
+  const tools = screen.getByText("计划管理").closest("details")!;
   tools.open = true;
   const menu = within(tools);
   expect(menu.getByRole("link", { name: "学习规划" })).toHaveAttribute("href", "/coach");
@@ -23,4 +23,11 @@ it("groups planning and route maintenance in one keyboard-accessible tools menu"
   expect(menu.getByRole("link", { name: "编辑时间" })).toHaveAttribute("href", "/setup?mode=edit&section=time");
   expect(menu.getByRole("link", { name: "新建路线" })).toHaveAttribute("href", "/setup?mode=create");
   expect(screen.getByRole("navigation", { name: "学习工作区" })).toHaveClass("workspace-bottom-nav");
+});
+it("does not repeat route maintenance on the task page", () => {
+  render(<WorkspaceHeader current="Today" />);
+  screen.getByText("工具").closest("details")!.open = true;
+  expect(screen.queryByRole("link", { name: "历史计划" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "编辑时间" })).not.toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "学习规划" })).toHaveAttribute("href", "/coach");
 });

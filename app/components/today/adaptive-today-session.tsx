@@ -11,6 +11,9 @@ import type { PlanningRecoveryState } from "../../lib/use-planning-workspace";
 import { PlanDiffReview } from "../workspace/plan-diff-review";
 import { PlanningVersionBoundary } from "../workspace/planning-version-boundary";
 import { SevenDayTimeline } from "../workspace/seven-day-timeline";
+import { TodayResources } from "./today-resources";
+import { getCurrentLearningUnit } from "../../lib/planning/current-learning-unit";
+import { getPathProgress } from "../../lib/planning/path-progress";
 
 type AdaptiveTodaySessionProps = {
   workspace: unknown;
@@ -38,7 +41,7 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
   const [completedUnitId, setCompletedUnitId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
   if (!resolved) return <PlanningVersionBoundary />;
-  if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">今日 · {resolved.today}</p><h1>今天留给休息。</h1><p>今天没有必须完成的学习任务。</p>{message && <p role={message.kind}>{message.text}{completedUnitId && message.text === completedPracticingMessage && <> <Link href={proofHref(completedUnitId)}>添加作品证据</Link></>}</p>}<Link href="/path">查看学习路线 ↗</Link></section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
+  if (!resolved.primary) return <><section className="adaptive-today-session"><p className="eyebrow">今日 · {resolved.today}</p><h1>{resolved.allComplete ? "这条路线已完成。" : "今天留给休息。"}</h1><p>{resolved.allComplete ? "可以回顾已学内容，或整理你的作品证据。" : "今天没有必须完成的学习任务。"}</p>{message && <p role={message.kind}>{message.text}{completedUnitId && message.text === completedPracticingMessage && <> <Link href={proofHref(completedUnitId)}>添加作品证据</Link></>}</p>}<Link href="/path">{resolved.allComplete ? "回顾学习路线" : "查看学习路线 ↗"}</Link></section><SevenDayTimeline workspace={resolved.workspace} blueprint={blueprint} registry={registry} /></>;
   const requiredSteps = resolved.primary.steps;
   const checked = progress.unitId === resolved.primary.id ? progress.checked : new Set<string>();
   const canComplete = requiredSteps.every(({ id }) => checked.has(id));
@@ -67,7 +70,8 @@ export function AdaptiveTodaySession({ workspace: value, recovery = "none", reco
         <p className="today-objective">{resolved.primary.objective}</p>
       </header>
       <section className="today-deliverable" aria-labelledby="today-deliverable-title"><h2 id="today-deliverable-title">本次交付</h2><p>{resolved.primary.buildTask}</p></section>
-      <ResourceLinks primary={resolved.primaryResource} alternatives={resolved.alternativeResources} />
+      <TodayResources><ResourceLinks primary={resolved.primaryResource} alternatives={resolved.alternativeResources} /></TodayResources>
+      <Link className="today-skill-link" href={`/stack?skill=${encodeURIComponent(resolved.primary.skillId)}&returnTo=%2Ftoday`}>查看当前技能与资料</Link>
       <section className="today-work" aria-labelledby="today-work-title"><h2 id="today-work-title">学习步骤</h2><ol>{requiredSteps.map((step) => <li key={step.id}><label><input checked={checked.has(step.id)} onChange={(event) => setProgress((current) => { const next = new Set(current.unitId === resolved.primary!.id ? current.checked : []); if (event.target.checked) next.add(step.id); else next.delete(step.id); return { unitId: resolved.primary!.id, checked: next }; })} type="checkbox" /><span>{step.label}</span><time>{step.minutes} 分钟</time></label></li>)}</ol></section>
       <details className="today-criteria"><summary>完成标准与证据要求</summary><section className="today-brief"><div><h2>完成标准</h2><ul>{resolved.primary.completionCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul></div><div><h2>证据要求</h2><p>{resolved.primary.proofRequirement}</p></div><div><h2>评价细则</h2><ol>{resolved.primary.rubric.map((row) => <li key={row}>{row}</li>)}</ol></div><div><h2>为什么现在学习</h2><p>{resolved.primary.whyNow}</p></div></section></details>
       {canComplete && resolved.stretch && <aside className="today-stretch"><p className="section-index">可选拓展 · {resolved.stretch.estimatedMinutes} 分钟</p><h2>{resolved.stretch.objective}</h2><p>{resolved.stretch.whyNow}</p></aside>}
@@ -97,22 +101,20 @@ function resolveToday(value: unknown, blueprint: RoleBlueprint, registry: UnitRe
       || registry.blueprintId !== blueprint.id || registry.blueprintVersion !== blueprint.version) return null;
     const today = planningDateForInstant(now().toISOString(), workspace.availability.timeZone);
     const units = new Map(workspace.dailyUnits.filter(({ planVersionId }) => planVersionId === plan.id).map((unit) => [unit.id, unit]));
-    const nextRequired = plan.days
-      .map(({ primaryUnitId }) => primaryUnitId ? units.get(primaryUnitId) ?? null : null)
-      .find((unit) => unit !== null && unit.scheduledDate <= today) ?? null;
+    const nextRequired = getCurrentLearningUnit(workspace, today);
     const day = nextRequired
       ? plan.days.find(({ primaryUnitId }) => primaryUnitId === nextRequired.id)
       : plan.days.find(({ date }) => date === today);
-    if (!day) return null;
     const resources = new Map(blueprint.resources.map((resource) => [resource.id, resource]));
     const primary = nextRequired;
     const title = registry.tracks.flatMap(({ templates }) => templates).find(({ id }) => id === primary?.templateId)?.title ?? "今日学习任务";
-    const stretch = day.stretchUnitId ? units.get(day.stretchUnitId) ?? null : null;
-    return { workspace, plan, today, title, primary, stretch, primaryResource: primary ? resources.get(primary.primaryResourceId) ?? null : null, alternativeResources: primary ? primary.alternativeResourceIds.map((id) => resources.get(id)).filter((resource): resource is LearningResource => Boolean(resource)) : [] } satisfies TodayResolution;
+    const stretch = day?.stretchUnitId ? units.get(day.stretchUnitId) ?? null : null;
+    const progress = getPathProgress(workspace, path);
+    return { workspace, plan, today, title, primary, stretch, allComplete: progress.completedUnits === progress.totalUnits, primaryResource: primary ? resources.get(primary.primaryResourceId) ?? null : null, alternativeResources: primary ? primary.alternativeResourceIds.map((id) => resources.get(id)).filter((resource): resource is LearningResource => Boolean(resource)) : [] } satisfies TodayResolution;
   } catch { return null; }
 }
 
-type TodayResolution = { workspace: PlanningWorkspace; plan: PlanningWorkspace["planVersions"][number]; today: string; title: string; primary: DailyUnit | null; stretch: DailyUnit | null; primaryResource: LearningResource | null; alternativeResources: LearningResource[] };
+type TodayResolution = { workspace: PlanningWorkspace; plan: PlanningWorkspace["planVersions"][number]; today: string; title: string; primary: DailyUnit | null; stretch: DailyUnit | null; allComplete: boolean; primaryResource: LearningResource | null; alternativeResources: LearningResource[] };
 
 function ResourceLinks({ primary, alternatives }: { primary: LearningResource | null; alternatives: LearningResource[] }) {
   return <section className="today-resources" aria-labelledby="today-resources-title"><p className="section-index" id="today-resources-title">学习资源</p>{primary ? <p><a href={primary.url} hrefLang={primary.language} lang={primary.language} rel="noreferrer" target="_blank">{primary.title}</a><span>{primary.provider} · 主要资源</span></p> : <p>此内容版本的主要资源暂不可用。</p>}{alternatives.length > 0 && <ul>{alternatives.map((resource) => <li key={resource.id}><a href={resource.url} hrefLang={resource.language} lang={resource.language} rel="noreferrer" target="_blank">{resource.title}</a></li>)}</ul>}</section>;

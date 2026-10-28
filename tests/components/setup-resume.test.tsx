@@ -102,12 +102,12 @@ describe("setup continuity", () => {
     const generate = vi.fn().mockResolvedValue(false);
     const properties = { ...adaptive, draftOwner: "user:alice", generate, createMutationId: () => `mutation-resume-${++mutation}` };
     const view = render(<AdaptiveSetupFlow {...properties} />);
-    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    for (let index = 0; index < 2; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
     const first = generate.mock.calls[0]![0];
     view.unmount();
     render(<AdaptiveSetupFlow {...properties} />);
-    await user.click(await screen.findByRole("button", { name: "生成学习路径" }));
+    await user.click(await screen.findByRole("button", { name: "创建路线" }));
     expect(generate.mock.calls[1]![0]).toEqual(first);
   });
 });

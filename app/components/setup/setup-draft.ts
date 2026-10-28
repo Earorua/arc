@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { setupAnswersSchema } from "../../contracts/cloud-state";
+import { skillSelfLevelSchema } from "../../contracts/planning";
 
 const prefix = "arc:setup-draft:v1:";
 const maxAge = 30 * 24 * 60 * 60 * 1000;
@@ -10,13 +11,15 @@ export const setupSourceSchema = z.discriminatedUnion("source", [
 ]);
 export const legacyDraftSchema = z.object({
   step: z.number().int().min(0).max(3), customRole: z.string().max(200),
+  furthestStep: z.number().int().min(0).max(3).optional(),
   answers: z.object({ roleId: z.string().max(200), level: z.enum(["new", "beginner", "intermediate", "advanced"]), weeklyMinutes: z.number().finite().min(0).max(100000), targetWeeks: z.number().finite().min(0).max(100000) }).strict(),
   source: setupSourceSchema, adaptiveSelected: z.boolean(), adaptiveStarted: z.boolean(),
 }).strict();
 export const adaptiveDraftSchema = z.object({
   stageIndex: z.number().int().min(0).max(3),
+  furthestStep: z.number().int().min(1).max(3).optional(),
   auditDraft: z.object({
-    levels: z.record(z.string().max(256), z.enum(["unseen", "conceptual", "guided", "independent"])),
+    levels: z.record(z.string().max(256), skillSelfLevelSchema),
     evidence: z.record(z.string().max(256), z.array(z.object({ id: z.string().max(256), kind: z.enum(["repository", "deployment", "project", "document", "other"]), url: z.string().max(2048), note: z.string().max(300) }).strict()).max(3)),
   }).strict(),
   availabilityDraft: z.object({ timeZone: z.string().max(100), weekdays: z.object({ monday: minuteDraft, tuesday: minuteDraft, wednesday: minuteDraft, thursday: minuteDraft, friday: minuteDraft, saturday: minuteDraft, sunday: minuteDraft }).strict(), exceptions: z.array(z.object({ date: z.string().max(10), minutes: z.number().finite().min(0).max(100000), reason: z.string().max(300).nullable() }).strict()).max(90) }).strict(),

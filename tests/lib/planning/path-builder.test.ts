@@ -141,7 +141,7 @@ function template(skillId: string, kind: "learn" | "calibrate" | "reinforce", se
 
 function auditFor(
   blueprint: RoleBlueprint,
-  levels: Readonly<Record<string, "unseen" | "conceptual" | "guided" | "independent">> = {},
+  levels: Readonly<Record<string, "unseen" | "conceptual" | "guided" | "independent" | "uncertain">> = {},
 ): SkillAuditVersion {
   return {
     id: "audit-01",
@@ -216,6 +216,34 @@ describe("createPathBuilder", () => {
       ]);
     },
   );
+
+  it("places validated calibration before every learn unit for uncertainty and preserves prerequisite chains", () => {
+    const input = compactFixture([
+      { id: "foundation", learnMinutes: [30] },
+      { id: "typescript", prerequisiteIds: ["foundation"], learnMinutes: [90, 45] },
+      { id: "dependent", prerequisiteIds: ["typescript"], learnMinutes: [30] },
+    ]);
+    input.audit = auditFor(input.blueprint, { typescript: "uncertain" });
+    const result = createPathBuilder(immediateEstimator)(input);
+    const units = result.fullScope.units;
+    expect(units.map(({ templateId }) => templateId)).toEqual([
+      "foundation-learn-01", "typescript-calibrate-01", "typescript-learn-01", "typescript-learn-01", "typescript-learn-02", "dependent-learn-01",
+    ]);
+    expect(units.filter(({ skillId }) => skillId === "typescript").map(({ kind, estimatedMinutes }) => ({ kind, estimatedMinutes }))).toEqual([
+      { kind: "calibrate", estimatedMinutes: 30 }, { kind: "learn", estimatedMinutes: 45 }, { kind: "learn", estimatedMinutes: 45 }, { kind: "learn", estimatedMinutes: 45 },
+    ]);
+    units.slice(1).forEach((unit, index) => expect(unit.prerequisiteUnitIds).toEqual([units[index]!.id]));
+    expect(result.targetDate?.units).toEqual(units);
+    expect(createPathBuilder(immediateEstimator)(input)).toEqual(result);
+  });
+
+  it("does not let self-supplied audit links remove uncertain learning", () => {
+    const input = compactFixture([{ id: "typescript", learnMinutes: [30, 45] }]);
+    input.audit = auditFor(input.blueprint, { typescript: "uncertain" });
+    input.audit.evidence.push({ id: "evidence-typescript", skillId: "typescript", kind: "project", url: "https://example.com/work", note: "Self-supplied work" });
+    input.audit.answers[0]!.evidenceRefs.push("evidence-typescript");
+    expect(createPathBuilder(immediateEstimator)(input).fullScope.units.map(({ kind }) => kind)).toEqual(["calibrate", "learn", "learn"]);
+  });
 
   it("selects only calibration for an independent answer", () => {
     const input = compactFixture([{ id: "typescript", learnMinutes: [30, 45] }]);

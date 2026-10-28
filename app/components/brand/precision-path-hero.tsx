@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HomeLearningAction } from "./home-learning-action";
 
 /** Original Arc mark: three open paths, converging toward one direction. */
 function ArcMark() {
@@ -22,7 +23,7 @@ export function PrecisionPathHero() {
         <p className="discovery-tagline">A continuous learning journey</p>
         <p className="discovery-hero-description" lang="zh-CN">从岗位目标出发，找到值得学的技能、做得完的任务，以及能展示的成果。</p>
         <div className="discovery-hero-actions" lang="zh-CN">
-          <Link className="primary-action" href="/setup">建立我的学习路线 <span aria-hidden="true">↗</span></Link>
+          <HomeLearningAction />
           <Link className="hero-secondary" href="/showcase">先看完整样例 ↗</Link>
         </div>
       </div>

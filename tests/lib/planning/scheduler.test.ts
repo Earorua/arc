@@ -14,9 +14,28 @@ import {
   PlanningScheduleError,
   buildPlanVersion,
   estimateCompletionDate,
+  estimateUnitSchedule,
 } from "../../../app/lib/planning/scheduler";
 
 const PLANNING_DATE = "2026-12-29";
+
+describe("estimateUnitSchedule", () => {
+  it("keeps actual unit order, dependencies, completed units and calendar exceptions in the date projection", () => {
+    const units = [
+      pathUnit({ id: "done-unit" }),
+      pathUnit({ id: "dependent-unit", prerequisites: ["foundation-unit"] }),
+      pathUnit({ id: "foundation-unit", minutes: 60 }),
+    ];
+    const input = { units, planningDate: PLANNING_DATE, completedUnitIds: new Set(["done-unit"]),
+      availability: availability({ exceptions: [{ date: PLANNING_DATE, minutes: 30, reason: "Short day" }] }) };
+    expect(estimateUnitSchedule(input)).toEqual([
+      { unitId: "foundation-unit", date: "2026-12-30" },
+      { unitId: "dependent-unit", date: "2026-12-31" },
+    ]);
+    expect(estimateCompletionDate(input)).toBe("2026-12-31");
+    expect(estimateUnitSchedule({ ...input, completedUnitIds: new Set(units.map(unit => unit.id)) })).toEqual([]);
+  });
+});
 
 type UnitSpec = Readonly<{
   id: string;

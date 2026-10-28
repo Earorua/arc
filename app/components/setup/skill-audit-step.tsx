@@ -10,6 +10,7 @@ const evidenceLabels = { repository: "代码仓库", deployment: "部署链接",
 const levels: { value: SkillSelfLevel; label: string }[] = [
   { value: "unseen", label: "尚未接触" }, { value: "conceptual", label: "了解概念" },
   { value: "guided", label: "需指导完成" }, { value: "independent", label: "可独立完成" },
+  { value: "uncertain", label: "不确定" },
 ];
 
 export type SkillEvidenceDraft = { id: string; kind: EvidenceKind; url: string; note: string };
@@ -64,7 +65,7 @@ export function SkillAuditStep({ blueprint, value, onChange }: {
     return Array.from({ length: Math.ceil(skills.length / 4) }, (_, index) => ({ category, skills: skills.slice(index * 4, index * 4 + 4), offset: index * 4, total: skills.length }));
   });
   return <div className="audit-ledger">
-    <p className="setup-disclosure" id="audit-disclosure">这是你的自我评估，不代表 Arc 核验。请选择目前能实际完成的程度，可选填证据链接。</p>
+    <p className="setup-disclosure" id="audit-disclosure">这是你的自我评估，不代表 Arc 核验。请选择目前能实际完成的程度，可选填证据链接。选择“不确定”会先安排校准任务；完成校准不代表已掌握，后续学习仍会保留。</p>
     {groups.map(({ category, skills, offset, total }, groupIndex) => {
       const defaultOpen = groupIndex === 0 || groups.slice(0, groupIndex + 1).reduce((sum, group) => sum + group.skills.length, 0) <= 4;
       const range = total > 4 ? ` · ${offset + 1}–${offset + skills.length}` : "";

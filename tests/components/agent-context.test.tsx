@@ -17,6 +17,7 @@ function Probe() {
     <input aria-label="draft" value={state.draft} onChange={event => state.setDraft(event.target.value)} />
     <button onClick={() => state.setView("hidden")}>hide</button><button onClick={() => void state.send()}>send</button>
     <button onClick={state.stop}>stop</button>
+    <button onClick={() => state.setReducedMotion(true)}>reduce motion</button>
     <span data-testid="partial">{state.partial}</span><span data-testid="history">{state.workspace?.history.map(run => run.answer).join("")}</span></>;
 }
 function fixture() {
@@ -28,6 +29,17 @@ function fixture() {
   return workspace;
 }
 describe("persistent learning companion context", () => {
+  it("applies the account motion preference across pages and removes it on account change", async () => {
+    fixture();
+    const { rerender } = render(<LearningAgentsProvider><Probe /></LearningAgentsProvider>);
+    await screen.findByText("前端工程师");
+    fireEvent.click(screen.getByText("reduce motion"));
+    expect(document.documentElement).toHaveClass("reduce-motion");
+    expect(JSON.parse(localStorage.getItem("arc-companion-v1:alice")!)).toMatchObject({ reducedMotion: true });
+    mocks.session.mockReturnValue({ data: { user: { id: "bob" } }, isPending: false });
+    rerender(<LearningAgentsProvider><Probe /></LearningAgentsProvider>);
+    await waitFor(() => expect(document.documentElement).not.toHaveClass("reduce-motion"));
+  });
   it("preserves unrelated page inputs while guest sessions revalidate and accounts change", async () => {
     fixture(); mocks.session.mockReturnValue({ data: null, isPending: false });
     function PageForm() {

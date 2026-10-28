@@ -12,6 +12,7 @@
 .proof-list-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--hairline); }
 .proof-list-meta > span { color: var(--signal); white-space: nowrap; }
 .proof-back, .proof-context-return { margin: 0 20px 24px 0; }
+.proof-context-return { display: inline-flex; align-items: center; min-height: 44px; }
 .proof-context, .proof-editor-intro { color: var(--stone); line-height: 1.7; margin: 0 0 28px; }
 .proof-workspace .proof-editor { max-width: 800px; }
 .proof-workspace .proof-root { border-top: 0; padding-top: 0; }

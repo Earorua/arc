@@ -14,7 +14,10 @@ describe("Arc home", () => {
     mocks.useSession.mockReturnValue({ data: { user: { id: "learner" } }, isPending: false });
     render(<Home />);
     expect(mocks.replace).not.toHaveBeenCalled();
-    expect(screen.getByRole("link", { name: "继续学习" })).toHaveAttribute("href", "/today");
+    const actions = screen.getAllByRole("link", { name: "继续学习" });
+    expect(actions).toHaveLength(3);
+    for (const action of actions) expect(action).toHaveAttribute("href", "/today");
+    expect(screen.queryByRole("link", { name: /建立我的学习路线/ })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: /Learn only what moves you forward/i })).toBeInTheDocument();
   });
 

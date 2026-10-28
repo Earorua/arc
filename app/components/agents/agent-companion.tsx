@@ -53,7 +53,7 @@ function CompanionLearningContext({ context, roleName, contextLabel }: { context
     <summary>
       {contextLabel && contextLabel !== "当前计划" && <span className="companion-context-note">{contextLabel}</span>}
       <span className="companion-context-heading"><strong>{roleName || "当前学习路线"}</strong><span>路线与资料</span></span>
-      <span className="companion-current-task">{context.task ? <><span>当前任务</span><strong>{context.task.title}</strong></> : <strong>{noTask}</strong>}</span>
+      <span className="companion-current-task">{context.task ? <><span>正在帮助：</span><strong>{context.task.title}</strong></> : <strong>{noTask}</strong>}</span>
     </summary>
     <div className="companion-context-details">
       <p className="companion-context-meta"><span>{context.source === "research" ? "Research 路线" : "内置路线"}</span><span>已完成 {context.completedUnits} / {context.totalUnits} 项</span></p>
@@ -67,7 +67,7 @@ function CompanionLearningContext({ context, roleName, contextLabel }: { context
   </details>;
 }
 export function CompanionPanel(props: CompanionProps) {
-  const input = useRef<HTMLTextAreaElement>(null), end = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLTextAreaElement>(null), content = useRef<HTMLDivElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
   const availability = props.availability ?? (props.enabled ? "ready" : "disabled");
   const canReply = props.enabled && availability === "ready" && !props.loading;
@@ -78,22 +78,34 @@ export function CompanionPanel(props: CompanionProps) {
       : availability === "disabled" ? "AI 答疑未启用" : "一起弄懂每一步";
   const showContext = !props.loading && !readError && availability !== "needs_setup";
   const task = showContext ? (props.learningContext ? props.learningContext.task?.title : props.task) : null;
-  const suggestions = task ? ["解释当前任务", "给我一个例子", "帮我拆解任务"] : ["帮我梳理学习思路", "给我一个例子", "帮我复习已学内容"];
+  const suggestions = task ? ["解释当前任务", "帮我拆解任务"] : ["帮我梳理学习思路", "帮我复习已学内容"];
   const submit = () => { if (canReply && !props.busy && props.draft.trim()) props.onSend(); };
   const restore = useRef<HTMLButtonElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLElement>(null);
+  const openedFrom = useRef<HTMLElement | null>(null);
+  const wasOpen = useRef(false);
   const overlay = useCompanionOverlay();
-  useEffect(() => { if (props.view === "chat") (canReply ? input.current : close.current)?.focus(); }, [props.view, canReply, overlay]);
+  useEffect(() => {
+    if (props.view === "chat") {
+      if (!wasOpen.current && document.activeElement instanceof HTMLElement && document.activeElement !== document.body) openedFrom.current = document.activeElement;
+      (canReply ? input.current : close.current)?.focus({ preventScroll: true });
+    }
+    wasOpen.current = props.view === "chat";
+  }, [props.view, canReply, overlay]);
   useEffect(() => {
     if (props.view !== "chat" || !overlay) return;
     const previous = document.body.style.overflow;
+    const position = { left: window.scrollX, top: window.scrollY };
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previous; };
+    return () => { document.body.style.overflow = previous; window.scrollTo({ ...position, behavior: "instant" }); };
   }, [props.view, overlay]);
-  useEffect(() => { if (props.view === "chat") end.current?.scrollIntoView?.({ block: "nearest" }); }, [props.messages, props.partial, props.view]);
-  const minimize = () => { props.onView("pet"); requestAnimationFrame(() => launcher.current?.focus()); };
-  const hide = () => { props.onView("hidden"); requestAnimationFrame(() => restore.current?.focus()); };
+  useEffect(() => { if (props.view === "chat" && content.current) content.current.scrollTop = content.current.scrollHeight; }, [props.messages, props.partial, props.view]);
+  const minimize = () => { props.onView("pet"); requestAnimationFrame(() => {
+    const origin = openedFrom.current;
+    const target = origin?.isConnected && !panel.current?.contains(origin) ? origin : document.querySelector<HTMLElement>("[data-companion-trigger]") ?? launcher.current;
+    target?.focus({ preventScroll: true });
+  }); };
   if (props.view === "hidden") return <button ref={restore} className="companion-restore" onClick={() => { props.onView("pet"); requestAnimationFrame(() => launcher.current?.focus()); }} aria-label="重新显示学习伙伴">学习伙伴 ↗</button>;
   return <aside className={`companion-root ${props.reducedMotion ? "without-motion" : ""}`} aria-label="学习伙伴">
     {props.view === "chat" && <section ref={panel} className="companion-panel" role="dialog" aria-modal={overlay} aria-labelledby="companion-title"
@@ -101,7 +113,8 @@ export function CompanionPanel(props: CompanionProps) {
         if (event.key === "Escape") { event.stopPropagation(); minimize(); }
         if (event.key === "Tab" && overlay) {
           const controls = Array.from(panel.current?.querySelectorAll<HTMLElement>("*") ?? [])
-            .filter(element => element.matches('a[href], button:not(:disabled), textarea:not(:disabled), input:not(:disabled)'));
+            .filter(element => element.matches('a[href], button:not(:disabled), textarea:not(:disabled), input:not(:disabled), summary'))
+            .filter(element => { const closed = element.closest("details:not([open])"); return !closed || closed.querySelector("summary")?.contains(element); });
           const first = controls[0], last = controls.at(-1);
           if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
           else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
@@ -113,22 +126,21 @@ export function CompanionPanel(props: CompanionProps) {
           <button ref={close} type="button" onClick={minimize} aria-label="最小化学习伙伴">×</button>
         </div>
       </header>
-      <div className="companion-content">
+      <div ref={content} className="companion-content">
       {showContext && (props.learningContext ? <CompanionLearningContext context={props.learningContext} roleName={props.roleName} contextLabel={props.contextLabel} />
-        : props.task && <div className="companion-task"><span>{props.contextLabel ?? "当前计划"}</span><strong>{props.task}</strong></div>)}
+        : props.task && <div className="companion-task"><span>正在帮助：</span><strong>{props.task}</strong></div>)}
       <div className="companion-messages" role="log" aria-label="答疑记录" aria-live="polite" aria-relevant="additions">
         {canReply && props.messages.length === 0 && !props.pendingQuestion && <div className="companion-empty">
-          <CompanionAvatar /><h2>卡住的地方，<br />我们一起拆开看。</h2><p>概念、练习，或学习的下一步。<br />随时把问题交给我。</p>
+          <p>{task ? "写下你卡住的地方。" : "可以提问，或一起回顾已学内容。"}</p>
         </div>}
         {props.messages.map(message => <div className="companion-turn" key={message.id}>
           <p className="companion-question">{message.message}</p>
           {message.answer ? <AnswerText text={message.answer} /> : <p className="companion-message-state">{message.error ?? "这条消息正在处理…"}</p>}
           {message.status === "complete" && <button className="companion-handoff" type="button"
-            onClick={() => props.onHandoff(`学习中遇到的问题：${message.message}\n答疑摘要：${message.answer.slice(0, 1200)}\n请据此检查并优化我的学习路线。`)}>交给规划师 ↗</button>}
+            onClick={() => props.onHandoff(`学习中遇到的问题：${message.message}\n答疑摘要：${message.answer.slice(0, 1200)}\n请据此检查并优化我的学习路线。`)}>带到学习规划 ↗</button>}
         </div>)}
         {props.pendingQuestion && <div className="companion-turn"><p className="companion-question">{props.pendingQuestion}</p>
           {props.partial ? <AnswerText text={props.partial} /> : props.busy && <p className="companion-thinking">正在整理思路<span>…</span></p>}</div>}
-        <div ref={end} />
       </div>
       </div>
       {!props.loading && !props.error && availability === "needs_setup" && <p className="companion-notice">先建立学习路线，伙伴就能结合你的任务答疑。 <Link href="/setup" onClick={minimize}>学习设置 ↗</Link></p>}
@@ -146,8 +158,7 @@ export function CompanionPanel(props: CompanionProps) {
             : <button type="submit" className="companion-send" aria-label="发送消息" disabled={!canReply || !props.draft.trim()}>发送 ↑</button>}</div>
       </form>
       <footer className="companion-footer">
-        <label><input type="checkbox" checked={props.reducedMotion} onChange={event => props.onReducedMotion(event.target.checked)} />减少动效</label>
-        <button type="button" onClick={hide}>隐藏伙伴</button><Link href="/coach" onClick={minimize}>学习规划师 ↗</Link>
+        <button type="button" onClick={() => props.onHandoff(props.draft.trim() || (task ? `我想调整“${task}”相关的学习安排。` : "我想调整学习计划。"))}>调整学习计划</button>
       </footer>
     </section>}
     <button ref={launcher} type="button" className="companion-launcher" onClick={() => props.onView(props.view === "chat" ? "pet" : "chat")}

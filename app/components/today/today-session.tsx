@@ -22,7 +22,7 @@ function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
   };
 
   const complete = async () => {
-    if (completionStarted.current) return;
+    if (!ready || completionStarted.current) return;
     completionStarted.current = true;
     setIsCompleting(true);
     const completed = await onComplete(unit);
@@ -58,12 +58,10 @@ function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
         ))}
       </div>
 
-        {ready && (
-          <div className="deliverable-bar">
-            <span>检查交付内容后，记录这次进度。</span>
-            <button disabled={isCompleting} onClick={() => void complete()} type="button">完成任务</button>
-          </div>
-        )}
+      <div className="deliverable-bar">
+        <span id="legacy-completion-help">{ready ? "检查交付内容后，记录这次进度。" : "完成并勾选上面的学习步骤后，即可记录进度。"}</span>
+        <button aria-describedby="legacy-completion-help" disabled={!ready || isCompleting} onClick={() => void complete()} type="button">完成任务</button>
+      </div>
     </section>
   );
 }

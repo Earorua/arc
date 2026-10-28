@@ -56,7 +56,7 @@ describe("SetupPage", () => {
     if (flow === "legacy") {
       await user.click(screen.getByRole("button", { name: "继续" }));
       await user.click(screen.getByRole("button", { name: "继续" }));
-      await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+      await user.click(screen.getByRole("button", { name: "创建路线" }));
     } else await user.click(screen.getByRole("button", { name: "Finish adaptive setup" }));
     expect(push).toHaveBeenCalledWith(`/path?created=1&returnTo=${encodeURIComponent(destination)}`);
   });
@@ -89,7 +89,7 @@ describe("SetupPage", () => {
     const weeks = screen.getByRole("spinbutton", { name: "目标周数" });
     await user.clear(weeks);
     await user.type(weeks, "10");
-    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
 
     const saved = loadDemoState();
     expect(saved.setup).toEqual({
@@ -114,7 +114,7 @@ describe("SetupPage", () => {
     await user.click(screen.getByRole("button", { name: "继续" }));
     await user.click(screen.getByRole("button", { name: "继续" }));
     await user.click(screen.getByRole("button", { name: "继续" }));
-    await user.click(screen.getByRole("button", { name: "生成学习路径" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
 
     expect(screen.getByRole("alert")).toHaveTextContent("无法保存到此设备");
     expect(push).not.toHaveBeenCalled();

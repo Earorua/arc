@@ -4,6 +4,7 @@ import { SiteHeader } from "./components/brand/site-header";
 import { LearningEntry } from "./components/account/learning-entry";
 import { StoryRail } from "./components/brand/story-rail";
 import { SectionReveal } from "./components/brand/section-reveal";
+import { HomeLearningAction } from "./components/brand/home-learning-action";
 
 export default function Home() {
   return (
@@ -49,7 +50,7 @@ export default function Home() {
               <h2>Start with direction.<br /><em>Finish with proof.</em></h2>
               <div className="discovery-finale-actions">
                 <p lang="zh-CN">从一个值得投入的目标开始。</p>
-                <Link className="primary-action" href="/setup" lang="zh-CN">建立我的学习路线 →</Link>
+                <HomeLearningAction />
               </div>
             </SectionReveal>
           </div>

@@ -30,6 +30,7 @@ import Admin from "../../app/admin/page";
 import NotFound from "../../app/not-found";
 import { setOfflineOwner, usePathname } from "../offline-uat/browser-runtime";
 import { fixture } from "./data";
+import { getPathProgress } from "../../app/lib/planning/path-progress";
 
 // The actual page components run against synthetic controllers. No external requests.
 window.fetch = async (input) => {
@@ -37,7 +38,10 @@ window.fetch = async (input) => {
   const response = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { "content-type": "application/json" } });
   if (url.pathname === "/api/auth/providers") return response({ providers: ["google", "github"] });
   if (url.pathname === "/api/admin/health") return response({}, 403);
-  if (url.pathname === "/api/planning/history") return response(url.searchParams.has("goal") ? { workspace: fixture.workspace, sourceContext: fixture.sourceContext } : { goals: [{ id: "history-preview", roleId: fixture.sourceContext.blueprint.name, targetWeeks: 18, weeklyMinutes: 420, createdAt: Date.parse("2026-10-01"), hasWorkspace: true }], nextOffset: null });
+  if (url.pathname === "/api/planning/history") {
+    const { completedUnits, totalUnits } = getPathProgress(fixture.workspace);
+    return response(url.searchParams.has("goal") ? { workspace: fixture.workspace, sourceContext: fixture.sourceContext } : { goals: [{ id: "history-preview", roleId: fixture.sourceContext.blueprint.name, targetWeeks: 18, weeklyMinutes: 420, createdAt: Date.parse("2026-10-01"), hasWorkspace: true, progress: { completedUnits, totalUnits } }], nextOffset: null });
+  }
   return response({ error: "Local visual preview only" }, 404);
 };
 const publicPages = ["/", "/sign-in", "/method", "/showcase", "/not-found"];

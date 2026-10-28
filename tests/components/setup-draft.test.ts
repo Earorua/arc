@@ -8,6 +8,15 @@ const legacy = { step: 2, customRole: "数据产品经理", answers: { roleId: "
 beforeEach(() => localStorage.clear());
 
 describe("validated setup drafts", () => {
+  it.each(["unseen", "conceptual", "guided", "independent", "uncertain"] as const)("round-trips saved %s assessments without migrating old drafts", (level) => {
+    const auditDraft = createSkillAuditDraft(flagshipBlueprint);
+    auditDraft.levels["web-platform"] = level;
+    auditDraft.evidence["web-platform"] = [{ id: "evidence-web-platform-1", kind: "project", url: "https://example.com/work", note: "Existing work" }];
+    const draft = { stageIndex: 0, auditDraft, availabilityDraft: createAvailabilityDraft("UTC"), targetWeeks: 18, selectedScope: null };
+    expect(writeSetupDraft("user:alice", "adaptive:flagship:one", adaptiveDraftSchema, draft)).toBe(true);
+    expect(readSetupDraft("user:alice", "adaptive:flagship:one", adaptiveDraftSchema)).toEqual(draft);
+  });
+
   it("rejects owner, source, schema and freshness mismatches at the storage boundary", () => {
     writeSetupDraft("user:alice", "flow", legacyDraftSchema, legacy);
     const key = localStorage.key(0)!;

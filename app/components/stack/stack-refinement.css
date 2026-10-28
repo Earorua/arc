@@ -1,4 +1,10 @@
-.stack-browser .stack-filters { margin-top: 28px; }
+.stack-scope { display: flex; gap: 8px; margin-top: 28px; }
+.stack-scope button { min-height: 44px; padding: 10px 18px; border: 1px solid var(--hairline); border-radius: 8px; background: transparent; color: var(--charcoal); font: inherit; font-size: 1rem; cursor: pointer; }
+.stack-scope button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal); color: white; }
+.stack-scope button:disabled { cursor: default; color: var(--stone); background: transparent; }
+.stack-scope-description { color: var(--stone); font-size: .875rem; line-height: 1.6; margin: 12px 0 0; }
+.stack-context-return { display: inline-flex; min-height: 44px; align-items: center; margin-top: 16px; }
+.stack-browser .stack-filters { margin-top: 20px; }
 .stack-master-detail { display: grid; grid-template-columns: minmax(200px, .65fr) minmax(0, 1.8fr); gap: 36px; align-items: start; }
 .stack-index { position: sticky; top: 24px; }
 .stack-search { display: grid; gap: 8px; margin-bottom: 20px; }
@@ -36,7 +42,7 @@
   .stack-index { position: static; }
   .stack-index ul { max-height: none; }
   .stack-browser:not(.is-detail-open) .skill-list { display: none; }
-  .stack-browser.is-detail-open .stack-index, .stack-browser.is-detail-open .stack-filters { display: none; }
+  .stack-browser.is-detail-open .stack-index, .stack-browser.is-detail-open .stack-filters, .stack-browser.is-detail-open .stack-scope, .stack-browser.is-detail-open .stack-scope-description { display: none; }
   .stack-back { display: inline-flex; margin: 8px 0 28px; }
   .skill-next-step { align-items: flex-start; flex-direction: column; gap: 8px; }
 }

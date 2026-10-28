@@ -6,8 +6,31 @@ import { flagshipBlueprint } from '../../app/data/flagship-blueprint';
 import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry';
 import { offlinePlanningRequest } from '../offline-uat/planning-fixture';
 
+import { applyPlanningEvent } from '../../app/lib/planning/event-reducer';
+
 afterEach(() => { cleanup(); sessionStorage.clear(); window.history.replaceState(null, '', '/'); vi.restoreAllMocks(); });
-const goals={goals:[{id:'old',roleId:'Historical role',targetWeeks:18,weeklyMinutes:420,createdAt:100,hasWorkspace:true},{id:'empty',roleId:'Empty goal',targetWeeks:12,weeklyMinutes:240,createdAt:90,hasWorkspace:false}],nextOffset:null};
+const goals={goals:[{id:'old',roleId:'Historical role',targetWeeks:18,weeklyMinutes:420,createdAt:100,hasWorkspace:true,progress:{completedUnits:2,totalUnits:9}},{id:'empty',roleId:'Empty goal',targetWeeks:12,weeklyMinutes:240,createdAt:90,hasWorkspace:false,progress:null},{id:'legacy',roleId:'Legacy role',targetWeeks:12,weeklyMinutes:240,createdAt:80,hasWorkspace:true,progress:null}],nextOffset:null};
+it('shows real completed totals and an honest unavailable state for legacy records',async()=>{
+ const client={list:vi.fn().mockResolvedValue(goals),load:vi.fn()};
+ render(<PlanHistory ownerId="owner" client={client}/>);
+ expect(await screen.findByText('已完成 2 / 9 个学习单元')).toBeInTheDocument();
+ expect(screen.getByText('进度记录暂不可用')).toBeInTheDocument();
+ expect(screen.getByText('未生成学习计划')).toBeInTheDocument();
+ expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
+});
+it('makes the history list the primary return in saved detail, preserving its page',async()=>{
+ const client={list:vi.fn().mockResolvedValue(goals),load:vi.fn().mockResolvedValue({workspace:null,sourceContext:null})};
+ window.history.replaceState(null,'','/history?goal=old&offset=20');
+ render(<PlanHistory ownerId="owner" client={client}/>);
+ await screen.findByText('这个目标没有已保存的学习计划。');
+ const back=screen.getByRole('button',{name:'返回历史列表'});
+ expect(back).toHaveClass('workspace-return');
+ expect(back.closest('.workspace-intro')).not.toBeNull();
+ expect(screen.getByRole('link',{name:'返回当前学习路线'})).not.toHaveClass('workspace-return');
+ fireEvent.click(back);
+ await screen.findByRole('button',{name:/Historical role/});
+ expect(window.location.search).toBe('?offset=20');
+});
 it('restores a direct saved-plan URL and the list page on browser Back', async () => {
  const client={list:vi.fn().mockResolvedValue(goals),load:vi.fn().mockResolvedValue({workspace:null,sourceContext:null})};
  window.history.replaceState(null,'','/history?goal=old&offset=20');
@@ -38,6 +61,20 @@ it('clears the prior account immediately and ignores a late response after switc
  await act(async()=>{resolveOld(goals);});
  await waitFor(()=>expect(screen.queryByText('Historical role')).not.toBeInTheDocument());
 });
+it('labels already-known history as a self-assessment rather than demonstrated mastery',async()=>{
+ const service=new PlanningService({repository:{findActiveGoal:async()=>({ownerId:'owner',goalId:'old'}),load:async()=>null,findMutation:async()=>null,saveGeneration:async c=>({...c,payload:c.result}),saveEvent:async c=>({...c,payload:c.result})},intelligence:{getPublished:async()=>flagshipBlueprint},registry:flagshipUnitRegistry});
+ const request=offlinePlanningRequest(flagshipBlueprint,undefined,'history-uncertain-fixture');
+ request.audit.answers.forEach(answer=>{answer.level='uncertain';});
+ const result=await service.generateResponse('owner',request);
+ const initial=result.result.workspace;
+ const unit=initial.dailyUnits.find(item=>item.planVersionId===initial.activePlanVersionId&&item.required)!;
+ const proposed=applyPlanningEvent({workspace:initial,blueprint:flagshipBlueprint,registry:flagshipUnitRegistry,event:{eventId:'event-uncertain',mutationId:'mutation-uncertain',sequence:1,targetPlanVersionId:initial.activePlanVersionId,occurredAt:'2026-08-14T08:00:00.000Z',kind:'already_known',unitId:unit.id,planningDate:unit.scheduledDate}}).workspace;
+ render(<SavedPlan value={{workspace:proposed,sourceContext:result.sourceContext}}/>);
+ fireEvent.click(screen.getByText(/安排版本 1/));
+ expect(screen.getAllByText('自评已会').length).toBeGreaterThan(0);
+ expect(screen.queryByText('已掌握')).not.toBeInTheDocument();
+});
+
 it('renders actual saved route, daily units and resource links without learning actions',async()=>{
  const service=new PlanningService({repository:{findActiveGoal:async()=>({ownerId:'owner',goalId:'old'}),load:async()=>null,findMutation:async()=>null,saveGeneration:async c=>({...c,payload:c.result}),saveEvent:async c=>({...c,payload:c.result})},intelligence:{getPublished:async()=>flagshipBlueprint},registry:flagshipUnitRegistry});
  const result=await service.generateResponse('owner',offlinePlanningRequest(flagshipBlueprint,undefined,'history-ui-fixture'));
