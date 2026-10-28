@@ -10,17 +10,17 @@ export function SevenDayTimeline({ workspace: value, blueprint = flagshipBluepri
   if (!resolved) return <PlanningVersionBoundary />;
   const { plan, units, templates, exceptions } = resolved;
   return <section className="seven-day-plan" aria-labelledby="seven-day-title">
-    <div className="seven-day-heading"><p className="section-index">Seven-day plan</p><h2 id="seven-day-title">One continuous week.</h2></div>
-    <ol aria-label="Seven consecutive learning days" className="seven-day-timeline">
+    <div className="seven-day-heading"><p className="section-index">当前计划 · 七日安排</p><h2 id="seven-day-title">{plan.days[0]!.date} — {plan.days[6]!.date}</h2></div>
+    <ol aria-label="连续七日学习安排" className="seven-day-timeline">
       {plan.days.map((day) => {
         const primary = day.primaryUnitId ? units.get(day.primaryUnitId) : undefined;
         const stretch = day.stretchUnitId ? units.get(day.stretchUnitId) : undefined;
         const exception = exceptions.get(day.date);
         return <li key={day.date}>
           <time dateTime={day.date}>{day.date}</time>
-          <div><strong>{day.status === "rest" ? "Rest" : primary ? templates.get(primary.templateId)?.title ?? primary.objective : "Open"}</strong>
-            <p>{day.budgetMinutes} minutes{exception && <><span> · </span><span>{exception.reason ? `Exception: ${exception.reason}` : "Exception · No reason provided"}</span></>}</p>
-            {stretch && <small>Optional stretch · {templates.get(stretch.templateId)?.title ?? stretch.objective}</small>}
+          <div><strong>{day.status === "rest" ? "休息" : primary ? templates.get(primary.templateId)?.title ?? primary.objective : "待安排"}</strong>
+            <p>{day.budgetMinutes} 分钟{exception && <><span> · </span><span>{exception.reason ? `临时安排：${exception.reason}` : "临时安排 · 未填写原因"}</span></>}</p>
+            {stretch && <small>可选拓展 · {templates.get(stretch.templateId)?.title ?? stretch.objective}</small>}
           </div>
         </li>;
       })}

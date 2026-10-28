@@ -26,3 +26,14 @@ it('uses the authenticated owner, validates queries, and masks absent/foreign go
  expect(missing.status).toBe(404);expect(service.load).toHaveBeenCalledExactlyOnceWith('owner','other');
  expect(JSON.stringify(await missing.json())).not.toContain('other');
 });
+it('returns validated saved counts and rejects impossible progress',async()=>{
+ const {service,handler}=setup();
+ const result={goals:[{id:'old',roleId:'role',targetWeeks:12,weeklyMinutes:240,createdAt:1,hasWorkspace:true,progress:{completedUnits:2,totalUnits:9}}],nextOffset:null};
+ service.list.mockResolvedValue(result);
+ const response=await handler(new Request('https://arc.example/api/planning/history'));
+ expect(response.status).toBe(200);
+ expect(await response.json()).toEqual(result);
+ expect(response.headers.get('cache-control')).toBe('no-store');
+ service.list.mockResolvedValue({...result,goals:[{...result.goals[0],progress:{completedUnits:10,totalUnits:9}}]});
+ expect((await handler(new Request('https://arc.example/api/planning/history'))).status).toBe(503);
+});

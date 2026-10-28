@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { authClient } from "../../lib/auth-client";
 import { useHydrated } from "../../lib/use-hydrated";
+import { signInHref } from "../../lib/navigation-context";
 import {
   safeAccountLinkStatusSchema,
   type AccountLinkStatus,
 } from "../../server/account-link/contracts";
 import { authProviderSchema, type AuthProvider } from "../../server/auth/policy";
 import { AccountLinkPanel } from "./account-link-panel";
+import { useAccountLocation } from "./use-account-location";
+import { LearningPreferences } from "../agents/agent-context";
 
 type AccountNotice = {
   kind: "status" | "alert";
@@ -141,9 +144,11 @@ function connectedProviders(accountsResult: unknown): AuthProvider[] {
 }
 
 export function AccountMenu() {
+  const location = useAccountLocation();
   const { data, isPending: sessionPending } = authClient.useSession();
   const hydrated = useHydrated();
   const isPending = !hydrated || sessionPending;
+  const loginHref = signInHref(location);
   const userId = data?.user?.id;
   const [connectionState, setConnectionState] = useState<ConnectionState | null>(null);
   const [linkStatusState, setLinkStatusState] = useState<LinkStatusState | null>(null);
@@ -278,15 +283,15 @@ export function AccountMenu() {
   }
 
   if (signOutStatus === "complete") {
-    return <Link className="account-link" href="/sign-in">Sign in</Link>;
+    return <Link className="account-link" href={loginHref}>登录</Link>;
   }
 
   if (isPending) {
-    return <span className="account-pending" aria-label="Checking account">•••</span>;
+    return <span className="account-pending" aria-label="正在确认账号">•••</span>;
   }
 
   if (!data?.user) {
-    return <Link className="account-link" href="/sign-in">Sign in</Link>;
+    return <Link className="account-link" href={loginHref}>登录</Link>;
   }
   const signedInUserId = data.user.id;
 
@@ -295,11 +300,12 @@ export function AccountMenu() {
       <details className="account-menu" ref={accountMenuRef}>
         <summary ref={accountSummaryRef}>{data.user.name}</summary>
         <div className="account-popover">
-          <strong>Signed in as {data.user.name}</strong>
+          <strong>当前账号 · {data.user.name}</strong>
           <span>{data.user.email}</span>
-          <Link href="/today">Continue learning</Link>
-          <Link href="/path">My learning path</Link>
-          <Link href="/history">历史学习计划</Link>
+          <Link href="/today">继续学习</Link>
+          <Link href="/path">我的学习路线</Link>
+          <Link href="/setup?mode=create">新建学习路线</Link>
+          <LearningPreferences />
           <div className="account-connections" aria-label="Sign-in connections">
             <p>Sign-in connections</p>
             {connectionsPending && <span>Checking connections…</span>}
@@ -344,7 +350,7 @@ export function AccountMenu() {
             />
           )}
           <button className="account-sign-out" disabled={signOutStatus === "pending"} onClick={() => void signOut()} type="button">
-            {signOutStatus === "pending" ? "Signing out…" : "Sign out"}
+            {signOutStatus === "pending" ? "正在退出…" : "退出登录"}
           </button>
           {signOutStatus === "failed" && <p className="account-sign-out-error" role="alert">Couldn&apos;t sign out. Please try again.</p>}
         </div>

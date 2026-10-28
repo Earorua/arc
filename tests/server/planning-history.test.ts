@@ -11,14 +11,42 @@ import { offlinePlanningRequest } from "../offline-uat/planning-fixture";
 function database() {
  const sqlite=new DatabaseSync(":memory:");
  sqlite.exec(`CREATE TABLE career_goals(id TEXT PRIMARY KEY,user_id TEXT,role_id TEXT,target_weeks INTEGER,weekly_minutes INTEGER,created_at INTEGER,status TEXT,active_slot INTEGER);
- CREATE TABLE planning_workspaces(id TEXT,user_id TEXT,goal_id TEXT);
+ CREATE TABLE planning_workspaces(id TEXT,user_id TEXT,goal_id TEXT,active_path_version_id TEXT,next_sequence INTEGER);
+ CREATE TABLE learning_path_versions(user_id TEXT,goal_id TEXT,id TEXT,payload_json TEXT);
+ CREATE TABLE planning_events(user_id TEXT,goal_id TEXT,workspace_id TEXT,sequence INTEGER,kind TEXT,unit_id TEXT);
  INSERT INTO career_goals VALUES('old','owner','old-role',18,420,100,'archived',NULL),('active','owner','new-role',18,420,200,'active',1),('other','stranger','private-role',18,420,300,'archived',NULL),('empty','owner','empty-role',12,240,90,'archived',NULL);
- INSERT INTO planning_workspaces VALUES('ws-old','owner','old'),('ws-active','owner','active'),('ws-other','stranger','other');`);
+ INSERT INTO planning_workspaces VALUES('ws-old','owner','old',NULL,100),('ws-active','owner','active',NULL,100),('ws-other','stranger','other',NULL,100);`);
  const queries:string[]=[];
  const db={prepare(sql:string){queries.push(sql);if(!/^\s*SELECT\b/i.test(sql))throw Error('READ_ONLY_TEST');return{bind(...args:SQLInputValue[]){return{async first(){return sqlite.prepare(sql).get(...args)??null;},async all(){return{success:true,results:sqlite.prepare(sql).all(...args)}}}}}}} as unknown as D1Database;
  return {sqlite,db,queries};
 }
 describe('saved learning history',()=>{
+ it('counts only unique completed units in the saved active route and owned workspace',async()=>{
+  const {sqlite,db}=database();
+  try{
+   const service=new PlanningService({repository:{findActiveGoal:async()=>({ownerId:'owner',goalId:'old'}),load:async()=>null,findMutation:async()=>null,saveGeneration:async c=>({...c,payload:c.result}),saveEvent:async c=>({...c,payload:c.result})},intelligence:{getPublished:async()=>flagshipBlueprint},registry:flagshipUnitRegistry});
+   const {workspace}=await service.generate('owner',offlinePlanningRequest(flagshipBlueprint,undefined,'history-progress'));
+   const path=workspace.pathVersions.find(path=>path.id===workspace.activePathVersionId)!;
+   sqlite.prepare('UPDATE planning_workspaces SET active_path_version_id=? WHERE goal_id=?').run(path.id,'old');
+   sqlite.prepare('INSERT INTO learning_path_versions VALUES(?,?,?,?)').run('owner','old',path.id,JSON.stringify(path));
+   const event=sqlite.prepare('INSERT INTO planning_events VALUES(?,?,?,?,?,?)');
+   event.run('owner','old','ws-old',1,'completed',path.units[0].id);
+   event.run('owner','old','ws-old',2,'completed',path.units[0].id);
+   event.run('owner','old','ws-old',3,'completed',path.units[1].id);
+   event.run('owner','old','ws-old',4,'skipped',path.units[2].id);
+   event.run('owner','old','ws-old',5,'completed','optional-stretch');
+   event.run('stranger','old','ws-old',6,'completed',path.units[2].id);
+   event.run('owner','another-goal','ws-old',7,'completed',path.units[2].id);
+   event.run('owner','old','wrong-workspace',8,'completed',path.units[2].id);
+   event.run('owner','old','ws-old',100,'completed',path.units[2].id);
+   const reader=new D1PlanningHistoryReader(db,{getSavedWorkspaceResponse:vi.fn()});
+   const result=await reader.list('owner');
+   expect(result.goals[0].progress).toEqual({completedUnits:2,totalUnits:path.units.length});
+   expect(result.goals[1].progress).toBeNull();
+   sqlite.prepare('UPDATE learning_path_versions SET payload_json=?').run('{malformed');
+   expect((await reader.list('owner')).goals[0].progress).toBeNull();
+  }finally{sqlite.close();}
+ });
  it('lists only owned archived goals, including goals with no saved plan, without changing the default',async()=>{
   const {sqlite,db}=database();
   try{
@@ -26,6 +54,7 @@ describe('saved learning history',()=>{
    const reader=new D1PlanningHistoryReader(db,loader);
    const result=await reader.list('owner',0);
    expect(result.goals.map(g=>[g.id,g.hasWorkspace])).toEqual([['old',true],['empty',false]]);
+   expect(result.goals.every(goal=>goal.progress===null)).toBe(true);
    expect(result.nextOffset).toBeNull();
    expect(sqlite.prepare("SELECT id FROM career_goals WHERE active_slot=1").get()?.id).toBe('active');
    expect(loader.getSavedWorkspaceResponse).not.toHaveBeenCalled();

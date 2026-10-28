@@ -1,14 +1,134 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { StackBrowser } from "../../app/components/stack/stack-browser";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import type { SkillEvidenceProjection } from "../../app/contracts/proof-ledger";
 
+beforeEach(() => window.history.replaceState(null, "", "/stack"));
 afterEach(cleanup);
 
 describe("StackBrowser", () => {
   const emptyEvidence = { evidence: [], projections: [] };
+
+  it("restores search from the URL and combines skill description matching with category filters", async () => {
+    window.history.replaceState(null, "", "/stack?category=frontend&q=%20RESPONSIVE%20");
+    const user = userEvent.setup();
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
+    expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue(" RESPONSIVE ");
+    expect(screen.getAllByRole("button", { name: /^查看 / })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "查看 React 19" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "AI" }));
+    expect(new URLSearchParams(window.location.search).get("q")).toBe(" RESPONSIVE ");
+    expect(screen.getByRole("status")).toHaveTextContent("没有匹配的技能");
+    expect(screen.queryByRole("button", { name: /^查看 / })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "清除搜索" }));
+    expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue("");
+    expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveFocus();
+    expect(window.location.search).toBe("?category=ai");
+    expect(screen.getAllByRole("button", { name: /^查看 / })).toHaveLength(2);
+  });
+
+  it("replaces query history while typing and keeps keyboard focus when searching from a detail", async () => {
+    const user = userEvent.setup();
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
+    await user.click(screen.getByRole("button", { name: "查看 Web Platform" }));
+    const length = window.history.length;
+    const search = screen.getByRole("searchbox", { name: "搜索技能" });
+    await user.type(search, "react 19");
+    expect(window.history.length).toBe(length);
+    expect(new URLSearchParams(window.location.search).get("q")).toBe("react 19");
+    expect(new URLSearchParams(window.location.search).has("skill")).toBe(false);
+    expect(search).toHaveFocus();
+    expect(screen.getAllByRole("button", { name: /^查看 / })).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "查看 React 19" })).toBeInTheDocument();
+  });
+
+  it("searches only current blueprint skill names and descriptions", () => {
+    const blueprint = { ...flagshipBlueprint, skills: flagshipBlueprint.skills.filter(({ id }) => id === "react") };
+    render(<StackBrowser blueprint={blueprint} {...emptyEvidence} />);
+    const search = screen.getByRole("searchbox", { name: "搜索技能" });
+    fireEvent.change(search, { target: { value: "SQL" } });
+    expect(screen.queryByRole("button", { name: /^查看 / })).not.toBeInTheDocument();
+    fireEvent.change(search, { target: { value: "official documentation" } });
+    expect(screen.queryByRole("button", { name: /^查看 / })).not.toBeInTheDocument();
+    fireEvent.change(search, { target: { value: "ReAcT" } });
+    expect(screen.getByRole("button", { name: "查看 React 19" })).toBeInTheDocument();
+  });
+
+  it("preserves search, category, scroll and focus when returning from a selected skill", () => {
+    window.history.replaceState(null, "", "/stack?category=frontend&q=react");
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
+    const list = screen.getByRole("list", { name: "技能索引" });
+    list.scrollTop = 90;
+    fireEvent.click(screen.getByRole("button", { name: "查看 React 19" }));
+    expect(window.location.search).toBe("?category=frontend&q=react&skill=react");
+    fireEvent.click(screen.getByRole("button", { name: "返回技能列表" }));
+    expect(window.location.search).toBe("?category=frontend&q=react");
+    expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue("react");
+    expect(list.scrollTop).toBe(90);
+    expect(screen.getByRole("button", { name: "查看 React 19" })).toHaveFocus();
+  });
+
+  it("restores searched selections through native Back, Forward and remount", async () => {
+    window.history.replaceState(null, "", "/stack?category=frontend&q=react");
+    const view = render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
+    fireEvent.click(screen.getByRole("button", { name: "查看 React 19" }));
+    act(() => window.history.back());
+    await waitFor(() => expect(screen.getByRole("button", { name: "查看 React 19" })).toHaveFocus());
+    expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue("react");
+    expect(screen.getByRole("button", { name: "前端" })).toHaveAttribute("aria-pressed", "true");
+    act(() => window.history.forward());
+    await waitFor(() => expect(screen.getByRole("heading", { name: "React 19" })).toHaveFocus());
+    view.unmount();
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
+    expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue("react");
+    expect(screen.getByRole("heading", { name: "React 19" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^查看 / })).toHaveLength(1);
+  });
+
+  it("updates the search field and results when Back and Forward restore different queries", async () => {
+    window.history.replaceState(null, "", "/stack?q=react");
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
+    fireEvent.click(screen.getByRole("button", { name: "前端" }));
+    fireEvent.change(screen.getByRole("searchbox", { name: "搜索技能" }), { target: { value: "keyboard-safe" } });
+    expect(screen.getByRole("button", { name: "查看 Accessible Design Systems" })).toBeInTheDocument();
+    act(() => window.history.back());
+    await waitFor(() => expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue("react"));
+    expect(screen.getByRole("button", { name: "全部分类" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "查看 React 19" })).toBeInTheDocument();
+    act(() => window.history.forward());
+    await waitFor(() => expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveValue("keyboard-safe"));
+    expect(screen.getByRole("button", { name: "前端" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "查看 Accessible Design Systems" })).toBeInTheDocument();
+  });
+
+  it("returns focus to search when a detail deep link returns to an empty search result", () => {
+    window.history.replaceState(null, "", "/stack?category=frontend&q=unmatched&skill=react");
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
+    fireEvent.click(screen.getByRole("button", { name: "返回技能列表" }));
+    expect(window.location.search).toBe("?category=frontend&q=unmatched");
+    expect(screen.getByRole("status")).toHaveTextContent("没有匹配的技能");
+    expect(screen.getByRole("searchbox", { name: "搜索技能" })).toHaveFocus();
+  });
+
+  it("keeps a valid selection through filtering and returns focus to its index control", async () => {
+    const user = userEvent.setup();
+    render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
+    const react = screen.getByRole("button", { name: "查看 React 19" });
+    await user.click(react);
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(screen.getByRole("heading", { name: "React 19" })).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: "返回技能列表" }));
+    expect(react).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: "前端" }));
+    expect(react).toHaveAttribute("aria-pressed", "true");
+    await user.click(screen.getByRole("button", { name: "AI" }));
+    expect(screen.queryByRole("heading", { name: "React 19" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Structured LLM Contracts" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "全部分类" }));
+    expect(screen.getByRole("button", { name: "查看 Structured LLM Contracts" })).toHaveAttribute("aria-pressed", "true");
+  });
 
   it("filters canonical skills and reveals complete resource evidence", async () => {
     const user = userEvent.setup();
@@ -23,44 +143,50 @@ describe("StackBrowser", () => {
     expect(screen.queryByText("React 19")).not.toBeInTheDocument();
 
     const skills = screen.getAllByRole("article");
-    expect(skills).toHaveLength(2);
+    expect(skills).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /^查看 / })).toHaveLength(2);
     const structuredContracts = screen
       .getByRole("heading", { name: "Structured LLM Contracts" })
       .closest("article");
 
     expect(structuredContracts).not.toBeNull();
     expect(within(structuredContracts!).queryByText(/claim confidence/i)).not.toBeInTheDocument();
-    expect(within(structuredContracts!).getByText("Free")).toBeInTheDocument();
-    expect(within(structuredContracts!).getByText("English")).toBeInTheDocument();
-    expect(within(structuredContracts!).getByText("Primary source")).toBeInTheDocument();
-    expect(within(structuredContracts!).getByText("Documentation")).toBeInTheDocument();
-    expect(within(structuredContracts!).getByText("Verified 2026-07-26")).toBeInTheDocument();
+    expect(within(structuredContracts!).getByText("免费")).toBeInTheDocument();
+    expect(within(structuredContracts!).getByText("英语")).toBeInTheDocument();
+    expect(within(structuredContracts!).getByText("一手来源")).toBeInTheDocument();
+    expect(within(structuredContracts!).getByText("文档")).toBeInTheDocument();
+    expect(within(structuredContracts!).getByText("2026-07-26")).toBeInTheDocument();
     expect(
       within(structuredContracts!).getByRole("link", { name: /official documentation/i }),
     ).toHaveAttribute("rel", "noreferrer");
   });
 
-  it("gives every rendered skill two mastery criteria and a learning-resource link", () => {
+  it("gives every selected skill two mastery criteria and a learning-resource link", async () => {
+    const user = userEvent.setup();
     render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
 
-    screen.getAllByRole("article").forEach((skill) => {
-      const mastery = within(skill).getByRole("list", { name: "Mastery criteria" });
-      const resources = within(skill).getByRole("list", { name: "Learning resources" });
+    for (const sourceSkill of flagshipBlueprint.skills) {
+      await user.click(screen.getByRole("button", { name: `查看 ${sourceSkill.name}` }));
+      const skill = screen.getByRole("article");
+      const mastery = within(skill).getByRole("list", { name: "掌握标准" });
+      const resources = within(skill).getByRole("list", { name: "学习资料" });
 
       expect(within(mastery).getAllByRole("listitem")).toHaveLength(2);
       expect(within(resources).getAllByRole("link").length).toBeGreaterThanOrEqual(1);
-    });
+    }
   });
 
-  it("resolves prerequisite names instead of exposing internal ids", () => {
+  it("resolves prerequisite names instead of exposing internal ids", async () => {
+    const user = userEvent.setup();
     render(<StackBrowser blueprint={flagshipBlueprint} {...emptyEvidence} />);
 
     const foundation = screen.getByRole("heading", { name: "Web Platform" }).closest("article");
-    const react = screen.getByRole("heading", { name: "React 19" }).closest("article");
 
     expect(foundation).not.toBeNull();
-    expect(within(foundation!).getByText("Prerequisites")).toBeInTheDocument();
-    expect(within(foundation!).getByText("None")).toBeInTheDocument();
+    expect(within(foundation!).getByText("前置技能")).toBeInTheDocument();
+    expect(within(foundation!).getByText("无")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "查看 React 19" }));
+    const react = screen.getByRole("article");
     expect(within(react!).getByText("Web Platform, TypeScript")).toBeInTheDocument();
     expect(within(react!).queryByText("web-platform, typescript")).not.toBeInTheDocument();
   });
@@ -77,8 +203,8 @@ describe("StackBrowser", () => {
 
     render(<StackBrowser blueprint={blueprint} {...emptyEvidence} />);
 
-    const evidence = screen.getByRole("list", { name: "Learning resources" });
-    expect(within(evidence).getByText("Resource metadata unavailable")).toBeInTheDocument();
+    const evidence = screen.getByRole("list", { name: "学习资料" });
+    expect(within(evidence).getByText("资料信息暂不可用")).toBeInTheDocument();
     expect(within(evidence).queryByRole("link")).not.toBeInTheDocument();
   });
 
@@ -164,14 +290,15 @@ describe("StackBrowser", () => {
     expect(translatedLink).toHaveAttribute("target", "_blank");
     expect(translatedLink).toHaveAttribute("rel", "noreferrer");
     expect(translatedLink).toHaveAttribute("lang", "zh-CN");
-    expect(screen.getByText("Arc Learning Lab")).toBeInTheDocument();
-    expect(screen.getByText("Chinese (Simplified)")).toBeInTheDocument();
-    expect(screen.getByText("Free and paid")).toBeInTheDocument();
-    expect(screen.getByText("Institutional source")).toBeInTheDocument();
-    expect(screen.getByText("Guide")).toBeInTheDocument();
+    expect(screen.getByText(/Arc Learning Lab/)).toBeInTheDocument();
+    expect(screen.getByText("简体中文")).toBeInTheDocument();
+    expect(screen.getByText("免费与付费")).toBeInTheDocument();
+    expect(screen.getByText("机构来源")).toBeInTheDocument();
+    expect(screen.getByText("指南")).toBeInTheDocument();
   });
 
-  it("shows canonical learner status, evidence facts, and deterministic next actions", () => {
+  it("shows canonical learner status, evidence facts, and deterministic next actions", async () => {
+    const user = userEvent.setup();
     const projections: SkillEvidenceProjection[] = [
       { skillId: "web-platform", audience: "internal", status: "exploring", completedUnitIds: [], strongestProofId: null, strongestVersionId: null, latestUsedAt: null },
       { skillId: "typescript", audience: "internal", status: "practicing", completedUnitIds: ["unit-1", "unit-2"], strongestProofId: null, strongestVersionId: null, latestUsedAt: "2026-08-20T10:00:00.000Z" },
@@ -184,19 +311,23 @@ describe("StackBrowser", () => {
     ]} />);
 
     const exploring = screen.getByRole("heading", { name: "Web Platform" }).closest("article")!;
-    const practicing = screen.getByRole("heading", { name: "TypeScript" }).closest("article")!;
-    const demonstrated = screen.getByRole("heading", { name: "React 19" }).closest("article")!;
-    const verified = screen.getByRole("heading", { name: "Accessible Design Systems" }).closest("article")!;
-    expect(within(exploring).getByText("Exploring")).toBeInTheDocument();
-    expect(within(exploring).getByRole("link", { name: "Start Today" })).toHaveAttribute("href", "/today");
-    expect(within(practicing).getByText("Practicing")).toBeInTheDocument();
-    expect(within(practicing).getByText("2 completed units")).toBeInTheDocument();
-    expect(within(practicing).getByRole("link", { name: "Continue Today" })).toHaveAttribute("href", "/today");
-    expect(within(demonstrated).getByText("Demonstrated")).toBeInTheDocument();
-    expect(within(demonstrated).getByRole("link", { name: "Accessible request trace" })).toHaveAttribute("href", "/proof?proof=proof-react");
-    expect(within(demonstrated).getByRole("link", { name: "Add stronger proof" })).toBeInTheDocument();
-    expect(within(verified).getByText("Verified")).toBeInTheDocument();
-    expect(within(verified).getByRole("link", { name: "Maintain evidence" })).toBeInTheDocument();
+    expect(within(exploring).getByText("待探索")).toBeInTheDocument();
+    expect(within(exploring).getByRole("link", { name: "查看技能路线" })).toHaveAttribute("href", "/path?skill=web-platform");
+    await user.click(screen.getByRole("button", { name: "查看 TypeScript" }));
+    const practicing = screen.getByRole("article");
+    expect(within(practicing).getByText("练习中")).toBeInTheDocument();
+    expect(within(practicing).getByText("已完成 2 个学习单元")).toBeInTheDocument();
+    expect(within(practicing).getByRole("link", { name: "查看技能路线" })).toHaveAttribute("href", "/path?skill=typescript");
+    await user.click(screen.getByRole("button", { name: "查看 React 19" }));
+    const demonstrated = screen.getByRole("article");
+    expect(within(demonstrated).getByText("已有作品证明")).toBeInTheDocument();
+    await user.click(within(demonstrated).getByText("技能要求与学习记录"));
+    expect(within(demonstrated).getByRole("link", { name: "Accessible request trace" })).toHaveAttribute("href", "/proof?proof=proof-react&returnTo=%2Fstack%3Fskill%3Dreact");
+    expect(within(demonstrated).getByRole("link", { name: "补充作品证明" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "查看 Accessible Design Systems" }));
+    const verified = screen.getByRole("article");
+    expect(within(verified).getByText("已通过验证")).toBeInTheDocument();
+    expect(within(verified).getByRole("link", { name: "维护作品证明" })).toBeInTheDocument();
     expect(screen.queryAllByText(/claim confidence/i)).toHaveLength(0);
   });
 
@@ -206,7 +337,7 @@ describe("StackBrowser", () => {
       strongestProofId: "secret-proof-id", strongestVersionId: "secret-version-id", latestUsedAt: null,
     };
     render(<StackBrowser blueprint={{ ...flagshipBlueprint, skills: [flagshipBlueprint.skills[2]] }} projections={[projection]} evidence={[]} />);
-    expect(screen.getByText("Evidence unavailable")).toBeInTheDocument();
+    expect(screen.getByText("作品信息暂不可用")).toBeInTheDocument();
     expect(screen.queryByText(/secret-proof-id|secret-version-id/u)).not.toBeInTheDocument();
   });
 });

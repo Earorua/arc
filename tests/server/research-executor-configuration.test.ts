@@ -576,6 +576,8 @@ describe("Research executor environment documentation", () => {
     expect(example).toMatch(/^# ARC_AI_RESEARCH_EXECUTOR=cloudflare-workflow-v1$/mu);
     expect(example).toMatch(/HTTPS/u);
     expect(example).toMatch(/64 lowercase hexadecimal/u);
-    expect(example).toMatch(/only the executor.*OPENROUTER_API_KEY/iu);
+    expect(example).toMatch(/Research uses the executor's OPENROUTER_API_KEY/u);
+    expect(example).toMatch(/separate key stored on the website Worker/u);
+    expect(example).toMatch(/^ARC_LEARNING_AGENTS_ENABLED=false$/mu);
   });
 });

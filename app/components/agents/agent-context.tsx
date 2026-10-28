@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { authClient } from "../../lib/auth-client";
 import { agentClient } from "../../lib/agent-client";
@@ -18,10 +18,36 @@ type AgentState = {
   handoff: string; setHandoff(value: string): void;
 };
 const AgentContext = createContext<AgentState | null>(null);
+export function useOptionalLearningAgents() { return useContext(AgentContext); }
+export function LearningPreferences() {
+  const state = useContext(AgentContext);
+  if (!state?.authenticated || state.authPending) return null;
+  return <details className="account-learning-preferences">
+    <summary>学习偏好</summary>
+    <label><input type="checkbox" checked={state.reducedMotion} onChange={event => state.setReducedMotion(event.target.checked)} />减少动效</label>
+    <p>默认遵循系统设置；勾选后进一步减少全站动画。</p>
+    <label><input type="checkbox" checked={state.view !== "hidden"} onChange={event => state.setView(event.target.checked ? "pet" : "hidden")} />显示学习伙伴</label>
+  </details>;
+}
 export function useLearningAgents() {
   const value = useContext(AgentContext);
   if (!value) throw new Error("Learning agent context is unavailable.");
   return value;
+}
+const overlayQuery = "(max-width: 1050px)";
+function subscribeOverlay(callback: () => void) {
+  const media = window.matchMedia(overlayQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+export function useCompanionOverlay() {
+  return useSyncExternalStore(subscribeOverlay, () => window.matchMedia(overlayQuery).matches, () => false);
+}
+export function AgentPageFrame({ children }: { children: ReactNode }) {
+  const agents = useLearningAgents();
+  const overlay = useCompanionOverlay();
+  const open = agents.authenticated && !agents.authPending && agents.view === "chat";
+  return <div className={open ? "arc-page-content has-companion" : "arc-page-content"} inert={open && overlay}>{children}</div>;
 }
 export function LearningAgentsProvider({ children }: { children: ReactNode }) {
   const session = authClient.useSession();
@@ -52,6 +78,10 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
   const draftRef = useRef("");
   const preferencesKey = `arc-companion-v1:${identity}`;
   const draftKey = `arc-companion-draft-v1:${identity}:${workspace?.goalId ?? "none"}`;
+  useEffect(() => {
+    document.documentElement.classList.toggle("reduce-motion", reducedMotion);
+    return () => document.documentElement.classList.remove("reduce-motion");
+  }, [reducedMotion]);
   useEffect(() => {
     mounted.current = true;
     let current = true;

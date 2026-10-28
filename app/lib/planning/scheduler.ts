@@ -74,6 +74,10 @@ export function estimateCompletionDate(input: CompletionEstimateInput): string {
   return estimateParsedCompletionDate(parsed);
 }
 
+export function estimateUnitSchedule(input: CompletionEstimateInput): { unitId: string; date: string }[] {
+  return estimateParsedUnitSchedule(parseEstimateInput(input));
+}
+
 export function buildPlanVersion(input: PlanBuildInput): {
   plan: PlanVersion;
   dailyUnits: DailyUnit[];
@@ -360,8 +364,13 @@ function validateUnitGraph(units: readonly PathUnit[]): ValidatedUnitGraph {
 }
 
 function estimateParsedCompletionDate(input: ParsedEstimateInput): string {
+  return estimateParsedUnitSchedule(input).at(-1)?.date ?? input.planningDate;
+}
+
+function estimateParsedUnitSchedule(input: ParsedEstimateInput): { unitId: string; date: string }[] {
   const schedule = createScheduleState(input.graph, input.completedUnitIds);
-  if (schedule.remaining === 0) return input.planningDate;
+  const placements: { unitId: string; date: string }[] = [];
+  if (schedule.remaining === 0) return placements;
   const budget = createBudgetResolver(input.availability, input.planningDate);
   if (input.units.some((unit, index) => schedule.isPending(index)
     && unit.estimatedMinutes > budget.maximumMinutes)) {
@@ -379,7 +388,8 @@ function estimateParsedCompletionDate(input: ParsedEstimateInput): string {
     if (nextIndex !== null
       && input.units[nextIndex]!.estimatedMinutes <= budget.minutes(date, dayIndex)) {
       schedule.complete(nextIndex);
-      if (schedule.remaining === 0) return date;
+      placements.push({ unitId: input.units[nextIndex]!.id, date });
+      if (schedule.remaining === 0) return placements;
       assertNextUnitCanFit(
         input.units,
         schedule.nextIndex(),

@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AgentCompanion, CompanionPanel } from "../../app/components/agents/agent-companion";
 import type { AgentLearningContext, AgentWorkspace, PublicAgentRun } from "../../app/contracts/agents";
@@ -6,7 +7,7 @@ const mocks = vi.hoisted(() => ({ agents: vi.fn() }));
 vi.mock("../../app/components/agents/agent-context", async importOriginal => ({
   ...await importOriginal<typeof import("../../app/components/agents/agent-context")>(), useLearningAgents: mocks.agents,
 }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => "/today" }));
 afterEach(cleanup);
 
 const researchContext = (): AgentLearningContext => ({
@@ -49,6 +50,25 @@ describe("learning companion", () => {
     fireEvent.click(screen.getByRole("button", { name: "打开学习伙伴" }));
     expect(p.onView).toHaveBeenCalledWith("chat");
   });
+  it("contains keyboard focus on narrow screens and returns it on close", async () => {
+    const previous = window.matchMedia;
+    window.matchMedia = vi.fn(query => ({ matches: true, media: query, onchange: null, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: vi.fn() }));
+    function Harness() {
+      const [view, onView] = useState<"pet" | "chat">("pet");
+      return <CompanionPanel {...props()} view={view} onView={value => onView(value as "pet" | "chat")} />;
+    }
+    try {
+      render(<Harness />);
+      fireEvent.click(screen.getByRole("button", { name: "打开学习伙伴" }));
+      expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
+      const close = screen.getByRole("button", { name: "最小化学习伙伴" });
+      close.focus(); fireEvent.keyDown(close, { key: "Tab", shiftKey: true });
+      expect(screen.getByRole("button", { name: "调整学习计划" })).toHaveFocus();
+      fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+      await waitFor(() => expect(screen.getByRole("button", { name: "打开学习伙伴" })).toHaveFocus());
+      expect(document.body.style.overflow).not.toBe("hidden");
+    } finally { cleanup(); window.matchMedia = previous; }
+  });
   it("minimizes, shows task context and keeps the message controlled", () => {
     const p = props(); render(<CompanionPanel {...p} view="chat" draft="闭包是什么？" />);
     expect(screen.getByText("React 状态管理")).toBeInTheDocument();
@@ -62,6 +82,9 @@ describe("learning companion", () => {
     expect(p.onView).toHaveBeenCalledWith("pet");
     rerender(<CompanionPanel {...p} view="chat" enabled={false} reason="学习助手尚未启用" />);
     expect(screen.getByText("AI 答疑尚未启用，学习路线和资料仍可查看")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "登录" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /学习设置/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "向学习伙伴提问" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "发送消息" })).toBeDisabled();
   });
   it("uses the actual account context and expands approved resource titles and providers", () => {
@@ -116,6 +139,22 @@ describe("learning companion", () => {
     expect(p.onDraft).toHaveBeenCalledWith("帮我拆解任务");
     expect(screen.queryByRole("button", { name: "帮我看报错" })).not.toBeInTheDocument();
     expect(p.onSend).not.toHaveBeenCalled();
+  });
+  it("offers two focused suggestions and hands the current draft to learning planning", () => {
+    const p = props();
+    render(<CompanionPanel {...p} view="chat" draft="我的学习时间不够" learningContext={researchContext()} />);
+    expect(screen.queryByRole("checkbox", { name: "减少动效" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "给我一个例子" })).not.toBeInTheDocument();
+    expect(screen.getByText("正在帮助：")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "调整学习计划" }));
+    expect(p.onHandoff).toHaveBeenCalledWith("我的学习时间不够");
+    expect(p.onSend).not.toHaveBeenCalled();
+  });
+  it("restores focus to the workspace help entry when it replaces the floating launcher", async () => {
+    const p = props();
+    render(<><button data-companion-trigger>工作区帮助</button><CompanionPanel {...p} view="chat" /></>);
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    await waitFor(() => expect(screen.getByRole("button", { name: "工作区帮助" })).toHaveFocus());
   });
   it("keeps resources visible when AI is disabled without directing account setup", () => {
     render(<CompanionPanel {...props()} view="chat" enabled={false} availability="disabled" roleName="产品经理"
@@ -196,7 +235,7 @@ describe("learning companion", () => {
     render(<CompanionPanel {...p} view="chat" busy messages={[message]} pendingQuestion="举一个例子" partial="比如留存率" />);
     fireEvent.click(screen.getByRole("checkbox", { name: "深入讲解" }));
     expect(p.onDeep).toHaveBeenCalledWith(true);
-    fireEvent.click(screen.getByRole("button", { name: /交给规划师/ }));
+    fireEvent.click(screen.getByRole("button", { name: /带到学习规划/ }));
     expect(p.onHandoff).toHaveBeenCalledWith(expect.stringContaining("指标如何拆解？"));
     expect(screen.getByText("比如留存率")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "停止回复" }));

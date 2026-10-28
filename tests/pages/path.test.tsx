@@ -13,9 +13,14 @@ import { buildPlanVersion } from "../../app/lib/planning/scheduler";
 
 const { usePlanningWorkspace } = vi.hoisted(() => ({ usePlanningWorkspace: vi.fn() }));
 vi.mock("../../app/lib/use-planning-workspace", () => ({ usePlanningWorkspace }));
+vi.mock("../../app/lib/use-arc-state", async (original) => {
+  const actual = await original<typeof import("../../app/lib/use-arc-state")>();
+  return { ...actual, useArcState: () => actual.useArcState({ useSession: () => ({ data: null, isPending: false }) }) };
+});
+vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>账号</span> }));
 
 vi.mock("../../app/lib/auth-client", () => ({
-  authClient: { useSession: () => ({ data: null, isPending: false }) },
+  authClient: { useSession: () => ({ data: { user: { id: "local-owner", name: "Learner", email: "learner@example.test" } }, isPending: false }) },
 }));
 
 function emptyPlanningController() {
@@ -66,30 +71,54 @@ function useDecisionController() {
 }
 
 beforeEach(() => {
+  window.history.replaceState(null, "", "/path");
   window.localStorage.clear();
   usePlanningWorkspace.mockReset();
   usePlanningWorkspace.mockReturnValue(emptyPlanningController());
 });
-afterEach(cleanup);
+afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 describe("PathPage", () => {
+  it.each(["legacy", "adaptive"].flatMap(flow => [
+    { flow, destination: "/stack?skill=research-basics#sources", label: "继续查看技能与资料" },
+    { flow, destination: "/proof?compose=1&unit=old-unit&returnTo=%2Ftoday#draft", label: "继续整理作品" },
+    { flow, destination: "/coach?returnTo=%2Fpath#question", label: "继续学习规划" },
+  ]))("keeps the $flow route overview and offers explicit continuation to $destination", async ({ flow, destination, label }) => {
+    window.history.replaceState(null, "", `/path?created=1&returnTo=${encodeURIComponent(destination)}`);
+    if (flow === "adaptive") usePlanningWorkspace.mockReturnValue({ ...emptyPlanningController(), workspace: pendingWorkspace() });
+    const page = render(<PathPage />);
+    expect(await screen.findByRole("heading", { name: "学习路线" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: label })).toHaveAttribute("href", destination);
+    expect(screen.getByRole("link", { name: "继续今日学习 ↗" })).toHaveAttribute("href", "/today");
+    expect(window.location.pathname).toBe("/path");
+    page.unmount();
+    render(<PathPage />);
+    expect(await screen.findByRole("link", { name: label })).toHaveAttribute("href", destination);
+  });
+
+  it.each(["//outside.example", "/proof?returnTo=%2Fsign-in"])("does not offer unsafe completion destinations %s", async (destination) => {
+    window.history.replaceState(null, "", `/path?created=1&returnTo=${encodeURIComponent(destination)}`);
+    render(<PathPage />);
+    expect(await screen.findByText(/路线已准备好/)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /继续查看技能与资料|继续整理作品|继续学习规划|返回来源页面/ })).not.toBeInTheDocument();
+  });
+
   it("shows the complete 18-week route in four editorial phases", async () => {
     render(<PathPage />);
-    expect(screen.getByRole("status")).toHaveTextContent("Restoring your plan");
+    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
-    const heading = await screen.findByRole("heading", { name: "Your precise path." });
+    const heading = await screen.findByRole("heading", { name: "学习路线" });
     expect(heading).toBeInTheDocument();
-    expect(heading).toHaveAttribute("lang", "en");
-    expect(screen.getByText("AI-Native Full-Stack Engineer · 18 weeks · 7 hours / week")).toBeInTheDocument();
+    expect(screen.getByText("AI-Native Full-Stack Engineer · 18 周 · 每周 420 分钟")).toBeInTheDocument();
     const phaseList = screen.getByRole("list", { name: "Learning phases" });
     const phaseItems = within(phaseList).getAllByRole("listitem");
     expect(phaseItems).toHaveLength(4);
     expect(phaseItems[0]).toHaveAttribute("aria-current", "step");
     expect(screen.getByText("Product Foundations")).toBeInTheDocument();
     expect(screen.getByText("Production Proof")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Learning workspace" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Path" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("navigation", { name: "学习工作区" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "学习路线" })).toHaveAttribute("aria-current", "page");
   });
 
   it("hydrates a custom role, weekly budget, and proportional target path", async () => {
@@ -103,16 +132,16 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("Restoring your plan");
+    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText("数据产品经理 · 10 weeks · 1 hour 30 minutes / week")).toBeInTheDocument();
+      expect(screen.getByText("数据产品经理 · 10 周 · 每周 90 分钟")).toBeInTheDocument();
     });
     expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
     expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
 
-    expect(usePlanningWorkspace).not.toHaveBeenCalled();
+    expect(usePlanningWorkspace).toHaveBeenCalled();
     const phaseList = screen.getByRole("list", { name: "Learning phases" });
     const phaseWeeks = within(phaseList).getAllByText(/weeks$/).map((item) => item.textContent);
     expect(phaseWeeks).toEqual(["2 weeks", "3 weeks", "3 weeks", "2 weeks"]);
@@ -129,10 +158,10 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(await screen.findByRole("heading", { name: "Your precise path." })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Review every change." })).toBeInTheDocument();
-    expect(screen.getByText(`${flagshipBlueprint.name} · 12 weeks`)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Keep current plan" }));
+    expect(await screen.findByRole("heading", { name: "学习路线" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "这次调整会改变什么" })).toBeInTheDocument();
+    expect(screen.getByText(`${flagshipBlueprint.name} · 12 周`)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "保留当前安排" }));
     expect(discard).toHaveBeenCalledTimes(1);
   });
 
@@ -145,10 +174,10 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Plan version unavailable");
-    expect(screen.getByRole("alert")).toHaveTextContent("kept this saved plan unchanged");
+    expect(await screen.findByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
+    expect(screen.getByRole("alert")).toHaveTextContent("原有计划与学习记录已保留");
     expect(screen.queryByRole("link", { name: /rebuild/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Your precise path." })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "学习路线" })).not.toBeInTheDocument();
   });
 
   it.each([
@@ -165,10 +194,10 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(await screen.findByText(source === "restoring" ? "Restoring adaptive plan." : "Adaptive plan temporarily unavailable.")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Your precise path." })).not.toBeInTheDocument();
+    expect(await screen.findByText(source === "restoring" ? "正在读取学习计划" : "学习计划暂不可用")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "学习路线" })).not.toBeInTheDocument();
     if (source === "offline-cloud") {
-      await userEvent.click(screen.getByRole("button", { name: /retry/i }));
+      await userEvent.click(screen.getByRole("button", { name: /重新读取计划/ }));
       expect(retry).toHaveBeenCalledTimes(1);
     }
   });
@@ -178,9 +207,9 @@ describe("PathPage", () => {
     const user = userEvent.setup();
 
     render(<PathPage />);
-    await user.click(await screen.findByRole("button", { name: "Accept new plan" }));
+    await user.click(await screen.findByRole("button", { name: "接受新安排" }));
 
-    expect(await screen.findByRole("status")).toHaveTextContent("Candidate plan accepted");
-    expect(screen.queryByRole("heading", { name: "Review every change." })).not.toBeInTheDocument();
+    expect(await screen.findByRole("status")).toHaveTextContent("已接受新安排");
+    expect(screen.queryByRole("heading", { name: "这次调整会改变什么" })).not.toBeInTheDocument();
   });
 });

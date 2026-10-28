@@ -1,8 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
-import { AdminHealthView } from "../../app/admin/page";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import AdminPage, { AdminHealthView } from "../../app/admin/page";
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 const snapshot = {
   service: "degraded" as const,
@@ -28,6 +28,12 @@ const snapshot = {
 };
 
 describe("Arc admin health view", () => {
+  it.each([401, 403])("distinguishes login from missing permission (%s)", async status => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status })));
+    render(<AdminPage />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(status === 401 ? "请登录后查看管理页面" : "当前账号没有管理权限");
+    expect(screen.getByRole("link", { name: status === 401 ? "登录并返回" : "返回首页" })).toHaveAttribute("href", status === 401 ? "/sign-in?next=%2Fadmin&reauth=1" : "/");
+  });
   it("shows five restrained read-only operational cards", () => {
     render(<AdminHealthView snapshot={snapshot} />);
 

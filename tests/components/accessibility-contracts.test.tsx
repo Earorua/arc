@@ -116,30 +116,35 @@ describe("navigation accessibility contracts", () => {
       workspace={null}
     />);
 
-    for (const label of ["Title", "Artifact kind", "Summary", "Public HTTPS URL", "Linked skill", "Linked Daily Unit", "Visibility", "Deterministic validator"]) {
+    await user.click(screen.getByRole("button", { name: "添加作品" }));
+    for (const label of ["作品标题", "作品类型", "作品说明", "公开 HTTPS 链接", "关联技能", "关联学习单元", "可见范围"]) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     }
+    expect(screen.queryByLabelText("自动检查")).not.toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText("作品类型"), "test_report");
+    expect(screen.getByLabelText("自动检查")).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText("作品类型"), "repository");
     expect(screen.getByRole("option", {
-      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "Primary" : "Stretch"} · ${firstUnit.objective}`,
+      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "主要任务" : "拓展任务"} · ${firstUnit.objective}`,
     })).toBeInTheDocument();
-    const save = screen.getByRole("button", { name: "Save draft" });
-    const submit = screen.getByRole("button", { name: "Submit for review" });
+    const save = screen.getByRole("button", { name: "保存草稿" });
+    const submit = screen.getByRole("button", { name: "提交审核" });
     expect(save).toHaveAttribute("type", "button");
     expect(submit).toHaveAttribute("type", "button");
     await user.click(submit);
     expect(await screen.findByRole("alert")).toHaveFocus();
-    expect(screen.getByRole("heading", { name: "Evidence history." })).toBeInTheDocument();
-    await user.type(screen.getByLabelText("Title"), "Accessible trace");
-    await user.type(screen.getByLabelText("Summary"), "A labelled request trace.");
-    await user.selectOptions(screen.getByLabelText("Linked skill"), "react");
+    expect(screen.getByRole("heading", { name: "添加作品" })).toBeInTheDocument();
+    await user.type(screen.getByLabelText("作品标题"), "Accessible trace");
+    await user.type(screen.getByLabelText("作品说明"), "A labelled request trace.");
+    await user.selectOptions(screen.getByLabelText("关联技能"), "react");
     await user.click(save);
-    expect(await screen.findByRole("status")).toHaveTextContent("Proof workspace updated");
+    expect(await screen.findByRole("status")).toHaveTextContent("作品已保存");
   });
 
   it("keeps Stack category filters keyboard-operable", async () => {
     const user = userEvent.setup();
     render(<StackBrowser blueprint={flagshipBlueprint} evidence={[]} projections={[]} />);
-    const frontend = screen.getByRole("button", { name: "Frontend" });
+    const frontend = screen.getByRole("button", { name: "前端" });
     frontend.focus();
     await user.keyboard("{Enter}");
     expect(frontend).toHaveAttribute("aria-pressed", "true");
@@ -164,32 +169,32 @@ describe("navigation accessibility contracts", () => {
       </>,
     );
 
-    expect(screen.getByRole("navigation", { name: "Public navigation" })).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Learning workspace" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Today" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("navigation", { name: "网站导航" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "学习工作区" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "今日学习" })).toHaveAttribute("aria-current", "page");
   });
 
   it("keeps one compact public navigation with every destination available", async () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
-    const publicNavigation = screen.getByRole("navigation", { name: "Public navigation" });
-    expect(screen.getAllByRole("navigation", { name: "Public navigation" })).toHaveLength(1);
-    const menuButton = screen.getByRole("button", { name: "Explore" });
+    const publicNavigation = screen.getByRole("navigation", { name: "网站导航" });
+    expect(screen.getAllByRole("navigation", { name: "网站导航" })).toHaveLength(1);
+    const menuButton = screen.getByRole("button", { name: "浏览" });
     expect(menuButton).toHaveAttribute("aria-controls", "public-navigation");
     expect(menuButton).toHaveAttribute("aria-expanded", "false");
     await user.click(menuButton);
     expect(menuButton).toHaveAttribute("aria-expanded", "true");
     expect(publicNavigation).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Method" })).toHaveAttribute("href", "/method");
+    expect(screen.getByRole("link", { name: "学习方法" })).toHaveAttribute("href", "/method");
     expect(screen.queryByRole("link", { name: "Intelligence" })).not.toBeInTheDocument();
   });
 
-  it("removes the mobile workspace wordmark from focus and layout", () => {
-    const css = readFileSync("app/globals.css", "utf8");
+  it("keeps the mobile workspace header in document flow", () => {
+    const css = readFileSync("app/ui-refinement.css", "utf8");
     const mobileRules = css.slice(css.indexOf("@media (max-width: 760px)"), css.indexOf("@media (prefers-reduced-motion: reduce)"));
 
-    expect(mobileRules).toMatch(/\.workspace-header\s*>\s*\.wordmark\s*\{[^}]*display:\s*none\s*;/);
+    expect(mobileRules).toMatch(/\.workspace-header\s*>\s*\.wordmark\s*\{[^}]*display:\s*block\s*;/);
   });
 
   it("stacks the Today brief in one column on mobile", () => {
@@ -385,15 +390,16 @@ describe("navigation accessibility contracts", () => {
       <AdaptiveTodaySession workspace={workspace} record={record} accept={vi.fn()} discard={vi.fn()} />
     </>);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Your precise path." })).toBeInTheDocument();
-    expect(screen.getByRole("list", { name: "Ordered learning path" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "学习路线" })).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "学习阶段" })).toBeInTheDocument();
     expect(screen.getByRole("article")).toHaveAccessibleName();
     expect(screen.getAllByRole("checkbox").length).toBeGreaterThan(0);
     const resource = screen.getAllByRole("link").find((link) => link.getAttribute("target") === "_blank");
     expect(resource).toHaveAttribute("rel", "noreferrer");
 
-    await user.click(screen.getByRole("button", { name: "Delay" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Arc could not update this plan");
+    await user.click(screen.getByText("调整这项任务"));
+    await user.click(screen.getByRole("button", { name: "延后" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Arc 未能更新计划");
   });
 
   it("keeps adaptive focus indication and reduced-motion rules explicit", () => {

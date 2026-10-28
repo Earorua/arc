@@ -315,8 +315,13 @@ function expandPathUnits(input: ValidatedPathInput, orderedSkills: readonly Role
 
   for (const skill of orderedSkills) {
     const answer = answers.get(skill.id)!;
-    const templates = tracks.get(skill.id)!.templates.filter((template) =>
-      answer.level === "independent" ? template.kind === "calibrate" : template.kind === "learn");
+    const trackTemplates = tracks.get(skill.id)!.templates;
+    const learnTemplates = trackTemplates.filter(({ kind }) => kind === "learn");
+    const calibrationTemplates = trackTemplates.filter(({ kind }) => kind === "calibrate");
+    // Uncertainty is not mastery evidence: calibration precedes, never replaces, learning.
+    const templates = answer.level === "independent" ? calibrationTemplates
+      : answer.level === "uncertain" ? [...calibrationTemplates, ...learnTemplates]
+      : learnTemplates;
     let previousUnitId: string | null = null;
 
     for (const template of templates) {

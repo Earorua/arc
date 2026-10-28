@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useRef, type KeyboardEvent } from "react";
 import { flagshipRole } from "../../data/flagship-role";
+import { updatePageQuery, usePageQuery } from "../../lib/use-page-query";
 
 const views = [
-  { id: "path", label: "学习路径", english: "Path" },
-  { id: "today", label: "每日任务", english: "Today" },
-  { id: "proof", label: "作品证据", english: "Proof" },
+  { id: "path", label: "路线", english: "Path" },
+  { id: "today", label: "今日任务", english: "Today" },
+  { id: "proof", label: "作品", english: "Proof" },
 ] as const;
 
 const phaseOutcomes: Record<string, { title: string; outcome: string }> = {
@@ -18,9 +19,16 @@ const phaseOutcomes: Record<string, { title: string; outcome: string }> = {
 };
 
 export function CaseShowcase() {
-  const [active, setActive] = useState(0);
+  const search = usePageQuery();
+  const view = search.get("view");
+  const active = Math.max(0, views.findIndex(({ id }) => id === view));
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const totalWeeks = flagshipRole.phases.reduce((sum, phase) => sum + phase.weeks, 0);
+
+  function setActive(index: number) {
+    if (active === index) return;
+    updatePageQuery({ view: views[index].id });
+  }
 
   function navigateTabs(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next: number;
@@ -35,29 +43,33 @@ export function CaseShowcase() {
   }
 
   return (
-    <main id="main-content" className="showcase-page">
+    <main id="main-content" tabIndex={-1} className="showcase-page">
       <section className="showcase-intro" aria-labelledby="showcase-title">
         <div>
-          <p className="eyebrow">案例展示 <span lang="en">· Product in action</span></p>
-          <h1 id="showcase-title" lang="en">See the path.<br />See the <em>proof.</em></h1>
+          <p className="eyebrow">产品样例 <span lang="en">· Product in action</span></p>
+          <h1 id="showcase-title">看看一条学习路线如何推进</h1>
         </div>
-        <p className="showcase-lede">从一个岗位目标，到每天知道该做什么，再到留下可展示的作品。先看看，这条路会是什么样。</p>
+        <div className="showcase-intro-actions"><p className="showcase-lede">以{flagshipRole.name}为例，依次查看路线、今日任务与作品。</p>
+          <p className="showcase-sample-label">公开样例，不是你的计划。</p>
+          <Link className="primary-action" href="/setup?mode=create">创建我的路线</Link>
+        </div>
       </section>
 
       <section className="showcase-case" aria-labelledby="showcase-role">
         <aside className="showcase-context">
-          <p className="section-index" lang="en">01 / Flagship example</p>
+          <p className="section-index">样例背景</p>
           <h2 id="showcase-role">{flagshipRole.name}</h2>
           <p>用一条完整示例，串起从产品界面到 AI 应用交付的学习过程。</p>
           <dl className="showcase-facts">
-            <div><dt>路径跨度</dt><dd>{totalWeeks}<span> 周</span></dd></div>
+            <div><dt>路线跨度</dt><dd>{totalWeeks}<span> 周</span></dd></div>
             <div><dt>示例任务</dt><dd>{flagshipRole.today.minutes}<span> 分钟</span></dd></div>
             <div><dt>技能地图</dt><dd>{flagshipRole.skills.length}<span> 项技能</span></dd></div>
           </dl>
-          <p className="showcase-sample-note">公开示例 · 可直接浏览<br />你的路径会从自己的目标与时间安排开始。</p>
+          <p className="showcase-sample-note">你的路线会依据自己的目标、基础与可用时间安排。</p>
         </aside>
 
         <div className="showcase-preview">
+          <p className="showcase-story-label">演示步骤 · 路线 → 今日任务 → 作品</p>
           <div className="showcase-tabs" role="tablist" aria-label="案例效果展示">
             {views.map((view, index) => (
               <button
@@ -72,7 +84,7 @@ export function CaseShowcase() {
                 tabIndex={active === index ? 0 : -1}
                 type="button"
               >
-                <span lang="en">{view.english}</span>{view.label}
+                <strong>{view.label}</strong><span lang="en">{view.english}</span>
               </button>
             ))}
           </div>
@@ -139,8 +151,8 @@ export function CaseShowcase() {
       </section>
 
       <section className="showcase-next" aria-labelledby="showcase-next-title">
-        <div><p className="section-index" lang="en">Now, make it yours</p><h2 id="showcase-next-title">下一条路径，从你的目标开始。</h2></div>
-        <Link className="primary-action" href="/setup">创建我的学习路径 <span aria-hidden="true">→</span></Link>
+        <div><p className="section-index">开始自己的学习</p><h2 id="showcase-next-title">从你的目标开始。</h2></div>
+        <Link className="primary-action" href="/setup?mode=create">创建我的路线 <span aria-hidden="true">→</span></Link>
       </section>
     </main>
   );

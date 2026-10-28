@@ -10,7 +10,7 @@ import { createKnownResearchRecovery, createPendingResearchRecovery, RESEARCH_RE
 import { useRoleResearch } from "../../app/lib/use-role-research";
 
 const pageMocks = vi.hoisted(() => ({ push: vi.fn(), saveSetup: vi.fn(async () => true) }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pageMocks.push }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pageMocks.push }), usePathname: () => "/setup" }));
 vi.mock("../../app/lib/auth-client", () => ({
   authClient: { useSession: () => ({ data: { user: { id: "owner-a" } }, isPending: false }) },
 }));
@@ -25,7 +25,7 @@ vi.mock("../../app/lib/use-planning-workspace", () => ({
 }));
 
 const oldInput = { role: "Data Product Manager", locale: "en-US" as const };
-const backgroundGuidance = "Research is running in the background. You can leave this page and return to check its progress.";
+const backgroundGuidance = "研究已在后台运行。你可以离开此页面，稍后回来查看进度。";
 const pending = { kind: "start" as const, mutationId: "mutation-old", ...oldInput };
 const active = (role: string): ResearchRunPublicView => ({
   id: "research-run-new", role, locale: "en-US", state: "researching", retryable: false, backgroundAccepted: false,
@@ -72,11 +72,11 @@ describe("Setup research recovery interaction", () => {
     const researchClient = createResearchClient({ fetch: fetcher });
     const first = render(<RecoverySetup researchClient={researchClient} eligible />);
     expect(fetcher).not.toHaveBeenCalled();
-    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: oldInput.role } });
-    const start = screen.getByRole("button", { name: "Research this role" });
+    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: oldInput.role } });
+    const start = screen.getByRole("button", { name: "研究这个岗位" });
     start.focus();
     await userEvent.setup().keyboard("{Enter}");
-    expect(await screen.findByText("The status of your previous research is not confirmed.")).toBeInTheDocument();
+    expect(await screen.findByText("上一次研究的状态尚未确认。")).toBeInTheDocument();
     expect(screen.queryByText(backgroundGuidance)).not.toBeInTheDocument();
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(JSON.parse(fetcher.mock.calls[0]![1]!.body as string)).toEqual(original);
@@ -86,7 +86,7 @@ describe("Setup research recovery interaction", () => {
     expect(localStorage.getItem(RESEARCH_RECOVERY_STORAGE_KEY)).toBe(persisted);
 
     render(<RecoverySetup researchClient={researchClient} eligible />);
-    expect(await screen.findByRole("heading", { level: 2, name: "Checking your previous research…" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 2, name: "正在查询上一次研究…" })).toBeInTheDocument();
     expect(screen.queryByText(backgroundGuidance)).not.toBeInTheDocument();
     expect(fetcher).toHaveBeenCalledTimes(2);
     expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
@@ -94,7 +94,7 @@ describe("Setup research recovery interaction", () => {
     ]);
     expect(JSON.parse(fetcher.mock.calls[1]![1]!.body as string)).toEqual({ kind: "start", ...original });
     await act(async () => { recovery.resolve(Response.json({ run: accepted, requestId: "request-recovered" }, { status: 200 })); });
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Research is queued");
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("研究已排队");
     expect(screen.getByRole("heading", { level: 2 })).toHaveFocus();
     expect(JSON.parse(localStorage.getItem(RESEARCH_RECOVERY_STORAGE_KEY)!)).toEqual(createKnownResearchRecovery("owner-a", {
       runId: accepted.id, role: accepted.role, locale: accepted.locale,
@@ -108,16 +108,16 @@ describe("Setup research recovery interaction", () => {
     localStorage.clear();
     const fetcher = vi.fn<typeof fetch>(async () => Response.json({ backgroundAccepted: true, requestId: "request-ambiguous" }));
     render(<RecoverySetup researchClient={createResearchClient({ fetch: fetcher })} eligible />);
-    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: oldInput.role } });
-    await userEvent.setup().click(screen.getByRole("button", { name: "Research this role" }));
-    expect(await screen.findByText("The status of your previous research is not confirmed.")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: oldInput.role } });
+    await userEvent.setup().click(screen.getByRole("button", { name: "研究这个岗位" }));
+    expect(await screen.findByText("上一次研究的状态尚未确认。")).toBeInTheDocument();
     expect(screen.queryByText(backgroundGuidance)).not.toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem(RESEARCH_RECOVERY_STORAGE_KEY)!)).toEqual(createPendingResearchRecovery("owner-a", {
       kind: "start", ...oldInput, mutationId: "mutation-new",
     }));
     expect(fetcher).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("button", { name: "Check research status" })).toBeEnabled();
-    expect(screen.queryByRole("button", { name: "Retry research" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "查询研究状态" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: "重试研究" })).not.toBeInTheDocument();
   });
 
   it("announces and focuses a manual query for a lost Retry while its failed source remains visible", async () => {
@@ -135,12 +135,12 @@ describe("Setup research recovery interaction", () => {
       recoverResearch: vi.fn(() => recovery.promise),
     });
     render(<RecoverySetup researchClient={researchClient} eligible />);
-    await userEvent.setup().click(await screen.findByRole("button", { name: "Retry research" }));
-    await waitFor(() => expect(screen.getByRole("button", { name: "Check research status" })).toBeEnabled());
+    await userEvent.setup().click(await screen.findByRole("button", { name: "重试研究" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "查询研究状态" })).toBeEnabled());
 
-    await userEvent.setup().click(screen.getByRole("button", { name: "Check research status" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "查询研究状态" }));
 
-    await waitFor(() => expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Checking your previous research…"));
+    await waitFor(() => expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("正在查询上一次研究…"));
     expect(screen.getByRole("heading", { level: 2 })).toHaveFocus();
     expect(researchClient.recoverResearch).toHaveBeenCalledTimes(1);
     expect(researchClient.retryResearch).toHaveBeenCalledTimes(1);
@@ -155,25 +155,25 @@ describe("Setup research recovery interaction", () => {
     });
     vi.stubGlobal("fetch", fetcher);
     render(<SetupPage />);
-    expect(await screen.findByText("The status of your previous research is not confirmed.")).toBeInTheDocument();
+    expect(await screen.findByText("上一次研究的状态尚未确认。")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: "Security Engineer" } });
+    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: "Security Engineer" } });
 
-    expect(screen.getByText("The status of your previous research is not confirmed.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Check research status" })).toBeEnabled();
-    await userEvent.setup().click(screen.getByRole("button", { name: "Check research status" }));
+    expect(screen.getByText("上一次研究的状态尚未确认。")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "查询研究状态" })).toBeEnabled();
+    await userEvent.setup().click(screen.getByRole("button", { name: "查询研究状态" }));
     await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
   });
   it("keeps an uncertain pending submission visible and queryable across ineligible role edits", async () => {
     const researchClient = client();
     render(<RecoverySetup researchClient={researchClient} eligible={false} />);
-    expect(await screen.findByText("The status of your previous research is not confirmed.")).toBeInTheDocument();
+    expect(await screen.findByText("上一次研究的状态尚未确认。")).toBeInTheDocument();
     expect(researchClient.recoverResearch).toHaveBeenCalledTimes(1);
 
-    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: "Security Engineer" } });
-    expect(screen.getByText("The status of your previous research is not confirmed.")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: "Security Engineer" } });
+    expect(screen.getByText("上一次研究的状态尚未确认。")).toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem(RESEARCH_RECOVERY_STORAGE_KEY)!)).toMatchObject({ recovery: pending });
-    await userEvent.setup().click(screen.getByRole("button", { name: "Check research status" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "查询研究状态" }));
     await waitFor(() => expect(researchClient.recoverResearch).toHaveBeenCalledTimes(2));
     expect(researchClient.startResearch).not.toHaveBeenCalled();
     expect(researchClient.retryResearch).not.toHaveBeenCalled();
@@ -182,18 +182,18 @@ describe("Setup research recovery interaction", () => {
   it("stages, cancels, and explicitly confirms replacement without losing the old pending identity", async () => {
     const researchClient = client();
     render(<RecoverySetup researchClient={researchClient} eligible />);
-    expect(await screen.findByText("The status of your previous research is not confirmed.")).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: "Security Engineer" } });
+    expect(await screen.findByText("上一次研究的状态尚未确认。")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: "Security Engineer" } });
 
-    await userEvent.setup().click(screen.getByRole("button", { name: "Research this role" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "研究这个岗位" }));
     expect(researchClient.startResearch).not.toHaveBeenCalled();
     expect(JSON.parse(localStorage.getItem(RESEARCH_RECOVERY_STORAGE_KEY)!)).toMatchObject({ recovery: pending });
-    await userEvent.setup().click(screen.getByRole("button", { name: "Keep checking previous research" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "继续查询上一次研究" }));
     expect(researchClient.recoverResearch).toHaveBeenCalledTimes(1);
     expect(researchClient.startResearch).not.toHaveBeenCalled();
 
-    await userEvent.setup().click(screen.getByRole("button", { name: "Research this role" }));
-    await userEvent.setup().click(screen.getByRole("button", { name: "Start new research" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "研究这个岗位" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "发起新的研究" }));
     await waitFor(() => expect(researchClient.startResearch).toHaveBeenCalledTimes(1));
     expect(researchClient.startResearch).toHaveBeenCalledWith({ role: "Security Engineer", locale: "en-US", mutationId: "mutation-new" }, expect.any(AbortSignal));
     expect(researchClient.retryResearch).not.toHaveBeenCalled();

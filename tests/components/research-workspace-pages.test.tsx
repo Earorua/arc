@@ -37,7 +37,7 @@ vi.mock("../../app/lib/use-proof-ledger", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-proof-ledger")>();
   return { ...actual, useProofLedger: (options: Parameters<typeof actual.useProofLedger>[0]) => actual.useProofLedger({ ...options, client: { loadWorkspace: injected.loadProof, createProof: vi.fn(), reviseProof: vi.fn(), withdrawProof: vi.fn(), setVisibility: vi.fn() } }) };
 });
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: injected.navigate, replace: injected.navigate }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: injected.navigate, replace: injected.navigate }), usePathname: () => window.location.pathname }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>Account</span> }));
 
 const validation = validateResearchCandidate(validResearchCandidate, validAnnotations, {
@@ -52,6 +52,7 @@ let initial: PlanningWorkspace;
 let clearPlanningForSetup: () => void;
 
 beforeEach(async () => {
+  window.history.replaceState(null, "", "/");
   localStorage.clear(); injected.owner = "owner-a"; injected.pending = false; injected.loadProof.mockReset().mockResolvedValue(null); injected.navigate.mockReset();
   const snapshot = { state: mergeSetup(createDemoState(), { roleId: data.blueprint.name, level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }), activeGoalId: "goal-pages", revision: "revision-pages" };
   injected.arcClient = { loadWorkspace: vi.fn(async () => snapshot), importLocal: vi.fn(), saveSetup: vi.fn(async (setup) => ({ ...snapshot, state: mergeSetup(snapshot.state, setup) })), completeUnit: vi.fn(), replay: vi.fn() };
@@ -83,11 +84,41 @@ beforeEach(async () => {
     appendEvent: vi.fn((input) => service.appendEventResponse("owner-a", input)), acceptReplan: vi.fn((input) => service.acceptReplanResponse("owner-a", input)), discardReplan: vi.fn((input) => service.discardReplanResponse("owner-a", input)),
   };
 });
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers(); });
+afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); vi.unstubAllGlobals(); vi.useRealTimers(); });
 function noFlagship() { expect(screen.queryByText(/AI-Native Full-Stack Engineer|AI 原生全栈旗舰样本|Web platform|Typed service boundary/i)).not.toBeInTheDocument(); }
-async function headingReady() { await screen.findByTitle(`${data.blueprint.name} · 18 weeks`); noFlagship(); }
+async function headingReady() { await screen.findByTitle(`${data.blueprint.name} · 18 周`); noFlagship(); }
 
 describe("research workspace page adapters with real controllers and deterministic service", () => {
+  it("preserves the full Stack operation when an empty account needs setup", async () => {
+    const destination = "/stack?skill=research-basics#sources";
+    window.history.replaceState(null, "", destination);
+    injected.planningClient.loadWorkspace = vi.fn(async () => ({ workspace: null, sourceContext: null }));
+    injected.arcClient.loadWorkspace = vi.fn(async () => null);
+    render(<StackPage />);
+    expect(await screen.findByRole("link", { name: "创建学习路线 →" })).toHaveAttribute("href", `/setup?mode=create&returnTo=${encodeURIComponent(destination)}`);
+  });
+
+  it("offers required setup for authoritative missing Proof goal and keeps the original compose URL without prefilling stale tasks", async () => {
+    const destination = "/proof?compose=1&unit=old-unit&returnTo=%2Ftoday#draft";
+    window.history.replaceState(null, "", destination);
+    injected.planningClient.loadWorkspace = vi.fn(async () => { throw new ArcApiError(404, "NOT_FOUND", "No active goal", "missing-goal"); });
+    injected.arcClient.loadWorkspace = vi.fn(async () => null);
+    render(<ProofPage />);
+    expect(await screen.findByRole("link", { name: "创建学习路线 →" })).toHaveAttribute("href", `/setup?mode=create&returnTo=${encodeURIComponent(destination)}`);
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(injected.loadProof).not.toHaveBeenCalled();
+  });
+
+  it.each(["planning-unavailable", "planning-expired", "arc-expired"])("does not mistake %s for an empty Proof account", async (failure) => {
+    const expired = new ArcApiError(401, "UNAUTHENTICATED", "Login required", "expired", "sign-in");
+    injected.planningClient.loadWorkspace = vi.fn(async () => { throw failure === "planning-expired" ? expired : failure === "planning-unavailable" ? new ArcApiError(503, "UNAVAILABLE", "Offline", "offline") : new ArcApiError(404, "NOT_FOUND", "No active goal", "missing-goal"); });
+    injected.arcClient.loadWorkspace = vi.fn(async () => { if (failure === "arc-expired") throw expired; return null; });
+    render(<ProofPage />);
+    await waitFor(() => expect(injected.planningClient.loadWorkspace).toHaveBeenCalled());
+    await act(async () => {});
+    expect(screen.queryByRole("link", { name: "创建学习路线 →" })).not.toBeInTheDocument();
+  });
+
   it.each([false, true])("keeps Stack private before a confirmed account (pending: %s)", async (pending) => {
     injected.owner = pending ? "owner-a" : null;
     injected.pending = pending;
@@ -99,7 +130,7 @@ describe("research workspace page adapters with real controllers and determinist
     expect(injected.loadProof).not.toHaveBeenCalled();
     expect(screen.queryAllByText(/Private device role|Web Platform/i)).toHaveLength(0);
     if (pending) expect(injected.navigate).not.toHaveBeenCalled();
-    else expect(injected.navigate).toHaveBeenCalledWith("/sign-in");
+    else expect(screen.getByRole("link", { name: "登录并继续" })).toHaveAttribute("href", "/sign-in?next=%2Fstack");
   });
 
   it("shows an empty account state instead of device or sample intelligence when no plan is saved", async () => {
@@ -107,8 +138,8 @@ describe("research workspace page adapters with real controllers and determinist
     injected.arcClient.loadWorkspace = vi.fn(async () => null);
     saveDemoState(mergeSetup(createDemoState(), { roleId: "Private device role", level: "beginner", weeklyMinutes: 420, targetWeeks: 18 }));
     render(<StackPage />);
-    expect(await screen.findByRole("heading", { name: "Your role intelligence" })).toBeInTheDocument();
-    expect(screen.getByText("Build a learning path to see the skills and sources saved to your account.")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "技能与资料" })).toBeInTheDocument();
+    expect(screen.getByText("创建学习路线后，即可查看保存到当前账户的技能和来源。")).toBeInTheDocument();
     expect(screen.queryAllByText(/Private device role|Web Platform/i)).toHaveLength(0);
     expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
   });
@@ -118,11 +149,11 @@ describe("research workspace page adapters with real controllers and determinist
     injected.loadProof.mockImplementation(() => new Promise<null>((_, reject) => { rejectProof = reject; }));
     render(<StackPage />);
     await headingReady();
-    await act(async () => { rejectProof(new ArcApiError(401, "UNAUTHENTICATED", "Sign in required", "request-proof-expired", "sign-in")); });
-    await screen.findByText("Sign in to view your role intelligence.");
-    expect(injected.navigate).toHaveBeenCalledWith("/sign-in");
+    await act(async () => { rejectProof(new ArcApiError(401, "UNAUTHENTICATED", "登录 required", "request-proof-expired", "sign-in")); });
+    await screen.findByText("登录已过期，请重新登录后查看你的技能与资料。");
+    expect(screen.getByRole("link", { name: "重新登录" }).getAttribute("href")).toContain("next=");
     expect(screen.queryByRole("heading", { name: data.blueprint.skills[0]!.name })).not.toBeInTheDocument();
-    expect(screen.queryByTitle(`${data.blueprint.name} · 18 weeks`)).not.toBeInTheDocument();
+    expect(screen.queryByTitle(`${data.blueprint.name} · 18 周`)).not.toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Learning resources" })).not.toBeInTheDocument();
   });
 
@@ -136,9 +167,9 @@ describe("research workspace page adapters with real controllers and determinist
     let resolveSave!: (snapshot: Awaited<ReturnType<ArcCloudClient["saveSetup"]>>) => void;
     injected.arcClient.saveSetup = vi.fn(() => new Promise<Awaited<ReturnType<ArcCloudClient["saveSetup"]>>>((resolve, reject) => { resolveSave = resolve; rejectSave = reject; }));
     const page = render(<SetupPage />);
-    await user.click(await screen.findByRole("button", { name: "Use this research" }));
-    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(await screen.findByRole("button", { name: "使用研究结果" }));
+    for (let index = 0; index < 2; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
     await waitFor(() => expect(injected.arcClient.saveSetup).toHaveBeenCalledOnce());
     if (transition === "unmount") page.unmount();
     else {
@@ -160,15 +191,15 @@ describe("research workspace page adapters with real controllers and determinist
     const fetcher = vi.fn(async (input: RequestInfo | URL) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply());
     vi.stubGlobal("fetch", fetcher);
     render(<SetupPage />);
-    await user.click(await screen.findByRole("button", { name: "Use this research" }));
-    expect(screen.getByRole("group", { name: `${data.blueprint.skills[0]!.name} self-assessment` })).toBeInTheDocument();
-    expect(screen.queryByRole("group", { name: "Web Platform self-assessment" })).not.toBeInTheDocument();
-    for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(screen.getByRole("button", { name: "Build my path" }));
+    await user.click(await screen.findByRole("button", { name: "使用研究结果" }));
+    expect(screen.getByRole("group", { name: `${data.blueprint.skills[0]!.name} 自我评估` })).toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Web Platform 自我评估" })).not.toBeInTheDocument();
+    for (let index = 0; index < 2; index++) await user.click(screen.getByRole("button", { name: "继续" }));
+    await user.click(screen.getByRole("button", { name: "创建路线" }));
     await waitFor(() => expect(injected.planningClient.generate).toHaveBeenCalledOnce());
     expect(injected.arcClient.saveSetup).toHaveBeenCalledWith(expect.objectContaining({ roleId: data.blueprint.name }), expect.any(String), expect.any(AbortSignal), "research-setup");
     expect(vi.mocked(injected.arcClient.saveSetup).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(injected.planningClient.generate).mock.invocationCallOrder[0]!);
-    await waitFor(() => expect(injected.navigate).toHaveBeenCalledWith("/path"));
+    await waitFor(() => expect(injected.navigate).toHaveBeenCalledWith("/path?created=1"));
     const request = vi.mocked(injected.planningClient.generate).mock.calls[0]![0];
     expect(request).toMatchObject({ source: { source: "research", researchRunId: "research-run-pages" }, audit: { blueprintId: data.blueprint.id } });
     expect(Object.keys(request).sort()).toEqual(["audit", "availability", "mutationId", "planningDate", "selectedScope", "source", "target"]);
@@ -176,9 +207,9 @@ describe("research workspace page adapters with real controllers and determinist
   });
   it("clears prior owner recovery on a live Setup account transition without requesting that run as the next owner", async () => {
     storedResearch(); const fetcher = vi.fn(async (input: RequestInfo | URL) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply());
-    vi.stubGlobal("fetch", fetcher); const page = render(<SetupPage />); await screen.findByRole("button", { name: "Use this research" });
+    vi.stubGlobal("fetch", fetcher); const page = render(<SetupPage />); await screen.findByRole("button", { name: "使用研究结果" });
     fetcher.mockClear(); injected.owner = "owner-b"; page.rerender(<SetupPage />);
-    expect(screen.queryByRole("button", { name: "Use this research" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
     await act(async () => {});
     expect(localStorage.getItem("arc:role-research:v1")).toBeNull();
     expect(fetcher.mock.calls.some(([url]) => String(url).endsWith("/research-run-pages"))).toBe(false);
@@ -190,12 +221,12 @@ describe("research workspace page adapters with real controllers and determinist
       : Response.json({ requestId: "request-active", run: { id: "research-run-pages", role: data.blueprint.name, locale: "en-US", state: "researching", retryable: false } }));
     vi.stubGlobal("fetch", fetcher); render(<SetupPage />);
     await act(async () => {});
-    fireEvent.change(screen.getByLabelText("Custom role"), { target: { value: data.blueprint.name } });
+    fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: data.blueprint.name } });
     expect(fetcher).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByRole("button", { name: "Research this role" }));
+    fireEvent.click(screen.getByRole("button", { name: "研究这个岗位" }));
     await act(async () => {});
-    expect(screen.getByRole("status")).toHaveTextContent("Researching role skills and sources");
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByRole("status")).toHaveTextContent("正在研究技能与来源");
+    fireEvent.click(screen.getByRole("button", { name: "继续" }));
     const count = fetcher.mock.calls.length;
     await act(async () => { await vi.advanceTimersByTimeAsync(10_000); });
     expect(fetcher).toHaveBeenCalledTimes(count);
@@ -211,40 +242,43 @@ describe("research workspace page adapters with real controllers and determinist
   it("uses research steps, minutes and resources in Today, then completes a unit usable in Proof and Stack", async () => {
     const user = userEvent.setup(); const page = render(<TodayPage />); await headingReady();
     const unit = initial.dailyUnits.find((unit) => unit.scheduledDate === today())!;
-    expect(screen.getByRole("heading", { level: 1, name: unit.objective })).toBeInTheDocument();
-    for (const step of unit.steps) { expect(screen.getByText(step.label)).toBeInTheDocument(); expect(screen.getAllByText(`${step.minutes} min`).length).toBeGreaterThan(0); }
+    expect(screen.getByRole("heading", { level: 1, name: data.registry.tracks.flatMap(({ templates }) => templates).find(({ id }) => id === unit.templateId)!.title })).toBeInTheDocument();
+    for (const step of unit.steps) { expect(screen.getByText(step.label)).toBeInTheDocument(); expect(screen.getAllByText(`${step.minutes} 分钟`).length).toBeGreaterThan(0); }
     expect(screen.getByText(String(unit.estimatedMinutes), { selector: ".today-duration strong" })).toBeInTheDocument();
     const resource = data.blueprint.resources.find(({ id }) => id === unit.primaryResourceId)!;
     expect(screen.getByRole("link", { name: resource.title })).toHaveAttribute("href", resource.url);
     for (const checkbox of screen.getAllByRole("checkbox")) await user.click(checkbox);
-    await user.click(screen.getByRole("button", { name: "Complete" }));
+    await user.click(screen.getByRole("button", { name: "完成任务" }));
     await waitFor(() => expect(injected.planningClient.appendEvent).toHaveBeenCalledOnce());
     await waitFor(async () => expect((await service.getWorkspace("owner-a"))!.events.some((event) => event.kind === "completed")).toBe(true));
     page.unmount(); const proof = render(<ProofPage />); await headingReady();
+    await user.click(screen.getByRole("button", { name: /添加作品/ }));
     expect(screen.getByRole("option", { name: data.blueprint.skills[0]!.name })).toHaveValue(unit.skillId);
-    expect(within(screen.getByRole("combobox", { name: "Linked Daily Unit" })).getAllByRole("option").find((option) => option.getAttribute("value") === unit.id)).toHaveTextContent(unit.objective);
+    expect(within(screen.getByRole("combobox", { name: "关联学习单元" })).getAllByRole("option").find((option) => option.getAttribute("value") === unit.id)).toHaveTextContent(unit.objective);
     proof.unmount(); render(<StackPage />); await headingReady();
     expect(screen.getByRole("heading", { name: data.blueprint.skills[0]!.name })).toBeInTheDocument();
-    expect(screen.getAllByText("Practicing").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("练习中").length).toBeGreaterThan(0);
     const skill = screen.getByRole("heading", { name: data.blueprint.skills[0]!.name }).closest("article")!;
     const source = data.blueprint.resources.find(({ id }) => id === data.blueprint.skills[0]!.resourceIds[0])!;
     const sourceLink = within(skill).getByRole("link", { name: source.title });
     expect(sourceLink).toHaveAttribute("href", source.url);
-    expect(within(sourceLink.closest("li")!).getByText(`Verified ${source.lastVerifiedAt}`)).toBeInTheDocument();
-    expect(within(skill).getByText("Role importance")).toBeInTheDocument();
+    expect(within(sourceLink.closest("li")!).getByText(source.lastVerifiedAt)).toBeInTheDocument();
+    expect(within(skill).getByText("岗位重要度")).toBeInTheDocument();
   });
   it("keeps and accepts researched replan candidates through Today and a fresh Path controller", async () => {
     const user = userEvent.setup(); const page = render(<TodayPage />); await headingReady();
-    await user.click(screen.getByRole("button", { name: "Delay" }));
-    await user.click(await screen.findByRole("button", { name: "Keep current plan" }));
+    if (!screen.getByText("调整这项任务").closest("details")!.open) await user.click(screen.getByText("调整这项任务"));
+    await user.click(screen.getByRole("button", { name: "延后" }));
+    await user.click(await screen.findByRole("button", { name: "保留当前安排" }));
     await waitFor(() => expect(injected.planningClient.discardReplan).toHaveBeenCalledOnce());
     await expect(vi.mocked(injected.planningClient.discardReplan).mock.results[0]!.value).resolves.toHaveProperty("result");
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Keep current plan" })).not.toBeInTheDocument());
-    await user.click(screen.getByRole("button", { name: "Delay" }));
-    await screen.findByRole("button", { name: "Accept new plan" });
+    await waitFor(() => expect(screen.queryByRole("button", { name: "保留当前安排" })).not.toBeInTheDocument());
+    if (!screen.getByText("调整这项任务").closest("details")!.open) await user.click(screen.getByText("调整这项任务"));
+    await user.click(screen.getByRole("button", { name: "延后" }));
+    await screen.findByRole("button", { name: "接受新安排" });
     page.unmount(); render(<PathPage />); await headingReady();
-    await user.click(await screen.findByRole("button", { name: "Accept new plan" }));
-    await screen.findByText("Candidate plan accepted.");
+    await user.click(await screen.findByRole("button", { name: "接受新安排" }));
+    await screen.findByText("已接受新安排。");
     expect(injected.planningClient.acceptReplan).toHaveBeenCalledOnce();
     const updated = (await service.getWorkspace("owner-a"))!; expect(updated.activePlanVersionId).not.toBe(initial.activePlanVersionId); noFlagship();
   });
@@ -261,14 +295,14 @@ describe("research workspace page adapters with real controllers and determinist
   });
   it.each([PathPage, TodayPage, StackPage, ProofPage])("fails closed on missing research source context", async (Page) => {
     injected.planningClient.loadWorkspace = vi.fn(async () => ({ workspace: initial, sourceContext: null }));
-    render(<Page />); await waitFor(() => expect(screen.getByText(/version|unavailable|could not/i)).toBeInTheDocument());
+    render(<Page />); await waitFor(() => expect(screen.getByRole("heading", { name: "暂时无法确认已保存的学习计划" })).toBeInTheDocument());
     expect(screen.queryByText(data.blueprint.name)).not.toBeInTheDocument(); noFlagship();
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });
   it.each([PathPage, TodayPage, StackPage, ProofPage])("fails closed on mismatched research registry context", async (Page) => {
     const response = await service.getWorkspaceResponse("owner-a");
     injected.planningClient.loadWorkspace = vi.fn(async () => ({ workspace: initial, sourceContext: { ...response.sourceContext!, registry: { ...data.registry, version: "2026.08.999" } } }));
-    render(<Page />); await waitFor(() => expect(screen.getByText(/version|unavailable|could not/i)).toBeInTheDocument());
+    render(<Page />); await waitFor(() => expect(screen.getByRole("heading", { name: "暂时无法确认已保存的学习计划" })).toBeInTheDocument());
     expect(screen.queryByText(data.blueprint.name)).not.toBeInTheDocument(); noFlagship();
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });
@@ -281,7 +315,7 @@ describe("research workspace page adapters with real controllers and determinist
     injected.owner = owner; page.rerender(<Observe identity={owner} />);
     expect(seen.at(-1)).not.toContain(data.blueprint.name);
     expect(seen.at(-1)).not.toContain(data.blueprint.skills[0]!.name);
-    expect(screen.queryByTitle(`${data.blueprint.name} · 18 weeks`)).not.toBeInTheDocument();
+    expect(screen.queryByTitle(`${data.blueprint.name} · 18 周`)).not.toBeInTheDocument();
     expect(screen.queryByText(data.blueprint.summary)).not.toBeInTheDocument();
     expect(screen.queryByRole("option", { name: data.blueprint.skills[0]!.name })).not.toBeInTheDocument(); noFlagship();
   });

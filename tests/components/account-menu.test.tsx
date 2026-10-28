@@ -18,6 +18,7 @@ vi.mock("../../app/lib/auth-client", () => ({
 }));
 
 import { AccountMenu } from "../../app/components/account/account-menu";
+vi.mock("next/navigation", () => ({ usePathname: () => window.location.pathname }));
 
 const availableProviders = ["google", "github"];
 const noLinkStatus = {
@@ -68,7 +69,7 @@ describe("AccountMenu", () => {
     try {
       await act(async () => { root = hydrateRoot(container, <AccountMenu />, { onRecoverableError }); });
       expect(onRecoverableError).not.toHaveBeenCalled();
-      expect(within(container).getByRole("link", { name: "Sign in" })).toBeInTheDocument();
+      expect(within(container).getByRole("link", { name: "登录" })).toBeInTheDocument();
     } finally { await act(async () => root.unmount()); container.remove(); }
   });
   beforeEach(() => {
@@ -88,7 +89,27 @@ describe("AccountMenu", () => {
 
     render(<AccountMenu />);
 
-    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+    expect(screen.getByRole("link", { name: "登录" })).toHaveAttribute("href", "/sign-in?next=%2F");
+  });
+
+  it("preserves the current page including a safely nested query in the login link", () => {
+    authMocks.useSession.mockReturnValue({ data: null, isPending: false });
+    window.history.replaceState(null, "", "/proof?compose=1&returnTo=%2Ftoday#draft");
+    render(<AccountMenu />);
+    const href = screen.getByRole("link", { name: "登录" }).getAttribute("href")!;
+    expect(new URL(href, "https://arc.example").searchParams.get("next")).toBe("/proof?compose=1&returnTo=%2Ftoday#draft");
+  });
+
+  it.each(["arc:page-query", "arc:evidence-navigation", "popstate", "hashchange"])("updates the login source when %s changes the current selection", (eventName) => {
+    authMocks.useSession.mockReturnValue({ data: null, isPending: false });
+    window.history.replaceState(null, "", "/proof");
+    render(<AccountMenu />);
+    act(() => {
+      window.history.pushState(null, "", "/proof?proof=record-b#details");
+      window.dispatchEvent(new Event(eventName));
+    });
+    const href = screen.getByRole("link", { name: "登录" }).getAttribute("href")!;
+    expect(new URL(href, "https://arc.example").searchParams.get("next")).toBe("/proof?proof=record-b#details");
   });
 
   it("does not compete with the workspace live status while the session loads", () => {
@@ -96,7 +117,7 @@ describe("AccountMenu", () => {
 
     render(<AccountMenu />);
 
-    expect(screen.getByLabelText("Checking account")).toBeInTheDocument();
+    expect(screen.getByLabelText("正在确认账号")).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
@@ -108,12 +129,12 @@ describe("AccountMenu", () => {
 
     render(<AccountMenu />);
     await user.click(screen.getByText("Arc Learner"));
-    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    await user.click(screen.getByRole("button", { name: "退出登录" }));
 
     expect(replaceDocument).toHaveBeenCalledExactlyOnceWith("/");
     expect(screen.queryByText("learner@example.com")).not.toBeInTheDocument();
     expect(screen.queryByText("Arc Learner")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Sign in" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "登录" })).toBeInTheDocument();
     expect(authMocks.signOut).toHaveBeenCalledOnce();
     expect(screen.queryByText(/token|ChatGPT/i)).not.toBeInTheDocument();
   });
@@ -126,9 +147,9 @@ describe("AccountMenu", () => {
     authMocks.signOut.mockImplementation(() => new Promise(resolve => { resolveSignOut = resolve; }));
     render(<AccountMenu />);
     await user.click(screen.getByText("Arc Learner"));
-    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    await user.click(screen.getByRole("button", { name: "退出登录" }));
 
-    const pending = screen.getByRole("button", { name: "Signing out…" });
+    const pending = screen.getByRole("button", { name: "正在退出…" });
     expect(pending).toBeDisabled();
     await user.click(pending);
     expect(authMocks.signOut).toHaveBeenCalledOnce();
@@ -146,13 +167,13 @@ describe("AccountMenu", () => {
     authMocks.signOut.mockResolvedValueOnce({ data: { success: true }, error: null });
     render(<AccountMenu />);
     await user.click(screen.getByText("Arc Learner"));
-    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    await user.click(screen.getByRole("button", { name: "退出登录" }));
 
     expect(screen.getByRole("alert")).toHaveTextContent("Couldn't sign out. Please try again.");
     expect(screen.queryByText("private diagnostic")).not.toBeInTheDocument();
     expect(replaceDocument).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Sign out" })).toBeEnabled();
-    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    expect(screen.getByRole("button", { name: "退出登录" })).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "退出登录" }));
     expect(replaceDocument).toHaveBeenCalledExactlyOnceWith("/");
   });
 

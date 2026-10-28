@@ -21,7 +21,7 @@ function issueDuplicateIds(ctx: z.RefinementCtx, values: readonly string[], path
   if (hasDuplicates(values)) ctx.addIssue({ code: "custom", path, message });
 }
 
-export const skillSelfLevelSchema = z.enum(["unseen", "conceptual", "guided", "independent"]);
+export const skillSelfLevelSchema = z.enum(["unseen", "conceptual", "guided", "independent", "uncertain"]);
 export const evidenceKindSchema = z.enum(["repository", "deployment", "project", "document", "other"]);
 export const unitKindSchema = z.enum(["learn", "calibrate", "reinforce"]);
 export const planGenerationSchema = z.enum(["initial", "automatic", "proposed"]);

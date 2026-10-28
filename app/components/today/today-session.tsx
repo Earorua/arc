@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import type { LearningUnit } from "../../domain/learning";
 
 type TodaySessionProps = { onComplete: (unit: LearningUnit) => boolean | Promise<boolean>; unit: LearningUnit };
@@ -23,7 +22,7 @@ function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
   };
 
   const complete = async () => {
-    if (completionStarted.current) return;
+    if (!ready || completionStarted.current) return;
     completionStarted.current = true;
     setIsCompleting(true);
     const completed = await onComplete(unit);
@@ -35,13 +34,14 @@ function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
   };
 
   return (
-    <section className="today-session">
-      <p className="eyebrow" lang="en">Tuesday · Build session</p>
+    <section className="today-session" lang="zh-CN">
+      <p className="eyebrow">今日学习 · 主要任务</p>
       <div className="time-budget">
         <strong>{unit.minutes}</strong>
-        <span lang="en">minutes</span>
+        <span>分钟</span>
       </div>
       <h1>{unit.title}</h1>
+      <section className="today-deliverable"><h2>本次交付</h2><p>{unit.deliverable}</p></section>
 
       <div className="task-steps">
         {unit.steps.map((step, index) => (
@@ -58,19 +58,10 @@ function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
         ))}
       </div>
 
-      <AnimatePresence>
-        {ready && (
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            className="deliverable-bar"
-            initial={{ opacity: 0, y: 12 }}
-            lang="en"
-          >
-            <span>Deliverable · {unit.deliverable}</span>
-            <button disabled={isCompleting} onClick={() => void complete()} type="button">Complete & move to Proof</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="deliverable-bar">
+        <span id="legacy-completion-help">{ready ? "检查交付内容后，记录这次进度。" : "完成并勾选上面的学习步骤后，即可记录进度。"}</span>
+        <button aria-describedby="legacy-completion-help" disabled={!ready || isCompleting} onClick={() => void complete()} type="button">完成任务</button>
+      </div>
     </section>
   );
 }

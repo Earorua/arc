@@ -1,19 +1,21 @@
 "use client";
 
-import Link from "next/link";
+import { AccountBoundary } from "../components/account/account-boundary";
 import { authClient } from "../lib/auth-client";
-import { AccountMenu } from "../components/account/account-menu";
+import { useHydrated } from "../lib/use-hydrated";
+import { WorkspaceHeader } from "../components/workspace/workspace-header";
 import { PlanHistory } from "../components/workspace/plan-history";
 import "./history.css";
 
 export default function HistoryPage() {
   const session = authClient.useSession();
+  const hydrated = useHydrated();
   return <div className="workspace-shell">
-    <header className="workspace-header"><Link className="wordmark" href="/">Arc.</Link><nav aria-label="Learning workspace"><Link href="/today">Today</Link><Link href="/path">Path</Link><Link href="/history" aria-current="page">History</Link></nav><div className="workspace-meta"><AccountMenu /></div></header>
-    <main id="main-content" className="workspace-main">
-      {session.isPending ? <p role="status">正在确认登录…</p> : session.data?.user
+    <WorkspaceHeader current="History" context="历史记录 · 查看已保存的计划与学习事件" />
+    <main id="main-content" tabIndex={-1} className="workspace-main">
+      {!hydrated || session.isPending ? <p role="status">正在确认登录…</p> : session.data?.user
         ? <PlanHistory ownerId={session.data.user.id} />
-        : <section className="workspace-intro"><h1>历史学习计划</h1><p>登录后查看你保存的学习历史。</p><Link href="/sign-in">登录</Link></section>}
+        : <AccountBoundary destination="/history" title="回看走过的学习路线" description="登录后查阅已保存的目标、计划与学习记录。">{null}</AccountBoundary>}
     </main>
   </div>;
 }

@@ -34,10 +34,10 @@ describe("TargetStep", () => {
       return <TargetStep {...props} onTargetChange={setWeeks} result={result} target={createTarget(weeks)} />;
     }
     render(<Harness />);
-    await user.clear(screen.getByLabelText("Target weeks"));
-    await user.type(screen.getByLabelText("Target weeks"), "3");
-    expect(screen.getByLabelText("Target weeks")).toHaveAttribute("aria-invalid", "true");
-    expect(screen.getByRole("alert")).toHaveTextContent("4 to 52");
+    await user.clear(screen.getByLabelText("目标周数"));
+    await user.type(screen.getByLabelText("目标周数"), "3");
+    expect(screen.getByLabelText("目标周数")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("alert")).toHaveTextContent("4 至 52");
   });
 
   it("shows honest scope choices without persisting before Build", async () => {
@@ -46,24 +46,24 @@ describe("TargetStep", () => {
     const pathResult: PathBuildResult = { fullScope: result.fullScope, targetDate, infeasibleReason: null };
     const onScopeChange = vi.fn();
     render(<TargetStep {...props} onScopeChange={onScopeChange} result={pathResult} />);
-    expect(screen.getByRole("radio", { name: /Full scope/i })).toBeEnabled();
-    expect(screen.getByRole("radio", { name: /Target date/i })).toBeEnabled();
+    expect(screen.getByRole("radio", { name: /完整范围/ })).toBeEnabled();
+    expect(screen.getByRole("radio", { name: /按目标日期/ })).toBeEnabled();
     expect(screen.getByText(/Observability/i)).toBeInTheDocument();
-    await user.click(screen.getByRole("radio", { name: /Target date/i }));
+    await user.click(screen.getByRole("radio", { name: /按目标日期/ }));
     expect(onScopeChange).toHaveBeenCalledWith("target-date");
   });
 
   it("omits a redundant chooser when full scope fits and explains an infeasible target", () => {
     const view = render(<TargetStep {...props} result={{ fullScope: result.fullScope, targetDate: { ...result.fullScope, id: "path-target", scopeMode: "target-date" }, infeasibleReason: null }} />);
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
-    expect(screen.getByText(/Full scope fits/i)).toBeInTheDocument();
+    expect(screen.getByText(/时间足够覆盖全部技能/)).toBeInTheDocument();
     view.rerender(<TargetStep {...props} result={{ fullScope: result.fullScope, targetDate: null, infeasibleReason: "Core prerequisites cannot fit inside this target." }} />);
-    expect(screen.getByRole("radio", { name: /Target date/i })).toBeDisabled();
+    expect(screen.getByRole("radio", { name: /按目标日期/ })).toBeDisabled();
     expect(screen.getByText(/Core prerequisites cannot fit/i)).toBeInTheDocument();
   });
 
   it("renders a safe parent computation error without attempting its own build", () => {
-    render(<TargetStep {...props} error="Arc could not compare these paths. Review the inputs and try again." result={null} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("could not compare");
+    render(<TargetStep {...props} error="Arc 未能比较路径，请检查设置后重试。" result={null} />);
+    expect(screen.getByRole("alert")).toHaveTextContent("未能比较");
   });
 });
