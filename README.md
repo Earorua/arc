@@ -3,125 +3,120 @@
 ![Arc. — Learn only what moves you forward](./public/og.png)
 
 [![Quality](https://github.com/Earorua/arc/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Earorua/arc/actions/workflows/ci.yml)
-[![Live experience](https://img.shields.io/badge/live-visit%20Arc.-e5482f)](https://arcmaps.net)
+[![Live experience](https://img.shields.io/badge/live-arcmaps.net-744596)](https://arcmaps.net)
 
-**A precision learning system for mastering the technology stack behind a target role.**
+**A precision learning system that turns a target role into skills, a practical learning plan, and evidence of progress.**
 
-Arc. turns a career goal into an attributable skill map, a schedule-aware path, one focused learning session at a time, and an honest picture of capability. It is built as a product—not a course catalog—to demonstrate how restrained design, credible state modeling, and explicit trust boundaries can make a complex journey feel clear.
+Arc connects role research, self-assessment, available study time, daily tasks, learning resources, and work samples. A learning companion answers questions in the context of the active plan; a planning assistant proposes changes for the learner to review.
 
-[Visit Arc](https://arcmaps.net) · [Start Research](https://arcmaps.net/setup) · [Current recovery checkpoint](./docs/operations/v8-resume-checkpoint.md)
+[Visit Arc](https://arcmaps.net) · [Explore the public example](https://arcmaps.net/showcase) · [Set up a learning plan](https://arcmaps.net/setup) · [Release records](./docs/operations/README.md)
 
-## Current release — 2026-10-27
+## Current release — 2026-10-28
 
-Arc v8 is publicly available in the owner's Cloudflare account. The application, D1 database, private R2 files and background Research workflow run independently of ChatGPT Sites. Google and GitHub provide Arc sign-in; Research uses OpenRouter and Kimi. The previous Sites project remains only as an old-link redirect. Use **https://arcmaps.net** for bookmarks and sharing; the WWW address redirects to the same canonical domain.
+Arc v8 runs on the owner's Cloudflare Workers, D1, private R2, and Workflows at **[arcmaps.net](https://arcmaps.net)**. Google and GitHub provide independent Arc sign-in. The previous ChatGPT Sites address redirects to this domain; it is no longer the application host.
 
-Signed-in users can enter a custom role on Setup and select **Research this role**. Course sources prioritize official offerings from leading US universities and US companies, followed by leading Chinese companies; free and paid courses are supported. Selecting Continue is separate from starting Research.
+The latest production release combines custom-role Research, the learning companion and planner, the Discovery-inspired visual theme, and the complete learning-workspace redesign. It was published on **28 October 2026 at 21:25 Asia/Shanghai**, with application commit `bd91714` and Site version `34170daa-a865-410c-91de-125edac48956`. The [release record](./docs/operations/experience-redesign-release-2026-10-28.md) preserves deployment evidence, validation scope, and recovery constraints.
 
-## The product loop
+This release includes four-step setup with draft recovery, an explicit **uncertain** skill assessment, context-preserving navigation between tasks, skills and evidence, history progress, responsive learning resources, and consistent first rendering when an existing session is restored.
 
-Arc. organizes the learning journey into five connected decisions:
+The repository also includes subsequent fixes for Proof draft restoration, basic-plan sign-in routing, and basic-plan time editing. These source changes have **not been deployed**; see the [GitHub integration record](./docs/operations/github-integration-2026-10-28.md).
 
-1. **Setup** — choose the role, assess each Flagship skill, record optional evidence metadata, set availability, and choose an honest scope.
-2. **Path** — follow a dependency-ordered route with explicit calibration and deferred-skill rationale.
-3. **Today** — complete one focused deliverable inside a rolling seven-day plan and review any proposed replan.
-4. **Stack** — inspect skills, curated claim confidence, sources, freshness, and prerequisites.
-5. **Proof** — turn completed work into private evidence and selectively publish only chosen fields.
+## The learning loop
 
-The flagship experience maps 16 skills for an AI full-stack engineer. Accepted custom-role Research can also supply the v8 adaptive skill audit and learning plan. Research output must pass structure and source-evidence validation before it is published. The original learning plan and later Research plans remain accessible through history.
+| Area | What it does |
+| --- | --- |
+| **Setup** | Choose a role, assess skills, set study time, and confirm the plan. Signed-in users can explicitly start custom-role Research. Safe steps and account-scoped drafts survive refresh and back navigation. |
+| **Path** | Follow dependency-ordered learning units, inspect current and completed tasks, edit availability, and review a full proposed-plan diff before accepting it. |
+| **Today** | Work through one scheduled task with its saved resources, record completion, and continue to the relevant skill or work evidence. Checking a step alone does not save task completion. |
+| **Stack** | Browse skills, prerequisites, mastery criteria, resources, and evidence. Search, filters, expanded skills, and return context are preserved across evidence navigation. |
+| **Proof** | Keep versioned work evidence and private attachments, inspect review outcomes, and selectively publish chosen fields. |
+| **History** | Read preserved plans and their available completion counts. Historical plans are read-only; restoring one as the current plan is not implemented. |
+| **Learning help / Coach** | Ask about the current task or request a plan adjustment. Suggestions fill a draft; sending a model request and accepting a plan change are explicit actions. |
 
-## Planning foundation
+The built-in AI full-stack engineer catalogue contains **16 skills and 48 unit templates** for learning, calibration, and reinforcement. Actual route length depends on self-assessment and scheduling. Accepted Research supplies a validated role blueprint and unit registry to the same deterministic planning system. Source policy prioritizes official courses from leading US universities and US companies, followed by leading Chinese companies, and supports both free and paid resources.
 
-Phase 1 adds a canonical, versioned intelligence contract for the built-in Flagship role. Each learning resource carries its language, cost, format, source tier, and last verification date, and Stack renders that evidence alongside prerequisites and mastery criteria. Stack's confidence value is confidence in the curated role claim; it is not a score of the learner's mastery, readiness, Proof status, or verification.
+An **uncertain** self-assessment schedules calibration while retaining the learning content. Completing calibration does not declare mastery or skip the remaining learning. Self-assessment, curated claim confidence, task completion, and Proof review status have separate meanings.
 
-The candidate's `GET /api/intelligence/flagship` endpoint is public, read-only, and guest-safe. It serves only the schema- and policy-validated built-in Flagship blueprint, without reading a session or user identifier. The Stack page consumes the same deterministic built-in source directly, so the guest path has no network or model dependency.
+Creating another goal from an existing adaptive plan currently requires signed-in Research; it preserves the old plan in history. When that service is unavailable, Arc explains the limit and keeps the existing plan intact.
 
-The planning foundation adds strict contracts, a curated 48-unit Flagship Registry, deterministic path and calendar primitives, a rolling seven-day scheduler, event-sourced replanning with full diffs, guarded guest storage, owner-scoped D1 persistence and APIs, resumable device import, and adaptive Setup, Path, and Today surfaces. Accepted Research supplies a validated custom-role planning package to the same scheduling flow.
+## Public experience and personal workspace
 
-Historical Phase 2 engineering evidence at commit `19b8c87` remains in the operations records. Current release acceptance is recorded at r206: real Research and source quality, fault recovery and replay, final-domain authentication, history preservation, and actual proposal/discard persistence across reload. The overdue-unit planning fix passed focused regressions, related tests, typecheck and build; this source backup does not claim another full test run.
+The home page, method, and **[public example](https://arcmaps.net/showcase)** are available without an account. The example uses clearly identified sample content. Setup retains a device-local deterministic path, but the personal Today, Path, Stack, Proof, History, and Coach surfaces require sign-in.
 
-Skill levels are learner self-assessment. Optional evidence is learner-supplied public-link metadata only: Arc. does not fetch, review, upload, demonstrate, or verify it, and Phase 2 does not modify Proof state or grant `verified` status.
+After sign-in, D1 is authoritative for learning state. Existing device-local work is offered as an explicit import choice; Arc does not silently replace or delete it. Account changes and expired sessions preserve ownership boundaries rather than displaying another learner's state or substituting sample progress.
 
-Production schema and data migration have been verified in the owner's D1 database. Deterministic Flagship reads do not call a model; starting real Research is an explicit signed-in action. Today checkboxes are local interaction state: checking a box alone is not a persisted completion event.
+## Research and learning assistants
 
-## Two honest modes
+**Role Research** runs through a private service-bound Cloudflare executor and durable Workflow using OpenRouter/Kimi. It supports status recovery, validated result import, replay protection, and idempotent accounting. A result becomes usable only after structure and source-evidence checks pass. Reading the built-in `GET /api/intelligence/flagship` endpoint is public, read-only, and independent of model access.
 
-**Anonymous sample.** Anyone can explore the public story and complete the deterministic flagship path without an account. This mode stays device-local and remains useful when identity, cloud storage, or AI is unavailable.
+**The learning companion and planner** run through the website's separate server-side agent service. They use the active goal, actual progress, current due task, and saved resources; invalid Research context produces a recovery state instead of a silent fallback to the Flagship route. Planning suggestions require review before application. Planner generation is not a durable background job when the page is closed.
 
-**Independent Arc. account.** The codebase supports Google and GitHub OAuth owned by Arc.—not ChatGPT identity. After sign-in, D1 is authoritative for learning state. Meaningful work already present on the device is shown as an explicit import choice; it is never silently moved, overwritten, or deleted.
+Research and assistants have separate credentials and budget controls. The [companion release record](./docs/operations/learning-companion-release-2026-10-28.md) documents the enabled configuration and its verification limits. The latest UI release did not repeat live OAuth, paid Research or assistant calls, production uploads, or administrator-data acceptance.
 
-Google and GitHub sign-in on the final domain were both verified against the migrated owner account. Old and new learning histories are retained. Authentication and ownership checks remain mandatory for private state. The release record distinguishes live checks from automated isolation tests; it does not claim a separate non-owner live login where none was performed.
+## Design
 
-## Design thesis: Warm Precision
+The current Discovery-inspired theme uses warm paper surfaces, charcoal text, purple accents, Fraunces and Noto Serif SC display type, and Jost interface text. Shared navigation keeps Today, Path, Stack, and Proof prominent, with history and planning tools available from the relevant task context.
 
-Arc. borrows the confidence of editorial publishing rather than the density of a traditional dashboard. Ivory paper, charcoal type, vermilion signals, Newsreader display typography, and restrained motion create a calm hierarchy around the next meaningful action.
-
-The visual system is intentionally image-light. Structure, type, spacing, and language carry the product personality, while keyboard navigation, visible focus, reduced-motion behavior, mobile workspace controls, and actionable recovery states remain part of the core experience.
+Mobile layouts, visible keyboard focus, readable control sizes, browser zoom, and system or personal reduced-motion preferences are covered by the recorded UI checks. Those checks have explicit coverage limits and are not a claim of full accessibility certification.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A[Public + anonymous sample] --> B[Typed learning domain]
-    B --> C[Device-local sample state]
-    D[Google / GitHub OAuth] --> E[Arc session]
-    E --> F[D1 authoritative workspace]
-    C -->|explicit consent| F
-    F --> G[Private proof metadata]
-    G --> H[R2 private asset bytes]
-    G --> I[Allowlisted public proof view]
-    J[Signed-in Research] --> K[Rate + release + quota + budget gates]
-    K --> L[Private Cloudflare Workflow]
-    L --> O[OpenRouter / Kimi]
-    M[Exact admin allowlist] --> N[Aggregate-only health]
+    A[Public pages and example] --> B[Built-in learning data]
+    C[Google / GitHub OAuth] --> D[Arc session]
+    D --> E[Owner-scoped D1 workspace]
+    F[Device-local state] -->|explicit import| E
+    E --> G[Deterministic planning and history]
+    E --> H[Proof metadata]
+    H --> I[Private R2 assets]
+    H --> J[Allowlisted public proof fields]
+    D --> K[Research admission and budget gates]
+    K --> L[Private executor and Workflow]
+    L --> M[OpenRouter / Kimi]
+    L -->|validated result import| E
+    D --> N[Learning assistant admission and budget gates]
+    N --> O[Website agent service / OpenRouter]
+    O -->|reviewable plan proposal| G
 ```
 
-| Layer | Current choice | Responsibility |
-| --- | --- | --- |
-| Product UI | React 19, Next-compatible App Router | Public story, account experience, learning workspace, recovery, and read-only operations |
-| Runtime | Vinext, Vite 8, Cloudflare-compatible worker | Edge-compatible server rendering, APIs, and response safety headers |
-| Identity | Better Auth with Google and GitHub adapters | Independent Arc. sessions; credentials remain server-only |
-| Durable state | Cloudflare D1 with Drizzle migrations | Signed-in goals, events, proofs, idempotency, quota ledger, and sanitized operations |
-| Private files | Cloudflare R2 | Owner-scoped proof bytes; D1 stores searchable ownership metadata |
-| Anonymous state | Guarded browser storage | Device-local sample, explicit migration source, and capped offline mutation queue |
-| Intelligence | Versioned Flagship contract + background Research | No-network Flagship reads and validated custom-role results from OpenRouter/Kimi |
-| Adaptive planning | Versioned Registry + deterministic event-sourced kernel | Flagship and accepted Research audit, path, seven-day plan, diff review, replay and persistence |
-| Controls | D1 rate limits and cohort flag + runtime limits | Per-user quota, global budget, release cohort, and emergency kill switch |
-| Quality | Vitest, Testing Library, TypeScript, ESLint, rendered HTML checks | Domain behavior, access control, privacy, accessibility, and production confidence |
-| Delivery | GitHub source snapshots and owned Cloudflare deployment | Reviewable source, private runtime Secrets, versioned publishing, and controlled recovery |
+| Layer | Technology and responsibility |
+| --- | --- |
+| UI | React 19, Next-compatible App Router, shared learning components, Motion, and CSS themes |
+| Runtime | Vinext, Vite 8, and Cloudflare Workers for server rendering and APIs |
+| Identity | Better Auth with Google and GitHub; server-derived Arc sessions |
+| Durable state | Cloudflare D1 and Drizzle migrations for learning, history, evidence, accounting, and operations |
+| Private storage | Cloudflare R2 for owner-scoped assets and private result receipts |
+| Planning | Versioned contracts, validated registries, deterministic scheduling, event replay, and proposed-plan diffs |
+| Research | Private executor, Cloudflare Workflows, authenticated bridge messages, and validated OpenRouter results |
+| Assistants | Server-side planner and tutor with current-workspace context and separate reservations |
+| Quality | Vitest, Testing Library, TypeScript, ESLint, rendered-HTML checks, and isolated browser acceptance |
+| Delivery | GitHub review and CI, followed by a separately controlled Cloudflare deployment |
 
-## Trust boundaries
+## Trust and operating boundaries
 
-- Public editorial routes and the anonymous deterministic sample do not require sign-in.
-- Signed-in state is accepted only from the server-derived Arc. session; browser requests never select a user ID.
-- D1 becomes authoritative after sign-in. Device-local work is imported only after explicit consent and conflict resolution.
-- Proof assets are private in R2. Retrieval first proves ownership through D1 and never accepts an object key from the caller.
-- A public proof token stores only a SHA-256 hash at rest and exposes only the fields the owner selected. Revocation disables the database record; public routes never serve R2 bytes.
-- The browser never receives OAuth secrets, session secrets, or provider credentials. Real values belong only in server-side secret management.
-- Live Research is available to signed-in users; deterministic Flagship reads remain independent of model credentials.
-- Phase 2 evidence fields are self-reported metadata, not Arc verification. Planning completion never writes legacy Proof verification state.
-- Every paid call must pass identity, endpoint rate limiting, the runtime kill switch, the D1 release flag, per-user quota, and the global budget ceiling before a reservation is issued.
-- Provider calls may incur costs even if output is rejected. The initial public release keeps a USD 5 cumulative non-resetting provider-key cap, a USD 3.50 per-request reservation, one request per user per day and one per minute, and USD 5 site day/month budgets. Remaining credit may prevent a later reservation. Automatic paid repair is disabled; no automatic recharge or limit increase is authorized.
-- Operational diagnostics contain sanitized metadata rather than secret values. Private result receipts and learner records remain in owner-scoped storage.
-- `/admin` is read-only, exact-email allowlisted, and aggregate-only; it cannot browse learner content or identity records.
-
-## Hosted Beta status
-
-The live app runs on owned Cloudflare Workers, D1 and private R2, with a private service-bound Research Executor and Workflows. The public domain's Google/GitHub login, learning history and plan proposal/discard persistence have been checked. The separate smoke environment is closed and does not need another control-secret input or repeated simulation.
-
-Exact versions, frozen source hashes and backup references are in the current recovery checkpoint. A release incident requires closing intake, draining existing jobs and then stopping maintenance. Do not run consumed rehearsal scripts or restore an old database backup over newer public writes. A domain reversal alone is not a data rollback.
-
-Older [Sites OAuth feasibility notes](./docs/operations/sites-oauth-feasibility.md) are historical. This public source repository excludes actual credentials, live databases, private backups and raw operational logs.
+- Private requests derive the owner from the Arc session. The browser cannot choose a user ID or private storage key.
+- R2 bytes remain private. Public Proof views expose only selected fields; share tokens are hashed at rest and revocable.
+- Setup evidence is self-reported metadata. Proof's `verified` state requires a supported deterministic validator; completing a learning task alone does not grant it.
+- OAuth, session, bridge, and model secrets stay on the server. This repository excludes real credentials, live databases, private backups, and raw operational logs.
+- Research and learning assistants enforce their respective enablement, access, rate, and budget checks before provider access. Application reservations are not provider invoices; a rejected or interrupted request can still incur provider cost.
+- The initial Research release records a USD 5 cumulative provider-key cap and USD 3.50 request reservation. Assistant limits are documented separately. These are release-time settings, not a statement of current remaining credit; available budget can block a request.
+- `/admin` is read-only, exact-email allowlisted, and aggregate-only.
+- GitHub CI does not deploy the application. Production changes require a separate release with current configuration and data checks. Never replay consumed release scripts or restore an old backup over newer public writes.
+- Before rollback, check compatibility with saved `uncertain` assessments and current history data. Closing Research requires stopping intake, draining outstanding work, then stopping maintenance; the closed smoke environment is separate from production.
 
 ## Local development
 
-Use Node.js **24.14.1**, matching the verified runtime and current CI configuration.
+Use **Node.js 24.14.1**, matching CI and the verified runtime.
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Copy `.env.example` to an ignored local environment file only when exercising server features. Keep credential values out of source control. Deterministic paths and unit tests require no paid model calls; real Research requires securely configured server credentials and available budget.
+Use [`.env.example`](./.env.example) as the starting point for an ignored local environment file when exercising server features. OAuth, D1/R2 bindings, the Research executor, and assistants need their own server configuration. The deterministic data and unit tests require no paid model calls. Keep production credentials out of local examples and source control.
+
+Source is organized under `app/` (pages, components, contracts, domain, and services), `db/` and `drizzle/` (schema and migrations), `worker/` (Research execution), `scripts/` (build and validation tools), and `tests/`. Operational history lives in [`docs/operations/`](./docs/operations/README.md).
 
 ## Verification
 
@@ -133,8 +128,15 @@ npm run build
 node --test tests/rendered-html.test.mjs
 ```
 
-CI runs the unit, lint, production-build, and rendered-HTML gates on pull requests and pushes to `master`.
+CI runs unit tests, lint, the production build, and rendered-HTML checks on pull requests and pushes to `master`. TypeScript is also checked locally. Browser acceptance instructions are in [`tests/ui-preview/README.md`](./tests/ui-preview/README.md); its isolated browser tooling is separate from `npm ci`, and its synthetic scenarios do not establish production account or model behavior.
 
-## Focused roadmap
+The [28 October release record](./docs/operations/experience-redesign-release-2026-10-28.md) distinguishes focused regressions, browser checks, live read-only checks, and the intermittent Windows backend-smoke failure observed during that release. Historical test counts are not substituted for the current CI result.
 
-The first public-release objective is complete. Further user feedback, design improvements, learning-flow extensions and usage-budget decisions are separate follow-up work. Preserve official course-source requirements, account isolation and durable learning state when extending the product.
+## Release references and next work
+
+- [Latest experience release and recovery constraints](./docs/operations/experience-redesign-release-2026-10-28.md)
+- [Learning companion activation and configuration](./docs/operations/learning-companion-release-2026-10-28.md)
+- [Implemented experience changes and acceptance](./docs/superpowers/plans/2026-10-28-experience-completion-delivery.md)
+- [Current checkpoint and retained history](./docs/operations/v8-resume-checkpoint.md)
+
+The first public-release objective is complete. Durable background planning, restoring historical plans as current, further learner feedback, and future usage-budget decisions remain separate follow-up work.

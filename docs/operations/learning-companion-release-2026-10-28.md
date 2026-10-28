@@ -6,7 +6,7 @@
 
 - 基线 master：`31b80804e6b91b688116c18e5b92ab338f30840d`。
 - 应用源码提交：`66703bbe242e00a730c4291b29eb327381a0ae7d`。
-- 分支：`codex/learning-companion-v8-20261028`；[草稿 PR #9](https://github.com/Earorua/arc/pull/9)，未合并 master。
+- 分支：`codex/learning-companion-v8-20261028`；[PR #9](https://github.com/Earorua/arc/pull/9) 已于 2026-10-28 合并至 master（`0e6bb38`）。以下部署版本描述本次学习伙伴发布，当前网站版本见[全站体验优化发布](experience-redesign-release-2026-10-28.md)。
 - 网站 Worker：`arc-v8-migration-shadow-20260922`。
 - 新版本：`cf2f3d4f-36bf-4229-83f5-0a8303085ed6`；部署：`6de8cfe4-1a5a-4f68-864b-f0bdccb70b67`，100% 流量。
 - 上一版本（已含用户保存的 Secret、助手尚未启用）：`1bfe3648-9e0c-4b04-a06e-3c16500298c2`。
