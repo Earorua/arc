@@ -69,9 +69,8 @@ function HistoryView({ client, goal, offset, ownerId }: { client: PlanningHistor
     updatePageQuery({ goal: nextGoal, offset: nextOffset > 0 ? String(nextOffset) : null });
   }
   return <section className="plan-history">
-    <div className="workspace-intro"><p className="eyebrow">学习记录</p><h1>历史学习计划</h1><p>回看之前保存的目标、路线和学习记录。这里的内容只供查阅，当前学习计划保持不变。</p></div>
-    <p className="workspace-notice"><Link href="/path">返回当前学习路线 ↗</Link></p>
-    {goal !== null && <button className="history-back" type="button" onClick={() => navigate(null)}>返回历史列表</button>}
+    <div className="workspace-intro workspace-intro-with-return"><p className="eyebrow">学习记录</p><h1>历史学习计划</h1><p>回看之前保存的目标、路线和学习记录。这里的内容只供查阅，当前学习计划保持不变。</p><Link className="workspace-return" href="/path"><span aria-hidden="true">←</span> 返回当前学习路线</Link></div>
+    {goal !== null && <button className="history-back workspace-return" type="button" onClick={() => navigate(null)}><span aria-hidden="true">←</span> 返回历史列表</button>}
     {error === "sign-in" ? <p role="alert">登录已过期。<Link href={signInHref(`/history?${new URLSearchParams({ ...(goal ? { goal } : {}), offset: String(offset) })}`, true)}>重新登录</Link></p>
       : error ? <p role="alert">暂时无法读取历史计划。 <button type="button" onClick={() => { setError(null); setResult(null); setRevision(value => value + 1); }}>重试</button></p>
       : !result ? <p role="status">正在读取历史计划…</p>

@@ -38,7 +38,7 @@ await check('Proof detail and a draft survive address reload and navigation',asy
 });
 await check('Coach draft survives leaving and Back; active generation can veto Back',async()=>{
  await page.goto(origin+'/coach'); await page.getByLabel('本次规划的重点').fill('每周只安排三个晚上');
- await page.getByRole('link',{name:'返回学习路线 ↗'}).click(); await page.goBack(); assert.equal(await page.getByLabel('本次规划的重点').inputValue(),'每周只安排三个晚上');
+ await page.getByRole('link',{name:'返回学习路线'}).click(); await page.goBack(); assert.equal(await page.getByLabel('本次规划的重点').inputValue(),'每周只安排三个晚上');
  await page.goto(origin+'/path'); await page.locator('.workspace-tools > summary').click(); await page.getByRole('link',{name:'学习规划',exact:true}).click(); await page.waitForURL('**/coach'); await page.evaluate(()=>history.replaceState(history.state,'','/coach?simulate=running')); await page.getByRole('button',{name:'开始深度规划'}).click(); await page.getByRole('button',{name:'正在深度规划…'}).waitFor();
  let message=''; page.once('dialog',async d=>{message=d.message(); await d.dismiss();});
  await page.evaluate(()=>history.back()); await page.waitForTimeout(150); assert.match(message,/离开会中断/); assert.equal(new URL(page.url()).pathname,'/coach');

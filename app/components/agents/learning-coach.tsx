@@ -155,7 +155,7 @@ function CoachGoal({ location }: { location: string }) {
   const unavailable = agents.loading ? "正在读取你的学习目标…" : agents.error ?? (enabled ? null : learnerAvailability(workspace?.reason));
 
   return <main id="main-content" tabIndex={-1} className="coach-page coach-work-page">
-    <section className="workspace-intro"><p className="eyebrow">路线工具</p><h1>调整学习计划</h1><p>说清需要改变的地方，审阅建议后再决定是否采用。</p><Link href={returnTo}>{returnTo.split("?")[0] === "/today" ? "返回今日任务 ↗" : returnTo === "/path" ? "返回学习路线 ↗" : "返回来源页面 ↗"}</Link></section>
+    <section className="workspace-intro workspace-intro-with-return"><p className="eyebrow">路线工具</p><h1>调整学习计划</h1><p>说清需要改变的地方，审阅建议后再决定是否采用。</p><Link className="workspace-return" href={returnTo}><span aria-hidden="true">←</span> {returnTo.split("?")[0] === "/today" ? "返回今日任务" : returnTo === "/path" ? "返回学习路线" : "返回来源页面"}</Link></section>
     <div className="coach-current"><span>当前学习方向</span><strong>{workspace?.goalId ? workspace.roleName : "从你的学习目标开始"}</strong>
       {resolved.kind === "adaptive" && <span className="coach-current-progress">每周 {resolved.workspace.availability.weeklyMinutes} 分钟 · 已完成 {new Set(resolved.workspace.events.flatMap(event => event.kind === "completed" ? [event.unitId] : [])).size} 项任务</span>}
       <Link href={workspace?.goalId ? "/setup?mode=edit&section=time" : setupHref(location)}>{workspace?.goalId ? "调整可用时间 ↗" : "设置学习目标 ↗"}</Link></div>

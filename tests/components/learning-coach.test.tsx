@@ -35,7 +35,7 @@ describe("learning coach", () => {
     const view = render(<LearningCoach />);
     expect(screen.getByRole("heading", { name: "早先的方案" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "最新的方案" })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "返回今日任务 ↗" })).toHaveAttribute("href", "/today?unit=lesson");
+    expect(screen.getByRole("link", { name: "返回今日任务" })).toHaveAttribute("href", "/today?unit=lesson");
     view.unmount(); render(<LearningCoach />);
     expect(screen.getByRole("heading", { name: "早先的方案" })).toBeInTheDocument();
     window.history.replaceState(null, "", "/coach?run=latest"); fireEvent.popState(window);
@@ -227,7 +227,7 @@ describe("learning coach", () => {
     expect(screen.getByText("正在梳理你的学习路线")).toBeInTheDocument();
     const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
     const leave = new MouseEvent("click", { bubbles: true, cancelable: true });
-    screen.getByRole("link", { name: "返回学习路线 ↗" }).dispatchEvent(leave);
+    screen.getByRole("link", { name: "返回学习路线" }).dispatchEvent(leave);
     expect(confirm).toHaveBeenCalledWith(expect.stringContaining("离开会中断"));
     expect(leave.defaultPrevented).toBe(true);
     const unload = new Event("beforeunload", { cancelable: true });

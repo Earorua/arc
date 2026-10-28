@@ -3,6 +3,11 @@
 .workspace-main { width: min(var(--workspace-width), calc(100% - 64px)); padding-block: 44px 104px; }
 .workspace-main, .coach-work-page, .setup-page, .sign-in-paper { font-size: 16px; line-height: 1.75; }
 .workspace-intro { margin-bottom: 32px; max-width: var(--reading-width); }
+.workspace-intro-with-return { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; max-width: none; }
+.workspace-intro-with-return > :not(.workspace-return) { grid-column: 1; }
+.workspace-intro-with-return > .workspace-return { grid-column: 2; grid-row: 1 / 3; align-self: start; }
+:is(.workspace-main, .coach-work-page) .workspace-return { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 10px 18px; border: 1px solid var(--action); border-radius: 999px; background: var(--paper-deep); color: var(--action); font: 500 15px/1.5 var(--sans); text-decoration: none; cursor: pointer; }
+:is(.workspace-main, .coach-work-page) .workspace-return:hover { background: var(--action); color: white; }
 .workspace-intro h1, .coach-work-page .workspace-intro h1, .adaptive-today-session header h1,
 .adaptive-path .adaptive-path-heading h1, .account-boundary h1, .admin-intro h1 { font: 450 38px/1.4 var(--display); letter-spacing: -.025em; margin-block: 8px 14px; }
 .workspace-intro > p:not(.eyebrow), .adaptive-path-heading > p:not(.eyebrow) { max-width: 66ch; color: var(--stone); font: 400 16px/1.8 var(--sans); }
@@ -114,6 +119,8 @@
 .admin-card { padding: 24px 0; border-radius: 0; background: transparent; box-shadow: none; }
 .admin-card h2 { font: 500 22px/1.5 var(--sans); }
 @media (max-width: 760px) {
+  .workspace-intro-with-return { grid-template-columns: minmax(0, 1fr); }
+  .workspace-intro-with-return > .workspace-return { grid-column: 1; grid-row: 1; justify-self: start; margin-bottom: 24px; }
   .workspace-main, .coach-work-page { width: calc(100% - 40px); padding-block: 28px 140px; }
   .workspace-intro h1, .coach-work-page .workspace-intro h1, .adaptive-today-session header h1, .adaptive-path .adaptive-path-heading h1, .account-boundary h1, .admin-intro h1 { font-size: 30px; }
   .workspace-header, .has-companion .workspace-header { padding: 0 20px; min-height: 96px; grid-template-columns: auto 1fr auto; gap: 0 16px; backdrop-filter: none; }
