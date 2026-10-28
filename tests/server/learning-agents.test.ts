@@ -3,9 +3,12 @@ import { LearningAgentService } from "../../app/server/agents/service";
 import type { AgentProvider } from "../../app/server/agents/openrouter-provider";
 import type { AgentRepository, StoredAgentRun } from "../../app/server/agents/repository";
 import { agentFixture } from "../helpers/agent-fixture";
+import { researchAgentFixture } from "../helpers/research-agent-fixture";
+import type { LearningPathVersion, PlanningSourceContext, PlanningWorkspace } from "../../app/contracts/planning";
+import type { PlanningWorkspaceResponse } from "../../app/contracts/planning-api";
 
-function fixture() {
-  const f = agentFixture(); const rows = new Map<string, StoredAgentRun>();
+function fixture(f: { workspace: PlanningWorkspace; path: LearningPathVersion; sourceContext: PlanningSourceContext } = agentFixture()) {
+  const rows = new Map<string, StoredAgentRun>();
   const repository: AgentRepository = {
     find: async (owner, goal, id) => { const row = rows.get(id); return row?.ownerId === owner && row.goalId === goal ? row : null; },
     history: async (owner, goal) => [...rows.values()].filter(row => row.ownerId === owner && row.goalId === goal),
@@ -22,7 +25,7 @@ function fixture() {
         unitIds: [f.path.units[0].id], successCriteria: "完成练习" }], unitOrder: f.path.units.map(u => u.id) } })),
     tutor: vi.fn(async (_context, _history, _deep, delta) => { delta("你好"); return { text: "你好", usage: { inputTokens: 2, outputTokens: 3 } }; }),
   };
-  const planning = { getWorkspaceResponse: vi.fn(async () => ({ workspace: f.workspace, sourceContext: f.sourceContext })),
+  const planning = { getWorkspaceResponse: vi.fn<() => Promise<PlanningWorkspaceResponse>>(async () => ({ workspace: f.workspace, sourceContext: f.sourceContext })),
     appendAgentEventResponse: vi.fn() };
   const config = { enabled: true, plannerModel: "openai/gpt-6-astra", tutorModel: "openai/gpt-6-astra",
     siteDailyMicros: 20000000, siteMonthlyMicros: 200000000, userDailyMicros: 5000000,
@@ -33,6 +36,30 @@ function fixture() {
   return { service, provider, planning, rows, config, f, input };
 }
 describe("learning agent service", () => {
+  it("exposes Research context while keeping a disabled model unavailable", async () => {
+    const f = fixture(researchAgentFixture()); f.config.enabled = false;
+    const workspace = await f.service.workspace("alice");
+    expect(workspace).toMatchObject({ enabled: false, authenticated: true, availability: "disabled",
+      goalId: f.f.workspace.goalId, roleName: "Data Product Manager",
+      learningContext: { source: "research", completedUnits: 0, totalUnits: f.f.path.units.length } });
+    expect(workspace.reason).toContain("尚未启用");
+    expect(f.provider.tutor).not.toHaveBeenCalled();
+    expect(f.provider.startPlanner).not.toHaveBeenCalled();
+  });
+  it("distinguishes missing setup from an enabled route that is ready for questions", async () => {
+    const f = fixture(researchAgentFixture());
+    expect((await f.service.workspace("alice")).availability).toBe("ready");
+    f.planning.getWorkspaceResponse.mockResolvedValue({ workspace: null });
+    expect(await f.service.workspace("alice")).toMatchObject({ availability: "needs_setup", goalId: null });
+  });
+  it("fails closed for corrupt Research context instead of reporting missing setup", async () => {
+    const f = fixture(researchAgentFixture());
+    f.planning.getWorkspaceResponse.mockResolvedValue({ workspace: f.f.workspace, sourceContext: null });
+    await expect(f.service.workspace("alice")).rejects.toMatchObject({ status: 503 });
+    await expect(f.service.tutor("alice", f.input, vi.fn(), new AbortController().signal)).rejects.toMatchObject({ status: 503 });
+    expect(f.provider.tutor).not.toHaveBeenCalled();
+    expect(f.rows.size).toBe(0);
+  });
   it("publishes a running record before waiting and polls only stored state", async () => {
     const f = fixture();
     const original = vi.mocked(f.provider.startPlanner).getMockImplementation()!;

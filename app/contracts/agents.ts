@@ -26,11 +26,19 @@ export type PublicAgentRun = {
   advice: PlannerAdvice | null; createdAt: number; baseVersionId: string; revision: number;
   model: string; effort: string; error: string | null;
 };
+export type AgentLearningContext = {
+  source: "research" | "flagship"; date: string; timeZone: string;
+  completedUnits: number; totalUnits: number;
+  task: { id: string; title: string; scheduledDate: string } | null;
+  resources: { id: string; title: string; url: string; provider: string }[];
+};
 export type AgentWorkspace = {
   enabled: boolean; authenticated: boolean; reason: string | null;
   goalId: string | null; baseVersionId: string | null; revision: number | null;
   roleName: string; currentTask: string | null; history: PublicAgentRun[];
   plannerModel: string; tutorModel: string;
+  learningContext?: AgentLearningContext;
+  availability?: "ready" | "disabled" | "needs_setup";
 };
 export type AgentStreamEvent =
   | { type: "started"; run: PublicAgentRun }
