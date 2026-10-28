@@ -83,6 +83,13 @@ summary { cursor: pointer; }
 .companion-heading small, .companion-task { font-size: 12px; }
 .companion-task { flex-direction: column; gap: 3px; padding: 12px 18px; }
 .companion-task strong { white-space: normal; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.companion-context { font-size: 14px; }
+.companion-context summary { min-height: 44px; padding: 14px 18px; }
+.companion-context-note { display: block; margin-bottom: 8px; color: var(--stone); font-size: 12px; }
+.companion-context-heading > span, .companion-current-task > span, .companion-context-meta, .companion-context-date, .companion-resources small { font-size: 12px; }
+.companion-current-task { align-items: flex-start; }
+.companion-context-details { padding-inline: 18px; }
+.companion-resources a { color: var(--action); }
 .companion-window-actions button { width: 40px; height: 40px; }
 .companion-messages { padding: 20px 18px; }
 .companion-messages:has(+ .companion-notice) { flex: 0 1 auto; min-height: 0; padding-block: 8px; }
@@ -148,5 +155,6 @@ summary { cursor: pointer; }
 @media (max-height: 620px) {
   .companion-panel { overflow-y: auto; }
   .companion-heading { position: sticky; top: 0; background: var(--chalk); z-index: 1; }
-  .companion-messages { flex: none; min-height: 0; max-height: 35dvh; }
+  .companion-content { flex: none; min-height: 80px; max-height: 35dvh; }
+  .companion-messages { min-height: 0; }
 }

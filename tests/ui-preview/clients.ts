@@ -1,6 +1,6 @@
 import { fixture, unavailableAgents } from "./data";
 export const agentClient = {
-  workspace: async () => ({ ...unavailableAgents, enabled: new URLSearchParams(window.location.search).get("assistant") === "enabled" }),
+  workspace: async () => ({ ...unavailableAgents, enabled: new URLSearchParams(window.location.search).get("assistant") !== "disabled" }),
   tutor: async () => { throw new Error("本地预览不会发送模型请求"); },
   start: async () => { throw new Error("本地预览不会发送模型请求"); },
   poll: async () => { throw new Error("本地预览没有生成任务"); },

@@ -1,5 +1,17 @@
 # 双学习 Agent：接入与验收
 
+## 当前基线（2026-10-28）
+
+正式站 `https://arcmaps.net` 已于 2026-10-27 迁至用户自有 Cloudflare Worker、D1 和 R2；原 Sites 地址仅负责跳转。`0013_learning_agents.sql` 已随迁移应用，后续学习伙伴更新不应重复迁移或覆盖数据库。本文末尾的 Sites 发布记录属于历史。
+
+Research 与学习伙伴独立：Research 在私有 Executor 中运行并已对登录用户开放；学习伙伴与规划师通过网站 Worker 的 `/api/agents/*` 调用 OpenRouter。Research 可用不代表网站 Worker 已配置学习伙伴。2026-10-28 本次更新已在 Cloudflare 发布并启用，登录后的工作区返回 `enabled: true`、`availability: ready`；详见[发布记录](learning-companion-release-2026-10-28.md)。
+
+本次兼容更新读取当前活动路线的来源、用户时区和真实完成事件，参考尚未完成且已到日期的任务；没有当天任务时明确显示，并允许针对现有路线提问。聊天中展示的资料来自已经保存的课程目录，链接并不表示助手读过课程全文。新 Research 路线不能在来源缺失时退回内置全栈课程。
+
+启用配置应放在 Cloudflare 网站 Worker `arc-v8-migration-shadow-20260922` 上。按下表配置网站专用 `OPENROUTER_API_KEY` Secret 和显式开关，保留现有登录、DB/R2、Research service binding、域名和额度。不要将研究执行器的密钥当作网站已经拥有的密钥，不要在旧 Sites 设置中配置新功能。实际密钥由所有者通过安全入口填写，不进入源码、聊天或普通变量。
+
+用户本轮已选择同时启用，并自行填写独立密钥。当前线上使用显式全站日/月预留上限各 5 美元、每用户每天 2 美元、规划每次 2 美元、答疑每次 0.5 美元。这里是应用侧预留额度，不是实际计费；即使生成失败，已发生的预留仍保留。OpenRouter 账户余额和密钥限额另行约束，不会自动充值或扩大 Research 额度。本轮未提交真实付费模型请求，首条回答及密钥的实际模型权限仍由用户发起问题验证。
+
 ## 使用流程
 
 1. 登录 Arc 并完成学习设置。现有 Research/Setup 负责岗位来源、技能评估、时间预算和基础路线。
@@ -14,7 +26,7 @@
 
 ## 运行配置
 
-先确保现有 Arc 登录服务、D1 绑定和历史迁移可用。本迁移候选保留 Research 与账号恢复的 `0000`–`0012` 迁移链，并将公开站原来的 `0008_learning_agents.sql` 整合为新增的 `0013_learning_agents.sql`；它只新增 `learning_agent_runs` 及其索引，不重建旧表。不要在此候选中再次应用公开站原编号的迁移，也不要用公开站 journal 覆盖当前链。助手默认保持关闭，真实调用须单独配置和验收；本次源码整合未应用云端数据库迁移。
+现有 Cloudflare 正式库保留 Research 与账号恢复的 `0000`–`0012` 迁移链，原 Sites 的 `0008_learning_agents.sql` 已整合为 `0013_learning_agents.sql` 并应用；它只新增 `learning_agent_runs` 及其索引，不重建旧表。不要再次应用旧编号的迁移，也不要用 Sites journal 覆盖当前链。助手默认保持关闭，真实调用须配置和验收。
 
 | 服务端变量 | 默认值 / 用途 |
 | --- | --- |

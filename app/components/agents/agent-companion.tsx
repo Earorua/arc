@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import type { PublicAgentRun } from "../../contracts/agents";
+import type { AgentLearningContext, AgentWorkspace, PublicAgentRun } from "../../contracts/agents";
 import { completedTutorHistory, useCompanionOverlay, useLearningAgents, type CompanionView } from "./agent-context";
-import { learnerAvailability } from "./agent-availability";
 
 export function CompanionAvatar({ thinking = false }: { thinking?: boolean }) {
   return <svg viewBox="0 0 88 94" fill="none" aria-hidden="true" className={thinking ? "companion-avatar is-thinking" : "companion-avatar"}>
@@ -32,16 +31,59 @@ type CompanionProps = {
   onHandoff(value: string): void; busy: boolean; partial: string; error: string | null;
   pendingQuestion?: string | null; task: string | null; enabled: boolean; reason: string | null;
   contextLabel?: string;
+  learningContext?: AgentLearningContext; roleName?: string; availability?: AgentWorkspace["availability"];
+  loading?: boolean; onRefresh?(): void;
   deep: boolean; onDeep(value: boolean): void; reducedMotion: boolean; onReducedMotion(value: boolean): void;
 };
+function safeResourceUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password ? url.href : null;
+  } catch { return null; }
+}
+function CompanionLearningContext({ context, roleName, contextLabel }: { context: AgentLearningContext; roleName?: string; contextLabel?: string }) {
+  const resources = context.task ? context.resources.flatMap(resource => {
+    const href = safeResourceUrl(resource.url);
+    return href ? [{ ...resource, href }] : [];
+  }) : [];
+  const noTask = context.totalUnits > 0 && context.completedUnits >= context.totalUnits
+    ? "这条路线的任务已完成" : "今日暂无待学任务";
+  return <details className="companion-context">
+    <summary>
+      {contextLabel && contextLabel !== "当前计划" && <span className="companion-context-note">{contextLabel}</span>}
+      <span className="companion-context-heading"><strong>{roleName || "当前学习路线"}</strong><span>路线与资料</span></span>
+      <span className="companion-current-task">{context.task ? <><span>当前任务</span><strong>{context.task.title}</strong></> : <strong>{noTask}</strong>}</span>
+    </summary>
+    <div className="companion-context-details">
+      <p className="companion-context-meta"><span>{context.source === "research" ? "Research 路线" : "内置路线"}</span><span>已完成 {context.completedUnits} / {context.totalUnits} 项</span></p>
+      {context.task ? <p className="companion-context-date">任务计划日期：<time dateTime={context.task.scheduledDate}>{context.task.scheduledDate}</time></p>
+        : <p className="companion-context-date">仍可围绕现有路线和已学内容提问。</p>}
+      {resources.length > 0 && <ul className="companion-resources" aria-label="当前任务资料">{resources.map(resource =>
+        <li key={resource.id}><a href={resource.href} target="_blank" rel="noopener noreferrer">
+          <span>{resource.title} ↗</span><small>{resource.provider}</small>
+        </a></li>)}</ul>}
+    </div>
+  </details>;
+}
 export function CompanionPanel(props: CompanionProps) {
   const input = useRef<HTMLTextAreaElement>(null), end = useRef<HTMLDivElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
+  const availability = props.availability ?? (props.enabled ? "ready" : "disabled");
+  const canReply = props.enabled && availability === "ready" && !props.loading;
+  const readError = Boolean(props.error && !props.enabled && !props.learningContext);
+  const status = props.loading ? "loading" : props.error ? "error" : props.busy ? "replying" : availability;
+  const statusText = props.loading ? "正在读取学习进度…" : props.error ? (readError ? "暂时无法读取进度" : "回复未完成，可重试")
+    : props.busy ? "正在回复…" : availability === "needs_setup" ? "尚未建立学习路线"
+      : availability === "disabled" ? "AI 答疑未启用" : "一起弄懂每一步";
+  const showContext = !props.loading && !readError && availability !== "needs_setup";
+  const task = showContext ? (props.learningContext ? props.learningContext.task?.title : props.task) : null;
+  const suggestions = task ? ["解释当前任务", "给我一个例子", "帮我拆解任务"] : ["帮我梳理学习思路", "给我一个例子", "帮我复习已学内容"];
+  const submit = () => { if (canReply && !props.busy && props.draft.trim()) props.onSend(); };
   const restore = useRef<HTMLButtonElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLElement>(null);
   const overlay = useCompanionOverlay();
-  useEffect(() => { if (props.view === "chat") (props.enabled ? input.current : close.current)?.focus(); }, [props.view, props.enabled, overlay]);
+  useEffect(() => { if (props.view === "chat") (canReply ? input.current : close.current)?.focus(); }, [props.view, canReply, overlay]);
   useEffect(() => {
     if (props.view !== "chat" || !overlay) return;
     const previous = document.body.style.overflow;
@@ -65,15 +107,17 @@ export function CompanionPanel(props: CompanionProps) {
         }
       }}>
       <header className="companion-heading">
-        <div><span className="companion-status-dot" /><strong id="companion-title">学习伙伴</strong><small>一起弄懂每一步</small></div>
+        <div><span className={`companion-status-dot is-${status}`} aria-hidden="true" /><strong id="companion-title">学习伙伴</strong><small>{statusText}</small></div>
         <div className="companion-window-actions">
           <button ref={close} type="button" onClick={minimize} aria-label="最小化学习伙伴">×</button>
         </div>
       </header>
-      <div className="companion-task"><span>{props.contextLabel ?? "当前计划"}</span><strong>{props.task ?? "学习目标与当前进度"}</strong></div>
+      <div className="companion-content">
+      {showContext && (props.learningContext ? <CompanionLearningContext context={props.learningContext} roleName={props.roleName} contextLabel={props.contextLabel} />
+        : props.task && <div className="companion-task"><span>{props.contextLabel ?? "当前计划"}</span><strong>{props.task}</strong></div>)}
       <div className="companion-messages" role="log" aria-label="答疑记录" aria-live="polite" aria-relevant="additions">
-        {props.enabled && props.messages.length === 0 && !props.pendingQuestion && <div className="companion-empty">
-          <CompanionAvatar /><h2>卡住的地方，<br />我们一起拆开看。</h2><p>概念、代码，或今天的第一步。<br />随时把问题交给我。</p>
+        {canReply && props.messages.length === 0 && !props.pendingQuestion && <div className="companion-empty">
+          <CompanionAvatar /><h2>卡住的地方，<br />我们一起拆开看。</h2><p>概念、练习，或学习的下一步。<br />随时把问题交给我。</p>
         </div>}
         {props.messages.map(message => <div className="companion-turn" key={message.id}>
           <p className="companion-question">{message.message}</p>
@@ -85,17 +129,20 @@ export function CompanionPanel(props: CompanionProps) {
           {props.partial ? <AnswerText text={props.partial} /> : props.busy && <p className="companion-thinking">正在整理思路<span>…</span></p>}</div>}
         <div ref={end} />
       </div>
-      {!props.enabled && !props.error && <div className="companion-notice" role="status"><strong>{learnerAvailability(props.reason)}</strong><p>今日任务、学习资料和已有记录仍可继续使用。</p><Link href="/today" onClick={minimize}>回到今日学习 ↗</Link></div>}
-      {props.error && <p className="companion-error" role="alert">{props.error}</p>}
-      {props.enabled && <div className="companion-suggestions">{["解释当前任务", "给我一个例子", "帮我看报错"].map(text =>
+      </div>
+      {!props.loading && !props.error && availability === "needs_setup" && <p className="companion-notice">先建立学习路线，伙伴就能结合你的任务答疑。 <Link href="/setup" onClick={minimize}>学习设置 ↗</Link></p>}
+      {!props.loading && !props.error && availability === "disabled" && <p className="companion-notice">AI 答疑尚未启用，学习路线和资料仍可查看</p>}
+      {!props.loading && props.error && <p className="companion-error" role="alert">{props.error}
+        {readError && props.onRefresh && <button type="button" onClick={props.onRefresh}>重新读取</button>}</p>}
+      {canReply && <div className="companion-suggestions">{suggestions.map(text =>
         <button key={text} type="button" disabled={props.busy} onClick={() => { props.onDraft(text); input.current?.focus(); }}>{text}</button>)}</div>}
-      <form className="companion-composer" onSubmit={event => { event.preventDefault(); props.onSend(); }}>
-        <textarea ref={input} disabled={!props.enabled} aria-label="向学习伙伴提问" placeholder={props.enabled ? "从哪里开始不太明白？" : "服务开放后可在这里提问"} rows={2} maxLength={6000}
+      <form className="companion-composer" onSubmit={event => { event.preventDefault(); submit(); }}>
+        <textarea ref={input} disabled={!canReply} aria-label="向学习伙伴提问" placeholder={canReply ? "从哪里开始不太明白？" : "服务可用后可在这里提问"} rows={2} maxLength={6000}
           value={props.draft} onChange={event => props.onDraft(event.target.value)}
-          onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (props.enabled && !props.busy) props.onSend(); } }} />
-        <div className="companion-compose-actions"><label><input type="checkbox" disabled={!props.enabled} checked={props.deep} onChange={event => props.onDeep(event.target.checked)} />深入讲解</label>
+          onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); submit(); } }} />
+        <div className="companion-compose-actions"><label><input type="checkbox" disabled={!canReply} checked={props.deep} onChange={event => props.onDeep(event.target.checked)} />深入讲解</label>
           {props.busy ? <button type="button" className="companion-send" onClick={props.onStop}>停止回复</button>
-            : <button type="submit" className="companion-send" aria-label="发送消息" disabled={!props.enabled || !props.draft.trim()}>发送 ↑</button>}</div>
+            : <button type="submit" className="companion-send" aria-label="发送消息" disabled={!canReply || !props.draft.trim()}>发送 ↑</button>}</div>
       </form>
       <footer className="companion-footer">
         <label><input type="checkbox" checked={props.reducedMotion} onChange={event => props.onReducedMotion(event.target.checked)} />减少动效</label>
@@ -118,7 +165,9 @@ export function AgentCompanion() {
     error={state.error} task={state.workspace?.currentTask ?? null}
     contextLabel={path === "/history" ? "当前计划 · 非历史记录" : "当前计划"}
     enabled={Boolean(state.workspace?.enabled && state.workspace.authenticated && state.workspace.goalId)}
-    reason={state.loading ? "正在读取学习进度…" : state.workspace?.reason ?? null}
+    reason={state.workspace?.reason ?? null} loading={state.loading} onRefresh={() => void state.refresh()}
+    learningContext={state.workspace?.learningContext} roleName={state.workspace?.roleName}
+    availability={state.workspace?.availability ?? (state.workspace && !state.workspace.goalId ? "needs_setup" : undefined)}
     deep={state.deep} onDeep={state.setDeep} reducedMotion={state.reducedMotion} onReducedMotion={state.setReducedMotion}
     onHandoff={value => { state.setHandoff(value); state.setView("pet"); router.push("/coach"); }} />;
 }

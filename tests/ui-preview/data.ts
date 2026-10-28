@@ -25,4 +25,10 @@ export const unavailableAgents = {
   roleName: "数据产品经理", currentTask: unit.objective,
   history: [], reason: "学习助手尚未启用，配置模型服务后即可使用。",
   plannerModel: "local-preview", tutorModel: "local-preview",
+  learningContext: {
+    source: fixture.sourceContext.reference.source, date: "2026-10-28", timeZone: "Asia/Shanghai",
+    completedUnits: 0, totalUnits: fixture.workspace.pathVersions.find(path => path.id === fixture.workspace.activePathVersionId)!.units.length,
+    task: { id: unit.id, title: template.title, scheduledDate: unit.scheduledDate },
+    resources: fixture.sourceContext.blueprint.resources.filter(resource => resource.id === unit.primaryResourceId || unit.alternativeResourceIds.includes(resource.id)),
+  },
 };
