@@ -192,7 +192,10 @@ function SessionSetupPage({ userId, research, eligible, onResearchActiveChange }
 
   return (
     <main className="setup-page" id="main-content" tabIndex={-1}>
-      <Link className="wordmark setup-wordmark" href="/" lang="en">Arc.</Link>
+      <header className="setup-page-header">
+        <Link className="wordmark setup-wordmark" href="/" lang="en" aria-label="Arc. 首页">Arc.</Link>
+        <Link className="setup-route-back" href="/path"><span aria-hidden="true">←</span> 返回学习路线</Link>
+      </header>
       {mode === null ? <p role="status">正在准备设置…</p> : mode === "time" ? <TimeEditFlow draftOwner={draftOwner} signedIn={userId !== null} onResearchActiveChange={onResearchActiveChange} /> : <CreationGuard enabled={mode === "create"} signedIn={userId !== null} arc={arc} draftOwner={draftOwner} creationStartedHere={creationStartedHere} render={(allowBasic) => <SetupFlow basicCreationAllowed={allowBasic} onComplete={allowBasic ? finish : async () => { setSaveError("当前已有学习计划。请通过岗位研究创建新目标，或返回当前路线调整时间。"); }} draftOwner={draftOwner} creationMode={mode === "create"}
         recoveredResearch={research.run && research.planningData ? { runId: research.run.id, planningData: research.planningData } : null} signedIn={userId !== null} researchEligible={eligible}
         researchRecoveryAvailable={research.restoring || research.run !== null || research.error !== null || research.recoveryUncertain || research.replacementPending}
@@ -220,5 +223,5 @@ function CurrentGoalCreationGuard({ signedIn, arc, draftOwner, creationStartedHe
   if (!canRecoverCreation && (arc.source === "offline-cloud" || (!confirmedMissing && (planning.source === "offline-cloud" || (planning.recovery && planning.recovery !== "none"))))) return <section className="setup-flow"><h1>创建新的学习目标</h1><p role="alert">暂时无法确认当前计划，请先重新读取。</p><button type="button" onClick={() => void planning.retry()}>重新读取计划</button><Link href="/path">查看当前路线</Link></section>;
   const legacyGoal = !planning.workspace && (signedIn ? arc.source === "cloud" : arc.state !== null && hasMeaningfulDemoState(arc.state));
   if (legacyGoal && !canRecoverCreation) return <section className="setup-flow"><h1>先继续当前路线</h1><p>你已有一个基础学习目标，暂不支持将它归档后另存新路线。当前目标和学习记录会继续保留。</p><Link className="text-action" href="/path">查看当前路线</Link><Link className="text-action" href="/today">开始今日任务</Link></section>;
-  return <>{planning.workspace && !pendingCreation && <aside className="setup-create-notice"><h2>创建新的学习目标</h2><p>{signedIn ? "通过岗位研究创建新目标后，当前计划会归档，已完成的记录仍可在历史中查看。精选路径与基础路径暂不支持创建新目标。" : "此设备已有学习计划，暂不支持将本地计划归档后创建新目标。你可以继续当前路线。"}</p><Link href="/path">查看当前路线</Link></aside>}{render(Boolean(pendingCreation) || !planning.workspace)}</>;
+  return <>{planning.workspace && !pendingCreation && <aside className="setup-create-notice"><h2>创建新的学习目标</h2><p>{signedIn ? "通过岗位研究创建新目标后，当前计划会归档，已完成的记录仍可在历史中查看。精选路径与基础路径暂不支持创建新目标。" : "此设备已有学习计划，暂不支持将本地计划归档后创建新目标。你可以继续当前路线。"}</p></aside>}{render(Boolean(pendingCreation) || !planning.workspace)}</>;
 }

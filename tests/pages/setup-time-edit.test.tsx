@@ -67,7 +67,7 @@ describe("time-only setup editing", () => {
     expect(await screen.findByRole("heading", { name: "创建新的学习目标" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "AI 原生全栈工程师" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "继续" })).toBeDisabled();
-    expect(screen.getByRole("link", { name: "查看当前路线" })).toHaveAttribute("href", "/path");
+    expect(screen.getByRole("link", { name: "返回学习路线" })).toHaveAttribute("href", "/path");
     expect(state.planning.generate).not.toHaveBeenCalled();
   });
 
