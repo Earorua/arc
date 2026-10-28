@@ -1,5 +1,7 @@
 # Arc UI 优化交付记录
 
+> 2026-10-28 正式发布更新：已合并当前生产学习伙伴功能，以应用提交 `fc9be49` 发布到 https://arcmaps.net 。新 Site 版本 `09769554-b2dd-4ff5-a09c-2be000d11a97` 已接收全部流量。发布过程、最新验证与回退基线见 [正式发布记录](../../operations/ui-refinement-release-2026-10-28.md)。以下为此前实现阶段的历史记录，“未发布”“合成数据预览”仅描述当时状态。
+
 基线：发布备份及 clean-checkout 修正 `a0fe017`。分支：`codex/ui-warm-precision-20261028`。
 
 ## 实现内容
