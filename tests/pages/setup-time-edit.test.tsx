@@ -6,6 +6,7 @@ import { createLocalPlanningRepository } from "../../app/lib/planning/local-repo
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { PLANNING_SCHEMA_VERSION, type PlanningEventInput } from "../../app/contracts/planning";
 import type { PlanningWorkspaceController } from "../../app/lib/use-planning-workspace";
+import { createDemoState, loadDemoState, saveDemoState } from "../../app/lib/demo-store";
 
 const state = vi.hoisted(() => ({ planning: null as unknown as PlanningWorkspaceController, push: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: state.push }) }));
@@ -35,6 +36,36 @@ beforeEach(async () => {
 afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); if (locksDescriptor) Object.defineProperty(navigator, "locks", locksDescriptor); else Reflect.deleteProperty(navigator, "locks"); });
 
 describe("time-only setup editing", () => {
+  it("updates a basic plan's time without replacing its goal or completed work", async () => {
+    state.planning.workspace = null;
+    const retained = { ...createDemoState(), setup: { ...createDemoState().setup, roleId: "basic-custom-role" }, completedUnitIds: ["completed-basic-unit"] };
+    saveDemoState(retained);
+    render(<SetupPage />);
+    const minutes = await screen.findByLabelText("每周可用分钟");
+    expect(minutes).toHaveValue(420);
+    fireEvent.change(minutes, { target: { value: "300" } });
+    await userEvent.click(screen.getByRole("button", { name: "保存时间" }));
+    await waitFor(() => expect(loadDemoState()).toEqual({ ...retained, setup: { ...retained.setup, weeklyMinutes: 300 } }));
+    expect(await screen.findByRole("status")).toHaveTextContent("时间已保存");
+    expect(state.planning.generate).not.toHaveBeenCalled();
+    expect(state.planning.record).not.toHaveBeenCalled();
+  });
+
+  it("does not save invalid or cancelled basic time edits", async () => {
+    state.planning.workspace = null;
+    const retained = { ...createDemoState(), setup: { ...createDemoState().setup, roleId: "basic-custom-role" } };
+    saveDemoState(retained);
+    const view = render(<SetupPage />);
+    fireEvent.change(await screen.findByLabelText("每周可用分钟"), { target: { value: "0" } });
+    expect(screen.getByRole("button", { name: "保存时间" })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("每周可用分钟"), { target: { value: "300" } });
+    const cancel = screen.getByRole("link", { name: "取消，返回路线" });
+    cancel.addEventListener("click", (event) => event.preventDefault());
+    await userEvent.click(cancel);
+    view.unmount();
+    expect(loadDemoState()).toEqual(retained);
+  });
+
   it("restores unsent time edits after refresh and clears them on explicit cancel", async () => {
     const user = userEvent.setup();
     const view = render(<SetupPage />);

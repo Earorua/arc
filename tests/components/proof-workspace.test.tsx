@@ -52,6 +52,31 @@ function renderWorkspace(options: Partial<React.ComponentProps<typeof ProofWorks
 }
 
 describe("ProofWorkspace", () => {
+  it("restores the goal draft when the ledger arrives after the compose page mounts", () => {
+    window.history.replaceState(null, "", "/proof?compose=1");
+    const draftKey = "arc:proof-editor:v1:owner-a:goal-1:compose:general";
+    sessionStorage.setItem(draftKey, JSON.stringify({ title: "Retained draft", summary: "Saved before refresh", kind: "reflection", artifactUrl: "", assetId: null, skillId: "react", dailyUnitId: "", visibility: "private", validatorKey: "" }));
+    const props = { ...callbacks(), ownerKey: "owner-a", canUpload: true, dailyUnits: [], projections: [], recovery: "none" as const, skills: flagshipRole.skills };
+    const view = render(<ProofWorkspace {...props} source="restoring" workspace={null} />);
+    expect(screen.getByLabelText("作品标题")).toBeDisabled();
+    view.rerender(<ProofWorkspace {...props} source="cloud" workspace={workspace([], [])} />);
+    expect(screen.getByLabelText("作品标题")).toHaveValue("Retained draft");
+    expect(screen.getByLabelText("作品说明")).toHaveValue("Saved before refresh");
+    expect(props.createProof).not.toHaveBeenCalled();
+  });
+
+  it("does not carry an unsaved compose form into another goal", () => {
+    window.history.replaceState(null, "", "/proof?compose=1");
+    const props = { ...callbacks(), ownerKey: "owner-a", canUpload: true, dailyUnits: [], projections: [], recovery: "none" as const, skills: flagshipRole.skills, source: "cloud" as const };
+    const view = render(<ProofWorkspace {...props} workspace={workspace([], [])} />);
+    fireEvent.change(screen.getByLabelText("作品标题"), { target: { value: "First goal draft" } });
+    view.rerender(<ProofWorkspace {...props} workspace={{ ...workspace([], []), goalId: "goal-2" }} />);
+    expect(screen.getByLabelText("作品标题")).toHaveValue("");
+    expect(sessionStorage.getItem("arc:proof-editor:v1:owner-a:goal-2:compose:general")).toBeNull();
+    view.rerender(<ProofWorkspace {...props} workspace={workspace([], [])} />);
+    expect(screen.getByLabelText("作品标题")).toHaveValue("First goal draft");
+  });
+
   it("leads with inspectable work and folds the immutable version history", () => {
     renderWorkspace({ workspace: workspace() });
     const proof = screen.getByRole("article", { name: "Accessible request trace" });

@@ -186,7 +186,7 @@ function ProofWorkspaceContent(props: Props) {
         draftKey={draftKey}
         initial={revising && latest ? { ...latest, visibility } : null}
         contextualUnit={contextualUnit}
-        key={`${props.ownerKey ?? "unscoped"}:${revising ? latest?.id : contextualUnit?.id ?? "new"}`}
+        key={draftKey ?? `${props.workspace?.goalId ?? "new"}:${revising ? latest?.id : contextualUnit?.id ?? "new"}`}
         onCancel={revising && latest ? () => navigate({ proof: latest.proofId }, "revision") : undefined}
         onSave={save}
         onUpload={(file) => revising && latest ? upload(latest.proofId, file) : Promise.resolve(null)}

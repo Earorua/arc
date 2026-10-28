@@ -53,7 +53,7 @@ describe("sign-in destination", () => {
 
   it.each([
     [{ workspace: { id: "existing-plan" } }, "/today"],
-    [{ workspace: null }, "/setup"],
+    [{ workspace: null, sourceContext: null }, "/today"],
   ])("resolves the actual account plan after a source-free login", async (response, destination) => {
     signedIn(); mocks.search = "complete=1"; mocks.loadWorkspace.mockResolvedValue(response);
     render(<SignInPage />);

@@ -42,8 +42,10 @@ export default function SignInPage() {
       return () => controller.abort();
     }
     void planningClient.loadWorkspace(controller.signal)
-      .then(({ workspace }) => {
-        if (!controller.signal.aborted) replace(workspace ? "/today" : "/setup");
+      .then(() => {
+        // A successful lookup can be an existing basic goal without an adaptive workspace.
+        // Only the explicit missing-goal response below means setup is required.
+        if (!controller.signal.aborted) replace("/today");
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
