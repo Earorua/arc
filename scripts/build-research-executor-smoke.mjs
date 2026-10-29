@@ -16,7 +16,7 @@ const reviewed = {
   [importers[1]]: "308ece929d8fd05a97386694a222ec6ae5b809e34b868fff75b2d52e2fc3821d",
   [productionRuntime]: "30892dedaa931e5c3972d50e5a211c716fad0e62b06b3c73f64819ec083f1945",
   "worker/research-executor/workflow-policy.ts": "81464e2661d154a18108df30c20d036356a94c4eb0d6c135e424e9289de8b0e1",
-  "app/server/research/openrouter-provider.ts": "5e762073cd357184f1925ecc412c9fcd8e06433351e4aba56b70ae8a43cc1a8d",
+  "app/server/research/openrouter-provider.ts": "d0c962c1ba0bcaf2e87119e40b982e0ebe6560d67ddcc662530b21db4ed7c54d",
   [cloudTiming]: "7ed8d3e62efe459ac1121b9e14777093f1ab42e77071cc06e524a229adec9610",
 };
 const portable = path => relative(root, resolve(root, path)).split(sep).join("/");

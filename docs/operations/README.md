@@ -1,11 +1,19 @@
 # Arc 操作记录与历史索引
 
-当前正式站为 [arcmaps.net](https://arcmaps.net)。截至 2026-10-28，北京时间 21:25 发布的全站体验优化版已包含当天学习伙伴、Discovery 主题和首次加载修订。先读最新发布记录和恢复检查点；旧记录中的“下一步”“待批准”“当前版本”和进程编号描述的是记录当时的状态，不覆盖较新的用户授权和检查点。
+当前正式入口为 [arcmaps.net](https://arcmaps.net)。本源码中最新发布记录为 2026-10-29 的首页方法入口精简，应用提交 `a826114`；已包含学习伙伴、Discovery 主题、工作区改版、当天 Research 修正及后续导航调整。先读对应发布记录；旧记录中的“下一步”“待批准”“当前版本”和进程编号描述的是记录当时的状态，不覆盖较新的用户授权和检查点。
+
+项目介绍与开发说明：[English](../../README.md) · [简体中文](../../README.zh-CN.md)。
 
 | 用途 | 入口 |
 | --- | --- |
+| 最新源码、双语 README 与本次验证 | [2026-10-29 源码验证记录](../verification/2026-10-29-source-readme.md) |
+| 最新记录的正式版本与首页方法入口 | [2026-10-29 首页方法入口验收](../verification/2026-10-29-home-method-entry.md) |
+| 首页学习和样例入口 | [首页学习入口](../verification/2026-10-29-home-learning-action.md)、[首页样例入口](../verification/2026-10-29-home-showcase-entry.md) |
+| 工作区导航与学习入口精简 | [工作区操作精简](../verification/2026-10-29-workspace-control-simplification.md)、[学习入口发布](learning-entry-simplification-2026-10-29.md) |
+| Research 响应兼容修正与验证范围 | [2026-10-29 Research 修正](research-response-recovery-2026-10-29.md) |
+| 本地烟雾测试 nonce 持久化修正 | [2026-10-29 Windows 修复](smoke-nonce-persistence-fix-2026-10-29.md) |
 | 完整源码整合、合并前修复及验证 | [2026-10-28 GitHub 整合记录](github-integration-2026-10-28.md) |
-| 最新正式版本、验证范围、回退约束 | [2026-10-28 全站体验优化发布](experience-redesign-release-2026-10-28.md) |
+| 前序工作区改版、验证范围、回退约束 | [2026-10-28 全站体验优化发布](experience-redesign-release-2026-10-28.md) |
 | 学习伙伴与规划师配置、开启验收 | [2026-10-28 学习伙伴发布](learning-companion-release-2026-10-28.md) |
 | 本轮逐项改动与浏览器验收 | [体验优化补齐记录](../superpowers/plans/2026-10-28-experience-completion-delivery.md) |
 | 当前停点、已完成任务、恢复指令 | [v8 恢复检查点](v8-resume-checkpoint.md) |
