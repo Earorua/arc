@@ -37,5 +37,17 @@ No new paid Research attempt, budget increase, raw-response retention, credentia
 - Regression tests first failed on the demonstrated blank-title rejection and misleading preflight/UI state; 14 affected suites then passed, 397 tests.
 - TypeScript and changed-file ESLint passed. Existing SQLite experimental and intentional rejection-test logs remain informational.
 - Site and executor candidate built on D: and passed manifest checks: 353 artifacts, manifest SHA256 893605d5601eb9577e07323bfbf5564a183848684028a66b0c1d456b0de54275.
-- Live read-only preflight verified the existing Site (44 bindings), executor (14 bindings), and zero active Research runs. Production deployment is pending at this checkpoint.
+- Live read-only preflight verified the existing Site (44 bindings), executor (14 bindings), and zero active Research runs before release.
 - The panel and its test use LF line endings; other production behavior is unchanged beyond the scoped repair.
+
+## Published and verified
+
+Released on 2026-10-29; final native readback completed at 16:31 China Standard Time. Application commit: `513d84f6a6dbd775158b5b09972753f73fb47875`, branch `codex/research-response-recovery-20261029`.
+
+- Site version: `149f4e31-d1da-416a-96a1-7a628e141eaf`, deployment `4e67c6ab-4df2-42f0-9c5b-96ef5df6eb83`, 100% traffic.
+- Executor version: `60b176c2-be13-4df2-8743-c899b596f6d4`, deployment `b26dda72-7151-470a-aafd-c693ea259884`, 100% traffic.
+- Both deployment dry runs passed. After publication, all 44 Site bindings and 14 executor bindings, plus runtime configuration, matched the pre-release state. No database/schema, secret, budget, access or source-authority setting changed.
+- In the authenticated in-app browser, refreshed `/setup?step=goal`, minimized the overlapping learning companion, entered the previous role `AI工程师`, and verified the enabled “研究这个岗位” button. Recent captured browser errors: 0. Did not click Research or a learning-partner send action.
+- The historical failed run remains failed and has no recoverable candidate. A new paid end-to-end Research has **not** been run. The repair is verified with local synthetic provider/import tests, production build, native deployment readback and UI availability; it does not guarantee every future model response will pass quality checks.
+- Evidence and screenshot: `D:/CodexTemp/arc-research-diagnostic-20261029`; sealed candidate: `D:/CodexTemp/arc-research-candidates/response-recovery-20261029-r1`. Do not replay the consumed deployment scripts.
+- Previous versions for deliberate rollback assessment: Site `34170daa-a865-410c-91de-125edac48956`; executor `58ce29e7-80df-4d78-8a28-c7dcdf614555`. These contain the old citation handling. No automatic rollback or paid retry is scheduled.
