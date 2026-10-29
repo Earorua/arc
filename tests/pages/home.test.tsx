@@ -16,8 +16,9 @@ describe("Arc home", () => {
     render(<Home />);
     expect(mocks.replace).not.toHaveBeenCalled();
     const actions = await within(screen.getByRole("main")).findAllByRole("link", { name: "继续学习" });
-    expect(actions).toHaveLength(2);
+    expect(actions).toHaveLength(1);
     for (const action of actions) expect(action).toHaveAttribute("href", "/today");
+    expect(document.querySelectorAll('a[href="/today"]')).toHaveLength(1);
     expect(screen.queryByRole("link", { name: /创建学习路线/ })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: /Learn only what moves you forward/i })).toBeInTheDocument();
   });
@@ -40,8 +41,8 @@ describe("Arc home", () => {
       (await screen.findAllByRole("link", { name: "创建学习路线" }))[0],
     ).toHaveAttribute("href", "/setup");
     const actions = screen.getAllByRole("link", { name: "创建学习路线" });
-    expect(actions.filter(action => action.classList.contains("primary-action"))).toHaveLength(1);
-    expect(actions[1]).toHaveClass("learning-entry-text");
+    expect(actions).toHaveLength(1);
+    expect(actions[0]).toHaveClass("primary-action");
     expect(screen.getByText("Understand")).toBeInTheDocument();
     expect(screen.getByText("Build")).toBeInTheDocument();
     expect(screen.getByText("Prove")).toBeInTheDocument();

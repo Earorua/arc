@@ -48,7 +48,8 @@ describe("SiteHeader", () => {
     expect(screen.queryByRole("link", { name: "学习工作区" })).not.toBeInTheDocument();
   });
 
-  it("shows the workspace navigation after sign-in and removes it when the session ends", () => {
+  it.each(["/method", "/showcase"])("keeps workspace navigation on %s after sign-in and removes it when the session ends", (pathname) => {
+    navigation.pathname = pathname;
     const { rerender } = render(<SiteHeader />);
     authMocks.useSession.mockReturnValue({ data: { user: { id: "learner" } }, isPending: false });
     rerender(<SiteHeader />);
@@ -59,6 +60,7 @@ describe("SiteHeader", () => {
   });
 
   it("keeps hydration stable when the session resolves before the header mounts", async () => {
+    navigation.pathname = "/method";
     const container = document.createElement("div");
     container.innerHTML = renderToString(<SiteHeader />);
     expect(container.querySelector('a[href="/today"]')).toBeNull();
