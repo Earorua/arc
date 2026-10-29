@@ -17,6 +17,7 @@ The approved CTA audit reduces repeated creation prompts while keeping a clear r
 - Related page/navigation/empty-state suites: 124 passing cases in 11 files (before adding the final hydration case).
 - Entry + real-client/SQLite setup activation + setup completion: 130 passing cases in 3 files. Integration checks cover locked recovery and guest continuation without local writes. These runs overlap in the entry suite; they are not additive independent totals.
 - TypeScript and changed-file ESLint pass. Independent review reports no remaining P1/P2 in this scope.
+- Sealed candidate `D:/CodexTemp/arc-research-candidates/entry-simplification-20261029-r1`: 361 artifacts, manifest SHA256 `84249faf6483e1885d29d6e81696f221b26c7c937402919d86f27f0cbe65f1fd`. All five rendered-bundle checks pass against that exact output. The executor artifact hash exactly matches the already deployed October 29 candidate.
 - Local browser confirms removed Method/Showcase introduction prompts. Local auth is unavailable, so the public action correctly offers state-read retry; successful account states are verified by the tests and production readback.
 
 ## Release boundary
