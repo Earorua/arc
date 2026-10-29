@@ -29,7 +29,7 @@ const failureCopy: Record<ResearchPublicFailureCategory, string> = {
   "allowance-reached": "本期研究额度已用完。",
   "service-unavailable": "研究服务暂时不可用。",
   "content-rejected": "本次研究结果无法安全使用。",
-  "invalid-result": "本次研究未生成可用结果。",
+  "invalid-result": "本次研究结果未通过检查，未生成新学习计划。已有计划和学习记录不受影响。",
   internal: "Arc 未能完成本次研究。",
 };
 const researchStages = [
@@ -48,7 +48,7 @@ const localizedErrors: Record<string, string> = {
   "Arc could not complete this research request.": "Arc 未能完成本次研究请求。",
   "Arc returned an invalid research response.": "研究响应格式有误，请稍后查询状态。",
 };
-const labels = { idle: "岗位研究 · Beta", submitting: "正在提交研究", queued: "研究已排队", researching: "正在研究技能与来源", validating: "正在核验来源与学习单元", ready: "研究结果已就绪", "needs-review": "研究结果需要复核", failed: "研究暂不可用" };
+const labels = { idle: "岗位研究 · Beta", submitting: "正在提交研究", queued: "研究已排队", researching: "正在研究技能与来源", validating: "正在核验来源与学习单元", ready: "研究结果已就绪", "needs-review": "研究结果需要复核", failed: "本次研究未完成" };
 
 export function RoleResearchPanel({ controller, role, eligible, onStart, onUse, onFlagship }: {
   controller: RoleResearchController; role: string; eligible: boolean;

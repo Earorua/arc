@@ -73,7 +73,7 @@ describe("local response preflight summary", () => {
     expect(result).toMatchObject({
       outcome: "incomplete", reason: "research-failed", runState: "failed",
       researchResponsePreflightDiagnostic: {
-        version: "response-preflight-v1", stage: "complete-content-preflight",
+        version: "response-preflight-v2", stage: "complete-content-preflight",
         annotations: { state: "incompatible", issues: [{ index: 0, code: "title-null" }] },
         candidateSchema: { outcome: "rejected", reason: "schema-rejected",
           issues: [{ path: "evidence", code: "invalid-type" }], truncated: false },
@@ -134,7 +134,7 @@ describe("local response preflight summary", () => {
     expect(result).toMatchObject({
       outcome: "passed", reason: null, runState: "ready", quality: { passed: true, issueCodes: [], issueCount: 0 },
       researchResponsePreflightDiagnostic: {
-        version: "response-preflight-v1", stage: "complete-content-preflight",
+        version: "response-preflight-v2", stage: "complete-content-preflight",
         annotations: { state: "compatible", issues: [], truncated: false },
         candidateSchema: { outcome: "accepted", reason: null, issues: [], truncated: false },
       },
@@ -154,7 +154,7 @@ describe("local response preflight summary", () => {
     expectOneSyntheticRoundTrip(fetch, globalFetch);
   });
 
-  it("distinguishes raw fenced JSON preflight syntax from later normalized acceptance", async () => {
+  it("aligns v2 fenced JSON preflight with actual normalized acceptance", async () => {
     const { result, fetch, globalFetch } = await syntheticRun((payload) => {
       payload.choices[0]!.message.content = `\`\`\`json\n${String(payload.choices[0]!.message.content)}\n\`\`\``;
     });
@@ -162,8 +162,9 @@ describe("local response preflight summary", () => {
     expect(result).toMatchObject({
       outcome: "passed", runState: "ready", quality: { passed: true },
       researchResponsePreflightDiagnostic: {
+        version: "response-preflight-v2",
         annotations: { state: "compatible" },
-        candidateSchema: { outcome: "rejected", reason: "json-syntax", issues: [], truncated: false },
+        candidateSchema: { outcome: "accepted", reason: null, issues: [], truncated: false },
       },
       researchCandidateDiagnostic: { outcome: "accepted", reason: null, issues: [], truncated: false },
       freshAccountActivated: true, planningGenerated: true, databaseDisposed: true,

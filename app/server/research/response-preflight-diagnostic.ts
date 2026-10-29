@@ -1,9 +1,11 @@
-import { candidateFromContent } from "./provider";
+import { candidateFromContent, fitsUtf8, RESEARCH_PROVIDER_LIMITS } from "./provider";
+import { extractResearchJson } from "./research-content";
 import { projectValidationCandidateDiagnostic, type ResearchCandidateDiagnostic } from "./result-diagnostic";
 import { buildAnnotationDiagnostic, projectAnnotationDiagnostic, type AnnotationDiagnostic } from "./annotation-diagnostic";
 
 export type ResearchResponsePreflightDiagnostic = {
-  version: "response-preflight-v1";
+  /** v1 inspected raw content; v2 uses the same extraction as Site import. */
+  version: "response-preflight-v1" | "response-preflight-v2";
   stage: "complete-content-preflight";
   annotations: AnnotationDiagnostic | null;
   candidateSchema: ResearchCandidateDiagnostic | null;
@@ -68,7 +70,8 @@ function withinSerializedLimit(value: ResearchResponsePreflightDiagnostic): bool
 export function projectResponsePreflightDiagnostic(input: unknown): ResearchResponsePreflightDiagnostic | null {
   try {
     const value = safeDataObject(input, RESPONSE_KEYS);
-    if (!value || value.version !== "response-preflight-v1" || value.stage !== "complete-content-preflight") return null;
+    if (!value || (value.version !== "response-preflight-v1" && value.version !== "response-preflight-v2")
+      || value.stage !== "complete-content-preflight") return null;
     let annotations: AnnotationDiagnostic | null = null;
     if (value.annotations !== null) {
       const safe = safeAnnotationInput(value.annotations);
@@ -83,7 +86,7 @@ export function projectResponsePreflightDiagnostic(input: unknown): ResearchResp
       candidateSchema = projectValidationCandidateDiagnostic(safe);
       if (!candidateSchema) return null;
     }
-    const projected: ResearchResponsePreflightDiagnostic = { version: "response-preflight-v1",
+    const projected: ResearchResponsePreflightDiagnostic = { version: value.version,
       stage: "complete-content-preflight", annotations, candidateSchema };
     return withinSerializedLimit(projected) ? projected : null;
   } catch { return null; }
@@ -96,11 +99,14 @@ export function buildResponsePreflightDiagnostic(content: string, annotations: u
   let candidateDiagnostic: ResearchCandidateDiagnostic | null = null;
   try {
     let observed: unknown;
-    candidateFromContent(content, (diagnostic) => { observed = diagnostic; });
+    // Keep the original byte limit even when removing a complete outer code fence.
+    const candidateContent = fitsUtf8(content, RESEARCH_PROVIDER_LIMITS.contentBytes)
+      ? extractResearchJson(content) : content;
+    candidateFromContent(candidateContent, (diagnostic) => { observed = diagnostic; });
     if (observed !== undefined) candidateDiagnostic = projectValidationCandidateDiagnostic(observed);
   } catch { candidateDiagnostic = null; }
   try {
-    return projectResponsePreflightDiagnostic({ version: "response-preflight-v1", stage: "complete-content-preflight",
+    return projectResponsePreflightDiagnostic({ version: "response-preflight-v2", stage: "complete-content-preflight",
       annotations: annotationDiagnostic, candidateSchema: candidateDiagnostic });
   } catch { return null; }
 }

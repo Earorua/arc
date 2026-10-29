@@ -10,6 +10,7 @@ import { buildResponseFormatDiagnostic, type ResponseFormatDiagnostic } from "./
 import { KIMI_RESEARCH_EXECUTION_POLICY, resolveResearchExecutionPolicy,
   type KimiResearchExecutionPolicy } from "./execution-policy";
 import { canonicalizePublicCitationUrl } from "./source-audit";
+import { needsCitationTitleFallback } from "./citation-title";
 import { RESEARCH_SOURCE_AUTHORITY_POLICY } from "./source-authority";
 import { classifyNativeTransportError, projectTransportDiagnostic, TRANSPORT_DIAGNOSTIC_MAX_ELAPSED_MS,
   TRANSPORT_DIAGNOSTIC_V2_MAX_ELAPSED_MS,
@@ -437,7 +438,7 @@ function readResponse(value: unknown, status: number, repair: boolean,
     if (annotation?.type !== "url_citation") continue;
     const citation = record(annotation.url_citation);
     let title = citation?.title;
-    if (title === undefined) {
+    if (needsCitationTitleFallback(title)) {
       const parsedUrl = providerCitationAnnotationSchema.shape.url.safeParse(citation?.url);
       if (!parsedUrl.success) { observe("annotations-invalid"); return fail("invalid-transport"); }
       try { title = new URL(canonicalizePublicCitationUrl(parsedUrl.data)).hostname; }

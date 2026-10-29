@@ -179,7 +179,7 @@ describe("OpenRouter nested citation response compatibility", () => {
   });
 
   it.each(entrypoints.flatMap((entrypoint) => [
-    [entrypoint, "null", null], [entrypoint, "blank", " "], [entrypoint, "number", 42],
+    [entrypoint, "null", null], [entrypoint, "number", 42],
     [entrypoint, "overlong", "x".repeat(501)],
   ] as const))("does not replace a $1 supplied title through $0.name", async (entrypoint, _label, title) => {
     const fetch = fetchReturning(providerResponse([nested("https://example.com/guide", title)]));
@@ -195,6 +195,33 @@ describe("OpenRouter nested citation response compatibility", () => {
     expect(error).toMatchObject({ charged: true, actualModel: "moonshotai/kimi-k3", usage: SAFE_USAGE });
     expect(fetch).toHaveBeenCalledOnce();
   });
+
+  it.each(entrypoints.flatMap((entrypoint) => ["", " \t\r\n", "\u2003"].map((title) => ({ entrypoint, title }))))(
+    "retains all 50 citations when title 28 is blank through $entrypoint.name", async ({ entrypoint, title }) => {
+      const citations = Array.from({ length: 50 }, (_, index) => nested(
+        `https://ocw.mit.edu/courses/fixture-${index}/`, index === 27 ? title : `Course ${index}`,
+      ));
+      const fetch = fetchReturning(providerResponse(citations));
+      const result = await entrypoint.create(fetch).research(REQUEST);
+      expect(result.annotations).toHaveLength(50);
+      expect(result.annotations[27]).toEqual({ type: "url_citation", title: "ocw.mit.edu",
+        url: "https://ocw.mit.edu/courses/fixture-27/" });
+      expect(result.annotations[26]?.title).toBe("Course 26");
+      expect(result.content).toBe(JSON.stringify(validResearchCandidate));
+      expect(result.usage).toEqual(SAFE_USAGE);
+      expect(fetch).toHaveBeenCalledOnce();
+    },
+  );
+
+  it.each(["https://127.0.0.1/private", "https://service.local/path", "http://example.com/path",
+    "https://user:password@example.com/path", "https://example.com/path?api_key=secret-value"])(
+    "rejects a blank title when the fallback URL is unsafe: %s", async (url) => {
+      const fetch = fetchReturning(providerResponse([nested(url, " ")]));
+      const error = await providerFailure(entrypoints[1].create(fetch));
+      expect(error).toMatchObject({ charged: true, usage: SAFE_USAGE });
+      expect(fetch).toHaveBeenCalledOnce();
+    },
+  );
 
   it("preserves annotation diagnostics and audited charges on an invalid fallback URL", async () => {
     const diagnostics: ProviderResultDiagnostic[] = [];
@@ -237,6 +264,21 @@ describe("OpenRouter nested citation response compatibility", () => {
 });
 
 describe("synthetic local response compatibility validation", () => {
+  it("imports a complete fenced candidate with blank citation titles without another model call", async () => {
+    const { applicationFetch, injectedFetch, result } = await validationRun((payload) => {
+      const message = payload.choices[0]!.message;
+      message.content = `\`\`\`json\n${message.content}\n\`\`\``;
+      for (const annotation of message.annotations) if (annotation.url_citation) annotation.url_citation.title = " ";
+    });
+    expect(result).toMatchObject({ outcome: "passed", runState: "ready", planningGenerated: true,
+      quality: { passed: true, issueCodes: [] }, repairRequestCount: 0, researchRequestCount: 1,
+      reservation: { status: "settled", settledMicros: 100_000 },
+      researchResponsePreflightDiagnostic: { version: "response-preflight-v2", candidateSchema: { outcome: "accepted" } },
+    });
+    expect(result.planningUnitCount).toBeGreaterThan(0);
+    expect(injectedFetch).toHaveBeenCalledTimes(2);
+    expect(applicationFetch).not.toHaveBeenCalled();
+  });
   it("accepts missing titles and server_tool_use_details through the actual adapter, SQLite, audit and planning path", async () => {
     const { applicationFetch, injectedFetch, result } = await validationRun();
     expect(injectedFetch.mock.calls.map(([url, init]) => [url, init?.method])).toEqual([

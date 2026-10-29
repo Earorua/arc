@@ -21,6 +21,21 @@ function makeProvider(fetch: typeof globalThis.fetch, observer?: (value: unknown
 afterEach(() => {vi.restoreAllMocks(); vi.unstubAllGlobals();});
 
 describe('production rejected-response observations', () => {
+  it('accepts a blank citation label through the production Kimi profile with one billed response', async () => {
+    const observer = vi.fn();
+    const payload = await response('valid').json() as { choices: Array<{ message: {
+      annotations: Array<{ type: string; url_citation: { url: string; title: string } }>,
+    } }> };
+    payload.choices[0].message.annotations = [{ type: 'url_citation', url_citation: {
+      url: 'https://ocw.mit.edu/courses/fixture/', title: ' ',
+    } }];
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => Response.json(payload));
+    const result = await makeProvider(fetch, observer).research(request);
+    expect(result.annotations[0]?.title).toBe('ocw.mit.edu');
+    expect(result.usage?.costMicros).toBe(480000);
+    expect(observer).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledOnce();
+  });
   it('reports bounded rejection details while retaining the original failure and charge', async () => {
     const observer=vi.fn();
     const fetch=vi.fn<typeof globalThis.fetch>(async()=>response());

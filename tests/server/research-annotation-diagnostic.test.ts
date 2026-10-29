@@ -32,7 +32,6 @@ describe("annotation preflight diagnostic", () => {
     ["blank URL", nested(" ", "Title"), "url-blank"],
     ["overlong URL", nested("x".repeat(2_049), "Title"), "url-too-long"],
     ["null title", nested("https://example.com", null), "title-null"],
-    ["blank title", nested("https://example.com", " "), "title-blank"],
     ["overlong title", nested("https://example.com", "x".repeat(501)), "title-too-long"],
     ["private fallback URL", nested("https://127.0.0.1/private"), "fallback-url-policy"],
   ] as const)("classifies %s", (_name, input, code) => {
@@ -62,6 +61,13 @@ describe("annotation preflight diagnostic", () => {
     expect(buildAnnotationDiagnostic([nested("https://example.com/path")])?.state).toBe("compatible");
     expect(buildAnnotationDiagnostic([nested("https://127.0.0.1/private", "Private reference")])?.state).toBe("compatible");
     expect(buildAnnotationDiagnostic([nested(" https://example.com/path ", " Valid title ")])?.state).toBe("compatible");
+  });
+
+  it.each(["", " \t\r\n", "\u2003"])("matches safe hostname fallback for blank title %j", (title) => {
+    expect(buildAnnotationDiagnostic([nested("https://ocw.mit.edu/courses/fixture/", title)]))
+      .toMatchObject({ state: "compatible", recognizedCount: 1, issues: [] });
+    expect(buildAnnotationDiagnostic([nested("https://127.0.0.1/private", title)]))
+      .toMatchObject({ state: "incompatible", issues: [issue(0, "fallback-url-policy")] });
   });
 
   it("counts empty, ignored and 256-entry arrays and does not inspect entry 257", () => {
