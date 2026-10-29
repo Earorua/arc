@@ -69,7 +69,10 @@ describe("Arc home", () => {
     );
 
     expect(screen.getByText("01 · Method")).toHaveAttribute("lang", "en");
-    expect(screen.getByRole("link", { name: "了解学习方法 →" })).toHaveAttribute("href", "/method");
+    expect(within(screen.getByRole("navigation", { name: "网站导航" })).getByRole("link", { name: "学习方法" })).toHaveAttribute("href", "/method");
+    expect(document.querySelectorAll('a[href="/method"]')).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "向下浏览" })).toHaveAttribute("href", "#learning-method");
+    expect(document.getElementById("learning-method")).toContainElement(screen.getByText("01 · Method"));
     expect(within(screen.getByRole("navigation", { name: "网站导航" })).getByRole("link", { name: "产品样例" })).toHaveAttribute("href", "/showcase");
     expect(document.querySelectorAll('a[href="/showcase"]')).toHaveLength(1);
     expect(screen.getByText(/样例每天 45 分钟/)).toBeInTheDocument();

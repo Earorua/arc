@@ -19,7 +19,6 @@ export default function Home() {
               <div className="discovery-prose">
                 <p>路线不是课程目录。它是一组有依赖、有证据、有时间预算的决定。</p>
                 <p>从你想成为谁开始，把需要掌握的技能，转化为今天能完成的一步。</p>
-                <Link className="discovery-text-link" href="/method">了解学习方法 →</Link>
               </div>
             </div>
             <StoryRail />
@@ -52,7 +51,7 @@ export default function Home() {
             </SectionReveal>
           </div>
         </section>
-        <footer className="discovery-footer"><Link href="/" aria-label="Arc. 首页">Arc.</Link><span lang="en">Learn. Build. Become.</span><Link href="/method">学习方法 ↗</Link></footer>
+        <footer className="discovery-footer"><Link href="/" aria-label="Arc. 首页">Arc.</Link><span lang="en">Learn. Build. Become.</span></footer>
       </main>
     </LearningEntry>
   );

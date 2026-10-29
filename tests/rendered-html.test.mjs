@@ -51,6 +51,10 @@ test("server-renders the Arc landing page", async () => {
   assert.equal(notices.length, 0);
   assert.equal(document.querySelector(".skip-link")?.getAttribute("href"), "#main-content");
   assert.match(html, /aria-label="网站导航"/);
+  assert.equal(document.querySelectorAll('a[href="/method"]').length, 1, "the homepage keeps one method entry in public navigation");
+  assert.equal(document.querySelector('nav a[href="/method"]')?.textContent, "学习方法");
+  assert.equal(document.querySelector('a[href="#learning-method"]')?.textContent, "向下浏览");
+  assert.ok(document.getElementById("learning-method"), "the scroll cue retains a valid in-page destination");
   assert.equal(document.querySelectorAll('a[href="/showcase"]').length, 1, "the homepage keeps one showcase entry in public navigation");
   assert.equal(document.querySelector('nav a[href="/showcase"]')?.textContent, "产品样例");
   assert.equal(document.querySelector('link[rel="canonical"]')?.getAttribute("href"), "https://arcmaps.net/");
