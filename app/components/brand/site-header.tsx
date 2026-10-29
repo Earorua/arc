@@ -33,7 +33,7 @@ export function SiteHeader({ current }: { current?: "home" | "method" | "showcas
           <Link href="/showcase" aria-current={activePath === "/showcase" ? "page" : undefined} onClick={() => setMenuOpen(false)}>产品样例</Link>
         </nav>
         <div className="header-end">
-          {signedIn && <Link className="header-cta" href="/today">继续学习</Link>}
+          {signedIn && activePath !== "/" && <Link className="header-cta" href="/today">学习工作区</Link>}
           <AccountMenu />
         </div>
       </div>

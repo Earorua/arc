@@ -70,7 +70,7 @@ describe("OpenRouter local response preflight observation", () => {
     });
     expect(callback).toHaveBeenCalledOnce();
     expect(callback).toHaveBeenCalledWith({
-      version: "response-preflight-v1",
+      version: "response-preflight-v2",
       stage: "complete-content-preflight",
       annotations: {
         state: "incompatible", container: "array", count: 1, recognizedCount: 1, ignoredCount: 0,

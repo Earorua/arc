@@ -3,7 +3,6 @@
 .showcase-intro h1 { max-width: 12em; margin: 18px 0 0; font: 500 clamp(2rem, 4.2vw, 3.5rem)/1.2 var(--display); letter-spacing: -.035em; }
 .showcase-intro h1 em { color: var(--signal); font-weight: inherit; }
 .showcase-lede { max-width: 420px; margin: 0; color: var(--stone); line-height: 1.8; font-size: 1rem; }
-.showcase-intro-actions .primary-action { margin-top: 18px; }
 .showcase-sample-label { margin: 8px 0 0; color: var(--stone); font-size: .875rem; line-height: 1.65; }
 .showcase-case { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 2fr); gap: clamp(28px, 4vw, 56px); padding: 32px 0 48px; border-top: 1px solid var(--hairline); align-items: start; }
 .showcase-context { position: sticky; top: 32px; }

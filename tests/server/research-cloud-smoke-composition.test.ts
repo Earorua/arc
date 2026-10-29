@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
-import { copyFile, mkdir, readdir, readFile, writeFile, rename } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, writeFile, rename, unlink, open } from "node:fs/promises";
 import { createHash, randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { signBridgeMessage, verifyBridgeMessage } from "../../app/server/research/executor/auth";
@@ -11,7 +11,7 @@ import { createNativeResearchCloudSmokeFixture, runNativeSmokeSuite, snapshotSta
 
 vi.mock("node:fs/promises", async importOriginal => {
   const actual = await importOriginal<typeof import("node:fs/promises")>();
-  return { ...actual, rename: vi.fn(actual.rename) };
+  return { ...actual, rename: vi.fn(actual.rename), open: vi.fn(actual.open) };
 });
 vi.mock("esbuild", async importOriginal => {
   const actual = await importOriginal<typeof import("esbuild")>();
@@ -159,6 +159,130 @@ describe("bounded operator driver", () => {
   };
   const accepted = () => ({ scenarioId: "long", state: "researching", jobId: SCENARIOS[0]!.jobId,
     requestHash: "a".repeat(64), acceptedAt: Date.now(), backgroundAccepted: true, secret: "never-echo-this", content: "candidate-never-echo" });
+  const noncePaths = (inventory: { accountId: string; controlOrigin: string; controlKeyId: string }) => {
+    const directory = resolve("outputs/local-durable-executor-20260914/task15-smoke/t15p4-response-nonces");
+    const key = createHash("sha256").update(`${inventory.accountId}|${inventory.controlOrigin}|${inventory.controlKeyId}`).digest("hex");
+    return { directory, key, target: resolve(directory, `${key}.json`), lock: resolve(directory, `${key}.lock`) };
+  };
+  it.runIf(process.platform === "win32")("recovers transient nonce replacement denial without repeating a request or accepting a replay", async () => {
+    const f = await setup(); const run = await driver(); const paths = noncePaths(f.inventory);
+    const originalRename = vi.mocked(rename).getMockImplementation()!;
+    let attempts = 0, cached: Response | undefined;
+    const transport = vi.fn(async (request: Request) => { cached ??= await reply(request, accepted()); return cached.clone(); });
+    vi.mocked(rename).mockImplementation(async (...args) => {
+      expect(await readFile(paths.lock)).toHaveLength(0);
+      if (++attempts < 3) throw Object.assign(Error("secret-never-echo"), { code: "EPERM" });
+      return originalRename(...args);
+    });
+    try {
+      const result = await run(f.args(), { transport, input: input() });
+      expect(result).toMatchObject({ status: "accepted", accepted: true,
+        nonceStorage: [{ operation: "replace", code: "EPERM", attempts, recovered: true }] });
+      expect(transport).toHaveBeenCalledTimes(1);
+      expect(attempts).toBeGreaterThanOrEqual(3);
+      expect(attempts).toBeLessThanOrEqual(5);
+      expect(JSON.stringify(result)).not.toContain("secret-never-echo");
+      const completedAttempts = attempts;
+      expect(await run(f.args(), { transport, input: input() })).toMatchObject({ status: "refused", code: "response-authentication" });
+      expect(attempts).toBe(completedAttempts);
+    } finally { vi.mocked(rename).mockImplementation(originalRename); }
+  }, 30_000);
+  it("keeps prior nonces on permanent replacement failure and permits a later clean invocation", async () => {
+    const f = await setup(); const run = await driver(); const paths = noncePaths(f.inventory);
+    let first: Response | undefined;
+    const firstTransport = async (request: Request) => { first ??= await reply(request, accepted()); return first.clone(); };
+    expect((await run(f.args(), { transport: firstTransport, input: input() })).status).toBe("accepted");
+    const before = await readFile(paths.target);
+    const originalRename = vi.mocked(rename).getMockImplementation()!;
+    let attempts = 0;
+    vi.mocked(rename).mockImplementation(async () => { attempts++; throw Object.assign(Error("secret-never-echo"), { code: "EPERM" }); });
+    try {
+      const transport = vi.fn((request: Request) => reply(request, accepted()));
+      const result = await run(f.args(), { transport, input: input() });
+      expect(result).toMatchObject({ status: "refused", accepted: false,
+        nonceStorage: [{ operation: "replace", code: "EPERM", attempts: process.platform === "win32" ? 5 : 1, recovered: false }] });
+      expect(transport).toHaveBeenCalledTimes(1);
+      expect(attempts).toBe(process.platform === "win32" ? 5 : 1);
+      expect(await readFile(paths.target)).toEqual(before);
+      expect((await readdir(paths.directory)).filter(name => name.startsWith(paths.key))).toEqual([`${paths.key}.json`]);
+      expect(JSON.stringify(result)).not.toContain("secret-never-echo");
+    } finally { vi.mocked(rename).mockImplementation(originalRename); }
+    expect((await run(f.args(), { transport: (request: Request) => reply(request, accepted()), input: input() })).status).toBe("accepted");
+    expect(await run(f.args(), { transport: firstTransport, input: input() })).toMatchObject({ status: "refused", code: "response-authentication" });
+  }, 30_000);
+  it.each(["ENOSPC", "EIO", "secret-never-echo"])("does not retry a non-transient nonce replacement error %s", async code => {
+    const f = await setup(); const run = await driver(); const originalRename = vi.mocked(rename).getMockImplementation()!;
+    const failure = vi.fn(async () => { throw Object.assign(Error("secret-never-echo"), { code }); });
+    vi.mocked(rename).mockImplementation(failure);
+    try {
+      const result = await run(f.args(), { transport: (request: Request) => reply(request, accepted()), input: input() });
+      expect(result).toMatchObject({ status: "refused", accepted: false,
+        nonceStorage: [{ operation: "replace", code: code === "secret-never-echo" ? "UNKNOWN" : code, attempts: 1, recovered: false }] });
+      expect(failure).toHaveBeenCalledTimes(1);
+      expect(JSON.stringify(result)).not.toContain("secret-never-echo");
+    } finally { vi.mocked(rename).mockImplementation(originalRename); }
+  }, 30_000);
+  it("ignores old temporary files but fails closed while another nonce writer owns the lock", async () => {
+    const f = await setup(); const run = await driver(); const paths = noncePaths(f.inventory);
+    await mkdir(paths.directory, { recursive: true });
+    const stale = resolve(paths.directory, `${paths.key}.${process.pid}.tmp`);
+    await writeFile(stale, "retained-old-failure", { flag: "wx" });
+    await writeFile(paths.lock, "another-owner", { flag: "wx" });
+    try {
+      const result = await run(f.args(), { transport: (request: Request) => reply(request, accepted()), input: input() });
+      expect(result).toMatchObject({ status: "refused", accepted: false,
+        nonceStorage: [{ operation: "lock", code: "EEXIST", attempts: 0, recovered: false }] });
+      expect(await readFile(paths.lock, "utf8")).toBe("another-owner");
+      await unlink(paths.lock);
+      expect((await run(f.args(), { transport: (request: Request) => reply(request, accepted()), input: input() })).status).toBe("accepted");
+      expect(await readFile(stale, "utf8")).toBe("retained-old-failure");
+    } finally { await unlink(stale); await unlink(paths.lock).catch(() => undefined); }
+  }, 30_000);
+  it.runIf(process.platform === "win32")("stops nonce replacement retries at the existing replay deadline", async () => {
+    const f = await setup(); const run = await driver(); const paths = noncePaths(f.inventory);
+    const originalRename = vi.mocked(rename).getMockImplementation()!;
+    const now = performance.now.bind(performance);
+    let attempts = 0, expired = false;
+    const clock = vi.spyOn(performance, "now").mockImplementation(() => now() + (expired ? 6000 : 0));
+    vi.mocked(rename).mockImplementation(async () => {
+      attempts++; expired = true;
+      throw Object.assign(Error("synthetic transient failure"), { code: "EPERM" });
+    });
+    const transport = vi.fn((request: Request) => reply(request, replayReply("submit", f.roster.scenarios[0]!)));
+    try {
+      expect(await run(f.args("replay"), { transport, input: input() })).toMatchObject({ status: "unknown", accepted: false, lastCompletedStep: null });
+      expect(attempts).toBe(1);
+      expect(transport).toHaveBeenCalledTimes(1);
+      expect((await readdir(paths.directory)).filter(name => name.startsWith(paths.key))).toEqual([]);
+    } finally { clock.mockRestore(); vi.mocked(rename).mockImplementation(originalRename); }
+  }, 30_000);
+  it("preserves the ledger and removes only its own partial file after a nonce write failure", async () => {
+    const f = await setup(); const run = await driver(); const paths = noncePaths(f.inventory);
+    const transport = (request: Request) => reply(request, accepted());
+    expect((await run(f.args(), { transport, input: input() })).status).toBe("accepted");
+    const before = await readFile(paths.target);
+    const originalOpen = vi.mocked(open).getMockImplementation()!;
+    vi.mocked(open).mockImplementation(async (...args) => {
+      const handle = await originalOpen(...args);
+      if (String(args[0]).startsWith(paths.directory) && String(args[0]).endsWith(".tmp")) {
+        const write = handle.writeFile.bind(handle);
+        vi.spyOn(handle, "writeFile").mockImplementationOnce(async () => {
+          await write("partial-secret-never-echo");
+          throw Object.assign(Error("secret-never-echo"), { code: "ENOSPC" });
+        });
+      }
+      return handle;
+    });
+    try {
+      const result = await run(f.args(), { transport, input: input() });
+      expect(result).toMatchObject({ status: "refused", accepted: false,
+        nonceStorage: [{ operation: "write", code: "ENOSPC", attempts: 0, recovered: false }] });
+      expect(await readFile(paths.target)).toEqual(before);
+      expect((await readdir(paths.directory)).filter(name => name.startsWith(paths.key))).toEqual([`${paths.key}.json`]);
+      expect(JSON.stringify(result)).not.toContain("secret-never-echo");
+    } finally { vi.mocked(open).mockImplementation(originalOpen); }
+    expect((await run(f.args(), { transport, input: input() })).status).toBe("accepted");
+  }, 30_000);
   const replayReply = (step: SmokeReplayStep, approved: Omit<SmokeReplayApproval, "scenarioId"> & { scenarioId: string }) => {
     const common = { schemaVersion: "arc-smoke-replay-v1", scenarioId: approved.scenarioId, step, completed: true };
     if (step.startsWith("owner-b")) return { ...common, isNull: true };

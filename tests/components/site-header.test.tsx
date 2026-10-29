@@ -19,7 +19,7 @@ beforeEach(() => { navigation.pathname = "/"; authMocks.useSession.mockReturnVal
 afterEach(cleanup);
 
 describe("SiteHeader", () => {
-  it("keeps public navigation visible and hides the continue-learning entry when signed out", () => {
+  it("keeps public navigation visible and hides the workspace navigation when signed out", () => {
     render(<SiteHeader />);
     expect(screen.getByRole("banner")).not.toHaveAttribute("lang", "en");
     expect(screen.getByRole("link", { name: "Arc. home" })).toBeInTheDocument();
@@ -28,7 +28,7 @@ describe("SiteHeader", () => {
     expect(screen.queryByRole("link", { name: "Intelligence" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "学习规划师" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "产品样例" })).toHaveAttribute("href", "/showcase");
-    expect(screen.queryByRole("link", { name: "继续学习" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "学习工作区" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
   });
 
@@ -42,24 +42,25 @@ describe("SiteHeader", () => {
     expect(screen.getByRole("navigation", { name: "网站导航" })).toHaveAttribute("data-open", "true");
   });
 
-  it("hides the continue-learning entry while the session is still being confirmed", () => {
+  it("hides the workspace navigation while the session is still being confirmed", () => {
     authMocks.useSession.mockReturnValue({ data: { user: { id: "learner" } }, isPending: true });
     render(<SiteHeader />);
-    expect(screen.queryByRole("link", { name: "继续学习" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "继续学习" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "学习工作区" })).not.toBeInTheDocument();
   });
 
-  it("shows the continue-learning entry after sign-in and removes it when the session ends", () => {
+  it.each(["/method", "/showcase"])("keeps workspace navigation on %s after sign-in and removes it when the session ends", (pathname) => {
+    navigation.pathname = pathname;
     const { rerender } = render(<SiteHeader />);
     authMocks.useSession.mockReturnValue({ data: { user: { id: "learner" } }, isPending: false });
     rerender(<SiteHeader />);
-    expect(screen.getByRole("link", { name: "继续学习" })).toHaveAttribute("href", "/today");
+    expect(screen.getByRole("link", { name: "学习工作区" })).toHaveAttribute("href", "/today");
     authMocks.useSession.mockReturnValue({ data: null, isPending: false });
     rerender(<SiteHeader />);
-    expect(screen.queryByRole("link", { name: "继续学习" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "学习工作区" })).not.toBeInTheDocument();
   });
 
   it("keeps hydration stable when the session resolves before the header mounts", async () => {
+    navigation.pathname = "/method";
     const container = document.createElement("div");
     container.innerHTML = renderToString(<SiteHeader />);
     expect(container.querySelector('a[href="/today"]')).toBeNull();
@@ -68,7 +69,7 @@ describe("SiteHeader", () => {
     const onRecoverableError = vi.fn();
     let root: ReturnType<typeof hydrateRoot>;
     await act(async () => { root = hydrateRoot(container, <SiteHeader />, { onRecoverableError }); });
-    expect(screen.getByRole("link", { name: "继续学习" })).toHaveAttribute("href", "/today");
+    expect(screen.getByRole("link", { name: "学习工作区" })).toHaveAttribute("href", "/today");
     expect(onRecoverableError).not.toHaveBeenCalled();
     await act(async () => root.unmount());
     container.remove();

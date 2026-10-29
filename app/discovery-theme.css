@@ -95,8 +95,6 @@ a, button, summary { touch-action: manipulation; }
 .discovery-finale h2 em { color: #c9a2e2; font-style: italic; }
 .discovery-finale-actions { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 56px; padding-top: 32px; border-top: 1px solid #ffffff29; }
 .discovery-finale-actions p { color: #d1c7b9; font: 400 18px/1.8 var(--serif); margin: 0; }
-.discovery-finale-actions .primary-action { margin: 0; background: #8e5db0; border-color: #8e5db0; }
-.discovery-finale-actions .primary-action:hover { background: #7b4d9d; }
 .discovery-footer { width: var(--content); margin: 0 auto; padding: 32px 0; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .discovery-footer > a:first-child { font: 400 30px var(--sans); letter-spacing: -.04em; }
 .discovery-footer > span { color: var(--stone); font: italic 400 19px var(--serif); }

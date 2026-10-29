@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SetupPage from "../../app/setup/page";
@@ -7,6 +7,9 @@ import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { PLANNING_SCHEMA_VERSION, type PlanningEventInput } from "../../app/contracts/planning";
 import type { PlanningWorkspaceController } from "../../app/lib/use-planning-workspace";
 import { createDemoState, loadDemoState, saveDemoState } from "../../app/lib/demo-store";
+import { TimeEditFlow } from "../../app/components/setup/time-edit-flow";
+import { readSetupDraft, timeEditDraftSchema } from "../../app/components/setup/setup-draft";
+import type { ArcStateController } from "../../app/lib/use-arc-state";
 
 const state = vi.hoisted(() => ({ planning: null as unknown as PlanningWorkspaceController, push: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: state.push }) }));
@@ -36,6 +39,71 @@ beforeEach(async () => {
 afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); if (locksDescriptor) Object.defineProperty(navigator, "locks", locksDescriptor); else Reflect.deleteProperty(navigator, "locks"); });
 
 describe("time-only setup editing", () => {
+  it.each(["owner", "goal"])("ignores a late accept after the %s changes, including when returning", async scope => {
+    const original = state.planning.workspace!;
+    const arc = { state: createDemoState(), source: "local", recovery: "none" } as ArcStateController;
+    const page = (owner: string) => <TimeEditFlow arc={arc} signedIn={false} draftOwner={owner} onResearchActiveChange={vi.fn()} />;
+    const mounted = render(page("owner-a"));
+    fireEvent.change(await screen.findByLabelText("周一分钟数"), { target: { value: "90" } });
+    await userEvent.click(screen.getByRole("button", { name: "预览时间调整" }));
+    let finish!: (saved: boolean) => void;
+    state.planning.accept = vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; }));
+    mounted.rerender(page("owner-a"));
+    await userEvent.click(screen.getByRole("button", { name: "保存调整" }));
+    state.planning.workspace = scope === "goal" ? { ...original, goalId: "other-goal" } : original;
+    mounted.rerender(page(scope === "owner" ? "owner-b" : "owner-a"));
+    await act(async () => finish(true));
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    state.planning.workspace = original;
+    mounted.rerender(page("owner-a"));
+    await act(async () => {});
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    expect(screen.queryByText("已接受新安排。")).not.toBeInTheDocument();
+  });
+
+  it.each([false, true])("preserves the accept result through availability remount unless editing starts again (editAgain=%s)", async editAgain => {
+    const mounted = render(<SetupPage />);
+    fireEvent.change(await screen.findByLabelText("周一分钟数"), { target: { value: "90" } });
+    await userEvent.click(screen.getByRole("button", { name: "预览时间调整" }));
+    let finish!: () => void;
+    const pause = new Promise<void>(resolve => { finish = resolve; });
+    const accept = state.planning.accept;
+    state.planning.accept = vi.fn(async candidate => { const saved = await accept(candidate); await pause; return saved; });
+    mounted.rerender(<SetupPage />);
+    await userEvent.click(screen.getByRole("button", { name: "保存调整" }));
+    await waitFor(() => expect(state.planning.workspace!.pendingPlanVersionId).toBeNull());
+    mounted.rerender(<SetupPage />);
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    if (editAgain) fireEvent.change(await screen.findByLabelText("周一分钟数"), { target: { value: "120" } });
+    await act(async () => finish());
+    if (editAgain) expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    else expect(screen.getByRole("link", { name: "继续今日学习" })).toHaveAttribute("href", "/today");
+  });
+
+  it.each(["accept", "discard"] as const)("keeps a newer persisted draft when a late %s callback settles", async decision => {
+    const mounted = render(<SetupPage />);
+    fireEvent.change(await screen.findByLabelText("周一分钟数"), { target: { value: "90" } });
+    await userEvent.click(screen.getByRole("button", { name: "预览时间调整" }));
+    let finish!: () => void;
+    const pause = new Promise<void>(resolve => { finish = resolve; });
+    const decide = state.planning[decision];
+    state.planning[decision] = vi.fn(async candidate => { const saved = await decide(candidate); await pause; return saved; });
+    mounted.rerender(<SetupPage />);
+    await userEvent.click(screen.getByRole("button", { name: decision === "accept" ? "保存调整" : "保留当前安排" }));
+    await waitFor(() => expect(state.planning.workspace!.pendingPlanVersionId).toBeNull());
+    mounted.rerender(<SetupPage />);
+    fireEvent.change(await screen.findByLabelText("周一分钟数"), { target: { value: "135" } });
+    const draftSource = `time:${state.planning.workspace!.goalId}:${state.planning.workspace!.availability.id}`;
+    const readMonday = () => readSetupDraft("guest", draftSource, timeEditDraftSchema)?.weekdays.monday;
+    await waitFor(() => expect(readMonday()).toBe(135));
+    await act(async () => finish());
+    expect(readMonday()).toBe(135);
+    mounted.unmount();
+    render(<SetupPage />);
+    // The input mounts with saved availability before the queued draft restoration runs.
+    await waitFor(() => expect(screen.getByLabelText("周一分钟数")).toHaveValue(135));
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+  });
   it("updates a basic plan's time without replacing its goal or completed work", async () => {
     state.planning.workspace = null;
     const retained = { ...createDemoState(), setup: { ...createDemoState().setup, roleId: "basic-custom-role" }, completedUnitIds: ["completed-basic-unit"] };
@@ -59,7 +127,7 @@ describe("time-only setup editing", () => {
     fireEvent.change(await screen.findByLabelText("每周可用分钟"), { target: { value: "0" } });
     expect(screen.getByRole("button", { name: "保存时间" })).toBeDisabled();
     fireEvent.change(screen.getByLabelText("每周可用分钟"), { target: { value: "300" } });
-    const cancel = screen.getByRole("link", { name: "取消，返回路线" });
+    const cancel = screen.getByRole("link", { name: "取消修改" });
     cancel.addEventListener("click", (event) => event.preventDefault());
     await userEvent.click(cancel);
     view.unmount();
@@ -73,7 +141,7 @@ describe("time-only setup editing", () => {
     view.unmount();
     const restored = render(<SetupPage />);
     expect(await screen.findByLabelText("周一分钟数")).toHaveValue(90);
-    const cancel = screen.getByRole("link", { name: "取消，返回路线" });
+    const cancel = screen.getByRole("link", { name: "取消修改" });
     cancel.addEventListener("click", (event) => event.preventDefault());
     await user.click(cancel);
     restored.unmount();
@@ -108,11 +176,13 @@ describe("time-only setup editing", () => {
     expect(await screen.findByRole("heading", { name: "调整每周时间" })).toBeInTheDocument();
     expect(screen.queryByLabelText("自定义岗位")).not.toBeInTheDocument();
     expect(screen.getByText(/18 周/)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("周一分钟数"), { target: { value: "120" } });
     await user.click(screen.getByRole("button", { name: "预览时间调整" }));
     await waitFor(() => expect(state.planning.record).toHaveBeenCalledWith(expect.objectContaining({ kind: "availability_changed", availability: expect.objectContaining({ weeklyMinutes: 480 }), planningDate: expect.any(String) })));
     view.rerender(<SetupPage />);
     expect(await screen.findByRole("heading", { name: "这次调整会改变什么" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
     expect(state.planning.workspace!.activePlanVersionId).toBe(original.activePlanVersionId);
     expect(state.planning.accept).not.toHaveBeenCalled();
     await user.click(screen.getByRole("button", { name: decision === "accept" ? "保存调整" : "保留当前安排" }));
@@ -125,7 +195,10 @@ describe("time-only setup editing", () => {
     expect(state.planning.generate).not.toHaveBeenCalled();
     view.rerender(<SetupPage />);
     expect(await screen.findByRole("status")).toHaveTextContent(decision === "accept" ? "已接受新安排。" : "已保留当前安排。");
+    if (decision === "accept") expect(screen.getAllByRole("link", { name: "继续今日学习" })).toHaveLength(1);
+    else expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("每周可用分钟"), { target: { value: "180" } });
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
     view.unmount(); render(<SetupPage />);
     expect(await screen.findByLabelText("每周可用分钟")).toHaveValue(180);
   });
@@ -151,7 +224,29 @@ describe("time-only setup editing", () => {
     await user.click(screen.getByRole("button", { name: "预览时间调整" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("未能生成调整建议");
     expect(screen.getByRole("button", { name: "预览时间调整" })).toBeEnabled();
-    expect(screen.getByRole("link", { name: "取消，返回路线" })).toHaveAttribute("href", "/path");
+    expect(screen.getByRole("link", { name: "取消修改" })).toHaveAttribute("href", "/path");
     expect(state.planning.generate).not.toHaveBeenCalled();
+  });
+
+  it("keeps the time draft when returning through the page header", async () => {
+    const mounted = render(<SetupPage />);
+    fireEvent.change(await screen.findByLabelText("周一分钟数"), { target: { value: "90" } });
+    const back = screen.getByRole("link", { name: "返回学习路线" });
+    back.addEventListener("click", event => event.preventDefault());
+    fireEvent.click(back);
+    mounted.unmount();
+    render(<SetupPage />);
+    expect(await screen.findByLabelText("周一分钟数")).toHaveValue(90);
+  });
+
+  it("does not offer completion after a failed accept", async () => {
+    state.planning.accept = vi.fn().mockResolvedValue(false);
+    const mounted = render(<SetupPage />);
+    fireEvent.change(await screen.findByLabelText("周一分钟数"), { target: { value: "90" } });
+    await userEvent.click(screen.getByRole("button", { name: "预览时间调整" }));
+    mounted.rerender(<SetupPage />);
+    await userEvent.click(screen.getByRole("button", { name: "保存调整" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("暂时无法保存这个决定");
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
   });
 });

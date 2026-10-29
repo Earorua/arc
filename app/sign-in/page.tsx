@@ -33,6 +33,8 @@ export default function SignInPage() {
   const [attempt, setAttempt] = useState(0);
   const failed = resolutionFailure?.userId === userId && resolutionFailure?.attempt === attempt;
   const expired = reauthenticate || Boolean(failed && resolutionFailure?.expired);
+  const showSignInPanel = !userId || oauthFailed || expired;
+  const panelHasShowcaseExit = showSignInPanel && hydrated && !session.isPending && !pending && providers.length === 0;
 
   useEffect(() => {
     if (!userId || oauthFailed || reauthenticate) return;
@@ -109,7 +111,7 @@ export default function SignInPage() {
         </div>
       </section>
       <footer className="sign-in-footer">
-        <Link href="/showcase">先看公开样例</Link>
+        {!panelHasShowcaseExit && <Link href="/showcase">先看公开样例</Link>}
         <span>作品默认私密，由你决定是否公开。</span>
       </footer>
     </main>

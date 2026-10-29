@@ -25,17 +25,30 @@ describe("response preflight diagnostic", () => {
     expect(buildResponsePreflightDiagnostic(content, validAnnotations)?.candidateSchema).toMatchObject(expected);
   });
 
-  it("keeps raw-content preflight separate from later fence normalization", () => {
+  it("uses the same complete fence normalization as Site import in v2", () => {
     const fenced = `\`\`\`json\n${validContent}\n\`\`\``;
-    expect(buildResponsePreflightDiagnostic(fenced, validAnnotations)?.candidateSchema)
-      .toMatchObject({ outcome: "rejected", reason: "json-syntax" });
+    expect(buildResponsePreflightDiagnostic(fenced, validAnnotations))
+      .toMatchObject({ version: "response-preflight-v2", candidateSchema: { outcome: "accepted", reason: null } });
+  });
+
+  it.each([`\`\`\`json\n{\n\`\`\``, `Explanation\n${validContent}`, `${validContent}\nMore text`, "{\"incomplete\":"])(
+    "does not invent or extract a candidate from malformed content", (content) => {
+      expect(buildResponsePreflightDiagnostic(content, validAnnotations)?.candidateSchema)
+        .toMatchObject({ outcome: "rejected", reason: "json-syntax" });
+    },
+  );
+
+  it("applies the raw content limit before removing whitespace or a fence", () => {
+    const content = " ".repeat(196_609) + validContent;
+    expect(buildResponsePreflightDiagnostic(content, validAnnotations)?.candidateSchema)
+      .toMatchObject({ outcome: "rejected", reason: "content-limit" });
   });
 
   it("combines annotation and candidate results without retaining candidate content", () => {
     const diagnostic = buildResponsePreflightDiagnostic(validContent, [
       { type: "url_citation", url_citation: { url: "https://example.com", title: null, privateBody: "body-canary" } },
     ]);
-    expect(diagnostic).toEqual({ version: "response-preflight-v1", stage: "complete-content-preflight",
+    expect(diagnostic).toEqual({ version: "response-preflight-v2", stage: "complete-content-preflight",
       annotations: { state: "incompatible", container: "array", count: 1, recognizedCount: 1, ignoredCount: 0,
         issues: [{ index: 0, code: "title-null" }], truncated: false },
       candidateSchema: { outcome: "accepted", reason: null, issues: [], truncated: false } });
@@ -69,6 +82,12 @@ describe("response preflight projector", () => {
       ignoredCount: 0, issues: [], truncated: false },
     candidateSchema: { outcome: "accepted", reason: null, issues: [], truncated: false },
   };
+
+  it("retains the version distinction between historical raw v1 and normalized v2 diagnostics", () => {
+    expect(projectResponsePreflightDiagnostic(diagnostic)).toEqual(diagnostic);
+    const normalized = { ...diagnostic, version: "response-preflight-v2" };
+    expect(projectResponsePreflightDiagnostic(normalized)).toEqual(normalized);
+  });
 
   it("returns fresh strict metadata and rejects unknown or malformed fields", () => {
     const first = projectResponsePreflightDiagnostic(diagnostic)!;

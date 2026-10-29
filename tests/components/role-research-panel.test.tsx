@@ -15,6 +15,19 @@ const ready = { ...identity, state: "ready" as const, retryable: false as const,
 function props(controller = base) { return { controller, role: identity.role, eligible: true, onStart: vi.fn(), onUse: vi.fn(), onFlagship: vi.fn() }; }
 
 describe("RoleResearchPanel", () => {
+  it("describes one invalid result without implying an outage or automatically retrying", () => {
+    const retry = vi.fn();
+    const p = props({ ...base, retry, state: { kind: "failed", runId: identity.id }, run: {
+      ...identity, state: "failed", failureCategory: "invalid-result", retryable: false,
+    } });
+    render(<RoleResearchPanel {...p} />);
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("本次研究未完成");
+    expect(screen.getByRole("alert")).toHaveTextContent("本次研究结果未通过检查，未生成新学习计划。已有计划和学习记录不受影响。");
+    expect(screen.queryByRole("button", { name: "重试研究" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
+    expect(retry).not.toHaveBeenCalled();
+    expect(p.onStart).not.toHaveBeenCalled();
+  });
   it("marks only the reported research stage as current without fabricated progress", () => {
     const page = render(<RoleResearchPanel {...props({ ...base, state: { kind: "researching", runId: identity.id }, run: { ...identity, state: "researching", retryable: false } })} />);
     const stages = screen.getByRole("list", { name: "研究阶段" });

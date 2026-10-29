@@ -1,5 +1,6 @@
 import { providerCitationAnnotationSchema } from "../../contracts/research";
 import { canonicalizePublicCitationUrl } from "./source-audit";
+import { needsCitationTitleFallback } from "./citation-title";
 
 export type AnnotationDiagnosticIssueCode = "container-not-array" | "annotation-count-limit"
   | "citation-object-missing" | "citation-object-invalid" | "flat-citation-unsupported"
@@ -147,10 +148,11 @@ export function buildAnnotationDiagnostic(annotations: unknown): AnnotationDiagn
       const title = ownDataValue(nested.value, "title");
       if (!url.safe || !title.safe) return null;
       const urlProblem = stringIssue(url.value, url.present, "url");
-      const titleProblem = stringIssue(title.value, title.present, "title");
+      const titleFallback = needsCitationTitleFallback(title.value);
+      const titleProblem = titleFallback ? null : stringIssue(title.value, title.present, "title");
       if (urlProblem) issues.push({ index, code: urlProblem });
       if (titleProblem) issues.push({ index, code: titleProblem });
-      if (!urlProblem && title.value === undefined) {
+      if (!urlProblem && titleFallback) {
         const parsedUrl = providerCitationAnnotationSchema.shape.url.safeParse(url.value);
         try { canonicalizePublicCitationUrl(parsedUrl.data!); }
         catch { issues.push({ index, code: "fallback-url-policy" }); }

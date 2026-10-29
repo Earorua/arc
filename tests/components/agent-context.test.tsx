@@ -3,13 +3,14 @@ import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { LearningAgentsProvider, useLearningAgents } from "../../app/components/agents/agent-context";
+import { AgentPageFrame, LearningAgentsProvider, useLearningAgents } from "../../app/components/agents/agent-context";
+import { AgentCompanion } from "../../app/components/agents/agent-companion";
 import type { AgentWorkspace } from "../../app/contracts/agents";
 const mocks = vi.hoisted(() => ({ session: vi.fn(), pathname: vi.fn(), workspace: vi.fn(), tutor: vi.fn() }));
 vi.mock("../../app/lib/auth-client", () => ({ authClient: { useSession: mocks.session } }));
-vi.mock("next/navigation", () => ({ usePathname: mocks.pathname }));
+vi.mock("next/navigation", () => ({ usePathname: mocks.pathname, useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("../../app/lib/agent-client", () => ({ agentClient: { workspace: mocks.workspace, tutor: mocks.tutor } }));
-afterEach(() => { cleanup(); localStorage.clear(); sessionStorage.clear(); vi.resetAllMocks(); });
+afterEach(() => { cleanup(); localStorage.clear(); sessionStorage.clear(); vi.restoreAllMocks(); vi.resetAllMocks(); });
 function Probe() {
   const state = useLearningAgents();
   return <><span data-testid="auth">{state.authPending ? "checking" : state.authenticated ? "member" : "guest"}</span>
@@ -29,6 +30,40 @@ function fixture() {
   return workspace;
 }
 describe("persistent learning companion context", () => {
+  it.each([false, true])("hides public-page UI while preserving chat, draft and view for the next learning page (overlay=%s)", async overlay => {
+    const workspace = fixture();
+    workspace.history = [{ id: "saved-run", kind: "tutor", status: "complete", message: "之前的问题", answer: "已保存的回答", advice: null, createdAt: 1, baseVersionId: "plan-a", revision: 0, model: "tutor", effort: "high", error: null }];
+    const media = window.matchMedia("(max-width: 1050px)");
+    vi.spyOn(window, "matchMedia").mockReturnValue({ ...media, matches: overlay });
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    localStorage.setItem("arc-companion-v1:alice", JSON.stringify({ view: "chat" }));
+    const page = () => <LearningAgentsProvider><AgentPageFrame><main>页面内容</main></AgentPageFrame><AgentCompanion /></LearningAgentsProvider>;
+    const mounted = render(page());
+    await screen.findByText("已保存的回答");
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "尚未发送的问题" } });
+    const preferences = localStorage.getItem("arc-companion-v1:alice");
+    for (const path of ["/", "/method", "/showcase", "/sign-in", "/admin", "/unknown", "/today-unrelated", "/today/unknown"]) {
+      mocks.pathname.mockReturnValue(path);
+      mounted.rerender(page());
+      await act(async () => {});
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(mounted.container.querySelector(".arc-page-content")).not.toHaveClass("has-companion");
+      expect(mounted.container.querySelector(".arc-page-content")).not.toHaveAttribute("inert");
+      expect(document.body.style.overflow).not.toBe("hidden");
+      expect(localStorage.getItem("arc-companion-v1:alice")).toBe(preferences);
+      expect(sessionStorage.getItem("arc-companion-draft-v1:alice:goal-a")).toBe("尚未发送的问题");
+    }
+    for (const path of ["/today", "/path", "/stack", "/proof", "/coach", "/history", "/setup"]) {
+      mocks.pathname.mockReturnValue(path);
+      mounted.rerender(page());
+      await act(async () => {});
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByRole("textbox")).toHaveValue("尚未发送的问题");
+      expect(screen.getByText("已保存的回答")).toBeInTheDocument();
+      expect(mounted.container.querySelector(".arc-page-content")).toHaveClass("has-companion");
+      if (overlay) expect(mounted.container.querySelector(".arc-page-content")).toHaveAttribute("inert");
+    }
+  });
   it("applies the account motion preference across pages and removes it on account change", async () => {
     fixture();
     const { rerender } = render(<LearningAgentsProvider><Probe /></LearningAgentsProvider>);

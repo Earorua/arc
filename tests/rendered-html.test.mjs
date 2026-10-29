@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { register } from "node:module";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolve, sep } from "node:path";
 import test from "node:test";
 import { JSDOM } from "jsdom";
 
 register("./cloudflare-workers-loader.mjs", import.meta.url);
+const artifactRoot = process.env.ARC_RENDERED_ARTIFACT_ROOT
+  ? pathToFileURL(`${resolve(process.env.ARC_RENDERED_ARTIFACT_ROOT)}${sep}`)
+  : new URL("../dist/", import.meta.url);
 
 async function render(pathname = "/") {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  const workerUrl = new URL("server/index.js", artifactRoot);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(
@@ -35,13 +39,16 @@ test("server-renders the Arc landing page", async () => {
   const html = await response.text();
   assert.match(html, /Arc\./);
   assert.match(html, /Learn only what moves you forward/);
-  assert.match(html, /建立我的学习路线/);
+  assert.match(html, /正在读取学习状态/);
   assert.match(html, /<main[\s>]/);
   const document = new JSDOM(html).window.document;
   const notices = document.querySelectorAll("p.development-notice");
   const main = document.querySelector("main");
-  assert.equal(notices.length, 0);
   assert.ok(main, "main content is rendered");
+  assert.equal(main.querySelectorAll('a[href="/setup"]').length, 0, "server rendering must not assume no saved plan");
+  assert.equal(main.querySelectorAll('.primary-action[disabled]').length, 1);
+  assert.equal(main.querySelectorAll('.learning-entry-text').length, 0, "the finale must not repeat the hero learning action");
+  assert.equal(notices.length, 0);
   assert.equal(document.querySelector(".skip-link")?.getAttribute("href"), "#main-content");
   assert.match(html, /aria-label="网站导航"/);
   assert.match(html, /href="\/showcase"/);
@@ -72,7 +79,7 @@ async function readBundleText(directory) {
 }
 
 test("keeps server secret identifiers out of the client bundle", async () => {
-  const clientDirectory = fileURLToPath(new URL("../dist/client", import.meta.url));
+  const clientDirectory = fileURLToPath(new URL("client", artifactRoot));
   const bundle = await readBundleText(clientDirectory);
   for (const identifier of [
     "BETTER_AUTH_SECRET",
@@ -86,14 +93,14 @@ test("keeps server secret identifiers out of the client bundle", async () => {
 });
 
 test("omits unused Provider usage and cost schema from built client artifacts", async () => {
-  const bundle = await readBundleText(fileURLToPath(new URL("../dist/client", import.meta.url)));
+  const bundle = await readBundleText(fileURLToPath(new URL("client", artifactRoot)));
   const leaked = ["promptTokens", "completionTokens", "totalTokens", "costMicros", "webSearchRequests"]
     .filter((identifier) => bundle.includes(identifier));
   assert.deepEqual(leaked, [], "Provider accounting fields belong only in the server bundle");
 });
 
 test("ships the adaptive workspace recovery and review copy without replacing the public shell", async () => {
-  const clientDirectory = fileURLToPath(new URL("../dist/client", import.meta.url));
+  const clientDirectory = fileURLToPath(new URL("client", artifactRoot));
   const bundle = await readBundleText(clientDirectory);
 
   assert.match(bundle, /这次调整会改变什么/);

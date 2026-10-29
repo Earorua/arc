@@ -23,7 +23,7 @@ describe("public trust pages", () => {
     expect(main.getByText("把一次表单提交变成可验证的服务端动作")).toBeInTheDocument();
     expect(main.getByText(/45 分钟/)).toBeInTheDocument();
     expect(main.getByRole("link", { name: "查看完整样例" })).toHaveAttribute("href", "/showcase?view=path");
-    expect(main.getByRole("link", { name: "创建我的路线" })).toHaveAttribute("href", "/setup?mode=create");
+    expect(main.queryByRole("link", { name: /创建.*路线/ })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "学习方法" })).toHaveAttribute("aria-current", "page");
   });
 

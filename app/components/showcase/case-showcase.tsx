@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { HomeLearningAction } from "../brand/home-learning-action";
 import { useRef, type KeyboardEvent } from "react";
 import { flagshipRole } from "../../data/flagship-role";
 import { updatePageQuery, usePageQuery } from "../../lib/use-page-query";
@@ -51,7 +51,6 @@ export function CaseShowcase() {
         </div>
         <div className="showcase-intro-actions"><p className="showcase-lede">以{flagshipRole.name}为例，依次查看路线、今日任务与作品。</p>
           <p className="showcase-sample-label">公开样例，不是你的计划。</p>
-          <Link className="primary-action" href="/setup?mode=create">创建我的路线</Link>
         </div>
       </section>
 
@@ -152,7 +151,7 @@ export function CaseShowcase() {
 
       <section className="showcase-next" aria-labelledby="showcase-next-title">
         <div><p className="section-index">开始自己的学习</p><h2 id="showcase-next-title">从你的目标开始。</h2></div>
-        <Link className="primary-action" href="/setup?mode=create">创建我的路线 <span aria-hidden="true">→</span></Link>
+        <HomeLearningAction />
       </section>
     </main>
   );

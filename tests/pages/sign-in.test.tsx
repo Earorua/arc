@@ -21,6 +21,34 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 const signedIn = () => mocks.useSession.mockReturnValue({ data: { user: { id: "owner" } }, isPending: false });
 
 describe("sign-in destination", () => {
+  it.each(["", "reauth=1", "error=oauth"])("keeps one showcase exit when the unavailable-provider panel is shown (%s)", async search => {
+    mocks.search = search;
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ providers: [] })));
+    render(<SignInPage />);
+    await screen.findByText("账号登录暂未开放。");
+    expect(screen.getAllByRole("link", { name: "先看公开样例" })).toHaveLength(1);
+  });
+
+  it("keeps the footer exit while the session is pending", async () => {
+    mocks.useSession.mockReturnValue({ data: null, isPending: true });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ providers: [] })));
+    render(<SignInPage />);
+    await act(async () => {});
+    expect(screen.getByRole("link", { name: "先看公开样例" }).closest("footer")).not.toBeNull();
+  });
+
+  it("keeps the footer exit during signed-in redirect and plan-read recovery", async () => {
+    signedIn();
+    let fail!: (reason: Error) => void;
+    mocks.loadWorkspace.mockImplementation(() => new Promise((_resolve, reject) => { fail = reject; }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ providers: [] })));
+    render(<SignInPage />);
+    await screen.findByText("正在打开你的学习工作区…");
+    expect(screen.getByRole("link", { name: "先看公开样例" }).closest("footer")).not.toBeNull();
+    await act(async () => fail(new Error("offline")));
+    await screen.findByText("已登录，暂时无法读取你的学习路线。请重试。");
+    expect(screen.getByRole("link", { name: "先看公开样例" }).closest("footer")).not.toBeNull();
+  });
   it("reopens provider authentication when a cached identity fails the plan lookup with 401", async () => {
     signedIn(); mocks.loadWorkspace.mockRejectedValue(new ArcApiError(401, "UNAUTHENTICATED", "expired", "test", "sign-in"));
     render(<SignInPage />);

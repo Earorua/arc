@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { AgentLearningContext, AgentWorkspace, PublicAgentRun } from "../../contracts/agents";
-import { completedTutorHistory, useCompanionOverlay, useLearningAgents, type CompanionView } from "./agent-context";
+import { completedTutorHistory, isLearningCompanionRoute, useCompanionOverlay, useLearningAgents, type CompanionView } from "./agent-context";
 import { safeReturnTo } from "../../lib/navigation-context";
 
 export function CompanionAvatar({ thinking = false }: { thinking?: boolean }) {
@@ -170,7 +170,7 @@ export function CompanionPanel(props: CompanionProps) {
 }
 export function AgentCompanion() {
   const state = useLearningAgents(); const router = useRouter(); const path = usePathname();
-  if (!state.authenticated || state.authPending) return null;
+  if (!isLearningCompanionRoute(path) || !state.authenticated || state.authPending) return null;
   return <CompanionPanel view={state.view} onView={state.setView} messages={completedTutorHistory(state.workspace)}
     draft={state.draft} onDraft={state.setDraft} onSend={() => void state.send()} onStop={state.stop}
     busy={state.busy} partial={state.partial} pendingQuestion={state.pendingQuestion}
