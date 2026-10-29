@@ -47,7 +47,7 @@ test("server-renders the Arc landing page", async () => {
   assert.ok(main, "main content is rendered");
   assert.equal(main.querySelectorAll('a[href="/setup"]').length, 0, "server rendering must not assume no saved plan");
   assert.equal(main.querySelectorAll('.primary-action[disabled]').length, 1);
-  assert.equal(main.querySelectorAll('.learning-entry-text[disabled]').length, 1);
+  assert.equal(main.querySelectorAll('.learning-entry-text').length, 0, "the finale must not repeat the hero learning action");
   assert.equal(notices.length, 0);
   assert.equal(document.querySelector(".skip-link")?.getAttribute("href"), "#main-content");
   assert.match(html, /aria-label="网站导航"/);
