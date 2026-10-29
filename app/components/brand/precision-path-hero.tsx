@@ -25,7 +25,7 @@ export function PrecisionPathHero() {
           <HomeLearningAction />
         </div>
       </div>
-      <a className="discovery-scroll" href="#learning-method" lang="zh-CN"><span>探索学习方法</span><i aria-hidden="true" /></a>
+      <a className="discovery-scroll" href="#learning-method" lang="zh-CN"><span>向下浏览</span><i aria-hidden="true" /></a>
     </section>
   );
 }
