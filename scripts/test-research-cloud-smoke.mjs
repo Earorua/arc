@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { constants, fstatSync } from "node:fs";
 import { mkdir, writeFile, realpath, open, rename, unlink } from "node:fs/promises";
 import { dirname, relative, resolve, sep } from "node:path";
@@ -148,15 +148,23 @@ async function credential(input) {
 }
 
 /** A shared bounded nonce file outlives individual CLI invocations; contention fails closed. */
-function responseNonces(inventory) {
+function responseNonces(inventory, record) {
   const directory = resolve(evidence, "t15p4-response-nonces");
   const key = hash(`${inventory.accountId}|${inventory.controlOrigin}|${inventory.controlKeyId}`);
   const target = resolve(directory, `${key}.json`), lockPath = resolve(directory, `${key}.lock`);
-  return { claim: async ({ scope, nonce, expiresAt, now }) => {
-    await mkdir(directory, { recursive: true });
-    const lock = await open(lockPath, "wx");
-    const temporary = resolve(directory, `${key}.${process.pid}.tmp`);
+  const errorCodes = new Set(["EPERM", "EACCES", "EBUSY", "EEXIST", "ENOENT", "ENOSPC", "EIO", "EMFILE", "ENFILE", "EROFS"]);
+  return { claim: async ({ scope, nonce, expiresAt, now }, check) => {
+    // A failed/crashed invocation must not poison later attempts with its temporary file.
+    const temporary = resolve(directory, `${key}.${process.pid}.${randomUUID()}.tmp`);
+    let lock, ownsTemporary = false, operation = "mkdir", attempts = 0;
+    const failure = (error, stage = operation) => record({ operation: stage,
+      code: errorCodes.has(error?.code) ? error.code : "UNKNOWN", attempts, recovered: false });
     try {
+      check();
+      await mkdir(directory, { recursive: true });
+      operation = "lock";
+      lock = await open(lockPath, "wx");
+      operation = "read";
       let entries = [];
       try { entries = JSON.parse((await boundedFile(target, 65_536)).toString()); }
       catch (error) { if (error.code !== "ENOENT") throw error; }
@@ -167,8 +175,38 @@ function responseNonces(inventory) {
       if (entries.some(item => item.scope === scopeHash && item.nonce === nonce)) return false;
       if (entries.length >= 512) reject("nonce-capacity");
       entries.push({ scope: scopeHash, nonce, expiresAt });
-      await writeFile(temporary, JSON.stringify(entries), { flag: "wx" }); await rename(temporary, target); return true;
-    } finally { await lock.close(); await unlink(lockPath); }
+      check();
+      operation = "write";
+      const file = await open(temporary, "wx");
+      ownsTemporary = true;
+      try { await file.writeFile(JSON.stringify(entries)); } finally { await file.close(); }
+      operation = "replace";
+      for (;;) {
+        check();
+        attempts++;
+        try { await rename(temporary, target); break; }
+        catch (error) {
+          // Windows can briefly deny replacement even after our own handles are closed.
+          // Retain the lock and the complete temporary file; never delete/truncate the ledger.
+          if (process.platform !== "win32" || error.code !== "EPERM" || attempts >= 5) throw error;
+          await new Promise(resolve => setTimeout(resolve, 20 * 2 ** (attempts - 1)));
+        }
+      }
+      if (attempts > 1) record({ operation, code: "EPERM", attempts, recovered: true });
+      return true;
+    } catch (error) { failure(error); throw error; }
+    finally {
+      try {
+        if (ownsTemporary) await unlink(temporary).catch(error => {
+          if (error.code !== "ENOENT") { failure(error, "cleanup"); throw error; }
+        });
+      } finally {
+        if (lock) {
+          try { await lock.close(); }
+          finally { await unlink(lockPath).catch(error => { failure(error, "unlock"); throw error; }); }
+        }
+      }
+    }
   } };
 }
 
@@ -183,16 +221,17 @@ function safeStatus(body, scenarioId, scenarios) {
     ...(Number.isSafeInteger(body.acceptedAt) ? { acceptedAt: body.acceptedAt } : {}), settled: body.settled === true };
 }
 
-async function control(options, configuration, helper, keyBytes, transport) {
+async function control(options, configuration, helper, keyBytes, transport, recordNonceStorage) {
   const { inventory } = configuration;
   const end = performance.now() + (options.mode === "start" ? 10_000 : 5_000);
-  const nonces = responseNonces(inventory);
+  const nonces = responseNonces(inventory, recordNonceStorage);
   const request = async operation => {
     const context = { direction: "executor-to-site", kind: "request", method: "POST", path: `/_smoke/${operation}`,
       audience: inventory.controlOrigin, jobId: "collection", status: null };
     const body = new TextEncoder().encode(JSON.stringify({ scenarioId: options.scenarioId }));
     const headers = await helper.signBridgeMessage({ context, body, keyId: inventory.controlKeyId, keyBytes, now: Date.now });
     const controller = new AbortController();
+    const check = () => { if (controller.signal.aborted || performance.now() >= end) throw Error("Control deadline"); };
     const remaining = Math.max(1, Math.floor(end - performance.now()));
     let timer;
     try {
@@ -200,7 +239,8 @@ async function control(options, configuration, helper, keyBytes, transport) {
         new Promise((_, no) => { timer = setTimeout(() => { controller.abort(); no(Object.assign(Error(), { pending: true })); }, remaining); })]);
       const bytes = await helper.readBridgeBody(response, { maxBytes: 4096, timeoutMs: Math.max(1, Math.min(4500, Math.floor(end - performance.now()))), signal: controller.signal });
       try { await helper.verifyBridgeMessage({ context: { ...context, kind: "response", status: response.status }, body: bytes,
-        headers: response.headers, keyId: inventory.controlKeyId, keyBytes, now: Date.now, nonces }); }
+        headers: response.headers, keyId: inventory.controlKeyId, keyBytes, now: Date.now,
+        nonces: { claim: async claim => { check(); const accepted = await nonces.claim(claim, check); check(); return accepted; } } }); }
       catch { reject("response-authentication"); }
       if (response.status >= 500) return { pending: true };
       if (response.status !== 200) return { rejected: true, httpStatus: response.status };
@@ -262,7 +302,7 @@ async function requestReplayStep(options, inventory, approval, helper, keyBytes,
     check();
     await helper.verifyBridgeMessage({ context: { ...context, kind: "response", status: response.status }, body: bytes,
       headers: response.headers, keyId: inventory.controlKeyId, keyBytes, now: Date.now,
-      nonces: { claim: async claim => { check(); const accepted = await nonces.claim(claim); check(); return accepted; } } });
+      nonces: { claim: async claim => { check(); const accepted = await nonces.claim(claim, check); check(); return accepted; } } });
     check();
     if ([400, 401, 409].includes(response.status)) return { result: "rejected", httpStatus: response.status };
     if (response.status !== 200) return { result: "unknown", code: "response-unavailable" };
@@ -283,8 +323,8 @@ async function requestReplayStep(options, inventory, approval, helper, keyBytes,
   finally { clearTimeout(timer); controller.abort(); }
 }
 
-async function replayControl(options, configuration, approval, helper, keyBytes, transport, directory, progress) {
-  const nonces = responseNonces(configuration.inventory);
+async function replayControl(options, configuration, approval, helper, keyBytes, transport, directory, progress, recordNonceStorage) {
+  const nonces = responseNonces(configuration.inventory, recordNonceStorage);
   let queueExpiry;
   for (const step of helper.SMOKE_REPLAY_STEPS) {
     const startedAt = Date.now();
@@ -303,6 +343,8 @@ async function replayControl(options, configuration, approval, helper, keyBytes,
 /** Bounded operator entry; transport/input are explicit synthetic test capabilities. */
 export async function runSmokeDriver(args, capabilities = {}) {
   let directory, replayProgress;
+  const nonceStorage = [];
+  const recordNonceStorage = entry => { if (nonceStorage.length < 16) nonceStorage.push(entry); };
   let keyBytes = null;
   let ownsDirectory = false;
   try {
@@ -325,16 +367,17 @@ export async function runSmokeDriver(args, capabilities = {}) {
         artifact: { report: artifact.report, reportSha256: hash(await boundedFile(resolve(root, artifact.report))),
           executorSha256: artifact.executor.sha256, siteSha256: artifact.site.sha256 }, ownedStorageRemoved: true };
     } else if (options.mode === "replay") result = await replayControl(options, configuration, approval, helper, keyBytes,
-      capabilities.transport ?? fetch, directory, replayProgress);
-    else result = await control(options, configuration, helper, keyBytes, capabilities.transport ?? fetch);
+      capabilities.transport ?? fetch, directory, replayProgress, recordNonceStorage);
+    else result = await control(options, configuration, helper, keyBytes, capabilities.transport ?? fetch, recordNonceStorage);
     const report = { ...result, mode: options.mode, cloudElapsedProved: false,
+      ...(nonceStorage.length ? { nonceStorage } : {}),
       hostHelperSha256: hash(await boundedFile(resolve(directory, "host-helper.mjs"), 5_000_000)),
       ...(configuration ? { accountId: configuration.inventory.accountId, resources: configuration.inventory.resources,
         artifactReportSha256: configuration.reportDigest } : {}), report: relative(root, resolve(directory, "report.json")).split(sep).join("/") };
     await writeFile(resolve(directory, "report.json"), JSON.stringify(report, null, 2), { flag: "wx" }); return report;
   } catch (error) {
     const report = { ...replayProgress, status: "refused", code: safeFailureCodes.has(error?.safeCode) ? error.safeCode : "operation-unavailable",
-      accepted: false, cloudElapsedProved: false };
+      accepted: false, cloudElapsedProved: false, ...(nonceStorage.length ? { nonceStorage } : {}) };
     if (ownsDirectory) await writeFile(resolve(directory, "failure.json"), JSON.stringify(report), { flag: "wx" }).catch(() => undefined);
     return report;
   } finally { keyBytes?.fill(0); }
