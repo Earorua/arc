@@ -38,7 +38,6 @@ export default function Home() {
                 <div><span aria-hidden="true">02</span><h3>学习路线</h3><p>理解阶段之间的依赖。样例展示 18 周路线，实际周期由你设定。</p></div>
                 <div><span aria-hidden="true">03</span><h3>作品证据</h3><p>保存作品、记录版本，决定哪些成果可以公开分享。</p></div>
               </div>
-              <Link className="discovery-text-link" href="/showcase">体验 Today、Path 与 Proof 完整样例 ↗</Link>
             </SectionReveal>
           </div>
         </section>

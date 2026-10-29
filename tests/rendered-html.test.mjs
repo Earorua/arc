@@ -51,7 +51,8 @@ test("server-renders the Arc landing page", async () => {
   assert.equal(notices.length, 0);
   assert.equal(document.querySelector(".skip-link")?.getAttribute("href"), "#main-content");
   assert.match(html, /aria-label="网站导航"/);
-  assert.match(html, /href="\/showcase"/);
+  assert.equal(document.querySelectorAll('a[href="/showcase"]').length, 1, "the homepage keeps one showcase entry in public navigation");
+  assert.equal(document.querySelector('nav a[href="/showcase"]')?.textContent, "产品样例");
   assert.equal(document.querySelector('link[rel="canonical"]')?.getAttribute("href"), "https://arcmaps.net/");
   assert.equal(document.querySelector('meta[property="og:url"]')?.getAttribute("content"), "https://arcmaps.net/");
   assert.match(html, /property="og:image" content="https:\/\/arcmaps\.net\/og\.png"/);

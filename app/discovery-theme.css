@@ -63,8 +63,6 @@ a, button, summary { touch-action: manipulation; }
 .discovery-hero-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px 28px; margin-top: 28px; animation: discovery-enter 1.1s var(--motion-ease) 400ms both; }
 .discovery-hero-actions .primary-action { margin: 0; background: transparent; color: var(--charcoal); border-color: var(--hairline); }
 .discovery-hero-actions .primary-action:hover { background: var(--charcoal); border-color: var(--charcoal); color: var(--ivory); }
-.discovery-hero-actions .hero-secondary { margin: 0; color: var(--stone); font-size: 14px; }
-.discovery-hero-actions .hero-secondary:hover { color: var(--action); border-color: var(--action); }
 .discovery-scroll { justify-self: center; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 80px; font: 400 11px/1.6 var(--sans); letter-spacing: .16em; color: var(--stone); }
 .discovery-scroll i { display: block; width: 1px; height: 26px; background: linear-gradient(var(--stone),transparent); transform-origin: top; animation: arc-scroll 2.6s ease-in-out infinite; }
 .discovery-home .editorial-section, .discovery-section-inner { width: var(--content); margin: 0 auto; padding-block: clamp(72px, 9vw, 132px); }
@@ -165,7 +163,6 @@ a, button, summary { touch-action: manipulation; }
   .discovery-hero-description { max-width: 23em; font-size: 15px; margin-top: 24px; }
   .discovery-hero-actions { gap: 8px 20px; margin-top: 24px; }
   .discovery-hero-actions .primary-action { padding-inline: 20px; font-size: 14px !important; }
-  .discovery-hero-actions .hero-secondary { font-size: 12px; }
   .discovery-two-col { grid-template-columns: minmax(0,1fr); gap: 24px; }
   .discovery-home .section-index { margin-bottom: 28px; }
   .discovery-home h2 { font-size: 36px; line-height: 1.45; }
