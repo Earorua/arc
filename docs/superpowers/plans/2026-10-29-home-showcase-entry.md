@@ -14,10 +14,10 @@
 
 ## 实施与验证
 
-- [ ] `app/components/brand/precision-path-hero.tsx`：删除样例 Link 和未使用的 Link 导入；保留唯一学习主动作。
-- [ ] `app/page.tsx`：删除产品介绍末尾指向 `/showcase` 的链接，保留介绍内容。
-- [ ] `app/discovery-theme.css`：删除仅用于已移除按钮的三个 `.hero-secondary` 规则。
-- [ ] `tests/pages/home.test.tsx`：将旧的首屏样例断言改为顶部导航内唯一「产品样例」链接；`tests/rendered-html.test.mjs` 对构建后首页检查唯一入口，避免旧副本回归。
-- [ ] 运行首页、页头、公共学习入口与样例相关测试，TypeScript 和变更文件 ESLint；构建后运行 5 项渲染检查。
-- [ ] 发布网站候选并核对版本、运行配置及执行器未变。
-- [ ] 正式网页核对桌面、手机全页仅一个 `/showcase` 链接；手机展开「浏览」并点击可打开样例；保存截图和验收记录，推送分支。
+- [x] `app/components/brand/precision-path-hero.tsx`：删除样例 Link 和未使用的 Link 导入；保留唯一学习主动作。
+- [x] `app/page.tsx`：删除产品介绍末尾指向 `/showcase` 的链接，保留介绍内容。
+- [x] `app/discovery-theme.css`：删除仅用于已移除按钮的三个 `.hero-secondary` 规则。
+- [x] `tests/pages/home.test.tsx`：将旧的首屏样例断言改为顶部导航内唯一「产品样例」链接；`tests/rendered-html.test.mjs` 对构建后首页检查唯一入口，避免旧副本回归。
+- [x] 运行首页、页头、公共学习入口与样例相关测试，TypeScript 和变更文件 ESLint；构建后运行 5 项渲染检查。
+- [x] 发布网站候选并核对版本、运行配置及执行器未变。
+- [x] 正式网页核对桌面、手机全页仅一个 `/showcase` 链接；手机展开「浏览」并点击可打开样例；保存截图和验收记录，推送分支。
