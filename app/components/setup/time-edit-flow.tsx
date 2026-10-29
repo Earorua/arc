@@ -143,6 +143,5 @@ function CurrentTimeEditor({ planning, workspace, registry, roleName, draftOwner
     {(planning.source === "offline-cloud" || message?.kind === "alert") && <button className="text-action" type="button" disabled={pending} onClick={() => void reconnect()}>重新读取当前计划</button>}
     {workspace.pendingPlanVersionId && <PlanDiffReview workspace={workspace} registry={registry} recovery={planning.recovery} acceptLabel="保存调整" onAccept={planning.accept} onDiscard={planning.discard} onSuccess={(text) => { clearDraft(); setMessage(null); onDecision(text); }} />}
     <div className="setup-completion-links"><Link className="text-action" href="/path">查看当前路线</Link><Link className="text-action" href="/today">开始今日任务</Link></div>
-    <details className="setup-other-action"><summary>想改变学习目标？</summary><p>创建新目标是独立操作，保存前会说明历史记录的处理方式。</p><Link className="text-action" href="/setup?mode=create">创建新的学习目标</Link></details>
   </section>;
 }

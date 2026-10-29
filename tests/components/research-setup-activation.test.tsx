@@ -6,6 +6,8 @@ import PathPage from "../../app/path/page";
 import TodayPage from "../../app/today/page";
 import StackPage from "../../app/stack/page";
 import ProofPage from "../../app/proof/page";
+import { LearningEntry } from "../../app/components/account/learning-entry";
+import { HomeLearningAction } from "../../app/components/brand/home-learning-action";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipRole } from "../../app/data/flagship-role";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
@@ -144,7 +146,11 @@ describe("new Research setup through real clients, routes, services and SQLite",
       await user.click(screen.getByRole("button", { name: "创建路线" }));
       await screen.findByText("保存结果尚未确认，请按原设置重试。");
       expect(screen.getByRole("button", { name: "返回" })).toBeDisabled();
-      view.unmount(); render(<SetupPage />);
+      view.unmount();
+      const entry = render(<LearningEntry><HomeLearningAction /></LearningEntry>);
+      const link = await screen.findByRole("link", { name: failure === "after" ? "继续学习" : "继续设置" });
+      expect(link).toHaveAttribute("href", failure === "after" ? "/today" : "/setup?mode=create");
+      entry.unmount(); render(<SetupPage />);
       await user.click(await screen.findByRole("button", { name: "重试保存原计划" }));
       await waitFor(() => expect(session.navigate).toHaveBeenCalledWith("/path?created=1"));
       expect(count("career_goals")).toBe(1); expect(count("planning_workspaces")).toBe(1);
@@ -188,7 +194,7 @@ describe("new Research setup through real clients, routes, services and SQLite",
   it("keeps guest Flagship generation entirely on this device and does not claim account persistence", async () => {
     session.owner = null; localStorage.removeItem("arc:role-research:v1");
     const history = completeDemoUnit(createDemoState(), flagshipRole.today); saveDemoState(history);
-    render(<SetupPage />); const user = userEvent.setup();
+    const view = render(<SetupPage />); const user = userEvent.setup();
     for (let index = 0; index < 3; index++) await user.click(screen.getByRole("button", { name: "继续" }));
     expect(screen.queryByText(/saves this plan to your account/)).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "创建路线" }));
@@ -196,6 +202,11 @@ describe("new Research setup through real clients, routes, services and SQLite",
     expect(calls).toHaveLength(0); expect(count("career_goals")).toBe(0); expect(count("planning_workspaces")).toBe(0);
     expect(await createLocalPlanningRepository({ storage: localStorage }).load()).not.toBeNull();
     expect(JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY)!)).toEqual(history);
+    view.unmount();
+    const write = vi.spyOn(Storage.prototype, "setItem");
+    render(<LearningEntry><HomeLearningAction /></LearningEntry>);
+    expect(await screen.findByRole("link", { name: "继续学习" })).toHaveAttribute("href", "/today");
+    expect(write).not.toHaveBeenCalled(); write.mockRestore();
   });
   it.each(workspacePages)("hides prior absence permission immediately on an account roundtrip in $pageName", async ({ Page, title }) => {
     const visibleTitle = Page === StackPage ? "技能与资料" : title;

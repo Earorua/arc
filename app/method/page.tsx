@@ -34,7 +34,7 @@ export default function MethodPage() {
             </div>
           </li>
         </ol>
-        <footer className="method-next"><Link className="primary-action" href="/showcase?view=path">查看完整样例</Link><Link className="text-action" href="/setup?mode=create">创建我的路线</Link></footer>
+        <footer className="method-next"><Link className="primary-action" href="/showcase?view=path">查看完整样例</Link></footer>
       </main>
     </>
   );

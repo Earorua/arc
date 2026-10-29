@@ -304,7 +304,6 @@ export function AccountMenu() {
           <span>{data.user.email}</span>
           <Link href="/today">继续学习</Link>
           <Link href="/path">我的学习路线</Link>
-          <Link href="/setup?mode=create">新建学习路线</Link>
           <LearningPreferences />
           <div className="account-connections" aria-label="Sign-in connections">
             <p>Sign-in connections</p>

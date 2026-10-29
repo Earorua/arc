@@ -1,23 +1,24 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-const mocks = vi.hoisted(() => ({ useSession: vi.fn(), replace: vi.fn() }));
+const mocks = vi.hoisted(() => ({ useSession: vi.fn(), replace: vi.fn(), load: vi.fn() }));
 vi.mock("../../app/lib/auth-client", () => ({ authClient: { useSession: mocks.useSession } }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: mocks.replace }), usePathname: () => "/" }));
 vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => null }));
+vi.mock("../../app/lib/cloud-client", async original => ({ ...await original<typeof import("../../app/lib/cloud-client")>(), arcCloudClient: { loadWorkspace: mocks.load } }));
 import Home from "../../app/page";
 
 afterEach(cleanup);
-beforeEach(() => { mocks.useSession.mockReturnValue({ data: null, isPending: false }); });
+beforeEach(() => { localStorage.clear(); mocks.load.mockResolvedValue({ activeGoalId: "goal-current" }); mocks.useSession.mockReturnValue({ data: null, isPending: false }); });
 
 describe("Arc home", () => {
-  it("keeps the homepage reachable for a signed-in learner with a continue action", () => {
+  it("keeps the homepage reachable for a signed-in learner with a continue action", async () => {
     mocks.useSession.mockReturnValue({ data: { user: { id: "learner" } }, isPending: false });
     render(<Home />);
     expect(mocks.replace).not.toHaveBeenCalled();
-    const actions = screen.getAllByRole("link", { name: "继续学习" });
-    expect(actions).toHaveLength(3);
+    const actions = await within(screen.getByRole("main")).findAllByRole("link", { name: "继续学习" });
+    expect(actions).toHaveLength(2);
     for (const action of actions) expect(action).toHaveAttribute("href", "/today");
-    expect(screen.queryByRole("link", { name: /建立我的学习路线/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /创建学习路线/ })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: /Learn only what moves you forward/i })).toBeInTheDocument();
   });
 
@@ -26,7 +27,7 @@ describe("Arc home", () => {
     render(<Home />);
     expect(mocks.replace).not.toHaveBeenCalled();
   });
-  it("presents one promise, one primary action, and the product loop", () => {
+  it("presents one promise, one primary action, and the product loop", async () => {
     render(<Home />);
 
     expect(
@@ -36,8 +37,11 @@ describe("Arc home", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole("link", { name: /建立我的学习路线/i })[0],
+      (await screen.findAllByRole("link", { name: "创建学习路线" }))[0],
     ).toHaveAttribute("href", "/setup");
+    const actions = screen.getAllByRole("link", { name: "创建学习路线" });
+    expect(actions.filter(action => action.classList.contains("primary-action"))).toHaveLength(1);
+    expect(actions[1]).toHaveClass("learning-entry-text");
     expect(screen.getByText("Understand")).toBeInTheDocument();
     expect(screen.getByText("Build")).toBeInTheDocument();
     expect(screen.getByText("Prove")).toBeInTheDocument();

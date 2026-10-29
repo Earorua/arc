@@ -6,11 +6,11 @@ import ShowcasePage from "../../app/showcase/page";
 vi.mock("next/navigation", () => ({ usePathname: () => "/showcase" }));
 vi.mock("../../app/lib/auth-client", () => ({ authClient: { useSession: () => ({ data: null, isPending: false }) } }));
 
-beforeEach(() => window.history.replaceState(null, "", "/showcase"));
+beforeEach(() => { localStorage.clear(); window.history.replaceState(null, "", "/showcase"); });
 afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 describe("public learning sample", () => {
-  it("opens directly to a shareable view and makes the sample identity clear", () => {
+  it("opens directly to a shareable view and makes the sample identity clear", async () => {
     window.history.replaceState(null, "", "/showcase?view=today");
     render(<ShowcasePage />);
     expect(screen.getByRole("heading", { level: 1, name: "看看一条学习路线如何推进" })).toBeInTheDocument();
@@ -19,7 +19,9 @@ describe("public learning sample", () => {
     expect(screen.getByText(/公开样例，不是你的计划/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "产品样例" })).toHaveAttribute("aria-current", "page");
     const intro = screen.getByRole("region", { name: "看看一条学习路线如何推进" });
-    expect(within(intro).getByRole("link", { name: "创建我的路线" })).toHaveAttribute("href", "/setup?mode=create");
+    expect(within(intro).queryByRole("link")).not.toBeInTheDocument();
+    expect(await screen.findAllByRole("link", { name: "创建学习路线" })).toHaveLength(1);
+    expect(screen.getByRole("link", { name: "创建学习路线" })).toHaveAttribute("href", "/setup");
   });
 
   it("writes the selected view to the URL and restores it on browser Back and remount", async () => {

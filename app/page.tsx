@@ -50,7 +50,7 @@ export default function Home() {
               <h2>Start with direction.<br /><em>Finish with proof.</em></h2>
               <div className="discovery-finale-actions">
                 <p lang="zh-CN">从一个值得投入的目标开始。</p>
-                <HomeLearningAction />
+                <HomeLearningAction secondary />
               </div>
             </SectionReveal>
           </div>

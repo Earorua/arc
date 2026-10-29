@@ -22,6 +22,7 @@ import {
   createDemoState,
   DEMO_STORAGE_KEY,
   loadDemoState,
+  hasMeaningfulDemoState,
   readDemoStateForMigration,
   type DemoState,
 } from "../demo-store";
@@ -583,6 +584,18 @@ function envelopeForWrite(storage: Storage | undefined): { envelope: LocalPlanni
     envelope: legacy.found ? createEmptyEnvelope(legacy.state, legacy.fingerprint) : createEmptyEnvelope(),
     raw: null,
   };
+}
+
+// Public navigation only inspects saved state; unlike repository.load(), this
+// must not upgrade legacy data or write anything just because a page was opened.
+export function readLocalLearningPresence(): "saved" | "missing" | "unavailable" {
+  const storage = resolveStorage();
+  if (!storage) return "unavailable";
+  const stored = readEnvelope(storage);
+  if (stored.kind === "invalid") return "unavailable";
+  if (stored.kind === "valid" && stored.envelope.workspace) return "saved";
+  const legacy = readDemoStateForMigration(storage);
+  return legacy.found && hasMeaningfulDemoState(legacy.state) ? "saved" : "missing";
 }
 
 function readEnvelope(storage: Pick<Storage, "getItem">): StoredEnvelopeRead {
