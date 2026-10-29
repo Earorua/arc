@@ -244,6 +244,10 @@ export function StackBrowser({ blueprint, evidence, evidenceReady = true, projec
             : null;
           const completedLabel = `已完成 ${projection.completedUnitIds.length} 个学习单元`;
           const next = nextAction(skill.id, projection.status, projection.strongestProofId, currentUnit?.skillId === skill.id);
+          const proofAction = next.href.startsWith("/proof");
+          const nextHref = proofAction ? proofHref(projection.strongestProofId) : next.href;
+          // Proof actions also remember the originating focus and scroll position.
+          const showNextAction = proofAction || nextHref !== sourceReturn;
           return <article id="selected-skill-detail" key={skill.id} aria-labelledby="selected-skill-heading">
             <button className="stack-back text-action" type="button" onClick={showList}>返回技能列表</button>
             <header className="skill-summary">
@@ -254,7 +258,7 @@ export function StackBrowser({ blueprint, evidence, evidenceReady = true, projec
             <div className="skill-detail">
               <div className="skill-next-step">
                 <p><strong className={`skill-status skill-status-${projection.status}`}>{statusLabels[projection.status]}</strong><span>{completedLabel}</span></p>
-                <Link className="primary-action" ref={actionRef} href={next.href.startsWith("/proof") ? proofHref(projection.strongestProofId) : next.href} onClick={next.href.startsWith("/proof") ? () => rememberReturn("action") : undefined}>{next.label}</Link>
+                {showNextAction && <Link className="primary-action" ref={actionRef} href={nextHref} onClick={proofAction ? () => rememberReturn("action") : undefined}>{next.label}</Link>}
               </div>
               <section className="resource-block">
                 <h3>推荐资料</h3>

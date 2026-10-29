@@ -88,6 +88,7 @@ describe("PathPage", () => {
     if (flow === "adaptive") usePlanningWorkspace.mockReturnValue({ ...emptyPlanningController(), workspace: pendingWorkspace() });
     const page = render(<PathPage />);
     expect(await screen.findByRole("heading", { name: "学习路线" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "调整学习计划" })).toHaveAttribute("href", "/coach?returnTo=%2Fpath");
     expect(screen.getByRole("link", { name: label })).toHaveAttribute("href", destination);
     expect(screen.getByRole("link", { name: "继续今日学习 ↗" })).toHaveAttribute("href", "/today");
     expect(window.location.pathname).toBe("/path");

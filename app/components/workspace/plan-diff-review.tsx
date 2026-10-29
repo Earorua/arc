@@ -12,7 +12,7 @@ type PlanDiffReviewProps = {
   recovery?: PlanningRecoveryState;
   onAccept: (candidatePlanVersionId: string) => Promise<boolean>;
   onDiscard: (candidatePlanVersionId: string) => Promise<boolean>;
-  onSuccess?: (message: string) => void;
+  onSuccess?: (message: string, decision: "accept" | "discard") => void;
   registry?: UnitRegistry;
   acceptLabel?: string;
 };
@@ -61,7 +61,7 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
       const succeeded = await (kind === "accept" ? onAccept : onDiscard)(resolved.candidate.id);
       if (succeeded) {
         const text = kind === "accept" ? "已接受新安排。" : "已保留当前安排。";
-        if (onSuccess) onSuccess(text);
+        if (onSuccess) onSuccess(text, kind);
         else setMessage({ kind: "status", text });
       }
       else setMessage({ kind: "alert", text: recovery === "conflict" ? "计划已在另一台设备上发生变化，请刷新后再决定。" : "暂时无法保存这个决定，请在连接恢复后重试。" });

@@ -20,17 +20,14 @@ export function WorkspaceHeader({ current, context }: { current: WorkspaceDestin
     <div className="workspace-context-row">
       <span className="workspace-context workspace-goal" title={context}>{context ?? "你的学习工作区"}</span>
       <div className="workspace-context-actions"><WorkspaceHelp />
-      <details className="workspace-tools">
-        <summary>{current === "Path" ? "计划管理" : "工具"}</summary>
+      {current === "Path" && <details className="workspace-tools">
+        <summary>计划管理</summary>
         <nav className="workspace-tools-menu" aria-label="学习工具">
-          <Link href="/coach" aria-current={current === "Coach" ? "page" : undefined}>学习规划</Link>
-          {current === "Path" && <>
             <Link href="/history">历史计划</Link>
             <Link href="/setup?mode=edit&section=time">编辑时间</Link>
             <Link href="/setup?mode=create">新建路线</Link>
-          </>}
         </nav>
-      </details>
+      </details>}
       </div>
     </div>
   </header>;

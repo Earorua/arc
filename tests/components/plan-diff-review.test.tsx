@@ -22,6 +22,12 @@ function workspace(level: SkillSelfLevel = "unseen") {
 
 afterEach(cleanup);
 describe("PlanDiffReview", () => {
+  it.each(["accept", "discard"] as const)("reports the explicit %s decision to its parent", async decision => {
+    const onSuccess = vi.fn();
+    render(<PlanDiffReview workspace={workspace()} onAccept={vi.fn().mockResolvedValue(true)} onDiscard={vi.fn().mockResolvedValue(true)} onSuccess={onSuccess} />);
+    await userEvent.click(screen.getByRole("button", { name: decision === "accept" ? "接受新安排" : "保留当前安排" }));
+    expect(onSuccess).toHaveBeenCalledWith(expect.any(String), decision);
+  });
   it("explains why an uncertain self-claim keeps learning and allows keeping the current arrangement", async () => {
     const current = workspace("uncertain");
     current.pendingPlanVersionId = null;

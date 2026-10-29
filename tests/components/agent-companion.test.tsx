@@ -52,6 +52,7 @@ describe("learning companion", () => {
   });
   it("contains keyboard focus on narrow screens and returns it on close", async () => {
     const previous = window.matchMedia;
+    const scroll = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     window.matchMedia = vi.fn(query => ({ matches: true, media: query, onchange: null, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: vi.fn() }));
     function Harness() {
       const [view, onView] = useState<"pet" | "chat">("pet");
@@ -67,7 +68,7 @@ describe("learning companion", () => {
       fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
       await waitFor(() => expect(screen.getByRole("button", { name: "打开学习伙伴" })).toHaveFocus());
       expect(document.body.style.overflow).not.toBe("hidden");
-    } finally { cleanup(); window.matchMedia = previous; }
+    } finally { cleanup(); window.matchMedia = previous; scroll.mockRestore(); }
   });
   it("minimizes, shows task context and keeps the message controlled", () => {
     const p = props(); render(<CompanionPanel {...p} view="chat" draft="闭包是什么？" />);

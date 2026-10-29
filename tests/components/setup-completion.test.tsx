@@ -14,7 +14,7 @@ const popTo = (step: string) => act(() => { window.history.replaceState(null, ""
 function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>((done) => { resolve = done; }); return { promise, resolve }; }
 
 describe("complete setup experience", () => {
-  it("offers recovery and a real exit when existing-plan creation requires unavailable research", async () => {
+  it("rechecks unavailable research without losing the existing-plan role input", async () => {
     const retry = vi.fn();
     render(<SetupFlow basicCreationAllowed={false} signedIn researchEligible={false} onRetryResearchAvailability={retry} renderResearch={() => <p>Research</p>} onComplete={vi.fn()} />);
     fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: "AI 工程师" } });
@@ -23,7 +23,7 @@ describe("complete setup experience", () => {
     expect(screen.queryByRole("button", { name: "继续" })).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "重新检查岗位研究" }));
     expect(retry).toHaveBeenCalledOnce();
-    expect(screen.getByRole("link", { name: "返回当前路线" })).toHaveAttribute("href", "/path");
+    expect(screen.getByLabelText("自定义岗位")).toHaveValue("AI 工程师");
   });
 
   it("keeps research as the actionable goal substate when existing-plan research is enabled", async () => {

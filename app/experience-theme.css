@@ -55,6 +55,8 @@ body:has(.workspace-header) .companion-launcher, body:has(.workspace-header) .co
 .sign-in-paper .sign-in-header { border-color: var(--hairline); min-height: 80px; }
 .sign-in-paper .sign-in-header a { color: var(--charcoal); }
 .sign-in-paper .sign-in-header > a:last-child, .sign-in-paper .sign-in-footer a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
+.sign-in-paper .account-unavailable a { display: inline-flex; align-items: center; min-height: 44px; color: var(--charcoal); font-size: 14px; }
+.sign-in-paper .account-unavailable > p:not(.account-availability) { color: var(--stone); }
 .public-menu { font-size: 14px; min-height: 44px; }
 .stack-browser .stack-search :is(label, .stack-search-clear), .coach-work-page .coach-current a { font-size: 14px; }
 .stack-browser .stack-search-clear, .coach-work-page .coach-current a { min-height: 44px; display: inline-flex; align-items: center; }

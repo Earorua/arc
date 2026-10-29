@@ -78,7 +78,10 @@ function LegacyPath({ arc }: { arc: ReturnType<typeof useArcState> }) {
         <p className="eyebrow">{role} · {targetWeeks} 周 · 每周 {weeklyMinutes} 分钟</p>
         <h1>学习路线</h1>
         <p>每个阶段只承担一个明确结果；时间变化时，后续路线重新分配但历史保持不变。</p>
-        <Link className="primary-link" href="/today">继续今日学习 ↗</Link>
+        <div className="path-primary-actions">
+          <Link className="primary-link" href="/today">继续今日学习 ↗</Link>
+          <Link href="/coach?returnTo=%2Fpath">调整学习计划</Link>
+        </div>
       </section>
       <SetupCompletionNotice />
       <PhaseRail phases={phases} />

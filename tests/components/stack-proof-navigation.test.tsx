@@ -30,6 +30,32 @@ const stackProps = { blueprint: flagshipBlueprint, projections: ledger.projectio
 const proofProps = { canUpload: false, dailyUnits: [], projections: [], recovery: "none" as const, source: "local" as const, skills: flagshipBlueprint.skills, workspace: ledger, createProof: async () => true, reviseProof: async () => true, setVisibility: async () => true, withdrawProof: async () => true, retry: async () => undefined };
 
 describe("Stack current-task action", () => {
+  it("uses the existing Today return for the same task destination and restores focus when the action is absent", () => {
+    const href = "/stack?scope=current&skill=web-platform&returnTo=%2Ftoday";
+    window.history.replaceState(null, "", href);
+    vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const storageKey = `arc:stack-return:v1:${stackProps.ownerKey}`;
+    sessionStorage.setItem(storageKey, JSON.stringify({ href, focus: "action", page: 180, index: 30, list: { page: 120, index: 30 } }));
+    render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} now={() => new Date("2026-08-14T08:00:00.000Z")} />);
+    expect(screen.getByRole("link", { name: "返回今日学习" })).toHaveAttribute("href", "/today");
+    expect(screen.queryByRole("link", { name: "继续今日学习" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Web Platform" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "返回技能列表" })).toBeInTheDocument();
+    expect(sessionStorage.getItem(storageKey)).toBeNull();
+  });
+
+  it.each(["/today?unit=another", "/today#task", "/path?skill=web-platform", "/proof?proof=proof-1"])("keeps a distinct current-task action alongside %s", returnTo => {
+    window.history.replaceState(null, "", `/stack?skill=web-platform&returnTo=${encodeURIComponent(returnTo)}`);
+    render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} now={() => new Date("2026-08-14T08:00:00.000Z")} />);
+    expect(screen.getByRole("link", { name: "继续今日学习" })).toHaveAttribute("href", "/today");
+    expect(screen.getByRole("link", { name: returnTo.startsWith("/today") ? "返回今日学习" : "返回来源页面" })).toHaveAttribute("href", returnTo);
+  });
+
+  it.each(["/path", "/path?skill=other", "/path?skill=react#detail"])("keeps skill-specific route navigation distinct from %s", returnTo => {
+    window.history.replaceState(null, "", `/stack?scope=all&skill=react&returnTo=${encodeURIComponent(returnTo)}`);
+    render(<StackBrowser {...stackProps} planningWorkspace={planningWorkspace()} />);
+    expect(screen.getByRole("link", { name: "查看技能路线" })).toHaveAttribute("href", "/path?skill=react");
+  });
   it.each(["exploring", "practicing", "demonstrated", "verified"] as const)("continues the actual due task regardless of its %s evidence status", (status) => {
     window.history.replaceState(null, "", "/stack?skill=web-platform");
     const projection = { ...ledger.projections[0], skillId: "web-platform", status };

@@ -43,10 +43,15 @@ function subscribeOverlay(callback: () => void) {
 export function useCompanionOverlay() {
   return useSyncExternalStore(subscribeOverlay, () => window.matchMedia(overlayQuery).matches, () => false);
 }
+const companionRoutes = new Set(["/today", "/path", "/stack", "/proof", "/coach", "/history", "/setup"]);
+export function isLearningCompanionRoute(path: string | null | undefined) {
+  return path != null && companionRoutes.has(path);
+}
 export function AgentPageFrame({ children }: { children: ReactNode }) {
   const agents = useLearningAgents();
   const overlay = useCompanionOverlay();
-  const open = agents.authenticated && !agents.authPending && agents.view === "chat";
+  const path = usePathname();
+  const open = isLearningCompanionRoute(path) && agents.authenticated && !agents.authPending && agents.view === "chat";
   return <div className={open ? "arc-page-content has-companion" : "arc-page-content"} inert={open && overlay}>{children}</div>;
 }
 export function LearningAgentsProvider({ children }: { children: ReactNode }) {

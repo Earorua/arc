@@ -7,7 +7,6 @@ import { flagshipRole } from "../../data/flagship-role";
 import { claimGuestSetupDraft, clearSetupDrafts, legacyDraftSchema, readSetupDraft, writeSetupDraft, type LegacySetupDraft } from "./setup-draft";
 import { getRoleDisplayName } from "../../lib/personalized-plan";
 import { setupStepNames, useSetupNavigation } from "./setup-navigation";
-import Link from "next/link";
 import { updatePageQuery } from "../../lib/use-page-query";
 
 export type SetupSource = { source: "flagship"; roleId: "ai-native-full-stack-engineer" } | { source: "research"; researchRunId: string };
@@ -208,10 +207,9 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
           {!basicCreationAllowed && <div className="setup-research-availability">
             {!researchEligible && <p role="status">{!signedIn ? "此设备已有学习计划，暂不支持将本地计划归档后创建新目标。你可以继续当前路线。" : researchChecking ? "正在检查岗位研究是否可用…" : "岗位研究暂不可用，当前无法创建新路线。你的现有计划与学习记录会继续保留。"}</p>}
             {researchEligible && (!canResearchRole || customRole.trim().length < 2) && <p>请输入至少 2 个字符的新岗位名称，研究后即可继续创建。</p>}
-            <div className="setup-actions">
-              {signedIn && !researchEligible && onRetryResearchAvailability && <button className="text-action" disabled={researchChecking} onClick={onRetryResearchAvailability} type="button">重新检查岗位研究</button>}
-              <Link className="text-action" href="/path">返回当前路线</Link>
-            </div>
+            {signedIn && !researchEligible && onRetryResearchAvailability && <div className="setup-actions">
+              <button className="text-action" disabled={researchChecking} onClick={onRetryResearchAvailability} type="button">重新检查岗位研究</button>
+            </div>}
           </div>}
         </>
       )}
