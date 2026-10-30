@@ -17,10 +17,10 @@
 
 ## 实施
 
-- [ ] `app/components/brand/precision-path-hero.tsx` 移除英文副口号和中文说明。
-- [ ] `app/page.tsx` 将完整中文说明放入 Method 区第一段，合并原来重复表达。
-- [ ] `app/method/page.tsx` 将英文副口号放入现有引题；`app/method/method.css` 支持双语引题换行。
-- [ ] `app/discovery-theme.css` 清理移走文案的样式，调整按钮间距与入场时间。
-- [ ] 更新现有双语内容验收，并运行首页、公开介绍、导航、状态入口、样例相关检查和 TypeScript / ESLint。
-- [ ] 构建并验证产物，发布网站且保持执行器版本、运行配置与数据不变。
-- [ ] 验收桌面和手机的首页首屏、下方介绍区及方法页；保存截图、报告并推送分支。
+- [x] `app/components/brand/precision-path-hero.tsx` 移除英文副口号和中文说明。
+- [x] `app/page.tsx` 将完整中文说明放入 Method 区第一段，合并原来重复表达。
+- [x] `app/method/page.tsx` 将英文副口号放入现有引题；`app/method/method.css` 支持双语引题换行。
+- [x] `app/discovery-theme.css` 清理移走文案的样式，调整按钮间距与入场时间。
+- [x] 更新现有双语内容验收，并运行首页、公开介绍、导航、状态入口、样例相关检查和 TypeScript / ESLint。
+- [x] 构建并验证产物，发布网站且保持执行器版本、运行配置与数据不变。
+- [x] 验收桌面和手机的首页首屏、下方介绍区及方法页；保存截图、报告并推送分支。
