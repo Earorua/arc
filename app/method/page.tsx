@@ -9,7 +9,7 @@ export default function MethodPage() {
       <SiteHeader current="method" />
       <main id="main-content" tabIndex={-1} className="reading-page method-page" lang="zh-CN">
         <header className="method-intro">
-          <p className="eyebrow">学习方法 <span lang="en">· Method</span></p>
+          <p className="eyebrow method-kicker"><span>学习方法</span><span lang="en">A continuous learning journey</span></p>
           <h1>把目标，变成每天可完成的一步</h1>
           <p className="lede">从岗位需要的能力出发，结合你的基础和时间，安排能留下具体成果的练习。</p>
         </header>

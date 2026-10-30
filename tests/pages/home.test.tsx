@@ -56,9 +56,9 @@ describe("Arc home", () => {
       name: /Learn only what moves you forward/i,
     });
     expect(heroHeading.closest("section")).toHaveAttribute("lang", "en");
-    expect(
-      screen.getByText("从岗位目标出发，找到值得学的技能、做得完的任务，以及能展示的成果。"),
-    ).toHaveAttribute("lang", "zh-CN");
+    const explanation = screen.getByText("从岗位目标出发，找到值得学的技能、做得完的任务，以及能展示的成果。");
+    expect(explanation).toHaveAttribute("lang", "zh-CN");
+    expect(document.getElementById("learning-method")).toContainElement(explanation);
 
     expect(
       screen.getByRole("list", { name: "Arc learning method" }),

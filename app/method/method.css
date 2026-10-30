@@ -1,5 +1,6 @@
 .method-page { padding-block: 48px 80px; }
 .method-intro { max-width: 800px; }
+.method-kicker { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; }
 .method-intro h1 { max-width: 14em; margin: 20px 0; font: 500 clamp(2rem, 4.2vw, 3.5rem)/1.2 var(--display); letter-spacing: -.035em; }
 .method-intro .lede { max-width: 42rem; margin: 0; font-size: 1rem; line-height: 1.85; }
 .method-example-context { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: baseline; margin-top: 44px; padding: 20px 0; border-block: 1px solid var(--hairline); }

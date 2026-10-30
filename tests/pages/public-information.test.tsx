@@ -15,6 +15,7 @@ describe("public trust pages", () => {
   it("explains one concrete example from learning decisions through a task to inspectable evidence", () => {
     render(<MethodPage />);
     expect(screen.getByRole("heading", { level: 1, name: "把目标，变成每天可完成的一步" })).toBeInTheDocument();
+    expect(screen.getByText("A continuous learning journey")).toHaveAttribute("lang", "en");
     expect(screen.getByRole("heading", { name: "如何判断学什么" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "如何安排今天" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "如何确认学会" })).toBeInTheDocument();

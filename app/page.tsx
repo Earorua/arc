@@ -17,8 +17,8 @@ export default function Home() {
             <div className="discovery-two-col">
               <h2>每一步学习，<br />都有<em>方向。</em></h2>
               <div className="discovery-prose">
+                <p lang="zh-CN">从岗位目标出发，找到值得学的技能、做得完的任务，以及能展示的成果。</p>
                 <p>路线不是课程目录。它是一组有依赖、有证据、有时间预算的决定。</p>
-                <p>从你想成为谁开始，把需要掌握的技能，转化为今天能完成的一步。</p>
               </div>
             </div>
             <StoryRail />
