@@ -533,7 +533,7 @@ describe("Arc beta persistence schema", () => {
     expect(schema.dailyUnits.slot.enumValues).toEqual(["primary", "stretch"]);
     expect(schema.planningEvents.kind.enumValues).toEqual([
       "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed", "agent_replanned",
-      "replan_accepted", "replan_discarded",
+      "replan_accepted", "replan_discarded", "material_usage_changed",
     ]);
   });
 

@@ -4,6 +4,7 @@ import type { DocumentCapabilities } from "../../contracts/document-capabilities
 import type { SkillSelfLevel } from "../../contracts/planning";
 import { documentsClient, type DocumentsClient } from "../../lib/documents-client";
 import { useMaterialSelection } from "../../lib/use-material-selection";
+import type { AdoptedMaterialScope } from "../../lib/material-workspace-draft";
 import { MaterialTextPanel } from "./material-text-panel";
 import { MaterialLibrary } from "./material-library";
 import { removeSetupDraft } from "../setup/setup-draft";
@@ -15,16 +16,15 @@ type MaterialSetupState = ReturnType<typeof useMaterialSelection> & {
 };
 const MaterialSetupContext = createContext<MaterialSetupState | null>(null);
 export const useMaterialSetup = () => useContext(MaterialSetupContext);
-export function MaterialSetupProvider({ ownerId, scopeKey, children, client = documentsClient }: {
-  ownerId: string | null; scopeKey: string; children: ReactNode; client?: DocumentsClient;
-}) {
-  return <OwnedMaterialSetupProvider key={`${ownerId ?? "guest"}:${scopeKey}`} ownerId={ownerId} scopeKey={scopeKey} client={client}>{children}</OwnedMaterialSetupProvider>;
+type MaterialSetupProps = { ownerId: string | null; scopeKey: string; workspace?: AdoptedMaterialScope; workspaceRevision?: number; children: ReactNode; client?: DocumentsClient };
+export function MaterialSetupProvider(props: MaterialSetupProps) {
+  const { ownerId, scopeKey, workspace } = props;
+  return <OwnedMaterialSetupProvider key={JSON.stringify([ownerId, scopeKey, workspace?.workspaceId, workspace?.baseVersionId])} {...props} />;
 }
-function OwnedMaterialSetupProvider({ ownerId, scopeKey, children, client }: {
-  ownerId: string | null; scopeKey: string; children: ReactNode; client: DocumentsClient;
-}) {
-  const state = useMaterialSelection({ ownerId: ownerId ? `user:${ownerId}` : null, scopeKey });
+function OwnedMaterialSetupProvider({ ownerId, scopeKey, workspace, workspaceRevision, children, client = documentsClient }: MaterialSetupProps) {
   const [capabilities, setCapabilities] = useState<DocumentCapabilities | null>(null);
+  const state = useMaterialSelection({ ownerId: ownerId ? `user:${ownerId}` : null, scopeKey, workspace, workspaceRevision, client,
+    enabled: !workspace || Boolean(capabilities?.hasDocuments || (capabilities?.documentsEnabled && capabilities.planningEnabled)) });
   const [editorEpochs, setEditorEpochs] = useState({ resume: 0, jd: 0 });
   const replaceSlot: MaterialSetupState["replaceSlot"] = (slot, ref) => {
     removeSetupDraft(ownerId ? `user:${ownerId}` : undefined, `material-save:${scopeKey}:${slot}:${slot}`);

@@ -1,8 +1,8 @@
 import { z } from "zod";
 import {
-  DOCUMENT_SCHEMA_VERSION, MAX_DOCUMENT_ITEMS_JSON_BYTES, boundedMaterialJson, confirmedMaterialItemsSchema,
+  DOCUMENT_SCHEMA_VERSION, MAX_DOCUMENT_ITEMS_JSON_BYTES, adoptedMaterialEntriesSchema, adoptedMaterialScopeSchema, boundedMaterialJson, confirmedMaterialItemsSchema,
   documentKindSchema, documentReviewDraftSchema, documentSchema, documentTextSchema, documentVersionSchema,
-  materialDigestSchema, materialIdSchema, materialOwnerIdSchema, materialRevisionSchema, materialScopeSchema, materialSelectionEntriesSchema,
+  materialDigestSchema, materialGoalScopeSchema, materialIdSchema, materialOwnerIdSchema, materialRevisionSchema, materialScopeSchema, materialSelectionEntriesSchema, materialSelectionEntrySchema,
   materialSelectionRefSchema, materialSelectionSchema, materialSelfAssessmentHintsSchema, materialTimestampSchema, materialVersionSchema, materialReviewPointsSchema,
 } from "./documents";
 import {
@@ -113,6 +113,12 @@ export const documentEndpointContracts = {
   readDocumentExtraction: { method: "GET", path: "/api/documents/[documentId]/extractions/[extractionId]", request: readDocumentExtractionRequestSchema, response: readDocumentExtractionResponseSchema },
   adoptDocumentExtraction: { method: "POST", path: "/api/documents/[documentId]/adopt-extraction", request: adoptDocumentExtractionRequestSchema, response: saveDocumentReviewDraftResponseSchema },
   readMaterialHistory: { method: "GET", path: "/api/planning/material-history", request: z.object({ goalId: materialIdSchema }).strict(), response: materialHistoryResponseSchema },
+  readAdoptedMaterials: { method: "GET", path: "/api/planning/adopted-materials",
+    request: adoptedMaterialScopeSchema.extend({ checkDocumentIds: z.array(materialIdSchema).min(1).max(5).refine(ids => new Set(ids).size === ids.length).optional() }).strict(),
+    response: z.object({ entries: adoptedMaterialEntriesSchema, detachedDocumentIds: z.array(materialIdSchema).min(1).max(5).optional() }).strict() },
+  detachAdoptedMaterial: { method: "POST", path: "/api/planning/adopted-materials/detach",
+    request: z.object({ scope: materialGoalScopeSchema, entry: materialSelectionEntrySchema, ...mutationFields }).strict(),
+    response: adoptedMaterialScopeSchema.extend({ revision: materialRevisionSchema, documentId: materialIdSchema }).strict() },
   readMaterialGenerationReceipt: { method: "GET", path: "/api/planning/material-generation-receipts", request: materialGenerationReceiptRequestSchema, response: materialGenerationReceiptResponseSchema },
 } as const;
 export type DocumentEndpoint = keyof typeof documentEndpointContracts;

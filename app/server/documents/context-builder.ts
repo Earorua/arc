@@ -52,7 +52,7 @@ export class MaterialContextService {
     if (selected.some(row => row.lifecycle !== "active" || row.version_state !== "ready" || row.confirmation_state !== "active")) throw new PlanningConflictError();
     const skillMappings = this.validateSkillMappings(request.skillMappings ?? [], selected, source);
     const dependencies = await Promise.all(selected.map(async row => ({ slot: row.slot, documentId: row.document_id, documentVersionId: row.document_version_id, textVersionId: row.text_version_id, confirmationId: row.confirmation_id, generation: row.generation, confirmationDigest: await materialSha256(JSON.parse(row.items_json)) })));
-    const snapshot = contextInputSnapshotSchema.parse({ schemaVersion: DOCUMENT_SCHEMA_VERSION, ownerId, selectionRef: request.selectionRef, scope: request.scope, sourceReference: source.reference, sourceVersions: await sourceVersions(source), dependencies, ...(skillMappings.length ? { skillMappings } : {}), audit: request.audit, availability: request.availability, target: request.target, planningDate: request.planningDate, selectedScope: request.selectedScope, policyVersion: MATERIAL_PLANNING_POLICY_VERSION, mappingVersion: MATERIAL_MAPPING_VERSION, explanationVersion: "2026.11.1" });
+    const snapshot = contextInputSnapshotSchema.parse({ schemaVersion: DOCUMENT_SCHEMA_VERSION, ownerId, selectionRef: request.selectionRef, scope: request.scope, sourceReference: source.reference, sourceVersions: await sourceVersions(source), dependencies, ...(skillMappings.length ? { skillMappings } : {}), audit: request.audit, availability: request.availability, target: request.target, planningDate: request.planningDate, selectedScope: request.selectedScope, policyVersion: MATERIAL_PLANNING_POLICY_VERSION, mappingVersion: MATERIAL_MAPPING_VERSION, explanationVersion: "2026.11.2" });
     const fingerprint = await createMaterialContextFingerprint(snapshot);
     const preview = this.project(snapshot, selected, source, fingerprint);
     const contextVersionId = this.createId();
@@ -190,9 +190,9 @@ export class MaterialContextService {
   private project(snapshot: ContextInputSnapshot, selected: SelectedRow[], source: PlanningSourceContext, fingerprint: string): MaterialPreview {
     const confirmedItems: ConfirmedMaterialItem[] = [];
     const itemReferences: NonNullable<MaterialPreview["itemReferences"]> = [];
-    const requirements: { skillId: string; level: "must" | "preferred" | "unspecified" }[] = [];
-    const practiceSkillIds: string[] = [], uncoveredLabels: string[] = [];
-    const reasons = new Map<string, string[]>();
+    const requirements: { skillId: string; level: "must" | "preferred" | "unspecified"; itemId: string }[] = [];
+    const practices: { skillId: string; itemId: string }[] = [];
+    const uncoveredLabels: string[] = [];
     const issues: MaterialPreview["issues"] = [];
     for (const row of selected) {
       const userMappings: Record<string, string[]> = {};
@@ -213,17 +213,20 @@ export class MaterialContextService {
           continue;
         }
         for (const skillId of mapping.skillIds) {
-          reasons.set(skillId, [...(reasons.get(skillId) ?? []), item.id]);
-          if (row.slot === "jd" && item.kind === "requirement") requirements.push({ skillId, level: item.requirementLevel ?? "unspecified" });
-          if (row.slot !== "jd" && ["experience", "skill-claim"].includes(item.kind)) practiceSkillIds.push(skillId);
+          if (row.slot === "jd" && item.kind === "requirement") requirements.push({ skillId, level: item.requirementLevel ?? "unspecified", itemId: item.id });
+          if (row.slot !== "jd" && ["experience", "skill-claim"].includes(item.kind)) practices.push({ skillId, itemId: item.id });
         }
       }
     }
-    const overlay = createMaterialOverlay({ audit: snapshot.audit, knownSkillIds: source.blueprint.skills.map(skill => skill.id), semanticFingerprint: fingerprint, requirements, practiceSkillIds });
+    const overlay = createMaterialOverlay({ audit: snapshot.audit, knownSkillIds: source.blueprint.skills.map(skill => skill.id), semanticFingerprint: fingerprint, requirements, practiceSkillIds: practices.map(item => item.skillId) });
+    const priorities = Object.entries(overlay.skillRanks).filter(([, tier]) => tier < 5).map(([skillId, tier]) => {
+      const sources = tier === 3 ? practices : requirements.filter(item => item.level === (tier === 4 ? "preferred" : "must"));
+      return { skillId, tier, itemIds: sources.filter(item => item.skillId === skillId).map(item => item.itemId) };
+    });
     const paths = buildLearningPaths({ blueprint: source.blueprint, registry: source.registry, audit: snapshot.audit, availability: snapshot.availability, target: snapshot.target, planningDate: snapshot.planningDate, materialOverlay: overlay });
     if (paths.infeasibleReason) issues.push({ code: "target-infeasible", itemIds: [], skillIds: overlay.mandatorySkillIds.slice() });
     const summary = (path: typeof paths.fullScope) => ({ estimatedCompletionDate: path.estimatedCompletionDate, totalMinutes: path.units.reduce((sum, unit) => sum + unit.estimatedMinutes, 0) });
-    return materialContextPreviewSchema.parse({ confirmedItems, itemReferences, ...(snapshot.skillMappings?.length ? { skillMappings: snapshot.skillMappings } : {}), priorities: Object.entries(overlay.skillRanks).filter(([, tier]) => tier < 5).map(([skillId, tier]) => ({ skillId, tier, itemIds: reasons.get(skillId) ?? [] })), issues, uncoveredLabels: [...new Set(uncoveredLabels)], overlay, planning: { fullScope: summary(paths.fullScope), targetDate: paths.targetDate ? summary(paths.targetDate) : null, infeasibleReason: paths.infeasibleReason } });
+    return materialContextPreviewSchema.parse({ confirmedItems, itemReferences, ...(snapshot.skillMappings?.length ? { skillMappings: snapshot.skillMappings } : {}), priorities, issues, uncoveredLabels: [...new Set(uncoveredLabels)], overlay, planning: { fullScope: summary(paths.fullScope), targetDate: paths.targetDate ? summary(paths.targetDate) : null, infeasibleReason: paths.infeasibleReason } });
   }
 
   private async selected(ownerId: string, selectionId: string): Promise<SelectedRow[]> {

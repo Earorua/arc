@@ -115,6 +115,9 @@ describe("document HTTP contracts", () => {
     readDocumentExtraction: { documentId: "doc-a", extractionId: "extract-a" },
     adoptDocumentExtraction: { documentId: "doc-a", textVersionId: "text-a", extractionId: "extract-a", expectedRevision: 1, mutationId: "adopt-a" },
     readMaterialHistory: { goalId: "goal-a" },
+    readAdoptedMaterials: { goalId: "goal-a", workspaceId: "workspace-a", baseVersionId: "plan-a" },
+    detachAdoptedMaterial: { scope: { kind: "goal", goalId: "goal-a", workspaceId: "workspace-a", baseVersionId: "plan-a", revision: 3 },
+      entry: { slot: "jd", documentId: "doc-a", documentVersionId: "version-a", confirmationId: "confirm-a" }, mutationId: "detach-a" },
     readMaterialGenerationReceipt: { goalId: "goal-a", mutationId: "mutation-a", contextVersionId: "context-a" },
   } satisfies Record<api.DocumentEndpoint, unknown>;
   it.each(Object.entries(requests))("accepts the exact %s request and rejects caller ownership", (name, request) => {
@@ -128,7 +131,7 @@ describe("document HTTP contracts", () => {
     }
   });
   it("preserves strict boundaries with explicit phase 1 recovery and history endpoints", () => {
-    expect(Object.keys(api.documentEndpointContracts)).toHaveLength(27);
+    expect(Object.keys(api.documentEndpointContracts)).toHaveLength(29);
     for (const endpoint of Object.values(api.documentEndpointContracts)) {
       expect(endpoint.request.safeParse({ ownerId: "caller-owner" }).success).toBe(false);
       expect(endpoint.response.safeParse({ arbitrary: "body" }).success).toBe(false);

@@ -1,5 +1,6 @@
 import { materialSha256 } from "../../contracts/material-planning";
 import { materialGuardStatement, materialAssociationStatements, loadMaterialCommit } from "./material-commit";
+import { materialDetachmentStatements } from "../documents/detach-adopted-material";
 import { z } from "zod";
 import {
   MAX_PLANNING_WORKSPACE_BYTES,
@@ -281,6 +282,13 @@ export class D1PlanningRepository implements PlanningRepository {
     if (!event || event.mutationId !== command.mutationId) throw new PlanningUnavailableError();
     const now = this.options.now().getTime();
     const statements = transitionStatements(this.db, command.ownerId, command.goalId, previous, workspace, event, now);
+    if (event.kind === "material_usage_changed") {
+      const change = command.materialDetachment;
+      if (!change || change.identity.ownerId !== command.ownerId || change.request.scope.goalId !== command.goalId
+        || change.request.scope.workspaceId !== previous.id || change.request.scope.baseVersionId !== command.baseVersionId
+        || change.request.scope.revision !== command.baseRevision) throw new PlanningConflictError();
+      statements.unshift(...materialDetachmentStatements(this.db, command.ownerId, change));
+    } else if (command.materialDetachment) throw new PlanningConflictError();
     let materialCommit = command.materialCommit ? { ...command.materialCommit, checkedAt: now } : undefined;
     if (materialCommit) {
       if (event.kind !== "agent_replanned" || materialCommit.kind !== "proposal" || materialCommit.snapshot.scope.kind !== "goal"
@@ -345,7 +353,7 @@ export class D1PlanningRepository implements PlanningRepository {
     } catch (error) {
       const winner = await this.findMutation(mutationLookup);
       if (winner) return winner;
-      throw error instanceof PlanningConflictError || isConflictError(error) || (materialCommit && error instanceof Error && error.message.includes("malformed JSON"))
+      throw error instanceof PlanningConflictError || isConflictError(error) || ((materialCommit || command.materialDetachment) && error instanceof Error && error.message.includes("malformed JSON"))
         ? new PlanningConflictError()
         : new PlanningUnavailableError();
     }

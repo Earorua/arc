@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { detachAdoptedMaterial } from "./detach-adopted-material";
 import { documentEndpointContracts, type DocumentEndpoint, type DocumentEndpointRequest, type DocumentEndpointResponse } from "../../contracts/documents-api";
 import { documentCapabilitiesSchema, type DocumentCapabilities } from "../../contracts/document-capabilities";
 import { readDocumentSitePolicy } from "./policy";
@@ -74,6 +75,8 @@ export function createDocumentRuntime(environment: DocumentEnvironment, options:
     createDocumentConfirmation: (ownerId, input) => services.createDocumentConfirmation({ ownerId }, input),
     createMaterialSelection: (ownerId, input) => services.createMaterialSelection({ ownerId }, input),
     readMaterialSelection: (ownerId, input) => services.readMaterialSelection({ ownerId }, input),
+    readAdoptedMaterials: (ownerId, input) => services.readAdoptedMaterials({ ownerId }, input),
+    detachAdoptedMaterial: (ownerId, input) => detachAdoptedMaterial(repo, planning, ownerId, input),
     updateMaterialSelection: (ownerId, input) => services.updateMaterialSelection({ ownerId }, input),
     createDocumentConsent: (ownerId, input) => consent.create(ownerId, input),
     revokeDocumentConsent: (ownerId, input) => consent.revoke(ownerId, input),

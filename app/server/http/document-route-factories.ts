@@ -77,7 +77,8 @@ export function createDocumentRoute<K extends DocumentEndpoint>(endpoint: K, dep
       const query: Record<string, unknown> = {};
       for (const [key, value] of new URL(request.url).searchParams) {
         if (Object.hasOwn(query, key) || Object.hasOwn(params, key)) throw new DocumentHttpError("invalid-request");
-        query[key] = key === "limit" && /^\d+$/u.test(value) ? Number(value) : value;
+        if (endpoint === "readAdoptedMaterials" && key === "checkDocumentIds") query[key] = value.split(",", 6);
+        else query[key] = key === "limit" && /^\d+$/u.test(value) ? Number(value) : value;
       }
       const body = contract.method === "GET" ? {} : await readDocumentRequestBody(request);
       for (const key of Object.keys(body)) if (Object.hasOwn(params, key) || Object.hasOwn(query, key)) throw new DocumentHttpError("invalid-request");

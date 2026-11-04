@@ -100,15 +100,20 @@ export const materialSelfAssessmentAdoptionSchema = boundedMaterialJson(z.object
 export const materialSelectionEntrySchema = z.object({
   slot: documentKindSchema, documentId: materialIdSchema, documentVersionId: materialIdSchema, confirmationId: materialIdSchema,
 }).strict();
-export const materialSelectionEntriesSchema = z.array(materialSelectionEntrySchema).max(5).superRefine((entries, ctx) => {
+function validateSelectionSlots(entries: { slot: string; documentId: string }[], ctx: z.RefinementCtx) {
   if (new Set(entries.map(({ documentId }) => documentId)).size !== entries.length) ctx.addIssue({ code: "custom", message: "A document may be selected once" });
   for (const [slot, maximum] of [["resume", 1], ["jd", 1], ["supplement", 3]] as const) {
     if (entries.filter((entry) => entry.slot === slot).length > maximum) ctx.addIssue({ code: "custom", message: `Too many ${slot} selections` });
   }
-});
+}
+export const materialSelectionEntriesSchema = z.array(materialSelectionEntrySchema).max(5).superRefine(validateSelectionSlots);
+export const adoptedMaterialEntriesSchema = z.array(materialSelectionEntrySchema.extend({
+  textVersionId: materialIdSchema, revision: materialRevisionSchema,
+})).max(5).superRefine(validateSelectionSlots);
 export const materialSelectionRefSchema = z.object({ selectionId: materialIdSchema, selectionRevision: materialRevisionSchema }).strict();
 export const materialDraftScopeSchema = z.object({ kind: z.literal("draft"), draftId: materialIdSchema, previousGoalId: materialIdSchema.nullable() }).strict();
 export const materialGoalScopeSchema = z.object({ kind: z.literal("goal"), goalId: materialIdSchema, workspaceId: materialIdSchema, baseVersionId: materialIdSchema, revision: materialRevisionSchema }).strict();
+export const adoptedMaterialScopeSchema = materialGoalScopeSchema.pick({ goalId: true, workspaceId: true, baseVersionId: true });
 export const materialScopeSchema = z.discriminatedUnion("kind", [materialDraftScopeSchema, materialGoalScopeSchema]);
 export const documentSchema = z.object({
   id: materialIdSchema, schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), kind: documentKindSchema,

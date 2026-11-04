@@ -4,6 +4,41 @@ import { D1DocumentRepository, DocumentServiceError, type MaterialRow } from "./
 import type { DocumentOwner } from "./repository";
 export class SelectionService {
     constructor(readonly repo: D1DocumentRepository) { }
+    async readAdoptedMaterials(owner: DocumentOwner, input: Request<"readAdoptedMaterials">): Promise<Response<"readAdoptedMaterials">> {
+        const contract = documentEndpointContracts.readAdoptedMaterials;
+        const { goalId, workspaceId, baseVersionId, checkDocumentIds = [] } = contract.request.parse(input);
+        // Scope and source validity are checked in one snapshot. A plain plan has a
+        // workspace row with no link. An enabled but broken link must block restoration.
+        const rows = await this.repo.all(`
+            SELECT l.slot, l.document_id, l.document_version_id, c.id AS confirmation_id, v.text_version_id, d.revision,
+                (SELECT json_group_array(candidate.value) FROM json_each(?) candidate WHERE EXISTS (
+                    SELECT 1 FROM document_mutations m WHERE m.owner_id=w.user_id AND m.endpoint='detachAdoptedMaterial'
+                      AND json_extract(m.result_json,'$.goalId')=w.goal_id AND json_extract(m.result_json,'$.workspaceId')=w.id
+                      AND json_extract(m.result_json,'$.documentId')=candidate.value)) AS cancelled_candidates
+            FROM planning_workspaces w
+            JOIN career_goals g ON g.user_id=w.user_id AND g.id=w.goal_id AND g.status='active' AND g.active_slot=1
+            LEFT JOIN goal_document_links l ON l.owner_id=w.user_id AND l.goal_id=w.goal_id AND l.enabled=1 AND l.purpose='planning'
+            LEFT JOIN material_context_dependencies x ON x.owner_id=l.owner_id AND x.context_version_id=l.context_version_id
+                AND x.document_id=l.document_id AND x.document_version_id=l.document_version_id AND x.confirmation_id=l.confirmation_id AND x.slot=l.slot
+                AND EXISTS (SELECT 1 FROM document_usage_links u WHERE u.owner_id=l.owner_id AND u.context_version_id=l.context_version_id
+                    AND u.goal_id=w.goal_id AND u.workspace_id=w.id AND u.kind IN ('generation','accepted'))
+            LEFT JOIN documents d ON d.owner_id=x.owner_id AND d.id=x.document_id AND d.kind=x.slot AND d.lifecycle='active' AND d.generation=x.generation
+            LEFT JOIN document_versions v ON v.owner_id=d.owner_id AND v.document_id=d.id AND v.id=x.document_version_id
+                AND v.text_version_id=x.text_version_id AND v.generation=x.generation AND v.state='ready'
+            LEFT JOIN document_confirmations c ON c.owner_id=v.owner_id AND c.document_id=v.document_id AND c.document_version_id=v.id
+                AND c.id=x.confirmation_id AND c.text_version_id=v.text_version_id AND c.state='active'
+            WHERE w.user_id=? AND w.goal_id=? AND w.id=? AND w.active_plan_version_id=?
+            ORDER BY l.slot,l.document_id LIMIT 6`, JSON.stringify(checkDocumentIds), owner.ownerId, goalId, workspaceId, baseVersionId);
+        if (!rows.length) throw new DocumentServiceError("not-found");
+        const entries = rows.filter(row => row.document_id !== null).map(row => {
+            if (!row.confirmation_id) throw new DocumentServiceError("gone");
+            return { slot: row.slot, documentId: row.document_id, documentVersionId: row.document_version_id,
+                confirmationId: row.confirmation_id, textVersionId: row.text_version_id, revision: row.revision };
+        });
+        const previouslyCancelled = JSON.parse(String(rows[0]!.cancelled_candidates)) as string[];
+        const detachedDocumentIds = previouslyCancelled.filter(id => !entries.some(entry => entry.documentId === id));
+        return contract.response.parse({ entries, ...(detachedDocumentIds.length ? { detachedDocumentIds } : {}) });
+    }
     async read(ownerId: string, selectionId: string): Promise<MaterialSelection> {
         const row = await this.repo.one("SELECT * FROM material_selections WHERE owner_id=? AND id=?", ownerId, selectionId);
         if (!row)

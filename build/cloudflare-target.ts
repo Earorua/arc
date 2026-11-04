@@ -162,7 +162,9 @@ export function parseMaterialsAcceptanceTarget(input: unknown): MaterialsAccepta
     return materialsSchema.parse(input);
   } catch { throw new Error("Invalid materials acceptance target inventory."); }
 }
-export function createMaterialsAcceptanceConfigPair(input: unknown): { site: Partial<WorkerConfig>; executor: Partial<WorkerConfig> } {
+export function createMaterialsAcceptanceConfigPair(input: unknown): {
+  site: Partial<WorkerConfig>; executor: Partial<WorkerConfig>; fakeTransport?: Partial<WorkerConfig>;
+} {
   const t = parseMaterialsAcceptanceTarget(input);
   const enabled = String(t.mode !== "closed");
   const vars: Record<string, string> = { ARC_ENVIRONMENT: "production", ARC_DOCUMENT_ACCEPTANCE_MODE: t.mode,
@@ -199,5 +201,12 @@ export function createMaterialsAcceptanceConfigPair(input: unknown): { site: Par
         ...(t.mode === "synthetic" ? [{ binding: "DOCUMENT_PROVIDER_TRANSPORT", service: t.fakeTransport, entrypoint: "DocumentFakeTransport" }] : [])],
       secrets: { required: ["ARC_DOCUMENT_BRIDGE_SECRET", ...(t.mode === "live" ? ["ARC_DOCUMENT_PROVIDER_API_KEY"] : [])] },
       vars: { ...vars, ARC_DOCUMENT_MAINTENANCE_ENABLED: "true" } },
+    ...(t.mode === "synthetic" ? { fakeTransport: {
+      name: t.fakeTransport, main: "./worker/document-fake-transport/index.ts",
+      account_id: t.accountId, compatibility_date: common.compatibility_date, workers_dev: false, preview_urls: false, routes: [],
+      durable_objects: { bindings: [{ name: "SYNTHETIC_RECEIPTS", class_name: "DocumentSyntheticReceipts" }] },
+      migrations: [{ tag: "v1", new_sqlite_classes: ["DocumentSyntheticReceipts"] }],
+      vars: { SYNTHETIC_QUALIFICATION: vars.ARC_DOCUMENT_PROVIDER_QUALIFICATION! },
+    } } : {}),
   };
 }

@@ -521,7 +521,7 @@ export const learningPathVersions = sqliteTable("learning_path_versions", {
   index("learning_path_versions_fingerprint_idx").on(table.userId, table.goalId, table.inputFingerprint),
 ]);
 
-const planningEventKinds = [
+const planReplanReasons = [
   "completed", "delayed", "skipped", "too_hard", "already_known", "availability_changed", "agent_replanned",
   "replan_accepted", "replan_discarded",
 ] as const;
@@ -534,7 +534,7 @@ export const planVersions = sqliteTable("plan_versions", {
   pathVersionId: text("path_version_id").notNull(),
   generation: text("generation", { enum: ["initial", "automatic", "proposed"] }).notNull(),
   baseVersionId: text("base_version_id"),
-  replanReason: text("replan_reason", { enum: planningEventKinds }),
+  replanReason: text("replan_reason", { enum: planReplanReasons }),
   planningDate: text("planning_date").notNull(),
   inputFingerprint: text("input_fingerprint").notNull(),
   payloadJson: text("payload_json").notNull(),
@@ -652,7 +652,7 @@ export const planningEvents = sqliteTable("planning_events", {
   targetPlanVersionId: text("target_plan_version_id").notNull(),
   candidatePlanVersionId: text("candidate_plan_version_id"),
   unitId: text("unit_id"),
-  kind: text("kind", { enum: planningEventKinds }).notNull(),
+  kind: text("kind", { enum: [...planReplanReasons, "material_usage_changed"] }).notNull(),
   payloadJson: text("payload_json").notNull(),
   occurredAt: integer("occurred_at", { mode: "timestamp_ms" }).notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs),

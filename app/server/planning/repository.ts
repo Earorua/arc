@@ -1,4 +1,5 @@
 import type { MaterialPlanCommit } from "./material-commit";
+import type { MaterialDetachment } from "../documents/detach-adopted-material";
 import type { PlanningMutationResult, PlanningSourceContext, PlanningSourceReference } from "../../contracts/planning";
 
 export type PlanningOwnerGoal = Readonly<{
@@ -27,6 +28,7 @@ export type SavePlanningGenerationCommand = PlanningMutationLookup & Readonly<{
 }>;
 
 export type SavePlanningEventCommand = SavePlanningGenerationCommand & Readonly<{
+  materialDetachment?: MaterialDetachment;
   baseRevision: number;
   baseVersionId: string;
   previous: unknown;

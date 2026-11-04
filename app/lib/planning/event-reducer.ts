@@ -80,6 +80,9 @@ function applyTrustedPlanningEvent(
     throw new PlanningEventError("PENDING_REPLAN_REQUIRED");
   }
   assertActiveTarget(workspace, event);
+  if (event.kind === "material_usage_changed") {
+    return { kind: "automatic", event, workspace: finalizeWorkspace(workspace, event, {}, eventLog) };
+  }
   if (event.kind === "completed") {
     return applyCompletion(workspace, event, registry, eventLog);
   }
@@ -174,7 +177,7 @@ function applyCompletion(
 
 function proposeReplan(
   workspace: PlanningWorkspace,
-  event: Exclude<PlanningEvent, { kind: "completed" | "replan_accepted" | "replan_discarded" }>,
+  event: Exclude<PlanningEvent, { kind: "completed" | "replan_accepted" | "replan_discarded" | "material_usage_changed" }>,
   registry: UnitRegistry,
   eventLog?: PlanningEvent[],
 ): PlanningTransition {

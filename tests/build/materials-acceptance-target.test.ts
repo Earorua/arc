@@ -12,6 +12,7 @@ describe("dedicated private materials acceptance target", () => {
   it("loads only explicitly and generates both named service entrypoints and isolated resources", async () => {
     const value = await loadCloudflareTarget({ targetPath: "tests/fixtures/build/materials-acceptance.json" });
     const { site, executor } = createMaterialsAcceptanceConfigPair(value);
+    expect(createMaterialsAcceptanceConfigPair(value)).not.toHaveProperty("fakeTransport");
     expect(createCloudflareConfig(value)).toEqual(site);
     expect(site.services).toEqual([{ binding: "DOCUMENT_EXECUTOR", service: inventory.executor.workerName, entrypoint: "DocumentExecutorEntrypoint" }]);
     expect(executor.services).toEqual([{ binding: "DOCUMENT_SITE", service: inventory.site.workerName, entrypoint: "DocumentSite" }]);
@@ -35,6 +36,7 @@ describe("dedicated private materials acceptance target", () => {
       receiptRoute: { providerName: "Fixture Provider", endpointId: "fixture-endpoint" }, inputMicroUsdPerMillionTokens: 400000,
       outputMicroUsdPerMillionTokens: 1600000, maxJobMicroUsd: 13000, userDailyMicroUsd: 320000, globalDailyMicroUsd: 400000 };
     const { site, executor } = createMaterialsAcceptanceConfigPair({ ...inventory, mode: "live", runId: "fixture-run", analysis });
+    expect(createMaterialsAcceptanceConfigPair({ ...inventory, mode: "live", runId: "fixture-run", analysis })).not.toHaveProperty("fakeTransport");
     expect(executor.secrets?.required).toContain("ARC_DOCUMENT_PROVIDER_API_KEY");
     expect(site.secrets?.required).not.toContain("ARC_DOCUMENT_PROVIDER_API_KEY");
     expect(executor.services).toHaveLength(1);
@@ -52,6 +54,14 @@ describe("dedicated private materials acceptance target", () => {
     const fake = createMaterialsAcceptanceConfigPair({ ...inventory, mode: "synthetic", analysis: { ...analysis, endpoint: "https://fixture.invalid/chat/completions" }, fakeTransport: "arc-materials-g1b-fixture-transport" });
     expect(fake.executor.services).toContainEqual({ binding: "DOCUMENT_PROVIDER_TRANSPORT", service: "arc-materials-g1b-fixture-transport", entrypoint: "DocumentFakeTransport" });
     expect(fake.executor.secrets?.required).not.toContain("ARC_DOCUMENT_PROVIDER_API_KEY");
+    expect(fake.fakeTransport).toEqual({
+      name: "arc-materials-g1b-fixture-transport", main: "./worker/document-fake-transport/index.ts",
+      account_id: inventory.accountId, compatibility_date: fake.executor.compatibility_date,
+      workers_dev: false, preview_urls: false, routes: [],
+      durable_objects: { bindings: [{ name: "SYNTHETIC_RECEIPTS", class_name: "DocumentSyntheticReceipts" }] },
+      migrations: [{ tag: "v1", new_sqlite_classes: ["DocumentSyntheticReceipts"] }],
+      vars: { SYNTHETIC_QUALIFICATION: JSON.stringify({ ...q, endpoint: "https://fixture.invalid/chat/completions" }) },
+    });
     for (const change of [{ endpoint: "https://fixture.invalid/wrong" }, { maxJobMicroUsd: 1 },
       { receiptRoute: { ...analysis.receiptRoute, endpointId: "ambiguous endpoint" } }]) {
       expect(() => createMaterialsAcceptanceConfigPair({ ...inventory, mode: "synthetic", fakeTransport: "arc-materials-g1b-fixture-transport",

@@ -33,6 +33,7 @@ import type {
   PlanningRepositoryPayload,
 } from "./repository";
 import { PlanningSourceContractError, PlanningSourceResolver, PlanningSourceUnavailableError } from "./source-resolver";
+import type { MaterialDetachment } from "../documents/detach-adopted-material";
 
 const MATERIAL_UNAPPLIED_MESSAGE = "当前路线重排不支持自评引起的任务替换、新增技能或范围变化；本次仅调整已有未完成任务的顺序。";
 const FLAGSHIP_SLUG = "ai-native-full-stack-engineer";
@@ -292,12 +293,18 @@ export class PlanningService {
     });
   }
 
+  async recordMaterialDetachment(ownerId: string, mutationId: string, change: MaterialDetachment): Promise<void> {
+    const { scope } = change.request;
+    await this.mutate(ownerId, mutationId, scope.baseVersionId, { kind: "material_usage_changed" }, scope, change);
+  }
+
   private async mutate(
     userId: string,
     mutationId: string,
     baseVersionId: string,
     body: Record<string, unknown>,
     expected?: { goalId: string; workspaceId: string; revision: number },
+    materialDetachment?: MaterialDetachment,
   ): Promise<PlanningMutationResponse> {
     const ownerId = parseOwner(userId);
     const scope = await this.resolveScope(ownerId);
@@ -308,6 +315,7 @@ export class PlanningService {
     if (!stored) throw new PlanningUnavailableError();
     const parsedStored = await this.parseOwnedWorkspace(stored, scope);
     const { workspace, sourceContext } = parsedStored;
+    if (materialDetachment && workspace.pendingPlanVersionId !== null) throw new PlanningConflictError();
     if (expected && (workspace.id !== expected.workspaceId || workspace.revision !== expected.revision))
       throw new PlanningConflictError();
     if (workspace.activePlanVersionId !== baseVersionId) throw new PlanningConflictError();
@@ -331,6 +339,7 @@ export class PlanningService {
         previous: workspace,
         result,
         sourceReference,
+        materialDetachment,
       });
       return this.parseOwnedResult(saved, scope, sourceReference);
     } catch (error) {

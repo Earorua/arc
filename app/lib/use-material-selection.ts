@@ -4,26 +4,47 @@ import type { z } from "zod";
 import { materialDocumentDraftRefSchema, materialSetupDraftSchema, readSetupDraft, writeSetupDraft } from "../components/setup/setup-draft";
 import type { MaterialPlanningReference } from "../contracts/material-planning";
 import type { MaterialSelectionRef } from "../contracts/documents";
+import { documentsClient, type DocumentsClient } from "./documents-client";
+import { restoreWorkspaceDraft, type AdoptedMaterialScope, type RestoreConflict, type RestoreResolution } from "./material-workspace-draft";
 
 export type MaterialDocumentDraftRef = z.infer<typeof materialDocumentDraftRefSchema>;
 export type MaterialSetupRefs = z.infer<typeof materialSetupDraftSchema>;
 const emptyRefs = (): MaterialSetupRefs => ({ draftId: "draft-pending", slots: {}, supplements: [], selection: null, preview: null });
-export function useMaterialSelection({ ownerId, scopeKey }: { ownerId: string | null; scopeKey: string }) {
-  const key = `${ownerId ?? "guest"}:${scopeKey}`;
-  const [state, setState] = useState<{ key: string; refs: MaterialSetupRefs; ready: boolean }>({ key, refs: emptyRefs(), ready: false });
+export function useMaterialSelection({ ownerId, scopeKey, workspace, workspaceRevision, client = documentsClient, enabled = true }: {
+  ownerId: string | null; scopeKey: string; workspace?: AdoptedMaterialScope; workspaceRevision?: number; client?: DocumentsClient; enabled?: boolean;
+}) {
+  const { goalId, workspaceId, baseVersionId } = workspace ?? {};
+  const [attempt, setAttempt] = useState<{ id: number; scope?: string; resolution?: RestoreResolution }>({ id: 0 });
+  const scopeIdentity = JSON.stringify([ownerId, scopeKey, goalId, workspaceId, baseVersionId]);
+  const key = JSON.stringify([scopeIdentity, workspaceRevision, enabled, attempt.id]);
+  const [state, setState] = useState<{ key: string; refs: MaterialSetupRefs; ready: boolean; failure?: "read" | RestoreConflict }>({ key, refs: emptyRefs(), ready: false });
   const epoch = useRef(0); const controllers = useRef(new Set<AbortController>());
   useLayoutEffect(() => {
     epoch.current++; const generation = epoch.current;
-    queueMicrotask(() => {
-      if (generation !== epoch.current) return;
-      const restored = ownerId ? readSetupDraft(ownerId, `materials:${scopeKey}`, materialSetupDraftSchema) : null;
-      const refs = restored ?? { ...emptyRefs(), draftId: `draft-${crypto.randomUUID()}` };
+    const controller = new AbortController();
+    async function restore() {
+      if (!enabled || generation !== epoch.current) return;
+      const saved = ownerId ? readSetupDraft(ownerId, `materials:${scopeKey}`, materialSetupDraftSchema) : null;
+      let refs = saved ?? { ...emptyRefs(), draftId: `draft-${crypto.randomUUID()}` };
+      if (ownerId && goalId && workspaceId && baseVersionId) {
+        try {
+          const scope = { goalId, workspaceId, baseVersionId };
+          const merged = await restoreWorkspaceDraft(client, refs, scope, controller.signal, attempt.scope === scopeIdentity ? attempt.resolution : undefined);
+          if (generation !== epoch.current) return;
+          if (typeof merged === "string") { setState({ key, refs: emptyRefs(), ready: false, failure: merged }); return; }
+          refs = merged;
+        } catch {
+          if (generation === epoch.current) setState({ key, refs: emptyRefs(), ready: false, failure: "read" });
+          return;
+        }
+      }
       setState({ key, refs, ready: true });
       if (ownerId) writeSetupDraft(ownerId, `materials:${scopeKey}`, materialSetupDraftSchema, refs);
-    });
+    }
+    queueMicrotask(() => void restore());
     const pending = controllers.current;
-    return () => { epoch.current = generation + 1; for (const c of pending) c.abort(); pending.clear(); };
-  }, [key, ownerId, scopeKey]);
+    return () => { epoch.current = generation + 1; controller.abort(); for (const c of pending) c.abort(); pending.clear(); };
+  }, [key, enabled, ownerId, scopeKey, goalId, workspaceId, baseVersionId, client, scopeIdentity, attempt.scope, attempt.resolution]);
   const update = useCallback((change: (refs: MaterialSetupRefs) => MaterialSetupRefs) => {
     setState(current => {
       if (current.key !== key || !current.ready) return current;
@@ -49,5 +70,7 @@ export function useMaterialSelection({ ownerId, scopeKey }: { ownerId: string | 
     finally { controllers.current.delete(controller); }
   }, []);
   return { refs: state.key === key ? state.refs : emptyRefs(), ready: state.key === key && state.ready,
+    restoreFailed: state.key === key && Boolean(state.failure), restoreConflict: state.key === key && state.failure !== "read" ? state.failure : undefined,
+    retryRestore: (resolution?: RestoreResolution) => setAttempt(current => ({ id: current.id + 1, scope: scopeIdentity, resolution })),
     setSlot, setSupplements, setSelection, setPreview, runScoped };
 }

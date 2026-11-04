@@ -151,6 +151,7 @@ export function createDocumentServices(options: {
         createMaterialSelection: selection.createMaterialSelection.bind(selection),
         updateMaterialSelection: selection.updateMaterialSelection.bind(selection),
         readMaterialSelection: selection.readMaterialSelection.bind(selection),
+        readAdoptedMaterials: selection.readAdoptedMaterials.bind(selection),
         listDocuments: documents.listDocuments.bind(documents),
         createDocument: documents.createDocument.bind(documents),
         readDocument: documents.readDocument.bind(documents),

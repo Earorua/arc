@@ -434,6 +434,7 @@ const decisionEventSchema = z.discriminatedUnion("kind", [
 export const planningEventSchema = z.union([
   ...planningEventInputSchema.options.map((event) => event.extend(eventMetadataSchema.shape).strict()),
   ...decisionEventSchema.options.map((event) => event.extend(eventMetadataSchema.shape).strict()),
+  eventMetadataSchema.extend({ kind: z.literal("material_usage_changed") }).strict(),
 ]).superRefine((event, ctx) => {
   if (new TextEncoder().encode(JSON.stringify(event)).byteLength > 32 * 1024) {
     ctx.addIssue({ code: "custom", message: "Planning event must not exceed 32 KiB serialized" });
