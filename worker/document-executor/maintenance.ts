@@ -13,7 +13,8 @@ export async function maintainDocumentExecutor(runtime:DocumentExecutorRuntime,o
      if(["complete","errored","terminated"].includes(status.status))await runtime.jobs.closeTerminalUnsentTurn(row.job_id);
     }
    }
-   if((row.dispatch_state==="may-have-sent"&&!row.result_ready)||(row.cleanup_requested&&row.result_key&&!row.writer_terminated)){
+   if((row.dispatch_state==="may-have-sent"&&!row.result_ready)||(row.cleanup_requested&&row.result_key&&!row.writer_terminated)
+     ||(row.paid_intent&&row.result_ready)){
     if(!row.result_ready&&Date.now()-row.updated_at>=240000)await runtime.site.result(row.job_id,`unknown-${row.job_id}`,{kind:"unknown",code:"connection-lost"});
     const instance=await runtime.workflow.get(row.job_id),status=await instance.status();
     if(["complete","errored","terminated"].includes(status.status)){

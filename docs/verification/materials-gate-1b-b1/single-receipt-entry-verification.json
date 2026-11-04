@@ -1,31 +1,90 @@
 {
   "mode": "B1 offline operator validation with synthetic credentials and mock transport",
-  "verifiedAtUtc": "2026-11-04 13:37:56 UTC",
-  "productCandidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
-  "unchangedProductionSourceFilesCompared": 11,
+  "verifiedAtUtc": "2026-11-04 16:32:58 UTC",
+  "frozenProductBaseline": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "provenance": {
+    "scope": "The single-probe CLI and replay use the original 7052 product sources. The separate receipt-accounting product worktree has its own regression and package evidence.",
+    "pauseSnapshot": "24e918d3b9a0cf8963437a7ae6b2a01db42165d1",
+    "archivedEntry": {
+      "pathInSnapshot": "docs/verification/materials-gate-1b-b1/single-receipt-entry-verification.json",
+      "sha256": "01d497cfa219173c7445fa4f9a891992a58895850f6e0eecd30c3be9ce2502b9",
+      "verifiedAtUtc": "2026-11-04 13:37:56 UTC",
+      "operatorManifestSha256": "b58298e983d688dabc70b775f5746ebde83dd4d6040d7949d94dd45180d41c8d",
+      "nodePassed": 30,
+      "productionSourcesComparedThen": 11
+    },
+    "operatorAtPause": {
+      "operatorManifestSha256": "1fd600d849216bf5d83a5b2ef321ca409b1ebe7df7f1e480eacf9063371b7c0f",
+      "nodePassed": 32,
+      "logPath": "work/materials-gate-1b/account-review/probe-decimal-green.log",
+      "logSha256": "1234db065753fb66c12a13cb38ab556f9479b022726eadcdc19866eef7aa19bc"
+    },
+    "frozenSourceCheck": "The eight local source files matched both the single-probe pins and the raw Git blobs at frozenProductBaseline.",
+    "operatorBeforePostStatusCheck": {
+      "operatorManifestSha256": "379d05ce509ef2db08d9487a9c8c318386031b0874d018073767f56dce9f050e",
+      "nodePassed": 34,
+      "localManifestPath": "work/materials-gate-1b/account-review/receipt-status-20261105/post-response/prior-entry-verification.json",
+      "localManifestSha256": "9f3d6a36094160863cd5a90d627816cc894c9758078375bd59d18769bc3fcf35",
+      "logPath": "work/materials-gate-1b/account-review/receipt-status-20261105/node.log",
+      "logSha256": "d757986eb337de196cdced361e33e859a2c1df4984d74e641cd538294d145061"
+    }
+  },
+  "frozenProductionSourceSha256": {
+    "worker/document-executor/provider-http.ts": "21cd2445be36fb02d6a7182e4fb34a77f9cc25b756fa59f82e6d18acfcd37b80",
+    "worker/document-executor/generation-receipt.ts": "d0cd6b0d527c8f449738a7bb492354869bb53fce12800ef84426401b8066af18",
+    "scripts/materials-qualification-journal.ts": "94ada7ef24256d820282910492e80881e32abbe617eb695d224bc20816d95026",
+    "app/server/documents/text.ts": "cb38268b579d9cfdb705abced544a03ff04ae966bc5be1ba07545381ffb8df04",
+    "app/server/documents/policy.ts": "81b2854442bc9a2eecb4cca843d6043edec8829d799d6bf6d6803785d8d4087b",
+    "app/contracts/documents.ts": "2b8021bddc755ec90e72d899ee49fe80ef1332a1dc728e1b9b73e69e6f883023",
+    "app/server/documents/provider-receipt.ts": "7c243160712eef2e6b16380a81f82abd986de6ec115e5900a69f1d9d58099bc6",
+    "app/server/documents/provider.ts": "c87841b0658e5fddac69c3e617485bf37aa7697bad494502564b2a5fa87fd209"
+  },
   "testedFilesSha256": {
     "b2-settings.review.json": "d65903a51fd52ce85bb4e54bc769d324343a3f908c2c38699373f02297aa1834",
-    "capture-probe-metadata.mjs": "9c7b523382d61b5ccfab0530fbf7a7ff42a96e61fb1b215147b42c8b7e4a1ab0",
-    "capture-probe-metadata.test.mjs": "c9398b274d3f78f72f3b5566869e7afbd643dfc7bfef07339ebb9ca4aee3aa6d",
+    "capture-probe-metadata.mjs": "bc26cb128c396085793575baaabb0755791a7b90349fab7bac1cd3c3176aca65",
+    "capture-probe-metadata.test.mjs": "6e80c0380e57ae8b15e7e12e5c01b421e8451b27d0d2b7f4ff37370f4ebe471f",
     "invoke-single-receipt.ps1": "28dddbcedbaf92c7addb1e68ed41bec833e0ac36542ccbdd4b16d715789b2dcc",
     "replay-redacted-pair.mjs": "ce563ef65f6cf5189e09b3b8aa445c1aac9ae07fbdd984169ebb7f57cf0d4a05",
     "replay-redacted-pair.test.mjs": "399ba9b2a1f8d8e6091f59cd9b602da1afc2ec1e7cb60cbfc9b9e33e18332fa8",
-    "single-receipt-probe.mjs": "d40d17a159d386c6d3d5f9debcef02ebf3c03a23721a620c754dacc8172a5e6e",
-    "single-receipt-probe.test.mjs": "e45799feb9712dcef61091a83f2dabf18a84d01b2c3819aefc7c3f059823f311"
+    "single-receipt-probe.mjs": "154ac6dd826e11efc5563fd2936b4b62187a55c4747d7993440bbbe5a92dc72d",
+    "single-receipt-probe.test.mjs": "70d6816c175585fc6510f4e78ae49e7fd953c1275f8400f1dbbd9d4fa7285e9b"
   },
-  "operatorManifestSha256": "b58298e983d688dabc70b775f5746ebde83dd4d6040d7949d94dd45180d41c8d",
+  "operatorManifestSha256": "147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b",
   "fixedBody": {
     "bytes": 2472,
     "sha256": "33277377b7611f2ad2b944ef7180331acd258f0fdf3df44aff684dddffd2ce20",
     "textSha256": "a55f4e0bb88852f445eefde1699a819634f4bcc742249fae69161ca53db96a23"
   },
   "offlineChecks": {
+    "nodeVersion": "v24.14.1",
+    "redBeforeFix": {
+      "tests": 2,
+      "passed": 0,
+      "failed": 2,
+      "upstreamStatuses": [
+        503,
+        202
+      ],
+      "generationHttpStatus": 200,
+      "explicitError": false,
+      "chatUsd": null,
+      "generationUsd": 0,
+      "observedAccounting": "settled",
+      "observedActualMicroUsd": 0,
+      "observedHeldMicroUsd": 0,
+      "operatorManifestSha256": "1fd600d849216bf5d83a5b2ef321ca409b1ebe7df7f1e480eacf9063371b7c0f"
+    },
     "node": {
       "files": 3,
-      "passed": 30,
+      "passed": 35,
       "failed": 0,
       "skipped": 0,
-      "command": "node --require ./work/materials-production-release/block-outbound.cjs --import tsx --test --test-concurrency=1 docs/verification/materials-gate-1b-b1/single-receipt-probe.test.mjs docs/verification/materials-gate-1b-b1/capture-probe-metadata.test.mjs docs/verification/materials-gate-1b-b1/replay-redacted-pair.test.mjs"
+      "passedByFile": {
+        "capture-probe-metadata.test.mjs": 9,
+        "replay-redacted-pair.test.mjs": 5,
+        "single-receipt-probe.test.mjs": 21
+      },
+      "command": "node --require ./work/materials-production-release/block-outbound.cjs --require ./work/materials-gate-1b/account-review/receipt-status-20261105/isolated-profile.cjs --import tsx --test --test-concurrency=1 docs/verification/materials-gate-1b-b1/single-receipt-probe.test.mjs docs/verification/materials-gate-1b-b1/capture-probe-metadata.test.mjs docs/verification/materials-gate-1b-b1/replay-redacted-pair.test.mjs"
     },
     "targetedVitest": {
       "files": [
@@ -35,16 +94,87 @@
         "tests/server/document-model-qualification-guards.test.ts"
       ],
       "passed": 57,
-      "failed": 0
+      "failed": 0,
+      "productBaseline": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef"
     },
-    "scopedEslintExitCode": 0,
+    "redactedReplayCli": [
+      {
+        "case": "agree",
+        "fixtureSha256": "b8a9cf8c14588b70e7f8916bd415842a9ae5c3f967f993068061ba2fea55633b",
+        "exitCode": 0,
+        "comparison": "compatible",
+        "productionAudit": "verified",
+        "exactCostAgreement": true
+      },
+      {
+        "case": "raw-cost-mismatch",
+        "fixtureSha256": "2916bb1a17ff3bfe45b5f33a8537e87a9c6cd83793b0a769aad1d1918338570a",
+        "exitCode": 1,
+        "comparison": "incompatible",
+        "productionAudit": "verified",
+        "exactCostAgreement": false
+      },
+      {
+        "case": "content-field",
+        "fixtureSha256": "35bd3c2e8eb2449995c195591ad521852aae9f7fb08878a3ca50913c22b7e8dc",
+        "exitCode": 2
+      }
+    ],
+    "scopedEslint": {
+      "files": 6,
+      "errors": 0,
+      "warnings": 0,
+      "exitCode": 0
+    },
     "powerShellParserErrors": 0,
-    "unapprovedLauncherExitCode": 2,
+    "isolatedCli": {
+      "profile": "Empty simulated OS home via preload. The real grant, ledger and key binding were not inspected.",
+      "describeExitCode": 0,
+      "workspaceKeyBindingSha256": null,
+      "ownerApprovalRef": null,
+      "syntheticCacheAccepted": false,
+      "approvedAt": null,
+      "expiresAt": null,
+      "unapprovedPreflightExitCode": 2,
+      "disabledExecuteExitCode": 2,
+      "refusalStdoutBytes": 0,
+      "profileEntriesAfter": 0
+    },
+    "blockOutboundPreload": "work/materials-production-release/block-outbound.cjs",
+    "blockOutboundPreloadSha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f",
     "networkDenialsDuringFinalOfflineTests": 0,
+    "localEvidenceDirectory": "work/materials-gate-1b/account-review/receipt-status-20261105",
     "localLogSha256": {
-      "probe-isolated-tests.log": "20fffdafd4a990a036caf447f344132c91af1397988c6cc7d1101a1f2b3417ff",
-      "probe-cutoff-product.log": "6421ba94e7820c79936ac7275f6c3093b048aebb86a6ba72d6fe124a87533e0b",
-      "probe-frozen-cost-repro.json": "d41d0307a7eb15085cfe43a7f83563d7480a3d92f6a2d00afc717af15acc1a16"
+      "isolated-profile.cjs": "285bb374e9115dd9f2505950c83b0a455f6eb68c08cdde035eea6b2d3c67e24e",
+      "red.log": "fa7ca06a87b0b220a4b9008e7c591dc8d359d6d01d457d21cb2a471272b95e83",
+      "attempt-status-controls.mjs": "09f18e54e2a8bed8ca794a84c52795daa677416371d7964f7f23d5befe8b2783",
+      "post-response/red.log": "21d4bcfeddb3f7a992e9a011c2648d577eeeadd839fa071a88c090cf61d9cad6",
+      "post-response/node.log": "ba5a40ffe81df503f6db80619e2ded54a0e74408ed965f5bda6252ab29e14ade",
+      "post-response/frozen-product-vitest.log": "8d0eeff40b384ab5dd4957e603c44260bb4258bd0b4042dc23388e561bacf4c5",
+      "post-response/eslint.json": "691e9e624161c2b1cd1d6f1cc12cb9c01893fdec901244f1e332a8e0e672bbf0",
+      "post-response/unsigned.json": "7d12731d723e6a314a2c42e8205b897092df43d3bc16224dfb92d4b16637a51e",
+      "post-response/preflight.err": "6449e2dc16b4500940f02bd9c3e96791c75d92482e0f24a02136838a56237d35",
+      "post-response/execute.err": "6449e2dc16b4500940f02bd9c3e96791c75d92482e0f24a02136838a56237d35",
+      "post-response/denials.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "post-response/attempt-status-controls.json": "5c8b71099841c16cf9bf04158e9a5cf5414cac1b213eb5f6e9a41a2ba4c86d8a",
+      "post-response/post-status-controls.mjs": "5ec7a85be1cc5ee1bb3b3ed026691db219c767d972542d9c1024228dbb3adcad",
+      "post-response/post-status-controls.json": "900e65309f8f4cb1b6ba88cf34308dc56dacf1e7e7311b27a7ed4becd92b3a35",
+      "post-response/replay-agree.out": "b547cb02e82c4f46d85faa252d3412726fce74e8156bf1af98f89e1faf677a49",
+      "post-response/replay-raw-cost-mismatch.out": "97055cdd7af826039200598309bcc929db00036876fb0f6b115113ece2b82c77",
+      "post-response/replay-content-field.err": "1ddabff4d966c29ab10307a570236293f4df3793f12a7cd1b30de259b436b7ea"
+    },
+    "provisionalPostRedBeforeFix": {
+      "operatorManifestSha256": "379d05ce509ef2db08d9487a9c8c318386031b0874d018073767f56dce9f050e",
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "postHttpStatus": 202,
+      "chatUsd": 0,
+      "postCount": 1,
+      "metadataGetCount": 1,
+      "observedAccounting": "settled",
+      "observedActualMicroUsd": 0,
+      "observedHeldMicroUsd": 0
     }
   },
   "observations": {
@@ -70,9 +200,100 @@
     },
     "onlyGenerationFeeDurableBeforeSettlementWriteFailureMicroUsd": 7,
     "expiredUncooperativeTransportUpdatedLedgerAfterReturn": false,
-    "plaintextReceiptIdPersisted": false
+    "plaintextReceiptIdPersisted": false,
+    "upstreamAttemptControls": [
+      {
+        "name": "unpriced-chat",
+        "generationHttpStatus": 200,
+        "attemptStatuses": [
+          503,
+          202
+        ],
+        "generationReportedUsd": 0,
+        "observedCostsUsd": {
+          "chat": null,
+          "generation": null
+        },
+        "accounting": "held-unknown",
+        "actualMicroUsd": null,
+        "heldMicroUsd": 72960,
+        "comparison": "unverified"
+      },
+      {
+        "name": "priced-chat",
+        "generationHttpStatus": 200,
+        "attemptStatuses": [
+          503,
+          202
+        ],
+        "generationReportedUsd": 0,
+        "observedCostsUsd": {
+          "chat": 0.0004,
+          "generation": null
+        },
+        "accounting": "settled",
+        "actualMicroUsd": 400,
+        "heldMicroUsd": 0,
+        "comparison": "unverified"
+      },
+      {
+        "name": "fallback-completed",
+        "generationHttpStatus": 200,
+        "attemptStatuses": [
+          503,
+          200
+        ],
+        "generationReportedUsd": 7e-06,
+        "observedCostsUsd": {
+          "chat": null,
+          "generation": 7e-06
+        },
+        "accounting": "settled",
+        "actualMicroUsd": 7,
+        "heldMicroUsd": 0,
+        "comparison": "incompatible"
+      }
+    ],
+    "untrustedPostControls": {
+      "responses": [
+        {
+          "httpStatus": 202,
+          "redirected": false
+        },
+        {
+          "httpStatus": 201,
+          "redirected": false
+        },
+        {
+          "httpStatus": 200,
+          "redirected": true
+        },
+        {
+          "httpStatus": 503,
+          "redirected": false
+        }
+      ],
+      "each": {
+        "chatReportedUsd": 0,
+        "mockPostCount": 1,
+        "metadataGetCount": 0,
+        "observedCostsUsd": {
+          "chat": null,
+          "generation": null
+        },
+        "observedPair": {},
+        "actualMicroUsd": null,
+        "heldMicroUsd": 72960,
+        "accounting": "held-unknown",
+        "ledgerRows": [
+          "run-start",
+          "reservation",
+          "settlement"
+        ]
+      }
+    }
   },
-  "productReleaseBlocker": {
+  "historicalProductReleaseBlocker": {
     "candidate": "7052aedd8a49",
     "mode": "same origin, in-memory synthetic provider; production HttpDocumentAnalysisProvider and settleProviderOutcome",
     "fixtures": [
@@ -104,12 +325,16 @@
         "accounting": "settled"
       }
     ],
-    "required": "Reconcile conflicting raw costs and disregard fees from error envelopes in the general budget path. Freeze and regress a new candidate before B2 or public release."
+    "recordedAtUtc": "2026-11-04 13:37:56 UTC",
+    "localReproductionPath": "work/materials-gate-1b/account-review/probe-frozen-cost-repro.json",
+    "localReproductionSha256": "d41d0307a7eb15085cfe43a7f83563d7480a3d92f6a2d00afc717af15acc1a16",
+    "actionRecordedAtBaseline": "Reconcile conflicting raw costs and disregard fees from error envelopes in the general budget path. Freeze and regress a new candidate before B2 or public release."
   },
   "actual": {
-    "ownerGrantPresent": false,
-    "workspaceKeyBindingRegistered": false,
-    "liveSlotPresent": false,
+    "liveProfileInspected": false,
+    "ownerGrantUsed": false,
+    "liveKeyUsed": false,
+    "liveSlotClaimed": false,
     "inferenceRequests": 0,
     "inferenceUsd": 0,
     "b2Executed": 0,

@@ -24,7 +24,7 @@ const fieldsForScoring = z.object({
   reviewPoints: z.array(z.unknown()).max(100).default([]),
 });
 
-function readFrozenDocuments() {
+export function readFrozenSupplementDocuments() {
   const bytes = readFileSync(corpusUrl);
   if (createHash("sha256").update(bytes).digest("hex") !== supplementCorpusSha256) {
     throw new Error("Unexpected supplement quality corpus");
@@ -37,7 +37,7 @@ function readFrozenDocuments() {
 export function scoreSupplementBatch(input: unknown) {
   const batch = batchSchema.safeParse(input);
   if (!batch.success) throw new Error("Invalid supplement score input");
-  const documents = readFrozenDocuments();
+  const documents = readFrozenSupplementDocuments();
   const invalidExtractions = new Set<string>();
   const ownerId = "supplement-quality-fixture";
   const outputs = batch.data.outputs.map(({ extraction, ...identity }) => {

@@ -141,6 +141,25 @@ test("holds the full reservation for an uncertain transport outcome and never re
   assert.doesNotMatch(readFileSync(join(dir,approved.runId,"result.json"),"utf8"),/untrusted-private-error/);
 });
 
+test("only an unredirected HTTP 200 POST response can supply a receipt or charge", async () => {
+  for (const [status, redirected] of [[202, false], [201, false], [200, true], [503, false]]) {
+    const dir = folder(), approved = grant();
+    const transport = fixtureTransport(async () => {
+      const response = Response.json({ id: generationId, model: expectedModel, usage: { ...syntheticUsage, cost: 0 } }, { status });
+      if (redirected) Object.defineProperty(response, "redirected", { value: true });
+      return response;
+    }, async () => new Response(null, { status: 403 }));
+    const result = await run(approved, dir, transport);
+    assert.deepEqual([result.postCount, result.metadataGetCount, result.accounting, result.actualMicroUsd, result.heldMicroUsd],
+      [1, 0, "held-unknown", null, 72960]);
+    assert.deepEqual(transport.calls.map(([, init]) => init.method), ["POST"]);
+    assert.deepEqual(result.observedCostsUsd, { chat: null, generation: null });
+    assert.deepEqual(result.pair, {});
+    const ledger = readFileSync(join(dir, approved.runId, "ledger.jsonl"), "utf8").trim().split("\n").map(row => JSON.parse(row));
+    assert.deepEqual(ledger.map(row => row.type), ["run-start", "reservation", "settlement"]);
+  }
+});
+
 test("keeps an attributable chat cost on a missing generation and flags a raw fee mismatch that rounds to the same micro-USD", async () => {
   const missing=fixtureTransport(undefined,async()=>new Response(null,{status:403}));
   const first=await run(grant(),folder(),missing);
@@ -209,6 +228,25 @@ test("a generation containing only failed upstream attempts cannot release a res
   const result = await run(grant(), folder(), transport);
   assert.equal(result.heldMicroUsd, 72960);
   assert.equal(result.actualMicroUsd, null);
+});
+
+test("a failed and an unfinished attempt cannot settle the probe with an unearned zero", async () => {
+  for (const chatCost of [undefined, syntheticUsage.cost]) {
+    const dir = folder(), approved = grant();
+    const transport = fixtureTransport(
+      async () => Response.json({ id: generationId, model: expectedModel, usage: { ...syntheticUsage, cost: chatCost } }),
+      async () => Response.json({ data: { id: generationId, total_cost: 0, provider_responses: [{ status: 503 }, { status: 202 }] } }),
+    );
+    const result = await run(approved, dir, transport);
+    assert.deepEqual([result.accounting, result.actualMicroUsd, result.heldMicroUsd],
+      chatCost === undefined ? ["held-unknown", null, 72960] : ["settled", 400, 0]);
+    assert.deepEqual(result.observedCostsUsd, { chat: chatCost ?? null, generation: null });
+    assert.equal(result.costConflict, false);
+    assert.equal(result.comparison, "unverified");
+    const ledger = readFileSync(join(dir, approved.runId, "ledger.jsonl"), "utf8").trim().split("\n").map(row => JSON.parse(row));
+    assert.equal(ledger.some(row => row.type === "generation-observed"), false);
+    assert.equal(ledger.at(-1).state, result.accounting);
+  }
 });
 
 test("refuses a revoked or expired handoff without sending, including expiry during the 15-minute process lifetime", async () => {

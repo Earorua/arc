@@ -37,7 +37,7 @@ pwsh -NoProfile -File ./docs/verification/materials-gate-1b-b1/invoke-single-rec
 
 ## 怎样判断结果
 
-已使用假凭据和模拟传输，从两个不同工作树的实际命令行入口同时使用同一份授权。两者合计向模拟传输交接一次 POST 和一次元数据 GET，换用另一个假 key 在占用名额前被拒绝。强制终止进程、丢失写入确认、写最终账单失败、时钟停滞和传输忽略取消均有离线覆盖。两边费用金额不同则逐笔保存两项观察，保留 72,960 microUSD 的预留；任一可信金额超过 0.075 USD 即标记超限。元数据返回 202 或 503 后只能重查同一笔。磁盘只保存回执 ID 摘要。真实回执与真实质量样例数均为 0。[入口验证](../../verification/materials-gate-1b-b1/single-receipt-entry-verification.json) · [独立进程演练](../../verification/materials-gate-1b-b1/receipt-journal-process-verification.json)
+已使用假凭据和模拟传输，从两个不同工作树的实际命令行入口同时使用同一份授权。两者合计向模拟传输交接一次 POST 和一次元数据 GET，换用另一个假 key 在占用名额前被拒绝。强制终止进程、丢失写入确认、写最终账单失败、时钟停滞和传输忽略取消均有离线覆盖。两边费用金额不同则逐笔保存两项观察，保留 72,960 microUSD 的预留；任一可信金额超过 0.075 USD 即标记超限。推理 POST 被重定向或返回非 200 时，本轮结束并保留全额预留，响应正文中的 ID 和报价不入账。元数据 GET 返回 HTTP 202 或 503 后只能重查同一笔。若 HTTP 200 回执内的尝试报告了状态，却没有一次为 200（如 503、202），则忽略该回执的费用。仍有可信聊天费用时按其实收结算，否则保留全额预留。磁盘只保存回执 ID 摘要。真实回执与真实质量样例数均为 0。[入口验证](../../verification/materials-gate-1b-b1/single-receipt-entry-verification.json) · [独立进程演练](../../verification/materials-gate-1b-b1/receipt-journal-process-verification.json)
 
 1. 核对聊天与 generation 的 ID 对应、两个模型标识、唯一成功尝试、供应商及标准端点 UUID `a3fafaac-f097-4ef1-86b3-842854dad5c6`。费用或端点证据缺失，记录实际缺失处并结束。
 2. 比较原生 prompt 和总 completion token、两个费用 JSON 数值，并标明 reasoning token 与时延字段有无。若两处都提供 reasoning 细分，比较其数值并核对各自未超过总输出。微美元取整前的费用差异也要记录。可从两份响应建立只含允许字段的本机文件，按原始 JSON 数值回放，维持两个 ID 的对应关系。

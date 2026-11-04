@@ -89,8 +89,10 @@ function count(value: unknown): number | null {
 }
 function receiptPrice(row: Record<string, unknown>, key: CostKey) {
   const value = row[key];
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) return null;
-  const source = costLiterals.get(row)?.[key] ?? String(value);
+  if (typeof value !== "number" || value < 0) return null;
+  const literal = costLiterals.get(row)?.[key];
+  if (!literal && !Number.isFinite(value)) return null;
+  const source = literal ?? String(value);
   const [significand, power = "0"] = source.toLowerCase().split("e");
   const [whole, fraction = ""] = significand!.replace(/^-/, "").split(".");
   const coefficient = (whole + fraction).replace(/^0+/u, "");
@@ -148,7 +150,7 @@ async function checkGeneration(data: Record<string, unknown>, chat: ChatReceipt,
   const attempts = Array.isArray(responses) ? responses.map(record) : [];
   const successes = attempts.filter(attempt => attempt.status === 200);
   if (reportsError(data) || (successes.length ? successes : attempts).some(reportsError)
-    || (attempts.length > 0 && attempts.every(attempt => typeof attempt.status === "number" && attempt.status >= 400))) {
+    || (!successes.length && attempts.some(attempt => attempt.status != null))) {
     return "metadata-unavailable";
   }
   const soleResponse = Array.isArray(responses) && responses.length === 1 ? record(responses[0]) : null;
@@ -198,6 +200,7 @@ export async function auditDocumentGeneration(input: AuditInputs): Promise<Docum
     catch { return { ...audit, status: "receipt-claim-failed", checkedAt: now().toISOString() }; }
   }
   // Only the pre-approved completion endpoint supplies the origin/path. The reply supplies just a validated opaque ID.
+  audit.costEvidenceVersion = "wire-decimal-v1";
   const url = new URL(config.endpoint);
   url.pathname = url.pathname.replace(/\/chat\/completions$/u, "/generation");
   url.searchParams.set("id", chat.receiptId);

@@ -25,6 +25,8 @@ export class DocumentResultStore {
     async read(jobId: string): Promise<{ resultRef: string; outcome: DocumentProviderOutcome } | null> {
         const row = await this.jobs.get(jobId);
         if (!row?.result_ref || !row.result_ready) return null;
+        const accounting = await this.jobs.paidAccounting(row);
+        if (accounting) return { resultRef:row.result_ref, outcome:documentProviderOutcomeSchema.parse(accounting) };
         if ((row.cleanup_requested || row.accounting_only) && row.accounting_json)
             return { resultRef: row.result_ref, outcome: documentProviderOutcomeSchema.parse(JSON.parse(row.accounting_json)) };
         if (!row.result_key) return null;
@@ -44,8 +46,9 @@ export class DocumentResultStore {
     /** Called only after the native Workflow for this job reports a terminal state. Recovery never uploads. */
     async recoverAfterWorkflowTerminal(jobId: string) {
         const row = await this.jobs.get(jobId);
-        if (!row || (row.result_ready && row.writer_terminated)) return;
-        await this.jobs.recoverPaidReceipt(row);
+        if (!row) return;
+        const accounting = await this.jobs.paidAccounting(row, true);
+        if (row.result_ready && row.writer_terminated) return;
         if (!row.result_ref || !row.result_key || row.legacy_recovery_hold) {
             await this.jobs.queueTerminalAccounting(jobId, row.result_ref);
             return;
@@ -58,6 +61,11 @@ export class DocumentResultStore {
             if (!fence) return;
             neverEnrolled = fence === "never-enrolled";
         } else if (key !== `document-results/${jobId}/${row.result_ref}`) {
+            return;
+        }
+        if (accounting) {
+            if (multipart && (!neverEnrolled || await this.bucket.head(key) === null)) await this.jobs.proveWriterTerminated(jobId, key);
+            await this.jobs.queueTerminalAccounting(jobId, row.result_ref);
             return;
         }
         const object = await this.bucket.get(key);

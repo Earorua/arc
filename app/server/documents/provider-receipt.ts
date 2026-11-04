@@ -14,6 +14,7 @@ export const documentReceiptAuditSchema = z.object({
   // Exact approved labels or a SHA-256 fingerprint of an unexpected label. Untrusted metadata never enters a report.
   actualModel: z.string().max(200).nullable(), actualProvider: z.string().max(100).nullable(),
   actualEndpointId: z.string().max(128).nullable(),
+  costEvidenceVersion: z.literal("wire-decimal-v1").optional(),
   metadataInputTokens: count.nullable(), metadataOutputTokens: count.nullable(), metadataMicroUsd: count.nullable(),
   conflictingCostsUsd: z.object({ chat: usdLiteral, generation: usdLiteral }).strict().optional(),
   providerLatencyMs: count.nullable().optional(), providerGenerationMs: count.nullable().optional(),

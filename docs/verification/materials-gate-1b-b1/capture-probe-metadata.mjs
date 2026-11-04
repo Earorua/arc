@@ -31,7 +31,8 @@ function successData(kind, raw) {
   checkSuccess(data);
   if (Array.isArray(data.provider_responses)) {
     const successful = data.provider_responses.filter(attempt => attempt?.status === 200);
-    if (data.provider_responses.length && data.provider_responses.every(attempt => attempt?.status >= 400)) invalid();
+    // Older receipts can omit statuses. When a status is reported, require a completed upstream attempt.
+    if (!successful.length && data.provider_responses.some(attempt => attempt?.status != null)) invalid();
     for (const attempt of successful.length ? successful : data.provider_responses) checkSuccess(attempt);
   }
   return data;

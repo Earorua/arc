@@ -102,7 +102,7 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
       raw = await withDocumentDeadline(signal, config.httpTimeoutMs, async (requestSignal, checkTime) => {
         const response = await this.options.fetch(config.endpoint, { method: "POST", redirect: "manual", signal: requestSignal,
           headers: { "content-type": "application/json", authorization: "Bearer " + config.apiKey }, body });
-        if (response.redirected || !response.ok) { void response.body?.cancel().catch(() => {}); throw new Error(); }
+        if (response.redirected || response.status !== 200) { void response.body?.cancel().catch(() => {}); throw new Error(); }
         return readDocumentHttpJson(response, requestSignal, checkTime);
       });
     } catch (error) {

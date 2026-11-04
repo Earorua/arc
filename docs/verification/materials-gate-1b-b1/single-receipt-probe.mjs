@@ -143,7 +143,11 @@ async function execute(rawGrant, { offline, directory, fetch, now, startedAt, st
     const response = await fetch(url, { ...init, signal });
     signal.throwIfAborted();
     remainingTime();
-    if (response.redirected || (isPost ? !response.ok : response.status !== 200)) return response;
+    if (response.redirected || response.status !== 200) {
+      if (!isPost) return response;
+      void response.body?.cancel().catch(() => {});
+      throw new Error("Unconfirmed probe POST");
+    }
     // The production reader bounds streaming input. Only a metadata projection can reach disk.
     const kind = isPost ? "chat" : "generation";
     const source = response.clone();

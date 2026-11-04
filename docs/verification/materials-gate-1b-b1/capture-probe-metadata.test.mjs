@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { projectProbeMetadata } from "./capture-probe-metadata.mjs";
+import { observeProbeCharge, projectProbeMetadata } from "./capture-probe-metadata.mjs";
 import { replayRedactedPair } from "./replay-redacted-pair.mjs";
 
 const review = JSON.parse(readFileSync(new URL("./b2-settings.review.json", import.meta.url), "utf8"));
@@ -117,11 +117,24 @@ test("retains fallback count, ordering, failed status and missing route fields",
   assert.deepEqual(result.generation.data.provider_responses[0], { status: 503, provider_name: "sha256:" + sha256(secretLabel) });
   assert.deepEqual(result.generation.data.provider_responses.map(row => row.status), [503, 200]);
   assert.equal((await replayRedactedPair(result)).productionAudit, "route-unverified");
-  for (const attempts of [[], [{}], null]) {
+  const expectedCharge = { idSha256: sha256(id), reportedUsd: raw.generation.data.total_cost };
+  assert.deepEqual(observeProbeCharge("generation", raw.generation, options), expectedCharge);
+  for (const attempts of [[], [{}], [{ status: null }], null]) {
     raw.generation.data.provider_responses = attempts;
     const missing = project(raw);
     assert.deepEqual(missing.generation.data.provider_responses, attempts);
     assert.equal((await replayRedactedPair(missing)).productionAudit, "route-unverified");
+    assert.deepEqual(observeProbeCharge("generation", raw.generation, options), expectedCharge);
+  }
+});
+
+test("rejects a generation fee when explicit attempt statuses provide no success", () => {
+  for (const attempts of [[{ status: 202 }], [{ status: 503 }, { status: 202 }], [{ status: 503 }, {}],
+    [{ status: null }, { status: 302 }], [{ status: "200" }]]) {
+    const { generation } = rawPair();
+    generation.data.provider_responses = attempts;
+    assert.throws(() => observeProbeCharge("generation", generation, options), invalid);
+    assert.throws(() => projectProbeMetadata("generation", generation, options), invalid);
   }
 });
 

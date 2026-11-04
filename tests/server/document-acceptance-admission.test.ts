@@ -135,7 +135,7 @@ async function jobInput(registration: Enrollment, index: number): Promise<Docume
   };
 }
 function connect(db: SqliteD1, settings:Record<string,unknown> = {}) {
-  const inputs = new Map<string,DocumentProviderInput>(), bucket = memoryBucket(), objects = bucket.objects;
+  const inputs = new Map<string,DocumentProviderInput>(), bucket = memoryBucket();
   const runtime = createDocumentExecutionRuntime({...env,ARC_DOCUMENT_ACCEPTANCE_MODE:"live",ARC_DOCUMENT_ACCEPTANCE_RUN_ID:runId,
     DOCUMENT_EXECUTOR_DB:db,DOCUMENT_JOB_ASSETS:bucket,...settings} as unknown as DocumentExecutorEnvironment);
   runtime.site = {
@@ -145,8 +145,7 @@ function connect(db: SqliteD1, settings:Record<string,unknown> = {}) {
     inputs.set(jobId,input);
     await runtime.jobs.admit(jobId);
     await executeDocumentJob(jobId,runtime);
-    const result = await runtime.jobs.get(jobId);
-    return result?.result_key ? JSON.parse(objects.get(result.result_key)!) : null;
+    return (await runtime.results.read(jobId))?.outcome ?? null;
   }
   return {send, runtime};
 }
@@ -257,7 +256,7 @@ describe("atomic document acceptance admission through the job and HTTP adapter"
     const recovery=db.database.prepare("SELECT accounting_json FROM document_executor_jobs WHERE job_id='paused-receipt'").get();
     expect(JSON.parse(String(recovery?.accounting_json))).toMatchObject({kind:"received",receiptId:"receipt-1",actualMicroUsd:7,candidate:null});
     const blocked=await Promise.all([send(first),connect(db).send(second)]);
-    expect(blocked.every(outcome=>outcome.kind==="not-sent")).toBe(true);
+    expect(blocked.every(outcome=>outcome?.kind==="not-sent")).toBe(true);
     expect(network.posts).toHaveLength(1);
     release.resolve();await active;
     expect(await send(second)).toMatchObject({kind:"received",audit:{status:"verified"}});

@@ -104,6 +104,16 @@ describe("per-generation document receipt audit", () => {
         audit: { status: "cost-conflict", conflictingCostsUsd: { chat:String(chat), generation:String(metadata) } } });
       expect(fetch.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET"]);
     });
+  it("holds a provisional HTTP 202 chat quote without claiming its ID or requesting metadata", async () => {
+    const fetch = vi.fn<DocumentFetch>(async (_url,init) => init?.method === "POST"
+      ? Response.json({...completion,usage:{...completion.usage,cost:0}}, {status:202})
+      : new Response(null,{status:403}));
+    const claim = vi.fn(async () => true);
+    const provider = new HttpDocumentAnalysisProvider(config,{qualification,fetch});
+    expect(await provider.analyze(input,new AbortController().signal,undefined,claim)).toEqual({kind:"unknown",code:"invalid-receipt"});
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(claim).not.toHaveBeenCalled();
+  });
   it("excludes explicit errors from accounting even when an HTTP 200 reports a matching ID and zero cost", async () => {
     const data = { ...generation, total_cost: 0 };
     for (const envelope of [
@@ -112,6 +122,9 @@ describe("per-generation document receipt audit", () => {
       { data: { ...data, provider_responses: [{ ...generation.provider_responses[0], error: { code: 503 } }] } },
       { data: { ...data, provider_responses: [{ status: 503, error: { code: 503 } }] } },
       { data: { ...data, provider_responses: [{ status: 503 }] } },
+      { data: { ...data, provider_responses: [{ status: 503 }, { status: 202 }] } },
+      { data: { ...data, provider_responses: [{ status: 202 }] } },
+      { data: { ...data, provider_responses: [{ status: "503" }] } },
     ]) {
       for (const cost of [undefined, completion.usage.cost]) {
         const { analyze } = adapter(() => Response.json(envelope), { ...completion, usage: { ...completion.usage, cost } });
@@ -130,6 +143,7 @@ describe("per-generation document receipt audit", () => {
       new Response(JSON.stringify(value).replace('"'+key+'":0.0000073', '"'+key+'":'+price));
     for (const [chat, metadata, expected] of [
       ["0.000007", "0.0000070000000000000000001", null],
+      ["0", "1e999", null],
       ["0.0000070", "7e-6", 7], ["4.9999999999999999999e-7", "4.9999999999999999999e-7", 0],
     ] as const) {
       const fetch: DocumentFetch = async (_url, init) => init?.method === "POST" ? raw(completion, chat, "cost") :

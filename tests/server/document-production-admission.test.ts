@@ -316,6 +316,90 @@ describe("ordinary private-material production admission", () => {
     expect(await f.caps()).toMatchObject({analysisEnabled:false});
     expect(f.posts).toHaveLength(1);
   });
+  it("repairs the dispatch ledger on maintenance after a held result has already reached the site", async () => {
+    const f = await fixture(), id = await f.enqueue();
+    f.setMode("conflicting-cost");
+    f.ledger.database.exec(`CREATE TRIGGER reject_conflict BEFORE UPDATE OF audit_json ON document_production_dispatches
+      WHEN NEW.audit_json->>'$.status'='cost-conflict' BEGIN SELECT RAISE(ABORT,'unavailable'); END`);
+    await f.run(id);
+    expect(f.budget(id)).toMatchObject({state:"held-unknown",actual_micro_usd:null});
+    f.ledger.database.exec("DROP TRIGGER reject_conflict");
+    await maintainDocumentExecutor(f.executor());
+    const bill = f.ledger.database.prepare("SELECT state,actual_micro_usd,audit_json FROM document_production_dispatches WHERE job_id=?").get(id);
+    expect(bill).toMatchObject({state:"stopped",actual_micro_usd:null});
+    expect(JSON.parse(String(bill?.audit_json))).toMatchObject({status:"cost-conflict",conflictingCostsUsd:{chat:"0",generation:"0.5"}});
+    expect(await f.executor().jobs.get(id)).toMatchObject({paid_intent:null,state:"cost-unknown"});
+    expect(f.posts).toHaveLength(1);
+  });
+  it.each(["ready", "uploaded", "unconfirmed-lookup", "legacy-audit", "weak-final"] as const)(
+    "keeps a stale multipart candidate out of site settlement after a %s write", async boundary => {
+      const f = await fixture(), id = await f.enqueue(), runtime = f.executor();
+      f.setMode("conflicting-cost");
+      f.ledger.database.exec(`CREATE TRIGGER reject_job_copy BEFORE UPDATE OF accounting_json ON document_executor_jobs
+        WHEN NEW.accounting_json->>'$.audit.status'='cost-conflict' BEGIN SELECT RAISE(ABORT,'unavailable'); END`);
+      const onlyLookup = ["unconfirmed-lookup","legacy-audit","weak-final"].includes(boundary);
+      if (onlyLookup) f.ledger.database.exec(`CREATE TRIGGER reject_dispatch_copy BEFORE UPDATE OF audit_json ON document_production_dispatches
+        WHEN NEW.audit_json->>'$.status'='cost-conflict' BEGIN SELECT RAISE(ABORT,'unavailable'); END`);
+      const save = runtime.results.save.bind(runtime.results);
+      vi.spyOn(runtime.results, "save").mockImplementationOnce(async jobId => {
+        if (boundary === "weak-final") await runtime.jobs.finishPaidDispatch("production",f.authorization.id,jobId,
+          {kind:"unknown",code:"connection-lost"}).catch(() => undefined);
+        const at = new Date().toISOString();
+        return save(jobId, {kind:"received",receiptId:"receipt-1",inputTokens:100,outputTokens:20,actualMicroUsd:0,
+          candidate:{schemaVersion:"2026.11.1",items:[],reviewPoints:[]},
+          ...(boundary === "legacy-audit" ? {audit:{status:"usage-mismatch",actualModel:null,actualProvider:null,actualEndpointId:null,
+            metadataAttempts:1,metadataInputTokens:100,metadataOutputTokens:20,metadataMicroUsd:500000,sentAt:at,returnedAt:at,checkedAt:at}} : {}),
+        });
+      });
+      if (boundary === "uploaded") {
+        vi.spyOn(runtime.jobs, "completeResult").mockRejectedValueOnce(new Error("crash after upload"));
+        await expect(executeDocumentJob(id,runtime)).rejects.toThrow();
+      } else await executeDocumentJob(id,runtime);
+      f.ledger.database.exec("DROP TRIGGER reject_job_copy");
+      if (onlyLookup) f.ledger.database.exec("DROP TRIGGER reject_dispatch_copy");
+      const recovered = f.executor();
+      if (boundary === "uploaded") await recovered.results.recoverAfterWorkflowTerminal(id);
+      expect((await recovered.results.read(id))?.outcome).toMatchObject({kind:"received",receiptId:"receipt-1",candidate:null,actualMicroUsd:null});
+      await deliverDocumentResult(id,recovered);
+      expect(f.budget(id)).toMatchObject({state:"held-unknown",actual_micro_usd:null,reserved_micro_usd:72960});
+      expect(f.siteDb.database.prepare("SELECT extraction_id FROM document_jobs WHERE id=?").get(id)).toEqual({extraction_id:null});
+      expect(f.posts).toHaveLength(1);
+    });
+  it("retains the final metadata charge if the dispatch update and the result upload both fail", async () => {
+    const f = await fixture(), id = await f.enqueue(), runtime = f.executor();
+    f.setMode("metadata-cost-only");
+    f.ledger.database.exec("CREATE TRIGGER reject_final BEFORE UPDATE OF state ON document_production_dispatches BEGIN SELECT RAISE(ABORT,'unavailable'); END");
+    vi.spyOn(runtime.results, "save").mockImplementationOnce(async (jobId, outcome) => {
+      const job = await runtime.jobs.beginResult(jobId,outcome);
+      expect(JSON.parse(job!.accounting_json!)).toMatchObject({actualMicroUsd:7,audit:{status:"usage-mismatch"}});
+      throw new Error("crash before upload");
+    });
+    await expect(executeDocumentJob(id,runtime)).rejects.toThrow();
+    f.ledger.database.exec("DROP TRIGGER reject_final");
+    const recovered = f.executor();
+    await recovered.results.recoverAfterWorkflowTerminal(id);
+    await deliverDocumentResult(id,recovered);
+    expect(f.budget(id)).toMatchObject({state:"settled",actual_micro_usd:7});
+    expect(f.ledger.database.prepare("SELECT state,actual_micro_usd FROM document_production_dispatches WHERE job_id=?").get(id))
+      .toEqual({state:"stopped",actual_micro_usd:7});
+    expect(f.posts).toHaveLength(1);
+  });
+  it("keeps a durable conflict when a weaker finalization arrives before the next sweep", async () => {
+    const f = await fixture(), id = await f.enqueue(), runtime = f.executor();
+    f.setMode("conflicting-cost");
+    f.ledger.database.exec(`CREATE TRIGGER reject_job_copy BEFORE UPDATE OF accounting_json ON document_executor_jobs
+      WHEN NEW.accounting_json->>'$.audit.status'='cost-conflict' BEGIN SELECT RAISE(ABORT,'unavailable'); END`);
+    vi.spyOn(runtime.results, "save").mockRejectedValueOnce(new Error("interrupted after dispatch evidence"));
+    await expect(executeDocumentJob(id,runtime)).rejects.toThrow();
+    f.ledger.database.exec("DROP TRIGGER reject_job_copy");
+    await runtime.jobs.finishPaidDispatch("production", f.authorization.id, id, {
+      kind:"received",receiptId:"receipt-1",inputTokens:100,outputTokens:20,candidate:null,actualMicroUsd:0,
+    }).catch(() => undefined);
+    await runtime.results.recoverAfterWorkflowTerminal(id);
+    await deliverDocumentResult(id,runtime);
+    expect(f.budget(id)).toMatchObject({state:"held-unknown",actual_micro_usd:null});
+    expect(f.posts).toHaveLength(1);
+  });
   it("recovers a known metadata-only charge if the process dies after audit and before result storage",async()=>{
     const f=await fixture(),id=await f.enqueue();f.setMode("metadata-cost-only");
     const runtime=f.executor();vi.spyOn(runtime.results,"save").mockRejectedValue(new Error("process exited before beginResult"));
