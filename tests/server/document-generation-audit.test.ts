@@ -31,6 +31,35 @@ function adapter(read: () => Response | Promise<Response>, reply: object = compl
 afterEach(() => vi.useRealTimers());
 
 describe("per-generation document receipt audit", () => {
+  const kimiModel = "moonshotai/kimi-k3.1-pro";
+  const kimiRoute = "moonshotai/mxfp4";
+  const defaultParameters = { max_completion_tokens: config.maxOutputTokens, temperature: 0 };
+  it.each([
+    { model: kimiModel, route: kimiRoute, parameters: { max_tokens: config.maxOutputTokens } },
+    { model: kimiModel, route: "synthetic/zone-a", parameters: defaultParameters },
+    { model: config.model, route: kimiRoute, parameters: defaultParameters },
+  ])("sends the qualified token and sampling parameters for $model on $route", async ({ model, route, parameters }) => {
+    const routingPolicy = { ...config.routingPolicy, providerOrder: [route] };
+    const configForRoute = { ...config, model, routingPolicy, maxJobMicroUsd: 75_000 };
+    const qualificationForRoute = {
+      ...qualification, model, routingPolicy, inputMicroUsdPerMillionTokens: 2_000_000, outputMicroUsdPerMillionTokens: 10_000_000,
+    };
+    const fetch = vi.fn<DocumentFetch>(async (_, init) => init?.method === "POST"
+      ? Response.json({ ...completion, model })
+      : Response.json({ data: { ...generation, model } }));
+    const provider = new HttpDocumentAnalysisProvider(configForRoute, { qualification: qualificationForRoute, fetch });
+
+    const outcome = await provider.analyze(input, new AbortController().signal);
+    expect(outcome).toMatchObject({ kind: "received", candidate, audit: { status: "verified" } });
+    expect(fetch.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET"]);
+    const body = JSON.parse(String(fetch.mock.calls[0]![1]!.body));
+    expect({ max_tokens: body.max_tokens, max_completion_tokens: body.max_completion_tokens, temperature: body.temperature }).toEqual(parameters);
+    expect(body).toMatchObject({
+      model, stream: false, response_format: { type: "json_object" },
+      provider: { only: [route], order: [route], allow_fallbacks: false, require_parameters: true,
+        data_collection: "deny", zdr: true, max_price: { prompt: 2, completion: 10, request: 0 } },
+    });
+  });
   it("applies reviewed per-million prices, requires supported parameters and performs a bounded same-origin read by ID", async () => {
     const { fetch, analyze } = adapter(() => Response.json({ data: generation }));
     const outcome = await analyze();

@@ -45,6 +45,33 @@ describe("AI-first material review", () => {
     fireEvent.click(screen.getByRole("button", { name: "采用 SQL 的需指导完成建议" }));
     expect(adopted).toHaveBeenCalledWith({ sql: "guided" });
   });
+  it("shows the applicable Kimi privacy terms before agreeing and requires fresh consent when the policy changes", () => {
+    const { invoke } = fixture();
+    const props = { kind: "jd", value: null, onChange: vi.fn(), client: { request: invoke } as unknown as DocumentsClient } as const;
+    const kimi = { ...caps, providerLabel: "OpenRouter / Moonshot AI", privacyNotice: "kimi-k31-pro-zdr" } as const;
+    const view = render(<MaterialTextPanel {...props} capabilities={kimi} />);
+    fireEvent.change(screen.getByLabelText("岗位 JD正文"), { target: { value: "合成岗位资料" } });
+    const consent = screen.getByRole("checkbox", { name: /允许将当前文本/ });
+    expect(consent).toHaveAccessibleDescription(/Kimi K3\.1 Pro/);
+    expect(consent).toHaveAccessibleDescription(/缓存/);
+    expect(consent).toHaveAccessibleDescription(/分类/);
+    expect(consent).toHaveAccessibleDescription(/依法/);
+    expect(screen.getByRole("link", { name: "OpenRouter 零数据保留说明" })).toHaveAttribute("href", "https://openrouter.ai/docs/guides/features/zdr");
+    const terms = screen.getByRole("link", { name: "Kimi 开放平台隐私政策" });
+    expect(terms).toHaveAttribute("href", "https://platform.kimi.ai/docs/agreement/userprivacy");
+    expect(terms).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
+    fireEvent.click(consent);
+    expect(screen.getByRole("button", { name: "保存并 AI 分析" })).toBeEnabled();
+
+    view.rerender(<MaterialTextPanel {...props} capabilities={{ ...kimi, policyVersion: "2026.12.1" }} />);
+    expect(screen.getByRole("button", { name: "保存并 AI 分析" })).toBeDisabled();
+    view.rerender(<MaterialTextPanel {...props} capabilities={kimi} />);
+    expect(consent).not.toBeChecked();
+    view.rerender(<MaterialTextPanel {...props} capabilities={{ ...caps, providerLabel: kimi.providerLabel }} />);
+    expect(screen.queryByRole("link", { name: "Kimi 开放平台隐私政策" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "保存并手动整理" })).toBeEnabled();
+    expect(invoke).not.toHaveBeenCalled();
+  });
   it("manual fallback never creates a consent or analysis job", async () => {
     const { Harness, invoke } = fixture(); render(<Harness />);
     fireEvent.change(screen.getByLabelText("简历正文"), { target: { value: "SQL 原文" } });

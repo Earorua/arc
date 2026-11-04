@@ -93,10 +93,12 @@ export function createDocumentRuntime(environment: DocumentEnvironment, options:
     adoptDocumentExtraction: (ownerId, input) => services.adoptDocumentExtraction({ ownerId }, input),
     readDocumentCapabilities: async ownerId => {
       const existing = await repo.one("SELECT 1 FROM documents WHERE owner_id=? AND lifecycle<>'deleted' LIMIT 1", ownerId);
+      const analysis = policy.analysisEnabled ? policy.analysis : null;
+      const kimiNotice = analysis?.endpoint === "https://openrouter.ai/api/v1/chat/completions"
+        && analysis.model === "moonshotai/kimi-k3.1-pro" && analysis.routingPolicy.providerOrder[0] === "moonshotai/mxfp4";
       return documentCapabilitiesSchema.parse({ documentsEnabled: policy.documentsEnabled, analysisEnabled: policy.analysisEnabled, planningEnabled: policy.planningEnabled,
-        hasDocuments: Boolean(existing), providerLabel: policy.analysisEnabled ? policy.analysis?.provider ?? null : null,
-        providerPolicyId: policy.analysisEnabled ? policy.analysis?.providerPolicyId ?? null : null,
-        policyVersion: policy.analysisEnabled ? policy.analysis?.routingPolicy.policyVersion ?? null : null, reason: state.reason });
+        hasDocuments: Boolean(existing), providerLabel: analysis?.provider ?? null, providerPolicyId: analysis?.providerPolicyId ?? null,
+        policyVersion: analysis?.routingPolicy.policyVersion ?? null, ...(kimiNotice ? { privacyNotice: "kimi-k31-pro-zdr" } : {}), reason: state.reason });
     },
   };
   return {

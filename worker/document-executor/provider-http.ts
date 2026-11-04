@@ -76,9 +76,13 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     if (offset !== input.text.length || !segments.length) return notSent;
     const data = JSON.stringify({ kind: input.kind, segments });
     if (new TextEncoder().encode(data).byteLength + 4096 > config.maxInputTokens) return notSent;
+    // This Kimi route advertises max_tokens and fixes its own sampling temperature.
+    const generationParameters = config.model === "moonshotai/kimi-k3.1-pro" && config.routingPolicy.providerOrder[0] === "moonshotai/mxfp4"
+      ? { max_tokens: config.maxOutputTokens }
+      : { max_completion_tokens: config.maxOutputTokens, temperature: 0 };
     const body = JSON.stringify({
       model: config.model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: data }],
-      max_completion_tokens: config.maxOutputTokens, temperature: 0, stream: false, response_format: { type: "json_object" },
+      ...generationParameters, stream: false, response_format: { type: "json_object" },
       provider: {
         only: config.routingPolicy.providerOrder, order: config.routingPolicy.providerOrder,
         allow_fallbacks: false, require_parameters: true, data_collection: "deny", zdr: true,

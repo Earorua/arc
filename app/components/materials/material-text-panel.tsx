@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { z } from "zod";
 import { materialIdSchema } from "../../contracts/documents";
 import { readSetupDraft, writeSetupDraft, removeSetupDraft } from "../setup/setup-draft";
@@ -43,7 +43,11 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
     const [text, setText] = useState("");
     const [name, setName] = useState(label);
     const [savedBody, setSavedBody] = useState("");
-    const [allowed, setAllowed] = useState(false);
+    const consentDescriptionId = useId();
+    const consentScope = JSON.stringify([capabilities.analysisEnabled, capabilities.providerPolicyId, capabilities.policyVersion, capabilities.providerLabel, capabilities.privacyNotice]);
+    const [consentedScope, setConsentedScope] = useState<string | null>(null);
+    const allowed = consentedScope === consentScope;
+    if (consentedScope !== null && !allowed) setConsentedScope(null);
     const [busy, setBusy] = useState(false);
     const [draft, setDraft] = useState<DocumentReviewDraft | null>(null);
     const [job, setJob] = useState<DocumentEndpointResponse<"readDocumentJob"> | null>(null);
@@ -241,7 +245,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                 savedText.current = text;
                 setSavedBody(text);
                 changeRef.current(ref);
-                setAllowed(false);
+                setConsentedScope(null);
                 setJob(null);
                 setDraft(null);
                 serverDraft.current = null;
@@ -296,7 +300,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
             ref = { ...ref, jobId: result.jobId };
             valueRef.current = ref;
             changeRef.current(ref);
-            setAllowed(false);
+            setConsentedScope(null);
             setJob(null);
             removeSetupDraft(recoveryOwner, recoveryKey);
             recovery.current = null;
@@ -392,7 +396,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
             const result = await client.request("cancelDocumentJob", { jobId: job.jobId, expectedRevision: job.revision, mutationId: `cancel-${crypto.randomUUID()}` }, cancellation.current.signal);
             if (epoch === lifecycle.current) {
                 setJob({ ...job, revision: result.revision, state: result.state });
-                setAllowed(false);
+                setConsentedScope(null);
             }
         }
         catch (error) {
@@ -458,8 +462,19 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
     <h2>{label}辅助规划</h2><p>粘贴资料后由 AI 整理，你核对事实与能力建议；也可以跳过。</p>
     <fieldset disabled={disabled || busy}><legend className="sr-only">{label}文本导入</legend>
       <label>资料名称<input value={name} onChange={event => setName(event.target.value)} maxLength={200}/></label>
-      <label>{label}正文<textarea aria-label={`${label}正文`} value={text} maxLength={100000} onChange={event => { setText(event.target.value); setAllowed(false); clearConfirmation(); }} placeholder="粘贴文本。文件和链接导入将在后续提供。"/></label>
-      {capabilities.analysisEnabled ? <><p>处理方：{capabilities.providerLabel}。用途：提取本份资料供你核对。实际发送内容就是上方当前文本；不会自动打开其中的链接。</p><label className="material-consent"><input type="checkbox" checked={allowed} onChange={event => setAllowed(event.target.checked)}/>允许将当前文本交给上述处理方进行本次分析</label></> : <p role="status">AI 分析暂不可用。你可以保存资料并手动整理，已保存内容不会丢失。</p>}
+      <label>{label}正文<textarea aria-label={`${label}正文`} value={text} maxLength={100000} onChange={event => { setText(event.target.value); setConsentedScope(null); clearConfirmation(); }} placeholder="粘贴文本。文件和链接导入将在后续提供。"/></label>
+      {capabilities.analysisEnabled ? <>
+        <div id={consentDescriptionId}>
+          <p>处理方：{capabilities.providerLabel}。用途：提取本份资料供你核对。实际发送内容就是上方当前文本；不会自动打开其中的链接。</p>
+          {capabilities.privacyNotice === "kimi-k31-pro-zdr" && <>
+            <p>本次通过 OpenRouter 全球入口向 Moonshot AI 的 Kimi K3.1 Pro 发送文本，请求使用零数据保留（ZDR）路由。上游可能临时缓存输入。OpenRouter 可能抽取少量输入，交给采用 ZDR 的模型分类。按其公布的安全筛查计划，疑似儿童性虐待材料可能被保留以供复核，并依法报告或保存。</p>
+            <p><a href="https://openrouter.ai/docs/guides/features/zdr" target="_blank" rel="noreferrer">OpenRouter 零数据保留说明</a>{" · "}
+              <a href="https://openrouter.ai/docs/guides/privacy/data-collection" target="_blank" rel="noreferrer">OpenRouter 数据收集说明</a>{" · "}
+              <a href="https://platform.kimi.ai/docs/agreement/userprivacy" target="_blank" rel="noreferrer">Kimi 开放平台隐私政策</a></p>
+          </>}
+        </div>
+        <label className="material-consent"><input type="checkbox" aria-describedby={consentDescriptionId} checked={allowed} onChange={event => setConsentedScope(event.target.checked ? consentScope : null)}/>允许将当前文本交给上述处理方进行本次分析</label>
+      </> : <p role="status">AI 分析暂不可用。你可以保存资料并手动整理，已保存内容不会丢失。</p>}
       <div className="material-actions">{capabilities.analysisEnabled && <button type="button" disabled={!allowed || !text.trim() || analysisBlocked} onClick={() => void save(true, canReanalyze)}>{pendingAnalysis && !textChanged ? "继续上次分析请求" : canReanalyze ? "重新 AI 分析" : "保存并 AI 分析"}</button>}<button type="button" className="text-action" disabled={!text.trim()} onClick={() => void save(false)}>保存并手动整理</button></div>
     </fieldset>
     {job && <MaterialJobStatus job={job} onCancel={() => void cancel()}/>}

@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createMaterialsD1, seedUser } from "../helpers/materials-d1";
 import { memoryBucket } from "../helpers/document-bucket";
-import { createDocumentRuntime } from "../../app/server/documents/runtime";
+import { createDocumentRuntime, type DocumentEnvironment } from "../../app/server/documents/runtime";
 import { createDocumentRoute } from "../../app/server/http/document-route-factories";
 import {createMaterialAnalysisFixture} from "../helpers/material-analysis-e2e";
 import {materialContextRequest} from "../helpers/material-planning";
@@ -10,11 +10,11 @@ import {learningContext,promptContext} from "../../app/server/agents/context";
 
 const databases: ReturnType<typeof createMaterialsD1>[] = [];
 afterEach(() => { for (const db of databases.splice(0)) db.close(); });
-function fixture() {
+function fixture(environment: DocumentEnvironment = {}) {
   const db = createMaterialsD1(); databases.push(db); seedUser(db, "owner-a"); seedUser(db, "owner-b");
   const bucket = memoryBucket();
   const { objects } = bucket;
-  const runtime = createDocumentRuntime({ DB: db as unknown as D1Database, DOCUMENT_ASSETS: bucket, ARC_DOCUMENTS_ENABLED: "true", ARC_DOCUMENT_ANALYSIS_ENABLED: "true", ARC_DOCUMENT_PLANNING_ENABLED: "true" });
+  const runtime = createDocumentRuntime({ DB: db as unknown as D1Database, DOCUMENT_ASSETS: bucket, ARC_DOCUMENTS_ENABLED: "true", ARC_DOCUMENT_ANALYSIS_ENABLED: "true", ARC_DOCUMENT_PLANNING_ENABLED: "true", ...environment });
   const deps = (id = "owner-a") => ({ requireUser: async () => ({ id }), configuredOrigin: () => "https://arc.test", createService: () => runtime,
     rateLimiter: { reserve: async () => ({ allowed: true }) } });
   return { db, objects, runtime, deps };
@@ -65,5 +65,43 @@ describe("offline material service integration", () => {
     expect(capabilities).toMatchObject({ documentsEnabled: true, analysisEnabled: false, planningEnabled: true });
     await expect(runtime.invoke("owner-a", "createDocumentJob", { textVersionId: "text-missing", consentId: "consent-missing", mutationId: "job-missing" })).rejects.toMatchObject({ code: "unavailable" });
     expect(db.database.prepare("SELECT count(*) n FROM document_jobs").get()).toMatchObject({ n: 0 });
+  });
+  it("exposes the Kimi notice only for the qualified standard route without exposing the private configuration", async () => {
+    const openRouter = "https://openrouter.ai/api/v1/chat/completions";
+    const kimi = "moonshotai/kimi-k3.1-pro";
+    const standard = "moonshotai/mxfp4";
+    async function capabilities(endpoint: string, model: string, tag: string, qualified = true) {
+      const routingPolicy = { policyVersion: "2026.11.3", providerOrder: [tag], allowFallback: false, dataPolicy: "zdr-only" };
+      const qualification = {
+        qualified, endpoint, model, providerPolicyId: "policy-a", priceVersion: "2026.11.3", routingPolicy,
+        receiptRoute: { providerName: "Moonshot AI", endpointId: "fixture-standard" },
+        inputMicroUsdPerMillionTokens: 2000000, outputMicroUsdPerMillionTokens: 10000000, inputTokenBound: "utf8-bytes-plus-4096",
+      };
+      const { runtime } = fixture({
+        DOCUMENT_EXECUTOR: { fetch: () => { throw new Error("Unexpected executor request"); } },
+        ARC_DOCUMENT_BRIDGE_SECRET: "offline-private-bridge-fixture-at-least-32",
+        ARC_DOCUMENT_PROVIDER: "OpenRouter / Moonshot AI", ARC_DOCUMENT_MODEL: model,
+        ARC_DOCUMENT_PROVIDER_ENDPOINT: endpoint, ARC_DOCUMENT_PROVIDER_POLICY_ID: qualification.providerPolicyId,
+        ARC_DOCUMENT_ROUTING_POLICY: JSON.stringify(routingPolicy), ARC_DOCUMENT_PRICE_VERSION: qualification.priceVersion,
+        ARC_DOCUMENT_USER_DAILY_MICRO_USD: "2000000", ARC_DOCUMENT_GLOBAL_DAILY_MICRO_USD: "2000000",
+        ARC_DOCUMENT_MAX_JOB_MICRO_USD: "75000", ARC_DOCUMENT_MAX_INPUT_TOKENS: "16000", ARC_DOCUMENT_MAX_OUTPUT_TOKENS: "4096",
+        ARC_DOCUMENT_HTTP_TIMEOUT_MS: "180000", ARC_DOCUMENT_PROVIDER_QUALIFICATION: JSON.stringify(qualification),
+      });
+      return runtime.invoke("owner-a", "readDocumentCapabilities", {});
+    }
+    const result = await capabilities(openRouter, kimi, standard);
+    expect(result).toMatchObject({ analysisEnabled: true, privacyNotice: "kimi-k31-pro-zdr" });
+    expect(JSON.stringify(result)).not.toMatch(/offline-private|chat\/completions|fixture-standard/);
+    for (const other of [
+      await capabilities("https://example.test/api/v1/chat/completions", kimi, standard),
+      await capabilities(openRouter, "other/model", standard),
+      await capabilities(openRouter, kimi, "moonshotai/highspeed"),
+    ]) {
+      expect(other.analysisEnabled).toBe(true);
+      expect(other).not.toHaveProperty("privacyNotice");
+    }
+    const disabled = await capabilities(openRouter, kimi, standard, false);
+    expect(disabled.analysisEnabled).toBe(false);
+    expect(disabled).not.toHaveProperty("privacyNotice");
   });
 });
