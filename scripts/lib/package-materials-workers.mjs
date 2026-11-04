@@ -9,11 +9,12 @@ export async function copyMaterialsMigrations(source, dir) {
   }
 }
 
+export const materialWorkerBuildOptions = {
+  bundle:true, format:"esm", platform:"neutral", target:"es2022", conditions:["workerd","worker"], external:["cloudflare:*","node:*"], metafile:true,
+};
 async function packageWorker(config, folder, requiredExports) {
   await mkdir(folder, { recursive: true });
-  const built = await build({ entryPoints: [config.main], outfile: join(folder, "index.mjs"), bundle: true,
-    format: "esm", platform: "neutral", target: "es2022", conditions: ["workerd", "worker"],
-    external: ["cloudflare:*", "node:*"], metafile: true });
+  const built = await build({ ...materialWorkerBuildOptions, entryPoints: [config.main], outfile: join(folder, "index.mjs") });
   const entry = Object.values(built.metafile.outputs).find(output => output.entryPoint);
   if (!requiredExports.every(name => entry?.exports.includes(name))) throw new Error("Missing private Worker entrypoint");
   await writeFile(join(folder, "wrangler.json"), JSON.stringify({ ...config, main: "./index.mjs" }, null, 2));

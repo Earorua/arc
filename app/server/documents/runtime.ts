@@ -2,7 +2,7 @@ import { env } from "cloudflare:workers";
 import { detachAdoptedMaterial } from "./detach-adopted-material";
 import { documentEndpointContracts, type DocumentEndpoint, type DocumentEndpointRequest, type DocumentEndpointResponse } from "../../contracts/documents-api";
 import { documentCapabilitiesSchema, type DocumentCapabilities } from "../../contracts/document-capabilities";
-import { readDocumentSitePolicy } from "./policy";
+import { documentRuntimePolicy } from "./runtime-policy";
 import { createDocumentServices, DocumentService } from "./service";
 import { D1DocumentRepository, DocumentServiceError } from "./d1-repository";
 import { DocumentStorage, type DocumentBucket } from "./storage";
@@ -11,8 +11,7 @@ import { DeletionService } from "./deletion-service";
 import { DocumentConsentService } from "./consent-service";
 import { DocumentJobService } from "./job-service";
 import { createDocumentSiteHandler, D1DocumentNonceStore, DocumentExecutorBridge, type DocumentServiceBinding } from "./executor-bridge";
-import { calculateDocumentReservation, isDocumentProviderQualified, type DocumentProviderQualification } from "../../../worker/document-executor/provider-http";
-import { documentAcceptanceConfigurationDigest } from "../../../worker/document-executor/acceptance-policy";
+
 import { MaterialContextService } from "./context-builder";
 import { PlanningSourceResolver } from "../planning/source-resolver";
 import { D1PlanningRepository } from "../planning/d1-planning-repository";
@@ -30,14 +29,7 @@ export type DocumentEnvironment = Readonly<Record<string, unknown>> & {
   ARC_DOCUMENT_BRIDGE_SECRET?: string; ARC_DOCUMENT_PROVIDER_QUALIFICATION?: string; BETTER_AUTH_URL?: string;
 };
 type EndpointHandlers = { [K in DocumentEndpoint]: (ownerId: string, input: DocumentEndpointRequest<K>) => Promise<DocumentEndpointResponse<K>> };
-export function documentRuntimePolicy(environment: DocumentEnvironment) {
-  const requested = readDocumentSitePolicy(environment); let qualification: DocumentProviderQualification | null = null;
-  try { const raw = environment.ARC_DOCUMENT_PROVIDER_QUALIFICATION; if (typeof raw === "string" && raw.length <= 16_384) qualification = JSON.parse(raw) as DocumentProviderQualification; } catch { /* Unqualified configurations remain closed. */ }
-  const qualified = requested.analysis !== null && isDocumentProviderQualified(requested.analysis, qualification);
-  const connected = Boolean(environment.DOCUMENT_EXECUTOR && environment.ARC_DOCUMENT_BRIDGE_SECRET && environment.ARC_DOCUMENT_BRIDGE_SECRET.length >= 32);
-  return { policy: { ...requested, analysisEnabled: requested.analysisEnabled && qualified && connected }, qualification: qualified ? qualification : null,
-    reason: !requested.analysisEnabled ? requested.analysisReadiness === "configuration-incomplete" ? "configuration-incomplete" : "disabled" : qualified && connected ? "ready" : "qualification-required" } as const;
-}
+export { documentRuntimePolicy } from "./runtime-policy";
 export function createDocumentSourceResolver(db: D1Database) {
   return new PlanningSourceResolver({ intelligence: new IntelligenceService(new BuiltinIntelligenceRepository()), flagshipRegistry: flagshipUnitRegistry,
     researchRepository: new D1ResearchRepository(db), replayPackageReader: new D1PlanningReplayPackageReader(db) });
@@ -45,21 +37,18 @@ export function createDocumentSourceResolver(db: D1Database) {
 export function createDocumentRuntime(environment: DocumentEnvironment, options: { now?: () => Date; createId?: () => string; sourceResolver?: PlanningSourceResolver } = {}) {
   const { DB: db, DOCUMENT_ASSETS: bucket } = environment;
   if (!db || !bucket) throw new DocumentServiceError("unavailable");
-  const now = options.now ?? (() => new Date()); const state = documentRuntimePolicy(environment); const { policy, qualification } = state;
+  const now = options.now ?? (() => new Date()); const state = documentRuntimePolicy(environment); const { policy } = state;
   const repo = new D1DocumentRepository(db, now, options.createId); const storage = new DocumentStorage(bucket); const review = new ReviewService(repo, storage);
   const bridge = environment.DOCUMENT_EXECUTOR && environment.ARC_DOCUMENT_BRIDGE_SECRET ? new DocumentExecutorBridge({ binding: environment.DOCUMENT_EXECUTOR, secret: environment.ARC_DOCUMENT_BRIDGE_SECRET, now: () => now().getTime() }) : undefined;
-  const jobs = new DocumentJobService({ db, policy, now: () => now().getTime(), bridge,
-    acceptanceRunId: environment.ARC_DOCUMENT_ACCEPTANCE_MODE === "live" && typeof environment.ARC_DOCUMENT_ACCEPTANCE_RUN_ID === "string" ? environment.ARC_DOCUMENT_ACCEPTANCE_RUN_ID : undefined,
-    acceptanceConfigurationSha256: policy.analysis && qualification && environment.ARC_DOCUMENT_ACCEPTANCE_MODE === "live"
-      ? documentAcceptanceConfigurationDigest(policy.analysis, qualification) : undefined,
-    reservationMicroUsd: policy.analysis && qualification ? calculateDocumentReservation(policy.analysis, qualification) : null,
+  const analysisAvailable=()=>state.analysisAvailable(()=>now().getTime(),bridge);
+  const jobs = new DocumentJobService({ ...state, analysisAvailable, db, now: () => now().getTime(), bridge,
     loadInput: async job => {
       const stored = await repo.version(job.owner_id, job.document_id, job.document_version_id, job.text_version_id);
       return { textVersionId: stored.version.textVersionId, text: await storage.read(stored.objectKey), segments: stored.segments,
         kind: stored.document.kind, providerPolicyId: job.provider_policy_id, outputSchemaVersion: "2026.11.1" };
     }, activateResult: (ownerId, result) => review.acceptAiExtraction(ownerId, result),
   });
-  const consent = new DocumentConsentService({ db, policy, now: () => now().getTime(), onRevoke: async (ownerId,consentId) => { await jobs.notifyConsentCancellation(ownerId,consentId); } });
+  const consent = new DocumentConsentService({ db, policy, analysisAvailable, now: () => now().getTime(), onRevoke: async (ownerId,consentId) => { await jobs.notifyConsentCancellation(ownerId,consentId); } });
   const services = createDocumentServices({ db, bucket, clock: now, id: options.createId, deletionPort: jobs });
   const deletion = new DeletionService(repo, storage, jobs); const documents = new DocumentService(repo, storage);
   const sourceResolver = options.sourceResolver ?? createDocumentSourceResolver(db); const planningRepository = new D1PlanningRepository(db, { sourceResolver, allowMaterialAcceptance: policy.planningEnabled });
@@ -96,12 +85,13 @@ export function createDocumentRuntime(environment: DocumentEnvironment, options:
     adoptDocumentExtraction: (ownerId, input) => services.adoptDocumentExtraction({ ownerId }, input),
     readDocumentCapabilities: async ownerId => {
       const existing = await repo.one("SELECT 1 FROM documents WHERE owner_id=? AND lifecycle<>'deleted' LIMIT 1", ownerId);
-      const analysis = policy.analysisEnabled ? policy.analysis : null;
+      const analysisEnabled = await analysisAvailable();
+      const analysis = analysisEnabled ? policy.analysis : null;
       const kimiNotice = analysis?.endpoint === "https://openrouter.ai/api/v1/chat/completions"
         && analysis.model === "moonshotai/kimi-k3.1-pro" && analysis.routingPolicy.providerOrder[0] === "moonshotai/mxfp4";
-      return documentCapabilitiesSchema.parse({ documentsEnabled: policy.documentsEnabled, analysisEnabled: policy.analysisEnabled, planningEnabled: policy.planningEnabled,
+      return documentCapabilitiesSchema.parse({ documentsEnabled: policy.documentsEnabled, analysisEnabled, planningEnabled: policy.planningEnabled,
         hasDocuments: Boolean(existing), providerLabel: analysis?.provider ?? null, providerPolicyId: analysis?.providerPolicyId ?? null,
-        policyVersion: analysis?.routingPolicy.policyVersion ?? null, ...(kimiNotice ? { privacyNotice: "kimi-k31-pro-zdr" } : {}), reason: state.reason });
+        policyVersion: analysis?.routingPolicy.policyVersion ?? null, ...(kimiNotice ? { privacyNotice: "kimi-k31-pro-zdr" } : {}), reason: analysisEnabled ? "ready" : state.unavailableReason });
     },
   };
   return {

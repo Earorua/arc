@@ -3,11 +3,13 @@ import {D1DocumentJobStore} from "./d1-job-store";
 import {DocumentResultStore} from "./result-store";
 import {parseDocumentWorkflowOutput,type DocumentWorkflowOutput} from "./workflow-policy";
 import type { DocumentAcceptanceGate } from "./acceptance-policy";
+import type { DocumentProductionRelease } from "./production-policy";
 import type {DocumentSendPermit} from "../../app/server/documents/executor-bridge";
 export interface DocumentExecutorSiteClient{claim(jobId:string):Promise<{claimed:boolean}>;input(jobId:string):Promise<DocumentProviderInput>;
  permit(input:DocumentSendPermit):Promise<boolean>;
  result(jobId:string,resultRef:string,outcome:DocumentProviderOutcome):Promise<{jobId:string;state:string;resultRef:string|null}>;}
 export type DocumentExecutionRuntime={jobs:D1DocumentJobStore;results:DocumentResultStore;site:DocumentExecutorSiteClient;provider:DocumentAnalysisProvider;
+ paidIntent?:Promise<string|null>; productionTurn?:(jobId:string)=>Promise<boolean>;
  analyzeJob?:(jobId:string,input:DocumentProviderInput,signal:AbortSignal)=>Promise<DocumentProviderOutcome>};
 
 export async function requestDocumentSendPermit(site:DocumentExecutorSiteClient,jobId:string,input:DocumentProviderInput):Promise<boolean>{
@@ -17,32 +19,37 @@ export async function requestDocumentSendPermit(site:DocumentExecutorSiteClient,
    generation:execution.sendScope.generation,configurationDigest:execution.configurationDigest});
 }
 
-/** The actual HTTP adapter calls the reservation hook after validating and serializing the exact payload. */
-export async function analyzeAcceptedDocumentJob(jobId: string, input: DocumentProviderInput, signal: AbortSignal,
-  jobs: D1DocumentJobStore, provider: DocumentAnalysisProvider, gate: DocumentAcceptanceGate, permit:()=>Promise<boolean>): Promise<DocumentProviderOutcome> {
+/** The HTTP adapter requests a single-use site permit and durable reservation only after validating its payload. */
+export async function analyzePaidDocumentJob(jobId: string, input: DocumentProviderInput, signal: AbortSignal,
+  jobs: D1DocumentJobStore, provider: DocumentAnalysisProvider, gate: DocumentAcceptanceGate | DocumentProductionRelease,
+  permit:()=>Promise<boolean>): Promise<DocumentProviderOutcome> {
+  const production = "authorization" in gate;
+  const scope = production ? "production" : "acceptance", id = production ? gate.authorization.id : gate.runId;
+  const marker = input.execution?.production;
+  if (production ? (!marker || marker.jobId !== jobId || marker.authorizationSha256 !== await gate.identity || input.execution?.acceptance)
+    : marker) return {kind:"not-sent",code:"configuration"};
   let admitted = false, stopUnconfirmed = false;
   const outcome = await provider.analyze(input, signal, async () => {
     if (!await permit()) return false;
-    try { admitted = await jobs.reserveAcceptance(jobId, input, gate); }
+    try { admitted = production ? await jobs.reserveProduction(jobId,gate) : await jobs.reserveAcceptance(jobId,input,gate); }
     catch {
-      // If D1 accepted a write but lost its acknowledgement, its pending row also blocks all subsequent sends.
-      try { await jobs.stopAcceptance(gate.runId); } catch { stopUnconfirmed = true; }
+      // A lost reservation acknowledgement cannot open a fresh paid request, even with a different grant.
+      try { await jobs.stopPaidTransport(scope,id); } catch { stopUnconfirmed = true; }
     }
     return admitted;
-  }, (receipt, observed) => jobs.claimAcceptanceReceipt(gate.runId, jobId, receipt, observed));
-  // Without any durable executor acknowledgement, the independent site must retain its only execution slot.
+  }, (receipt, observed) => jobs.claimPaidReceipt(scope,id,jobId,receipt,observed));
   if (stopUnconfirmed) return {kind:"unknown",code:"connection-lost"};
   if (!admitted) return {kind:"not-sent",code:"configuration"};
-  const verified = await jobs.finishAcceptance(gate.runId, jobId, outcome).catch(async () => {
-    await jobs.stopAcceptance(gate.runId).catch(() => undefined);
-    return false;
-  });
-  // Keep known provider charges for settlement even if the round stopped or the final ledger write failed.
-  return !verified && outcome.kind === "received" ? {...outcome,candidate:null} : outcome;
+  try { return await jobs.finishPaidDispatch(scope,id,jobId,outcome); }
+  catch {
+    await jobs.stopPaidTransport(scope,id).catch(() => undefined);
+    return outcome.kind === "received" ? {...outcome,candidate:null} : outcome;
+  }
 }
 export async function executeDocumentJob(jobId:string,runtime:DocumentExecutionRuntime):Promise<DocumentWorkflowOutput>{
  const existing=await runtime.jobs.get(jobId);if(existing?.result_ready)return parseDocumentWorkflowOutput({jobId,state:"delivery-pending",resultRef:existing.result_ref});
- if(!await runtime.jobs.claim(jobId))return parseDocumentWorkflowOutput({jobId,state:"already-claimed",resultRef:null});
+ if(runtime.productionTurn && !await runtime.productionTurn(jobId))return parseDocumentWorkflowOutput({jobId,state:"queued",resultRef:null});
+ if(!await runtime.jobs.claim(jobId,await runtime.paidIntent))return parseDocumentWorkflowOutput({jobId,state:"already-claimed",resultRef:null});
  let outcome:DocumentProviderOutcome;let providerStarted=false;
  try{
   const grant=await runtime.site.claim(jobId);if(!grant.claimed)outcome={kind:"not-sent",code:"aborted-before-send"};

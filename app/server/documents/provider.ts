@@ -11,6 +11,7 @@ export type DocumentProviderInput = Readonly<{
   outputSchemaVersion: "2026.11.1";
   execution?:Readonly<{modelVersion:string;priceVersion:string;configurationDigest:string;
     sendScope?:Readonly<{consentId:string;generation:number}>;
+    production?:Readonly<{jobId:string;authorizationSha256:string}>;
     acceptance?:Readonly<{runId:string;configurationSha256:string;ownerId:string;documentId:string;documentVersionId:string;generation:number}>}>;
 }>;
 
@@ -28,8 +29,9 @@ export interface DocumentAnalysisProvider {
     claimReceipt?: DocumentReceiptClaim): Promise<DocumentProviderOutcome>;
 }
 
-export function documentProviderConfigurationDigest(config:DocumentAnalysisMetadata,reservationMicroUsd:number,acceptanceRunId?:string,acceptanceConfigurationSha256?:string):Promise<string>{
+export function documentProviderConfigurationDigest(config:DocumentAnalysisMetadata,reservationMicroUsd:number,acceptanceRunId?:string,acceptanceConfigurationSha256?:string,productionAuthorizationSha256?:string):Promise<string>{
   return materialSha256({provider:config.provider,endpoint:config.endpoint,model:config.model,providerPolicyId:config.providerPolicyId,
     routingPolicy:config.routingPolicy,priceVersion:config.priceVersion,maxInputTokens:config.maxInputTokens,maxOutputTokens:config.maxOutputTokens,reservationMicroUsd,
-    ...(acceptanceRunId ? {acceptanceRunId,acceptanceConfigurationSha256} : {})});
+    ...(acceptanceRunId ? {acceptanceRunId,acceptanceConfigurationSha256} : {}),
+    ...(productionAuthorizationSha256 ? {productionAuthorizationSha256} : {})});
 }

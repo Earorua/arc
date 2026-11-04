@@ -63,7 +63,7 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     if (input.execution && (input.execution.modelVersion !== config.model || input.execution.priceVersion !== config.priceVersion
       || input.execution.configurationDigest !== await documentProviderConfigurationDigest(config,
         calculateDocumentReservation(config, qualification), input.execution.acceptance?.runId,
-        input.execution.acceptance?.configurationSha256))) return notSent;
+        input.execution.acceptance?.configurationSha256,input.execution.production?.authorizationSha256))) return notSent;
     let offset = 0;
     const ids = new Set<string>(), segments: { segmentId: string; text: string }[] = [];
     for (const segment of input.segments) {

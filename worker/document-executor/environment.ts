@@ -5,6 +5,7 @@ export interface DocumentExecutorEnvironment{
  /** All synthetic calls, including receipt reads, use this private binding. */
  DOCUMENT_PROVIDER_TRANSPORT?:Fetcher;
  ARC_ENVIRONMENT?:string;ARC_DOCUMENT_ACCEPTANCE_MODE?:string;ARC_DOCUMENT_ACCEPTANCE_RUN_ID?:string;
+ ARC_DOCUMENT_PRODUCTION_ENABLED?:string;ARC_DOCUMENT_PRODUCTION_AUTHORIZATION?:string;
  ARC_DOCUMENT_PROVIDER_QUALIFICATION?:string;ARC_DOCUMENT_MAINTENANCE_ENABLED?:string;
  [setting:string]:unknown;
 }

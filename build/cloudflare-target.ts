@@ -112,8 +112,10 @@ export function createCloudflareConfig(value: CloudflareTarget): Partial<WorkerC
 const dedicatedName = z.string().max(63).regex(/^arc-materials-g1b-[a-z0-9]+(?:-[a-z0-9]+)*$/u);
 const restrictedIds = new Set([...protectedCloudflareDatabaseIds, "83a47917-a4f4-4121-baad-1032677f18a8",
   "12345678-1234-4123-8123-123456789abc", "87654321-4321-4321-8321-cba987654321"]);
-const materialDb = z.strictObject({ name: dedicatedName, id: z.uuid().refine(id =>
-  !id.startsWith("00000000-") && !restrictedIds.has(id.toLowerCase())) });
+export function isDedicatedMaterialsDatabaseId(id: string) {
+  return !id.startsWith("00000000-") && !restrictedIds.has(id.toLowerCase());
+}
+const materialDb = z.strictObject({ name: dedicatedName, id: z.uuid().refine(isDedicatedMaterialsDatabaseId) });
 const privateBucket = z.strictObject({ name: dedicatedName, public: z.literal(false) });
 const publicId = z.string().max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
 const version = z.string().max(32).regex(/^\d{4}\.\d{2}\.\d+$/u);
