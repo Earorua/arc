@@ -96,4 +96,3 @@ describe("phase 0 SQLite contract probe (not an application migration)", () => {
     expect(db.database.prepare("SELECT revision FROM probe_workspaces").get()).toMatchObject({revision:4});
   });
 });
-

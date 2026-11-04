@@ -41,4 +41,3 @@ CREATE TABLE document_usage_links(
 CREATE TABLE document_mutations(
  owner_id TEXT NOT NULL,mutation_id TEXT NOT NULL,body_digest TEXT NOT NULL,passed INTEGER NOT NULL CHECK(passed=1),
  PRIMARY KEY(owner_id,mutation_id));
-

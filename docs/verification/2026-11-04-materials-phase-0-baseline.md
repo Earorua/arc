@@ -41,4 +41,3 @@ npm run test:unit -- tests/contracts/planning-api.test.ts tests/components/setup
 ## 阶段 0 的验证性质
 
 本阶段检查基础契约和机制。SQL 使用 tests/fixtures 下的独立内存原型；Workflow 使用本地 Miniflare 和假 Provider；质量指标使用人工标注的合成资料和合成候选。此类通过均不能证明真实模型已合格，也不能说明产品已可导入资料。完整产品接入与真实资格验证属于未执行的阶段 1。
-
