@@ -1,0 +1,15 @@
+{
+  "mode": "expired offline fixture, in-memory SQLite",
+  "candidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "fixtureCases": 24,
+  "rendererSha256": "cf7286800fbd7b4f264035f1547d643c8c5a33548feedc0dbfd1e4437d3b7fec",
+  "migrationSha256": "b5e3ad2c02abf768342943adfa960da6fd4c4c8bfe54e6f12100605fbab88ae8",
+  "legacyCapMicroUsd": 500000,
+  "kimiWorstCase24MicroUsd": 1751040,
+  "rendererRejectsTwoUsd": true,
+  "sqliteRejectsTwoUsd": true,
+  "realAuthorizationIssued": false,
+  "modelCalls": 0,
+  "remoteWrites": 0
+}

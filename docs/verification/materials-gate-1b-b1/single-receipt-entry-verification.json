@@ -1,0 +1,127 @@
+{
+  "mode": "B1 offline operator validation with synthetic credentials and mock transport",
+  "verifiedAtUtc": "2026-11-04 13:37:56 UTC",
+  "productCandidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "unchangedProductionSourceFilesCompared": 11,
+  "testedFilesSha256": {
+    "b2-settings.review.json": "d65903a51fd52ce85bb4e54bc769d324343a3f908c2c38699373f02297aa1834",
+    "capture-probe-metadata.mjs": "9c7b523382d61b5ccfab0530fbf7a7ff42a96e61fb1b215147b42c8b7e4a1ab0",
+    "capture-probe-metadata.test.mjs": "c9398b274d3f78f72f3b5566869e7afbd643dfc7bfef07339ebb9ca4aee3aa6d",
+    "invoke-single-receipt.ps1": "28dddbcedbaf92c7addb1e68ed41bec833e0ac36542ccbdd4b16d715789b2dcc",
+    "replay-redacted-pair.mjs": "ce563ef65f6cf5189e09b3b8aa445c1aac9ae07fbdd984169ebb7f57cf0d4a05",
+    "replay-redacted-pair.test.mjs": "399ba9b2a1f8d8e6091f59cd9b602da1afc2ec1e7cb60cbfc9b9e33e18332fa8",
+    "single-receipt-probe.mjs": "d40d17a159d386c6d3d5f9debcef02ebf3c03a23721a620c754dacc8172a5e6e",
+    "single-receipt-probe.test.mjs": "e45799feb9712dcef61091a83f2dabf18a84d01b2c3819aefc7c3f059823f311"
+  },
+  "operatorManifestSha256": "b58298e983d688dabc70b775f5746ebde83dd4d6040d7949d94dd45180d41c8d",
+  "fixedBody": {
+    "bytes": 2472,
+    "sha256": "33277377b7611f2ad2b944ef7180331acd258f0fdf3df44aff684dddffd2ce20",
+    "textSha256": "a55f4e0bb88852f445eefde1699a819634f4bcc742249fae69161ca53db96a23"
+  },
+  "offlineChecks": {
+    "node": {
+      "files": 3,
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0,
+      "command": "node --require ./work/materials-production-release/block-outbound.cjs --import tsx --test --test-concurrency=1 docs/verification/materials-gate-1b-b1/single-receipt-probe.test.mjs docs/verification/materials-gate-1b-b1/capture-probe-metadata.test.mjs docs/verification/materials-gate-1b-b1/replay-redacted-pair.test.mjs"
+    },
+    "targetedVitest": {
+      "files": [
+        "tests/server/document-generation-audit.test.ts",
+        "tests/server/document-provider.test.ts",
+        "tests/server/document-qualification-journal.test.ts",
+        "tests/server/document-model-qualification-guards.test.ts"
+      ],
+      "passed": 57,
+      "failed": 0
+    },
+    "scopedEslintExitCode": 0,
+    "powerShellParserErrors": 0,
+    "unapprovedLauncherExitCode": 2,
+    "networkDenialsDuringFinalOfflineTests": 0,
+    "localLogSha256": {
+      "probe-isolated-tests.log": "20fffdafd4a990a036caf447f344132c91af1397988c6cc7d1101a1f2b3417ff",
+      "probe-cutoff-product.log": "6421ba94e7820c79936ac7275f6c3093b048aebb86a6ba72d6fe124a87533e0b",
+      "probe-frozen-cost-repro.json": "d41d0307a7eb15085cfe43a7f83563d7480a3d92f6a2d00afc717af15acc1a16"
+    }
+  },
+  "observations": {
+    "physicalCheckouts": 2,
+    "competingCliExitCodes": [
+      0,
+      2
+    ],
+    "substitutedKeyExitCode": 2,
+    "incorrectKeyConsumedSlot": false,
+    "combinedMockInferencePosts": 1,
+    "combinedMockGenerationGets": 1,
+    "restartedPreflightExitCode": 2,
+    "pendingMetadataStatusSequence": [
+      202,
+      503,
+      200
+    ],
+    "chatZeroVersusGenerationHalfDollar": {
+      "heldMicroUsd": 72960,
+      "actualMicroUsd": null,
+      "budgetExceeded": true
+    },
+    "onlyGenerationFeeDurableBeforeSettlementWriteFailureMicroUsd": 7,
+    "expiredUncooperativeTransportUpdatedLedgerAfterReturn": false,
+    "plaintextReceiptIdPersisted": false
+  },
+  "productReleaseBlocker": {
+    "candidate": "7052aedd8a49",
+    "mode": "same origin, in-memory synthetic provider; production HttpDocumentAnalysisProvider and settleProviderOutcome",
+    "fixtures": [
+      {
+        "name": "conflict",
+        "chatUsd": 0,
+        "generationUsd": 0.5,
+        "metadataHasError": false,
+        "productionAudit": "usage-mismatch",
+        "actualMicroUsd": 0,
+        "accounting": "settled"
+      },
+      {
+        "name": "errorEnvelope",
+        "chatUsd": null,
+        "generationUsd": 0,
+        "metadataHasError": true,
+        "productionAudit": "usage-mismatch",
+        "actualMicroUsd": 0,
+        "accounting": "settled"
+      },
+      {
+        "name": "roundingConflict",
+        "chatUsd": 0.0004,
+        "generationUsd": 0.0003999,
+        "metadataHasError": false,
+        "productionAudit": "verified",
+        "actualMicroUsd": 400,
+        "accounting": "settled"
+      }
+    ],
+    "required": "Reconcile conflicting raw costs and disregard fees from error envelopes in the general budget path. Freeze and regress a new candidate before B2 or public release."
+  },
+  "actual": {
+    "ownerGrantPresent": false,
+    "workspaceKeyBindingRegistered": false,
+    "liveSlotPresent": false,
+    "inferenceRequests": 0,
+    "inferenceUsd": 0,
+    "b2Executed": 0,
+    "supplementQualityExecuted": 0,
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "privateUserDataAuthorized": false
+  },
+  "remaining": [
+    "Explicit owner approval for a single synthetic probe and its upstream caching terms",
+    "Private local registration of the independently inspected materials-b2 key fingerprint",
+    "Actual paired standard-route receipts and charge",
+    "Acceptable written privacy terms and separate release approvals for real private documents"
+  ]
+}

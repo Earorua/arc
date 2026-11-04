@@ -1,0 +1,46 @@
+{
+  "candidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "sourceTree": "1d73935f8a0c68bc5187f7e1118941ef00498161",
+  "bundleSha256": "c30c5b0c316b802bc144bf3c0cb3bea85583dc805abaee58a5ee43b58f5297ee",
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "closedMode": true,
+  "source": "new directory extracted from the frozen Git commit with a local physical copy of installed dependencies",
+  "steps": {
+    "site": {
+      "exitCode": 0,
+      "logSha256": "545595f10819f785b1694a7c080c9deeb6a06dbaa058d6a5dbc3f95c235c2626"
+    },
+    "rendered": {
+      "exitCode": 0,
+      "logSha256": "4b9aae4ce8cd1c66f40664f6d4bb6681c24daf5210f00b1f3453487266f5463f",
+      "passed": 5
+    },
+    "pair": {
+      "exitCode": 0,
+      "logSha256": "c2c0e34e5765a6265cf19ec1e41fdbf73aa8d2d6756e1bcea665203931c473e6"
+    }
+  },
+  "cleanFiles": 388,
+  "workspaceFiles": 388,
+  "workspaceArtifactTreeSha256": "544a075f07196b7183f29521c26bfaab5117b070b5132688fa24f4af7d38a352",
+  "cleanArtifactTreeSha256": "a4470691c5173a45cbfb9ab987f79d1c8aa690466b14504b0ea3e829f0137f16",
+  "identicalTree": false,
+  "identicalByPath": 385,
+  "onlyGeneratedBuildIdAndServerSecretsDiffer": true,
+  "executorIdentical": true,
+  "allPackagedMigrationsIdentical": true,
+  "changedSamePath": [
+    "site/server/index.js",
+    "site/server/ssr/vinext-server.json",
+    "site/server/vinext-server.json"
+  ],
+  "onlyClean": [],
+  "onlyWorkspace": [],
+  "isolation": {
+    "accountCredentialsPassed": false,
+    "nodeNonLoopbackFetchOrSocketAttempts": 0
+  },
+  "modelCalls": 0,
+  "deployments": 0,
+  "remoteMigrations": 0
+}

@@ -1,0 +1,20 @@
+{
+  "scope": "Independent offline supplement extraction quality controls",
+  "parent": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "parentTree": "1d73935f8a0c68bc5187f7e1118941ef00498161",
+  "candidate": "dbc27aa6170c2849eef49e76adb96462305c2174",
+  "tree": "52d701fc9a1cc7eb5523cca0d0757e12da8d7588",
+  "localRef": "refs/codex/candidates/materials-supplement-qa-52d701fc9a1c",
+  "bundle": "docs/verification/materials-supplement-quality/source.bundle",
+  "bundlePrerequisite": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "bundleSha256": "90fef0d914ff0c63a59b430eb3aa72fc1d8873e55f08644d8a1ca351555ae5ea",
+  "sourceSha256": {
+    "scripts/score-materials-supplements.ts": "2bc125e7fe936be8b671ad27dc9d14d7630c07ead1387c56d4eeeb3cafc6c57f",
+    "tests/fixtures/documents/supplement-quality-corpus.json": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",
+    "tests/server/document-supplement-quality.test.ts": "428da3e13bbfcc09c07afffbdfe07ddf4b93a811d7851c746e3cf9ac63a7de04"
+  },
+  "original24CorpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "bundleRestoredWithOnlyPrerequisite": true,
+  "nonDocsWorkingSourceMatchesTree": true,
+  "branchAndPrimaryIndexUnchanged": true
+}

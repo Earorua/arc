@@ -1,0 +1,68 @@
+{
+  "candidate": "87add0a010d601873f493a13cfa327deb5a5e657",
+  "tree": "b93efadeb38136f35f6c5a35de20a14c617fac1f",
+  "exits": {
+    "candidate-unit": 0,
+    "candidate-focused": 0,
+    "candidate-extra": 0,
+    "candidate-typecheck": 0,
+    "candidate-lint": 0,
+    "candidate-build-render": 0,
+    "candidate-pair": 0,
+    "candidate-restore": 0,
+    "candidate-node": 0
+  },
+  "fullVitest": {
+    "files": 341,
+    "tests": 7373,
+    "elapsedSeconds": 236.23
+  },
+  "planFocused": {
+    "files": 6,
+    "tests": 96,
+    "elapsedSeconds": 36.26
+  },
+  "b0AdditionalFocused": {
+    "files": 11,
+    "tests": 124,
+    "elapsedSeconds": 13.59
+  },
+  "strictResearch": {
+    "files": 3,
+    "tests": 131,
+    "elapsedSeconds": 186.63
+  },
+  "typecheck": {
+    "errors": 0
+  },
+  "lint": {
+    "errors": 0,
+    "existingResearchWarnings": 4
+  },
+  "rendered": 5,
+  "additionalNode": {
+    "files": 9,
+    "passed": 290,
+    "concurrency": 1
+  },
+  "intermediate": {
+    "oldRetained": "HEAD reproduction: current service loaded archival 0000–0006 instead of current migrations",
+    "lostStart": "Parallel CPU load exceeded the original 45-second deadline; original test and deadline passed in serial execution",
+    "artifactDirectory": "Generated artifacts moved to outputs before final lint. Build helper source variable fixed."
+  },
+  "logs": {
+    "candidate-unit.log": "274dc58138f984765524ce105a41f88b7b031b81db1fa9e58514f09024c4b941",
+    "candidate-focused.log": "8f0efca8970ed94449ab1cea56469999b3d1c1c708444c3e80f598945183d362",
+    "candidate-extra.log": "dc40295cd509a956843da1a56a1c7d2719ea663726549ab0a9d91d5d1af745c9",
+    "candidate-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-lint.log": "5da01f700be7cd28f901d0cd992daba0fd16f9670b8e3b19518290a0c2839f2a",
+    "candidate-build-render.log": "904fa59a47d1a5c9827e59db0d4964865d83c199367f82b11bbe40aac6640fab",
+    "candidate-pair.log": "6574084137eb834dbd0f2d81926c57cec8b42b63d9f7b960403b001acd414216",
+    "candidate-restore.log": "c5cc6972a4d0725f0b2ecfb254204b71e6d4fddd3eaf59fb82f667b5b2edb540",
+    "candidate-node.log": "4d423b902fd5d3588815ac8f3b8f3e5b1ea4dd9a533dc7a413e182f04911c799"
+  },
+  "liveModelRequests": 0,
+  "liveInferenceCostMicroUsd": 0,
+  "deployments": 0,
+  "remoteMigrations": 0
+}

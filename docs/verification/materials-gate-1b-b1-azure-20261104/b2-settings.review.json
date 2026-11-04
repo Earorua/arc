@@ -1,0 +1,76 @@
+{
+  "runId": null,
+  "config": {
+    "provider": "OpenRouter / Azure",
+    "model": "openai/gpt-4.1-mini",
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "providerPolicyId": "materials-openrouter-azure-swedencentral-zdr",
+    "routingPolicy": {
+      "policyVersion": "2026.11.2",
+      "providerOrder": [
+        "azure/swedencentral"
+      ],
+      "allowFallback": false,
+      "dataPolicy": "zdr-only"
+    },
+    "priceVersion": "2026.11.2",
+    "userDailyMicroUsd": 500000,
+    "globalDailyMicroUsd": 500000,
+    "maxJobMicroUsd": 15000,
+    "maxInputTokens": 16000,
+    "maxOutputTokens": 4096,
+    "httpTimeoutMs": 180000
+  },
+  "qualification": {
+    "qualified": false,
+    "model": "openai/gpt-4.1-mini",
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "providerPolicyId": "materials-openrouter-azure-swedencentral-zdr",
+    "routingPolicy": {
+      "policyVersion": "2026.11.2",
+      "providerOrder": [
+        "azure/swedencentral"
+      ],
+      "allowFallback": false,
+      "dataPolicy": "zdr-only"
+    },
+    "priceVersion": "2026.11.2",
+    "receiptRoute": {
+      "providerName": "Azure",
+      "endpointId": "fd1475c4-5864-42c0-bca0-d78568a069cb"
+    },
+    "inputMicroUsdPerMillionTokens": 440000,
+    "outputMicroUsdPerMillionTokens": 1760000,
+    "inputTokenBound": "utf8-bytes-plus-4096"
+  },
+  "authorization": {
+    "id": null,
+    "runId": null,
+    "provider": "OpenRouter / Azure",
+    "model": "openai/gpt-4.1-mini",
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "providerPolicyId": "materials-openrouter-azure-swedencentral-zdr",
+    "routingPolicy": {
+      "policyVersion": "2026.11.2",
+      "providerOrder": [
+        "azure/swedencentral"
+      ],
+      "allowFallback": false,
+      "dataPolicy": "zdr-only"
+    },
+    "priceVersion": "2026.11.2",
+    "receiptRoute": {
+      "providerName": "Azure",
+      "endpointId": "fd1475c4-5864-42c0-bca0-d78568a069cb"
+    },
+    "inputMicroUsdPerMillionTokens": 440000,
+    "outputMicroUsdPerMillionTokens": 1760000,
+    "maxRequests": 24,
+    "totalBudgetMicroUsd": 500000,
+    "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+    "privacyEvidence": "https://openrouter.ai/docs/guides/features/zdr",
+    "pricingEvidence": "https://openrouter.ai/api/v1/models/openai/gpt-4.1-mini/endpoints",
+    "approvedAt": null,
+    "expiresAt": null
+  }
+}

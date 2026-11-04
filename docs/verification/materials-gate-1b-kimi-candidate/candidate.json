@@ -1,0 +1,33 @@
+{
+  "phase": "Gate 1B B1 offline Kimi successor",
+  "base": "2caa51d56a41f60b837425ffa56dea4fbbecbd47",
+  "parent": "87add0a010d601873f493a13cfa327deb5a5e657",
+  "parentTree": "b93efadeb38136f35f6c5a35de20a14c617fac1f",
+  "candidate": "306c9b0b326ad4d78cf64acc1f546236c0f1f7ec",
+  "tree": "b5b6cbc6dd54d68fb9bdabfe608e46b91cc3c3e3",
+  "localRef": "refs/codex/candidates/materials-gate-1b-kimi-b5b6cbc6dd54",
+  "bundle": "docs/verification/materials-gate-1b-kimi-candidate/source.bundle",
+  "bundleSha256": "e864258c3712b3503747a413e3429419cd8a5649511ff0fcfa78365adaac6d31",
+  "changedPaths": [
+    "app/components/materials/material-text-panel.tsx",
+    "app/contracts/document-capabilities.ts",
+    "app/server/documents/runtime.ts",
+    "tests/components/materials-ai-flow.test.tsx",
+    "tests/server/document-generation-audit.test.ts",
+    "tests/server/materials-e2e.test.ts",
+    "worker/document-executor/provider-http.ts"
+  ],
+  "sourceSha256": {
+    "app/components/materials/material-text-panel.tsx": "c614f26ee85537d07d71ad2a37848e42f75e701377045b0e98f39fb863455a58",
+    "app/contracts/document-capabilities.ts": "794c5bd4e1d1b75a065acb07ce7cfdf4ae86bd517ba8a9f86ed8f5edd9cc472d",
+    "app/server/documents/runtime.ts": "f81cef6836fc7dee7bb37eb9c1f4777f5099b18887905d4edb3efc3f85c1ab62",
+    "tests/components/materials-ai-flow.test.tsx": "7158736f5103b686d0c8291fd4aa8c25d2cb0cc2b5d95ef9573d9bf3aba7db5c",
+    "tests/server/document-generation-audit.test.ts": "2828740acf90225872af32d43f3fd62d08a5d86e7360d54575220bad8db34044",
+    "tests/server/materials-e2e.test.ts": "4e470ff81dfceffa3bab45b4ed7ffba675e2f5db47d9b4cc59f18f4582308588",
+    "worker/document-executor/provider-http.ts": "1df82942caa4f63498216f8818d1abb01c02e55763fe7c5bfb70eeedd208e6ac"
+  },
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "nonDocsWorkingSourceMatchesTree": true,
+  "bundleRestoredWithBase": true,
+  "branchAndPrimaryIndexUnchanged": true
+}

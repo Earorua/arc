@@ -1,0 +1,140 @@
+{
+  "recordedAtUtc": "2026-11-04T12:35:15.436408+00:00",
+  "scope": "Synthetic supplement extraction controls only",
+  "ordinaryReleaseCandidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "qaCandidate": "dbc27aa6170c2849eef49e76adb96462305c2174",
+  "qaTree": "52d701fc9a1cc7eb5523cca0d0757e12da8d7588",
+  "candidateManifestSha256": "969ca0e42499bc648482773d657ef9985edbcfbac4871aace0d09f2a8665b3dc",
+  "bundleSha256": "90fef0d914ff0c63a59b430eb3aa72fc1d8873e55f08644d8a1ca351555ae5ea",
+  "corpus": {
+    "sha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",
+    "documents": 6,
+    "normal": 3,
+    "edge": 3,
+    "goldFields": 10,
+    "forbiddenOutputs": 7,
+    "expectedReviewPoints": 7,
+    "original24Sha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750"
+  },
+  "commands": {
+    "unit": {
+      "vitestFiles": 352,
+      "vitestTests": 7479,
+      "exit": 0,
+      "command": "node node_modules/vitest/vitest.mjs run --config vitest.config.ts --reporter=dot --maxWorkers=8"
+    },
+    "targeted": {
+      "vitestFiles": 5,
+      "vitestTests": 87,
+      "supplementTests": 8,
+      "exit": 0,
+      "suites": [
+        "document-supplement-quality",
+        "document-quality-evaluation",
+        "material-supplement-flow",
+        "document-generation-audit",
+        "document-production-admission"
+      ]
+    },
+    "typecheck": {
+      "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+      "exit": 0
+    },
+    "lint": {
+      "paths": [
+        "scripts/score-materials-supplements.ts",
+        "tests/server/document-supplement-quality.test.ts"
+      ],
+      "exit": 0
+    },
+    "cliSyntax": "node --import tsx scripts/score-materials-supplements.ts <local-json>",
+    "cliControls": [
+      {
+        "control": "hand-labels",
+        "exit": 0,
+        "normalPrefill": 3,
+        "edgePass": 3,
+        "failed": {}
+      },
+      {
+        "control": "self-assessment",
+        "exit": 1,
+        "normalPrefill": 2,
+        "edgePass": 3,
+        "failed": {
+          "supplement-02": [
+            "missing-review-point",
+            "normal-prefill"
+          ]
+        }
+      },
+      {
+        "control": "unknown-time",
+        "exit": 1,
+        "normalPrefill": 2,
+        "edgePass": 3,
+        "failed": {
+          "supplement-03": [
+            "missing-review-point",
+            "normal-prefill"
+          ]
+        }
+      },
+      {
+        "control": "untrusted-url",
+        "exit": 1,
+        "normalPrefill": 3,
+        "edgePass": 2,
+        "failed": {
+          "supplement-05": [
+            "missing-review-point"
+          ]
+        }
+      },
+      {
+        "control": "foreign-corpus",
+        "exit": 2
+      }
+    ]
+  },
+  "offlineControls": {
+    "transport": "injected synthetic fetch",
+    "simulatedPosts": 6,
+    "simulatedGenerationLookups": 6,
+    "initialMissingScorerExit": 1,
+    "initialAdapterTestMismatch": "Mock-side assertion expected id; production sends segmentId. Corrected strict wire assertion, outside the mock.",
+    "preFreezeAnnotationFixes": [
+      "supplement-02: explicit conceptual self-assessment",
+      "supplement-03: unknown future availability"
+    ],
+    "originalReleaseProofFilesRehashed": 7
+  },
+  "artifacts": {
+    "logDirectory": "work/materials-supplement-quality",
+    "logSha256": {
+      "unit-final.log": "0ed4043120fcebd3ce06aede00949cd4958db59dddd77bab7c499300c863f46a",
+      "targeted-final.log": "491708c3ce573f5e545850008725f52fba95e4349c373ef2b1c12a8adc593cf7",
+      "typed.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qa-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "red.log": "b96d7b06f6282f884788daaf300bd76564ec2d076d98a2d1b6204c5105d7279a",
+      "annotations-red.log": "11ed0de5cb027ec5023cc9cd9b563c3add6cb39384a79b2f453134d129228551",
+      "identified-gaps-before.json": "7919e85537bf644fbd35e65e2cfdda82354ee36a3dfd09d1688534704d66061c",
+      "final-hand-labels-output.json": "0da770af5ced9f66fcfba1286e5c6111c5bea20258e2e0b32152f2757bdcbb40",
+      "final-cli.json": "9eb7423ee5e5fd8c80e165361ddbcdf6882b5455369e66202f888c02fa594cdc"
+    }
+  },
+  "admission": {
+    "supplementRealOutputs": 0,
+    "b2RealOutputs": 0,
+    "b4RealOutputs": 0,
+    "actualModelCostMicroUsd": 0,
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "approvedSupplementBudgetMicroUsd": 0,
+    "proposedSupplementMaxCalls": 6,
+    "proposedSupplementReservationPerCallMicroUsd": 72960,
+    "proposedSupplementReservationTotalMicroUsd": 437760,
+    "proposedSupplementBudgetMicroUsd": 450000,
+    "b2UnsignedConfigSha256": "d65903a51fd52ce85bb4e54bc769d324343a3f908c2c38699373f02297aa1834"
+  }
+}

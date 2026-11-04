@@ -1,0 +1,76 @@
+{
+  "runId": null,
+  "config": {
+    "provider": "OpenRouter / Moonshot AI",
+    "model": "moonshotai/kimi-k3.1-pro",
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr",
+    "routingPolicy": {
+      "policyVersion": "2026.11.3",
+      "providerOrder": [
+        "moonshotai/mxfp4"
+      ],
+      "allowFallback": false,
+      "dataPolicy": "zdr-only"
+    },
+    "priceVersion": "2026.11.3",
+    "userDailyMicroUsd": 2000000,
+    "globalDailyMicroUsd": 2000000,
+    "maxJobMicroUsd": 75000,
+    "maxInputTokens": 16000,
+    "maxOutputTokens": 4096,
+    "httpTimeoutMs": 180000
+  },
+  "qualification": {
+    "qualified": false,
+    "model": "moonshotai/kimi-k3.1-pro",
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr",
+    "routingPolicy": {
+      "policyVersion": "2026.11.3",
+      "providerOrder": [
+        "moonshotai/mxfp4"
+      ],
+      "allowFallback": false,
+      "dataPolicy": "zdr-only"
+    },
+    "priceVersion": "2026.11.3",
+    "receiptRoute": {
+      "providerName": "Moonshot AI",
+      "endpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6"
+    },
+    "inputMicroUsdPerMillionTokens": 2000000,
+    "outputMicroUsdPerMillionTokens": 10000000,
+    "inputTokenBound": "utf8-bytes-plus-4096"
+  },
+  "authorization": {
+    "id": null,
+    "runId": null,
+    "provider": "OpenRouter / Moonshot AI",
+    "model": "moonshotai/kimi-k3.1-pro",
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "providerPolicyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr",
+    "routingPolicy": {
+      "policyVersion": "2026.11.3",
+      "providerOrder": [
+        "moonshotai/mxfp4"
+      ],
+      "allowFallback": false,
+      "dataPolicy": "zdr-only"
+    },
+    "priceVersion": "2026.11.3",
+    "receiptRoute": {
+      "providerName": "Moonshot AI",
+      "endpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6"
+    },
+    "inputMicroUsdPerMillionTokens": 2000000,
+    "outputMicroUsdPerMillionTokens": 10000000,
+    "maxRequests": 24,
+    "totalBudgetMicroUsd": 2000000,
+    "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+    "privacyEvidence": "https://openrouter.ai/docs/guides/features/zdr",
+    "pricingEvidence": "https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints",
+    "approvedAt": null,
+    "expiresAt": null
+  }
+}

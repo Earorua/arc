@@ -1,0 +1,18 @@
+{
+  "candidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "sourceTree": "1d73935f8a0c68bc5187f7e1118941ef00498161",
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "proofFilesSha256": {
+    "candidate.json": "e7557c62c6ce26832af50d349d0587569d5ab714e9f8268f1e8cc6ad13df741d",
+    "source.bundle": "c30c5b0c316b802bc144bf3c0cb3bea85583dc805abaee58a5ee43b58f5297ee",
+    "verification.json": "8686072bf7ab55b918629ca577c150d946067de942de6bb831263a0abcc5f3ec",
+    "artifact-index.json": "748b99f3a3c37db834113aa28dcc78e4688b83afc0f74e519261e6b971b723e6",
+    "clean-closed-build.json": "d9754f3eabb3a512acab691d391ae50d6a8f8d046997a8c3bdfb8107d70a0fc0",
+    "public-package-proof.json": "d47a0c8a1e2dfd9f8ea07e5a5de9701d4eb8aaa762ca8879c0283ee978cd12f3",
+    "b4-budget-compatibility.json": "0bbc539d717544790610b59f600a02b8dd149270693d75e0b65b32af1bf2dfae"
+  },
+  "allNonDocsWorkingSourceMatchesCandidate": true,
+  "mainHeadAndIndexMatchReference": true,
+  "noLiveModelRequests": true,
+  "noCloudChanges": true
+}

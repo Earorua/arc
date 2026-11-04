@@ -1,0 +1,497 @@
+{
+  "scope": "Gate 1B B1 / public Kimi model, route and policy review",
+  "status": "BLOCKED",
+  "collectionDateUtc": "2026-11-04",
+  "reviewedFrozenCommit": "87add0a010d601873f493a13cfa327deb5a5e657",
+  "reviewedFrozenTree": "b93efadeb38136f35f6c5a35de20a14c617fac1f",
+  "model": {
+    "id": "moonshotai/kimi-k3.1-pro",
+    "canonical_slug": "moonshotai/kimi-k3.1-pro-20261023",
+    "created": 1792778188,
+    "reasoning": {
+      "mandatory": false,
+      "default_enabled": true,
+      "supported_efforts": [
+        "max",
+        "high",
+        "low",
+        "none"
+      ],
+      "default_effort": "max"
+    },
+    "createdUtc": "2026-10-23T17:56:28.000Z",
+    "newestOpenRouterMoonshotModelAtRetrieval": "moonshotai/kimi-k3.1-pro"
+  },
+  "proposedTag": "moonshotai/mxfp4",
+  "endpoints": [
+    {
+      "tag": "moonshotai/mxfp4",
+      "provider_name": "Moonshot AI",
+      "model_id": "moonshotai/kimi-k3.1-pro",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "structured_outputs",
+        "response_format",
+        "tool_choice",
+        "tools",
+        "logprobs",
+        "top_logprobs",
+        "reasoning_effort"
+      ],
+      "context_length": 1048576,
+      "max_completion_tokens": 943718,
+      "pricingUsd": {
+        "prompt": "0.000002",
+        "completion": "0.00001",
+        "input_cache_read": "0.0000002",
+        "discount": 0
+      },
+      "zdr": {
+        "inCatalogue": true,
+        "safety_retention": false,
+        "supports_implicit_caching": true
+      },
+      "providerPage": {
+        "id": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "provider_model_id": "kimi-k3.1-pro",
+        "model_variant_permaslug": "moonshotai/kimi-k3.1-pro-20261023",
+        "provider_slug": "moonshotai/mxfp4",
+        "provider_region": null,
+        "declared_region": null,
+        "quantization": "mxfp4",
+        "is_byok": false,
+        "is_disabled": false,
+        "pricing_version_id": "29acc64e-ba27-4486-871f-49aaf5449675",
+        "is_pricing_unresolved": false,
+        "pricing_json": {
+          "openai:prompt_tokens": "0.000002",
+          "openai:completion_tokens": "0.00001",
+          "openai:cached_prompt_tokens": "0.0000002"
+        },
+        "data_policy": {
+          "training": false,
+          "trainingOpenRouter": false,
+          "retainsPrompts": false,
+          "canPublish": false,
+          "safetyRetention": false,
+          "termsOfServiceURL": "https://platform.moonshot.ai/docs/agreement/modeluse",
+          "privacyPolicyURL": "https://platform.moonshot.ai/docs/agreement/userprivacy"
+        },
+        "matchingHomeStatsEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6"
+      }
+    },
+    {
+      "tag": "moonshotai/highspeed",
+      "provider_name": "Moonshot AI",
+      "model_id": "moonshotai/kimi-k3.1-pro",
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "max_tokens",
+        "temperature",
+        "top_p",
+        "stop",
+        "frequency_penalty",
+        "presence_penalty",
+        "structured_outputs",
+        "response_format",
+        "tool_choice",
+        "tools",
+        "reasoning_effort"
+      ],
+      "context_length": 1048576,
+      "max_completion_tokens": 943718,
+      "pricingUsd": {
+        "prompt": "0.000004",
+        "completion": "0.00002",
+        "input_cache_read": "0.0000002",
+        "discount": 0
+      },
+      "zdr": {
+        "inCatalogue": true,
+        "safety_retention": false,
+        "supports_implicit_caching": true
+      },
+      "providerPage": {
+        "id": "da2df19f-c004-433f-a41f-2c6ecd346f5e",
+        "provider_model_id": "kimi-k3.1-pro-highspeed",
+        "model_variant_permaslug": "moonshotai/kimi-k3.1-pro-20261023",
+        "provider_slug": "moonshotai/highspeed",
+        "provider_region": null,
+        "declared_region": null,
+        "quantization": "mxfp4",
+        "is_byok": false,
+        "is_disabled": false,
+        "pricing_version_id": "3fd1fd96-133b-4f5a-8879-eb2faaa47cb2",
+        "is_pricing_unresolved": false,
+        "pricing_json": {
+          "openai:prompt_tokens": "0.000004",
+          "openai:completion_tokens": "0.00002",
+          "openai:cached_prompt_tokens": "0.0000002"
+        },
+        "data_policy": {
+          "training": false,
+          "trainingOpenRouter": false,
+          "retainsPrompts": false,
+          "canPublish": false,
+          "safetyRetention": false,
+          "termsOfServiceURL": "https://platform.moonshot.ai/docs/agreement/modeluse",
+          "privacyPolicyURL": "https://platform.moonshot.ai/docs/agreement/userprivacy"
+        },
+        "matchingHomeStatsEndpointId": "da2df19f-c004-433f-a41f-2c6ecd346f5e"
+      }
+    }
+  ],
+  "registry": {
+    "name": "Moonshot AI",
+    "slug": "moonshotai",
+    "privacy_policy_url": "https://platform.moonshot.ai/docs/agreement/userprivacy",
+    "terms_of_service_url": "https://platform.moonshot.ai/docs/agreement/modeluse",
+    "status_page_url": null,
+    "headquarters": "SG",
+    "datacenters": [
+      "SG"
+    ]
+  },
+  "transportReview": {
+    "frozenTemperature": 0,
+    "kimiFixedTemperature": 1,
+    "kimiAdvisesOmittingSamplingParameters": true,
+    "frozenOutputLimitField": "max_completion_tokens",
+    "routeParameterMappingVerified": false,
+    "frozenOutputCap": 4096,
+    "requestUseOfJsonObjectDocumented": true,
+    "selectedRouteLiveResponseObserved": false
+  },
+  "receiptContract": {
+    "operation": "GET /api/v1/generation?id={id}",
+    "chat": {
+      "id": {
+        "required": true,
+        "type": "string"
+      },
+      "model": {
+        "required": true,
+        "type": "string"
+      },
+      "usage": {
+        "required": false,
+        "type": "#/components/schemas/ChatUsage"
+      }
+    },
+    "chatUsage": {
+      "prompt_tokens": {
+        "required": true,
+        "type": "integer"
+      },
+      "completion_tokens": {
+        "required": true,
+        "type": "integer"
+      },
+      "cost": {
+        "required": false,
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "generation": {
+      "id": {
+        "required": true,
+        "type": "string"
+      },
+      "model": {
+        "required": true,
+        "type": "string"
+      },
+      "provider_name": {
+        "required": true,
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "provider_responses": {
+        "required": true,
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "native_tokens_prompt": {
+        "required": true,
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "native_tokens_completion": {
+        "required": true,
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "total_cost": {
+        "required": true,
+        "type": "number"
+      },
+      "latency": {
+        "required": true,
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "generation_time": {
+        "required": true,
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "providerResponse": {
+      "status": {
+        "required": true,
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "endpoint_id": {
+        "required": false,
+        "type": "string"
+      },
+      "provider_name": {
+        "required": false,
+        "type": "string"
+      },
+      "model_permaslug": {
+        "required": false,
+        "type": "string"
+      }
+    },
+    "accountReceiptSample": null
+  },
+  "sources": {
+    "catalog": {
+      "url": "https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "de066ab26c0125f3aff88470e44c4110efccf4cebb9c4041060b82522c36ef5e"
+    },
+    "zdrCatalog": {
+      "url": "https://openrouter.ai/api/v1/endpoints/zdr",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "f834e561a92b39e0a6ca218f6912841cac5bffb0e2dea997d1586ebdd9ebfd31"
+    },
+    "models": {
+      "url": "https://openrouter.ai/api/v1/models",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "cc4e516475fc50e6556c3fe312dbfc9720491792d17e17caa71a74915387a6b2"
+    },
+    "model": {
+      "url": "https://openrouter.ai/api/v1/model/moonshotai/kimi-k3.1-pro",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "daa41a5e13aa25dd4da5becb309a976c53c3e06db38e5d5dcf44527be1b67190"
+    },
+    "providers": {
+      "url": "https://openrouter.ai/moonshotai/kimi-k3.1-pro/providers",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "be9c806b861402f26d74511778699a036133a106a7574305cee7bf2edc637a5a"
+    },
+    "modelPage": {
+      "url": "https://openrouter.ai/moonshotai/kimi-k3.1-pro",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "c3d1b28e40e644a3855154f0dbe95b37851b721c62cd66bcf77eb94f7b0e292e"
+    },
+    "openapi": {
+      "url": "https://openrouter.ai/openapi.json",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:52Z",
+      "decodedBodySha256": "07b8b1ac91ba9e522540417420cd74004db5246d5341e5c86d68443e4438af82"
+    },
+    "routing": {
+      "url": "https://openrouter.ai/docs/guides/routing/provider-selection",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "c3392e84e98e77d41e3a2b4778f905643ce438b0f641f8a0e05dd5567d92ce87"
+    },
+    "privacy": {
+      "url": "https://openrouter.ai/docs/guides/features/zdr",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:51Z",
+      "decodedBodySha256": "285cc09c9abdbeb61deb2511fee55c1294f8ddf7712cb9b1b17dae463a3727f4"
+    },
+    "data": {
+      "url": "https://openrouter.ai/docs/guides/privacy/data-collection",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "195424af96521f062fc1f0ae1967dc685311a04fa4991d0dab6d83ca6e49053c"
+    },
+    "responseCache": {
+      "url": "https://openrouter.ai/docs/guides/features/response-caching",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:51Z",
+      "decodedBodySha256": "4ac9106f054a89407cf911cdb3ee55c19f83d64421e44c5707eb828dc74ff787"
+    },
+    "screening": {
+      "url": "https://openrouter.ai/blog/announcements/csam-screening/",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:50Z",
+      "decodedBodySha256": "c252513d527e9f53cf2b7a078c8c2854ba9175e3deb0502ad6123c349760ab67"
+    },
+    "kimiRelease": {
+      "url": "https://www.kimi.com/en/blog/kimi-k3-1-pro",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:51Z",
+      "decodedBodySha256": "5c98fa1ddd456e4adb42c8bd2476efca2952f6372c6427b1c4d51eced13c6822"
+    },
+    "kimiPlatform": {
+      "url": "https://platform.kimi.ai/",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:20:51Z",
+      "decodedBodySha256": "a5166d0a115cc1556bd38b28873608291a977e2abc2d27f2140a4e23a1a6c7e7"
+    },
+    "kimiQuickstart": {
+      "url": "https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart.md",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:06Z",
+      "decodedBodySha256": "150d4b7256f79924e0628a7f57a18b44c4a8d520143c63f549966359207edd4c"
+    },
+    "kimiModels": {
+      "url": "https://platform.kimi.ai/docs/api/models-overview",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:06Z",
+      "decodedBodySha256": "39d1f3dceed77b9270b7f248b5ed90d2584777c4275696f1a4a4ca0e9b90f880"
+    },
+    "kimiChat": {
+      "url": "https://platform.kimi.ai/docs/api/chat",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:06Z",
+      "decodedBodySha256": "99e8f66a244a2a0a9459598cedbfb32b5c7c42b45da1aab5d90df6f2ebbc3b1c"
+    },
+    "kimiJson": {
+      "url": "https://platform.kimi.ai/docs/guide/use-json-mode-feature-of-kimi-api",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:06Z",
+      "decodedBodySha256": "8fe18527eac6fabfdbb64ecac2b9b253a0d7fce72dc5cf5e0e2591d2f9cf220e"
+    },
+    "kimiPrice": {
+      "url": "https://platform.kimi.ai/docs/pricing/chat",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:06Z",
+      "decodedBodySha256": "54c4eeafe39eb7dfe10721ad3a2046be77a930735c35fd3158e2cd28496c6217"
+    },
+    "kimiPrivacy": {
+      "url": "https://platform.kimi.ai/docs/agreement/userprivacy",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:06Z",
+      "decodedBodySha256": "e73f076e080e4c5b7944f008d620d06ed56b7dcf8c9d0bf12c913149658d6c48"
+    },
+    "kimiTerms": {
+      "url": "https://platform.kimi.ai/docs/agreement/modeluse",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:06Z",
+      "decodedBodySha256": "f6b0245f81c5004114771cd77b97fc57d4ae2aeefbe7aea2c13e4c4d0294fd4e"
+    },
+    "kimiHelp": {
+      "url": "https://www.kimi.com/en/help/kimi-api/api-data-security",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:07Z",
+      "decodedBodySha256": "9d0d6576e5e5e14dd3e8f7fb46c2622b5ecf4049a7015b12c141607aef3610df"
+    },
+    "openrouterParams": {
+      "url": "https://openrouter.ai/docs/api_reference/parameters",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:06Z",
+      "decodedBodySha256": "b0896b61e7a4f77abfa2c7381995615f1ee765750f007ffea9b6f903476a9dc0"
+    },
+    "routerMeta": {
+      "url": "https://openrouter.ai/docs/guides/features/router-metadata",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:07Z",
+      "decodedBodySha256": "d819e9a57b414f50a6216965ab60386efb8f1073848c18421f329853a515c1b0"
+    },
+    "reasoning": {
+      "url": "https://openrouter.ai/docs/guides/best-practices/reasoning-tokens",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:22:07Z",
+      "decodedBodySha256": "c0f968294969d1c359605edd8b7dbd8e275c736e4a048c0e660481363ae2e3b4"
+    },
+    "registry": {
+      "url": "https://openrouter.ai/api/v1/providers",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:23:32Z",
+      "decodedBodySha256": "a11ac898ef92817a76d4b8b0b466443a9d3f03d42ed11653b2a69cbdeedf202a"
+    },
+    "kimiModelsMd": {
+      "url": "https://platform.kimi.ai/docs/api/models-overview.md",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:23:32Z",
+      "decodedBodySha256": "cf36bd0f1b9a320b5dd21fc9c17a9648b64087ddd5ae1df5b5b5d1f73d9a2b4c"
+    },
+    "kimiJsonMd": {
+      "url": "https://platform.kimi.ai/docs/guide/use-json-mode-feature-of-kimi-api.md",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:23:32Z",
+      "decodedBodySha256": "2fbf96a9e51b32af4b7204d8ecfd312822b8e218b79249ef4189e3c5b1dfadba"
+    },
+    "kimiPriceMd": {
+      "url": "https://platform.kimi.ai/docs/pricing/chat.md",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:23:32Z",
+      "decodedBodySha256": "fd493803b19d516fc64252f0cd4e8494edb3b868c4e9f145f2143291f8685e61"
+    },
+    "kimiCodeRelease": {
+      "url": "https://www.kimi.com/code/docs/en/kimi-code/whats-new.html",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:23:32Z",
+      "decodedBodySha256": "4e3af5fd81811ce218dd112e971565698112b523d8c9d72677ab30cb84ff12d3"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "scope": "Existing exclusive local qualification journal under separate OS processes, no external transport",
+  "candidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "journalSha256": "94ada7ef24256d820282910492e80881e32abbe617eb695d224bc20816d95026",
+  "harnessSha256": "924d84c41a80d76d9f595aa3cd23078e32fb4f9471e8181a9994a468874d4843",
+  "observed": [
+    {
+      "boundary": "before-handoff",
+      "contenders": 2,
+      "duplicateRejected": true,
+      "restartRejected": true,
+      "mockHandoffs": 0,
+      "reservedMicroUsd": 72960,
+      "recordedMockCostMicroUsd": null
+    },
+    {
+      "boundary": "after-handoff",
+      "contenders": 2,
+      "duplicateRejected": true,
+      "restartRejected": true,
+      "mockHandoffs": 1,
+      "reservedMicroUsd": 72960,
+      "recordedMockCostMicroUsd": null
+    },
+    {
+      "boundary": "after-receipt",
+      "contenders": 2,
+      "duplicateRejected": true,
+      "restartRejected": true,
+      "mockHandoffs": 1,
+      "reservedMicroUsd": 72960,
+      "recordedMockCostMicroUsd": 7
+    }
+  ],
+  "ordinaryTargetedSuites": 3,
+  "ordinaryTargetedTests": 50,
+  "nonLoopbackAttemptsObserved": 0,
+  "inferenceCostMicroUsd": 0,
+  "modelAuthorizationMicroUsd": 0,
+  "boundariesNotEstablished": [
+    "single-probe admission and fixed input-to-transport binding",
+    "owner budget or privacy authorization",
+    "real generation metadata",
+    "filesystem/power-loss guarantees outside the tested host"
+  ]
+}

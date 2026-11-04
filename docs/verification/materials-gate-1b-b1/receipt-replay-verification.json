@@ -1,0 +1,37 @@
+{
+  "mode": "offline-synthetic-controls",
+  "productCandidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "productionReceiptCodeSha256": "d0cd6b0d527c8f449738a7bb492354869bb53fce12800ef84426401b8066af18",
+  "draftSha256": "d65903a51fd52ce85bb4e54bc769d324343a3f908c2c38699373f02297aa1834",
+  "testedFilesSha256": {
+    "replay-redacted-pair.mjs": "ce563ef65f6cf5189e09b3b8aa445c1aac9ae07fbdd984169ebb7f57cf0d4a05",
+    "replay-redacted-pair.test.mjs": "399ba9b2a1f8d8e6091f59cd9b602da1afc2ec1e7cb60cbfc9b9e33e18332fa8"
+  },
+  "offlineNodeTests": 5,
+  "ordinaryVitestTargetedCases": 50,
+  "vitestExit": 0,
+  "cli": [
+    {
+      "case": "agree",
+      "exit": 0,
+      "comparison": "compatible",
+      "productionAudit": "verified",
+      "exactCostAgreement": true
+    },
+    {
+      "case": "raw-cost-mismatch",
+      "exit": 1,
+      "comparison": "incompatible",
+      "productionAudit": "verified",
+      "exactCostAgreement": false
+    },
+    {
+      "case": "content-field",
+      "exit": 2
+    }
+  ],
+  "nonLoopbackAttemptsObserved": 0,
+  "actualProviderSamplePairs": 0,
+  "inferenceRequests": 0,
+  "authorizedMicroUsd": 0
+}

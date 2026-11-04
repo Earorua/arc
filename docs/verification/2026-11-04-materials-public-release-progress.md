@@ -1,0 +1,67 @@
+# 多类型资料参与学习计划的发布进度
+
+更新于 2026-11-04。目标站点为 [arcmaps.net](https://arcmaps.net/)。当前处于 Gate 1B 的 B1。该站点已有公开版本，资料分析与个性化学习计划仍待验收及发布。
+
+**北京时间 22:18 暂停。** 计费恢复改动已保存为本地 WIP `3e283ee7832c`。最新全仓 7,490 项通过、1 项失败，另有独立复核发现的恢复问题。单笔合成取证尚待授权。恢复时先看[暂停交接与剩余工期](2026-11-04-materials-resume-checkpoint.md)。
+
+## 首发范围
+
+登录用户粘贴一份主简历、一份主岗位 JD 和最多三份补充文本，也可以只提供其中一类。三类资料都可在用户允许后由 AI 提取，用户对照原文核对、修改和采用，或选择人工整理。时间预算以用户本次确认的设置为准。替换公司的主 JD 时，需在同一岗位下保留仍有效且已采用的其他资料，让用户预览并决定是否应用计划变化，保留已完成任务。PDF、OCR、链接抓取和并行多目标比较留在后续阶段。[v2.1 产品方案](../superpowers/specs/2026-09-11-arc-private-materials-personalized-planning-design.zh-CN.md)
+
+| 检查点 | 当前证据 | 放行所需结果 |
+| --- | --- | --- |
+| B0 离线准备 | 已冻结合成语料、执行器与站点基线，有离线质量、UI、恢复与清理记录。[B0 结果](2026-11-04-materials-gate-1b-b0-results.md) | 语料和历史结果保留核验依据。 |
+| B1 路由与账号 | 严格 ZDR 已指派，普通 key 的累计限额为 2.00 USD。两封官方回函确认元数据读取权限与价格，并说明没有标准路由历史样例可分享，也没有上游缓存的公开时长上限或关闭开关。[B1 核验](2026-11-04-materials-gate-1b-b1-review.md) | 由持有人选择单笔合成取证或先取得企业书面条款。配对回执、隐私与预算均需独立核实。[单笔取证草案](../superpowers/runbooks/2026-11-04-materials-kimi-single-receipt.md) |
+| B2 真实模型质量 | 0/24。授权、起止时间及 runId 尚未签发。[待审配置](materials-gate-1b-b1/b2-settings.review.json) | 在单轮上限内完成冻结语料的真实输出、评分和逐笔对账。 |
+| B3 与 B4 隔离验收 | B3 的本机模拟证据已经取得，线上隔离环境、B4 的真实用户操作和第二轮预算待办。[验收计划](../superpowers/plans/2026-11-04-private-materials-gate-1b-acceptance.md) | 独立验证实际绑定、账户准入、私有存储、恢复和删除；在页面以合成资料验证提取、确认、计划差异与已完成任务保护。 |
+| B5 与生产发布 | 已为普通用户实现独立生产准入、关闭开关和本地打包工具。两端要求同一份限时限额的生产授权。当前尚无生产授权或远端迁移。[执行器准入](../../worker/document-executor/production-policy.ts) · [生产包操作单](../superpowers/runbooks/2026-11-04-materials-production-package.md) | 完成 B2 至 B5、补充资料验证、生产资源实盘和签批，执行备份、迁移、回退演练及上线后验证。 |
+
+单笔合成取证入口已通过独立工作树争用、崩溃、到期、指纹不匹配及费用冲突的离线演练。持有人尚未签发这笔授权。产品候选 `7052aedd8a49` 的通用计费路径另有待修项。在本地给同一请求提供 0 USD 聊天费用和 0.50 USD 元数据费用，通用校验器报用量不符，结算函数仍把金额 0 记为已结清。另一组只有带错误标记的元数据报告 0 USD，也发生相同结算；两笔微美元取整相同、原始金额不同还可能通过校验。B2 和公共发布前需在新候选修复并核对两套账本、停止后续付费发送和候选摘要。历史候选验证记录按原版本保留。[模拟复现与单笔验证](materials-gate-1b-b1/single-receipt-entry-verification.json) · [通用计费路径](../../worker/document-executor/provider-http.ts) · [结算规则](../../worker/document-executor/job-state.ts)
+
+生产发布前还须对照届时生效的站点和 Research 绑定、域名及路由，形成正式发布清单。B4 的登记机制只覆盖固定合成用例。普通用户通过独立生产策略检查每份资料授权、预算预留和回执唯一性，费用不明时全局停止新发送。2026-10-30 的站点发布记录用于本地打包演练。[已有站点发布记录](2026-10-30-home-copy-hierarchy.md)
+
+## 首发场景的证据范围
+
+- B2 与 B4 各自的 24 份样例只含简历和 JD。另为补充资料冻结 6 份合成样例、逐项预期及离线评分器。六份预标注答案已经过正反对照，真实模型结果仍为 0/6。三组样例各自评分，增加真实调用须独立授权。[原冻结语料](materials-gate-1b-b0/candidate.json) · [补充资料验收](2026-11-04-materials-supplement-quality.md)
+- 独立的 B4 浏览器轮还有一项工程阻塞。用过期合成授权和内存 SQLite 实测，登记脚本与现有迁移都限制该轮总额最多 0.50 USD。Kimi 24 份样例按现行文本价顶格需 1.751040 USD。若预算负责人批准第二轮采用新上限，须先评审并验证增量迁移、旧记录、总额约束和登记脚本，再办理 B4 授权。B2 单独核算。[B4 登记脚本](../../scripts/materials-ui-acceptance-enroll.ts) · [原数据库约束](../../worker/document-executor/migrations/0001_document_acceptance.sql)
+- 在较早的 Kimi 冻结候选上复现了新会话重新选择 JD 时丢失其他资料的风险。工作区修复已通过离线专项验证。重新打开同一目标后，从服务端读回仍有效的已采用版本；从公司 A 的 JD 调整为 B 时，提案待确认期间沿用 A，接受后采用 B，放弃后保留 A。主简历、补充资料和已完成任务均有回归覆盖。无可信基准且与当前资料冲突的旧本机草稿，须先由用户选择。[工作区](../../app/components/materials/material-workspace-panel.tsx) · [服务端采用引用测试](../../tests/server/material-adopted-refs.test.ts) · [旧草稿合并测试](../../tests/lib/material-workspace-selection.test.tsx)
+- 已用本地模拟 AI 验证补充资料从预填、修正到合法重排的完整流程。已有的 `observability` 练习可以提前。主 JD 指定的 TypeScript 必备项只引用实际生效的 JD 条目，原有 SQL 加分项、自评、已完成事件和完整任务集合均保留。[补充资料端到端测试](../../tests/server/material-supplement-flow.test.ts)
+- 为未来 B3 准备了独立的私有合成服务。它只接受冻结语料和已审配置，默认 HTTP 入口返回 404，回执只在同一资格配置下有效。隔离环境的 synthetic 模式还需批准第三个私有 Worker 以及仅保存回执计数的 SQLite Durable Object 和对应云费。closed 和 live 产物均不包含该服务。[合成服务](../../worker/document-fake-transport/index.ts) · [本地运行与打包测试](../../tests/build/document-fake-transport.test.ts)
+- 用户可以明确从当前目标取消使用资料，包括最后一份。资料库原件、当前路线、完成记录和历史依据保留。其他设备的旧草稿会排除已取消的文档及其其他版本，保留无关的新草稿资料，用户仍可主动重新选择。已有待确认提案时需先接受或放弃。服务端在同一事务中核对所有权、活动目标、精确版本与当前修订，同时登记幂等回执。公开事件请求不能伪造该内部变更。[事务与路由测试](../../tests/server/material-detach.test.ts) · [界面确认测试](../../tests/components/material-detach.test.tsx)
+
+## 普通用户生产候选
+
+当前离线提交为 `7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef`，tree 为 `1d73935f8a0c68bc5187f7e1118941ef00498161`，父候选为 `fa9c9ae3a3e9`。29 个变更路径已在独立索引冻结，24 份评测语料保持 B0 的摘要。源码包已从约定基础提交独立还原。[候选及逐文件源码摘要](materials-production-release-candidate/candidate.json)
+
+| 检查 | 实际结果 |
+| --- | --- |
+| 全仓回归 | 普通 Vitest 351 个文件、7,471/7,471 通过。三个 Research 严格哈希套件另跑 131/131。附加 Node 测试 9 个文件串行运行，290/290 通过。 |
+| 静态检查与页面 | TypeScript 通过。ESLint 零错误，四条警告的位置和内容与前候选相同。构建后页面渲染 5/5。 |
+| 站点和执行器 | 主工作区关闭态产物共 388 个文件，逐一重算哈希，产物树 `544a075f07196b7183f29521c26bfaab5117b070b5132688fa24f4af7d38a352`。B0 原清单已恢复并核对。 |
+| 干净源码构建 | 从冻结提交提取到新目录，用本机锁定依赖的独立副本构建，页面渲染 5/5。388 个路径全部对应，385 个文件逐字节相同。剩余三个文件逐项比对，仅有框架生成的 build ID、草稿和预渲染秘密值不同。两次构建的执行器程序及全部迁移逐字节一致。 |
+| 公网站点打包演练 | 使用 10 月 30 日的历史 44 项绑定、虚构的新资源与过期的本地授权样本，分别生成关闭态和模拟开放态包，各 388 个文件。每包仅两个 Wrangler 配置与输入不同，其余 386 个文件逐字节相同。真实时钟下过期授权被拒绝。站点和执行器各做两次本地 Wrangler dry-run。每次站点的 65 个 JS 模块均与输入逐字节相同，执行器以源码映射核对了冻结输入及三个导出。 |
+
+普通用户每次分析须经过站点与私有执行器的双向就绪检查，并有绑定到当前配置的独立限时限额授权。每笔发送先预留，回执先认领再取费用，重复回执、费用不明或超限会停止后续发送。专项回归有 31 个文件、284 项通过。已重现并修复排队时间较长时误判执行占用过期，以及回执已落库、随后两次数据库确认失败时丢失已知费用的问题。后一种情况保存可核对金额，同时继续停发。[准入契约](../../worker/document-executor/production-policy.ts) · [专项用例](../../tests/server/document-production-admission.test.ts) · [全仓结果](materials-production-release-candidate/verification.json) · [干净构建差异](materials-production-release-candidate/clean-closed-build.json)
+
+本地验收工具首次用 Windows PowerShell 5 启动 Vitest 时将 SQLite 实验性警告作为异常，改由项目环境的 PowerShell 7 使用原命令完整重跑。首次全仓 lint 同时检查了忽略目录里的临时验证脚本，修正这些脚本的模块加载方式和五个闲置导入后，重新执行原仓库 lint 命令。最终检查使用的源码、测试断言及 Research 哈希均与本候选一致。
+
+独立复核曾用只有文件头和空对象包的 Git bundle 复现误放行。现要求只从获准基础提交在空库还原并校验连通性，已分别验证空包、无关对象、冒用基础提交和非提交类型均被拒绝。定向打包测试 19/19，另有 17 项验收目标测试通过。[打包测试](../../tests/build/materials-production-package.test.ts) · [源码恢复校验](../../scripts/lib/verify-materials-frozen-source.mjs)
+
+第一次模拟开放态 CLI 返回通用拒绝，未产生目标包；以原输入重新运行成功，未能进一步确定首次原因。对 Wrangler 的演练另查明，默认横幅会查询工具版本，出站限制拦截了四次尝试。关闭横幅后在隔离目录重新运行了完整流程，新记录中非回环 Node 网络尝试为 0，云端部署、远程迁移和模型请求均为 0。公开发布仍需当日资源实盘、独立预算、真实质量证据和操作授权。[最终打包演练](materials-production-release-candidate/public-package-proof.json) · [B4 额度约束复现](materials-production-release-candidate/b4-budget-compatibility.json) · [离线证据清单](materials-production-release-candidate/offline-evidence.json) · [操作单](../superpowers/runbooks/2026-11-04-materials-production-package.md)
+
+## 前一版集成候选
+
+已在独立索引中冻结 `fa9c9ae3a3e94a721d4f101fac272895ddad54e1`，tree `f1215d7246cd6e020068315cc1e63002b957dd94`。父候选为 `306c9b0b326a`。已在单独的本地 Git 库从基础提交和 bundle 重建核对，37 个产品与测试文件变更已逐项列出。24 份评测语料与 B0 摘要一致。回归后再次比对，工作区产品源码匹配该候选，原分支 HEAD 和暂存区已保留。[源码清单](materials-release-integration-candidate/candidate.json)
+
+| 集成候选的离线验证 | 结果 |
+| --- | --- |
+| 全仓 Vitest | 348 个文件，7,424/7,424 通过。 |
+| 三个 Research 严格哈希套件单独复跑 | 3 个文件，131/131 通过。该组也包含在上面的全仓集合中。 |
+| 附加 Node 测试 | 9 个文件串行运行，290/290 通过。首次运行有 5 个用例共享的数据库恢复演练在本机 Miniflare D1 回环连接处遇到 `EADDRINUSE`，当次共 285 项通过。保留首次日志摘要和退出码，待连接释放后用相同源码、断言和命令重跑全部九个文件。 |
+| 类型、静态检查与渲染 | TypeScript 退出码为 0。ESLint 零错误、四条既有警告。构建后的 HTML 测试 5/5。 |
+| 关闭态站点和执行器 | 重新计算 387 个文件的 SHA-256，产物树为 `9f0dcb01f2cb22637c5563dc77b0bcba4416ae065ec3ab474da165dd37913e15`。B0 的历史清单已恢复并核对。 |
+
+本轮真实推理、云端部署、远程迁移均为 0。B2 的资格和授权仍关闭。[离线验证与两次 Node 结果](materials-release-integration-candidate/verification.json) · [关闭态构建清单](materials-release-integration-candidate/artifact-index.json)
+
+另从该提交的干净源码归档构建了完整的合成模式站点和两个内部服务。构建进程使用临时用户目录、本机既有依赖和虚构端点，无账户凭据。回环限制记录到的 Node 对外 fetch 和 TCP 连接尝试均为 0。源产物及留存副本的 389 个文件已逐一核对，产物树 SHA-256 为 `a10467c7e2e2ad33a16f4f4c63ab90c48737b94951bc07e22bfacd0ec3037c77`。合成服务关闭公网路由和预览，只声明一个 SQLite 回执类。这个离线复现为 B3 的资源申请提供清单，线上 B3 仍待独立授权。核价时按实际套餐分别登记 Durable Object 请求、运行时长和存储余量。[合成打包记录](materials-release-integration-candidate/synthetic-verification.json) · [逐文件清单](materials-release-integration-candidate/synthetic-artifact-index.json) · [Cloudflare Durable Objects 计费](https://developers.cloudflare.com/durable-objects/platform/pricing/)
+

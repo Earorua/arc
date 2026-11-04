@@ -1,0 +1,431 @@
+{
+  "scope": "Gate 1B B1 • anonymous HTTPS GET of public metadata and policy pages",
+  "snapshotDateUtc": "2026-11-04",
+  "candidateCommit": "87add0a010d601873f493a13cfa327deb5a5e657",
+  "publicRequestModel": "openai/gpt-4.1-mini",
+  "canonicalSlug": "openai/gpt-4.1-mini-2025-04-14",
+  "datedEndpointLookupReturnedModelId": "openai/gpt-4.1-mini",
+  "selectedTagForReview": "azure/swedencentral",
+  "endpoints": [
+    {
+      "tag": "azure",
+      "provider_name": "Azure",
+      "model_id": "openai/gpt-4.1-mini",
+      "endpoint_label": "Azure | openai/gpt-4.1-mini-2025-04-14",
+      "public_catalog_prices": {
+        "prompt": "0.0000004",
+        "completion": "0.0000016",
+        "web_search": "0.01",
+        "input_cache_read": "0.0000001",
+        "discount": 0
+      },
+      "supported_parameters": [
+        "temperature",
+        "top_p",
+        "max_completion_tokens",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "seed"
+      ],
+      "in_zdr_list": true,
+      "zdr_safety_retention": false,
+      "supports_implicit_caching": true,
+      "provider_page": {
+        "id": "1551aa56-4221-448a-b280-f862f73c27de",
+        "stats_endpoint_id_on_model_homepage": "1551aa56-4221-448a-b280-f862f73c27de",
+        "provider_slug": "azure",
+        "provider_region": null,
+        "declared_region": null,
+        "model_variant_slug": "openai/gpt-4.1-mini",
+        "model_variant_permaslug": "openai/gpt-4.1-mini-2025-04-14",
+        "provider_model_id": "gpt-4.1-mini",
+        "variant": "standard",
+        "is_byok": false,
+        "is_disabled": false,
+        "pricing_version_id": "37491dbb-652e-4176-a6e2-a206ee5c6722",
+        "is_pricing_unresolved": false,
+        "data_policy": {
+          "training": false,
+          "trainingOpenRouter": false,
+          "retainsPrompts": false,
+          "canPublish": false,
+          "safetyRetention": false,
+          "privacyPolicyURL": "https://www.microsoft.com/licensing/terms/product/PrivacyandSecurityTerms/MCA"
+        }
+      }
+    },
+    {
+      "tag": "openai",
+      "provider_name": "OpenAI",
+      "model_id": "openai/gpt-4.1-mini",
+      "endpoint_label": "OpenAI | openai/gpt-4.1-mini-2025-04-14",
+      "public_catalog_prices": {
+        "prompt": "0.0000004",
+        "completion": "0.0000016",
+        "web_search": "0.01",
+        "input_cache_read": "0.0000001",
+        "discount": 0
+      },
+      "supported_parameters": [
+        "seed",
+        "max_tokens",
+        "response_format",
+        "structured_outputs",
+        "tools",
+        "tool_choice",
+        "temperature",
+        "top_p"
+      ],
+      "in_zdr_list": false,
+      "zdr_safety_retention": null,
+      "supports_implicit_caching": true,
+      "provider_page": {
+        "id": "872eccb7-9c85-45fc-974a-ff7c8e2407e6",
+        "stats_endpoint_id_on_model_homepage": "872eccb7-9c85-45fc-974a-ff7c8e2407e6",
+        "provider_slug": "openai",
+        "provider_region": null,
+        "declared_region": null,
+        "model_variant_slug": "openai/gpt-4.1-mini",
+        "model_variant_permaslug": "openai/gpt-4.1-mini-2025-04-14",
+        "provider_model_id": "gpt-4.1-mini-2025-04-14",
+        "variant": "standard",
+        "is_byok": false,
+        "is_disabled": false,
+        "pricing_version_id": "2ec08c1d-41c8-4a5c-a05a-14ff60a6fdd5",
+        "is_pricing_unresolved": false,
+        "data_policy": {
+          "training": false,
+          "trainingOpenRouter": false,
+          "retainsPrompts": true,
+          "canPublish": false,
+          "safetyRetention": false,
+          "privacyPolicyURL": "https://openai.com/policies/privacy-policy/"
+        }
+      }
+    },
+    {
+      "tag": "azure/swedencentral",
+      "provider_name": "Azure",
+      "model_id": "openai/gpt-4.1-mini",
+      "endpoint_label": "Azure | openai/gpt-4.1-mini-2025-04-14",
+      "public_catalog_prices": {
+        "prompt": "0.00000044",
+        "completion": "0.00000176",
+        "web_search": "0.01",
+        "input_cache_read": "0.00000011",
+        "discount": 0
+      },
+      "supported_parameters": [
+        "temperature",
+        "top_p",
+        "max_completion_tokens",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "seed"
+      ],
+      "in_zdr_list": true,
+      "zdr_safety_retention": false,
+      "supports_implicit_caching": true,
+      "provider_page": {
+        "id": "fd1475c4-5864-42c0-bca0-d78568a069cb",
+        "stats_endpoint_id_on_model_homepage": "fd1475c4-5864-42c0-bca0-d78568a069cb",
+        "provider_slug": "azure/swedencentral",
+        "provider_region": "swedencentral",
+        "declared_region": null,
+        "model_variant_slug": "openai/gpt-4.1-mini",
+        "model_variant_permaslug": "openai/gpt-4.1-mini-2025-04-14",
+        "provider_model_id": "gpt-4.1-mini",
+        "variant": "standard",
+        "is_byok": false,
+        "is_disabled": false,
+        "pricing_version_id": "73463586-2633-4a5e-b033-21b504fafb47",
+        "is_pricing_unresolved": false,
+        "pricing_sku_rates": {
+          "openai_responses:prompt_tokens": "4.4e-07",
+          "openai_responses:completion_tokens": "1.76e-06",
+          "openai_responses:cached_prompt_tokens": "1.1e-07"
+        },
+        "data_policy": {
+          "training": false,
+          "trainingOpenRouter": false,
+          "retainsPrompts": false,
+          "canPublish": false,
+          "safetyRetention": false,
+          "privacyPolicyURL": "https://www.microsoft.com/licensing/terms/product/PrivacyandSecurityTerms/MCA"
+        }
+      }
+    }
+  ],
+  "receiptContract": {
+    "source": "openapi",
+    "operation": "GET /api/v1/generation?id={id}",
+    "operationId": "getGeneration",
+    "security": [
+      {
+        "apiKey": []
+      }
+    ],
+    "chat": {
+      "id": {
+        "required": true,
+        "type": "string"
+      },
+      "model": {
+        "required": true,
+        "type": "string"
+      },
+      "usage": {
+        "required": false,
+        "type": "#/components/schemas/ChatUsage"
+      }
+    },
+    "chatUsage": {
+      "prompt_tokens": {
+        "required": true,
+        "type": "integer"
+      },
+      "completion_tokens": {
+        "required": true,
+        "type": "integer"
+      },
+      "cost": {
+        "required": false,
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "generation": {
+      "id": {
+        "required": true,
+        "type": "string"
+      },
+      "model": {
+        "required": true,
+        "type": "string"
+      },
+      "provider_name": {
+        "required": true,
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "provider_responses": {
+        "required": true,
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "native_tokens_prompt": {
+        "required": true,
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "native_tokens_completion": {
+        "required": true,
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "total_cost": {
+        "required": true,
+        "type": "number"
+      },
+      "latency": {
+        "required": true,
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "generation_time": {
+        "required": true,
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "providerResponse": {
+      "status": {
+        "required": true,
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "endpoint_id": {
+        "required": false,
+        "type": "string"
+      },
+      "provider_name": {
+        "required": false,
+        "type": "string"
+      },
+      "model_permaslug": {
+        "required": false,
+        "type": "string"
+      }
+    },
+    "accountReceiptSample": null
+  },
+  "sources": {
+    "catalog": {
+      "url": "https://openrouter.ai/api/v1/models/openai/gpt-4.1-mini/endpoints",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "9b6fcfacfee82da6c8e2a8511b554b63e244d93d9d45026df1cbba99114b4010"
+    },
+    "zdrCatalog": {
+      "url": "https://openrouter.ai/api/v1/endpoints/zdr",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "8787774417766efb62f6f5b29b25bd88236cb13a0e6747a402189c258168f72c"
+    },
+    "providers": {
+      "url": "https://openrouter.ai/openai/gpt-4.1-mini/providers",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "fef551c5efe435293cc09a175300c8866640a05666e3f579de8322d9ba4c7200"
+    },
+    "openapi": {
+      "url": "https://openrouter.ai/openapi.json",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:49Z",
+      "decodedBodySha256": "07b8b1ac91ba9e522540417420cd74004db5246d5341e5c86d68443e4438af82"
+    },
+    "routing": {
+      "url": "https://openrouter.ai/docs/guides/routing/provider-selection",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "9e6a9c2cf26ff39bd4d58c7945235df8f439eca4f7576cae66f1633ec5d9c5c8"
+    },
+    "privacy": {
+      "url": "https://openrouter.ai/docs/guides/features/zdr",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "3d7c6a2ab29faf105a4ef10b996c0d843210376d6a475191fe358ad940d538da"
+    },
+    "data": {
+      "url": "https://openrouter.ai/docs/guides/privacy/data-collection",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "68632a7f7ca86522f3b1511d2232b358d14b159a3641cd5d73bf23d2a0fac093"
+    },
+    "cache": {
+      "url": "https://openrouter.ai/docs/guides/features/response-caching",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "db1e92305c07f767dd321eb0f62df966de6fc3f1329d604461e1fdc3b82a23fe"
+    },
+    "broadcast": {
+      "url": "https://openrouter.ai/docs/guides/features/broadcast",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "14bdb81e8e146c900b847631fc66a6074bfba6bfd27a8bffe65d225deea83ee8"
+    },
+    "screening": {
+      "url": "https://openrouter.ai/blog/announcements/csam-screening/",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "79b8ab46f166a20a283ee036d36b0c4082860772b22f997a35a7e40c15dcd98a"
+    },
+    "azure": {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/openai/data-privacy",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:47Z",
+      "decodedBodySha256": "4af0d89b73c6c675bb1b292b0bb004246fbea0ddf7c96605e1949c9c4ce4aab0"
+    },
+    "keys": {
+      "url": "https://openrouter.ai/docs/guides/overview/auth/management-api-keys",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "0d048cf81f6482ca0a777b28d42d3297be28d373619d3537b0bfaa988df7c5c8"
+    },
+    "pricing": {
+      "url": "https://openrouter.ai/pricing",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:01:46Z",
+      "decodedBodySha256": "92061091fec8f4c73a92556ca4c051bee4ecd0f527754b8c213677b2bed3505f"
+    },
+    "models": {
+      "url": "https://openrouter.ai/api/v1/models",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:03:27Z",
+      "decodedBodySha256": "28d76bdbd3563258ada393b45b18c784f96c311d178c136b920611c531ba5b7f"
+    },
+    "datedCatalog": {
+      "url": "https://openrouter.ai/api/v1/models/openai/gpt-4.1-mini-2025-04-14/endpoints",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:03:25Z",
+      "decodedBodySha256": "9c9fc8df7ae2f4b3ae247bf9bbf886f08d0a7283496ac34e768f5b8b8d58bdc0"
+    },
+    "modelDocs": {
+      "url": "https://openrouter.ai/docs/guides/overview/models",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:03:25Z",
+      "decodedBodySha256": "5650630b929884c9f513a672cb652dbe5465b5fbcc3f4ce4738c2faf5049671b"
+    },
+    "region": {
+      "url": "https://openrouter.ai/docs/guides/features/in-region-routing",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:03:26Z",
+      "decodedBodySha256": "ad02680de296a56c4dabed25cd71b6d5cfcb268aa0cec8346abe82e638a46dbf"
+    },
+    "modelPage": {
+      "url": "https://openrouter.ai/openai/gpt-4.1-mini",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:04:52Z",
+      "decodedBodySha256": "181377adb8f29b7e06f84b56cee4c39a99512e7886eceeccd469e754249323d3"
+    },
+    "routerMeta": {
+      "url": "https://openrouter.ai/docs/guides/features/router-metadata",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:04:52Z",
+      "decodedBodySha256": "01be39c24f7ad8a5709896938edaa536996be8ba1df3555e3b7a9cde40e8cd50"
+    },
+    "privacyPolicy": {
+      "url": "https://openrouter.ai/privacy",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:04:52Z",
+      "decodedBodySha256": "3662ace682321376026a5865601d2721557295081e305c90dbf09e5a5a05b117"
+    },
+    "model": {
+      "url": "https://openrouter.ai/api/v1/model/openai/gpt-4.1-mini",
+      "method": "GET",
+      "status": 200,
+      "retrievedAtUtc": "2026-11-04T08:04:52Z",
+      "decodedBodySha256": "ba5171d96c82974d5e4406d8f8125fa5f7ae6d6297e0ac9c0033aff51d22fe89"
+    }
+  }
+}

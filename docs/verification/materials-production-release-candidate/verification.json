@@ -1,0 +1,47 @@
+{
+  "candidate": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "tree": "1d73935f8a0c68bc5187f7e1118941ef00498161",
+  "bundleSha256": "c30c5b0c316b802bc144bf3c0cb3bea85583dc805abaee58a5ee43b58f5297ee",
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "vitest": {
+    "files": 351,
+    "passed": 7471
+  },
+  "strictResearch": {
+    "files": 3,
+    "passed": 131
+  },
+  "otherNode": {
+    "files": 9,
+    "passed": 290,
+    "concurrency": 1
+  },
+  "rendered": {
+    "passed": 5
+  },
+  "typecheckExit": 0,
+  "lint": {
+    "errors": 0,
+    "existingWarnings": 4
+  },
+  "artifacts": {
+    "mode": "closed",
+    "files": 388,
+    "treeSha256": "544a075f07196b7183f29521c26bfaab5117b070b5132688fa24f4af7d38a352",
+    "manifest": "artifact-index.json",
+    "verifiedAgainstDisk": true
+  },
+  "logsSha256": {
+    "unit.log": "15bf9ef74a9e5993e732e66b356c5d0b492cccff9154f576a44c56619e12cc02",
+    "research.log": "05e87f894efa7e4d9356611a0c8bb1f797405511a6ce941d8955946fec3978dc",
+    "node.log": "748f7b55a445ba019b7e8d111a721b233506487a4d8f3827f2f2ce6e64be2894",
+    "typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lint.log": "5da01f700be7cd28f901d0cd992daba0fd16f9670b8e3b19518290a0c2839f2a",
+    "build-render.log": "e88f9bf650f166b24c0396d306d526e28296516e750cbb363661b2a58a9a0e89",
+    "pair.log": "bfea521b0512630a9df66ad4bc9f7051fd08c368f283acd8bb2bb8e270f08552"
+  },
+  "liveModelRequests": 0,
+  "liveInferenceCostMicroUsd": 0,
+  "deployments": 0,
+  "remoteMigrations": 0
+}

@@ -5,7 +5,9 @@
 执行分支：`codex/materials-phase-1-offline-20261104`  
 起始基线：`2caa51d`
 
-**本轮完成阶段 1 的离线实现，交付 AI 主路径、用户核对修改和人工兜底。未部署、未执行远程迁移、未调用真实模型。Gate 1B 为 NOT RUN，因此不宣称阶段 1 整体准入完成。**
+**阶段 1 离线实现已交付 AI 主路径、用户核对修改和人工兜底。** 下文的运行时间、测试数和产物记录对应当次离线候选。后续 Gate 1B 已完成 B0，B1 正在核验 Kimi 标准路由。专用工作区与普通 key 已建立，实付推理仍为 0 次，B2 尚未启动。阶段 1 的真实准入和公开发布仍待完成。[B0 结果](2026-11-04-materials-gate-1b-b0-results.md) · [B1 核验](2026-11-04-materials-gate-1b-b1-review.md) · [当前发布进度](2026-11-04-materials-public-release-progress.md)
+
+**最新离线集成候选**　`fa9c9ae3a3e9` 增加了同岗位更换 JD、补充资料参与规划、从目标取消关联以及专用合成服务的验证。全仓 Vitest 348 个文件、7,424 项通过，另行复核 Research 严格基线 131/131。附加 Node 用例最终 290/290，构建后页面 5/5，类型检查和两种模式的本地打包通过。首次 Node 演练的本机端口冲突和原样重跑记录一并留存。[集成回归](materials-release-integration-candidate/verification.json) · [隔离合成构建](materials-release-integration-candidate/synthetic-verification.json)
 
 ## 1. 本地已实现的用户功能
 

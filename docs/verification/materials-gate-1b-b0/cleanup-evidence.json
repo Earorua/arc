@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "gate": "B0-5",
+  "mode": "offline-local",
+  "observedAt": "2026-11-04T15:37:08+08:00",
+  "remoteInferenceCalls": 0,
+  "remoteDeployments": 0,
+  "remoteMigrations": 0,
+  "verification": {
+    "command": "node node_modules/vitest/vitest.mjs run tests/db/documents-migration.test.ts tests/db/migration-safety.test.ts tests/db/release-schema-snapshot.test.ts tests/server/document-storage.test.ts tests/server/document-deletion.test.ts tests/server/document-deletion-races.test.ts tests/server/document-storage-runtime.test.ts tests/server/document-workflow.test.ts tests/server/document-cancellation-delivery.test.ts tests/server/document-executor-runtime.test.ts --maxWorkers=4 --reporter=dot",
+    "files": 10,
+    "passed": 84,
+    "failed": 0,
+    "exitCode": 0,
+    "tscExit": 0,
+    "scopedLintExit": 0
+  },
+  "initialFailures": [
+    {
+      "case": "application-put-completed-before-d1-receipt",
+      "actual": "cleaning",
+      "expected": "completed"
+    },
+    {
+      "case": "legacy-receipt-revision-or-generation-mismatch",
+      "actual": "completed",
+      "expected": "cleanup-pending"
+    },
+    {
+      "case": "old-cleaned-raw-operation-without-write-proof",
+      "actual": "completed",
+      "expected": "cleanup-pending"
+    },
+    {
+      "case": "terminal-executor-recovery-created-new-put",
+      "observedWrites": 1,
+      "expectedWrites": 0
+    },
+    {
+      "case": "unconfirmed-executor-raw-put-with-absent-key",
+      "actual": "claimed-absent",
+      "expected": "cleanup-pending"
+    },
+    {
+      "case": "manually-flipped-executor-termination-with-completion-in-flight",
+      "actual": "accepted-after-cleanup",
+      "expected": "rejected-after-cleanup"
+    }
+  ],
+  "nativeMiniflare": [
+    {
+      "case": "persistent-workerd-terminated-after-native-complete-before-app-commit",
+      "before": {
+        "writerTerminated": 0,
+        "operation": "writing",
+        "storedObjects": 1
+      },
+      "after": {
+        "jsContinuationRan": false,
+        "deletion": "completed",
+        "originalPartReplay": "rejected",
+        "originalCompletionWithSavedPartEtag": "rejected",
+        "objectReadback": "absent",
+        "secondDeleteSameJob": true,
+        "outboundCalls": 0
+      }
+    },
+    {
+      "case": "native-r2-upload-part-first-byte-before-tombstone",
+      "before": {
+        "body": "paused-in-flight"
+      },
+      "after": {
+        "deletionBeforeRemainingBytes": "completed",
+        "originalSender": "rejected",
+        "stalePart": "rejected",
+        "listedObjects": 0,
+        "outboundCalls": 0
+      }
+    }
+  ],
+  "otherVerified": [
+    "Tombstone closes enrollment before the first byte. A later handle cannot enroll or write.",
+    "Concurrent deletion reconciliation, storage reclamation and scheduled maintenance agree on readback and preserve completed jobs.",
+    "Foreign handle, unacknowledged abort, silent delete failure, wrong generation, invalid prior receipt and orphan registration cannot complete cleanup.",
+    "The executor terminal-recovery path never publishes a new R2 result. An enrolled completion is fenced, and D1 retains accounting for delivery without the candidate.",
+    "An old unacknowledged raw result with an absent key retains its object registration through terminal status. A late matching stored outcome supplements terminal evidence before deletion.",
+    "An old executor row that had started recovery without a durable result remains on hold, including when the prior code already cleared its key.",
+    "A manually changed executor termination flag cannot release the pending native completion. Cleanup aborts its immutable upload ID and reads back absence. Replayed completion is rejected, the bucket stays empty and the ID cannot be rebound or erased."
+  ],
+  "migrations": {
+    "app": {
+      "file": "drizzle/0015_document_storage_uploads.sql",
+      "sha256": "5c6b594a03d3397bd88a868664d521c9a82c3fc3847faade36022f8dbdf861b2"
+    },
+    "executor": {
+      "file": "worker/document-executor/migrations/0002_document_result_uploads.sql",
+      "sha256": "ea2cdc53c09be5dab31e49967ba43eb1d994d62923b4e13d9be2b25d530c6ed8"
+    }
+  },
+  "boundary": {
+    "unresolvedLegacy": [
+      "Application raw writers without an exact positive receipt, missing registrations and unknown protocols remain cleanup-pending.",
+      "A legacy executor intent with no confirmed object remains pending for positive matching storage evidence. A pre-upgrade ambiguous secondary recovery writer requires external proof of all writes draining."
+    ],
+    "platform": "B3_NOT_RUN",
+    "requiredB3": "Repeat streaming abort vs completion, native abort on previously completed uploads, both Worker restarts, second deletion and R2 readback on the authorized isolated platform. An ambiguous R2 error does not authorize completion."
+  }
+}

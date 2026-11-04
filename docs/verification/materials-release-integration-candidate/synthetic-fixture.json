@@ -1,0 +1,57 @@
+{
+  "stage": "materials-acceptance",
+  "mode": "synthetic",
+  "accountId": "54eaadb89014252836694203c1e22546",
+  "site": {
+    "workerName": "arc-materials-g1b-fixture-site",
+    "origin": "https://arc-materials-g1b-fixture-site.23711031.workers.dev",
+    "executorEntrypoint": "DocumentExecutorEntrypoint",
+    "authProviders": [
+      "github"
+    ],
+    "d1": {
+      "id": "55934b3d-be6a-470e-956d-31d952f2f735",
+      "name": "arc-materials-g1b-fixture-site-db"
+    },
+    "proofs": {
+      "name": "arc-materials-g1b-fixture-proofs",
+      "public": false
+    },
+    "documents": {
+      "name": "arc-materials-g1b-fixture-documents",
+      "public": false
+    }
+  },
+  "executor": {
+    "workerName": "arc-materials-g1b-fixture-executor",
+    "siteEntrypoint": "DocumentSite",
+    "d1": {
+      "id": "3136ae36-023c-4ebc-ad02-d0ed2bd4ef57",
+      "name": "arc-materials-g1b-fixture-executor-db"
+    },
+    "results": {
+      "name": "arc-materials-g1b-fixture-results",
+      "public": false
+    },
+    "workflow": "arc-materials-g1b-fixture-workflow"
+  },
+  "fakeTransport": "arc-materials-g1b-fixture-transport",
+  "analysis": {
+    "provider": "fixture",
+    "model": "moonshotai/kimi-k3.1-pro",
+    "endpoint": "https://synthetic.invalid/api/v1/chat/completions",
+    "providerPolicyId": "fixture-policy",
+    "policyVersion": "2026.11.1",
+    "priceVersion": "2026.11.1",
+    "upstream": "moonshotai/mxfp4",
+    "receiptRoute": {
+      "providerName": "Synthetic Provider",
+      "endpointId": "synthetic-endpoint"
+    },
+    "inputMicroUsdPerMillionTokens": 400000,
+    "outputMicroUsdPerMillionTokens": 1600000,
+    "maxJobMicroUsd": 13000,
+    "userDailyMicroUsd": 320000,
+    "globalDailyMicroUsd": 400000
+  }
+}

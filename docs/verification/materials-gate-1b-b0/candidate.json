@@ -1,0 +1,170 @@
+{
+  "phase": "Gate 1B B0 offline",
+  "base": "2caa51d56a41f60b837425ffa56dea4fbbecbd47",
+  "candidate": "87add0a010d601873f493a13cfa327deb5a5e657",
+  "tree": "b93efadeb38136f35f6c5a35de20a14c617fac1f",
+  "localRef": "refs/codex/candidates/materials-gate-1b-b0-b93efadeb381",
+  "bundle": "docs/verification/materials-gate-1b-b0/source.bundle",
+  "bundleSha256": "57fd1881ad07b93c15278711133ff6c006af045c52ee3028b7eedae82b4b4246",
+  "sourceFiles": 1233,
+  "changedPaths": 207,
+  "excluded": [
+    "docs/superpowers/specs/2026-09-11-arc-private-materials-personalized-planning-design.zh-CN.md",
+    "docs/verification/2026-11-04-materials-gate-1b-b0-results.md",
+    "docs/verification/materials-gate-1b-b0/"
+  ],
+  "changeListSha256": "3c793ead72b74a920662b24b3586089e6cfdb1f0a487e5ba3e9146dd9299d3fe",
+  "nodeVersion": "v24.14.1",
+  "platform": "win32",
+  "documentOutputSchemaVersion": "2026.11.1",
+  "workflowContractVersion": "2026.11.1",
+  "mappingVersion": "2026.11.2",
+  "liveModelPolicyVersion": null,
+  "livePriceVersion": null,
+  "syntheticPolicyVersion": "2026.11.1",
+  "syntheticPriceVersion": "2026.11.1",
+  "corpus": {
+    "documents": 24,
+    "normalResumes": 9,
+    "normalJds": 9,
+    "edgeResumes": 3,
+    "edgeJds": 3,
+    "maxInputBound": 4750,
+    "sumInputBounds": 112234
+  },
+  "sourceSha256": {
+    "package-lock.json": "c41e4bf9d9c08a4e75b869800e5438ab884dae618d7eee5356c0d5e12427f6cd",
+    "worker/document-executor/provider-http.ts": "e9ec5ef297cc772a9c45ac143563c979b1ee6e0f4da7416f5bf35928cf3d0092",
+    "worker/document-executor/generation-receipt.ts": "d0cd6b0d527c8f449738a7bb492354869bb53fce12800ef84426401b8066af18",
+    "worker/document-executor/acceptance-policy.ts": "d178b8b3676a78f7e7976687de0f81821ec0ca61b8e971fe79177077519cfc87",
+    "worker/document-executor/acceptance-corpus.json": "354e493b131df7dde817988a5f55ed2cdd101596b7c383c14177aa31705d403f",
+    "worker/document-executor/workflow-policy.ts": "ee1dc594f1dc0f948ad0a61e8d16ce41ba131ee4b46e3eeb6daf4f7e3e4fed54",
+    "app/contracts/documents.ts": "de44dea4af74b3a1bc41b4832b9b66f6e11fdb593e7943563f1431cb33a20328",
+    "app/lib/materials/skill-mapper.ts": "580e9b2e94fdf3ecd6454e386814401fcc69d89971b81d951e1c78eaed3bce87",
+    "tests/fixtures/documents/quality-corpus.json": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+    "tests/helpers/document-quality-evaluation.ts": "64425ba001348dc14d88ff7aab80f99d4bf72baf49a913492f4e89883e4b1aed",
+    "scripts/materials-qualification-runner.ts": "cc2611dea2545a0d2238dc247b77d0ee58fffb944c1690251aab29adcfad8240",
+    "scripts/materials-qualification-journal.ts": "94ada7ef24256d820282910492e80881e32abbe617eb695d224bc20816d95026",
+    "scripts/materials-ui-acceptance-enroll.ts": "cf7286800fbd7b4f264035f1547d643c8c5a33548feedc0dbfd1e4437d3b7fec",
+    "build/cloudflare-target.ts": "d56fe65d58c171b27fdd73a6e2147ac200d5f85f3103e56306dab7b4d19cbb15",
+    "scripts/build-materials-offline-pair.mjs": "4657bab135c42722e1577c7360682ab93ce6af2b8634850720a2f1b386587254",
+    "tests/fixtures/build/materials-acceptance.json": "f1584f05bfba3059535a1e1dfa54b464032960554aa39b44f3e8e8216f46c24f",
+    "docs/superpowers/plans/2026-11-04-private-materials-gate-1b-acceptance.md": "552388220323c6fefc327624adb0a57b473a789868ea5ce67403f7d95748ab5a",
+    "docs/superpowers/runbooks/2026-11-04-materials-gate-1b-ui-casebook.md": "3446729a6dfaf24b302c0153c178364a792884bd82aa7921b02f23d910ab1bb0"
+  },
+  "promptUtf8Sha256": "d898968f77f383d3a83a849e6bc1995a8c51ccd0eb52fcaea0f0588ebceb3d13",
+  "migrations": [
+    {
+      "directory": "drizzle",
+      "files": [
+        {
+          "path": "drizzle/0000_beta_foundation.sql",
+          "sha256": "9b59e5e4f30cc70e0783abd2359b5821c3ea31eeeaef30e38dffa1d3d394dfa4"
+        },
+        {
+          "path": "drizzle/0001_secure_account_linking.sql",
+          "sha256": "a26d95b165915b9bc88705299b6c7bd8cdeced54cd1e24b3c479594e60fb56a4"
+        },
+        {
+          "path": "drizzle/0002_product_intelligence.sql",
+          "sha256": "f5449ea8d59e1869a480062ae5aaf40007795a2a1c725e0c3bfe7ca34b296c68"
+        },
+        {
+          "path": "drizzle/0003_adaptive_planning.sql",
+          "sha256": "fce561140d8b2835f1518f08e3ea26a96d7fa4b298197ca55b9b72f39961c25d"
+        },
+        {
+          "path": "drizzle/0004_proof_backed_stack.sql",
+          "sha256": "a01c4f719701ae683ed1f1b8769b724065bfbfd93def02614f89154df784b859"
+        },
+        {
+          "path": "drizzle/0005_openrouter_research_beta.sql",
+          "sha256": "bbecea2119999103906e3c721d602467124a60f72ad9c672ae847212fe52ee35"
+        },
+        {
+          "path": "drizzle/0006_research_health_indexes.sql",
+          "sha256": "24caea1c12c3ffa16b7b03c4f0a5a9c21736501b6dc2b2f2afbd149e6da78b73"
+        },
+        {
+          "path": "drizzle/0007_research_bridge_nonces.sql",
+          "sha256": "0a2c53031dafa8290fa95a5444de91cd589d9b8e6475da86e86472102bba8908"
+        },
+        {
+          "path": "drizzle/0008_research_site_executions.sql",
+          "sha256": "6e0deea44a54a3d7682ed1688827c3beab3839319fa0508a51259354a3195046"
+        },
+        {
+          "path": "drizzle/0009_research_site_begin_grants.sql",
+          "sha256": "4e7b91027a3936c1d6f2cfb454e7296f370913995b4cb4cea8765a1db7455908"
+        },
+        {
+          "path": "drizzle/0010_research_site_imports.sql",
+          "sha256": "9bf3eb34fda5be9969b421abe6c0a442d3f60aae53064a2adc94a88622e9c3f7"
+        },
+        {
+          "path": "drizzle/0011_research_site_bridge.sql",
+          "sha256": "bd1f562026752de0db87668e1318f2fce6130cb4be40dfb0901745005f2472d5"
+        },
+        {
+          "path": "drizzle/0012_account_recovery.sql",
+          "sha256": "5b9732c21b9b9c22a66f3304fbe7766b798fa2d143dc3a0db7d808f5f08d8059"
+        },
+        {
+          "path": "drizzle/0013_learning_agents.sql",
+          "sha256": "da1a1e762a08c4ca82c464d80e9fa04a4a93f625ac1fc6dfd436d93567134b67"
+        },
+        {
+          "path": "drizzle/0014_private_materials.sql",
+          "sha256": "9329c8cb8a2b3e4ffbac773032fb33700f6178ba8a8d5f6553039735778781d6"
+        },
+        {
+          "path": "drizzle/0015_document_storage_uploads.sql",
+          "sha256": "5c6b594a03d3397bd88a868664d521c9a82c3fc3847faade36022f8dbdf861b2"
+        }
+      ],
+      "treeSha256": "e9a91faa367f0697db8586bb3c02dbab16e2fa7f072e9e10c0db183f6e94dafe"
+    },
+    {
+      "directory": "worker/document-executor/migrations",
+      "files": [
+        {
+          "path": "worker/document-executor/migrations/0000_document_executor.sql",
+          "sha256": "ca739000e63aea457151c9d8d8b404d821101eb05062e4d265a59bb942b1baa9"
+        },
+        {
+          "path": "worker/document-executor/migrations/0001_document_acceptance.sql",
+          "sha256": "b5e3ad2c02abf768342943adfa960da6fd4c4c8bfe54e6f12100605fbab88ae8"
+        },
+        {
+          "path": "worker/document-executor/migrations/0002_document_result_uploads.sql",
+          "sha256": "ea2cdc53c09be5dab31e49967ba43eb1d994d62923b4e13d9be2b25d530c6ed8"
+        }
+      ],
+      "treeSha256": "19c2340937fd3c4914a2e09d3ac333e2dff32b7a2bbaba1deef48611f40066d1"
+    }
+  ],
+  "artifacts": {
+    "mode": "closed",
+    "count": 387,
+    "treeSha256": "9f1976dd4b303bb313f68fa566df8440a0bfae6076ebb20477e98e78be074f8c",
+    "syntheticMarkerScan": {
+      "scannedBundlesAndStyles": 126,
+      "syntheticFixtureMarkerMatches": 0,
+      "billingSecretNameInClientFiles": 0
+    },
+    "site": {
+      "path": "site/server/index.js",
+      "sha256": "a3b2ee7be603d505a580a416a7742c3c06d204c74128966c6c6d3df6e1cdcf74"
+    },
+    "executor": {
+      "path": "executor/index.mjs",
+      "sha256": "c771647f194d028f880d27b6845f24debdf48ee08ccf6a5c6b7095abfcff0eee"
+    }
+  },
+  "evidenceSha256": {
+    "artifact-index.json": "89089911ed49af770a03bdedc9535870fd11d5188fe4585a70e1267e8a5e96fb",
+    "cleanup-evidence.json": "5239308649ce70c531753763663ab6106b875421a79e6250c0a8a6db2ce7e0ab",
+    "ui-rehearsal.json": "9300b231d162c043380b099b11feae7ad5eb0ee62396d0dafd3d65b403a37b9e",
+    "verification.json": "70f32fd584dd0565fa8c18849631b0853203faf11a789111bab065e638702adb"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "candidate": "fa9c9ae3a3e94a721d4f101fac272895ddad54e1",
+  "tree": "f1215d7246cd6e020068315cc1e63002b957dd94",
+  "sourceBundleSha256": "8fdecd58ea83b1c3c15fcfe9323f0b3fead07771bd5a3c24b2e8d2a246b26251",
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "fixture": "synthetic-fixture.json",
+  "fixtureSha256": "ed7bdc9edcf0921c418bf7bf66240639d1f9ae3ed507a2b71fb1a7e3976b8d6e",
+  "steps": {
+    "siteBuild": {
+      "exitCode": 0,
+      "logSha256": "7c03a4e8b1aeac0773878a0a3b4965e8b1c931167cedaddb426ae745fc2a087a"
+    },
+    "package": {
+      "exitCode": 0,
+      "logSha256": "5cf798f6ba15387ab765299345b955e26b0a246220c017c4a383eebf11c417e7"
+    }
+  },
+  "manifest": "synthetic-artifact-index.json",
+  "files": 389,
+  "artifactTreeSha256": "a10467c7e2e2ad33a16f4f4c63ab90c48737b94951bc07e22bfacd0ec3037c77",
+  "services": [
+    "executor",
+    "site",
+    "synthetic-transport"
+  ],
+  "fakeTransportExports": [
+    "DocumentFakeTransport",
+    "DocumentSyntheticReceipts",
+    "default"
+  ],
+  "privateRoutes": 0,
+  "newSqliteClasses": [
+    "DocumentSyntheticReceipts"
+  ],
+  "sourceAndRetainedFilesVerified": true,
+  "isolation": {
+    "buildFromFrozenArchive": true,
+    "accountCredentialsPassed": false,
+    "npmOffline": true,
+    "nodeNonLoopbackFetchOrSocketAttempts": 0
+  },
+  "liveModelRequests": 0,
+  "deployments": 0,
+  "remoteMigrations": 0
+}

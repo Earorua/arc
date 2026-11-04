@@ -1,6 +1,8 @@
 # 私有资料 Gate 1B 验收实施计划
 
-**依据 v2.1 · 验收计划第 1 版 · 2026-11-04 · Gate 1A 已通过 · Gate 1B 为 `NOT RUN`**
+**依据 v2.1 · 验收计划第 1 版 · 定稿时 Gate 1A 已通过，Gate 1B 尚未开始。**
+
+**执行进度（2026-11-04）**　B0 已完成，B1 正在核验 Kimi K3.1 Pro 标准路由。下文 0.50 USD 是原候选的单轮预算建议。Kimi 第一轮改为拟议 2.00 USD、最多 24 份合成简历/JD，实际推理授权仍为 0 USD。B3 的合成模式还需把第三个私有 Worker、其 SQLite Durable Object 迁移和费用纳入隔离环境授权。后续执行以当前候选和分别签署的各轮范围为准。[B1 核验](../../verification/2026-11-04-materials-gate-1b-b1-review.md) · [发布进度](../../verification/2026-11-04-materials-public-release-progress.md)
 
 **目标**　用合成简历和岗位 JD 证明用户可以让 AI 预填，核对并修改事实，随后根据已确认的资料得到有实际变化、可追溯的学习计划。人工填写覆盖拒绝外发、额度不足或分析失败的情形。
 

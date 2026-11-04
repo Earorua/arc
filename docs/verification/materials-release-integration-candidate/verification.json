@@ -1,0 +1,56 @@
+{
+  "candidate": "fa9c9ae3a3e94a721d4f101fac272895ddad54e1",
+  "tree": "f1215d7246cd6e020068315cc1e63002b957dd94",
+  "bundleSha256": "8fdecd58ea83b1c3c15fcfe9323f0b3fead07771bd5a3c24b2e8d2a246b26251",
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "vitest": {
+    "files": 348,
+    "passed": 7424
+  },
+  "strictResearch": {
+    "files": 3,
+    "passed": 131
+  },
+  "otherNode": {
+    "files": 9,
+    "passed": 290,
+    "concurrency": 1,
+    "previousAttempt": {
+      "passed": 285,
+      "failed": 5,
+      "exitCode": 1,
+      "logSha256": "db3d0d66f730de6508cca181467962cd7957734618cdb012928842bff286c257",
+      "failure": "One shared legacy-recovery rehearsal failed reading local Miniflare D1 with loopback connect EADDRINUSE. All five cases used its rejected promise.",
+      "retry": "Reran all nine suites serially, unchanged, after outstanding loopback sockets drained.",
+      "timeWaitBeforeRetry": 33
+    }
+  },
+  "rendered": {
+    "passed": 5
+  },
+  "typecheckExit": 0,
+  "lint": {
+    "errors": 0,
+    "existingWarnings": 4
+  },
+  "artifacts": {
+    "mode": "closed",
+    "files": 387,
+    "treeSha256": "9f0dcb01f2cb22637c5563dc77b0bcba4416ae065ec3ab474da165dd37913e15",
+    "manifest": "artifact-index.json",
+    "verifiedAgainstDisk": true
+  },
+  "logsSha256": {
+    "unit.log": "fabf4f0a49b05bcc0b83a71d5d4c7bd939a1bfaca571ae825ea4bb73ce73eb22",
+    "research.log": "f1310fb748ea3967e1ee01aa11cc25157cb15171a2af28d31254845f1c6c5085",
+    "node.log": "55bfa07afe9bffb54ea29750bd5baa682a854a9c4d67054480f1d2fc2344caaa",
+    "typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lint.log": "2f5a145abf9d61d7d92c221219d245610659772e11111ef7f1204beae27f968b",
+    "build-render.log": "138d5a1dadd113c7a36806ec25e32f11cc3e5997476d67a59ef9d81ccc6a0356",
+    "pair.log": "6574084137eb834dbd0f2d81926c57cec8b42b63d9f7b960403b001acd414216"
+  },
+  "liveModelRequests": 0,
+  "liveInferenceCostMicroUsd": 0,
+  "deployments": 0,
+  "remoteMigrations": 0
+}
