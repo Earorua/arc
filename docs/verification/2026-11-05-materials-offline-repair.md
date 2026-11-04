@@ -34,6 +34,23 @@
 
 独立 B1 工具固定使用旧产品提交 `7052aedd8a49` 下的 8 个已审源码文件。新工具在该固定环境通过 **35/35** 项 Node 测试和 **57/57** 项适配器回归，程序组合摘要为 `147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b`。操作时使用[单笔操作单](../superpowers/runbooks/2026-11-04-materials-kimi-single-receipt.md)规定的固定环境；新产品候选中的工具副本不改变它对那 8 个文件的校验。登记指纹、签发和执行均未进行。
 
+### 在这台机器上运行 B1
+
+本工作树已准备好专用目录 `work/kimi-b1-147bfe15`。其中的产品文件取自 `7052aedd8a49`，取证工具取自 `d1577b37bd08`。81 个文件逐一匹配本地 Git 对象，运行时复用本机已安装的锁定依赖。8 个固定产品文件和 8 个取证文件通过摘要检查。在空的模拟用户目录中，从这个入口运行 35 项测试全部通过，查看模板退出码为 0，缺少授权的预检退出码为 2。实际用户目录中的密钥和授权由持有人保管。[本机入口验证记录](materials-offline-repair/b1-operator-directory.json)
+
+在本工作树根目录的 PowerShell 7 中先运行下行。在此目录按[单笔操作单](../superpowers/runbooks/2026-11-04-materials-kimi-single-receipt.md)的顺序登记指纹、生成模板及启动。两小时窗口从持有人明确同意时开始。
+
+```powershell
+Set-Location -LiteralPath './work/kimi-b1-147bfe15'
+```
+
+此目录可在含有上述两个提交及已安装依赖的其他本地检出中重建。下表内的文件按各自提交从 Git 归档提取，保留相对路径。然后将目录内的 `node_modules` 指向已核对的本机依赖。当前检出与固定产品版本的 `package.json`、`package-lock.json` 和 `tsconfig.json` 已逐字节核对。
+
+| 来源 | 需要恢复的路径 |
+| --- | --- |
+| `7052aedd8a49` | `app/contracts/`、`app/server/documents/`、`app/lib/planning/`、`worker/document-executor/`、`scripts/materials-qualification-journal.ts`、`scripts/materials-qualification-runner.ts` 和上列三个根配置文件。 |
+| `d1577b37bd08` | [B1 验证清单](materials-gate-1b-b1/single-receipt-entry-verification.json)中 `testedFilesSha256` 列出的全部 8 个文件，恢复至 `docs/verification/materials-gate-1b-b1/`。 |
+
 ## 下一步
 
 1. **B1 技术取证**：目前仍缺 Kimi 标准端点的真实配对回执。若持有人另行授权，仅允许一条固定的合成 SQL 练习、一次推理、总额不超过 **0.075 USD**；从明确授权起 2 小时内有效，启动后最多 15 分钟。按操作单在本机私下提供专用凭据。也可等待供应方书面证据。专用 key 的 2.00 USD 是账户限额。

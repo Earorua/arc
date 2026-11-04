@@ -1,0 +1,36 @@
+{
+  "directory": "work/kimi-b1-147bfe15",
+  "runtimeCommit": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+  "operatorCommit": "d1577b37bd08eea56d5a0a2578dd0eba2e991f84",
+  "programSha256": "147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b",
+  "requestSha256": "33277377b7611f2ad2b944ef7180331acd258f0fdf3df44aff684dddffd2ce20",
+  "exactRestoredFiles": 81,
+  "pinnedProduct": 8,
+  "operatorFiles": 8,
+  "dependencies": "local installed modules; package.json, package-lock.json and tsconfig.json equal across commits",
+  "passed": 35,
+  "failed": 0,
+  "output": {
+    "describe": {
+      "exit": 0,
+      "logSha256": "ffdd1c086b73532ae07cf5b4655c5796949afbbe67d6fb0c5ea7b228701ccf98"
+    },
+    "unapproved-preflight": {
+      "exit": 2,
+      "logSha256": "6858dd78b7857ad6d121d5fe0df4689d86b73f77ee9e2fe3174b4ff86f9b72ae"
+    },
+    "tests": {
+      "exit": 0,
+      "logSha256": "3fb67db46e72381ea021307e6083df90b10a926b37f0afc538e4492306400e2f"
+    }
+  },
+  "ownerApprovalIssued": false,
+  "liveOwnerProfileInspected": false,
+  "isolatedProfileEntriesAfter": 0,
+  "liveKeyUsed": false,
+  "modelCalls": 0,
+  "modelCostMicroUsd": 0,
+  "networkDeniedAttempts": 0,
+  "deployments": 0,
+  "remoteMigrations": 0
+}
