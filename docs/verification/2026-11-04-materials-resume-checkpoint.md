@@ -1,5 +1,7 @@
 # 多类型资料首发 · 暂停与恢复交接
 
+> 这是 11 月 4 日的暂停快照。11 月 5 日已完成下文第 1 步的离线修复；继续工作请从[新候选、验证结果和下一步](2026-11-05-materials-offline-repair.md)开始。
+
 2026-11-04，北京时间 22:18。按持有人要求保存并暂停。当前在 Gate 1B 的 B1，资料功能尚未公开上线。首发输入为粘贴的主简历、一份当前主 JD 和最多三份补充文本。已在本地验证用 AI 预填、由用户核对修改、人工兜底，以及换公司 JD 时预览差异、保留已完成任务的流程。PDF、DOCX 等文件导入列入后续阶段。[首发进度](2026-11-04-materials-public-release-progress.md) · [v2.1 设计](../superpowers/specs/2026-09-11-arc-private-materials-personalized-planning-design.zh-CN.md)
 
 ## 保存位置

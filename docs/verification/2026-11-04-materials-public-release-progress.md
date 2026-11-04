@@ -1,8 +1,8 @@
 # 多类型资料参与学习计划的发布进度
 
-更新于 2026-11-04。目标站点为 [arcmaps.net](https://arcmaps.net/)。当前处于 Gate 1B 的 B1。该站点已有公开版本，资料分析与个性化学习计划仍待验收及发布。
+更新于 2026-11-05。目标站点为 [arcmaps.net](https://arcmaps.net/)。当前处于 Gate 1B 的 B1。该站点已有公开版本，资料分析与个性化学习计划仍待验收及发布。
 
-**北京时间 22:18 暂停。** 计费恢复改动已保存为本地 WIP `3e283ee7832c`。最新全仓 7,490 项通过、1 项失败，另有独立复核发现的恢复问题。单笔合成取证尚待授权。恢复时先看[暂停交接与剩余工期](2026-11-04-materials-resume-checkpoint.md)。
+**已从 11 月 4 日的暂停点完成离线修复。** 本地产品候选 `d1577b37bd08` 全仓 7,526/7,526 通过，补充资料独立采集与 B4 预算迁移已在本机验证。下一步是取得 B1 单笔合成取证的独立授权，或先取得供应方书面隐私条款。[本次修复与验收证据](2026-11-05-materials-offline-repair.md) · [原暂停交接](2026-11-04-materials-resume-checkpoint.md)
 
 ## 首发范围
 
@@ -16,22 +16,22 @@
 | B3 与 B4 隔离验收 | B3 的本机模拟证据已经取得，线上隔离环境、B4 的真实用户操作和第二轮预算待办。[验收计划](../superpowers/plans/2026-11-04-private-materials-gate-1b-acceptance.md) | 独立验证实际绑定、账户准入、私有存储、恢复和删除；在页面以合成资料验证提取、确认、计划差异与已完成任务保护。 |
 | B5 与生产发布 | 已为普通用户实现独立生产准入、关闭开关和本地打包工具。两端要求同一份限时限额的生产授权。当前尚无生产授权或远端迁移。[执行器准入](../../worker/document-executor/production-policy.ts) · [生产包操作单](../superpowers/runbooks/2026-11-04-materials-production-package.md) | 完成 B2 至 B5、补充资料验证、生产资源实盘和签批，执行备份、迁移、回退演练及上线后验证。 |
 
-单笔合成取证入口已通过独立工作树争用、崩溃、到期、指纹不匹配及费用冲突的离线演练。持有人尚未签发这笔授权。产品候选 `7052aedd8a49` 的通用计费路径另有待修项。在本地给同一请求提供 0 USD 聊天费用和 0.50 USD 元数据费用，通用校验器报用量不符，结算函数仍把金额 0 记为已结清。另一组只有带错误标记的元数据报告 0 USD，也发生相同结算；两笔微美元取整相同、原始金额不同还可能通过校验。B2 和公共发布前需在新候选修复并核对两套账本、停止后续付费发送和候选摘要。历史候选验证记录按原版本保留。[模拟复现与单笔验证](materials-gate-1b-b1/single-receipt-entry-verification.json) · [通用计费路径](../../worker/document-executor/provider-http.ts) · [结算规则](../../worker/document-executor/job-state.ts)
+单笔合成取证入口保留独立工作树争用、崩溃、到期、指纹不匹配及费用冲突的防护，新增未完成或重定向的 POST 不得触发费用查询。授权尚未签发。旧产品候选 `7052aedd8a49` 曾把有冲突的 0 与 0.50 USD 结算成 0；新产品候选在两份账本中保留冲突、冻结预留并禁止交付旧结果，同时保留有凭据可核实的单边费用。两种候选的证据按版本区分。[模拟复现与单笔验证](materials-gate-1b-b1/single-receipt-entry-verification.json) · [新候选证据](2026-11-05-materials-offline-repair.md)
 
 生产发布前还须对照届时生效的站点和 Research 绑定、域名及路由，形成正式发布清单。B4 的登记机制只覆盖固定合成用例。普通用户通过独立生产策略检查每份资料授权、预算预留和回执唯一性，费用不明时全局停止新发送。2026-10-30 的站点发布记录用于本地打包演练。[已有站点发布记录](2026-10-30-home-copy-hierarchy.md)
 
 ## 首发场景的证据范围
 
 - B2 与 B4 各自的 24 份样例只含简历和 JD。另为补充资料冻结 6 份合成样例、逐项预期及离线评分器。六份预标注答案已经过正反对照，真实模型结果仍为 0/6。三组样例各自评分，增加真实调用须独立授权。[原冻结语料](materials-gate-1b-b0/candidate.json) · [补充资料验收](2026-11-04-materials-supplement-quality.md)
-- 独立的 B4 浏览器轮还有一项工程阻塞。用过期合成授权和内存 SQLite 实测，登记脚本与现有迁移都限制该轮总额最多 0.50 USD。Kimi 24 份样例按现行文本价顶格需 1.751040 USD。若预算负责人批准第二轮采用新上限，须先评审并验证增量迁移、旧记录、总额约束和登记脚本，再办理 B4 授权。B2 单独核算。[B4 登记脚本](../../scripts/materials-ui-acceptance-enroll.ts) · [原数据库约束](../../worker/document-executor/migrations/0001_document_acceptance.sql)
+- B4 原有 0.50 USD 默认上限和旧凭证保持有效。新增的专用预算方案限于冻结 Kimi 配置和 24 份固定语料，单轮最高 2.00 USD；全数按顶格预留需 1.751040 USD。已在本机验证登记、迁移和停止边界。真实浏览器轮仍须独立签发授权并在获准的隔离环境应用迁移，B2 单独核算。[B4 登记脚本](../../scripts/materials-ui-acceptance-enroll.ts) · [增量迁移](../../worker/document-executor/migrations/0004_document_acceptance_budget.sql)
 - 在较早的 Kimi 冻结候选上复现了新会话重新选择 JD 时丢失其他资料的风险。工作区修复已通过离线专项验证。重新打开同一目标后，从服务端读回仍有效的已采用版本；从公司 A 的 JD 调整为 B 时，提案待确认期间沿用 A，接受后采用 B，放弃后保留 A。主简历、补充资料和已完成任务均有回归覆盖。无可信基准且与当前资料冲突的旧本机草稿，须先由用户选择。[工作区](../../app/components/materials/material-workspace-panel.tsx) · [服务端采用引用测试](../../tests/server/material-adopted-refs.test.ts) · [旧草稿合并测试](../../tests/lib/material-workspace-selection.test.tsx)
 - 已用本地模拟 AI 验证补充资料从预填、修正到合法重排的完整流程。已有的 `observability` 练习可以提前。主 JD 指定的 TypeScript 必备项只引用实际生效的 JD 条目，原有 SQL 加分项、自评、已完成事件和完整任务集合均保留。[补充资料端到端测试](../../tests/server/material-supplement-flow.test.ts)
 - 为未来 B3 准备了独立的私有合成服务。它只接受冻结语料和已审配置，默认 HTTP 入口返回 404，回执只在同一资格配置下有效。隔离环境的 synthetic 模式还需批准第三个私有 Worker 以及仅保存回执计数的 SQLite Durable Object 和对应云费。closed 和 live 产物均不包含该服务。[合成服务](../../worker/document-fake-transport/index.ts) · [本地运行与打包测试](../../tests/build/document-fake-transport.test.ts)
 - 用户可以明确从当前目标取消使用资料，包括最后一份。资料库原件、当前路线、完成记录和历史依据保留。其他设备的旧草稿会排除已取消的文档及其其他版本，保留无关的新草稿资料，用户仍可主动重新选择。已有待确认提案时需先接受或放弃。服务端在同一事务中核对所有权、活动目标、精确版本与当前修订，同时登记幂等回执。公开事件请求不能伪造该内部变更。[事务与路由测试](../../tests/server/material-detach.test.ts) · [界面确认测试](../../tests/components/material-detach.test.tsx)
 
-## 普通用户生产候选
+## 历史普通用户生产候选（7052aedd）
 
-当前离线提交为 `7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef`，tree 为 `1d73935f8a0c68bc5187f7e1118941ef00498161`，父候选为 `fa9c9ae3a3e9`。29 个变更路径已在独立索引冻结，24 份评测语料保持 B0 的摘要。源码包已从约定基础提交独立还原。[候选及逐文件源码摘要](materials-production-release-candidate/candidate.json)
+11 月 4 日的离线提交为 `7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef`，tree 为 `1d73935f8a0c68bc5187f7e1118941ef00498161`，父候选为 `fa9c9ae3a3e9`。以下数字仅属于该版。29 个变更路径已在独立索引冻结，24 份评测语料保持 B0 的摘要。源码包已从约定基础提交独立还原。[历史候选及逐文件摘要](materials-production-release-candidate/candidate.json)
 
 | 检查 | 实际结果 |
 | --- | --- |

@@ -1,0 +1,24 @@
+{
+  "baseline": "3e283ee",
+  "review": "24e918d",
+  "reviewDigest": "5b55cb672995351b5c01b6c15a74dae17e3a314f5ab45aa8c1625cfb8eef59e8",
+  "oldRejectsUntagged2M": true,
+  "oldSqliteRejects2M": true,
+  "legacySqlByteIdentical": true,
+  "newCliRejectsUntagged2M": true,
+  "newCliAcceptsTagged2M": true,
+  "newCliRejectsOverwrite": true,
+  "rows": [
+    {
+      "total_budget_micro_usd": 500000,
+      "budget_plan": null
+    },
+    {
+      "total_budget_micro_usd": 2000000,
+      "budget_plan": "b4-kimi-k31-pro-mxfp4-v1"
+    }
+  ],
+  "expiredFixture": true,
+  "remoteWrites": 0,
+  "modelCalls": 0
+}

@@ -1,0 +1,35 @@
+{
+  "candidate": "d1577b37bd08eea56d5a0a2578dd0eba2e991f84",
+  "sourceTree": "65e102f1309a8108ccf304122d88576ac8864bfa",
+  "sourceBundleSha256": "5b87ae68b259e50675a18ccfd3481faba6d91fed8524e1c031b6e2c56bacbb8f",
+  "buildFrom": "git archive of exact candidate with an isolated local dependency copy, clean profile and closed fixture",
+  "lockedSourcePaths": 22,
+  "steps": {
+    "site": {
+      "exitCode": 0,
+      "logSha256": "44061015b3bae7bbd92f0ed89a0e8e8f3d747a9857eb907d8cb7dafcaf28045b"
+    },
+    "rendered": {
+      "exitCode": 0,
+      "logSha256": "f370b59769c6869235ffef5910de962e7abf458c1784d66c11a9a070d843b683",
+      "passed": 5
+    },
+    "pair": {
+      "exitCode": 0,
+      "logSha256": "e4e3da74e9343d883c4090b32a53f57c717a67bce1b224a86a891f0a7802f822"
+    }
+  },
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "supplementCorpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",
+  "mode": "closed",
+  "files": 389,
+  "artifactTreeSha256": "6d5c3cfda80da4f12825da04f3708197a2379c95c02ae06e90cedcb63dc15870",
+  "manifestSha256": "36a8d209fae2af2bfadf4c24bc5380fcd59728ab5f86975e974bb8eb7d593d5e",
+  "allCleanFilesVerified": true,
+  "materializedCopyVerified": true,
+  "nonLoopbackFetchOrSocketAttempts": 0,
+  "accountCredentialsPassed": false,
+  "modelCalls": 0,
+  "remoteMigrations": 0,
+  "deployments": 0
+}

@@ -1,0 +1,88 @@
+{
+  "candidate": "d1577b37bd08eea56d5a0a2578dd0eba2e991f84",
+  "sourceTree": "65e102f1309a8108ccf304122d88576ac8864bfa",
+  "sourceBundleSha256": "5b87ae68b259e50675a18ccfd3481faba6d91fed8524e1c031b6e2c56bacbb8f",
+  "sourceArtifactTreeSha256": "6d5c3cfda80da4f12825da04f3708197a2379c95c02ae06e90cedcb63dc15870",
+  "pastBaselineDate": "2026-10-30",
+  "pastBaselineVersion": "411c0b46-98e9-4c61-afd1-9d63db8e6004",
+  "syntheticResourceNamesAndIds": true,
+  "realAuthorizationIssued": false,
+  "realClockRejectedExpiredFixture": {
+    "exitCode": 1,
+    "createdOutput": false,
+    "logSha256": "09ab53b28373b5ae24793f4485fe940c4b28cb5d7b781fea36339f91018884d4"
+  },
+  "fixtureClockUtc": "2020-03-01T00:05:00Z",
+  "fixtureExpiredUtc": "2020-03-01T00:15:00Z",
+  "packageLogs": {
+    "closed": "0ab599e757bf098d0da833d7a9fdbb6ea4900417b309ba81c6a69063bec2b149",
+    "expiredActive": "5d1b2e2b73e82ff4059ff29616a0a6ec4ca1180a337229ae7e2a2031f1425e5e"
+  },
+  "outputs": {
+    "closed": {
+      "mode": "closed",
+      "files": 389,
+      "artifactTreeSha256": "9bf178350ff018b859da87d897a209f956ca997200de4684e45ab40472bb06ba",
+      "nonConfigFilesUnchanged": 387,
+      "configChanges": [
+        "executor/wrangler.json",
+        "site/server/wrangler.json"
+      ],
+      "verificationSha256": "8e09cda35ac175d5221322ed3c742ae32be5d2278d3d449f2c099f1b7d6be320",
+      "baselineBindings": 44,
+      "dryRuns": {
+        "site": {
+          "exitCode": 0,
+          "javascriptModules": 65,
+          "allCandidateJavascriptModulesAccounted": true,
+          "allModuleBytesIdentical": true,
+          "logSha256": "2ce10f87d04a6ec2a98c23d178d9ea03653f25449ebc6cbc8be49d026508d534"
+        },
+        "executor": {
+          "exitCode": 0,
+          "javascriptModules": 1,
+          "allCandidateJavascriptModulesAccounted": true,
+          "executorFrozenInputMatchedViaSourceMap": true,
+          "requiredExportsPresent": true,
+          "logSha256": "b40b08c7e183daadaaf737d0bdabf0f18c52e288e69899dae21b3fc30e0f5cef"
+        }
+      },
+      "relativeDirectory": "outputs/materials-production/historical-closed-65e102f1309a-xkue5y"
+    },
+    "active": {
+      "mode": "production",
+      "files": 389,
+      "artifactTreeSha256": "0b4a425491817c86c500937e88ce9cbec7d34cc4ca62b31c61c7629eccdfee6b",
+      "nonConfigFilesUnchanged": 387,
+      "configChanges": [
+        "executor/wrangler.json",
+        "site/server/wrangler.json"
+      ],
+      "verificationSha256": "a57b7fcfcd3f0bca79accd1d95bbd56ed12fee192c4cd307924fb95166e9ee2e",
+      "baselineBindings": 44,
+      "dryRuns": {
+        "site": {
+          "exitCode": 0,
+          "javascriptModules": 65,
+          "allCandidateJavascriptModulesAccounted": true,
+          "allModuleBytesIdentical": true,
+          "logSha256": "8e95abd45da75c6c48b8ec253e90e1e047a197a0653261d39c112f938af305ed"
+        },
+        "executor": {
+          "exitCode": 0,
+          "javascriptModules": 1,
+          "allCandidateJavascriptModulesAccounted": true,
+          "executorFrozenInputMatchedViaSourceMap": true,
+          "requiredExportsPresent": true,
+          "logSha256": "04a4de2446debe5315e146f22ffb5d5da7de79986d380a6ba27cea0f92dcd92f"
+        }
+      },
+      "relativeDirectory": "outputs/materials-production/expired-fixture-65e102f1309a-xkue5y"
+    }
+  },
+  "nodeNonLoopbackFetchOrSocketAttempts": 0,
+  "credentialsPassed": false,
+  "cloudDeployments": 0,
+  "remoteMigrations": 0,
+  "modelCalls": 0
+}

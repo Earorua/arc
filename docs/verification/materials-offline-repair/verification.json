@@ -1,0 +1,132 @@
+{
+  "candidate": "d1577b37bd08eea56d5a0a2578dd0eba2e991f84",
+  "tree": "65e102f1309a8108ccf304122d88576ac8864bfa",
+  "bundleSha256": "5b87ae68b259e50675a18ccfd3481faba6d91fed8524e1c031b6e2c56bacbb8f",
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "supplementCorpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",
+  "vitest": {
+    "files": 354,
+    "passed": 7526
+  },
+  "strictResearch": {
+    "files": 3,
+    "passed": 131,
+    "baselinesModified": false
+  },
+  "otherNode": {
+    "files": 9,
+    "passed": 290,
+    "concurrency": 1
+  },
+  "rendered": {
+    "passed": 5
+  },
+  "typecheckExit": 0,
+  "lint": {
+    "errors": 0,
+    "existingWarnings": 4
+  },
+  "artifacts": {
+    "mode": "closed",
+    "files": 389,
+    "treeSha256": "6d5c3cfda80da4f12825da04f3708197a2379c95c02ae06e90cedcb63dc15870",
+    "manifest": "artifact-index.json",
+    "verifiedAgainstDisk": true
+  },
+  "additionalChecks": {
+    "b1Operator": {
+      "programSha256": "147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b",
+      "manifestSha256": "2ca3f897347db289cccaffcea1b9678ee962a9fe7160cc4488e498512d501c0b",
+      "nodePassed": 35,
+      "pinnedProductTestsPassed": 57,
+      "productBaseline": "7052aedd8a493a5fae2c1e4a6ecbf32e702eeeef",
+      "issued": false
+    },
+    "budgetEnrollment": {
+      "grantIssued": false,
+      "legacyCeilingMicroUsd": 500000,
+      "namedPlanCeilingMicroUsd": 2000000,
+      "perDocumentReservationMicroUsd": 72960,
+      "worstCase24TotalMicroUsd": 1751040,
+      "realAdapterAdmissionTests": 29,
+      "localCliProofSha256": "ad625095ad9c06b97af21a37077bcd9f55b4c9a6d974237aed0cfa796305dc4f"
+    },
+    "supplements": {
+      "files": 4,
+      "passed": 50,
+      "collectorCases": 19,
+      "liveSamples": 0,
+      "unauthorizedRunsIssued": 0
+    },
+    "crashRecoveryAndReceipts": {
+      "nativeLocalTests": 119,
+      "legacyAndRecoveryChecks": 123,
+      "providerAndHttpProvisionalChecks": 40
+    },
+    "firstObservedFailures": [
+      {
+        "failed": 7,
+        "log": "nov5-red.log"
+      },
+      {
+        "failed": 1,
+        "log": "nov5-finalizer-red.log"
+      },
+      {
+        "failed": 3,
+        "log": "nov5-legacy-red.log"
+      },
+      {
+        "failed": 1,
+        "log": "nov5-http202-red.log"
+      },
+      {
+        "failed": 4,
+        "log": "nov5-full.log"
+      },
+      {
+        "failed": 3,
+        "log": "supplement-evidence-red.log"
+      }
+    ],
+    "nodeParallel": {
+      "failed": 7,
+      "passed": 283,
+      "sharedPort": 4181,
+      "serialRetest": "nov5-final-node.log"
+    },
+    "sideEffects": {
+      "cleanBuildNodeOutboundAttempts": 0,
+      "strictResearchBlockedAttempts": 0,
+      "serialNodeBlockedAttempts": 2,
+      "allEarlierTestHarnessBlockedAttempts": 4,
+      "note": "Counts are rejected Node attempts. The shared early harness log records no destinations. The clean build and public-package runs have isolated counters."
+    }
+  },
+  "logsSha256": {
+    "nov5-accepted-full.log": "a63d8e96bcd58876830b9c078933e0508e6d48bde9b22798ed51a4881a57d568",
+    "nov5-final-research.log": "551b15db8b02ed0ef1957d44523e2e6bcc5e07c7812766c8421a1d8d86434654",
+    "nov5-final-node.log": "3ba077dfd38f303781aa11433b34cd6a784f82fe14b6dada5e0d4114fa22bac1",
+    "nov5-accepted-tsc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "nov5-accepted-lint.log": "80a658ff97471ae0c7b53143b418cf616041407c42a88a4ecbb543f1c52aef0f",
+    "nov5-native.log": "69c0ca140929032fe16355638860bbac58e28e214972c1d6e7710b746af2f56e",
+    "nov5-legacy-green.log": "725b18a629df3014d513e51b6e1af8f70214c2d83c17ac9f460fdc92b3732855",
+    "nov5-http202-green.log": "2849a73eef8139fdb009a2948ae2656ed57867d1f8b0dbbaa2ea9b442013fe71",
+    "nov5-b4-integration.log": "33d90bcc20e5157ea36b676da858e24be32cc696c3d4a6a6df09dbbea66df0e7",
+    "supplement-evidence-green.log": "b588379087c2cdbd61c1bed400467fe828cbc93f350ff9367be09a3c1c3c516f",
+    "nov5-red.log": "509df64caa493efc972d6f3746287a30bd0d3fcc856adc43665c8fbbd5684ed3",
+    "nov5-finalizer-red.log": "e8b96efd1cd4cc1f26107623ae2af970cc4e163ee43622e31df27b8c5b9f6303",
+    "nov5-legacy-red.log": "f249d34ac232e28ff832bf8e597fecdeadbf4fe5044fb1615ed78f4d1d107e8c",
+    "nov5-http202-red.log": "891d5e423a427d8a204a456c437a622afdbdc39dccef5f48bbdfa12a1db06bc2",
+    "nov5-full.log": "fa6e8de0e179024480a4226c69f75dd6e854eae7f5c00549a873090af1a558e1",
+    "supplement-evidence-red.log": "4c5a26694ca600ac4b490891a8a156e9d9d800ff6773b067b4dc74fcfad2322d",
+    "nov5-accepted-node.log": "1ea59ace36797992f77d1a77f80bae9856b0890e3c60fe7884411f70185ff4f3"
+  },
+  "liveModelRequests": 0,
+  "liveInferenceCostMicroUsd": 0,
+  "deployments": 0,
+  "remoteMigrations": 0,
+  "b2CasesRun": 0,
+  "b4CasesRun": 0,
+  "supplementLiveCasesRun": 0
+}

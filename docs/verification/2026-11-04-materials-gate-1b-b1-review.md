@@ -1,5 +1,7 @@
 # Gate 1B · B1 核验记录：Kimi K3.1 Pro
 
+> 11 月 5 日后续：旧通用计费缺陷已经在新产品候选离线修复；独立 B1 工具亦已更新并在其固定源码上重验。B1 尚无这条标准路由的真实配对回执，隐私和预算授权状态未变。[详细结果与下一步](2026-11-05-materials-offline-repair.md)
+
 2026-11-04 · **B1 `BLOCKED`** · B2 `NOT RUN` · 本轮真实推理 0 次、费用 0 USD、部署 0 次、远程迁移 0 次
 
 **当前候选已改为 Kimi K3.1 Pro 标准版，经 OpenRouter 锁定 Moonshot AI。** Kimi 于 10 月 23 日宣布 K3.1 Pro 系列已上线，核验时它也是 OpenRouter 的 `moonshotai/` 目录中最新的模型。选择标准版保留最新模型能力，同时按较低的标准端点费率审阅。旧 Azure 方案已归档。本记录取代原计划中的模型与预算候选，B0 冻结提交仍是本次对照基准。[Kimi 官方发布](https://www.kimi.com/en/blog/kimi-k3-1-pro) · [10 月 23 日上线记录](https://www.kimi.com/code/docs/en/kimi-code/whats-new.html) · [定稿计划](../superpowers/plans/2026-11-04-private-materials-gate-1b-acceptance.md) · [Azure 历史记录](2026-11-04-materials-gate-1b-b1-azure-review.md)
