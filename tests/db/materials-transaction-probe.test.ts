@@ -14,7 +14,7 @@ function fixture() {
     INSERT INTO material_selections VALUES ('alice','selection-a',1,NULL);
     INSERT INTO material_selection_entries VALUES ('alice','selection-a','jd','doc-a','version-a','confirm-a');
     INSERT INTO planning_context_versions VALUES ('alice','context-a','selection-a',1,'ready');
-    INSERT INTO probe_workspaces VALUES ('alice','goal-a',4,'plan-old',NULL,1);
+    INSERT INTO probe_workspaces VALUES ('alice','goal-a',4,'plan-old',NULL,1,NULL);
     INSERT INTO probe_sources VALUES ('alice','source-a','ready','source-hash',2000);
   `);
   return db;
@@ -28,15 +28,15 @@ function transaction(db: SqliteD1, transition: Transition) {
     db.prepare("INSERT INTO probe_results VALUES (?1,?2,?3)").bind("alice",resultId,transition),
     db.prepare("INSERT INTO document_usage_links VALUES (?1,?2,?3)").bind("alice","context-a",resultId),
     db.prepare("UPDATE material_selections SET bound_goal_id='goal-a' WHERE owner_id='alice' AND id='selection-a'"),
-    db.prepare("UPDATE probe_workspaces SET revision=5,active_plan_id=?1,pending_plan_id=?2 WHERE owner_id='alice' AND goal_id='goal-a' AND revision=4 AND active_slot=1")
-      .bind(transition === "proposal" ? "plan-old" : resultId, transition === "proposal" ? resultId : null),
+    db.prepare("UPDATE probe_workspaces SET revision=5,active_plan_id=?1,pending_plan_id=?2,last_mutation_id=?3 WHERE owner_id='alice' AND goal_id='goal-a' AND revision=4 AND active_slot=1")
+      .bind(transition === "proposal" ? "plan-old" : resultId, transition === "proposal" ? resultId : null, resultId),
     // SQL assertion intentionally last: failing it must roll back ALL previous statements.
     db.prepare(`INSERT INTO document_mutations (owner_id,mutation_id,body_digest,passed)
       VALUES ('alice',?1,'digest-a',CASE WHEN
         EXISTS (SELECT 1 FROM documents WHERE owner_id='alice' AND id='doc-a' AND generation=1 AND lifecycle='active')
         AND EXISTS (SELECT 1 FROM material_selections WHERE owner_id='alice' AND id='selection-a' AND revision=1)
         AND EXISTS (SELECT 1 FROM planning_context_versions WHERE owner_id='alice' AND id='context-a' AND lifecycle='ready')
-        AND EXISTS (SELECT 1 FROM probe_workspaces WHERE owner_id='alice' AND goal_id='goal-a' AND revision=5 AND active_slot=1)
+        AND EXISTS (SELECT 1 FROM probe_workspaces WHERE owner_id='alice' AND goal_id='goal-a' AND revision=5 AND active_slot=1 AND last_mutation_id=?1)
         AND EXISTS (SELECT 1 FROM probe_sources WHERE owner_id='alice' AND id='source-a' AND state='ready' AND fingerprint='source-hash' AND expires_at>1000)
         THEN 1 ELSE 0 END)`).bind(resultId),
   ];
@@ -62,12 +62,13 @@ describe("phase 0 SQLite contract probe (not an application migration)", () => {
     expect(count(db,"probe_results")).toBe(1);
     expect(count(db,"document_usage_links")).toBe(1);
     expect(count(db,"document_mutations")).toBe(1);
-    expect(db.database.prepare("SELECT revision FROM probe_workspaces").get()).toMatchObject({revision:5});
+    expect(db.database.prepare("SELECT revision,last_mutation_id FROM probe_workspaces").get()).toMatchObject({revision:5,last_mutation_id:"result-"+kind});
   });
   const changes = [
     "UPDATE documents SET generation=2,lifecycle='revoked' WHERE owner_id='alice'",
     "UPDATE material_selections SET revision=2",
     "UPDATE planning_context_versions SET lifecycle='revoked'",
+    "UPDATE probe_workspaces SET revision=5",
     "UPDATE probe_workspaces SET revision=6",
     "UPDATE probe_workspaces SET active_slot=0",
     "UPDATE probe_sources SET state='expired'",

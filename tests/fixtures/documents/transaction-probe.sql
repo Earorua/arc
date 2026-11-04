@@ -28,7 +28,7 @@ CREATE TABLE planning_context_versions(
  FOREIGN KEY(owner_id,selection_id) REFERENCES material_selections(owner_id,id));
 CREATE TABLE probe_workspaces(
  owner_id TEXT NOT NULL,goal_id TEXT NOT NULL,revision INTEGER NOT NULL,
- active_plan_id TEXT NOT NULL,pending_plan_id TEXT,active_slot INTEGER CHECK(active_slot IN (0,1)),
+ active_plan_id TEXT NOT NULL,pending_plan_id TEXT,active_slot INTEGER CHECK(active_slot IN (0,1)),last_mutation_id TEXT,
  PRIMARY KEY(owner_id,goal_id));
 CREATE TABLE probe_sources(
  owner_id TEXT NOT NULL,id TEXT NOT NULL,state TEXT NOT NULL,fingerprint TEXT NOT NULL,expires_at INTEGER NOT NULL,
