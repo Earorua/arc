@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
     ".vinext/**",
     ".wrangler/**",
     "outputs/**",
+    "work/ui-preview-cache/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

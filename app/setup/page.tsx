@@ -23,6 +23,8 @@ import { useRoleResearch, type RoleResearchController } from "../lib/use-role-re
 import type { ResearchPlanningData } from "../contracts/research";
 import { safeReturnTo } from "../lib/navigation-context";
 import { usePageQuery } from "../lib/use-page-query";
+import { documentsClient } from "../lib/documents-client";
+import { canonicalJson } from "../lib/planning/fingerprint";
 
 function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, saveCommonRole, source, planningData, draftOwner, creationMode = false }: { draftOwner?: string; creationMode?: boolean; navigate: (path: string) => void; onBackToRole: () => void; active: boolean; signedIn: boolean; saveCommonRole: (request: GeneratePlanningRequest, roleId: string, signal: AbortSignal) => Promise<boolean>; source: SetupSource; planningData: ResearchPlanningData | null }) {
   const planning = usePlanningWorkspace({ cloudOnly: signedIn });
@@ -82,12 +84,34 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, save
     if (signal.aborted || !connected.current || started !== epoch.current) return false;
     return planning.generate(request);
   };
+  const checkMaterialRecovery = async (request: GeneratePlanningRequest) => {
+    const started = epoch.current; const signal = saveCancellation.current?.signal;
+    const pending = creationMode ? readPendingCreation(draftOwner) : null;
+    if (!connected.current || !signal || signal.aborted || !request.materials || !pending?.goalId || pending.phase !== "generate"
+      || pending.mutationId !== request.mutationId || JSON.stringify(pending.source) !== JSON.stringify(source)) return false;
+    const receipt = await documentsClient.request("readMaterialGenerationReceipt", { mutationId: request.mutationId, contextVersionId: request.materials.contextVersionId, goalId: pending.goalId }, signal);
+    return !signal.aborted && connected.current && started === epoch.current && receipt.state === "uncommitted" && receipt.previewExpired;
+  };
+  const prepareMaterialReplacement = async (original: GeneratePlanningRequest, replacement: GeneratePlanningRequest) => {
+    const stable = (request: GeneratePlanningRequest) => {
+      const { materials: _materials, mutationId: _mutation, ...rest } = request;
+      void _materials; void _mutation; return canonicalJson(rest);
+    };
+    if (stable(original) !== stable(replacement) || !replacement.materials || replacement.mutationId === original.mutationId || !await checkMaterialRecovery(original)) return false;
+    const pending = readPendingCreation(draftOwner);
+    if (!pending || pending.mutationId !== original.mutationId || !pending.goalId || pending.phase !== "generate") return false;
+    // The activation identity and goal are retained; only an authoritatively
+    // uncommitted generation gets a new mutation for its newly reviewed context.
+    return writeSetupDraft(draftOwner, "first-creation", firstCreationAttemptSchema, { ...pending, mutationId: replacement.mutationId });
+  };
   return <AdaptiveSetupFlow
     syncUrl
     blueprint={blueprint}
     source={source}
     draftOwner={draftOwner}
     lockedGeneration={Boolean(pendingFirstSource)}
+    checkMaterialRecovery={checkMaterialRecovery}
+    prepareMaterialReplacement={prepareMaterialReplacement}
     createMutationId={() => `mutation-setup-${Date.now().toString(36)}-${crypto.randomUUID()}`}
     generate={generate}
     navigate={navigate}
@@ -96,6 +120,7 @@ function AdaptiveSetupConnector({ navigate, onBackToRole, active, signedIn, save
     active={active}
     savesToAccount={signedIn}
     createsNewGoal={createsNewGoal}
+    previousGoalId={createsNewGoal ? planning.workspace?.goalId ?? null : null}
     registry={registry}
     timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"}
   />;

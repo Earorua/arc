@@ -203,7 +203,7 @@ describe("research workspace page adapters with real controllers and determinist
     const request = vi.mocked(injected.planningClient.generate).mock.calls[0]![0];
     expect(request).toMatchObject({ source: { source: "research", researchRunId: "research-run-pages" }, audit: { blueprintId: data.blueprint.id } });
     expect(Object.keys(request).sort()).toEqual(["audit", "availability", "mutationId", "planningDate", "selectedScope", "source", "target"]);
-    expect(fetcher.mock.calls.every(([url]) => String(url).endsWith("/eligibility") || String(url).endsWith("/research-run-pages"))).toBe(true);
+    expect(fetcher.mock.calls.every(([url]) => String(url).endsWith("/eligibility") || String(url).endsWith("/research-run-pages") || String(url) === "/api/documents/capabilities")).toBe(true);
   });
   it("clears prior owner recovery on a live Setup account transition without requesting that run as the next owner", async () => {
     storedResearch(); const fetcher = vi.fn(async (input: RequestInfo | URL) => String(input).endsWith("/eligibility") ? Response.json({ eligible: false, requestId: "request-eligibility" }) : researchReply());
@@ -222,7 +222,7 @@ describe("research workspace page adapters with real controllers and determinist
     vi.stubGlobal("fetch", fetcher); render(<SetupPage />);
     await act(async () => {});
     fireEvent.change(screen.getByLabelText("自定义岗位"), { target: { value: data.blueprint.name } });
-    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls.filter(([url]) => String(url).startsWith("/api/intelligence/"))).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "研究这个岗位" }));
     await act(async () => {});
     expect(screen.getByRole("status")).toHaveTextContent("正在研究技能与来源");

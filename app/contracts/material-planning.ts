@@ -1,30 +1,39 @@
 import { z } from "zod";
 import { calendarDateSchema } from "./intelligence";
 import { availabilityVersionSchema, planningGenerateSourceSchema, planningSourceReferenceSchema, planningTargetSchema, skillAuditVersionSchema } from "./planning";
-import { generatePlanningRequestSchema } from "./planning-api";
+import { generatePlanningRequestSchema, materialPlanningReferenceSchema, planningMutationResponseSchema } from "./planning-api";
+export { materialPlanningReferenceSchema } from "./planning-api";
 import { canonicalJson } from "../lib/planning/fingerprint";
 import {
-  DOCUMENT_SCHEMA_VERSION, MAX_MATERIAL_CONTEXT_JSON_BYTES, boundedMaterialJson, confirmedMaterialItemsSchema,
-  materialDigestSchema, materialGoalScopeSchema, materialIdSchema, materialRevisionSchema, materialScopeSchema,
+  DOCUMENT_SCHEMA_VERSION, MAX_MATERIAL_CONTEXT_JSON_BYTES, boundedMaterialJson, confirmedMaterialItemSchema,
+  materialDigestSchema, materialGoalScopeSchema, materialIdSchema, materialOwnerIdSchema, materialRevisionSchema, materialScopeSchema,
   materialSelectionEntriesSchema, materialSelectionEntrySchema, materialSelectionRefSchema, materialTimestampSchema, materialVersionSchema,
 } from "./documents";
 
-export const materialPlanningReferenceSchema = z.object({
-  contextVersionId: materialIdSchema, selectionRef: materialSelectionRefSchema, previewToken: materialDigestSchema,
-}).strict();
 export const materialContextDependencySchema = materialSelectionEntrySchema.extend({
   textVersionId: materialIdSchema, generation: materialRevisionSchema, confirmationDigest: materialDigestSchema,
 }).strict();
+export const materialSkillMappingSchema = z.object({
+  confirmationId: materialIdSchema, itemId: materialIdSchema, skillId: materialIdSchema,
+}).strict();
+export const materialSkillMappingsSchema = z.array(materialSkillMappingSchema).max(500).refine(
+  mappings => new Set(mappings.map(mapping => `${mapping.confirmationId}:${mapping.itemId}:${mapping.skillId}`)).size === mappings.length,
+  "Duplicate explicit skill mappings",
+);
+export type MaterialSkillMappingChoice = z.infer<typeof materialSkillMappingSchema>;
 export const contextInputSnapshotSchema = boundedMaterialJson(z.object({
-  schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), ownerId: materialIdSchema,
+  schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), ownerId: materialOwnerIdSchema,
   selectionRef: materialSelectionRefSchema, scope: materialScopeSchema, sourceReference: planningSourceReferenceSchema,
   dependencies: z.array(materialContextDependencySchema).max(5),
+  skillMappings: materialSkillMappingsSchema.optional(),
+  sourceVersions: z.object({ blueprintId: materialIdSchema, blueprintVersion: materialVersionSchema, registryId: materialIdSchema, registryVersion: materialVersionSchema, contentDigest: materialDigestSchema }).strict().optional(),
   audit: skillAuditVersionSchema, availability: availabilityVersionSchema, target: planningTargetSchema,
   planningDate: calendarDateSchema.max(10), selectedScope: z.enum(["full-scope", "target-date"]).nullable(),
   policyVersion: materialVersionSchema, mappingVersion: materialVersionSchema, explanationVersion: materialVersionSchema,
 }).strict().superRefine((snapshot, ctx) => {
   const selected = materialSelectionEntriesSchema.safeParse(snapshot.dependencies.map(({ slot, documentId, documentVersionId, confirmationId }) => ({ slot, documentId, documentVersionId, confirmationId })));
   if (!selected.success) ctx.addIssue({ code: "custom", path: ["dependencies"], message: "Invalid or duplicate selected versions" });
+  if (snapshot.skillMappings?.some(mapping => !snapshot.dependencies.some(dependency => dependency.confirmationId === mapping.confirmationId))) ctx.addIssue({ code: "custom", path: ["skillMappings"], message: "Mappings must use selected confirmations" });
   const reference = snapshot.sourceReference;
   const blueprintId = reference.source === "flagship" ? reference.roleId : reference.blueprintId;
   if (snapshot.audit.blueprintId !== blueprintId || (reference.source === "research" && snapshot.audit.blueprintVersion !== reference.blueprintVersion)) ctx.addIssue({ code: "custom", path: ["audit"], message: "Audit must match source blueprint" });
@@ -37,12 +46,14 @@ function byString(left: string, right: string): number { return left < right ? -
 /** Preserve all semantic values; omit only explicitly named metadata, never recursively strip keys. */
 export function normalizeContextInputSnapshot(input: unknown) {
   const snapshot = contextInputSnapshotSchema.parse(input);
+  const { skillMappings, ...semanticSnapshot } = snapshot;
   const { id: auditId, inputFingerprint: auditFingerprint, ...audit } = snapshot.audit;
   const { id: availabilityId, inputFingerprint: availabilityFingerprint, ...availability } = snapshot.availability;
   const { id: targetId, inputFingerprint: targetFingerprint, ...target } = snapshot.target;
   void auditId; void auditFingerprint; void availabilityId; void availabilityFingerprint; void targetId; void targetFingerprint;
   return {
-    ...snapshot,
+    ...semanticSnapshot,
+    ...(skillMappings?.length ? { skillMappings: [...skillMappings].sort((left, right) => byString(`${left.confirmationId}:${left.itemId}:${left.skillId}`, `${right.confirmationId}:${right.itemId}:${right.skillId}`)) } : {}),
     dependencies: [...snapshot.dependencies].sort((left, right) => byString(`${left.slot}:${left.documentId}`, `${right.slot}:${right.documentId}`)),
     audit: { ...audit, answers: audit.answers.map((answer) => ({ ...answer, evidenceRefs: [...answer.evidenceRefs].sort(byString) })).sort((left, right) => byString(left.skillId, right.skillId)), evidence: [...audit.evidence].sort((left, right) => byString(left.id, right.id)) },
     availability: { ...availability, exceptions: [...availability.exceptions].sort((left, right) => byString(left.date, right.date)) },
@@ -56,13 +67,18 @@ export async function materialSha256(value: unknown): Promise<string> {
 export async function createMaterialContextFingerprint(input: unknown): Promise<string> { return materialSha256(normalizeContextInputSnapshot(input)); }
 
 export const materialContextPreviewSchema = boundedMaterialJson(z.object({
-  confirmedItems: confirmedMaterialItemsSchema,
-  priorities: z.array(z.object({ skillId: materialIdSchema, tier: z.number().int().min(0).max(5), itemIds: z.array(materialIdSchema).max(100) }).strict()).max(64),
-  issues: z.array(z.object({ code: z.enum(["ambiguous-mapping", "self-assessment-conflict", "uncovered", "source-unavailable", "target-infeasible"]), itemIds: z.array(materialIdSchema).max(100), skillIds: z.array(materialIdSchema).max(64) }).strict()).max(100),
-  uncoveredLabels: z.array(z.string().trim().min(1).max(100)).max(100),
+  overlay: z.object({ skillRanks: z.record(materialIdSchema, z.number().int().min(0).max(5)), mandatorySkillIds: z.array(materialIdSchema).max(64), semanticFingerprint: materialDigestSchema, policyVersion: materialVersionSchema }).strict().optional(),
+  planning: z.object({ fullScope: z.object({ estimatedCompletionDate: calendarDateSchema, totalMinutes: z.number().int().nonnegative() }).strict(), targetDate: z.object({ estimatedCompletionDate: calendarDateSchema, totalMinutes: z.number().int().nonnegative() }).strict().nullable(), infeasibleReason: z.string().max(1000).nullable() }).strict().optional(),
+  confirmedItems: z.array(confirmedMaterialItemSchema).max(500).refine(items => new Set(items.map(item => item.id)).size === items.length, "Duplicate item IDs"),
+  itemReferences: z.array(z.object({ id: materialIdSchema, confirmationId: materialIdSchema, itemId: materialIdSchema }).strict()).max(500).optional(),
+  skillMappings: materialSkillMappingsSchema.optional(),
+  priorities: z.array(z.object({ skillId: materialIdSchema, tier: z.number().int().min(0).max(5), itemIds: z.array(materialIdSchema).max(500) }).strict()).max(64),
+  issues: z.array(z.object({ code: z.enum(["ambiguous-mapping", "self-assessment-conflict", "uncovered", "source-unavailable", "target-infeasible"]), itemIds: z.array(materialIdSchema).max(500), skillIds: z.array(materialIdSchema).max(64) }).strict()).max(500),
+  uncoveredLabels: z.array(z.string().trim().min(1).max(100)).max(500),
 }).strict(), MAX_MATERIAL_CONTEXT_JSON_BYTES);
 export const createMaterialContextRequestSchema = boundedMaterialJson(z.object({
   selectionRef: materialSelectionRefSchema, scope: materialScopeSchema, source: planningGenerateSourceSchema,
+  skillMappings: materialSkillMappingsSchema.optional(),
   audit: skillAuditVersionSchema, availability: availabilityVersionSchema, target: planningTargetSchema,
   planningDate: calendarDateSchema.max(10), selectedScope: z.enum(["full-scope", "target-date"]).nullable(), mutationId: materialIdSchema,
 }).strict().refine((request) => !(request.scope.kind === "draft" && request.scope.previousGoalId !== null && request.source.source !== "research"), "A new goal requires ready Research"), MAX_MATERIAL_CONTEXT_JSON_BYTES);
@@ -100,3 +116,19 @@ export function materialContextReplayDecision(input: Readonly<{
   if (input.contextState !== "active" || !input.unexpired) return "gone";
   return input.versionsMatch && input.selectionMatches && input.scopeMatches && input.sourceMatches ? "allow" : "conflict";
 }
+
+export const materialExplanationSchema = z.object({
+  ruleId: z.string().max(100), changeKind: z.enum(["reordered", "protected", "assessment", "uncovered", "unapplied", "unavailable"]),
+  skillId: materialIdSchema.nullable(), unitIds: z.array(materialIdSchema).max(2048), reasonItemIds: z.array(materialIdSchema).max(500),
+  message: z.string().max(1000), sourceAvailability: z.enum(["available", "unavailable"]),
+}).strict();
+export const materialHistoryResponseSchema = boundedMaterialJson(z.object({ plans: z.array(z.object({
+  planVersionId: materialIdSchema, contextVersionId: materialIdSchema, kind: z.enum(["generation", "proposal", "accepted"]),
+  sourceAvailability: z.enum(["available", "unavailable"]), explanations: z.array(materialExplanationSchema).max(700),
+}).strict()).max(200) }).strict(), MAX_MATERIAL_CONTEXT_JSON_BYTES);
+export const materialReplanResponseSchema = z.discriminatedUnion("outcome", [
+  z.object({ outcome: z.literal("proposed"), planning: planningMutationResponseSchema, unappliedChanges: z.array(z.string().max(1000)).max(10) }).strict(),
+  z.object({ outcome: z.literal("no-change"), message: z.string().max(1000), unappliedChanges: z.array(z.string().max(1000)).max(10) }).strict(),
+]);
+export type MaterialReplanResponse = z.infer<typeof materialReplanResponseSchema>;
+export type MaterialHistoryResponse = z.infer<typeof materialHistoryResponseSchema>;

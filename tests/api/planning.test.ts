@@ -106,6 +106,63 @@ function expectSafety(response: Response) {
   expect(response.headers.get("referrer-policy")).toBe("strict-origin-when-cross-origin");
 }
 
+describe("configured planning write origin boundary", () => {
+  function routeFixture(result: PlanningMutationResult, name: "generate" | "events" | "accept" | "discard") {
+    const harness = setup(result);
+    const deps = { ...harness.deps, configuredOrigin: () => "https://arc.example" };
+    const path = name === "generate" || name === "events" ? `/api/planning/${name}` : `/api/planning/replans/${name}`;
+    const input = name === "generate" ? generateRequest() : name === "events"
+      ? { mutationId: "origin-event", baseVersionId: result.workspace.activePlanVersionId, event: { kind: "skipped", unitId: result.workspace.dailyUnits[0]!.id, planningDate: "2026-08-17" } }
+      : { mutationId: "origin-decision", baseVersionId: result.workspace.activePlanVersionId, candidatePlanVersionId: result.workspace.activePlanVersionId };
+    const handler = name === "generate" ? createPlanningGenerateHandler(deps) : name === "events"
+      ? createPlanningEventHandler(deps) : createPlanningReplanHandler(deps, name);
+    return { ...harness, deps, handler, input, path };
+  }
+
+  it.each(["generate", "events", "accept", "discard"] as const)("rejects foreign or missing origins before %s service access", async name => {
+    const fixture = routeFixture(await resultFixture(), name);
+    const attempts = [
+      { url: "https://arc.example", headers: { origin: "https://foreign.example" } },
+      { url: "https://arc.example", headers: {} },
+      { url: "https://arc.example", headers: { origin: "null" } },
+      { url: "https://foreign.example", headers: { origin: "https://foreign.example", host: "foreign.example" } },
+      { url: "https://foreign.example", headers: { origin: "https://arc.example", host: "arc.example" } },
+      { url: "https://arc.example", headers: { origin: "https://arc.example", "sec-fetch-site": "cross-site" } },
+    ];
+    for (const attempt of attempts) {
+      const headers = new Headers({ "content-type": "application/json" });
+      for (const [key, value] of Object.entries(attempt.headers)) if (value !== undefined) headers.set(key, value);
+      const response = await fixture.handler(new Request(attempt.url + fixture.path, { method: "POST", headers, body: JSON.stringify(fixture.input) }));
+      expect(response.status).toBe(403); expectSafety(response);
+      expect(await body(response)).toMatchObject({ error: { code: "FORBIDDEN" } });
+    }
+    for (const method of Object.values(fixture.service)) expect(method).not.toHaveBeenCalled();
+    expect(fixture.reserve).not.toHaveBeenCalled();
+  });
+
+  it.each(["generate", "events", "accept", "discard"] as const)("requires exact JSON media type for %s and accepts same-origin JSON", async name => {
+    const fixture = routeFixture(await resultFixture(), name);
+    for (const contentType of ["text/plain", "application/json-not-json", "application/json; charset=utf-8", ""]) {
+      const response = await fixture.handler(new Request("https://arc.example" + fixture.path, { method: "POST", headers: { origin: "https://arc.example", "content-type": contentType }, body: JSON.stringify(fixture.input) }));
+      expect(response.status).toBe(400);
+    }
+    for (const method of Object.values(fixture.service)) expect(method).not.toHaveBeenCalled();
+    const allowed = await fixture.handler(new Request("https://arc.example" + fixture.path, { method: "POST", headers: { origin: "https://arc.example", "sec-fetch-site": "same-origin", "content-type": "application/json" }, body: JSON.stringify(fixture.input) }));
+    expect(allowed.status).toBe(200); expectSafety(allowed);
+  });
+
+  it("fails closed without configured origin after authentication and leaves reads available", async () => {
+    const fixture = routeFixture(await resultFixture(), "generate");
+    fixture.deps.configuredOrigin = () => "";
+    const request = () => new Request("https://arc.example" + fixture.path, { method: "POST", headers: { origin: "https://arc.example", "content-type": "application/json" }, body: JSON.stringify(fixture.input) });
+    expect((await fixture.handler(request())).status).toBe(503);
+    fixture.requireUser.mockRejectedValueOnce(new UnauthenticatedError());
+    expect((await fixture.handler(request())).status).toBe(401);
+    expect((await createPlanningWorkspaceHandler(fixture.deps)(new Request("https://arc.example/api/planning/workspace"))).status).toBe(200);
+    expect(fixture.service.generateResponse).not.toHaveBeenCalled();
+  });
+});
+
 describe("authenticated adaptive planning routes", () => {
   it("enforces the shared response wire limit by UTF-8 bytes", () => {
     expect(PLANNING_RESPONSE_WRAPPER_MAX_BYTES).toBe(64 * 1024);

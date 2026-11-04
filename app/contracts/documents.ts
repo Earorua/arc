@@ -7,6 +7,8 @@ export const MAX_DOCUMENT_TEXT_UTF8_BYTES = 256 * 1024;
 export const MAX_DOCUMENT_ITEMS_JSON_BYTES = 128 * 1024;
 export const MAX_MATERIAL_CONTEXT_JSON_BYTES = 256 * 1024;
 export const materialIdSchema = z.string().max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
+// Session owner IDs are opaque. Better Auth generates mixed-case IDs.
+export const materialOwnerIdSchema = z.string().max(256).regex(/^[A-Za-z0-9_-]+$/u);
 export const materialRevisionSchema = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER - 1);
 export const materialVersionSchema = z.string().max(32).regex(/^\d{4}\.\d{2}\.\d+$/u);
 export const materialTimestampSchema = z.string().max(64).datetime({ offset: true });
@@ -36,6 +38,28 @@ export const materialSourceRefSchema = z.object({
   documentId: materialIdSchema, documentVersionId: materialIdSchema, textVersionId: materialIdSchema,
   start: z.number().int().min(0).max(100_000), end: z.number().int().min(1).max(100_000),
 }).strict().refine((value) => value.end > value.start, "Source range must be nonempty");
+
+export const MATERIAL_HIGH_IMPACT_REVIEW_CODES = [
+  "prompt-injection", "team-attribution", "conflicting-self-assessment", "conflicting-requirement",
+  "uncovered-skill", "untrusted-resource-url",
+] as const;
+export const documentReviewPointCodeSchema = z.enum([
+  "confirm-self-assessment", "prompt-injection", "team-attribution", "conflicting-self-assessment",
+  "missing-information", "uncovered-skill", "untrusted-resource-url", "conflicting-requirement",
+]);
+export const documentCandidateReviewPointSchema = z.object({
+  code: documentReviewPointCodeSchema,
+  source: z.object({ segmentId: materialIdSchema, quote: z.string().min(1).max(1000) }).strict(),
+}).strict();
+export const documentCandidateReviewPointsSchema = boundedMaterialJson(z.array(documentCandidateReviewPointSchema).max(100)
+  .refine(points => new Set(points.map(point => JSON.stringify([point.code, point.source.segmentId, point.source.quote]))).size === points.length, "Duplicate review points"));
+export const materialReviewPointSchema = z.object({
+  id: materialIdSchema, code: documentReviewPointCodeSchema, sourceRef: materialSourceRefSchema,
+  resolution: z.enum(["unresolved", "confirmed", "ignored"]),
+}).strict();
+export const materialReviewPointsSchema = boundedMaterialJson(z.array(materialReviewPointSchema).max(100).refine(uniqueIds, "Duplicate review point IDs"));
+export type MaterialReviewPoint = z.infer<typeof materialReviewPointSchema>;
+export type DocumentCandidateReviewPoint = z.infer<typeof documentCandidateReviewPointSchema>;
 
 export const confirmedMaterialItemSchema = z.object({
   id: materialIdSchema, kind: materialItemKindSchema, text: shortTextSchema,
@@ -102,17 +126,20 @@ export const documentReviewDraftSchema = boundedMaterialJson(z.object({
   id: materialIdSchema, schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), documentId: materialIdSchema,
   documentVersionId: materialIdSchema, textVersionId: materialIdSchema, extractionId: materialIdSchema.nullable(),
   origin: z.enum(["ai", "manual", "mixed"]), items: confirmedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema,
+  reviewPoints: materialReviewPointsSchema.optional(),
   revision: materialRevisionSchema, updatedAt: materialTimestampSchema,
 }).strict().superRefine((draft, ctx) => {
   for (const item of draft.items) if (item.sourceRef && (item.sourceRef.documentId !== draft.documentId || item.sourceRef.documentVersionId !== draft.documentVersionId || item.sourceRef.textVersionId !== draft.textVersionId)) ctx.addIssue({ code: "custom", message: "Review sources must match the draft version" });
+  for (const point of draft.reviewPoints ?? []) if (point.sourceRef.documentId !== draft.documentId || point.sourceRef.documentVersionId !== draft.documentVersionId || point.sourceRef.textVersionId !== draft.textVersionId) ctx.addIssue({ code: "custom", message: "Review point sources must match the draft version" });
   if (draft.origin !== "manual" && draft.extractionId === null) ctx.addIssue({ code: "custom", message: "AI and mixed drafts require extraction provenance" });
 }));
 export const documentConfirmationSchema = boundedMaterialJson(z.object({
   id: materialIdSchema, schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), documentId: materialIdSchema,
   documentVersionId: materialIdSchema, textVersionId: materialIdSchema, reviewRevision: materialRevisionSchema,
   revision: materialRevisionSchema, origin: z.enum(["ai", "manual", "mixed"]), state: z.enum(["active", "revoked"]),
-  items: confirmedMaterialItemsSchema, createdAt: materialTimestampSchema,
+  items: confirmedMaterialItemsSchema, reviewPoints: materialReviewPointsSchema.optional(), createdAt: materialTimestampSchema,
 }).strict().superRefine((confirmation, ctx) => {
+  for (const point of confirmation.reviewPoints ?? []) if (point.sourceRef.documentId !== confirmation.documentId || point.sourceRef.documentVersionId !== confirmation.documentVersionId || point.sourceRef.textVersionId !== confirmation.textVersionId) ctx.addIssue({ code: "custom", message: "Review point sources must match the confirmation version" });
   for (const item of confirmation.items) if (item.sourceRef && (item.sourceRef.documentId !== confirmation.documentId || item.sourceRef.documentVersionId !== confirmation.documentVersionId || item.sourceRef.textVersionId !== confirmation.textVersionId)) ctx.addIssue({ code: "custom", message: "Confirmation sources must match the confirmation version" });
 }));
 export const materialSelectionSchema = z.object({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DOCUMENT_LIMITS, readDocumentPolicy } from "../../app/server/documents/policy";
+import { DOCUMENT_LIMITS, readDocumentPolicy, readDocumentSitePolicy } from "../../app/server/documents/policy";
 
 const configured = {
   ARC_DOCUMENTS_ENABLED: "true", ARC_DOCUMENT_ANALYSIS_ENABLED: "true", ARC_DOCUMENT_PLANNING_ENABLED: "true",
@@ -11,6 +11,13 @@ const configured = {
 };
 
 describe("independent document policy", () => {
+  it("can qualify site metadata without accessing the executor billing credential", () => {
+    const site = { ...configured, get ARC_DOCUMENT_PROVIDER_API_KEY(): string { throw new Error("executor-only"); } };
+    const policy = readDocumentSitePolicy(site);
+    expect(policy.analysisEnabled).toBe(true);
+    expect(policy.analysis).not.toHaveProperty("apiKey");
+    expect(readDocumentSitePolicy({ ...configured, ARC_DOCUMENT_MAX_JOB_MICRO_USD: "invalid" }).analysisEnabled).toBe(false);
+  });
   it("defaults every feature off and keeps status/delete available", () => expect(readDocumentPolicy({})).toMatchObject({ documentsEnabled: false, analysisEnabled: false, planningEnabled: false, fileUploadEnabled: false, agentProjectionEnabled: false, statusEnabled: true, deletionEnabled: true, analysis: null }));
   it("accepts only complete independently configured document analysis", () => expect(readDocumentPolicy(configured)).toMatchObject({ documentsEnabled: true, analysisEnabled: true, planningEnabled: true, analysis: { maxJobMicroUsd: 100000 } }));
   it.each(Object.keys(configured).filter((key) => !key.endsWith("ENABLED")))("fails closed without %s", (key) => {

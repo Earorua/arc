@@ -60,7 +60,7 @@ describe("research beta migration safety", () => {
   it("appends learning agents after migration recovery and preserves normalized-LF prior SQL hashes", () => {
     expect(readdirSync(directory).filter((name) => name.endsWith(".sql")).sort()).toEqual([
       ...Object.keys(priorHashes), "0009_research_site_begin_grants.sql", "0010_research_site_imports.sql",
-      "0011_research_site_bridge.sql", "0012_account_recovery.sql", "0013_learning_agents.sql",
+      "0011_research_site_bridge.sql", "0012_account_recovery.sql", "0013_learning_agents.sql", "0014_private_materials.sql", "0015_document_storage_uploads.sql",
     ]);
     for (const [name, expected] of Object.entries(priorHashes)) {
       const normalized = readFileSync(resolve(directory, name), "utf8").replaceAll("\r\n", "\n");
@@ -70,7 +70,7 @@ describe("research beta migration safety", () => {
 
   it("links the additive health-index snapshot to 0005", () => {
     const journal = JSON.parse(readFileSync(resolve(directory, "meta/_journal.json"), "utf8"));
-    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
     expect(journal.entries[5]).toMatchObject({ tag: "0005_openrouter_research_beta", breakpoints: true });
     expect(journal.entries[6]).toMatchObject({ tag: "0006_research_health_indexes", breakpoints: true });
     expect(journal.entries[7]).toMatchObject({ tag: "0007_research_bridge_nonces", breakpoints: true });

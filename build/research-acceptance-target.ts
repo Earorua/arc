@@ -12,7 +12,7 @@ function strictInventoryObject<Shape extends z.ZodRawShape>(shape: Shape) {
 }
 
 const ACCOUNT_ID = "54eaadb89014252836694203c1e22546";
-const excludedDatabaseIds = new Set([
+export const protectedCloudflareDatabaseIds: ReadonlySet<string> = new Set([
   "00000000-0000-4000-8000-000000000000",
   "fe4952d0-da78-4c85-b1fa-8a5706d42fa3",
   "81d44533-40d9-4544-a03d-81a01e2719ae",
@@ -27,7 +27,7 @@ const resourceName = z.string().max(63)
   .regex(/^arc-v8-migration-[a-z0-9]+(?:-[a-z0-9]+)*$/)
   .refine((name) => name === name.trim() && !name.includes("smoke"));
 const database = strictInventoryObject({
-  databaseId: z.uuid().refine((id) => !excludedDatabaseIds.has(id.toLowerCase())),
+  databaseId: z.uuid().refine((id) => !protectedCloudflareDatabaseIds.has(id.toLowerCase())),
   databaseName: resourceName,
 });
 const bucket = strictInventoryObject({ bucketName: resourceName, public: z.literal(false) });

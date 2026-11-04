@@ -20,6 +20,7 @@ type WorkspaceLabel = Extract<WorkspaceDestination, "Today" | "Path" | "Stack" |
 export function WorkspaceShell({
   current,
   children,
+  materials,
   migration = "none",
   migrationState,
   onDismissMigration,
@@ -39,6 +40,7 @@ export function WorkspaceShell({
 }: {
   current: WorkspaceLabel;
   children?: React.ReactNode;
+  materials?: React.ReactNode;
   migration?: ArcMigrationState;
   migrationState?: DemoState | null;
   onDismissMigration?: () => void;
@@ -101,6 +103,7 @@ export function WorkspaceShell({
               </p>
             )}
             {children}
+            {materials}
           </>
         )}
       </main>

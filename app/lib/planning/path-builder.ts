@@ -25,6 +25,7 @@ import { addCalendarDays, compareCalendarDates, validateAvailabilityHorizon } fr
 import { deterministicId, fingerprint } from "./fingerprint";
 import { validateUnitRegistry } from "./registry-validation";
 import { estimateCompletionDate } from "./scheduler";
+import { prioritizeReadyNodes, type MaterialOverlay } from "../materials/planning-priority";
 
 export type PathBuildInput = {
   blueprint: RoleBlueprint;
@@ -33,6 +34,7 @@ export type PathBuildInput = {
   availability: AvailabilityVersion;
   target: PlanningTarget;
   planningDate: string;
+  materialOverlay?: MaterialOverlay;
 };
 
 export type CompletionEstimator = (
@@ -90,7 +92,10 @@ function buildValidatedPathAlternatives(
   estimate: CompletionEstimator,
 ): PathBuildResult {
   const parsed = parseAndValidateInput(input);
-  const orderedSkills = topologicallyOrderSkills(parsed.blueprint);
+  const baselineSkills = topologicallyOrderSkills(parsed.blueprint);
+  const orderedSkills = parsed.materialOverlay
+    ? prioritizeReadyNodes(baselineSkills.map((skill, originalIndex) => ({ id: skill.id, prerequisiteIds: skill.prerequisiteIds, rank: parsed.materialOverlay!.skillRanks[skill.id] ?? 5, originalIndex }))).map(id => baselineSkills.find(skill => skill.id === id)!)
+    : baselineSkills;
   const allUnits = expandPathUnits(parsed, orderedSkills);
   const fullCompletionDate = estimateAndValidate(
     estimate,
@@ -108,7 +113,7 @@ function buildValidatedPathAlternatives(
     targetDate = buildPathVersion(parsed, "target-date", allUnits, [], fullCompletionDate);
   } else {
     const retained = new Set(orderedSkills.map((skill) => skill.id));
-    const protectedSkills = protectedCoreClosure(parsed.blueprint);
+    const protectedSkills = protectedCoreClosure(parsed.blueprint, parsed.materialOverlay?.mandatorySkillIds);
     const deferred: DeferredSkill[] = [];
 
     while (targetDate === null) {
@@ -148,6 +153,7 @@ type ValidatedPathInput = {
   availability: AvailabilityVersion;
   target: PlanningTarget;
   planningDate: string;
+  materialOverlay?: MaterialOverlay;
 };
 
 function parseAndValidateInput(input: PathBuildInput): ValidatedPathInput {
@@ -184,7 +190,16 @@ function parseAndValidateInput(input: PathBuildInput): ValidatedPathInput {
   }
 
   if (issues.length > 0) throw new PlanningInputError(issues);
-  return { blueprint, registry, audit, availability, target, planningDate };
+  if (input.materialOverlay) {
+    const known = new Set(blueprint.skills.map(skill => skill.id));
+    const overlay = input.materialOverlay;
+    if (!/^[a-f0-9]{64}$/u.test(overlay.semanticFingerprint) || !/^\d{4}\.\d{2}\.\d+$/u.test(overlay.policyVersion)
+      || overlay.mandatorySkillIds.some(id => !known.has(id))
+      || Object.entries(overlay.skillRanks).some(([id, rank]) => !known.has(id) || !Number.isInteger(rank) || rank < 0 || rank > 5)) {
+      throw new PlanningInputError([{ code: "material-overlay-invalid", path: "materialOverlay" }]);
+    }
+  }
+  return { blueprint, registry, audit, availability, target, planningDate, ...(input.materialOverlay ? { materialOverlay: structuredClone(input.materialOverlay) } : {}) };
 }
 
 type StrictSchema<T> = {
@@ -366,10 +381,10 @@ function stableUnitId(
   });
 }
 
-function protectedCoreClosure(blueprint: RoleBlueprint): ReadonlySet<string> {
+function protectedCoreClosure(blueprint: RoleBlueprint, mandatory: readonly string[] = []): ReadonlySet<string> {
   const byId = new Map(blueprint.skills.map((skill) => [skill.id, skill]));
   const protectedIds = new Set<string>();
-  const stack = blueprint.skills.filter((skill) => skill.importance === "core").map((skill) => skill.id);
+  const stack = [...mandatory, ...blueprint.skills.filter((skill) => skill.importance === "core").map((skill) => skill.id)];
   while (stack.length > 0) {
     const id = stack.pop()!;
     if (protectedIds.has(id)) continue;
@@ -445,6 +460,7 @@ function buildPathVersion(
     units,
     deferredSkills,
     estimatedCompletionDate,
+    ...(input.materialOverlay ? { materialContext: input.materialOverlay.semanticFingerprint, materialPolicyVersion: input.materialOverlay.policyVersion } : {}),
   });
   return {
     id: deterministicId("learning-path", { inputFingerprint }),

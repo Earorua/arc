@@ -1,6 +1,21 @@
 import { z } from "zod";
 import { setupAnswersSchema } from "../../contracts/cloud-state";
 import { skillSelfLevelSchema } from "../../contracts/planning";
+import { materialIdSchema, materialRevisionSchema, materialSelectionRefSchema } from "../../contracts/documents";
+import { materialPlanningReferenceSchema } from "../../contracts/material-planning";
+
+// Only opaque server references; private text, names, excerpts and facts are rejected.
+export const materialDocumentDraftRefSchema = z.object({
+  documentId: materialIdSchema, documentVersionId: materialIdSchema, textVersionId: materialIdSchema,
+  revision: materialRevisionSchema, confirmationId: materialIdSchema.optional(),
+  consentId: materialIdSchema.optional(), jobId: materialIdSchema.optional(),
+}).strict();
+export const materialSetupDraftSchema = z.object({
+  draftId: materialIdSchema,
+  slots: z.object({ resume: materialDocumentDraftRefSchema.optional(), jd: materialDocumentDraftRefSchema.optional() }).strict(),
+  supplements: z.array(materialDocumentDraftRefSchema).max(3),
+  selection: materialSelectionRefSchema.nullable(), preview: materialPlanningReferenceSchema.nullable(),
+}).strict();
 
 const prefix = "arc:setup-draft:v1:";
 const maxAge = 30 * 24 * 60 * 60 * 1000;

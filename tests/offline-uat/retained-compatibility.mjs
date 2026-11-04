@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { createOfflineVite, offlineAliases } from "./server.mjs";
 import {
   all, applyMigrations, canonicalHash, createRetainedRuntime, databaseHealth,
-  LEGACY_OBJECTS, LEGACY_TABLES, legacyRowCount, loadRetainedMigrations,
+  LEGACY_OBJECTS, LEGACY_TABLES, legacyRowCount, loadCurrentMigrations, loadRetainedMigrations,
   seedLegacy, snapshotObjects, snapshotRows, tableNames,
   snapshotLegacyFixtureRows,
 } from "./retained-storage.mjs";
@@ -226,6 +226,10 @@ async function runCurrentLifecycle(runtime, archive, migrations, fixtureModule) 
   try {
     const primary = await preparePrimaryCurrentDb(runtime, migrations);
     const { db: primaryDb, bucket: primaryBucket } = primary;
+    const researchColumns = async (db) => (await all(db, "PRAGMA table_info(research_runs)"))
+      .map(({ name }) => name).filter((name) => ["execution_mode", "remote_quota_key"].includes(name)).sort();
+    assert.deepEqual({ legacy: await researchColumns(await runtime.getD1Database("LEGACY_DB")), current: await researchColumns(primaryDb) },
+      { legacy: [], current: ["execution_mode", "remote_quota_key"] });
     const fixture = await fixtureModule.createRetainedV8Fixture(primaryDb); disposals.push(() => fixture.app.dispose());
     const primaryRowsAfterV8 = canonicalHash(await snapshotLegacyFixtureRows(primaryDb));
     const primaryObjectsAfterV8 = canonicalHash(await snapshotObjects(primaryBucket, LEGACY_OBJECTS.map(({ key }) => key)));
@@ -379,7 +383,7 @@ export async function runRetainedCompatibility() {
     audit.realFactoryLoaded = loadedModuleIds.some((id) => /\/app\/server\/research\/service-factory\.ts(?:\?|$)/u.test(id));
     audit.realAdapterLoaded = loadedModuleIds.some((id) => /\/app\/server\/research\/openrouter-provider\.ts(?:\?|$)/u.test(id));
     assert.equal(audit.realFactoryLoaded, false); assert.equal(audit.realAdapterLoaded, false);
-    const current = await runCurrentLifecycle(runtime, archive, migrations, fixtureModule);
+    const current = await runCurrentLifecycle(runtime, archive, loadCurrentMigrations(), fixtureModule);
     const health = await databaseHealth(legacyDb); const upgradedTableCount = (await tableNames(legacyDb)).length;
     assert.equal(upgradedTableCount, 41); assert.equal(applicationOutboundAttempts, 0); assert.equal(workerOutbound.attempts, 0);
     const differenceEvidence = {

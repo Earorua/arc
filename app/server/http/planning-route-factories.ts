@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { env } from "cloudflare:workers";
+import { readDocumentPolicy } from "../documents/policy";
+import { MaterialContextService } from "../documents/context-builder";
 import {
   generatePlanningRequestSchema,
   planningEventRequestSchema,
@@ -37,6 +40,7 @@ type PlanningRouteService = Pick<PlanningService,
 
 export type PlanningRouteDependencies = {
   requireUser(headers: Headers): Promise<ArcUser>;
+  configuredOrigin?: () => string | null;
   createService(): PlanningRouteService;
   rateLimiter: RateLimiter;
   recordEvent(event: OperationalEvent): Promise<void>;
@@ -57,6 +61,20 @@ type RouteOutcome = Readonly<{
 }>;
 
 class InvalidPlanningBodyError extends Error {}
+class ForbiddenPlanningOriginError extends Error {}
+
+function requirePlanningWriteBoundary(request: Request, configured: string | null): void {
+  let origin: string;
+  try {
+    if (!configured) throw new Error();
+    const url = new URL(configured);
+    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) throw new Error();
+    origin = url.origin;
+  } catch { throw new PlanningUnavailableError(); }
+  if (request.headers.get("origin") !== origin || new URL(request.url).origin !== origin
+    || request.headers.get("sec-fetch-site") === "cross-site") throw new ForbiddenPlanningOriginError();
+  if (request.headers.get("content-type")?.toLowerCase() !== "application/json") throw new InvalidPlanningBodyError();
+}
 
 async function parseBody<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
   try {
@@ -120,6 +138,11 @@ function errorResponse(error: unknown, requestId: string): { response: Response;
       "UNAUTHENTICATED", "Sign in to use Arc planning.", 401, requestId, undefined, "sign-in",
     ) };
   }
+  if (error instanceof ForbiddenPlanningOriginError) {
+    return { resultCode: "FORBIDDEN", response: apiError(
+      "FORBIDDEN", "Planning writes require the configured same origin.", 403, requestId,
+    ) };
+  }
   if (error instanceof InvalidPlanningBodyError || error instanceof PlanningInputError
     || error instanceof PlanningInvalidInputError || error instanceof z.ZodError) {
     return { resultCode: "INVALID_INPUT", response: apiError(
@@ -179,6 +202,9 @@ export async function runPlanningRoute<Service>(
     requestId = safeRequestId(candidate);
     const user = await deps.requireUser(request.headers);
     userId = user.id;
+    if (request.method !== "GET" && request.method !== "HEAD" && deps.configuredOrigin) {
+      requirePlanningWriteBoundary(request, deps.configuredOrigin());
+    }
     const reservation = await deps.rateLimiter.reserve({
       scope: config.scope,
       subject: user.id,
@@ -284,13 +310,17 @@ export function createProductionPlanningService(): PlanningService {
       researchRepository: new D1ResearchRepository(db),
       replayPackageReader: new D1PlanningReplayPackageReader(db),
     });
+    const policy = readDocumentPolicy(env as unknown as Record<string, unknown>);
+    const repository = new D1PlanningRepository(db, { sourceResolver, allowMaterialAcceptance: policy.planningEnabled });
     return new PlanningService({
-      repository: new D1PlanningRepository(db, { sourceResolver }), sourceResolver,
+      repository, sourceResolver,
+      ...(policy.planningEnabled ? { materials: new MaterialContextService({ db, sourceResolver, planningRepository: repository }) } : {}),
     });
 }
 
 export const productionPlanningRouteDependencies: PlanningRouteDependencies = {
   requireUser: (headers) => requireArcUser(headers),
+  configuredOrigin: () => typeof env.BETTER_AUTH_URL === "string" ? env.BETTER_AUTH_URL : null,
   createService: createProductionPlanningService,
   rateLimiter: { reserve: (request) => new D1RateLimiter(getD1()).reserve(request) },
   recordEvent: (event) => new D1OperationalEventSink(getD1()).record(event),

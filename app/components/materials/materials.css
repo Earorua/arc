@@ -1,0 +1,36 @@
+.material-text-panel, .material-library, .material-context-review, .material-history, .material-audit-review {
+  margin-block: 1.5rem;
+  padding-block: 1.25rem;
+  border-block-start: 1px solid var(--border, #d5cfc4);
+  min-width: 0;
+}
+.material-text-panel h2, .material-library h2, .material-context-review h2 { font-size: 1.2rem; margin-block: 0 .75rem; }
+.material-text-panel fieldset, .material-fact { border: 0; padding: 0; margin-block: 1rem; min-width: 0; }
+.material-text-panel label { display: grid; gap: .4rem; margin-block: .85rem; }
+.material-text-panel input:not([type="checkbox"]), .material-text-panel textarea, .material-text-panel select {
+  width: 100%; padding: .75rem; border: 1px solid #b6afa2; border-radius: .4rem;
+  background: #fffdf8; color: #292b25; font: inherit; box-sizing: border-box;
+}
+.material-text-panel textarea { min-height: 8rem; resize: vertical; line-height: 1.6; }
+.material-fact textarea { min-height: 5rem; }
+.material-text-panel label.material-consent, .material-audit-review label { display: flex; align-items: flex-start; gap: .6rem; }
+.material-actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+.material-text-panel p, .material-context-review p, .material-library p, .material-history p { line-height: 1.65; overflow-wrap: anywhere; }
+.material-fact blockquote { margin-inline: 0; padding: .6rem 1rem; border-inline-start: 3px solid #b6afa2; white-space: pre-wrap; overflow-wrap: anywhere; }
+.material-library ul, .material-context-review ul, .material-history ul { padding-inline-start: 1.25rem; }
+.material-library li { padding-block: .7rem; }
+.material-library li button, .material-selection-summary li button { margin-inline-start: .75rem; }
+.material-workspace-entry { margin-block: 2rem; max-width: 60rem; }
+.material-preview { margin-block: 1rem; padding: 1rem; background: #eeeae0; border-radius: .4rem; }
+.material-setup-slot button, .material-library button, .material-context-review button, .material-audit-review button { white-space: normal; }
+.material-text-panel button, .material-library button, .material-context-review button, .material-selection-summary button { min-height: 44px; padding: .5rem .75rem; }
+.material-text-panel .text-action, .material-library .text-action, .material-context-review .text-action, .material-selection-summary .text-action { color: var(--action, #a8321d); }
+.material-text-panel .material-actions > button:not(.text-action), .material-context-review > button { background: #353c30; color: #fffdf8; border: 1px solid #353c30; border-radius: .3rem; }
+.material-text-panel button:disabled, .material-library button:disabled, .material-context-review button:disabled { opacity: .55; cursor: not-allowed; }
+.material-context-review label { display: grid; gap: .4rem; margin-block: .75rem; }
+.material-context-review select { width: 100%; min-width: 0; padding: .6rem; border: 1px solid #b6afa2; border-radius: .3rem; background: #fffdf8; color: #292b25; font: inherit; }
+.material-text-panel :is(button, input, textarea, select):focus-visible, .material-library button:focus-visible, .material-context-review :is(button, select):focus-visible { outline: 2px solid #a8321d; outline-offset: 3px; }
+@media (max-width: 600px) {
+  .material-actions { align-items: stretch; flex-direction: column; }
+  .material-library li button { display: block; margin: .5rem 0; }
+}

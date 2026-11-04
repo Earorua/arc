@@ -1,0 +1,14 @@
+{
+  "baseline": "2caa51d",
+  "branch": "codex/materials-phase-1-offline-20261104",
+  "date": "2026-11-04",
+  "algorithm": "SHA-256",
+  "files": {
+    "drizzle/0014_private_materials.sql": "9329c8cb8a2b3e4ffbac773032fb33700f6178ba8a8d5f6553039735778781d6",
+    "drizzle/meta/0014_snapshot.json": "14631d70d5b47362a454450d5c4875420ce6a590c1fea0a27af2bcb0e8048b8b",
+    "worker/document-executor/migrations/0000_document_executor.sql": "ca739000e63aea457151c9d8d8b404d821101eb05062e4d265a59bb942b1baa9",
+    "dist/server/index.js": "ce31ff4cfa36d6437f70c3861aaff2eac6ea391b08cc3a11c90602bf4fa8513a"
+  },
+  "deployment": "not-run",
+  "realModelQualification": "not-run"
+}

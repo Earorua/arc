@@ -605,6 +605,9 @@
       "file": "app/server/research/budget.ts"
     },
     {
+      "file": "app/server/research/citation-title.ts"
+    },
+    {
       "file": "app/server/research/d1-budget-repository.ts"
     },
     {

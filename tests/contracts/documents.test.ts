@@ -111,6 +111,11 @@ describe("document HTTP contracts", () => {
     revokeDocumentConsent: { consentId: "consent-a", mutationId: "mutation-a" }, createMaterialContext: { ...planning, scope, selectionRef, source: { source: "flagship", roleId: "ai-native-full-stack-engineer" } }, generatePlanning: { ...planning, roleId: "ai-native-full-stack-engineer" },
     materialReplan: { scope: { kind: "goal", goalId: "goal-a", workspaceId: "workspace-a", baseVersionId: "plan-a", revision: 1 }, selectionRef, contextVersionId: "context-a", previewToken: "a".repeat(64), mutationId: "mutation-a" },
     readMaterialContext: { contextVersionId: "context-a" }, deleteDocument: { documentId: "doc-a", expectedRevision: 1, mutationId: "mutation-a" }, readDocumentDeletion: { deletionJobId: "deletion-a" },
+    readDocumentCapabilities: {}, readDocumentMutation: { mutationId: "save-a", endpoint: "createDocument" },
+    readDocumentExtraction: { documentId: "doc-a", extractionId: "extract-a" },
+    adoptDocumentExtraction: { documentId: "doc-a", textVersionId: "text-a", extractionId: "extract-a", expectedRevision: 1, mutationId: "adopt-a" },
+    readMaterialHistory: { goalId: "goal-a" },
+    readMaterialGenerationReceipt: { goalId: "goal-a", mutationId: "mutation-a", contextVersionId: "context-a" },
   } satisfies Record<api.DocumentEndpoint, unknown>;
   it.each(Object.entries(requests))("accepts the exact %s request and rejects caller ownership", (name, request) => {
     const contract = api.documentEndpointContracts[name as api.DocumentEndpoint];
@@ -122,8 +127,8 @@ describe("document HTTP contracts", () => {
       expect(contract.request.safeParse(withoutMutation).success).toBe(false);
     }
   });
-  it("freezes every phase 0 endpoint as strict request and response boundaries", () => {
-    expect(Object.keys(api.documentEndpointContracts)).toHaveLength(21);
+  it("preserves strict boundaries with explicit phase 1 recovery and history endpoints", () => {
+    expect(Object.keys(api.documentEndpointContracts)).toHaveLength(27);
     for (const endpoint of Object.values(api.documentEndpointContracts)) {
       expect(endpoint.request.safeParse({ ownerId: "caller-owner" }).success).toBe(false);
       expect(endpoint.response.safeParse({ arbitrary: "body" }).success).toBe(false);

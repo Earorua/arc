@@ -12,6 +12,16 @@ const target = { id: "target-a", schemaVersion: "2026.08.1", targetWeeks: 8, inp
 const snapshot = { schemaVersion: "2026.11.1", ownerId: "owner-a", selectionRef: { selectionId: "selection-a", selectionRevision: 1 }, scope, sourceReference: { source: "flagship", roleId: "ai-native-full-stack-engineer" }, dependencies: [{ slot: "resume", documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", confirmationId: "confirmation-a", generation: 1, confirmationDigest: "a".repeat(64) }], audit, availability, target, planningDate: "2026-11-04", selectedScope: "full-scope", policyVersion: "2026.11.1", mappingVersion: "2026.11.1", explanationVersion: "2026.11.1" };
 
 describe("material planning contract", () => {
+  it("strictly binds opaque mapping choices to selected confirmations and semantic fingerprints", async () => {
+    const mapping = { confirmationId: "confirmation-a", itemId: "fact-a", skillId: "react" };
+    const mapped = { ...snapshot, skillMappings: [mapping] };
+    expect(materials.contextInputSnapshotSchema.safeParse(mapped).success).toBe(true);
+    expect(await materials.createMaterialContextFingerprint(mapped)).not.toBe(await materials.createMaterialContextFingerprint({ ...mapped, skillMappings: [{ ...mapping, skillId: "sql" }] }));
+    expect(await materials.createMaterialContextFingerprint({ ...snapshot, skillMappings: [] })).toBe(await materials.createMaterialContextFingerprint(snapshot));
+    for (const invalid of [[mapping, mapping], [{ ...mapping, ownerId: "owner-b" }], [{ ...mapping, confirmationId: "unselected-confirmation" }]]) {
+      expect(materials.contextInputSnapshotSchema.safeParse({ ...snapshot, skillMappings: invalid }).success).toBe(false);
+    }
+  });
   it("requires a bounded explanation version in the strict context snapshot", () => {
     expect(materials.contextInputSnapshotSchema.safeParse(snapshot).success).toBe(true);
     const { explanationVersion, ...missingExplanationVersion } = snapshot;

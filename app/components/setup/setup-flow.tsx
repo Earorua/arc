@@ -8,6 +8,7 @@ import { claimGuestSetupDraft, clearSetupDrafts, legacyDraftSchema, readSetupDra
 import { getRoleDisplayName } from "../../lib/personalized-plan";
 import { setupStepNames, useSetupNavigation } from "./setup-navigation";
 import { updatePageQuery } from "../../lib/use-page-query";
+import { MaterialSetupProvider, MaterialSetupSlot, MaterialSetupLibrary } from "../materials/material-setup-provider";
 
 export type SetupSource = { source: "flagship"; roleId: "ai-native-full-stack-engineer" } | { source: "research"; researchRunId: string };
 type AdaptiveControls = { active: boolean; onBackToRole: () => void; source: SetupSource; planningData: ResearchPlanningData | null };
@@ -162,7 +163,7 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
   }, [adaptiveSelected, step]);
 
   return (
-    <>
+    <MaterialSetupProvider key={draftEpoch} ownerId={signedIn && draftOwner?.startsWith("user:") ? draftOwner.slice(5) : null} scopeKey={`${creationMode ? "setup-create" : "setup"}:${selection.source.source === "research" ? selection.source.researchRunId : "flagship"}`}>
     {!adaptiveSelected && draftOwner && <div className="setup-draft-bar">
       {restored && <p>已恢复上次的设置草稿，可继续或重新开始。</p>}
       {guestAvailable && <div><p>此设备有访客草稿。由你选择是否用于当前账户。</p><button className="text-action" type="button" onClick={() => {
@@ -180,6 +181,8 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
       {step === 0 && (
         <>
           <h1 ref={questionRef} tabIndex={-1}>你想学习哪个岗位或方向？</h1>
+          <MaterialSetupSlot kind="jd" />
+          <MaterialSetupLibrary />
           {basicCreationAllowed && <button
             aria-pressed={!hasCustomRole}
             className={hasCustomRole ? "answer-choice" : "answer-choice is-selected"}
@@ -282,6 +285,6 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
       </nav>}
     </section>
     {renderAdaptive && adaptiveStarted && <div key={`${draftEpoch}:${selection.source.source === "research" ? selection.source.researchRunId : "flagship"}`} hidden={!adaptiveSelected}>{renderAdaptive({ ...selection, active: adaptiveSelected, onBackToRole: () => { setAdaptiveSelected(false); navigateStep(0); } })}</div>}
-    </>
+    </MaterialSetupProvider>
   );
 }

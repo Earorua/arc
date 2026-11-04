@@ -1,4 +1,9 @@
 import { z } from "zod";
+import { materialIdSchema, materialSelectionRefSchema, materialDigestSchema } from "./documents";
+
+export const materialPlanningReferenceSchema = z.object({
+  contextVersionId: materialIdSchema, selectionRef: materialSelectionRefSchema, previewToken: materialDigestSchema,
+}).strict();
 import {
   availabilityVersionSchema,
   planningEventInputSchema,
@@ -29,6 +34,7 @@ const FLAGSHIP_REGISTRY_ID = "ai-native-full-stack-engineer-units";
 const FLAGSHIP_REGISTRY_VERSION = "2026.08.1";
 
 const generatePlanningRequestFields = {
+  materials: materialPlanningReferenceSchema.optional(),
   mutationId: idSchema,
   planningDate: planningDateSchema,
   audit: skillAuditVersionSchema,

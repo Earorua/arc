@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-04",
+  "scope": "loopback-only synthetic accounts and fixed candidate transport",
+  "realModelCalls": 0,
+  "outboundFetchAttempts": 0,
+  "mainFlow": "JD and resume -> fake AI prefill -> confirm -> explicit uncertain assessment -> context preview -> keyboard submit -> saved route",
+  "savedLearningUnits": 44,
+  "automaticMapping": "JavaScript -> existing Web Platform skill",
+  "mappingChangeInvalidatesSubmission": true,
+  "manualJdRequiresRequirementClassification": true,
+  "unknownCostDisablesNewAnalysis": true,
+  "unknownCostAllowsManualReview": true,
+  "invalidCandidateAllowsManualReview": true,
+  "deletion": "synthetic document revoked, maintenance run, completed status read back",
+  "responsiveViewportWidth": 390,
+  "responsiveDocumentScrollWidth": 375,
+  "consoleErrorsInFinalBrowserSession": 0,
+  "limitations": ["not a live provider qualification", "not production authentication", "not cloud bindings validation"],
+  "screenshots": ["context-preview.png", "mobile-preview.png", "saved-route.png"]
+}

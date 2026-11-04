@@ -6,6 +6,7 @@ import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
 import { diffPlans } from "../../lib/planning/plan-diff";
 import type { PlanningRecoveryState } from "../../lib/use-planning-workspace";
 import { PlanningVersionBoundary } from "./planning-version-boundary";
+import { MaterialHistory } from "../materials/material-history";
 
 type PlanDiffReviewProps = {
   workspace: unknown;
@@ -15,9 +16,10 @@ type PlanDiffReviewProps = {
   onSuccess?: (message: string, decision: "accept" | "discard") => void;
   registry?: UnitRegistry;
   acceptLabel?: string;
+  materialOwnerId?: string;
 };
 
-export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, onDiscard, onSuccess, registry = flagshipUnitRegistry, acceptLabel = "接受新安排" }: PlanDiffReviewProps) {
+export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, onDiscard, onSuccess, registry = flagshipUnitRegistry, acceptLabel = "接受新安排", materialOwnerId }: PlanDiffReviewProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
@@ -46,7 +48,7 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
         : undefined;
       const keepsUncertainLearning = active.pathVersionId === candidate.pathVersionId
         && workspace.audit.answers.some(({ skillId, level }) => skillId === claimedSkillId && level === "uncertain");
-      return { kind: "ready", candidate, diff: diffPlans({ active, candidate, completedUnitIds: completed }), labels, keepsUncertainLearning } as const;
+      return { kind: "ready", goalId: workspace.goalId, candidate, diff: diffPlans({ active, candidate, completedUnitIds: completed }), labels, keepsUncertainLearning } as const;
     } catch { return { kind: "unavailable" } as const; }
   }, [registry, value]);
   useEffect(() => { if (resolved.kind === "ready") headingRef.current?.focus(); }, [resolved]);
@@ -79,6 +81,7 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
     <dl className="diff-counts">{counts.map(({ change, count }) => <div key={change}><dt>{changeLabels[change]}</dt><dd>{count}</dd></div>)}</dl>
     <p className="diff-completion"><span>当前预计完成 · {resolved.diff.previousEstimatedCompletionDate}</span><span>调整后预计完成 · {resolved.diff.nextEstimatedCompletionDate}</span></p>
     <details className="diff-details"><summary>查看逐项变化</summary><ul className="diff-items">{resolved.diff.items.map((item) => <li key={item.unitId}><strong><span>{changeLabels[item.change]}</span><span>{resolved.labels.get(item.unitId) ?? "已记录的学习单元"}</span></strong><span>{item.fromDate ?? "未安排"} → {item.toDate ?? "未安排"}</span><p>{item.reason}</p></li>)}</ul></details>
+    {materialOwnerId && <MaterialHistory ownerId={materialOwnerId} goalId={resolved.goalId} planVersionId={resolved.candidate.id} />}
     <div className="diff-actions"><button disabled={pending} onClick={() => void decide("accept")} type="button">{acceptLabel}</button><button disabled={pending} onClick={() => void decide("discard")} type="button">保留当前安排</button></div>
     {message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "计划已在另一台设备上发生变化，请刷新后再决定。" : message.text}</p>}
   </section>;

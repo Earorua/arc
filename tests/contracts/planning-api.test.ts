@@ -1,3 +1,4 @@
+import { materialPlanningReferenceSchema } from "../../app/contracts/planning-api";
 import { describe, expect, it } from "vitest";
 import {
   generatePlanningRequestSchema,
@@ -105,4 +106,11 @@ describe("adaptive planning API contracts", () => {
     expect(() => planningMutationResponseSchema.parse({ result: null })).toThrow();
     expect(() => planningMutationResponseSchema.parse({ result: null, debug: true })).toThrow();
   });
+});
+
+// Materials remain opt-in and reject a caller-supplied owner.
+it("accepts only a strict material reference on generation", () => {
+  const reference = { contextVersionId: "context-a", selectionRef: { selectionId: "selection-a", selectionRevision: 0 }, previewToken: "a".repeat(64) };
+  expect(materialPlanningReferenceSchema.safeParse(reference).success).toBe(true);
+  expect(materialPlanningReferenceSchema.safeParse({ ...reference, ownerId: "owner-a" }).success).toBe(false);
 });

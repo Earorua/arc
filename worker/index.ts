@@ -1,12 +1,17 @@
 /** Cloudflare Worker entry point for the Arc. Vinext application. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { WorkerEntrypoint } from "cloudflare:workers";
+import { createDocumentRuntime, type DocumentEnvironment } from "../app/server/documents/runtime";
 import { applyResponseSafety, resolveRequestId } from "../app/server/http/api-response";
 
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   PROOF_ASSETS: R2Bucket;
+  DOCUMENT_ASSETS?: R2Bucket;
+  DOCUMENT_EXECUTOR?: Fetcher;
+  ARC_DOCUMENT_BRIDGE_SECRET?: string;
   ARC_ENVIRONMENT?: string;
   BETTER_AUTH_URL?: string;
   BETTER_AUTH_SECRET?: string;
@@ -43,6 +48,7 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const requestId = resolveRequestId(request.headers.get("X-Request-Id"));
+    if (url.pathname.startsWith("/internal/documents/")) return new Response(null, { status: 404, headers: { "Cache-Control": "private, no-store" } });
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
@@ -58,6 +64,17 @@ const worker = {
 
     return applyResponseSafety(await handler.fetch(request, env, ctx), requestId);
   },
+  async scheduled(_controller: ScheduledController, env: Env): Promise<void> {
+    if (!env.DOCUMENT_ASSETS) return;
+    await createDocumentRuntime(env as unknown as DocumentEnvironment).maintenance();
+  },
 };
 
+/** Only the named service binding can enter the signed document callback surface. */
+export class DocumentSite extends WorkerEntrypoint<Env> {
+  async fetch(request: Request): Promise<Response> {
+    try { return await createDocumentRuntime(this.env as unknown as DocumentEnvironment).privateHandler(request); }
+    catch { return new Response(null, { status: 503, headers: { "Cache-Control": "private, no-store" } }); }
+  }
+}
 export default worker;

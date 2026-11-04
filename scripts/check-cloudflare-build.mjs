@@ -79,7 +79,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   try {
     if (process.argv.length !== 3) throw new Error("Expected one target path.");
     const result = await checkCloudflareBuild({ targetPath: process.argv[2] });
-    const label = result.stage === "research-acceptance" ? "Restricted Research" : "Shadow";
+    const label = { "research-acceptance": "Restricted Research", "materials-acceptance": "Private materials", shadow: "Shadow" }[result.stage];
     console.log(`${label} build preflight passed: ${result.workerName}. No deployment performed.`);
   } catch {
     // No stack, paths, JSON contents or unknown values can reach terminal output.

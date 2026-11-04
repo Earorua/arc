@@ -1,0 +1,14 @@
+{
+  "name": "arc-document-executor-local",
+  "main": "index.ts",
+  "compatibility_date": "2026-05-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "d1_databases": [{"binding":"DOCUMENT_EXECUTOR_DB","database_name":"arc-document-executor-local","database_id":"00000000-0000-0000-0000-000000000014","migrations_dir":"migrations"}],
+  "r2_buckets": [{"binding":"DOCUMENT_JOB_ASSETS","bucket_name":"arc-document-results-local"}],
+  "workflows": [{"binding":"DOCUMENT_WORKFLOW","name":"arc-document-workflow-local","class_name":"DocumentWorkflow"}],
+  "services": [{"binding":"DOCUMENT_SITE","service":"arc-local-only","entrypoint":"DocumentSite"}],
+  "triggers": {"crons":["*/5 * * * *"]},
+  "vars": {"ARC_DOCUMENT_ANALYSIS_ENABLED":"false","ARC_DOCUMENT_MAINTENANCE_ENABLED":"true"}
+}

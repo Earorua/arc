@@ -1,0 +1,34 @@
+import {createDocumentConsentRequestSchema,revokeDocumentConsentRequestSchema,createDocumentMutationDigest,type DocumentEndpointRequest} from "../../contracts/documents-api";
+import type {DocumentPolicy} from "./policy";
+export function documentServiceError(code:"not-found"|"conflict"|"gone"|"quota-exceeded"|"unavailable"):never{throw Object.assign(new Error(code),{code});}
+export async function documentMutationReceipt<T>(db:D1Database,ownerId:string,endpoint:string,mutationId:string,digest:string):Promise<T|null>{const existing=await db.prepare("SELECT body_digest,result_json FROM document_mutations WHERE owner_id=? AND endpoint=? AND mutation_id=?").bind(ownerId,endpoint,mutationId).first<{body_digest:string;result_json:string}>();if(!existing)return null;if(existing.body_digest!==digest)return documentServiceError("conflict");return JSON.parse(existing.result_json) as T;}
+export class DocumentConsentService{
+ private readonly now:()=>number;
+ constructor(private readonly options:{db:D1Database;policy:DocumentPolicy;now?:()=>number;onRevoke?:(ownerId:string,consentId:string)=>Promise<void>}){this.now=options.now??Date.now;}
+ private async notifyRevocation(ownerId:string,consentId:string){try{await this.options.onRevoke?.(ownerId,consentId);}catch{/* The transaction already persisted every pending executor notification. */}}
+ async create(ownerId:string,raw:DocumentEndpointRequest<"createDocumentConsent">):Promise<{consentId:string}>{
+  const request=createDocumentConsentRequestSchema.parse(raw),{db,policy}=this.options;
+  if(!policy.analysisEnabled||!policy.analysis||request.providerPolicyId!==policy.analysis.providerPolicyId||request.policyVersion!==policy.analysis.routingPolicy.policyVersion)return documentServiceError("unavailable");
+  const version=await db.prepare("SELECT v.document_id,v.id,d.generation FROM document_versions v JOIN documents d ON d.owner_id=v.owner_id AND d.id=v.document_id WHERE v.owner_id=? AND v.text_version_id=? AND v.state='ready' AND d.lifecycle='active' AND d.current_document_version_id=v.id AND d.generation=v.generation").bind(ownerId,request.textVersionId).first<{document_id:string;id:string;generation:number}>();if(!version)return documentServiceError("not-found");
+  const digest=await createDocumentMutationDigest(ownerId,"createDocumentConsent",request);const replay=await documentMutationReceipt<{consentId:string}>(db,ownerId,"createDocumentConsent",request.mutationId,digest);if(replay){const valid=await db.prepare("SELECT id FROM document_processing_consents WHERE owner_id=? AND id=? AND revoked_at IS NULL AND generation=?").bind(ownerId,replay.consentId,version.generation).first();if(!valid)return documentServiceError("gone");return replay;}
+  const id=crypto.randomUUID(),now=this.now();
+  await db.batch([
+   db.prepare("INSERT INTO document_processing_consents(owner_id,id,text_version_id,document_id,document_version_id,purpose,policy_version,provider_policy_id,generation,granted_at) SELECT ?,?,?,?,?, 'analysis',?,?,?,? WHERE EXISTS(SELECT 1 FROM documents d JOIN document_versions v ON d.owner_id=v.owner_id AND v.document_id=d.id AND d.current_document_version_id=v.id WHERE d.owner_id=? AND d.id=? AND d.lifecycle='active' AND d.generation=? AND v.text_version_id=? AND v.state='ready') AND NOT EXISTS(SELECT 1 FROM document_mutations WHERE owner_id=? AND endpoint='createDocumentConsent' AND mutation_id=?)").bind(ownerId,id,request.textVersionId,version.document_id,version.id,request.policyVersion,request.providerPolicyId,version.generation,now,ownerId,version.document_id,version.generation,request.textVersionId,ownerId,request.mutationId),
+   db.prepare("INSERT INTO document_mutations(owner_id,endpoint,mutation_id,body_digest,result_json,created_at) SELECT ?,'createDocumentConsent',?,?,?,? WHERE EXISTS(SELECT 1 FROM document_processing_consents WHERE owner_id=? AND id=?)").bind(ownerId,request.mutationId,digest,JSON.stringify({consentId:id}),now,ownerId,id),
+  ]);
+  return await documentMutationReceipt<{consentId:string}>(db,ownerId,"createDocumentConsent",request.mutationId,digest)??documentServiceError("conflict");
+ }
+ async revoke(ownerId:string,raw:DocumentEndpointRequest<"revokeDocumentConsent">):Promise<{consentId:string;state:"revoked";cancellationRequested:boolean}>{
+  const request=revokeDocumentConsentRequestSchema.parse(raw),{db}=this.options,now=this.now();const consent=await db.prepare("SELECT id FROM document_processing_consents WHERE owner_id=? AND id=?").bind(ownerId,request.consentId).first();if(!consent)return documentServiceError("not-found");
+  const digest=await createDocumentMutationDigest(ownerId,"revokeDocumentConsent",request),replay=await documentMutationReceipt<{consentId:string;state:"revoked";cancellationRequested:boolean}>(db,ownerId,"revokeDocumentConsent",request.mutationId,digest);if(replay){await this.notifyRevocation(ownerId,request.consentId);return replay;}
+  const sent=await db.prepare("SELECT 1 FROM document_jobs WHERE owner_id=? AND consent_id=? AND dispatch_state='may-have-sent' LIMIT 1").bind(ownerId,request.consentId).first();const result={consentId:request.consentId,state:"revoked" as const,cancellationRequested:!!sent};
+  try{await db.batch([
+   db.prepare("SELECT json(CASE WHEN NOT EXISTS(SELECT 1 FROM document_mutations WHERE owner_id=? AND endpoint='revokeDocumentConsent' AND mutation_id=? AND body_digest<>?) THEN '{}' ELSE '' END) AS mutation_guard").bind(ownerId,request.mutationId,digest),
+   db.prepare("UPDATE document_processing_consents SET revoked_at=COALESCE(revoked_at,?) WHERE owner_id=? AND id=?").bind(now,ownerId,request.consentId),
+   db.prepare("UPDATE document_budget_reservations SET state=CASE WHEN job_id IN(SELECT id FROM document_jobs WHERE owner_id=? AND consent_id=? AND dispatch_state='not-sent') THEN 'released' ELSE 'held-unknown' END,updated_at=? WHERE state IN ('reserved','held-unknown') AND job_id IN(SELECT id FROM document_jobs WHERE owner_id=? AND consent_id=?)").bind(ownerId,request.consentId,now,ownerId,request.consentId),
+   db.prepare("UPDATE document_jobs SET state=CASE WHEN dispatch_state='not-sent' THEN 'cancelled' ELSE 'cancel-requested' END,execution_slot=CASE WHEN dispatch_state='not-sent' THEN NULL ELSE execution_slot END,extraction_id=NULL,error_code='consent-revoked',executor_cancel_state='pending',executor_cancel_attempt_at=0,revision=revision+1,updated_at=? WHERE owner_id=? AND consent_id=? AND state IN ('queued','running','cost-unknown','cancel-requested')").bind(now,ownerId,request.consentId),
+   db.prepare("INSERT OR IGNORE INTO document_mutations(owner_id,endpoint,mutation_id,body_digest,result_json,created_at) VALUES(?,'revokeDocumentConsent',?,?,?,?)").bind(ownerId,request.mutationId,digest,JSON.stringify(result),now),
+  ]);}catch{return documentServiceError("conflict");}await this.notifyRevocation(ownerId,request.consentId);return result;
+ }
+}
+

@@ -31,17 +31,19 @@ function structure(database: DatabaseSync) {
 
 describe("reconciled release schema", () => {
   it("records the full current schema without proposing duplicate historical DDL", async () => {
-    const snapshot = JSON.parse(readFileSync("drizzle/meta/0013_snapshot.json", "utf8"));
+    const snapshot = JSON.parse(readFileSync("drizzle/meta/0015_snapshot.json", "utf8"));
     const current = await generateSQLiteDrizzleJson(schema, snapshot.id);
-    expect(Object.keys(snapshot.tables)).toHaveLength(49);
+    expect(Object.keys(snapshot.tables)).toHaveLength(70);
     expect(snapshot.tables).toEqual(current.tables);
     expect(await generateSQLiteMigration(snapshot, current)).toEqual([]);
   });
 
   it("matches all migrated columns, indexes and foreign keys to the declared schema", async () => {
     const journal = JSON.parse(readFileSync("drizzle/meta/_journal.json", "utf8"));
-    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual(Array.from({ length: 14 }, (_, index) => index));
+    expect(journal.entries.map((entry: { idx: number }) => entry.idx)).toEqual(Array.from({ length: 16 }, (_, index) => index));
     expect(journal.entries[13]).toMatchObject({ version: "6", tag: "0013_learning_agents", breakpoints: true });
+    expect(journal.entries[14]).toMatchObject({ version: "6", tag: "0014_private_materials", breakpoints: true });
+    expect(journal.entries[15]).toMatchObject({ version: "6", tag: "0015_document_storage_uploads", breakpoints: true });
     const migrated = new DatabaseSync(":memory:");
     const declared = new DatabaseSync(":memory:");
     try {

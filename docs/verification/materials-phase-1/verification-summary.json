@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-04",
+  "branch": "codex/materials-phase-1-offline-20261104",
+  "baseline": "2caa51d",
+  "offlineFunctionalGate1A": "passed",
+  "realModelGate1B": "not-run",
+  "deployment": "not-run",
+  "remoteMigration": "not-run",
+  "unitRegression": {
+    "filesPassed": 335,
+    "testsPassed": 7273,
+    "testsFailed": 0,
+    "durationSeconds": 215.73,
+    "startedAtLocal": "2026-11-04T13:34:34+08:00",
+    "exitCode": 0,
+    "excludedSuites": [],
+    "command": "node node_modules/vitest/vitest.mjs run --reporter=dot --maxWorkers=8",
+    "log": "work/research-hash-all-unit.log"
+  },
+  "researchBaselineRepair": {
+    "status": "resolved",
+    "previousFailedSuites": 3,
+    "previousFailedTests": 106,
+    "focusedFilesPassed": 5,
+    "focusedTestsPassed": 229,
+    "newTamperRejectionTests": 4,
+    "strictHashValidationPreserved": true,
+    "productionProviderChanged": false,
+    "report": "docs/verification/2026-11-04-research-smoke-baseline-repair.md"
+  },
+  "typecheck": { "exitCode": 0 },
+  "lint": { "exitCode": 0, "existingWarnings": 4 },
+  "build": { "exitCode": 0 },
+  "renderedHtml": { "passed": 5, "failed": 0, "exitCode": 0 },
+  "fullRepositoryGreen": true,
+  "phase1ProductionQualified": false
+}

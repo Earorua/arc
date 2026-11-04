@@ -40,8 +40,8 @@ function evidenceErrors(skillId: string, item: SkillEvidenceDraft) {
   return { url: urlValid ? null : "请输入公开的 HTTPS 链接。", note: noteValid ? null : "请简要说明此链接的内容。" };
 }
 
-export function SkillAuditStep({ blueprint, value, onChange }: {
-  blueprint: RoleBlueprint; value: SkillAuditDraft; onChange: (next: SkillAuditDraft) => void;
+export function SkillAuditStep({ blueprint, value, onChange, allowBulkIndependent = true }: {
+  blueprint: RoleBlueprint; value: SkillAuditDraft; onChange: (next: SkillAuditDraft) => void; allowBulkIndependent?: boolean;
 }) {
   const updateLevel = (skillId: string, level: SkillSelfLevel) => onChange({
     ...value, levels: { ...value.levels, [skillId]: level },
@@ -74,7 +74,7 @@ export function SkillAuditStep({ blueprint, value, onChange }: {
         <legend className="sr-only">{categoryLabels[category]}技能</legend>
         <SetupDisclosure className="audit-bulk-disclosure" title={`${categoryLabels[category]}批量设置${range}`}>
         <div className="category-actions" aria-label={`${categoryLabels[category]}批量设置`}>
-          {levels.map(({ value: level, label }) => <button key={level} onClick={() => onChange({
+          {levels.filter(level => allowBulkIndependent || level.value !== "independent").map(({ value: level, label }) => <button key={level} onClick={() => onChange({
             ...value,
             levels: { ...value.levels, ...Object.fromEntries(skills.map(({ id }) => [id, level])) },
           })} type="button">将{categoryLabels[category]}设为{label}</button>)}

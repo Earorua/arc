@@ -20,6 +20,13 @@ afterEach(async () => {
 });
 
 describe("standalone Cloudflare target", () => {
+  it("wires the isolated local document service and five-minute recovery without remote resources",async()=>{
+    const config=createCloudflareConfig(await loadCloudflareTarget());
+    expect(config.services).toEqual([{binding:"DOCUMENT_EXECUTOR",service:"arc-document-executor-local",entrypoint:"DocumentExecutorEntrypoint"}]);
+    expect(config.triggers).toEqual({crons:["*/5 * * * *"]});
+    expect(config.vars).toMatchObject({ARC_DOCUMENT_ANALYSIS_ENABLED:"false"});
+    expect(createCloudflareConfig(parseRemoteTarget(shadow()))).not.toHaveProperty("services");
+  });
   it("builds a shadow SSR worker with assets, separate storage and closed AI", () => {
     const config = createCloudflareConfig(parseRemoteTarget(shadow()));
     expect(config).toMatchObject({

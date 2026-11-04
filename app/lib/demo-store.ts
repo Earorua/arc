@@ -1,5 +1,6 @@
 import type { LearningUnit, ProofItem } from "../domain/learning";
 
+import {demoStateSchema} from "../contracts/cloud-state";
 export type LearnerLevel = "new" | "beginner" | "intermediate" | "advanced";
 
 export interface SetupAnswers {
@@ -201,9 +202,11 @@ export function readDemoStateForMigration(
 
 export function saveDemoState(state: DemoState, storage?: Pick<Storage, "setItem">): boolean {
   try {
+    const parsed=demoStateSchema.safeParse(state);
+    if(!parsed.success)return false;
     const resolvedStorage = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
     if (!resolvedStorage) return false;
-    resolvedStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(state));
+    resolvedStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(parsed.data));
     return true;
   } catch {
     return false;

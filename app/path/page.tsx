@@ -18,26 +18,26 @@ import { PlanningLoadBoundary, PlanningVersionBoundary } from "../components/wor
 import { AccountBoundary } from "../components/account/account-boundary";
 import { WorkspaceHeader } from "../components/workspace/workspace-header";
 import { SetupCompletionNotice } from "../components/workspace/setup-completion-notice";
+import { MaterialWorkspaceEntry } from "../components/materials/material-workspace-panel";
 
 export default function PathPage() {
   const session = authClient.useSession();
   const hydrated = useHydrated();
   if (!hydrated || session.isPending) return <WorkspaceShell current="Path" state={null} />;
   if (!session.data?.user) return <div className="workspace-shell"><WorkspaceHeader current="Path" /><main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/path" title="你的下一步，有迹可循" description="登录后查看目标、阶段成果与当前学习路线。">{null}</AccountBoundary></main></div>;
-  return <SessionPathPage key={session.data?.user.id ?? "guest"} authenticated={Boolean(session.data?.user)} />;
+  return <SessionPathPage key={session.data.user.id} ownerId={session.data.user.id} />;
 }
 
-function SessionPathPage({ authenticated }: { authenticated: boolean }) {
+function SessionPathPage({ ownerId }: { ownerId: string }) {
   const arc = useArcState();
   const { state } = arc;
 
   if (state === null) return <WorkspaceShell current="Path" recovery={arc.recovery} source={arc.source} state={null} />;
 
-  if (authenticated || state.setup.roleId === flagshipRole.id) return <SourceAdaptivePath arc={arc} />;
-  return <LegacyPath arc={arc} />;
+  return <SourceAdaptivePath arc={arc} ownerId={ownerId} />;
 }
 
-function SourceAdaptivePath({ arc }: { arc: ReturnType<typeof useArcState> }) {
+function SourceAdaptivePath({ arc, ownerId }: { arc: ReturnType<typeof useArcState>; ownerId: string }) {
   const planning = usePlanningWorkspace();
   const [decisionMessage, setDecisionMessage] = useState<string | null>(null);
   const resolved = resolveWorkspacePresentation(planning, arc.state !== null && arc.source === "local" && arc.recovery === "none");
@@ -49,10 +49,10 @@ function SourceAdaptivePath({ arc }: { arc: ReturnType<typeof useArcState> }) {
   </WorkspaceShell>;
   if (resolved.kind === "legacy") return <LegacyPath arc={arc} />;
   const { workspace, blueprint, registry } = resolved;
-  return <WorkspaceShell current="Path" roleName={blueprint.name} migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>
+  return <WorkspaceShell current="Path" materials={<MaterialWorkspaceEntry planning={planning} />} roleName={blueprint.name} migration={arc.migration} migrationState={arc.localMigrationState} onDismissMigration={arc.dismissMigration} onImport={arc.importLocal} onRetry={arc.retry} recovery={arc.recovery} source={arc.source} state={arc.state} planningMigration={planning.migration} planningMigrationState={planning.source === "local" ? workspace : null} onDismissPlanningMigration={planning.dismissMigration} onImportPlanning={planning.importLocal} planningRecovery={planning.recovery} planningState={workspace}>
     <AdaptivePath blueprint={blueprint} registry={registry} workspace={workspace} />
     {decisionMessage && <p className="workspace-notice" role="status">{decisionMessage}</p>}
-    {workspace.pendingPlanVersionId && <PlanDiffReview registry={registry} workspace={workspace} recovery={planning.recovery} onAccept={planning.accept} onDiscard={planning.discard} onSuccess={setDecisionMessage} />}
+    {workspace.pendingPlanVersionId && <PlanDiffReview registry={registry} workspace={workspace} materialOwnerId={planning.source === "cloud" ? ownerId : undefined} recovery={planning.recovery} onAccept={planning.accept} onDiscard={planning.discard} onSuccess={setDecisionMessage} />}
   </WorkspaceShell>;
 }
 
@@ -65,6 +65,7 @@ function LegacyPath({ arc }: { arc: ReturnType<typeof useArcState> }) {
   return (
     <WorkspaceShell
       current="Path"
+      materials={<MaterialWorkspaceEntry />}
       migration={arc.migration}
       migrationState={arc.localMigrationState}
       onDismissMigration={arc.dismissMigration}

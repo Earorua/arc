@@ -1219,3 +1219,456 @@ export const researchBridgeNonces = sqliteTable("research_bridge_nonces", {
     AND ${table.expiresAt} > ${table.createdAt}
     AND ${table.expiresAt} - ${table.createdAt} <= 150001`),
 ]);
+
+// Private materials use application D1, with explicit owner-composite relations.
+const materialJson = (column: AnySQLiteColumn, bytes: number) => sql `json_valid(${column}) AND length(CAST(${column} AS BLOB)) <= ${sql.raw(String(bytes))}`;
+export const documents = sqliteTable("documents", {
+    ownerId: text("owner_id").notNull().references(() => users.id),
+    id: text("id").notNull(),
+    kind: text("kind").notNull(),
+    displayName: text("display_name").notNull(),
+    lifecycle: text("lifecycle").notNull().default("active"),
+    generation: integer("generation").notNull().default(0),
+    revision: integer("revision").notNull().default(0),
+    currentDocumentVersionId: text("current_document_version_id").notNull(),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    check("documents_kind", sql `${t.kind} IN ('resume','jd','supplement')`),
+    check("documents_lifecycle", sql `${t.lifecycle} IN ('active','revoked','cleanup-pending','deleted')`),
+    check("documents_revision", sql `${nonnegativeSafeInteger(t.revision)} AND ${nonnegativeSafeInteger(t.generation)}`)
+]);
+export const documentVersions = sqliteTable("document_versions", {
+    ownerId: text("owner_id").notNull(),
+    documentId: text("document_id").notNull(),
+    id: text("id").notNull(),
+    textVersionId: text("text_version_id").notNull(),
+    state: text("state").notNull(),
+    generation: integer("generation").notNull(),
+    revision: integer("revision").notNull(),
+    textDigest: text("text_digest").notNull(),
+    objectKey: text("object_key").notNull(),
+    utf8Bytes: integer("utf8_bytes").notNull(),
+    codePoints: integer("code_points").notNull(),
+    segmentsJson: text("segments_json").notNull(),
+    parserVersion: text("parser_version").notNull(),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.documentId, t.id] }),
+    uniqueIndex("document_versions_text_id").on(t.ownerId, t.textVersionId),
+    foreignKey({ columns: [t.ownerId, t.documentId], foreignColumns: [documents.ownerId, documents.id] }),
+    check("document_versions_state", sql `${t.state} IN ('pending','ready','revoked','cleanup-pending')`),
+    check("document_versions_size", sql `${t.utf8Bytes} BETWEEN 1 AND 262144 AND ${t.codePoints} BETWEEN 1 AND 50000`),
+    check("document_versions_segments", materialJson(t.segmentsJson, 16384))
+]);
+export const documentTextVersions = sqliteTable("document_text_versions", {
+    ownerId: text("owner_id").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    id: text("id").notNull(),
+    parserVersion: text("parser_version").notNull(),
+    textHash: text("text_hash").notNull(),
+    objectKey: text("object_key").notNull(),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId],
+        foreignColumns: [documentVersions.ownerId, documentVersions.documentId, documentVersions.id]
+    })
+]);
+export const documentExtractions = sqliteTable("document_extractions", {
+    ownerId: text("owner_id").notNull(),
+    id: text("id").notNull(),
+    jobId: text("job_id").notNull(),
+    documentId: text("document_id").notNull(),
+    textVersionId: text("text_version_id").notNull(),
+    schemaVersion: text("schema_version").notNull().default("2026.11.1"),
+    modelVersion: text("model_version"),
+    policyVersion: text("policy_version").notNull().default("2026.11.1"),
+    candidatesJson: text("candidates_json").notNull(),
+    state: text("state").notNull().default("active"),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    uniqueIndex("document_extractions_job").on(t.ownerId, t.jobId),
+    foreignKey({
+        columns: [t.ownerId, t.textVersionId],
+        foreignColumns: [documentTextVersions.ownerId, documentTextVersions.id]
+    }),
+    check("document_extractions_json", materialJson(t.candidatesJson, 131072)),
+    check("document_extractions_state", sql `${t.state} IN ('active','revoked')`)
+]);
+export const documentReviewDrafts = sqliteTable("document_review_drafts", {
+    ownerId: text("owner_id").notNull(),
+    id: text("id").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    textVersionId: text("text_version_id").notNull(),
+    extractionId: text("extraction_id"),
+    origin: text("origin").notNull(),
+    itemsJson: text("items_json").notNull(),
+    selfAssessmentHintsJson: text("self_assessment_hints_json").notNull(),
+    reviewPointsJson: text("review_points_json").notNull().default("[]"),
+    revision: integer("revision").notNull(),
+    state: text("state").notNull().default("active"),
+    updatedAt: integer("updated_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.textVersionId] }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId],
+        foreignColumns: [documentVersions.ownerId, documentVersions.documentId, documentVersions.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.extractionId],
+        foreignColumns: [documentExtractions.ownerId, documentExtractions.id]
+    }),
+    check("document_review_origin", sql `${t.origin} IN ('ai','manual','mixed')`),
+    check("document_review_state", sql `${t.state} IN ('active','revoked')`),
+    check("document_review_revision", nonnegativeSafeInteger(t.revision)),
+    check("document_review_items", materialJson(t.itemsJson, 131072)),
+    check("document_review_hints", materialJson(t.selfAssessmentHintsJson, 131072)),
+    check("document_review_points", materialJson(t.reviewPointsJson, 131072))
+]);
+export const documentConfirmations = sqliteTable("document_confirmations", {
+    ownerId: text("owner_id").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    id: text("id").notNull(),
+    textVersionId: text("text_version_id").notNull(),
+    reviewRevision: integer("review_revision").notNull(),
+    revision: integer("revision").notNull(),
+    origin: text("origin").notNull(),
+    state: text("state").notNull(),
+    itemsJson: text("items_json").notNull(),
+    reviewPointsJson: text("review_points_json").notNull().default("[]"),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.documentId, t.documentVersionId, t.id] }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId],
+        foreignColumns: [documentVersions.ownerId, documentVersions.documentId, documentVersions.id]
+    }),
+    check("document_confirmation_state", sql `${t.state} IN ('active','revoked')`),
+    check("document_confirmation_revision", sql `${nonnegativeSafeInteger(t.revision)} AND ${nonnegativeSafeInteger(t.reviewRevision)}`),
+    check("document_confirmation_items", materialJson(t.itemsJson, 131072)),
+    check("document_confirmation_points", materialJson(t.reviewPointsJson, 131072))
+]);
+export const materialSelections = sqliteTable("material_selections", {
+    ownerId: text("owner_id").notNull().references(() => users.id),
+    id: text("id").notNull(),
+    scopeJson: text("scope_json").notNull(),
+    revision: integer("revision").notNull(),
+    state: text("state").notNull(),
+    boundGoalId: text("bound_goal_id"),
+    generationMutationId: text("generation_mutation_id"),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    check("material_selections_state", sql `${t.state} IN ('active','bound','revoked') AND (${t.state}<>'bound' OR ${t.boundGoalId} IS NOT NULL)`),
+    check("material_selections_revision", nonnegativeSafeInteger(t.revision)),
+    check("material_selections_scope", materialJson(t.scopeJson, 4096))
+]);
+export const materialSelectionEntries = sqliteTable("material_selection_entries", {
+    ownerId: text("owner_id").notNull(),
+    selectionId: text("selection_id").notNull(),
+    slot: text("slot").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    confirmationId: text("confirmation_id").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.selectionId, t.documentId] }),
+    uniqueIndex("material_selection_main_slot").on(t.ownerId, t.selectionId, t.slot).where(sql `${t.slot} IN ('resume','jd')`),
+    foreignKey({
+        columns: [t.ownerId, t.selectionId],
+        foreignColumns: [materialSelections.ownerId, materialSelections.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId, t.confirmationId],
+        foreignColumns: [
+            documentConfirmations.ownerId, documentConfirmations.documentId, documentConfirmations.documentVersionId, documentConfirmations.id
+        ]
+    }),
+    check("material_selection_slot", sql `${t.slot} IN ('resume','jd','supplement')`)
+]);
+export const materialContextVersions = sqliteTable("material_context_versions", {
+    ownerId: text("owner_id").notNull(),
+    id: text("id").notNull(),
+    snapshotJson: text("snapshot_json").notNull(),
+    previewJson: text("preview_json").notNull(),
+    fingerprint: text("fingerprint").notNull(),
+    previewToken: text("preview_token").notNull(),
+    expiresAt: integer("expires_at").notNull(),
+    state: text("state").notNull(),
+    selectionId: text("selection_id").notNull(),
+    selectionRevision: integer("selection_revision").notNull(),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    foreignKey({
+        columns: [t.ownerId, t.selectionId],
+        foreignColumns: [materialSelections.ownerId, materialSelections.id]
+    }),
+    check("material_context_state", sql `${t.state} IN ('active','revoked')`),
+    check("material_context_snapshot", materialJson(t.snapshotJson, 262144)),
+    check("material_context_preview", materialJson(t.previewJson, 262144))
+]);
+export const materialContextDependencies = sqliteTable("material_context_dependencies", {
+    ownerId: text("owner_id").notNull(),
+    contextVersionId: text("context_version_id").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    textVersionId: text("text_version_id").notNull(),
+    confirmationId: text("confirmation_id").notNull(),
+    generation: integer("generation").notNull(),
+    confirmationDigest: text("confirmation_digest").notNull(),
+    slot: text("slot").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.contextVersionId, t.documentId] }),
+    foreignKey({
+        columns: [t.ownerId, t.contextVersionId],
+        foreignColumns: [materialContextVersions.ownerId, materialContextVersions.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId, t.confirmationId],
+        foreignColumns: [
+            documentConfirmations.ownerId, documentConfirmations.documentId, documentConfirmations.documentVersionId, documentConfirmations.id
+        ]
+    })
+]);
+export const goalDocumentLinks = sqliteTable("goal_document_links", {
+    ownerId: text("owner_id").notNull(),
+    goalId: text("goal_id").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    confirmationId: text("confirmation_id").notNull(),
+    contextVersionId: text("context_version_id").notNull(),
+    slot: text("slot").notNull(),
+    purpose: text("purpose").notNull().default("planning"),
+    enabled: integer("enabled").notNull().default(1),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.goalId, t.contextVersionId, t.documentId] }),
+    foreignKey({ columns: [t.ownerId, t.goalId], foreignColumns: [careerGoals.userId, careerGoals.id] }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId, t.confirmationId],
+        foreignColumns: [
+            documentConfirmations.ownerId, documentConfirmations.documentId, documentConfirmations.documentVersionId, documentConfirmations.id
+        ]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.contextVersionId],
+        foreignColumns: [materialContextVersions.ownerId, materialContextVersions.id]
+    }),
+    uniqueIndex("goal_document_main_slot").on(t.ownerId, t.goalId, t.slot).where(sql `${t.slot} IN ('resume','jd') AND ${t.enabled}=1`)
+]);
+export const documentUsageLinks = sqliteTable("document_usage_links", {
+    ownerId: text("owner_id").notNull(),
+    contextVersionId: text("context_version_id").notNull(),
+    goalId: text("goal_id").notNull(),
+    workspaceId: text("workspace_id").notNull(),
+    planVersionId: text("plan_version_id").notNull(),
+    kind: text("kind").notNull(),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.contextVersionId, t.planVersionId, t.kind] }),
+    foreignKey({
+        columns: [t.ownerId, t.goalId, t.workspaceId],
+        foreignColumns: [planningWorkspaces.userId, planningWorkspaces.goalId, planningWorkspaces.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.goalId, t.planVersionId],
+        foreignColumns: [planVersions.userId, planVersions.goalId, planVersions.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.contextVersionId],
+        foreignColumns: [materialContextVersions.ownerId, materialContextVersions.id]
+    }),
+    check("document_usage_kind", sql `${t.kind} IN ('generation','proposal','accepted')`)
+]);
+export const materialPlanProposals = sqliteTable("material_plan_proposals", {
+    ownerId: text("owner_id").notNull(),
+    goalId: text("goal_id").notNull(),
+    workspaceId: text("workspace_id").notNull(),
+    candidatePlanVersionId: text("candidate_plan_version_id").notNull(),
+    activeBasePlanId: text("active_base_plan_id").notNull(),
+    inputRevision: integer("input_revision").notNull(),
+    proposalRevision: integer("proposal_revision").notNull(),
+    contextVersionId: text("context_version_id").notNull(),
+    contextFingerprint: text("context_fingerprint").notNull(),
+    state: text("state").notNull(),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.goalId, t.candidatePlanVersionId] }),
+    foreignKey({
+        columns: [t.ownerId, t.goalId, t.workspaceId],
+        foreignColumns: [planningWorkspaces.userId, planningWorkspaces.goalId, planningWorkspaces.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.goalId, t.candidatePlanVersionId],
+        foreignColumns: [planVersions.userId, planVersions.goalId, planVersions.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.goalId, t.activeBasePlanId],
+        foreignColumns: [planVersions.userId, planVersions.goalId, planVersions.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.contextVersionId],
+        foreignColumns: [materialContextVersions.ownerId, materialContextVersions.id]
+    }),
+    check("material_proposal_state", sql `${t.state} IN ('pending','accepted','discarded','revoked')`)
+]);
+export const documentProcessingConsents = sqliteTable("document_processing_consents", {
+    ownerId: text("owner_id").notNull(),
+    id: text("id").notNull(),
+    textVersionId: text("text_version_id").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    purpose: text("purpose").notNull(),
+    policyVersion: text("policy_version").notNull(),
+    providerPolicyId: text("provider_policy_id").notNull(),
+    generation: integer("generation").notNull(),
+    grantedAt: integer("granted_at").notNull(),
+    revokedAt: integer("revoked_at"),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    foreignKey({
+        columns: [t.ownerId, t.textVersionId],
+        foreignColumns: [documentTextVersions.ownerId, documentTextVersions.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId],
+        foreignColumns: [documentVersions.ownerId, documentVersions.documentId, documentVersions.id]
+    }),
+    check("document_consent_purpose", sql `${t.purpose}='analysis'`)
+]);
+export const documentJobs = sqliteTable("document_jobs", {
+    ownerId: text("owner_id").notNull(),
+    id: text("id").notNull(),
+    textVersionId: text("text_version_id").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    consentId: text("consent_id").notNull(),
+    generation: integer("generation").notNull(),
+    documentRevision: integer("document_revision").notNull(),
+    modelVersion: text("model_version").notNull().default(""),
+    configurationDigest: text("configuration_digest").notNull().default(""),
+    executorCancelState: text("executor_cancel_state").notNull().default("none"),
+    executorCancelAttemptAt: integer("executor_cancel_attempt_at").notNull().default(0),
+    revision: integer("revision").notNull(),
+    state: text("state").notNull(),
+    dispatchState: text("dispatch_state").notNull(),
+    executionSlot: integer("execution_slot"),
+    queuedAt: integer("queued_at").notNull(),
+    queueExpiresAt: integer("queue_expires_at").notNull(),
+    providerPolicyId: text("provider_policy_id").notNull(),
+    priceVersion: text("price_version").notNull(),
+    policyVersion: text("policy_version").notNull(),
+    reservationId: text("reservation_id").notNull(),
+    extractionId: text("extraction_id"),
+    errorCode: text("error_code"),
+    updatedAt: integer("updated_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    uniqueIndex("document_jobs_id").on(t.id),
+    index("document_jobs_owner_queue").on(t.ownerId, t.state, t.queuedAt, t.id),
+    index("document_jobs_expiry_queue").on(t.state, t.dispatchState, t.queueExpiresAt, t.id),
+    index("document_jobs_cancel_notifications").on(t.executorCancelState, t.executorCancelAttemptAt, t.id),
+    uniqueIndex("document_jobs_owner_slot").on(t.ownerId).where(sql `${t.executionSlot}=1`),
+    foreignKey({
+        columns: [t.ownerId, t.consentId],
+        foreignColumns: [documentProcessingConsents.ownerId, documentProcessingConsents.id]
+    }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId],
+        foreignColumns: [documentVersions.ownerId, documentVersions.documentId, documentVersions.id]
+    }),
+    check("document_job_state", sql `${t.state} IN ('queued','running','succeeded','failed','cancel-requested','cancelled','revoked','cost-unknown')`),
+    check("document_job_dispatch", sql `${t.dispatchState} IN ('not-sent','may-have-sent','settled')`),
+    check("document_job_cancel_state", sql `${t.executorCancelState} IN ('none','pending','acknowledged')`),
+    check("document_job_slot", sql `${t.executionSlot} IS NULL OR ${t.executionSlot}=1`)
+]);
+export const documentBudgetReservations = sqliteTable("document_budget_reservations", {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull().references(() => users.id),
+    jobId: text("job_id").notNull().unique(),
+    day: text("day").notNull(),
+    reservedMicroUsd: integer("reserved_micro_usd").notNull(),
+    actualMicroUsd: integer("actual_micro_usd"),
+    state: text("state").notNull(),
+    receiptId: text("receipt_id").unique(),
+    priceVersion: text("price_version").notNull(),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+}, t => [
+    check("document_budget_state", sql `${t.state} IN ('reserved','settled','held-unknown','released')`),
+    check("document_budget_money", sql `${nonnegativeSafeInteger(t.reservedMicroUsd)} AND (${t.actualMicroUsd} IS NULL OR ${nonnegativeSafeInteger(t.actualMicroUsd)})`),
+    index("document_budget_owner_day").on(t.ownerId, t.day)
+]);
+export const documentBudgetCounters = sqliteTable("document_budget_counters", {
+    scope: text("scope").notNull(),
+    day: text("day").notNull(),
+    reservedMicroUsd: integer("reserved_micro_usd").notNull().default(0),
+    settledMicroUsd: integer("settled_micro_usd").notNull().default(0),
+    revision: integer("revision").notNull().default(0),
+}, t => [
+    primaryKey({ columns: [t.scope, t.day] }),
+    check("document_counters_money", sql `${nonnegativeSafeInteger(t.reservedMicroUsd)} AND ${nonnegativeSafeInteger(t.settledMicroUsd)}`)
+]);
+export const documentMutations = sqliteTable("document_mutations", {
+    ownerId: text("owner_id").notNull(),
+    endpoint: text("endpoint").notNull(),
+    mutationId: text("mutation_id").notNull(),
+    bodyDigest: text("body_digest").notNull(),
+    resultJson: text("result_json").notNull(),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.endpoint, t.mutationId] }), check("document_mutation_result", materialJson(t.resultJson, 4096))
+]);
+export const documentStorageOperations = sqliteTable("document_storage_operations", {
+    ownerId: text("owner_id").notNull(),
+    id: text("id").notNull(),
+    documentId: text("document_id").notNull(),
+    documentVersionId: text("document_version_id").notNull(),
+    objectKey: text("object_key").notNull(),
+    generation: integer("generation").notNull(),
+    expectedRevision: integer("expected_revision").notNull(),
+    state: text("state").notNull(),
+    writerTerminated: integer("writer_terminated").notNull().default(0),
+    writerProtocol: text("writer_protocol"),
+    r2UploadId: text("r2_upload_id"),
+    attempts: integer("attempts").notNull().default(0),
+    nextAttemptAt: integer("next_attempt_at").notNull(),
+    mutationEndpoint: text("mutation_endpoint").notNull(),
+    mutationId: text("mutation_id").notNull(),
+    bodyDigest: text("body_digest").notNull(),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    foreignKey({
+        columns: [t.ownerId, t.documentId, t.documentVersionId],
+        foreignColumns: [documentVersions.ownerId, documentVersions.documentId, documentVersions.id]
+    }),
+    uniqueIndex("document_storage_owner_mutation").on(t.ownerId, t.mutationEndpoint, t.mutationId),
+    index("document_storage_cleanup_scan").on(t.state, t.nextAttemptAt),
+    check("document_storage_state", sql `${t.state} IN ('writing','active','cleanup-pending','deleted')`)
+]);
+export const documentDeletionJobs = sqliteTable("document_deletion_jobs", {
+    ownerId: text("owner_id").notNull(),
+    id: text("id").notNull(),
+    documentId: text("document_id").notNull(),
+    generation: integer("generation").notNull(),
+    state: text("state").notNull(),
+    errorCode: text("error_code"),
+    attempts: integer("attempts").notNull().default(0),
+    nextAttemptAt: integer("next_attempt_at").notNull(),
+    createdAt: integer("created_at").notNull(),
+}, t => [
+    primaryKey({ columns: [t.ownerId, t.id] }),
+    foreignKey({ columns: [t.ownerId, t.documentId], foreignColumns: [documents.ownerId, documents.id] }),
+    index("document_deletion_cleanup_scan").on(t.state, t.nextAttemptAt),
+    check("document_deletion_state", sql `${t.state} IN ('revoked','cleaning','failed','completed')`)
+]);
+export const documentBridgeNonces = sqliteTable("document_bridge_nonces", { nonce: text("nonce").primaryKey(), expiresAt: integer("expires_at").notNull() });

@@ -1,3 +1,7 @@
+import { materialReplanRequestSchema, materialReplanResponseSchema, materialSha256, type MaterialReplanResponse } from "../../contracts/material-planning";
+import { prioritizeReadyNodes } from "../../lib/materials/planning-priority";
+import { canonicalJson } from "../../lib/planning/fingerprint";
+import type { MaterialContextService } from "../documents/context-builder";
 import { z } from "zod";
 import {
   generatePlanningRequestSchema,
@@ -30,6 +34,7 @@ import type {
 } from "./repository";
 import { PlanningSourceContractError, PlanningSourceResolver, PlanningSourceUnavailableError } from "./source-resolver";
 
+const MATERIAL_UNAPPLIED_MESSAGE = "当前路线重排不支持自评引起的任务替换、新增技能或范围变化；本次仅调整已有未完成任务的顺序。";
 const FLAGSHIP_SLUG = "ai-native-full-stack-engineer";
 const authenticatedOwnerSchema = z.string().trim().min(1).max(256);
 
@@ -75,6 +80,7 @@ export class PlanningInvalidInputError extends PlanningServiceError {
 
 type ServiceOptions = {
   repository: PlanningRepository;
+  materials?: MaterialContextService;
   intelligence?: Pick<IntelligenceService, "getPublished">;
   registry?: unknown;
   sourceResolver?: PlanningSourceResolver;
@@ -132,7 +138,11 @@ export class PlanningService {
     const scope = newGoal
       ? { ownerId, goalId: await researchGoalId(ownerId, request.mutationId) }
       : activeScope;
-    const replay = await this.loadReplay(scope, request.mutationId);
+
+    if (request.materials && !this.dependencies.materials) throw new PlanningUnavailableError();
+    const verifiedMaterials = request.materials ? await this.dependencies.materials!.verifyGeneration(ownerId, request) : null;
+    const materialSource = verifiedMaterials?.sourceContext ?? null;
+    const replay = await this.loadReplay(scope, request.mutationId, verifiedMaterials?.commit.requestDigest, !request.materials);
     if (replay) return replay;
     if (newGoal && (newGoal.previousGoalId !== activeScope.goalId
       || !await repositoryRead(() => this.dependencies.repository.load(activeScope)))) throw new PlanningConflictError();
@@ -143,7 +153,7 @@ export class PlanningService {
       const requestedSource = "source" in request
         ? request.source
         : { source: "flagship" as const, roleId: request.roleId };
-      const sourceContext = await this.sourceResolver.resolveForGenerate(ownerId, requestedSource);
+      const sourceContext = materialSource ?? await this.sourceResolver.resolveForGenerate(ownerId, requestedSource);
       const { blueprint, registry, reference: sourceReference } = sourceContext;
       const alternatives = buildLearningPaths({
         blueprint,
@@ -152,6 +162,7 @@ export class PlanningService {
         availability: request.availability,
         target: request.target,
         planningDate: request.planningDate,
+        ...(verifiedMaterials ? { materialOverlay: verifiedMaterials.overlay } : {}),
       });
       const path = request.selectedScope === "target-date" ? alternatives.targetDate : alternatives.fullScope;
       if (!path) throw new PlanningInvalidInputError(["selected-scope"]);
@@ -188,6 +199,7 @@ export class PlanningService {
       });
       const saved = await this.dependencies.repository.saveGeneration({
         ...scope, mutationId: request.mutationId, result, sourceReference,
+        ...(verifiedMaterials ? { materialCommit: verifiedMaterials.commit } : {}),
         ...(newGoal ? { newGoal: { previousGoalId: newGoal.previousGoalId, roleId: blueprint.name } } : {}),
       });
       return this.parseOwnedResult(saved, scope, sourceReference);
@@ -211,6 +223,47 @@ export class PlanningService {
     const request = parseContract(planningEventRequestSchema, input);
     if (request.event.kind !== "agent_replanned") throw new PlanningInvalidInputError();
     return this.mutate(userId, request.mutationId, request.baseVersionId, request.event, expected);
+  }
+
+  async proposeMaterialReplanResponse(userId: string, input: unknown): Promise<MaterialReplanResponse> {
+    const ownerId = parseOwner(userId);
+    const request = parseContract(materialReplanRequestSchema, input);
+    const materials = this.dependencies.materials;
+    if (!materials) throw new PlanningUnavailableError();
+    const scope = await this.resolveScope(ownerId);
+    if (scope.goalId !== request.scope.goalId) throw new PlanningConflictError();
+    const verified = await materials.verifyProposalRequest(ownerId, request);
+    if (canonicalJson(verified.commit.snapshot.scope) !== canonicalJson(request.scope)) throw new PlanningConflictError();
+    if (verified.noChange) return { outcome: "no-change", message: "现有未完成任务的顺序和日程无需变化。", unappliedChanges: verified.unapplied ? [MATERIAL_UNAPPLIED_MESSAGE] : [] };
+    const replay = await this.loadReplay(scope, request.mutationId, await materialSha256(request));
+    if (replay) return materialReplanResponseSchema.parse({ outcome: "proposed", planning: replay, unappliedChanges: [] });
+    const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
+    if (!stored) throw new PlanningNotFoundError();
+    const { workspace, sourceContext } = await this.parseOwnedWorkspace(stored, scope);
+    if (workspace.id !== request.scope.workspaceId || workspace.revision !== request.scope.revision
+      || workspace.activePlanVersionId !== request.scope.baseVersionId || workspace.pendingPlanVersionId) throw new PlanningConflictError();
+    const frozen = verified.commit.snapshot;
+    if (canonicalJson(frozen.sourceReference) !== canonicalJson(sourceContext.reference)
+      || canonicalJson(frozen.availability) !== canonicalJson(workspace.availability)) throw new PlanningConflictError();
+    const unappliedChanges: string[] = [];
+    if (canonicalJson(frozen.audit.answers) !== canonicalJson(workspace.audit.answers)
+      || canonicalJson(frozen.target) !== canonicalJson(workspace.target)) unappliedChanges.push(MATERIAL_UNAPPLIED_MESSAGE);
+    const path = workspace.pathVersions.find(value => value.id === workspace.activePathVersionId)!;
+    const completed = new Set(workspace.events.filter(event => event.kind === "completed").map(event => event.unitId));
+    const unfinished = path.units.filter(unit => !completed.has(unit.id));
+    const overlay = verified.preview.overlay!;
+    const unitOrder = prioritizeReadyNodes(unfinished.map((unit, originalIndex) => ({ id: unit.id, prerequisiteIds: unit.prerequisiteUnitIds, rank: overlay.skillRanks[unit.skillId] ?? 5, originalIndex })), completed);
+    try {
+      const event = planningEventSchema.parse({ kind: "agent_replanned", unitOrder, baseRevision: workspace.revision, planningDate: frozen.planningDate, eventId: this.createId(), mutationId: request.mutationId, sequence: workspace.lastSequence + 1, targetPlanVersionId: workspace.activePlanVersionId, occurredAt: this.now().toISOString() });
+      const transition = applyPlanningEvent({ workspace, event, blueprint: sourceContext.blueprint, registry: sourceContext.registry });
+      const result = resultFromTransition(transition);
+      if (canonicalJson(unitOrder) === canonicalJson(unfinished.map(unit => unit.id)) && result.diff?.items.every(item => item.change === "unchanged")) {
+        await materials.recordNoChange(ownerId, request, verified.commit, unappliedChanges.length > 0);
+        return { outcome: "no-change", message: "现有未完成任务的顺序和日程无需变化。", unappliedChanges };
+      }
+      const saved = await this.dependencies.repository.saveEvent({ ...scope, mutationId: request.mutationId, baseRevision: workspace.revision, baseVersionId: workspace.activePlanVersionId, previous: workspace, result, sourceReference: sourceContext.reference, materialCommit: { ...verified.commit, kind: "proposal", requestDigest: await materialSha256(request) } });
+      return materialReplanResponseSchema.parse({ outcome: "proposed", planning: await this.parseOwnedResult(saved, scope, sourceContext.reference), unappliedChanges });
+    } catch (error) { throw normalizeError(error); }
   }
 
   async acceptReplan(userId: string, input: unknown): Promise<PlanningMutationResult> {
@@ -249,7 +302,7 @@ export class PlanningService {
     const ownerId = parseOwner(userId);
     const scope = await this.resolveScope(ownerId);
     if (expected && scope.goalId !== expected.goalId) throw new PlanningConflictError();
-    const replay = await this.loadReplay(scope, mutationId);
+    const replay = await this.loadReplay(scope, mutationId, body.kind === "replan_accepted" ? await materialSha256({ mutationId, baseVersionId, candidatePlanVersionId: body.candidatePlanVersionId }) : undefined);
     if (replay) return replay;
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (!stored) throw new PlanningUnavailableError();
@@ -298,8 +351,8 @@ export class PlanningService {
     return { ownerId, goalId: scope.goalId };
   }
 
-  private async loadReplay(scope: PlanningOwnerGoal, mutationId: string): Promise<PlanningMutationResponse | null> {
-    const stored = await repositoryRead(() => this.dependencies.repository.findMutation({ ...scope, mutationId }));
+  private async loadReplay(scope: PlanningOwnerGoal, mutationId: string, materialRequestDigest?: string, expectNoMaterials = false): Promise<PlanningMutationResponse | null> {
+    const stored = await repositoryRead(() => this.dependencies.repository.findMutation({ ...scope, mutationId, ...(materialRequestDigest ? { materialRequestDigest } : {}), ...(expectNoMaterials ? { expectNoMaterials: true } : {}) }));
     return stored ? this.parseOwnedResult(stored, scope) : null;
   }
 

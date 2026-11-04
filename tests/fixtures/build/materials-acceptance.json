@@ -1,0 +1,16 @@
+{
+  "stage": "materials-acceptance", "mode": "closed", "accountId": "54eaadb89014252836694203c1e22546",
+  "site": {
+    "workerName": "arc-materials-g1b-fixture-site", "origin": "https://arc-materials-g1b-fixture-site.23711031.workers.dev",
+    "executorEntrypoint": "DocumentExecutorEntrypoint", "authProviders": ["github"],
+    "d1": { "id": "55934b3d-be6a-470e-956d-31d952f2f735", "name": "arc-materials-g1b-fixture-site-db" },
+    "proofs": { "name": "arc-materials-g1b-fixture-proofs", "public": false },
+    "documents": { "name": "arc-materials-g1b-fixture-documents", "public": false }
+  },
+  "executor": {
+    "workerName": "arc-materials-g1b-fixture-executor", "siteEntrypoint": "DocumentSite",
+    "d1": { "id": "3136ae36-023c-4ebc-ad02-d0ed2bd4ef57", "name": "arc-materials-g1b-fixture-executor-db" },
+    "results": { "name": "arc-materials-g1b-fixture-results", "public": false },
+    "workflow": "arc-materials-g1b-fixture-workflow"
+  }
+}

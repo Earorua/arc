@@ -1,3 +1,4 @@
+import type { MaterialPlanCommit } from "./material-commit";
 import type { PlanningMutationResult, PlanningSourceContext, PlanningSourceReference } from "../../contracts/planning";
 
 export type PlanningOwnerGoal = Readonly<{
@@ -14,11 +15,14 @@ export type PlanningRepositoryPayload = PlanningOwnerGoal & Readonly<{
 
 export type PlanningMutationLookup = PlanningOwnerGoal & Readonly<{
   mutationId: string;
+  materialRequestDigest?: string;
+  expectNoMaterials?: boolean;
 }>;
 
 export type SavePlanningGenerationCommand = PlanningMutationLookup & Readonly<{
   result: PlanningMutationResult;
   sourceReference: PlanningSourceReference;
+  materialCommit?: MaterialPlanCommit;
   newGoal?: Readonly<{ previousGoalId: string; roleId: string }>;
 }>;
 

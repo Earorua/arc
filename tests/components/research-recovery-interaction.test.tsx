@@ -162,7 +162,7 @@ describe("Setup research recovery interaction", () => {
     expect(screen.getByText("上一次研究的状态尚未确认。")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "查询研究状态" })).toBeEnabled();
     await userEvent.setup().click(screen.getByRole("button", { name: "查询研究状态" }));
-    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(fetcher.mock.calls.filter(([url]) => String(url) === "/api/intelligence/research/recover")).toHaveLength(2));
   });
   it("keeps an uncertain pending submission visible and queryable across ineligible role edits", async () => {
     const researchClient = client();

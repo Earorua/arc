@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { readMigrationFiles } from "drizzle-orm/migrator";
 import { Miniflare } from "miniflare";
 
 import { LEGACY_OBJECTS, LEGACY_ROWS, LEGACY_TABLES, MIGRATIONS, RESTORE_ORDER } from "./legacy-fixture.mjs";
@@ -41,6 +42,11 @@ export async function loadRetainedMigrations() {
       statements: sql.split("--> statement-breakpoint").map((part) => part.trim()).filter(Boolean) });
   }
   return loaded;
+}
+
+export function loadCurrentMigrations() {
+  return readMigrationFiles({ migrationsFolder: resolve(root, "drizzle") })
+    .map(({ sql }) => ({ statements: sql.map((statement) => statement.trim()).filter(Boolean) }));
 }
 
 export async function applyMigrations(db, migrations, start = 0, end = migrations.length) {

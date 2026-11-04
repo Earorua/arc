@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Miniflare } from "miniflare";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -18,7 +18,21 @@ import { createExecutionRuntime, createHttpRuntime, createMaintenanceRuntime } f
 import { createResearchCloudSmokeFixture } from "../helpers/research-cloud-smoke-fixture";
 import { TEST_PRODUCTION_ENVIRONMENT } from "../helpers/research-bridge-fixture";
 
-const buildProbe = vi.hoisted(() => ({ mutation: "" }));
+const buildProbe = vi.hoisted(() => ({ mutation: "", inputPath: "", inputPhase: "before", inputReads: 0, builds: 0 }));
+// Alter only bytes observed at the file-read boundary, never files in the shared checkout.
+vi.mock("node:fs/promises", async (load) => {
+  const actual = await load<typeof import("node:fs/promises")>();
+  return { ...actual, readFile: async (...args: Parameters<typeof actual.readFile>) => {
+    const bytes = await actual.readFile(...args);
+    if (buildProbe.inputPath && String(args[0]).replaceAll("\\", "/").endsWith(`/${buildProbe.inputPath}`)) {
+      buildProbe.inputReads++;
+      if (buildProbe.inputPhase === "before" || buildProbe.inputReads > 1) {
+        return typeof bytes === "string" ? `${bytes}\n// unreviewed change\n` : Buffer.concat([bytes, Buffer.from("\n// unreviewed change\n")]);
+      }
+    }
+    return bytes;
+  } };
+});
 vi.mock("cloudflare:workers", () => ({ WorkflowEntrypoint: class {
   protected env: unknown;
   constructor(_context: unknown, environment: unknown) { this.env = environment; }
@@ -26,6 +40,7 @@ vi.mock("cloudflare:workers", () => ({ WorkflowEntrypoint: class {
 vi.mock("esbuild", async (load) => {
   const actual = await load<typeof import("esbuild")>();
   return { ...actual, build: async (options: import("esbuild").BuildOptions) => {
+    buildProbe.builds++;
     if (!buildProbe.mutation) return actual.build(options);
     const mutation = buildProbe.mutation;
     const tamper: import("esbuild").Plugin = { name: "test-in-memory-boundary-probe", setup(api) {
@@ -231,7 +246,7 @@ const buildSmoke = async (profile: unknown = "cloud") => {
   const builder = await import("../../scripts/build-research-executor-smoke.mjs");
   return builder.buildSmoke({ profile, reportName: reportName() });
 };
-afterEach(() => { buildProbe.mutation = ""; vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => { buildProbe.mutation = ""; buildProbe.inputPath = ""; buildProbe.inputPhase = "before"; buildProbe.inputReads = 0; buildProbe.builds = 0; vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe("smoke build boundary", () => {
   it.each(["cloud", "local"])("builds the actual %s graph and separate production control", async (profile) => {
@@ -242,6 +257,16 @@ describe("smoke build boundary", () => {
     expect(report.aliasEdges.filter((edge: { kind: string }) => edge.kind === "runtime-rewrite")).toHaveLength(2);
     expect(report.aliasEdges.filter((edge: { kind: string }) => edge.kind === "runtime-bypass")).toHaveLength(1);
     expect(report.protectedBefore).toEqual(report.protectedAfter);
+    for (const [path, hash] of Object.entries({
+      "app/server/research/openrouter-provider.ts": "d0c962c1ba0bcaf2e87119e40b982e0ebe6560d67ddcc662530b21db4ed7c54d",
+      "app/server/research/citation-title.ts": "bf1399f067b9fc5912203f68c8b8a887eea721b8d021c8f4ecf8dbeccf05d3c3",
+    })) {
+      expect(report.reviewed[path]).toBe(hash);
+      expect(report.protectedBefore[path]).toBe(hash);
+      expect(report.inputHashes[path]).toBe(hash);
+      expect(report.executor.inputs).toContain(path);
+      expect(report.production.inputs).toContain(path);
+    }
     expect(report.production.inputs.some((path: string) => path.includes("smoke") || path.startsWith("tests/"))).toBe(false);
     for (const graph of [report.executor, report.production]) {
       expect(graph.inputs).toContain("worker/research-executor/maintenance-policy.ts");
@@ -258,6 +283,20 @@ describe("smoke build boundary", () => {
       expect(report.executor.inputs).toContain("tests/fixtures/research/valid-candidate.ts");
       expect(report.executor.inputs.some((path: string) => path.includes("cloud-smoke-local") || path.startsWith("tests/helpers/"))).toBe(false);
     }
+  }, 30_000);
+  it.each(["app/server/research/openrouter-provider.ts", "app/server/research/citation-title.ts"].flatMap(path =>
+    ["before", "after"].map(phase => ({ path, phase }))))("rejects unreviewed bytes in $path $phase compilation without publishing artifacts", async ({ path, phase }) => {
+    buildProbe.inputPath = path; buildProbe.inputPhase = phase;
+    const name = reportName();
+    const builder = await import("../../scripts/build-research-executor-smoke.mjs");
+    await expect(builder.buildSmoke({ profile: "local", reportName: name })).rejects.toThrow(
+      phase === "before" ? `Reviewed input hash changed: ${path}` : "Build changed protected/source inputs",
+    );
+    expect(buildProbe.builds).toBe(phase === "before" ? 0 : 3);
+    const directory = resolve("outputs/local-durable-executor-20260914/task15-smoke/build/local", name);
+    expect(await readdir(directory)).toEqual(["report.json"]);
+    const report = JSON.parse(await readFile(resolve(directory, "report.json"), "utf8"));
+    expect(report).toMatchObject({ status: "failed", deployable: false });
   }, 30_000);
   it("refuses an unsupported profile and extra runtime options", async () => {
     await expect(buildSmoke("preview")).rejects.toThrow(/profile/iu);

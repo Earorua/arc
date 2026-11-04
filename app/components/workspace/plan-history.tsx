@@ -10,6 +10,7 @@ import { ArcApiError } from "../../lib/cloud-client";
 import { AdaptivePath } from "./adaptive-path";
 import { updatePageQuery, usePageQuery } from "../../lib/use-page-query";
 import { signInHref } from "../../lib/navigation-context";
+import { MaterialHistory } from "../materials/material-history";
 
 type Result = { kind: "list"; value: PlanningHistory } | { kind: "plan"; value: PlanningWorkspaceResponse };
 
@@ -85,7 +86,7 @@ function HistoryView({ client, goal, offset, ownerId }: { client: PlanningHistor
           {offset > 0 && <button type="button" onClick={() => navigate(null, Math.max(0, offset - 20))}>上一页</button>}
           {result.value.nextOffset !== null && <button type="button" onClick={() => navigate(null, result.value.nextOffset!)}>下一页</button>}
         </nav>
-      </> : <SavedPlan value={result.value} />}
+      </> : <><SavedPlan value={result.value} />{result.value.workspace && <MaterialHistory ownerId={ownerId} goalId={result.value.workspace.goalId} />}</>}
   </section>;
 }
 

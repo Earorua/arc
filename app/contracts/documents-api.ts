@@ -2,13 +2,16 @@ import { z } from "zod";
 import {
   DOCUMENT_SCHEMA_VERSION, MAX_DOCUMENT_ITEMS_JSON_BYTES, boundedMaterialJson, confirmedMaterialItemsSchema,
   documentKindSchema, documentReviewDraftSchema, documentSchema, documentTextSchema, documentVersionSchema,
-  materialDigestSchema, materialIdSchema, materialRevisionSchema, materialScopeSchema, materialSelectionEntriesSchema,
-  materialSelectionRefSchema, materialSelectionSchema, materialSelfAssessmentHintsSchema, materialTimestampSchema, materialVersionSchema,
+  materialDigestSchema, materialIdSchema, materialOwnerIdSchema, materialRevisionSchema, materialScopeSchema, materialSelectionEntriesSchema,
+  materialSelectionRefSchema, materialSelectionSchema, materialSelfAssessmentHintsSchema, materialTimestampSchema, materialVersionSchema, materialReviewPointsSchema,
 } from "./documents";
 import {
   createMaterialContextRequestSchema, createMaterialContextResponseSchema, generatePlanningWithMaterialsRequestSchema,
   materialReplanRequestSchema, materialSha256, readMaterialContextRequestSchema, readMaterialContextResponseSchema,
+  materialHistoryResponseSchema, materialReplanResponseSchema,
 } from "./material-planning";
+import { documentCapabilitiesSchema } from "./document-capabilities";
+import { materialGenerationReceiptRequestSchema, materialGenerationReceiptResponseSchema } from "./material-recovery";
 import { MAX_PLANNING_RESPONSE_BYTES, planningMutationResponseSchema } from "./planning-api";
 import { canonicalJson } from "../lib/planning/fingerprint";
 
@@ -32,6 +35,7 @@ export const documentReviewDraftResponseSchema = boundedMaterialJson(z.object({ 
 export const saveDocumentReviewDraftRequestSchema = boundedMaterialJson(z.object({
   documentId: materialIdSchema, textVersionId: materialIdSchema, extractionId: materialIdSchema.nullable(),
   items: confirmedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema, ...revisionMutationFields,
+  reviewPoints: materialReviewPointsSchema.optional(),
 }).strict(), MAX_DOCUMENT_ITEMS_JSON_BYTES);
 export const saveDocumentReviewDraftResponseSchema = boundedMaterialJson(z.object({ draft: documentReviewDraftSchema }).strict(), MAX_DOCUMENT_ITEMS_JSON_BYTES + 1024);
 export const createDocumentConfirmationRequestSchema = boundedMaterialJson(z.object({
@@ -75,6 +79,11 @@ export const deleteDocumentRequestSchema = z.object({ documentId: materialIdSche
 export const deleteDocumentResponseSchema = z.object({ deletionJobId: materialIdSchema, state: z.enum(["revoked", "cleanup-pending"]) }).strict();
 export const readDocumentDeletionRequestSchema = z.object({ deletionJobId: materialIdSchema }).strict();
 export const readDocumentDeletionResponseSchema = z.object({ deletionJobId: materialIdSchema, state: z.enum(["revoked", "cleaning", "failed", "completed"]), errorCode: z.enum(["cleanup-failed", "storage-unavailable"]).nullable() }).strict();
+export const readDocumentMutationRequestSchema = z.object({ mutationId: materialIdSchema, endpoint: z.enum(["createDocument", "createDocumentVersion"]) }).strict();
+export const readDocumentMutationResponseSchema = z.object({ receipt: documentVersionReceiptSchema.nullable() }).strict();
+export const readDocumentExtractionRequestSchema = z.object({ documentId: materialIdSchema, extractionId: materialIdSchema }).strict();
+export const readDocumentExtractionResponseSchema = boundedMaterialJson(z.object({ draft: documentReviewDraftSchema, expectedRevision: materialRevisionSchema }).strict(), MAX_DOCUMENT_ITEMS_JSON_BYTES + 1024);
+export const adoptDocumentExtractionRequestSchema = z.object({ documentId: materialIdSchema, textVersionId: materialIdSchema, extractionId: materialIdSchema, ...revisionMutationFields }).strict();
 
 /** Requests combine validated path, query and body fields; there are no HTTP handlers in phase 0. */
 export const documentEndpointContracts = {
@@ -95,10 +104,16 @@ export const documentEndpointContracts = {
   revokeDocumentConsent: { method: "POST", path: "/api/document-consents/[consentId]/revoke", request: revokeDocumentConsentRequestSchema, response: revokeDocumentConsentResponseSchema },
   createMaterialContext: { method: "POST", path: "/api/planning/material-contexts", request: createMaterialContextRequestSchema, response: createMaterialContextResponseSchema },
   generatePlanning: { method: "POST", path: "/api/planning/generate", request: generatePlanningWithMaterialsRequestSchema, response: boundedMaterialJson(planningMutationResponseSchema, MAX_PLANNING_RESPONSE_BYTES) },
-  materialReplan: { method: "POST", path: "/api/planning/material-replans", request: materialReplanRequestSchema, response: boundedMaterialJson(planningMutationResponseSchema, MAX_PLANNING_RESPONSE_BYTES) },
+  materialReplan: { method: "POST", path: "/api/planning/material-replans", request: materialReplanRequestSchema, response: materialReplanResponseSchema },
   readMaterialContext: { method: "GET", path: "/api/planning/material-contexts/[contextVersionId]", request: readMaterialContextRequestSchema, response: readMaterialContextResponseSchema },
   deleteDocument: { method: "DELETE", path: "/api/documents/[documentId]", request: deleteDocumentRequestSchema, response: deleteDocumentResponseSchema },
   readDocumentDeletion: { method: "GET", path: "/api/document-deletions/[deletionJobId]", request: readDocumentDeletionRequestSchema, response: readDocumentDeletionResponseSchema },
+  readDocumentCapabilities: { method: "GET", path: "/api/documents/capabilities", request: emptyRequestSchema, response: documentCapabilitiesSchema },
+  readDocumentMutation: { method: "GET", path: "/api/document-mutations/[mutationId]", request: readDocumentMutationRequestSchema, response: readDocumentMutationResponseSchema },
+  readDocumentExtraction: { method: "GET", path: "/api/documents/[documentId]/extractions/[extractionId]", request: readDocumentExtractionRequestSchema, response: readDocumentExtractionResponseSchema },
+  adoptDocumentExtraction: { method: "POST", path: "/api/documents/[documentId]/adopt-extraction", request: adoptDocumentExtractionRequestSchema, response: saveDocumentReviewDraftResponseSchema },
+  readMaterialHistory: { method: "GET", path: "/api/planning/material-history", request: z.object({ goalId: materialIdSchema }).strict(), response: materialHistoryResponseSchema },
+  readMaterialGenerationReceipt: { method: "GET", path: "/api/planning/material-generation-receipts", request: materialGenerationReceiptRequestSchema, response: materialGenerationReceiptResponseSchema },
 } as const;
 export type DocumentEndpoint = keyof typeof documentEndpointContracts;
 export type DocumentEndpointRequest<K extends DocumentEndpoint> = z.infer<(typeof documentEndpointContracts)[K]["request"]>;
@@ -109,11 +124,11 @@ export const DOCUMENT_API_ERROR_STATUS = Object.freeze({
 } as const);
 export const documentApiErrorSchema = z.object({ code: z.enum(Object.keys(DOCUMENT_API_ERROR_STATUS) as [keyof typeof DOCUMENT_API_ERROR_STATUS, ...(keyof typeof DOCUMENT_API_ERROR_STATUS)[]]), status: z.number().int() }).strict()
   .refine((error) => error.status === DOCUMENT_API_ERROR_STATUS[error.code], "Error status must match the public error code");
-const mutationIdentitySchema = z.object({ ownerId: materialIdSchema, endpoint: z.enum(Object.keys(documentEndpointContracts) as [DocumentEndpoint, ...DocumentEndpoint[]]), mutationId: materialIdSchema, bodyDigest: materialDigestSchema }).strict();
+const mutationIdentitySchema = z.object({ ownerId: materialOwnerIdSchema, endpoint: z.enum(Object.keys(documentEndpointContracts) as [DocumentEndpoint, ...DocumentEndpoint[]]), mutationId: materialIdSchema, bodyDigest: materialDigestSchema }).strict();
 export type DocumentMutationIdentity = z.infer<typeof mutationIdentitySchema>;
 /** Call after request validation. Canonical payload includes path/query semantics; mutationId is part of the receipt key. */
 export async function createDocumentMutationDigest(ownerId: string, endpoint: DocumentEndpoint, validatedPayload: unknown): Promise<string> {
-  materialIdSchema.parse(ownerId);
+  materialOwnerIdSchema.parse(ownerId);
   if (!Object.hasOwn(documentEndpointContracts, endpoint)) throw new TypeError("Unknown document endpoint");
   const canonicalPayload = JSON.parse(canonicalJson(validatedPayload)) as unknown;
   if (!canonicalPayload || Array.isArray(canonicalPayload) || typeof canonicalPayload !== "object") throw new TypeError("Mutation payload must be an object");

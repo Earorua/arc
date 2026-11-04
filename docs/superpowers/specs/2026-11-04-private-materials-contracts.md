@@ -156,6 +156,8 @@ claim 同事务重查 consent、资料代次/lifecycle、策略、队列有效�
 
 快照字段 `policyVersion` 对应规划策略版本（阶段 1 计划中的 planningPolicyVersion），`mappingVersion` 对应 mappingPolicyVersion，`explanationVersion` 独立记录解释规则版本；三者均参与摘要。字段名的这一映射是交接约定，不允许遗漏解释版本或仅修改展示而继续复用旧 previewToken。
 
+阶段 1 增补（2026-11-04）：`createMaterialContext`、冻结快照及预览支持可选 `skillMappings: [{ confirmationId, itemId, skillId }]`。服务端只接受本 owner 当前 selection 的有效确认事实，以及当前 blueprint/registry 中具有合法 track 的既有技能；不接受其他确认、未知技能或非学习约束的映射。规范排序后的选择参与语义指纹，生成仍只携带不可变 context 引用。版本化精确别名按蓝图 ID/版本发布，未知蓝图不借用 flagship 别名；`mappingVersion` 升为 `2026.11.2`。用户修改对应技能后须重新预览，不改变原始事实或能力自评，不增加目录技能；界面中的未提交选择仅保存在内存。
+
 previewToken 是摘要而非权限凭证。失效 context 的新生成、候选接受、个性化回放应拒绝；不能通过旧 mutation response 重新取回删除内容。既有工作区的非私有任务/事件回放保持，来源说明可显示“已删除”。真实实现仍在阶段 1，本阶段仅验证输入快照和纯判定。
 
 阶段 1 的接入点固定为：`app/server/planning/service.ts` 解析资料引用、生成预览与重排输入；`app/server/planning/d1-planning-repository.ts` 在原 generation/event batch 中接入资料栅栏和关联；`app/lib/planning/path-builder.ts` 在 ready 集合中应用优先级及依赖继承；`app/lib/planning/event-reducer.ts` 继续验证 exact-set、版本和学习事件；`app/components/setup/setup-draft.ts` 只持久化非私有引用及既有普通配置。阶段 0 未修改这些文件。

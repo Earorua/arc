@@ -9,6 +9,7 @@ import "./globals.css";
 import "./components/agents/agents.css";
 import "./components/today/today-refinement.css";
 import "./components/setup/setup-refinement.css";
+import "./components/materials/materials.css";
 import "./components/workspace/workspace-refinement.css";
 import "./ui-refinement.css";
 import "./discovery-theme.css";

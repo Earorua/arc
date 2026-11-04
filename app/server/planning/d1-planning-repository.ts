@@ -1,3 +1,5 @@
+import { materialSha256 } from "../../contracts/material-planning";
+import { materialGuardStatement, materialAssociationStatements, loadMaterialCommit } from "./material-commit";
 import { z } from "zod";
 import {
   MAX_PLANNING_WORKSPACE_BYTES,
@@ -62,11 +64,13 @@ type StoredEvent = z.infer<typeof storedEventSchema>;
 type StoredMutation = StoredGeneration | StoredEvent;
 
 type RepositoryOptions = {
+  allowMaterialAcceptance: boolean;
   createId: () => string;
   now: () => Date;
   sourceResolver: Pick<PlanningSourceResolver, "resolveForGenerationCommit" | "resolveForReplay">;
 };
 const defaultOptions: RepositoryOptions = {
+  allowMaterialAcceptance: true,
   createId: () => crypto.randomUUID(),
   now: () => new Date(),
   sourceResolver: {
@@ -121,6 +125,7 @@ export class D1PlanningRepository implements PlanningRepository {
     `).bind(input.ownerId, scopeFor(input.goalId), input.mutationId)
       .first<IdempotencyRow>();
     if (!row) return null;
+    await this.assertMaterialReplay(input);
     const stored = parseStoredMutation(row.response_json);
     if (stored.ownerId !== input.ownerId || stored.goalId !== input.goalId) throw new PlanningNotFoundError();
     if (stored.kind === "generation") {
@@ -203,11 +208,18 @@ export class D1PlanningRepository implements PlanningRepository {
     const result = parseMutationResult(command.result);
     if (result.workspace.goalId !== command.goalId || result.workspace.revision !== 0) throw new PlanningUnavailableError();
     const sourceReference = parseSourceReference(command.sourceReference);
-    const replay = await this.findMutation(command);
+    const mutationLookup = { ...command, ...(command.materialCommit ? { materialRequestDigest: command.materialCommit.requestDigest } : { expectNoMaterials: true }) };
+    const replay = await this.findMutation(mutationLookup);
     if (replay) return replay;
     const sourceContext = await this.resolveGenerationSource(command.ownerId, sourceReference, result.workspace);
     const now = this.options.now().getTime();
     const statements: D1PreparedStatement[] = [];
+    if (command.materialCommit) {
+      const commit = { ...command.materialCommit, checkedAt: now };
+      if (commit.kind !== "generation" || commit.snapshot.scope.kind !== "draft") throw new PlanningConflictError();
+      statements.push(materialGuardStatement(this.db, command.ownerId, commit));
+      statements.push(this.db.prepare("SELECT json(CASE WHEN EXISTS(SELECT 1 FROM material_selections WHERE owner_id=?1 AND id=?2 AND state='active') THEN '{}' ELSE '' END)").bind(command.ownerId, commit.snapshot.selectionRef.selectionId));
+    }
     if (command.newGoal) {
       if (sourceReference.source !== "research" || command.newGoal.roleId !== sourceContext.blueprint.name
         || command.newGoal.previousGoalId === command.goalId) throw new PlanningConflictError();
@@ -238,13 +250,14 @@ export class D1PlanningRepository implements PlanningRepository {
     `).bind(result.workspace.id, command.ownerId, command.goalId, result.workspace.audit.id,
       result.workspace.availability.id, result.workspace.activePathVersionId,
       result.workspace.activePlanVersionId, now));
+    if (command.materialCommit) statements.push(...materialAssociationStatements(this.db, { ownerId: command.ownerId, goalId: command.goalId, workspaceId: result.workspace.id, planVersionId: result.workspace.activePlanVersionId, mutationId: command.mutationId, revision: 0, commit: { ...command.materialCommit, checkedAt: now } }));
     statements.push(this.idempotencyStatement(command, result, now));
     try {
       await this.db.batch(statements);
     } catch (error) {
-      const winner = await this.findMutation(command);
+      const winner = await this.findMutation(mutationLookup);
       if (winner) return winner;
-      throw isConflictError(error) ? new PlanningConflictError() : new PlanningUnavailableError();
+      throw isConflictError(error) || (command.materialCommit && error instanceof Error && error.message.includes("malformed JSON")) ? new PlanningConflictError() : new PlanningUnavailableError();
     }
     return { ownerId: command.ownerId, goalId: command.goalId, payload: result, sourceReference, sourceContext };
   }
@@ -258,12 +271,40 @@ export class D1PlanningRepository implements PlanningRepository {
       || workspace.revision !== command.baseRevision + 1 || workspace.lastSequence !== previous.lastSequence + 1) {
       throw new PlanningConflictError();
     }
-    const replay = await this.findMutation(command);
+    const lastEvent = workspace.events.at(-1);
+    const requestDigest = command.materialCommit?.requestDigest ?? (lastEvent?.kind === "replan_accepted"
+      ? await materialSha256({ mutationId: command.mutationId, baseVersionId: command.baseVersionId, candidatePlanVersionId: lastEvent.candidatePlanVersionId }) : undefined);
+    const mutationLookup = { ...command, ...(requestDigest ? { materialRequestDigest: requestDigest } : {}) };
+    const replay = await this.findMutation(mutationLookup);
     if (replay) return replay;
-    const event = workspace.events.at(-1);
+    const event = lastEvent;
     if (!event || event.mutationId !== command.mutationId) throw new PlanningUnavailableError();
     const now = this.options.now().getTime();
     const statements = transitionStatements(this.db, command.ownerId, command.goalId, previous, workspace, event, now);
+    let materialCommit = command.materialCommit ? { ...command.materialCommit, checkedAt: now } : undefined;
+    if (materialCommit) {
+      if (event.kind !== "agent_replanned" || materialCommit.kind !== "proposal" || materialCommit.snapshot.scope.kind !== "goal"
+        || materialCommit.snapshot.scope.revision !== command.baseRevision || materialCommit.snapshot.scope.baseVersionId !== command.baseVersionId
+        || materialCommit.snapshot.scope.workspaceId !== previous.id || materialCommit.snapshot.scope.goalId !== command.goalId) throw new PlanningConflictError();
+      statements.unshift(materialGuardStatement(this.db, command.ownerId, materialCommit));
+    }
+    if ((event.kind === "replan_accepted" || event.kind === "replan_discarded") && await this.hasMaterialSchema()) {
+      const sidecar = await this.db.prepare("SELECT * FROM material_plan_proposals WHERE owner_id=?1 AND goal_id=?2 AND candidate_plan_version_id=?3").bind(command.ownerId, command.goalId, event.candidatePlanVersionId).first<{ context_version_id: string; context_fingerprint: string; state: string; proposal_revision: number; active_base_plan_id: string; workspace_id: string }>();
+      if (sidecar && event.kind === "replan_accepted") {
+        if (!this.options.allowMaterialAcceptance) throw new PlanningUnavailableError();
+        if (sidecar.state !== "pending" || sidecar.proposal_revision !== previous.revision || sidecar.active_base_plan_id !== command.baseVersionId || sidecar.workspace_id !== previous.id) throw new PlanningConflictError();
+        try {
+          materialCommit = await loadMaterialCommit(this.db, command.ownerId, sidecar.context_version_id, now);
+          const currentSource = await this.options.sourceResolver.resolveForGenerationCommit(command.ownerId, materialCommit.snapshot.sourceReference);
+          if (!materialCommit.snapshot.sourceVersions || await materialSha256({ blueprint: currentSource.blueprint, registry: currentSource.registry }) !== materialCommit.snapshot.sourceVersions.contentDigest) throw new Error("MATERIAL_SOURCE_CHANGED");
+          if (sidecar.context_fingerprint !== materialCommit.fingerprint) throw new Error("MATERIAL_CHANGED");
+          materialCommit = { ...materialCommit, requestDigest: await materialSha256({ mutationId: command.mutationId, baseVersionId: command.baseVersionId, candidatePlanVersionId: event.candidatePlanVersionId }) };
+        } catch { throw new PlanningConflictError(); }
+        statements.unshift(materialGuardStatement(this.db, command.ownerId, materialCommit));
+        statements.unshift(this.db.prepare("SELECT json(CASE WHEN EXISTS(SELECT 1 FROM material_plan_proposals WHERE owner_id=?1 AND goal_id=?2 AND candidate_plan_version_id=?3 AND state='pending' AND proposal_revision=?4 AND active_base_plan_id=?5 AND workspace_id=?6) THEN '{}' ELSE '' END)").bind(command.ownerId, command.goalId, event.candidatePlanVersionId, previous.revision, command.baseVersionId, previous.id));
+      }
+      if (sidecar) statements.push(this.db.prepare("UPDATE material_plan_proposals SET state=?1 WHERE owner_id=?2 AND goal_id=?3 AND candidate_plan_version_id=?4").bind(event.kind === "replan_accepted" ? "accepted" : "discarded", command.ownerId, command.goalId, event.candidatePlanVersionId));
+    }
     if (event.kind === "replan_accepted" && previous.availability.id !== workspace.availability.id) {
       statements.push(this.db.prepare(`UPDATE career_goals SET weekly_minutes = ?1, updated_at = ?2
         WHERE user_id = ?3 AND id = ?4 AND active_slot = 1`).bind(
@@ -297,13 +338,14 @@ export class D1PlanningRepository implements PlanningRepository {
       throw new PlanningUnavailableError();
     }
     if (canonicalJson(canonicalResult) !== canonicalJson(result)) throw new PlanningUnavailableError();
+    if (materialCommit) statements.push(...materialAssociationStatements(this.db, { ownerId: command.ownerId, goalId: command.goalId, workspaceId: workspace.id, planVersionId: materialCommit.kind === "proposal" ? workspace.pendingPlanVersionId! : workspace.activePlanVersionId, mutationId: command.mutationId, revision: workspace.revision, baseVersionId: command.baseVersionId, baseRevision: command.baseRevision, commit: materialCommit }));
     statements.push(this.idempotencyStatement(command, result, now, previousLineage));
     try {
       await this.db.batch(statements);
     } catch (error) {
-      const winner = await this.findMutation(command);
+      const winner = await this.findMutation(mutationLookup);
       if (winner) return winner;
-      throw error instanceof PlanningConflictError || isConflictError(error)
+      throw error instanceof PlanningConflictError || isConflictError(error) || (materialCommit && error instanceof Error && error.message.includes("malformed JSON"))
         ? new PlanningConflictError()
         : new PlanningUnavailableError();
     }
@@ -311,6 +353,22 @@ export class D1PlanningRepository implements PlanningRepository {
       ownerId: command.ownerId, goalId: command.goalId, payload: result,
       sourceReference, sourceContext: history.sourceContext,
     };
+  }
+
+  private materialSchema: Promise<boolean> | undefined;
+  private hasMaterialSchema(): Promise<boolean> {
+    return this.materialSchema ??= this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='material_plan_proposals'").first().then(row => Boolean(row));
+  }
+
+  private async assertMaterialReplay(input: PlanningMutationLookup) {
+    if (!await this.hasMaterialSchema()) return;
+    const receipt = await this.db.prepare("SELECT result_json,body_digest FROM document_mutations WHERE owner_id=?1 AND mutation_id=?2 AND endpoint IN ('POST /api/planning/generate','POST /api/planning/material-replans','POST /api/planning/replans/accept') AND json_extract(result_json,'$.goalId')=?3").bind(input.ownerId, input.mutationId, input.goalId).first<{ result_json: string; body_digest: string }>();
+    if (!receipt) return;
+    if (input.expectNoMaterials || (input.materialRequestDigest && input.materialRequestDigest !== receipt.body_digest)) throw new PlanningConflictError();
+    try {
+      const commit = await loadMaterialCommit(this.db, input.ownerId, JSON.parse(receipt.result_json).contextVersionId, this.options.now().getTime());
+      await materialGuardStatement(this.db, input.ownerId, commit, { ignoreExpiry: true }).first();
+    } catch { throw new PlanningConflictError(); }
   }
 
   private idempotencyStatement(
