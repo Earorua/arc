@@ -45,6 +45,7 @@ export class DocumentResultStore {
     async recoverAfterWorkflowTerminal(jobId: string) {
         const row = await this.jobs.get(jobId);
         if (!row || (row.result_ready && row.writer_terminated)) return;
+        await this.jobs.recoverPaidReceipt(row);
         if (!row.result_ref || !row.result_key || row.legacy_recovery_hold) {
             await this.jobs.queueTerminalAccounting(jobId, row.result_ref);
             return;

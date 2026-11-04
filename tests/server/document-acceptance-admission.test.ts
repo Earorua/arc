@@ -284,6 +284,23 @@ describe("atomic document acceptance admission through the job and HTTP adapter"
     expect(net.posts).toHaveLength(2);expect(net.gets).toEqual(["same-receipt"]);
     expect(db.database.prepare("SELECT SUM(actual_micro_usd) spent FROM document_acceptance_dispatches").get()).toEqual({spent:7});
   });
+  it("retains the B4 reservation and both quotes and prevents the next case after conflicting receipt prices",async()=>{
+    const {registration,send,db}=await registered();
+    const net=httpFixture({metadata:async id=>{
+      const body=await fixtureGenerationResponse(id,publicConfig.model).json() as {data:{total_cost:number}};
+      body.data.total_cost=0.5;
+      return Response.json(body);
+    }});
+    const result=await send(await jobInput(registration,0));
+    expect(result).toMatchObject({kind:"received",candidate:null,actualMicroUsd:null,
+      audit:{status:"cost-conflict",conflictingCostsUsd:{chat:"0.000007",generation:"0.5"}}});
+    const row=db.database.prepare("SELECT state,actual_micro_usd,reserved_micro_usd,audit_json FROM document_acceptance_dispatches").get();
+    expect(row).toMatchObject({state:"stopped",actual_micro_usd:null});
+    expect(Number(row?.reserved_micro_usd)).toBeGreaterThan(0);
+    expect(JSON.parse(String(row?.audit_json))).toMatchObject({status:"cost-conflict"});
+    expect(await send(await jobInput(registration,1))).toMatchObject({kind:"not-sent"});
+    expect(net.posts).toHaveLength(1);
+  });
   it("keeps a known charge, quarantines its candidate and stops after a wrong upstream",async()=>{
     const {registration,send,db}=await registered(),net=httpFixture({metadata:async id=>{
       const raw=await fixtureGenerationResponse(id,publicConfig.model).json() as {data:{provider_name:string}};

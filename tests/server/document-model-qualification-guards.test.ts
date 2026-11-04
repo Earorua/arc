@@ -108,6 +108,18 @@ describe("model qualification offline guards", () => {
     const serialized = JSON.stringify(result); expect(serialized).not.toContain("offline-secret");
     for (const document of corpus.documents) expect(serialized).not.toContain(document.text);
   });
+  it("holds the first reservation and stops the quality run when its two raw cost reports disagree", async () => {
+    const events: QualificationCheckpoint[] = [];
+    const network = fixtureHttp(() => reply("charge-conflict"), id => generation(id, { total_cost: 0.0001001 }));
+    const result = await runDocumentQualification(environment(), {
+      fetch: network, now, mode: "offline-test", checkpoint: async event => { events.push(event); },
+    });
+    expect(result).toMatchObject({ stoppedReason: "cost-conflict", settledMicroUsd: 0 });
+    expect(result.heldMicroUsd).toBeGreaterThan(0);
+    expect(events.find(e => e.type === "settlement")).toMatchObject({ state: "held-unknown", actualMicroUsd: null,
+      audit: { conflictingCostsUsd: { chat: "0.0001", generation: "0.0001001" } } });
+    expect(network.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET"]);
+  });
   it("settles an attributable charge even with the wrong upstream, quarantines the result and sends no next document", async () => {
     const events: QualificationCheckpoint[] = [];
     const network = fixtureHttp(() => reply("gen-1"), id => generation(id, { provider_name: "Other Provider" }));

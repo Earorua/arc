@@ -5,7 +5,7 @@ import type { DocumentAnalysisProvider, DocumentProviderInput, DocumentProviderO
 import { documentProviderConfigurationDigest } from "../../app/server/documents/provider";
 import { materialIdSchema, materialVersionSchema } from "../../app/contracts/documents";
 import { documentReceiptRouteSchema } from "../../app/server/documents/provider-receipt";
-import { auditDocumentGeneration, documentTokenPriceCeiling, DocumentHttpTimeout, readChatReceipt, readDocumentHttpJson,
+import { auditDocumentGeneration, documentTokenPriceCeiling, DocumentHttpTimeout, isFailedChatResponse, readChatReceipt, readDocumentHttpJson,
   withDocumentDeadline } from "./generation-receipt";
 
 const rate = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
@@ -108,11 +108,13 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     } catch (error) {
       return { kind: "unknown", code: error instanceof DocumentHttpTimeout ? "timeout" : "invalid-receipt" };
     }
+    if (isFailedChatResponse(raw)) return { kind: "unknown", code: "invalid-receipt" };
     const returnedAt = now().toISOString();
     const chat = readChatReceipt(raw, input.text, config.apiKey);
     const audit = await auditDocumentGeneration({ config, qualification, chat, signal, sentAt, returnedAt, now,
       fetch: this.options.fetch, claimReceipt });
-    const attributable = chat.receiptId !== null && audit.status !== "duplicate-receipt" && audit.status !== "receipt-claim-failed";
+    const attributable = chat.receiptId !== null && audit.status !== "duplicate-receipt" && audit.status !== "receipt-claim-failed"
+      && audit.status !== "cost-conflict";
     const actualMicroUsd = attributable ? chat.actualMicroUsd ?? audit.metadataMicroUsd : null;
     let candidate: unknown = null;
     if (audit.status === "verified") {

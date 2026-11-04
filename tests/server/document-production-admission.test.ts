@@ -23,7 +23,7 @@ import type { DocumentProviderInput } from "../../app/server/documents/provider"
 
 const databases: SqliteD1[] = [];
 afterEach(() => { vi.useRealTimers();vi.unstubAllGlobals(); for (const db of databases.splice(0)) db.close(); });
-type Mode = "success" | "lost" | "duplicate" | "metadata-failure" | "over-reservation" | "mismatch" | "metadata-cost-only";
+type Mode = "success" | "lost" | "duplicate" | "metadata-failure" | "over-reservation" | "mismatch" | "metadata-cost-only" | "conflicting-cost";
 async function fixture() {
   const { environment, qualification, authorization } = await productionFixtureSettings();
   const siteDb = createMaterialsD1(), ledger = new SqliteD1();
@@ -44,7 +44,7 @@ async function fixture() {
       if (mode === "metadata-failure") return new Response(null, { status: 403 });
       return Response.json({ data: { id, model: qualification.model, provider_name: qualification.receiptRoute.providerName,
         provider_responses: [{ status:200, endpoint_id: mode === "mismatch" ? "foreign-endpoint" : qualification.receiptRoute.endpointId }],
-        native_tokens_prompt:100, native_tokens_completion:20, total_cost: mode === "over-reservation" ? 0.08 : 0.000007 } });
+        native_tokens_prompt:100, native_tokens_completion:20, total_cost: mode === "conflicting-cost" ? 0.50 : mode === "over-reservation" ? 0.08 : 0.000007 } });
     }
     expect(init.method).toBe("POST"); expect(url).toBe(qualification.endpoint);
     const body = JSON.parse(String(init.body)); posts.push(JSON.parse(body.messages[1].content).kind);
@@ -52,7 +52,7 @@ async function fixture() {
     if (mode === "lost") throw new Error("simulated disconnect");
     return Response.json({ id: mode === "duplicate" ? "receipt-1" : "receipt-" + posts.length, model: qualification.model,
       choices:[{message:{content:JSON.stringify({schemaVersion:"2026.11.1",items:[],reviewPoints:[]})}}],
-      usage:{prompt_tokens:100,completion_tokens:20,cost: mode === "metadata-cost-only" ? undefined : mode === "over-reservation" ? 0.08 : 0.000007} });
+      usage:{prompt_tokens:100,completion_tokens:20,cost: mode === "conflicting-cost" ? 0 : mode === "metadata-cost-only" ? undefined : mode === "over-reservation" ? 0.08 : 0.000007} });
   });
   const objects = memoryBucket(), results = memoryBucket();
   const running = new Set<string>();
@@ -263,6 +263,59 @@ describe("ordinary private-material production admission", () => {
     expect(f.posts).toHaveLength(1);expect(f.gets).toEqual([]);
   });
 
+  it.each(["normal", "lost-result", "failed-final-audit", "failed-checkpoint-and-exit", "failed-job-copy-and-exit"] as const)(
+    "keeps both ledgers on hold after a fee conflict across %s and refuses another grant", async boundary => {
+      const f = await fixture(), id = await f.enqueue();
+      const runtime = f.executor();
+      f.setMode("conflicting-cost");
+      if (boundary === "failed-final-audit") {
+        f.ledger.database.exec("CREATE TRIGGER fail_final BEFORE UPDATE OF state ON document_production_dispatches BEGIN SELECT RAISE(ABORT,'write failed'); END");
+      }
+      if (boundary === "failed-checkpoint-and-exit") {
+        f.ledger.database.exec("CREATE TRIGGER fail_checkpoint BEFORE UPDATE OF audit_json ON document_production_dispatches WHEN NEW.audit_json->>'$.status'='cost-conflict' BEGIN SELECT RAISE(ABORT,'audit unavailable'); END");
+      }
+      if (boundary === "failed-job-copy-and-exit") {
+        f.ledger.database.exec("CREATE TRIGGER fail_job_copy BEFORE UPDATE OF accounting_json ON document_executor_jobs WHEN NEW.accounting_json->>'$.audit.status'='cost-conflict' BEGIN SELECT RAISE(ABORT,'job copy unavailable'); END");
+      }
+      if (boundary === "lost-result" || boundary.endsWith("-and-exit")) {
+        vi.spyOn(runtime.results, "save").mockRejectedValue(new Error("simulated exit before result write"));
+        await expect(executeDocumentJob(id, runtime)).rejects.toThrow();
+        if (boundary === "failed-checkpoint-and-exit") f.ledger.database.exec("DROP TRIGGER fail_checkpoint");
+        if (boundary === "failed-job-copy-and-exit") f.ledger.database.exec("DROP TRIGGER fail_job_copy");
+        const restarted = f.executor();
+        await restarted.results.recoverAfterWorkflowTerminal(id);
+        await deliverDocumentResult(id, restarted);
+      } else {
+        await f.run(id);
+      }
+      const billed = f.ledger.database.prepare("SELECT state,actual_micro_usd,audit_json FROM document_production_dispatches WHERE job_id=?").get(id);
+      expect(billed?.state).not.toBe("verified");
+      expect(billed?.actual_micro_usd).toBeNull();
+      expect(JSON.parse(String(billed?.audit_json))).toMatchObject({ status:"cost-conflict", conflictingCostsUsd:{chat:"0",generation:"0.5"} });
+      expect(f.budget(id)).toMatchObject({ state:"held-unknown", actual_micro_usd:null, reserved_micro_usd:72960 });
+      expect(await f.site().invoke("owner-a","readDocumentJob",{jobId:id})).toMatchObject({ state:"cost-unknown", costState:"held-unknown" });
+      f.changeGrant({ id:"another-grant" });
+      await expect(f.enqueue("jd","owner-b")).rejects.toMatchObject({ code:"unavailable" });
+      expect(f.posts).toHaveLength(1);
+      expect(f.gets).toEqual(["receipt-1"]);
+    });
+  it("never delivers a provisional chat price when both conflict writes fail and the workflow dies before saving a result", async () => {
+    const f = await fixture(), id = await f.enqueue(), runtime = f.executor();
+    f.setMode("conflicting-cost");
+    f.ledger.database.exec(`CREATE TRIGGER fail_charge_a BEFORE UPDATE OF audit_json ON document_production_dispatches
+      WHEN NEW.audit_json->>'$.status'='cost-conflict' BEGIN SELECT RAISE(ABORT,'audit unavailable'); END;
+      CREATE TRIGGER fail_charge_b BEFORE UPDATE OF accounting_json ON document_executor_jobs
+      WHEN NEW.accounting_json->>'$.audit.status'='cost-conflict' BEGIN SELECT RAISE(ABORT,'job unavailable'); END;`);
+    vi.spyOn(runtime.results, "save").mockRejectedValue(new Error("interrupted before result"));
+    await expect(executeDocumentJob(id, runtime)).rejects.toThrow();
+    f.ledger.database.exec("DROP TRIGGER fail_charge_a; DROP TRIGGER fail_charge_b;");
+    const restarted = f.executor();
+    await restarted.results.recoverAfterWorkflowTerminal(id);
+    await deliverDocumentResult(id, restarted);
+    expect(f.budget(id)).toMatchObject({state:"held-unknown",actual_micro_usd:null,reserved_micro_usd:72960});
+    expect(await f.caps()).toMatchObject({analysisEnabled:false});
+    expect(f.posts).toHaveLength(1);
+  });
   it("recovers a known metadata-only charge if the process dies after audit and before result storage",async()=>{
     const f=await fixture(),id=await f.enqueue();f.setMode("metadata-cost-only");
     const runtime=f.executor();vi.spyOn(runtime.results,"save").mockRejectedValue(new Error("process exited before beginResult"));

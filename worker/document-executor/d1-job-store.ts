@@ -137,12 +137,37 @@ export class D1DocumentJobStore{
      this.db.prepare("UPDATE document_executor_jobs SET accounting_json=? WHERE job_id=? AND result_ref IS NULL AND changes()=1")
        .bind(JSON.stringify(accounting), jobId),
    ]);
-   return result[0]?.meta.changes === 1;
+   if (result[0]?.meta.changes !== 1) return false;
+   // Only an acknowledged claim can start the lookup. Legacy claims and lost claim ACKs have no such marker.
+   const lookup = await this.db.prepare(`UPDATE ${table} SET audit_json=? WHERE ${identity}=? AND job_id=? AND receipt_id=?
+     AND state='pending' AND audit_json IS NULL`).bind('{"status":"lookup-started"}', id, jobId, receiptId).run();
+   return lookup.meta.changes === 1;
  }
  async finishPaidDispatch(scope: PaidDocumentScope, id: string, jobId: string, outcome: DocumentProviderOutcome): Promise<DocumentProviderOutcome> {
    const table = scope === "production" ? "document_production_dispatches" : "document_acceptance_dispatches";
    const identity = scope === "production" ? "grant_id" : "run_id";
    const receipt = outcome.kind === "received" ? outcome : null;
+   if (receipt?.audit?.status === "cost-conflict" && receipt.receiptId) {
+     // Replace the provisional chat charge in both recovery records before attempting the terminal state write.
+     // A pending dispatch still blocks both paid modes if the process dies between these two operations.
+     const held = { ...receipt, candidate: null, actualMicroUsd: null };
+     // Use independent writes: a storage fault in one journal must not roll back the other copy.
+     const checkpoints = await Promise.allSettled([
+       this.db.prepare(`UPDATE ${table} SET actual_micro_usd=NULL,audit_json=?,checked_at=?
+         WHERE ${identity}=? AND job_id=? AND receipt_id=? AND state='pending'`)
+         .bind(JSON.stringify(receipt.audit), this.now(), id, jobId, receipt.receiptId).run(),
+       this.db.prepare(`UPDATE document_executor_jobs SET accounting_json=? WHERE job_id=? AND result_ref IS NULL
+         AND EXISTS(SELECT 1 FROM ${table} WHERE ${identity}=? AND job_id=? AND receipt_id=? AND state='pending')`)
+         .bind(JSON.stringify(held), jobId, id, jobId, receipt.receiptId).run(),
+     ]);
+     if (checkpoints.some(result => result.status !== "fulfilled" || result.value.meta.changes !== 1)) throw new Error("Paid receipt unavailable");
+     await this.db.batch([
+       this.db.prepare(`UPDATE ${table} SET state='stopped' WHERE ${identity}=? AND job_id=? AND receipt_id=? AND state='pending'`)
+         .bind(id, jobId, receipt.receiptId),
+       this.db.prepare("UPDATE document_executor_jobs SET paid_intent=NULL WHERE job_id=? AND changes()=1").bind(jobId),
+     ]);
+     return held;
+   }
    const verified = receipt?.audit?.status === "verified" && receipt.actualMicroUsd !== null && receipt.receiptId !== null;
    type PaidRow={state:string;receipt_id:string|null;actual_micro_usd:number|null;input_tokens:number|null;output_tokens:number|null};
    const tx = await this.db.batch<PaidRow>([this.db.prepare(`UPDATE ${table} SET
@@ -172,10 +197,12 @@ export class D1DocumentJobStore{
    const ref=crypto.randomUUID(), key=`document-results-multipart/v1/${jobId}/${ref}`;
    const accounting=outcome.kind==="received"?{...outcome,candidate:null}:outcome;
    const received=outcome.kind==="received"?outcome:null;
+   const conflictingId=received?.audit?.status==="cost-conflict" ? received.receiptId : null;
    // A committed receipt claim can outlive both its acknowledgement and the final audit write.
    // Compare at the result-ref CAS so a weaker in-memory outcome cannot overwrite or deliver over that charge.
    await this.db.prepare(`WITH prior AS MATERIALIZED (
-       SELECT job_id,cleanup_requested,CASE WHEN json_type(accounting_json,'$.receiptId')='text'
+       SELECT job_id,cleanup_requested,CASE WHEN accounting_json->>'$.audit.status'='cost-conflict' THEN 1
+         WHEN json_type(accounting_json,'$.receiptId')='text' AND accounting_json->>'$.receiptId' IS NOT ?
          AND json_type(accounting_json,'$.actualMicroUsd')='integer'
          AND (accounting_json->>'$.receiptId' IS NOT ? OR accounting_json->>'$.actualMicroUsd' IS NOT ?)
          THEN 1 ELSE 0 END AS preserve_charge FROM document_executor_jobs WHERE job_id=?
@@ -186,7 +213,7 @@ export class D1DocumentJobStore{
        result_ready=delivery.only_accounting,writer_terminated=delivery.only_accounting,accounting_only=delivery.only_accounting,
        state=CASE WHEN delivery.only_accounting=1 THEN 'delivery-pending' ELSE j.state END,updated_at=?
      FROM delivery WHERE j.job_id=delivery.job_id AND j.result_ref IS NULL AND j.dispatch_state='may-have-sent' AND j.writer_terminated=0`)
-     .bind(received?.receiptId??null,received?.actualMicroUsd??null,jobId,ref,key,JSON.stringify(accounting),
+     .bind(conflictingId,received?.receiptId??null,received?.actualMicroUsd??null,jobId,ref,key,JSON.stringify(accounting),
        outcome.kind==="not-sent"?1:0,this.now()).run();
    return this.get(jobId);
  }
@@ -215,6 +242,31 @@ export class D1DocumentJobStore{
      result_ref=COALESCE(result_ref,?),accounting_json=COALESCE(accounting_json,?),accounting_only=1,
      result_ready=1,state='delivery-pending',updated_at=? WHERE job_id=? AND result_ref IS ? AND result_ready=0`)
      .bind(crypto.randomUUID(),JSON.stringify({kind:"unknown",code:"connection-lost"}),this.now(),jobId,expectedRef).run();
+ }
+ async recoverPaidReceipt(job: ExecutorDocumentJob) {
+   if (!job.paid_intent || !job.accounting_json) return;
+   const stored = JSON.parse(job.accounting_json) as DocumentProviderOutcome;
+   if (stored.kind !== "received" || !stored.receiptId) return;
+   const table = job.paid_intent === "acceptance" ? "document_acceptance_dispatches" : "document_production_dispatches";
+   const dispatch = await this.db.prepare(`SELECT audit_json FROM ${table} WHERE job_id=? AND receipt_id=? AND state='pending'`)
+     .bind(job.job_id, stored.receiptId).first<{audit_json:string|null}>();
+   if (!dispatch) return;
+   const audit = stored.audit?.status === "cost-conflict" ? stored.audit : JSON.parse(dispatch.audit_json ?? "null");
+   if (audit?.status === "lookup-started") {
+     // Neither final observation survived. Keep the original claim in the dispatch row for reconciliation.
+     await this.db.prepare(`UPDATE document_executor_jobs SET accounting_json=? WHERE job_id=? AND accounting_json=?
+       AND EXISTS(SELECT 1 FROM ${table} WHERE job_id=? AND state='pending' AND audit_json=?)`)
+       .bind(JSON.stringify({...stored,candidate:null,actualMicroUsd:null}), job.job_id, job.accounting_json, job.job_id, dispatch.audit_json).run();
+     return;
+   }
+   if (audit?.status !== "cost-conflict") return;
+   // Either copy can survive an interrupted checkpoint. Repair them together before terminal delivery.
+   await this.db.batch([
+     this.db.prepare(`UPDATE ${table} SET actual_micro_usd=NULL,audit_json=?,checked_at=?,state='stopped'
+       WHERE job_id=? AND receipt_id=? AND state='pending'`).bind(JSON.stringify(audit), this.now(), job.job_id, stored.receiptId),
+     this.db.prepare("UPDATE document_executor_jobs SET accounting_json=?,paid_intent=NULL WHERE job_id=? AND changes()=1")
+       .bind(JSON.stringify({...stored,candidate:null,actualMicroUsd:null,audit}), job.job_id),
+   ]);
  }
  async completeResult(jobId:string){await this.db.prepare("UPDATE document_executor_jobs SET result_ready=1,writer_terminated=1,state='delivery-pending',updated_at=? WHERE job_id=? AND result_ref IS NOT NULL AND result_ready=0").bind(this.now(),jobId).run();}
  async markDelivered(jobId:string,settled:boolean){await this.db.prepare("UPDATE document_executor_jobs SET state=?,dispatch_state=?,delivery_attempts=delivery_attempts+1,last_attempt_at=?,updated_at=? WHERE job_id=?").bind(settled?"delivered":"cost-unknown",settled?"settled":"may-have-sent",this.now(),this.now(),jobId).run();}

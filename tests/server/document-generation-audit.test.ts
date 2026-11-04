@@ -87,7 +87,6 @@ describe("per-generation document receipt audit", () => {
     ["id-mismatch", { id: "some-other-generation" }],
     ["usage-mismatch", { native_tokens_prompt: 101 }],
     ["usage-mismatch", { native_tokens_completion: null }],
-    ["usage-mismatch", { total_cost: 0.000010 }],
   ] as const)("quarantines the candidate on %s, separately preserving a known billed amount", async (status, changes) => {
     const { fetch, analyze } = adapter(() => Response.json({ data: { ...generation, ...changes } }));
     expect(await analyze()).toMatchObject({ kind: "received", candidate: null, actualMicroUsd: 7, audit: { status } });
@@ -96,6 +95,50 @@ describe("per-generation document receipt audit", () => {
   it("uses matching generation cost when the chat response omitted cost; leaves incomplete usage unverified", async () => {
     const { analyze } = adapter(() => Response.json({ data: generation }), { ...completion, usage: { prompt_tokens: 100, completion_tokens: 20 } });
     expect(await analyze()).toMatchObject({ kind: "received", candidate: null, actualMicroUsd: 7, audit: { status: "usage-mismatch" } });
+  });
+  it.each([[0, 0.50], [0.0000073, 0.000010], [0.0000073, 0.0000074]])(
+    "keeps conflicting raw USD observations %s and %s out of final settlement", async (chat, metadata) => {
+      const { analyze, fetch } = adapter(() => Response.json({ data: { ...generation, total_cost: metadata } }),
+        { ...completion, usage: { ...completion.usage, cost: chat } });
+      expect(await analyze()).toMatchObject({ kind: "received", actualMicroUsd: null, candidate: null,
+        audit: { status: "cost-conflict", conflictingCostsUsd: { chat:String(chat), generation:String(metadata) } } });
+      expect(fetch.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET"]);
+    });
+  it("excludes explicit errors from accounting even when an HTTP 200 reports a matching ID and zero cost", async () => {
+    const data = { ...generation, total_cost: 0 };
+    for (const envelope of [
+      { error: { code: 503 }, data }, { data: { ...data, error: { code: 503 } } },
+      { data: { ...data, native_finish_reason: "error" } },
+      { data: { ...data, provider_responses: [{ ...generation.provider_responses[0], error: { code: 503 } }] } },
+      { data: { ...data, provider_responses: [{ status: 503, error: { code: 503 } }] } },
+      { data: { ...data, provider_responses: [{ status: 503 }] } },
+    ]) {
+      for (const cost of [undefined, completion.usage.cost]) {
+        const { analyze } = adapter(() => Response.json(envelope), { ...completion, usage: { ...completion.usage, cost } });
+        expect(await analyze()).toMatchObject({ kind:"received", actualMicroUsd: cost === undefined ? null : 7,
+          candidate: null, audit: { status:"metadata-unavailable", metadataMicroUsd:null } });
+      }
+    }
+    for (const extra of [{ error: { code: 503 } }, { choices: [{ finish_reason: "error" }] }]) {
+      const { analyze, fetch } = adapter(() => Response.json({ data }), { ...completion, ...extra });
+      expect(await analyze()).toMatchObject({ kind: "unknown", code: "invalid-receipt" });
+      expect(fetch.mock.calls).toHaveLength(1);
+    }
+  });
+  it("compares wire decimals before binary rounding, including equivalent exponents and fractions below half a microdollar", async () => {
+    const raw = (value: object, price: string, key: string) =>
+      new Response(JSON.stringify(value).replace('"'+key+'":0.0000073', '"'+key+'":'+price));
+    for (const [chat, metadata, expected] of [
+      ["0.000007", "0.0000070000000000000000001", null],
+      ["0.0000070", "7e-6", 7], ["4.9999999999999999999e-7", "4.9999999999999999999e-7", 0],
+    ] as const) {
+      const fetch: DocumentFetch = async (_url, init) => init?.method === "POST" ? raw(completion, chat, "cost") :
+        raw({data:generation}, metadata, "total_cost");
+      const provider = new HttpDocumentAnalysisProvider(config, { qualification, fetch });
+      const outcome = await provider.analyze(input, new AbortController().signal);
+      expect(outcome).toMatchObject({kind:"received",actualMicroUsd:expected,audit:{status:expected===null?"cost-conflict":"verified"}});
+      if (expected === null) expect(outcome).toMatchObject({candidate:null,audit:{conflictingCostsUsd:{chat,generation:metadata}}});
+    }
   });
   it("checks optional chat upstream evidence against the exact approved provider", async () => {
     const { analyze } = adapter(() => Response.json({ data: generation }), { ...completion, provider: "A different provider" });
@@ -126,7 +169,7 @@ describe("per-generation document receipt audit", () => {
     expect(fetch.mock.calls.map(([url]) => new URL(String(url)).origin)).toEqual(["https://gateway.invalid", "https://gateway.invalid"]);
   });
   it("never uses a credential or private input echoed in the ID as a metadata URL or journal receipt", async () => {
-    for (const id of ["gen-" + config.apiKey, input.text, "gen-private-sou-fixture"]) {
+    for (const id of ["gen-" + config.apiKey, "gen-" + config.apiKey.slice(0, -1), input.text, "gen-private-sou-fixture"]) {
       const { analyze, fetch } = adapter(() => Response.json({ data: generation }), { ...completion, id });
       const outcome = await analyze();
       expect(fetch.mock.calls.length).toBe(1);
