@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
+import { documentReceiptRouteSchema } from "../app/server/documents/receipt-route.ts";
 import {
   documentAcceptanceCases, documentAcceptanceConfigurationDigest, documentAcceptanceCorpusSha256, utf8Sha256,
 } from "../worker/document-executor/acceptance-policy.ts";
@@ -8,11 +9,13 @@ import {
 const id = z.string().max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
 const hash = z.string().regex(/^[a-f0-9]{64}$/u);
 const amount = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
-// documentAcceptanceConfigurationDigest(config, { ...qualification, qualified: true }) from
-// 24e918d:docs/verification/materials-gate-1b-b1/b2-settings.review.json. Migration 0004 checks this on the separate B4 grant.
+// Exact reviewed settings digests. v1 is historical; v2 additionally pins the generation model.
+// Migrations 0004/0005 enforce the same pairs on the independently issued B4 grant.
 const kimiBudget = {
-  plan: "b4-kimi-k31-pro-mxfp4-v1",
-  configurationSha256: "5b55cb672995351b5c01b6c15a74dae17e3a314f5ab45aa8c1625cfb8eef59e8",
+  configurations: {
+    "b4-kimi-k31-pro-mxfp4-v1": "5b55cb672995351b5c01b6c15a74dae17e3a314f5ab45aa8c1625cfb8eef59e8",
+    "b4-kimi-k31-pro-mxfp4-v2": "ec56126eff54568bbd9960ad050c7311b137cb0ac44c2f42e0ea506c6c81718f",
+  },
   ceilingMicroUsd: 2_000_000,
 } as const;
 const routingPolicy = z.object({
@@ -22,12 +25,13 @@ const routingPolicy = z.object({
 const authorization = z.object({
   runId: id, ownerId: z.string().max(256).regex(/^[A-Za-z0-9_-]+$/u), corpusSha256: z.literal(documentAcceptanceCorpusSha256),
   approvedAt: z.iso.datetime({offset:true}), expiresAt: z.iso.datetime({offset:true}), maxRequests: z.literal(24),
-  totalBudgetMicroUsd: amount.min(1).max(kimiBudget.ceilingMicroUsd), budgetPlan: z.literal(kimiBudget.plan).optional(),
+  totalBudgetMicroUsd: amount.min(1).max(kimiBudget.ceilingMicroUsd),
+  budgetPlan: z.enum(["b4-kimi-k31-pro-mxfp4-v1", "b4-kimi-k31-pro-mxfp4-v2"]).optional(),
   config: z.object({ provider: z.string(), model: z.string(), endpoint: z.url(), providerPolicyId: id,
     priceVersion: z.string(), routingPolicy, userDailyMicroUsd: amount, globalDailyMicroUsd: amount,
     maxJobMicroUsd: amount, maxInputTokens: amount, maxOutputTokens: amount, httpTimeoutMs: amount }).strict(),
   qualification: z.object({qualified:z.literal(true), model:z.string(), endpoint:z.url(), providerPolicyId:id,
-    priceVersion:z.string(), routingPolicy, receiptRoute:z.object({providerName:z.string(),endpointId:z.string()}).strict(),
+    priceVersion:z.string(), routingPolicy, receiptRoute:documentReceiptRouteSchema,
     inputMicroUsdPerMillionTokens:amount, outputMicroUsdPerMillionTokens:amount, inputTokenBound:z.literal("utf8-bytes-plus-4096")}).strict(),
   cases: z.array(z.object({ caseId: id, documentId: z.uuidv4(), documentVersionId: z.uuidv4(),
     textVersionId: z.uuidv4(), generation: amount, textSha256: hash }).strict()).length(24),
@@ -45,7 +49,7 @@ export async function renderDocumentAcceptanceEnrollment(raw: unknown): Promise<
     || (["caseId","documentId","documentVersionId","textVersionId"] as const).some(key => new Set(cases.map(row => row[key])).size !== 24))
     throw new Error("Invalid frozen corpus, cases or authorization window");
   const configHash = await documentAcceptanceConfigurationDigest(config, qualification);
-  if (run.budgetPlan ? configHash !== kimiBudget.configurationSha256 : run.totalBudgetMicroUsd > 500_000)
+  if (run.budgetPlan ? configHash !== kimiBudget.configurations[run.budgetPlan] : run.totalBudgetMicroUsd > 500_000)
     throw new Error("Invalid document acceptance budget plan");
   const quote = (value: string) => "'" + value.replaceAll("'", "''") + "'";
   const columns = ["run_id","owner_id","corpus_sha256","configuration_sha256","approved_at","expires_at","max_requests","total_budget_micro_usd","cases_json"];

@@ -8,7 +8,7 @@ export async function productionFixtureSettings() {
     qualified: true, endpoint: "https://openrouter.ai/api/v1/chat/completions", model: "moonshotai/kimi-k3.1-pro",
     providerPolicyId: "offline-test-policy", priceVersion: "2026.11.1",
     routingPolicy: {policyVersion:"2026.11.1", providerOrder:["moonshotai/mxfp4"], allowFallback:false, dataPolicy:"zdr-only"},
-    receiptRoute: {providerName:"Moonshot AI", endpointId:"a3fafaac-f097-4ef1-86b3-842854dad5c6"},
+    receiptRoute: {providerName:"Moonshot AI", endpointId:"a3fafaac-f097-4ef1-86b3-842854dad5c6", generationModel:"moonshotai/kimi-k3.1-pro-20261023"},
     inputMicroUsdPerMillionTokens:2_000_000, outputMicroUsdPerMillionTokens:10_000_000, inputTokenBound:"utf8-bytes-plus-4096",
   };
   const environment: Record<string, string> = {

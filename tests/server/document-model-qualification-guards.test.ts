@@ -29,6 +29,17 @@ const reply = (id: string) => Response.json({ id, model: "approved-model", usage
 const now = () => new Date("2026-11-04T08:00:00.000Z");
 afterEach(() => vi.unstubAllGlobals());
 describe("model qualification offline guards", () => {
+  it("requires the owner authorization to bind the exact generation model separately from the chat alias", () => {
+    const env = environment();
+    const settings = JSON.parse(env.ARC_DOCUMENT_QUALIFICATION_SETTINGS);
+    settings.qualification.receiptRoute.generationModel = "approved-model-20261023";
+    const read = () => readQualificationConfiguration({ ...env, ARC_DOCUMENT_QUALIFICATION_SETTINGS: JSON.stringify(settings) }, now());
+    expect(read).toThrow("qualification-authorization-mismatch");
+    settings.authorization.receiptRoute.generationModel = "approved-model-20261023";
+    expect(read().qualification.receiptRoute.generationModel).toBe("approved-model-20261023");
+    settings.authorization.receiptRoute.generationModel = "approved-model-20261024";
+    expect(read).toThrow("qualification-authorization-mismatch");
+  });
   it("rejects disabled or incomplete qualification before any network call", async () => {
     const network = vi.fn(async () => { throw new Error("network forbidden in offline tests"); }); vi.stubGlobal("fetch", network);
     for (const env of [{}, { ARC_DOCUMENT_QUALIFICATION_ENABLED: "true" }, { ...environment(), ARC_DOCUMENT_QUALIFICATION_ENABLED: "false" }]) {

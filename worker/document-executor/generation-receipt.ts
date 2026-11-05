@@ -146,6 +146,7 @@ async function checkGeneration(data: Record<string, unknown>, chat: ChatReceipt,
   // Cost in a different generation's record never settles this request.
   if (data.id !== chat.receiptId) return "id-mismatch";
   const approved = qualification.receiptRoute;
+  const generationModel = approved.generationModel ?? config.model;
   const responses = data.provider_responses;
   const attempts = Array.isArray(responses) ? responses.map(record) : [];
   const successes = attempts.filter(attempt => attempt.status === 200);
@@ -155,7 +156,7 @@ async function checkGeneration(data: Record<string, unknown>, chat: ChatReceipt,
   }
   const soleResponse = Array.isArray(responses) && responses.length === 1 ? record(responses[0]) : null;
   const successful = soleResponse?.status === 200 ? soleResponse : null;
-  audit.actualModel = await safeObservedLabel(data.model, config.model);
+  audit.actualModel = await safeObservedLabel(data.model, generationModel);
   audit.actualProvider = await safeObservedLabel(data.provider_name, approved.providerName);
   audit.actualEndpointId = await safeObservedLabel(successful?.endpoint_id, approved.endpointId);
   audit.metadataInputTokens = count(data.native_tokens_prompt);
@@ -168,7 +169,7 @@ async function checkGeneration(data: Record<string, unknown>, chat: ChatReceipt,
     audit.conflictingCostsUsd = { chat: chat.price.source, generation: price.source };
     return "cost-conflict";
   }
-  if (data.model !== config.model || chat.model !== config.model) return "model-mismatch";
+  if (data.model !== generationModel || chat.model !== config.model) return "model-mismatch";
   if (!audit.actualProvider || !audit.actualEndpointId || !successful) return "route-unverified";
   if (data.provider_name !== approved.providerName || successful.endpoint_id !== approved.endpointId
     || (chat.provider !== undefined && chat.provider !== approved.providerName)

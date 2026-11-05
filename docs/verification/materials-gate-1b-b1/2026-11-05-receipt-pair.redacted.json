@@ -1,0 +1,38 @@
+{
+  "chat": {
+    "id": "b5829e8063620a484298eee578708a00ba76eb64a78163c9c32c50ca612f7a52",
+    "model": "moonshotai/kimi-k3.1-pro",
+    "provider": "Moonshot AI",
+    "usage": {
+      "prompt_tokens": 553,
+      "completion_tokens": 1840,
+      "cost": 0.019506,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 1745
+      }
+    }
+  },
+  "generation": {
+    "data": {
+      "id": "b5829e8063620a484298eee578708a00ba76eb64a78163c9c32c50ca612f7a52",
+      "model": "moonshotai/kimi-k3.1-pro-20261023",
+      "provider_name": "Moonshot AI",
+      "provider_responses": [
+        {
+          "status": 200,
+          "endpoint_id": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+          "provider_name": "Moonshot AI"
+        }
+      ],
+      "native_tokens_prompt": 553,
+      "native_tokens_completion": 1840,
+      "native_tokens_reasoning": 1745,
+      "total_cost": 0.019506,
+      "latency": 2379,
+      "generation_time": 62886
+    }
+  }
+}

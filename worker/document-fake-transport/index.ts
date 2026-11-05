@@ -113,7 +113,7 @@ export class DocumentFakeTransport extends WorkerEntrypoint<SyntheticEnvironment
     if (request.url !== endpoint.href) return empty();
     const registry = await receipts(env);
     if (!await registry.isIssued(id)) return empty();
-    return Response.json({ data: { id, model: qualification.model, provider_name: route.providerName,
+    return Response.json({ data: { id, model: route.generationModel ?? qualification.model, provider_name: route.providerName,
       provider_responses: [{ status: 200, endpoint_id: route.endpointId, provider_name: route.providerName }],
       native_tokens_prompt: usage.prompt_tokens, native_tokens_completion: usage.completion_tokens, total_cost: usage.cost } }, { headers: noStore });
   }

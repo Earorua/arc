@@ -51,7 +51,7 @@ async function expiredActivation() {
     providerPolicyId:"test-production-policy",routingPolicy:{policyVersion:"2026.11.3",providerOrder:["moonshotai/mxfp4"],allowFallback:false as const,dataPolicy:"zdr-only" as const},
     priceVersion:"2026.11.3",userDailyMicroUsd:85000,globalDailyMicroUsd:195000,maxJobMicroUsd:75000,maxInputTokens:16000,maxOutputTokens:4096,httpTimeoutMs:180000};
   const qualification={qualified:true as const,model:config.model,endpoint:config.endpoint,providerPolicyId:config.providerPolicyId,priceVersion:config.priceVersion,
-    routingPolicy:config.routingPolicy,receiptRoute:{providerName:"Moonshot AI",endpointId:"a3fafaac-f097-4ef1-86b3-842854dad5c6"},
+    routingPolicy:config.routingPolicy,receiptRoute:{providerName:"Moonshot AI",endpointId:"a3fafaac-f097-4ef1-86b3-842854dad5c6",generationModel:"moonshotai/kimi-k3.1-pro-20261023"},
     inputMicroUsdPerMillionTokens:2000000,outputMicroUsdPerMillionTokens:10000000,inputTokenBound:"utf8-bytes-plus-4096" as const};
   const authorization={purpose:"production-private-material-analysis",id:"expired-test-issuance",approvedAt:"2020-03-01T00:00:00Z",expiresAt:"2020-03-01T00:15:00Z",
     totalBudgetMicroUsd:160000,configurationSha256:await documentAcceptanceConfigurationDigest(config,qualification)};

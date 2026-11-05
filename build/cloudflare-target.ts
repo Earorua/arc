@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { WorkerConfig } from "@cloudflare/vite-plugin";
 import { z } from "zod";
+import { documentReceiptRouteSchema } from "../app/server/documents/receipt-route.ts";
 import {
   createResearchAcceptanceConfigPair, parseResearchAcceptanceTarget, protectedCloudflareDatabaseIds, type ResearchAcceptanceTarget,
 } from "./research-acceptance-target.ts";
@@ -123,9 +124,7 @@ const label = z.string().trim().min(1).max(100);
 const micros = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const approvedAnalysis = z.strictObject({
   provider: label, model: z.string().trim().min(1).max(200), endpoint: z.url().max(2048), providerPolicyId: publicId,
-  policyVersion: version, priceVersion: version, upstream: label, receiptRoute: z.strictObject({
-    providerName: label.regex(/^[A-Za-z0-9][A-Za-z0-9 ._()/-]*$/u), endpointId: z.string().max(128).regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/u),
-  }),
+  policyVersion: version, priceVersion: version, upstream: label, receiptRoute: documentReceiptRouteSchema,
   inputMicroUsdPerMillionTokens: micros, outputMicroUsdPerMillionTokens: micros,
   maxJobMicroUsd: micros, userDailyMicroUsd: micros, globalDailyMicroUsd: micros,
 }).refine(x => {

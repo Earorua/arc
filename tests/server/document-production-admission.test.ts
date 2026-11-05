@@ -20,6 +20,7 @@ import { documentAcceptanceConfigurationDigest } from "../../worker/document-exe
 import { readDocumentSitePolicy } from "../../app/server/documents/policy";
 import type { DocumentProviderQualification } from "../../worker/document-executor/provider-http";
 import type { DocumentProviderInput } from "../../app/server/documents/provider";
+import { readDocumentProductionRelease } from "../../worker/document-executor/production-policy";
 
 const databases: SqliteD1[] = [];
 afterEach(() => { vi.useRealTimers();vi.unstubAllGlobals(); for (const db of databases.splice(0)) db.close(); });
@@ -42,7 +43,7 @@ async function fixture() {
       const id = address.searchParams.get("id")!; gets.push(id); metadataEntered.resolve();
       if (pauseMetadata) await metadataRelease.promise;
       if (mode === "metadata-failure") return new Response(null, { status: 403 });
-      return Response.json({ data: { id, model: qualification.model, provider_name: qualification.receiptRoute.providerName,
+      return Response.json({ data: { id, model: qualification.receiptRoute.generationModel, provider_name: qualification.receiptRoute.providerName,
         provider_responses: [{ status:200, endpoint_id: mode === "mismatch" ? "foreign-endpoint" : qualification.receiptRoute.endpointId }],
         native_tokens_prompt:100, native_tokens_completion:20, total_cost: mode === "conflicting-cost" ? 0.50 : mode === "over-reservation" ? 0.08 : 0.000007 } });
     }
@@ -92,6 +93,19 @@ async function fixture() {
 }
 
 describe("ordinary private-material production admission", () => {
+  it("rejects a missing or different generation version even under a matching newly computed grant", async () => {
+    const { environment, qualification, authorization } = await productionFixtureSettings();
+    const config = readDocumentSitePolicy(environment).analysis!;
+    expect(readDocumentProductionRelease(environment, config, qualification, 72960)).not.toBeNull();
+    for (const version of [null, "moonshotai/kimi-k3.1-pro-20261024"]) {
+      const changed = structuredClone(qualification);
+      if (version === null) delete changed.receiptRoute.generationModel;
+      else changed.receiptRoute.generationModel = version;
+      const approved = { ...environment, ARC_DOCUMENT_PRODUCTION_AUTHORIZATION: JSON.stringify({ ...authorization,
+        configurationSha256: await documentAcceptanceConfigurationDigest(config, changed) }) };
+      expect(readDocumentProductionRelease(approved, config, changed, 72960)).toBeNull();
+    }
+  });
   it("analyzes all three ordinary types only after owner consent, unique permit, reservation and verified receipt",async()=>{
     const f=await fixture();
     expect(await f.caps()).toMatchObject({analysisEnabled:true,reason:"ready"});
@@ -139,13 +153,13 @@ describe("ordinary private-material production admission", () => {
   it("rejects even re-digested wrong provider, model, chat endpoint, upstream or generation receipt identity",async()=>{
     const f=await fixture();
     for(const [key,value] of Object.entries({provider:"other gateway",model:"other-model",endpoint:"https://other.invalid/chat/completions",
-      upstream:"moonshotai/highspeed",providerName:"other",endpointId:"wrong-endpoint"})) {
+      upstream:"moonshotai/highspeed",providerName:"other",endpointId:"wrong-endpoint",generationModel:"moonshotai/kimi-k3.1-pro-20261024"})) {
       const settings={...f.environment},q=structuredClone(f.qualification);
       if(key==="provider")settings.ARC_DOCUMENT_PROVIDER=value;
       if(key==="model"){settings.ARC_DOCUMENT_MODEL=value;q.model=value;}
       if(key==="endpoint"){settings.ARC_DOCUMENT_PROVIDER_ENDPOINT=value;q.endpoint=value;}
       if(key==="upstream"){q.routingPolicy.providerOrder=[value];settings.ARC_DOCUMENT_ROUTING_POLICY=JSON.stringify(q.routingPolicy);}
-      if(key==="providerName"||key==="endpointId")q.receiptRoute[key]=value;
+      if(key==="providerName"||key==="endpointId"||key==="generationModel")q.receiptRoute[key]=value;
       settings.ARC_DOCUMENT_PROVIDER_QUALIFICATION=JSON.stringify(q);
       settings.ARC_DOCUMENT_PRODUCTION_AUTHORIZATION=JSON.stringify({...f.authorization,configurationSha256:await documentAcceptanceConfigurationDigest(readDocumentSitePolicy(settings).analysis!,q as DocumentProviderQualification)});
       Object.assign(f.siteChanges,settings);expect(await f.caps(),key).toMatchObject({analysisEnabled:false});

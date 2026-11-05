@@ -47,6 +47,7 @@ export function readDocumentProductionRelease(env: Environment, config: Document
     || config.provider !== "OpenRouter / Moonshot AI" || config.model !== "moonshotai/kimi-k3.1-pro"
     || config.endpoint !== "https://openrouter.ai/api/v1/chat/completions" || config.routingPolicy.providerOrder[0] !== "moonshotai/mxfp4"
     || qualification.receiptRoute.providerName !== "Moonshot AI" || qualification.receiptRoute.endpointId !== "a3fafaac-f097-4ef1-86b3-842854dad5c6"
+    || qualification.receiptRoute.generationModel !== "moonshotai/kimi-k3.1-pro-20261023"
     || qualification.inputMicroUsdPerMillionTokens <= 0 || qualification.outputMicroUsdPerMillionTokens <= 0) return null;
   const authorization = grant.data;
   const secrets = ["apiKey" in config ? config.apiKey : null, env.ARC_DOCUMENT_BRIDGE_SECRET];

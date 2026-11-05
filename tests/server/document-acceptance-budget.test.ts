@@ -17,6 +17,7 @@ import { SqliteD1 } from "../helpers/sqlite-d1";
 
 // The published 2026.11.3 review settings, with qualification simulated only inside these expired fixtures.
 const budgetPlan = "b4-kimi-k31-pro-mxfp4-v1";
+const canonicalPlan = "b4-kimi-k31-pro-mxfp4-v2";
 const config: DocumentAnalysisMetadata = {
   provider: "OpenRouter / Moonshot AI", model: "moonshotai/kimi-k3.1-pro",
   endpoint: "https://openrouter.ai/api/v1/chat/completions", providerPolicyId: "materials-openrouter-kimi-k31-pro-mxfp4-zdr",
@@ -32,11 +33,14 @@ const qualification: DocumentProviderQualification = {
   receiptRoute: { providerName: "Moonshot AI", endpointId: "a3fafaac-f097-4ef1-86b3-842854dad5c6" },
 };
 const approvedAt = "2025-01-01T00:00:00.000Z", expiresAt = "2025-01-01T04:00:00.000Z";
+const canonicalQualification = { ...qualification,
+  receiptRoute: { ...qualification.receiptRoute, generationModel: "moonshotai/kimi-k3.1-pro-20261023" } };
 const now = Date.parse(approvedAt) + 60_000;
 function enrollment(totalBudgetMicroUsd: number, plan?: string) {
   return {
     runId: "offline-b4-budget", ownerId: "OfflineOwner", corpusSha256: documentAcceptanceCorpusSha256,
-    approvedAt, expiresAt, maxRequests: 24, totalBudgetMicroUsd, config, qualification,
+    approvedAt, expiresAt, maxRequests: 24, totalBudgetMicroUsd, config,
+    qualification: plan === canonicalPlan ? canonicalQualification : qualification,
     ...(plan === undefined ? {} : { budgetPlan: plan }),
     cases: corpus.documents.map(doc => ({
       caseId: doc.id, documentId: randomUUID(), documentVersionId: randomUUID(), textVersionId: randomUUID(),
@@ -70,6 +74,40 @@ function database(through = Infinity) {
 afterEach(() => { for (const db of opened.splice(0)) db.close(); });
 
 describe("B4 second-round budget", () => {
+  it("binds the successor plan to the canonical version in both the registrar and database", async () => {
+    const data = enrollment(2_000_000, canonicalPlan), sql = database().database;
+    const digest = await documentAcceptanceConfigurationDigest(config, canonicalQualification);
+    expect(digest).toBe("ec56126eff54568bbd9960ad050c7311b137cb0ac44c2f42e0ea506c6c81718f");
+    const insert = await renderDocumentAcceptanceEnrollment(data);
+    const oldDigest = await documentAcceptanceConfigurationDigest(config, qualification);
+    expect(() => sql.exec(insert.replace(digest, oldDigest))).toThrow();
+    expect(() => sql.exec(insert.replace(canonicalPlan, budgetPlan))).toThrow();
+    for (const changed of [qualification, { ...canonicalQualification,
+      receiptRoute: { ...canonicalQualification.receiptRoute, generationModel: "moonshotai/kimi-k3.1-pro-20261024" } }]) {
+      await expect(renderDocumentAcceptanceEnrollment({ ...data, qualification: changed })).rejects.toThrow();
+    }
+    sql.exec(insert);
+    expect(sql.prepare("SELECT budget_plan,configuration_sha256,total_budget_micro_usd FROM document_acceptance_runs").get())
+      .toEqual({ budget_plan: canonicalPlan, configuration_sha256: digest, total_budget_micro_usd: 2_000_000 });
+    expect(() => sql.exec(insert.replace("INSERT INTO", "INSERT OR REPLACE INTO"))).toThrow();
+    expect(() => sql.exec("UPDATE document_acceptance_runs SET total_budget_micro_usd=1")).toThrow();
+  });
+
+  it("preserves an already issued v1 grant when adding the canonical-version budget constraint", async () => {
+    const db = database(4), sql = db.database;
+    const insert = await renderDocumentAcceptanceEnrollment(enrollment(2_000_000, budgetPlan));
+    sql.exec(insert);
+    const snapshot = () => sql.prepare("SELECT run_id,budget_plan,configuration_sha256,total_budget_micro_usd,cases_json FROM document_acceptance_runs").all();
+    const before = snapshot();
+    migrate(db, 5);
+    expect(snapshot()).toEqual(before);
+    expect(sql.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
+    expect(() => sql.exec(insert.replace("INSERT INTO", "INSERT OR REPLACE INTO"))).toThrow();
+    expect(() => sql.exec("UPDATE document_acceptance_runs SET expires_at=3")).toThrow();
+    sql.exec(await renderDocumentAcceptanceEnrollment({ ...enrollment(2_000_000, canonicalPlan), runId: "new-canonical-run" }));
+    expect(sql.prepare("SELECT COUNT(*) n FROM document_acceptance_runs").get()).toEqual({ n: 2 });
+  });
+
   it("admits a separately selected Kimi plan only with the reviewed settings, qualification, window and ceiling", async () => {
     const data = enrollment(2_000_000, budgetPlan);
     const db = database().database;
@@ -155,8 +193,10 @@ describe("B4 second-round budget", () => {
 
   it.each([
     [500_000, undefined, 6], [1_751_039, budgetPlan, 23], [1_751_040, budgetPlan, 24], [2_000_000, budgetPlan, 24],
+    [1_751_039, canonicalPlan, 23], [1_751_040, canonicalPlan, 24],
   ] as const)("reserves at most %i microUSD for plan %s (%i full-price frozen cases)", async (cap, plan, count) => {
     const db = database(), data = enrollment(cap, plan);
+    const qualification = data.qualification;
     db.database.exec(await renderDocumentAcceptanceEnrollment(data));
     const store = new D1DocumentJobStore(db as unknown as D1Database, () => now);
     const reservation = calculateDocumentReservation(config, qualification);
@@ -185,7 +225,7 @@ describe("B4 second-round budget", () => {
         fetch: async (_url,init) => init?.method === "POST"
           ? Response.json({id:receiptId,model:config.model,usage:{prompt_tokens:config.maxInputTokens,completion_tokens:config.maxOutputTokens,cost},
             choices:[{message:{content:JSON.stringify({schemaVersion:"2026.11.1",items:[],reviewPoints:[]})}}]})
-          : Response.json({data:{id:receiptId,model:config.model,provider_name:qualification.receiptRoute.providerName,
+          : Response.json({data:{id:receiptId,model:qualification.receiptRoute.generationModel ?? config.model,provider_name:qualification.receiptRoute.providerName,
             provider_responses:[{status:200,endpoint_id:qualification.receiptRoute.endpointId}],native_tokens_prompt:config.maxInputTokens,
             native_tokens_completion:config.maxOutputTokens,total_cost:cost}}),
       });

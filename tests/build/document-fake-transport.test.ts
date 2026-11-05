@@ -17,7 +17,7 @@ const endpoint = "https://synthetic.invalid/api/v1/chat/completions";
 const analysis = {
   provider: "fixture", model: "moonshotai/kimi-k3.1-pro", endpoint, providerPolicyId: "fixture-policy",
   policyVersion: "2026.11.1", priceVersion: "2026.11.1", upstream: "moonshotai/mxfp4",
-  receiptRoute: { providerName: "Synthetic Provider", endpointId: "synthetic-endpoint" },
+  receiptRoute: { providerName: "Synthetic Provider", endpointId: "synthetic-endpoint", generationModel: "moonshotai/kimi-k3.1-pro-20261023" },
   inputMicroUsdPerMillionTokens: 400000, outputMicroUsdPerMillionTokens: 1600000,
   maxJobMicroUsd: 13000, userDailyMicroUsd: 320000, globalDailyMicroUsd: 400000,
 };
@@ -106,7 +106,7 @@ describe("packaged private synthetic transport", () => {
     const ids: string[] = [];
     for (const [index, { result }] of histories.entries()) {
       expect(result).toMatchObject({ kind: "received", actualMicroUsd: 0, audit: {
-        status: "verified", actualModel: analysis.model, actualProvider: analysis.receiptRoute.providerName,
+        status: "verified", actualModel: analysis.receiptRoute.generationModel, actualProvider: analysis.receiptRoute.providerName,
         actualEndpointId: analysis.receiptRoute.endpointId, metadataAttempts: 1,
       } });
       if (result.kind !== "received") throw new Error("Expected a synthetic completion");
@@ -120,7 +120,7 @@ describe("packaged private synthetic transport", () => {
     await openTransport();
     for (const id of ids) {
       const response = await runtime.dispatchFetch(receiptUrl(id), { headers });
-      expect(await response.json()).toMatchObject({ data: { id, model: analysis.model, total_cost: 0 } });
+      expect(await response.json()).toMatchObject({ data: { id, model: analysis.receiptRoute.generationModel, total_cost: 0 } });
     }
     const unknown = [ids[0]!.replace(/-[0-9]+$/u, "-0"), ids[0]!.replace(/-[0-9]+$/u, "-9999999999"), "gen-unknown"];
     for (const id of unknown) expect((await runtime.dispatchFetch(receiptUrl(id), { headers })).status).toBe(404);
@@ -172,6 +172,7 @@ describe("packaged private synthetic transport", () => {
     }
   });
   it.each([
+    ["generation model", { receiptRoute: { ...analysis.receiptRoute, generationModel: "moonshotai/kimi-k3.1-pro-20261024" } }],
     ["model and endpoint", { model: "fixture-model", receiptRoute: { ...analysis.receiptRoute, endpointId: "another-fixture" } }],
     ["policy id", { providerPolicyId: "another-policy" }], ["policy version", { policyVersion: "2026.11.2" }],
     ["price version", { priceVersion: "2026.11.2" }], ["input rate", { inputMicroUsdPerMillionTokens: 400001 }],
@@ -187,7 +188,7 @@ describe("packaged private synthetic transport", () => {
     try {
       expect((await runtime.dispatchFetch(originalUrl, { headers })).status).toBe(404);
       const second = await analyze(corpus.documents[0]!, other);
-      expect(second.result).toMatchObject({ kind: "received", audit: { status: "verified", actualModel: updated.model,
+      expect(second.result).toMatchObject({ kind: "received", audit: { status: "verified", actualModel: updated.receiptRoute.generationModel,
         actualEndpointId: updated.receiptRoute.endpointId } });
     } finally {
       await runtime.dispose();

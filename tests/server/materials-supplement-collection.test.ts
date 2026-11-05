@@ -20,7 +20,7 @@ const config = { provider: "OpenRouter / Moonshot AI", model: "moonshotai/kimi-k
   routingPolicy, priceVersion: "2026.11.3", maxInputTokens: 16_000, maxOutputTokens: 4096, maxJobMicroUsd: 75_000,
   userDailyMicroUsd: 450_000, globalDailyMicroUsd: 450_000, httpTimeoutMs: 1000 };
 const qualification = { qualified: true as const, model: config.model, endpoint, providerPolicyId: config.providerPolicyId,
-  priceVersion: config.priceVersion, routingPolicy, receiptRoute: { providerName: "Moonshot AI", endpointId: "a3fafaac-f097-4ef1-86b3-842854dad5c6" },
+  priceVersion: config.priceVersion, routingPolicy, receiptRoute: { providerName: "Moonshot AI", endpointId: "a3fafaac-f097-4ef1-86b3-842854dad5c6", generationModel: "moonshotai/kimi-k3.1-pro-20261023" },
   inputMicroUsdPerMillionTokens: 2_000_000, outputMicroUsdPerMillionTokens: 10_000_000, inputTokenBound: "utf8-bytes-plus-4096" as const };
 const directories: string[] = [];
 function temporaryDirectory() {
@@ -160,7 +160,7 @@ it("durably reserves before each handoff, freezes the exact content before each 
 it.each(["cost-conflict", "route-mismatch", "metadata-unavailable"] as const)("stops on %s, preserving known charges and holding only unresolved costs", async reason => {
   const directory = temporaryDirectory(), raw = JSON.stringify(await issued(directory));
   const http = transport(undefined, id => reason === "metadata-unavailable" ? new Response(null, { status: 403 }) : Response.json({ data: {
-    id, model: config.model, native_tokens_prompt: 100, native_tokens_completion: 20, total_cost: reason === "cost-conflict" ? 0.000008 : 0.000007,
+    id, model: qualification.receiptRoute.generationModel, native_tokens_prompt: 100, native_tokens_completion: 20, total_cost: reason === "cost-conflict" ? 0.000008 : 0.000007,
     provider_name: reason === "route-mismatch" ? "other" : qualification.receiptRoute.providerName,
     provider_responses: [{ status: 200, endpoint_id: qualification.receiptRoute.endpointId }],
   } }));
@@ -237,7 +237,9 @@ it("refuses coordinated substitutions of endpoint, model, route, receipt identit
       .rejects.toThrow("invalid-supplement-configuration");
   }
   for (const change of [{ inputMicroUsdPerMillionTokens: 1 }, { outputMicroUsdPerMillionTokens: 1 },
-    { receiptRoute: { ...qualification.receiptRoute, endpointId: "other" } }]) {
+    { receiptRoute: { ...qualification.receiptRoute, endpointId: "other" } },
+    { receiptRoute: { ...qualification.receiptRoute, generationModel: undefined } },
+    { receiptRoute: { ...qualification.receiptRoute, generationModel: "moonshotai/kimi-k3.1-pro-20261024" } }]) {
     await expect(collector.inspectSupplementSettings({ config, qualification: { ...qualification, ...change } })).rejects.toThrow("invalid-supplement-configuration");
   }
 });
@@ -258,7 +260,7 @@ it.each(["metadata-only", "same-micro-conflict"] as const)("checkpoints %s billi
   const conflict = kind === "same-micro-conflict", id = "gen-billing-evidence";
   const http = transport(i => Response.json({ id, model: config.model, usage: { prompt_tokens: 100, completion_tokens: 20,
     ...(conflict ? { cost: 0.0000071 } : {}) }, choices: [{ message: { content: docContent(i) } }] }), receipt => Response.json({ data: {
-    id: receipt, model: config.model, native_tokens_prompt: 100, native_tokens_completion: 20, total_cost: conflict ? 0.0000074 : 0.000009,
+    id: receipt, model: qualification.receiptRoute.generationModel, native_tokens_prompt: 100, native_tokens_completion: 20, total_cost: conflict ? 0.0000074 : 0.000009,
     provider_name: qualification.receiptRoute.providerName, provider_responses: [{ status: 200, endpoint_id: qualification.receiptRoute.endpointId }],
   } }));
   await expect(collect(raw, directory, http)).rejects.toThrow("final transition unavailable");

@@ -54,6 +54,7 @@ export async function inspectSupplementSettings(input: unknown) {
     || config.providerPolicyId !== "materials-openrouter-kimi-k31-pro-mxfp4-zdr" || config.priceVersion !== "2026.11.3"
     || config.routingPolicy.policyVersion !== "2026.11.3" || qualification.receiptRoute.providerName !== "Moonshot AI"
     || qualification.receiptRoute.endpointId !== "a3fafaac-f097-4ef1-86b3-842854dad5c6"
+    || qualification.receiptRoute.generationModel !== "moonshotai/kimi-k3.1-pro-20261023"
     || qualification.inputMicroUsdPerMillionTokens !== 2_000_000 || qualification.outputMicroUsdPerMillionTokens !== 10_000_000)
     throw new Error("invalid-supplement-configuration");
   const documents = readFrozenSupplementDocuments().map(doc => ({
