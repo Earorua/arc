@@ -1,0 +1,16 @@
+{
+  "pairFileSha256": "cff27e802557257c95146e112a4addf363887a6c1e24dd1e68e4675f6d0b0748",
+  "comparison": "incompatible",
+  "reviewedSettingsSha256": "d65903a51fd52ce85bb4e54bc769d324343a3f908c2c38699373f02297aa1834",
+  "productionAuditorSha256": "d0cd6b0d527c8f449738a7bb492354869bb53fce12800ef84426401b8066af18",
+  "productionAudit": "model-mismatch",
+  "exactCostAgreement": true,
+  "reportedReasoning": "matched",
+  "inputTokens": 553,
+  "completionTokens": 1840,
+  "metadataMicroUsd": 19506,
+  "latencyMs": 2379,
+  "generationMs": 62886,
+  "sourceAuthenticated": false,
+  "inferenceAuthorized": false
+}

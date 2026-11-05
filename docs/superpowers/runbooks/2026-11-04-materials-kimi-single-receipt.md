@@ -1,6 +1,6 @@
 # Kimi 标准端点单笔回执取证草案
 
-> 2026-11-05 执行更新：持有人已批准并完成一次合成推理，费用 0.019506 USD。原发送名额已消耗，不能重跑。自动配对核验未通过；账户网页已核对相同回执，后续只读 API 核验另见[执行结果与命令](../../verification/2026-11-05-materials-b1-single-receipt-result.md)。以下保留原方案及边界。
+> 2026-11-05 执行更新：一次合成推理已完成，费用 0.019506 USD。随后独立只读 GET 返回 HTTP 200；已复现并离线修复模型 alias/canonical ID 校验，回执技术证据 PASS。原推理和本次只读名额均已消耗，不能重跑。完整 Gate 1B、B2 与生产隐私授权未完成。[执行结果](../../verification/2026-11-05-materials-b1-single-receipt-result.md) · [修复验收](../../verification/2026-11-05-materials-canonical-model-fix.md)。以下保留原方案及边界。
 
 2026-11-04。原工单已收到两封技术答复。OpenRouter 没有这条标准路由可分享的合成回执，公开示例使用其他模型及虚构值。本工作区没有历史记录。供应方也没有提供 Moonshot 自动缓存的最长保留期或文档化关闭方式。OpenRouter 对自身 ZDR 的定义允许短暂的内存隐式缓存。普通客服不能给出这条路由的合同承诺。[B1 核验](../../verification/2026-11-04-materials-gate-1b-b1-review.md) · [ZDR 中的缓存条款](https://openrouter.ai/docs/guides/features/zdr) · [Moonshot 缓存说明](https://openrouter.ai/docs/guides/best-practices/prompt-caching)
 

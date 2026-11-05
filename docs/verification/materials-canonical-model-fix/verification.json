@@ -1,0 +1,135 @@
+{
+  "verifiedAt": "2026-11-05T13:06:24.421Z",
+  "candidate": "2bcff0964d1238b10bf8acc3196a15b8479edbe4",
+  "tree": "4005dfba35753467e23bd3e71eaafa39222479be",
+  "bundleSha256": "461543f5b976bcaba268e6cb4f3e9a084223b00eeaf57f826313a1c750ddd9cd",
+  "vitest": {
+    "files": 355,
+    "passed": 7546,
+    "failed": 0,
+    "command": "node node_modules/vitest/vitest.mjs run --maxWorkers=4 --reporter=dot",
+    "researchBaselinesModified": false
+  },
+  "node": {
+    "files": 9,
+    "passed": 290,
+    "failed": 0,
+    "testConcurrency": 1
+  },
+  "readOnlyHelper": {
+    "passed": 5,
+    "failed": 0
+  },
+  "rendered": {
+    "passed": 5,
+    "failed": 0
+  },
+  "typecheck": {
+    "exitCode": 0,
+    "scope": "clean complete source with unchanged tsconfig"
+  },
+  "lint": {
+    "errors": 0,
+    "existingWarnings": 4
+  },
+  "artifacts": {
+    "mode": "closed",
+    "files": 390,
+    "treeSha256": "1a510647efb70cb321b1497a1bc952cc7da7db500624ba1ddae81ed8b7642090",
+    "index": "artifact-index.json",
+    "allBytesVerified": true,
+    "sourceMatchedFrozenCommit": true
+  },
+  "cleanBuild": {
+    "credentialsPassed": false,
+    "nonLoopbackAttempts": 0,
+    "steps": {
+      "typecheck": {
+        "exitCode": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "site": {
+        "exitCode": 0,
+        "logSha256": "89be2f81d15b56c9874f2efb4811860ee8a20ba866e9fb149e876175c04ad20f"
+      },
+      "rendered": {
+        "exitCode": 0,
+        "logSha256": "3fb904dfa52905785583fe05b0f0579c74d193cb788e487245ffbabfdd57e925"
+      },
+      "pair": {
+        "exitCode": 0,
+        "logSha256": "60ca4a94bbf8c2feaae1261f3669dc259d69b6398bccfb66ae0c834a6c6b39f0"
+      }
+    }
+  },
+  "frozenB1": {
+    "programSha256": "147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b",
+    "filesChecked": 16,
+    "unchanged": true,
+    "oldPairReplay": "model-mismatch",
+    "newPairReplay": "verified"
+  },
+  "firstFullRun": {
+    "failed": 15,
+    "passed": 7531,
+    "nativeModuleImportFailures": 11,
+    "concurrentTimeouts": 4,
+    "assertionsRemoved": false,
+    "timeoutsRaised": false
+  },
+  "firstTypecheck": {
+    "newTestTypeAnnotationFixed": true,
+    "partialHistoricalWorkDirectoryScanned": true,
+    "tsconfigChanged": false
+  },
+  "independentReview": {
+    "blockingFindings": 0,
+    "sqliteGuardMutationsRejected": 6,
+    "nativeImportsChecked": true,
+    "replayWithGlobalFetchDeniedPassed": true
+  },
+  "sourceRestore": {
+    "base": "24e918d3b9a0cf8963437a7ae6b2a01db42165d1",
+    "bundleVerified": true,
+    "restoredCandidateMatched": true,
+    "fsckStrictPassed": true
+  },
+  "logsSha256": {
+    "model-identity-red.log": "6a2f5782bbd3cafcc264a4062208404c12221df4e8dd1732325852d26c744d6a",
+    "model-identity-green.log": "743ab7b5e44fbb21ab79eb520b09505585bae021920033a2ff287375b710541b",
+    "model-production-red.log": "20da2238750ce1c29a188b5a6bff13f4d3350fef052322c3bd5bc31ede08e314",
+    "model-admission-red.log": "b331a37a0ea226fe10b3f999b51bb28b411f48cef82bf2d73c9e31a539354a92",
+    "model-admission-green.log": "102856cde30d9c0f9e6c91bbd22185f79b0fb6eca11881338ef4547d71889aad",
+    "model-budget-red.log": "22bd150e129845e07f60ac918932baf85e6afff21fa4076015ea38602f87b5b8",
+    "canonical-full-vitest.log": "895b661968f33b5c83c5253627fddeef9fd323a062e95db4cdd1ca0faf668765",
+    "canonical-full-vitest-green.log": "7530f1274e7192c71a3d848070e0e3c906f24bf34398c364ec196ace7b57748a",
+    "canonical-native-cli-green.log": "85e9f7d92719d42ab66722ab0f695ce9001e19c3b9ea080e9f28c274dc06025e",
+    "canonical-node-suite.log": "d214ec032c33f4e023152c3cba25f12f45f3633e89667b3d081142f15437b8db",
+    "canonical-lint-final.log": "80a658ff97471ae0c7b53143b418cf616041407c42a88a4ecbb543f1c52aef0f",
+    "canonical-tsc.log": "1329cbaa1568bc525c1b1f44acdef4a5eb7f305a497358bb4969dfb3bfcd3bde",
+    "canonical-readonly-helper-tests.log": "c98f3e88d896e064168894ee86e92c9cae1f782d802115a8c66a543786989280",
+    "canonical-freeze.log": "bd93cf359214b58863a5efd2433e5fc569fccc8433b5c8d7d1c00421d6cae8d5"
+  },
+  "totals": {
+    "realInferenceRequests": 1,
+    "realInferenceCostMicroUsd": 19506,
+    "automaticGenerationGets": 3,
+    "supplementalGenerationGets": 1
+  },
+  "thisRepair": {
+    "newInferenceRequests": 0,
+    "newInferenceCostMicroUsd": 0,
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "b2Cases": 0,
+    "b4Cases": 0,
+    "supplementQualityCases": 0
+  },
+  "status": {
+    "b1ReceiptTechnical": "PASS",
+    "gate1b": "INCOMPLETE",
+    "b2": "NOT_RUN",
+    "publicRelease": "NOT_RUN",
+    "ownerRequestedPause": true
+  }
+}

@@ -1,12 +1,12 @@
 # Gate 1B · B1 核验记录：Kimi K3.1 Pro
 
-> 11 月 5 日后续：已完成独立授权的 1 次固定合成推理，费用 0.019506 USD。自动 3 次 generation GET 未取得可用结果；账户日志已核对相同回执的标准端点、用量与费用。下一步只读核验 API 字段及普通 key 的实际读取能力，B1 仍为 BLOCKED。[单笔结果与只读命令](2026-11-05-materials-b1-single-receipt-result.md) · [离线修复](2026-11-05-materials-offline-repair.md)
+> 11 月 5 日后续：独立只读 GET 已返回 HTTP 200，普通 key 权限与真实配对字段已取得。已复现并离线修复 chat alias 与 generation canonical ID 的精确匹配问题，B1 回执技术证据 PASS；完整 Gate 1B 尚未通过。累计仍为 1 次合成推理、0.019506 USD。[实际结果](2026-11-05-materials-b1-single-receipt-result.md) · [本轮修复验收](2026-11-05-materials-canonical-model-fix.md)
 
-更新于 2026-11-05 · **B1 `BLOCKED`** · B2 `NOT RUN` · 累计真实推理 1 次、费用 0.019506 USD、部署 0 次、远程迁移 0 次。以下 11 月 4 日的账户与供应方取证记录保留其原始日期。
+更新于 2026-11-05 · **B1 技术核验 `PASS`，后续范围/隐私授权待定** · B2 `NOT RUN` · 累计真实推理 1 次、费用 0.019506 USD、部署 0 次、远程迁移 0 次。以下 11 月 4 日的账户与供应方取证记录保留其原始日期。
 
 **当前候选已改为 Kimi K3.1 Pro 标准版，经 OpenRouter 锁定 Moonshot AI。** Kimi 于 10 月 23 日宣布 K3.1 Pro 系列已上线，核验时它也是 OpenRouter 的 `moonshotai/` 目录中最新的模型。选择标准版保留最新模型能力，同时按较低的标准端点费率审阅。旧 Azure 方案已归档。本记录取代原计划中的模型与预算候选，B0 冻结提交仍是本次对照基准。[Kimi 官方发布](https://www.kimi.com/en/blog/kimi-k3-1-pro) · [10 月 23 日上线记录](https://www.kimi.com/code/docs/en/kimi-code/whats-new.html) · [定稿计划](../superpowers/plans/2026-11-04-private-materials-gate-1b-acceptance.md) · [Azure 历史记录](2026-11-04-materials-gate-1b-b1-azure-review.md)
 
-**当前需要核对已有回执的实际 API 字段，无需再做一笔推理。** 专用 key 已绑定严格 ZDR 护栏，累计限额为 2.00 USD。官方回函确认了普通 key 的读取权限和标准端点价格。持有人已经接受本次固定合成句的缓存边界；上游自动缓存的最长保留时间或关闭方式仍未明确，真实用户资料的隐私决定、两轮质量评测和生产发布继续分别办理。[单笔取证范围、费用及条件](../superpowers/runbooks/2026-11-04-materials-kimi-single-receipt.md) · [账户核验](../superpowers/runbooks/2026-11-04-materials-kimi-account-evidence.md)
+**已有回执的实际 API 字段已核对，无需重做该笔推理。** 专用 key 已绑定严格 ZDR 护栏，累计限额为 2.00 USD。新待审配置显式固定 `generationModel=moonshotai/kimi-k3.1-pro-20261023`，仍未签发资格或授权。持有人接受的缓存边界仅覆盖原固定合成句；上游缓存最长保留时间或关闭方式仍未明确，B2、真实用户资料隐私决定及生产发布继续分别办理。[新配置](materials-gate-1b-b1/b2-settings.canonical-model.review.json) · [账户核验](../superpowers/runbooks/2026-11-04-materials-kimi-account-evidence.md)
 
 ## 1. 已核实的候选与端点
 
@@ -28,7 +28,7 @@ B1 单笔取证已完成离线演练。两个本机工作树对同一份模拟�
 | 温度参数 | B0 固定发送 `temperature=0`，与 Kimi 固定温度 1.0 的原生契约冲突。后继候选对通过资质校验的指定 Kimi 模型和单一标准 tag 省略温度字段，离线测试核验实际构造的 HTTP 请求。其他模型和路由沿用原有行为。[Kimi 快速指南](https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart.md) · [传输测试](../../tests/server/document-generation-audit.test.ts) |
 | 输出上限与严格过滤 | 标准端点的 `supported_parameters` 列有 `max_tokens`。后继候选对该路由发送 `max_tokens=4096`，使用唯一供应商、禁止回退，并保留 `require_parameters=true`、`zdr=true` 和价格上限。真实路由的接受情况与实际截断表现留给获准的评测。[端点目录](https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints) · [OpenRouter 参数说明](https://openrouter.ai/docs/api_reference/parameters) |
 | JSON 与思考 token | Kimi 给出了本型号的 `response_format.type=json_object` 示例。冻结适配器以非流式请求读取最终 `message.content`。Kimi 原生始终开启思考，默认 `max`。OpenRouter 模型目录虽列有 effort `none`，本次按原生约束审阅。4,096 上限按思考加可见输出合计核算，不承诺能给最终 JSON 留足空间。只保存验收所需字段，若因 `length` 截断，保留失败结果。[JSON 模式](https://platform.kimi.ai/docs/guide/use-json-mode-feature-of-kimi-api) · [模型限制](https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart.md) · [推理 token 计费](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens) |
-| **普通 key 的读取权限已获书面确认，实际字段仍待证** | 客服确认关闭正文日志时，普通 key 可读取自有请求的元数据。需要同一标准路由的脱敏配对样例，或能覆盖具体字段的供应方书面证明。核对聊天和 generation 的模型名是否均为无日期请求 ID，ID 是否对应且唯一，`provider_name` 是否为 `Moonshot AI`，是否恰有一条成功响应且其 `endpoint_id` 为目标 UUID。分别核对输入、含思考的完成 token、费用以及实际可用的时延字段。客服明确无法从文档确定两个模型标识及 `endpoint_id`，建议提供实际 generation ID 后协助核对。[回执接口](https://openrouter.ai/docs/api/api-reference/generations/get-request-%26-usage-metadata-for-a-generation) · [校验器](../../worker/document-executor/generation-receipt.ts) |
+| **普通 key 与真实配对字段已证实** | 11 月 5 日独立只读 GET 返回 HTTP 200。chat 使用无日期请求 alias，generation 使用 `20261023` canonical ID；同一 ID 摘要、唯一标准端点 UUID、553/1,840 token、1,745 reasoning、0.019506 USD 与时延字段均核对。已先在冻结程序复现，再新增显式日期版本约束并完成离线回放。原 3 次 GET 的失败原因仍未知，延后读取不能证明自动窗口可靠性。[实际 API 证据](materials-gate-1b-b1/2026-11-05-readonly-api-result.json) · [校验器](../../worker/document-executor/generation-receipt.ts) |
 
 ## 3. 隐私与缓存审核
 

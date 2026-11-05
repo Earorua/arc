@@ -1,0 +1,32 @@
+{
+  "mode": "offline-replay",
+  "comparison": "compatible",
+  "checkedAt": "2026-11-05T12:45:18.675Z",
+  "pairSha256": "cff27e802557257c95146e112a4addf363887a6c1e24dd1e68e4675f6d0b0748",
+  "settingsSha256": "e77ac7703652018d0d1c6247a75f7cdfd5b3ab1780cdf94c9b8ef0d3ab863c72",
+  "configurationSha256": "ec56126eff54568bbd9960ad050c7311b137cb0ac44c2f42e0ea506c6c81718f",
+  "auditorSha256": "eaa3e3ac41300cd1c167f7eae32cf60cd660f442c9b95369abadba6d2710d86b",
+  "audit": {
+    "status": "verified",
+    "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+    "actualProvider": "Moonshot AI",
+    "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+    "metadataAttempts": 1,
+    "metadataInputTokens": 553,
+    "metadataOutputTokens": 1840,
+    "metadataMicroUsd": 19506,
+    "sentAt": "2026-11-05T12:45:18.675Z",
+    "returnedAt": "2026-11-05T12:45:18.675Z",
+    "checkedAt": "2026-11-05T12:45:18.675Z",
+    "costEvidenceVersion": "wire-decimal-v1",
+    "providerLatencyMs": 2379,
+    "providerGenerationMs": 62886
+  },
+  "exactCostAgreement": true,
+  "reasoningMatches": true,
+  "simulatedGets": 1,
+  "networkRequests": 0,
+  "inferenceRequests": 0,
+  "sourceAuthenticatedByReplay": false,
+  "inferenceAuthorized": false
+}

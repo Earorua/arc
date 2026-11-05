@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "source": "owner-invoked-dedicated-key-generation-api",
+  "ownerApprovalRef": "01a1aba9-f305-7951-ab09-63530c4fa722",
+  "endpoint": "https://openrouter.ai/api/v1/generation",
+  "startedAt": "2026-11-05T12:25:48.387Z",
+  "finishedAt": "2026-11-05T12:25:49.762Z",
+  "operation": "read-existing-generation",
+  "status": "captured",
+  "httpStatus": 200,
+  "receiptIdSha256": "b5829e8063620a484298eee578708a00ba76eb64a78163c9c32c50ca612f7a52",
+  "responseSha256": "864809203e92b9b3f56adf420c44f68249839f7ad1706921da807a7468e96906",
+  "privateCaptureFileSha256": "8518086255cca3a30813b5cc1e831cfa1d06beb29e96fc1e9b2f6decef023970",
+  "generation": {
+    "data": {
+      "id": "b5829e8063620a484298eee578708a00ba76eb64a78163c9c32c50ca612f7a52",
+      "model": "moonshotai/kimi-k3.1-pro-20261023",
+      "provider_name": "Moonshot AI",
+      "provider_responses": [
+        {
+          "status": 200,
+          "endpoint_id": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+          "provider_name": "Moonshot AI"
+        }
+      ],
+      "native_tokens_prompt": 553,
+      "native_tokens_completion": 1840,
+      "native_tokens_reasoning": 1745,
+      "total_cost": 0.019506,
+      "latency": 2379,
+      "generation_time": 62886
+    }
+  },
+  "wirePriceReproducible": true,
+  "metadataGetCount": 1,
+  "inferenceRequests": 0,
+  "addedInferenceCostMicroUsd": 0,
+  "ordinaryKeyReadProven": true,
+  "originalRunRewritten": false,
+  "rawGenerationIdPublished": false
+}

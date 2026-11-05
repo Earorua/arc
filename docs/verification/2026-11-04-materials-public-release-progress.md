@@ -2,7 +2,9 @@
 
 更新于 2026-11-05。目标站点为 [arcmaps.net](https://arcmaps.net/)。当前处于 Gate 1B 的 B1。该站点已有公开版本，资料分析与个性化学习计划仍待验收及发布。
 
-**离线修复完成，首次真实合成取证已执行。** 本地产品候选 `d1577b37bd08` 全仓 7,526/7,526 通过；独立 B1 推理 1 次，费用 0.019506 USD。账户日志核对了标准端点、用量和费用；自动 API 配对核验仍未通过，下一步只读核验已有回执。资料功能尚未公开发布。[单笔结果与下一步](2026-11-05-materials-b1-single-receipt-result.md) · [离线修复证据](2026-11-05-materials-offline-repair.md) · [原暂停交接](2026-11-04-materials-resume-checkpoint.md)
+**21:06 按持有人要求暂停并保存。** 新产品候选为 `2bcff0964d12`，恢复时从 B2 授权材料准备继续；尚未申请或签发 B2 授权。[最新暂停说明](2026-11-05-materials-resume-checkpoint.md)
+
+**只读查询与 B1 回执技术核验通过。** 普通 key 的 generation GET 返回 HTTP 200；已修复请求 alias 与日期版本回执的精确匹配，真实配对离线回放通过。累计仍为独立 B1 推理 1 次、0.019506 USD，完整 Gate 1B 和公开发布尚未完成。新配置仍未签发 B2 授权。[实际结果](2026-11-05-materials-b1-single-receipt-result.md) · [最新离线验收](2026-11-05-materials-canonical-model-fix.md) · [前一轮离线修复](2026-11-05-materials-offline-repair.md)
 
 ## 首发范围
 
@@ -11,8 +13,8 @@
 | 检查点 | 当前证据 | 放行所需结果 |
 | --- | --- | --- |
 | B0 离线准备 | 已冻结合成语料、执行器与站点基线，有离线质量、UI、恢复与清理记录。[B0 结果](2026-11-04-materials-gate-1b-b0-results.md) | 语料和历史结果保留核验依据。 |
-| B1 路由与账号 | 严格 ZDR 已指派，key 总限额 2.00 USD。单笔推理已完成，0.019506 USD；账户网页核对了相同回执的标准端点、用量和费用。普通 key 的自动元数据查询尚未成功。[B1 核验](2026-11-04-materials-gate-1b-b1-review.md) | 只读核验已有回执的实际 API 字段及读取能力。真实资料隐私边界与后续预算仍须独立核实。[结果与只读步骤](2026-11-05-materials-b1-single-receipt-result.md) |
-| B2 真实模型质量 | 0/24。授权、起止时间及 runId 尚未签发。[待审配置](materials-gate-1b-b1/b2-settings.review.json) | 在单轮上限内完成冻结语料的真实输出、评分和逐笔对账。 |
+| B1 路由与账号 | 严格 ZDR 已指派，key 总限额 2.00 USD。累计推理 1 次、0.019506 USD；独立 GET 已返回 HTTP 200，真实配对核验通过。[B1 核验](2026-11-04-materials-gate-1b-b1-review.md) | 回执技术证据已补齐。原自动 GET 失败原因仍未知；后续合成范围、真实资料隐私边界和预算须分别授权。[实际结果](2026-11-05-materials-b1-single-receipt-result.md) |
+| B2 真实模型质量 | 0/24。新配置精确固定 canonical model；授权、起止时间及 runId 尚未签发。[待审配置](materials-gate-1b-b1/b2-settings.canonical-model.review.json) | 在独立单轮预算内完成冻结语料的真实输出、评分和逐笔对账。 |
 | B3 与 B4 隔离验收 | B3 的本机模拟证据已经取得，线上隔离环境、B4 的真实用户操作和第二轮预算待办。[验收计划](../superpowers/plans/2026-11-04-private-materials-gate-1b-acceptance.md) | 独立验证实际绑定、账户准入、私有存储、恢复和删除；在页面以合成资料验证提取、确认、计划差异与已完成任务保护。 |
 | B5 与生产发布 | 已为普通用户实现独立生产准入、关闭开关和本地打包工具。两端要求同一份限时限额的生产授权。当前尚无生产授权或远端迁移。[执行器准入](../../worker/document-executor/production-policy.ts) · [生产包操作单](../superpowers/runbooks/2026-11-04-materials-production-package.md) | 完成 B2 至 B5、补充资料验证、生产资源实盘和签批，执行备份、迁移、回退演练及上线后验证。 |
 
@@ -23,7 +25,7 @@
 ## 首发场景的证据范围
 
 - B2 与 B4 各自的 24 份样例只含简历和 JD。另为补充资料冻结 6 份合成样例、逐项预期及离线评分器。六份预标注答案已经过正反对照，真实模型结果仍为 0/6。三组样例各自评分，增加真实调用须独立授权。[原冻结语料](materials-gate-1b-b0/candidate.json) · [补充资料验收](2026-11-04-materials-supplement-quality.md)
-- B4 原有 0.50 USD 默认上限和旧凭证保持有效。新增的专用预算方案限于冻结 Kimi 配置和 24 份固定语料，单轮最高 2.00 USD；全数按顶格预留需 1.751040 USD。已在本机验证登记、迁移和停止边界。真实浏览器轮仍须独立签发授权并在获准的隔离环境应用迁移，B2 单独核算。[B4 登记脚本](../../scripts/materials-ui-acceptance-enroll.ts) · [增量迁移](../../worker/document-executor/migrations/0004_document_acceptance_budget.sql)
+- B4 原有 0.50 USD 默认上限和旧凭证保持不变。v2 专用计划绑定新增 canonical model 的配置摘要，单轮最高 2.00 USD；全数按顶格预留需 1.751040 USD。本机迁移测试保留旧授权、费用、外键和防重复规则。真实浏览器轮仍须独立签发授权并在获准隔离环境应用迁移，B2 单独核算。[B4 登记脚本](../../scripts/materials-ui-acceptance-enroll.ts) · [新增本地迁移](../../worker/document-executor/migrations/0005_document_canonical_receipt_budget.sql)
 - 在较早的 Kimi 冻结候选上复现了新会话重新选择 JD 时丢失其他资料的风险。工作区修复已通过离线专项验证。重新打开同一目标后，从服务端读回仍有效的已采用版本；从公司 A 的 JD 调整为 B 时，提案待确认期间沿用 A，接受后采用 B，放弃后保留 A。主简历、补充资料和已完成任务均有回归覆盖。无可信基准且与当前资料冲突的旧本机草稿，须先由用户选择。[工作区](../../app/components/materials/material-workspace-panel.tsx) · [服务端采用引用测试](../../tests/server/material-adopted-refs.test.ts) · [旧草稿合并测试](../../tests/lib/material-workspace-selection.test.tsx)
 - 已用本地模拟 AI 验证补充资料从预填、修正到合法重排的完整流程。已有的 `observability` 练习可以提前。主 JD 指定的 TypeScript 必备项只引用实际生效的 JD 条目，原有 SQL 加分项、自评、已完成事件和完整任务集合均保留。[补充资料端到端测试](../../tests/server/material-supplement-flow.test.ts)
 - 为未来 B3 准备了独立的私有合成服务。它只接受冻结语料和已审配置，默认 HTTP 入口返回 404，回执只在同一资格配置下有效。隔离环境的 synthetic 模式还需批准第三个私有 Worker 以及仅保存回执计数的 SQLite Durable Object 和对应云费。closed 和 live 产物均不包含该服务。[合成服务](../../worker/document-fake-transport/index.ts) · [本地运行与打包测试](../../tests/build/document-fake-transport.test.ts)

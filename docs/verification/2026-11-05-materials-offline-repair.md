@@ -2,7 +2,7 @@
 
 2026-11-05（北京时间）。本轮从已保存的 `24e918d3b9a0` 继续。新的产品源码提交是 `d1577b37bd08eea56d5a0a2578dd0eba2e991f84`，本地分支 `codex/materials-offline-recovery-20261105`。旧暂停快照、两批冻结语料和 Research 基线保持原样。[逐文件源码摘要](materials-offline-repair/candidate.json) · [历史暂停快照](2026-11-04-materials-resume-checkpoint.md)
 
-**当前仍在 B1。** 下文离线修复结果来自合成输入、本机数据库和模拟传输。后续独立授权的 B1 单笔合成取证已完成：1 次推理、0.019506 USD，自动配对核验尚未通过；详情见[单笔结果](2026-11-05-materials-b1-single-receipt-result.md)。没有执行远程迁移或部署。B2 简历/JD 质量轮 **0/24**，补充资料质量轮 **0/6**，B4 浏览器轮 **0/24**。资料分析功能尚未对公众开放。
+**下文是 d1577b3 的历史离线验收。** 后续 B1 仅有 1 次合成推理、0.019506 USD；独立只读 GET 已成功，模型版本匹配修复及真实配对核验见[最新验收报告](2026-11-05-materials-canonical-model-fix.md)和[实际单笔结果](2026-11-05-materials-b1-single-receipt-result.md)。完整 Gate 1B 尚未通过，没有远程迁移或部署。B2 简历/JD 质量轮 **0/24**，补充资料质量轮 **0/6**，B4 浏览器轮 **0/24**，资料功能未公开发布。
 
 ## 修复了什么
 

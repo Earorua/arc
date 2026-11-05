@@ -1,0 +1,11 @@
+{
+  "source": "https://openrouter.ai/api/v1/model/moonshotai/kimi-k3.1-pro",
+  "observedOn": "2026-11-05",
+  "responseSha256": "39e0cfbb4eddea57c5f1342b4f26a15f4780be7898d07fc701a232728e9d6bca",
+  "id": "moonshotai/kimi-k3.1-pro",
+  "canonical_slug": "moonshotai/kimi-k3.1-pro-20261023",
+  "name": "MoonshotAI: Kimi K3.1 Pro",
+  "created": 1792778188,
+  "authenticatedRequest": false,
+  "inferenceRequests": 0
+}
