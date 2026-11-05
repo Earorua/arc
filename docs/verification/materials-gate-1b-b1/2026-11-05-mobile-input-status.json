@@ -1,0 +1,32 @@
+{
+  "observedAtUtc": "2026-11-05T04:29:14.1614541Z",
+  "expiresAtUtc": "2026-11-05T04:26:29.983Z",
+  "inputPhase": "expired",
+  "serviceStopped": true,
+  "runSlotExists": false,
+  "postCount": 0,
+  "metadataGetCount": 0,
+  "costMicroUsd": 0,
+  "continuation": "Await explicit renewal of the 15-minute input window; keep the same single-send runId and budget.",
+  "schemaVersion": 1,
+  "ownerApprovedAtUtc": "2026-11-05T03:41:59.000Z",
+  "ownerExpiresAtUtc": "2026-11-05T05:41:59.000Z",
+  "inputStartedAtUtc": "2026-11-05T04:11:29.9836814Z",
+  "grantMaxRequests": 1,
+  "grantTotalBudgetMicroUsd": 75000,
+  "programSha256": "147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b",
+  "localHelperTests": {
+    "command": "node --test work/receipt-accounting/b1-mobile-window.test.mjs",
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "redObserved": true,
+    "scope": "Offline localhost input helper only; no inference",
+    "files": {
+      "work/receipt-accounting/b1-mobile-expiry-green.log": "06d2aa0400962e124c4292b97e6e6eecc21d2b8d6a6e702a9bf186fa6a826683",
+      "work/receipt-accounting/b1-mobile-expiry-red.log": "fabd9be9e08a465e9ed76121e42e7d4d94f5eff1345a98cca2906598dd1b6d8e",
+      "work/receipt-accounting/b1-mobile-window.mjs": "7bea0c24cfe14eede5ef51633adc66d4114a285ee1e945cd9457a9a3c91b06cf",
+      "work/receipt-accounting/b1-mobile-window.test.mjs": "09e5d44d28da06b3bf90d6ca67cd358290fc59de22d2de6e7d0dd4d5be00f8a2"
+    }
+  }
+}
