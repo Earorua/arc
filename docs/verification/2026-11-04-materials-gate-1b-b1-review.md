@@ -1,12 +1,12 @@
 # Gate 1B · B1 核验记录：Kimi K3.1 Pro
 
-> 11 月 5 日后续：旧通用计费缺陷已经在新产品候选离线修复；独立 B1 工具亦已更新并在其固定源码上重验。B1 尚无这条标准路由的真实配对回执，隐私和预算授权状态未变。[详细结果与下一步](2026-11-05-materials-offline-repair.md)
+> 11 月 5 日后续：已完成独立授权的 1 次固定合成推理，费用 0.019506 USD。自动 3 次 generation GET 未取得可用结果；账户日志已核对相同回执的标准端点、用量与费用。下一步只读核验 API 字段及普通 key 的实际读取能力，B1 仍为 BLOCKED。[单笔结果与只读命令](2026-11-05-materials-b1-single-receipt-result.md) · [离线修复](2026-11-05-materials-offline-repair.md)
 
-2026-11-04 · **B1 `BLOCKED`** · B2 `NOT RUN` · 本轮真实推理 0 次、费用 0 USD、部署 0 次、远程迁移 0 次
+更新于 2026-11-05 · **B1 `BLOCKED`** · B2 `NOT RUN` · 累计真实推理 1 次、费用 0.019506 USD、部署 0 次、远程迁移 0 次。以下 11 月 4 日的账户与供应方取证记录保留其原始日期。
 
 **当前候选已改为 Kimi K3.1 Pro 标准版，经 OpenRouter 锁定 Moonshot AI。** Kimi 于 10 月 23 日宣布 K3.1 Pro 系列已上线，核验时它也是 OpenRouter 的 `moonshotai/` 目录中最新的模型。选择标准版保留最新模型能力，同时按较低的标准端点费率审阅。旧 Azure 方案已归档。本记录取代原计划中的模型与预算候选，B0 冻结提交仍是本次对照基准。[Kimi 官方发布](https://www.kimi.com/en/blog/kimi-k3-1-pro) · [10 月 23 日上线记录](https://www.kimi.com/code/docs/en/kimi-code/whats-new.html) · [定稿计划](../superpowers/plans/2026-11-04-private-materials-gate-1b-acceptance.md) · [Azure 历史记录](2026-11-04-materials-gate-1b-b1-azure-review.md)
 
-**当前需要持有人决定如何取得单笔回执，以及可接受的上游缓存边界。** 专用 key 已绑定严格 ZDR 护栏，累计限额为 2.00 USD。官方回函确认了普通 key 的读取权限和标准端点价格。第二封回函明确，支持方没有该路由的合成回执可提供，上游自动缓存没有公开的最长保留时间或文档化关闭方式。可选择仅用一条固定合成资料进行单独限额取证，或先向企业渠道取得书面隐私边界。两轮质量评测与生产发布均待独立放行。[单笔取证范围、费用及条件](../superpowers/runbooks/2026-11-04-materials-kimi-single-receipt.md) · [账户核验](../superpowers/runbooks/2026-11-04-materials-kimi-account-evidence.md)
+**当前需要核对已有回执的实际 API 字段，无需再做一笔推理。** 专用 key 已绑定严格 ZDR 护栏，累计限额为 2.00 USD。官方回函确认了普通 key 的读取权限和标准端点价格。持有人已经接受本次固定合成句的缓存边界；上游自动缓存的最长保留时间或关闭方式仍未明确，真实用户资料的隐私决定、两轮质量评测和生产发布继续分别办理。[单笔取证范围、费用及条件](../superpowers/runbooks/2026-11-04-materials-kimi-single-receipt.md) · [账户核验](../superpowers/runbooks/2026-11-04-materials-kimi-account-evidence.md)
 
 ## 1. 已核实的候选与端点
 

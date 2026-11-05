@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "observedAtUtc": "2026-11-05T11:54:28.3035777Z",
+  "source": "Authenticated OpenRouter workspace Logs UI / Generation Data Raw JSON",
+  "sourceUrl": "https://openrouter.ai/workspaces/materials-b2/logs",
+  "rawApiResponse": false,
+  "ordinaryKeyReadProven": false,
+  "receiptIdSha256": "b5829e8063620a484298eee578708a00ba76eb64a78163c9c32c50ca612f7a52",
+  "matchesChatReceipt": true,
+  "model": "moonshotai/kimi-k3.1-pro-20261023",
+  "provider_name": "Moonshot AI",
+  "created_at": "2026-11-05T11:41:50.884Z",
+  "streamed": true,
+  "cancelled": false,
+  "native_tokens_prompt": 553,
+  "native_tokens_completion": 1840,
+  "native_tokens_reasoning": 1745,
+  "native_tokens_cached": 0,
+  "usage": 0.019506,
+  "usage_upstream": 0.019506,
+  "latency": 2379,
+  "generation_time": 62886,
+  "router_latency": 897,
+  "finish_reason": "stop",
+  "ioLoggingEnabled": false,
+  "workspaceRequestCount": 1,
+  "provider_responses": [
+    {
+      "endpoint_id": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+      "model_permaslug": "moonshotai/kimi-k3.1-pro-20261023",
+      "provider_name": "Moonshot AI",
+      "status": 200,
+      "is_byok": false,
+      "latency": 2379
+    }
+  ],
+  "fieldDifferences": [
+    "UI generation_id rather than API data.id",
+    "UI usage rather than API data.total_cost",
+    "UI model uses dated canonical ID; chat uses the request alias"
+  ]
+}

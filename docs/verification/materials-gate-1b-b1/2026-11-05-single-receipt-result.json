@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "verifiedAtUtc": "2026-11-05T11:48:05.0652324Z",
+  "gateB1": "BLOCKED",
+  "runId": "kimi-standard-receipt-v1",
+  "mode": "authorized-single-receipt",
+  "operatorProgramSha256": "147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b",
+  "pinnedFileCount": 16,
+  "sourceResultSha256": "3d7b855759d8091d2a9151caf324f8e6293eff80435fe65d358c6e341ef6c28f",
+  "sourceLedgerSha256": "ee7a0d1d89640501338f5f7ec98a804339f45007c66ef1e551d0138de31b90f2",
+  "authorization": {
+    "ownerApprovalRef": "01a1ab77-528a-70b2-a03d-2461a18f781d",
+    "approvedAt": "2026-11-05T11:28:06.000Z",
+    "expiresAt": "2026-11-05T11:45:40.700Z",
+    "maxRequests": 1,
+    "totalBudgetMicroUsd": 75000,
+    "syntheticCacheAccepted": true
+  },
+  "processStartedAtUtc": "2026-11-05T11:41:29.640Z",
+  "firstEventAtUtc": "2026-11-05T11:41:48.787Z",
+  "chatObservedAtUtc": "2026-11-05T11:42:53.234Z",
+  "settledAtUtc": "2026-11-05T11:42:57.904Z",
+  "effectiveExpiresAtUtc": "2026-11-05T11:45:40.700Z",
+  "postCount": 1,
+  "metadataGetCount": 3,
+  "accounting": "settled",
+  "actualMicroUsd": 19506,
+  "heldMicroUsd": 0,
+  "budgetExceeded": false,
+  "productionAudit": "metadata-unavailable",
+  "comparison": "unverified",
+  "chat": {
+    "id": "b5829e8063620a484298eee578708a00ba76eb64a78163c9c32c50ca612f7a52",
+    "model": "moonshotai/kimi-k3.1-pro",
+    "provider": "Moonshot AI",
+    "usage": {
+      "prompt_tokens": 553,
+      "completion_tokens": 1840,
+      "cost": 0.019506,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 1745
+      }
+    }
+  },
+  "generation": null,
+  "observedCostsUsd": {
+    "chat": 0.019506,
+    "generation": null
+  },
+  "localAudit": {
+    "ledgerSequenceMatches": true,
+    "authorizationMatches": true,
+    "eventsBeforeDeadline": true,
+    "receiptHashesMatch": true,
+    "tokenPriceMatches": true,
+    "noAdditionalInferenceAllowed": true
+  },
+  "limitations": [
+    "No usable generation response was captured",
+    "Per-attempt HTTP statuses were not retained by the frozen operator",
+    "Only the generation ID SHA-256 was retained, not its raw ID",
+    "Actual endpoint UUID and paired usage/cost remain unverified"
+  ],
+  "b2Authorized": false,
+  "privateUserDataAuthorized": false,
+  "deploymentPerformed": false,
+  "remoteMigrationPerformed": false
+}

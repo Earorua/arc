@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "verifiedAtUtc": "2026-11-05T12:04:49.4475405Z",
+  "command": "node --import tsx --test docs/verification/materials-gate-1b-b1/read-existing-receipt.test.mjs",
+  "tests": 5,
+  "passed": 5,
+  "failed": 0,
+  "powershellSyntax": "PASS",
+  "liveReadExecuted": false,
+  "inferenceRequests": 0,
+  "originalFrozenOperatorChanged": false,
+  "files": {
+    "docs/verification/materials-gate-1b-b1/read-existing-receipt.test.mjs": "639ef653012ba34980b066369ba7fd537df8e458903d8109398e854fa608ffe3",
+    "docs/verification/materials-gate-1b-b1/read-existing-receipt.mjs": "652fa995d0ee70b900d2222f446a2238f19cd2acd77f6138c9a3dc6ebf36d0b6",
+    "docs/verification/materials-gate-1b-b1/read-existing-receipt.ps1": "8b81445c2a89bee083f6d2c30f270dda18c073e873624c233d76e0e369f91ee8"
+  },
+  "greenLogSha256": "d6ee1f88735773eaee780556c940fdc0e500e81861795c0254f1a4fdcaf74c67"
+}
