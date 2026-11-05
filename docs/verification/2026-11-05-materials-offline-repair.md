@@ -32,7 +32,7 @@
 
 用本地归档的 10 月 30 日绑定清单和虚构资源，分别生成关闭态和模拟开放态包，各 389 个文件；每包只有两个 Wrangler 配置变化，其余 387 个文件与输入一致。真实时钟拒绝已过期的测试授权，没有创建开放包；仅在模拟时钟下验证了开放态打包。站点和执行器共 **4 次本地 dry-run** 通过，每次站点 65 个 JavaScript 模块逐字节一致，执行器程序也对回冻结输入及必要导出。该演练没有读取当日云资源，不能作为线上验收。[打包与 dry-run 证据](materials-offline-repair/public-package-proof.json)
 
-独立 B1 工具固定使用旧产品提交 `7052aedd8a49` 下的 8 个已审源码文件。新工具在该固定环境通过 **35/35** 项 Node 测试和 **57/57** 项适配器回归，程序组合摘要为 `147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b`。操作时使用[单笔操作单](../superpowers/runbooks/2026-11-04-materials-kimi-single-receipt.md)规定的固定环境；新产品候选中的工具副本不改变它对那 8 个文件的校验。登记指纹、签发和执行均未进行。
+独立 B1 工具固定使用旧产品提交 `7052aedd8a49` 下的 8 个已审源码文件。新工具在该固定环境通过 **35/35** 项 Node 测试和 **57/57** 项适配器回归，程序组合摘要为 `147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b`。操作时使用[单笔操作单](../superpowers/runbooks/2026-11-04-materials-kimi-single-receipt.md)规定的固定环境；新产品候选中的工具副本不改变它对那 8 个文件的校验。首次离线验收时登记指纹、签发和执行均未进行，后续本机状态见下文。
 
 ### 在这台机器上运行 B1
 
@@ -50,6 +50,14 @@ Set-Location -LiteralPath './work/kimi-b1-147bfe15'
 | --- | --- |
 | `7052aedd8a49` | `app/contracts/`、`app/server/documents/`、`app/lib/planning/`、`worker/document-executor/`、`scripts/materials-qualification-journal.ts`、`scripts/materials-qualification-runner.ts` 和上列三个根配置文件。 |
 | `d1577b37bd08` | [B1 验证清单](materials-gate-1b-b1/single-receipt-entry-verification.json)中 `testedFilesSha256` 列出的全部 8 个文件，恢复至 `docs/verification/materials-gate-1b-b1/`。 |
+
+### 内置浏览器与授权窗口核验
+
+北京时间 11 月 5 日 07:47:03 收到单笔明确授权，接受固定合成句的缓存边界，总额上限 0.075 USD，有效至 09:47:03。用户后续要求使用内置浏览器时，该窗口已到期。
+
+内置浏览器成功打开已登录的 `materials-b2` 工作区。页面确认专用 key 的使用额为 0.000 USD、累计限额 2 USD、尚未使用，护栏 `materials-b2-zdr` 已指派，Other ZDR 已启用、免费训练已禁用，输入输出日志关闭，追踪目的地均待设置。使用页面给出的密钥标识在工作树外登记了工作区指纹，完整 key 由持有人保管。
+
+公共端点的本次读取仍为 `moonshotai/kimi-k3.1-pro` 经 `moonshotai/mxfp4`，输入与输出费率分别为每百万 token 2 和 10 USD。本机保存了原始批准的时间窗口，预检以退出码 2 拒绝过期授权。唯一发送名额尚未占用，实际模型调用和实付仍为 0。重新取得有效时间窗口后，持有人只需在本机隐藏输入完整 key。[本次预检记录](materials-gate-1b-b1/2026-11-05-owner-preflight.json)
 
 ## 下一步
 

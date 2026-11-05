@@ -1,0 +1,53 @@
+{
+  "status": "OWNER_RENEWAL_REQUIRED",
+  "observedAtUtc": "2026-11-05T02:00:09.692Z",
+  "scope": "One fixed synthetic SQL statement through the reviewed B1 operator",
+  "operatorProgramSha256": "147bfe158a418bb49b22203a5dc8eb44e8b7af6521f4dc2555eea56774ec659b",
+  "originalAuthorization": {
+    "ownerApprovalRef": "01a1a8f5-7d86-78e0-8b68-894f5bfc4d5b",
+    "approvedAt": "2026-11-04T23:47:03.000Z",
+    "expiresAt": "2026-11-05T01:47:03.000Z",
+    "syntheticCacheAccepted": true,
+    "maxRequests": 1,
+    "totalBudgetMicroUsd": 75000,
+    "current": "expired"
+  },
+  "accountUi": {
+    "browser": "in-app browser",
+    "workspace": "materials-b2",
+    "keySuffix": "872",
+    "usageDisplayedUsd": "0.000",
+    "keyLimitUsd": 2,
+    "keyLastUsed": "Never",
+    "assignedGuardrail": "materials-b2-zdr",
+    "otherZdr": "Enabled",
+    "freeTraining": "Disabled",
+    "inputOutputLogging": false,
+    "traceDestinationsConfigured": false,
+    "keyReferenceRegisteredLocally": true,
+    "fullKeyObtained": false
+  },
+  "publicEndpoint": {
+    "url": "https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints",
+    "snapshotSha256": "b4d2498831fd6f98798cd3db8af0026a806f3835248b7ef7af754224383c108d",
+    "tag": "moonshotai/mxfp4",
+    "model": "moonshotai/kimi-k3.1-pro",
+    "provider": "Moonshot AI",
+    "pricing": {
+      "prompt": "0.000002",
+      "completion": "0.00001",
+      "input_cache_read": "0.0000002",
+      "discount": 0
+    }
+  },
+  "preflight": {
+    "exitCode": 2,
+    "reason": "Explicit two-hour owner authorization expired",
+    "sendSlotClaimed": false,
+    "logSha256": "6449e2dc16b4500940f02bd9c3e96791c75d92482e0f24a02136838a56237d35"
+  },
+  "liveModelRequests": 0,
+  "liveInferenceCostMicroUsd": 0,
+  "deployments": 0,
+  "remoteMigrations": 0
+}
