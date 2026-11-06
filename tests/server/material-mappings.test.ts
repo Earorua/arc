@@ -6,6 +6,7 @@ import { MaterialContextService } from "../../app/server/documents/context-build
 import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
 import { PlanningService } from "../../app/server/planning/service";
 import { createMaterialContextFingerprint } from "../../app/contracts/material-planning";
+import { MAX_MATERIAL_CONTEXT_JSON_BYTES, utf8Bytes } from "../../app/contracts/documents";
 
 const databases: ReturnType<typeof createMaterialsD1>[] = [];
 afterEach(() => databases.splice(0).forEach(db => db.close()));
@@ -19,7 +20,52 @@ function setup() {
   return { db, materials, service };
 }
 const mapping = { confirmationId: "confirmation-a", itemId: "confirmed-a", skillId: "react" };
+function selectSecondConfirmation(db: ReturnType<typeof createMaterialsD1>) {
+  db.database.exec("INSERT INTO documents SELECT owner_id,'doc-b','resume','Resume',lifecycle,generation,revision,'version-b',created_at,updated_at FROM documents WHERE id='doc-a'");
+  db.database.exec("INSERT INTO document_versions SELECT owner_id,'doc-b','version-b','text-b',state,generation,revision,text_digest,'object-b',utf8_bytes,code_points,segments_json,parser_version,created_at FROM document_versions WHERE id='version-a'");
+  db.database.exec("INSERT INTO document_text_versions SELECT owner_id,'doc-b','version-b','text-b',parser_version,text_hash,'object-b',created_at FROM document_text_versions WHERE id='text-a'");
+  db.database.exec("INSERT INTO document_confirmations(owner_id,document_id,document_version_id,id,text_version_id,review_revision,revision,origin,state,items_json,created_at) SELECT owner_id,'doc-b','version-b','confirmation-b','text-b',review_revision,revision,origin,state,json_set(items_json,'$[0].kind','skill-claim','$[0].requirementLevel',NULL),created_at FROM document_confirmations WHERE id='confirmation-a'");
+  db.database.exec("INSERT INTO material_selection_entries VALUES ('owner-a','selection-a','resume','doc-b','version-b','confirmation-b')");
+}
 describe("explicit material skill mappings", () => {
+  it("shows all 504 distinct uncovered words in a bounded preview and links them back to their facts", async () => {
+    const { db, materials } = setup();
+    const rows = Array.from({ length: 63 }, (_, index) => ({
+      id: `fact-${index}`, kind: "requirement", text: "A reviewed requirement", requirementLevel: "preferred", origin: "extracted",
+      sourceRef: { documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", start: 0, end: 1 },
+      skillLabels: Array.from({ length: 8 }, (_, word) => `tool-${index}-${word}`),
+    }));
+    db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id='confirmation-a'").run(JSON.stringify(rows));
+    const { preview, contextVersionId } = await materials.create("owner-a", materialContextRequest());
+    expect(preview.uncoveredLabels).toEqual(rows.flatMap(item => item.skillLabels));
+    expect(preview.priorities).toEqual([]);
+    expect(preview.issues.filter(issue => issue.code === "uncovered").flatMap(issue => issue.itemIds).sort()).toEqual(preview.confirmedItems.map(item => item.id).sort());
+    expect((await materials.read("owner-a", contextVersionId)).preview).toEqual(preview);
+  });
+  it("rejects an oversized preview response before committing its context or mutation receipt", async () => {
+    const { db, materials } = setup(); selectSecondConfirmation(db);
+    const groups = ["a", "b"].map(slot => Array.from({ length: 80 }, (_, index) => ({
+      id: `fact-${index}`, kind: "skill-claim", text: "Notes", requirementLevel: null, origin: "extracted",
+      sourceRef: { documentId: `doc-${slot}`, documentVersionId: `version-${slot}`, textVersionId: `text-${slot}`, start: 0, end: 1 },
+      skillLabels: Array.from({ length: 8 }, (_, word) => `tool-${slot}-${index}-${word}-${"k".repeat(42)}`),
+    })));
+    function store() {
+      const update = db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id=?");
+      groups.forEach((items, index) => update.run(JSON.stringify(items), index === 0 ? "confirmation-a" : "confirmation-b"));
+    }
+    store();
+    const initial = await materials.create("owner-a", materialContextRequest());
+    let remaining = MAX_MATERIAL_CONTEXT_JSON_BYTES + 1 - utf8Bytes(JSON.stringify(initial));
+    expect(remaining).toBeGreaterThan(0);
+    for (let index = 0; index < 80; index++) for (const items of groups) {
+      const length = Math.min(900, remaining); items[index]!.text += "x".repeat(length); remaining -= length;
+    }
+    expect(remaining).toBe(0);
+    store();
+    await expect(materials.create("owner-a", { ...materialContextRequest(), mutationId: "oversized" })).rejects.toThrow(/byte limit/u);
+    expect(db.database.prepare("SELECT count(*) AS n FROM material_context_versions").get()).toMatchObject({ n: 1 });
+    expect(db.database.prepare("SELECT count(*) AS n FROM document_mutations WHERE mutation_id='oversized'").get()).toMatchObject({ n: 0 });
+  });
   it("freezes owner-validated mappings into the context and generated plan", async () => {
     const { db, materials, service } = setup(); const request = materialContextRequest();
     const before = await materials.create("owner-a", request);
@@ -48,11 +94,7 @@ describe("explicit material skill mappings", () => {
   });
   it("binds duplicate item IDs to their own confirmation and keeps mapping order nonsemantic", async () => {
     const { db, materials } = setup();
-    db.database.exec("INSERT INTO documents SELECT owner_id,'doc-b','resume','Resume',lifecycle,generation,revision,'version-b',created_at,updated_at FROM documents WHERE id='doc-a'");
-    db.database.exec("INSERT INTO document_versions SELECT owner_id,'doc-b','version-b','text-b',state,generation,revision,text_digest,'object-b',utf8_bytes,code_points,segments_json,parser_version,created_at FROM document_versions WHERE id='version-a'");
-    db.database.exec("INSERT INTO document_text_versions SELECT owner_id,'doc-b','version-b','text-b',parser_version,text_hash,'object-b',created_at FROM document_text_versions WHERE id='text-a'");
-    db.database.exec("INSERT INTO document_confirmations(owner_id,document_id,document_version_id,id,text_version_id,review_revision,revision,origin,state,items_json,created_at) SELECT owner_id,'doc-b','version-b','confirmation-b','text-b',review_revision,revision,origin,state,json_set(items_json,'$[0].kind','skill-claim','$[0].requirementLevel',NULL),created_at FROM document_confirmations WHERE id='confirmation-a'");
-    db.database.exec("INSERT INTO material_selection_entries VALUES ('owner-a','selection-a','resume','doc-b','version-b','confirmation-b')");
+    selectSecondConfirmation(db);
     const skillMappings = [mapping, { ...mapping, confirmationId: "confirmation-b", skillId: "sql" }];
     const result = await materials.create("owner-a", { ...materialContextRequest(), skillMappings });
     expect(result.preview.priorities.find(item => item.skillId === "react")?.tier).toBe(0);

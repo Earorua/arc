@@ -4,6 +4,7 @@ import { DOCUMENT_METADATA_TIMEOUT_MS, MAX_DOCUMENT_METADATA_ATTEMPTS, type Docu
   type DocumentReceiptAudit } from "../../app/server/documents/provider-receipt";
 import type { DocumentFetch, DocumentProviderQualification } from "./provider-http";
 import { boundedMetadataRetryAfter } from "./metadata-retry";
+import { KIMI_SOURCE_SPAN_POLICY_ID, incompleteSourceSpanOutput } from "./source-span-extraction";
 
 export { DOCUMENT_METADATA_TIMEOUT_MS };
 const MAX_RESPONSE_BYTES = 128 * 1024;
@@ -115,11 +116,22 @@ function receiptPrice(row: Record<string, unknown>, key: CostKey) {
   }
   return { source, decimal: digits + "e" + exponent, microUsd };
 }
+async function sha256Hex(value: string): Promise<string> {
+  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)));
+  return Array.from(hash, byte => byte.toString(16).padStart(2, "0")).join("");
+}
 async function safeObservedLabel(value: unknown, approved: string): Promise<string | null> {
   if (value === approved) return approved;
   if (typeof value !== "string" || !value || value.length > 256) return null;
-  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)));
-  return "sha256:" + Array.from(hash, byte => byte.toString(16).padStart(2, "0")).join("");
+  // A gateway can echo its bearer credential as a label. Keep label fingerprints
+  // in a distinct domain from both private key bindings used by the host.
+  return "sha256:" + await sha256Hex("document-receipt-label-v1\0" + value);
+}
+async function carriesCredentialFingerprint(receiptId: string, apiKey: string): Promise<boolean> {
+  if (!/[a-f0-9]{64}/iu.test(receiptId)) return false;
+  const id = receiptId.toLowerCase();
+  const fingerprint = await sha256Hex(apiKey);
+  return id.includes(fingerprint) || id.includes(await sha256Hex("materials-b2\0" + fingerprint));
 }
 export function documentTokenPriceCeiling(inputTokens: number, outputTokens: number, qualification: DocumentProviderQualification): number {
   const numerator = BigInt(inputTokens) * BigInt(qualification.inputMicroUsdPerMillionTokens)
@@ -146,8 +158,9 @@ export function readChatReceipt(raw: Record<string, unknown>, privateText: strin
 }
 type ChatReceipt = ReturnType<typeof readChatReceipt>;
 
-async function checkGeneration(data: Record<string, unknown>, chat: ChatReceipt, config: DocumentAnalysisConfiguration,
+async function checkGeneration(envelope: Record<string, unknown>, chat: ChatReceipt, config: DocumentAnalysisConfiguration,
   qualification: DocumentProviderQualification, audit: DocumentReceiptAudit): Promise<DocumentReceiptAudit["status"]> {
+  const data = record(envelope.data);
   // Cost in a different generation's record never settles this request.
   if (data.id !== chat.receiptId) return "id-mismatch";
   const approved = qualification.receiptRoute;
@@ -183,6 +196,10 @@ async function checkGeneration(data: Record<string, unknown>, chat: ChatReceipt,
     || audit.metadataInputTokens !== chat.inputTokens || audit.metadataOutputTokens !== chat.outputTokens || audit.metadataMicroUsd !== chat.actualMicroUsd
     || chat.inputTokens > config.maxInputTokens || chat.outputTokens > config.maxOutputTokens) return "usage-mismatch";
   if (chat.actualMicroUsd > documentTokenPriceCeiling(chat.inputTokens, chat.outputTokens, qualification)) return "price-bound-exceeded";
+  if (config.providerPolicyId === KIMI_SOURCE_SPAN_POLICY_ID) {
+    const incomplete = incompleteSourceSpanOutput(envelope, data, successful);
+    if (incomplete) audit.extractionRead = incomplete;
+  }
   return "verified";
 }
 
@@ -206,7 +223,7 @@ export async function auditDocumentGeneration(input: AuditInputs): Promise<Docum
   const audit: DocumentReceiptAudit = { status: "receipt-missing", actualModel: null, actualProvider: null, actualEndpointId: null,
     metadataAttempts: 0, metadataInputTokens: null, metadataOutputTokens: null, metadataMicroUsd: null,
     sentAt, returnedAt, checkedAt: returnedAt };
-  if (!chat.receiptId) return audit;
+  if (!chat.receiptId || await carriesCredentialFingerprint(chat.receiptId, config.apiKey)) return audit;
   if (input.claimReceipt) {
     try {
       const unique = await input.claimReceipt(chat.receiptId, { sentAt, returnedAt, inputTokens: chat.inputTokens,
@@ -250,7 +267,7 @@ export async function auditDocumentGeneration(input: AuditInputs): Promise<Docum
           lookup.outcome = "unusable-record";
           const observed = { ...audit };
           if (raw.data !== null && typeof raw.data === "object" && !Array.isArray(raw.data) && !reportsError(raw)) {
-            observed.status = await checkGeneration(record(raw.data), chat, config, qualification, observed);
+            observed.status = await checkGeneration(raw, chat, config, qualification, observed);
             checkTime();
             finish(observed.status === "metadata-unavailable" ? "unusable-record" : "record");
           } else {

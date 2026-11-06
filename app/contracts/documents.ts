@@ -5,6 +5,7 @@ export const DOCUMENT_SCHEMA_VERSION = "2026.11.1" as const;
 export const MAX_DOCUMENT_TEXT_CODE_POINTS = 50_000;
 export const MAX_DOCUMENT_TEXT_UTF8_BYTES = 256 * 1024;
 export const MAX_DOCUMENT_ITEMS_JSON_BYTES = 128 * 1024;
+export const MAX_MATERIAL_SKILL_LABELS_PER_ITEM = 8;
 export const MAX_MATERIAL_CONTEXT_JSON_BYTES = 256 * 1024;
 export const materialIdSchema = z.string().max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
 // Session owner IDs are opaque. Better Auth generates mixed-case IDs.
@@ -19,6 +20,8 @@ export const materialItemKindSchema = z.enum(["experience", "skill-claim", "requ
 export const materialRequirementLevelSchema = z.enum(["must", "preferred", "unspecified"]);
 export const materialSelfLevelHintSchema = z.enum(["conceptual", "guided", "uncertain"]);
 const shortTextSchema = z.string().trim().min(1).max(1000);
+const materialSkillLabelsSchema = z.array(z.string().trim().min(1).max(100)).max(MAX_MATERIAL_SKILL_LABELS_PER_ITEM)
+  .refine(labels => new Set(labels).size === labels.length, "Duplicate skill labels");
 
 export function utf8Bytes(value: string): number { return new TextEncoder().encode(value).byteLength; }
 export function countUnicodeCodePoints(value: string): number { return Array.from(value).length; }
@@ -65,6 +68,7 @@ export const confirmedMaterialItemSchema = z.object({
   id: materialIdSchema, kind: materialItemKindSchema, text: shortTextSchema,
   origin: z.enum(["extracted", "user"]), sourceRef: materialSourceRefSchema.nullable(),
   requirementLevel: materialRequirementLevelSchema.nullable(),
+  skillLabels: materialSkillLabelsSchema.optional(),
 }).strict().superRefine((item, ctx) => {
   if (item.origin === "extracted" && item.sourceRef === null) ctx.addIssue({ code: "custom", message: "Extracted items require a source" });
   if (item.kind !== "requirement" && item.requirementLevel !== null) ctx.addIssue({ code: "custom", message: "Only requirements have a requirement level" });
@@ -73,13 +77,16 @@ export const documentCandidateSourceSchema = z.object({ segmentId: materialIdSch
 export const documentCandidateSchema = z.object({
   id: materialIdSchema, kind: materialItemKindSchema, text: shortTextSchema,
   requirementLevel: materialRequirementLevelSchema.nullable(),
-  skillLabels: z.array(z.string().trim().min(1).max(100)).max(8).refine((labels) => new Set(labels).size === labels.length, "Duplicate skill labels"),
+  skillLabels: materialSkillLabelsSchema,
   selfLevelHint: materialSelfLevelHintSchema.nullable(), source: documentCandidateSourceSchema,
 }).strict().superRefine((item, ctx) => {
   if (item.kind !== "requirement" && item.requirementLevel !== null) ctx.addIssue({ code: "custom", message: "Only requirements have a requirement level" });
   if (!["experience", "skill-claim"].includes(item.kind) && item.selfLevelHint !== null) ctx.addIssue({ code: "custom", message: "Only experience or skill claims have self-level hints" });
 });
 export const documentCandidatesSchema = boundedMaterialJson(z.array(documentCandidateSchema).max(100).refine(uniqueIds, "Duplicate candidate IDs"));
+export const documentExtractionSchema = boundedMaterialJson(z.object({
+  schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), items: documentCandidatesSchema, reviewPoints: documentCandidateReviewPointsSchema.optional(),
+}).strict());
 export const confirmedMaterialItemsSchema = boundedMaterialJson(z.array(confirmedMaterialItemSchema).max(100).refine(uniqueIds, "Duplicate item IDs"));
 export const materialSelfAssessmentHintSchema = z.object({
   id: materialIdSchema, candidateId: materialIdSchema, skillLabel: z.string().trim().min(1).max(100), level: materialSelfLevelHintSchema,
@@ -179,17 +186,23 @@ export function validateMaterialSourceRef(ref: unknown, ownerId: string, context
     && parsed.data.documentId === context.documentId && parsed.data.documentVersionId === context.documentVersionId
     && parsed.data.textVersionId === context.textVersionId && validBoundary(context.text, parsed.data.start) && validBoundary(context.text, parsed.data.end);
 }
-export function resolveCandidateSourceRef(source: unknown, ownerId: string, context: MaterialReferenceContext): MaterialSourceRef | null {
-  const parsed = documentCandidateSourceSchema.safeParse(source);
-  if (!parsed.success || ownerId !== context.ownerId || context.lifecycle !== "active") return null;
-  const matching = context.segments.filter(({ id }) => id === parsed.data.segmentId);
+export function locateCandidateQuote(source: z.infer<typeof documentCandidateSourceSchema>, context: Pick<MaterialReferenceContext, "text" | "segments">) {
+  const matching = context.segments.filter(({ id }) => id === source.segmentId);
   if (matching.length !== 1) return null;
   const segment = matching[0]!;
   if (!validBoundary(context.text, segment.start) || !validBoundary(context.text, segment.end) || segment.end <= segment.start) return null;
   const content = context.text.slice(segment.start, segment.end);
-  const index = content.indexOf(parsed.data.quote);
-  if (index < 0 || content.indexOf(parsed.data.quote, index + 1) !== -1) return null;
-  const ref = { documentId: context.documentId, documentVersionId: context.documentVersionId, textVersionId: context.textVersionId, start: segment.start + index, end: segment.start + index + parsed.data.quote.length };
+  const index = content.indexOf(source.quote);
+  if (index < 0 || content.indexOf(source.quote, index + 1) !== -1) return null;
+  const start = segment.start + index, end = start + source.quote.length;
+  return validBoundary(context.text, start) && validBoundary(context.text, end) ? { start, end } : null;
+}
+export function resolveCandidateSourceRef(source: unknown, ownerId: string, context: MaterialReferenceContext): MaterialSourceRef | null {
+  const parsed = documentCandidateSourceSchema.safeParse(source);
+  if (!parsed.success || ownerId !== context.ownerId || context.lifecycle !== "active") return null;
+  const span = locateCandidateQuote(parsed.data, context);
+  if (!span) return null;
+  const ref = { documentId: context.documentId, documentVersionId: context.documentVersionId, textVersionId: context.textVersionId, ...span };
   return validateMaterialSourceRef(ref, ownerId, context) ? ref : null;
 }
 export function validateMaterialSelectionEntry(entry: unknown, ownerId: string, context: MaterialReferenceContext & Readonly<{

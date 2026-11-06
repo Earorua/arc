@@ -58,6 +58,7 @@ export class MaterialContextService {
     const contextVersionId = this.createId();
     const expiresAt = this.now().getTime() + MATERIAL_PREVIEW_TTL_MS;
     const previewToken = await materialSha256({ ownerId, contextVersionId, fingerprint, expiresAt, nonce: crypto.randomUUID() });
+    const response = createMaterialContextResponseSchema.parse({ contextVersionId, previewToken, preview });
     const commit: MaterialPlanCommit = { contextVersionId, fingerprint, previewToken, requestDigest: digest, snapshot, checkedAt: this.now().getTime(), confirmations: selected.map(row => ({ documentId: row.document_id, itemsJson: row.items_json })), kind: request.scope.kind === "draft" ? "generation" : "proposal" };
     const statements = [materialGuardStatement(this.options.db, ownerId, commit, { requireContext: false }), this.options.db.prepare(`INSERT INTO material_context_versions(owner_id,id,snapshot_json,preview_json,fingerprint,preview_token,expires_at,state,selection_id,selection_revision,created_at) VALUES (?1,?2,?3,?4,?5,?6,?7,'active',?8,?9,?10)`).bind(ownerId, contextVersionId, canonicalJson(snapshot), JSON.stringify(preview), fingerprint, previewToken, expiresAt, request.selectionRef.selectionId, request.selectionRef.selectionRevision, commit.checkedAt)];
     for (const dependency of dependencies) statements.push(this.options.db.prepare(`INSERT INTO material_context_dependencies(owner_id,context_version_id,document_id,document_version_id,text_version_id,confirmation_id,generation,confirmation_digest,slot) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9)`).bind(ownerId, contextVersionId, dependency.documentId, dependency.documentVersionId, dependency.textVersionId, dependency.confirmationId, dependency.generation, dependency.confirmationDigest, dependency.slot));
@@ -68,7 +69,7 @@ export class MaterialContextService {
       if (winner && winner.body_digest === digest) return this.create(ownerId, request);
       throw new PlanningConflictError();
     }
-    return createMaterialContextResponseSchema.parse({ contextVersionId, previewToken, preview });
+    return response;
   }
 
   async read(ownerId: string, contextVersionId: string) {
@@ -194,6 +195,7 @@ export class MaterialContextService {
     const practices: { skillId: string; itemId: string }[] = [];
     const uncoveredLabels: string[] = [];
     const issues: MaterialPreview["issues"] = [];
+    const uncoveredFactIds: string[] = [];
     for (const row of selected) {
       const userMappings: Record<string, string[]> = {};
       const items = confirmedMaterialItemsSchema.parse(JSON.parse(row.items_json)).map(item => {
@@ -208,8 +210,9 @@ export class MaterialContextService {
         const item = items.find(value => value.id === mapping.itemId)!;
         if (mapping.status === "non-learning") continue;
         if (mapping.status !== "mapped") {
-          uncoveredLabels.push(...mapping.labels);
-          issues.push({ code: mapping.status === "ambiguous" ? "ambiguous-mapping" : "uncovered", itemIds: [item.id], skillIds: mapping.skillIds });
+          if (mapping.status === "uncovered" || item.skillLabels === undefined) uncoveredLabels.push(...mapping.labels);
+          if (mapping.status === "uncovered" && item.skillLabels !== undefined) uncoveredFactIds.push(item.id);
+          else issues.push({ code: mapping.status === "ambiguous" ? "ambiguous-mapping" : "uncovered", itemIds: [item.id], skillIds: mapping.skillIds });
           continue;
         }
         for (const skillId of mapping.skillIds) {
@@ -218,6 +221,7 @@ export class MaterialContextService {
         }
       }
     }
+    if (uncoveredFactIds.length) issues.push({ code: "uncovered", itemIds: uncoveredFactIds, skillIds: [] });
     const overlay = createMaterialOverlay({ audit: snapshot.audit, knownSkillIds: source.blueprint.skills.map(skill => skill.id), semanticFingerprint: fingerprint, requirements, practiceSkillIds: practices.map(item => item.skillId) });
     const priorities = Object.entries(overlay.skillRanks).filter(([, tier]) => tier < 5).map(([skillId, tier]) => {
       const sources = tier === 3 ? practices : requirements.filter(item => item.level === (tier === 4 ? "preferred" : "must"));

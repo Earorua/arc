@@ -1,5 +1,6 @@
 import { MATERIAL_HIGH_IMPACT_REVIEW_CODES, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReviewPoint } from "../../contracts/documents";
 import type { SkillSelfLevel } from "../../contracts/planning";
+import { containsMaterialSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
 const hintLabels = { conceptual: "了解概念", guided: "需指导完成", uncertain: "不确定" };
 const reviewLabels: Record<string, string> = { "confirm-self-assessment": "请单独确认能力自评", "prompt-injection": "原文包含指令，请核对并忽略其操作要求", "team-attribution": "团队成果不直接等于个人独立能力", "conflicting-self-assessment": "能力表述存在冲突", "conflicting-requirement": "岗位要求分类存在冲突", "uncovered-skill": "可能超出当前技能蓝图", "untrusted-resource-url": "原文链接不会作为受信课程采用" };
 export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsChange, onReviewPointsChange, onConfirm, skills = [], onAdoptLevels, documentKind = "resume" }: {
@@ -10,6 +11,7 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
   skills?: readonly { id: string; name: string }[]; onAdoptLevels?: (levels: Record<string, SkillSelfLevel>) => void;
 }) {
   const conflicts = draft.items.filter(item => item.kind === "requirement" && item.requirementLevel === "unspecified");
+  const hints = retainedMaterialSelfAssessmentHints(draft.items, draft.selfAssessmentHints);
   const unresolved = (draft.reviewPoints ?? []).filter(point => point.resolution === "unresolved" && (MATERIAL_HIGH_IMPACT_REVIEW_CODES as readonly string[]).includes(point.code));
   return <div className="material-review">
     <h3>核对资料事实</h3><p>修改或移除不准确的内容。确认事实不会自动修改能力自评。</p>
@@ -25,17 +27,23 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
     {conflicts.length > 0 && <p role="alert">有 {conflicts.length} 项岗位要求尚未区分必备或加分，请明确分类，或移除后再确认。</p>}
     {draft.items.map((item, index) => <fieldset key={item.id} className="material-fact"><legend>事实 {index + 1}</legend>
       <label>信息类型<select aria-label={`事实 ${index + 1} 信息类型`} value={item.kind} onChange={event => onItemsChange(draft.items.map(row => row.id === item.id ? {
-        ...row, kind: event.target.value as ConfirmedMaterialItem["kind"], origin: "user",
+        ...row, kind: event.target.value as ConfirmedMaterialItem["kind"], origin: "user", skillLabels: row.skillLabels ? [] : undefined,
         requirementLevel: event.target.value === "requirement" ? row.requirementLevel ?? "unspecified" : null,
       } : row))}><option value="experience">经历</option><option value="skill-claim">技能描述</option><option value="requirement">岗位要求</option><option value="constraint">其他约束</option></select></label>
-      <label>内容<textarea aria-label={`事实 ${index + 1}`} value={item.text} maxLength={1000} onChange={event => onItemsChange(draft.items.map(row => row.id === item.id ? { ...row, text: event.target.value, origin: "user" } : row))} /></label>
+      <label>内容<textarea aria-label={`事实 ${index + 1}`} value={item.text} maxLength={1000} onChange={event => onItemsChange(draft.items.map(row => row.id === item.id ? {
+        ...row, text: event.target.value, origin: "user", skillLabels: row.skillLabels?.filter(label => containsMaterialSkillLabel(event.target.value, label))
+      } : row))} /></label>
       {item.sourceRef && <details><summary>查看原文依据</summary><blockquote>{text.slice(item.sourceRef.start, item.sourceRef.end)}</blockquote></details>}
+      {Boolean(item.skillLabels?.length) && <div><p>随事实确认的技能词</p><ul>{item.skillLabels!.map(label => <li key={label}>{label}{" "}
+        <button type="button" className="text-action" aria-label={`移除技能词 ${label}`} onClick={() => onItemsChange(draft.items.map(row =>
+          row.id === item.id ? { ...row, skillLabels: row.skillLabels!.filter(word => word !== label) } : row))}>移除</button>
+      </li>)}</ul></div>}
       {item.kind === "requirement" && <label>要求类型<select aria-label={`事实 ${index + 1} 要求类型`} value={item.requirementLevel ?? "unspecified"} onChange={event => onItemsChange(draft.items.map(row => row.id === item.id ? { ...row, origin: "user", requirementLevel: event.target.value as "must" | "preferred" | "unspecified" } : row))}><option value="unspecified">需要核对</option><option value="must">必备</option><option value="preferred">加分</option></select></label>}
       <button type="button" className="text-action" onClick={() => onItemsChange(draft.items.filter(row => row.id !== item.id))}>移除事实 {index + 1}</button>
     </fieldset>)}
     <button type="button" className="text-action" disabled={draft.items.length >= 100} onClick={() => onItemsChange([...draft.items, { id: `item-${crypto.randomUUID()}`, kind: documentKind === "jd" ? "requirement" : "skill-claim", text: "请填写需要确认的事实", origin: "user", sourceRef: null, requirementLevel: documentKind === "jd" ? "unspecified" : null }])}>添加事实</button>
     <div className="material-actions"><button type="button" disabled={saving || !draft.items.length || draft.items.some(item => !item.text.trim()) || conflicts.length > 0 || unresolved.length > 0} onClick={onConfirm}>确认这些事实</button><span role="status">{saving ? "正在保存核对修改…" : confirmed ? "已确认，可用于本次规划。" : "修改保存在你的私人核对草稿中。"}</span></div>
-    {onAdoptLevels && draft.selfAssessmentHints.length > 0 && <section className="material-self-assessment"><h3>单独核对能力建议</h3><p>已有自评保持不变，只有你点击采用才更新。没有提及的技能不自动改变。</p>{draft.selfAssessmentHints.map(hint => {
+    {onAdoptLevels && hints.length > 0 && <section className="material-self-assessment"><h3>单独核对能力建议</h3><p>已有自评保持不变，只有你点击采用才更新。没有提及的技能不自动改变。</p>{hints.map(hint => {
       const candidates = skills.filter(skill => [skill.id, skill.name].some(name => name.toLocaleLowerCase() === hint.skillLabel.toLocaleLowerCase()));
       return <div key={hint.id}><span>{hint.skillLabel} · {hintLabels[hint.level]}</span>{candidates.length === 1 ? <button type="button" className="text-action" onClick={() => onAdoptLevels({ [candidates[0]!.id]: hint.level })}>采用 {hint.skillLabel} 的{hintLabels[hint.level]}建议</button> : <p>请在下方已有技能中逐项核对这一建议。</p>}</div>;
     })}</section>}

@@ -12,6 +12,8 @@ const lookupSchema = z.object({
   retryAfterMs: offset.optional(),
 }).strict();
 export type DocumentMetadataLookup = z.infer<typeof lookupSchema>;
+const extractionReadSchema = z.enum(["parsed", "output-limit", "incomplete-finish", "missing-content", "invalid-json", "invalid-shape", "invalid-source"]);
+export type DocumentExtractionRead = z.infer<typeof extractionReadSchema>;
 const usdLiteral = z.string().max(128).regex(/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/u);
 export const documentReceiptAuditSchema = z.object({
   status: z.enum(["verified", "receipt-missing", "duplicate-receipt", "receipt-claim-failed", "metadata-unavailable",
@@ -24,6 +26,8 @@ export const documentReceiptAuditSchema = z.object({
   conflictingCostsUsd: z.object({ chat: usdLiteral, generation: usdLiteral }).strict().optional(),
   providerLatencyMs: count.nullable().optional(), providerGenerationMs: count.nullable().optional(),
   metadataAttempts: z.number().int().min(0).max(MAX_DOCUMENT_METADATA_ATTEMPTS),
+  // Only the new extractive policy records this fixed category after receipt verification.
+  extractionRead: extractionReadSchema.optional(),
   // Historical records have only a count. New observations contain no URLs, headers, messages or bodies.
   metadataLookups: z.array(lookupSchema).max(MAX_DOCUMENT_METADATA_ATTEMPTS).optional(),
   sentAt: materialTimestampSchema, returnedAt: materialTimestampSchema, checkedAt: materialTimestampSchema,

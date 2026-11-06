@@ -2,6 +2,7 @@ import { materialSelfAssessmentAdoptionSchema, type ConfirmedMaterialItem } from
 import type { RoleBlueprint } from "../../contracts/intelligence";
 import type { UnitRegistry, SkillSelfLevel } from "../../contracts/planning";
 import { validateUnitRegistry } from "../planning/registry-validation";
+import { containsMaterialSkillLabel, normalizeMaterialSkillLabel } from "./skill-labels";
 export const MATERIAL_MAPPING_VERSION = "2026.11.2" as const;
 export type MaterialSkillMapping = {
     itemId: string;
@@ -38,34 +39,31 @@ const FLAGSHIP_ALIASES: NonNullable<MappingOptions["aliases"]> = {
         "proof-of-work": ["作品证据", "作品集证明"],
     }
 };
-function containsToken(text: string, label: string) {
-    const normalized = text.normalize("NFKC").toLowerCase(), token = label.normalize("NFKC").toLowerCase();
-    let offset = normalized.indexOf(token);
-    while (offset >= 0) {
-        const before = normalized[offset - 1] ?? "", after = normalized[offset + token.length] ?? "";
-        if (!/^[a-z0-9_]/u.test(token) || (!/[a-z0-9_]/u.test(before) && !/[a-z0-9_]/u.test(after)))
-            return true;
-        offset = normalized.indexOf(token, offset + 1);
-    }
-    return false;
-}
 /** Literal IDs/names and versioned aliases; similarity scores never establish a mapping. */
 export function mapMaterialItems(items: readonly ConfirmedMaterialItem[], blueprint: RoleBlueprint, registry: UnitRegistry, options: MappingOptions = {}): MaterialSkillMapping[] {
     const valid = blueprint.status === "ready" && validateUnitRegistry(registry, blueprint).valid;
     const aliases = options.aliases ?? (blueprint.id === "ai-native-full-stack-engineer" && blueprint.version === "2026.08.1" ? FLAGSHIP_ALIASES : undefined);
-    return items.map(item => {
+    const vocabulary = blueprint.skills.map(skill => ({ id: skill.id, name: skill.name, words: [
+        skill.id, skill.name, ...(aliases?.version === MATERIAL_MAPPING_VERSION ? aliases.skills[skill.id] ?? [] : [])
+    ] }));
+    return items.flatMap((item): MaterialSkillMapping[] => {
         if (item.kind === "constraint")
-            return { itemId: item.id, status: "non-learning", skillIds: [], labels: [] };
-        const manual = options.userMappings?.[item.id], matches = blueprint.skills.filter(skill => manual ? manual.includes(skill.id) : [
-            skill.id, skill.name, ...(aliases?.version === MATERIAL_MAPPING_VERSION ? aliases.skills[skill.id] ?? [] : [])
-        ].some(label => containsToken(item.text, label)));
-        const skillIds = matches.map(skill => skill.id);
-        return {
-            itemId: item.id,
-            status: !valid || skillIds.length === 0 ? "uncovered" : !manual && skillIds.length > 1 ? "ambiguous" : "mapped",
-            skillIds: valid ? skillIds : [],
-            labels: matches.length ? matches.map(skill => skill.name) : [item.text.slice(0, 100)]
-        };
+            return [{ itemId: item.id, status: "non-learning", skillIds: [], labels: [] }];
+        const manual = options.userMappings?.[item.id];
+        // A present list is the user's reviewed vocabulary, including an intentionally empty list.
+        // Manual and older facts have only their confirmed text.
+        const terms = manual ? [item.text] : item.skillLabels ?? [item.text];
+        const groups = new Map<MaterialSkillMapping["status"], MaterialSkillMapping>();
+        for (const term of terms) {
+            const matches = vocabulary.filter(skill => manual ? manual.includes(skill.id) : skill.words.some(word =>
+                item.skillLabels ? normalizeMaterialSkillLabel(term) === normalizeMaterialSkillLabel(word) : containsMaterialSkillLabel(term, word)));
+            const status = !valid || !matches.length ? "uncovered" : !manual && matches.length > 1 ? "ambiguous" : "mapped";
+            const group = groups.get(status) ?? { itemId: item.id, status, skillIds: [], labels: [] };
+            if (valid) group.skillIds.push(...matches.map(skill => skill.id));
+            group.labels.push(...(matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)]));
+            groups.set(status, group);
+        }
+        return [...groups.values()].map(group => ({ ...group, skillIds: [...new Set(group.skillIds)], labels: [...new Set(group.labels)] }));
     });
 }
 /** Called only by a separate, explicit user adoption action; fact confirmation never calls this. */

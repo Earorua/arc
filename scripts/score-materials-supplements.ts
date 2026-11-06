@@ -64,7 +64,7 @@ export function scoreSupplementBatch(input: unknown) {
   });
   const result = evaluateQualityCorpus(documents, outputs);
   const reports = result.documents.map(report => invalidExtractions.has(report.documentId)
-    ? { ...report, passed: false, canPrefill: false, failures: [...report.failures, "production-extraction-invalid"].sort() }
+    ? { ...report, passed: false, canPrefill: false, diagnostics: null, failures: [...report.failures, "production-extraction-invalid"].sort() }
     : report);
   const normalPrefillCount = reports.filter((report, index) => documents[index]!.category === "normal" && report.canPrefill).length;
   const edgePassCount = reports.filter((report, index) => documents[index]!.category === "edge" && report.passed).length;

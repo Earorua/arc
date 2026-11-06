@@ -82,6 +82,8 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
     setMessage("技能对应已修改，请重新核对资料对路线的影响后采用。");
   }
   const mappingDirty = !recovering && JSON.stringify(skillMappings) !== JSON.stringify(preview?.skillMappings ?? []);
+  const issues = preview?.issues ?? [];
+  const issueCount = issues.reduce((total, issue) => total + Math.max(1, issue.itemIds.length), 0);
   return <section className="material-context-review"><MaterialSelectionSummary disabled={disabled} />
     {!state.capabilities.planningEnabled ? <p>资料辅助规划暂未开放。可移除本次选择，继续普通规划。</p> : <>
     {entries.length !== selectedCount && <p role="alert">请先核对并确认每份资料的事实，或移除未采用的资料。</p>}
@@ -90,7 +92,8 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
       <h3>确认的事实与要求</h3><ul>{preview.confirmedItems.map((item, index) => {
         const reference = preview.itemReferences?.find(reference => reference.id === item.id);
         const choice = reference && (recovering ? preview.skillMappings ?? [] : skillMappings).find(mapping => mapping.confirmationId === reference.confirmationId && mapping.itemId === reference.itemId);
-        return <li key={item.id}>{item.text}{reference && item.kind !== "constraint" && availableSkills.length > 0 && <label>对应的已有技能<select
+        return <li key={item.id}><span>{item.text}</span>{Boolean(item.skillLabels?.length) && <small> · 已确认技能词 {item.skillLabels!.join("、")}</small>}
+          {reference && item.kind !== "constraint" && availableSkills.length > 0 && <label>对应的已有技能<select
           aria-label={`事实 ${index + 1} 对应的已有技能`} disabled={disabled || busy || recovering} value={choice?.skillId ?? ""}
           onChange={event => chooseSkill(reference.confirmationId, reference.itemId, event.target.value)}>
           <option value="">自动对应；未匹配时保留未覆盖</option>
@@ -99,7 +102,7 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
       })}</ul>
       {availableSkills.length > 0 && <p>如有未覆盖或对应不准确的事实，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。</p>}
       <p>已映射 {preview.priorities.length} 项技能；资料没有提到的能力仍以你的自我评估为准。</p>
-      {preview.issues.length > 0 && <p>有 {preview.issues.length} 项需注意：歧义映射、未覆盖内容或自评冲突会保留为提醒，不会擅自增加技能。</p>}
+      {issueCount > 0 && <p>有 {issueCount} 项需注意：歧义映射、未覆盖内容或自评冲突会保留为提醒，不会擅自增加技能。</p>}
       {preview.uncoveredLabels.length > 0 && <p>当前蓝图未覆盖：{preview.uncoveredLabels.join("、")}</p>}
       {preview.planning && <p>全量预计完成：{preview.planning.fullScope.estimatedCompletionDate}；目标日期方案：{preview.planning.targetDate?.estimatedCompletionDate ?? "不可行"}。{preview.planning.infeasibleReason}</p>}
     </div>}</>}

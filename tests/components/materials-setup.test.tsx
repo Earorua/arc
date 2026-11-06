@@ -33,6 +33,24 @@ function fixture() {
 }
 describe("material context review in the existing setup", () => {
   beforeEach(() => localStorage.clear()); afterEach(cleanup);
+  it("shows which facts and skill words a grouped coverage warning refers to", async () => {
+    const { client, invoke, Controls } = fixture();
+    const original = invoke.getMockImplementation()!;
+    invoke.mockImplementation(async (endpoint, body) => endpoint === "createMaterialContext" ? {
+      contextVersionId: "context-a", previewToken: "a".repeat(64), preview: {
+        ...preview, confirmedItems: [
+          { ...preview.confirmedItems[0], id: "one", text: "First requirement", skillLabels: ["unlisted-a"] },
+          { ...preview.confirmedItems[0], id: "two", text: "Second requirement", skillLabels: ["unlisted-b"] },
+        ], issues: [{ code: "uncovered", itemIds: ["one", "two"], skillIds: [] }], uncoveredLabels: ["unlisted-a", "unlisted-b"],
+      },
+    } : original(endpoint, body));
+    render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Controls /></MaterialSetupProvider>);
+    await waitFor(() => expect(screen.getByText("选择已确认 JD")).toBeEnabled());
+    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("核对资料对路线的影响"));
+    expect(await screen.findByText(/有 2 项需注意/)).toBeInTheDocument();
+    expect(screen.getByText("First requirement").closest("li")).toHaveTextContent("unlisted-a");
+    expect(screen.getByText("Second requirement").closest("li")).toHaveTextContent("unlisted-b");
+  });
   it("previews confirmed references and persists no facts, names or source text", async () => {
     const { client, invoke, Controls, onPreview } = fixture();
     render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Controls /></MaterialSetupProvider>);
@@ -46,6 +64,20 @@ describe("material context review in the existing setup", () => {
     fireEvent.click(screen.getByText("修改范围"));
     await waitFor(() => expect(screen.queryByText("PRIVATE-SETUP-SENTINEL")).not.toBeInTheDocument());
     expect(onPreview.mock.lastCall?.[0]).toBeNull();
+  });
+  it("counts independent kinds of reminders on the same fact separately", async () => {
+    const { client, invoke, Controls } = fixture();
+    const original = invoke.getMockImplementation()!;
+    invoke.mockImplementation(async (endpoint, body) => endpoint === "createMaterialContext" ? {
+      contextVersionId: "context-a", previewToken: "a".repeat(64), preview: { ...preview, issues: [
+        { code: "ambiguous-mapping", itemIds: ["item-a"], skillIds: ["sql", "react"] },
+        { code: "uncovered", itemIds: ["item-a"], skillIds: [] },
+      ] },
+    } : original(endpoint, body));
+    render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Controls /></MaterialSetupProvider>);
+    await waitFor(() => expect(screen.getByText("选择已确认 JD")).toBeEnabled());
+    fireEvent.click(screen.getByText("选择已确认 JD")); fireEvent.click(await screen.findByText("核对资料对路线的影响"));
+    expect(await screen.findByText(/有 2 项需注意/)).toBeInTheDocument();
   });
   it("retries a failed context without changing an already committed selection mutation body", async () => {
     const { client, invoke, Controls } = fixture(); let failed = false;

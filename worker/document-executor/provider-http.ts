@@ -7,6 +7,7 @@ import { materialIdSchema, materialVersionSchema } from "../../app/contracts/doc
 import { documentReceiptRouteSchema } from "../../app/server/documents/provider-receipt";
 import { auditDocumentGeneration, documentTokenPriceCeiling, DocumentHttpTimeout, isFailedChatResponse, readChatReceipt, readDocumentHttpJson,
   withDocumentDeadline } from "./generation-receipt";
+import { KIMI_SOURCE_SPAN_POLICY_ID, KIMI_SOURCE_SPAN_ROUTE, readSourceSpanExtraction, sourceSpanPrompt } from "./source-span-extraction";
 
 const rate = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const chatEndpoint = z.string().url().max(2048).refine(value => {
@@ -42,6 +43,10 @@ export function isDocumentProviderQualified(config: DocumentAnalysisMetadata, qu
   const parsed = documentProviderQualificationSchema.safeParse(qualification);
   if (!parsed.success || !validMetadata(config)) return false;
   const q = parsed.data;
+  if (config.providerPolicyId === KIMI_SOURCE_SPAN_POLICY_ID && (config.model !== KIMI_SOURCE_SPAN_ROUTE.model
+    || config.endpoint !== KIMI_SOURCE_SPAN_ROUTE.endpoint || config.routingPolicy.providerOrder[0] !== KIMI_SOURCE_SPAN_ROUTE.tag
+    || q.receiptRoute.providerName !== KIMI_SOURCE_SPAN_ROUTE.providerName || q.receiptRoute.endpointId !== KIMI_SOURCE_SPAN_ROUTE.endpointId
+    || q.receiptRoute.generationModel !== KIMI_SOURCE_SPAN_ROUTE.generationModel)) return false;
   if (q.endpoint !== config.endpoint || q.model !== config.model || q.providerPolicyId !== config.providerPolicyId
     || q.priceVersion !== config.priceVersion || config.routingPolicy.providerOrder.length !== 1
     || q.routingPolicy.policyVersion !== config.routingPolicy.policyVersion || q.routingPolicy.providerOrder.length !== 1
@@ -80,8 +85,9 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     const generationParameters = config.model === "moonshotai/kimi-k3.1-pro" && config.routingPolicy.providerOrder[0] === "moonshotai/mxfp4"
       ? { max_tokens: config.maxOutputTokens }
       : { max_completion_tokens: config.maxOutputTokens, temperature: 0 };
+    const sourceSpans = config.providerPolicyId === KIMI_SOURCE_SPAN_POLICY_ID;
     const body = JSON.stringify({
-      model: config.model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: data }],
+      model: config.model, messages: [{ role: "system", content: sourceSpans ? sourceSpanPrompt : systemPrompt }, { role: "user", content: data }],
       ...generationParameters, stream: false, response_format: { type: "json_object" },
       provider: {
         only: config.routingPolicy.providerOrder, order: config.routingPolicy.providerOrder,
@@ -113,17 +119,22 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     const chat = readChatReceipt(raw, input.text, config.apiKey);
     const audit = await auditDocumentGeneration({ config, qualification, chat, signal, sentAt, returnedAt, now,
       fetch: this.options.fetch, claimReceipt, singleMetadataRead: this.options.singleMetadataRead });
-    const attributable = chat.receiptId !== null && audit.status !== "duplicate-receipt" && audit.status !== "receipt-claim-failed"
+    const receiptId = audit.status === "receipt-missing" ? null : chat.receiptId;
+    const attributable = receiptId !== null && audit.status !== "duplicate-receipt" && audit.status !== "receipt-claim-failed"
       && audit.status !== "cost-conflict";
     const actualMicroUsd = attributable ? chat.actualMicroUsd ?? audit.metadataMicroUsd : null;
     let candidate: unknown = null;
-    if (audit.status === "verified") {
+    if (audit.status === "verified" && sourceSpans) {
+      const extraction = readSourceSpanExtraction(raw, input, audit.extractionRead);
+      candidate = extraction.candidate;
+      audit.extractionRead = extraction.extractionRead;
+    } else if (audit.status === "verified") {
       try {
         const content = Array.isArray(raw.choices) ? raw.choices[0]?.message?.content : null;
         if (typeof content === "string") candidate = JSON.parse(content);
       } catch { /* The site validates extraction quality without a second paid request. */ }
     }
-    return { kind: "received", candidate, inputTokens: chat.inputTokens, outputTokens: chat.outputTokens, actualMicroUsd, receiptId: chat.receiptId, audit };
+    return { kind: "received", candidate, inputTokens: chat.inputTokens, outputTokens: chat.outputTokens, actualMicroUsd, receiptId, audit };
   }
 }
 

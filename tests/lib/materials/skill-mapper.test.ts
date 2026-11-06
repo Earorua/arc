@@ -32,3 +32,13 @@ it("uses versioned production aliases only for the matching published blueprint"
     expect(mapMaterialItems([web], research, researchRegistry)[0]?.status).toBe("uncovered");
     expect(mapMaterialItems([{ ...item, text: "HTMLish" }], flagshipBlueprint, flagshipUnitRegistry)[0]?.status).toBe("uncovered");
 });
+it("maps each retained literal skill word through its own blueprint and leaves unknown words uncovered", () => {
+    const reviewed = { ...item, text: "SQL was removed during review", skillLabels: ["Jest", "Vitest", "OpenTelemetry", "unlisted-xyz"] };
+    const mapped = mapMaterialItems([reviewed], flagshipBlueprint, flagshipUnitRegistry);
+    expect(mapped.filter(result => result.status === "mapped").flatMap(result => result.skillIds).sort()).toEqual(["observability", "testing"]);
+    expect(mapped.filter(result => result.status === "uncovered").flatMap(result => result.labels)).toEqual(["unlisted-xyz"]);
+    expect(mapMaterialItems([{ ...reviewed, skillLabels: [] }], flagshipBlueprint, flagshipUnitRegistry).flatMap(result => result.skillIds)).toEqual([]);
+    expect(mapMaterialItems([reviewed], flagshipBlueprint, flagshipUnitRegistry, { userMappings: { fact: ["react"] } }).flatMap(result => result.skillIds)).toEqual(["react"]);
+    const research = { ...flagshipBlueprint, id: "other-role" };
+    expect(mapMaterialItems([{ ...reviewed, skillLabels: ["Vitest"] }], research, { ...flagshipUnitRegistry, blueprintId: research.id })[0]?.status).toBe("uncovered");
+});

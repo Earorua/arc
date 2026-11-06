@@ -10,6 +10,7 @@ import type { SkillSelfLevel } from "../../contracts/planning";
 import { documentsClient, type DocumentsClient } from "../../lib/documents-client";
 import type { MaterialDocumentDraftRef } from "../../lib/use-material-selection";
 import { MaterialConfirmation } from "./material-confirmation";
+import { retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
 import { MaterialJobStatus } from "./material-job-status";
 type Props = {
     kind: "resume" | "jd" | "supplement";
@@ -321,7 +322,8 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
     function saveReview(items: ConfirmedMaterialItem[], reviewPoints: DocumentReviewDraft["reviewPoints"]) {
         if (!draft || !valueRef.current)
             return;
-        const edited = { ...draft, items, ...(reviewPoints ? { reviewPoints } : {}) };
+        const selfAssessmentHints = retainedMaterialSelfAssessmentHints(items, draft.selfAssessmentHints);
+        const edited = { ...draft, items, selfAssessmentHints, ...(reviewPoints ? { reviewPoints } : {}) };
         setDraft(edited);
         setSaving(true);
         setMessage(null);
@@ -337,7 +339,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                 textVersionId: ref.textVersionId,
                 extractionId: base.extractionId,
                 items,
-                selfAssessmentHints: base.selfAssessmentHints,
+                selfAssessmentHints,
                 ...(reviewPoints ? { reviewPoints } : {}),
                 expectedRevision: base.revision,
                 mutationId: `review-${crypto.randomUUID()}`

@@ -1,9 +1,10 @@
-import { DOCUMENT_SCHEMA_VERSION, documentReviewDraftSchema, validateMaterialSourceRef, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
+import { DOCUMENT_SCHEMA_VERSION, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
 import { documentEndpointContracts, type DocumentEndpointRequest as Request, type DocumentEndpointResponse as Response, type DocumentMutationIdentity } from "../../contracts/documents-api";
 import { canonicalJson } from "../../lib/planning/fingerprint";
+import { containsMaterialSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
 import { D1DocumentRepository, DocumentServiceError, type MaterialRow } from "./d1-repository";
 import { DocumentStorage } from "./storage";
-import { validateDocumentExtraction } from "./extraction-validator";
+import { serializeDocumentExtraction, validateDocumentExtraction, validateStoredDocumentExtraction } from "./extraction-validator";
 import { mergeDocumentReviewPointResolutions } from "./review-points";
 import type { DocumentOwner } from "./repository";
 import { z } from "zod";
@@ -20,6 +21,31 @@ export type ExtractionApplication = {
     modelVersion?: string;
     policyVersion?: string;
 };
+
+function parseDraft(input: unknown): DocumentReviewDraft {
+    const parsed = documentReviewDraftSchema.safeParse(input);
+    if (!parsed.success) throw new DocumentServiceError("invalid-content");
+    return parsed.data;
+}
+
+function reviewedItem(item: ConfirmedMaterialItem, candidate: ConfirmedMaterialItem | undefined, prior: ConfirmedMaterialItem | undefined): ConfirmedMaterialItem {
+    const { skillLabels, ...fact } = item;
+    const sameSource = candidate && canonicalJson(item.sourceRef) === canonicalJson(candidate.sourceRef);
+    const sameFact = sameSource && item.text === candidate.text && item.kind === candidate.kind;
+    if (item.origin === "extracted" && (!sameFact || item.requirementLevel !== candidate.requirementLevel))
+        throw new DocumentServiceError("invalid-content");
+    if (skillLabels?.some(label => !sameSource || !candidate.skillLabels?.includes(label) || !prior?.skillLabels?.includes(label)))
+        throw new DocumentServiceError("invalid-content");
+    if (!sameFact) {
+        if (!prior?.skillLabels) return fact;
+        const labels = sameSource && item.kind === candidate.kind ? skillLabels ?? [] : [];
+        return { ...fact, skillLabels: labels.filter(label => containsMaterialSkillLabel(fact.text, label)) };
+    }
+    // An older client can omit the field. Never resurrect a discarded word by rescanning this fact.
+    if (!skillLabels && (prior?.skillLabels || (!prior && candidate.skillLabels))) return { ...fact, skillLabels: [] };
+    return item;
+}
+
 export class ReviewService {
     constructor(readonly repo: D1DocumentRepository, readonly storage: DocumentStorage) { }
     private retainReviewPoints(current: MaterialRow | null, incoming: readonly MaterialReviewPoint[] = []): MaterialReviewPoint[] {
@@ -42,11 +68,11 @@ export class ReviewService {
         const { stored, reference } = await this.reference(owner.ownerId, request.documentId, String(row.text_version_id));
         if (row.revoked_at !== null || row.generation !== stored.document.generation || row.document_version_id !== stored.document.currentDocumentVersionId)
             throw new DocumentServiceError("gone");
-        const validated = validateDocumentExtraction(JSON.parse(String(row.candidates_json)), owner.ownerId, reference), current = await this.row(owner.ownerId, String(row.text_version_id));
+        const validated = validateStoredDocumentExtraction(String(row.candidates_json), owner.ownerId, reference), current = await this.row(owner.ownerId, String(row.text_version_id));
         const revision = current ? Number(current.revision) : 0;
         return {
             expectedRevision: revision,
-            draft: documentReviewDraftSchema.parse({
+            draft: parseDraft({
                 id: current?.id ?? request.extractionId,
                 schemaVersion: DOCUMENT_SCHEMA_VERSION,
                 documentId: request.documentId,
@@ -87,7 +113,7 @@ export class ReviewService {
         }, await this.repo.identity(owner.ownerId, "adoptDocumentExtraction", request));
     }
     project(row: MaterialRow): DocumentReviewDraft {
-        return documentReviewDraftSchema.parse({
+        return parseDraft({
             id: row.id,
             schemaVersion: DOCUMENT_SCHEMA_VERSION,
             documentId: row.document_id,
@@ -141,20 +167,27 @@ export class ReviewService {
             const row = await this.repo.one("SELECT candidates_json FROM document_extractions WHERE owner_id=? AND id=? AND text_version_id=? AND state='active'", owner.ownerId, request.extractionId, request.textVersionId);
             if (!row)
                 throw new DocumentServiceError("invalid-content");
-            extraction = validateDocumentExtraction(JSON.parse(String(row.candidates_json)), owner.ownerId, reference);
+            extraction = validateStoredDocumentExtraction(String(row.candidates_json), owner.ownerId, reference);
         }
-        for (const item of request.items) {
+        const priorReview = !adoptionIdentity && current && current.extraction_id === request.extractionId ? this.project(current) : extraction;
+        const items = request.items.map(item => {
             if (item.sourceRef && !validateMaterialSourceRef(item.sourceRef, owner.ownerId, reference))
                 throw new DocumentServiceError("invalid-content");
-            if (item.origin === "extracted" && !extraction?.items.some(candidate => canonicalJson(candidate) === canonicalJson(item)))
-                throw new DocumentServiceError("invalid-content");
-        }
+            return reviewedItem(item, extraction?.items.find(candidate => candidate.id === item.id), priorReview?.items.find(prior => prior.id === item.id));
+        });
         if (request.selfAssessmentHints.some(hint => !extraction?.selfAssessmentHints.some(candidate => canonicalJson(candidate) === canonicalJson(hint))))
             throw new DocumentServiceError("invalid-content");
+        const selfAssessmentHints = retainedMaterialSelfAssessmentHints(items, request.selfAssessmentHints.filter(hint =>
+            priorReview?.selfAssessmentHints.some(prior => prior.id === hint.id)));
         const basePoints = this.retainReviewPoints(current, extraction?.reviewPoints);
         const reviewPoints = mergeDocumentReviewPointResolutions(basePoints, request.reviewPoints);
         const revision = request.expectedRevision + 1, id = current ? String(current.id) : this.repo.id(), origin = request.extractionId ? (request.items.some(item => item.origin === "user") ? "mixed" : "ai") : "manual", now = this.repo.now();
-        const write = this.repo.statement("INSERT INTO document_review_drafts(owner_id,id,document_id,document_version_id,text_version_id,extraction_id,origin,items_json,self_assessment_hints_json,review_points_json,revision,state,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,'active',?) ON CONFLICT(owner_id,text_version_id) DO UPDATE SET extraction_id=excluded.extraction_id,origin=excluded.origin,items_json=excluded.items_json,self_assessment_hints_json=excluded.self_assessment_hints_json,review_points_json=excluded.review_points_json,revision=excluded.revision,updated_at=excluded.updated_at WHERE document_review_drafts.revision=? AND document_review_drafts.state='active'", owner.ownerId, id, request.documentId, stored.version.id, request.textVersionId, request.extractionId, origin, JSON.stringify(request.items), JSON.stringify(request.selfAssessmentHints), JSON.stringify(reviewPoints), revision, now, request.expectedRevision);
+        const draft = parseDraft({
+            id, schemaVersion: DOCUMENT_SCHEMA_VERSION, documentId: request.documentId, documentVersionId: stored.version.id,
+            textVersionId: request.textVersionId, extractionId: request.extractionId, origin, items, selfAssessmentHints, reviewPoints,
+            revision, updatedAt: new Date(now).toISOString()
+        });
+        const write = this.repo.statement("INSERT INTO document_review_drafts(owner_id,id,document_id,document_version_id,text_version_id,extraction_id,origin,items_json,self_assessment_hints_json,review_points_json,revision,state,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,'active',?) ON CONFLICT(owner_id,text_version_id) DO UPDATE SET extraction_id=excluded.extraction_id,origin=excluded.origin,items_json=excluded.items_json,self_assessment_hints_json=excluded.self_assessment_hints_json,review_points_json=excluded.review_points_json,revision=excluded.revision,updated_at=excluded.updated_at WHERE document_review_drafts.revision=? AND document_review_drafts.state='active'", owner.ownerId, id, request.documentId, stored.version.id, request.textVersionId, request.extractionId, origin, JSON.stringify(items), JSON.stringify(selfAssessmentHints), JSON.stringify(reviewPoints), revision, now, request.expectedRevision);
         const extractionGuards = request.extractionId && request.extractionId !== current?.extraction_id ? [
             this.repo.guard("EXISTS(SELECT 1 FROM document_extractions e JOIN document_jobs j ON j.owner_id=e.owner_id AND j.id=e.job_id JOIN document_processing_consents c ON c.owner_id=j.owner_id AND c.id=j.consent_id JOIN documents d ON d.owner_id=j.owner_id AND d.id=j.document_id WHERE e.owner_id=? AND e.id=? AND e.text_version_id=? AND e.state='active' AND j.state='succeeded' AND c.revoked_at IS NULL AND d.lifecycle='active' AND d.generation=j.generation AND d.current_document_version_id=j.document_version_id)", owner.ownerId, request.extractionId, request.textVersionId)
         ] : [];
@@ -167,7 +200,7 @@ export class ReviewService {
             write,
             this.repo.changed()
         ]);
-        return { draft: this.project((await this.row(owner.ownerId, request.textVersionId))!) };
+        return { draft };
     }
     async acceptAiExtraction(ownerId: string, input: ExtractionApplication): Promise<{
         extractionId: string | null;
@@ -188,11 +221,16 @@ export class ReviewService {
             throw new DocumentServiceError("unavailable");
         }
         const validated = validateDocumentExtraction(input.candidate, ownerId, context.reference), id = this.repo.id(), now = this.repo.now();
+        const captureJson = serializeDocumentExtraction(input.candidate);
+        const draft = parseDraft({
+            id: this.repo.id(), schemaVersion: DOCUMENT_SCHEMA_VERSION, documentId: input.documentId, documentVersionId: input.documentVersionId,
+            textVersionId: input.textVersionId, extractionId: id, origin: "ai", ...validated, revision: 0, updatedAt: new Date(now).toISOString()
+        });
         try {
             const results = await this.repo.db.batch([
                 this.repo.guard("EXISTS(SELECT 1 FROM document_jobs j JOIN documents d ON d.owner_id=j.owner_id AND d.id=j.document_id JOIN document_processing_consents c ON c.owner_id=j.owner_id AND c.id=j.consent_id WHERE j.owner_id=? AND j.id=? AND j.state='running' AND j.document_id=? AND j.document_version_id=? AND j.text_version_id=? AND j.generation=? AND j.consent_id=? AND d.lifecycle='active' AND d.generation=? AND d.revision=? AND d.current_document_version_id=? AND c.revoked_at IS NULL AND c.text_version_id=j.text_version_id AND c.generation=d.generation)", ownerId, input.jobId, input.documentId, input.documentVersionId, input.textVersionId, input.generation, input.consentId, input.generation, input.documentRevision, input.documentVersionId),
-                this.repo.statement("INSERT INTO document_extractions(owner_id,id,job_id,document_id,text_version_id,candidates_json,state,created_at,model_version,policy_version) VALUES(?,?,?,?,?,?,'active',?,?,?)", ownerId, id, input.jobId, input.documentId, input.textVersionId, JSON.stringify(input.candidate), now, input.modelVersion ?? null, input.policyVersion ?? DOCUMENT_SCHEMA_VERSION),
-                this.repo.statement("INSERT INTO document_review_drafts(owner_id,id,document_id,document_version_id,text_version_id,extraction_id,origin,items_json,self_assessment_hints_json,review_points_json,revision,state,updated_at) VALUES(?,?,?,?,?,?,'ai',?,?,?,0,'active',?) ON CONFLICT(owner_id,text_version_id) DO UPDATE SET extraction_id=excluded.extraction_id,origin='ai',items_json=excluded.items_json,self_assessment_hints_json=excluded.self_assessment_hints_json,review_points_json=excluded.review_points_json,updated_at=excluded.updated_at WHERE document_review_drafts.revision=0 AND document_review_drafts.items_json='[]' AND document_review_drafts.self_assessment_hints_json='[]' AND document_review_drafts.extraction_id IS NULL AND document_review_drafts.state='active'", ownerId, this.repo.id(), input.documentId, input.documentVersionId, input.textVersionId, id, JSON.stringify(validated.items), JSON.stringify(validated.selfAssessmentHints), JSON.stringify(validated.reviewPoints), now),
+                this.repo.statement("INSERT INTO document_extractions(owner_id,id,job_id,document_id,text_version_id,candidates_json,state,created_at,model_version,policy_version) VALUES(?,?,?,?,?,?,'active',?,?,?)", ownerId, id, input.jobId, input.documentId, input.textVersionId, captureJson, now, input.modelVersion ?? null, input.policyVersion ?? DOCUMENT_SCHEMA_VERSION),
+                this.repo.statement("INSERT INTO document_review_drafts(owner_id,id,document_id,document_version_id,text_version_id,extraction_id,origin,items_json,self_assessment_hints_json,review_points_json,revision,state,updated_at) VALUES(?,?,?,?,?,?,'ai',?,?,?,0,'active',?) ON CONFLICT(owner_id,text_version_id) DO UPDATE SET extraction_id=excluded.extraction_id,origin='ai',items_json=excluded.items_json,self_assessment_hints_json=excluded.self_assessment_hints_json,review_points_json=excluded.review_points_json,updated_at=excluded.updated_at WHERE document_review_drafts.revision=0 AND document_review_drafts.items_json='[]' AND document_review_drafts.self_assessment_hints_json='[]' AND document_review_drafts.extraction_id IS NULL AND document_review_drafts.state='active'", ownerId, draft.id, input.documentId, input.documentVersionId, input.textVersionId, id, JSON.stringify(draft.items), JSON.stringify(draft.selfAssessmentHints), JSON.stringify(draft.reviewPoints), now),
                 this.repo.statement("UPDATE document_jobs SET extraction_id=?,state='succeeded',revision=revision+1,updated_at=? WHERE owner_id=? AND id=? AND state='running'", id, now, ownerId, input.jobId),
                 this.repo.changed(),
             ]);

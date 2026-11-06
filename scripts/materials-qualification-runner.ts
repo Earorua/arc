@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
 import { z } from "zod";
 import corpus from "../tests/fixtures/documents/quality-corpus.json";
 import { evaluateDocumentQuality, type DocumentQualityReport, type QualityDocument } from "../tests/helpers/document-quality-evaluation";
@@ -8,8 +7,11 @@ import { documentCandidatesSchema, documentCandidateReviewPointsSchema, material
 import { validateDocumentExtraction } from "../app/server/documents/extraction-validator";
 import { documentReceiptRouteSchema, type DocumentReceiptAudit } from "../app/server/documents/provider-receipt";
 import { HttpDocumentAnalysisProvider, calculateDocumentReservation, documentProviderQualificationSchema, isDocumentProviderQualified, type DocumentFetch } from "../worker/document-executor/provider-http";
+import { corpusDigest, qualificationInput, qualificationSegments, QualificationRunError } from "./materials-qualification-inputs";
+import { readDiagnosticPilotConfiguration } from "./materials-diagnostic-pilot-policy";
 
-const corpusDigest = createHash("sha256").update(readFileSync(new URL("../tests/fixtures/documents/quality-corpus.json", import.meta.url))).digest("hex");
+export { QualificationRunError, qualificationSegments };
+export { inspectDiagnosticPilotScope, readDiagnosticPilotConfiguration } from "./materials-diagnostic-pilot-policy";
 const amountSchema = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const safeUrl = z.string().url().max(2048).refine(value => {
   if (!URL.canParse(value)) return false;
@@ -31,15 +33,9 @@ const settingsSchema = z.object({
   qualification: documentProviderQualificationSchema, authorization: authorizationSchema,
 }).strict();
 
-export class QualificationRunError extends Error {
-  constructor(readonly code: "qualification-disabled" | "qualification-settings-invalid" | "qualification-authorization-mismatch" | "qualification-checkpoint-failed") {
-    super(code); this.name = "QualificationRunError";
-  }
-}
-
 /** No defaults, shared Research credentials, or caller output can grant this authorization. */
 export function readQualificationConfiguration(env: Readonly<Record<string, string | undefined>>, now: Date) {
-  if (env.ARC_DOCUMENT_QUALIFICATION_ENABLED !== "true") throw new QualificationRunError("qualification-disabled");
+  if (env.ARC_DOCUMENT_QUALIFICATION_ENABLED !== "true" || env.ARC_DOCUMENT_PILOT_ENABLED === "true") throw new QualificationRunError("qualification-disabled");
   let settings: z.infer<typeof settingsSchema>;
   let config: z.infer<typeof documentAnalysisConfigurationSchema>;
   try {
@@ -71,20 +67,6 @@ export function readQualificationConfiguration(env: Readonly<Record<string, stri
   return { ...settings, config, reservationMicroUsd: calculateDocumentReservation(config, qualification) };
 }
 
-/** Preserve every frozen source ID/offset; gap segments cover only the prefix and separators. */
-export function qualificationSegments(document: QualityDocument) {
-  const segments: { id: string; start: number; end: number }[] = [];
-  let offset = 0, gap = 0;
-  for (const segment of document.segments) {
-    if (segment.start < offset || segment.end <= segment.start || document.text.slice(segment.start, segment.end) !== segment.text) throw new QualificationRunError("qualification-settings-invalid");
-    if (segment.start > offset) segments.push({ id: `qualification-gap-${++gap}`, start: offset, end: segment.start });
-    segments.push({ id: segment.id, start: segment.start, end: segment.end });
-    offset = segment.end;
-  }
-  if (offset < document.text.length) segments.push({ id: `qualification-gap-${++gap}`, start: offset, end: document.text.length });
-  return segments;
-}
-
 export type QualificationCheckpoint = Readonly<{
   type: "run-start" | "reservation" | "receipt" | "settlement" | "run-end";
   runId: string; documentId?: string; textVersionId?: string;
@@ -110,11 +92,12 @@ export type QualificationResult = {
   routingPolicyVersion: string; routingPolicy: z.infer<typeof documentRoutingPolicySchema>; receiptRoute: z.infer<typeof documentReceiptRouteSchema>;
   inputMicroUsdPerMillionTokens: number; outputMicroUsdPerMillionTokens: number;
   privacyEvidence: string; pricingEvidence: string; authorizationExpiresAt: string;
-  corpusSha256: string; maxRequests: 24; totalBudgetMicroUsd: number;
+  corpusSha256: string; totalBudgetMicroUsd: number;
   startedAt: string; completedAt: string; requestsSent: number; settledMicroUsd: number; heldMicroUsd: number;
-  normalPrefillCount: number; edgePassCount: number; passed: boolean; stoppedReason: string | null;
+  normalPrefillCount: number; edgePassCount: number; stoppedReason: string | null;
   documents: DocumentResult[];
-};
+} & ({ maxRequests: 24; passed: boolean } | { maxRequests: 4; purpose: "materials-b2-diagnostic-pilot-v1";
+  passed: false; pilotCompleted: boolean; pilotQualityPassed: boolean });
 
 function scoreCandidate(document: QualityDocument, segments: ReturnType<typeof qualificationSegments>, candidate: unknown) {
   let candidates: unknown[] = [];
@@ -131,14 +114,31 @@ function scoreCandidate(document: QualityDocument, segments: ReturnType<typeof q
   // Only observations returned by the provider and validated by the production boundary are scored.
   const quality = evaluateDocumentQuality(document, { documentId: document.id, documentVersionId: document.documentVersionId,
     textVersionId: document.textVersionId, candidates, reviewPoints });
-  if (!extractionValid) { quality.passed = false; quality.canPrefill = false; quality.failures = [...new Set([...quality.failures, "production-extraction-invalid"])].sort(); }
+  if (!extractionValid) {
+    quality.passed = false;
+    quality.canPrefill = false;
+    quality.diagnostics = null;
+    quality.failures = [...new Set([...quality.failures, "production-extraction-invalid"])].sort();
+  }
   return quality;
 }
 
-export async function runDocumentQualification(env: Readonly<Record<string, string | undefined>>, dependencies: {
+type Environment = Readonly<Record<string, string | undefined>>;
+type RunDependencies = {
   fetch: DocumentFetch; checkpoint(value: QualificationCheckpoint): Promise<void>;
   mode: QualificationResult["mode"]; now?: () => Date;
-}): Promise<QualificationResult> {
+};
+type ExecutionDependencies = Omit<RunDependencies, "checkpoint"> & { checkpoint?: RunDependencies["checkpoint"] };
+export function runDocumentQualification(env: Environment, dependencies: RunDependencies) {
+  return runAuthorizedDocuments(env, dependencies, "full");
+}
+export function runDocumentDiagnosticPilot(env: Environment, dependencies: RunDependencies | { mode: "authorized-live" }) {
+  // A caller cannot substitute the live clock, paid transport, or durable journal.
+  return runAuthorizedDocuments(env, dependencies.mode === "authorized-live" ? { mode: "authorized-live", fetch: globalThis.fetch } : dependencies, "pilot");
+}
+function runAuthorizedDocuments(env: Environment, dependencies: RunDependencies, profile: "full"): Promise<Extract<QualificationResult, { maxRequests: 24 }>>;
+function runAuthorizedDocuments(env: Environment, dependencies: ExecutionDependencies, profile: "pilot"): Promise<Extract<QualificationResult, { maxRequests: 4 }>>;
+async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionDependencies, profile: "full" | "pilot"): Promise<QualificationResult> {
   const clock = dependencies.now ?? (() => new Date());
   let latestTime = -Infinity, clockRegressed = false;
   const now = () => {
@@ -147,18 +147,22 @@ export async function runDocumentQualification(env: Readonly<Record<string, stri
     latestTime = Math.max(latestTime, time);
     return current;
   };
-  const settings = readQualificationConfiguration(env, now());
-  const { config, authorization, qualification, runId, reservationMicroUsd } = settings;
+  const settings = profile === "pilot" ? await readDiagnosticPilotConfiguration(env, now(), dependencies.mode)
+    : { ...readQualificationConfiguration(env, now()), pilotScope: null, documents: corpus.documents, openLiveJournal: null };
+  const { config, authorization, qualification, runId, reservationMicroUsd, pilotScope, documents: selected } = settings;
+  const journal = settings.openLiveJournal ? await settings.openLiveJournal() : null;
+  const persist = journal?.checkpoint ?? dependencies.checkpoint;
+  if (!persist) throw new QualificationRunError("qualification-checkpoint-failed");
   const checkWindow = (observed: Date) => {
     const time = observed.getTime();
     if (clockRegressed || !Number.isFinite(time) || time < Date.parse(authorization.approvedAt)) return "authorization-clock-rollback";
     return time >= Date.parse(authorization.expiresAt) ? "authorization-expired" : null;
   };
   const checkpoint = async (value: Omit<QualificationCheckpoint, "runId" | "timestamp">) => {
-    try { await dependencies.checkpoint({ ...value, runId, timestamp: now().toISOString() }); }
+    try { await persist({ ...value, runId, timestamp: now().toISOString() }); }
     catch { throw new QualificationRunError("qualification-checkpoint-failed"); }
   };
-  const documents: DocumentResult[] = corpus.documents.map(document => ({
+  const documents: DocumentResult[] = selected.map(document => ({
     documentId: document.id, category: document.category as "normal" | "edge", status: "not-run", accounting: "not-reserved",
     reservedMicroUsd: 0, actualMicroUsd: null, receiptId: null, inputTokens: null, outputTokens: null,
     processingStartedAt: null, processingEndedAt: null, sentAt: null, returnedAt: null, queueDurationMs: null, audit: null,
@@ -172,13 +176,15 @@ export async function runDocumentQualification(env: Readonly<Record<string, stri
     outputMicroUsdPerMillionTokens: qualification.outputMicroUsdPerMillionTokens,
     privacyEvidence: authorization.privacyEvidence, pricingEvidence: authorization.pricingEvidence,
     authorizationExpiresAt: authorization.expiresAt,
-    corpusSha256: corpusDigest, maxRequests: 24, totalBudgetMicroUsd: authorization.totalBudgetMicroUsd,
+    corpusSha256: corpusDigest, totalBudgetMicroUsd: authorization.totalBudgetMicroUsd,
     startedAt: now().toISOString(), completedAt: "", requestsSent: 0, settledMicroUsd: 0, heldMicroUsd: 0,
-    normalPrefillCount: 0, edgePassCount: 0, passed: false, stoppedReason: null, documents,
+    normalPrefillCount: 0, edgePassCount: 0, stoppedReason: null, documents,
+    ...(pilotScope ? { maxRequests: pilotScope.maxRequests, purpose: pilotScope.purpose, passed: false, pilotCompleted: false, pilotQualityPassed: false } as const
+      : { maxRequests: 24, passed: false } as const),
   };
   await checkpoint({ type: "run-start" });
   const receipts = new Set<string>();
-  for (const [index, document] of corpus.documents.entries()) {
+  for (const [index, document] of selected.entries()) {
     const windowFailure = checkWindow(now());
     if (windowFailure) { result.stoppedReason = windowFailure; break; }
     if (result.requestsSent >= authorization.maxRequests) { result.stoppedReason = "request-limit"; break; }
@@ -186,15 +192,29 @@ export async function runDocumentQualification(env: Readonly<Record<string, stri
 
     const entry = documents[index]!;
     entry.processingStartedAt = now().toISOString();
-    const segments = qualificationSegments(document);
+    const input = qualificationInput(document, config.providerPolicyId);
     await checkpoint({ type: "reservation", documentId: document.id, textVersionId: document.textVersionId,
       state: "reserved", reservedMicroUsd: reservationMicroUsd, processingStartedAt: entry.processingStartedAt });
     entry.reservedMicroUsd = reservationMicroUsd;
     result.heldMicroUsd += reservationMicroUsd;
 
     let admissionReason: string | null = null;
+    let generationReads = 0, claimedGenerationUrl: string | null = null;
     const provider = new HttpDocumentAnalysisProvider(config, { qualification, now, fetch: async (url, init) => {
-      if (init?.method !== "POST") return dependencies.fetch(url, init);
+      if (init?.method !== "POST") {
+        if (pilotScope) {
+          if (init?.method !== "GET" || entry.sentAt === null || String(url) !== claimedGenerationUrl || init.body != null || init.redirect !== "manual"
+            || generationReads >= pilotScope.maxGetsPerDocument) throw new Error("pilot-generation-scope-mismatch");
+          generationReads++;
+        }
+        return dependencies.fetch(url, init);
+      }
+      if (pilotScope && entry.sentAt !== null) throw new Error("pilot-document-already-sent");
+      if (pilotScope && (String(url) !== config.endpoint || init.redirect !== "manual" || typeof init.body !== "string"
+        || createHash("sha256").update(init.body, "utf8").digest("hex") !== pilotScope.documents[index]!.bodySha256)) {
+        admissionReason = "pilot-body-scope-mismatch";
+        throw new Error("qualification-before-send");
+      }
       const handoff = now();
       admissionReason = checkWindow(handoff);
       if (result.requestsSent >= authorization.maxRequests) admissionReason = "request-limit";
@@ -205,13 +225,17 @@ export async function runDocumentQualification(env: Readonly<Record<string, stri
       entry.returnedAt = now().toISOString();
       return response;
     } });
-    const outcome = await provider.analyze({ textVersionId: document.textVersionId, text: document.text,
-      segments, kind: document.kind as "resume" | "jd", providerPolicyId: config.providerPolicyId, outputSchemaVersion: "2026.11.1" },
-    new AbortController().signal, undefined, async (receiptId, observed) => {
+    const outcome = await provider.analyze(input, new AbortController().signal, undefined, async (receiptId, observed) => {
       if (receipts.has(receiptId)) return false;
       receipts.add(receiptId);
       await checkpoint({ type: "receipt", documentId: document.id, textVersionId: document.textVersionId,
         state: "reserved", reservedMicroUsd: reservationMicroUsd, receiptId, ...observed });
+      if (pilotScope) {
+        const url = new URL(config.endpoint);
+        url.pathname = url.pathname.replace(/\/chat\/completions$/u, "/generation");
+        url.searchParams.set("id", receiptId);
+        claimedGenerationUrl = url.href;
+      }
       return true;
     });
     let stop: string | null = null;
@@ -242,7 +266,7 @@ export async function runDocumentQualification(env: Readonly<Record<string, stri
       else if (entry.audit?.status !== "verified") stop = entry.audit?.status ?? "metadata-unavailable";
       if (stop) entry.status = "failed";
       else {
-        entry.quality = scoreCandidate(document, segments, outcome.candidate);
+        entry.quality = scoreCandidate(document, input.segments, outcome.candidate);
         entry.status = entry.quality.passed ? "passed" : "failed";
       }
     }
@@ -258,9 +282,19 @@ export async function runDocumentQualification(env: Readonly<Record<string, stri
   }
   result.normalPrefillCount = documents.filter(document => document.category === "normal" && document.quality?.canPrefill).length;
   result.edgePassCount = documents.filter(document => document.category === "edge" && document.status === "passed").length;
-  result.passed = result.stoppedReason === null && documents.every(document => document.status === "passed")
-    && result.normalPrefillCount === 18 && result.edgePassCount === 6;
+  let status: string;
+  if (result.maxRequests === 4) {
+    result.pilotCompleted = result.stoppedReason === null && result.heldMicroUsd === 0 && result.requestsSent === 4 && receipts.size === 4
+      && documents.every(document => document.accounting === "settled" && document.audit?.status === "verified" && document.quality !== null);
+    result.pilotQualityPassed = result.pilotCompleted && documents.every(document => document.status === "passed");
+    status = result.stoppedReason ?? (result.pilotCompleted ? "pilot-completed" : "pilot-incomplete");
+  } else {
+    result.passed = result.stoppedReason === null && documents.every(document => document.status === "passed")
+      && result.normalPrefillCount === 18 && result.edgePassCount === 6;
+    status = result.passed ? "passed" : result.stoppedReason ?? "quality-threshold-failed";
+  }
   result.completedAt = now().toISOString();
-  await checkpoint({ type: "run-end", status: result.passed ? "passed" : result.stoppedReason ?? "quality-threshold-failed" });
+  await checkpoint({ type: "run-end", status });
+  journal?.finish(result);
   return result;
 }

@@ -147,7 +147,7 @@ describe("supplemental material quality controls", () => {
       : output);
     const result = scoreSupplementBatch({ ...paper, outputs });
     expect(result).toMatchObject({ passed: false, normalPrefillCount: 2, edgePassCount: 2 });
-    expect(result.documents[0]).toMatchObject({ canPrefill: false, failures: ["production-extraction-invalid"] });
+    expect(result.documents[0]).toMatchObject({ canPrefill: false, diagnostics: null, failures: ["production-extraction-invalid"] });
     expect(JSON.stringify(result)).not.toContain("never-echo-this");
   });
 

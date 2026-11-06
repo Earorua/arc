@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DOCUMENT_SCHEMA_VERSION, MAX_DOCUMENT_ITEMS_JSON_BYTES } from "../../app/contracts/documents";
 import corpus from "../fixtures/documents/quality-corpus.json";
 import { evaluateDocumentQuality, evaluateQualityCorpus, type QualityDocument } from "../helpers/document-quality-evaluation";
 
@@ -249,5 +250,148 @@ describe("document quality evaluation (offline scoring rules, not model qualific
     expect(evaluateQualityCorpus(corpus.documents, [...outputs, outputs[0]!]).failures).toContain("duplicate-document-result");
     expect(evaluateQualityCorpus(corpus.documents, [...outputs, { ...outputs[0]!, documentId: "unknown-document" }]).failures)
       .toContain("unexpected-document-result");
+  });
+});
+
+describe("content-free component diagnostics alongside frozen scores", () => {
+  type OracleCandidate = ReturnType<typeof oracle>["candidates"][number];
+  const fields = {
+    expected: 3, returned: 3, exactSource: 3, sourceIncludingTerminalOmission: 3,
+    registeredForm: 3, registeredFormAtSource: 3, kindAtSource: 3,
+    expectedSkillSets: 2, skillSetAtSource: 2, expectedClassifications: 0, requirementLevelAtSource: 0,
+    strictJoint: 3,
+  };
+  const reviews = { expected: 1, returned: 1, code: 1, exactSource: 1, strictJoint: 1 };
+
+  it("exposes only fixed numeric counters, including applicable denominators", () => {
+    const output = oracle(resume);
+    expect(evaluateDocumentQuality(resume, output).diagnostics).toEqual({ fields, reviews });
+    const marker = "unregistered-private-value";
+    Object.assign(output.candidates[0]!, { id: marker, text: marker, skillLabels: [marker] });
+    const result = evaluateDocumentQuality(resume, output);
+    expect(result.diagnostics).toEqual({
+      fields: { ...fields, registeredForm: 2, registeredFormAtSource: 2, skillSetAtSource: 1, strictJoint: 2 }, reviews,
+    });
+    expect(JSON.stringify(result.diagnostics)).not.toContain(marker);
+    expect(result.passed).toBe(false);
+  });
+
+  it.each([
+    {
+      name: "terminal punctuation", counts: { exactSource: 2 },
+      change: (item: OracleCandidate) => { item.source.quote = item.source.quote.slice(0, -1); },
+    }, {
+      name: "unregistered rewording", counts: { registeredForm: 2, registeredFormAtSource: 2 },
+      change: (item: OracleCandidate) => { item.text = "Aggregated records in SQL following the mentor's example"; },
+    }, {
+      name: "expanded skill name", counts: { skillSetAtSource: 1 },
+      change: (item: OracleCandidate) => { item.skillLabels = ["Structured Query Language"]; },
+    }, {
+      name: "wrong kind", counts: { kindAtSource: 2 },
+      change: (item: OracleCandidate) => { item.kind = "skill-claim"; },
+    }, {
+      name: "unrelated substring in the right segment",
+      counts: { exactSource: 2, sourceIncludingTerminalOmission: 2, registeredFormAtSource: 2, kindAtSource: 2, skillSetAtSource: 1 },
+      change: (item: OracleCandidate) => { item.source.quote = "销售报表项目"; },
+    },
+  ])("separates $name from other components while retaining the strict miss", ({ change, counts }) => {
+    const output = oracle(resume);
+    change(output.candidates[0]!);
+    const result = evaluateDocumentQuality(resume, output);
+    expect(result.diagnostics).toEqual({ fields: { ...fields, ...counts, strictJoint: 2 }, reviews });
+    expect(result).toMatchObject({ passed: false, recall: 2 / 3, retainedSourceValidity: 1,
+      failures: ["critical-recall", "normal-prefill", "unmatched-or-duplicate-candidate"] });
+  });
+
+  it("requires the registered form and annotated span on the same observation for the paired count", () => {
+    const output = oracle(resume);
+    [output.candidates[0]!.source, output.candidates[1]!.source] = [output.candidates[1]!.source, output.candidates[0]!.source];
+    const result = evaluateDocumentQuality(resume, output);
+    expect(result.diagnostics).toEqual({ fields: { ...fields, registeredFormAtSource: 1, skillSetAtSource: 0, strictJoint: 1 }, reviews });
+    expect(result).toMatchObject({ passed: false, recall: 1 / 3, retainedSourceValidity: 1 });
+  });
+
+  it("reports only annotated must/preferred levels and preserves the strict assignment for classification", () => {
+    const fixture = structuredClone(document);
+    fixture.goldFields = fixture.goldFields.slice(0, 2);
+    fixture.goldFields[1] = { ...fixture.goldFields[0]!, id: "overlapping-field", requirementLevel: "preferred", selfLevelHint: null };
+    const output = oracle(fixture);
+    // Both candidates are strict matches for either field. The frozen traversal
+    // assigns the second candidate to field 0, independently of its level.
+    expect(evaluateDocumentQuality(fixture, output)).toMatchObject({
+      passed: false, recall: 1, classificationAccuracy: 0,
+      diagnostics: { fields: { expectedClassifications: 2, requirementLevelAtSource: 2, strictJoint: 2 } },
+    });
+    output.candidates[0]!.requirementLevel = "preferred";
+    expect(evaluateDocumentQuality(fixture, output)).toMatchObject({
+      passed: false, recall: 1, classificationAccuracy: 0.5,
+      diagnostics: { fields: { expectedClassifications: 2, requirementLevelAtSource: 1, strictJoint: 2 } },
+    });
+    const conflicted = corpus.documents.find(({ id }) => id === "jd-12")!;
+    expect(evaluateDocumentQuality(conflicted, oracle(conflicted)).diagnostics?.fields.expectedClassifications).toBe(0);
+  });
+
+  it("distinguishes wrong review codes, sources, missing and extra points", () => {
+    const output = oracle(resume);
+    const original = structuredClone(output.reviewPoints[0]!);
+    output.reviewPoints[0]!.code = "missing-information";
+    expect(evaluateDocumentQuality(resume, output).diagnostics?.reviews).toEqual({ ...reviews, code: 0, strictJoint: 0 });
+    output.reviewPoints[0] = { ...original, source: { ...resume.goldFields[1]!.source } };
+    expect(evaluateDocumentQuality(resume, output).diagnostics?.reviews).toEqual({ ...reviews, exactSource: 0, strictJoint: 0 });
+    output.reviewPoints.push(original);
+    const excess = evaluateDocumentQuality(resume, output);
+    expect(excess.diagnostics?.reviews).toEqual({ ...reviews, returned: 2 });
+    expect(excess.failures).toContain("unexpected-review-point");
+    output.reviewPoints = [];
+    const missing = evaluateDocumentQuality(resume, output);
+    expect(missing.diagnostics?.reviews).toEqual({ expected: 1, returned: 0, code: 0, exactSource: 0, strictJoint: 0 });
+    expect(missing.failures).toContain("missing-review-point");
+  });
+
+  it("counts duplicates at most once per annotation within each dimension", () => {
+    const output = oracle(resume);
+    output.candidates[1] = { ...output.candidates[0]!, id: "different-id" };
+    const result = evaluateDocumentQuality(resume, output);
+    expect(result.diagnostics).toEqual({ fields: { ...fields, exactSource: 2, sourceIncludingTerminalOmission: 2,
+      registeredForm: 2, registeredFormAtSource: 2, kindAtSource: 2, skillSetAtSource: 1, strictJoint: 2 }, reviews });
+    expect(result).toMatchObject({ passed: false, recall: 2 / 3 });
+  });
+
+  it("distinguishes a valid empty observation from an unavailable or stale envelope", () => {
+    const output = oracle(resume);
+    const empty = evaluateDocumentQuality(resume, { ...output, candidates: [], reviewPoints: [] });
+    expect(empty.diagnostics).toEqual({ fields: { expected: 3, returned: 0, exactSource: 0,
+      sourceIncludingTerminalOmission: 0, registeredForm: 0, registeredFormAtSource: 0, kindAtSource: 0,
+      expectedSkillSets: 2, skillSetAtSource: 0, expectedClassifications: 0, requirementLevelAtSource: 0, strictJoint: 0 },
+      reviews: { expected: 1, returned: 0, code: 0, exactSource: 0, strictJoint: 0 } });
+    for (const invalid of [
+      undefined, { ...output, extra: true }, { ...output, textVersionId: "old-version" },
+      { ...output, candidates: [...output.candidates, { text: "unvalidated" }] },
+      { ...output, candidates: [...output.candidates, output.candidates[0]] },
+      { ...output, reviewPoints: [...output.reviewPoints, output.reviewPoints[0]] },
+      { ...output, reviewPoints: [{ code: "unregistered-free-text", source: output.reviewPoints[0]!.source }] },
+      { ...output, reviewPoints: [{ code: "missing-information", source: { ...output.reviewPoints[0]!.source, quote: "fabricated" } }] },
+    ]) {
+      expect(evaluateDocumentQuality(resume, invalid).diagnostics).toBeNull();
+    }
+  });
+
+  it("handles the extraction byte limit when optional empty reviews were omitted", () => {
+    const output = oracle(resume);
+    output.candidates = Array.from({ length: 100 }, (_, index) => ({
+      ...output.candidates[0]!, id: `bounded-${index}`, text: "x", selfLevelHint: null,
+    }));
+    output.reviewPoints = [];
+    const extraction = { schemaVersion: DOCUMENT_SCHEMA_VERSION, items: output.candidates };
+    let remaining = MAX_DOCUMENT_ITEMS_JSON_BYTES - Buffer.byteLength(JSON.stringify(extraction));
+    for (const candidate of output.candidates) {
+      const bytes = Math.min(remaining, 999 * 2);
+      candidate.text += "é".repeat(Math.floor(bytes / 2)) + "a".repeat(bytes % 2);
+      remaining -= bytes;
+    }
+    expect(Buffer.byteLength(JSON.stringify(extraction))).toBe(MAX_DOCUMENT_ITEMS_JSON_BYTES);
+    expect(evaluateDocumentQuality(resume, output).diagnostics?.fields.returned).toBe(100);
+    output.candidates.at(-1)!.text += "a";
+    expect(evaluateDocumentQuality(resume, output).diagnostics).toBeNull();
   });
 });

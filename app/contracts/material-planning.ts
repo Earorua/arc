@@ -5,7 +5,7 @@ import { generatePlanningRequestSchema, materialPlanningReferenceSchema, plannin
 export { materialPlanningReferenceSchema } from "./planning-api";
 import { canonicalJson } from "../lib/planning/fingerprint";
 import {
-  DOCUMENT_SCHEMA_VERSION, MAX_MATERIAL_CONTEXT_JSON_BYTES, boundedMaterialJson, confirmedMaterialItemSchema,
+  DOCUMENT_SCHEMA_VERSION, MAX_MATERIAL_CONTEXT_JSON_BYTES, MAX_MATERIAL_SKILL_LABELS_PER_ITEM, boundedMaterialJson, confirmedMaterialItemSchema,
   materialDigestSchema, materialGoalScopeSchema, materialIdSchema, materialOwnerIdSchema, materialRevisionSchema, materialScopeSchema,
   materialSelectionEntriesSchema, materialSelectionEntrySchema, materialSelectionRefSchema, materialTimestampSchema, materialVersionSchema,
 } from "./documents";
@@ -73,8 +73,9 @@ export const materialContextPreviewSchema = boundedMaterialJson(z.object({
   itemReferences: z.array(z.object({ id: materialIdSchema, confirmationId: materialIdSchema, itemId: materialIdSchema }).strict()).max(500).optional(),
   skillMappings: materialSkillMappingsSchema.optional(),
   priorities: z.array(z.object({ skillId: materialIdSchema, tier: z.number().int().min(0).max(5), itemIds: z.array(materialIdSchema).max(500) }).strict()).max(64),
-  issues: z.array(z.object({ code: z.enum(["ambiguous-mapping", "self-assessment-conflict", "uncovered", "source-unavailable", "target-infeasible"]), itemIds: z.array(materialIdSchema).max(500), skillIds: z.array(materialIdSchema).max(64) }).strict()).max(500),
-  uncoveredLabels: z.array(z.string().trim().min(1).max(100)).max(500),
+  // At most one individual issue per fact, a shared uncovered group, and the target issue.
+  issues: z.array(z.object({ code: z.enum(["ambiguous-mapping", "self-assessment-conflict", "uncovered", "source-unavailable", "target-infeasible"]), itemIds: z.array(materialIdSchema).max(500), skillIds: z.array(materialIdSchema).max(64) }).strict()).max(502),
+  uncoveredLabels: z.array(z.string().trim().min(1).max(100)).max(500 * MAX_MATERIAL_SKILL_LABELS_PER_ITEM),
 }).strict(), MAX_MATERIAL_CONTEXT_JSON_BYTES);
 export const createMaterialContextRequestSchema = boundedMaterialJson(z.object({
   selectionRef: materialSelectionRefSchema, scope: materialScopeSchema, source: planningGenerateSourceSchema,

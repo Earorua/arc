@@ -29,6 +29,17 @@ const reply = (id: string) => Response.json({ id, model: "approved-model", usage
 const now = () => new Date("2026-11-04T08:00:00.000Z");
 afterEach(() => vi.unstubAllGlobals());
 describe("model qualification offline guards", () => {
+  it("withholds component diagnostics from rejected production envelopes while preserving a valid empty extraction", async () => {
+    let i = 0;
+    const transport = fixtureHttp(() => Response.json({ id: "envelope-fixture-" + ++i, model: "approved-model",
+      usage: { prompt_tokens: 100, completion_tokens: 100, cost: 0.0001 }, choices: [{ message: {
+        content: JSON.stringify({ schemaVersion: "2026.11.1", items: [], ...(i === 1 ? { invalid: "private-omitted-value" } : {}) }),
+      } }] }));
+    const result = await runDocumentQualification(environment(), { fetch: transport, checkpoint: async () => {}, mode: "offline-test", now });
+    expect(result.documents[0]?.quality).toMatchObject({ diagnostics: null, failures: expect.arrayContaining(["production-extraction-invalid"]) });
+    expect(result.documents[1]?.quality?.diagnostics?.fields).toMatchObject({ returned: 0 });
+    expect(JSON.stringify(result)).not.toContain("private-omitted-value");
+  });
   it("requires the owner authorization to bind the exact generation model separately from the chat alias", () => {
     const env = environment();
     const settings = JSON.parse(env.ARC_DOCUMENT_QUALIFICATION_SETTINGS);

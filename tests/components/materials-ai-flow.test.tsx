@@ -2,6 +2,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MaterialTextPanel } from "../../app/components/materials/material-text-panel";
+import { MaterialConfirmation } from "../../app/components/materials/material-confirmation";
+import { validateDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { mapMaterialItems } from "../../app/lib/materials/skill-mapper";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import type { DocumentReviewDraft } from "../../app/contracts/documents";
 import type { DocumentsClient } from "../../app/lib/documents-client";
 import type { MaterialDocumentDraftRef } from "../../app/lib/use-material-selection";
 
@@ -31,6 +37,39 @@ function fixture() {
 }
 describe("AI-first material review", () => {
   afterEach(cleanup);
+  it("can confirm a source-span fact with no skill proposal without selecting a skill hidden in its text", () => {
+    const text = "PostgreSQL is used by partners.";
+    const reference = { ...receipt, ownerId: "owner", lifecycle: "active", text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+    const projection = validateDocumentExtraction({ schemaVersion: "2026.11.1", items: [{ id: "fact", kind: "requirement", text, requirementLevel: "must", skillLabels: [], selfLevelHint: null, source: { segmentId: "segment-1", quote: text } }] }, "owner", reference);
+    const review: DocumentReviewDraft = { id: "review", schemaVersion: "2026.11.1", ...receipt, origin: "ai", extractionId: "extraction", ...projection, updatedAt: draft.updatedAt };
+    const confirmed = vi.fn();
+    render(<MaterialConfirmation draft={review} text={text} saving={false} confirmed={false} onItemsChange={() => undefined}
+      onConfirm={() => confirmed(mapMaterialItems(review.items, flagshipBlueprint, flagshipUnitRegistry).flatMap(mapping => mapping.skillIds))} />);
+    expect(screen.queryByRole("button", { name: /移除技能词/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(confirmed).toHaveBeenCalledWith([]);
+  });
+  it("shows the proposed skill words beside their fact and submits only the terms the user kept", () => {
+    const sourceRef = { documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", start: 0, end: 20 };
+    const initial: DocumentReviewDraft = { id: "review-a", schemaVersion: "2026.11.1", ...receipt, extractionId: "extract-a", origin: "ai", updatedAt: draft.updatedAt,
+      items: [{ id: "query", kind: "requirement", text: "Improve slow queries", origin: "extracted", requirementLevel: "unspecified", sourceRef, skillLabels: ["PostgreSQL", "Jest"] }], selfAssessmentHints: [] };
+    const confirmed = vi.fn();
+    function Harness() {
+      const [value, setValue] = useState(initial);
+      return <MaterialConfirmation draft={value} text="PostgreSQL with Jest" saving={false} confirmed={false} documentKind="jd"
+        onItemsChange={items => setValue({ ...value, items })} onConfirm={() => confirmed(value.items)} />;
+    }
+    render(<Harness />);
+    fireEvent.click(screen.getByRole("button", { name: "移除技能词 Jest" }));
+    fireEvent.change(screen.getByLabelText("事实 1 要求类型"), { target: { value: "must" } });
+    expect(screen.getByRole("button", { name: "移除技能词 PostgreSQL" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(confirmed).toHaveBeenLastCalledWith([expect.objectContaining({ skillLabels: ["PostgreSQL"], requirementLevel: "must" })]);
+    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "Coordinate the Jest training calendar" } });
+    expect(screen.queryByRole("button", { name: "移除技能词 PostgreSQL" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(confirmed.mock.lastCall?.[0][0].skillLabels).toEqual([]);
+  });
   it("requires explicit permission, then pre-fills review without granting self levels", async () => {
     const { Harness, invoke, adopted } = fixture(); render(<Harness />);
     fireEvent.change(screen.getByLabelText("简历正文"), { target: { value: "SQL 原文" } });
@@ -44,6 +83,17 @@ describe("AI-first material review", () => {
     await screen.findByText("已确认，可用于本次规划。"); expect(adopted).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "采用 SQL 的需指导完成建议" }));
     expect(adopted).toHaveBeenCalledWith({ sql: "guided" });
+  });
+  it("removes the associated self-assessment suggestion when the user drops its fact", async () => {
+    const { Harness, invoke, adopted } = fixture(); render(<Harness />);
+    fireEvent.change(screen.getByLabelText("简历正文"), { target: { value: "SQL 原文" } });
+    fireEvent.click(screen.getByLabelText(/允许将当前文本/));
+    fireEvent.click(screen.getByRole("button", { name: "保存并 AI 分析" }));
+    await screen.findByRole("button", { name: "采用 SQL 的需指导完成建议" });
+    fireEvent.click(screen.getByRole("button", { name: "移除事实 1" }));
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith("saveDocumentReviewDraft", expect.objectContaining({ items: [], selfAssessmentHints: [] }), expect.anything()));
+    expect(screen.queryByRole("button", { name: "采用 SQL 的需指导完成建议" })).not.toBeInTheDocument();
+    expect(adopted).not.toHaveBeenCalled();
   });
   it("shows the applicable Kimi privacy terms before agreeing and requires fresh consent when the policy changes", () => {
     const { invoke } = fixture();

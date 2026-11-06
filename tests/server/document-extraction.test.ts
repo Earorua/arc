@@ -43,3 +43,25 @@ it("enforces one byte budget across candidates and source-bound review points", 
     expect(new TextEncoder().encode(JSON.stringify(oversized)).byteLength).toBeGreaterThan(128 * 1024);
     expect(() => validateDocumentExtraction(oversized, "owner", { ...reference, text: spans.join(""), segments })).toThrow("invalid-content");
 });
+it("preserves an explicit empty skill list even when the new source-span fact itself names a skill", () => {
+    const fact = { ...candidate.items[0]!, text: "SQL is required", skillLabels: [], source: { segmentId: "segment-1", quote: "SQL is required" } };
+    expect(validateDocumentExtraction({ ...candidate, items: [fact] }, "owner", reference).items[0]?.skillLabels).toEqual([]);
+    expect(() => validateDocumentExtraction({ reviewProjection: "literal-skill-labels-v1", candidate }, "owner", reference)).toThrow("invalid-content");
+});
+it("projects only hints supported by the cited words, preserving the original hint indices", () => {
+    const fact = { ...candidate.items[0]!, kind: "experience", requirementLevel: null, skillLabels: ["Rust", "SQL"], selfLevelHint: "guided" };
+    const { items, selfAssessmentHints } = validateDocumentExtraction({ ...candidate, items: [fact] }, "owner", reference);
+    expect(items[0]?.skillLabels).toEqual(["SQL"]);
+    expect(selfAssessmentHints).toEqual([{ id: "hint-fact-1", candidateId: "fact", skillLabel: "SQL", level: "guided" }]);
+});
+it("also bounds the stored projection with its verified source references and skill words", () => {
+    const span = "PostgreSQL";
+    const candidateItems = Array.from({ length: 100 }, (_, index) => ({
+        ...candidate.items[0]!, id: `fact-${index}`, text: "x".repeat(900), skillLabels: [span], source: { segmentId: "segment-1", quote: span },
+    }));
+    const input = { schemaVersion: "2026.11.1", items: candidateItems };
+    expect(new TextEncoder().encode(JSON.stringify(input)).byteLength).toBeLessThan(128 * 1024);
+    const longId = "a".repeat(240);
+    expect(() => validateDocumentExtraction(input, "owner", { ...reference, documentId: longId, documentVersionId: longId, textVersionId: longId,
+        text: span, segments: [{ id: "segment-1", start: 0, end: span.length }] })).toThrow("invalid-content");
+});

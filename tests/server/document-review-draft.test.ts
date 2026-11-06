@@ -6,6 +6,7 @@ import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
 import { DocumentStorage } from "../../app/server/documents/storage";
 import { ReviewService } from "../../app/server/documents/review-service";
 import { materialsClock } from "../helpers/materials-d1";
+import { MAX_DOCUMENT_ITEMS_JSON_BYTES, utf8Bytes } from "../../app/contracts/documents";
 const item = {
     id: "fact",
     kind: "skill-claim" as const,
@@ -56,6 +57,22 @@ it("does not grant source authority to forged extracted items", async () => {
         expectedRevision: 0,
         mutationId: "save"
     })).rejects.toBeDefined();
+});
+it("rejects a review that cannot fit its saved draft envelope before changing the user's revision", async () => {
+    const { services, owner } = setup();
+    const doc = await services.createDocument(owner, { kind: "resume", displayName: "R", text: "SQL", mutationId: "create" });
+    const items = Array.from({ length: 100 }, (_, index) => ({ ...item, id: `fact-${index}`, text: "甲".repeat(395) }));
+    const request = { documentId: doc.documentId, textVersionId: doc.textVersionId, extractionId: null, items,
+        selfAssessmentHints: [], expectedRevision: 0, mutationId: "save" };
+    let remaining = MAX_DOCUMENT_ITEMS_JSON_BYTES - utf8Bytes(JSON.stringify(request));
+    for (const fact of items) {
+        const add = Math.min(1000 - fact.text.length, remaining);
+        fact.text += "x".repeat(add);
+        remaining -= add;
+    }
+    expect(utf8Bytes(JSON.stringify(request))).toBe(MAX_DOCUMENT_ITEMS_JSON_BYTES);
+    await expect(services.saveDocumentReviewDraft(owner, request)).rejects.toMatchObject({ code: "invalid-content" });
+    expect((await services.readDocumentReviewDraft(owner, { documentId: doc.documentId, textVersionId: doc.textVersionId })).draft).toBeNull();
 });
 it("initializes AI review once and preserves user edits when a later extraction arrives", async () => {
     const { services, owner, db, bucket } = setup();

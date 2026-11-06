@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { createHash } from "node:crypto";
 import * as materials from "../../app/contracts/material-planning";
-import { materialScopeSchema } from "../../app/contracts/documents";
+import { MAX_MATERIAL_CONTEXT_JSON_BYTES, materialScopeSchema, utf8Bytes } from "../../app/contracts/documents";
 import { generatePlanningRequestSchema } from "../../app/contracts/planning-api";
 import { canonicalJson, fingerprint } from "../../app/lib/planning/fingerprint";
+
+it("continues to reject expanded uncovered lists over the total preview byte bound", () => {
+  const preview = { confirmedItems: [], priorities: [], issues: [], uncoveredLabels: Array.from({ length: 1000 }, (_, index) => `${"界".repeat(96)}${index}`) };
+  expect(utf8Bytes(JSON.stringify(preview))).toBeGreaterThan(MAX_MATERIAL_CONTEXT_JSON_BYTES);
+  const parsed = materials.materialContextPreviewSchema.safeParse(preview);
+  expect(parsed.success).toBe(false);
+  if (!parsed.success) expect(parsed.error.issues.map(issue => issue.message)).toEqual(["Serialized material exceeds byte limit"]);
+});
 
 const scope = { kind: "draft", draftId: "draft-a", previousGoalId: null } as const;
 const audit = { id: "audit-a", schemaVersion: "2026.08.1", blueprintId: "ai-native-full-stack-engineer", blueprintVersion: "2026.08.1", answers: [{ skillId: "sql", level: "uncertain", evidenceRefs: [] }], evidence: [], createdBy: "owner-a", inputFingerprint: "p2-audit" };
