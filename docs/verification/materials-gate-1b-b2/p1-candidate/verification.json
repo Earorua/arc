@@ -1,0 +1,129 @@
+{
+  "candidate": "ada498f5700be3d99b824f7d38fee35f8d88bbcc",
+  "tree": "591e0140cbd9892594c45cea7efc187c33018534",
+  "bundleSha256": "6cd51cca7516551c7bcba8ba3abef83c7268275e0a54c355eea87845e4dc2cf1",
+  "checkedAt": "2026-11-06T11:18:15.517Z",
+  "steps": {
+    "typecheck": {
+      "exitCode": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    "lint": {
+      "exitCode": 0,
+      "logSha256": "60947daa23a3316fd918f413c8f409c0b951b23b75958e490f79693c9a50d3e5",
+      "nonLoopbackDenials": 0
+    },
+    "unit": {
+      "exitCode": 0,
+      "logSha256": "4970221097eaed02518453179a2c22232b1e0bcdbd41ecb470c4a60079631418",
+      "nonLoopbackDenials": 0
+    },
+    "node": {
+      "exitCode": 0,
+      "logSha256": "53886a502ce6add070a58e596e196c463cdb867531cf4eda33ee784d1207e6df",
+      "nonLoopbackDenials": 0
+    },
+    "site": {
+      "exitCode": 0,
+      "logSha256": "2807760406c2c1926878e22082cd770e22110e3ba5ebe6de8fa2e95f3ae3b7fc",
+      "nonLoopbackDenials": 0
+    },
+    "rendered": {
+      "exitCode": 0,
+      "logSha256": "8c7cf7113f323a47861b16ffe73a713014e0a9a24c160e323fad351f03656615",
+      "nonLoopbackDenials": 0
+    },
+    "pair": {
+      "exitCode": 0,
+      "logSha256": "60ca4a94bbf8c2feaae1261f3669dc259d69b6398bccfb66ae0c834a6c6b39f0",
+      "nonLoopbackDenials": 0
+    }
+  },
+  "vitest": {
+    "files": 360,
+    "passed": 7666,
+    "failed": 0
+  },
+  "node": {
+    "files": 9,
+    "passed": 290,
+    "failed": 0
+  },
+  "rendered": {
+    "passed": 5
+  },
+  "typecheckExit": 0,
+  "lint": {
+    "errors": 0,
+    "existingWarnings": 4
+  },
+  "researchBaselineModified": false,
+  "offlineControls": "docs/verification/materials-gate-1b-b2/p1-candidate/offline-controls.json",
+  "localExecutorRuntime": {
+    "environment": "local workerd / Miniflare",
+    "compatibilityDate": "2026-05-15",
+    "cases": 3,
+    "passed": 3,
+    "modelRequests": 0,
+    "deployments": 0
+  },
+  "futureFullBudgetExperiment": {
+    "status": "OFFLINE_ONLY_NOT_AUTHORIZED",
+    "modelCalls": 0,
+    "actualFeesMicroUsd": 0,
+    "syntheticCases": 24,
+    "outputTokenCap": 4096,
+    "largestDefensiveInputBound": 4750,
+    "previousInputCap": 16000,
+    "matchingPaidBodyDigests": 24,
+    "fullReserveWith16000": 1751040,
+    "fullReserveWith4750": 1211040,
+    "conditionalKeyBalanceAfterWorstPilot": 1215095,
+    "marginIfNoOtherCharges": 4055
+  },
+  "preliminaryRuns": {
+    "developmentVitest": {
+      "passed": 7648,
+      "failed": 5,
+      "logSha256": "55061ae0dc38a4536c4bc765d96a9de27476e44ac8369efa1331e37de1b60a13"
+    },
+    "chineseJdRedBeforeRepair": {
+      "failed": 3,
+      "logSha256": "99260c21c1a8dcf012b7a2e83625bc3066b9491fe2fefdf0841fddc996fedc85"
+    },
+    "intermediateNode": {
+      "passed": 283,
+      "failed": 5,
+      "cancelled": 2,
+      "causes": [
+        "shared local D1 connection EADDRINUSE",
+        "two local recovery smoke timeouts"
+      ],
+      "logSha256": "8b78142bed1b308a0fdc12b414d13d601d35b7c16412fe39573c6b87ce24c24f"
+    },
+    "finalValidation": "fixed source bytes throughout each final suite; six Vitest workers and serial Node test files; no changed thresholds or skips"
+  },
+  "artifacts": {
+    "mode": "closed",
+    "files": 390,
+    "treeSha256": "c34813a3f9d304c8da00ffd25feb477c4b729794488299f1724b6c6206f3460f",
+    "index": "artifact-index.json",
+    "verifiedAgainstDisk": true
+  },
+  "cleanBuild": {
+    "sourceFilesVerified": 977,
+    "snapshotFiles": 1381,
+    "credentialsPassed": false,
+    "nonLoopbackAttempts": 0
+  },
+  "scope": {
+    "modelCalls": 0,
+    "realGenerationGets": 0,
+    "spendMicroUsd": 0,
+    "remoteMigrations": 0,
+    "deployments": 0,
+    "pilotApproved": false,
+    "b2LastOutcome": "R2 FAIL"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "mode": "offline-injected-only",
+  "networkRequests": 0,
+  "realModelScore": null,
+  "legacyBodyCommitments": 24,
+  "full": 24,
+  "supplements": 6,
+  "reviewOnly": 1,
+  "punctuationControls": 74,
+  "legacyJsonBytes": 30784,
+  "compactJsonBytes": 23551,
+  "chargedMicroUsd": 0
+}

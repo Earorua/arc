@@ -1,0 +1,102 @@
+{
+  "packet": "B2-KIMI-20261106-P1",
+  "status": "PROPOSAL_ONLY",
+  "proposedRunId": "materials-b2-diagnostic-pilot-kimi-spans-p1",
+  "candidateCommit": "ada498f5700be3d99b824f7d38fee35f8d88bbcc",
+  "candidateTree": "591e0140cbd9892594c45cea7efc187c33018534",
+  "sourceBundleSha256": "6cd51cca7516551c7bcba8ba3abef83c7268275e0a54c355eea87845e4dc2cf1",
+  "sourceManifestSha256": "c17029df67392e8e4c6c12edb6b645c6b0c286078cf1cb669744c9bf532364fc",
+  "scope": {
+    "purpose": "materials-b2-diagnostic-pilot-v1",
+    "maxRequests": 4,
+    "maxPostsPerDocument": 1,
+    "maxGetsPerDocument": 3,
+    "reservationMicroUsd": 72960,
+    "maxTotalBudgetMicroUsd": 300000,
+    "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+    "configurationSha256": "0d88cf478e6959c22c5cd22717f5f47b21a62d5b5e889b1a0273b3a41ddb5d93",
+    "documents": [
+      {
+        "documentId": "resume-01",
+        "documentVersionId": "resume-01-version-1",
+        "textVersionId": "resume-01-text-1",
+        "sourceSha256": "5e86e6dcd87c9011ac5eadcea7e55a91b87746fb8cf7d5922755bfaf15910a95",
+        "bodySha256": "e7fcf9ca4d3beef417de289c4922dacab09a084da5aa671a9ae8cc1d7fd599e6"
+      },
+      {
+        "documentId": "resume-08",
+        "documentVersionId": "resume-08-version-1",
+        "textVersionId": "resume-08-text-1",
+        "sourceSha256": "ad6ae2ed8374e692a9cdc2f28cf2aaba818cb2297680656fb8eeb735b04ae871",
+        "bodySha256": "001219d8ea864e913ad818bdda76ac55b15446c68f1d843e762a784f578ca007"
+      },
+      {
+        "documentId": "jd-01",
+        "documentVersionId": "jd-01-version-1",
+        "textVersionId": "jd-01-text-1",
+        "sourceSha256": "6c125c0f259b530f50d1c3d55260ce865439f51465edea3217c56420b1f8c95c",
+        "bodySha256": "a2d30fe44ee15269b4936526ff3fcfea445209325fc49c7983cbb0bab19529f1"
+      },
+      {
+        "documentId": "jd-11",
+        "documentVersionId": "jd-11-version-1",
+        "textVersionId": "jd-11-text-1",
+        "sourceSha256": "2a8e533613e4201c422e41773c70ded5773bebde13005dd50a5f33f88ea54efb",
+        "bodySha256": "0113f16b023998669124917d2508da7dca35e78e372090b8cb07834586c0d702"
+      }
+    ]
+  },
+  "accounting": {
+    "fullReserveMicroUsd": 291840,
+    "totalCapMicroUsd": 300000,
+    "perJobCapMicroUsd": 75000,
+    "previousFourSettledMicroUsd": 100623,
+    "lifetimeKeyCapMicroUsd": 2000000,
+    "priorProjectSpendMicroUsd": 493065,
+    "conditionalRemainingMicroUsd": 1506935,
+    "requiresFreshKeyAndCreditReadback": true
+  },
+  "publicCatalog": {
+    "reads": [
+      {
+        "source": "model",
+        "url": "https://openrouter.ai/api/v1/model/moonshotai/kimi-k3.1-pro",
+        "status": 200,
+        "at": "2026-11-06T10:34:54.2232442Z",
+        "sha256": "39e0cfbb4eddea57c5f1342b4f26a15f4780be7898d07fc701a232728e9d6bca"
+      },
+      {
+        "source": "endpoints",
+        "url": "https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints",
+        "status": 200,
+        "at": "2026-11-06T10:34:54.4801543Z",
+        "sha256": "65c2ae9dc71dd59070e93752a7381054fa8430f060fe1de847cf1a3efafdf300"
+      },
+      {
+        "source": "zdr",
+        "url": "https://openrouter.ai/api/v1/endpoints/zdr",
+        "status": 200,
+        "at": "2026-11-06T10:34:55.6566337Z",
+        "sha256": "6eb931d78f7d2a8c8879230c6753e1382f7cdf5bd9dcffe45d22c9dab98f2ace"
+      }
+    ],
+    "model": "moonshotai/kimi-k3.1-pro",
+    "canonicalModel": "moonshotai/kimi-k3.1-pro-20261023",
+    "provider": "Moonshot AI",
+    "route": "moonshotai/mxfp4",
+    "usdPerMillionTokens": {
+      "input": 2,
+      "output": 10,
+      "cachedInput": 0.2
+    },
+    "safetyRetention": false,
+    "implicitCache": true,
+    "retentionMaximumPublished": false
+  },
+  "privacyScope": "four synthetic documents only",
+  "allowedStartWindowSeconds": 7200,
+  "maximumSuiteSeconds": 900,
+  "formalB2ReleaseEvidence": false,
+  "realRequests": 0,
+  "newFeesMicroUsd": 0
+}
