@@ -87,7 +87,7 @@ function createService(
       repository,
       intelligence: { getPublished },
       registry,
-      createId: () => "event-service-1",
+      createId: () => crypto.randomUUID(),
       now: () => new Date("2026-08-17T00:00:00.000Z"),
     }),
   };
@@ -423,6 +423,29 @@ describe("PlanningService", () => {
     const replay = await service.appendEvent(userId, input);
     expect(replay).toEqual(first);
     expect(repository.saveEvent).toHaveBeenCalledOnce();
+  });
+
+  it("binds a decision receipt to its original operation, base and proposal on retries and concurrent writes", async () => {
+    const generated = await generatedResult();
+    const stored = (payload: unknown) => ({ ownerId: userId, goalId, payload });
+    const initial = createService(fakeRepository({ load: vi.fn(async () => stored(generated.workspace)) })).service;
+    const baseVersionId = generated.workspace.activePlanVersionId;
+    const proposed = await initial.appendEvent(userId, { mutationId: "delay-one", baseVersionId,
+      event: { kind: "delayed", unitId: generated.workspace.dailyUnits[0]!.id, planningDate: "2026-08-17" } });
+    const decision = { mutationId: "decide-one", baseVersionId, candidatePlanVersionId: proposed.workspace.pendingPlanVersionId! };
+    const loaded = vi.fn(async () => stored(proposed.workspace));
+    const first = await createService(fakeRepository({ load: loaded })).service.discardReplan(userId, decision);
+    const receipt = vi.fn(async () => stored(first));
+    const replay = createService(fakeRepository({ findMutation: receipt })).service;
+    await expect(replay.discardReplan(userId, decision)).resolves.toEqual(first);
+    await expect(replay.acceptReplan(userId, decision)).rejects.toBeInstanceOf(PlanningConflictError);
+    await expect(replay.discardReplan(userId, { ...decision, candidatePlanVersionId: "another-candidate" })).rejects.toBeInstanceOf(PlanningConflictError);
+    await expect(replay.discardReplan(userId, { ...decision, baseVersionId: "another-base" })).rejects.toBeInstanceOf(PlanningConflictError);
+    await expect(replay.discardReplan(userId, { ...decision, mutationId: "another-mutation" })).rejects.toBeInstanceOf(PlanningConflictError);
+    const race = createService(fakeRepository({ load: loaded, saveEvent: receipt })).service;
+    await expect(race.acceptReplan(userId, decision)).rejects.toBeInstanceOf(PlanningConflictError);
+    const unrelated = createService(fakeRepository({ findMutation: vi.fn(async () => stored(generated)) })).service;
+    await expect(unrelated.discardReplan(userId, decision)).rejects.toBeInstanceOf(PlanningConflictError);
   });
 
   it("keeps forbidden providers and legacy persistence outside the service boundary", () => {

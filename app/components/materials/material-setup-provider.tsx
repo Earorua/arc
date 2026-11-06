@@ -51,9 +51,25 @@ export function MaterialSetupSlot({ kind, skills, onAdoptLevels, disabled }: {
 }
 export function MaterialSelectionSummary({ disabled = false }: { disabled?: boolean }) {
   const state = useMaterialSetup();
-  const entries = state ? Object.entries(state.refs.slots) : [];
-  if (!state?.capabilities?.documentsEnabled || (!entries.length && !state.refs.supplements.length)) return null;
-  return <section className="material-selection-summary" aria-label="本次资料选择"><h2>本次采用的资料</h2><ul>{entries.map(([kind, ref]) => <li key={kind}>{kind === "resume" ? "简历" : "岗位 JD"} · {ref.confirmationId ? "事实已确认" : "待核对确认"}<button className="text-action" type="button" disabled={disabled} onClick={() => state.replaceSlot(kind as "resume" | "jd", null)}>移除{kind === "resume" ? "简历" : "JD"}选择</button></li>)}</ul><p>采用指定版本；之后修改原资料不会自动替换这次选择。</p></section>;
+  if (!state?.capabilities?.documentsEnabled) return null;
+  const { slots, supplements } = state.refs;
+  if (!slots.resume && !slots.jd && !supplements.length) return null;
+  return <section className="material-selection-summary" aria-label="本次资料选择">
+    <h2>本次采用的资料</h2>
+    <ul>
+      {(["resume", "jd"] as const).map(kind => {
+        const ref = slots[kind];
+        if (!ref) return null;
+        return <li key={kind}>{kind === "resume" ? "简历" : "岗位 JD"} · {ref.confirmationId ? "事实已确认" : "待核对确认"}
+          <button className="text-action" type="button" disabled={disabled} onClick={() => state.replaceSlot(kind, null)}>移除{kind === "resume" ? "简历" : "JD"}选择</button>
+        </li>;
+      })}
+      {supplements.map((ref, index) => <li key={ref.documentId}>补充资料 {index + 1} · {ref.confirmationId ? "事实已确认" : "待核对确认"}
+        <button className="text-action" type="button" disabled={disabled} onClick={() => state.setSupplements(supplements.filter(item => item.documentId !== ref.documentId))}>移除补充资料 {index + 1} 选择</button>
+      </li>)}
+    </ul>
+    <p>路线将采用本次选择的资料版本。</p>
+  </section>;
 }
 
 export function MaterialSetupLibrary() {

@@ -5,7 +5,7 @@ import type { usePlanningWorkspace } from "../../lib/use-planning-workspace";
 import type { MaterialPlanningReference } from "../../contracts/material-planning";
 import type { MaterialSelectionEntry } from "../../contracts/documents";
 import { planningDateForInstant } from "../../lib/planning/calendar";
-import { MaterialSetupProvider, useMaterialSetup } from "./material-setup-provider";
+import { MaterialSelectionSummary, MaterialSetupProvider, useMaterialSetup } from "./material-setup-provider";
 import { MaterialLibrary } from "./material-library";
 import { MaterialContextReview, type MaterialPreview } from "./material-context-review";
 import { MaterialHistory } from "./material-history";
@@ -31,6 +31,7 @@ function MaterialWorkspacePanel({ ownerId, planning }: { ownerId: string; planni
   const scopeKey = JSON.stringify({ scope, slots: state?.refs.slots, supplements: state?.refs.supplements });
   if (!state?.capabilities || (!state.capabilities.documentsEnabled && !state.capabilities.hasDocuments)) return null;
   const canPlan = state.capabilities.documentsEnabled && state.capabilities.planningEnabled;
+  const selectionLocked = busy || Boolean(workspace?.pendingPlanVersionId);
   async function detach({ documentId, documentVersionId, confirmationId, slot }: MaterialSelectionEntry) {
     if (!state || !scope || !planning || workspace?.pendingPlanVersionId || busy) return;
     const entry = { documentId, documentVersionId, confirmationId, slot };
@@ -53,15 +54,15 @@ function MaterialWorkspacePanel({ ownerId, planning }: { ownerId: string; planni
     try {
       const result = await state.runScoped(signal => state.client.request("materialReplan", { scope, ...preview.reference, mutationId: mutation.current!.id }, signal));
       if (!result) return;
-      setMessage(result.outcome === "no-change" ? result.message : "调整建议已生成。请在路线中比较，并明确接受后生效。");
+      if (result.outcome === "no-change") setMessage(result.message);
       await planning.retry();
     } catch { setMessage("资料或计划已变化，请重新读取并核对预览。"); }
     finally { setBusy(false); }
   }
   return <aside className="material-workspace-entry"><button className="text-action" type="button" aria-expanded={open} onClick={() => setOpen(value => !value)}>私人资料与规划依据</button>
     {open && <div><MaterialLibrary ownerId={ownerId} capabilities={state.capabilities} client={state.client}
-      currentUse={scope && state.ready && state.refs.adopted ? { entries: state.refs.adopted.entries, disabled: busy || Boolean(workspace?.pendingPlanVersionId), key: JSON.stringify(scope), detach } : undefined}
-      onSelect={!state.ready || !canPlan ? undefined : (kind, ref) => {
+      currentUse={scope && state.ready && state.refs.adopted ? { entries: state.refs.adopted.entries, disabled: selectionLocked, key: JSON.stringify(scope), detach } : undefined}
+      onSelect={!state.ready || !canPlan || selectionLocked ? undefined : (kind, ref) => {
       if (kind === "supplement") {
         const others = state.refs.supplements.filter(item => item.documentId !== ref.documentId);
         if (others.length >= 3) { setMessage("最多采用三份补充资料，请先移除一份。"); return; }
@@ -78,15 +79,15 @@ function MaterialWorkspacePanel({ ownerId, planning }: { ownerId: string; planni
         : <p>暂时无法核对当前路线采用的资料，请重试或刷新路线。</p>}
         <button type="button" onClick={() => state.retryRestore()}>重试读取已采用资料</button></div>
       : <p role="status">正在读取当前路线采用的资料…</p>)}
-    {canPlan && state.refs.supplements.map(ref => <p key={ref.documentId}>已选择补充资料<button className="text-action" type="button" onClick={() => state.setSupplements(state.refs.supplements.filter(item => item.documentId !== ref.documentId))}>从本次调整草稿移除这份补充资料</button></p>)}
-    {workspace && scope && sourceContext && <>{canPlan && <MaterialContextReview scope={scope} availableSkills={sourceContext.blueprint.skills} disabled={busy || Boolean(workspace.pendingPlanVersionId)} input={{
+    {canPlan && (!workspace || !sourceContext) && <MaterialSelectionSummary disabled={selectionLocked} />}
+    {workspace && scope && sourceContext && <>{canPlan && <MaterialContextReview scope={scope} availableSkills={sourceContext.blueprint.skills} disabled={selectionLocked} input={{
       source: sourceContext.reference.source === "research" ? { source: "research", researchRunId: sourceContext.reference.researchRunId } : { source: "flagship", roleId: "ai-native-full-stack-engineer" },
       audit: workspace.audit, availability: workspace.availability, target: workspace.target,
       planningDate: planningDateForInstant(new Date().toISOString(), workspace.availability.timeZone),
       selectedScope: workspace.pathVersions.find(path => path.id === workspace.activePathVersionId)?.scopeMode ?? null,
     }} onPreview={value => setPreview(value ? { ...value, key: scopeKey } : null)} />}
-    {canPlan && preview && <button type="button" disabled={busy || preview.key !== scopeKey || Boolean(workspace.pendingPlanVersionId)} onClick={() => void propose()}>生成当前路线调整建议</button>}
-    <MaterialHistory ownerId={ownerId} goalId={workspace.goalId} /></>}
-    {message && <p role="status">{message}</p>}</div>}
+    {canPlan && preview && <button type="button" disabled={selectionLocked || preview.key !== scopeKey} onClick={() => void propose()}>生成当前路线调整建议</button>}
+    <MaterialHistory key={workspace.revision} ownerId={ownerId} goalId={workspace.goalId} /></>}
+    {workspace?.pendingPlanVersionId ? <p role="status">调整建议已生成。请在路线中比较后选择接受或保留当前安排。</p> : message && <p role="status">{message}</p>}</div>}
   </aside>;
 }

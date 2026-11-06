@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MaterialTextPanel } from "../../app/components/materials/material-text-panel";
@@ -37,6 +37,34 @@ function fixture() {
 }
 describe("AI-first material review", () => {
   afterEach(cleanup);
+  it("keeps edits made during confirmation unconfirmed and uses the committed document revision on the next click", async () => {
+    const { Harness, invoke } = fixture(), read = invoke.getMockImplementation()!;
+    let confirmations = 0;
+    const gate = Promise.withResolvers<void>();
+    invoke.mockImplementation(async (method, input) => {
+      if (method !== "createDocumentConfirmation") return read(method, input);
+      confirmations++;
+      if (confirmations === 1) { await gate.promise; return { confirmationId: "old-sql", revision: 1 }; }
+      return { confirmationId: "new-python", revision: 2 };
+    });
+    render(<Harness />);
+    fireEvent.change(screen.getByLabelText("简历正文"), { target: { value: "SQL 原文" } });
+    fireEvent.click(screen.getByLabelText(/允许将当前文本/)); fireEvent.click(screen.getByRole("button", { name: "保存并 AI 分析" }));
+    await screen.findByDisplayValue("参与 SQL 查询练习");
+    const confirm = screen.getByRole("button", { name: "确认这些事实" });
+    act(() => { confirm.click(); confirm.click(); });
+    await waitFor(() => expect(confirmations).toBe(1));
+    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "Reviewed a Python report" } });
+    await waitFor(() => expect(invoke.mock.calls.some(([name]) => name === "saveDocumentReviewDraft")).toBe(true));
+    await act(async () => { gate.resolve(); await gate.promise; });
+    expect(screen.queryByText("已确认，可用于本次规划。")).not.toBeInTheDocument();
+    await waitFor(() => expect(confirm).toBeEnabled());
+    fireEvent.click(confirm);
+    await screen.findByText("已确认，可用于本次规划。");
+    const requests = invoke.mock.calls.filter(([name]) => name === "createDocumentConfirmation");
+    expect(requests).toHaveLength(2);
+    expect(requests[1]![1]).toMatchObject({ expectedRevision: 1, reviewRevision: 1, items: [expect.objectContaining({ text: "Reviewed a Python report" })] });
+  });
   it("can confirm a source-span fact with no skill proposal without selecting a skill hidden in its text", () => {
     const text = "PostgreSQL is used by partners.";
     const reference = { ...receipt, ownerId: "owner", lifecycle: "active", text, segments: [{ id: "segment-1", start: 0, end: text.length }] };

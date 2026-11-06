@@ -126,9 +126,11 @@ export class D1PlanningRepository implements PlanningRepository {
     `).bind(input.ownerId, scopeFor(input.goalId), input.mutationId)
       .first<IdempotencyRow>();
     if (!row) return null;
-    await this.assertMaterialReplay(input);
     const stored = parseStoredMutation(row.response_json);
     if (stored.ownerId !== input.ownerId || stored.goalId !== input.goalId) throw new PlanningNotFoundError();
+    const generationRequested = input.operation === "generation" || input.operation === "material-generation";
+    if (input.operation && (stored.kind === "generation") !== generationRequested) throw new PlanningConflictError();
+    await this.assertMaterialReplay(input);
     if (stored.kind === "generation") {
       const sourceReference = storedReference(stored);
       const sourceContext = await this.resolveReplaySource(input.ownerId, sourceReference, stored.result.workspace);
@@ -209,7 +211,8 @@ export class D1PlanningRepository implements PlanningRepository {
     const result = parseMutationResult(command.result);
     if (result.workspace.goalId !== command.goalId || result.workspace.revision !== 0) throw new PlanningUnavailableError();
     const sourceReference = parseSourceReference(command.sourceReference);
-    const mutationLookup = { ...command, ...(command.materialCommit ? { materialRequestDigest: command.materialCommit.requestDigest } : { expectNoMaterials: true }) };
+    const mutationLookup: PlanningMutationLookup = { ...command, operation: command.materialCommit ? "material-generation" : "generation",
+      materialRequestDigest: command.materialCommit?.requestDigest };
     const replay = await this.findMutation(mutationLookup);
     if (replay) return replay;
     const sourceContext = await this.resolveGenerationSource(command.ownerId, sourceReference, result.workspace);
@@ -275,7 +278,8 @@ export class D1PlanningRepository implements PlanningRepository {
     const lastEvent = workspace.events.at(-1);
     const requestDigest = command.materialCommit?.requestDigest ?? (lastEvent?.kind === "replan_accepted"
       ? await materialSha256({ mutationId: command.mutationId, baseVersionId: command.baseVersionId, candidatePlanVersionId: lastEvent.candidatePlanVersionId }) : undefined);
-    const mutationLookup = { ...command, ...(requestDigest ? { materialRequestDigest: requestDigest } : {}) };
+    const mutationLookup: PlanningMutationLookup = { ...command, materialRequestDigest: requestDigest,
+      operation: command.materialCommit ? "material-proposal" : lastEvent?.kind === "replan_accepted" ? "accept" : "event" };
     const replay = await this.findMutation(mutationLookup);
     if (replay) return replay;
     const event = lastEvent;
@@ -290,6 +294,7 @@ export class D1PlanningRepository implements PlanningRepository {
       statements.unshift(...materialDetachmentStatements(this.db, command.ownerId, change));
     } else if (command.materialDetachment) throw new PlanningConflictError();
     let materialCommit = command.materialCommit ? { ...command.materialCommit, checkedAt: now } : undefined;
+    if (event.kind === "agent_replanned" && event.materialContextFingerprint !== materialCommit?.fingerprint) throw new PlanningConflictError();
     if (materialCommit) {
       if (event.kind !== "agent_replanned" || materialCommit.kind !== "proposal" || materialCommit.snapshot.scope.kind !== "goal"
         || materialCommit.snapshot.scope.revision !== command.baseRevision || materialCommit.snapshot.scope.baseVersionId !== command.baseVersionId
@@ -369,10 +374,19 @@ export class D1PlanningRepository implements PlanningRepository {
   }
 
   private async assertMaterialReplay(input: PlanningMutationLookup) {
-    if (!await this.hasMaterialSchema()) return;
-    const receipt = await this.db.prepare("SELECT result_json,body_digest FROM document_mutations WHERE owner_id=?1 AND mutation_id=?2 AND endpoint IN ('POST /api/planning/generate','POST /api/planning/material-replans','POST /api/planning/replans/accept') AND json_extract(result_json,'$.goalId')=?3").bind(input.ownerId, input.mutationId, input.goalId).first<{ result_json: string; body_digest: string }>();
-    if (!receipt) return;
-    if (input.expectNoMaterials || (input.materialRequestDigest && input.materialRequestDigest !== receipt.body_digest)) throw new PlanningConflictError();
+    const required = input.operation === "material-generation" || input.operation === "material-proposal";
+    const receipt = await this.hasMaterialSchema() ? await this.db.prepare(
+      "SELECT endpoint,result_json,body_digest FROM document_mutations WHERE owner_id=?1 AND mutation_id=?2 AND endpoint IN ('POST /api/planning/generate','POST /api/planning/material-replans','POST /api/planning/replans/accept') AND json_extract(result_json,'$.goalId')=?3"
+    ).bind(input.ownerId, input.mutationId, input.goalId).first<{ endpoint: string; result_json: string; body_digest: string }>() : null;
+    if (!receipt) {
+      if (required) throw new PlanningConflictError();
+      return;
+    }
+    if (input.operation) {
+      const endpoint = { "material-generation": "POST /api/planning/generate", "material-proposal": "POST /api/planning/material-replans",
+        accept: "POST /api/planning/replans/accept", generation: null, event: null }[input.operation];
+      if (receipt.endpoint !== endpoint || receipt.body_digest !== input.materialRequestDigest) throw new PlanningConflictError();
+    } else if (input.materialRequestDigest && input.materialRequestDigest !== receipt.body_digest) throw new PlanningConflictError();
     try {
       const commit = await loadMaterialCommit(this.db, input.ownerId, JSON.parse(receipt.result_json).contextVersionId, this.options.now().getTime());
       await materialGuardStatement(this.db, input.ownerId, commit, { ignoreExpiry: true }).first();

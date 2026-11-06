@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { materialIdSchema } from "../../contracts/documents";
 import { readSetupDraft, writeSetupDraft, removeSetupDraft } from "../setup/setup-draft";
@@ -7,7 +7,7 @@ import type { ConfirmedMaterialItem, DocumentReviewDraft } from "../../contracts
 import { documentVersionReceiptSchema, type DocumentEndpointResponse } from "../../contracts/documents-api";
 import type { DocumentCapabilities } from "../../contracts/document-capabilities";
 import type { SkillSelfLevel } from "../../contracts/planning";
-import { documentsClient, type DocumentsClient } from "../../lib/documents-client";
+import { DocumentClientError, documentsClient, type DocumentsClient } from "../../lib/documents-client";
 import type { MaterialDocumentDraftRef } from "../../lib/use-material-selection";
 import { MaterialConfirmation } from "./material-confirmation";
 import { retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
@@ -18,6 +18,8 @@ type Props = {
     client?: DocumentsClient;
     value: MaterialDocumentDraftRef | null;
     onChange(value: MaterialDocumentDraftRef): void;
+    onUseConfirmedVersion?: (ref: MaterialDocumentDraftRef) => void;
+    reuseScopeKey?: string;
     skills?: readonly {
         id: string;
         name: string;
@@ -39,7 +41,19 @@ const saveRecoverySchema = z.object({
     receipt: documentVersionReceiptSchema.optional()
 }).strict();
 type SaveRecovery = z.infer<typeof saveRecoverySchema>;
-export function MaterialTextPanel({ kind, capabilities, client = documentsClient, value, onChange, skills, onAdoptLevels, pollIntervalMs = 1500, disabled = false, recoveryScope }: Props) {
+async function readEditorReview(client: DocumentsClient, ref: MaterialDocumentDraftRef, checkConfirmation: boolean, signal: AbortSignal) {
+    const query = { documentId: ref.documentId, textVersionId: ref.textVersionId };
+    if (checkConfirmation) {
+        try {
+            return await client.request("readDocumentReviewDraft", { ...query, includeConfirmation: "current" }, signal);
+        } catch (error) {
+            if (signal.aborted || !(error instanceof DocumentClientError) || error.code !== "invalid-request" || error.status !== 400) throw error;
+        }
+    }
+    const { draft } = await client.request("readDocumentReviewDraft", query, signal);
+    return { draft, confirmation: undefined };
+}
+export function MaterialTextPanel({ kind, capabilities, client = documentsClient, value, onChange, onUseConfirmedVersion, reuseScopeKey, skills, onAdoptLevels, pollIntervalMs = 1500, disabled = false, recoveryScope }: Props) {
     const label = kind === "resume" ? "简历" : kind === "jd" ? "岗位 JD" : "补充资料";
     const [text, setText] = useState("");
     const [name, setName] = useState(label);
@@ -62,9 +76,15 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
     const serverDraft = useRef<DocumentReviewDraft | null>(null);
     const valueRef = useRef(value);
     const changeRef = useRef(onChange);
-    useEffect(() => { valueRef.current = value; }, [value]);
-    useEffect(() => { changeRef.current = onChange; }, [onChange]);
+    const adoptionCallback = useRef(onUseConfirmedVersion);
+    useLayoutEffect(() => { valueRef.current = value; }, [value]);
+    useLayoutEffect(() => { changeRef.current = onChange; adoptionCallback.current = onUseConfirmedVersion; }, [onChange, onUseConfirmedVersion]);
     const lifecycle = useRef(0);
+    const edits = useRef(0);
+    const inLibrary = reuseScopeKey !== undefined || Boolean(onUseConfirmedVersion);
+    const canAdopt = Boolean(onUseConfirmedVersion) && !disabled;
+    const confirming = useRef(false);
+    const adoptionRequest = useRef<AbortController | null>(null);
     const cancellation = useRef(new AbortController());
     const saveQueue = useRef<Promise<void>>(Promise.resolve());
     const attempt = useRef<(SaveRecovery & {
@@ -73,6 +93,17 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
     const recovery = useRef<SaveRecovery | null>(null);
     const recoveryOwner = recoveryScope?.ownerId;
     const recoveryKey = `material-save:${recoveryScope?.scopeKey ?? "ephemeral"}:${kind}`;
+    const scope = JSON.stringify([recoveryOwner, recoveryKey, reuseScopeKey, value?.documentId, value?.documentVersionId, value?.textVersionId]);
+    // A lock followed by an unlock is a new authorization, even for the same document.
+    const access = useMemo(() => ({ scope, canAdopt, disabled }), [scope, canAdopt, disabled]);
+    const activeAccess = useRef<typeof access | null>(access);
+    const checkedAccess = useRef<typeof access | null>(null);
+    const [verifiedAccess, setVerifiedAccess] = useState<typeof access | null>(null);
+    useLayoutEffect(() => {
+        activeAccess.current = access;
+        const requests = adoptionRequest;
+        return () => { activeAccess.current = null; requests.current?.abort(); };
+    }, [access]);
     const textChanged = text !== savedBody;
     const analysisBlocked = Boolean(value?.jobId && (!job || ["queued", "running", "cancel-requested", "cost-unknown"].includes(job.state) || job.costState === "held-unknown"));
     const canReanalyze = Boolean(value?.jobId && job && !analysisBlocked && !textChanged);
@@ -84,7 +115,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         return () => { fence.current++; current.abort(); };
     }, [recoveryOwner, recoveryKey]);
     const publish = (ref: MaterialDocumentDraftRef) => { valueRef.current = ref; changeRef.current(ref); };
-    const clearConfirmation = () => { const ref = valueRef.current; if (ref?.confirmationId)
+    const clearConfirmation = () => { edits.current++; const ref = valueRef.current; if (ref?.confirmationId)
         publish({ ...ref, confirmationId: undefined }); };
     const keepDraft = (next: DocumentReviewDraft) => { serverDraft.current = next; setDraft(next); };
     const blankDraft = (ref: MaterialDocumentDraftRef): DocumentReviewDraft => ({
@@ -133,24 +164,40 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         return () => controller.abort();
     }, [client, recoveryOwner, recoveryKey]);
     useEffect(() => {
-        if (!value || version.current === value.textVersionId)
-            return;
+        if (!value || saving || textChanged) return;
+        const restored = version.current === value.textVersionId;
+        if (restored && (!access.canAdopt || checkedAccess.current === access)) return;
         const controller = new AbortController();
         const epoch = lifecycle.current;
+        const beforeRead = edits.current;
         void (async () => {
             try {
-                const record = await client.request("readDocument", { documentId: value.documentId, versionId: value.documentVersionId }, controller.signal);
-                const review = await client.request("readDocumentReviewDraft", { documentId: value.documentId, textVersionId: value.textVersionId }, controller.signal);
-                if (controller.signal.aborted || epoch !== lifecycle.current)
+                const record = restored ? null : await client.request("readDocument", { documentId: value.documentId, versionId: value.documentVersionId }, controller.signal);
+                const review = await readEditorReview(client, value, access.canAdopt, controller.signal);
+                if (controller.signal.aborted || epoch !== lifecycle.current || beforeRead !== edits.current || activeAccess.current !== access)
                     return;
-                version.current = value.textVersionId;
-                savedText.current = record.text;
-                setSavedBody(record.text);
-                setText(record.text);
-                if (recovery.current)
-                    attempt.current = { ...recovery.current, text: record.text };
-                setName(record.document.displayName ?? label);
-                keepDraft(review.draft ?? blankDraft(value));
+                if (record) {
+                    version.current = value.textVersionId;
+                    savedText.current = record.text;
+                    setSavedBody(record.text);
+                    setText(record.text);
+                    if (recovery.current) attempt.current = { ...recovery.current, text: record.text };
+                    setName(record.document.displayName ?? label);
+                    keepDraft(review.draft ?? blankDraft(value));
+                }
+                if (inLibrary) {
+                    checkedAccess.current = access;
+                    const displayed = serverDraft.current;
+                    const sameDraft = displayed && review.draft?.revision === displayed.revision && review.draft.textVersionId === displayed.textVersionId;
+                    const confirmation = sameDraft && (!record || record.document.currentDocumentVersionId === value.documentVersionId) ? review.confirmation : undefined;
+                    setVerifiedAccess(confirmation ? access : null);
+                    const revision = confirmation?.revision ?? record?.document.revision ?? value.revision;
+                    if (value.confirmationId !== confirmation?.confirmationId || value.revision !== revision) {
+                        const restored = { ...value, confirmationId: confirmation?.confirmationId, revision };
+                        valueRef.current = restored;
+                        changeRef.current(restored);
+                    }
+                }
             }
             catch (error) {
                 if (!controller.signal.aborted && epoch === lifecycle.current)
@@ -158,7 +205,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
             }
         })();
         return () => controller.abort();
-    }, [client, label, value]);
+    }, [access, client, label, inLibrary, saving, textChanged, value]);
     useEffect(() => {
         if (!value?.jobId)
             return;
@@ -322,6 +369,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
     function saveReview(items: ConfirmedMaterialItem[], reviewPoints: DocumentReviewDraft["reviewPoints"]) {
         if (!draft || !valueRef.current)
             return;
+        edits.current++;
         const selfAssessmentHints = retainedMaterialSelfAssessmentHints(items, draft.selfAssessmentHints);
         const edited = { ...draft, items, selfAssessmentHints, ...(reviewPoints ? { reviewPoints } : {}) };
         setDraft(edited);
@@ -355,16 +403,17 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
             setSaving(false); });
     }
     async function confirm() {
-        if (textChanged || busy || saving)
+        if (textChanged || busy || saving || disabled || confirming.current || adoptionRequest.current)
             return;
-        const epoch = lifecycle.current;
+        const epoch = lifecycle.current, beforePost = edits.current;
+        confirming.current = true;
         setBusy(true);
         setMessage(null);
         try {
             await saveQueue.current;
             const current = serverDraft.current;
             const ref = valueRef.current;
-            if (!current || !ref)
+            if (!current || !ref || epoch !== lifecycle.current || beforePost !== edits.current || activeAccess.current !== access)
                 return;
             const response = await client.request("createDocumentConfirmation", {
                 documentId: ref.documentId,
@@ -375,19 +424,50 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                 expectedRevision: ref.revision,
                 mutationId: `confirmation-${crypto.randomUUID()}`
             }, cancellation.current.signal);
-            if (epoch === lifecycle.current) {
-                const next = { ...ref, confirmationId: response.confirmationId, revision: response.revision };
-                valueRef.current = next;
-                changeRef.current(next);
-            }
+            const latest = valueRef.current;
+            if (epoch !== lifecycle.current || activeAccess.current?.scope !== access.scope || !latest || latest.documentId !== ref.documentId ||
+                latest.documentVersionId !== ref.documentVersionId || latest.textVersionId !== ref.textVersionId || latest.revision > response.revision) return;
+            const unchanged = edits.current === beforePost && serverDraft.current?.revision === current.revision && activeAccess.current === access;
+            // The server may have committed the old facts while the reader was editing.
+            // Its revision is needed for the next confirmation, but only the untouched draft gets its ID.
+            if (inLibrary) setVerifiedAccess(unchanged ? access : null);
+            publish({ ...latest, confirmationId: unchanged ? response.confirmationId : undefined, revision: response.revision });
         }
         catch (error) {
             if (epoch === lifecycle.current)
                 setMessage(error instanceof Error ? error.message : "确认失败，请重新核对。");
         }
         finally {
+            confirming.current = false;
             if (epoch === lifecycle.current)
                 setBusy(false);
+        }
+    }
+    async function adoptConfirmedVersion() {
+        const ref = valueRef.current, displayed = serverDraft.current;
+        if (!access.canAdopt || verifiedAccess !== access || !ref?.confirmationId || !displayed || busy || saving || textChanged || confirming.current || adoptionRequest.current) return;
+        const epoch = lifecycle.current, beforeRead = edits.current;
+        const controller = new AbortController();
+        adoptionRequest.current = controller;
+        setBusy(true);
+        setMessage(null);
+        try {
+            const latest = await readEditorReview(client, ref, true, controller.signal);
+            if (controller.signal.aborted || activeAccess.current !== access || epoch !== lifecycle.current || beforeRead !== edits.current || valueRef.current !== ref) return;
+            if (latest.confirmation?.confirmationId !== ref.confirmationId || latest.draft?.revision !== displayed.revision) {
+                clearConfirmation();
+                setMessage("已保存的资料或核对内容已变化，请重新打开当前版本。");
+                return;
+            }
+            adoptionCallback.current?.({ ...ref, revision: latest.confirmation.revision });
+        } catch {
+            if (!controller.signal.aborted && activeAccess.current === access && epoch === lifecycle.current && beforeRead === edits.current) {
+                clearConfirmation();
+                setMessage("未能核实当前确认版本，请重新打开资料后再采用。");
+            }
+        } finally {
+            adoptionRequest.current = null;
+            if (epoch === lifecycle.current) setBusy(false);
         }
     }
     async function cancel() {
@@ -483,7 +563,8 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
     {message && <p role="alert">{message}</p>}
     {lateExtractionId && !textChanged && <button type="button" className="text-action" disabled={busy || saving} onClick={() => void compareCandidates()}>比较新 AI 候选</button>}
     {comparison && !textChanged && <section aria-label="新 AI 候选比较"><h3>新 AI 候选</h3><p>下方候选尚未采用。替换后仍需核对并确认事实，能力建议仍需单独采用。</p><ul>{comparison.draft.items.map(item => <li key={item.id}>{item.text}</li>)}</ul><button type="button" disabled={busy || saving} onClick={() => void adoptCandidates()}>采用这些新候选替换核对草稿</button><button type="button" className="text-action" onClick={() => setComparison(null)}>保留当前核对草稿</button></section>}
-    {draft && !textChanged && <MaterialConfirmation documentKind={kind} draft={draft} text={savedBody} saving={saving || busy} confirmed={Boolean(value?.confirmationId) && !saving} onItemsChange={saveItems} onReviewPointsChange={points => saveReview(draft.items, points)} onConfirm={() => void confirm()} skills={skills} onAdoptLevels={onAdoptLevels}/>}
+    {draft && !textChanged && <MaterialConfirmation documentKind={kind} draft={draft} text={savedBody} saving={saving || busy} confirmed={Boolean(value?.confirmationId) && !saving && (!inLibrary || (access.canAdopt && verifiedAccess === access))} onItemsChange={saveItems} onReviewPointsChange={points => saveReview(draft.items, points)} onConfirm={() => void confirm()} skills={skills} onAdoptLevels={onAdoptLevels}/>}
+    {access.canAdopt && verifiedAccess === access && draft && !textChanged && draft.textVersionId === value?.textVersionId && value.confirmationId && <button type="button" disabled={busy || saving} onClick={() => void adoptConfirmedVersion()}>采用这个已确认版本</button>}
     {draft && textChanged && <p role="status">正文已修改，请先保存新版本后再核对。原确认不会用于新正文。</p>}
   </section>;
 }

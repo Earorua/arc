@@ -31,6 +31,7 @@ import type {
   PlanningOwnerGoal,
   PlanningRepository,
   PlanningRepositoryPayload,
+  PlanningReplayOperation,
 } from "./repository";
 import { PlanningSourceContractError, PlanningSourceResolver, PlanningSourceUnavailableError } from "./source-resolver";
 import type { MaterialDetachment } from "../documents/detach-adopted-material";
@@ -111,20 +112,21 @@ export class PlanningService {
   }
 
   async getWorkspaceResponse(userId: string): Promise<PlanningWorkspaceResponse> {
-    const scope = await this.resolveScope(userId);
-    const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
-    if (!stored) return { workspace: null, sourceContext: null };
-    return this.parseOwnedWorkspace(stored, scope);
+    return this.readWorkspaceResponse(await this.resolveScope(userId));
   }
 
   // Read a saved goal without changing which goal is active. Callers choose an
   // archived goal only after their owner/status check; repository scope remains
   // bound to the authenticated owner and the usual source validation is reused.
   async getSavedWorkspaceResponse(userId: string, goalId: string): Promise<PlanningWorkspaceResponse> {
-    const scope = { ownerId: parseOwner(userId), goalId: parseOwner(goalId) };
+    return this.readWorkspaceResponse({ ownerId: parseOwner(userId), goalId: parseOwner(goalId) });
+  }
+
+  private async readWorkspaceResponse(scope: PlanningOwnerGoal): Promise<PlanningWorkspaceResponse> {
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (!stored) return { workspace: null, sourceContext: null };
-    return this.parseOwnedWorkspace(stored, scope);
+    const { workspace, sourceContext } = await this.parseOwnedWorkspace(stored, scope);
+    return { workspace: clientWorkspace(workspace), sourceContext };
   }
 
   async generate(userId: string, input: unknown): Promise<PlanningMutationResult> {
@@ -143,7 +145,7 @@ export class PlanningService {
     if (request.materials && !this.dependencies.materials) throw new PlanningUnavailableError();
     const verifiedMaterials = request.materials ? await this.dependencies.materials!.verifyGeneration(ownerId, request) : null;
     const materialSource = verifiedMaterials?.sourceContext ?? null;
-    const replay = await this.loadReplay(scope, request.mutationId, verifiedMaterials?.commit.requestDigest, !request.materials);
+    const replay = await this.loadReplay(scope, request.mutationId, request.materials ? "material-generation" : "generation", verifiedMaterials?.commit.requestDigest);
     if (replay) return replay;
     if (newGoal && (newGoal.previousGoalId !== activeScope.goalId
       || !await repositoryRead(() => this.dependencies.repository.load(activeScope)))) throw new PlanningConflictError();
@@ -236,7 +238,7 @@ export class PlanningService {
     const verified = await materials.verifyProposalRequest(ownerId, request);
     if (canonicalJson(verified.commit.snapshot.scope) !== canonicalJson(request.scope)) throw new PlanningConflictError();
     if (verified.noChange) return { outcome: "no-change", message: "现有未完成任务的顺序和日程无需变化。", unappliedChanges: verified.unapplied ? [MATERIAL_UNAPPLIED_MESSAGE] : [] };
-    const replay = await this.loadReplay(scope, request.mutationId, await materialSha256(request));
+    const replay = await this.loadReplay(scope, request.mutationId, "material-proposal", await materialSha256(request));
     if (replay) return materialReplanResponseSchema.parse({ outcome: "proposed", planning: replay, unappliedChanges: [] });
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (!stored) throw new PlanningNotFoundError();
@@ -255,7 +257,9 @@ export class PlanningService {
     const overlay = verified.preview.overlay!;
     const unitOrder = prioritizeReadyNodes(unfinished.map((unit, originalIndex) => ({ id: unit.id, prerequisiteIds: unit.prerequisiteUnitIds, rank: overlay.skillRanks[unit.skillId] ?? 5, originalIndex })), completed);
     try {
-      const event = planningEventSchema.parse({ kind: "agent_replanned", unitOrder, baseRevision: workspace.revision, planningDate: frozen.planningDate, eventId: this.createId(), mutationId: request.mutationId, sequence: workspace.lastSequence + 1, targetPlanVersionId: workspace.activePlanVersionId, occurredAt: this.now().toISOString() });
+      const event = planningEventSchema.parse({ kind: "agent_replanned", unitOrder, baseRevision: workspace.revision, planningDate: frozen.planningDate,
+        materialContextFingerprint: verified.commit.fingerprint, eventId: this.createId(), mutationId: request.mutationId,
+        sequence: workspace.lastSequence + 1, targetPlanVersionId: workspace.activePlanVersionId, occurredAt: this.now().toISOString() });
       const transition = applyPlanningEvent({ workspace, event, blueprint: sourceContext.blueprint, registry: sourceContext.registry });
       const result = resultFromTransition(transition);
       if (canonicalJson(unitOrder) === canonicalJson(unfinished.map(unit => unit.id)) && result.diff?.items.every(item => item.change === "unchanged")) {
@@ -309,8 +313,10 @@ export class PlanningService {
     const ownerId = parseOwner(userId);
     const scope = await this.resolveScope(ownerId);
     if (expected && scope.goalId !== expected.goalId) throw new PlanningConflictError();
-    const replay = await this.loadReplay(scope, mutationId, body.kind === "replan_accepted" ? await materialSha256({ mutationId, baseVersionId, candidatePlanVersionId: body.candidatePlanVersionId }) : undefined);
-    if (replay) return replay;
+    const accepting = body.kind === "replan_accepted";
+    const replay = await this.loadReplay(scope, mutationId, accepting ? "accept" : "event",
+      accepting ? await materialSha256({ mutationId, baseVersionId, candidatePlanVersionId: body.candidatePlanVersionId }) : undefined);
+    if (replay) return responseForEvent(replay, mutationId, baseVersionId, body);
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (!stored) throw new PlanningUnavailableError();
     const parsedStored = await this.parseOwnedWorkspace(stored, scope);
@@ -341,7 +347,8 @@ export class PlanningService {
         sourceReference,
         materialDetachment,
       });
-      return this.parseOwnedResult(saved, scope, sourceReference);
+      const response = await this.parseOwnedResult(saved, scope, sourceReference);
+      return responseForEvent(response, mutationId, baseVersionId, body);
     } catch (error) {
       throw normalizeError(error);
     }
@@ -360,8 +367,8 @@ export class PlanningService {
     return { ownerId, goalId: scope.goalId };
   }
 
-  private async loadReplay(scope: PlanningOwnerGoal, mutationId: string, materialRequestDigest?: string, expectNoMaterials = false): Promise<PlanningMutationResponse | null> {
-    const stored = await repositoryRead(() => this.dependencies.repository.findMutation({ ...scope, mutationId, ...(materialRequestDigest ? { materialRequestDigest } : {}), ...(expectNoMaterials ? { expectNoMaterials: true } : {}) }));
+  private async loadReplay(scope: PlanningOwnerGoal, mutationId: string, operation: PlanningReplayOperation, materialRequestDigest?: string): Promise<PlanningMutationResponse | null> {
+    const stored = await repositoryRead(() => this.dependencies.repository.findMutation({ ...scope, mutationId, operation, materialRequestDigest }));
     return stored ? this.parseOwnedResult(stored, scope) : null;
   }
 
@@ -399,7 +406,7 @@ export class PlanningService {
       }
       const sourceContext = await this.resolveStoredContext(stored, scope.ownerId, sourceReference);
       assertWorkspaceSource(result.workspace, sourceContext);
-      return { result, sourceContext };
+      return { result: { ...result, workspace: clientWorkspace(result.workspace) }, sourceContext };
     } catch (error) {
       if (error instanceof PlanningServiceError) throw error;
       throw new PlanningUnavailableError();
@@ -423,6 +430,26 @@ export class PlanningService {
     }
     return context;
   }
+}
+
+function responseForEvent(response: PlanningMutationResponse, mutationId: string, baseVersionId: string, body: Record<string, unknown>): PlanningMutationResponse {
+  // A competing write may win after the first lookup. Its saved event must match this request too.
+  const event = response.result.workspace.events.at(-1);
+  if (!event) throw new PlanningConflictError();
+  const expected = { ...body, eventId: event.eventId, sequence: event.sequence, occurredAt: event.occurredAt,
+    mutationId, targetPlanVersionId: baseVersionId };
+  if (canonicalJson(event) !== canonicalJson(expected)) throw new PlanningConflictError();
+  return response;
+}
+
+// The browser consumes version snapshots. Only repository replay needs the server's proposal fingerprint.
+function clientWorkspace(workspace: PlanningWorkspace): PlanningWorkspace {
+  return { ...workspace, events: workspace.events.map(event => {
+    if (event.kind !== "agent_replanned" || !event.materialContextFingerprint) return event;
+    const visible = { ...event };
+    delete visible.materialContextFingerprint;
+    return visible;
+  }) };
 }
 
 function parseOwner(userId: string): string {

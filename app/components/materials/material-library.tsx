@@ -98,8 +98,9 @@ function OwnedMaterialLibrary({ ownerId, capabilities, client = documentsClient,
     </li>)}</ul>
     {selected && <div><MaterialTextPanel key={selected.editorKey} kind={selected.kind} capabilities={capabilities} client={client}
       value={selected.ref} onChange={ref => { selectEditor({ ...selected, ref }); setRefresh(value => value + 1); }}
+      reuseScopeKey={currentUse?.key ?? "library"}
+      onUseConfirmedVersion={onSelect && !currentUse?.disabled ? ref => onSelect(selected.kind, ref) : undefined}
       recoveryScope={{ ownerId: `user:${ownerId}`, scopeKey: `library:${selected.editorKey}` }} />
-      {onSelect && selected.ref?.confirmationId && <button type="button" onClick={() => onSelect(selected.kind, selected.ref!)}>采用这个已确认版本</button>}
       <button type="button" className="text-action" onClick={() => selectEditor(null)}>关闭资料</button></div>}
     {deletion && <button type="button" onClick={() => void checkDeletion()}>查询删除清理状态</button>}
     {message && <p role="status">{message}</p>}

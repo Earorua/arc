@@ -84,7 +84,7 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
   const mappingDirty = !recovering && JSON.stringify(skillMappings) !== JSON.stringify(preview?.skillMappings ?? []);
   const issues = preview?.issues ?? [];
   const issueCount = issues.reduce((total, issue) => total + Math.max(1, issue.itemIds.length), 0);
-  return <section className="material-context-review"><MaterialSelectionSummary disabled={disabled} />
+  return <section className="material-context-review"><MaterialSelectionSummary disabled={disabled || busy || recovering} />
     {!state.capabilities.planningEnabled ? <p>资料辅助规划暂未开放。可移除本次选择，继续普通规划。</p> : <>
     {entries.length !== selectedCount && <p role="alert">请先核对并确认每份资料的事实，或移除未采用的资料。</p>}
     <button type="button" disabled={busy || disabled || entries.length !== selectedCount} onClick={() => void review()}>{busy ? "正在核对资料影响…" : "核对资料对路线的影响"}</button>

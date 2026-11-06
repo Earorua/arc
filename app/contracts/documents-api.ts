@@ -30,8 +30,13 @@ export const readDocumentResponseSchema = boundedMaterialJson(z.object({ documen
   if (response.document.lifecycle !== "active" || response.version.state !== "ready") ctx.addIssue({ code: "custom", message: "Only retained active versions expose text" });
 }), MAX_DOCUMENT_API_RESPONSE_BYTES);
 export const createDocumentVersionRequestSchema = boundedMaterialJson(z.object({ documentId: materialIdSchema, text: documentTextSchema, ...revisionMutationFields }).strict(), MAX_DOCUMENT_CREATE_BODY_BYTES);
-export const readDocumentReviewDraftRequestSchema = z.object({ documentId: materialIdSchema, textVersionId: materialIdSchema }).strict();
-export const documentReviewDraftResponseSchema = boundedMaterialJson(z.object({ draft: documentReviewDraftSchema.nullable() }).strict(), MAX_DOCUMENT_ITEMS_JSON_BYTES + 1024);
+export const readDocumentReviewDraftRequestSchema = z.object({
+  documentId: materialIdSchema, textVersionId: materialIdSchema, includeConfirmation: z.literal("current").optional(),
+}).strict();
+export const documentConfirmationResponseSchema = z.object({ confirmationId: materialIdSchema, revision: materialRevisionSchema }).strict();
+export const documentReviewDraftResponseSchema = boundedMaterialJson(z.object({
+  draft: documentReviewDraftSchema.nullable(), confirmation: documentConfirmationResponseSchema.optional(),
+}).strict().refine(result => !result.confirmation || result.draft !== null, "A reusable confirmation requires its current review draft"), MAX_DOCUMENT_ITEMS_JSON_BYTES + 1024);
 export const saveDocumentReviewDraftRequestSchema = boundedMaterialJson(z.object({
   documentId: materialIdSchema, textVersionId: materialIdSchema, extractionId: materialIdSchema.nullable(),
   items: confirmedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema, ...revisionMutationFields,
@@ -44,7 +49,6 @@ export const createDocumentConfirmationRequestSchema = boundedMaterialJson(z.obj
 }).strict().superRefine((request, ctx) => {
   for (const item of request.items) if (item.sourceRef && (item.sourceRef.documentId !== request.documentId || item.sourceRef.documentVersionId !== request.documentVersionId || item.sourceRef.textVersionId !== request.textVersionId)) ctx.addIssue({ code: "custom", message: "Confirmation contains a cross-version source" });
 }), MAX_DOCUMENT_ITEMS_JSON_BYTES);
-export const documentConfirmationResponseSchema = z.object({ confirmationId: materialIdSchema, revision: materialRevisionSchema }).strict();
 export const createMaterialSelectionRequestSchema = z.object({ scope: materialScopeSchema, entries: materialSelectionEntriesSchema, ...mutationFields }).strict();
 export const readMaterialSelectionRequestSchema = z.object({ selectionId: materialIdSchema }).strict();
 export const updateMaterialSelectionRequestSchema = z.object({ selectionId: materialIdSchema, entries: materialSelectionEntriesSchema, ...revisionMutationFields }).strict();
@@ -112,7 +116,7 @@ export const documentEndpointContracts = {
   readDocumentMutation: { method: "GET", path: "/api/document-mutations/[mutationId]", request: readDocumentMutationRequestSchema, response: readDocumentMutationResponseSchema },
   readDocumentExtraction: { method: "GET", path: "/api/documents/[documentId]/extractions/[extractionId]", request: readDocumentExtractionRequestSchema, response: readDocumentExtractionResponseSchema },
   adoptDocumentExtraction: { method: "POST", path: "/api/documents/[documentId]/adopt-extraction", request: adoptDocumentExtractionRequestSchema, response: saveDocumentReviewDraftResponseSchema },
-  readMaterialHistory: { method: "GET", path: "/api/planning/material-history", request: z.object({ goalId: materialIdSchema }).strict(), response: materialHistoryResponseSchema },
+  readMaterialHistory: { method: "GET", path: "/api/planning/material-history", request: z.object({ goalId: materialIdSchema, includeProposalState: z.literal("current").optional() }).strict(), response: materialHistoryResponseSchema },
   readAdoptedMaterials: { method: "GET", path: "/api/planning/adopted-materials",
     request: adoptedMaterialScopeSchema.extend({ checkDocumentIds: z.array(materialIdSchema).min(1).max(5).refine(ids => new Set(ids).size === ids.length).optional() }).strict(),
     response: z.object({ entries: adoptedMaterialEntriesSchema, detachedDocumentIds: z.array(materialIdSchema).min(1).max(5).optional() }).strict() },

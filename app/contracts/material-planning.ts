@@ -125,6 +125,7 @@ export const materialExplanationSchema = z.object({
 }).strict();
 export const materialHistoryResponseSchema = boundedMaterialJson(z.object({ plans: z.array(z.object({
   planVersionId: materialIdSchema, contextVersionId: materialIdSchema, kind: z.enum(["generation", "proposal", "accepted"]),
+  proposalState: z.enum(["pending", "discarded", "revoked", "unknown"]).optional(),
   sourceAvailability: z.enum(["available", "unavailable"]), explanations: z.array(materialExplanationSchema).max(700),
 }).strict()).max(200) }).strict(), MAX_MATERIAL_CONTEXT_JSON_BYTES);
 export const materialReplanResponseSchema = z.discriminatedUnion("outcome", [

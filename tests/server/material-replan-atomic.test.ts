@@ -26,6 +26,36 @@ async function setup(noPriorities = false, withCompletion = false) {
   return { db, service, materials, initial, input, request };
 }
 describe("material proposal transactions", () => {
+  it("reads an owner's archived history conservatively for revoked and older proposals without matching decision records", async () => {
+    const { db, service, materials, input, request } = await setup();
+    const alternate = await materials.create("owner-a", { ...request, scope: input.scope, mutationId: "other-history-context" });
+    const proposed = await service.proposeMaterialReplanResponse("owner-a", input);
+    if (proposed.outcome !== "proposed") throw new Error("expected proposal");
+    const candidate = proposed.planning.result.workspace.pendingPlanVersionId!;
+    db.database.exec("UPDATE career_goals SET active_slot=NULL, status='archived' WHERE id='goal-a'");
+    const detailed = () => materials.history("owner-a", "goal-a", "current");
+    db.database.exec("UPDATE material_plan_proposals SET state='revoked'");
+    expect((await detailed()).plans).toMatchObject([{ planVersionId: candidate, contextVersionId: input.contextVersionId,
+      proposalState: "revoked", sourceAvailability: "unavailable", explanations: [{ ruleId: "source-unavailable-v1", reasonItemIds: [] }] }]);
+    expect((await materials.history("owner-a", "goal-a")).plans).toEqual([]);
+    db.database.exec("DELETE FROM material_plan_proposals");
+    expect((await detailed()).plans).toMatchObject([{ kind: "proposal", proposalState: "unknown" }]);
+    expect((await materials.history("owner-a", "goal-a")).plans).toEqual([]);
+    await expect(materials.history("other-owner", "goal-a", "current")).rejects.toMatchObject({ code: "NOT_FOUND" });
+    // An accepted usage link for another context on the same historical plan is evidence only for that pair.
+    db.database.prepare(`INSERT INTO document_usage_links(owner_id,context_version_id,goal_id,workspace_id,plan_version_id,kind,created_at)
+      SELECT owner_id,?,goal_id,workspace_id,plan_version_id,'accepted',created_at FROM document_usage_links WHERE context_version_id=? AND kind='proposal'`)
+      .run(alternate.contextVersionId, input.contextVersionId);
+    expect((await detailed()).plans).toEqual(expect.arrayContaining([
+      expect.objectContaining({ planVersionId: candidate, contextVersionId: input.contextVersionId, proposalState: "unknown" }),
+      expect.objectContaining({ planVersionId: candidate, contextVersionId: alternate.contextVersionId, kind: "accepted" }),
+    ]));
+    expect((await materials.history("owner-a", "goal-a")).plans.map(row => row.contextVersionId)).toEqual([alternate.contextVersionId]);
+    db.database.exec("UPDATE documents SET lifecycle='revoked',generation=generation+1");
+    for (const row of (await detailed()).plans) {
+      expect(row).toMatchObject({ sourceAvailability: "unavailable", explanations: [{ ruleId: "source-unavailable-v1", skillId: null, unitIds: [], reasonItemIds: [] }] });
+    }
+  });
   it("keeps ordinary replan acceptance available when material planning is closed", async () => {
     const { db, initial } = await setup();
     const service = new PlanningService({ repository: new D1PlanningRepository(db as unknown as D1Database, {
@@ -102,7 +132,7 @@ describe("material proposal transactions", () => {
     const decision = { mutationId: "accept-revoked", baseVersionId: workspace.activePlanVersionId, candidatePlanVersionId: workspace.pendingPlanVersionId! };
     await expect(service.acceptReplan("owner-a", decision)).rejects.toMatchObject({ code: "CONFLICT" });
     expect((await service.discardReplan("owner-a", { ...decision, mutationId: "discard-revoked" })).outcome).toBe("discarded");
-    const history = await materials.history("owner-a", "goal-a");
+    const history = await materials.history("owner-a", "goal-a", "current");
     expect(history.plans[0]?.explanations[0]?.message).toBe("依据已删除");
     expect(JSON.stringify(history)).not.toContain("PRIVATE-MATERIAL-SENTINEL");
     expect(db.database.prepare("SELECT id FROM career_goals WHERE active_slot=1").get()).toMatchObject({ id: "goal-a" });

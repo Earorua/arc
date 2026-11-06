@@ -143,7 +143,35 @@ export class ReviewService {
         };
         return { stored, reference };
     }
-    async readDocumentReviewDraft(owner: DocumentOwner, input: Request<"readDocumentReviewDraft">): Promise<Response<"readDocumentReviewDraft">> { const request = documentEndpointContracts.readDocumentReviewDraft.request.parse(input); await this.repo.version(owner.ownerId, request.documentId, undefined, request.textVersionId); const row = await this.row(owner.ownerId, request.textVersionId); return { draft: row ? this.project(row) : null }; }
+    async readDocumentReviewDraft(owner: DocumentOwner, input: Request<"readDocumentReviewDraft">): Promise<Response<"readDocumentReviewDraft">> {
+        const { documentId, textVersionId, includeConfirmation } = documentEndpointContracts.readDocumentReviewDraft.request.parse(input);
+        await this.repo.version(owner.ownerId, documentId, undefined, textVersionId);
+        if (!includeConfirmation) {
+            const row = await this.row(owner.ownerId, textVersionId);
+            return { draft: row ? this.project(row) : null };
+        }
+        // Only the current document and exact saved review can offer its existing confirmation.
+        // Retained historical drafts remain readable when the document has a newer version.
+        const row = await this.repo.one(`
+            SELECT r.*, c.id AS confirmation_id, d.revision AS document_revision
+            FROM document_review_drafts r
+            JOIN documents d ON d.owner_id=r.owner_id AND d.id=r.document_id AND d.lifecycle='active'
+            JOIN document_versions v ON v.owner_id=r.owner_id AND v.document_id=r.document_id
+                AND v.id=r.document_version_id AND v.text_version_id=r.text_version_id AND v.state='ready'
+            LEFT JOIN document_confirmations c ON c.owner_id=r.owner_id AND c.document_id=r.document_id
+                AND c.document_version_id=r.document_version_id AND c.text_version_id=r.text_version_id
+                AND d.current_document_version_id=c.document_version_id AND c.state='active'
+                AND c.revision=(SELECT max(last.revision) FROM document_confirmations last
+                    WHERE last.owner_id=r.owner_id AND last.document_id=r.document_id AND last.document_version_id=r.document_version_id)
+                AND c.review_revision=r.revision AND c.origin=r.origin AND c.items_json=r.items_json
+                AND c.review_points_json=r.review_points_json
+            WHERE r.owner_id=? AND r.document_id=? AND r.text_version_id=? AND r.state='active'`,
+            owner.ownerId, documentId, textVersionId);
+        if (!row) return { draft: null };
+        return { draft: this.project(row), ...(row.confirmation_id ? { confirmation: {
+            confirmationId: String(row.confirmation_id), revision: Number(row.document_revision)
+        } } : {}) };
+    }
     async saveDocumentReviewDraft(owner: DocumentOwner, input: Request<"saveDocumentReviewDraft">, adoptionIdentity?: DocumentMutationIdentity): Promise<Response<"saveDocumentReviewDraft">> {
         const request = documentEndpointContracts.saveDocumentReviewDraft.request.parse(input), identity = adoptionIdentity ?? await this.repo.identity(owner.ownerId, "saveDocumentReviewDraft", request);
         const { stored, reference } = await this.reference(owner.ownerId, request.documentId, request.textVersionId);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planningEventSchema } from "../../../app/contracts/planning";
+import { planningEventInputSchema, planningEventSchema } from "../../../app/contracts/planning";
 import { applyPlanningEvent, replayPlanningEvents } from "../../../app/lib/planning/event-reducer";
 import { agentFixture } from "../../helpers/agent-fixture";
 
@@ -18,9 +18,19 @@ describe("agent planning proposals", () => {
     const next = applyPlanningEvent({ workspace: f.workspace, event, blueprint: f.sourceContext.blueprint, registry: f.sourceContext.registry });
     expect(next.kind).toBe("proposed");
     expect(next.workspace.activePlanVersionId).toBe(f.workspace.activePlanVersionId);
-    expect(next.workspace.pendingPlanVersionId).not.toBeNull();
+    // This fixture's persisted ID predates material proposal fingerprints.
+    expect(next.workspace.pendingPlanVersionId).toBe("plan-version-99727a989539f78219f6adb4a83e4fce");
     expect(replayPlanningEvents({ initial: f.workspace, events: [event], blueprint: f.sourceContext.blueprint, registry: f.sourceContext.registry }))
       .toEqual(next.workspace);
+  });
+  it("accepts material context evidence only on the stored proposal, outside the client event contract", () => {
+    const { event } = input();
+    const body = { kind: event.kind, baseRevision: event.baseRevision, unitOrder: event.unitOrder, planningDate: event.planningDate };
+    const materialContextFingerprint = "a".repeat(64);
+    expect(planningEventInputSchema.safeParse(body).success).toBe(true);
+    expect(planningEventInputSchema.safeParse({ ...body, materialContextFingerprint }).success).toBe(false);
+    expect(planningEventSchema.safeParse({ ...event, materialContextFingerprint }).success).toBe(true);
+    expect(planningEventSchema.safeParse({ ...event, materialContextFingerprint: "unverified" }).success).toBe(false);
   });
   it.each(["missing", "duplicate", "unknown", "dependency"] as const)("rejects %s unit order", (kind) => {
     const f = input();

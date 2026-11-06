@@ -1,9 +1,10 @@
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { PlanDiffReview } from "../../app/components/workspace/plan-diff-review";
+import { MaterialHistory } from "../../app/components/materials/material-history";
 import { planningWorkspaceSchema } from "../../app/contracts/planning";
 import type { MaterialHistoryResponse } from "../../app/contracts/material-planning";
-import { documentsClient } from "../../app/lib/documents-client";
+import { DocumentClientError, documentsClient } from "../../app/lib/documents-client";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 import { buildLearningPaths } from "../../app/lib/planning/path-builder";
@@ -30,8 +31,31 @@ it("shows only the pending candidate's material explanation before a decision wi
   render(<PlanDiffReview workspace={current} materialOwnerId="owner-a" onAccept={accept} onDiscard={discard} />);
   expect(await screen.findByText("必备技能缺口优先安排，仍保留前置依赖。")).toBeInTheDocument();
   expect(screen.queryByText("Old generation explanation")).not.toBeInTheDocument();
-  expect(request).toHaveBeenCalledWith("readMaterialHistory", { goalId: current.goalId }, expect.any(AbortSignal));
+  expect(request).toHaveBeenCalledWith("readMaterialHistory", { goalId: current.goalId, includeProposalState: "current" }, expect.any(AbortSignal));
   expect(accept).not.toHaveBeenCalled(); expect(discard).not.toHaveBeenCalled(); expect(JSON.stringify(current)).toBe(unchanged);
+});
+it("shows generation, discarded and accepted as three distinct history entries", async () => {
+  const row = history("plan", "原因").plans[0]!;
+  vi.spyOn(documentsClient, "request").mockResolvedValue({ plans: [
+    { ...row, kind: "generation", planVersionId: "initial" },
+    { ...row, planVersionId: "first", proposalState: "discarded" },
+    { ...row, kind: "accepted", planVersionId: "second" },
+  ] });
+  const view = render(<MaterialHistory ownerId="owner-a" goalId="archived-goal" />);
+  expect(await screen.findByText("已放弃调整")).toBeInTheDocument();
+  expect(screen.getByText("已接受调整")).toBeInTheDocument();
+  expect(screen.queryByText("待确认调整")).not.toBeInTheDocument();
+  expect(view.container.querySelectorAll("summary")).toHaveLength(3);
+});
+it("reads an older server without the option and does not mistake an undated proposal for a pending one", async () => {
+  const row = history("first", "原因").plans[0]!;
+  const request = vi.spyOn(documentsClient, "request").mockRejectedValueOnce(new DocumentClientError("invalid-request", 400))
+    .mockResolvedValue({ plans: [row, { ...row, kind: "accepted" }, { ...row, planVersionId: "second" }] });
+  const view = render(<MaterialHistory ownerId="owner-a" goalId="old-goal" />);
+  expect(await screen.findByText("已接受调整")).toBeInTheDocument();
+  expect(screen.getByText("历史提议（结果未记录）")).toBeInTheDocument();
+  expect(view.container.querySelectorAll("summary")).toHaveLength(2);
+  expect(request).toHaveBeenNthCalledWith(2, "readMaterialHistory", { goalId: "old-goal" }, expect.any(AbortSignal));
 });
 it("aborts and discards an earlier owner's delayed material history across A→B→A", async () => {
   const current = workspace(); let finish!: (value: MaterialHistoryResponse) => void;

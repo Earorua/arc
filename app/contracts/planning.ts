@@ -411,12 +411,13 @@ const unitEventInputSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("already_known"), unitId: idSchema, planningDate: calendarDateSchema }).strict(),
 ]);
 
-export const planningEventInputSchema = z.discriminatedUnion("kind", [
+const unitAndAvailabilityEventInputs = [
   ...unitEventInputSchema.options,
   z.object({ kind: z.literal("availability_changed"), availability: availabilityVersionSchema, planningDate: calendarDateSchema }).strict(),
-  z.object({ kind: z.literal("agent_replanned"), baseRevision: z.number().int().nonnegative(),
-    unitOrder: z.array(idSchema).min(1).max(2000), planningDate: calendarDateSchema }).strict(),
-]);
+] as const;
+const agentReplanInput = z.object({ kind: z.literal("agent_replanned"), baseRevision: z.number().int().nonnegative(),
+  unitOrder: z.array(idSchema).min(1).max(2000), planningDate: calendarDateSchema }).strict();
+export const planningEventInputSchema = z.discriminatedUnion("kind", [...unitAndAvailabilityEventInputs, agentReplanInput]);
 
 const eventMetadataSchema = z.object({
   eventId: idSchema,
@@ -432,7 +433,9 @@ const decisionEventSchema = z.discriminatedUnion("kind", [
 ]);
 
 export const planningEventSchema = z.union([
-  ...planningEventInputSchema.options.map((event) => event.extend(eventMetadataSchema.shape).strict()),
+  ...unitAndAvailabilityEventInputs.map((event) => event.extend(eventMetadataSchema.shape).strict()),
+  // Only a verified material proposal records its preview fingerprint. Older events replay without it.
+  agentReplanInput.extend({ ...eventMetadataSchema.shape, materialContextFingerprint: z.string().regex(/^[0-9a-f]{64}$/u).optional() }).strict(),
   ...decisionEventSchema.options.map((event) => event.extend(eventMetadataSchema.shape).strict()),
   eventMetadataSchema.extend({ kind: z.literal("material_usage_changed") }).strict(),
 ]).superRefine((event, ctx) => {

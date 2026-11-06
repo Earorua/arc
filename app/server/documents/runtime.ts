@@ -76,7 +76,7 @@ export function createDocumentRuntime(environment: DocumentEnvironment, options:
     readMaterialContext: (ownerId, input) => contexts.read(ownerId, input.contextVersionId),
     generatePlanning: (ownerId, input) => planning.generateResponse(ownerId, input),
     materialReplan: (ownerId, input) => planning.proposeMaterialReplanResponse(ownerId, input),
-    readMaterialHistory: (ownerId, input) => contexts.history(ownerId, input.goalId),
+    readMaterialHistory: (ownerId, input) => contexts.history(ownerId, input.goalId, input.includeProposalState),
     readMaterialGenerationReceipt: (ownerId, input) => contexts.generationReceipt(ownerId, input),
     deleteDocument: (ownerId, input) => services.deleteDocument({ ownerId }, input),
     readDocumentDeletion: (ownerId, input) => services.readDocumentDeletion({ ownerId }, input),

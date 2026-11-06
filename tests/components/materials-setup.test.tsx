@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MaterialSetupProvider, useMaterialSetup } from "../../app/components/materials/material-setup-provider";
@@ -33,6 +33,29 @@ function fixture() {
 }
 describe("material context review in the existing setup", () => {
   beforeEach(() => localStorage.clear()); afterEach(cleanup);
+  it("lists each supplement even without a resume or JD and removes only the chosen version", async () => {
+    const { client, onPreview } = fixture();
+    const unconfirmed = { documentId: "note-b", documentVersionId: "version-b", textVersionId: "text-b", revision: 1 };
+    function Supplements() {
+      const state = useMaterialSetup();
+      return <><button disabled={!state?.ready} onClick={() => state?.setSupplements([ref, unconfirmed])}>选择两份补充资料</button>
+        <MaterialContextReview input={input} onPreview={onPreview} /></>;
+    }
+    render(<MaterialSetupProvider ownerId="owner-a" scopeKey="setup" client={client}><Supplements /></MaterialSetupProvider>);
+    const choose = screen.getByRole("button", { name: "选择两份补充资料" });
+    await waitFor(() => expect(choose).toBeEnabled());
+    fireEvent.click(choose);
+    const summary = within(await screen.findByRole("region", { name: "本次资料选择" }));
+    const rows = summary.getAllByRole("listitem");
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent("补充资料 1 · 事实已确认");
+    expect(rows[1]).toHaveTextContent("补充资料 2 · 待核对确认");
+    expect(screen.getByRole("button", { name: "核对资料对路线的影响" })).toBeDisabled();
+    fireEvent.click(within(rows[1]).getByRole("button", { name: "移除补充资料 2 选择" }));
+    expect(summary.getAllByRole("listitem")).toHaveLength(1);
+    expect(summary.getByRole("listitem")).toHaveTextContent("事实已确认");
+    expect(screen.getByRole("button", { name: "核对资料对路线的影响" })).toBeEnabled();
+  });
   it("shows which facts and skill words a grouped coverage warning refers to", async () => {
     const { client, invoke, Controls } = fixture();
     const original = invoke.getMockImplementation()!;

@@ -97,15 +97,37 @@ export class MaterialContextService {
     return materialGenerationReceiptResponseSchema.parse({ state: "uncommitted", previewExpired });
   }
 
-  async history(ownerId: string, goalId: string): Promise<MaterialHistoryResponse> {
+  async history(ownerId: string, goalId: string, includeProposalState?: "current"): Promise<MaterialHistoryResponse> {
     const owned = await this.options.db.prepare("SELECT id FROM career_goals WHERE user_id=?1 AND id=?2").bind(ownerId, parse(materialIdSchema, goalId)).first();
     if (!owned) throw new PlanningNotFoundError();
-    const rows = await this.options.db.prepare("SELECT context_version_id,plan_version_id,kind FROM document_usage_links WHERE owner_id=?1 AND goal_id=?2 ORDER BY created_at DESC,plan_version_id LIMIT 200").bind(ownerId, goalId).all<{ context_version_id: string; plan_version_id: string; kind: "generation" | "proposal" | "accepted" }>();
+    // Acceptance appends a usage link for the same immutable pair. Resolve its state before filtering or limiting the history.
+    const rows = await this.options.db.prepare(`
+      WITH used AS (
+        SELECT workspace_id, context_version_id, plan_version_id, MAX(created_at) AS last_used,
+          CASE WHEN MAX(kind='accepted') THEN 'accepted' WHEN MAX(kind='generation') THEN 'generation' ELSE 'proposal' END AS kind
+        FROM document_usage_links WHERE owner_id=?1 AND goal_id=?2 GROUP BY workspace_id, context_version_id, plan_version_id
+      ), history AS (
+        SELECT u.*, CASE WHEN p.state IN ('revoked','discarded') THEN p.state
+          WHEN p.state='pending' AND w.pending_plan_version_id=u.plan_version_id AND w.active_plan_version_id=p.active_base_plan_id
+               AND w.revision=p.proposal_revision THEN 'pending' ELSE 'unknown' END AS proposal_state
+        FROM used u LEFT JOIN material_plan_proposals p ON p.owner_id=?1 AND p.goal_id=?2 AND p.workspace_id=u.workspace_id
+          AND p.candidate_plan_version_id=u.plan_version_id AND p.context_version_id=u.context_version_id
+        LEFT JOIN planning_workspaces w ON w.user_id=?1 AND w.goal_id=?2 AND w.id=u.workspace_id
+      )
+      SELECT context_version_id,plan_version_id,kind,proposal_state FROM history
+      WHERE ?3=1 OR kind!='proposal' OR proposal_state='pending'
+      ORDER BY last_used DESC,plan_version_id,context_version_id LIMIT 200
+    `).bind(ownerId, goalId, includeProposalState === "current" ? 1 : 0).all<{ context_version_id: string; plan_version_id: string;
+      kind: "generation" | "proposal" | "accepted"; proposal_state: NonNullable<MaterialHistoryResponse["plans"][number]["proposalState"]> }>();
     const plans: MaterialHistoryResponse["plans"] = [];
     for (const row of rows.results) {
       let preview: MaterialPreview | null = null;
-      try { preview = (await this.loadValid(ownerId, row.context_version_id, { ignoreExpiry: true, ignoreSelection: true })).preview; } catch { /* Redact revoked or missing private evidence without changing history. */ }
-      plans.push({ planVersionId: row.plan_version_id, contextVersionId: row.context_version_id, kind: row.kind, sourceAvailability: preview ? "available" : "unavailable", explanations: explainMaterialPreview(preview, Boolean(preview)) });
+      if (row.proposal_state !== "revoked") {
+        try { preview = (await this.loadValid(ownerId, row.context_version_id, { ignoreExpiry: true, ignoreSelection: true })).preview; } catch { /* Redact revoked or missing private evidence without changing history. */ }
+      }
+      plans.push({ planVersionId: row.plan_version_id, contextVersionId: row.context_version_id, kind: row.kind,
+        ...(includeProposalState && row.kind === "proposal" ? { proposalState: row.proposal_state } : {}),
+        sourceAvailability: preview ? "available" : "unavailable", explanations: explainMaterialPreview(preview, Boolean(preview)) });
     }
     return materialHistoryResponseSchema.parse({ plans });
   }

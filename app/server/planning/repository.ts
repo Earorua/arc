@@ -14,10 +14,11 @@ export type PlanningRepositoryPayload = PlanningOwnerGoal & Readonly<{
   sourceContext?: PlanningSourceContext;
 }>;
 
+export type PlanningReplayOperation = "generation" | "event" | "material-generation" | "material-proposal" | "accept";
 export type PlanningMutationLookup = PlanningOwnerGoal & Readonly<{
   mutationId: string;
   materialRequestDigest?: string;
-  expectNoMaterials?: boolean;
+  operation?: PlanningReplayOperation;
 }>;
 
 export type SavePlanningGenerationCommand = PlanningMutationLookup & Readonly<{

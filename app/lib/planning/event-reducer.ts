@@ -206,7 +206,7 @@ function proposeReplan(
     path = derivedPath(path, units, path.phases.map(phase => {
       const ids = new Set(phase.unitIds);
       return { ...phase, unitIds: units.filter(unit => ids.has(unit.id)).map(unit => unit.id) };
-    }), availability, event.planningDate, "agent-replanned", completedHistory);
+    }), availability, event.planningDate, "agent-replanned", completedHistory, event.materialContextFingerprint);
     pathVersions = appendUnique(pathVersions, path);
   } else if (event.kind === "availability_changed") {
     availability = availabilityVersionSchema.parse(event.availability);
@@ -416,6 +416,7 @@ function derivedPath(
   planningDate: string,
   reason: string,
   completedUnitIds: ReadonlySet<string> = new Set(),
+  materialContextFingerprint?: string,
 ): LearningPathVersion {
   const estimatedCompletionDate = estimateCompletionDate({ units, availability, planningDate, completedUnitIds });
   const sourceFields = {
@@ -438,7 +439,8 @@ function derivedPath(
     estimatedCompletionDate,
     availabilityVersionId: availability.id,
   };
-  const inputFingerprint = fingerprint({ sourcePathVersionId: source.id, reason, ...core });
+  const inputFingerprint = fingerprint({ sourcePathVersionId: source.id, reason, ...core,
+    ...(materialContextFingerprint ? { materialContext: materialContextFingerprint } : {}) });
   return learningPathVersionSchema.parse({
     ...core,
     id: deterministicId("learning-path", { inputFingerprint }),
