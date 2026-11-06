@@ -1,0 +1,229 @@
+{
+  "previousRun": {
+    "id": "materials-b2-kimi-2bcff09-r1",
+    "status": "STOPPED",
+    "settledMicroUsd": 35662,
+    "scored": 0,
+    "receiptQueries": 3,
+    "originalPrivateLedgerVerified": true
+  },
+  "retrieval": {
+    "defaultMaxGets": 3,
+    "totalTimeoutMs": 30000,
+    "fastTransientTargetOffsetsMs": [
+      0,
+      10000,
+      20000
+    ],
+    "minimumGapAfterTransientMs": 1000,
+    "retryAfterCanDelayOrStop": true,
+    "allowedDiagnosticFields": [
+      "startMs",
+      "endMs",
+      "httpStatus",
+      "outcome",
+      "retryAfterMs"
+    ],
+    "supplementMaxGets": 1
+  },
+  "packet": "B2-KIMI-20261106-R2",
+  "status": "PROPOSAL_ONLY",
+  "checkedAt": "2026-11-06T09:17:53.003Z",
+  "candidate": "88d07bf921a45dd33414436c718cfa039d97a849",
+  "tree": "101ec6bf574a81a31c52c5031c4ae4d3c77ba1bc",
+  "sourceBundleSha256": "21af5af7a1c0bdc2a764dc6ff62a753e39044fac4866471f81069a1c459abad9",
+  "settingsFile": "docs/verification/materials-gate-1b-b1/b2-settings.canonical-model.review.json",
+  "settingsFileSha256": "e77ac7703652018d0d1c6247a75f7cdfd5b3ab1780cdf94c9b8ef0d3ab863c72",
+  "configurationSha256": "ec56126eff54568bbd9960ad050c7311b137cb0ac44c2f42e0ea506c6c81718f",
+  "corpus": {
+    "file": "tests/fixtures/documents/quality-corpus.json",
+    "sha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+    "synthetic": true,
+    "resume": 12,
+    "jd": 12,
+    "normal": 18,
+    "edge": 6,
+    "systemPromptSha256": "d898968f77f383d3a83a849e6bc1995a8c51ccd0eb52fcaea0f0588ebceb3d13",
+    "requestBodySha256InSendOrder": [
+      {
+        "caseId": "resume-01",
+        "sha256": "c54977076deba5e605140b1d7ae8226b3c40079e3ab676912fd17ee99960c115"
+      },
+      {
+        "caseId": "resume-02",
+        "sha256": "73bef99f8749de3ca9139beada34b02ed42c08c6d81d8e91984e877a78fbc00a"
+      },
+      {
+        "caseId": "resume-03",
+        "sha256": "b442e80998a9b2a5e6c00bc61cdcaf1d8fab04793f5a28dbdcd967b85f31d0e5"
+      },
+      {
+        "caseId": "resume-04",
+        "sha256": "53cc0025319baae36e66c0c8fcfb08b1526afb4036f82274417c684c92ae9144"
+      },
+      {
+        "caseId": "resume-05",
+        "sha256": "e2da7a5b573ade366b8805536eb490b26938b31e76201fd2bb0a0be919a133cc"
+      },
+      {
+        "caseId": "resume-06",
+        "sha256": "476349f4a3d18c32d640ee1473cb10ac9407a29bb6ce0d3379cc52f2a969a4e8"
+      },
+      {
+        "caseId": "resume-07",
+        "sha256": "5abdbda519ff44347fd1d98082cbad675641f6bbcd5d53399fb649b074429c83"
+      },
+      {
+        "caseId": "resume-08",
+        "sha256": "edd833d13e561c9a644c5ac50499878e0acfca49ee11f5676602c64e1737ec84"
+      },
+      {
+        "caseId": "resume-09",
+        "sha256": "ecaaa34d018f4d052191a3dd2862f5ea820579c3aebd789bf9eda87655b4893b"
+      },
+      {
+        "caseId": "jd-01",
+        "sha256": "6b4e4b71e434e232734b6eac7eea2ad03ac368727b6c9c8aaaca0a1748d1d2cc"
+      },
+      {
+        "caseId": "jd-02",
+        "sha256": "edbe37f0743e69f83a74f25e785af3992220d96893427cc167551bef6f6edeea"
+      },
+      {
+        "caseId": "jd-03",
+        "sha256": "e0e09dd0f63b6d708ba56679e953f8358b39481ebac0e3525d408fe9613293e8"
+      },
+      {
+        "caseId": "jd-04",
+        "sha256": "7db546495f83a24bbcb6f9d1df9055489129be6f9164f9a81d9c8a909ff20a73"
+      },
+      {
+        "caseId": "jd-05",
+        "sha256": "f12357ae375df40dba4d57eadffe8d627b1561ffb74f89b390367f6b552615da"
+      },
+      {
+        "caseId": "jd-06",
+        "sha256": "f08c6137114608047156e50ccb07309af65739d65763061155cdf2919d5a9c2b"
+      },
+      {
+        "caseId": "jd-07",
+        "sha256": "60ceb575eb5125a3cf934cad16b53b0cdf4e994af806aa31b77d0b6c4505c139"
+      },
+      {
+        "caseId": "jd-08",
+        "sha256": "512f49a65744d08d5bf8c37ee999b7a2c98533eafe567f98d1ed3a6c1db382d2"
+      },
+      {
+        "caseId": "jd-09",
+        "sha256": "37312b9eb16cf76f9b2f1aace913a801b8008a63d9a8b235c521bd6d11976efb"
+      },
+      {
+        "caseId": "resume-10",
+        "sha256": "fe35c15201a6fc3a4451056948b8beeb5bf8abe5ae9baa19e84ece185deb5d86"
+      },
+      {
+        "caseId": "resume-11",
+        "sha256": "f7e4ddbb5a6ad18fdaa67cfb8fbbb85cf0bcacbb940b8bd7f2c4e12d95d8ef7f"
+      },
+      {
+        "caseId": "resume-12",
+        "sha256": "88f24fbb9c5f2e7c6d53074da1e375a889b4414761ca12b1686c1bee81250881"
+      },
+      {
+        "caseId": "jd-10",
+        "sha256": "1fec4370a78666b7d1f06caf8e831523dcf836755de493940b9c14923a63a39a"
+      },
+      {
+        "caseId": "jd-11",
+        "sha256": "f1ab30ea11d658f9424dc33a8a694939d50bee6642a6d38ecd74119f72bf1044"
+      },
+      {
+        "caseId": "jd-12",
+        "sha256": "e85198d5c40679b10aae35f196d3b90352379f132f022d1a1c11d4825671a6c3"
+      }
+    ],
+    "maxInputProtectionBound": 4750,
+    "sumInputProtectionBounds": 112234
+  },
+  "publicCatalog": {
+    "model": {
+      "url": "https://openrouter.ai/api/v1/model/moonshotai/kimi-k3.1-pro",
+      "observedAt": "2026-11-06T09:09:50.9952834Z",
+      "httpStatus": 200,
+      "responseSha256": "39e0cfbb4eddea57c5f1342b4f26a15f4780be7898d07fc701a232728e9d6bca"
+    },
+    "endpoints": {
+      "url": "https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints",
+      "observedAt": "2026-11-06T09:09:51.5699741Z",
+      "httpStatus": 200,
+      "responseSha256": "07de1f30838134e7566840377f4bc73c28bea819706ab097656d9df8055ce5f6"
+    },
+    "zdr": {
+      "url": "https://openrouter.ai/api/v1/endpoints/zdr",
+      "observedAt": "2026-11-06T09:09:52.6141589Z",
+      "httpStatus": 200,
+      "responseSha256": "fb016fbbd5545f2cf4d5b9702dee5dfb7e5b6f2c4dcea4449c8b81a2902bf647"
+    },
+    "requestModel": "moonshotai/kimi-k3.1-pro",
+    "generationModel": "moonshotai/kimi-k3.1-pro-20261023",
+    "tag": "moonshotai/mxfp4",
+    "provider": "Moonshot AI",
+    "expectedEndpointIdFromB1Receipt": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+    "pricingUsdPerToken": {
+      "prompt": "0.000002",
+      "completion": "0.00001",
+      "input_cache_read": "0.0000002",
+      "discount": 0
+    },
+    "listedInZdr": true,
+    "safetyRetention": false,
+    "implicitCaching": true
+  },
+  "scope": {
+    "proposedRunId": "materials-b2-kimi-timing-r2",
+    "machineWorkingDirectory": "C:\\Users\\XF\\.codex\\worktrees\\materials-receipt-accounting\\ui-warm-precision",
+    "journalPath": "work/materials-qualification/materials-b2-kimi-timing-r2",
+    "maxPosts": 24,
+    "maxGetsPerPost": 3,
+    "maxGenerationGets": 72,
+    "approvalWindowSeconds": 7200,
+    "postTimeoutMs": 180000,
+    "allGetsPerPostTimeoutMs": 30000,
+    "suiteTimeoutMs": 5100000,
+    "paidRetries": 0,
+    "workers": 1
+  },
+  "funding": {
+    "unit": "microUSD",
+    "maxJob": 75000,
+    "perDocumentReservation": 72960,
+    "fullRoundReservation": 1751040,
+    "proposedRoundCeiling": 2000000,
+    "recordedKeyLifetimeCeiling": 2000000,
+    "historicalSpent": 55168,
+    "conditionalKeyHeadroom": 1944832,
+    "conditionalHeadroomAfterFullRound": 193792,
+    "currentCreditBalanceVerified": false
+  },
+  "preparation": {
+    "codeAndCorpusMatchFrozenSource": true,
+    "unissuedDraftRejected": true,
+    "mockGrantExpiredAtActualClock": true,
+    "mockedPosts": 24,
+    "mockedGets": 24,
+    "wireScopeMatchedForAllCases": true,
+    "all24BodyDigestsIdenticalToR1": true,
+    "mockedLookupTracesVerified": true,
+    "duplicateRunRejectedInSameJournal": true,
+    "testFiles": 3,
+    "testsPassed": 38,
+    "guardTestLogSha256": "e8fb70584160e617306c120084f45296e91867c1288a72336d81a6af2df55cc7",
+    "realInferencePosts": 0,
+    "realGenerationGets": 0,
+    "newInferenceCostMicroUsd": 0,
+    "actualB2SlotCreated": false,
+    "workingKeyRequested": false,
+    "realQualityCases": 0,
+    "approvalIssued": false
+  }
+}

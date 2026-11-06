@@ -1,6 +1,8 @@
 # 多类型资料参与学习计划的发布进度
 
-更新于 2026-11-06。目标站点为 [arcmaps.net](https://arcmaps.net/)。B1 回执技术核验已通过。B2 第一轮已按回执核验规则停发，资料分析与个性化学习计划仍待验收及发布。
+更新于 2026-11-06。目标站点为 [arcmaps.net](https://arcmaps.net/)。B1 回执技术核验已通过。B2 第一轮停发后已完成回执查询的离线修复，新的 R2 质量轮待独立审批。
+
+**R2 候选已冻结。** 新版将可重试的读取分布到原有 30 秒窗口，逐次保存脱敏状态和耗时。全仓 7,566/7,566、附加 Node 290/290、页面 5/5 通过，新构建已完成 4 次本地发布 dry-run。24 份合成请求体逐一匹配原待审摘要。R2 真实推理 0、费用 0，累计已结算仍为 0.055168 USD。[修复验收](2026-11-06-materials-b2-lookup-repair.md) · [R2 授权单](../superpowers/runbooks/2026-11-06-materials-b2-r2-authorization.md)
 
 **11 月 6 日 B2 第一轮结案。** 持有人批准后完成账户、预算与冻结候选核验，提交首份 `resume-01`。3 次自动 generation GET 后为 `metadata-unavailable`，费用已结算 **0.035662 USD**，未决预留 0；质量评分 **0/24**，余下 23 份未发送。该 runId 已封存。[B2 结果](2026-11-06-materials-b2-r1-result.md) · [B2 授权单](../superpowers/runbooks/2026-11-06-materials-b2-authorization.md)
 
@@ -14,7 +16,7 @@
 | --- | --- | --- |
 | B0 离线准备 | 已冻结合成语料、执行器与站点基线，有离线质量、UI、恢复与清理记录。[B0 结果](2026-11-04-materials-gate-1b-b0-results.md) | 语料和历史结果保留核验依据。 |
 | B1 路由与账号 | 严格 ZDR 已指派，key 总限额 2.00 USD。累计推理 1 次、0.019506 USD；独立 GET 已返回 HTTP 200，真实配对核验通过。[B1 核验](2026-11-04-materials-gate-1b-b1-review.md) | 回执技术证据已补齐。原自动 GET 失败原因仍未知；后续合成范围、真实资料隐私边界和预算须分别授权。[实际结果](2026-11-05-materials-b1-single-receipt-result.md) |
-| B2 真实模型质量 | R1 `STOPPED`。已提交 1/24，已评分 0/24，余下 23 份留为 `not-run`，原始账本已封存。[实际结果](2026-11-06-materials-b2-r1-result.md) | 先离线核验每次 GET 的诊断记录与回执可用时序，再审批后续真实评测。 |
+| B2 真实模型质量 | R1 `STOPPED`，已提交 1/24、已评分 0/24，原始账本已封存。R2 新候选及独立授权单已准备。[R1 实际结果](2026-11-06-materials-b2-r1-result.md) | 独立批准后验证 R2 的真实回执可用性、24 份质量与逐笔账务。[R2 待审范围](../superpowers/runbooks/2026-11-06-materials-b2-r2-authorization.md) |
 | B3 与 B4 隔离验收 | B3 的本机模拟证据已经取得，线上隔离环境、B4 的真实用户操作和第二轮预算待办。[验收计划](../superpowers/plans/2026-11-04-private-materials-gate-1b-acceptance.md) | 独立验证实际绑定、账户准入、私有存储、恢复和删除；在页面以合成资料验证提取、确认、计划差异与已完成任务保护。 |
 | B5 与生产发布 | 已为普通用户实现独立生产准入、关闭开关和本地打包工具。两端要求同一份限时限额的生产授权。当前尚无生产授权或远端迁移。[执行器准入](../../worker/document-executor/production-policy.ts) · [生产包操作单](../superpowers/runbooks/2026-11-04-materials-production-package.md) | 完成 B2 至 B5、补充资料验证、生产资源实盘和签批，执行备份、迁移、回退演练及上线后验证。 |
 

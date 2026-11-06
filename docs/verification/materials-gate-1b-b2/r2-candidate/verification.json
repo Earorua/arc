@@ -1,0 +1,124 @@
+{
+  "candidate": "88d07bf921a45dd33414436c718cfa039d97a849",
+  "tree": "101ec6bf574a81a31c52c5031c4ae4d3c77ba1bc",
+  "bundleSha256": "21af5af7a1c0bdc2a764dc6ff62a753e39044fac4866471f81069a1c459abad9",
+  "checkedAt": "2026-11-06T09:17:18.841Z",
+  "vitest": {
+    "files": 355,
+    "passed": 7566,
+    "failed": 0
+  },
+  "node": {
+    "files": 9,
+    "passed": 290,
+    "failed": 0,
+    "testConcurrency": 1
+  },
+  "core": {
+    "files": 6,
+    "passed": 170
+  },
+  "rendered": {
+    "passed": 5
+  },
+  "typecheckExit": 0,
+  "lint": {
+    "errors": 0,
+    "existingWarnings": 4,
+    "finalChangedFilesClean": true
+  },
+  "researchBaselinesModified": false,
+  "artifacts": {
+    "mode": "closed",
+    "files": 390,
+    "treeSha256": "ed3f018c4cd972af6eeea4e0da60508ffc19ca52d8b44db4abc2818b0137c7a9",
+    "index": "artifact-index.json",
+    "verifiedAgainstDisk": true
+  },
+  "cleanBuild": {
+    "sourceMatchesGit": true,
+    "filesChecked": 915,
+    "credentialsPassed": false,
+    "nonLoopbackAttempts": 0,
+    "steps": {
+      "typecheck": {
+        "exitCode": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "site": {
+        "exitCode": 0,
+        "logSha256": "1dec2b53f943500593e25ca94c80faccb9db48f817b7edb9e5a2efec32adc7c5"
+      },
+      "rendered": {
+        "exitCode": 0,
+        "logSha256": "2f670c6ae0a17acff86e563b862d3ea50cc266460270ad514f9f395b8708e8b5"
+      },
+      "pair": {
+        "exitCode": 0,
+        "logSha256": "60ca4a94bbf8c2feaae1261f3669dc259d69b6398bccfb66ae0c834a6c6b39f0"
+      }
+    }
+  },
+  "localTestGuard": {
+    "finalVitestBlockedAttempts": 0,
+    "nodeBlockedAttempts": 0
+  },
+  "historicalPairReplay": {
+    "source": "redacted B1 pair",
+    "comparison": "compatible",
+    "status": "verified",
+    "simulatedGets": 1,
+    "trace": [
+      {
+        "startMs": 0,
+        "endMs": 16,
+        "httpStatus": 200,
+        "outcome": "record"
+      }
+    ],
+    "networkRequests": 0
+  },
+  "review": {
+    "remainingImportantFindings": 0,
+    "corrected": [
+      "non-object 200 data envelope",
+      "RFC 850 and asctime Retry-After",
+      "post-deadline rejected transport",
+      "cancel late response body"
+    ]
+  },
+  "redEvidence": {
+    "initialTimingFailures": 12,
+    "initialJournalFailures": 2,
+    "lateBodyFailures": 1,
+    "badEnvelopeFailures": 2,
+    "obsoleteDateFailures": 2,
+    "lateRejectionFailures": 2,
+    "intermediateFullRunFailures": 4
+  },
+  "scope": {
+    "realInferenceRequests": 0,
+    "newRealGenerationGets": 0,
+    "newInferenceCostMicroUsd": 0,
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "r1Status": "STOPPED",
+    "r2Approved": false,
+    "r2CasesRun": 0
+  },
+  "logsSha256": {
+    "timing-red.log": "95eb7b65167435718ce73de024be4eddd7ef9de165337945b54dab8b7a13d42c",
+    "journals-red.log": "f5716c7c3ded4a07f789449e4d8e618f92b7d68e36cea9b112c8588e0a90d530",
+    "boundaries-red.log": "55f94d28934950e9f5068baaf16aad297c0107cbb4899636a8fe7d8dec885b77",
+    "envelope-red.log": "2fe0ad6f135d7882db3a16a76f6b8622842e7556b52bee307ec3c14dd9b86708",
+    "date-red.log": "b7b637ad1db4f66b95d7badb73aef13ac75070bb0f5106a8118a8760255e135c",
+    "rejection-red.log": "162dc99291b3dd368cefda631b310ddb6d921476227596a5c803ddb11b193259",
+    "core-final-reviewed.log": "207b0b973115d4c10b0d6f60ad3dc4135ab9f7593f167e6f1d139259cf9558ed",
+    "full-vitest.log": "cd7af47f85ac9eae470a89af737c6306d56ac5f650b849ae9e8cc0632f111fc7",
+    "final-vitest.log": "bff6009fc32dc40201c395f3a87ec58a35bb06f955078730a3e86b79e9b91a94",
+    "node-suite.log": "67f6907cb8c5fdf93c9d7ef60e6e5cbf0157d4958f26ad389bf8f610710b8fe6",
+    "lint.log": "80a658ff97471ae0c7b53143b418cf616041407c42a88a4ecbb543f1c52aef0f",
+    "reviewed-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-paired-replay.json": "f346cc93cb320e26944d32f51d77e20034be20870f6259d5871fafd64703fed4"
+  }
+}
