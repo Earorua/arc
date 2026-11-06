@@ -1,0 +1,35 @@
+{
+  "sourceCommit": "28069c4b40e40e246155c12ff6f2e56aec2dc655",
+  "sourceFileCount": 977,
+  "sourceFileManifestSha256": "5cf9d37d01158fe89866f9b5bc24c8e5b973573fd9488f969a61435939a0df23",
+  "browserEvidenceSha256": "28b5682f103178c3a6e33280e66e72e90aeb68ff8db39cc753afbb01a33b9945",
+  "browserAssertions": 28,
+  "checks": {
+    "vitest": {
+      "logSha256": "cdc0d676bc14ae2c1c5ab2e24a5ebd877d28dbe52fad9261edffa42d43c42592",
+      "files": 360,
+      "tests": 7693
+    },
+    "node": {
+      "logSha256": "cee8a166c91e79d77e61e5af02728d5e1a88a9e114a4a76fb130443991f8c097",
+      "passed": 290
+    },
+    "types": {
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "lint": {
+      "logSha256": "60b3d6ea9c0df12cb6053781f0da72e179c4178054d569a8319f6a27c6eeede1"
+    },
+    "site": {
+      "logSha256": "56fb188cd878c7ce7813732da048ed06193a64b133e6abf3b6d589e409431566"
+    },
+    "render": {
+      "logSha256": "9abfc9ab020bc6b40bb53b0ac521f44106e937dde2fa1b8cd03de93af8c69a74",
+      "passed": 5
+    }
+  },
+  "realModelRequests": 0,
+  "newChargeMicroUsd": 0,
+  "remoteMigrations": 0,
+  "deployments": 0
+}
