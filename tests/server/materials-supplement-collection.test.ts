@@ -1,10 +1,11 @@
 // @vitest-environment node
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { pathToFileURL } from "node:url";
 import { afterEach, expect, it, vi } from "vitest";
 import corpus from "../fixtures/documents/supplement-quality-corpus.json";
 import { supplementCorpusSha256 } from "../../scripts/score-materials-supplements";
@@ -12,6 +13,9 @@ import * as collector from "../../scripts/collect-materials-supplements";
 import * as ledger from "../../scripts/materials-supplement-ledger";
 import { fixtureGenerationResponse } from "../helpers/document-generation-response";
 import type { DocumentFetch } from "../../worker/document-executor/provider-http";
+import { documentAcceptanceConfigurationDigest } from "../../worker/document-executor/acceptance-policy";
+import { KIMI_SOURCE_SPAN_POLICY_ID } from "../../worker/document-executor/source-span-extraction";
+import { build } from "esbuild";
 
 // The reviewed public route is part of the contract. Every call below still uses an injected local Response fixture.
 const endpoint = "https://openrouter.ai/api/v1/chat/completions";
@@ -54,6 +58,58 @@ it("prints the six public identity commitments and worst-case price offline for 
   expect(cli.stdout).not.toContain("goldFields");
 });
 
+it("uses the CLI's actual source bytes despite Git overrides, assume-unchanged files and ignored shadow modules", async () => {
+  const checkout = temporaryDirectory(), external = temporaryDirectory();
+  const script = join(checkout, "scripts", "collect-materials-supplements.mjs");
+  await build({ entryPoints: ["scripts/collect-materials-supplements.ts"], outfile: script, bundle: true, platform: "node", format: "esm", target: "node24", logLevel: "silent",
+    plugins: [{ name: "preserve-nonentry-module-urls", setup(builder) {
+      builder.onLoad({ filter: /\.(ts|mjs)$/ }, args => {
+        if (basename(args.path) === "collect-materials-supplements.ts" || args.path.includes("node_modules")) return;
+        const source = readFileSync(args.path, "utf8");
+        if (!source.includes("import.meta.url")) return;
+        return { contents: source.replaceAll("import.meta.url", JSON.stringify(pathToFileURL(args.path).href)),
+          loader: args.path.endsWith(".ts") ? "ts" : "js", resolveDir: dirname(args.path) };
+      });
+    } }] });
+  mkdirSync(join(checkout, "app"));
+  writeFileSync(join(checkout, "app", "source.ts"), "export const value = 1;\n");
+  writeFileSync(join(checkout, ".gitignore"), "app/ignored.js\n");
+  const baseEnv = { NODE_ENV: "test" as const, PATH: process.env.PATH, SystemRoot: process.env.SystemRoot, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: "/dev/null",
+    GIT_TERMINAL_PROMPT: "0", GIT_ALLOW_PROTOCOL: "", NODE_OPTIONS: process.env.NODE_OPTIONS, ARC_LOCAL_BUILD_DENIAL_LOG: process.env.ARC_LOCAL_BUILD_DENIAL_LOG };
+  const git = (args: string[], extra: Record<string, string> = {}) => {
+    const result = spawnSync("git", ["-c", "core.autocrlf=false", "-c", "commit.gpgSign=false", "-c", "user.name=Local Fixture",
+      "-c", "user.email=fixture@example.invalid", ...args], { cwd: checkout, env: { ...baseEnv, ...extra }, encoding: "utf8", windowsHide: true });
+    expect(result.status, result.stderr).toBe(0); return result.stdout.trim();
+  };
+  git(["init", "--quiet"]); git(["add", "."]); git(["commit", "--quiet", "-m", "Temporary synthetic source fixture"]);
+  const commit = git(["rev-parse", "HEAD"]);
+  const check = (extra: Record<string, string> = {}) => spawnSync(process.execPath, [script, "--check-source", commit], {
+    cwd: checkout, env: { ...baseEnv, ...extra }, encoding: "utf8", windowsHide: true,
+  });
+  const clean = check(); expect(clean.status, clean.stderr).toBe(0);
+  expect(JSON.parse(clean.stdout)).toMatchObject({ candidateCommit: commit, checkedFiles: 3 });
+  git(["update-index", "--assume-unchanged", "app/source.ts"]);
+  writeFileSync(join(checkout, "app", "source.ts"), "export const value = 2;\n");
+  expect(check().status).toBe(2);
+  const otherTree = join(external, "empty"); mkdirSync(otherTree);
+  const overrides = { GIT_DIR: join(checkout, ".git"), GIT_WORK_TREE: otherTree, GIT_INDEX_FILE: join(external, "index") };
+  git(["read-tree", commit], overrides);
+  git(["update-index", "--skip-worktree", ".gitignore", "app/source.ts", "scripts/collect-materials-supplements.mjs"], overrides);
+  expect(check(overrides).status).toBe(2);
+  writeFileSync(join(checkout, "app", "source.ts"), "export const value = 1;\n");
+  git(["update-index", "--no-assume-unchanged", "app/source.ts"]);
+  writeFileSync(join(checkout, "app", "ignored.js"), "throw Error('unreviewed shadow');");
+  expect(check(overrides).status).toBe(2);
+}, 30_000);
+
+it("rejects a junction or symlink that makes another checkout's registered ledger appear local", () => {
+  const directory = temporaryDirectory(), other = temporaryDirectory(), alias = join(other, "ledger-alias");
+  const identity = ledger.registerSupplementLedger(directory);
+  symlinkSync(directory, alias, process.platform === "win32" ? "junction" : "dir");
+  try { expect(() => ledger.openSupplementLedger(alias, "fixture", identity)).toThrow("supplement-ledger-mismatch"); }
+  finally { unlinkSync(alias); }
+});
+
 const candidate = "a".repeat(40), credential = "synthetic-supplement-credential";
 const sha = (value: string) => createHash("sha256").update(value).digest("hex");
 const now = () => new Date("2026-11-04T08:10:00Z");
@@ -91,6 +147,224 @@ function transport(post: (index: number) => Response = i => chat(i, "gen-fixture
 }
 const collect = (raw: string, directory: string, fetch: DocumentFetch) =>
   collector.collectSupplementRun(raw, environment(raw), options(directory, fetch));
+const fixtureBinding = (grant: unknown) => {
+  const raw = JSON.stringify(grant);
+  return collector.supplementCaptureBinding(raw, sha(raw), "offline-test");
+};
+
+async function sourceSpanFixture(directory: string) {
+  const legacy = await issued(directory);
+  const config = { ...legacy.config, providerPolicyId: KIMI_SOURCE_SPAN_POLICY_ID };
+  const qualification = { ...legacy.qualification, providerPolicyId: KIMI_SOURCE_SPAN_POLICY_ID };
+  return { config, qualification, authorization: { ...legacy.authorization,
+    configurationSha256: await documentAcceptanceConfigurationDigest(config, qualification) } };
+}
+
+// Independent synthetic wire replies, authored from each document's two body sentences.
+// In particular, reply 1 leaves off a full stop that only the production source decoder restores.
+function spanContent(index: number) {
+  const lines = corpus.documents[index]!.text.split("\n").slice(1);
+  const source = (line: number) => ({ segmentId: "segment-1", quote: lines[line]! });
+  const fact = (line: number, kind: string, skillLabels: string[], requirementLevel: string | null = null, selfLevelHint: string | null = null) =>
+    ({ kind, skillLabels, requirementLevel, selfLevelHint, source: source(line) });
+  const point = (line: number, code: string) => ({ code, source: source(line) });
+  const cases = [
+    () => ({ items: [{ ...fact(0, "experience", ["SQL"]), source: { ...source(0), quote: lines[0]!.slice(0, -1) } }, fact(1, "requirement", ["SQL"], "preferred")], reviewPoints: [] }),
+    () => ({ items: [fact(0, "experience", ["OpenTelemetry"], null, "guided"), fact(1, "skill-claim", ["observability"], null, "conceptual")],
+      reviewPoints: [point(0, "confirm-self-assessment"), point(1, "confirm-self-assessment")] }),
+    () => ({ items: [fact(0, "constraint", []), fact(1, "constraint", [])], reviewPoints: [point(1, "missing-information")] }),
+    () => ({ items: [fact(0, "experience", ["Kubernetes"]), fact(1, "experience", [])], reviewPoints: [point(0, "team-attribution")] }),
+    () => ({ items: [], reviewPoints: [point(0, "prompt-injection"), point(1, "untrusted-resource-url")] }),
+    () => ({ items: [fact(0, "requirement", ["SQL"], "unspecified"), fact(1, "requirement", ["TypeScript"], "preferred")], reviewPoints: [point(0, "conflicting-requirement")] }),
+  ];
+  return " \n" + JSON.stringify({ format: "source-spans-v1", ...cases[index]!() }, null, 1) + "\n ";
+}
+function spanChat(index: number, content = spanContent(index), finish = "stop") {
+  return Response.json({ id: `gen-span-${index}`, model: config.model, provider: qualification.receiptRoute.providerName,
+    usage: { prompt_tokens: 100, completion_tokens: 20, cost: 0.000007 },
+    choices: [{ finish_reason: finish, message: { role: "assistant", content } }] });
+}
+it("runs the separately pinned source-span collector end to end and preserves the original replies beside the scored output", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory);
+  const http = transport(index => spanChat(index));
+  const result = await collect(JSON.stringify(grant), directory, http);
+  expect(result).toMatchObject({ mode: "offline-test", status: "complete", requestsSent: 6, settledMicroUsd: 42, heldMicroUsd: 0,
+    quality: { passed: true, normalPrefillCount: 3, edgePassCount: 3, realModelEvaluated: false } });
+  expect(http.mock.calls.map(([, init]) => init?.method)).toEqual(Array.from({ length: 6 }, () => ["POST", "GET"]).flat());
+  const posts = http.mock.calls.filter(([, init]) => init?.method === "POST").map(([, init]) => JSON.parse(String(init?.body)));
+  expect(posts.every(post => post.messages[0].content.includes("source-spans-v1"))).toBe(true);
+  expect(posts.map(post => JSON.parse(post.messages[1].content))).toEqual(corpus.documents.map(doc => ({ kind: "supplement", segments: doc.segments.map(segment => ({ segmentId: segment.id, text: segment.text })) })));
+  const rows = inspectDb(directory, "SELECT raw_content_json,audit_json FROM attempts ORDER BY rowid");
+  expect(rows.map(row => JSON.parse(String(row.raw_content_json)))).toEqual(corpus.documents.map((_, index) => spanContent(index)));
+  expect(rows.every(row => JSON.parse(String(row.audit_json)).extractionRead === "parsed")).toBe(true);
+  const reopened = ledger.openSupplementLedger(directory, grant.authorization.runId, grant.authorization.ledgerSha256);
+  try {
+    expect(reopened.captures(fixtureBinding(grant))[0]?.extraction).toMatchObject({ schemaVersion: corpus.schemaVersion, items: [
+      expect.objectContaining({ id: "candidate-1", text: corpus.documents[0]!.text.split("\n")[1] }), expect.objectContaining({ id: "candidate-2" }),
+    ] });
+  } finally { reopened.close(); }
+});
+it.each(["legacy-shape", "invented-source", "output-limit", "generation-limit", "missing-fact"] as const)("keeps verified billing separate from a source-span quality failure: %s", async failure => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory);
+  const wire = JSON.parse(spanContent(0));
+  if (failure === "invented-source") wire.items[0].source.quote = "Invented quote.";
+  if (failure === "missing-fact") wire.items.pop();
+  const sourceLines = corpus.documents[0]!.text.split("\n").slice(1);
+  const first = failure === "legacy-shape" ? JSON.stringify({ schemaVersion: corpus.schemaVersion, reviewPoints: [], items: wire.items.map(
+    (item: {source: {segmentId: string}}, index: number) => ({ ...item, id: `fact-${index}`, text: sourceLines[index], source: { ...item.source, quote: sourceLines[index] } })) }) : JSON.stringify(wire);
+  const http = transport(index => index ? spanChat(index) : spanChat(0, first, failure === "output-limit" ? "length" : "stop"),
+    id => failure === "generation-limit" && id === "gen-span-0" ? Response.json({ data: { id, model: qualification.receiptRoute.generationModel,
+      provider_name: qualification.receiptRoute.providerName, provider_responses: [{ status: 200, endpoint_id: qualification.receiptRoute.endpointId }],
+      native_tokens_prompt: 100, native_tokens_completion: 20, total_cost: 0.000007, native_finish_reason: "length" } }) : generation(id));
+  const result = await collect(JSON.stringify(grant), directory, http);
+  expect(result).toMatchObject({ status: "quality-failed", reason: "quality-threshold-failed", requestsSent: 6, heldMicroUsd: 0, settledMicroUsd: 42,
+    quality: { passed: false, normalPrefillCount: 2, edgePassCount: 3 } });
+  const row = inspectDb(directory, "SELECT raw_content_json,audit_json FROM attempts ORDER BY rowid LIMIT 1")[0]!;
+  expect(JSON.parse(String(row.raw_content_json))).toBe(first);
+  expect(JSON.parse(String(row.audit_json))).toMatchObject({ status: "verified", extractionRead: {
+    "legacy-shape": "invalid-shape", "invented-source": "invalid-source", "output-limit": "output-limit", "generation-limit": "output-limit", "missing-fact": "parsed",
+  }[failure] });
+  expect(result.quality?.documents[0]?.passed).toBe(false);
+  expect(http).toHaveBeenCalledTimes(12);
+});
+it("settles an observed charge and stops before the second POST when the decoded output cannot be recorded", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), raw = JSON.stringify(grant);
+  const http = transport(index => {
+    const db = new DatabaseSync(join(directory, "ledger.sqlite"));
+    try { db.exec("CREATE TRIGGER fail_projection BEFORE INSERT ON source_span_outputs BEGIN SELECT RAISE(ABORT,'simulated fault'); END"); }
+    finally { db.close(); }
+    return spanChat(index);
+  });
+  expect(await collect(raw, directory, http)).toMatchObject({ status: "stopped", reason: "capture-failed", requestsSent: 1, settledMicroUsd: 7, heldMicroUsd: 0, quality: null });
+  const attempt = inspectDb(directory, "SELECT * FROM attempts")[0]!;
+  expect(attempt).toMatchObject({ state: "settled", reason: "capture-failed", actual_micro_usd: 7, raw_content_json: JSON.stringify(spanContent(0)) });
+  expect(JSON.parse(String(attempt.audit_json))).toMatchObject({ status: "verified", extractionRead: "parsed", metadataAttempts: 1 });
+  await expect(collect(raw, directory, http)).rejects.toThrow("supplement-run-unavailable");
+  expect(http).toHaveBeenCalledTimes(2);
+});
+it("requires the durable original to match the received unedited content before recording its decoded output", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory);
+  const http = transport(index => spanChat(index), id => {
+    const db = new DatabaseSync(join(directory, "ledger.sqlite"));
+    try { db.prepare("UPDATE attempts SET raw_content_json=? WHERE receipt_id=?").run(JSON.stringify("replaced"), id); }
+    finally { db.close(); }
+    return generation(id);
+  });
+  expect(await collect(JSON.stringify(grant), directory, http)).toMatchObject({ status: "stopped", reason: "capture-failed", requestsSent: 1, settledMicroUsd: 7, heldMicroUsd: 0, quality: null });
+  expect(inspectDb(directory, "SELECT * FROM source_span_outputs")).toEqual([]);
+  expect(http).toHaveBeenCalledTimes(2);
+});
+it("holds the source-span reservation and preserves the reply when neither side supplies a trusted price", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), raw = JSON.stringify(grant);
+  const http = transport(() => Response.json({ id: "gen-no-priced-span", model: config.model,
+    choices: [{ finish_reason: "stop", message: { role: "assistant", content: spanContent(0) } }] }), () => new Response(null, { status: 503 }));
+  expect(await collect(raw, directory, http)).toMatchObject({ status: "held", requestsSent: 1, settledMicroUsd: 0, heldMicroUsd: 72_960, quality: null });
+  expect(inspectDb(directory, "SELECT state,raw_content_json FROM attempts")).toEqual([{ state: "held", raw_content_json: JSON.stringify(spanContent(0)) }]);
+  expect(inspectDb(directory, "SELECT * FROM source_span_outputs")).toEqual([]);
+  await expect(collect(raw, directory, http)).rejects.toThrow("supplement-run-unavailable");
+  expect(http).toHaveBeenCalledTimes(2);
+});
+it.each(["raw", "canonical", "missing", "version"] as const)("refuses to replay a %s archive mismatch instead of rescoring an alternative", async evidence => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory);
+  await collect(JSON.stringify(grant), directory, transport(index => spanChat(index)));
+  const db = new DatabaseSync(join(directory, "ledger.sqlite"));
+  try {
+    const action = { raw: "UPDATE attempts SET raw_content_json='null'", canonical: "UPDATE source_span_outputs SET extraction_json='null'",
+      missing: "DELETE FROM source_span_outputs", version: "UPDATE attempts SET text_version_id='wrong-version'" }[evidence];
+    db.prepare(action + " WHERE run_id=? AND document_id=?").run(grant.authorization.runId, "supplement-01");
+  } finally { db.close(); }
+  const reopened = ledger.openSupplementLedger(directory, grant.authorization.runId, grant.authorization.ledgerSha256);
+  try { expect(() => reopened.captures(fixtureBinding(grant))).toThrow("supplement-capture-mismatch"); }
+  finally { reopened.close(); }
+});
+it("does not persist an escaped credential in the original or decoded source-span evidence", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), first = JSON.parse(spanContent(0));
+  first.items[0].skillLabels = [credential];
+  const encoded = JSON.stringify(first).replace(credential, "\\u0073" + credential.slice(1));
+  expect(encoded).not.toContain(credential);
+  const http = transport(() => spanChat(0, encoded));
+  expect(await collect(JSON.stringify(grant), directory, http)).toMatchObject({ status: "stopped", reason: "capture-failed", requestsSent: 1, settledMicroUsd: 7, heldMicroUsd: 0, quality: null });
+  expect(inspectDb(directory, "SELECT raw_content_json FROM attempts")).toEqual([{ raw_content_json: null }]);
+  expect(inspectDb(directory, "SELECT * FROM source_span_outputs")).toEqual([]);
+  expect(http.mock.calls.map(([, init]) => init?.method)).toEqual(["POST"]);
+});
+it("does not enable the supplement collector while the separate diagnostic pilot is enabled", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), raw = JSON.stringify(grant), http = transport(index => spanChat(index));
+  const keyRead = vi.fn(() => credential);
+  const env = Object.defineProperty({ ...environment(raw), ARC_DOCUMENT_PILOT_ENABLED: "true" }, "ARC_SUPPLEMENT_PROVIDER_API_KEY", { get: keyRead });
+  await expect(collector.collectSupplementRun(raw, env, options(directory, http))).rejects.toThrow("supplement-disabled");
+  expect(http).not.toHaveBeenCalled(); expect(keyRead).not.toHaveBeenCalled();
+});
+it("refuses cross-policy issuances and never expands the legacy one-GET allowance for a source-span run", async () => {
+  const directory = temporaryDirectory(), legacy = await issued(directory), span = await sourceSpanFixture(directory);
+  const http = transport(index => spanChat(index), () => new Response(null, { status: 404 }));
+  for (const [settings, grant] of [[legacy, span], [span, legacy]] as const) {
+    const raw = JSON.stringify({ ...settings, authorization: grant.authorization });
+    const keyRead = vi.fn(() => credential);
+    await expect(collector.collectSupplementRun(raw, Object.defineProperty(environment(raw), "ARC_SUPPLEMENT_PROVIDER_API_KEY", { get: keyRead }), options(directory, http)))
+      .rejects.toThrow("supplement-authorization-invalid");
+    expect(keyRead).not.toHaveBeenCalled();
+  }
+  expect(http).not.toHaveBeenCalled();
+  expect(await collect(JSON.stringify(span), directory, http)).toMatchObject({ status: "stopped", requestsSent: 1, settledMicroUsd: 7, heldMicroUsd: 0, quality: null });
+  expect(http.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET"]);
+});
+
+it("cannot turn six truncated source-span replies into a passing legacy run by changing the stored issuance before scoring", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), raw = JSON.stringify(grant);
+  const http = transport(index => spanChat(index, docContent(index), "length"), id => {
+    if (id === "gen-span-5") {
+      const db = new DatabaseSync(join(directory, "ledger.sqlite"));
+      try { db.prepare("UPDATE collection_runs SET issuance_json=json_set(issuance_json,'$.config.providerPolicyId',?) WHERE run_id=?")
+        .run(config.providerPolicyId, grant.authorization.runId); } finally { db.close(); }
+    }
+    return generation(id);
+  });
+  expect(await collect(raw, directory, http)).toMatchObject({ status: "stopped", reason: "issuance-mismatch", requestsSent: 6,
+    settledMicroUsd: 42, heldMicroUsd: 0, quality: null, mode: "offline-test" });
+  expect(inspectDb(directory, "SELECT state,actual_micro_usd FROM attempts")).toEqual(Array.from({ length: 6 }, () => ({ state: "settled", actual_micro_usd: 7 })));
+  const reopened = ledger.openSupplementLedger(directory, grant.authorization.runId, grant.authorization.ledgerSha256);
+  try {
+    const original = fixtureBinding(grant);
+    expect(() => reopened.captures(original)).toThrow("supplement-run-binding-mismatch");
+    expect(() => reopened.captures(undefined as never)).toThrow("supplement-run-binding-mismatch");
+    const changed = String(inspectDb(directory, "SELECT issuance_json FROM collection_runs")[0]!.issuance_json);
+    expect(() => reopened.captures({ ...original, publicIssuance: changed })).toThrow("supplement-run-binding-mismatch");
+  } finally { reopened.close(); }
+  expect(http).toHaveBeenCalledTimes(12);
+});
+it.each(["before-send", "unknown-cost"] as const)("fails closed on a stored issuance digest change with %s accounting", async when => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), raw = JSON.stringify(grant);
+  const change = "UPDATE collection_runs SET issuance_sha256='" + "b".repeat(64) + "'";
+  if (when === "before-send") {
+    const db = new DatabaseSync(join(directory, "ledger.sqlite"));
+    try { db.exec(`CREATE TRIGGER drift AFTER INSERT ON collection_runs BEGIN ${change}; END`); } finally { db.close(); }
+  }
+  const http = transport(() => Response.json({ id: "gen-no-price", model: config.model, choices: [{ message: { content: spanContent(0) } }] }), () => {
+    const db = new DatabaseSync(join(directory, "ledger.sqlite"));
+    try { db.exec(change); } finally { db.close(); }
+    return new Response(null, { status: 503 });
+  });
+  expect(await collect(raw, directory, http)).toMatchObject({ status: when === "before-send" ? "stopped" : "held", reason: "issuance-mismatch",
+    requestsSent: when === "before-send" ? 0 : 1, heldMicroUsd: when === "before-send" ? 0 : 72_960, settledMicroUsd: 0, quality: null });
+  expect(http).toHaveBeenCalledTimes(when === "before-send" ? 0 : 2);
+});
+it("cannot label an injected clock, candidate predicate, directory and transport as live evidence", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), raw = JSON.stringify(grant), http = transport(index => spanChat(index));
+  const forged = { ...options(directory, http), mode: "authorized-live" };
+  await expect(collector.collectSupplementRun(raw, environment(raw), forged as ReturnType<typeof options>)).rejects.toThrow("supplement-fixture-refused");
+  expect(http).not.toHaveBeenCalled();
+  expect(inspectDb(directory, "SELECT * FROM collection_runs")).toEqual([]);
+});
+it("accepts only the fixed placeholder in injectable fixtures, and refuses a public run ID containing the key or its fingerprint", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), http = transport(index => spanChat(index));
+  for (const [key, runId] of [["another-private-looking-fixture-key", "wrong-key"], [credential, `public-${credential}-suffix`], [credential, `public-${sha(credential)}-suffix`]]) {
+    const raw = JSON.stringify({ ...grant, authorization: { ...grant.authorization, runId, credentialSha256: sha(key!) } });
+    await expect(collector.collectSupplementRun(raw, { ...environment(raw), ARC_SUPPLEMENT_PROVIDER_API_KEY: key! }, options(directory, http))).rejects.toThrow();
+  }
+  expect(http).not.toHaveBeenCalled();
+  expect(inspectDb(directory, "SELECT * FROM collection_runs")).toEqual([]);
+});
 
 it("requires a separate pinned issuance before opening the ledger or reading the dedicated credential", async () => {
   const directory = temporaryDirectory(), base = await issued(directory), http = transport(), opts = options(directory, http);
