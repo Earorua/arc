@@ -1,0 +1,43 @@
+{
+  "source": "28069c4b40e40e246155c12ff6f2e56aec2dc655",
+  "publicProofSha256": "bdbd1a9125f9d9a677c179c3c6c81503868ab6dac01f3f77bac900d3281fa39c",
+  "closedPackageSha256": "c238fc056659517d5b13113e3d349a08fee46daef0688a6b8b8e83a4ee8dcb3e",
+  "rollbackFixturePackageAndFinalPublicClosedPackage": {
+    "allFilesCompared": 390,
+    "pathsAndEveryFileSha256Identical": true
+  },
+  "rollbackSummarySha256": "e01f334f57cdf9a94318a8b75830b4ea9a59643b444870efcde3c37d1648c9a2",
+  "rollbackRawSha256": "153b8c6738cedf17a72f884f84485559cc8282053ca91bee70d4cb3c1f76c021",
+  "modelEquivalenceSha256": "6ae531f4e841b383c6845b93b911ca5413108eba7cfa5c1ebc1d8b6f04689090",
+  "originalClosedBuild": {
+    "artifactTreeSha256": "45b7134e073fb7471418b2e0c03d9e3d18f38ff1300ed95931bef0bb4bb618a5",
+    "firstBuildSha256": "0c6e1dce6ddc782f4a3d2502293d57639e96d39dab2b36f7e15291291aa5f2cb",
+    "independentCompilerSha256": "5e3f5228e1f2fbd1573c98a9eed2eb585c0071492123400a8e694062adfcca39",
+    "sameLineCount": true,
+    "differentLineCount": 80,
+    "onlySourcePathMarkers": true,
+    "accepted": false
+  },
+  "physicalBuild": {
+    "artifactTreeSha256": "2ccd09b1c86aabdee65b9cea8ba10c655ea5e99f04e8cfdb74b1380c8ace7a4f",
+    "executorSha256": "5e3f5228e1f2fbd1573c98a9eed2eb585c0071492123400a8e694062adfcca39",
+    "nonDocSourceFiles": 977,
+    "matchedIndependentCompilerWithoutFiltering": true,
+    "standardCliAndWranglerProof": true
+  },
+  "additionalObservedPackageRefusals": {
+    "count": 2,
+    "windowsDefaultTemporaryDirectory": true,
+    "retryWithIdenticalPacketSucceeded": true,
+    "underlyingCauseEstablished": false,
+    "standardRunWithSeparateTemporaryDirectoryPassed": true
+  },
+  "afterFreezeScope": {
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "actualProviderRequests": 0,
+    "realReceiptGets": 0,
+    "paidCostMicroUsd": 0,
+    "realProductionAuthorizationIssued": false
+  }
+}

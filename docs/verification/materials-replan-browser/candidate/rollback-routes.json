@@ -1,0 +1,1094 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "28069c4b40e40e246155c12ff6f2e56aec2dc655",
+  "startedAt": "2026-11-06T12:45:51.665Z",
+  "worker": "Miniflare/workerd with native D1 and R2; reviewed compiled site JS bytes",
+  "entrySha256": "29ac024dcd1c29d46b5aa60208016fe423cffd673e30cc4bf4ba004cac18a8fd",
+  "moduleCount": 65,
+  "moduleSetSha256": "467ae0cef8362ed4ab1aeda05878b396e7f6385acbb0143e1bf6141f79faf01b",
+  "programSha256": "98f0b0505f26b681a5fea93cd4cd276da3de9cbb008e79e53d4156a4feabdc1a",
+  "launcherSha256": "e86b348082d8796c89049c6242ef6c53954483f35785f9fb7501448cc3ccf4cd",
+  "checkedSourceMetadataSha256": "fc721e1564728f391fe2430ca94217d708ad5419745e81c18c7f9372a1e4cc22",
+  "network": {
+    "workerOutbound": 0,
+    "executorCalls": 0,
+    "researchExecutorCalls": 0,
+    "assetCalls": 0,
+    "hostDenials": 0
+  },
+  "routes": [
+    {
+      "phase": "enabled",
+      "actor": "anonymous",
+      "operation": "anonymous-workspace",
+      "method": "GET",
+      "status": 401,
+      "errorCode": "UNAUTHENTICATED"
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "signed-session",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "signed-session",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "readDocumentCapabilities",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "saveDocumentReviewDraft",
+      "method": "PUT",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createDocumentConfirmation",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "saveDocumentReviewDraft",
+      "method": "PUT",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createDocumentConfirmation",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "saveDocumentReviewDraft",
+      "method": "PUT",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createDocumentConfirmation",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "saveDocumentReviewDraft",
+      "method": "PUT",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createDocumentConfirmation",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createMaterialSelection",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createMaterialContext",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "generatePlanning",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "complete-task",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createMaterialSelection",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "createMaterialContext",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "materialReplan",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "readAdoptedMaterials",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "pending",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "readDocumentCapabilities",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "saveDocumentReviewDraft",
+      "method": "PUT",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createDocumentConfirmation",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "saveDocumentReviewDraft",
+      "method": "PUT",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createDocumentConfirmation",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "saveDocumentReviewDraft",
+      "method": "PUT",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createDocumentConfirmation",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "saveDocumentReviewDraft",
+      "method": "PUT",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createDocumentConfirmation",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createMaterialSelection",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createMaterialContext",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "generatePlanning",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "complete-task",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createMaterialSelection",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "createMaterialContext",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "materialReplan",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "accept-before-close",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "readAdoptedMaterials",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "enabled",
+      "actor": "accepted",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readDocumentCapabilities",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "read-workspace-after-close",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readAdoptedMaterials",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "createMaterialContext",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "materialReplan",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "createDocumentJob",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "fresh-pending-accept-refused",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "PLANNING_UNAVAILABLE"
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "workspace-after-closed-admission",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "discard-existing-pending",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readAdoptedMaterials",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "deleteDocument",
+      "method": "DELETE",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readDocumentDeletion",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "workspace-after-source-revocation",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "readDocumentCapabilities",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "read-workspace-after-close",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "readAdoptedMaterials",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "createDocument",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "createMaterialContext",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "materialReplan",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "createDocumentJob",
+      "method": "POST",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "accepted-identical-receipt-replay",
+      "method": "POST",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "workspace-after-closed-admission",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "deleteDocument",
+      "method": "DELETE",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "readDocumentDeletion",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "workspace-after-source-revocation",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readDocumentDeletion",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "readDocumentDeletion",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "archived-goal-list",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "archived-plan-after-close",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "pending",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "archived-goal-list",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "archived-plan-after-close",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "readMaterialHistory",
+      "method": "GET",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "phase": "closed",
+      "actor": "accepted",
+      "operation": "wrong-owner-saved-plan",
+      "method": "GET",
+      "status": 404,
+      "errorCode": "NOT_FOUND"
+    }
+  ],
+  "assertions": [
+    "production Better Auth signed cookies resolve only seeded local users",
+    "both authentic sessions survive an actual same-code disabled restart with durable D1/R2",
+    "pending proposal stays pending on refused fresh accept; explicit discard is allowed",
+    "already accepted plan and its exact receipt replay remain readable without a new write",
+    "manual document, material preview/replan and analysis job ingress all refuse new work after closure",
+    "completed task and equivalent history/adopted links are preserved; source deletion redacts only affected evidence",
+    "native scheduled cleanup completes both deletions; wrong-owner archival read refused; zero inference jobs, reservations or outbound requests"
+  ],
+  "deployment": {
+    "mode": "final-closed-package",
+    "configSha256": "f63c83be265a73f89859695ee6113587ab4d1dfee3c1c82ee3534bc0b66b1b93",
+    "closedBindings": {
+      "ARC_ENVIRONMENT": "production",
+      "ARC_DOCUMENT_ACCEPTANCE_MODE": null,
+      "ARC_DOCUMENT_PRODUCTION_ENABLED": "false",
+      "ARC_DOCUMENTS_ENABLED": "false",
+      "ARC_DOCUMENT_ANALYSIS_ENABLED": "false",
+      "ARC_DOCUMENT_PLANNING_ENABLED": "false",
+      "ARC_AI_ENABLED": "true",
+      "ARC_AI_RESEARCH_ENABLED": "true"
+    },
+    "compatibilityDate": "2026-05-15",
+    "compatibilityFlags": [
+      "nodejs_compat"
+    ],
+    "serviceBindings": [
+      "ARC_RESEARCH_EXECUTOR",
+      "DOCUMENT_EXECUTOR"
+    ],
+    "closedMaterialFlagOverrides": [],
+    "authorizationEmpty": true,
+    "testOverrides": [
+      "local Better Auth origin/session secret and fake OAuth provider",
+      "local native D1/R2 with named service bindings mapped to sinks",
+      "ARC_AI_ENABLED and ARC_AI_RESEARCH_ENABLED forced false locally; unrelated Research executor URL replaced by an isolated .test name; no provider credentials"
+    ],
+    "artifactTreeSha256": "c238fc056659517d5b13113e3d349a08fee46daef0688a6b8b8e83a4ee8dcb3e",
+    "filesVerified": 390,
+    "indexSha256": "0607df07889ace186007333e6471633c440de60e01c9679c510b18c22945c35f",
+    "artifactVerificationSha256": "daf6ee0def5f2ea4a9ee76e8ebe1f939def985878e769b00f855fa9a843f8273"
+  },
+  "sourceFilesVerified": 977,
+  "sourceFileSetSha256": "12f9e68919dc9f5d3dfd1280c93de451636f3038e8a2060c1c1b0ea4322136c9",
+  "workerModuleManifest": [
+    {
+      "path": "index.js",
+      "sha256": "29ac024dcd1c29d46b5aa60208016fe423cffd673e30cc4bf4ba004cac18a8fd"
+    },
+    {
+      "path": "__vite_rsc_assets_manifest.js",
+      "sha256": "8676a0c1bd98740975c9f070f6a3789865c6dacd929667f51654b824a1cfe5a1"
+    },
+    {
+      "path": "assets/bun-sqlite-dialect-DTyyejk1-CLUAVF1H.js",
+      "sha256": "2d26a6894324e048aef911b60db99324fefb3963ae8344ba8d669d5ebdf7f0c5"
+    },
+    {
+      "path": "assets/compiled-query-D_d1asAk.js",
+      "sha256": "7dec7f4c2fa91ab2c969210ea7f88a9c2f885fda7147e7900dd531daba28f982"
+    },
+    {
+      "path": "assets/d1-sqlite-dialect-CDCl_qH4-CQYpcGZK.js",
+      "sha256": "f69b15394f9b5b908c65d6a42788c77f27b76c8263f53b3e3bd4cb3526b3b9b5"
+    },
+    {
+      "path": "assets/default-query-compiler-DlznKwHs.js",
+      "sha256": "8e0e077ccbe51053e046bb2460cf5d7603ad6e36ad2b82833b4c84cc1e9c2ad9"
+    },
+    {
+      "path": "assets/dist-B_STQ3zi.js",
+      "sha256": "d3038d6026ee648041eba45d2dd8ebcff63edba018e2e4ac1b2027f581422115"
+    },
+    {
+      "path": "assets/dist-DnG3Ijzl.js",
+      "sha256": "d2cef72cbc83afd90d130582cf3cd4c87b6b82efba1a8f84730111ac2ffd63bb"
+    },
+    {
+      "path": "assets/factory-C2gDSvDb.js",
+      "sha256": "9676ad73abb49a75a06a9d4a8eb30f2dd4cadd31ca9a0d73f78bfc817423a242"
+    },
+    {
+      "path": "assets/kysely-adapter-DRtb1iiI.js",
+      "sha256": "c0bc34afc05d4e3c4fb674238860ef59b0e326870296241e0e73497b9b0c8415"
+    },
+    {
+      "path": "assets/kysely-migration-tables-B2-rTeXm-CxSzlZgK.js",
+      "sha256": "04f0b91c373c4bb0a39a5a433b3ebfa40eab476d1ed4b18095f1268a546e6317"
+    },
+    {
+      "path": "assets/node-sqlite-dialect-DJrISxEo.js",
+      "sha256": "50636b6332afaea68206d94867e386ca8604cce37171d2c76efd7bbd1170b652"
+    },
+    {
+      "path": "assets/sqlite-adapter-C4OLHHeV.js",
+      "sha256": "dfbddf8804b18afc8085961ddbf233453cb78c714a6561fde06265e01c6e9bea"
+    },
+    {
+      "path": "ssr/__vite_rsc_assets_manifest.js",
+      "sha256": "8676a0c1bd98740975c9f070f6a3789865c6dacd929667f51654b824a1cfe5a1"
+    },
+    {
+      "path": "ssr/assets/account-boundary-B2Arm9lq.js",
+      "sha256": "627435712bb389910c5511b8576e6e02c6f574c2c118822dbdf22e7caec6195e"
+    },
+    {
+      "path": "ssr/assets/account-menu-Vqru7Owv.js",
+      "sha256": "8828dd4c064245e3cd749fe764570b367ee64d7021674f7809627013bb6fb56c"
+    },
+    {
+      "path": "ssr/assets/adaptive-path-Bspng6xl.js",
+      "sha256": "11dd9a0618bc78aab29615494845412788a5dc002a6e94662386c98534384650"
+    },
+    {
+      "path": "ssr/assets/agent-companion-oru368VZ.js",
+      "sha256": "8168e4840c508cf31a8c4e117b1018ea6e69aacb5bfbfb8091a7771da34dee22"
+    },
+    {
+      "path": "ssr/assets/agent-context-CVUzREUD.js",
+      "sha256": "cc143883c04cfefd998422aefbd835f0d8e65c29b01364932fac08fc54610a78"
+    },
+    {
+      "path": "ssr/assets/case-showcase-Wd4DphCM.js",
+      "sha256": "72851c1359641fac6713294980e5ff5b69feea6e1490f8aecbec7eda219006df"
+    },
+    {
+      "path": "ssr/assets/current-learning-unit-CcZnyMHY.js",
+      "sha256": "f384a8360a305005d4732c19bb5d642b725010290da5f60e77c19aec7542fdd3"
+    },
+    {
+      "path": "ssr/assets/error-boundary-bF4WEKts.js",
+      "sha256": "2583da32e437ff3b6de6c27144fd676b3cf4bbd3543d4777f3ecb5dae5773ac8"
+    },
+    {
+      "path": "ssr/assets/flagship-role-aWJkM1k3.js",
+      "sha256": "a700174fad2ab1b6094c17c2cbc538d1336db50d912896bb1237e297f29025cc"
+    },
+    {
+      "path": "ssr/assets/home-learning-action-CEeQIbzm.js",
+      "sha256": "d2e0d81284c78f6ab243a093c9eaa77e2a58f3c79dd4f64a2fcac41d4c04e5a6"
+    },
+    {
+      "path": "ssr/assets/layout-segment-context-lPyH7SDN.js",
+      "sha256": "e2c9b6359107482ea04fbcd9abc766d04679fe6b35a507671d94d03be761c0db"
+    },
+    {
+      "path": "ssr/assets/learning-coach-BWlinN-I.js",
+      "sha256": "99c86413fd07b4c6aa6e19b7d30c98d3ce6945f71fa93fd9c8fafc9f5bb2126a"
+    },
+    {
+      "path": "ssr/assets/learning-entry-DQKMSdyx.js",
+      "sha256": "bbcdcd8ac9606b19328ed96b032885d7af0f7f5bbf26b96b8292e755b72b4ab2"
+    },
+    {
+      "path": "ssr/assets/link-k-eP-yia.js",
+      "sha256": "cca38991c32c98b51b523644be3c1e4e20e1af3a98d9d6aeb0fe8e1b57247202"
+    },
+    {
+      "path": "ssr/assets/local-repository-DYCA-BhN.js",
+      "sha256": "5f2c07723db5a5ca3db3f42b4228f9542ace90352b5f65279e169bb8b77e67f0"
+    },
+    {
+      "path": "ssr/assets/material-context-review-CHU1JblG.js",
+      "sha256": "26e1ca3653f8c4e88fc07355d5afb67bfd75ab8f959f2df068b6065657bbe752"
+    },
+    {
+      "path": "ssr/assets/material-history-D6u3B9VB.js",
+      "sha256": "daed1f97cb66f3e16ea280986c52007cacd9f4d23da559af2c5b0a99deac03bb"
+    },
+    {
+      "path": "ssr/assets/material-planning-C9pLP9Qt.js",
+      "sha256": "a7aa586ad89034f3ac287382498e5efee533cab2f269421c9bbec84887b8fb26"
+    },
+    {
+      "path": "ssr/assets/navigation-BvGC06iR.js",
+      "sha256": "05c7b3b574b9377f31b552462b032251d2bb821cc60d1d08ee161963cc946cef"
+    },
+    {
+      "path": "ssr/assets/navigation-context-CgHUeCEd.js",
+      "sha256": "382ce64742366976d84ecf2bf291c7aabb6e775ad56a7b1ae092040cde3dc675"
+    },
+    {
+      "path": "ssr/assets/page-64av05qF.js",
+      "sha256": "083df05a4cd508ce51ee9c47aa393c2dfec80661fb0047a26ca78fa0936f4cb6"
+    },
+    {
+      "path": "ssr/assets/page-CjBOvS4_.js",
+      "sha256": "31a657999ca9fb261787ecd60011c275b52ce976d895984db98bbebee4ac312a"
+    },
+    {
+      "path": "ssr/assets/page-CvXdoh1p.js",
+      "sha256": "e055e1d94c528b4750f9406cace609d8ee8446cb874125cf3af7e8a78091dc2a"
+    },
+    {
+      "path": "ssr/assets/page-DIsN06Ii.js",
+      "sha256": "48c50cdef84c3c77d988423b8c66855b337b892fecce6d276e1b22d9d02ce393"
+    },
+    {
+      "path": "ssr/assets/page-DK_pTvkv.js",
+      "sha256": "b4da11cf2e431094cc81c9fa16672987365623994ca3a7bdff6a1525e94a1639"
+    },
+    {
+      "path": "ssr/assets/page-R6V-l-lB.js",
+      "sha256": "fd87069edd8551e4067dc64e0bb0c51eb8abd41504ac3813124cf7674300f966"
+    },
+    {
+      "path": "ssr/assets/page-T2EAW77f.js",
+      "sha256": "e1200ec299989ada1bbccdcc6fd8278f220391e148a3b26ee09468da5093a01a"
+    },
+    {
+      "path": "ssr/assets/page-c9crYN0X.js",
+      "sha256": "775d6f4995be0ce9cf576553985275cbe351868b481c485b4427e043eb98de8e"
+    },
+    {
+      "path": "ssr/assets/personalized-plan-Cdehe3_b.js",
+      "sha256": "ab59a1196abdcc254ff80e53e2da9ac93591dd4e42bd0398a837cdf41f3a4796"
+    },
+    {
+      "path": "ssr/assets/plan-diff-review-DzS7k6bF.js",
+      "sha256": "535b4eafcca6a2137de774ab3c8b77d592027a16952fe9fe3b58701ba41b4e0c"
+    },
+    {
+      "path": "ssr/assets/planning-client-tT_RBz9O.js",
+      "sha256": "af6dcddf47cc9a09cb82b6be061d85847372dbbec5c68b7f020f706ec9f71837"
+    },
+    {
+      "path": "ssr/assets/planning-version-boundary-DD8_ieC_.js",
+      "sha256": "90e81b1abc3cdc1b94a1476f3c1abc748e9a6e98f78008cd48be4931647a0990"
+    },
+    {
+      "path": "ssr/assets/policy-BhcCPXG0.js",
+      "sha256": "aa763670c648d1fa96d46f387aebe7cb26907c0ddf18f2deccb875ad0e73ed6f"
+    },
+    {
+      "path": "ssr/assets/react-DX6OWF7o.js",
+      "sha256": "688f06ad72dd46bbe18cf8559c994f04aeda0d5c6cfa4846867c51d870b9c45f"
+    },
+    {
+      "path": "ssr/assets/readonly-url-search-params-DGLTmtpy.js",
+      "sha256": "3e1cd887161917fd7a14816ca8b17ce914d99f1f42745e475a95d377df0bc502"
+    },
+    {
+      "path": "ssr/assets/router-uBOgPQP-.js",
+      "sha256": "88c77d3fb374a43b174491825750c8ffb0093c9c5b7d803678d432345a6eca23"
+    },
+    {
+      "path": "ssr/assets/scheduler-HOBxUTLv.js",
+      "sha256": "1d4ce00a7fdbd4ee0775d7e1cdfe8f0033f66c2abf80f4159c80bc885f99cbc3"
+    },
+    {
+      "path": "ssr/assets/schemas-GfzY0Gzd.js",
+      "sha256": "ca89dd6b5f251b49266d9d6bd752a45b9aa8c21df0f58818710d027cc96064db"
+    },
+    {
+      "path": "ssr/assets/section-reveal-DRc5j1ZG.js",
+      "sha256": "c9ee33660d0144e25242449bc2c1c40b84e7f966ff900d1085b70c1b2645dc94"
+    },
+    {
+      "path": "ssr/assets/setup-draft-BHkoH5vZ.js",
+      "sha256": "0ac302c04acd4e79ad69e916419eccf9bdb6465cc5a89ad2c89c3048f6e7dea9"
+    },
+    {
+      "path": "ssr/assets/site-header-CGl3o41P.js",
+      "sha256": "b88926ce07af936214d6abb8d2c1d9d8fa75d122602077c6267b05f42a5b17ae"
+    },
+    {
+      "path": "ssr/assets/url-utils-GEhRtWpk.js",
+      "sha256": "a5708b26a787433ebd5134b74f3f6b0f706e27e9fed331cb5ae808e32e941565"
+    },
+    {
+      "path": "ssr/assets/use-account-location-DqkZsm2l.js",
+      "sha256": "e7a6e49b19be5a1bc58885262e62077849f1bace9037c98c40509c1c55218e98"
+    },
+    {
+      "path": "ssr/assets/use-arc-state-CKA6T0fn.js",
+      "sha256": "6b49f489eac96935ce5e6041dd3ddb8a6304e25f628e3845722c8798999381fe"
+    },
+    {
+      "path": "ssr/assets/use-hydrated-Bdaxfa3A.js",
+      "sha256": "5c35b89f585269ad8033642c0a36db801bf0f950e47f64d8e5664d6fdefa80e5"
+    },
+    {
+      "path": "ssr/assets/use-page-query-CWhGttEI.js",
+      "sha256": "9d43e90cc1fa7910dbfe2fb2fcbaa2666a6d14c38d244d5e0adc1843f724f298"
+    },
+    {
+      "path": "ssr/assets/use-proof-ledger-D93sV88G.js",
+      "sha256": "bfeb7961c263ca7c97362c11d6109404a3a1734f3560688998561ceb3292125c"
+    },
+    {
+      "path": "ssr/assets/workspace-header-ChJoNnSC.js",
+      "sha256": "6f7af8b9618eae54219b59b95c0ed34c8ec954cc53a54d480d4c3f91332d9914"
+    },
+    {
+      "path": "ssr/assets/workspace-presentation-BW-CvgED.js",
+      "sha256": "b315139d2c13b89c35ddfc20d3b5f56e19a231f0e637ebe53b6b3495997c6f5e"
+    },
+    {
+      "path": "ssr/assets/workspace-shell-BCo3iCsX.js",
+      "sha256": "0240e9d442d83b9ed2327dddb5602153f3d95e3cedf48b29a58737e73286d05d"
+    },
+    {
+      "path": "ssr/index.js",
+      "sha256": "166cf549a280fe76159f71d5084c89ebe808fc7f7a56e05dec20788e0f902e7f"
+    }
+  ],
+  "hostBlockerSha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f",
+  "toolVersions": {
+    "node": "v24.14.1",
+    "miniflare": "4.20260515.0",
+    "workerd": "1.20260515.1"
+  },
+  "migrationCount": 16,
+  "beforeRestart": {
+    "document_jobs": 0,
+    "document_budget_reservations": 0,
+    "planning_events": 5,
+    "document_usage_links": 5,
+    "material_plan_proposals": 2
+  },
+  "pending": {
+    "priorWorkspaceRevision": 2,
+    "closedReadRevision": 2,
+    "pendingBeforeClose": true,
+    "historicalPlans": 2,
+    "matchingAdoptedRefs": 3,
+    "completedEventsPreserved": 1,
+    "closedAdmissionChangedRows": false,
+    "deletionInitialState": "revoked",
+    "finalHistoryKind": "proposal",
+    "finalProposalState": "discarded",
+    "explanationsAfterRevocation": "source-unavailable-v1",
+    "finalWorkspaceIdentitySha256": "be9a3f40e559097cbaa9673988b7af7b7483f6cc78f2a794512d3904a4bff08f",
+    "cleanupAfterScheduled": "completed",
+    "physicalR2Readback": {
+      "deletedTargetAbsent": true,
+      "unrelatedObjectsStillPresent": 3
+    },
+    "archivedWorkspaceRead": true
+  },
+  "accepted": {
+    "priorWorkspaceRevision": 3,
+    "closedReadRevision": 3,
+    "pendingBeforeClose": false,
+    "historicalPlans": 2,
+    "matchingAdoptedRefs": 3,
+    "completedEventsPreserved": 1,
+    "closedAdmissionChangedRows": false,
+    "deletionInitialState": "revoked",
+    "finalHistoryKind": "accepted",
+    "finalProposalState": null,
+    "explanationsAfterRevocation": "source-unavailable-v1",
+    "finalWorkspaceIdentitySha256": "dd3291cfeaa4a8fa45ecf8a77ab1189b5062141f7ff1f364d3828b1cb0f7652e",
+    "cleanupAfterScheduled": "completed",
+    "physicalR2Readback": {
+      "deletedTargetAbsent": true,
+      "unrelatedObjectsStillPresent": 3
+    },
+    "archivedWorkspaceRead": true
+  },
+  "afterCleanup": {
+    "document_jobs": 0,
+    "document_budget_reservations": 0,
+    "planning_events": 6,
+    "document_usage_links": 5,
+    "material_plan_proposals": 2
+  },
+  "status": "PASS",
+  "completedAt": "2026-11-06T12:45:59.692Z"
+}

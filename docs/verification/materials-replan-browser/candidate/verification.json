@@ -1,0 +1,44 @@
+{
+  "candidate": "28069c4b40e40e246155c12ff6f2e56aec2dc655",
+  "tree": "3ab1dc0c1ecc54df018ee861461ed74cc0624e6e",
+  "bundleSha256": "61ba11c0f3a91b5181b21bd0c67d8ec77364c10e664f8283386d0bc933111546",
+  "checkedAt": "2026-11-06T12:40:50.164Z",
+  "steps": {
+    "site": {
+      "exitCode": 0,
+      "logSha256": "9e8b79c96485eb9ac2df699bb6d311e2802bc8a08622a3c6413d71d9a5e24a4e"
+    },
+    "render": {
+      "exitCode": 0,
+      "logSha256": "e0458c9d5d76515b4ada435875bacf8c619d0fdd726e7dd197ffdb8837f01fe6"
+    },
+    "pair": {
+      "exitCode": 0,
+      "logSha256": "60ca4a94bbf8c2feaae1261f3669dc259d69b6398bccfb66ae0c834a6c6b39f0"
+    }
+  },
+  "offlineEvidenceSha256": "0728639a045bc6151926beede6189f66fb507ff18c9d27fbde01d08ddfba0717",
+  "vitest": {
+    "logSha256": "cdc0d676bc14ae2c1c5ab2e24a5ebd877d28dbe52fad9261edffa42d43c42592",
+    "files": 360,
+    "tests": 7693
+  },
+  "node": {
+    "logSha256": "cee8a166c91e79d77e61e5af02728d5e1a88a9e114a4a76fb130443991f8c097",
+    "passed": 290
+  },
+  "browserAssertions": 28,
+  "sourceFilesVerified": 977,
+  "artifacts": {
+    "mode": "closed",
+    "files": 390,
+    "treeSha256": "2ccd09b1c86aabdee65b9cea8ba10c655ea5e99f04e8cfdb74b1380c8ace7a4f",
+    "verifiedAgainstDisk": true
+  },
+  "modelCalls": 0,
+  "realReceiptQueries": 0,
+  "remoteMigrations": 0,
+  "cloudDeployments": 0,
+  "newSpendMicroUsd": 0,
+  "nonLoopbackDenials": 0
+}

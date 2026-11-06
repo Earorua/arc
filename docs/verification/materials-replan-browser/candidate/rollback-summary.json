@@ -1,0 +1,258 @@
+{
+  "sourceCommit": "28069c4b40e40e246155c12ff6f2e56aec2dc655",
+  "scenario": "same-source local closed-worker rollback after material proposals and decisions",
+  "status": "PASS",
+  "command": "node work/release-rollback/launch.mjs --package outputs/materials-production/historical-closed-3ab1dc0c1ecc-sligqz",
+  "packageRelativeDirectory": "outputs/materials-production/historical-closed-3ab1dc0c1ecc-sligqz",
+  "compiledConfig": "site/server/wrangler.json",
+  "runStartedAt": "2026-11-06T12:45:51.665Z",
+  "runCompletedAt": "2026-11-06T12:45:59.692Z",
+  "tools": {
+    "node": "v24.14.1",
+    "miniflare": "4.20260515.0",
+    "workerd": "1.20260515.1"
+  },
+  "sourceFilesVerifiedAgainstGit": 977,
+  "sourceFileSetSha256": "12f9e68919dc9f5d3dfd1280c93de451636f3038e8a2060c1c1b0ea4322136c9",
+  "package": {
+    "mode": "final-closed-package",
+    "configSha256": "f63c83be265a73f89859695ee6113587ab4d1dfee3c1c82ee3534bc0b66b1b93",
+    "closedBindings": {
+      "ARC_ENVIRONMENT": "production",
+      "ARC_DOCUMENT_ACCEPTANCE_MODE": null,
+      "ARC_DOCUMENT_PRODUCTION_ENABLED": "false",
+      "ARC_DOCUMENTS_ENABLED": "false",
+      "ARC_DOCUMENT_ANALYSIS_ENABLED": "false",
+      "ARC_DOCUMENT_PLANNING_ENABLED": "false",
+      "ARC_AI_ENABLED": "true",
+      "ARC_AI_RESEARCH_ENABLED": "true"
+    },
+    "compatibilityDate": "2026-05-15",
+    "compatibilityFlags": [
+      "nodejs_compat"
+    ],
+    "serviceBindings": [
+      "ARC_RESEARCH_EXECUTOR",
+      "DOCUMENT_EXECUTOR"
+    ],
+    "closedMaterialFlagOverrides": [],
+    "authorizationEmpty": true,
+    "testOverrides": [
+      "local Better Auth origin/session secret and fake OAuth provider",
+      "local native D1/R2 with named service bindings mapped to sinks",
+      "ARC_AI_ENABLED and ARC_AI_RESEARCH_ENABLED forced false locally; unrelated Research executor URL replaced by an isolated .test name; no provider credentials"
+    ],
+    "artifactTreeSha256": "c238fc056659517d5b13113e3d349a08fee46daef0688a6b8b8e83a4ee8dcb3e",
+    "filesVerified": 390,
+    "indexSha256": "0607df07889ace186007333e6471633c440de60e01c9679c510b18c22945c35f",
+    "artifactVerificationSha256": "daf6ee0def5f2ea4a9ee76e8ebe1f939def985878e769b00f855fa9a843f8273"
+  },
+  "entrySha256": "29ac024dcd1c29d46b5aa60208016fe423cffd673e30cc4bf4ba004cac18a8fd",
+  "workerModules": 65,
+  "moduleSetSha256": "467ae0cef8362ed4ab1aeda05878b396e7f6385acbb0143e1bf6141f79faf01b",
+  "priorReviewedModuleSetSha256": "b535ad60a9b43b5315150f4f08d7ed0dfaf0013b937c4dea5ea88bb52144646f",
+  "sameModulesAsPriorReviewedDist": false,
+  "packagedMigrationFilesVerifiedAndApplied": 16,
+  "publicHttpObservations": 88,
+  "nativeScheduledHandlerInvocations": 1,
+  "resultPath": "run-pPJKEw/result.json",
+  "resultSha256": "153b8c6738cedf17a72f884f84485559cc8282053ca91bee70d4cb3c1f76c021",
+  "programs": {
+    "path": "final-closed-programs/",
+    "proveMjsSha256": "98f0b0505f26b681a5fea93cd4cd276da3de9cbb008e79e53d4156a4feabdc1a",
+    "launchMjsSha256": "e86b348082d8796c89049c6242ef6c53954483f35785f9fb7501448cc3ccf4cd",
+    "hostNetworkGuardSha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+  },
+  "setup": [
+    "Two synthetic owners; locally seeded signed Better Auth sessions, existing consent fixtures, local native D1 and R2",
+    "Only ARC_DOCUMENTS_ENABLED and ARC_DOCUMENT_PLANNING_ENABLED temporarily true for creating the two material histories. Analysis and material production disabled throughout; no model credentials",
+    "Real API actions created and confirmed two synthetic JDs, a resume and one supplement per owner, generated A, completed one unit, then proposed B. Only the accepted fixture accepted B before shutdown",
+    "Worker disposed and restarted over the same local durable storage using all four packaged material flags as-is and its empty production authorization",
+    "The archived-goal eligibility bit/status was set in the synthetic D1 fixture only after live workspace and cleanup checks. The archive list, detail and ownership checks themselves used real HTTP routes"
+  ],
+  "pending": {
+    "priorWorkspaceRevision": 2,
+    "closedReadRevision": 2,
+    "pendingBeforeClose": true,
+    "historicalPlans": 2,
+    "matchingAdoptedRefs": 3,
+    "completedEventsPreserved": 1,
+    "closedAdmissionChangedRows": false,
+    "deletionInitialState": "revoked",
+    "finalHistoryKind": "proposal",
+    "finalProposalState": "discarded",
+    "explanationsAfterRevocation": "source-unavailable-v1",
+    "finalWorkspaceIdentitySha256": "be9a3f40e559097cbaa9673988b7af7b7483f6cc78f2a794512d3904a4bff08f",
+    "cleanupAfterScheduled": "completed",
+    "physicalR2Readback": {
+      "deletedTargetAbsent": true,
+      "unrelatedObjectsStillPresent": 3
+    },
+    "archivedWorkspaceRead": true
+  },
+  "accepted": {
+    "priorWorkspaceRevision": 3,
+    "closedReadRevision": 3,
+    "pendingBeforeClose": false,
+    "historicalPlans": 2,
+    "matchingAdoptedRefs": 3,
+    "completedEventsPreserved": 1,
+    "closedAdmissionChangedRows": false,
+    "deletionInitialState": "revoked",
+    "finalHistoryKind": "accepted",
+    "finalProposalState": null,
+    "explanationsAfterRevocation": "source-unavailable-v1",
+    "finalWorkspaceIdentitySha256": "dd3291cfeaa4a8fa45ecf8a77ab1189b5062141f7ff1f364d3828b1cb0f7652e",
+    "cleanupAfterScheduled": "completed",
+    "physicalR2Readback": {
+      "deletedTargetAbsent": true,
+      "unrelatedObjectsStillPresent": 3
+    },
+    "archivedWorkspaceRead": true
+  },
+  "observationCounts": {
+    "beforeRestart": {
+      "document_jobs": 0,
+      "document_budget_reservations": 0,
+      "planning_events": 5,
+      "document_usage_links": 5,
+      "material_plan_proposals": 2
+    },
+    "afterCleanup": {
+      "document_jobs": 0,
+      "document_budget_reservations": 0,
+      "planning_events": 6,
+      "document_usage_links": 5,
+      "material_plan_proposals": 2
+    }
+  },
+  "auditedAdmission": [
+    {
+      "actor": "pending",
+      "operation": "createDocument",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "actor": "pending",
+      "operation": "createMaterialContext",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "actor": "pending",
+      "operation": "materialReplan",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "actor": "pending",
+      "operation": "createDocumentJob",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "actor": "pending",
+      "operation": "fresh-pending-accept-refused",
+      "status": 503,
+      "errorCode": "PLANNING_UNAVAILABLE"
+    },
+    {
+      "actor": "pending",
+      "operation": "discard-existing-pending",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "actor": "pending",
+      "operation": "deleteDocument",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "actor": "accepted",
+      "operation": "createDocument",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "actor": "accepted",
+      "operation": "createMaterialContext",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "actor": "accepted",
+      "operation": "materialReplan",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "actor": "accepted",
+      "operation": "createDocumentJob",
+      "status": 503,
+      "errorCode": "unavailable"
+    },
+    {
+      "actor": "accepted",
+      "operation": "accepted-identical-receipt-replay",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "actor": "accepted",
+      "operation": "deleteDocument",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "actor": "pending",
+      "operation": "archived-goal-list",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "actor": "pending",
+      "operation": "archived-plan-after-close",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "actor": "accepted",
+      "operation": "archived-goal-list",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "actor": "accepted",
+      "operation": "archived-plan-after-close",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "actor": "accepted",
+      "operation": "wrong-owner-saved-plan",
+      "status": 404,
+      "errorCode": "NOT_FOUND"
+    }
+  ],
+  "network": {
+    "workerOutbound": 0,
+    "executorCalls": 0,
+    "researchExecutorCalls": 0,
+    "assetCalls": 0,
+    "hostDenials": 0
+  },
+  "remoteMigrations": 0,
+  "deployments": 0,
+  "newModelCostMicroUsd": 0,
+  "assertions": [
+    "production Better Auth signed cookies resolve only seeded local users",
+    "both authentic sessions survive an actual same-code disabled restart with durable D1/R2",
+    "pending proposal stays pending on refused fresh accept; explicit discard is allowed",
+    "already accepted plan and its exact receipt replay remain readable without a new write",
+    "manual document, material preview/replan and analysis job ingress all refuse new work after closure",
+    "completed task and equivalent history/adopted links are preserved; source deletion redacts only affected evidence",
+    "native scheduled cleanup completes both deletions; wrong-owner archival read refused; zero inference jobs, reservations or outbound requests"
+  ]
+}

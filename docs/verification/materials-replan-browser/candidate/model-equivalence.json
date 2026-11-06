@@ -1,0 +1,84 @@
+{
+  "formatVersion": 1,
+  "mode": "offline-git-blob-differential",
+  "frozenCandidate": "ada498f5700be3d99b824f7d38fee35f8d88bbcc",
+  "frozenTree": "591e0140cbd9892594c45cea7efc187c33018534",
+  "integratedCandidate": "28069c4b40e40e246155c12ff6f2e56aec2dc655",
+  "integratedTree": "3ab1dc0c1ecc54df018ee861461ed74cc0624e6e",
+  "frozenP1Packet": "33c954feac063e1a05516b3ebac36ed7b193639a",
+  "preflightSha256": "121bf8d63bb73ebc78bf55f8e3cddb1a443b84e775f621ebd61ed95be41442a4",
+  "wire": {
+    "comparison": "Exact UTF-8 POST body equality at the injected production provider transport, in frozen corpus order.",
+    "sourceSpans": {
+      "b2BodiesEqual": 24,
+      "supplementBodiesEqual": 6,
+      "b2OrderedManifestSha256": "7f6873823f7b3b26ea6b395eda80f5c11d2109431aded98318e337e08e931b04",
+      "supplementOrderedManifestSha256": "e9601ec3cdffd37ab24314b6e5bd7a70e5235d6455375a8eebca672d00143598",
+      "p1SourceAndBodyCommitmentsMatched": 4,
+      "configurationSha256": "0d88cf478e6959c22c5cd22717f5f47b21a62d5b5e889b1a0273b3a41ddb5d93"
+    },
+    "legacy": {
+      "b2BodiesEqual": 24,
+      "b2PublishedR2Matches": 24,
+      "supplementBodiesEqual": 6,
+      "b2OrderedManifestSha256": "b5ec15d1197afc6b8359b73fde9910691424bce19adf40124570871bece54ca8",
+      "supplementOrderedManifestSha256": "f6dc9a90305df01e81f69b74f3026492e479e2cceb1ce843d3a43c163c58ab47"
+    },
+    "manifestEncoding": "SHA-256 of UTF-8 JSON.stringify([[fixtureId,sha256(bodyBytes)],...]); supplemental corpus uses runtime document segmentation."
+  },
+  "route": {
+    "pinnedConfigEqual": true,
+    "negativeRouteControlsRejectedPerRevision": 9,
+    "manualRedirect": true,
+    "providerCount": 1,
+    "fallback": false,
+    "dataCollection": "deny",
+    "zdr": true,
+    "maxInputTokens": 16000,
+    "maxOutputTokens": 4096,
+    "inputMicroUsdPerMillionTokens": 2000000,
+    "outputMicroUsdPerMillionTokens": 10000000,
+    "reservationMicroUsd": 72960,
+    "perJobCapMicroUsd": 75000,
+    "p1ReservationsMicroUsd": 291840,
+    "p1CapMicroUsd": 300000
+  },
+  "quality": {
+    "strictB2OracleReportsEqualAndPassing": 24,
+    "supplementOracleReportsEqualAndPassing": 6,
+    "sourceValidatedDraftsEqual": 30,
+    "sourceSpanB2OrderedReportSha256": "f412ec88a386782dfcbd2239bdc6573491e2e310f479ed62526af7ef9a2e584f",
+    "sourceSpanSupplementOrderedReportSha256": "372f9b5a87da21bc4936d6bc12554236b171fa08fc36e993df2948dcf27a40a3",
+    "punctuationRepairsEqualAndPassing": 74,
+    "fabricatedSourceQuarantined": true,
+    "wrongLevelRetainsStrictFailure": true,
+    "supplementBatchEqualAndPassing": true
+  },
+  "code": {
+    "directWireGateScoringProvenanceCorpusAndLockfilesByteIdentical": 25,
+    "pathAndContentSha256": "07afd9f9dc5c28ac7c80ab9f6165be33672e44452a3cdcb97f3da5166df863b6",
+    "changedNonDocs": 26,
+    "changedSharedFilesLoadedByProbe": [
+      "app/contracts/documents-api.ts",
+      "app/contracts/material-planning.ts",
+      "app/contracts/planning.ts"
+    ]
+  },
+  "permission": {
+    "p1NonDocDiffGuardExitCode": 1,
+    "integratedCheckoutRejectedByFrozenSourceManifest": true,
+    "registeredHostAdmissionInvoked": false,
+    "issuerInvoked": false,
+    "markerOrJournalCreated": false,
+    "approvalTransfers": false
+  },
+  "bounds": {
+    "sourceSpanSupplements": "Offline candidate-policy controls only. The registered supplemental collector pins the legacy policy and requires separate authorization.",
+    "equivalenceScope": "These known inputs, exact request settings, annotated replies, source validations and listed controls. Shared planning contracts and the product code differ.",
+    "realNetworkRequests": 0,
+    "realModelCalls": 0,
+    "newFeesMicroUsd": 0,
+    "liveQualityEvaluated": false,
+    "b2QualifiedByThisEvidence": false
+  }
+}
