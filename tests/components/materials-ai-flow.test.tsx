@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MaterialTextPanel } from "../../app/components/materials/material-text-panel";
@@ -97,6 +97,61 @@ describe("AI-first material review", () => {
     expect(screen.queryByRole("button", { name: "移除技能词 PostgreSQL" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
     expect(confirmed.mock.lastCall?.[0][0].skillLabels).toEqual([]);
+  });
+  it("shows the exact source term before its normalized name and keeps only words supported by the edited fact", () => {
+    const practice = "我在指导下清洗数据。", limit = "每周学习 TypeScript 两小时。";
+    const text = practice + limit;
+    const reference = { ...receipt, ownerId: "owner", lifecycle: "active", text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+    const projection = validateDocumentExtraction({ schemaVersion: "2026.11.1", items: [
+      { id: "practice", kind: "experience", text: practice, requirementLevel: null, skillLabels: ["data cleaning"], selfLevelHint: "guided", source: { segmentId: "segment-1", quote: practice } },
+      { id: "limit", kind: "constraint", text: limit, requirementLevel: null, skillLabels: ["TypeScript"], selfLevelHint: null, source: { segmentId: "segment-1", quote: limit } },
+    ] }, "owner", reference);
+    const confirmed = vi.fn();
+    function Harness() {
+      const [review, setReview] = useState<DocumentReviewDraft>({ id: "review", schemaVersion: "2026.11.1", ...receipt, origin: "ai", extractionId: "extraction", ...projection, updatedAt: draft.updatedAt });
+      return <MaterialConfirmation draft={review} text={text} saving={false} confirmed={false} onAdoptLevels={vi.fn()}
+        onItemsChange={items => setReview({ ...review, items })} onConfirm={() => confirmed(review.items)} />;
+    }
+    render(<Harness />);
+    const word = within(screen.getByRole("group", { name: "事实 1" })).getByRole("listitem");
+    expect(word).toHaveTextContent(/^清洗数据.*规范名称 data cleaning/u);
+    expect(within(word).getByRole("button", { name: "移除技能词 清洗数据" })).toBeInTheDocument();
+    expect(screen.getByText("约束中提到的主题")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "移除约束主题 TypeScript" })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "We cleaned data together." } });
+    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(confirmed.mock.lastCall?.[0][0].skillLabels).toEqual(["data cleaning"]);
+    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "We organized the calendar." } });
+    expect(screen.queryByRole("button", { name: "移除技能词 清洗数据" })).not.toBeInTheDocument();
+    expect(screen.queryByText("单独核对能力建议")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: practice } });
+    fireEvent.change(screen.getByLabelText("事实 2 信息类型"), { target: { value: "skill-claim" } });
+    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(confirmed.mock.lastCall?.[0].map((item: { skillLabels: string[] }) => item.skillLabels)).toEqual([[], []]);
+  });
+  it.each([
+    ["grounded-skill-labels-v2", ["data cleaning"]], [undefined, []],
+  ] as const)("applies the saved draft's edit rule to a literal term rewritten using an equivalent phrase", (reviewProjection, expected) => {
+    const text = "Practiced data cleaning.";
+    const sourceRef = { documentId: receipt.documentId, documentVersionId: receipt.documentVersionId, textVersionId: receipt.textVersionId, start: 0, end: text.length };
+    const review: DocumentReviewDraft = { id: "review", schemaVersion: "2026.11.1", ...receipt, origin: "ai", extractionId: "extraction", reviewProjection,
+      items: [{ id: "practice", kind: "experience", text, origin: "extracted", sourceRef, requirementLevel: null, skillLabels: ["data cleaning"] }], selfAssessmentHints: [], updatedAt: draft.updatedAt };
+    const save = vi.fn();
+    render(<MaterialConfirmation draft={review} text={text} saving={false} confirmed={false} onItemsChange={save} onConfirm={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText("事实 1"), { target: { value: "I cleaned data during the workshop." } });
+    expect(save.mock.lastCall?.[0][0].skillLabels).toEqual(expected);
+  });
+  it.each([
+    ["grounded-skill-labels-v2", "原文提到课程覆盖缺口，请核对"],
+    [undefined, "可能超出当前技能蓝图"],
+  ] as const)("names a coverage reminder according to the review's evidence and version", (reviewProjection, label) => {
+    const text = "现有课程尚未涵盖键盘导航。";
+    const sourceRef = { documentId: receipt.documentId, documentVersionId: receipt.documentVersionId, textVersionId: receipt.textVersionId, start: 0, end: text.length };
+    const review: DocumentReviewDraft = { id: "review", schemaVersion: "2026.11.1", ...receipt, origin: "ai", extractionId: "extraction",
+      reviewProjection, items: [], selfAssessmentHints: [], reviewPoints: [{ id: "coverage", code: "uncovered-skill", sourceRef, resolution: "unresolved" }], updatedAt: draft.updatedAt };
+    render(<MaterialConfirmation draft={review} text={text} saving={false} confirmed={false} onItemsChange={vi.fn()} onConfirm={vi.fn()} />);
+    expect(screen.getByRole("group", { name: label })).toHaveTextContent(text);
+    expect(screen.getByRole("combobox", { name: label })).toBeInTheDocument();
   });
   it("requires explicit permission, then pre-fills review without granting self levels", async () => {
     const { Harness, invoke, adopted } = fixture(); render(<Harness />);

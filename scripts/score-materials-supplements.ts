@@ -34,7 +34,7 @@ export function readFrozenSupplementDocuments() {
 }
 
 /** Scores stored extractions against frozen annotations. No credentials or transport are involved. */
-export function scoreSupplementBatch(input: unknown) {
+export function scoreSupplementBatch(input: unknown, providerPolicyId?: string) {
   const batch = batchSchema.safeParse(input);
   if (!batch.success) throw new Error("Invalid supplement score input");
   const documents = readFrozenSupplementDocuments();
@@ -52,7 +52,7 @@ export function scoreSupplementBatch(input: unknown) {
           text: document.text,
           segments: document.segments,
           lifecycle: "active",
-        });
+        }, providerPolicyId);
       } catch {
         invalidExtractions.add(document.id);
       }

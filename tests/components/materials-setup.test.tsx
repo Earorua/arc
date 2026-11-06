@@ -64,6 +64,7 @@ describe("material context review in the existing setup", () => {
         ...preview, confirmedItems: [
           { ...preview.confirmedItems[0], id: "one", text: "First requirement", skillLabels: ["unlisted-a"] },
           { ...preview.confirmedItems[0], id: "two", text: "Second requirement", skillLabels: ["unlisted-b"] },
+          { ...preview.confirmedItems[0], id: "limit", kind: "constraint", text: "Weekly study limit", requirementLevel: null, skillLabels: ["TypeScript"] },
         ], issues: [{ code: "uncovered", itemIds: ["one", "two"], skillIds: [] }], uncoveredLabels: ["unlisted-a", "unlisted-b"],
       },
     } : original(endpoint, body));
@@ -73,6 +74,7 @@ describe("material context review in the existing setup", () => {
     expect(await screen.findByText(/有 2 项需注意/)).toBeInTheDocument();
     expect(screen.getByText("First requirement").closest("li")).toHaveTextContent("unlisted-a");
     expect(screen.getByText("Second requirement").closest("li")).toHaveTextContent("unlisted-b");
+    expect(screen.getByText("Weekly study limit").closest("li")).toHaveTextContent("约束主题 TypeScript");
   });
   it("previews confirmed references and persists no facts, names or source text", async () => {
     const { client, invoke, Controls, onPreview } = fixture();

@@ -1,7 +1,7 @@
-import { DOCUMENT_SCHEMA_VERSION, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
+import { DOCUMENT_SCHEMA_VERSION, GROUNDED_MATERIAL_REVIEW_PROJECTION, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
 import { documentEndpointContracts, type DocumentEndpointRequest as Request, type DocumentEndpointResponse as Response, type DocumentMutationIdentity } from "../../contracts/documents-api";
 import { canonicalJson } from "../../lib/planning/fingerprint";
-import { containsMaterialSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
+import { labelForAddedSourceTerm, supportsReviewedSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
 import { D1DocumentRepository, DocumentServiceError, type MaterialRow } from "./d1-repository";
 import { DocumentStorage } from "./storage";
 import { serializeDocumentExtraction, validateDocumentExtraction, validateStoredDocumentExtraction } from "./extraction-validator";
@@ -28,21 +28,48 @@ function parseDraft(input: unknown): DocumentReviewDraft {
     return parsed.data;
 }
 
-function reviewedItem(item: ConfirmedMaterialItem, candidate: ConfirmedMaterialItem | undefined, prior: ConfirmedMaterialItem | undefined): ConfirmedMaterialItem {
+// Only the server's extraction envelope chooses an edit rule. The draft and confirmation keep the user's word list.
+const extractionJoin = `LEFT JOIN document_extractions e ON e.owner_id=r.owner_id AND e.id=r.extraction_id AND e.text_version_id=r.text_version_id`;
+const reviewProjectionColumns = `json_extract(e.candidates_json, '$.reviewProjection') AS review_projection,
+    CASE WHEN json_extract(e.candidates_json, '$.reviewProjection')='${GROUNDED_MATERIAL_REVIEW_PROJECTION}' THEN
+      (SELECT json_group_object(json_extract(i.value,'$.id'),json_extract(i.value,'$.kind')) FROM json_each(e.candidates_json,'$.candidate.items') i)
+    END AS original_kinds`;
+
+function reclassifiedFacts(items: ConfirmedMaterialItem[], originalKinds: Record<string, unknown>) {
+    const ids = items.filter(item => item.sourceRef && Object.hasOwn(originalKinds, item.id) && item.kind !== originalKinds[item.id]).map(item => item.id);
+    return ids.length ? { reclassifiedItemIds: ids } : {};
+}
+
+function reviewedItem(item: ConfirmedMaterialItem, candidate: ConfirmedMaterialItem | undefined, prior: ConfirmedMaterialItem | undefined,
+    projection: DocumentReviewDraft["reviewProjection"], addition: string | undefined, originalText: string): ConfirmedMaterialItem {
     const { skillLabels, ...fact } = item;
+    const grounded = projection === GROUNDED_MATERIAL_REVIEW_PROJECTION;
     const sameSource = candidate && canonicalJson(item.sourceRef) === canonicalJson(candidate.sourceRef);
     const sameFact = sameSource && item.text === candidate.text && item.kind === candidate.kind;
     if (item.origin === "extracted" && (!sameFact || item.requirementLevel !== candidate.requirementLevel))
         throw new DocumentServiceError("invalid-content");
-    if (skillLabels?.some(label => !sameSource || !candidate.skillLabels?.includes(label) || !prior?.skillLabels?.includes(label)))
+    if (grounded && item.sourceRef && !sameSource)
         throw new DocumentServiceError("invalid-content");
-    if (!sameFact) {
-        if (!prior?.skillLabels) return fact;
+    let addedLabel: string | null = null;
+    if (addition) {
+        if (!grounded || !sameSource || !candidate.sourceRef || item.origin !== "user" || item.kind !== candidate.kind || prior?.kind !== candidate.kind
+            || canonicalJson(prior.sourceRef) !== canonicalJson(candidate.sourceRef))
+            throw new DocumentServiceError("invalid-content");
+        addedLabel = labelForAddedSourceTerm(originalText.slice(candidate.sourceRef.start, candidate.sourceRef.end), item.text, addition);
+        if (!addedLabel || !skillLabels?.includes(addedLabel) || prior.skillLabels?.includes(addedLabel))
+            throw new DocumentServiceError("invalid-content");
+    }
+    // Every previously saved V2 word came from this source, via the extraction or an explicit correction.
+    if (skillLabels?.some(label => !sameSource || (label !== addedLabel && (!prior?.skillLabels?.includes(label) || (!grounded && !candidate.skillLabels?.includes(label))))))
+        throw new DocumentServiceError("invalid-content");
+    const reviewedWords = prior?.skillLabels ?? (grounded ? candidate?.skillLabels : undefined);
+    if (!sameFact || (grounded && item.text !== prior?.text)) {
+        if (!reviewedWords) return fact;
         const labels = sameSource && item.kind === candidate.kind ? skillLabels ?? [] : [];
-        return { ...fact, skillLabels: labels.filter(label => containsMaterialSkillLabel(fact.text, label)) };
+        return { ...fact, skillLabels: labels.filter(label => supportsReviewedSkillLabel(fact.text, label, projection)) };
     }
     // An older client can omit the field. Never resurrect a discarded word by rescanning this fact.
-    if (!skillLabels && (prior?.skillLabels || (!prior && candidate.skillLabels))) return { ...fact, skillLabels: [] };
+    if (!skillLabels && (reviewedWords || (!prior && candidate.skillLabels))) return { ...fact, skillLabels: [] };
     return item;
 }
 
@@ -80,8 +107,7 @@ export class ReviewService {
                 textVersionId: stored.version.textVersionId,
                 extractionId: request.extractionId,
                 origin: "ai",
-                items: validated.items,
-                selfAssessmentHints: validated.selfAssessmentHints,
+                ...validated,
                 reviewPoints: this.retainReviewPoints(current, validated.reviewPoints),
                 revision,
                 updatedAt: new Date(Number(row.created_at)).toISOString()
@@ -113,6 +139,7 @@ export class ReviewService {
         }, await this.repo.identity(owner.ownerId, "adoptDocumentExtraction", request));
     }
     project(row: MaterialRow): DocumentReviewDraft {
+        const items = JSON.parse(String(row.items_json));
         return parseDraft({
             id: row.id,
             schemaVersion: DOCUMENT_SCHEMA_VERSION,
@@ -121,14 +148,20 @@ export class ReviewService {
             textVersionId: row.text_version_id,
             extractionId: row.extraction_id,
             origin: row.origin,
-            items: JSON.parse(String(row.items_json)),
+            ...(row.review_projection === GROUNDED_MATERIAL_REVIEW_PROJECTION ? {
+                reviewProjection: GROUNDED_MATERIAL_REVIEW_PROJECTION, ...reclassifiedFacts(items, JSON.parse(String(row.original_kinds))),
+            } : {}),
+            items,
             selfAssessmentHints: JSON.parse(String(row.self_assessment_hints_json)),
             reviewPoints: JSON.parse(String(row.review_points_json ?? "[]")),
             revision: row.revision,
             updatedAt: new Date(Number(row.updated_at)).toISOString()
         });
     }
-    async row(ownerId: string, textVersionId: string) { return this.repo.one("SELECT * FROM document_review_drafts WHERE owner_id=? AND text_version_id=? AND state='active'", ownerId, textVersionId); }
+    async row(ownerId: string, textVersionId: string) {
+        return this.repo.one(`SELECT r.*, ${reviewProjectionColumns} FROM document_review_drafts r ${extractionJoin}
+            WHERE r.owner_id=? AND r.text_version_id=? AND r.state='active'`, ownerId, textVersionId);
+    }
     async reference(ownerId: string, documentId: string, textVersionId: string) {
         const stored = await this.repo.version(ownerId, documentId, undefined, textVersionId);
         const text = await this.storage.read(stored.objectKey);
@@ -153,8 +186,9 @@ export class ReviewService {
         // Only the current document and exact saved review can offer its existing confirmation.
         // Retained historical drafts remain readable when the document has a newer version.
         const row = await this.repo.one(`
-            SELECT r.*, c.id AS confirmation_id, d.revision AS document_revision
+            SELECT r.*, ${reviewProjectionColumns}, c.id AS confirmation_id, d.revision AS document_revision
             FROM document_review_drafts r
+            ${extractionJoin}
             JOIN documents d ON d.owner_id=r.owner_id AND d.id=r.document_id AND d.lifecycle='active'
             JOIN document_versions v ON v.owner_id=r.owner_id AND v.document_id=r.document_id
                 AND v.id=r.document_version_id AND v.text_version_id=r.text_version_id AND v.state='ready'
@@ -197,11 +231,18 @@ export class ReviewService {
                 throw new DocumentServiceError("invalid-content");
             extraction = validateStoredDocumentExtraction(String(row.candidates_json), owner.ownerId, reference);
         }
+        if (!adoptionIdentity && current && current.extraction_id !== request.extractionId
+            && (current.review_projection === GROUNDED_MATERIAL_REVIEW_PROJECTION || extraction?.reviewProjection))
+            throw new DocumentServiceError("conflict");
+        if (request.skillTermAddition && (!current || current.extraction_id !== request.extractionId || adoptionIdentity))
+            throw new DocumentServiceError("invalid-content");
         const priorReview = !adoptionIdentity && current && current.extraction_id === request.extractionId ? this.project(current) : extraction;
         const items = request.items.map(item => {
             if (item.sourceRef && !validateMaterialSourceRef(item.sourceRef, owner.ownerId, reference))
                 throw new DocumentServiceError("invalid-content");
-            return reviewedItem(item, extraction?.items.find(candidate => candidate.id === item.id), priorReview?.items.find(prior => prior.id === item.id));
+            const addition = request.skillTermAddition?.itemId === item.id ? request.skillTermAddition.sourceTerm : undefined;
+            return reviewedItem(item, extraction?.items.find(candidate => candidate.id === item.id), priorReview?.items.find(prior => prior.id === item.id),
+                extraction?.reviewProjection, addition, reference.text);
         });
         if (request.selfAssessmentHints.some(hint => !extraction?.selfAssessmentHints.some(candidate => canonicalJson(candidate) === canonicalJson(hint))))
             throw new DocumentServiceError("invalid-content");
@@ -213,6 +254,9 @@ export class ReviewService {
         const draft = parseDraft({
             id, schemaVersion: DOCUMENT_SCHEMA_VERSION, documentId: request.documentId, documentVersionId: stored.version.id,
             textVersionId: request.textVersionId, extractionId: request.extractionId, origin, items, selfAssessmentHints, reviewPoints,
+            ...(extraction?.reviewProjection ? { reviewProjection: extraction.reviewProjection,
+                ...reclassifiedFacts(items, Object.fromEntries(extraction.items.map(item => [item.id, item.kind]))),
+            } : {}),
             revision, updatedAt: new Date(now).toISOString()
         });
         const write = this.repo.statement("INSERT INTO document_review_drafts(owner_id,id,document_id,document_version_id,text_version_id,extraction_id,origin,items_json,self_assessment_hints_json,review_points_json,revision,state,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,'active',?) ON CONFLICT(owner_id,text_version_id) DO UPDATE SET extraction_id=excluded.extraction_id,origin=excluded.origin,items_json=excluded.items_json,self_assessment_hints_json=excluded.self_assessment_hints_json,review_points_json=excluded.review_points_json,revision=excluded.revision,updated_at=excluded.updated_at WHERE document_review_drafts.revision=? AND document_review_drafts.state='active'", owner.ownerId, id, request.documentId, stored.version.id, request.textVersionId, request.extractionId, origin, JSON.stringify(items), JSON.stringify(selfAssessmentHints), JSON.stringify(reviewPoints), revision, now, request.expectedRevision);

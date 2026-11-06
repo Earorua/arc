@@ -1,4 +1,5 @@
-import type { ConfirmedMaterialItem, DocumentReviewDraft } from "../../contracts/documents";
+import { GROUNDED_MATERIAL_REVIEW_PROJECTION, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../contracts/documents";
+import { findMaterialSkillEvidence, groundMaterialSkillTerms } from "./grounded-skill-terms";
 
 export function normalizeMaterialSkillLabel(label: string) {
   return label.normalize("NFKC").toLowerCase();
@@ -14,6 +15,18 @@ export function containsMaterialSkillLabel(text: string, label: string) {
     offset = normalized.indexOf(token, offset + 1);
   }
   return false;
+}
+
+/** Old reviews retain their literal edit rule. V2 accepts only a grounded source term or its reviewed equivalent. */
+export function supportsReviewedSkillLabel(text: string, label: string, projection: DocumentReviewDraft["reviewProjection"]) {
+  return projection === GROUNDED_MATERIAL_REVIEW_PROJECTION
+    ? findMaterialSkillEvidence(text, label) !== null
+    : containsMaterialSkillLabel(text, label);
+}
+
+export function labelForAddedSourceTerm(quote: string, fact: string, sourceTerm: string): string | null {
+  const [label] = groundMaterialSkillTerms(quote, [sourceTerm]);
+  return label && findMaterialSkillEvidence(fact, label) !== null ? label : null;
 }
 
 export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMaterialItem[], hints: DocumentReviewDraft["selfAssessmentHints"]) {

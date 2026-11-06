@@ -197,3 +197,87 @@ describe("private material extraction from quoted source spans", () => {
     expect(body.messages[0].content).not.toContain("source-spans-v1");
   });
 });
+
+const groundedPolicy = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2";
+const practice = "I cleaned data using DuckDB.";
+const obligation = "The role requires FlarnDock.";
+const localSource = (quote: string) => ({ segmentId: "section-one", quote });
+const grounded = {
+  format: "source-spans-v2",
+  items: [
+    { kind: "experience", source: localSource(practice), requirementLevel: null, skillTerms: ["cleaned data", "DuckDB", "unrelated product"], selfLevelHint: null },
+    { kind: "requirement", source: localSource(obligation), requirementLevel: "must", skillTerms: ["FlarnDock"], selfLevelHint: null },
+  ],
+  reviewPoints: [{ code: "uncovered-skill", source: localSource(obligation) }],
+};
+const localText = practice + " " + obligation;
+
+describe("Kimi grounded terms and reviews", () => {
+  it.each(["resume", "jd", "supplement"] as const)("extracts source terms, preserves unknown tools and separates role coverage for %s", async kind => {
+    const { outcome, body } = await analyze(grounded, { policyId: groundedPolicy, text: localText, kind });
+    expect(body.messages[0].content).toContain("source-spans-v2");
+    expect(body.messages[0].content).toContain("skillTerms");
+    expect(new TextEncoder().encode(JSON.stringify({ ...body, messages: [body.messages[0]] })).length).toBeLessThan(4096);
+    expect(JSON.parse(body.messages[1].content)).toEqual({ kind, segments: [{ segmentId: "section-one", text: localText }] });
+    expect(body.provider).toMatchObject({ only: ["moonshotai/mxfp4"], allow_fallbacks: false, zdr: true, data_collection: "deny" });
+    expect(outcome).toMatchObject({ actualMicroUsd: 7, audit: { status: "verified", extractionRead: "parsed" },
+      candidate: { schemaVersion: "2026.11.1", items: [
+        { id: "candidate-1", text: practice, skillLabels: ["data cleaning", "DuckDB"] },
+        { id: "candidate-2", text: obligation, skillLabels: ["FlarnDock"], requirementLevel: "must" },
+      ], reviewPoints: [] } });
+  });
+
+  it("keeps incomplete generations billable but unusable under the separately pinned policy", async () => {
+    const { outcome } = await analyze(grounded, { policyId: groundedPolicy, text: localText, generationEnd: { native_finish_reason: "length" } });
+    expect(outcome).toMatchObject({ actualMicroUsd: 7, candidate: null, audit: { status: "verified", extractionRead: "output-limit" } });
+  });
+
+  it("retains the action but withholds a model's unsupported level and its review question", async () => {
+    const text = "I installed DuckDB.";
+    const suggestion = { ...grounded, items: [{ kind: "experience", source: localSource(text), requirementLevel: null,
+      skillTerms: ["DuckDB"], selfLevelHint: "guided" }], reviewPoints: [{ code: "confirm-self-assessment", source: localSource(text) }] };
+    const { outcome } = await analyze(suggestion, { policyId: groundedPolicy, kind: "resume", text });
+    expect(outcome.candidate).toMatchObject({ items: [{ text, skillLabels: ["DuckDB"], selfLevelHint: null }], reviewPoints: [] });
+  });
+
+  it("still rejects a level supplied for a job requirement", async () => {
+    const bad = { ...grounded, items: [{ ...grounded.items[1]!, selfLevelHint: "guided" }], reviewPoints: [] };
+    const { outcome } = await analyze(bad, { policyId: groundedPolicy, text: localText });
+    expect(outcome).toMatchObject({ candidate: null, actualMicroUsd: 7, audit: { extractionRead: "invalid-shape" } });
+  });
+
+  it("keeps a URL query and the following access restriction together in the fact and in its review", async () => {
+    const text = "课后仅可在内网查看 https://learn.invalid/lesson?q=queue，访问前需登记。";
+    const source = localSource(text);
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "constraint", source,
+      skillTerms: [], selfLevelHint: null, requirementLevel: null }], reviewPoints: [] }, { policyId: groundedPolicy, text, kind: "supplement" });
+    expect(outcome.candidate).toMatchObject({ items: [{ text, source }], reviewPoints: [{ code: "untrusted-resource-url", source }] });
+  });
+
+  it("never presents a personal level from a sentence quoted inside a multi-sentence example", async () => {
+    const example = "I am familiar with DuckDB.";
+    const text = "The manual gives this example: “First choose a tool. " + example + " Continue the worksheet.”";
+    const source = localSource(example);
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "skill-claim", source,
+      skillTerms: ["DuckDB"], selfLevelHint: "conceptual", requirementLevel: null }],
+      reviewPoints: [{ code: "confirm-self-assessment", source }] }, { policyId: groundedPolicy, text, kind: "supplement" });
+    expect(outcome.candidate).toMatchObject({ items: [{ text: example, selfLevelHint: null }], reviewPoints: [] });
+  });
+
+  it("refuses downgraded and cross-version reply formats", async () => {
+    const oldAtNew = await analyze(compact, { policyId: groundedPolicy });
+    const newAtOld = await analyze(grounded, { policyId: policy, text: localText });
+    for (const { outcome } of [oldAtNew, newAtOld]) {
+      expect(outcome).toMatchObject({ candidate: null, actualMicroUsd: 7, audit: { status: "verified", extractionRead: "invalid-shape" } });
+    }
+  });
+
+  it("binds the new policy to the same strict endpoint and refuses unimplemented versions", () => {
+    const nextConfig = { ...config, providerPolicyId: groundedPolicy };
+    const nextQualification = { ...qualification, providerPolicyId: groundedPolicy };
+    expect(isDocumentProviderQualified(nextConfig, nextQualification)).toBe(true);
+    expect(isDocumentProviderQualified(nextConfig, { ...nextQualification, receiptRoute: { ...qualification.receiptRoute, endpointId: "other" } })).toBe(false);
+    const unimplemented = groundedPolicy.slice(0, -1) + "3";
+    expect(isDocumentProviderQualified({ ...config, providerPolicyId: unimplemented }, { ...qualification, providerPolicyId: unimplemented })).toBe(false);
+  });
+});

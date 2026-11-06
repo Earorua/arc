@@ -7,7 +7,7 @@ import { materialIdSchema, materialVersionSchema } from "../../app/contracts/doc
 import { documentReceiptRouteSchema } from "../../app/server/documents/provider-receipt";
 import { auditDocumentGeneration, documentTokenPriceCeiling, DocumentHttpTimeout, isFailedChatResponse, readChatReceipt, readDocumentHttpJson,
   withDocumentDeadline } from "./generation-receipt";
-import { KIMI_SOURCE_SPAN_POLICY_ID, KIMI_SOURCE_SPAN_ROUTE, readSourceSpanExtraction, sourceSpanPrompt } from "./source-span-extraction";
+import { KIMI_SOURCE_SPAN_POLICY_PREFIX, KIMI_SOURCE_SPAN_ROUTE, readSourceSpanExtraction, sourceSpanPolicy } from "./source-span-extraction";
 
 const rate = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const chatEndpoint = z.string().url().max(2048).refine(value => {
@@ -43,7 +43,9 @@ export function isDocumentProviderQualified(config: DocumentAnalysisMetadata, qu
   const parsed = documentProviderQualificationSchema.safeParse(qualification);
   if (!parsed.success || !validMetadata(config)) return false;
   const q = parsed.data;
-  if (config.providerPolicyId === KIMI_SOURCE_SPAN_POLICY_ID && (config.model !== KIMI_SOURCE_SPAN_ROUTE.model
+  const spanPolicy = sourceSpanPolicy(config.providerPolicyId);
+  if (!spanPolicy && config.providerPolicyId.startsWith(KIMI_SOURCE_SPAN_POLICY_PREFIX)) return false;
+  if (spanPolicy && (config.model !== KIMI_SOURCE_SPAN_ROUTE.model
     || config.endpoint !== KIMI_SOURCE_SPAN_ROUTE.endpoint || config.routingPolicy.providerOrder[0] !== KIMI_SOURCE_SPAN_ROUTE.tag
     || q.receiptRoute.providerName !== KIMI_SOURCE_SPAN_ROUTE.providerName || q.receiptRoute.endpointId !== KIMI_SOURCE_SPAN_ROUTE.endpointId
     || q.receiptRoute.generationModel !== KIMI_SOURCE_SPAN_ROUTE.generationModel)) return false;
@@ -85,9 +87,9 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     const generationParameters = config.model === "moonshotai/kimi-k3.1-pro" && config.routingPolicy.providerOrder[0] === "moonshotai/mxfp4"
       ? { max_tokens: config.maxOutputTokens }
       : { max_completion_tokens: config.maxOutputTokens, temperature: 0 };
-    const sourceSpans = config.providerPolicyId === KIMI_SOURCE_SPAN_POLICY_ID;
+    const spanPolicy = sourceSpanPolicy(config.providerPolicyId);
     const body = JSON.stringify({
-      model: config.model, messages: [{ role: "system", content: sourceSpans ? sourceSpanPrompt : systemPrompt }, { role: "user", content: data }],
+      model: config.model, messages: [{ role: "system", content: spanPolicy?.prompt ?? systemPrompt }, { role: "user", content: data }],
       ...generationParameters, stream: false, response_format: { type: "json_object" },
       provider: {
         only: config.routingPolicy.providerOrder, order: config.routingPolicy.providerOrder,
@@ -124,8 +126,8 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
       && audit.status !== "cost-conflict";
     const actualMicroUsd = attributable ? chat.actualMicroUsd ?? audit.metadataMicroUsd : null;
     let candidate: unknown = null;
-    if (audit.status === "verified" && sourceSpans) {
-      const extraction = readSourceSpanExtraction(raw, input, audit.extractionRead);
+    if (audit.status === "verified" && spanPolicy) {
+      const extraction = readSourceSpanExtraction(raw, input, audit.extractionRead, spanPolicy.format);
       candidate = extraction.candidate;
       audit.extractionRead = extraction.extractionRead;
     } else if (audit.status === "verified") {

@@ -152,10 +152,10 @@ const fixtureBinding = (grant: unknown) => {
   return collector.supplementCaptureBinding(raw, sha(raw), "offline-test");
 };
 
-async function sourceSpanFixture(directory: string) {
+async function sourceSpanFixture(directory: string, providerPolicyId = KIMI_SOURCE_SPAN_POLICY_ID) {
   const legacy = await issued(directory);
-  const config = { ...legacy.config, providerPolicyId: KIMI_SOURCE_SPAN_POLICY_ID };
-  const qualification = { ...legacy.qualification, providerPolicyId: KIMI_SOURCE_SPAN_POLICY_ID };
+  const config = { ...legacy.config, providerPolicyId };
+  const qualification = { ...legacy.qualification, providerPolicyId };
   return { config, qualification, authorization: { ...legacy.authorization,
     configurationSha256: await documentAcceptanceConfigurationDigest(config, qualification) } };
 }
@@ -184,6 +184,29 @@ function spanChat(index: number, content = spanContent(index), finish = "stop") 
     usage: { prompt_tokens: 100, completion_tokens: 20, cost: 0.000007 },
     choices: [{ finish_reason: finish, message: { role: "assistant", content } }] });
 }
+it("pins the grounded supplement policy and archives its product-decoded terms beside the untouched wire", async () => {
+  const directory = temporaryDirectory();
+  const grant = await sourceSpanFixture(directory, "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2");
+  const response = (index: number) => {
+    const prior = JSON.parse(spanContent(index));
+    const items = prior.items.map(({ skillLabels, ...fact }: { skillLabels: string[] }) => ({ ...fact, skillTerms: skillLabels }));
+    return JSON.stringify({ format: "source-spans-v2", items, reviewPoints: prior.reviewPoints });
+  };
+  const http = transport(index => spanChat(index, response(index)));
+  const result = await collect(JSON.stringify(grant), directory, http);
+  expect(result).toMatchObject({ mode: "offline-test", requestsSent: 6, settledMicroUsd: 42, heldMicroUsd: 0 });
+  expect(http.mock.calls).toHaveLength(12);
+  const posts = http.mock.calls.filter(([, init]) => init?.method === "POST");
+  expect(posts.every(([, init]) => JSON.parse(String(init?.body)).messages[0].content.includes("source-spans-v2"))).toBe(true);
+  const recorded = inspectDb(directory, "SELECT raw_content_json FROM attempts ORDER BY rowid");
+  expect(recorded.map(row => JSON.parse(String(row.raw_content_json)))).toEqual(corpus.documents.map((_, index) => response(index)));
+  const reopened = ledger.openSupplementLedger(directory, grant.authorization.runId, grant.authorization.ledgerSha256);
+  try {
+    expect(reopened.captures(fixtureBinding(grant))[0]?.extraction).toMatchObject({ schemaVersion: corpus.schemaVersion, items: [
+      { id: "candidate-1", skillLabels: ["SQL"] }, { id: "candidate-2", skillLabels: ["SQL"] },
+    ] });
+  } finally { reopened.close(); }
+});
 it("runs the separately pinned source-span collector end to end and preserves the original replies beside the scored output", async () => {
   const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory);
   const http = transport(index => spanChat(index));

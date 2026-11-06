@@ -151,6 +151,11 @@ it("initializes AI review once and preserves user edits when a later extraction 
     const proposed = await services.readDocumentExtraction(owner, { documentId: receipt.documentId, extractionId: late.extractionId! });
     expect(proposed.draft.items).toHaveLength(1);
     expect(proposed.expectedRevision).toBe(1);
+    await expect(services.saveDocumentReviewDraft(owner, {
+        documentId: receipt.documentId, textVersionId: receipt.textVersionId, extractionId: late.extractionId!,
+        items: proposed.draft.items, selfAssessmentHints: proposed.draft.selfAssessmentHints,
+        expectedRevision: proposed.expectedRevision, mutationId: "switch-without-adoption"
+    })).rejects.toMatchObject({ code: "conflict" });
     const adopted = await services.adoptDocumentExtraction(owner, {
         documentId: receipt.documentId,
         textVersionId: receipt.textVersionId,

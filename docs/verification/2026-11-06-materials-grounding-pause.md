@@ -1,0 +1,26 @@
+# 多类型资料离线修复暂停点
+
+2026-11-06 北京时间 22:46，按持有人要求暂停。工作分支为 `codex/materials-replan-recovery-20261106`。本页与在制源码处于同一个本地 Git 提交，开始本轮前的完整检查点为 `e9fe0578f0d991b4b6342927363fc6e3c645d356`。恢复时可用 `git log -1 --oneline -- docs/verification/2026-11-06-materials-grounding-pause.md` 找到本次暂停提交。
+
+## 已保存
+
+- 新的 Kimi 提取策略 `materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2` 让模型提名原文短语，由程序校验原文、保留技能证据，并单独处理高影响提醒。接口已接入真实应用代码。本轮验证使用本机合成回复。
+- 已对照到原 P1 合成句中的 `Python` 和 `清洗空值记录`，后者支持规范名称 `data cleaning`。在岗位规划对照中，同一条 Playwright 要求在全栈蓝图映射为测试技能，在数据产品经理蓝图显示未覆盖。约束主题、核对时移除技能词、人工补充原文词、来源与草稿版本保护的部分实现和测试已保存。
+- 已保存 [30 份合成资料对照程序](materials-gate-1b-b2/grounded-terms/replay.mjs) 和 [本机 workerd 对照程序](materials-gate-1b-b2/grounded-terms/worker-check.mjs)。一次中间版回放采用冻结标注构造输入。原格式为 24/24 与 6/6；v2 同当时的实现组合得到普通 1/18、边界 0/6，补充资料普通 1/3、边界 2/3。这里只衡量固定标注与新契约的兼容性，不能作为模型效果或最终源码验收。两组语料和原评分器的 SHA-256 已在程序内核实。
+- 本地中间版已分别观察到新适配器 9 项对照、岗位映射与 B0 输入 6 项、URL 完整引文回归通过。原生 Worker 首次中间运行返回 500，后续一次跨运行时对照 7/7 通过，需在冻结源码上重验。先前 `e9fe057` 的 7,716 项全仓通过记录仅适用于旧版本。
+
+## 恢复顺序
+
+1. **先处理已有失败。** 暂停前最后一次专项共选中 9 项，9 项失败，完整日志在本机 `work/grounded-verification/contextual-negation-red.log`。英文和中文否定、并列否定、普通动词 `react` / `excel` 不应成为规划技能；跨多句引用中的示例不应生成个人自评。在解码时向 `groundSourceSelfLevelHint` 传入已校验词，并核实同一事实的原文中有可存续的自评依据与核对项，涵盖不同人物、不同限定语及列表标记。
+2. **区分新旧策略。** 把站点实际保存的作业 `provider_policy_id` 传入新提取的验证与序列化。仅已批准的 v2 作业写入 v2 核对规则，v1 与历史无包封数据继续原有行为。暂停时评分调用方已准备传入策略，验证函数签名与作业投递端尚待接通。应验证客户端伪造版本无效，并做新旧策略同句并排对照。
+3. **完成显式人工修词。** `skillTermAddition` 的 UI、请求契约、保存逻辑和测试已部分写入。验证用户可在同一条事实补上 AI 漏掉、原文确有的词，再保存、确认并在计划看到变化；核实普通保存不能恢复已删除词、跨来源改词、绕过版本冲突或把时间约束当成能力。暂停时这项尚未完成端到端验收。
+4. **修复独立审查确认的 JD 优先级错误。** 原文明示 `PostgreSQL is optional for this role.`，若模拟回复写成 `must`，现有路径可能把 SQL 保护为必备。来自同一原文、只改模型标签或等级的重复候选也可能同时被接收。先为这两种情况补失败测试，检查标题继承、含多个条件的句子、跨岗位边界和用户核对，再决定如何安全保留事实与歧义。
+5. **冻结并重验。** 重跑专项、30 份标注对照、本机 workerd、完整 Vitest/Node、类型、Lint、构建和渲染。使用独立的干净源码副本做类型与构建校验，避免把旧的本机临时夹具当成源文件。继续复核 `jd-11` 的来源：岗位只说必备 Kubernetes，课程覆盖须依所选岗位蓝图判断。保留旧金标准和原结果，等离线证据齐全再决定下一轮验收方案和授权。
+
+从工作树根目录可先复现最后一批红例：
+
+```powershell
+node node_modules/vitest/vitest.mjs run --maxWorkers=1 tests/lib/materials/grounded-skill-terms.test.ts tests/server/document-source-span-provider.test.ts -t 'ordinary verb|contrasting clauses|sentence quoted inside'
+```
+
+原 P1 已结算，普通 0/3、边界 0/1，费用 0.054086 USD。项目累计实付 0.547151 USD，未决费用为零。本轮离线修复新增费用为零。P1 的一次性授权已使用，正式 B2、补充资料真实评测及后续环境与生产操作须按各自范围另行批准。[P1 实际结果](2026-11-06-materials-p1-result.md) · [发布进度](2026-11-04-materials-public-release-progress.md)

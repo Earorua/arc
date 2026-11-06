@@ -41,7 +41,9 @@ export const saveDocumentReviewDraftRequestSchema = boundedMaterialJson(z.object
   documentId: materialIdSchema, textVersionId: materialIdSchema, extractionId: materialIdSchema.nullable(),
   items: confirmedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema, ...revisionMutationFields,
   reviewPoints: materialReviewPointsSchema.optional(),
-}).strict(), MAX_DOCUMENT_ITEMS_JSON_BYTES);
+  skillTermAddition: z.object({ itemId: materialIdSchema, sourceTerm: z.string().trim().min(1).max(100) }).strict().optional(),
+}).strict().refine(request => !request.skillTermAddition || request.items.some(item => item.id === request.skillTermAddition!.itemId),
+  "A source term must belong to an item in this save"), MAX_DOCUMENT_ITEMS_JSON_BYTES);
 export const saveDocumentReviewDraftResponseSchema = boundedMaterialJson(z.object({ draft: documentReviewDraftSchema }).strict(), MAX_DOCUMENT_ITEMS_JSON_BYTES + 1024);
 export const createDocumentConfirmationRequestSchema = boundedMaterialJson(z.object({
   documentId: materialIdSchema, documentVersionId: materialIdSchema, textVersionId: materialIdSchema, reviewRevision: materialRevisionSchema,

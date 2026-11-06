@@ -1,30 +1,31 @@
 import { z } from "zod";
-import { documentExtractionSchema, MAX_DOCUMENT_ITEMS_JSON_BYTES, fitsJsonBytes, utf8Bytes, resolveCandidateSourceRef, type MaterialReferenceContext, type ConfirmedMaterialItem, materialSelfAssessmentHintsSchema } from "../../contracts/documents";
-import { containsMaterialSkillLabel } from "../../lib/materials/skill-labels";
+import { documentExtractionSchema, GROUNDED_MATERIAL_REVIEW_PROJECTION, MAX_DOCUMENT_ITEMS_JSON_BYTES, fitsJsonBytes, utf8Bytes, resolveCandidateSourceRef, type MaterialReferenceContext, type ConfirmedMaterialItem, materialSelfAssessmentHintsSchema } from "../../contracts/documents";
+import { supportsReviewedSkillLabel } from "../../lib/materials/skill-labels";
 import { DocumentServiceError } from "./d1-repository";
 import { validateDocumentReviewPoints } from "./review-points";
 
 // The server writes this envelope only after validating the provider's canonical candidate.
 // Unwrapped historical captures originally projected facts without a skill-word list.
-const reviewProjection = "literal-skill-labels-v1";
-const storedExtractionSchema = z.object({ reviewProjection: z.literal(reviewProjection), candidate: z.unknown() }).strict();
+const storedProjection = z.enum(["literal-skill-labels-v1", GROUNDED_MATERIAL_REVIEW_PROJECTION]);
+const storedExtractionSchema = z.object({ reviewProjection: storedProjection, candidate: z.unknown() }).strict();
 export function serializeDocumentExtraction(candidate: unknown) {
-    const json = JSON.stringify({ reviewProjection, candidate });
+    const json = JSON.stringify({ reviewProjection: GROUNDED_MATERIAL_REVIEW_PROJECTION, candidate });
     if (utf8Bytes(json) > MAX_DOCUMENT_ITEMS_JSON_BYTES) throw new DocumentServiceError("invalid-content");
     return json;
 }
 export function validateStoredDocumentExtraction(json: string, ownerId: string, reference: MaterialReferenceContext) {
     const raw: unknown = JSON.parse(json);
     const stored = storedExtractionSchema.safeParse(raw);
-    return stored.success ? validateDocumentExtraction(stored.data.candidate, ownerId, reference) : projectExtraction(raw, ownerId, reference, "legacy");
+    return stored.success ? projectExtraction(stored.data.candidate, ownerId, reference, stored.data.reviewProjection) : projectExtraction(raw, ownerId, reference, "legacy");
 }
 export function validateDocumentExtraction(candidate: unknown, ownerId: string, reference: MaterialReferenceContext) {
-    return projectExtraction(candidate, ownerId, reference, reviewProjection);
+    return projectExtraction(candidate, ownerId, reference, GROUNDED_MATERIAL_REVIEW_PROJECTION);
 }
-function projectExtraction(candidate: unknown, ownerId: string, reference: MaterialReferenceContext, projection: "legacy" | typeof reviewProjection) {
+function projectExtraction(candidate: unknown, ownerId: string, reference: MaterialReferenceContext, projection: "legacy" | z.infer<typeof storedProjection>) {
     const parsed = documentExtractionSchema.safeParse(candidate);
     if (!parsed.success)
         throw new DocumentServiceError("invalid-content");
+    const reviewProjection = projection === GROUNDED_MATERIAL_REVIEW_PROJECTION ? projection : undefined;
     const items: ConfirmedMaterialItem[] = parsed.data.items.map(item => {
         const sourceRef = resolveCandidateSourceRef(item.source, ownerId, reference);
         if (!sourceRef)
@@ -36,18 +37,19 @@ function projectExtraction(candidate: unknown, ownerId: string, reference: Mater
             origin: "extracted",
             sourceRef,
             requirementLevel: item.requirementLevel,
-            ...(projection === reviewProjection && item.kind !== "constraint" ? {
-                skillLabels: item.skillLabels.filter(label => containsMaterialSkillLabel(item.source.quote, label))
+            ...(reviewProjection || (projection === "literal-skill-labels-v1" && item.kind !== "constraint") ? {
+                skillLabels: item.skillLabels.filter(label => supportsReviewedSkillLabel(item.source.quote, label, reviewProjection))
             } : {})
         };
     });
     const hints = parsed.data.items.flatMap((item, itemIndex) => item.selfLevelHint === null ? [] : item.skillLabels.flatMap((label, index) => {
-        if (projection === reviewProjection && !items[itemIndex]!.skillLabels?.includes(label)) return [];
+        if (projection !== "legacy" && !items[itemIndex]!.skillLabels?.includes(label)) return [];
         return [{ id: `hint-${item.id}-${index}`, candidateId: item.id, skillLabel: label, level: item.selfLevelHint }];
     }));
     const selfAssessmentHints = materialSelfAssessmentHintsSchema.safeParse(hints);
     if (!selfAssessmentHints.success) throw new DocumentServiceError("invalid-content");
     const review = {
+        ...(reviewProjection ? { reviewProjection } : {}),
         items,
         selfAssessmentHints: selfAssessmentHints.data,
         reviewPoints: validateDocumentReviewPoints(parsed.data.reviewPoints, ownerId, reference)

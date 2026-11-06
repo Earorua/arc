@@ -99,7 +99,7 @@ export type QualificationResult = {
 } & ({ maxRequests: 24; passed: boolean } | { maxRequests: 4; purpose: "materials-b2-diagnostic-pilot-v1";
   passed: false; pilotCompleted: boolean; pilotQualityPassed: boolean });
 
-function scoreCandidate(document: QualityDocument, segments: ReturnType<typeof qualificationSegments>, candidate: unknown) {
+function scoreCandidate(document: QualityDocument, segments: ReturnType<typeof qualificationSegments>, candidate: unknown, providerPolicyId?: string) {
   let candidates: unknown[] = [];
   let reviewPoints: z.infer<typeof documentCandidateReviewPointsSchema> = [];
   let extractionValid = true;
@@ -107,7 +107,7 @@ function scoreCandidate(document: QualityDocument, segments: ReturnType<typeof q
     validateDocumentExtraction(candidate, "quality-fixture-owner", {
       ownerId: "quality-fixture-owner", documentId: document.id, documentVersionId: document.documentVersionId,
       textVersionId: document.textVersionId, lifecycle: "active", text: document.text, segments,
-    });
+    }, providerPolicyId);
     candidates = documentCandidatesSchema.parse((candidate as { items: unknown }).items);
     reviewPoints = documentCandidateReviewPointsSchema.parse((candidate as { reviewPoints?: unknown }).reviewPoints ?? []);
   } catch { extractionValid = false; }
@@ -266,7 +266,7 @@ async function runAuthorizedDocuments(env: Environment, dependencies: ExecutionD
       else if (entry.audit?.status !== "verified") stop = entry.audit?.status ?? "metadata-unavailable";
       if (stop) entry.status = "failed";
       else {
-        entry.quality = scoreCandidate(document, input.segments, outcome.candidate);
+        entry.quality = scoreCandidate(document, input.segments, outcome.candidate, config.providerPolicyId);
         entry.status = entry.quality.passed ? "passed" : "failed";
       }
     }

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { materialIdSchema } from "../../contracts/documents";
 import { readSetupDraft, writeSetupDraft, removeSetupDraft } from "../setup/setup-draft";
 import type { ConfirmedMaterialItem, DocumentReviewDraft } from "../../contracts/documents";
-import { documentVersionReceiptSchema, type DocumentEndpointResponse } from "../../contracts/documents-api";
+import { documentVersionReceiptSchema, type DocumentEndpointRequest, type DocumentEndpointResponse } from "../../contracts/documents-api";
 import type { DocumentCapabilities } from "../../contracts/document-capabilities";
 import type { SkillSelfLevel } from "../../contracts/planning";
 import { DocumentClientError, documentsClient, type DocumentsClient } from "../../lib/documents-client";
@@ -363,13 +363,13 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                 setBusy(false);
         }
     }
-    function saveItems(items: ConfirmedMaterialItem[]) {
-        saveReview(items, draft?.reviewPoints);
+    function saveItems(items: ConfirmedMaterialItem[], addition?: DocumentEndpointRequest<"saveDocumentReviewDraft">["skillTermAddition"]) {
+        saveReview(items, draft?.reviewPoints, addition);
     }
-    function saveReview(items: ConfirmedMaterialItem[], reviewPoints: DocumentReviewDraft["reviewPoints"]) {
+    function saveReview(items: ConfirmedMaterialItem[], reviewPoints: DocumentReviewDraft["reviewPoints"], addition?: DocumentEndpointRequest<"saveDocumentReviewDraft">["skillTermAddition"]) {
         if (!draft || !valueRef.current)
             return;
-        edits.current++;
+        const edit = ++edits.current;
         const selfAssessmentHints = retainedMaterialSelfAssessmentHints(items, draft.selfAssessmentHints);
         const edited = { ...draft, items, selfAssessmentHints, ...(reviewPoints ? { reviewPoints } : {}) };
         setDraft(edited);
@@ -389,12 +389,13 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
                 items,
                 selfAssessmentHints,
                 ...(reviewPoints ? { reviewPoints } : {}),
+                ...(addition ? { skillTermAddition: addition } : {}),
                 expectedRevision: base.revision,
                 mutationId: `review-${crypto.randomUUID()}`
             }, cancellation.current.signal);
             if (epoch === lifecycle.current) {
                 serverDraft.current = result.draft;
-                setDraft(current => current ? { ...current, revision: result.draft.revision, origin: result.draft.origin } : result.draft);
+                setDraft(current => edit === edits.current || !current ? result.draft : { ...current, revision: result.draft.revision, origin: result.draft.origin });
             }
         });
         const queued = saveQueue.current;

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { skillSelfLevelSchema } from "./planning";
 
 export const DOCUMENT_SCHEMA_VERSION = "2026.11.1" as const;
+export const GROUNDED_MATERIAL_REVIEW_PROJECTION = "grounded-skill-labels-v2" as const;
 export const MAX_DOCUMENT_TEXT_CODE_POINTS = 50_000;
 export const MAX_DOCUMENT_TEXT_UTF8_BYTES = 256 * 1024;
 export const MAX_DOCUMENT_ITEMS_JSON_BYTES = 128 * 1024;
@@ -138,6 +139,8 @@ export const documentReviewDraftSchema = boundedMaterialJson(z.object({
   id: materialIdSchema, schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), documentId: materialIdSchema,
   documentVersionId: materialIdSchema, textVersionId: materialIdSchema, extractionId: materialIdSchema.nullable(),
   origin: z.enum(["ai", "manual", "mixed"]), items: confirmedMaterialItemsSchema, selfAssessmentHints: materialSelfAssessmentHintsSchema,
+  reviewProjection: z.literal(GROUNDED_MATERIAL_REVIEW_PROJECTION).optional(),
+  reclassifiedItemIds: z.array(materialIdSchema).max(100).optional(),
   reviewPoints: materialReviewPointsSchema.optional(),
   revision: materialRevisionSchema, updatedAt: materialTimestampSchema,
 }).strict().superRefine((draft, ctx) => {

@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { MAX_DOCUMENT_ITEMS_JSON_BYTES, MAX_DOCUMENT_TEXT_CODE_POINTS, MAX_DOCUMENT_TEXT_UTF8_BYTES, MAX_MATERIAL_CONTEXT_JSON_BYTES, materialIdSchema, materialVersionSchema } from "../../contracts/documents";
 
+export const KIMI_GROUNDED_TERMS_POLICY_ID = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2";
+
 export const DOCUMENT_LIMITS = Object.freeze({
   documentsPerOwner: 30, textVersionsPerDocument: 10, retainedCodePointsPerOwner: 1_000_000,
   textCodePoints: MAX_DOCUMENT_TEXT_CODE_POINTS, textUtf8Bytes: MAX_DOCUMENT_TEXT_UTF8_BYTES, createBodyBytes: 512 * 1024,

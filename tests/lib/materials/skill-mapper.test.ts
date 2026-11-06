@@ -32,6 +32,17 @@ it("uses versioned production aliases only for the matching published blueprint"
     expect(mapMaterialItems([web], research, researchRegistry)[0]?.status).toBe("uncovered");
     expect(mapMaterialItems([{ ...item, text: "HTMLish" }], flagshipBlueprint, flagshipUnitRegistry)[0]?.status).toBe("uncovered");
 });
+it("maps the confirmed bilingual unit-testing concept only in a catalog that teaches it", () => {
+    const words = { ...item, text: "为支付接口编写单元测试。", skillLabels: ["unit testing"] };
+    expect(mapMaterialItems([words], flagshipBlueprint, flagshipUnitRegistry)).toMatchObject([{ status: "mapped", skillIds: ["testing"] }]);
+    const other = { ...flagshipBlueprint, id: "separate-catalog" };
+    expect(mapMaterialItems([words], other, { ...flagshipUnitRegistry, blueprintId: other.id })).toMatchObject([{ status: "uncovered", skillIds: [] }]);
+    expect(mapMaterialItems([{ ...words, skillLabels: [] }], flagshipBlueprint, flagshipUnitRegistry)).toEqual([]);
+    // Existing callers can still supply their original, versioned vocabulary.
+    expect(mapMaterialItems([words], other, { ...flagshipUnitRegistry, blueprintId: other.id }, {
+      aliases: { version: "2026.11.2", skills: { testing: ["unit testing"] } },
+    })).toMatchObject([{ status: "mapped", skillIds: ["testing"] }]);
+});
 it("maps each retained literal skill word through its own blueprint and leaves unknown words uncovered", () => {
     const reviewed = { ...item, text: "SQL was removed during review", skillLabels: ["Jest", "Vitest", "OpenTelemetry", "unlisted-xyz"] };
     const mapped = mapMaterialItems([reviewed], flagshipBlueprint, flagshipUnitRegistry);

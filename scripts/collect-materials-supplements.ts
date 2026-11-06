@@ -17,7 +17,7 @@ import { documentAnalysisConfigurationSchema } from "../app/server/documents/pol
 import { documentAcceptanceConfigurationDigest } from "../worker/document-executor/acceptance-policy";
 import { readDocumentHttpJson } from "../worker/document-executor/generation-receipt";
 import { calculateDocumentReservation, HttpDocumentAnalysisProvider, isDocumentProviderQualified, type DocumentFetch } from "../worker/document-executor/provider-http";
-import { KIMI_SOURCE_SPAN_POLICY_ID, KIMI_SOURCE_SPAN_ROUTE } from "../worker/document-executor/source-span-extraction";
+import { KIMI_SOURCE_SPAN_ROUTE, sourceSpanPolicy } from "../worker/document-executor/source-span-extraction";
 import { openSupplementLedger, readPinnedSupplementIssuance, registerSupplementLedger, supplementLimits as limits, supplementPurpose as purpose,
   supplementSettingsSchema as settingsSchema, supplementFixtureToken as fixtureToken, type SupplementIssuanceBinding } from "./materials-supplement-ledger";
 import { inspectDiagnosticPilotSourceManifest } from "./materials-diagnostic-pilot-host";
@@ -39,7 +39,7 @@ export async function inspectSupplementSettings(input: unknown) {
   if (!isDocumentProviderQualified(config, qualification) || config.maxJobMicroUsd > limits.perRequestMicroUsd
     || config.endpoint !== KIMI_SOURCE_SPAN_ROUTE.endpoint || config.provider !== "OpenRouter / Moonshot AI"
     || config.model !== KIMI_SOURCE_SPAN_ROUTE.model || config.routingPolicy.providerOrder[0] !== KIMI_SOURCE_SPAN_ROUTE.tag
-    || !["materials-openrouter-kimi-k31-pro-mxfp4-zdr", KIMI_SOURCE_SPAN_POLICY_ID].includes(config.providerPolicyId) || config.priceVersion !== "2026.11.3"
+    || (config.providerPolicyId !== "materials-openrouter-kimi-k31-pro-mxfp4-zdr" && !sourceSpanPolicy(config.providerPolicyId)) || config.priceVersion !== "2026.11.3"
     || config.routingPolicy.policyVersion !== "2026.11.3" || qualification.receiptRoute.providerName !== KIMI_SOURCE_SPAN_ROUTE.providerName
     || qualification.receiptRoute.endpointId !== KIMI_SOURCE_SPAN_ROUTE.endpointId || qualification.receiptRoute.generationModel !== KIMI_SOURCE_SPAN_ROUTE.generationModel
     || qualification.inputMicroUsdPerMillionTokens !== 2_000_000 || qualification.outputMicroUsdPerMillionTokens !== 10_000_000)
@@ -166,7 +166,7 @@ async function collect(raw: string, env: Environment, options: CollectionOptions
         // The provider decoded the original chat with its actual finish flags and verified metadata.
         // For rejected wire content it returns null. Never reinterpret that raw content as a legacy success.
         let decoded;
-        if (!reason && config.providerPolicyId === KIMI_SOURCE_SPAN_POLICY_ID) {
+        if (!reason && sourceSpanPolicy(config.providerPolicyId)) {
           const extractionJson = JSON.stringify(outcome.candidate);
           if (!rawDigest || extractionJson.includes(JSON.stringify(config.apiKey).slice(1, -1))) reason = "capture-failed";
           else decoded = { receiptId: outcome.receiptId, rawDigest, extractionJson };
@@ -181,7 +181,7 @@ async function collect(raw: string, env: Environment, options: CollectionOptions
     const balance = ledger.totals();
     if (!ledger.matchesBinding(binding)) reason = "issuance-mismatch";
     const quality = !reason && balance.requestsSent === limits.maxRequests
-      ? scoreSupplementBatch({ corpusSha256: supplementCorpusSha256, outputs: ledger.captures(binding) }) : null;
+      ? scoreSupplementBatch({ corpusSha256: supplementCorpusSha256, outputs: ledger.captures(binding) }, config.providerPolicyId) : null;
     const status = balance.heldMicroUsd ? "held" : reason ? "stopped" : quality?.passed ? "complete" : "quality-failed";
     const result = { runId, mode, ...balance, status,
       reason: reason ?? (quality?.passed ? null : "quality-threshold-failed"), quality, completedAt: now().toISOString() };

@@ -92,7 +92,7 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
       <h3>确认的事实与要求</h3><ul>{preview.confirmedItems.map((item, index) => {
         const reference = preview.itemReferences?.find(reference => reference.id === item.id);
         const choice = reference && (recovering ? preview.skillMappings ?? [] : skillMappings).find(mapping => mapping.confirmationId === reference.confirmationId && mapping.itemId === reference.itemId);
-        return <li key={item.id}><span>{item.text}</span>{Boolean(item.skillLabels?.length) && <small> · 已确认技能词 {item.skillLabels!.join("、")}</small>}
+        return <li key={item.id}><span>{item.text}</span>{Boolean(item.skillLabels?.length) && <small> · {item.kind === "constraint" ? "约束主题" : "已确认技能词"} {item.skillLabels!.join("、")}</small>}
           {reference && item.kind !== "constraint" && availableSkills.length > 0 && <label>对应的已有技能<select
           aria-label={`事实 ${index + 1} 对应的已有技能`} disabled={disabled || busy || recovering} value={choice?.skillId ?? ""}
           onChange={event => chooseSkill(reference.confirmationId, reference.itemId, event.target.value)}>

@@ -4,7 +4,7 @@ import { DOCUMENT_METADATA_TIMEOUT_MS, MAX_DOCUMENT_METADATA_ATTEMPTS, type Docu
   type DocumentReceiptAudit } from "../../app/server/documents/provider-receipt";
 import type { DocumentFetch, DocumentProviderQualification } from "./provider-http";
 import { boundedMetadataRetryAfter } from "./metadata-retry";
-import { KIMI_SOURCE_SPAN_POLICY_ID, incompleteSourceSpanOutput } from "./source-span-extraction";
+import { sourceSpanPolicy, incompleteSourceSpanOutput } from "./source-span-extraction";
 
 export { DOCUMENT_METADATA_TIMEOUT_MS };
 const MAX_RESPONSE_BYTES = 128 * 1024;
@@ -196,7 +196,7 @@ async function checkGeneration(envelope: Record<string, unknown>, chat: ChatRece
     || audit.metadataInputTokens !== chat.inputTokens || audit.metadataOutputTokens !== chat.outputTokens || audit.metadataMicroUsd !== chat.actualMicroUsd
     || chat.inputTokens > config.maxInputTokens || chat.outputTokens > config.maxOutputTokens) return "usage-mismatch";
   if (chat.actualMicroUsd > documentTokenPriceCeiling(chat.inputTokens, chat.outputTokens, qualification)) return "price-bound-exceeded";
-  if (config.providerPolicyId === KIMI_SOURCE_SPAN_POLICY_ID) {
+  if (sourceSpanPolicy(config.providerPolicyId)) {
     const incomplete = incompleteSourceSpanOutput(envelope, data, successful);
     if (incomplete) audit.extractionRead = incomplete;
   }

@@ -4,7 +4,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { DocumentReceiptClaim } from "../app/server/documents/provider";
 import type { DocumentReceiptAudit } from "../app/server/documents/provider-receipt";
-import { KIMI_SOURCE_SPAN_POLICY_ID } from "../worker/document-executor/source-span-extraction";
+import { sourceSpanPolicy } from "../worker/document-executor/source-span-extraction";
 
 import { z } from "zod";
 import { DOCUMENT_SCHEMA_VERSION, materialDigestSchema, materialIdSchema, materialTimestampSchema } from "../app/contracts/documents";
@@ -112,7 +112,7 @@ export function openSupplementLedger(directory: string, runId: string, expectedI
   const matchesBinding = (binding: SupplementIssuanceBinding) => Boolean(checkedBindings.has(binding) && binding.runId === runId &&
     db.prepare(`SELECT 1 FROM collection_runs WHERE run_id=? AND authorization_id=? AND issuance_sha256=? AND issuance_json=? AND mode=?`)
       .get(runId, binding.authorizationId, binding.issuanceSha256, binding.publicIssuance, binding.mode));
-  const sourceSpanRun = (binding: SupplementIssuanceBinding) => JSON.parse(binding.publicIssuance).config.providerPolicyId === KIMI_SOURCE_SPAN_POLICY_ID;
+  const sourceSpanRun = (binding: SupplementIssuanceBinding) => sourceSpanPolicy(JSON.parse(binding.publicIssuance).config.providerPolicyId);
   return {
     close: () => db.close(),
     matchesBinding,
