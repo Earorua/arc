@@ -1,0 +1,143 @@
+{
+  "formatVersion": 1,
+  "mode": "offline-synthetic-only",
+  "candidateFileSha256": {
+    "scripts/collect-materials-supplements.ts": "924768b2517e848cde945b5884907e831d4481e7853f3e9d7ce6f4469dbf2086",
+    "scripts/materials-supplement-ledger.ts": "abc1580bf2ade8b86c90a043392e71c7061c72f11f604b52b72f9aff49971c9b",
+    "tests/server/materials-supplement-collection.test.ts": "7f3dc87a857b542460b59514aa5137998577529fe3980414aa4a263540768571"
+  },
+  "revalidatedFrom": {
+    "evidenceFileSha256": "84e490acb3881e02544efec7961628b56ce0523ca228d066d5b9827f680c3b5a",
+    "priorTestFileSha256": "170a5a6c1b740c28d530575d24b8260ff42229680f883d3bde061ed4a31ad18e",
+    "collectorAndLedgerByteIdentical": true,
+    "testDelta": "The only byte change is the explicit NODE_ENV=test literal on the second test child-process environment (line 77). The first environment (line 47) already specified test."
+  },
+  "controls": [
+    {
+      "control": "complete",
+      "status": "complete",
+      "reason": null,
+      "qualityPassed": true,
+      "normalPrefill": 3,
+      "edgePass": 3,
+      "mockPosts": 6,
+      "mockReceiptGets": 6,
+      "simulatedSettledMicroUsd": 42,
+      "simulatedHeldMicroUsd": 0,
+      "outputLimitAudits": 0,
+      "nullDecodedRows": 0
+    },
+    {
+      "control": "truncated",
+      "status": "quality-failed",
+      "reason": "quality-threshold-failed",
+      "qualityPassed": false,
+      "normalPrefill": 0,
+      "edgePass": 0,
+      "mockPosts": 6,
+      "mockReceiptGets": 6,
+      "simulatedSettledMicroUsd": 42,
+      "simulatedHeldMicroUsd": 0,
+      "outputLimitAudits": 6,
+      "nullDecodedRows": 6
+    },
+    {
+      "control": "downgrade",
+      "status": "stopped",
+      "reason": "issuance-mismatch",
+      "qualityPassed": null,
+      "normalPrefill": null,
+      "edgePass": null,
+      "mockPosts": 6,
+      "mockReceiptGets": 6,
+      "simulatedSettledMicroUsd": 42,
+      "simulatedHeldMicroUsd": 0,
+      "outputLimitAudits": 6,
+      "nullDecodedRows": 5
+    },
+    {
+      "control": "forged-source",
+      "status": "quality-failed",
+      "reason": "quality-threshold-failed",
+      "qualityPassed": false,
+      "normalPrefill": 2,
+      "edgePass": 3,
+      "mockPosts": 6,
+      "mockReceiptGets": 6,
+      "simulatedSettledMicroUsd": 42,
+      "simulatedHeldMicroUsd": 0,
+      "outputLimitAudits": 0,
+      "nullDecodedRows": 1
+    },
+    {
+      "control": "unknown-charge",
+      "status": "held",
+      "reason": "metadata-unavailable",
+      "qualityPassed": null,
+      "normalPrefill": null,
+      "edgePass": null,
+      "mockPosts": 1,
+      "mockReceiptGets": 1,
+      "simulatedSettledMicroUsd": 0,
+      "simulatedHeldMicroUsd": 72960,
+      "outputLimitAudits": 0,
+      "nullDecodedRows": 0
+    }
+  ],
+  "rejectedBeforeAdmission": {
+    "fake-live": {
+      "reason": "supplement-fixture-refused",
+      "runRows": 0,
+      "attemptRows": 0,
+      "mockPosts": 0,
+      "mockReceiptGets": 0
+    },
+    "private-pin-id": {
+      "reason": "supplement-authorization-invalid",
+      "runRows": 0,
+      "attemptRows": 0,
+      "mockPosts": 0,
+      "mockReceiptGets": 0
+    }
+  },
+  "checkoutGuards": {
+    "readOnlyCliWithOverriddenGitEnvironmentExitCode": 2,
+    "alternateCheckoutLedgerJunctionRejected": true
+  },
+  "privacy": {
+    "rawAssistantContentsPreservedOnlyInFixtureLedger": true,
+    "rawRepliesOrKnownSourceTextInPublicResults": false,
+    "credentialInPublicResults": false,
+    "privateCredentialFingerprintInPublicResults": false
+  },
+  "evidenceBoundary": "Independent process-memory chat and generation responses, synthetic identities, isolated temporary SQLite ledgers. The downgrade control changed only the stored policy tag before final scoring. All nonzero amounts above are simulated.",
+  "realNetworkRequests": 0,
+  "realModelCalls": 0,
+  "actualFeesMicroUsd": 0,
+  "actualHeldMicroUsd": 0,
+  "authorizationsIssued": 0,
+  "realSupplementQualityEvaluated": false,
+  "focusedVitest": {
+    "suitesPassed": 3,
+    "testsPassed": 93,
+    "testsFailed": 0,
+    "initialRun": {
+      "suitesPassed": 2,
+      "suitesFailed": 1,
+      "testsPassed": 92,
+      "testsFailed": 1,
+      "case": "refuses a second simultaneous start and a failed durable reservation never reaches transport",
+      "expected": "complete",
+      "received": "held"
+    },
+    "isolatedUnchangedCase": {
+      "testsPassed": 1,
+      "testsFailed": 0
+    },
+    "fullUnchangedRetry": {
+      "suitesPassed": 3,
+      "testsPassed": 93,
+      "testsFailed": 0
+    }
+  }
+}

@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "scope": "P1 four-case offline diagnosis",
+  "candidate": "ada498f5700be3d99b824f7d38fee35f8d88bbcc",
+  "packetCommit": "33c954feac063e1a05516b3ebac36ed7b193639a",
+  "redactedResultFileSha256": "9ac4693f4bd96038a2ee06820c9b65b37ecb0c78957c801145b408071cde0b18",
+  "observed": {
+    "paidPosts": 4,
+    "generationGets": 8,
+    "settledMicroUsd": 54086,
+    "heldMicroUsd": 0,
+    "normalPrefill": [
+      0,
+      3
+    ],
+    "edgePass": [
+      0,
+      1
+    ],
+    "fields": {
+      "expected": 12,
+      "returned": 11,
+      "exactSource": 11,
+      "sourceIncludingTerminalOmission": 11,
+      "registeredForm": 11,
+      "registeredFormAtSource": 11,
+      "kindAtSource": 11,
+      "expectedSkillSets": 10,
+      "skillSetAtSource": 4,
+      "expectedClassifications": 6,
+      "requirementLevelAtSource": 5,
+      "strictJoint": 4
+    },
+    "reviews": {
+      "expected": 4,
+      "returned": 2,
+      "code": 2,
+      "exactSource": 2,
+      "strictJoint": 2
+    },
+    "strictRequirementClassifications": [
+      3,
+      6
+    ],
+    "allAnnotatedFieldsCritical": true,
+    "perCase": [
+      {
+        "id": "resume-01",
+        "factsExpected": 3,
+        "returnedExactSources": 3,
+        "strictFacts": 1,
+        "nonemptySkillSets": [
+          1,
+          2
+        ],
+        "atSourceRequiredOrPreferred": [
+          0,
+          0
+        ],
+        "strictReviews": [
+          1,
+          1
+        ],
+        "reviewsReturned": 1
+      },
+      {
+        "id": "resume-08",
+        "factsExpected": 3,
+        "returnedExactSources": 3,
+        "strictFacts": 0,
+        "nonemptySkillSets": [
+          0,
+          3
+        ],
+        "atSourceRequiredOrPreferred": [
+          0,
+          0
+        ],
+        "strictReviews": [
+          0,
+          1
+        ],
+        "reviewsReturned": 0
+      },
+      {
+        "id": "jd-01",
+        "factsExpected": 3,
+        "returnedExactSources": 3,
+        "strictFacts": 2,
+        "nonemptySkillSets": [
+          2,
+          3
+        ],
+        "atSourceRequiredOrPreferred": [
+          3,
+          3
+        ],
+        "strictReviews": [
+          0,
+          0
+        ],
+        "reviewsReturned": 0
+      },
+      {
+        "id": "jd-11",
+        "factsExpected": 3,
+        "returnedExactSources": 2,
+        "strictFacts": 1,
+        "nonemptySkillSets": [
+          1,
+          2
+        ],
+        "atSourceRequiredOrPreferred": [
+          2,
+          3
+        ],
+        "strictReviews": [
+          1,
+          2
+        ],
+        "reviewsReturned": 1
+      }
+    ]
+  },
+  "deductionsFromAggregateAndFixture": {
+    "everyExpectedFieldUsesADistinctSegmentWithinItsDocument": true,
+    "returnedFactsFailingStrictOnExactLabelSet": 7,
+    "absentAnnotatedFacts": 1,
+    "missingReviews": 2,
+    "excessReviews": 0,
+    "missingReviewCaseIds": [
+      "resume-08",
+      "jd-11"
+    ],
+    "missingReviewCodeInJd11": "indeterminate"
+  },
+  "offlineChecks": {
+    "method": "Fabricated compact local objects only. No raw provider output, API, model, authorization, score change, or production data writes.",
+    "frozenProjectionOfRegisteredNonemptySets": {
+      "expected": 10,
+      "unchanged": 6,
+      "changed": [
+        {
+          "fieldId": "resume-01-field-2",
+          "expectedCount": 2,
+          "retainedCount": 1,
+          "reason": "annotation-label-absent-as-literal",
+          "registeredLabelsLost": [
+            "data cleaning"
+          ]
+        },
+        {
+          "fieldId": "resume-08-field-1",
+          "expectedCount": 1,
+          "retainedCount": 0,
+          "reason": "annotation-label-absent-as-literal",
+          "registeredLabelsLost": [
+            "spreadsheets"
+          ]
+        },
+        {
+          "fieldId": "resume-08-field-3",
+          "expectedCount": 1,
+          "retainedCount": 0,
+          "reason": "constraint-has-no-review-skill-list",
+          "registeredLabelsLost": [
+            "data storytelling"
+          ]
+        },
+        {
+          "fieldId": "jd-01-field-2",
+          "expectedCount": 1,
+          "retainedCount": 0,
+          "reason": "annotation-label-absent-as-literal",
+          "registeredLabelsLost": [
+            "analytics"
+          ]
+        }
+      ]
+    },
+    "literalVsRegistered": {
+      "case": "resume-01-field-2",
+      "scope": "one item at the same source; numbers describe only that one target",
+      "documentTerm": {
+        "rawSubmittedLabelCount": 1,
+        "productRetainedLabels": [
+          "Python"
+        ],
+        "frozenTargetStrictMatch": 0
+      },
+      "registeredSet": {
+        "rawSubmittedLabelCount": 2,
+        "productRetainedLabels": [
+          "Python"
+        ],
+        "frozenTargetStrictMatch": 1
+      }
+    },
+    "catalogReview": {
+      "case": "jd-11",
+      "blueprintId": "ai-native-full-stack-engineer",
+      "blueprintVersion": "2026.08.1",
+      "mapperVersion": "2026.11.2",
+      "requestContainsRoleOrCatalog": false,
+      "documentContainsGenericCatalogBoundaryHeader": true,
+      "requiredSkillSentenceNamesRoleOrCatalogCoverage": false,
+      "onlyExplicitUrlReview": {
+        "productReviewCount": 1,
+        "matchedFrozenReviews": 1,
+        "expected": 2
+      },
+      "urlAndCatalogReview": {
+        "productReviewCount": 2,
+        "matchedFrozenReviews": 2,
+        "expected": 2
+      },
+      "confirmedItemMap": [
+        {
+          "itemIndex": 1,
+          "status": "uncovered",
+          "skillIds": [],
+          "labels": [
+            "Kubernetes"
+          ]
+        },
+        {
+          "itemIndex": 2,
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "labels": [
+            "SQL & Relational Modeling"
+          ]
+        },
+        {
+          "itemIndex": 2,
+          "status": "uncovered",
+          "skillIds": [],
+          "labels": [
+            "analytics"
+          ]
+        }
+      ],
+      "negative": {
+        "case": "jd-01-field-3",
+        "confirmedItemMap": [
+          {
+            "itemIndex": 1,
+            "status": "uncovered",
+            "skillIds": [],
+            "labels": [
+              "Python"
+            ]
+          }
+        ],
+        "registeredReviewsInEntireDocument": 0
+      }
+    }
+  },
+  "limitations": [
+    "Exact raw label strings, per-fact JD omission, and which jd-11 review was absent were not retained. Controlled example inputs are not P1 outputs. The score uses raw validated candidate labels; the product projection filters literal labels and ignores labels on constraints. Four incompatible registered sets do not prove which labels the model returned.",
+    "Catalog unavailability for this role and version is evaluated after confirmation. An unmapped literal is not by itself a sufficient pre-confirmation uncovered-skill rule. The pilot is not formal B2 qualification."
+  ],
+  "prospectiveNextStep": "Before another model call, predefine a source-grounded label and separate versioned canonical mapping contract; test on unseen bilingual synthetic positives and catalog false-positive negatives. Keep P1 scoring and results frozen.",
+  "frozenFiles": {
+    "normalizedSourceIdentityChecked": 14,
+    "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+    "scorerSha256": "6297b7bdd112833cbd8a58b3bd63f6cbaf46d86b77cbab760744fe66babec351",
+    "sourceSpanModuleSha256": "f8aaa50c0c29ed2f1c36cd66dce8b169861b9e27cec7eff3e453e11c78456cca",
+    "reviewProjectionModuleSha256": "38a7e93a527bc6d180b6a8e838af63ec2638f84a7b395535c7dfd84a5b578e57",
+    "mapperModuleSha256": "b6484fbac6139decad1666c5ad2de94f9e62ccc2dc539e4f1e178005fb7bb507"
+  },
+  "thisDiagnosis": {
+    "networkRequests": 0,
+    "modelCalls": 0,
+    "newMicroUsd": 0
+  }
+}

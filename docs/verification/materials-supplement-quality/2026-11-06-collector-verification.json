@@ -1,0 +1,71 @@
+{
+  "sourceCommit": "33cf1f9396b17bc806da0060e68cc229eff0ab14",
+  "tree": "ec12f30df43a1ce50e6080ba76c945a1c2ecdbed",
+  "baseProduct": "28069c4b40e40e246155c12ff6f2e56aec2dc655",
+  "changedNonDocPaths": [
+    "scripts/collect-materials-supplements.ts",
+    "scripts/materials-supplement-ledger.ts",
+    "tests/server/materials-supplement-collection.test.ts"
+  ],
+  "nonDocFiles": 977,
+  "manifestSha256": "4a17bd0be801b2a334031fad98641cd4ebf100fb61fee9c3f64896a519085e81",
+  "bundleSha256": "a3c7d33cb1ac8653de293a21e5dc163c141eb66b19d456341c0d4d9160087823",
+  "restoredFromIsolatedBase": true,
+  "fsckStrictPassed": true,
+  "steps": {
+    "affected": {
+      "exitCode": 0,
+      "logSha256": "5504d8e224ac9e58d64af4c42f6c291ee7b7c77930488de0a725229d36648f83",
+      "files": 2,
+      "passed": 48
+    },
+    "rest": {
+      "exitCode": 0,
+      "logSha256": "3b847d3e781d8a28e73ee05d2cf226779e7aacceb47704de6e0bfabed401dae3",
+      "files": 358,
+      "passed": 7668
+    },
+    "node": {
+      "exitCode": 0,
+      "logSha256": "1d1ed8f5eea905fa1ef71d00520c0c89b2b481f1f46e6d6c47da3d658359eef2",
+      "passed": 290
+    },
+    "types": {
+      "exitCode": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "lint": {
+      "exitCode": 0,
+      "logSha256": "496f8fd5a2433d2503cbd528e89c5da60426bd15ac5de8b38f0cf53e12e9dbfc"
+    },
+    "site": {
+      "exitCode": 0,
+      "logSha256": "04d1516e039d3018a43127ec14f582236d299f02276c92ac96526e99fa65203f"
+    },
+    "render": {
+      "exitCode": 0,
+      "logSha256": "f605a92bdda15dd97193224262fa48650d894bf100252989d99e669098c6be61",
+      "passed": 5
+    },
+    "vitest": {
+      "files": 360,
+      "passed": 7716,
+      "shards": [
+        "affected",
+        "rest"
+      ],
+      "disjointDiscoveryMatched": true
+    }
+  },
+  "independentControlsSha256": "c45508b3250da6172b2e1406a89fa953089a999f7a7f3665f80b1269fdc20978",
+  "matchingScopeInspectionSha256": "4c68ea2ffa97a6b61493913f719d193f12ac9b1a3073cc392123928e447dfe40",
+  "collectionEntryFocused": {
+    "suites": 6,
+    "passed": 202
+  },
+  "supplementLiveRequests": 0,
+  "remoteReceiptGets": 0,
+  "supplementSpendMicroUsd": 0,
+  "supplementRunIssued": false,
+  "actualSupplementQualityKnown": false
+}

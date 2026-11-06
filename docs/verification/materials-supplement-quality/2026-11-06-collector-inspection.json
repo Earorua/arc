@@ -1,0 +1,25 @@
+{
+  "operation": "inspect only",
+  "legacy": {
+    "configurationSha256": "e8392e9bea1a5889d48be2141cdd2333788d840c0c965695cd568274cb8ba036",
+    "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",
+    "documentSetSha256": "37f658083f6eab1c7f8034e0fb2325e907deb1a3c44301c87603c3ff26e3689d",
+    "documents": 6,
+    "perDocumentReservationMicroUsd": 72960,
+    "fullReservationMicroUsd": 437760
+  },
+  "sourceSpan": {
+    "configurationSha256": "9554383d3f0b0132eac80798f10745e55c079d268a6ea652d49d38ff569efe55",
+    "corpusSha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",
+    "documentSetSha256": "37f658083f6eab1c7f8034e0fb2325e907deb1a3c44301c87603c3ff26e3689d",
+    "documents": 6,
+    "perDocumentReservationMicroUsd": 72960,
+    "fullReservationMicroUsd": 437760
+  },
+  "credentialsPassed": false,
+  "registered": false,
+  "issued": false,
+  "modelRequests": 0,
+  "remoteReceiptQueries": 0,
+  "newChargesMicroUsd": 0
+}
