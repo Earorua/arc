@@ -1,0 +1,315 @@
+{
+  "packet": "B2-KIMI-20261106-P1",
+  "runId": "materials-b2-diagnostic-pilot-kimi-spans-p1",
+  "candidate": "ada498f5700be3d99b824f7d38fee35f8d88bbcc",
+  "packetCommit": "33c954feac063e1a05516b3ebac36ed7b193639a",
+  "approvedAt": "2026-11-06T13:13:59.073Z",
+  "expiresAt": "2026-11-06T15:13:59.073Z",
+  "startedAt": "2026-11-06T13:23:46.168Z",
+  "completedAt": "2026-11-06T13:27:12.843Z",
+  "requestsSent": 4,
+  "generationGets": 8,
+  "uniqueVerifiedReceipts": 4,
+  "scored": 4,
+  "pilotCompleted": true,
+  "pilotQualityPassed": false,
+  "normalPrefillCount": 0,
+  "edgePassCount": 0,
+  "formalB2Passed": false,
+  "heldMicroUsd": 0,
+  "settledMicroUsd": 54086,
+  "capMicroUsd": 300000,
+  "cumulativeProjectSettledMicroUsd": 547151,
+  "stoppedReason": null,
+  "ledgerSha256": "3a369788d7c56c6fd590a51106463679a83723667d4bf113afab382172a8bc82",
+  "resultSha256": "2a372f171bc202c41fe189a50829c547754d46e4a7267671c7a400e32b10d3b2",
+  "documents": [
+    {
+      "id": "resume-01",
+      "category": "normal",
+      "status": "failed",
+      "reason": "quality-threshold-failed",
+      "accounting": "settled",
+      "receiptSha256": "5e6fef989b29d9493dd1ecc1baac388cc27064a551f02d718cbc8e25ae9b3a69",
+      "sentAt": "2026-11-06T13:23:46.182Z",
+      "returnedAt": "2026-11-06T13:25:11.218Z",
+      "actualMicroUsd": 27556,
+      "inputTokens": 788,
+      "outputTokens": 2598,
+      "audit": {
+        "status": "verified",
+        "extractionRead": "parsed",
+        "metadataAttempts": 2,
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 513,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10010,
+            "endMs": 10703,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "actualProvider": "Moonshot AI",
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataMicroUsd": 27556
+      },
+      "quality": {
+        "passed": false,
+        "canPrefill": false,
+        "criticalRecall": 0.3333333333333333,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "diagnostics": {
+          "fields": {
+            "expected": 3,
+            "returned": 3,
+            "exactSource": 3,
+            "sourceIncludingTerminalOmission": 3,
+            "registeredForm": 3,
+            "registeredFormAtSource": 3,
+            "kindAtSource": 3,
+            "expectedSkillSets": 2,
+            "skillSetAtSource": 1,
+            "expectedClassifications": 0,
+            "requirementLevelAtSource": 0,
+            "strictJoint": 1
+          },
+          "reviews": {
+            "expected": 1,
+            "returned": 1,
+            "code": 1,
+            "exactSource": 1,
+            "strictJoint": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "resume-08",
+      "category": "normal",
+      "status": "failed",
+      "reason": "quality-threshold-failed",
+      "accounting": "settled",
+      "receiptSha256": "d6c0498b63184ff2eac5684d855ec9e1545fb62fae9f14a257fd1146f5de3663",
+      "sentAt": "2026-11-06T13:25:21.953Z",
+      "returnedAt": "2026-11-06T13:25:52.843Z",
+      "actualMicroUsd": 10168,
+      "inputTokens": 780,
+      "outputTokens": 953,
+      "audit": {
+        "status": "verified",
+        "extractionRead": "parsed",
+        "metadataAttempts": 2,
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 403,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10009,
+            "endMs": 10755,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "actualProvider": "Moonshot AI",
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataMicroUsd": 10168
+      },
+      "quality": {
+        "passed": false,
+        "canPrefill": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "diagnostics": {
+          "fields": {
+            "expected": 3,
+            "returned": 3,
+            "exactSource": 3,
+            "sourceIncludingTerminalOmission": 3,
+            "registeredForm": 3,
+            "registeredFormAtSource": 3,
+            "kindAtSource": 3,
+            "expectedSkillSets": 3,
+            "skillSetAtSource": 0,
+            "expectedClassifications": 0,
+            "requirementLevelAtSource": 0,
+            "strictJoint": 0
+          },
+          "reviews": {
+            "expected": 1,
+            "returned": 0,
+            "code": 0,
+            "exactSource": 0,
+            "strictJoint": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "jd-01",
+      "category": "normal",
+      "status": "failed",
+      "reason": "quality-threshold-failed",
+      "accounting": "settled",
+      "receiptSha256": "aa6d87aa7e9e97ca3994e99bba3efba67c674f2b784874d7bd313966036969a1",
+      "sentAt": "2026-11-06T13:26:03.612Z",
+      "returnedAt": "2026-11-06T13:26:19.428Z",
+      "actualMicroUsd": 6112,
+      "inputTokens": 777,
+      "outputTokens": 548,
+      "audit": {
+        "status": "verified",
+        "extractionRead": "parsed",
+        "metadataAttempts": 2,
+        "metadataLookups": [
+          {
+            "startMs": 1,
+            "endMs": 471,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10008,
+            "endMs": 11167,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "actualProvider": "Moonshot AI",
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataMicroUsd": 6112
+      },
+      "quality": {
+        "passed": false,
+        "canPrefill": false,
+        "criticalRecall": 0.6666666666666666,
+        "requirementClassification": 0.6666666666666666,
+        "retainedSourceValidity": 1,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "diagnostics": {
+          "fields": {
+            "expected": 3,
+            "returned": 3,
+            "exactSource": 3,
+            "sourceIncludingTerminalOmission": 3,
+            "registeredForm": 3,
+            "registeredFormAtSource": 3,
+            "kindAtSource": 3,
+            "expectedSkillSets": 3,
+            "skillSetAtSource": 2,
+            "expectedClassifications": 3,
+            "requirementLevelAtSource": 3,
+            "strictJoint": 2
+          },
+          "reviews": {
+            "expected": 0,
+            "returned": 0,
+            "code": 0,
+            "exactSource": 0,
+            "strictJoint": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "jd-11",
+      "category": "edge",
+      "status": "failed",
+      "reason": "quality-threshold-failed",
+      "accounting": "settled",
+      "receiptSha256": "770fb98552f34f40962287303fd63136fab83b9051eddfe9f6bab396cfc71c8a",
+      "sentAt": "2026-11-06T13:26:30.617Z",
+      "returnedAt": "2026-11-06T13:27:02.196Z",
+      "actualMicroUsd": 10250,
+      "inputTokens": 781,
+      "outputTokens": 961,
+      "audit": {
+        "status": "verified",
+        "extractionRead": "parsed",
+        "metadataAttempts": 2,
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 419,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10005,
+            "endMs": 10638,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "actualProvider": "Moonshot AI",
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataMicroUsd": 10250
+      },
+      "quality": {
+        "passed": false,
+        "canPrefill": false,
+        "criticalRecall": 0.3333333333333333,
+        "requirementClassification": 0.3333333333333333,
+        "retainedSourceValidity": 1,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "diagnostics": {
+          "fields": {
+            "expected": 3,
+            "returned": 2,
+            "exactSource": 2,
+            "sourceIncludingTerminalOmission": 2,
+            "registeredForm": 2,
+            "registeredFormAtSource": 2,
+            "kindAtSource": 2,
+            "expectedSkillSets": 2,
+            "skillSetAtSource": 1,
+            "expectedClassifications": 3,
+            "requirementLevelAtSource": 2,
+            "strictJoint": 1
+          },
+          "reviews": {
+            "expected": 2,
+            "returned": 1,
+            "code": 1,
+            "exactSource": 1,
+            "strictJoint": 1
+          }
+        }
+      }
+    }
+  ]
+}

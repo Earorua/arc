@@ -1,0 +1,54 @@
+{
+  "packet": "B2-KIMI-20261106-P1",
+  "approvedAt": "2026-11-06T13:13:59.073Z",
+  "expiresAt": "2026-11-06T15:13:59.073Z",
+  "accountCheckedAt": "2026-11-06T13:20:36.690Z",
+  "packetCommit": "33c954feac063e1a05516b3ebac36ed7b193639a",
+  "publicCatalog": [
+    {
+      "source": "model",
+      "url": "https://openrouter.ai/api/v1/model/moonshotai/kimi-k3.1-pro",
+      "status": 200,
+      "at": "2026-11-06T13:16:36.905Z",
+      "sha256": "90909b868a489c031ec314928b2919da87bd2b4ee3c0e2a7036341ddf444795d"
+    },
+    {
+      "source": "endpoints",
+      "url": "https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints",
+      "status": 200,
+      "at": "2026-11-06T13:16:36.908Z",
+      "sha256": "16df4c7a4b7ea256d1af9017d83c0561e2220f79de2aa7fe729024daaa4efdd2"
+    },
+    {
+      "source": "zdr",
+      "url": "https://openrouter.ai/api/v1/endpoints/zdr",
+      "status": 200,
+      "at": "2026-11-06T13:16:37.459Z",
+      "sha256": "1cf1fe8e0e31612d8dfcbfe3788190f38c88ea5380e577e5a36abb71770c3f58"
+    }
+  ],
+  "model": "moonshotai/kimi-k3.1-pro",
+  "receiptModel": "moonshotai/kimi-k3.1-pro-20261023",
+  "route": "moonshotai/mxfp4",
+  "provider": "Moonshot AI",
+  "usdPerMillionTokens": {
+    "input": 2,
+    "output": 10
+  },
+  "accountCreditCoversFullReserve": true,
+  "dedicatedKeyCoversFullReserve": true,
+  "fullReserveMicroUsd": 291840,
+  "capMicroUsd": 300000,
+  "dedicatedKeyBound": true,
+  "strictZdrAssigned": true,
+  "safetyRetentionAllowed": false,
+  "inputOutputLogging": false,
+  "trainingEnabled": false,
+  "publicPrompts": false,
+  "traceDestinations": 0,
+  "presets": 0,
+  "responseCacheOptIn": false,
+  "moonshotByok": false,
+  "upstreamImplicitCache": true,
+  "implicitCacheScope": "four-synthetic-documents"
+}
