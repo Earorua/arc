@@ -1,8 +1,8 @@
 # 多类型资料参与学习计划的发布进度
 
-更新于 2026-11-05。目标站点为 [arcmaps.net](https://arcmaps.net/)。当前处于 Gate 1B 的 B1。该站点已有公开版本，资料分析与个性化学习计划仍待验收及发布。
+更新于 2026-11-06。目标站点为 [arcmaps.net](https://arcmaps.net/)。B1 回执技术核验已通过，当前处于 B2 授权审阅。资料分析与个性化学习计划仍待验收及发布。
 
-**21:06 按持有人要求暂停并保存。** 新产品候选为 `2bcff0964d12`，恢复时从 B2 授权材料准备继续；尚未申请或签发 B2 授权。[最新暂停说明](2026-11-05-materials-resume-checkpoint.md)
+**11 月 6 日已完成 B2 授权材料。** 已复核冻结候选、24 份请求范围、当日价目与本机账本。单号 `B2-KIMI-20261106-R1` 待持有人审批，真实质量轮为 0/24，本次新增推理费用 0 USD。[B2 授权单](../superpowers/runbooks/2026-11-06-materials-b2-authorization.md) · [11 月 5 日暂停记录](2026-11-05-materials-resume-checkpoint.md)
 
 **只读查询与 B1 回执技术核验通过。** 普通 key 的 generation GET 返回 HTTP 200；已修复请求 alias 与日期版本回执的精确匹配，真实配对离线回放通过。累计仍为独立 B1 推理 1 次、0.019506 USD，完整 Gate 1B 和公开发布尚未完成。新配置仍未签发 B2 授权。[实际结果](2026-11-05-materials-b1-single-receipt-result.md) · [最新离线验收](2026-11-05-materials-canonical-model-fix.md) · [前一轮离线修复](2026-11-05-materials-offline-repair.md)
 
