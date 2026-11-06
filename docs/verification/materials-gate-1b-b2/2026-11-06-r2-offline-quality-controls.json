@@ -1,0 +1,154 @@
+{
+  "sourceCommit": "88d07bf921a45dd33414436c718cfa039d97a849",
+  "mode": "offline-test",
+  "source": "preannotated local corpus only",
+  "liveOutputsRead": false,
+  "networkRequests": 0,
+  "externalFeesMicroUsd": 0,
+  "punctuationContrast": {
+    "source": "frozen synthetic annotations only",
+    "liveOutputsRead": false,
+    "newNetworkRequests": 0,
+    "oraclesPassed": 24,
+    "variants": 74,
+    "productionAccepted": 74,
+    "qualityFailed": 74,
+    "firstCase": {
+      "doc": "resume-01",
+      "field": "resume-01-field-1",
+      "mutation": "omit only terminal punctuation from one source quote",
+      "criticalRecall": 0.6666666666666666,
+      "validSources": 1,
+      "failures": [
+        "critical-recall",
+        "normal-prefill",
+        "unmatched-or-duplicate-candidate"
+      ]
+    }
+  },
+  "controls": [
+    {
+      "case": "baseline",
+      "fixture": "resume-08",
+      "productionAccepted": true,
+      "criticalRecall": 1,
+      "requirementClassification": null,
+      "retainedSourceValidity": 1,
+      "passesFrozenRules": true,
+      "failures": []
+    },
+    {
+      "case": "terminal-punctuation-only",
+      "fixture": "resume-01",
+      "productionAccepted": true,
+      "criticalRecall": 0.6666666666666666,
+      "requirementClassification": null,
+      "retainedSourceValidity": 1,
+      "passesFrozenRules": false,
+      "failures": [
+        "critical-recall",
+        "normal-prefill",
+        "unmatched-or-duplicate-candidate"
+      ]
+    },
+    {
+      "case": "equivalent-rewording",
+      "fixture": "resume-01",
+      "productionAccepted": true,
+      "criticalRecall": 0.6666666666666666,
+      "requirementClassification": null,
+      "retainedSourceValidity": 1,
+      "passesFrozenRules": false,
+      "failures": [
+        "critical-recall",
+        "normal-prefill",
+        "unmatched-or-duplicate-candidate"
+      ]
+    },
+    {
+      "case": "expanded-skill-name",
+      "fixture": "resume-01",
+      "productionAccepted": true,
+      "criticalRecall": 0.6666666666666666,
+      "requirementClassification": null,
+      "retainedSourceValidity": 1,
+      "passesFrozenRules": false,
+      "failures": [
+        "critical-recall",
+        "normal-prefill",
+        "unmatched-or-duplicate-candidate"
+      ]
+    },
+    {
+      "case": "wrong-requirement-level",
+      "fixture": "jd-01",
+      "productionAccepted": true,
+      "criticalRecall": 1,
+      "requirementClassification": 0.6666666666666666,
+      "retainedSourceValidity": 1,
+      "passesFrozenRules": false,
+      "failures": [
+        "normal-prefill",
+        "requirement-classification"
+      ]
+    },
+    {
+      "case": "wrong-segment",
+      "fixture": "resume-01",
+      "productionAccepted": false,
+      "criticalRecall": 0,
+      "requirementClassification": null,
+      "retainedSourceValidity": null,
+      "passesFrozenRules": false,
+      "failures": [
+        "critical-recall",
+        "missing-review-point",
+        "normal-prefill",
+        "production-extraction-invalid"
+      ]
+    },
+    {
+      "case": "unsupported-achievement",
+      "fixture": "resume-01",
+      "productionAccepted": true,
+      "criticalRecall": 0.6666666666666666,
+      "requirementClassification": null,
+      "retainedSourceValidity": 1,
+      "passesFrozenRules": false,
+      "failures": [
+        "critical-recall",
+        "forbidden-output",
+        "normal-prefill",
+        "unmatched-or-duplicate-candidate"
+      ]
+    },
+    {
+      "case": "missing-review",
+      "fixture": "resume-01",
+      "productionAccepted": true,
+      "criticalRecall": 1,
+      "requirementClassification": null,
+      "retainedSourceValidity": 1,
+      "passesFrozenRules": false,
+      "failures": [
+        "missing-review-point",
+        "normal-prefill"
+      ]
+    },
+    {
+      "case": "truncated-json",
+      "fixture": "resume-08",
+      "productionAccepted": false,
+      "criticalRecall": 0,
+      "requirementClassification": null,
+      "retainedSourceValidity": null,
+      "passesFrozenRules": false,
+      "failures": [
+        "critical-recall",
+        "missing-review-point",
+        "normal-prefill",
+        "production-extraction-invalid"
+      ]
+    }
+  ]
+}

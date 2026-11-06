@@ -1,0 +1,1400 @@
+{
+  "packet": "B2-KIMI-20261106-R2",
+  "runId": "materials-b2-kimi-timing-r2",
+  "status": "FAIL",
+  "approvedAt": "2026-11-06T09:22:28.000Z",
+  "expiresAt": "2026-11-06T11:22:28.000Z",
+  "startedAt": "2026-11-06T09:42:47.121Z",
+  "completedAt": "2026-11-06T10:09:25.745Z",
+  "sourceCommit": "88d07bf921a45dd33414436c718cfa039d97a849",
+  "approvalPacketCommit": "efbb8c16b8b49f71caefaaac7826d152868bc2db",
+  "issuedSettingsSha256": "570e8a3c54e5da577e5d08757b64547265528f3595c14a33e9bdb55f9f1112e8",
+  "configurationSha256": "ec56126eff54568bbd9960ad050c7311b137cb0ac44c2f42e0ea506c6c81718f",
+  "corpusSha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+  "privateLedgerSha256": "f38eff63fa694b4b58440fa8c5d48d299a6a64b2fc6c7f0a0a79b67d7f2a4fd2",
+  "privateResultSha256": "21d4229c948f74b64761ff3a8d00b7fba21b8bade7116696974a49f6cbdca1bf",
+  "exitCode": 1,
+  "requestsSent": 24,
+  "generationGets": 49,
+  "reservedCases": 24,
+  "receiptCheckpoints": 24,
+  "uniqueVerifiedReceipts": 24,
+  "settledMicroUsd": 437897,
+  "heldMicroUsd": 0,
+  "capMicroUsd": 2000000,
+  "cumulativeB1B2SettledMicroUsd": 493065,
+  "stoppedReason": null,
+  "passed": false,
+  "scoredCases": 24,
+  "notRunCases": 0,
+  "normalPrefillCount": 0,
+  "edgePassCount": 0,
+  "beforeStart": {
+    "fundsCovered1751040MicroUsd": true,
+    "keyLifetimeLimitUsd": 2,
+    "assignedStrictZdr": true,
+    "loggingDisabled": true,
+    "tracingDestinations": 0,
+    "byokConfigured": false,
+    "approvedCacheScope": "24 synthetic resume/JD documents"
+  },
+  "technicalScope": {
+    "newDeployments": 0,
+    "remoteMigrations": 0,
+    "supplementCases": 0,
+    "b4Cases": 0
+  },
+  "documents": [
+    {
+      "id": "resume-01",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "9879e48b85b85bfc189c92381f702b67f22b4067c2e1ebc8eeaa21ed4b7682de",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 36992,
+      "inputTokens": 676,
+      "outputTokens": 3564,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:42:47.136Z",
+      "returnedAt": "2026-11-06T09:44:40.262Z",
+      "processingStartedAt": "2026-11-06T09:42:47.129Z",
+      "processingEndedAt": "2026-11-06T09:44:51.091Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 1,
+            "endMs": 433,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10009,
+            "endMs": 10819,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 36992,
+        "metadataInputTokens": 676,
+        "metadataOutputTokens": 3564,
+        "providerLatencyMs": 1068,
+        "providerGenerationMs": 112100
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0.3333333333333333,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-02",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "e1af9a8e8ee872756e06d99d5ccf6c0ac2caea9c57a5756b9e7f79c213c6abff",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 30989,
+      "inputTokens": 675,
+      "outputTokens": 3010,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:44:51.100Z",
+      "returnedAt": "2026-11-06T09:46:17.256Z",
+      "processingStartedAt": "2026-11-06T09:44:51.096Z",
+      "processingEndedAt": "2026-11-06T09:46:27.943Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 395,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10003,
+            "endMs": 10682,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 30989,
+        "metadataInputTokens": 675,
+        "metadataOutputTokens": 3010,
+        "providerLatencyMs": 1812,
+        "providerGenerationMs": 84851
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-03",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "4af3ca6d6f24dfc9547dff185a98a2aa16a4f72f234bb19b5f283db79c149a85",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 25111,
+      "inputTokens": 671,
+      "outputTokens": 2423,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:46:27.952Z",
+      "returnedAt": "2026-11-06T09:47:34.860Z",
+      "processingStartedAt": "2026-11-06T09:46:27.948Z",
+      "processingEndedAt": "2026-11-06T09:47:45.572Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 418,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10012,
+            "endMs": 10707,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 25111,
+        "metadataInputTokens": 671,
+        "metadataOutputTokens": 2423,
+        "providerLatencyMs": 1524,
+        "providerGenerationMs": 65667
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-04",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "acc4356d80dfc2d8e11a445e38743d7b4f82bfd9744d0234e1b9b4b59667595d",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 16967,
+      "inputTokens": 669,
+      "outputTokens": 1609,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:47:45.580Z",
+      "returnedAt": "2026-11-06T09:48:35.250Z",
+      "processingStartedAt": "2026-11-06T09:47:45.576Z",
+      "processingEndedAt": "2026-11-06T09:48:55.886Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 3,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 547,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10007,
+            "endMs": 10658,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 20005,
+            "endMs": 20633,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 16967,
+        "metadataInputTokens": 669,
+        "metadataOutputTokens": 1609,
+        "providerLatencyMs": 1580,
+        "providerGenerationMs": 49148
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-05",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "b132a88d2cb4df1c5cb407191a7eea4efad33e8ee9e81a6feb4151983024122a",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 33075,
+      "inputTokens": 673,
+      "outputTokens": 3219,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:48:55.904Z",
+      "returnedAt": "2026-11-06T09:50:37.540Z",
+      "processingStartedAt": "2026-11-06T09:48:55.899Z",
+      "processingEndedAt": "2026-11-06T09:50:48.297Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 381,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10011,
+            "endMs": 10743,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 33075,
+        "metadataInputTokens": 673,
+        "metadataOutputTokens": 3219,
+        "providerLatencyMs": 1592,
+        "providerGenerationMs": 101042
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-06",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "569eee4d9a94060326e88b07e66b5546479f6035e4ebf686d1f6d8f967fc8329",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 13463,
+      "inputTokens": 672,
+      "outputTokens": 1258,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:50:48.305Z",
+      "returnedAt": "2026-11-06T09:51:26.509Z",
+      "processingStartedAt": "2026-11-06T09:50:48.301Z",
+      "processingEndedAt": "2026-11-06T09:51:37.186Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 511,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10005,
+            "endMs": 10672,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 13463,
+        "metadataInputTokens": 672,
+        "metadataOutputTokens": 1258,
+        "providerLatencyMs": 1504,
+        "providerGenerationMs": 37649
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-07",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "f8ffc904155fbe35017dddda2f55c21f914b538f47b7ae1a3d044c8b4d9c1271",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 24413,
+      "inputTokens": 667,
+      "outputTokens": 2354,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:51:37.193Z",
+      "returnedAt": "2026-11-06T09:53:01.527Z",
+      "processingStartedAt": "2026-11-06T09:51:37.190Z",
+      "processingEndedAt": "2026-11-06T09:53:12.277Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 442,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10002,
+            "endMs": 10736,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 24413,
+        "metadataInputTokens": 667,
+        "metadataOutputTokens": 2354,
+        "providerLatencyMs": 2412,
+        "providerGenerationMs": 83772
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0.3333333333333333,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-08",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "880a7b570a480ea3cb08b1f5f96549e05326f1ef24019ad12dd52d1a0e038e28",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 41835,
+      "inputTokens": 668,
+      "outputTokens": 4096,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:53:12.294Z",
+      "returnedAt": "2026-11-06T09:55:35.591Z",
+      "processingStartedAt": "2026-11-06T09:53:12.290Z",
+      "processingEndedAt": "2026-11-06T09:55:46.305Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 408,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10003,
+            "endMs": 10701,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 41835,
+        "metadataInputTokens": 668,
+        "metadataOutputTokens": 4096,
+        "providerLatencyMs": 1594,
+        "providerGenerationMs": 142798
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": null,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "production-extraction-invalid"
+        ]
+      }
+    },
+    {
+      "id": "resume-09",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "3b86d7334ad7d5518f835fecec9c3474f3c72cc36d3cb482ab42349ae9580a22",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 30515,
+      "inputTokens": 673,
+      "outputTokens": 2963,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:55:46.322Z",
+      "returnedAt": "2026-11-06T09:57:23.126Z",
+      "processingStartedAt": "2026-11-06T09:55:46.319Z",
+      "processingEndedAt": "2026-11-06T09:57:33.940Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 477,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10004,
+            "endMs": 10809,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 30515,
+        "metadataInputTokens": 673,
+        "metadataOutputTokens": 2963,
+        "providerLatencyMs": 1693,
+        "providerGenerationMs": 95721
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-01",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "8fc48f73a7c66a1214fb7d8b6c6f7b48f9df734e3b6f16b93d795063f1b341ce",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 7059,
+      "inputTokens": 665,
+      "outputTokens": 619,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:57:33.957Z",
+      "returnedAt": "2026-11-06T09:57:49.949Z",
+      "processingStartedAt": "2026-11-06T09:57:33.953Z",
+      "processingEndedAt": "2026-11-06T09:58:00.629Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 348,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10010,
+            "endMs": 10674,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 7059,
+        "metadataInputTokens": 665,
+        "metadataOutputTokens": 619,
+        "providerLatencyMs": 2190,
+        "providerGenerationMs": 15522
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-02",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "b3aa122cc6a7ea59d186a2b86dce1fc0de7705dfbc158aef5ebef68520cc905f",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 12229,
+      "inputTokens": 700,
+      "outputTokens": 1129,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:58:00.646Z",
+      "returnedAt": "2026-11-06T09:58:39.394Z",
+      "processingStartedAt": "2026-11-06T09:58:00.642Z",
+      "processingEndedAt": "2026-11-06T09:58:50.075Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 391,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10002,
+            "endMs": 10677,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 12229,
+        "metadataInputTokens": 700,
+        "metadataOutputTokens": 1129,
+        "providerLatencyMs": 1773,
+        "providerGenerationMs": 38201
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0.25,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-03",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "93d7c40c2a7a29b3e8e3676c32ec15f26677f88ebf3306260e59fab4e7698d93",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 8599,
+      "inputTokens": 695,
+      "outputTokens": 767,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:58:50.083Z",
+      "returnedAt": "2026-11-06T09:59:11.293Z",
+      "processingStartedAt": "2026-11-06T09:58:50.079Z",
+      "processingEndedAt": "2026-11-06T09:59:22.017Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 363,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10014,
+            "endMs": 10720,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 8599,
+        "metadataInputTokens": 695,
+        "metadataOutputTokens": 767,
+        "providerLatencyMs": 2077,
+        "providerGenerationMs": 20802
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0.25,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-04",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "a3c9bed4b57a389005f52d70a1943930bf1cda2152951d570e35b7f15cb27aee",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 5203,
+      "inputTokens": 657,
+      "outputTokens": 435,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:59:22.025Z",
+      "returnedAt": "2026-11-06T09:59:35.160Z",
+      "processingStartedAt": "2026-11-06T09:59:22.020Z",
+      "processingEndedAt": "2026-11-06T09:59:46.922Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 352,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10008,
+            "endMs": 11750,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 5203,
+        "metadataInputTokens": 657,
+        "metadataOutputTokens": 435,
+        "providerLatencyMs": 1614,
+        "providerGenerationMs": 12573
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-05",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "9f171fda88fbcb6d058df98011ff4de83eaa8cbeeda6d1fa4cd0793c56a6c9ec",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 9097,
+      "inputTokens": 694,
+      "outputTokens": 817,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T09:59:46.940Z",
+      "returnedAt": "2026-11-06T10:00:10.677Z",
+      "processingStartedAt": "2026-11-06T09:59:46.936Z",
+      "processingEndedAt": "2026-11-06T10:00:22.018Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 377,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10000,
+            "endMs": 11328,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 9097,
+        "metadataInputTokens": 694,
+        "metadataOutputTokens": 817,
+        "providerLatencyMs": 1626,
+        "providerGenerationMs": 23151
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0.25,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-06",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "accbc42c27eae5086e07422f47f106bf60b0ae132d36df65a98af73be6f91c6e",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 11285,
+      "inputTokens": 693,
+      "outputTokens": 1036,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:00:22.025Z",
+      "returnedAt": "2026-11-06T10:00:52.657Z",
+      "processingStartedAt": "2026-11-06T10:00:22.022Z",
+      "processingEndedAt": "2026-11-06T10:01:03.297Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 438,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10001,
+            "endMs": 10627,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 11285,
+        "metadataInputTokens": 693,
+        "metadataOutputTokens": 1036,
+        "providerLatencyMs": 2027,
+        "providerGenerationMs": 30090
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0.25,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-07",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "65004c9518a5bc1e17ed11d9fb0b7a3628e19f7148a16d2d8aea3595e0e79c82",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 6877,
+      "inputTokens": 659,
+      "outputTokens": 602,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:01:03.314Z",
+      "returnedAt": "2026-11-06T10:01:22.919Z",
+      "processingStartedAt": "2026-11-06T10:01:03.310Z",
+      "processingEndedAt": "2026-11-06T10:01:33.641Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 376,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10014,
+            "endMs": 10708,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 6877,
+        "metadataInputTokens": 659,
+        "metadataOutputTokens": 602,
+        "providerLatencyMs": 1720,
+        "providerGenerationMs": 19054
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-08",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "46974f9518265bb53f725fbefaa495feccdd790103effa3356a8b1de22d1e43e",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 9825,
+      "inputTokens": 693,
+      "outputTokens": 890,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:01:33.657Z",
+      "returnedAt": "2026-11-06T10:01:59.877Z",
+      "processingStartedAt": "2026-11-06T10:01:33.653Z",
+      "processingEndedAt": "2026-11-06T10:02:10.662Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 433,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10006,
+            "endMs": 10771,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 9825,
+        "metadataInputTokens": 693,
+        "metadataOutputTokens": 890,
+        "providerLatencyMs": 1358,
+        "providerGenerationMs": 25678
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0.25,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-09",
+      "category": "normal",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "20fbf52a72a960018b4a34ec45e7fafe24817aec5c726f6c8eb640d6a6d1d419",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 7409,
+      "inputTokens": 660,
+      "outputTokens": 655,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:02:10.679Z",
+      "returnedAt": "2026-11-06T10:02:30.762Z",
+      "processingStartedAt": "2026-11-06T10:02:10.676Z",
+      "processingEndedAt": "2026-11-06T10:02:41.431Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 401,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10002,
+            "endMs": 10664,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 7409,
+        "metadataInputTokens": 660,
+        "metadataOutputTokens": 655,
+        "providerLatencyMs": 1774,
+        "providerGenerationMs": 19525
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-10",
+      "category": "edge",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "5f551139ecf9ffcf5fb8169ea43af201b45436449bd8ad4afcedf141b4d952b0",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 20477,
+      "inputTokens": 674,
+      "outputTokens": 1959,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:02:41.448Z",
+      "returnedAt": "2026-11-06T10:03:44.203Z",
+      "processingStartedAt": "2026-11-06T10:02:41.444Z",
+      "processingEndedAt": "2026-11-06T10:03:54.907Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 393,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10004,
+            "endMs": 10700,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 20477,
+        "metadataInputTokens": 674,
+        "metadataOutputTokens": 1959,
+        "providerLatencyMs": 1649,
+        "providerGenerationMs": 62367
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-11",
+      "category": "edge",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "f7b65c71c65bf2e00afcf19fdfd7956e1f29131ae86581ca3d064bae7bed314d",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 17703,
+      "inputTokens": 667,
+      "outputTokens": 1683,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:03:54.915Z",
+      "returnedAt": "2026-11-06T10:04:58.769Z",
+      "processingStartedAt": "2026-11-06T10:03:54.911Z",
+      "processingEndedAt": "2026-11-06T10:05:09.460Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 485,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10006,
+            "endMs": 10686,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 17703,
+        "metadataInputTokens": 667,
+        "metadataOutputTokens": 1683,
+        "providerLatencyMs": 1505,
+        "providerGenerationMs": 63247
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "resume-12",
+      "category": "edge",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "e842f8c946e8bf672ace2ac09b13ede0a3b719886a0bd4c151500edf6f614519",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 31117,
+      "inputTokens": 669,
+      "outputTokens": 3024,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:05:09.468Z",
+      "returnedAt": "2026-11-06T10:06:53.622Z",
+      "processingStartedAt": "2026-11-06T10:05:09.465Z",
+      "processingEndedAt": "2026-11-06T10:07:04.338Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 401,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10008,
+            "endMs": 10710,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 31117,
+        "metadataInputTokens": 669,
+        "metadataOutputTokens": 3024,
+        "providerLatencyMs": 2130,
+        "providerGenerationMs": 103593
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-10",
+      "category": "edge",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "35635b890a4fa7e9ea4d8a5fe10c2628b8e520be4cca330a50f1a75fb5f5dcab",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 7679,
+      "inputTokens": 665,
+      "outputTokens": 681,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:07:04.347Z",
+      "returnedAt": "2026-11-06T10:07:24.565Z",
+      "processingStartedAt": "2026-11-06T10:07:04.343Z",
+      "processingEndedAt": "2026-11-06T10:07:35.259Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 440,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10009,
+            "endMs": 10690,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 7679,
+        "metadataInputTokens": 665,
+        "metadataOutputTokens": 681,
+        "providerLatencyMs": 1641,
+        "providerGenerationMs": 19655
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "requirement-classification",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-11",
+      "category": "edge",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "6998c1c960d13876f663aa1d3d53e4f7540ebb6cbedf7a899f5a6a128844e774",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 14737,
+      "inputTokens": 669,
+      "outputTokens": 1386,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:07:35.276Z",
+      "returnedAt": "2026-11-06T10:08:21.140Z",
+      "processingStartedAt": "2026-11-06T10:07:35.273Z",
+      "processingEndedAt": "2026-11-06T10:08:31.842Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 381,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10003,
+            "endMs": 10697,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 14737,
+        "metadataInputTokens": 669,
+        "metadataOutputTokens": 1386,
+        "providerLatencyMs": 1625,
+        "providerGenerationMs": 45315
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": 0,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    },
+    {
+      "id": "jd-12",
+      "category": "edge",
+      "status": "failed",
+      "accounting": "settled",
+      "receiptSha256": "9e849191151d25a7e10f21726562b4d15dc9ab108ecabcd82c589188836143d7",
+      "reservedMicroUsd": 72960,
+      "actualMicroUsd": 15241,
+      "inputTokens": 671,
+      "outputTokens": 1436,
+      "reason": "quality-threshold-failed",
+      "sentAt": "2026-11-06T10:08:31.860Z",
+      "returnedAt": "2026-11-06T10:09:15.055Z",
+      "processingStartedAt": "2026-11-06T10:08:31.856Z",
+      "processingEndedAt": "2026-11-06T10:09:25.731Z",
+      "queueDurationMs": null,
+      "audit": {
+        "status": "verified",
+        "metadataAttempts": 2,
+        "actualModel": "moonshotai/kimi-k3.1-pro-20261023",
+        "actualProvider": "Moonshot AI",
+        "actualEndpointId": "a3fafaac-f097-4ef1-86b3-842854dad5c6",
+        "metadataLookups": [
+          {
+            "startMs": 0,
+            "endMs": 387,
+            "httpStatus": 404,
+            "outcome": "http-status"
+          },
+          {
+            "startMs": 10002,
+            "endMs": 10671,
+            "httpStatus": 200,
+            "outcome": "record"
+          }
+        ],
+        "metadataMicroUsd": 15241,
+        "metadataInputTokens": 671,
+        "metadataOutputTokens": 1436,
+        "providerLatencyMs": 1876,
+        "providerGenerationMs": 42653
+      },
+      "quality": {
+        "passed": false,
+        "criticalRecall": 0,
+        "requirementClassification": null,
+        "retainedSourceValidity": 1,
+        "canPrefill": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ]
+      }
+    }
+  ]
+}
