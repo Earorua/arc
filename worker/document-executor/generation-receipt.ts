@@ -1,10 +1,11 @@
 import type { DocumentAnalysisConfiguration } from "../../app/server/documents/policy";
 import type { DocumentReceiptClaim } from "../../app/server/documents/provider";
-import type { DocumentReceiptAudit } from "../../app/server/documents/provider-receipt";
+import { DOCUMENT_METADATA_TIMEOUT_MS, MAX_DOCUMENT_METADATA_ATTEMPTS, type DocumentMetadataLookup,
+  type DocumentReceiptAudit } from "../../app/server/documents/provider-receipt";
 import type { DocumentFetch, DocumentProviderQualification } from "./provider-http";
+import { boundedMetadataRetryAfter } from "./metadata-retry";
 
-export const DOCUMENT_METADATA_TIMEOUT_MS = 30_000;
-const MAX_METADATA_ATTEMPTS = 3;
+export { DOCUMENT_METADATA_TIMEOUT_MS };
 const MAX_RESPONSE_BYTES = 128 * 1024;
 export class DocumentHttpTimeout extends Error {}
 
@@ -27,6 +28,10 @@ export async function withDocumentDeadline<T>(outer: AbortSignal, timeoutMs: num
     const value = await Promise.race([deadline, operation(controller.signal, checkTime)]);
     checkTime();
     return value;
+  } catch (error) {
+    // A rejected transport can also resume after the wall-clock cutoff before its timer runs.
+    checkTime();
+    throw error;
   } finally {
     clearTimeout(timer);
     outer.removeEventListener("abort", expired);
@@ -185,7 +190,17 @@ type AuditInputs = {
   config: DocumentAnalysisConfiguration; qualification: DocumentProviderQualification; fetch: DocumentFetch;
   chat: ChatReceipt; signal: AbortSignal; now: () => Date; sentAt: string; returnedAt: string;
   claimReceipt?: DocumentReceiptClaim;
+  singleMetadataRead?: true;
 };
+
+function waitForLookup(ms: number, signal: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    const cancel = () => { clearTimeout(timer); reject(new DocumentHttpTimeout()); };
+    const timer = setTimeout(() => { signal.removeEventListener("abort", cancel); resolve(); }, ms);
+    signal.addEventListener("abort", cancel, { once: true });
+    if (signal.aborted) cancel();
+  });
+}
 export async function auditDocumentGeneration(input: AuditInputs): Promise<DocumentReceiptAudit> {
   const { config, qualification, chat, now, sentAt, returnedAt } = input;
   const audit: DocumentReceiptAudit = { status: "receipt-missing", actualModel: null, actualProvider: null, actualEndpointId: null,
@@ -205,28 +220,64 @@ export async function auditDocumentGeneration(input: AuditInputs): Promise<Docum
   const url = new URL(config.endpoint);
   url.pathname = url.pathname.replace(/\/chat\/completions$/u, "/generation");
   url.searchParams.set("id", chat.receiptId);
+  const started = Date.now();
+  const lookups: DocumentMetadataLookup[] = [];
+  const limit = input.singleMetadataRead ? 1 : MAX_DOCUMENT_METADATA_ATTEMPTS;
+  const offset = () => Math.min(DOCUMENT_METADATA_TIMEOUT_MS, Math.max(lookups.at(-1)?.endMs ?? 0, Date.now() - started));
+  let active: DocumentMetadataLookup | undefined;
+  const finish = (outcome: DocumentMetadataLookup["outcome"]) => {
+    if (active) { active.endMs = offset(); active.outcome = outcome; active = undefined; }
+  };
+  let result = audit;
   try {
-    const result = await withDocumentDeadline(input.signal, DOCUMENT_METADATA_TIMEOUT_MS, async (signal, checkTime) => {
-      for (let attempt = 1; attempt <= MAX_METADATA_ATTEMPTS; attempt++) {
+    result = await withDocumentDeadline(input.signal, DOCUMENT_METADATA_TIMEOUT_MS, async (signal, checkTime) => {
+      for (let attempt = 1; attempt <= limit; attempt++) {
         checkTime();
-        audit.metadataAttempts = attempt;
+        const startMs = offset();
+        const lookup: DocumentMetadataLookup = { startMs, endMs: startMs, httpStatus: null, outcome: "transport-error" };
+        lookups.push(lookup);
+        active = lookup;
         const response = await input.fetch(url.href, { method: "GET", redirect: "manual", signal,
           headers: { authorization: "Bearer " + config.apiKey }, cache: "no-store" });
+        try { checkTime(); }
+        catch (error) { void response.body?.cancel().catch(() => {}); throw error; }
+        const status = response.status;
+        lookup.httpStatus = Number.isInteger(status) && status >= 100 && status <= 599 ? status : null;
         if (!response.redirected && response.status === 200) {
+          lookup.outcome = "body-error";
           const raw = await readDocumentHttpJson(response, signal, checkTime);
+          checkTime();
+          lookup.outcome = "unusable-record";
           const observed = { ...audit };
-          observed.status = raw.data && !reportsError(raw) ? await checkGeneration(record(raw.data), chat, config, qualification, observed) : "metadata-unavailable";
+          if (raw.data !== null && typeof raw.data === "object" && !Array.isArray(raw.data) && !reportsError(raw)) {
+            observed.status = await checkGeneration(record(raw.data), chat, config, qualification, observed);
+            checkTime();
+            finish(observed.status === "metadata-unavailable" ? "unusable-record" : "record");
+          } else {
+            observed.status = "metadata-unavailable";
+            finish("invalid-envelope");
+          }
           return observed;
         }
         void response.body?.cancel().catch(() => {});
-        if (response.redirected || ![202, 404, 429, 502, 503, 504].includes(response.status) || attempt === MAX_METADATA_ATTEMPTS) break;
-        await new Promise<void>(resolve => setTimeout(resolve, 1000 * attempt));
+        const hint = boundedMetadataRetryAfter(response.headers.get("retry-after"), Date.now());
+        if (hint !== undefined) lookup.retryAfterMs = hint;
+        finish(response.redirected || (status >= 300 && status < 400) ? "redirect" : "http-status");
+        if (response.redirected || ![202, 404, 429, 502, 503, 504].includes(status) || attempt === limit) break;
+        // Fast transient responses used to spend all three reads in ~3s. Spread them over the existing 30s window.
+        const elapsed = offset();
+        const nextSlot = attempt * DOCUMENT_METADATA_TIMEOUT_MS / MAX_DOCUMENT_METADATA_ATTEMPTS;
+        const delay = Math.max(1000, nextSlot - elapsed, hint ?? 0);
+        if (elapsed + delay >= DOCUMENT_METADATA_TIMEOUT_MS) break;
+        await waitForLookup(delay, signal);
       }
       return { ...audit, status: "metadata-unavailable" as const };
     });
-    return { ...result, checkedAt: now().toISOString() };
   } catch (error) {
-    audit.status = error instanceof DocumentHttpTimeout ? "metadata-timeout" : "metadata-unavailable";
+    const timedOut = error instanceof DocumentHttpTimeout;
+    finish(timedOut ? (input.signal.aborted ? "aborted" : "timeout") : active?.outcome ?? "transport-error");
+    result = { ...audit, status: timedOut ? "metadata-timeout" : "metadata-unavailable" };
   }
-  return { ...audit, checkedAt: now().toISOString() };
+  // A transport can settle after being aborted. It must not alter the already returned evidence.
+  return { ...result, metadataAttempts: lookups.length, metadataLookups: lookups.map(row => ({ ...row })), checkedAt: now().toISOString() };
 }

@@ -170,6 +170,8 @@ it.each(["cost-conflict", "route-mismatch", "metadata-unavailable"] as const)("s
   const row = inspectDb(directory, "SELECT * FROM attempts")[0]!;
   expect(row).toMatchObject({ state: conflict ? "held" : "settled", actual_micro_usd: conflict ? null : 7, raw_content_json: JSON.stringify(docContent(0)) });
   expect(JSON.parse(String(row.audit_json))).toMatchObject({ status: reason });
+  if (reason === "metadata-unavailable") expect(JSON.parse(String(row.audit_json)).metadataLookups)
+    .toMatchObject([{ httpStatus: 403, outcome: "http-status" }]);
   if (reason === "cost-conflict") expect(JSON.parse(String(row.audit_json)).conflictingCostsUsd).toEqual({ chat: "0.000007", generation: "0.000008" });
   await expect(collect(raw, directory, http)).rejects.toThrow("supplement-run-unavailable");
   if (conflict) await expect(collect(JSON.stringify(await issued(directory, "new-grant")), directory, http)).rejects.toThrow("supplement-run-unavailable");
@@ -183,6 +185,14 @@ it("stops before the next reservation when a smaller issued budget cannot cover 
     requestsSent: 1, reason: "budget-exhausted", settledMicroUsd: 7, heldMicroUsd: 0, quality: null,
   });
   expect(inspectDb(directory, "SELECT * FROM attempts")).toHaveLength(1);
+  expect(http).toHaveBeenCalledTimes(2);
+});
+it("honors the separate one-GET scope even when a 404 would otherwise be retried", async () => {
+  const directory = temporaryDirectory(), grant = await issued(directory);
+  const http = transport(undefined, () => new Response(null, {status:404}));
+  expect(await collect(JSON.stringify(grant), directory, http)).toMatchObject({ status:"stopped", reason:"metadata-unavailable", requestsSent:1 });
+  const row = inspectDb(directory, "SELECT audit_json FROM attempts")[0]!;
+  expect(JSON.parse(String(row.audit_json))).toMatchObject({metadataAttempts:1, metadataLookups:[{httpStatus:404,outcome:"http-status"}]});
   expect(http).toHaveBeenCalledTimes(2);
 });
 

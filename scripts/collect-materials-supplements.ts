@@ -130,7 +130,7 @@ export async function collectSupplementRun(raw: string, env: Environment, option
         handoffFailure = windowFailure();
         if (handoffFailure) throw new Error(handoffFailure);
       };
-      const provider = new HttpDocumentAnalysisProvider(config, { qualification, now, fetch: async (url, init) => {
+      const provider = new HttpDocumentAnalysisProvider(config, { qualification, now, singleMetadataRead: true, fetch: async (url, init) => {
         assertWindow();
         if (init?.method === "POST" && !sent) {
           ledger.markSending(doc.id, now().toISOString());
@@ -144,10 +144,8 @@ export async function collectSupplementRun(raw: string, env: Environment, option
         }
         if (init?.method !== "GET" || !sent || metadataRead || captureFailed) throw new Error("supplement-request-refused");
         metadataRead = true;
-        const response = await options.fetch(url, init);
-        // One metadata read in this scope. Do not enter the adapter's optional retry loop on pending or failed responses.
-        if (response.redirected || response.status !== 200) { void response.body?.cancel().catch(() => {}); throw new Error("supplement-metadata-unavailable"); }
-        return response;
+        // This scope permits one GET. Let the auditor see its actual HTTP status.
+        return options.fetch(url, init);
       } });
       const outcome = await provider.analyze({ kind: "supplement", text: doc.text, segments: doc.segments, textVersionId: doc.textVersionId,
         providerPolicyId: config.providerPolicyId, outputSchemaVersion: DOCUMENT_SCHEMA_VERSION }, signal, undefined,

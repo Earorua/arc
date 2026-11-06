@@ -50,7 +50,7 @@ export function isDocumentProviderQualified(config: DocumentAnalysisMetadata, qu
   try { calculateDocumentReservation(config, q); return true; } catch { return false; }
 }
 
-type ProviderOptions = { fetch: DocumentFetch; qualification: DocumentProviderQualification | null; now?: () => Date };
+type ProviderOptions = { fetch: DocumentFetch; qualification: DocumentProviderQualification | null; now?: () => Date; singleMetadataRead?: true };
 export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
   constructor(private readonly config: DocumentAnalysisConfiguration, private readonly options: ProviderOptions) {}
 
@@ -112,7 +112,7 @@ export class HttpDocumentAnalysisProvider implements DocumentAnalysisProvider {
     const returnedAt = now().toISOString();
     const chat = readChatReceipt(raw, input.text, config.apiKey);
     const audit = await auditDocumentGeneration({ config, qualification, chat, signal, sentAt, returnedAt, now,
-      fetch: this.options.fetch, claimReceipt });
+      fetch: this.options.fetch, claimReceipt, singleMetadataRead: this.options.singleMetadataRead });
     const attributable = chat.receiptId !== null && audit.status !== "duplicate-receipt" && audit.status !== "receipt-claim-failed"
       && audit.status !== "cost-conflict";
     const actualMicroUsd = attributable ? chat.actualMicroUsd ?? audit.metadataMicroUsd : null;

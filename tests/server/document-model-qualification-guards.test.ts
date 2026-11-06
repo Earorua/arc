@@ -141,6 +141,23 @@ describe("model qualification offline guards", () => {
     expect(events.find(e => e.type === "settlement")).toMatchObject({ state: "settled", actualMicroUsd: 100, status: "route-mismatch", audit: { metadataAttempts: 1 } });
     expect(result.documents.filter(e => e.status === "not-run")).toHaveLength(23);
   });
+  it("journals all three statuses on an R1-like stop and never starts the next document", async () => {
+    vi.useFakeTimers();
+    try {
+      const events: QualificationCheckpoint[] = [];
+      const statuses = [404, 429, 503];
+      const network = fixtureHttp(() => reply("gen-receipt-timing"), () => new Response(null, {status: statuses.shift()!}));
+      const pending = runDocumentQualification(environment(), { fetch: network, checkpoint: async e => { events.push(e); }, mode: "offline-test", now });
+      await vi.runAllTimersAsync();
+      const report = await pending;
+      expect(report).toMatchObject({ requestsSent: 1, settledMicroUsd: 100, heldMicroUsd: 0, stoppedReason: "metadata-unavailable", passed: false });
+      expect(network.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET", "GET", "GET"]);
+      expect(report.documents[0]).toMatchObject({ quality: null, audit: { metadataLookups: [
+        { httpStatus: 404, startMs: 0 }, { httpStatus: 429, startMs: 10000 }, { httpStatus: 503, startMs: 20000 }] } });
+      expect(events.find(e => e.type === "settlement")?.audit).toEqual(report.documents[0]!.audit);
+      expect(report.documents.slice(1).every(d => d.status === "not-run")).toBe(true);
+    } finally { vi.useRealTimers(); }
+  });
   it("records a repeated generation once, holds the second reservation and never queries that ID again", async () => {
     const network = fixtureHttp(() => reply("repeat-1"));
     const result = await runDocumentQualification(environment(), { fetch: network, checkpoint: async () => {}, mode: "offline-test", now });

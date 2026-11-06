@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DocumentAnalysisConfiguration } from "../../app/server/documents/policy";
+import { documentReceiptAuditSchema } from "../../app/server/documents/provider-receipt";
 import { HttpDocumentAnalysisProvider, type DocumentFetch, type DocumentProviderQualification } from "../../worker/document-executor/provider-http";
 
 const config: DocumentAnalysisConfiguration = {
@@ -202,6 +203,78 @@ describe("per-generation document receipt audit", () => {
     expect(await pending).toMatchObject({ kind: "received", actualMicroUsd: 7, candidate: null, audit: { status: "metadata-unavailable", metadataAttempts: 3 } });
     expect(fetch.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET", "GET", "GET"]);
   });
+  it("verifies a receipt appearing 15 seconds later with three reads and one paid send", async () => {
+    vi.useFakeTimers();
+    const start = Date.now(), reads: number[] = [];
+    const { fetch, analyze } = adapter(() => {
+      const offset = Date.now() - start;
+      reads.push(offset);
+      return offset >= 15_000 ? Response.json({ data: generation }) : new Response(input.text, { status: 404 });
+    });
+    const pending = analyze(); await vi.runAllTimersAsync();
+    const outcome = await pending;
+    expect(outcome).toMatchObject({ kind: "received", candidate, actualMicroUsd: 7, audit: { status: "verified", metadataAttempts: 3,
+      metadataLookups: [
+        { startMs: 0, endMs: 0, httpStatus: 404, outcome: "http-status" },
+        { startMs: 10000, endMs: 10000, httpStatus: 404, outcome: "http-status" },
+        { startMs: 20000, endMs: 20000, httpStatus: 200, outcome: "record" },
+      ] } });
+    expect(reads).toEqual([0, 10000, 20000]);
+    expect(fetch.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET", "GET", "GET"]);
+    expect(JSON.stringify(outcome)).not.toContain(input.text);
+  });
+  it("honors a later Retry-After without persisting response text or headers", async () => {
+    vi.useFakeTimers();
+    const start = Date.now(), reads: number[] = [];
+    const { analyze } = adapter(() => {
+      reads.push(Date.now() - start);
+      return reads.length === 1 ? new Response(input.text, { status: 429, headers: { "retry-after": "18", "x-private": config.apiKey } })
+        : Response.json({ data: generation });
+    });
+    const pending = analyze(); await vi.runAllTimersAsync();
+    const outcome = await pending;
+    expect(reads).toEqual([0, 18000]);
+    expect(outcome).toMatchObject({ audit: { status: "verified", metadataLookups: [
+      { httpStatus: 429, outcome: "http-status", retryAfterMs: 18000 }, { httpStatus: 200, outcome: "record" }] } });
+    expect(JSON.stringify(outcome)).not.toContain(input.text); expect(JSON.stringify(outcome)).not.toContain(config.apiKey);
+  });
+  it.each(["Fri, 06 Nov 2026 01:01:00 GMT", "Friday, 06-Nov-26 01:01:00 GMT", "Fri Nov  6 01:01:00 2026"])(
+    "stops when the server's HTTP-date %s extends beyond the shared deadline", async retryAfter => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date("2026-11-06T01:00:00Z"));
+    const { fetch, analyze } = adapter(() => new Response(null, { status: 503, headers: { "retry-after": retryAfter } }));
+    const pending = analyze(); await vi.runAllTimersAsync();
+    expect(await pending).toMatchObject({ candidate: null, actualMicroUsd: 7, audit: { status: "metadata-unavailable", metadataAttempts: 1,
+      metadataLookups: [{ httpStatus: 503, outcome: "http-status", retryAfterMs: 30000 }] } });
+    expect(fetch.mock.calls.map(([, init]) => init?.method)).toEqual(["POST", "GET"]);
+  });
+  it.each([
+    [() => new Response(input.text, { status: 403 }), 403, "http-status"],
+    [() => Response.redirect("https://other.invalid/private", 307), 307, "redirect"],
+    [() => { throw new Error(input.text); }, null, "transport-error"],
+    [() => new Response(input.text), 200, "body-error"],
+    [() => Response.json({ error: input.text }), 200, "invalid-envelope"],
+    [() => Response.json({ data: "pending" }), 200, "invalid-envelope"],
+    [() => Response.json({ data: [] }), 200, "invalid-envelope"],
+    [() => Response.json({ data: { ...generation, error: input.text } }), 200, "unusable-record"],
+  ] as const)("keeps a bounded %s lookup observation", async (read, httpStatus, reason) => {
+    const { analyze } = adapter(read);
+    const result = await analyze();
+    expect(result).toMatchObject({ candidate: null, actualMicroUsd: 7, audit: { status: "metadata-unavailable", metadataAttempts: 1,
+      metadataLookups: [{ httpStatus, outcome: reason, startMs: expect.any(Number), endMs: expect.any(Number) }] } });
+    expect(JSON.stringify(result)).not.toContain(input.text); expect(JSON.stringify(result)).not.toContain("other.invalid");
+  });
+  it("reads legacy audits and rejects inconsistent or free-text trace records at the bridge", async () => {
+    const { analyze } = adapter(() => Response.json({ data: generation }));
+    const result = await analyze();
+    if (result.kind !== "received" || !result.audit) throw new Error("Expected a received audit");
+    const legacy = { ...result.audit }; Reflect.deleteProperty(legacy, "metadataLookups");
+    expect(documentReceiptAuditSchema.safeParse(legacy).success).toBe(true);
+    const entry = { startMs: 0, endMs: 5, httpStatus: 200, outcome: "record" };
+    const withTrace = (lookups: object[]) => documentReceiptAuditSchema.safeParse({ ...legacy, metadataLookups: lookups }).success;
+    expect(withTrace([entry])).toBe(true);
+    for (const entries of [[], [entry, entry], [{ ...entry, endMs: 30001 }], [{ ...entry, startMs: 6 }],
+      [{ ...entry, url: input.text }], [{ ...entry, outcome: input.text }], [{ ...entry, httpStatus: 999 }]]) expect(withTrace(entries)).toBe(false);
+  });
   it.each(["headers", "body"] as const)("enforces the 30-second total even when metadata %s ignores abort", async phase => {
     vi.useFakeTimers();
     const stash = new ReadableStream<Uint8Array>({ pull: () => new Promise<void>(() => {}) });
@@ -210,7 +283,8 @@ describe("per-generation document receipt audit", () => {
     let finished = false; void pending.then(() => { finished = true; }); await Promise.resolve();
     expect(finished).toBe(false);
     await vi.advanceTimersByTimeAsync(1);
-    expect(await pending).toMatchObject({ kind: "received", actualMicroUsd: 7, candidate: null, audit: { status: "metadata-timeout", metadataAttempts: 1 } });
+    expect(await pending).toMatchObject({ kind: "received", actualMicroUsd: 7, candidate: null, audit: { status: "metadata-timeout", metadataAttempts: 1,
+      metadataLookups: [{ startMs: 0, endMs: 30000, httpStatus: phase === "headers" ? null : 200, outcome: "timeout" }] } });
     expect(fetch.mock.calls[1]?.[1]?.signal?.aborted).toBe(true);
   });
   it("shares one deadline across transient attempts and cancels an oversized metadata body", async () => {
@@ -226,6 +300,41 @@ describe("per-generation document receipt audit", () => {
     const oversized = adapter(() => new Response(new ReadableStream({ pull(controller) { controller.enqueue(new Uint8Array(65_536)); }, cancel() { cancelled = true; } })));
     expect(await oversized.analyze()).toMatchObject({ candidate: null, actualMicroUsd: 7, audit: { status: "metadata-unavailable", metadataAttempts: 1 } });
     expect(cancelled).toBe(true);
+  });
+  it("cancels a response delivered after timeout without altering the recorded attempt", async () => {
+    vi.useFakeTimers();
+    const late = Promise.withResolvers<Response>();
+    const { analyze } = adapter(() => late.promise);
+    const pending = analyze(); await vi.advanceTimersByTimeAsync(30_000);
+    const result = await pending;
+    expect(result).toMatchObject({ audit: { status: "metadata-timeout", metadataLookups: [{ httpStatus: null, outcome: "timeout" }] } });
+    const returned = JSON.stringify(result);
+    let cancelled = false;
+    late.resolve(new Response(new ReadableStream({ cancel() { cancelled = true; } })));
+    await vi.advanceTimersByTimeAsync(1);
+    expect(cancelled).toBe(true);
+    expect(JSON.stringify(result)).toBe(returned);
+  });
+  it.each(["headers", "body"] as const)("classifies late %s rejection even before the deadline timer can run", async phase => {
+    vi.useFakeTimers();
+    const rejectLate = () => { vi.setSystemTime(Date.now() + 30_001); return new Error(input.text); };
+    const { analyze } = adapter(() => phase === "headers" ? Promise.reject(rejectLate())
+      : new Response(new ReadableStream({ pull(controller) { controller.error(rejectLate()); } }, { highWaterMark: 0 })));
+    expect(await analyze()).toMatchObject({ actualMicroUsd: 7, candidate: null, audit: { status: "metadata-timeout", metadataAttempts: 1,
+      metadataLookups: [{ startMs: 0, endMs: 30000, httpStatus: phase === "headers" ? null : 200, outcome: "timeout" }] } });
+  });
+  it("aborts during backoff without creating another lookup or leaving a timer", async () => {
+    vi.useFakeTimers();
+    const abort = new AbortController();
+    const fetch = vi.fn<DocumentFetch>(async (_, init) => init?.method === "POST" ? Response.json(completion) : new Response(null, {status:404}));
+    const provider = new HttpDocumentAnalysisProvider(config, {qualification, fetch});
+    const pending = provider.analyze(input, abort.signal);
+    await vi.advanceTimersByTimeAsync(5000); abort.abort();
+    expect(await pending).toMatchObject({ audit: { status: "metadata-timeout", metadataAttempts: 1,
+      metadataLookups: [{ httpStatus: 404, outcome: "http-status" }] } });
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(30000);
+    expect(fetch.mock.calls.map(([,init]) => init?.method)).toEqual(["POST","GET"]);
   });
   it("rejects missing endpoint evidence, ambiguous provider order, unsafe endpoint paths and missing credentials before admission", async () => {
     const fetch = vi.fn<DocumentFetch>(); const beforeSend = vi.fn(async () => true);
