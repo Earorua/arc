@@ -30,7 +30,8 @@ type Sources = Pick<MaterialReferenceContext, "text" | "segments">;
 
 // Keep UTF-16 offsets in the original document, including across soft-wrapped lines and transport chunks.
 const segmenter = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("en", { granularity: "sentence" }) : null;
-const listPrefix = /^(?:[-*•▪‣]|\d{1,3}[.)])\s+/u;
+const listPrefix = /^(?:[-*•▪‣]\s+|[\d０-９]{1,3}\.\s+|(?:[\d０-９]{1,3}|[一二三四五六七八九十]{1,3})[、)）]\s*|[(（](?:[\d０-９]{1,3}|[一二三四五六七八九十]{1,3})[)）]\s*)/u;
+const sectionHeading = /^(?:岗位职责|工作职责|职位描述|任职要求|岗位要求|任职资格|优先条件|加分项|工作经历|项目经历|技能|responsibilities|requirements|preferred qualifications|work experience|skills)\s*[:：]?$/iu;
 function statementBoundaries(text: string) {
   const bounds = new Map<number, number>();
   if (!segmenter) return bounds;
@@ -40,7 +41,7 @@ function statementBoundaries(text: string) {
     // Other single newlines may just wrap a qualifying clause, including negations.
     const title = at === 0 && (/^\[[^\]\r\n]{1,64}\][^.!?。！？]{0,100}$/u.test(trimmed)
       || /^.{0,80}(?:\brole|\bjob description|\br[eé]sum[eé]|\bCV|岗位|职位|简历)$/iu.test(trimmed));
-    if (!trimmed || title || /^#{1,6}\s/u.test(trimmed) || listPrefix.test(next)) return line;
+    if (!trimmed || title || sectionHeading.test(trimmed) || /^#{1,6}\s/u.test(trimmed) || listPrefix.test(next)) return line;
     return line.replace(/[\r\n]/gu, " ");
   });
   for (const { segment, index } of segmenter.segment(layout)) {

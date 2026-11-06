@@ -157,6 +157,13 @@ describe("private material extraction from quoted source spans", () => {
     expect(outcome).toMatchObject({ candidate: null, audit: { extractionRead: "invalid-source" } });
   });
 
+  it.each(["负责月度经营分析。", "熟练使用 SQL。", "有异常检测经验。"])(
+    "accepts a complete requirement under a Chinese JD heading or numbered list: %s", async quote => {
+      const text = "数据分析师\n岗位职责：\n1、负责月度经营分析。\n任职要求：\n（1）熟练使用 SQL。\n加分项：\n有异常检测经验。";
+      const { outcome } = await analyze({ ...compact, items: [{ ...item, source: { ...source, quote } }], reviewPoints: [] }, { text });
+      expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: { items: [{ text: quote }] } });
+    });
+
   it.each([["Older work. New skill is helpful. Next duty.", "New skill is helpful", "New skill is helpful."],
     ["岗位说明\n• 需要核对故障时间线。\n地点待定。", "需要核对故障时间线", "需要核对故障时间线。"]])(
     "restores the actual sentence-ending mark in a complete fact inside a paragraph or bullet", async (text, quote, expected) => {
