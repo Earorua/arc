@@ -1,0 +1,11 @@
+{
+  "hashes": {
+    "app/lib/materials/grounded-skill-terms.ts": "23aa79b49ec17a9dbffa4187720adda6a85aadb69632beff9ade48ebcd705dcf",
+    "worker/document-executor/source-review-evidence.ts": "5c3e3c28332ad47fbbc45e3db83717bdc416434c10fb03273fa1cd8e6bdb8621",
+    "worker/document-executor/source-span-extraction.ts": "6498aaada54ab405f1cfc59bd7edf19d8d2b83aec5ab6c60749bfc2252a10200",
+    "worker/document-executor/source-requirement-evidence.ts": "bb2562a9d3d3a00c5f9c33ff7f0764e571d8b2d74f53802d08742b51cca19196",
+    "worker/document-executor/source-statements.ts": "245287bb6f2bbac461bd759f17579ef7cf6b8c101c5e68fcbfb8747f6fcdb065"
+  },
+  "passed": 61,
+  "failures": []
+}

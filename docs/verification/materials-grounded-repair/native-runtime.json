@@ -1,0 +1,28 @@
+{
+  "mode": "local-workerd-vs-node",
+  "compatibilityDate": "2026-05-15",
+  "checks": [
+    "bilingual-cleaning",
+    "english-action",
+    "novel-requirement",
+    "explicit-course-gap",
+    "source-only-action",
+    "preserved-v1",
+    "truncated",
+    "coordinated-denial",
+    "ordinary-react",
+    "technical-react-excel",
+    "optional-jd",
+    "unclear-jd",
+    "heading-jd",
+    "plain-heading-jd",
+    "unicode-tool-list",
+    "multiword-tool-list",
+    "mixed-attribution",
+    "list-assessment",
+    "quoted-assessment"
+  ],
+  "nodeAndWorkerIdentical": true,
+  "workerOutboundRequests": 0,
+  "realModelCalls": 0
+}

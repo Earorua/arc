@@ -1,0 +1,771 @@
+{
+  "mode": "offline-annotation-compatibility",
+  "method": "Known annotations supply facts and proposed questions; v2 receives only supported original skill phrases. These are simulated inputs, not predictions or observations of a model.",
+  "originalHashes": {
+    "tests/fixtures/documents/quality-corpus.json": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750",
+    "tests/fixtures/documents/supplement-quality-corpus.json": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7",
+    "tests/helpers/document-quality-evaluation.ts": "6297b7bdd112833cbd8a58b3bd63f6cbaf46d86b77cbab760744fe66babec351"
+  },
+  "b2": {
+    "originalAnnotationControlPassed": 24,
+    "v2Documents": [
+      {
+        "id": "resume-01",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "missing-review-point",
+          "normal-prefill",
+          "self-assessment-review"
+        ],
+        "strictFieldMatches": 3,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-01-segment-1"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-02",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "self-assessment-review",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "resume-02-field-1",
+          "resume-02-field-3"
+        ],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-02-segment-2"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-03",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 0,
+        "expectedFields": 3,
+        "returnedReviewCount": 1,
+        "incompatibleSkillSets": [
+          "resume-03-field-1",
+          "resume-03-field-2",
+          "resume-03-field-3"
+        ],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-03-segment-1"
+          ]
+        ],
+        "additionalReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-03-segment-2"
+          ]
+        ],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-04",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "self-assessment-review",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "resume-04-field-1"
+        ],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-04-segment-1"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-05",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "missing-review-point",
+          "normal-prefill",
+          "self-assessment-review"
+        ],
+        "strictFieldMatches": 3,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-05-segment-2"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-06",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "self-assessment-review",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "resume-06-field-1",
+          "resume-06-field-3"
+        ],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-06-segment-3"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-07",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "self-assessment-review",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 3,
+        "returnedReviewCount": 1,
+        "incompatibleSkillSets": [
+          "resume-07-field-1"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-08",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "self-assessment-review",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "resume-08-field-3"
+        ],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-08-segment-2"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-09",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "self-assessment-review",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 3,
+        "returnedReviewCount": 1,
+        "incompatibleSkillSets": [
+          "resume-09-field-1",
+          "resume-09-field-3"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-01",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "jd-01-field-2"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-02",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 4,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "jd-02-field-2",
+          "jd-02-field-3"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-03",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 4,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "jd-03-field-1",
+          "jd-03-field-2"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-04",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "jd-04-field-1",
+          "jd-04-field-2"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-05",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 3,
+        "expectedFields": 4,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "jd-05-field-2"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-06",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 4,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "jd-06-field-1",
+          "jd-06-field-2"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-07",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": true,
+        "failures": [],
+        "strictFieldMatches": 3,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-08",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 4,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "jd-08-field-1",
+          "jd-08-field-2"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-09",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "normal-prefill",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 0,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "jd-09-field-1",
+          "jd-09-field-2",
+          "jd-09-field-3"
+        ],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-10",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "self-assessment-review",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 2,
+        "returnedReviewCount": 2,
+        "incompatibleSkillSets": [
+          "resume-10-field-2"
+        ],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-10-segment-1"
+          ]
+        ],
+        "additionalReviewPoints": [
+          [
+            "untrusted-resource-url",
+            "resume-10-segment-2"
+          ]
+        ],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-11",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "self-assessment-review",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 3,
+        "returnedReviewCount": 1,
+        "incompatibleSkillSets": [
+          "resume-11-field-2"
+        ],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "resume-11-segment-3"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "resume-12",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "missing-review-point",
+          "self-assessment-review"
+        ],
+        "strictFieldMatches": 3,
+        "expectedFields": 3,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [
+          [
+            "conflicting-self-assessment",
+            "resume-12-segment-1"
+          ],
+          [
+            "missing-information",
+            "resume-12-segment-3"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-10",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "requirement-classification",
+          "unexpected-review-point",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 2,
+        "returnedReviewCount": 1,
+        "incompatibleSkillSets": [
+          "jd-10-field-1"
+        ],
+        "missingReviewPoints": [
+          [
+            "prompt-injection",
+            "jd-10-segment-3"
+          ]
+        ],
+        "additionalReviewPoints": [
+          [
+            "untrusted-resource-url",
+            "jd-10-segment-3"
+          ]
+        ],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-11",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "requirement-classification",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 3,
+        "returnedReviewCount": 1,
+        "incompatibleSkillSets": [
+          "jd-11-field-1",
+          "jd-11-field-2"
+        ],
+        "missingReviewPoints": [
+          [
+            "uncovered-skill",
+            "jd-11-segment-1"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "jd-12",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "missing-review-point",
+          "requirement-review"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 2,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [
+          [
+            "conflicting-requirement",
+            "jd-12-segment-1"
+          ],
+          [
+            "conflicting-requirement",
+            "jd-12-segment-2"
+          ],
+          [
+            "missing-information",
+            "jd-12-segment-3"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      }
+    ],
+    "normalPassed": 1,
+    "edgePassed": 0
+  },
+  "supplements": {
+    "originalAnnotationControlPassed": 6,
+    "v2Documents": [
+      {
+        "id": "supplement-01",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "normal-prefill",
+          "requirement-classification"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 2,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "supplement-02",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "normal-prefill",
+          "self-assessment-review",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 2,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "supplement-02-field-2"
+        ],
+        "missingReviewPoints": [
+          [
+            "confirm-self-assessment",
+            "segment-1"
+          ],
+          [
+            "confirm-self-assessment",
+            "segment-1"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "supplement-03",
+        "category": "normal",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "missing-review-point",
+          "normal-prefill"
+        ],
+        "strictFieldMatches": 2,
+        "expectedFields": 2,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [
+          [
+            "missing-information",
+            "segment-1"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "supplement-04",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": true,
+        "failures": [],
+        "strictFieldMatches": 2,
+        "expectedFields": 2,
+        "returnedReviewCount": 1,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "supplement-05",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": true,
+        "failures": [],
+        "strictFieldMatches": 0,
+        "expectedFields": 0,
+        "returnedReviewCount": 2,
+        "incompatibleSkillSets": [],
+        "missingReviewPoints": [],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      },
+      {
+        "id": "supplement-06",
+        "category": "edge",
+        "extractionRead": "parsed",
+        "passed": false,
+        "failures": [
+          "critical-recall",
+          "missing-review-point",
+          "unmatched-or-duplicate-candidate"
+        ],
+        "strictFieldMatches": 1,
+        "expectedFields": 2,
+        "returnedReviewCount": 0,
+        "incompatibleSkillSets": [
+          "supplement-06-field-1"
+        ],
+        "missingReviewPoints": [
+          [
+            "conflicting-requirement",
+            "segment-1"
+          ]
+        ],
+        "additionalReviewPoints": [],
+        "reviewLabelLoss": []
+      }
+    ],
+    "normalPassed": 0,
+    "edgePassed": 2
+  },
+  "sameDocumentAcrossTwoCatalogs": {
+    "documentOnlyIssues": 0,
+    "term": "Playwright",
+    "catalogs": [
+      {
+        "role": "AI 原生全栈工程师",
+        "version": "2026.08.1",
+        "matches": [
+          {
+            "status": "mapped",
+            "skillIds": [
+              "testing"
+            ]
+          }
+        ]
+      },
+      {
+        "role": "Data Product Manager",
+        "version": "2026.08.1",
+        "matches": [
+          {
+            "status": "uncovered",
+            "skillIds": []
+          }
+        ]
+      }
+    ]
+  },
+  "modelRequests": 0,
+  "inferenceCostMicroUsd": 0
+}
