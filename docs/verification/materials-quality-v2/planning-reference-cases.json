@@ -1,0 +1,5588 @@
+{
+  "schemaVersion": "materials-planning-reference-v2.1",
+  "provenance": "Independently authored synthetic invariant probes, not product planner outputs. Inputs and exact permitted changes are frozen; task set is deliberately minimal.",
+  "basis": [
+    "approved-v2.1-6.3",
+    "approved-v2.1-6.4",
+    "approved-v2.1-7.1",
+    "approved-v2.1-8"
+  ],
+  "protectedStateKeys": [
+    "jobId",
+    "proofs",
+    "tasks",
+    "completedRecords",
+    "budget"
+  ],
+  "caseCount": 14,
+  "cases": [
+    {
+      "id": "fact-confirm-only",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "confirm-fact",
+          "documentId": "resume-a",
+          "candidateId": "experience-sql"
+        }
+      },
+      "inputSha256": "bc9f16d53519e9c9879abcf75d67fa521b75f401bc6d7cb6969e1a610b066214",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-fact-confirm-only",
+              "action": "confirm-fact",
+              "targetId": "resume-a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "explicit-guided-self-adopt",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "adopt-self",
+          "explicit": true,
+          "decisions": [
+            {
+              "skillId": "sql",
+              "level": "guided"
+            }
+          ]
+        }
+      },
+      "inputSha256": "f1639c231a1d465f78efde1fc665966d553dcff7fceea3e11635d5bc52f22d89",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "guided"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-explicit-guided-self-adopt",
+              "action": "adopt-self",
+              "targetId": "sql"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "reject-batch-independent",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "adopt-self",
+          "explicit": true,
+          "decisions": [
+            {
+              "skillId": "sql",
+              "level": "independent"
+            },
+            {
+              "skillId": "react",
+              "level": "independent"
+            }
+          ]
+        }
+      },
+      "inputSha256": "02e5a3b133135ab6cc1fff6464f2c644595360ab120ddfdb374fa4d84d240976",
+      "constraints": {
+        "applyState": "rejected",
+        "rejectionCode": "batch-independent-forbidden",
+        "expectedChanges": {
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": "batch-independent-forbidden",
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "explicit-single-independent",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "adopt-self",
+          "explicit": true,
+          "decisions": [
+            {
+              "skillId": "sql",
+              "level": "independent"
+            }
+          ]
+        }
+      },
+      "inputSha256": "26df50551770c9d4c805d1956d7439a79c94a967d981b63ffc2eae53e97f76aa",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "independent"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-explicit-single-independent",
+              "action": "adopt-self",
+              "targetId": "sql"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unadopted-learning-intent",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "confirm-learning-intent",
+          "documentId": "supplement-a",
+          "literal": "SQL 空值处理"
+        }
+      },
+      "inputSha256": "45c9e6876ab955fb04cec0006e0e84926d26162c53ee99b2e5eaa601317101db",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-unadopted-learning-intent",
+              "action": "confirm-learning-intent",
+              "targetId": "supplement-a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "explicit-adopt-soft-focus",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "adopt-focus",
+          "explicit": true,
+          "documentId": "supplement-a",
+          "literal": "SQL 空值处理",
+          "skillIds": [
+            "sql"
+          ]
+        }
+      },
+      "inputSha256": "46701cab4db4593b1758df9efde3ee806ffa991c3eb38dde009931ad03be6338",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "focus": [
+            {
+              "documentId": "supplement-a",
+              "literal": "SQL 空值处理",
+              "skillIds": [
+                "sql"
+              ]
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-explicit-adopt-soft-focus",
+              "action": "adopt-focus",
+              "targetId": "supplement-a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "withdraw-focus",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [
+            {
+              "documentId": "supplement-a",
+              "literal": "SQL 空值处理",
+              "skillIds": [
+                "sql"
+              ]
+            }
+          ],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "cc34d8d70656878d544eb040d8b5275ba902ca1a04be00b0c9aa2c23de52f4e7",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [
+                {
+                  "documentId": "supplement-a",
+                  "literal": "SQL 空值处理",
+                  "skillIds": [
+                    "sql"
+                  ]
+                }
+              ],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "withdraw-focus",
+          "documentId": "supplement-a",
+          "literal": "SQL 空值处理"
+        }
+      },
+      "inputSha256": "c1fc72e7ccb2da69904ecf11a839949a17d29e005b8c283bf0baa021d1185ddf",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "focus": [],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "cc34d8d70656878d544eb040d8b5275ba902ca1a04be00b0c9aa2c23de52f4e7",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [
+                {
+                  "documentId": "supplement-a",
+                  "literal": "SQL 空值处理",
+                  "skillIds": [
+                    "sql"
+                  ]
+                }
+              ],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-withdraw-focus",
+              "action": "withdraw-focus",
+              "targetId": "supplement-a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "delete-material",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [
+            {
+              "documentId": "supplement-a",
+              "literal": "SQL 空值处理",
+              "skillIds": [
+                "sql"
+              ]
+            }
+          ],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "cc34d8d70656878d544eb040d8b5275ba902ca1a04be00b0c9aa2c23de52f4e7",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [
+                {
+                  "documentId": "supplement-a",
+                  "literal": "SQL 空值处理",
+                  "skillIds": [
+                    "sql"
+                  ]
+                }
+              ],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "delete-material",
+          "documentId": "supplement-a"
+        }
+      },
+      "inputSha256": "b20d010eda0760ac85aee9f06b75c6886ff0be5fa13f856b525beaf131b4d362",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "focus": [],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "deletedMaterialIds": [
+            "supplement-a"
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "cc34d8d70656878d544eb040d8b5275ba902ca1a04be00b0c9aa2c23de52f4e7",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [
+                {
+                  "documentId": "supplement-a",
+                  "literal": "SQL 空值处理",
+                  "skillIds": [
+                    "sql"
+                  ]
+                }
+              ],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-delete-material",
+              "action": "delete-material",
+              "targetId": "supplement-a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "exclude-individual-term",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [
+            {
+              "documentId": "supplement-a",
+              "literal": "SQL 空值处理",
+              "skillIds": [
+                "sql"
+              ]
+            },
+            {
+              "documentId": "supplement-a",
+              "literal": "React 表单",
+              "skillIds": [
+                "react"
+              ]
+            }
+          ],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "45d3dc2df37b874e8028ce1ff2a130d8f64a3b9792548a2c337e2883d44759d6",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [
+                {
+                  "documentId": "supplement-a",
+                  "literal": "SQL 空值处理",
+                  "skillIds": [
+                    "sql"
+                  ]
+                },
+                {
+                  "documentId": "supplement-a",
+                  "literal": "React 表单",
+                  "skillIds": [
+                    "react"
+                  ]
+                }
+              ],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "exclude-term",
+          "documentId": "supplement-a",
+          "literal": "SQL 空值处理"
+        }
+      },
+      "inputSha256": "a75dbe48e88f13c80aa3cfa5e84d90848d3b93dc3c7a2688e10e915c6dc757bd",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "focus": [
+            {
+              "documentId": "supplement-a",
+              "literal": "React 表单",
+              "skillIds": [
+                "react"
+              ]
+            }
+          ],
+          "excludedTerms": [
+            {
+              "documentId": "supplement-a",
+              "literal": "SQL 空值处理"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "45d3dc2df37b874e8028ce1ff2a130d8f64a3b9792548a2c337e2883d44759d6",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [
+                {
+                  "documentId": "supplement-a",
+                  "literal": "SQL 空值处理",
+                  "skillIds": [
+                    "sql"
+                  ]
+                },
+                {
+                  "documentId": "supplement-a",
+                  "literal": "React 表单",
+                  "skillIds": [
+                    "react"
+                  ]
+                }
+              ],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-exclude-individual-term",
+              "action": "exclude-term",
+              "targetId": "supplement-a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "replace-primary-jd-same-job",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "replace-primary-jd",
+          "jobId": "engineer",
+          "documentId": "jd-c",
+          "versionId": "jd-c-v1",
+          "requirements": [
+            {
+              "skillId": "react",
+              "level": "must"
+            }
+          ]
+        }
+      },
+      "inputSha256": "c7ec7903a500633e285a0be073364a3a6ea83f14cc7b1f00b9e25571f7d3186e",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "preview": {
+            "id": "preview-jd-c",
+            "baseRevision": 4,
+            "materialContextSha256": "a681ada34673bda802b5ceb34f5751f678f48f97c3337d8e667662b0c71e8154",
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-c",
+                  "versionId": "jd-c-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-c",
+                  "skillId": "react",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            },
+            "proposedOrder": [
+              "todo-react",
+              "todo-sql",
+              "todo-sql-review"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-react"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              }
+            ],
+            "applied": false,
+            "rejectionCode": null
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-replace-primary-jd-same-job",
+              "action": "replace-primary-jd",
+              "targetId": "jd-c"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "accept-current-primary-jd-preview",
+      "input": {
+        "before": {
+          "revision": 4,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-replace-primary-jd-same-job",
+              "action": "replace-primary-jd",
+              "targetId": "jd-c"
+            }
+          ],
+          "preview": {
+            "id": "preview-jd-c",
+            "baseRevision": 4,
+            "materialContextSha256": "a681ada34673bda802b5ceb34f5751f678f48f97c3337d8e667662b0c71e8154",
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-c",
+                  "versionId": "jd-c-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-c",
+                  "skillId": "react",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            },
+            "proposedOrder": [
+              "todo-react",
+              "todo-sql",
+              "todo-sql-review"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-react"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              }
+            ],
+            "applied": false,
+            "rejectionCode": null
+          }
+        },
+        "action": {
+          "type": "apply-preview",
+          "previewId": "preview-jd-c",
+          "expectedRevision": 4,
+          "materialContextSha256": "a681ada34673bda802b5ceb34f5751f678f48f97c3337d8e667662b0c71e8154"
+        }
+      },
+      "inputSha256": "23253f46a500f64efdaa0550075ca1fd8d4b6ca9d251981a277028b449b8e503",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "revision": 5,
+          "order": [
+            "todo-react",
+            "todo-sql",
+            "todo-sql-review"
+          ],
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-react"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            }
+          ],
+          "preview": {
+            "id": "preview-jd-c",
+            "baseRevision": 4,
+            "materialContextSha256": "a681ada34673bda802b5ceb34f5751f678f48f97c3337d8e667662b0c71e8154",
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-c",
+                  "versionId": "jd-c-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-c",
+                  "skillId": "react",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            },
+            "proposedOrder": [
+              "todo-react",
+              "todo-sql",
+              "todo-sql-review"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-react"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              }
+            ],
+            "applied": true,
+            "rejectionCode": null
+          },
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-replace-primary-jd-same-job",
+              "action": "replace-primary-jd",
+              "targetId": "jd-c"
+            },
+            {
+              "id": "audit-accept-current-primary-jd-preview",
+              "action": "apply-preview",
+              "targetId": "preview-jd-c"
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-c",
+              "versionId": "jd-c-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-c",
+              "skillId": "react",
+              "level": "must"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "secondary-jd-cannot-add-must",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "confirm-secondary-jd",
+          "documentId": "jd-b",
+          "skillId": "react",
+          "level": "must"
+        }
+      },
+      "inputSha256": "7b82a4f91ce8d31436646cb20e58f676bd3207165e6ef356363f4361240d040b",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-secondary-jd-cannot-add-must",
+              "action": "confirm-secondary-jd",
+              "targetId": "jd-b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unresolved-conflict-not-hard-resolved",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "confirm-conflicting-requirement",
+          "documentId": "jd-b",
+          "conflictId": "sql-conflict"
+        }
+      },
+      "inputSha256": "0000dce56056c862a1f024c36277e657dd80a2b08f793353b1687ac60a0fe6ef",
+      "constraints": {
+        "applyState": "accepted",
+        "rejectionCode": null,
+        "expectedChanges": {
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 3,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          },
+          "revision": 4,
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            },
+            {
+              "id": "audit-unresolved-conflict-not-hard-resolved",
+              "action": "confirm-conflicting-requirement",
+              "targetId": "jd-b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "stale-preview-reject",
+      "input": {
+        "before": {
+          "revision": 3,
+          "jobId": "engineer",
+          "selfAssessments": [
+            {
+              "skillId": "sql",
+              "level": "conceptual"
+            },
+            {
+              "skillId": "react",
+              "level": "guided"
+            },
+            {
+              "skillId": "typescript",
+              "level": "independent"
+            },
+            {
+              "skillId": "web-platform",
+              "level": "independent"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "proof-ts",
+              "taskId": "done-ts",
+              "skillId": "typescript",
+              "artifact": "local:contract-test-record",
+              "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            },
+            {
+              "id": "proof-web",
+              "taskId": "done-web",
+              "skillId": "web-platform",
+              "artifact": "local:semantic-form-record",
+              "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "verifiedAt": "2026-11-01T00:00:00Z"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "done-ts",
+              "skillId": "typescript",
+              "unitId": "typescript-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: record exhaustive union handling.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            },
+            {
+              "id": "todo-sql",
+              "skillId": "sql",
+              "unitId": "sql-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: design immutable versions and ownership keys.",
+              "dependencies": [
+                "done-ts"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "todo-sql-review",
+              "skillId": "sql",
+              "unitId": "sql-calibrate-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: review cardinality and delete actions.",
+              "dependencies": [
+                "todo-sql"
+              ],
+              "estimatedMinutes": 35,
+              "status": "pending"
+            },
+            {
+              "id": "todo-react",
+              "skillId": "react",
+              "unitId": "react-learn-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: test an accessible async form.",
+              "dependencies": [
+                "done-ts",
+                "done-web"
+              ],
+              "estimatedMinutes": 90,
+              "status": "pending"
+            },
+            {
+              "id": "done-web",
+              "skillId": "web-platform",
+              "unitId": "web-platform-reinforce-01",
+              "unitVersion": "2026.08.1",
+              "content": "Synthetic rehearsal: restore semantic form labels and native submission.",
+              "dependencies": [],
+              "estimatedMinutes": 30,
+              "status": "completed"
+            }
+          ],
+          "completedRecords": [
+            {
+              "taskId": "done-ts",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 42,
+              "proofIds": [
+                "proof-ts"
+              ]
+            },
+            {
+              "taskId": "done-web",
+              "completedAt": "2026-11-01T00:00:00Z",
+              "spentMinutes": 34,
+              "proofIds": [
+                "proof-web"
+              ]
+            }
+          ],
+          "order": [
+            "todo-sql",
+            "todo-sql-review",
+            "todo-react"
+          ],
+          "budget": {
+            "minutesPerWeek": 150,
+            "weeks": 2
+          },
+          "schedule": [
+            {
+              "week": 1,
+              "taskIds": [
+                "todo-sql",
+                "todo-sql-review"
+              ]
+            },
+            {
+              "week": 2,
+              "taskIds": [
+                "todo-react"
+              ]
+            }
+          ],
+          "selectedMaterials": [
+            {
+              "documentId": "jd-a",
+              "versionId": "jd-a-v1",
+              "role": "primary-jd",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "resume-a",
+              "versionId": "resume-a-v1",
+              "role": "resume",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "supplement-a",
+              "versionId": "supplement-a-v1",
+              "role": "supplement",
+              "jobId": "engineer"
+            },
+            {
+              "documentId": "jd-b",
+              "versionId": "jd-b-v1",
+              "role": "secondary-jd",
+              "jobId": "engineer"
+            }
+          ],
+          "focus": [],
+          "excludedTerms": [],
+          "deletedMaterialIds": [],
+          "mainJdRequirements": [
+            {
+              "documentId": "jd-a",
+              "skillId": "sql",
+              "level": "must"
+            }
+          ],
+          "conflicts": [
+            {
+              "id": "sql-conflict",
+              "documentId": "jd-b",
+              "skillId": "sql",
+              "status": "unresolved",
+              "alternatives": [
+                "must",
+                "preferred"
+              ]
+            }
+          ],
+          "audit": [
+            {
+              "id": "audit-0",
+              "action": "baseline",
+              "targetId": "engineer"
+            }
+          ],
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 2,
+            "applied": false,
+            "rejectionCode": null,
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "action": {
+          "type": "apply-preview",
+          "previewId": "preview-1",
+          "expectedRevision": 3,
+          "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0"
+        }
+      },
+      "inputSha256": "0a6befb195eceec4d79385b7a0a4b4fda9e0cd5f468df2d6e595567e9261f09a",
+      "constraints": {
+        "applyState": "rejected",
+        "rejectionCode": "stale-preview",
+        "expectedChanges": {
+          "preview": {
+            "id": "preview-1",
+            "baseRevision": 2,
+            "applied": false,
+            "rejectionCode": "stale-preview",
+            "materialContextSha256": "eb73a8ba38a05c64474a47a9adede3402d846938d3436a9732c2cf6e6b7e5ff0",
+            "proposedOrder": [
+              "todo-sql",
+              "todo-sql-review",
+              "todo-react"
+            ],
+            "proposedSchedule": [
+              {
+                "week": 1,
+                "taskIds": [
+                  "todo-sql",
+                  "todo-sql-review"
+                ]
+              },
+              {
+                "week": 2,
+                "taskIds": [
+                  "todo-react"
+                ]
+              }
+            ],
+            "proposedContext": {
+              "selectedMaterials": [
+                {
+                  "documentId": "jd-a",
+                  "versionId": "jd-a-v1",
+                  "role": "primary-jd",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "resume-a",
+                  "versionId": "resume-a-v1",
+                  "role": "resume",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "supplement-a",
+                  "versionId": "supplement-a-v1",
+                  "role": "supplement",
+                  "jobId": "engineer"
+                },
+                {
+                  "documentId": "jd-b",
+                  "versionId": "jd-b-v1",
+                  "role": "secondary-jd",
+                  "jobId": "engineer"
+                }
+              ],
+              "focus": [],
+              "excludedTerms": [],
+              "deletedMaterialIds": [],
+              "mainJdRequirements": [
+                {
+                  "documentId": "jd-a",
+                  "skillId": "sql",
+                  "level": "must"
+                }
+              ],
+              "conflicts": [
+                {
+                  "id": "sql-conflict",
+                  "documentId": "jd-b",
+                  "skillId": "sql",
+                  "status": "unresolved",
+                  "alternatives": [
+                    "must",
+                    "preferred"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "projectionSemantics": "selectedMaterials/mainJdRequirements are active adopted context. Replacement only creates preview.proposedContext/order/schedule. Explicit acceptance atomically adopts the bound proposal. Other explicit metadata actions preserve plan tasks and current order; previews are not auto-applied."
+}
