@@ -1,0 +1,1588 @@
+{
+  "schemaVersion": "materials-product-projection-stimulus-index-1",
+  "generatorPath": "work/grounded-verification/build-product-projection-input-20261107.mjs",
+  "generatorSha256": "ce1f5238014538d111fa15387987a41c87d05b25042481e4576b8562c0ce71b2",
+  "inputs": [
+    {
+      "path": "docs/verification/materials-quality-v2/annotations.draft.json",
+      "sha256": "e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9"
+    },
+    {
+      "path": "tests/fixtures/documents/quality-corpus.json",
+      "sha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750"
+    },
+    {
+      "path": "tests/fixtures/documents/supplement-quality-corpus.json",
+      "sha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7"
+    }
+  ],
+  "output": "work/grounded-verification/product-projection-synthetic-input-20261107.json",
+  "outputSha256": "9aec876c545c3a93d75c3e0f84fed1ec758d6bc5fc3a44b2f5d2fd0feff0e247",
+  "counts": {
+    "documents": 30,
+    "finiteLedgerRelations": 256,
+    "uniqueFinitePositions": 255,
+    "emptyDocumentScenarios": 1,
+    "explicitIntentVariants": 11,
+    "totalScenarios": 267
+  },
+  "relations": [
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-1",
+      "literal": "SQL",
+      "scenarioId": "resume-01-field-1-term-1"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-1",
+      "literal": "SQL 汇总查询",
+      "scenarioId": "resume-01-field-1-term-2"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-1",
+      "literal": "汇总查询",
+      "scenarioId": "resume-01-field-1-term-3"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-2",
+      "literal": "Python",
+      "scenarioId": "resume-01-field-2-term-1"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-2",
+      "literal": "清洗空值记录",
+      "scenarioId": "resume-01-field-2-term-2"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-2",
+      "literal": "清洗空值",
+      "scenarioId": "resume-01-field-2-term-3"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-2",
+      "literal": "清洗规则写入测试",
+      "scenarioId": "resume-01-field-2-term-4"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-2",
+      "literal": "测试",
+      "scenarioId": "resume-01-field-2-term-5"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-2",
+      "literal": "清洗规则",
+      "scenarioId": "resume-01-field-2-term-6"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-2",
+      "literal": "Python 清洗空值记录",
+      "scenarioId": "resume-01-field-2-term-7"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-field-3",
+      "literal": "数据分析基础",
+      "scenarioId": "resume-01-field-3-term-1"
+    },
+    {
+      "documentId": "resume-01",
+      "fieldId": "resume-01-additional-1",
+      "literal": "数据分析基础",
+      "scenarioId": "resume-01-field-3-term-1"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-1",
+      "literal": "React",
+      "scenarioId": "resume-02-field-1-term-1"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-1",
+      "literal": "React 表单",
+      "scenarioId": "resume-02-field-1-term-2"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-1",
+      "literal": "表单",
+      "scenarioId": "resume-02-field-1-term-3"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-1",
+      "literal": "键盘焦点顺序",
+      "scenarioId": "resume-02-field-1-term-4"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-1",
+      "literal": "修复键盘焦点顺序",
+      "scenarioId": "resume-02-field-1-term-5"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-2",
+      "literal": "WCAG",
+      "scenarioId": "resume-02-field-2-term-1"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-2",
+      "literal": "表单标签",
+      "scenarioId": "resume-02-field-2-term-2"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-2",
+      "literal": "表单标签说明",
+      "scenarioId": "resume-02-field-2-term-3"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-2",
+      "literal": "WCAG 的表单标签说明",
+      "scenarioId": "resume-02-field-2-term-4"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-3",
+      "literal": "按钮状态",
+      "scenarioId": "resume-02-field-3-term-1"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-3",
+      "literal": "拆分按钮状态",
+      "scenarioId": "resume-02-field-3-term-2"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-3",
+      "literal": "组件说明",
+      "scenarioId": "resume-02-field-3-term-3"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-3",
+      "literal": "交付组件说明",
+      "scenarioId": "resume-02-field-3-term-4"
+    },
+    {
+      "documentId": "resume-02",
+      "fieldId": "resume-02-field-3",
+      "literal": "拆分按钮状态，交付组件说明",
+      "scenarioId": "resume-02-field-3-term-5"
+    },
+    {
+      "documentId": "resume-03",
+      "fieldId": "resume-03-field-1",
+      "literal": "dbt",
+      "scenarioId": "resume-03-field-1-term-1"
+    },
+    {
+      "documentId": "resume-03",
+      "fieldId": "resume-03-field-1",
+      "literal": "dbt 测试",
+      "scenarioId": "resume-03-field-1-term-2"
+    },
+    {
+      "documentId": "resume-03",
+      "fieldId": "resume-03-field-1",
+      "literal": "测试",
+      "scenarioId": "resume-03-field-1-term-3"
+    },
+    {
+      "documentId": "resume-03",
+      "fieldId": "resume-03-field-2",
+      "literal": "增量加载",
+      "scenarioId": "resume-03-field-2-term-1"
+    },
+    {
+      "documentId": "resume-03",
+      "fieldId": "resume-03-field-2",
+      "literal": "增量加载概念",
+      "scenarioId": "resume-03-field-2-term-2"
+    },
+    {
+      "documentId": "resume-03",
+      "fieldId": "resume-03-field-3",
+      "literal": "仓库模型",
+      "scenarioId": "resume-03-field-3-term-1"
+    },
+    {
+      "documentId": "resume-03",
+      "fieldId": "resume-03-field-3",
+      "literal": "学习仓库模型",
+      "scenarioId": "resume-03-field-3-term-2"
+    },
+    {
+      "documentId": "resume-04",
+      "fieldId": "resume-04-field-1",
+      "literal": "funnel dashboard",
+      "scenarioId": "resume-04-field-1-term-1"
+    },
+    {
+      "documentId": "resume-04",
+      "fieldId": "resume-04-field-1",
+      "literal": "prototyped a funnel dashboard",
+      "scenarioId": "resume-04-field-1-term-2"
+    },
+    {
+      "documentId": "resume-04",
+      "fieldId": "resume-04-field-2",
+      "literal": "SQL",
+      "scenarioId": "resume-04-field-2-term-1"
+    },
+    {
+      "documentId": "resume-04",
+      "fieldId": "resume-04-field-2",
+      "literal": "SQL joins",
+      "scenarioId": "resume-04-field-2-term-2"
+    },
+    {
+      "documentId": "resume-04",
+      "fieldId": "resume-04-field-2",
+      "literal": "joins",
+      "scenarioId": "resume-04-field-2-term-3"
+    },
+    {
+      "documentId": "resume-04",
+      "fieldId": "resume-04-field-2",
+      "literal": "reconcile trial and paid accounts",
+      "scenarioId": "resume-04-field-2-term-4"
+    },
+    {
+      "documentId": "resume-04",
+      "fieldId": "resume-04-field-2",
+      "literal": "SQL joins to reconcile trial and paid accounts",
+      "scenarioId": "resume-04-field-2-term-5"
+    },
+    {
+      "documentId": "resume-04",
+      "fieldId": "resume-04-field-3",
+      "literal": null,
+      "scenarioId": "resume-04-field-3-term-1"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-1",
+      "literal": "CSS",
+      "scenarioId": "resume-05-field-1-term-1"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-1",
+      "literal": "CSS grid",
+      "scenarioId": "resume-05-field-1-term-2"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-1",
+      "literal": "grid layouts",
+      "scenarioId": "resume-05-field-1-term-3"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-1",
+      "literal": "CSS grid layouts",
+      "scenarioId": "resume-05-field-1-term-4"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-2",
+      "literal": "TypeScript",
+      "scenarioId": "resume-05-field-2-term-1"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-2",
+      "literal": "TypeScript date formatter",
+      "scenarioId": "resume-05-field-2-term-2"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-2",
+      "literal": "unit tests",
+      "scenarioId": "resume-05-field-2-term-3"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-2",
+      "literal": "wrote unit tests",
+      "scenarioId": "resume-05-field-2-term-4"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-2",
+      "literal": "unit tests for a TypeScript date formatter",
+      "scenarioId": "resume-05-field-2-term-5"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-3",
+      "literal": "end-to-end deployment exercise",
+      "scenarioId": "resume-05-field-3-term-1"
+    },
+    {
+      "documentId": "resume-05",
+      "fieldId": "resume-05-field-3",
+      "literal": "deployment exercise",
+      "scenarioId": "resume-05-field-3-term-2"
+    },
+    {
+      "documentId": "resume-06",
+      "fieldId": "resume-06-field-1",
+      "literal": "t-test",
+      "scenarioId": "resume-06-field-1-term-1"
+    },
+    {
+      "documentId": "resume-06",
+      "fieldId": "resume-06-field-1",
+      "literal": "t-test tutorial",
+      "scenarioId": "resume-06-field-1-term-2"
+    },
+    {
+      "documentId": "resume-06",
+      "fieldId": "resume-06-field-1",
+      "literal": "compared two means",
+      "scenarioId": "resume-06-field-1-term-3"
+    },
+    {
+      "documentId": "resume-06",
+      "fieldId": "resume-06-field-1",
+      "literal": "compared two means using a t-test tutorial",
+      "scenarioId": "resume-06-field-1-term-4"
+    },
+    {
+      "documentId": "resume-06",
+      "fieldId": "resume-06-field-2",
+      "literal": "sampling bias",
+      "scenarioId": "resume-06-field-2-term-1"
+    },
+    {
+      "documentId": "resume-06",
+      "fieldId": "resume-06-field-3",
+      "literal": "experiment planning",
+      "scenarioId": "resume-06-field-3-term-1"
+    },
+    {
+      "documentId": "resume-06",
+      "fieldId": "resume-06-field-3",
+      "literal": "practice with experiment planning",
+      "scenarioId": "resume-06-field-3-term-2"
+    },
+    {
+      "documentId": "resume-07",
+      "fieldId": "resume-07-field-1",
+      "literal": "API error logs",
+      "scenarioId": "resume-07-field-1-term-1"
+    },
+    {
+      "documentId": "resume-07",
+      "fieldId": "resume-07-field-1",
+      "literal": "inspect API error logs",
+      "scenarioId": "resume-07-field-1-term-2"
+    },
+    {
+      "documentId": "resume-07",
+      "fieldId": "resume-07-field-1",
+      "literal": "runbook",
+      "scenarioId": "resume-07-field-1-term-3"
+    },
+    {
+      "documentId": "resume-07",
+      "fieldId": "resume-07-field-2",
+      "literal": "Python",
+      "scenarioId": "resume-07-field-2-term-1"
+    },
+    {
+      "documentId": "resume-07",
+      "fieldId": "resume-07-field-2",
+      "literal": "log parser",
+      "scenarioId": "resume-07-field-2-term-2"
+    },
+    {
+      "documentId": "resume-07",
+      "fieldId": "resume-07-field-2",
+      "literal": "边界情况",
+      "scenarioId": "resume-07-field-2-term-3"
+    },
+    {
+      "documentId": "resume-07",
+      "fieldId": "resume-07-field-2",
+      "literal": "Python 写过 log parser",
+      "scenarioId": "resume-07-field-2-term-4"
+    },
+    {
+      "documentId": "resume-07",
+      "fieldId": "resume-07-field-3",
+      "literal": "distributed tracing",
+      "scenarioId": "resume-07-field-3-term-1"
+    },
+    {
+      "documentId": "resume-08",
+      "fieldId": "resume-08-field-1",
+      "literal": "spreadsheet",
+      "scenarioId": "resume-08-field-1-term-1"
+    },
+    {
+      "documentId": "resume-08",
+      "fieldId": "resume-08-field-1",
+      "literal": "spreadsheet pivot tables",
+      "scenarioId": "resume-08-field-1-term-2"
+    },
+    {
+      "documentId": "resume-08",
+      "fieldId": "resume-08-field-1",
+      "literal": "pivot tables",
+      "scenarioId": "resume-08-field-1-term-3"
+    },
+    {
+      "documentId": "resume-08",
+      "fieldId": "resume-08-field-2",
+      "literal": "SQL",
+      "scenarioId": "resume-08-field-2-term-1"
+    },
+    {
+      "documentId": "resume-08",
+      "fieldId": "resume-08-field-2",
+      "literal": "SQL CTE",
+      "scenarioId": "resume-08-field-2-term-2"
+    },
+    {
+      "documentId": "resume-08",
+      "fieldId": "resume-08-field-2",
+      "literal": "CTE",
+      "scenarioId": "resume-08-field-2-term-3"
+    },
+    {
+      "documentId": "resume-08",
+      "fieldId": "resume-08-field-3",
+      "literal": "dashboard storytelling",
+      "scenarioId": "resume-08-field-3-term-1"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-1",
+      "literal": "Figma",
+      "scenarioId": "resume-09-field-1-term-1"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-1",
+      "literal": "UI tokens",
+      "scenarioId": "resume-09-field-1-term-2"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-1",
+      "literal": "整理 UI tokens",
+      "scenarioId": "resume-09-field-1-term-3"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-1",
+      "literal": "Figma 整理 UI tokens",
+      "scenarioId": "resume-09-field-1-term-4"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-2",
+      "literal": "React",
+      "scenarioId": "resume-09-field-2-term-1"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-2",
+      "literal": "React prototype",
+      "scenarioId": "resume-09-field-2-term-2"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-2",
+      "literal": "prototype",
+      "scenarioId": "resume-09-field-2-term-3"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-2",
+      "literal": "交互测试",
+      "scenarioId": "resume-09-field-2-term-4"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-2",
+      "literal": "React prototype，交互测试",
+      "scenarioId": "resume-09-field-2-term-5"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-3",
+      "literal": "analytics event naming",
+      "scenarioId": "resume-09-field-3-term-1"
+    },
+    {
+      "documentId": "resume-09",
+      "fieldId": "resume-09-field-3",
+      "literal": "analytics event naming 文档",
+      "scenarioId": "resume-09-field-3-term-2"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-1",
+      "literal": "SQL",
+      "scenarioId": "jd-01-field-1-term-1"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-1",
+      "literal": "联表",
+      "scenarioId": "jd-01-field-1-term-2"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-1",
+      "literal": "SQL 联表",
+      "scenarioId": "jd-01-field-1-term-3"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-1",
+      "literal": "检查指标口径",
+      "scenarioId": "jd-01-field-1-term-4"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-1",
+      "literal": "指标口径",
+      "scenarioId": "jd-01-field-1-term-5"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-1",
+      "literal": "SQL 联表并检查指标口径",
+      "scenarioId": "jd-01-field-1-term-6"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-2",
+      "literal": "解释漏斗分析结果",
+      "scenarioId": "jd-01-field-2-term-1"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-2",
+      "literal": "漏斗分析结果",
+      "scenarioId": "jd-01-field-2-term-2"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-2",
+      "literal": "漏斗分析",
+      "scenarioId": "jd-01-field-2-term-3"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-2",
+      "literal": "业务限制",
+      "scenarioId": "jd-01-field-2-term-4"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-2",
+      "literal": "解释漏斗分析结果与业务限制",
+      "scenarioId": "jd-01-field-2-term-5"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-3",
+      "literal": "Python",
+      "scenarioId": "jd-01-field-3-term-1"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-3",
+      "literal": "自动化数据检查",
+      "scenarioId": "jd-01-field-3-term-2"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-3",
+      "literal": "数据检查",
+      "scenarioId": "jd-01-field-3-term-3"
+    },
+    {
+      "documentId": "jd-01",
+      "fieldId": "jd-01-field-3",
+      "literal": "Python 自动化数据检查",
+      "scenarioId": "jd-01-field-3-term-4"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-1",
+      "literal": "TypeScript",
+      "scenarioId": "jd-02-field-1-term-1"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-1",
+      "literal": "实现界面逻辑",
+      "scenarioId": "jd-02-field-1-term-2"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-1",
+      "literal": "界面逻辑",
+      "scenarioId": "jd-02-field-1-term-3"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-1",
+      "literal": "TypeScript 实现界面逻辑",
+      "scenarioId": "jd-02-field-1-term-4"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-2",
+      "literal": "键盘可访问性的基本检查",
+      "scenarioId": "jd-02-field-2-term-1"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-2",
+      "literal": "键盘可访问性",
+      "scenarioId": "jd-02-field-2-term-2"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-3",
+      "literal": "React",
+      "scenarioId": "jd-02-field-3-term-1"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-3",
+      "literal": "React 组件测试",
+      "scenarioId": "jd-02-field-3-term-2"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-3",
+      "literal": "组件测试",
+      "scenarioId": "jd-02-field-3-term-3"
+    },
+    {
+      "documentId": "jd-02",
+      "fieldId": "jd-02-field-4",
+      "literal": null,
+      "scenarioId": "jd-02-field-4-term-1"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-1",
+      "literal": "SQL",
+      "scenarioId": "jd-03-field-1-term-1"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-1",
+      "literal": "SQL 数据模型",
+      "scenarioId": "jd-03-field-1-term-2"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-1",
+      "literal": "设计 SQL 数据模型",
+      "scenarioId": "jd-03-field-1-term-3"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-1",
+      "literal": "数据模型",
+      "scenarioId": "jd-03-field-1-term-4"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-2",
+      "literal": "数据管道",
+      "scenarioId": "jd-03-field-2-term-1"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-2",
+      "literal": "自动化测试",
+      "scenarioId": "jd-03-field-2-term-2"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-2",
+      "literal": "维护自动化测试",
+      "scenarioId": "jd-03-field-2-term-3"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-2",
+      "literal": "为数据管道维护自动化测试",
+      "scenarioId": "jd-03-field-2-term-4"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-3",
+      "literal": "dbt",
+      "scenarioId": "jd-03-field-3-term-1"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-3",
+      "literal": "增量模型",
+      "scenarioId": "jd-03-field-3-term-2"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-3",
+      "literal": "dbt 的增量模型",
+      "scenarioId": "jd-03-field-3-term-3"
+    },
+    {
+      "documentId": "jd-03",
+      "fieldId": "jd-03-field-4",
+      "literal": null,
+      "scenarioId": "jd-03-field-4-term-1"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-1",
+      "literal": "define product metrics",
+      "scenarioId": "jd-04-field-1-term-1"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-1",
+      "literal": "product metrics",
+      "scenarioId": "jd-04-field-1-term-2"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-1",
+      "literal": "investigate retention cohorts",
+      "scenarioId": "jd-04-field-1-term-3"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-1",
+      "literal": "retention cohorts",
+      "scenarioId": "jd-04-field-1-term-4"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-1",
+      "literal": "define product metrics and investigate retention cohorts",
+      "scenarioId": "jd-04-field-1-term-5"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-2",
+      "literal": "communicate uncertainty",
+      "scenarioId": "jd-04-field-2-term-1"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-2",
+      "literal": "uncertainty",
+      "scenarioId": "jd-04-field-2-term-2"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-2",
+      "literal": "experiment results",
+      "scenarioId": "jd-04-field-2-term-3"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-2",
+      "literal": "communicate uncertainty in experiment results",
+      "scenarioId": "jd-04-field-2-term-4"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-3",
+      "literal": "dashboards",
+      "scenarioId": "jd-04-field-3-term-1"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-3",
+      "literal": "build dashboards",
+      "scenarioId": "jd-04-field-3-term-2"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-3",
+      "literal": "visualization tool",
+      "scenarioId": "jd-04-field-3-term-3"
+    },
+    {
+      "documentId": "jd-04",
+      "fieldId": "jd-04-field-3",
+      "literal": "dashboards in a visualization tool",
+      "scenarioId": "jd-04-field-3-term-4"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-1",
+      "literal": "HTML",
+      "scenarioId": "jd-05-field-1-term-1"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-1",
+      "literal": "semantic HTML",
+      "scenarioId": "jd-05-field-1-term-2"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-1",
+      "literal": "semantic HTML forms",
+      "scenarioId": "jd-05-field-1-term-3"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-1",
+      "literal": "build semantic HTML forms",
+      "scenarioId": "jd-05-field-1-term-4"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-1",
+      "literal": "HTML forms",
+      "scenarioId": "jd-05-field-1-term-5"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-2",
+      "literal": "TypeScript",
+      "scenarioId": "jd-05-field-2-term-1"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-2",
+      "literal": "test asynchronous TypeScript behavior",
+      "scenarioId": "jd-05-field-2-term-2"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-2",
+      "literal": "asynchronous TypeScript behavior",
+      "scenarioId": "jd-05-field-2-term-3"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-3",
+      "literal": "CSS",
+      "scenarioId": "jd-05-field-3-term-1"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-3",
+      "literal": "CSS animation",
+      "scenarioId": "jd-05-field-3-term-2"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-3",
+      "literal": "animation",
+      "scenarioId": "jd-05-field-3-term-3"
+    },
+    {
+      "documentId": "jd-05",
+      "fieldId": "jd-05-field-4",
+      "literal": null,
+      "scenarioId": "jd-05-field-4-term-1"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-1",
+      "literal": "SQL",
+      "scenarioId": "jd-06-field-1-term-1"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-1",
+      "literal": "model warehouse tables",
+      "scenarioId": "jd-06-field-1-term-2"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-1",
+      "literal": "warehouse tables",
+      "scenarioId": "jd-06-field-1-term-3"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-1",
+      "literal": "model warehouse tables with SQL",
+      "scenarioId": "jd-06-field-1-term-4"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-2",
+      "literal": "metric lineage",
+      "scenarioId": "jd-06-field-2-term-1"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-2",
+      "literal": "document metric lineage",
+      "scenarioId": "jd-06-field-2-term-2"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-2",
+      "literal": "ownership",
+      "scenarioId": "jd-06-field-2-term-3"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-2",
+      "literal": "metric lineage and ownership",
+      "scenarioId": "jd-06-field-2-term-4"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-3",
+      "literal": "Python",
+      "scenarioId": "jd-06-field-3-term-1"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-3",
+      "literal": "Python scripts",
+      "scenarioId": "jd-06-field-3-term-2"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-3",
+      "literal": "quality monitoring",
+      "scenarioId": "jd-06-field-3-term-3"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-3",
+      "literal": "scripts for quality monitoring",
+      "scenarioId": "jd-06-field-3-term-4"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-3",
+      "literal": "Python scripts for quality monitoring",
+      "scenarioId": "jd-06-field-3-term-5"
+    },
+    {
+      "documentId": "jd-06",
+      "fieldId": "jd-06-field-4",
+      "literal": null,
+      "scenarioId": "jd-06-field-4-term-1"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-1",
+      "literal": "SQL",
+      "scenarioId": "jd-07-field-1-term-1"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-1",
+      "literal": "窗口计算",
+      "scenarioId": "jd-07-field-1-term-2"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-1",
+      "literal": "SQL 进行窗口计算",
+      "scenarioId": "jd-07-field-1-term-3"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-2",
+      "literal": "analytics",
+      "scenarioId": "jd-07-field-2-term-1"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-2",
+      "literal": "解释收入波动",
+      "scenarioId": "jd-07-field-2-term-2"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-2",
+      "literal": "收入波动",
+      "scenarioId": "jd-07-field-2-term-3"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-2",
+      "literal": "analytics 解释收入波动",
+      "scenarioId": "jd-07-field-2-term-4"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-3",
+      "literal": "spreadsheet",
+      "scenarioId": "jd-07-field-3-term-1"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-3",
+      "literal": "建立核对表",
+      "scenarioId": "jd-07-field-3-term-2"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-3",
+      "literal": "核对表",
+      "scenarioId": "jd-07-field-3-term-3"
+    },
+    {
+      "documentId": "jd-07",
+      "fieldId": "jd-07-field-3",
+      "literal": "spreadsheet 建立核对表",
+      "scenarioId": "jd-07-field-3-term-4"
+    },
+    {
+      "documentId": "jd-08",
+      "fieldId": "jd-08-field-1",
+      "literal": "React",
+      "scenarioId": "jd-08-field-1-term-1"
+    },
+    {
+      "documentId": "jd-08",
+      "fieldId": "jd-08-field-1",
+      "literal": "组件状态设计",
+      "scenarioId": "jd-08-field-1-term-2"
+    },
+    {
+      "documentId": "jd-08",
+      "fieldId": "jd-08-field-1",
+      "literal": "React 组件状态设计",
+      "scenarioId": "jd-08-field-1-term-3"
+    },
+    {
+      "documentId": "jd-08",
+      "fieldId": "jd-08-field-2",
+      "literal": "accessible form labels",
+      "scenarioId": "jd-08-field-2-term-1"
+    },
+    {
+      "documentId": "jd-08",
+      "fieldId": "jd-08-field-3",
+      "literal": "Figma",
+      "scenarioId": "jd-08-field-3-term-1"
+    },
+    {
+      "documentId": "jd-08",
+      "fieldId": "jd-08-field-3",
+      "literal": "design tokens",
+      "scenarioId": "jd-08-field-3-term-2"
+    },
+    {
+      "documentId": "jd-08",
+      "fieldId": "jd-08-field-3",
+      "literal": "Figma design tokens",
+      "scenarioId": "jd-08-field-3-term-3"
+    },
+    {
+      "documentId": "jd-08",
+      "fieldId": "jd-08-field-4",
+      "literal": null,
+      "scenarioId": "jd-08-field-4-term-1"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-1",
+      "literal": "interpret API logs",
+      "scenarioId": "jd-09-field-1-term-1"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-1",
+      "literal": "API logs",
+      "scenarioId": "jd-09-field-1-term-2"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-1",
+      "literal": "document incidents",
+      "scenarioId": "jd-09-field-1-term-3"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-1",
+      "literal": "incidents",
+      "scenarioId": "jd-09-field-1-term-4"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-1",
+      "literal": "interpret API logs and document incidents",
+      "scenarioId": "jd-09-field-1-term-5"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-2",
+      "literal": "Python",
+      "scenarioId": "jd-09-field-2-term-1"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-2",
+      "literal": "脚本测试",
+      "scenarioId": "jd-09-field-2-term-2"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-2",
+      "literal": "异常处理",
+      "scenarioId": "jd-09-field-2-term-3"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-2",
+      "literal": "Python 脚本测试",
+      "scenarioId": "jd-09-field-2-term-4"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-2",
+      "literal": "Python 脚本测试与异常处理",
+      "scenarioId": "jd-09-field-2-term-5"
+    },
+    {
+      "documentId": "jd-09",
+      "fieldId": "jd-09-field-3",
+      "literal": "distributed tracing",
+      "scenarioId": "jd-09-field-3-term-1"
+    },
+    {
+      "documentId": "resume-10",
+      "fieldId": "resume-10-field-1",
+      "literal": "SQL",
+      "scenarioId": "resume-10-field-1-term-1"
+    },
+    {
+      "documentId": "resume-10",
+      "fieldId": "resume-10-field-1",
+      "literal": "SQL 查询",
+      "scenarioId": "resume-10-field-1-term-2"
+    },
+    {
+      "documentId": "resume-10",
+      "fieldId": "resume-10-field-1",
+      "literal": "查询",
+      "scenarioId": "resume-10-field-1-term-3"
+    },
+    {
+      "documentId": "resume-10",
+      "fieldId": "resume-10-field-2",
+      "literal": "JOIN",
+      "scenarioId": "resume-10-field-2-term-1"
+    },
+    {
+      "documentId": "resume-10",
+      "fieldId": "resume-10-field-2",
+      "literal": "重复行问题",
+      "scenarioId": "resume-10-field-2-term-2"
+    },
+    {
+      "documentId": "resume-10",
+      "fieldId": "resume-10-field-2",
+      "literal": "JOIN 的重复行问题",
+      "scenarioId": "resume-10-field-2-term-3"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-1",
+      "literal": "Kubernetes",
+      "scenarioId": "resume-11-field-1-term-1"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-1",
+      "literal": "Kubernetes platform",
+      "scenarioId": "resume-11-field-1-term-2"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-1",
+      "literal": "migrated a Kubernetes platform",
+      "scenarioId": "resume-11-field-1-term-3"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-2",
+      "literal": "reviewing the migration checklist",
+      "scenarioId": "resume-11-field-2-term-1"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-2",
+      "literal": "migration checklist",
+      "scenarioId": "resume-11-field-2-term-2"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-2",
+      "literal": "taking meeting notes",
+      "scenarioId": "resume-11-field-2-term-3"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-2",
+      "literal": "meeting notes",
+      "scenarioId": "resume-11-field-2-term-4"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-2",
+      "literal": "reviewing the migration checklist and taking meeting notes",
+      "scenarioId": "resume-11-field-2-term-5"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-3",
+      "literal": "Kubernetes",
+      "scenarioId": "resume-11-field-3-term-1"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-3",
+      "literal": "Kubernetes cluster",
+      "scenarioId": "resume-11-field-3-term-2"
+    },
+    {
+      "documentId": "resume-11",
+      "fieldId": "resume-11-field-3",
+      "literal": "configure a Kubernetes cluster",
+      "scenarioId": "resume-11-field-3-term-3"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-1",
+      "literal": "SQL",
+      "scenarioId": "resume-12-field-1-term-1"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-1",
+      "literal": "完成报表",
+      "scenarioId": "resume-12-field-1-term-2"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-1",
+      "literal": "报表",
+      "scenarioId": "resume-12-field-1-term-3"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-1",
+      "literal": "熟悉 SQL，可独立完成报表",
+      "scenarioId": "resume-12-field-1-term-4"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-2",
+      "literal": "SQL",
+      "scenarioId": "resume-12-field-2-term-1"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-2",
+      "literal": "替换了日期参数",
+      "scenarioId": "resume-12-field-2-term-2"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-2",
+      "literal": "日期参数",
+      "scenarioId": "resume-12-field-2-term-3"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-2",
+      "literal": "SQL 由导师提供，我只替换了日期参数",
+      "scenarioId": "resume-12-field-2-term-4"
+    },
+    {
+      "documentId": "resume-12",
+      "fieldId": "resume-12-field-3",
+      "literal": null,
+      "scenarioId": "resume-12-field-3-term-1"
+    },
+    {
+      "documentId": "jd-10",
+      "fieldId": "jd-10-field-1",
+      "literal": "SQL",
+      "scenarioId": "jd-10-field-1-term-1"
+    },
+    {
+      "documentId": "jd-10",
+      "fieldId": "jd-10-field-1",
+      "literal": "SQL transformations",
+      "scenarioId": "jd-10-field-1-term-2"
+    },
+    {
+      "documentId": "jd-10",
+      "fieldId": "jd-10-field-1",
+      "literal": "tested SQL transformations",
+      "scenarioId": "jd-10-field-1-term-3"
+    },
+    {
+      "documentId": "jd-10",
+      "fieldId": "jd-10-field-2",
+      "literal": "dashboards",
+      "scenarioId": "jd-10-field-2-term-1"
+    },
+    {
+      "documentId": "jd-10",
+      "fieldId": "jd-10-field-2",
+      "literal": "communicate results in dashboards",
+      "scenarioId": "jd-10-field-2-term-2"
+    },
+    {
+      "documentId": "jd-11",
+      "fieldId": "jd-11-field-1",
+      "literal": "Kubernetes",
+      "scenarioId": "jd-11-field-1-term-1"
+    },
+    {
+      "documentId": "jd-11",
+      "fieldId": "jd-11-field-1",
+      "literal": "cluster operations",
+      "scenarioId": "jd-11-field-1-term-2"
+    },
+    {
+      "documentId": "jd-11",
+      "fieldId": "jd-11-field-1",
+      "literal": "Kubernetes cluster operations",
+      "scenarioId": "jd-11-field-1-term-3"
+    },
+    {
+      "documentId": "jd-11",
+      "fieldId": "jd-11-field-2",
+      "literal": "SQL",
+      "scenarioId": "jd-11-field-2-term-1"
+    },
+    {
+      "documentId": "jd-11",
+      "fieldId": "jd-11-field-2",
+      "literal": "analytics",
+      "scenarioId": "jd-11-field-2-term-2"
+    },
+    {
+      "documentId": "jd-11",
+      "fieldId": "jd-11-field-2",
+      "literal": "SQL analytics",
+      "scenarioId": "jd-11-field-2-term-3"
+    },
+    {
+      "documentId": "jd-11",
+      "fieldId": "jd-11-field-3",
+      "literal": null,
+      "scenarioId": "jd-11-field-3-term-1"
+    },
+    {
+      "documentId": "jd-12",
+      "fieldId": "jd-12-field-1",
+      "literal": "SQL",
+      "scenarioId": "jd-12-field-1-term-1"
+    },
+    {
+      "documentId": "jd-12",
+      "fieldId": "jd-12-field-2",
+      "literal": null,
+      "scenarioId": "jd-12-field-2-term-1"
+    },
+    {
+      "documentId": "jd-12",
+      "fieldId": "jd-12-additional-1",
+      "literal": "SQL",
+      "scenarioId": "jd-12-additional-1-term-1"
+    },
+    {
+      "documentId": "supplement-01",
+      "fieldId": "supplement-01-field-1",
+      "literal": "SQL",
+      "scenarioId": "supplement-01-field-1-term-1"
+    },
+    {
+      "documentId": "supplement-01",
+      "fieldId": "supplement-01-field-1",
+      "literal": "空值边界",
+      "scenarioId": "supplement-01-field-1-term-2"
+    },
+    {
+      "documentId": "supplement-01",
+      "fieldId": "supplement-01-field-1",
+      "literal": "SQL 练习中漏掉了空值边界",
+      "scenarioId": "supplement-01-field-1-term-3"
+    },
+    {
+      "documentId": "supplement-01",
+      "fieldId": "supplement-01-field-2",
+      "literal": "SQL",
+      "scenarioId": "supplement-01-field-2-term-1"
+    },
+    {
+      "documentId": "supplement-01",
+      "fieldId": "supplement-01-field-2",
+      "literal": "SQL 空值处理",
+      "scenarioId": "supplement-01-field-2-term-2"
+    },
+    {
+      "documentId": "supplement-01",
+      "fieldId": "supplement-01-field-2",
+      "literal": "空值处理",
+      "scenarioId": "supplement-01-field-2-term-3"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-1",
+      "literal": "OpenTelemetry",
+      "scenarioId": "supplement-02-field-1-term-1"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-1",
+      "literal": "traced one failed request",
+      "scenarioId": "supplement-02-field-1-term-2"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-1",
+      "literal": "traced one failed request using OpenTelemetry",
+      "scenarioId": "supplement-02-field-1-term-3"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-2",
+      "literal": "trace",
+      "scenarioId": "supplement-02-field-2-term-1"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-2",
+      "literal": "a trace",
+      "scenarioId": "supplement-02-field-2-term-2"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-2",
+      "literal": "log",
+      "scenarioId": "supplement-02-field-2-term-3"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-2",
+      "literal": "a log",
+      "scenarioId": "supplement-02-field-2-term-4"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-2",
+      "literal": "the difference between a trace and a log",
+      "scenarioId": "supplement-02-field-2-term-5"
+    },
+    {
+      "documentId": "supplement-02",
+      "fieldId": "supplement-02-field-2",
+      "literal": "a trace and a log",
+      "scenarioId": "supplement-02-field-2-term-6"
+    },
+    {
+      "documentId": "supplement-03",
+      "fieldId": "supplement-03-field-1",
+      "literal": null,
+      "scenarioId": "supplement-03-field-1-term-1"
+    },
+    {
+      "documentId": "supplement-03",
+      "fieldId": "supplement-03-field-2",
+      "literal": null,
+      "scenarioId": "supplement-03-field-2-term-1"
+    },
+    {
+      "documentId": "supplement-04",
+      "fieldId": "supplement-04-field-1",
+      "literal": "Kubernetes",
+      "scenarioId": "supplement-04-field-1-term-1"
+    },
+    {
+      "documentId": "supplement-04",
+      "fieldId": "supplement-04-field-1",
+      "literal": "集群迁移",
+      "scenarioId": "supplement-04-field-1-term-2"
+    },
+    {
+      "documentId": "supplement-04",
+      "fieldId": "supplement-04-field-1",
+      "literal": "Kubernetes 集群迁移",
+      "scenarioId": "supplement-04-field-1-term-3"
+    },
+    {
+      "documentId": "supplement-04",
+      "fieldId": "supplement-04-field-2",
+      "literal": "记录回滚步骤",
+      "scenarioId": "supplement-04-field-2-term-1"
+    },
+    {
+      "documentId": "supplement-04",
+      "fieldId": "supplement-04-field-2",
+      "literal": "回滚步骤",
+      "scenarioId": "supplement-04-field-2-term-2"
+    },
+    {
+      "documentId": "supplement-06",
+      "fieldId": "supplement-06-field-1",
+      "literal": "SQL",
+      "scenarioId": "supplement-06-field-1-term-1"
+    },
+    {
+      "documentId": "supplement-06",
+      "fieldId": "supplement-06-field-2",
+      "literal": "TypeScript",
+      "scenarioId": "supplement-06-field-2-term-1"
+    }
+  ],
+  "explicitIntentScenarioIds": [
+    "resume-01-field-3-term-1-explicit-intent",
+    "resume-03-field-3-term-1-explicit-intent",
+    "resume-03-field-3-term-2-explicit-intent",
+    "resume-05-field-3-term-1-explicit-intent",
+    "resume-05-field-3-term-2-explicit-intent",
+    "resume-06-field-3-term-1-explicit-intent",
+    "resume-06-field-3-term-2-explicit-intent",
+    "resume-08-field-3-term-1-explicit-intent",
+    "resume-10-field-2-term-1-explicit-intent",
+    "resume-10-field-2-term-2-explicit-intent",
+    "resume-10-field-2-term-3-explicit-intent"
+  ],
+  "limitations": [
+    "One-word scenarios isolate projection behavior and are not a complete extraction-quality batch.",
+    "Authored source kinds/classifications/hints are input controls, not observed model responses.",
+    "No expected course/planning answer was read or passed to production.",
+    "Explicit-intent variants bypass service eligibility checks and are not adoption observations."
+  ],
+  "realModelCalls": 0,
+  "qualificationApproved": false
+}

@@ -1,0 +1,128 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { confirmedMaterialItemSchema, validateMaterialSourceRef } from '../../app/contracts/documents';
+import { flagshipBlueprint } from '../../app/data/flagship-blueprint';
+import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry';
+import { mapMaterialItemTerms, mapMaterialItems } from '../../app/lib/materials/skill-mapper';
+
+const base = 'docs/verification/materials-quality-v2/';
+const inputPath = 'work/grounded-verification/product-observation-course-validated-results-20261107.json';
+const outputPath = 'work/grounded-verification/product-course-independent-classification-results-20261107.json';
+const hash = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
+const read = (path: string) => JSON.parse(readFileSync(path, 'utf8'));
+const requiredHashes = {
+  [inputPath]: '121b7fc71fd285bb56e2a20964b3e11717d6bb3c9e7aa6a1da6460597a3a49c1',
+  [base + 'annotations.draft.json']: 'e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9',
+  [base + 'course-annotations.draft.json']: 'c602035d36fba77a36287149891b775c2ed9420d64612f0cbd76309fc02d6bcf',
+  [base + 'course-reference.snapshot.json']: 'bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676',
+  ['tests/fixtures/documents/quality-corpus.json']: '69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750',
+  ['tests/fixtures/documents/supplement-quality-corpus.json']: '9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7',
+};
+for (const [path, expected] of Object.entries(requiredHashes)) assert.equal(hash(path), expected, path);
+const input = read(inputPath), source = read(base + 'annotations.draft.json');
+const course = read(base + 'course-annotations.draft.json'), snapshot = read(base + 'course-reference.snapshot.json');
+const corpora = [...read('tests/fixtures/documents/quality-corpus.json').documents,
+  ...read('tests/fixtures/documents/supplement-quality-corpus.json').documents];
+const counts: Record<string, number> = {}, singleTopics: Record<string, number> = {};
+const differences: unknown[] = [];
+const uniqueSourceLiterals = new Set<string>(), verifiedCitations = new Set<string>();
+let extractedParity = 0, explicitIntentExpectedMatches = 0;
+const sameTopic = (observed: any[], expected: any) => observed.length === 1 && observed[0].status === expected.status
+  && JSON.stringify([...observed[0].skillIds].sort()) === JSON.stringify([...expected.skillIds].sort())
+  && observed[0].basis === (['none', 'not-applicable'].includes(expected.basis) ? null : expected.basis);
+const pointer = (value: any, at: string) => at.split('/').slice(1).reduce((v: any, key: string) => v[key.replace(/~1/g, '/').replace(/~0/g, '~')], value);
+for (const row of input.rows) {
+  const sd = source.documents.find((d: any) => d.id === row.documentId);
+  const sf = [...sd.fields, ...sd.additionalFields].find((f: any) => (f.legacyId ?? f.id) === row.fieldId);
+  const ci = course.documents.findIndex((d: any) => d.documentId === row.documentId);
+  const fi = course.documents[ci].fields.findIndex((f: any) => f.fieldId === row.fieldId);
+  const cf = course.documents[ci].fields[fi];
+  const ri = cf.relations.findIndex((r: any) => r.literal === row.literal), relation = cf.relations[ri];
+  assert.deepEqual(row.expected, { topic: relation.topic, taskCoverage: relation.taskCoverage.status });
+  const doc = corpora.find((d: any) => d.id === row.documentId);
+  const ref = { documentId: doc.id, documentVersionId: doc.documentVersionId, textVersionId: doc.textVersionId,
+    start: sf.source.startOffset, end: sf.source.endOffset };
+  assert.equal(doc.text.slice(ref.start, ref.end), sf.source.quote);
+  assert.equal(sf.factTextMatch.text, sf.source.quote);
+  assert.equal(doc.text.indexOf(sf.source.quote), doc.text.lastIndexOf(sf.source.quote));
+  assert.equal(validateMaterialSourceRef(ref, 'audit-owner', { ownerId: 'audit-owner', documentId: doc.id,
+    documentVersionId: doc.documentVersionId, textVersionId: doc.textVersionId,
+    text: doc.text, segments: doc.segments, lifecycle: 'active' }), true);
+  const item = confirmedMaterialItemSchema.parse({ id: 'audit-item', kind: sf.expected.kind,
+    text: sf.factTextMatch.text, origin: 'extracted', sourceRef: ref,
+    skillLabels: row.literal === null ? [] : [row.literal], requirementLevel: sf.expected.requirementLevel });
+  const actual = { terms: mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry),
+    items: mapMaterialItems([item], flagshipBlueprint, flagshipUnitRegistry) };
+  assert.deepEqual(actual, row.actual, row.fieldId + ':' + String(row.literal));
+  extractedParity++;
+  uniqueSourceLiterals.add(JSON.stringify([doc.id, ref.start, ref.end, row.literal]));
+  for (const citation of [...relation.topic.evidence,
+    ...relation.taskCoverage.supportedScope.flatMap((s: any) => s.evidence)]) {
+    assert.equal(pointer(snapshot.objects[citation.object].value, citation.pointer), citation.quote);
+    verifiedCitations.add(JSON.stringify(citation));
+  }
+  assert.equal(row.topicMatches, sameTopic(actual.terms, relation.topic));
+  if (row.topicMatches) continue;
+  let group: string;
+  if (row.literal === null) group = 'empty-retained-list-projection';
+  else if (row.kind === 'constraint') group = 'discovery-adoption-boundary';
+  else if (actual.terms[0]?.status === 'mapped' && relation.topic.status === 'mapped') group = 'basis-only-alias-policy';
+  else if (relation.topic.status === 'uncovered') group = 'overbroad-css-alias';
+  else if (relation.topic.status === 'non-learning') group = 'non-learning-duty-classification';
+  else if (relation.topic.status === 'ambiguous') group = 'unresolved-alternative-set';
+  else if (relation.topic.skillIds.length > 1) group = 'compositional-multiple-topics';
+  else group = 'single-contextual-topic';
+  counts[group] = (counts[group] ?? 0) + 1;
+  if (group === 'single-contextual-topic') {
+    const skillId = relation.topic.skillIds[0];
+    singleTopics[skillId] = (singleTopics[skillId] ?? 0) + 1;
+  }
+  let intentVariantMatches: boolean | null = null;
+  if (group === 'discovery-adoption-boundary') {
+    const explicit = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry, { learningIntentItemIds: [item.id] });
+    assert.deepEqual(explicit, row.explicitLearningIntent);
+    intentVariantMatches = sameTopic(explicit, relation.topic);
+    if (intentVariantMatches) explicitIntentExpectedMatches++;
+  }
+  differences.push({ documentId: row.documentId, fieldId: row.fieldId, literal: row.literal, group,
+    courseReferencePointer: `/documents/${ci}/fields/${fi}/relations/${ri}`,
+    sourceQuote: cf.sourceQuote, sourceRole: cf.sourceRole, sourceSemantics: cf.sourceSemantics,
+    actual: row.actual, expected: relation, explicitLearningIntent: row.explicitLearningIntent,
+    explicitIntentExpectedMatches: intentVariantMatches,
+    contextInputLimit: row.fieldId === 'supplement-02-field-2'
+      ? 'Mapper receives only this fact; broader software context in the adjacent OpenTelemetry fact is absent. Do not remove domain guards merely to pass this example.' : null });
+}
+assert.equal(extractedParity, 256);
+assert.equal(uniqueSourceLiterals.size, 255);
+assert.equal(differences.length, 138);
+assert.deepEqual(counts, {
+  'single-contextual-topic': 94, 'discovery-adoption-boundary': 12, 'unresolved-alternative-set': 5,
+  'empty-retained-list-projection': 11, 'overbroad-css-alias': 2,
+  'compositional-multiple-topics': 7, 'basis-only-alias-policy': 5, 'non-learning-duty-classification': 2,
+});
+assert.equal(explicitIntentExpectedMatches, 7);
+const files = ['app/lib/materials/skill-mapper.ts', 'app/lib/materials/contextual-skill-mapping.ts',
+  'app/server/documents/context-builder.ts', 'app/server/documents/review-service.ts',
+  'app/server/documents/extraction-validator.ts', 'app/contracts/documents.ts', 'app/contracts/material-planning.ts'];
+const report = { schemaVersion: 'independent-product-course-triage-1', inputPath, inputHashes: requiredHashes,
+  productFileHashes: Object.fromEntries(files.map(path => [path, hash(path)])),
+  observationScope: 'Actual mapper calls on independent finite synthetic confirmed-item controls; no model, service, or planner execution.',
+  summary: { ...input.summary, differencesByGroup: counts, singleContextualTopics: singleTopics,
+    extractedSchemaAndSourceReferenceValidated: extractedParity, extractedOriginMapperParity: extractedParity,
+    uniqueSourceLiteralPositions: uniqueSourceLiterals.size, uniqueExactCourseCitationsVerified: verifiedCitations.size,
+    intentVariantExpectedMatches: explicitIntentExpectedMatches, intentVariantRemainingTopicMisses: 5,
+    contextNarrowerThanOriginalDocumentRows: 6 },
+  caveats: [
+    'origin:extracted is a stronger schema/source-reference seed but does not establish extraction-filter or review-service eligibility.',
+    'The 256 ledger positions include one shared-facet duplicate; unique actual source/literal positions total 255.',
+    'All 256 lack a taskCoverage field. This is absent measurement, not an observed false claim of full coverage.',
+    'An explicit learningIntentItemIds pure-function option probes mapping only; it does not represent a user adoption or service eligibility test.',
+    'Basis-only differences preserve status and skill IDs; CSS differences also change the supported topic judgment.',
+    'Seven compound results are currently uncovered; the potential multiple-topic-versus-alternatives limitation is additionally visible in the product status formula.',
+    'Every expected value and citation comes from the independently frozen course ledger, never the product result.'
+  ], differences, realModelCalls: 0, externalRequests: 0, actualProductIntegrationVerified: false,
+  qualificationApproved: false };
+writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ outputPath, sha256: hash(outputPath), summary: report.summary,
+  actualProductIntegrationVerified: false }));

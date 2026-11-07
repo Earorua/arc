@@ -1,0 +1,1 @@
+{"groups":7,"passed":7,"failed":0,"storedScenariosChecked":267,"nativeReplayScenarios":29,"newApiProbes":1,"outputPath":"work/grounded-verification/product-projections-quality-probe-20261107-a-results.json","outputSha256":"51f448a9120474f34f54894305d999b7b499f65c4d304502233069873903210d"}

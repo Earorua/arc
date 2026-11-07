@@ -1,0 +1,22 @@
+(node:35868) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'no-change'
+- 'proposed'
+
+    at <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\product-planning-independent-acceptance-probes-20261107.ts:59:10) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'no-change',
+  expected: 'proposed',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.1

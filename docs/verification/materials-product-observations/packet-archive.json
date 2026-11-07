@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "materials-product-observation-final-packet-archive-1",
+  "coreManifest": {
+    "path": "docs/verification/materials-product-observations/observation-verification.json",
+    "sha256": "5bd943b91de1860435c04bce0790fd9ed1d19d13ff59f7fb871addae90d0f0e6"
+  },
+  "preservation": "Byte-identical final-review copies; restore archived source to originalPath before replay.",
+  "assets": [
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-packet-review-20261107.json",
+      "path": "docs/verification/materials-product-observations/packet-review.json",
+      "sha256": "0b0c5f0529b2aa55c1c04445166f67da3ab6a66b818ad6abeef786fb0f6ddc7b"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-packet-probe-20261107-a.mjs",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-packet-probe-20261107-a.mjs.source.txt",
+      "sha256": "72b56cae5560995aca0ae11de12fe06dc8e090b637613a7893877140baa5f0ba"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-packet-probe-20261107-b.mjs",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-packet-probe-20261107-b.mjs.source.txt",
+      "sha256": "bf64142afc896373b439806f4db3a9d77f2739d203360509d3e4df727cc40d33"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-packet-run-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-packet-run-20261107-a.json",
+      "sha256": "852d748b3e99c9f8e6b911e9094e25906a3cf88952be10636b891da99b1a7908"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-packet-run-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-packet-run-20261107-a.log.txt",
+      "sha256": "257cacccab6f2a8d6a574b44f0d69e284bb255988b47e4f655c5391fc33ea3c7"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-packet-run-20261107-b.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-packet-run-20261107-b.json",
+      "sha256": "7d6557e0b6158fdbefb76d4874f1d5a2649a139535398c5f104abad91c7197a3"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-packet-run-20261107-b.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-packet-run-20261107-b.log.txt",
+      "sha256": "dced8db55d8a3c1061f6de2ff5b38cde25953510230657b3d33dcfd8e08f6fca"
+    }
+  ],
+  "qualificationApproved": false,
+  "actualModelQualityEvaluated": false,
+  "actualProductIntegrationVerified": false
+}

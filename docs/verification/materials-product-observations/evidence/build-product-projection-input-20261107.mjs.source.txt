@@ -1,0 +1,89 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+// Synthetic stimulus generation only. This script reads no course/planning answer,
+// product mapper, model result, or scorer control helper.
+const digest = bytes => createHash('sha256').update(bytes).digest('hex');
+const assets = [
+  ['docs/verification/materials-quality-v2/annotations.draft.json', 'e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9'],
+  ['tests/fixtures/documents/quality-corpus.json', '69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750'],
+  ['tests/fixtures/documents/supplement-quality-corpus.json', '9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7'],
+];
+const [annotations, corpus, supplements] = assets.map(([file, sha]) => {
+  const bytes = readFileSync(file); assert.equal(digest(bytes), sha, file); return JSON.parse(bytes);
+});
+const corpora = new Map([...corpus.documents, ...supplements.documents].map(document => [document.id, document]));
+const scenarios = [], relations = [], deduplicated = new Map(), intentionScenarios = [];
+let emptyDocuments = 0;
+for (const document of annotations.documents) {
+  const source = corpora.get(document.id);
+  assert.ok(source?.synthetic, document.id);
+  assert.equal(digest(source.text), document.sourceTextSha256);
+  assert.equal(source.documentVersionId, document.documentVersionId);
+  assert.equal(source.textVersionId, document.textVersionId);
+  for (const segment of source.segments) assert.equal(source.text.slice(segment.start, segment.end), segment.text);
+  const reference = { ownerId: 'synthetic-owner', documentId: document.id,
+    documentVersionId: document.documentVersionId, textVersionId: document.textVersionId,
+    lifecycle: 'active', text: source.text,
+    segments: source.segments.map(({ id, start, end }) => ({ id, start, end })) };
+  const reviewPoints = document.requiredReviews.map(({ code, source: point }) => ({ code, source: { segmentId: point.segmentId, quote: point.quote } }));
+  const fields = [...document.fields, ...document.additionalFields];
+  if (fields.length === 0) {
+    emptyDocuments++;
+    scenarios.push({ id: `${document.id}-empty-extraction`, ownerId: reference.ownerId, reference,
+      extraction: { schemaVersion: '2026.11.1', items: [], reviewPoints }, learningIntentItemIds: [] });
+  }
+  for (const field of fields) {
+    const fieldId = field.legacyId ?? field.id;
+    const words = [...new Set([...field.skillTermGroups, ...field.optionalSkillTermGroups]
+      .flatMap(group => group.alternatives).concat(field.combinedLiteralTerms.map(term => term.literal)))];
+    for (const [index, literal] of (words.length ? words : [null]).entries()) {
+      const quote = field.source.quote;
+      assert.equal(source.text.slice(field.source.startOffset, field.source.endOffset), quote);
+      assert.equal(field.factTextMatch.text, quote);
+      if (literal !== null) assert.ok(quote.includes(literal), `${fieldId}: ${literal}`);
+      const candidate = { id: 'synthetic-candidate', kind: field.expected.kind,
+        text: field.factTextMatch.text, source: { segmentId: field.source.segmentId, quote },
+        skillLabels: literal === null ? [] : [literal],
+        selfLevelHint: field.expectedSelfLevelHint.allowedValues[0], requirementLevel: field.expected.requirementLevel };
+      const key = JSON.stringify([document.id, candidate]);
+      let scenarioId = deduplicated.get(key);
+      if (!scenarioId) {
+        scenarioId = `${fieldId}-term-${index + 1}`;
+        deduplicated.set(key, scenarioId);
+        const scenario = { id: scenarioId, ownerId: reference.ownerId, reference,
+          extraction: { schemaVersion: '2026.11.1', items: [candidate], reviewPoints }, learningIntentItemIds: [] };
+        scenarios.push(scenario);
+        if (candidate.kind === 'constraint' && literal !== null) {
+          intentionScenarios.push({ ...scenario, id: `${scenarioId}-explicit-intent`, learningIntentItemIds: [candidate.id] });
+        }
+      }
+      relations.push({ documentId: document.id, fieldId, literal, scenarioId });
+    }
+  }
+}
+assert.equal(relations.length, 256);
+assert.equal(deduplicated.size, 255);
+assert.equal(emptyDocuments, 1);
+assert.equal(intentionScenarios.length, 11);
+scenarios.push(...intentionScenarios);
+const input = { schemaVersion: 'materials-product-projection-input-1',
+  provenance: { kind: 'constructed-control', description: 'Source-authored single-fact, single-word synthetic component stimuli: 255 unique finite positions, one empty document, and 11 explicit-intent component variants. Not complete model outputs, user confirmations, adoption actions, or quality scores.' }, scenarios };
+const output = 'work/grounded-verification/product-projection-synthetic-input-20261107.json';
+writeFileSync(output, JSON.stringify(input) + '\n');
+const manifest = { schemaVersion: 'materials-product-projection-stimulus-index-1',
+  generatorPath: 'work/grounded-verification/build-product-projection-input-20261107.mjs',
+  generatorSha256: digest(readFileSync('work/grounded-verification/build-product-projection-input-20261107.mjs')),
+  inputs: assets.map(([path, sha256]) => ({ path, sha256 })), output, outputSha256: digest(readFileSync(output)),
+  counts: { documents: corpora.size, finiteLedgerRelations: relations.length, uniqueFinitePositions: deduplicated.size,
+    emptyDocumentScenarios: emptyDocuments, explicitIntentVariants: intentionScenarios.length, totalScenarios: scenarios.length },
+  relations, explicitIntentScenarioIds: intentionScenarios.map(scenario => scenario.id),
+  limitations: ['One-word scenarios isolate projection behavior and are not a complete extraction-quality batch.',
+    'Authored source kinds/classifications/hints are input controls, not observed model responses.',
+    'No expected course/planning answer was read or passed to production.',
+    'Explicit-intent variants bypass service eligibility checks and are not adoption observations.'],
+  realModelCalls: 0, qualificationApproved: false };
+const indexOutput = 'work/grounded-verification/product-projection-synthetic-index-20261107.json';
+writeFileSync(indexOutput, JSON.stringify(manifest, null, 2) + '\n');
+console.log(JSON.stringify({ output, outputSha256: manifest.outputSha256, indexOutput, indexSha256: digest(readFileSync(indexOutput)), counts: manifest.counts }));

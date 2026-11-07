@@ -1,0 +1,95 @@
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { createMaterialsD1 } from '../../tests/helpers/materials-d1';
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from '../../tests/helpers/material-planning';
+import { memoryBucket } from '../../tests/helpers/document-bucket';
+import { createDocumentServices } from '../../app/server/documents/service';
+import { MaterialContextService } from '../../app/server/documents/context-builder';
+import { D1PlanningRepository } from '../../app/server/planning/d1-planning-repository';
+import { PlanningService } from '../../app/server/planning/service';
+import type { PlanningWorkspace } from '../../app/contracts/planning';
+
+const owner = { ownerId: 'owner-a' };
+const pathFor = (w: PlanningWorkspace) => w.pathVersions.find(p => p.id === w.activePathVersionId)!;
+const ordered = (units: unknown[]) => [...units].sort((a: any,b: any) => a.id.localeCompare(b.id));
+const db = createMaterialsD1(':memory:');
+try {
+  seedMaterialSelection(db);
+  // Declared before input: primary A requires SQL.
+  db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id='confirmation-a'").run(JSON.stringify([
+    { id: 'confirmed-a', kind: 'requirement', text: 'SQL', origin: 'user', sourceRef: null, requirementLevel: 'must' },
+  ]));
+  let id = 0;
+  const sourceResolver = materialSourceResolver();
+  const repository = new D1PlanningRepository(db as unknown as D1Database, { sourceResolver, now: materialNow, createId: () => `stored-${++id}` });
+  const contexts = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver, planningRepository: repository, now: materialNow, createId: () => `context-${++id}` });
+  const planning = new PlanningService({ repository, materials: contexts, sourceResolver, now: materialNow, createId: () => `event-${++id}` });
+  const docs = createDocumentServices({ db: db as unknown as D1Database, bucket: memoryBucket(), clock: materialNow, id: () => `document-${++id}` });
+  const request = materialContextRequest();
+  async function confirmed(kind: 'jd' | 'resume' | 'supplement', text: string, label: string) {
+    const doc = await docs.createDocument(owner, { kind, text, displayName: label, mutationId: `create-${label}` });
+    const { draft } = await docs.saveDocumentReviewDraft(owner, { documentId: doc.documentId, textVersionId: doc.textVersionId,
+      extractionId: null, items: [{ id: `item-${label}`, kind: kind === 'jd' ? 'requirement' : 'experience', text, origin: 'user', sourceRef: null,
+        requirementLevel: kind === 'jd' ? 'must' : null }], selfAssessmentHints: [], expectedRevision: 0, mutationId: `review-${label}` });
+    const result = await docs.createDocumentConfirmation(owner, { documentId: doc.documentId, documentVersionId: doc.documentVersionId,
+      textVersionId: doc.textVersionId, items: draft.items, reviewRevision: draft.revision, expectedRevision: doc.revision, mutationId: `confirm-${label}` });
+    return { slot: kind, documentId: doc.documentId, documentVersionId: doc.documentVersionId, confirmationId: result.confirmationId };
+  }
+  const resume = await confirmed('resume', 'TypeScript', 'resume');
+  const supplement = await confirmed('supplement', 'SQL', 'supplement');
+  const firstJd = { slot: 'jd' as const, documentId: 'doc-a', documentVersionId: 'version-a', confirmationId: 'confirmation-a' };
+  const selection = await docs.createMaterialSelection(owner, { scope: request.scope, entries: [firstJd,resume,supplement], mutationId: 'select-initial' });
+  const initialContext = await contexts.create(owner.ownerId, { ...request, selectionRef: selection, mutationId: 'initial-context' });
+  const { scope: ignoredScope, selectionRef: ignoredSelection, ...generation } = request; void ignoredScope; void ignoredSelection;
+  let workspace = (await planning.generate(owner.ownerId, { ...generation, materials: { selectionRef: selection, contextVersionId: initialContext.contextVersionId, previewToken: initialContext.previewToken } })).workspace;
+  for (let i=0;i<2;i++) {
+    const plan = workspace.planVersions.find(p => p.id === workspace.activePlanVersionId)!;
+    const day = plan.days.find(d => d.primaryUnitId !== null)!;
+    workspace = (await planning.appendEvent(owner.ownerId, { mutationId: `completed-${i}`, baseVersionId: workspace.activePlanVersionId,
+      event: { kind: 'completed', unitId: day.primaryUnitId!, actualMinutes: 41+i, planningDate: day.date } })).workspace;
+  }
+  const before = workspace;
+  const oldLinks = db.database.prepare('SELECT document_id,document_version_id,confirmation_id,slot,context_version_id FROM goal_document_links WHERE enabled=1 ORDER BY slot,document_id').all();
+  // Separate declared native scene: observability has a ready unfinished task in
+  // this before-state. This is NOT the frozen React fixture and predicts no order.
+  const nextJd = await confirmed('jd', 'observability', 'jd-c');
+  const scope = { kind: 'goal' as const, goalId: workspace.goalId, workspaceId: workspace.id, baseVersionId: workspace.activePlanVersionId, revision: workspace.revision };
+  const selectionRef = await docs.createMaterialSelection(owner, { scope, entries: [nextJd,resume,supplement], mutationId: 'select-new-primary' });
+  const preview = await contexts.create(owner.ownerId, { ...request, planningDate: workspace.planVersions.find(p => p.id === workspace.activePlanVersionId)!.planningDate, scope, selectionRef, mutationId: 'new-primary-context' });
+  const proposal = await planning.proposeMaterialReplanResponse(owner.ownerId, { scope, selectionRef, contextVersionId: preview.contextVersionId, previewToken: preview.previewToken, mutationId: 'new-primary-proposal' });
+  assert.equal(proposal.outcome, 'proposed');
+  if (proposal.outcome !== 'proposed') throw new Error('no proposal');
+  const staged = proposal.planning.result.workspace;
+  const pendingPlan = staged.planVersions.find(p => p.id === staged.pendingPlanVersionId)!;
+  const pendingPath = staged.pathVersions.find(p => p.id === pendingPlan.pathVersionId)!;
+  const stagedLinks = db.database.prepare('SELECT document_id,document_version_id,confirmation_id,slot,context_version_id FROM goal_document_links WHERE enabled=1 ORDER BY slot,document_id').all();
+  const sidecarBeforeAccept = db.database.prepare('SELECT * FROM material_plan_proposals').all();
+  assert.deepEqual(stagedLinks, oldLinks);
+  assert.equal(staged.activePlanVersionId, before.activePlanVersionId);
+  assert.deepEqual(pathFor(staged), pathFor(before));
+  assert.deepEqual(ordered(pendingPath.units), ordered(pathFor(before).units));
+  const accepted = await planning.acceptReplan(owner.ownerId, { mutationId: 'accept-new-primary', baseVersionId: staged.activePlanVersionId, candidatePlanVersionId: pendingPlan.id });
+  assert.equal(accepted.outcome, 'accepted');
+  const after = await planning.getWorkspace(owner.ownerId);
+  assert.ok(after);
+  assert.deepEqual(after, accepted.workspace);
+  assert.deepEqual(ordered(pathFor(after!).units), ordered(pathFor(before).units));
+  assert.deepEqual(after!.events.filter(e => e.kind === 'completed'), before.events.filter(e => e.kind === 'completed'));
+  assert.deepEqual(after!.audit, before.audit);
+  for(const unit of before.dailyUnits) assert.ok(after!.dailyUnits.some(row => JSON.stringify(row) === JSON.stringify(unit)));
+  const afterLinks = db.database.prepare('SELECT document_id,document_version_id,confirmation_id,slot,context_version_id FROM goal_document_links WHERE enabled=1 ORDER BY slot,document_id').all() as any[];
+  assert.ok(afterLinks.some(row => row.document_id === nextJd.documentId));
+  assert.ok(!afterLinks.some(row => row.document_id === firstJd.documentId));
+  assert.ok(afterLinks.some(row => row.document_id === resume.documentId));
+  assert.ok(afterLinks.some(row => row.document_id === supplement.documentId));
+  const result = { schemaVersion: 'product-planning-independent-acceptance-audit-v1', fixed14CaseIntegrationRun: false, qualificationApproved: false,
+    realProviderCalls: 0, database: ':memory:', before, staged, after, oldLinks, stagedLinks, afterLinks, sidecarBeforeAccept,
+    sidecarAfterAccept: db.database.prepare('SELECT * FROM material_plan_proposals').all(), contextRows: db.database.prepare('SELECT * FROM material_context_versions ORDER BY rowid').all(),
+    summary: { beforeRevision: before.revision, stagedRevision: staged.revision, acceptedRevision: after!.revision,
+      fullPathUnitSetContentDependenciesMinutesPreserved: true, completedEventsPreserved: true, retainedDailyUnitObjectsPreserved: true,
+      oldActiveContextUntilExplicitAcceptance: true, otherMaterialsPreserved: true, sameGoal: before.goalId === after!.goalId } };
+  const output = 'work/grounded-verification/product-planning-independent-ready-acceptance-results-20261107.json';
+  writeFileSync(output, JSON.stringify(result,null,2)+'\n');
+  console.log(JSON.stringify({ output, sha256:createHash('sha256').update(readFileSync(output)).digest('hex'), summary:result.summary, sidecarBeforeAccept, fixed14CaseIntegrationRun:false, qualificationApproved:false }));
+} finally { db.close(); }

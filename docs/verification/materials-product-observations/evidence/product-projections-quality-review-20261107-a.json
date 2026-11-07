@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "product-projections-code-quality-review-1",
+  "date": "2026-11-07",
+  "verdict": "PASS",
+  "scope": "Read-only code quality and evidence-boundary review after specification PASS; current collector, tests and protocol only.",
+  "actionableFindings": [],
+  "reviewedFiles": [
+    {
+      "path": "docs/verification/materials-product-observations/collect-projections.ts",
+      "sha256": "6752131d91ba7be945b33fae2c32d460b12caae076f74f15d1413c46b82a60e0"
+    },
+    {
+      "path": "docs/verification/materials-product-observations/collect-projections.test.ts",
+      "sha256": "3138e94e8d18ab9413533ff742618a7e8f1f29087c01275c7a400e5577df20b1"
+    },
+    {
+      "path": "docs/verification/materials-product-observations/collector-protocol.md",
+      "sha256": "90007da618ee8c070bb657acd78a6b1688ae83c98b22c9ef554109bd647d9238"
+    }
+  ],
+  "checks": [
+    {
+      "name": "reviewed code and fixed input/output hashes match dispatch",
+      "status": "PASS"
+    },
+    {
+      "name": "all 267 stored observations preserve raw source, candidate, order, intents and scenario hashes",
+      "status": "PASS"
+    },
+    {
+      "name": "counts distinguish 255 unique positions, one empty document, 11 intent variants and 3 removals",
+      "status": "PASS"
+    },
+    {
+      "name": "representative replay exactly matches native projection and both native mapper outputs",
+      "status": "PASS"
+    },
+    {
+      "name": "multi-item API probe separates raw whitespace, normalized text/labels and filtering by item ID",
+      "status": "PASS"
+    },
+    {
+      "name": "stored qualification, provenance and absence of fabricated course/plan answers remain explicit",
+      "status": "PASS"
+    },
+    {
+      "name": "reviewed code, input, result and published catalog objects remain unchanged after probes",
+      "status": "PASS"
+    }
+  ],
+  "counts": {
+    "groups": 7,
+    "passed": 7,
+    "failed": 0,
+    "storedScenariosChecked": 267,
+    "nativeReplayScenarios": 29,
+    "newApiProbes": 1
+  },
+  "manualReview": [
+    "The collector calls the existing validator with one fixed grounded policy and the existing term/item mapper with published flagship objects. Only learningIntentItemIds reaches mapper options; no expected answer, coverage or planning reference is imported or supplied.",
+    "The native validator currently maps accepted items in input order. Label-removal indexing therefore matches candidate IDs; submitted, normalized and projected labels remain distinct. Raw extraction and full source fixture references are retained.",
+    "Only native DocumentServiceError invalid-content becomes rejected. Unexpected validator/schema/mapper/provenance failures abort the collection; the CLI emits no partial JSON report for those synchronous failures. API details are preserved while CLI diagnostics remain short.",
+    "JSON-only input, finite numbers, strict bounded outer schema, iterative canonical serialization, bounded regular-file reads and fatal UTF-8 decoding are clear and proportionate. Existing specification coverage exercises limits and unknown native errors; no new boundary fuzz was needed.",
+    "The exact projection, unresolved review points, hints and native empty arrays are preserved. Direct intent variants remain component stimuli; no confirmation, persisted adoption, plan observation or fabricated task coverage is created.",
+    "Top-level model/integration/qualification flags remain false, realModelCalls is zero, candidateEvaluation remains incomplete, and partial code provenance explicitly disclaims complete runtime attestation. Protocol states fixture and source-trust limits consistently."
+  ],
+  "runs": [
+    {
+      "kind": "independent-quality-probe",
+      "command": "node work/grounded-verification/run.mjs product-projections-quality-run-20261107-a --import tsx work/grounded-verification/product-projections-quality-probe-20261107-a.ts",
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "script": {
+        "path": "work/grounded-verification/product-projections-quality-probe-20261107-a.ts",
+        "sha256": "0358ebd158263482f06b475f63c24facdca3695535d7aae6ee0478880c03522e"
+      },
+      "result": {
+        "path": "work/grounded-verification/product-projections-quality-probe-20261107-a-results.json",
+        "sha256": "51f448a9120474f34f54894305d999b7b499f65c4d304502233069873903210d"
+      },
+      "metadata": {
+        "path": "work/grounded-verification/product-projections-quality-run-20261107-a.json",
+        "sha256": "6cb99d6479fdf0be43c7495961f2c392f491c337e3a17c0f488a2b134f449ace"
+      },
+      "log": {
+        "path": "work/grounded-verification/product-projections-quality-run-20261107-a.log",
+        "sha256": "d4a253ff66d9fd236f8ebf0c16f3ab6823196150f7843d653d8940d22e503d66"
+      },
+      "denialLog": {
+        "path": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-7ADqYN\\network.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/grounded-verification/product-projection-synthetic-input-20261107.json",
+      "sha256": "9aec876c545c3a93d75c3e0f84fed1ec758d6bc5fc3a44b2f5d2fd0feff0e247"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-root-collection-results-20261107.json",
+      "sha256": "ed90d13399e04d56ff8e29ef9b810bb737d88a342c53cc0a8f869934186059ad"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-root-collection-summary-20261107.json",
+      "sha256": "a777eff3a777a7991ba950527116c13c6c6b72eeef471c8c74782f028588f9d9"
+    },
+    {
+      "path": "work/grounded-verification/run.mjs",
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    },
+    {
+      "path": "work/materials-browser-handoff/block-outbound.cjs",
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    }
+  ],
+  "previousEvidenceInspected": [
+    {
+      "path": "work/grounded-verification/product-projections-spec-independent-20261107-b-results.json",
+      "sha256": "3d81a023189b73a40e763c35c3ae811edf3089e8de89013eaa4aadffcd27a852"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-spec-independent-run-20261107-b.json",
+      "sha256": "f19635225ae4cb1402407b95dec3d6f7d159f14201979f2c2774ce84cede0242"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-root-final-tests-20261107-a.log",
+      "sha256": "9aa356d75457e82040b8ac66777fa8177b700444c87d4c2a536b9debb183bf7f"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-root-final-lint-20261107-a.json",
+      "sha256": "049873e48edc4b0fb73faa0b253dffb5bb3193a8045467aa7e26d26c43acd6fd"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-root-typecheck-20261107-a.json",
+      "sha256": "6f3bea1f56d3bb92a0cc5adfb87fc41588dd44e7fca0de8aae0bda4815d90f7f"
+    }
+  ],
+  "limits": [
+    "This PASS concerns collector code/evidence quality, not product semantics, model quality, integration, Gate passage or complete candidate evaluation.",
+    "The independent 17-group specification suite and root 36-test/lint/typecheck records were inspected rather than rerun. New execution was limited to seven quality groups, 267 stored-record checks, 29 representative native replays and one multi-item API probe.",
+    "Native replay proves fidelity to actual component functions, not semantic correctness of those functions. The three source-label losses remain observed product gaps; this review does not repair or approve them.",
+    "No model, confirmation/adoption service, planner or user-facing lifecycle was exercised. No app, worker, frozen reference/scorer, existing evidence, commit, remote database, provider or deployment was modified.",
+    "Code digests and zero wrapper non-loopback denial events are partial evidence, not dependency closure or complete runtime attestation. Files must remain stable when collecting and archiving.",
+    "Final evidence packet/report consistency is pending a separate brief follow-up once the root publishes its final manifest; this does not defer the collector code-quality verdict."
+  ]
+}

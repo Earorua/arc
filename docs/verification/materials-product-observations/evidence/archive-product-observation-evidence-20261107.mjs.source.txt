@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+
+const sourceDirectory = 'work/grounded-verification';
+const archiveDirectory = 'docs/verification/materials-product-observations/evidence';
+const prefixes = [
+  'product-observation-course-', 'product-observation-planning-', 'product-course-independent-',
+  'product-planning-independent-', 'product-projection-synthetic-', 'product-projection-root-build-',
+  'build-product-projection-', 'product-projections-author-', 'product-projections-spec-',
+  'product-projections-quality-', 'product-projections-root-',
+];
+const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+mkdirSync(archiveDirectory, { recursive: true });
+const assets = [];
+for (const name of readdirSync(sourceDirectory, { withFileTypes: true }).filter(entry => entry.isFile()).map(entry => entry.name)
+  .filter(name => prefixes.some(prefix => name.startsWith(prefix))).sort()) {
+  assert.match(name, /^[a-z0-9.-]+$/u);
+  const originalPath = `${sourceDirectory}/${name}`;
+  const bytes = readFileSync(originalPath);
+  const suffix = /\.(?:ts|mjs)$/u.test(name) ? '.source.txt' : name.endsWith('.log') ? '.txt' : '';
+  const path = `${archiveDirectory}/${name}${suffix}`;
+  const sha256 = hash(bytes);
+  if (existsSync(path)) assert.equal(hash(readFileSync(path)), sha256, `Do not replace archived evidence: ${path}`);
+  else writeFileSync(path, bytes);
+  assert.equal(hash(readFileSync(path)), sha256);
+  assets.push({ originalPath, path, sha256, bytes: bytes.length,
+    role: suffix === '.source.txt' ? 'archived-source-restore-original-path-before-replay' : name.endsWith('.log') ? 'offline-run-log' : 'evidence-record' });
+}
+for (const [originalPath, archiveName] of [
+  ['work/grounded-verification/run.mjs', 'offline-run.mjs.source.txt'],
+  ['work/materials-browser-handoff/block-outbound.cjs', 'offline-block-outbound.cjs.source.txt'],
+]) {
+  const bytes = readFileSync(originalPath), sha256 = hash(bytes), path = `${archiveDirectory}/${archiveName}`;
+  if (existsSync(path)) assert.equal(hash(readFileSync(path)), sha256, `Do not replace archived evidence: ${path}`);
+  else writeFileSync(path, bytes);
+  assets.push({ originalPath, path, sha256, bytes: bytes.length, role: 'archived-source-restore-original-path-before-replay' });
+}
+const output = 'work/grounded-verification/product-observation-archive-index-20261107.json';
+writeFileSync(output, JSON.stringify({ schemaVersion: 'materials-product-observation-archive-index-1',
+  preservation: 'Byte-identical copies; original scripts retain their original paths and must be restored there before replay.',
+  assets }, null, 2) + '\n');
+console.log(JSON.stringify({ output, sha256: hash(readFileSync(output)), assets: assets.length,
+  bytes: assets.reduce((sum, asset) => sum + asset.bytes, 0) }));

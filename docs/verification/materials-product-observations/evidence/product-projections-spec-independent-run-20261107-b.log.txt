@@ -1,0 +1,18 @@
+PASS multi-item projection preserves native order, filtering, normalization, hints and raw candidate copies
+PASS empty lists and fully filtered labels never create null terms or inferred item groups
+PASS explicit intent changes only the native constraint mapping stimulus
+PASS source span offsets are native, and only labels supported by the quoted span survive
+PASS owner mismatch, revoked fixtures, missing or ambiguous quotes produce native rejection only
+PASS malformed canonical candidates retain raw JSON and are not repaired or treated as outer errors
+PASS strict wrapper/reference/segment boundaries reject supplied policy, catalog, mapping or answer overrides
+PASS intent membership is checked without requiring valid candidate adoption semantics
+PASS all 512 scenarios and 1000 unique source segments remain within the bounded outer contract
+PASS determinism includes exact input bytes, lexical scenario canonicalization, array order and all metadata keys
+PASS overflowing JSON numeric literals are rejected instead of silently becoming null
+PASS unexpected native Zod exception aborts the collection and CLI emits no partial report
+PASS deep malformed extraction JSON is preserved without recursive API or CLI serialization failure
+PASS exact 8 MiB API and CLI input succeeds, while one extra byte is rejected
+PASS CLI fatal decoding rejects overlong, truncated, surrogate and out-of-range UTF-8 sequences
+PASS CLI reads JSON text only and never executes a caller file or accepts an extra output argument
+PASS reviewed files remain unchanged during independent probes
+{"resultsPath":"C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-results.json","resultsSha256":"3d81a023189b73a40e763c35c3ae811edf3089e8de89013eaa4aadffcd27a852","counts":{"total":17,"passed":17,"failed":0}}

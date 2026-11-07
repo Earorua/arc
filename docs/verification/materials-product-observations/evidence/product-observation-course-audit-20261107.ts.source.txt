@@ -1,0 +1,57 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { flagshipBlueprint } from '../../app/data/flagship-blueprint';
+import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry';
+import { mapMaterialItemTerms, mapMaterialItems } from '../../app/lib/materials/skill-mapper';
+import { confirmedMaterialItemSchema, type ConfirmedMaterialItem } from '../../app/contracts/documents';
+
+const base = 'docs/verification/materials-quality-v2/';
+const hash = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
+const source = JSON.parse(readFileSync(base + 'annotations.draft.json', 'utf8'));
+const course = JSON.parse(readFileSync(base + 'course-annotations.draft.json', 'utf8'));
+assert.equal(hash(base + 'annotations.draft.json'), 'e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9');
+assert.equal(hash(base + 'course-annotations.draft.json'), 'c602035d36fba77a36287149891b775c2ed9420d64612f0cbd76309fc02d6bcf');
+type Row = { documentId: string; fieldId: string; literal: string | null; kind: string; actual: unknown; explicitLearningIntent: unknown; expected: unknown; topicMatches: boolean; missingTaskCoverage: boolean };
+const rows: Row[] = [];
+const equal = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+for (const document of course.documents) {
+  const origin = source.documents.find((entry: { id: string }) => entry.id === document.documentId);
+  for (const field of document.fields) {
+    const original = [...origin.fields, ...origin.additionalFields].find((entry: { legacyId?: string; id?: string }) => (entry.legacyId ?? entry.id) === field.fieldId);
+    assert.ok(original, field.fieldId);
+    for (const relation of field.relations) {
+      // Input facts/finite words are authored controls. The called product function
+      // receives no expected topic, coverage, reference IDs, or planned output.
+      const item: ConfirmedMaterialItem = confirmedMaterialItemSchema.parse({ id: 'audit-item', kind: original.expected.kind,
+        text: original.factTextMatch.text, sourceRef: null, origin: 'user',
+        skillLabels: relation.literal === null ? [] : [relation.literal],
+        requirementLevel: original.expected.requirementLevel });
+      const actual = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry);
+      const explicitLearningIntent = item.kind === 'constraint' && relation.literal !== null
+        ? mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry, { learningIntentItemIds: [item.id] }) : null;
+      const result = actual[0];
+      const topicMatches = actual.length === 1 && !!result && result.status === relation.topic.status
+        && equal([...result.skillIds].sort(), [...relation.topic.skillIds].sort())
+        && result.basis === (['none', 'not-applicable'].includes(relation.topic.basis) ? null : relation.topic.basis);
+      rows.push({ documentId: document.documentId, fieldId: field.fieldId, literal: relation.literal, kind: item.kind,
+        actual: { terms: actual, items: mapMaterialItems([item], flagshipBlueprint, flagshipUnitRegistry) },
+        explicitLearningIntent, expected: { topic: relation.topic, taskCoverage: relation.taskCoverage.status },
+        topicMatches, missingTaskCoverage: !result || !Object.hasOwn(result, 'taskCoverage') });
+    }
+  }
+}
+assert.equal(rows.length, 256);
+const summary = { relations: rows.length, topicMatches: rows.filter(row => row.topicMatches).length,
+  topicDifferences: rows.filter(row => !row.topicMatches).length,
+  missingTaskCoverage: rows.filter(row => row.missingTaskCoverage).length,
+  noTermOutput: rows.filter(row => !(row.actual as { terms: unknown[] }).terms.length).length };
+const report = { schemaVersion: 'materials-product-course-component-audit-1', status: 'component-observations-with-gaps',
+  sourceAnnotationSha256: hash(base + 'annotations.draft.json'), courseAnnotationSha256: hash(base + 'course-annotations.draft.json'),
+  componentSha256: hash('app/lib/materials/skill-mapper.ts'), inputProvenance: 'authored finite source controls; not model outputs',
+  observedFunction: 'app/lib/materials/skill-mapper.ts:mapMaterialItemTerms/mapMaterialItems',
+  summary, rows, realModelCalls: 0, actualProductIntegrationVerified: false, qualificationApproved: false,
+  limitations: ['Direct component observations only, not full product/API/planner integration.', 'Explicit-learning-intent variants directly supply an option; they do not prove UI/service eligibility.', 'Missing fields are preserved as gaps. No task coverage is filled from independent truth.'] };
+const output = 'work/grounded-verification/product-observation-course-validated-results-20261107.json';
+writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
+console.log(JSON.stringify({ output, sha256: hash(output), summary, actualProductIntegrationVerified: false, qualificationApproved: false }));

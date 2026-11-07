@@ -1,0 +1,262 @@
+{
+  "schemaVersion": "product-projections-spec-independent-review-1",
+  "baseline": "59df723197c0959dca926e2d31258846145d136b",
+  "script": {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b.ts",
+    "sha256": "f60a8e921084aa8bcedc62d07c3c3e0ec2384dcb88a45a3dbce5525a3d95e169"
+  },
+  "reviewedFiles": [
+    {
+      "path": "docs/verification/materials-product-observations/collect-projections.ts",
+      "sha256": "6752131d91ba7be945b33fae2c32d460b12caae076f74f15d1413c46b82a60e0"
+    },
+    {
+      "path": "docs/verification/materials-product-observations/collect-projections.test.ts",
+      "sha256": "3138e94e8d18ab9413533ff742618a7e8f1f29087c01275c7a400e5577df20b1"
+    },
+    {
+      "path": "docs/verification/materials-product-observations/collector-protocol.md",
+      "sha256": "90007da618ee8c070bb657acd78a6b1688ae83c98b22c9ef554109bd647d9238"
+    }
+  ],
+  "checks": [
+    {
+      "name": "multi-item projection preserves native order, filtering, normalization, hints and raw candidate copies",
+      "status": "PASS"
+    },
+    {
+      "name": "empty lists and fully filtered labels never create null terms or inferred item groups",
+      "status": "PASS"
+    },
+    {
+      "name": "explicit intent changes only the native constraint mapping stimulus",
+      "status": "PASS"
+    },
+    {
+      "name": "source span offsets are native, and only labels supported by the quoted span survive",
+      "status": "PASS"
+    },
+    {
+      "name": "owner mismatch, revoked fixtures, missing or ambiguous quotes produce native rejection only",
+      "status": "PASS"
+    },
+    {
+      "name": "malformed canonical candidates retain raw JSON and are not repaired or treated as outer errors",
+      "status": "PASS"
+    },
+    {
+      "name": "strict wrapper/reference/segment boundaries reject supplied policy, catalog, mapping or answer overrides",
+      "status": "PASS"
+    },
+    {
+      "name": "intent membership is checked without requiring valid candidate adoption semantics",
+      "status": "PASS"
+    },
+    {
+      "name": "all 512 scenarios and 1000 unique source segments remain within the bounded outer contract",
+      "status": "PASS"
+    },
+    {
+      "name": "determinism includes exact input bytes, lexical scenario canonicalization, array order and all metadata keys",
+      "status": "PASS"
+    },
+    {
+      "name": "overflowing JSON numeric literals are rejected instead of silently becoming null",
+      "status": "PASS"
+    },
+    {
+      "name": "unexpected native Zod exception aborts the collection and CLI emits no partial report",
+      "status": "PASS"
+    },
+    {
+      "name": "deep malformed extraction JSON is preserved without recursive API or CLI serialization failure",
+      "status": "PASS"
+    },
+    {
+      "name": "exact 8 MiB API and CLI input succeeds, while one extra byte is rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "CLI fatal decoding rejects overlong, truncated, surrogate and out-of-range UTF-8 sequences",
+      "status": "PASS"
+    },
+    {
+      "name": "CLI reads JSON text only and never executes a caller file or accepts an extra output argument",
+      "status": "PASS"
+    },
+    {
+      "name": "reviewed files remain unchanged during independent probes",
+      "status": "PASS"
+    }
+  ],
+  "counts": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0
+  },
+  "cliResults": [
+    {
+      "name": "unexpected-native-exception",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: implementation-error\n",
+      "stderrSha256": "14725561365191fd338954f4a81cdab24969b7efd8c054775293784b6d5555ed"
+    },
+    {
+      "name": "deep-malformed-json",
+      "status": 1,
+      "stdoutBytes": 28091,
+      "stdoutSha256": "bf18904bf33c0b6fa5316772a8894dcab9d41d5575a2cebf29b6c6130b766338",
+      "stderr": "",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "exact-eight-mib",
+      "status": 1,
+      "stdoutBytes": 5044,
+      "stdoutSha256": "124953b2fe420414c2d0526b1232748e8bbc88797796d2804535252187cb9960",
+      "stderr": "",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "eight-mib-plus-one",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: input-too-large\n",
+      "stderrSha256": "333456d1a7730860c93f7d9debf77656aa5622e277f079dba0ad52aa779f29ba"
+    },
+    {
+      "name": "utf8-overlong",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: invalid-utf8\n",
+      "stderrSha256": "34ea77da00cd896fc991e920b92b0d2b11323696abe0d4b4c3350d9bf46e3ac5"
+    },
+    {
+      "name": "utf8-truncated",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: invalid-utf8\n",
+      "stderrSha256": "34ea77da00cd896fc991e920b92b0d2b11323696abe0d4b4c3350d9bf46e3ac5"
+    },
+    {
+      "name": "utf8-surrogate",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: invalid-utf8\n",
+      "stderrSha256": "34ea77da00cd896fc991e920b92b0d2b11323696abe0d4b4c3350d9bf46e3ac5"
+    },
+    {
+      "name": "utf8-out-of-range",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: invalid-utf8\n",
+      "stderrSha256": "34ea77da00cd896fc991e920b92b0d2b11323696abe0d4b4c3350d9bf46e3ac5"
+    },
+    {
+      "name": "utf8-bom-preserved",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: invalid-json\n",
+      "stderrSha256": "3760e385dabec322b3b01b24631191f1c54308a24c14828084ca5e7233a53446"
+    },
+    {
+      "name": "javascript-is-not-json",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: invalid-json\n",
+      "stderrSha256": "3760e385dabec322b3b01b24631191f1c54308a24c14828084ca5e7233a53446"
+    },
+    {
+      "name": "one-json-input-only",
+      "status": 1,
+      "stdoutBytes": 4091,
+      "stdoutSha256": "68b3799bebdef26a54c7c38dcf42d7a45dfa619daaecc04bc591f6dace01f3b7",
+      "stderr": "",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "extra-output-argument",
+      "status": 2,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "projection-collector: usage\n",
+      "stderrSha256": "514754c9c981b0b3fd9d8c57020b33cdfc5a4150a865587b428d45fa54a576f4"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\unexpected-native-exception.json",
+      "sha256": "f5722d040ddcd7125b5c8b1a3ee7608c130e7ac7ce994f55edfa5120c07d5d15",
+      "bytes": 1556
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\deep-malformed-json.json",
+      "sha256": "c7d241c945e25d41daf5c3b26139e8f11164c1627a732c184e436f66e8b33595",
+      "bytes": 24513
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\exact-eight-mib.json",
+      "sha256": "be06d26df9f67f3ea67546d5212043e05afe53bf0fd23652f53927fd7ffc5591",
+      "bytes": 8388608
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\eight-mib-plus-one.json",
+      "sha256": "9151edc9a57ea905b0c65f4e8553048632045699d0ef59dc792832f4a5503603",
+      "bytes": 8388609
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\utf8-overlong.json",
+      "sha256": "caf573f0daa6960ecb26f8eddbc4e2059277ad5afc6f72ffd59a0ecead602a22",
+      "bytes": 2
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\utf8-truncated.json",
+      "sha256": "b38af6aef10b9620ceb4fe55a4aaf8def5e4d9bd99bd1ebff06a0d44220546a2",
+      "bytes": 3
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\utf8-surrogate.json",
+      "sha256": "91a681b998555fb475479817b126c94e57e52011fa1842c5d188795a4a05226b",
+      "bytes": 3
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\utf8-out-of-range.json",
+      "sha256": "fb16995ef3b5d7c2c81b153f945979f1db35ebc62b17616cdc896f8e7836d371",
+      "bytes": 4
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\utf8-bom.json",
+      "sha256": "f4be4db5b89f6f8c547390e2f834abe64661e69cbe55984674f842524681b903",
+      "bytes": 766
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\not-json.js",
+      "sha256": "06e6f9b6d07edde507a9ae23c5890feeba3e69f352c30c458a883f6fc920d35a",
+      "bytes": 43
+    },
+    {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-b-fixtures\\valid-input.unusual-extension",
+      "sha256": "5d29fd547ca881c9470eb43277b3b8d97ffdaaaac4138979f99f26c410ded34c",
+      "bytes": 513
+    }
+  ],
+  "runtime": {
+    "node": "v24.14.1",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "limits": [
+    "Component specification review only",
+    "No product modifications or integration verdict",
+    "Static imports and wrapper denial evidence are not complete runtime attestation"
+  ]
+}

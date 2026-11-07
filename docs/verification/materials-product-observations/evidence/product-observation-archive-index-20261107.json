@@ -1,0 +1,587 @@
+{
+  "schemaVersion": "materials-product-observation-archive-index-1",
+  "preservation": "Byte-identical copies; original scripts retain their original paths and must be restored there before replay.",
+  "assets": [
+    {
+      "originalPath": "work/grounded-verification/build-product-projection-input-20261107.mjs",
+      "path": "docs/verification/materials-product-observations/evidence/build-product-projection-input-20261107.mjs.source.txt",
+      "sha256": "ce1f5238014538d111fa15387987a41c87d05b25042481e4576b8562c0ce71b2",
+      "bytes": 6405,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-course-independent-classification-results-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-course-independent-classification-results-20261107.json",
+      "sha256": "df00957f64a69dc0d32a692eaa7590c856d857eb03c94d571313bd598d58cba8",
+      "bytes": 550816,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-course-independent-classify-20261107.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-course-independent-classify-20261107.ts.source.txt",
+      "sha256": "08b72111bd45ffb30640b8e7816df42497de6649c4d5d3756b81d68f0722122c",
+      "bytes": 10118,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-course-independent-classify-run-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-course-independent-classify-run-20261107.json",
+      "sha256": "0aa2e668f7f8ae024964516e0c98b29635108ad0e4997f98da2bfe837ab1fbd7",
+      "bytes": 288,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-course-independent-classify-run-20261107.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-course-independent-classify-run-20261107.log.txt",
+      "sha256": "09522de390d51913084acb5560a1adb67c78a4222d5a1bb09afa6f0119326825",
+      "bytes": 1057,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-course-independent-filter-mechanism-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-course-independent-filter-mechanism-20261107.json",
+      "sha256": "f4f71d9456276fbfe0be6cab00d35c26b78259d28a48e683e15dc134cb8a7f24",
+      "bytes": 290,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-course-independent-filter-mechanism-20261107.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-course-independent-filter-mechanism-20261107.log.txt",
+      "sha256": "a11a12be852b577078933f9522089922bd8ab3c65dbeecc22da7124c15526be3",
+      "bytes": 1584,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-course-independent-memo-20261107.md",
+      "path": "docs/verification/materials-product-observations/evidence/product-course-independent-memo-20261107.md",
+      "sha256": "1ebe514c60eacdc5e50b71dd177684ecc5ebec7bf5c7b6d83f36ab68a66cc474",
+      "bytes": 20527,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-course-independent-projection-filter-20261107.md",
+      "path": "docs/verification/materials-product-observations/evidence/product-course-independent-projection-filter-20261107.md",
+      "sha256": "d88295825c0b4f4e49515ce83b667b9bde5d958bfd53e1b231b2055ad01796c1",
+      "bytes": 10191,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-audit-20261107-b.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-audit-20261107-b.json",
+      "sha256": "3f97405991a6824925abf151414546b34d5adc79531d8ba850f81c27d05900e0",
+      "bytes": 283,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-audit-20261107-b.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-audit-20261107-b.log.txt",
+      "sha256": "aa0a0dab688a6d58755ab771b65f4944436d927966b7757d8c3424ec0dde037f",
+      "bytes": 356,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-audit-20261107-c.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-audit-20261107-c.json",
+      "sha256": "57f4120fff58c1b5fd031f76d3f1f74cf566eee8363a001b17c8d84f7493e2eb",
+      "bytes": 283,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-audit-20261107-c.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-audit-20261107-c.log.txt",
+      "sha256": "322ff7e2f46ad5f51ccf563e9918e7bcb5f0528e36d55c6a3b8affa391a89fd5",
+      "bytes": 360,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-audit-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-audit-20261107.json",
+      "sha256": "fcf7a82cc49e8f54c60ea82e26fa767792c5c886491bb65bd187e8220eb78879",
+      "bytes": 281,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-audit-20261107.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-audit-20261107.log.txt",
+      "sha256": "8f77cc97549afdf2a0beab09318f6999deb1c42f2635d85a041951f84dcead6a",
+      "bytes": 15230,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-audit-20261107.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-audit-20261107.ts.source.txt",
+      "sha256": "59d018c17e00e9cb1c707b800e9b0e85ff188ea7162c53a63d3d12a365c90fb3",
+      "bytes": 4992,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-audit-results-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-audit-results-20261107.json",
+      "sha256": "121b7fc71fd285bb56e2a20964b3e11717d6bb3c9e7aa6a1da6460597a3a49c1",
+      "bytes": 515328,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-course-validated-results-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-course-validated-results-20261107.json",
+      "sha256": "121b7fc71fd285bb56e2a20964b3e11717d6bb3c9e7aa6a1da6460597a3a49c1",
+      "bytes": 515328,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-planning-audit-20261107-b.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-planning-audit-20261107-b.json",
+      "sha256": "778646584e80c49ef4fb06500c3a58f01f6b713dee0c009a50693e9318af2a1b",
+      "bytes": 285,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-planning-audit-20261107-b.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-planning-audit-20261107-b.log.txt",
+      "sha256": "e25e84eb9f5ef7b1e2399d6ce766949a6c21368c0e74333ecce1360d1d0e3dbe",
+      "bytes": 958,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-planning-audit-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-planning-audit-20261107.json",
+      "sha256": "04fef188d9672e5efca06b40b7bd5dba8ee72e9afa7bea26d238bc65d9e25820",
+      "bytes": 283,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-planning-audit-20261107.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-planning-audit-20261107.log.txt",
+      "sha256": "adea6df252d4ab6330c2d8f2acd1879964970951de2430d0deddadf540ae138f",
+      "bytes": 1133,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-planning-audit-20261107.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-planning-audit-20261107.ts.source.txt",
+      "sha256": "cc7075c2b3a5cb0b2ab722aeaa744e85380bcc171d3c33213dc4e6859cb1ee66",
+      "bytes": 5934,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-observation-planning-audit-results-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-observation-planning-audit-results-20261107.json",
+      "sha256": "53bdc28268b6d42521e6bd49bd240085c7d5b65c34821dda83f7949e628d727d",
+      "bytes": 2104,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-acceptance-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-acceptance-20261107-a.json",
+      "sha256": "a8cbf02052bbc2bb80e8e24613bd91da9e1028d0f2301613cf9ad5125a771825",
+      "bytes": 290,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-acceptance-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-acceptance-20261107-a.log.txt",
+      "sha256": "fcafb9a9c385071fd10f30f66d26c540f2bdb4d6c29134499e02f193e933e5c8",
+      "bytes": 730,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-acceptance-observer-20261107.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-acceptance-observer-20261107.ts.source.txt",
+      "sha256": "82ff08e20a192ba5d36631a662f24631938205a808e81160c110502278512fd3",
+      "bytes": 10238,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-acceptance-probes-20261107.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-acceptance-probes-20261107.ts.source.txt",
+      "sha256": "a36e149c124057202d3405fca07a827863ce0e208ee5ebed0d29756821c21ebd",
+      "bytes": 9057,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-binding-audit-20261107-v2.md",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-binding-audit-20261107-v2.md",
+      "sha256": "a8b291626ef505dc3ab7133ed14f59b51bf30a459944a2420152e35e1f66fb1e",
+      "bytes": 34525,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-binding-audit-20261107.md",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-binding-audit-20261107.md",
+      "sha256": "18c9e777f79c0672aec0d0733fe1e2700326dee31eb733c99143fe1d360fefa2",
+      "bytes": 34184,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-native-probes-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-native-probes-20261107-a.json",
+      "sha256": "fe25fcaa903a20a7c19400f93b398653362782d294cd3d82c525c15473d1b91b",
+      "bytes": 293,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-native-probes-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-native-probes-20261107-a.log.txt",
+      "sha256": "21265a40293875a49a2f0bf8aa50224eae4f9dc96b55d77f469af0fb13eaaee8",
+      "bytes": 2046,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-probe-results-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-probe-results-20261107.json",
+      "sha256": "e34389c4b455ec0d9057bca8b698d4e23e2c4924f8441f755c7627e3f41301f9",
+      "bytes": 1975304,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-probes-20261107.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-probes-20261107.ts.source.txt",
+      "sha256": "86f13c9ae72e220bd9b80e703becd928163c1460d917b8381ca4b619d43efb8e",
+      "bytes": 16765,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-ready-acceptance-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-ready-acceptance-20261107-a.json",
+      "sha256": "4f04f128e839d37a48408978fd96280f06fc56b2e323d5204395c0e13fb29bdf",
+      "bytes": 296,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-ready-acceptance-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-ready-acceptance-20261107-a.log.txt",
+      "sha256": "801d1020b310f47705e27f6032abbe06dc29b77abf8a42d0704a5fa1758129fc",
+      "bytes": 1160,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-ready-acceptance-20261107.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-ready-acceptance-20261107.ts.source.txt",
+      "sha256": "9a2342f9360119183ca505c3b765c14750e247e7a640a6e2ef5ba5de2c8ab4f2",
+      "bytes": 9237,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-ready-acceptance-results-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-ready-acceptance-results-20261107.json",
+      "sha256": "08f14e1864e0d1072af5847d5719664a21d7de467abb65d4341c6b04b141ca73",
+      "bytes": 282456,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-replacement-nochange-results-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-replacement-nochange-results-20261107.json",
+      "sha256": "6618755a02291ce76d61769d7f2af74bc72edf467ea4fa6a353da56b38b579f9",
+      "bytes": 154271,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-replacement-observe-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-replacement-observe-20261107-a.json",
+      "sha256": "a6eac78653f7815b11b863ee78c8641e1fddea6b9a0f4be328b4a6a3653e0c00",
+      "bytes": 299,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-planning-independent-replacement-observe-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-planning-independent-replacement-observe-20261107-a.log.txt",
+      "sha256": "71b511c5e3b25a8be1854eed33493a057832a3ca344a055917fbc44d39545113",
+      "bytes": 4785,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projection-root-build-input-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projection-root-build-input-20261107-a.json",
+      "sha256": "71114d7539155e21d7abf123d0d678b2a41314bffa1b02589f80064ae75a46ea",
+      "bytes": 284,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projection-root-build-input-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projection-root-build-input-20261107-a.log.txt",
+      "sha256": "4bb2ac5d6de3401ea93838fdc7f00fdf2341a403661a5309ebf76a3ea7bf494f",
+      "bytes": 502,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projection-synthetic-index-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projection-synthetic-index-20261107.json",
+      "sha256": "cb242ef1b0afb38334b56cbe13c14ac24895ef5941f4dcfe735852eedb7b0dd5",
+      "bytes": 44059,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projection-synthetic-input-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projection-synthetic-input-20261107.json",
+      "sha256": "9aec876c545c3a93d75c3e0f84fed1ec758d6bc5fc3a44b2f5d2fd0feff0e247",
+      "bytes": 324554,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-author-green-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-author-green-20261107.json",
+      "sha256": "1cee70e297bd0d213462fe6b896ee9331eefd5e9b55de493051c76fc9d0601fe",
+      "bytes": 282,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-author-green-20261107.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-author-green-20261107.log.txt",
+      "sha256": "ea5456c24a9f8c908db99ef4d669e1e90cfb471cc680be59f21dcff0d6461f32",
+      "bytes": 3343,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-author-lint-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-author-lint-20261107.json",
+      "sha256": "fd1bc026ee61e0bc1c7730a1850863fba83ffada4f7efc7d8fe239b5b183922d",
+      "bytes": 280,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-author-lint-20261107.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-author-lint-20261107.log.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-author-red-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-author-red-20261107.json",
+      "sha256": "26d7f3d17e063f5c4fee75b4981743d69c7bfbe166f5ea0b0283573a039b8476",
+      "bytes": 279,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-author-red-20261107.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-author-red-20261107.log.txt",
+      "sha256": "464426371404697799732cada1dff5a83b137d5daecdb9bdd1bc472dff46d59e",
+      "bytes": 45980,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-probe-20261107-a-results.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-probe-20261107-a-results.json",
+      "sha256": "51f448a9120474f34f54894305d999b7b499f65c4d304502233069873903210d",
+      "bytes": 4836,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-probe-20261107-a.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-probe-20261107-a.ts.source.txt",
+      "sha256": "0358ebd158263482f06b475f63c24facdca3695535d7aae6ee0478880c03522e",
+      "bytes": 14665,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-review-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-review-20261107-a.json",
+      "sha256": "38e4caca3a17616896fd3803fceb6b73c6f2f26b5fe73d36c1528507498f4eb5",
+      "bytes": 8356,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-run-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-run-20261107-a.json",
+      "sha256": "6cb99d6479fdf0be43c7495961f2c392f491c337e3a17c0f488a2b134f449ace",
+      "bytes": 282,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-quality-run-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-quality-run-20261107-a.log.txt",
+      "sha256": "d4a253ff66d9fd236f8ebf0c16f3ab6823196150f7843d653d8940d22e503d66",
+      "bytes": 290,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-collect-20261107.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-collect-20261107.ts.source.txt",
+      "sha256": "a3692750b36efc070735e86f0394c3d0637472f9ddd00a1725cb629fb0d75e01",
+      "bytes": 3295,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-collection-results-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-collection-results-20261107.json",
+      "sha256": "ed90d13399e04d56ff8e29ef9b810bb737d88a342c53cc0a8f869934186059ad",
+      "bytes": 698359,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-collection-run-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-collection-run-20261107-a.json",
+      "sha256": "a1ecf00d846bdd6f618b822238c02cb8952b4e4cd7c2ebb248bf48519247a198",
+      "bytes": 290,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-collection-run-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-collection-run-20261107-a.log.txt",
+      "sha256": "56dcc131aa7a695768b088e471d374f54b7067bf17119ebd438012df412a6e8e",
+      "bytes": 1496,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-collection-summary-20261107.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-collection-summary-20261107.json",
+      "sha256": "a777eff3a777a7991ba950527116c13c6c6b72eeef471c8c74782f028588f9d9",
+      "bytes": 1897,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-final-lint-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-final-lint-20261107-a.json",
+      "sha256": "049873e48edc4b0fb73faa0b253dffb5bb3193a8045467aa7e26d26c43acd6fd",
+      "bytes": 286,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-final-lint-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-final-lint-20261107-a.log.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-final-tests-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-final-tests-20261107-a.json",
+      "sha256": "d2a27e575cf7feb3f04bc902e6fc221ecaeef2c7b639da7411bdfdbeb8458edb",
+      "bytes": 288,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-final-tests-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-final-tests-20261107-a.log.txt",
+      "sha256": "9aa356d75457e82040b8ac66777fa8177b700444c87d4c2a536b9debb183bf7f",
+      "bytes": 3339,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-typecheck-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-typecheck-20261107-a.json",
+      "sha256": "6f3bea1f56d3bb92a0cc5adfb87fc41588dd44e7fca0de8aae0bda4815d90f7f",
+      "bytes": 285,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-root-typecheck-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-root-typecheck-20261107-a.log.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-author-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-author-20261107-a.json",
+      "sha256": "c3bf3b773407631fc96f3bc4893329d3c17137bc349619eee9f8e9dd3e715b8c",
+      "bytes": 283,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-author-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-author-20261107-a.log.txt",
+      "sha256": "9357eec8bf559e44f69e30cdfacafb2c2561349cff80972b146393119374e93e",
+      "bytes": 3339,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-independent-20261107-a-results.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-independent-20261107-a-results.json",
+      "sha256": "be6964545777221986aa8721d3f331ce865faa35c4bf672459b00d7d83f09dfa",
+      "bytes": 12165,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-independent-20261107-a.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-independent-20261107-a.ts.source.txt",
+      "sha256": "1e2422434daca9233981b6a01d7fcf2fce67d6b65379812d108c27bfb1442ac1",
+      "bytes": 26705,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-independent-20261107-b-results.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-independent-20261107-b-results.json",
+      "sha256": "3d81a023189b73a40e763c35c3ae811edf3089e8de89013eaa4aadffcd27a852",
+      "bytes": 11185,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-independent-20261107-b.ts",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-independent-20261107-b.ts.source.txt",
+      "sha256": "f60a8e921084aa8bcedc62d07c3c3e0ec2384dcb88a45a3dbce5525a3d95e169",
+      "bytes": 26709,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-independent-run-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-independent-run-20261107-a.json",
+      "sha256": "3bd63c0c69ca7cb541e896fac377975f3c1f72c7efb79a79fe0f253365271e75",
+      "bytes": 292,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-independent-run-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-independent-run-20261107-a.log.txt",
+      "sha256": "8ae4bd65e17817729c687f0ad8d29ed94d4e98f534df0fc8cfe49f1252641ed5",
+      "bytes": 2945,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-independent-run-20261107-b.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-independent-run-20261107-b.json",
+      "sha256": "f19635225ae4cb1402407b95dec3d6f7d159f14201979f2c2774ce84cede0242",
+      "bytes": 292,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-independent-run-20261107-b.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-independent-run-20261107-b.log.txt",
+      "sha256": "8b099a4ed13846a118b9b59bfb202136a6f5588b2cec1e000a04828d67489b70",
+      "bytes": 1895,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-memo-20261107-a.mjs",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-memo-20261107-a.mjs.source.txt",
+      "sha256": "6fc770ca842c503109b0a48ec59a7a2f05d38e2738a9bb6aafe896100235908d",
+      "bytes": 14290,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-memo-run-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-memo-run-20261107-a.json",
+      "sha256": "15e7affb7546c1f45c3d2315ffa8dce87bc4916d18ed14dfe1e9b95a138d873f",
+      "bytes": 283,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-memo-run-20261107-a.log",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-memo-run-20261107-a.log.txt",
+      "sha256": "9fd12d0ce2b4fc65056789e30ac17860794212973a058289f9f70eef57d5203d",
+      "bytes": 835,
+      "role": "offline-run-log"
+    },
+    {
+      "originalPath": "work/grounded-verification/product-projections-spec-review-20261107-a.json",
+      "path": "docs/verification/materials-product-observations/evidence/product-projections-spec-review-20261107-a.json",
+      "sha256": "19a0b39ec28aa909df0940defbe399071856605480e3020c0118427817626a9a",
+      "bytes": 23661,
+      "role": "evidence-record"
+    },
+    {
+      "originalPath": "work/grounded-verification/run.mjs",
+      "path": "docs/verification/materials-product-observations/evidence/offline-run.mjs.source.txt",
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+      "bytes": 2497,
+      "role": "archived-source-restore-original-path-before-replay"
+    },
+    {
+      "originalPath": "work/materials-browser-handoff/block-outbound.cjs",
+      "path": "docs/verification/materials-product-observations/evidence/offline-block-outbound.cjs.source.txt",
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f",
+      "bytes": 1134,
+      "role": "archived-source-restore-original-path-before-replay"
+    }
+  ]
+}

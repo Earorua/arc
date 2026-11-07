@@ -1,0 +1,44 @@
+✔ observes the actual SQL literal projection and native mappings (16.2524ms)
+✔ observes a genuinely grounded contextual term without supplying a course answer (5.1988ms)
+✔ uses the fixed grounded projection for a reviewed equivalent absent literally from the source (10.3077ms)
+✔ preserves authored input separately from filtered labels and native normalization (5.6337ms)
+✔ retains empty lists and records their gap without inventing a null mapping (3.07ms)
+✔ keeps a fully filtered candidate as an empty-term gap (2.7643ms)
+✔ does not invent an item or coverage for a zero-candidate projection (2.619ms)
+✔ passes constraint intent only as an explicit component stimulus (8.5646ms)
+✔ preserves the native empty constraint item group even with no terms (2.8056ms)
+✔ keeps source-bound hints and unresolved review points separate from projected items (5.6129ms)
+✔ records native invalid-content for quote without synthesized outputs (2.4417ms)
+✔ records native invalid-content for owner without synthesized outputs (2.2435ms)
+✔ records native invalid-content for revoked without synthesized outputs (2.2601ms)
+✔ records native invalid-content for ambiguous-quote without synthesized outputs (2.2768ms)
+✔ records native invalid-content for missing-segment without synthesized outputs (2.2112ms)
+✔ preserves malformed canonical extraction for product rejection: null (2.527ms)
+✔ preserves malformed canonical extraction for product rejection: [] (2.1084ms)
+✔ preserves malformed canonical extraction for product rejection: "candidate text" (2.1703ms)
+✔ preserves malformed canonical extraction for product rejection: {} (2.3361ms)
+✔ preserves malformed canonical extraction for product rejection: {"schemaVersion":"wrong","items":[]} (2.3264ms)
+✔ preserves malformed canonical extraction for product rejection: {"schemaVersion":"2026.11.1","items":[{"id":" (2.3879ms)
+✔ propagates an unexpected native exception instead of calling it a normal rejection (0.9233ms)
+✔ only accepts JSON text and rejects malformed or oversized JSON (8.2151ms)
+✔ enforces scenario count, unique IDs, nonempty description, and required fields (14.133ms)
+✔ rejects duplicate, unknown, malformed, or excessive learning intent IDs (4.72ms)
+✔ rejects unexpected wrapper, provenance, scenario, reference, and segment keys (0.9408ms)
+✔ validates source fixture identity syntax and bounds before projection (1.8583ms)
+✔ rejects duplicate segments and invalid or split-surrogate offsets (2.3996ms)
+✔ accepts whole astral source boundaries and never substitutes task or planning answers (2.634ms)
+✔ records deterministic exact input and canonical ordered scenario hashes without mutation (8.5008ms)
+✔ records actual catalog fingerprints and declared partial code evidence (5.5429ms)
+✔ CLI emits a collected incomplete report with exit 1 and leaves the input untouched (1798.8003ms)
+✔ CLI reports usage errors for missing, extra, or option arguments (10076.4935ms)
+✔ CLI rejects invalid UTF-8 and over-limit file bytes before parsing (3333.7651ms)
+✔ CLI gives short stable input and unexpected-implementation errors (6713.4278ms)
+✔ importing the API does not run the CLI (1669.5475ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25689.6635

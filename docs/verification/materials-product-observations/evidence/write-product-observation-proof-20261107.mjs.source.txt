@@ -1,0 +1,119 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const read = path => JSON.parse(readFileSync(path, 'utf8'));
+const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex');
+const codeCommit = process.argv[2];
+assert.match(codeCommit ?? '', /^[a-f0-9]{40}$/u);
+const archive = read('work/grounded-verification/product-observation-archive-index-20261107.json');
+const specPath = 'work/grounded-verification/product-projections-spec-review-20261107-a.json';
+const qualityPath = 'work/grounded-verification/product-projections-quality-review-20261107-a.json';
+const spec = read(specPath), quality = read(qualityPath);
+assert.equal(spec.verdict, 'PASS');
+assert.equal(quality.verdict, 'PASS');
+for (const review of [spec, quality]) for (const asset of review.reviewedFiles) assert.equal(hash(asset.path), asset.sha256, asset.path);
+const toArchive = originalPath => {
+  const asset = archive.assets.find(asset => asset.originalPath === originalPath);
+  assert.ok(asset, originalPath);
+  assert.equal(hash(asset.path), asset.sha256, asset.path);
+  return asset;
+};
+const runRecords = archive.assets.filter(asset => asset.originalPath.endsWith('.json')).flatMap(asset => {
+  const result = read(asset.path);
+  if (typeof result.logSha256 !== 'string' || typeof result.name !== 'string') return [];
+  assert.equal(result.nonLoopbackDenials, 0, result.name);
+  const log = toArchive(`work/grounded-verification/${result.name}.log`);
+  assert.equal(log.sha256, result.logSha256);
+  return [{ name: result.name, exit: result.exit, elapsedMs: result.elapsedMs,
+    metadata: { path: asset.path, sha256: asset.sha256 }, log: { path: log.path, sha256: log.sha256 }, nonLoopbackDenials: 0 }];
+});
+const summary = read('work/grounded-verification/product-projections-root-collection-summary-20261107.json');
+const supplementaryArchive = [
+  'work/grounded-verification/product-observation-archive-index-20261107.json',
+  'work/grounded-verification/verify-product-observation-evidence-20261107.mjs',
+  'work/grounded-verification/verify-product-observation-evidence-20261107-a.json',
+  'work/grounded-verification/verify-product-observation-evidence-20261107-a.log',
+  'work/grounded-verification/archive-product-observation-evidence-20261107.mjs',
+  'work/grounded-verification/write-product-observation-proof-20261107.mjs',
+].map(originalPath => {
+  const filename = originalPath.split('/').at(-1);
+  const path = `docs/verification/materials-product-observations/evidence/${filename}${filename.endsWith('.mjs') ? '.source.txt' : filename.endsWith('.log') ? '.txt' : ''}`;
+  const bytes = readFileSync(originalPath);
+  writeFileSync(path, bytes, { flag: 'wx' });
+  assert.equal(hash(path), hash(originalPath));
+  return { originalPath, path, sha256: hash(path), bytes: bytes.length };
+});
+const finalIntegrity = read('work/grounded-verification/verify-product-observation-evidence-20261107-a.json');
+assert.equal(finalIntegrity.exit, 0);
+assert.equal(finalIntegrity.nonLoopbackDenials, 0);
+assert.equal(hash('work/grounded-verification/verify-product-observation-evidence-20261107-a.log'), finalIntegrity.logSha256);
+const record = {
+  schemaVersion: 'materials-product-observation-verification-1', createdAt: new Date().toISOString(),
+  status: 'reviewed-offline-observation-tool-with-unresolved-product-gaps',
+  scope: 'Actual extraction-projection and mapper component observations on authored synthetic input; independent bounded native-service probes. Not a complete native 14-case run, model evaluation or Gate approval.',
+  sourceProductCommit: '67a1af32f7e680d9995552e1d9703c8597420eed',
+  independentEvaluatorCommit: '5d9fa487a09c3747dc10c6e5e739390ef8e06df3',
+  planCommitReviewed: '59df723197c0959dca926e2d31258846145d136b',
+  collectorCodeCommit: codeCommit,
+  collectorFiles: spec.reviewedFiles,
+  immutableReferences: [
+    ['docs/verification/materials-quality-v2/candidate-review-verification.json', '13c2a2276787653f8a53cb13e08ca09a07d0383c68ab28867dad71c7c5327dd9'],
+    ['docs/verification/materials-quality-v2/candidate-packet-review.json', 'ee28292e3a11daede42630c5c9db757ea9aeb7b247aabffd875b7e8339f33a9d'],
+    ['docs/verification/materials-assessment-scope/source-manifest.json', '3840afdf6e23cbbc33fd090528b93473eb72ece3ea852f42b857b6a55cd22cf1'],
+  ].map(([path, expected]) => { assert.equal(hash(path), expected, path); return { path, sha256: expected }; }),
+  productManifest: { representation: '991-file byte manifest unchanged; historical logical digest hashes JSON.stringify(parsedManifest)',
+    logicalSha256: 'cb14108c1360bbf066af0a5b076162f5f86b12ee7eecb2def735da41746463c9', filesVerified: 991, courseDependencyFilesVerified: 85 },
+  independentReviews: {
+    specification: { passed: true, memo: toArchive(specPath), authorSuiteTests: 36, independentProbeGroups: 17 },
+    codeQuality: { passed: true, memo: toArchive(qualityPath) },
+    courseDifferenceAudit: { memo: toArchive('work/grounded-verification/product-course-independent-memo-20261107.md'),
+      ledgerRelations: 256, uniqueSourceLiteralPositions: 255, topicDifferences: 138, sourceBoundParityObservations: 256, exactCourseCitationsChecked: 47 },
+    sourceProjectionFilterAudit: { memo: toArchive('work/grounded-verification/product-course-independent-projection-filter-20261107.md'), removedSourceLabels: 3 },
+    nativePlanningBindings: { memo: toArchive('work/grounded-verification/product-planning-independent-binding-audit-20261107-v2.md'), fixedCasesAudited: 14, fixedCaseIntegrationRunCompleted: false },
+  },
+  collection: { input: toArchive(summary.inputPath), result: toArchive(summary.resultPath),
+    stimulusIndex: toArchive('work/grounded-verification/product-projection-synthetic-index-20261107.json'),
+    summary: toArchive('work/grounded-verification/product-projections-root-collection-summary-20261107.json'),
+    scenarios: summary.scenarios, projected: summary.projected, rejected: summary.rejected.length,
+    nativeTermMappings: summary.nativeTermMappings, removedLabelCount: summary.removedLabelCount,
+    scenariosWithNoTermOutput: summary.scenariosWithNoTermOutput,
+    denominator: '255 unique finite positions + 1 zero-candidate document + 11 explicit-intent component variants; not 267 model samples',
+    candidateEvaluation: summary.candidateEvaluation },
+  runtime: { node: process.version, icu: process.versions.icu, v8: process.versions.v8,
+    platform: process.platform, architecture: process.arch, executableSha256: hash(process.execPath),
+    localPackages: ['tsx', 'typescript', 'zod'].map(name => ({ name, version: read(`node_modules/${name}/package.json`).version,
+      manifestPath: `node_modules/${name}/package.json`, manifestSha256: hash(`node_modules/${name}/package.json`) })),
+    completeRuntimeAttestation: false },
+  archive: { indexPreservation: archive.preservation, assetCount: archive.assets.length, assets: archive.assets },
+  supplementaryArchive,
+  finalIntegrityVerification: { name: finalIntegrity.name, exit: finalIntegrity.exit, nonLoopbackDenials: finalIntegrity.nonLoopbackDenials,
+    logSha256: finalIntegrity.logSha256, archiveAssetCountVerified: archive.assets.length,
+    metadataPath: 'docs/verification/materials-product-observations/evidence/verify-product-observation-evidence-20261107-a.json',
+    logPath: 'docs/verification/materials-product-observations/evidence/verify-product-observation-evidence-20261107-a.log.txt' },
+  runRecords,
+  retainedFailuresAndClarifications: [
+    'Initial direct course probe result filename collided with wrapper metadata; final schema-validated C run uses a distinct result basename. Original log/metadata remain.',
+    'Early course probe lacked the required null requirementLevel. Final C validates the item schema; final script and earlier logs are retained, not claimed to be the exact early script versions.',
+    'Initial manual fact-confirmation probe attempted unsupported new manual labels and failed invalid-content; corrected legal manual fallback probe B succeeds. Product validation was not bypassed.',
+    'Initial native React replacement probe incorrectly expected a proposal. Actual no-change observation is preserved; separate ready observability scene exercises explicit acceptance.',
+    'Collector author scaffold Red is a genuine assertion failure. Final implementation passes 36 tests.',
+    'Independent specification probe A miscomputed the oversized multibyte fixture; original A script/results/log preserved, corrected B passes all 17 groups. No collector change was needed.',
+    'Original planning memo v1 overstated shared Git status; v2 corrects only that sentence. Both versions remain archived.',
+  ],
+  nextOfflineWork: [
+    'Independently specify legal native planning before states, aliases, revision domains, Proof ledger and action phases without weakening the original behavioral invariants.',
+    'Repair explicit context-only adoption/withdrawal/replacement when order and dates do not change; retain an explicit user acceptance step and atomic stale/owner/source fences.',
+    'Separate source topic retention from positive ability/practice adoption; repair language/title boundaries while preserving negative/actor/claim scopes.',
+    'Implement justified semantic course relations and task-coverage evidence; distinguish composition, ambiguity, discovery and adoption rather than using a 256-answer lookup.',
+    'Integrate explicit self-assessment adoption through a defined native action; keep pure helper tests distinct until then.',
+  ],
+  externalWorkStillRequired: ['New candidate/model-quality protocol and separate valid paid authorization', 'Authorized environment, integration and browser acceptance', 'Gate reconciliation, public release and post-release verification'],
+  actualModelQualityEvaluated: false, actualProductIntegrationVerified: false, qualificationApproved: false, fullGoalAchieved: false,
+  thisBatch: { realModelCalls: 0, modelCostUsd: 0, deployments: 0, remoteMigrations: 0, githubPushes: 0 },
+  historical: { realModelCalls: 30, modelCostUsd: 0.547151, unsettledUsd: 0, r2Normal: '0/18 FAIL', r2Edge: '0/6 FAIL', p1Normal: '0/3 FAIL', p1Edge: '0/1 FAIL' },
+};
+const output = 'docs/verification/materials-product-observations/observation-verification.json';
+writeFileSync(output, JSON.stringify(record, null, 2) + '\n');
+console.log(JSON.stringify({ output, sha256: hash(output), archiveAssets: archive.assets.length, runRecords: runRecords.length,
+  actualProductIntegrationVerified: false, qualificationApproved: false }));

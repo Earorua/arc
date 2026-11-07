@@ -1,0 +1,67 @@
+{
+  "scenarios": 267,
+  "projected": 267,
+  "rejected": [],
+  "nativeTermMappings": 252,
+  "emptyTermListScenarios": 14,
+  "scenariosWithNoTermOutput": 15,
+  "scenariosWithNativeCoverageAbsent": 267,
+  "removedLabelCount": 3,
+  "removed": [
+    {
+      "scenarioId": "jd-02-field-2-term-2",
+      "candidateId": "synthetic-candidate",
+      "submittedLabels": [
+        "键盘可访问性"
+      ],
+      "validatedLabels": [
+        "键盘可访问性"
+      ],
+      "projectedLabels": [],
+      "removedLabels": [
+        "键盘可访问性"
+      ]
+    },
+    {
+      "scenarioId": "resume-11-field-3-term-3",
+      "candidateId": "synthetic-candidate",
+      "submittedLabels": [
+        "configure a Kubernetes cluster"
+      ],
+      "validatedLabels": [
+        "configure a Kubernetes cluster"
+      ],
+      "projectedLabels": [],
+      "removedLabels": [
+        "configure a Kubernetes cluster"
+      ]
+    },
+    {
+      "scenarioId": "resume-12-field-1-term-4",
+      "candidateId": "synthetic-candidate",
+      "submittedLabels": [
+        "熟悉 SQL，可独立完成报表"
+      ],
+      "validatedLabels": [
+        "熟悉 SQL，可独立完成报表"
+      ],
+      "projectedLabels": [],
+      "removedLabels": [
+        "熟悉 SQL，可独立完成报表"
+      ]
+    }
+  ],
+  "candidateEvaluation": {
+    "status": "incomplete",
+    "missingEvidence": [
+      "native-task-coverage",
+      "native-plan-observations",
+      "actual-model-output",
+      "user-facing-product-integration"
+    ]
+  },
+  "resultPath": "work/grounded-verification/product-projections-root-collection-results-20261107.json",
+  "resultSha256": "ed90d13399e04d56ff8e29ef9b810bb737d88a342c53cc0a8f869934186059ad",
+  "inputPath": "work/grounded-verification/product-projection-synthetic-input-20261107.json",
+  "inputSha256": "9aec876c545c3a93d75c3e0f84fed1ec758d6bc5fc3a44b2f5d2fd0feff0e247"
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "product-projections-quality-review-1",
+  "status": "PASS",
+  "findings": [],
+  "reviewedFiles": [
+    {
+      "path": "docs/verification/materials-product-observations/collect-projections.ts",
+      "sha256": "6752131d91ba7be945b33fae2c32d460b12caae076f74f15d1413c46b82a60e0"
+    },
+    {
+      "path": "docs/verification/materials-product-observations/collect-projections.test.ts",
+      "sha256": "3138e94e8d18ab9413533ff742618a7e8f1f29087c01275c7a400e5577df20b1"
+    },
+    {
+      "path": "docs/verification/materials-product-observations/collector-protocol.md",
+      "sha256": "90007da618ee8c070bb657acd78a6b1688ae83c98b22c9ef554109bd647d9238"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/grounded-verification/product-projection-synthetic-input-20261107.json",
+      "sha256": "9aec876c545c3a93d75c3e0f84fed1ec758d6bc5fc3a44b2f5d2fd0feff0e247"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-root-collection-results-20261107.json",
+      "sha256": "ed90d13399e04d56ff8e29ef9b810bb737d88a342c53cc0a8f869934186059ad"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-root-collection-summary-20261107.json",
+      "sha256": "a777eff3a777a7991ba950527116c13c6c6b72eeef471c8c74782f028588f9d9"
+    },
+    {
+      "path": "work/grounded-verification/run.mjs",
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    },
+    {
+      "path": "work/materials-browser-handoff/block-outbound.cjs",
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    }
+  ],
+  "script": {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-quality-probe-20261107-a.ts",
+    "sha256": "0358ebd158263482f06b475f63c24facdca3695535d7aae6ee0478880c03522e"
+  },
+  "checks": [
+    {
+      "name": "reviewed code and fixed input/output hashes match dispatch",
+      "status": "PASS"
+    },
+    {
+      "name": "all 267 stored observations preserve raw source, candidate, order, intents and scenario hashes",
+      "status": "PASS"
+    },
+    {
+      "name": "counts distinguish 255 unique positions, one empty document, 11 intent variants and 3 removals",
+      "status": "PASS"
+    },
+    {
+      "name": "representative replay exactly matches native projection and both native mapper outputs",
+      "status": "PASS"
+    },
+    {
+      "name": "multi-item API probe separates raw whitespace, normalized text/labels and filtering by item ID",
+      "status": "PASS"
+    },
+    {
+      "name": "stored qualification, provenance and absence of fabricated course/plan answers remain explicit",
+      "status": "PASS"
+    },
+    {
+      "name": "reviewed code, input, result and published catalog objects remain unchanged after probes",
+      "status": "PASS"
+    }
+  ],
+  "counts": {
+    "groups": 7,
+    "passed": 7,
+    "failed": 0,
+    "storedScenariosChecked": 267,
+    "nativeReplayScenarios": 29,
+    "newApiProbes": 1
+  },
+  "nativeReplayIds": [
+    "resume-01-field-3-term-1-explicit-intent",
+    "resume-01-field-3-term-1",
+    "resume-03-field-3-term-1-explicit-intent",
+    "resume-03-field-3-term-1",
+    "resume-03-field-3-term-2-explicit-intent",
+    "resume-03-field-3-term-2",
+    "resume-05-field-3-term-1-explicit-intent",
+    "resume-05-field-3-term-1",
+    "resume-05-field-3-term-2-explicit-intent",
+    "resume-05-field-3-term-2",
+    "resume-06-field-3-term-1-explicit-intent",
+    "resume-06-field-3-term-1",
+    "resume-06-field-3-term-2-explicit-intent",
+    "resume-06-field-3-term-2",
+    "resume-08-field-3-term-1-explicit-intent",
+    "resume-08-field-3-term-1",
+    "resume-10-field-2-term-1-explicit-intent",
+    "resume-10-field-2-term-1",
+    "resume-10-field-2-term-2-explicit-intent",
+    "resume-10-field-2-term-2",
+    "resume-10-field-2-term-3-explicit-intent",
+    "resume-10-field-2-term-3",
+    "jd-02-field-2-term-2",
+    "resume-11-field-3-term-3",
+    "resume-12-field-1-term-4",
+    "supplement-05-empty-extraction",
+    "resume-01-field-1-term-1",
+    "resume-09-field-1-term-2",
+    "resume-04-field-3-term-1"
+  ],
+  "runtime": {
+    "node": "v24.14.1",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "limits": [
+    "Component code/evidence quality review only; not product qualification.",
+    "The 17-group specification fuzz/boundary suite was inspected, not rerun.",
+    "Representative native replay validates evidence fidelity, not independent semantic correctness.",
+    "No actual model output, confirmation/adoption service or planning integration was exercised.",
+    "Declared code hashes and wrapper denial logs are partial evidence, not complete runtime attestation.",
+    "Final evidence packet/report consistency is pending the root final manifest."
+  ]
+}

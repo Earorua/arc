@@ -1,0 +1,60 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+
+const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+const fileHash = file => hash(readFileSync(file));
+const read = file => JSON.parse(readFileSync(file, 'utf8'));
+const base = 'docs/verification/materials-quality-v2/';
+const proofPath = base + 'candidate-review-verification.json';
+assert.equal(fileHash(proofPath), '13c2a2276787653f8a53cb13e08ca09a07d0383c68ab28867dad71c7c5327dd9');
+assert.equal(fileHash(base + 'candidate-packet-review.json'), 'ee28292e3a11daede42630c5c9db757ea9aeb7b247aabffd875b7e8339f33a9d');
+const prior = read(proofPath);
+for (const [name, expected] of Object.entries({ ...prior.filesSha256, ...prior.reviewedReferenceHashes })) assert.equal(fileHash(base + name), expected, name);
+for (const { path, sha256 } of prior.frozenInputs) assert.equal(fileHash(path), sha256, path);
+const manifestPath = 'docs/verification/materials-assessment-scope/source-manifest.json';
+const manifest = read(manifestPath);
+assert.equal(fileHash(manifestPath), '3840afdf6e23cbbc33fd090528b93473eb72ece3ea852f42b857b6a55cd22cf1');
+assert.equal(hash(JSON.stringify(manifest)), 'cb14108c1360bbf066af0a5b076162f5f86b12ee7eecb2def735da41746463c9');
+assert.equal(Object.keys(manifest).length, 991);
+for (const [path, sha256] of Object.entries(manifest)) assert.equal(fileHash(path), sha256, path);
+const dependencies = read(base + 'course-reference.snapshot.json').dependencies;
+assert.equal(dependencies.length, 85);
+for (const { path, sha256 } of dependencies) assert.equal(fileHash(path), sha256, path);
+const archive = read('work/grounded-verification/product-observation-archive-index-20261107.json');
+let runCount = 0;
+for (const asset of archive.assets) {
+  assert.equal(fileHash(asset.path), asset.sha256, asset.path);
+  assert.equal(fileHash(asset.originalPath), asset.sha256, asset.originalPath);
+  if (!asset.originalPath.endsWith('.json')) continue;
+  const value = read(asset.path);
+  if (typeof value.logSha256 !== 'string' || typeof value.name !== 'string') continue;
+  assert.equal(value.nonLoopbackDenials, 0, value.name);
+  const log = archive.assets.find(candidate => candidate.originalPath === `work/grounded-verification/${value.name}.log`);
+  assert.ok(log, value.name);
+  assert.equal(log.sha256, value.logSha256, value.name);
+  runCount++;
+}
+const inputPath = 'work/grounded-verification/product-projection-synthetic-input-20261107.json';
+const resultsPath = 'work/grounded-verification/product-projections-root-collection-results-20261107.json';
+const result = read(resultsPath), input = read(inputPath);
+assert.equal(result.inputSha256, fileHash(inputPath));
+assert.equal(result.scenarios.length, input.scenarios.length);
+assert.equal(result.scenarios.length, 267);
+for (const [index, scenario] of result.scenarios.entries()) {
+  assert.equal(scenario.id, input.scenarios[index].id);
+  assert.deepEqual(scenario.rawExtraction, input.scenarios[index].extraction);
+  assert.deepEqual(scenario.sourceFixture.reference, input.scenarios[index].reference);
+}
+for (const { path, sha256 } of result.product.codeProvenance.files) assert.equal(fileHash(path), sha256, path);
+assert.equal(result.product.codeProvenance.completeRuntimeAttestation, false);
+assert.equal(result.qualificationApproved, false);
+assert.equal(result.actualProductIntegrationVerified, false);
+assert.equal(result.actualModelQualityEvaluated, false);
+assert.equal(result.realModelCalls, 0);
+assert.equal(result.candidateEvaluation.status, 'incomplete');
+console.log(JSON.stringify({ originalFrozenScorerAndReferenceBytesUnchanged: true,
+  productFiles: 991, courseDependencies: dependencies.length, archiveAssets: archive.assets.length,
+  archivedRunLogPairs: runCount, observedScenarios: result.scenarios.length,
+  nodeVersion: process.version, realModelCalls: 0, actualProductIntegrationVerified: false,
+  qualificationApproved: false }));

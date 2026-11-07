@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { collectProjectionObservations } from '../../docs/verification/materials-product-observations/collect-projections';
+
+const inputPath = 'work/grounded-verification/product-projection-synthetic-input-20261107.json';
+const bytes = readFileSync(inputPath);
+const hash = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
+assert.equal(hash(bytes), '9aec876c545c3a93d75c3e0f84fed1ec758d6bc5fc3a44b2f5d2fd0feff0e247');
+const input = JSON.parse(bytes.toString('utf8'));
+const output = collectProjectionObservations(bytes.toString('utf8'));
+assert.equal(output.inputSha256, hash(bytes));
+assert.equal(output.scenarios.length, 267);
+assert.equal(output.actualModelQualityEvaluated, false);
+assert.equal(output.actualProductIntegrationVerified, false);
+assert.equal(output.qualificationApproved, false);
+assert.equal(output.candidateEvaluation.status, 'incomplete');
+assert.equal(output.realModelCalls, 0);
+assert.ok(!Object.hasOwn(output, 'courseObservations'));
+assert.ok(!Object.hasOwn(output, 'planObservations'));
+for (const [index, observed] of output.scenarios.entries()) {
+  const stimulus = input.scenarios[index];
+  assert.equal(observed.id, stimulus.id);
+  assert.deepEqual(observed.rawExtraction, stimulus.extraction);
+  assert.deepEqual(observed.sourceFixture.reference, stimulus.reference);
+  assert.deepEqual(observed.learningIntentItemIds, stimulus.learningIntentItemIds);
+}
+const projected = output.scenarios.filter(scenario => scenario.outcome === 'projected');
+const rejected = output.scenarios.filter(scenario => scenario.outcome === 'rejected');
+const removed = projected.flatMap(scenario => scenario.labelRemovals.filter(item => item.removedLabels.length)
+  .map(item => ({ scenarioId: scenario.id, ...item })));
+const summary = {
+  scenarios: output.scenarios.length, projected: projected.length, rejected: rejected.map(scenario => ({ id: scenario.id, code: scenario.rejection.code })),
+  nativeTermMappings: projected.reduce((sum, scenario) => sum + scenario.termMappings.length, 0),
+  emptyTermListScenarios: projected.filter(scenario => scenario.gaps.some(gap => gap.code === 'empty-term-list')).length,
+  scenariosWithNoTermOutput: projected.filter(scenario => scenario.termMappings.length === 0).length,
+  scenariosWithNativeCoverageAbsent: projected.filter(scenario => scenario.gaps.some(gap => gap.code === 'native-task-coverage-absent')).length,
+  removedLabelCount: removed.reduce((sum, item) => sum + item.removedLabels.length, 0), removed,
+  candidateEvaluation: output.candidateEvaluation,
+};
+const resultPath = 'work/grounded-verification/product-projections-root-collection-results-20261107.json';
+writeFileSync(resultPath, JSON.stringify(output) + '\n');
+const summaryPath = 'work/grounded-verification/product-projections-root-collection-summary-20261107.json';
+writeFileSync(summaryPath, JSON.stringify({ ...summary, resultPath, resultSha256: hash(readFileSync(resultPath)), inputPath, inputSha256: hash(bytes) }, null, 2) + '\n');
+console.log(JSON.stringify({ resultPath, resultSha256: hash(readFileSync(resultPath)), summaryPath, summarySha256: hash(readFileSync(summaryPath)), summary }));

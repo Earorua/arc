@@ -1,0 +1,198 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { documentExtractionSchema } from '../../app/contracts/documents';
+import { flagshipBlueprint } from '../../app/data/flagship-blueprint';
+import { flagshipUnitRegistry } from '../../app/data/flagship-unit-registry';
+import { mapMaterialItems, mapMaterialItemTerms, MATERIAL_MAPPING_VERSION } from '../../app/lib/materials/skill-mapper';
+import { validateDocumentExtraction } from '../../app/server/documents/extraction-validator';
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from '../../app/server/documents/policy';
+import { collectProjectionObservations } from '../../docs/verification/materials-product-observations/collect-projections';
+
+// Quality review only: inspect stored evidence plus a bounded representative replay.
+// No source/course/planning gold, expected coverage, service, or provider is imported.
+const sha = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
+const digest = (path: string) => ({ path, sha256: sha(readFileSync(path)) });
+const code = [
+  ['docs/verification/materials-product-observations/collect-projections.ts', '6752131d91ba7be945b33fae2c32d460b12caae076f74f15d1413c46b82a60e0'],
+  ['docs/verification/materials-product-observations/collect-projections.test.ts', '3138e94e8d18ab9413533ff742618a7e8f1f29087c01275c7a400e5577df20b1'],
+  ['docs/verification/materials-product-observations/collector-protocol.md', '90007da618ee8c070bb657acd78a6b1688ae83c98b22c9ef554109bd647d9238'],
+] as const;
+const checks: { name: string; status: 'PASS' }[] = [];
+function check(name: string, body: () => void) { body(); checks.push({ name, status: 'PASS' }); }
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
+  if (value !== null && typeof value === 'object') return '{' + Object.keys(value).sort()
+    .map(key => JSON.stringify(key) + ':' + canonical((value as Record<string, unknown>)[key])).join(',') + '}';
+  return JSON.stringify(value);
+}
+const inputPath = 'work/grounded-verification/product-projection-synthetic-input-20261107.json';
+const resultPath = 'work/grounded-verification/product-projections-root-collection-results-20261107.json';
+const summaryPath = 'work/grounded-verification/product-projections-root-collection-summary-20261107.json';
+const inputBytes = readFileSync(inputPath), resultBytes = readFileSync(resultPath);
+const input = JSON.parse(inputBytes.toString('utf8'));
+const result = JSON.parse(resultBytes.toString('utf8'));
+const rootSummary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+const inputById = new Map(input.scenarios.map((scenario: any) => [scenario.id, scenario]));
+const outputById = new Map(result.scenarios.map((scenario: any) => [scenario.id, scenario]));
+const catalogBefore = sha(canonical({ flagshipBlueprint, flagshipUnitRegistry }));
+
+check('reviewed code and fixed input/output hashes match dispatch', () => {
+  for (const [path, expected] of code) assert.equal(digest(path).sha256, expected);
+  assert.equal(sha(inputBytes), '9aec876c545c3a93d75c3e0f84fed1ec758d6bc5fc3a44b2f5d2fd0feff0e247');
+  assert.equal(sha(resultBytes), 'ed90d13399e04d56ff8e29ef9b810bb737d88a342c53cc0a8f869934186059ad');
+  assert.equal(result.inputSha256, sha(inputBytes));
+  assert.equal(rootSummary.resultSha256, sha(resultBytes));
+});
+
+check('all 267 stored observations preserve raw source, candidate, order, intents and scenario hashes', () => {
+  assert.equal(input.scenarios.length, 267);
+  assert.equal(result.scenarios.length, input.scenarios.length);
+  assert.equal(inputById.size, input.scenarios.length);
+  assert.equal(outputById.size, input.scenarios.length);
+  for (const [index, scenario] of input.scenarios.entries()) {
+    const observed = result.scenarios[index];
+    assert.equal(observed.id, scenario.id);
+    assert.equal(observed.ownerId, scenario.ownerId);
+    assert.equal(observed.inputSha256, sha(canonical(scenario)));
+    assert.deepEqual(observed.rawExtraction, scenario.extraction);
+    assert.deepEqual(observed.sourceFixture, { kind: 'constructed-control', authenticatedRepositoryRecord: false, reference: scenario.reference });
+    assert.deepEqual(observed.learningIntentItemIds, scenario.learningIntentItemIds);
+    assert.equal(observed.outcome, 'projected');
+    const validated = documentExtractionSchema.parse(scenario.extraction);
+    assert.deepEqual(observed.labelRemovals, validated.items.map((item, itemIndex) => {
+      const projectedLabels = observed.projection.items[itemIndex].skillLabels;
+      return { candidateId: item.id, submittedLabels: scenario.extraction.items[itemIndex].skillLabels,
+        validatedLabels: item.skillLabels, projectedLabels,
+        removedLabels: item.skillLabels.filter(label => !projectedLabels.includes(label)) };
+    }));
+  }
+});
+
+const intentScenarios = input.scenarios.filter((scenario: any) => scenario.id.endsWith('-explicit-intent'));
+const emptyDocuments = input.scenarios.filter((scenario: any) => scenario.extraction.items.length === 0);
+const removedScenarios = result.scenarios.filter((scenario: any) => scenario.labelRemovals.some((item: any) => item.removedLabels.length));
+const replayIds = new Set<string>();
+check('counts distinguish 255 unique positions, one empty document, 11 intent variants and 3 removals', () => {
+  assert.equal(intentScenarios.length, 11);
+  assert.equal(emptyDocuments.length, 1);
+  assert.equal(input.scenarios.length - intentScenarios.length - emptyDocuments.length, 255);
+  assert.equal(removedScenarios.length, 3);
+  assert.deepEqual(removedScenarios.map((scenario: any) => scenario.id).sort(),
+    ['jd-02-field-2-term-2', 'resume-11-field-3-term-3', 'resume-12-field-1-term-4'].sort());
+  assert.equal(result.scenarios.reduce((total: number, scenario: any) => total + scenario.termMappings.length, 0), 252);
+  assert.equal(result.scenarios.filter((scenario: any) => scenario.termMappings.length === 0).length, 15);
+  assert.equal(result.scenarios.filter((scenario: any) => scenario.gaps.some((gap: any) => gap.code === 'empty-term-list')).length, 14);
+  for (const scenario of intentScenarios) {
+    const base = inputById.get(scenario.id.replace(/-explicit-intent$/u, '')) as any;
+    assert.ok(base);
+    assert.deepEqual(scenario.reference, base.reference);
+    assert.deepEqual(scenario.extraction, base.extraction);
+    assert.deepEqual(scenario.learningIntentItemIds, ['synthetic-candidate']);
+    assert.deepEqual(base.learningIntentItemIds, []);
+    assert.deepEqual((outputById.get(scenario.id) as any).projection, (outputById.get(base.id) as any).projection);
+    replayIds.add(scenario.id); replayIds.add(base.id);
+  }
+  for (const scenario of [...removedScenarios, ...emptyDocuments]) replayIds.add(scenario.id);
+  for (const predicate of [
+    (scenario: any) => scenario.termMappings.some((term: any) => term.basis === 'literal'),
+    (scenario: any) => scenario.termMappings.some((term: any) => term.basis === 'contextual'),
+    (scenario: any) => scenario.projection.items.some((item: any) => item.kind === 'requirement' && item.skillLabels.length === 0),
+    (scenario: any) => scenario.projection.items.some((item: any) => item.kind === 'constraint' && item.skillLabels.length === 0),
+  ]) {
+    const representative = result.scenarios.find(predicate);
+    assert.ok(representative); replayIds.add(representative.id);
+  }
+});
+
+check('representative replay exactly matches native projection and both native mapper outputs', () => {
+  for (const id of replayIds) {
+    const scenario = inputById.get(id) as any, observed = outputById.get(id) as any;
+    const snapshot = canonical(scenario);
+    const projection = validateDocumentExtraction(scenario.extraction, scenario.ownerId, scenario.reference, KIMI_GROUNDED_TERMS_POLICY_ID);
+    const options = { learningIntentItemIds: scenario.learningIntentItemIds };
+    assert.deepEqual(observed.projection, projection, id + ': projection');
+    assert.deepEqual(observed.termMappings, mapMaterialItemTerms(projection.items, flagshipBlueprint, flagshipUnitRegistry, options), id + ': term mappings');
+    assert.deepEqual(observed.itemMappings, mapMaterialItems(projection.items, flagshipBlueprint, flagshipUnitRegistry, options), id + ': item mappings');
+    assert.equal(canonical(scenario), snapshot, id + ': stimulus mutation');
+  }
+});
+
+check('multi-item API probe separates raw whitespace, normalized text/labels and filtering by item ID', () => {
+  const text = 'SQL is required.\nI used Rust and SQL with guidance.';
+  const scenario = {
+    id: 'quality-multiple-items', ownerId: 'QualityOwner',
+    reference: { ownerId: 'QualityOwner', documentId: 'quality-doc', documentVersionId: 'quality-version', textVersionId: 'quality-text',
+      lifecycle: 'active', text, segments: [{ id: 'quality-segment', start: 0, end: text.length }] },
+    extraction: { schemaVersion: '2026.11.1', items: [
+      { id: 'quality-first', kind: 'requirement', text: '  SQL is required.  ', requirementLevel: 'must',
+        skillLabels: [' SQL ', ' Rust '], selfLevelHint: null, source: { segmentId: 'quality-segment', quote: 'SQL is required.' } },
+      { id: 'quality-second', kind: 'experience', text: 'I used Rust and SQL with guidance.', requirementLevel: null,
+        skillLabels: [' Rust ', ' SQL '], selfLevelHint: 'guided', source: { segmentId: 'quality-segment', quote: 'I used Rust and SQL with guidance.' } },
+    ], reviewPoints: [] }, learningIntentItemIds: [],
+  };
+  const json = JSON.stringify({ schemaVersion: 'materials-product-projection-input-1', provenance: { kind: 'constructed-control', description: 'Independent bounded quality probe.' }, scenarios: [scenario] });
+  const report = collectProjectionObservations(json);
+  const observed = report.scenarios[0];
+  assert.equal(observed.outcome, 'projected');
+  if (observed.outcome !== 'projected') throw new Error('Expected native projected outcome');
+  assert.deepEqual(observed.rawExtraction, scenario.extraction);
+  assert.equal(observed.projection.items[0].text, 'SQL is required.');
+  assert.deepEqual(observed.labelRemovals, [
+    { candidateId: 'quality-first', submittedLabels: [' SQL ', ' Rust '], validatedLabels: ['SQL', 'Rust'], projectedLabels: ['SQL'], removedLabels: ['Rust'] },
+    { candidateId: 'quality-second', submittedLabels: [' Rust ', ' SQL '], validatedLabels: ['Rust', 'SQL'], projectedLabels: ['Rust', 'SQL'], removedLabels: [] },
+  ]);
+  assert.deepEqual(observed.projection.selfAssessmentHints.map(hint => [hint.candidateId, hint.skillLabel, hint.level]),
+    [['quality-second', 'Rust', 'guided'], ['quality-second', 'SQL', 'guided']]);
+  assert.deepEqual(report, collectProjectionObservations(json));
+});
+
+check('stored qualification, provenance and absence of fabricated course/plan answers remain explicit', () => {
+  assert.equal(result.actualModelQualityEvaluated, false);
+  assert.equal(result.actualProductIntegrationVerified, false);
+  assert.equal(result.qualificationApproved, false);
+  assert.equal(result.realModelCalls, 0);
+  assert.equal(result.candidateEvaluation.status, 'incomplete');
+  assert.deepEqual(result.candidateEvaluation.missingEvidence,
+    ['native-task-coverage', 'native-plan-observations', 'actual-model-output', 'user-facing-product-integration']);
+  assert.deepEqual(result.scope, { sourceTrust: 'authored-fixture-not-authenticated-record', learningIntent: 'component-stimulus-only', userConfirmation: 'not-performed' });
+  assert.deepEqual(result.provenance, input.provenance);
+  for (const object of [result, ...result.scenarios]) for (const key of ['courseObservations', 'planObservations']) assert.equal(Object.hasOwn(object, key), false);
+  for (const scenario of result.scenarios) assert.ok(scenario.gaps.some((gap: any) => gap.code === 'native-task-coverage-absent'));
+  assert.equal(result.product.providerPolicyId, KIMI_GROUNDED_TERMS_POLICY_ID);
+  assert.equal(result.product.mappingVersion, MATERIAL_MAPPING_VERSION);
+  assert.deepEqual(result.product.blueprint, { id: flagshipBlueprint.id, version: flagshipBlueprint.version, canonicalSha256: sha(canonical(flagshipBlueprint)) });
+  assert.deepEqual(result.product.registry, { id: flagshipUnitRegistry.id, version: flagshipUnitRegistry.version, canonicalSha256: sha(canonical(flagshipUnitRegistry)) });
+  assert.equal(result.product.codeProvenance.scope, 'declared-relevant-files-only');
+  assert.equal(result.product.codeProvenance.completeRuntimeAttestation, false);
+  for (const file of result.product.codeProvenance.files) assert.equal(digest(file.path).sha256, file.sha256);
+});
+
+check('reviewed code, input, result and published catalog objects remain unchanged after probes', () => {
+  for (const [path, expected] of code) assert.equal(digest(path).sha256, expected);
+  assert.equal(sha(readFileSync(inputPath)), sha(inputBytes));
+  assert.equal(sha(readFileSync(resultPath)), sha(resultBytes));
+  assert.equal(sha(canonical({ flagshipBlueprint, flagshipUnitRegistry })), catalogBefore);
+});
+
+const outputPath = 'work/grounded-verification/product-projections-quality-probe-20261107-a-results.json';
+const output = {
+  schemaVersion: 'product-projections-quality-review-1', status: 'PASS', findings: [],
+  reviewedFiles: code.map(([path]) => digest(path)),
+  evidence: [inputPath, resultPath, summaryPath, 'work/grounded-verification/run.mjs', 'work/materials-browser-handoff/block-outbound.cjs'].map(digest),
+  script: digest(fileURLToPath(import.meta.url)), checks,
+  counts: { groups: checks.length, passed: checks.length, failed: 0, storedScenariosChecked: result.scenarios.length, nativeReplayScenarios: replayIds.size, newApiProbes: 1 },
+  nativeReplayIds: [...replayIds],
+  runtime: { node: process.version, platform: process.platform, architecture: process.arch },
+  limits: [
+    'Component code/evidence quality review only; not product qualification.',
+    'The 17-group specification fuzz/boundary suite was inspected, not rerun.',
+    'Representative native replay validates evidence fidelity, not independent semantic correctness.',
+    'No actual model output, confirmation/adoption service or planning integration was exercised.',
+    'Declared code hashes and wrapper denial logs are partial evidence, not complete runtime attestation.',
+    'Final evidence packet/report consistency is pending the root final manifest.',
+  ],
+};
+writeFileSync(outputPath, JSON.stringify(output, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ ...output.counts, outputPath, outputSha256: digest(outputPath).sha256 }));

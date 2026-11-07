@@ -1,0 +1,17 @@
+(node:39844) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\app\server\documents\review-service.ts:64
+        throw new DocumentServiceError("invalid-content");
+              ^
+
+DocumentServiceError: invalid-content
+    at reviewedItem (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\app\server\documents\review-service.ts:64:15)
+    at <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\app\server\documents\review-service.ts:244:20)
+    at Array.map (<anonymous>)
+    at ReviewService.saveDocumentReviewDraft (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\app\server\documents\review-service.ts:240:37)
+    at async <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\product-observation-planning-audit-20261107.ts:27:21) {
+  code: 'invalid-content',
+  status: 422
+}
+
+Node.js v24.14.1

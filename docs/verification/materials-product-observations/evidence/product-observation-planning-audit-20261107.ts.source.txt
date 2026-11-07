@@ -1,0 +1,60 @@
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { createMaterialsD1 } from '../../tests/helpers/materials-d1';
+import { seedMaterialSelection, materialContextRequest, materialNow, materialSourceResolver } from '../../tests/helpers/material-planning';
+import { memoryBucket } from '../../tests/helpers/document-bucket';
+import { createDocumentServices } from '../../app/server/documents/service';
+import { D1PlanningRepository } from '../../app/server/planning/d1-planning-repository';
+import { PlanningService } from '../../app/server/planning/service';
+import { adoptMaterialSelfAssessments } from '../../app/lib/materials/skill-mapper';
+import { flagshipBlueprint } from '../../app/data/flagship-blueprint';
+
+const hash = (file: string) => createHash('sha256').update(readFileSync(file)).digest('hex');
+const db = createMaterialsD1();
+try {
+  seedMaterialSelection(db);
+  let id = 0;
+  const repository = new D1PlanningRepository(db as unknown as D1Database, { sourceResolver: materialSourceResolver(), now: materialNow, createId: () => 'observed-' + ++id });
+  const planning = new PlanningService({ repository, sourceResolver: materialSourceResolver(), now: materialNow, createId: () => 'event-' + ++id });
+  const services = createDocumentServices({ db: db as unknown as D1Database, bucket: memoryBucket(), clock: materialNow, id: () => 'document-' + ++id });
+  const { scope, selectionRef, ...request } = materialContextRequest(); void scope; void selectionRef;
+  const before = (await planning.generate('owner-a', request)).workspace;
+  const owner = { ownerId: 'owner-a' };
+  const doc = await services.createDocument(owner, { kind: 'resume', displayName: 'Synthetic source fact', text: 'I practiced SQL joins in a toy database.', mutationId: 'observed-create-fact' });
+  const item = { id: 'experience-sql', kind: 'experience' as const, text: 'I practiced SQL joins in a toy database.',
+    origin: 'user' as const, sourceRef: null, requirementLevel: null };
+  const { draft } = await services.saveDocumentReviewDraft(owner, { documentId: doc.documentId, textVersionId: doc.textVersionId,
+    extractionId: null, items: [item], selfAssessmentHints: [], expectedRevision: 0, mutationId: 'observed-review-fact' });
+  const receipt = await services.createDocumentConfirmation(owner, { documentId: doc.documentId, documentVersionId: doc.documentVersionId,
+    textVersionId: doc.textVersionId, items: draft.items, reviewRevision: draft.revision, expectedRevision: doc.revision, mutationId: 'observed-confirm-fact' });
+  const after = await planning.getWorkspace('owner-a');
+  assert.deepEqual(after, before, 'Confirming a fact must not change the actual planning workspace');
+  assert.equal(receipt.revision, doc.revision + 1);
+  const actualConfirmation = db.database.prepare('SELECT id,revision,items_json FROM document_confirmations WHERE id=?').get(receipt.confirmationId);
+  assert.ok(actualConfirmation);
+  const existing = { sql: 'conceptual' as const, react: 'guided' as const };
+  const adoption = [
+    { name: 'single-guided', mode: 'single', decisions: [{ skillId: 'sql', level: 'guided', sourceItemIds: ['experience-sql'] }] },
+    { name: 'batch-independent', mode: 'batch', decisions: [{ skillId: 'sql', level: 'independent', sourceItemIds: [] }, { skillId: 'react', level: 'independent', sourceItemIds: [] }] },
+    { name: 'single-independent', mode: 'single', decisions: [{ skillId: 'sql', level: 'independent', sourceItemIds: ['experience-sql'] }] },
+  ].map(({ name, ...input }) => {
+    try { return { name, outcome: 'accepted', after: adoptMaterialSelfAssessments(existing, input, flagshipBlueprint) }; }
+    catch (error) { return { name, outcome: 'rejected', errorName: error instanceof Error ? error.name : 'unknown' }; }
+  });
+  assert.deepEqual(adoption.map(row => row.outcome), ['accepted', 'rejected', 'accepted']);
+  const fixed = JSON.parse(readFileSync('docs/verification/materials-quality-v2/planning-reference-cases.json', 'utf8')).cases.find((row: { id: string }) => row.id === 'fact-confirm-only');
+  const report = { schemaVersion: 'materials-product-planning-surface-audit-1',
+    scope: 'One actual service/DB confirmation on a legal product workspace, plus three direct adoption-component observations. Not the fixed 14-case integration run.',
+    actualFactConfirmation: { beforeWorkspaceRevision: before.revision, afterWorkspaceRevision: after.revision,
+      beforeDocumentRevision: doc.revision, afterDocumentRevision: receipt.revision, fullWorkspaceUnchanged: true,
+      planningAuditUnchanged: JSON.stringify(before.audit) === JSON.stringify(after.audit), confirmationRow: actualConfirmation },
+    frozenFixtureFactConfirmation: { beforeRevision: fixed.input.before.revision, expectedRevision: fixed.constraints.expectedChanges.revision,
+      action: fixed.input.action, expectedAudit: fixed.constraints.expectedChanges.audit },
+    adoptionComponentObservations: adoption,
+    adapterGap: 'The fixture revision/audit cannot be silently projected as actual workspace revision/events. Document revisions, selection revisions, context versions and workspace revisions are distinct product records. Define and review a faithful binding before claiming the fixed scene passed.',
+    realModelCalls: 0, remoteMigrations: 0, actualProductIntegrationVerified: false, qualificationApproved: false };
+  const output = 'work/grounded-verification/product-observation-planning-audit-results-20261107.json';
+  writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
+  console.log(JSON.stringify({ output, sha256: hash(output), actualFactConfirmation: { ...report.actualFactConfirmation, confirmationRow: 'stored local SQLite row captured in result' }, adoptionComponentObservations: adoption, fixed14CaseVerificationRun: false, qualificationApproved: false }));
+} finally { db.close(); }

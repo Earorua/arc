@@ -1,0 +1,255 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { basename, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const fileSha = path => sha(readFileSync(path));
+const read = path => JSON.parse(readFileSync(path, 'utf8'));
+const proofPath = 'docs/verification/materials-product-observations/observation-verification.json';
+const proofSha = '5bd943b91de1860435c04bce0790fd9ed1d19d13ff59f7fb871addae90d0f0e6';
+const proof = read(proofPath), checks = [];
+const assets = [...proof.archive.assets, ...proof.supplementaryArchive];
+const checkedReferences = new Map();
+const stageEvidence = [];
+const check = (name, run) => { run(); checks.push({ name, status: 'PASS' }); };
+function verifyReference(value) {
+  if (!value || typeof value !== 'object') return;
+  if (typeof value.path === 'string' && typeof value.sha256 === 'string') {
+    const bytes = readFileSync(value.path);
+    assert.equal(sha(bytes), value.sha256, value.path);
+    if (typeof value.bytes === 'number') assert.equal(bytes.length, value.bytes, value.path + ': bytes');
+    checkedReferences.set(value.path, value.sha256);
+  }
+  for (const child of Object.values(value)) verifyReference(child);
+}
+function gitBlobs(specs) {
+  const bytes = execFileSync('git', ['cat-file', '--batch'], { input: specs.join('\n') + '\n', maxBuffer: 32 * 1024 * 1024, windowsHide: true });
+  let cursor = 0;
+  return specs.map(spec => {
+    const end = bytes.indexOf(10, cursor);
+    assert.ok(end >= cursor, spec + ': batch header');
+    const [objectId, type, size] = bytes.subarray(cursor, end).toString('utf8').split(' ');
+    assert.equal(type, 'blob', spec + ': expected Git blob');
+    const length = Number(size), start = end + 1;
+    assert.ok(Number.isInteger(length) && length >= 0, spec + ': blob length');
+    const content = bytes.subarray(start, start + length);
+    assert.equal(content.length, length, spec + ': blob bytes');
+    assert.equal(bytes[start + length], 10, spec + ': separator');
+    cursor = start + length + 1;
+    return { objectId, content };
+  });
+}
+
+check('final manifest hash and all declared file references match disk', () => {
+  assert.equal(fileSha(proofPath), proofSha);
+  assert.equal(proof.archive.assetCount, 83);
+  assert.equal(proof.archive.assets.length, 83);
+  assert.equal(proof.supplementaryArchive.length, 6);
+  assert.equal(proof.runRecords.length, 24);
+  verifyReference(proof);
+});
+
+check('all 89 archives are byte-identical to original paths and Git index blobs, including CRLF', () => {
+  assert.equal(new Set(assets.map(asset => asset.path)).size, 89);
+  assert.deepEqual(readdirSync(dirname(assets[0].path)).sort(), assets.map(asset => basename(asset.path)).sort());
+  const blobs = gitBlobs(assets.map(asset => ':' + asset.path));
+  for (const [index, asset] of assets.entries()) {
+    assert.equal(fileSha(asset.originalPath), asset.sha256, asset.originalPath);
+    const blob = blobs[index];
+    assert.equal(sha(blob.content), asset.sha256, asset.path + ': staged SHA-256');
+    assert.equal(blob.content.length, asset.bytes, asset.path + ': staged bytes');
+    stageEvidence.push({ path: asset.path, sha256: asset.sha256, gitBlob: blob.objectId, bytes: blob.content.length });
+  }
+});
+
+check('24 run/log pairs retain real exit values, zero denial counts and all four failed runs', () => {
+  for (const run of proof.runRecords) {
+    const metadata = read(run.metadata.path);
+    assert.equal(metadata.name, run.name);
+    assert.equal(metadata.exit, run.exit);
+    assert.equal(metadata.elapsedMs, run.elapsedMs);
+    assert.equal(metadata.nonLoopbackDenials, 0);
+    assert.equal(run.nonLoopbackDenials, 0);
+    assert.equal(metadata.logSha256, run.log.sha256);
+    assert.equal(fileSha(run.log.path), metadata.logSha256);
+  }
+  assert.deepEqual(proof.runRecords.filter(run => run.exit !== 0).map(run => run.name).sort(), [
+    'product-observation-planning-audit-20261107', 'product-planning-independent-acceptance-20261107-a',
+    'product-projections-author-red-20261107', 'product-projections-spec-independent-run-20261107-a',
+  ].sort());
+  const finalRun = read(proof.finalIntegrityVerification.metadataPath);
+  assert.equal(finalRun.exit, 0);
+  assert.equal(finalRun.nonLoopbackDenials, 0);
+  assert.equal(fileSha(proof.finalIntegrityVerification.logPath), finalRun.logSha256);
+  assert.equal(finalRun.logSha256, proof.finalIntegrityVerification.logSha256);
+});
+
+const spec = read(proof.independentReviews.specification.memo.path);
+const quality = read(proof.independentReviews.codeQuality.memo.path);
+check('three reviewed tools exactly match the collector commit and both review file lists', () => {
+  assert.equal(proof.collectorCodeCommit, 'c50badd632e8b6cc73072d2b18c9876d07e34a12');
+  assert.equal(proof.collectorFiles.length, 3);
+  const committed = gitBlobs(proof.collectorFiles.map(file => proof.collectorCodeCommit + ':' + file.path));
+  for (const [index, file] of proof.collectorFiles.entries()) assert.equal(sha(committed[index].content), file.sha256, file.path);
+  assert.deepEqual(spec.reviewedFiles, proof.collectorFiles);
+  assert.deepEqual(quality.reviewedFiles, proof.collectorFiles);
+  assert.equal(spec.verdict, 'PASS');
+  assert.equal(quality.verdict, 'PASS');
+  assert.deepEqual(spec.actionableFindings, []);
+  assert.deepEqual(quality.actionableFindings, []);
+});
+
+let historicalPlanSha;
+check('specification plan hash binds historical 59df723; current plan only checks steps and appends execution record', () => {
+  const historical = gitBlobs([proof.planCommitReviewed + ':' + spec.plan.path])[0].content;
+  historicalPlanSha = sha(historical);
+  assert.equal(historicalPlanSha, spec.plan.sha256);
+  const normalize = text => text.replace(/\r\n/g, '\n').trimEnd();
+  const current = readFileSync(spec.plan.path, 'utf8');
+  assert.ok(current.includes('## Execution record — 2026-11-07'));
+  assert.equal(current.includes('- [ ]'), false);
+  const beforeRecord = current.split('## Execution record — 2026-11-07')[0].replaceAll('- [x]', '- [ ]');
+  assert.equal(normalize(beforeRecord), normalize(historical.toString('utf8')));
+});
+
+let immutableFileCount = 0;
+check('991 product files, 85 course dependencies and all prior frozen scorer/reference hashes remain unchanged', () => {
+  const base = 'docs/verification/materials-quality-v2/';
+  const prior = read(base + 'candidate-review-verification.json');
+  for (const [name, expected] of Object.entries({ ...prior.filesSha256, ...prior.reviewedReferenceHashes })) {
+    assert.equal(fileSha(base + name), expected, name); immutableFileCount++;
+  }
+  for (const file of prior.frozenInputs) { assert.equal(fileSha(file.path), file.sha256, file.path); immutableFileCount++; }
+  const product = read('docs/verification/materials-assessment-scope/source-manifest.json');
+  assert.equal(Object.keys(product).length, 991);
+  assert.equal(sha(JSON.stringify(product)), proof.productManifest.logicalSha256);
+  for (const [path, expected] of Object.entries(product)) assert.equal(fileSha(path), expected, path);
+  const dependencies = read(base + 'course-reference.snapshot.json').dependencies;
+  assert.equal(dependencies.length, 85);
+  for (const file of dependencies) assert.equal(fileSha(file.path), file.sha256, file.path);
+});
+
+check('declared runtime executable and package manifests match current local runtime', () => {
+  assert.equal(proof.runtime.node, process.version);
+  assert.equal(proof.runtime.icu, process.versions.icu);
+  assert.equal(proof.runtime.v8, process.versions.v8);
+  assert.equal(proof.runtime.executableSha256, fileSha(process.execPath));
+  for (const item of proof.runtime.localPackages) {
+    assert.equal(fileSha(item.manifestPath), item.manifestSha256);
+    assert.equal(read(item.manifestPath).version, item.version);
+  }
+  assert.equal(proof.runtime.completeRuntimeAttestation, false);
+});
+
+check('archived root tests, typecheck, lint and independent review summaries support stated results', () => {
+  for (const name of ['product-projections-root-final-tests-20261107-a', 'product-projections-root-typecheck-20261107-a', 'product-projections-root-final-lint-20261107-a']) {
+    const run = proof.runRecords.find(record => record.name === name);
+    assert.ok(run); assert.equal(run.exit, 0);
+  }
+  const tests = readFileSync(proof.runRecords.find(record => record.name === 'product-projections-root-final-tests-20261107-a').log.path, 'utf8');
+  for (const text of ['tests 36', 'pass 36', 'fail 0', 'skipped 0']) assert.ok(tests.includes(text), text);
+  const specResult = read('docs/verification/materials-product-observations/evidence/product-projections-spec-independent-20261107-b-results.json');
+  assert.deepEqual(specResult.counts, { total: 17, passed: 17, failed: 0 });
+  assert.deepEqual(quality.counts, { groups: 7, passed: 7, failed: 0, storedScenariosChecked: 267, nativeReplayScenarios: 29, newApiProbes: 1 });
+});
+
+check('267 stored observations, 252 term mappings and 3 retained removals match collection summary without new product execution', () => {
+  const input = read(proof.collection.input.path), result = read(proof.collection.result.path), summary = read(proof.collection.summary.path);
+  assert.equal(result.inputSha256, fileSha(proof.collection.input.path));
+  assert.equal(summary.resultSha256, fileSha(proof.collection.result.path));
+  assert.equal(result.scenarios.length, 267);
+  assert.equal(input.scenarios.length, 267);
+  assert.equal(result.scenarios.filter(scenario => scenario.outcome === 'projected').length, 267);
+  assert.equal(result.scenarios.reduce((n, scenario) => n + scenario.termMappings.length, 0), 252);
+  assert.equal(result.scenarios.reduce((n, scenario) => n + scenario.labelRemovals.reduce((m, item) => m + item.removedLabels.length, 0), 0), 3);
+  assert.equal(result.scenarios.filter(scenario => !scenario.termMappings.length).length, 15);
+  assert.equal(summary.emptyTermListScenarios, 14);
+  for (const name of ['scenarios', 'projected', 'nativeTermMappings', 'removedLabelCount', 'scenariosWithNoTermOutput']) assert.equal(summary[name], proof.collection[name], name);
+  for (const [index, scenario] of result.scenarios.entries()) {
+    assert.equal(scenario.id, input.scenarios[index].id);
+    assert.deepEqual(scenario.rawExtraction, input.scenarios[index].extraction);
+    assert.deepEqual(scenario.sourceFixture.reference, input.scenarios[index].reference);
+    assert.equal(scenario.sourceFixture.authenticatedRepositoryRecord, false);
+    assert.ok(scenario.gaps.some(gap => gap.code === 'native-task-coverage-absent'));
+  }
+  for (const field of ['actualModelQualityEvaluated', 'actualProductIntegrationVerified', 'qualificationApproved']) assert.equal(result[field], false);
+  assert.equal(result.realModelCalls, 0);
+  assert.equal(result.candidateEvaluation.status, 'incomplete');
+  assert.deepEqual(result.candidateEvaluation, proof.collection.candidateEvaluation);
+});
+
+check('course and planning audit summaries preserve difference classes and bounded integration status', () => {
+  const audit = read('docs/verification/materials-product-observations/evidence/product-course-independent-classification-results-20261107.json').summary;
+  assert.equal(audit.relations, 256); assert.equal(audit.uniqueSourceLiteralPositions, 255);
+  assert.equal(audit.topicDifferences, 138); assert.equal(audit.topicMatches, 118);
+  assert.equal(audit.missingTaskCoverage, 256); assert.equal(audit.uniqueExactCourseCitationsVerified, 47);
+  assert.deepEqual(Object.values(audit.differencesByGroup).sort((a, b) => a - b), [2, 2, 5, 5, 7, 11, 12, 94]);
+  assert.equal(proof.independentReviews.nativePlanningBindings.fixedCasesAudited, 14);
+  assert.equal(proof.independentReviews.nativePlanningBindings.fixedCaseIntegrationRunCompleted, false);
+  const planningMemo = readFileSync(proof.independentReviews.nativePlanningBindings.memo.path, 'utf8');
+  for (const phrase of ['not** a fixed 14-case integration run', 'no current adopted-context transition occurs', 'Planning revisions are 2 before, 3 staged, 4 accepted']) assert.ok(planningMemo.includes(phrase), phrase);
+});
+
+const documentation = [
+  'docs/verification/2026-11-07-materials-product-observation-gaps.md',
+  'docs/verification/2026-11-06-materials-grounding-pause.md',
+  'docs/verification/2026-11-04-materials-public-release-progress.md',
+  'docs/verification/materials-product-observations/README.md',
+  'docs/superpowers/plans/2026-11-07-materials-product-observation-collector.md',
+].map(path => ({ path, sha256: fileSha(path) }));
+check('report, latest recovery/progress, README and plan link to existing evidence and retain qualification/history limits', () => {
+  for (const [index, file] of documentation.entries()) {
+    let text = readFileSync(file.path, 'utf8');
+    if (index === 1) text = text.slice(0, text.indexOf('## 最新恢复检查点：2026-11-07，独立课程'));
+    if (index === 2) text = text.slice(0, text.indexOf('**11 月 7 日独立课程'));
+    for (const [, link] of text.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+      if (/^(?:https?:|#)/u.test(link)) continue;
+      assert.ok(existsSync(resolve(dirname(file.path), link.split('#')[0])), file.path + ': ' + link);
+    }
+    if (index < 3) for (const phrase of ['267', '138', '14']) assert.ok(text.includes(phrase), file.path + ': ' + phrase);
+    if ([0, 1, 4].includes(index)) assert.ok(text.includes(proofSha), file.path + ': proof hash');
+    if ([0, 1].includes(index)) for (const phrase of ['30', '0.547151']) assert.ok(text.includes(phrase), file.path + ': history');
+    if ([0, 3].includes(index)) assert.ok(text.includes('CRLF'), file.path + ': unchanged raw line ending explanation');
+  }
+  for (const field of ['actualModelQualityEvaluated', 'actualProductIntegrationVerified', 'qualificationApproved', 'fullGoalAchieved']) assert.equal(proof[field], false);
+  assert.deepEqual(proof.thisBatch, { realModelCalls: 0, modelCostUsd: 0, deployments: 0, remoteMigrations: 0, githubPushes: 0 });
+  assert.deepEqual(proof.historical, { realModelCalls: 30, modelCostUsd: 0.547151, unsettledUsd: 0, r2Normal: '0/18 FAIL', r2Edge: '0/6 FAIL', p1Normal: '0/3 FAIL', p1Edge: '0/1 FAIL' });
+});
+
+check('review inputs and staged archives remain stable at review completion', () => {
+  assert.equal(fileSha(proofPath), proofSha);
+  for (const file of documentation) assert.equal(fileSha(file.path), file.sha256, file.path);
+  for (const [path, expected] of checkedReferences) assert.equal(fileSha(path), expected, path);
+});
+
+const outputPath = 'work/grounded-verification/product-projections-quality-packet-review-20261107.json';
+const output = {
+  schemaVersion: 'product-projections-quality-packet-review-1', date: '2026-11-07', verdict: 'PASS', actionableFindings: [],
+  scope: 'Read-only final packet consistency follow-up; no product replays, tests, model calls or remote operations.',
+  manifest: { path: proofPath, sha256: proofSha }, collectorCodeCommit: proof.collectorCodeCommit,
+  reviewedFiles: proof.collectorFiles, documentation, historicalPlan: { commit: proof.planCommitReviewed, path: spec.plan.path, sha256: historicalPlanSha },
+  checks, counts: { passed: checks.length, failed: 0, primaryAssets: 83, supplementaryAssets: 6, indexedBlobsVerified: stageEvidence.length,
+    declaredUniqueFileReferences: checkedReferences.size, runLogPairs: 24, retainedFailedRuns: 4, productFiles: 991, courseDependencies: 85, priorFrozenReferencesAndInputs: immutableFileCount },
+  stagedArchiveEvidence: stageEvidence,
+  script: { path: fileURLToPath(import.meta.url), sha256: fileSha(fileURLToPath(import.meta.url)) },
+  intendedRun: { wrapper: 'work/grounded-verification/run.mjs', name: 'product-projections-quality-packet-run-20261107-a',
+    command: 'node work/grounded-verification/run.mjs product-projections-quality-packet-run-20261107-a work/grounded-verification/product-projections-quality-packet-probe-20261107-a.mjs' },
+  manualConsistencyReview: [
+    'Report/recovery preserve eight distinct course-difference classes, absent native task coverage, three source-label losses and the difference between 255 unique positions, 256 ledger relations and 267 synthetic stimuli.',
+    'Planning discussion matches the independent bounded probes: context-only no-change adoption gap, separate explicit acceptance scene 2→3→4, independent Proof/revision domains and absent integrated self-adoption. It does not claim all 14 fixed cases passed.',
+    'README explains original-path restoration, distinct replay labels and CLI exit 1 as incomplete evaluation. Original CRLF evidence and failure records were preserved without normalization.',
+    'Historical specification-plan SHA was verified against its Git commit; current checked boxes and appended execution record are not treated as historical-byte drift.',
+  ],
+  limits: [
+    'Packet integrity/consistency PASS only; model quality, complete product integration, qualification and full goal flags remain false.',
+    'No large tests, component scenarios or service probes were rerun; archived records and their original bytes were verified.',
+    'Unarchived large CLI fixture directories are reproducible from the preserved independent scripts; their recorded fixture hashes are retained. This review does not require archiving those generated directories.',
+    'Partial runtime/provenance declarations do not become complete attestation. Git index hashes bind the index observed during this review, not a later commit.',
+    'The wrapper-owned run metadata and log are produced after this report; they are separately hashed by the reviewer at handoff.',
+  ],
+};
+writeFileSync(outputPath, JSON.stringify(output, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ verdict: output.verdict, counts: output.counts, outputPath, outputSha256: fileSha(outputPath) }));

@@ -1,0 +1,1 @@
+{"originalFrozenScorerAndReferenceBytesUnchanged":true,"productFiles":991,"courseDependencies":85,"archiveAssets":83,"archivedRunLogPairs":24,"observedScenarios":267,"nodeVersion":"v24.14.1","realModelCalls":0,"actualProductIntegrationVerified":false,"qualificationApproved":false}

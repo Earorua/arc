@@ -1,0 +1,740 @@
+✖ observes the actual SQL literal projection and native mappings (2.5059ms)
+✖ observes a genuinely grounded contextual term without supplying a course answer (0.1791ms)
+✖ uses the fixed grounded projection for a reviewed equivalent absent literally from the source (0.1367ms)
+✖ preserves authored input separately from filtered labels and native normalization (0.1689ms)
+✖ retains empty lists and records their gap without inventing a null mapping (0.1544ms)
+✖ keeps a fully filtered candidate as an empty-term gap (0.1335ms)
+✖ does not invent an item or coverage for a zero-candidate projection (0.1155ms)
+✖ passes constraint intent only as an explicit component stimulus (0.1264ms)
+✖ preserves the native empty constraint item group even with no terms (0.1562ms)
+✖ keeps source-bound hints and unresolved review points separate from projected items (0.2387ms)
+✖ records native invalid-content for quote without synthesized outputs (0.1587ms)
+✖ records native invalid-content for owner without synthesized outputs (0.0892ms)
+✖ records native invalid-content for revoked without synthesized outputs (0.1106ms)
+✖ records native invalid-content for ambiguous-quote without synthesized outputs (0.1018ms)
+✖ records native invalid-content for missing-segment without synthesized outputs (0.0975ms)
+✖ preserves malformed canonical extraction for product rejection: null (0.0992ms)
+✖ preserves malformed canonical extraction for product rejection: [] (0.0622ms)
+✖ preserves malformed canonical extraction for product rejection: "candidate text" (0.0787ms)
+✖ preserves malformed canonical extraction for product rejection: {} (0.0662ms)
+✖ preserves malformed canonical extraction for product rejection: {"schemaVersion":"wrong","items":[]} (0.0682ms)
+✖ preserves malformed canonical extraction for product rejection: {"schemaVersion":"2026.11.1","items":[{"id":" (0.0567ms)
+✖ propagates an unexpected native exception instead of calling it a normal rejection (0.7289ms)
+✖ only accepts JSON text and rejects malformed or oversized JSON (0.157ms)
+✖ enforces scenario count, unique IDs, nonempty description, and required fields (0.1362ms)
+✖ rejects duplicate, unknown, malformed, or excessive learning intent IDs (0.1411ms)
+✖ rejects unexpected wrapper, provenance, scenario, reference, and segment keys (0.1383ms)
+✖ validates source fixture identity syntax and bounds before projection (0.1287ms)
+✖ rejects duplicate segments and invalid or split-surrogate offsets (0.1387ms)
+✖ accepts whole astral source boundaries and never substitutes task or planning answers (0.1198ms)
+✖ records deterministic exact input and canonical ordered scenario hashes without mutation (5.2742ms)
+✖ records actual catalog fingerprints and declared partial code evidence (0.1449ms)
+✖ CLI emits a collected incomplete report with exit 1 and leaves the input untouched (209.0639ms)
+✖ CLI reports usage errors for missing, extra, or option arguments (156.4428ms)
+✖ CLI rejects invalid UTF-8 and over-limit file bytes before parsing (153.2681ms)
+✖ CLI gives short stable input and unexpected-implementation errors (156.2632ms)
+✔ importing the API does not run the CLI (154.9403ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 1
+ℹ fail 35
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2993.4776
+
+✖ failing tests:
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:3740
+✖ observes the actual SQL literal projection and native mappings (2.5059ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:96:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.start (node:internal/test_runner/test:1015:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:4600
+✖ observes a genuinely grounded contextual term without supplying a course answer (0.1791ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:107:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:5006
+✖ uses the fixed grounded projection for a reviewed equivalent absent literally from the source (0.1367ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:113:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:5430
+✖ preserves authored input separately from filtered labels and native normalization (0.1689ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:121:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:6000
+✖ retains empty lists and records their gap without inventing a null mapping (0.1544ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:130:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:6458
+✖ keeps a fully filtered candidate as an empty-term gap (0.1335ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:139:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:6829
+✖ does not invent an item or coverage for a zero-candidate projection (0.1155ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:149:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:7209
+✖ passes constraint intent only as an explicit component stimulus (0.1264ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:160:25)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:8050
+✖ preserves the native empty constraint item group even with no terms (0.1562ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:174:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:8533
+✖ keeps source-bound hints and unresolved review points separate from projected items (0.2387ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at project (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:56:18)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:186:20)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:9493
+✖ records native invalid-content for quote without synthesized outputs (0.1587ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:205:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:9493
+✖ records native invalid-content for owner without synthesized outputs (0.0892ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:205:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:9493
+✖ records native invalid-content for revoked without synthesized outputs (0.1106ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:205:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:9493
+✖ records native invalid-content for ambiguous-quote without synthesized outputs (0.1018ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:205:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:9493
+✖ records native invalid-content for missing-segment without synthesized outputs (0.0975ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:205:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:10633
+✖ preserves malformed canonical extraction for product rejection: null (0.0992ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:217:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:10633
+✖ preserves malformed canonical extraction for product rejection: [] (0.0622ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:217:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:10633
+✖ preserves malformed canonical extraction for product rejection: "candidate text" (0.0787ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:217:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:10633
+✖ preserves malformed canonical extraction for product rejection: {} (0.0662ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:217:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:10633
+✖ preserves malformed canonical extraction for product rejection: {"schemaVersion":"wrong","items":[]} (0.0682ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:217:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:10633
+✖ preserves malformed canonical extraction for product rejection: {"schemaVersion":"2026.11.1","items":[{"id":" (0.0567ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:217:22)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:11290
+✖ propagates an unexpected native exception instead of calling it a normal rejection (0.7289ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:231:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+        at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+        at <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:231:23)
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:231:10)
+        at Test.runInAsyncScope (node:async_hooks:228:14)
+        at Test.run (node:internal/test_runner/test:1118:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+        at Test.postRun (node:internal/test_runner/test:1247:19)
+        at Test.run (node:internal/test_runner/test:1175:12),
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:11556
+✖ only accepts JSON text and rejects malformed or oversized JSON (0.157ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:236:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { message: 'invalid-input' },
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:12089
+✖ enforces scenario count, unique IDs, nonempty description, and required fields (0.1362ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at rejectInput (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:65:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:244:3)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { message: 'invalid-input' },
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:12627
+✖ rejects duplicate, unknown, malformed, or excessive learning intent IDs (0.1411ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at rejectInput (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:65:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:256:5)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { message: 'invalid-input' },
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:13157
+✖ rejects unexpected wrapper, provenance, scenario, reference, and segment keys (0.1383ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at rejectInput (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:65:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:266:3)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { message: 'invalid-input' },
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:13821
+✖ validates source fixture identity syntax and bounds before projection (0.1287ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at rejectInput (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:65:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:281:7)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { message: 'invalid-input' },
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:14528
+✖ rejects duplicate segments and invalid or split-surrogate offsets (0.1387ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at rejectInput (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:65:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:296:3)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { message: 'invalid-input' },
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:15390
+✖ accepts whole astral source boundaries and never substitutes task or planning answers (0.1198ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:310:18)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:16079
+✖ records deterministic exact input and canonical ordered scenario hashes without mutation (5.2742ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(report)
+  
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:329:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:17217
+✖ records actual catalog fingerprints and declared partial code evidence (0.1449ms)
+  AssertionError [ERR_ASSERTION]: collector returns the observed SQL projection
+      at collect (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:51:10)
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:345:18)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:18401
+✖ CLI emits a collected incomplete report with exit 1 and leaves the input untouched (209.0639ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:364:10)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:18953
+✖ CLI reports usage errors for missing, extra, or option arguments (156.4428ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:377:12)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:1:19348
+✖ CLI rejects invalid UTF-8 and over-limit file bytes before parsing (153.2681ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:387:12)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\verification\materials-product-observations\collect-projections.test.ts:2:7
+✖ CLI gives short stable input and unexpected-implementation errors (156.2632ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\docs\verification\materials-product-observations\collect-projections.test.ts:398:12)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

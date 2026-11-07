@@ -1,0 +1,349 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { collectProjectionObservations } from "../../docs/verification/materials-product-observations/collect-projections";
+import { validateDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { DocumentServiceError } from "../../app/server/documents/d1-repository";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
+import { mapMaterialItems, mapMaterialItemTerms, MATERIAL_MAPPING_VERSION } from "../../app/lib/materials/skill-mapper";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+
+const scriptPath = fileURLToPath(import.meta.url);
+const checkout = fileURLToPath(new URL("../../", import.meta.url));
+const evidence = join(dirname(scriptPath), "product-projections-spec-independent-20261107-a-fixtures");
+const resultsPath = join(dirname(scriptPath), "product-projections-spec-independent-20261107-a-results.json");
+const collectorPath = join(checkout, "docs/verification/materials-product-observations/collect-projections.ts");
+const reviewedPaths = [
+  "docs/verification/materials-product-observations/collect-projections.ts",
+  "docs/verification/materials-product-observations/collect-projections.test.ts",
+  "docs/verification/materials-product-observations/collector-protocol.md",
+];
+const hash = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
+const reviewed = () => reviewedPaths.map(path => ({ path, sha256: hash(readFileSync(join(checkout, path))) }));
+const before = reviewed();
+const canonical = (value: unknown): string => {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value !== null && typeof value === "object") return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical((value as Record<string, unknown>)[key])}`).join(",")}}`;
+  return JSON.stringify(value);
+};
+const reverseKeys = (value: any): any => Array.isArray(value) ? value.map(reverseKeys)
+  : value && typeof value === "object" ? Object.fromEntries(Object.entries(value).reverse().map(([key, entry]) => [key, reverseKeys(entry)])) : value;
+const input = (scenarios: unknown[]) => ({ schemaVersion: "materials-product-projection-input-1", provenance: { kind: "constructed-control", description: "Independent specification probes; constructed controls only." }, scenarios });
+const scenario = (id = "spec-scenario") => ({
+  id, ownerId: "Spec_OWNER-9", reference: {
+    ownerId: "Spec_OWNER-9", documentId: "spec-document", documentVersionId: "spec-version", textVersionId: "spec-text",
+    lifecycle: "active", text: "SQL is required.", segments: [{ id: "spec-span", start: 0, end: 16 }],
+  },
+  extraction: { schemaVersion: "2026.11.1", items: [{ id: "spec-item", kind: "requirement", text: "SQL is required.", requirementLevel: "must" as string | null, skillLabels: ["SQL"], selfLevelHint: null as string | null, source: { segmentId: "spec-span", quote: "SQL is required." } }], reviewPoints: [] as any[] },
+  learningIntentItemIds: [] as string[],
+});
+function collect(scenarios: unknown[]) { return collectProjectionObservations(JSON.stringify(input(scenarios))); }
+function projected(report: ReturnType<typeof collectProjectionObservations>, at = 0) {
+  const result = report.scenarios[at]!;
+  assert.equal(result.outcome, "projected");
+  if (result.outcome !== "projected") throw new Error("Projection missing");
+  return result;
+}
+function assertIncomplete(report: ReturnType<typeof collectProjectionObservations>) {
+  assert.equal(report.actualModelQualityEvaluated, false);
+  assert.equal(report.actualProductIntegrationVerified, false);
+  assert.equal(report.qualificationApproved, false);
+  assert.equal(report.realModelCalls, 0);
+  assert.equal(report.candidateEvaluation.status, "incomplete");
+  assert.deepEqual(report.candidateEvaluation.missingEvidence, ["native-task-coverage", "native-plan-observations", "actual-model-output", "user-facing-product-integration"]);
+  assert.deepEqual(report.scope, { sourceTrust: "authored-fixture-not-authenticated-record", learningIntent: "component-stimulus-only", userConfirmation: "not-performed" });
+  assert.equal(Object.hasOwn(report, "courseObservations"), false);
+  assert.equal(Object.hasOwn(report, "planObservations"), false);
+  for (const observed of report.scenarios) {
+    assert.equal(observed.sourceFixture.authenticatedRepositoryRecord, false);
+    assert.ok(observed.gaps.some(gap => gap.code === "native-task-coverage-absent"));
+    assert.equal(Object.hasOwn(observed, "courseObservations"), false);
+    assert.equal(Object.hasOwn(observed, "planObservations"), false);
+  }
+}
+mkdirSync(evidence, { recursive: true });
+const fixtures: { path: string; sha256: string; bytes: number }[] = [];
+function fixture(name: string, contents: string | Buffer) {
+  const path = join(evidence, name);
+  writeFileSync(path, contents, { flag: "wx" });
+  fixtures.push({ path, sha256: hash(readFileSync(path)), bytes: Buffer.byteLength(contents) });
+  return path;
+}
+const cliResults: any[] = [];
+function cli(name: string, args: string[]) {
+  const result = spawnSync(process.execPath, ["--import", "tsx", collectorPath, ...args], { encoding: "utf8", windowsHide: true, timeout: 30_000, maxBuffer: 32 * 1024 * 1024 });
+  assert.equal(result.error, undefined);
+  cliResults.push({ name, status: result.status, stdoutBytes: Buffer.byteLength(result.stdout), stdoutSha256: hash(result.stdout), stderr: result.stderr, stderrSha256: hash(result.stderr) });
+  return result;
+}
+function cliError(name: string, path: string, code: string) {
+  const result = cli(name, [path]);
+  assert.equal(result.status, 2);
+  assert.equal(result.stdout, "");
+  assert.equal(result.stderr, `projection-collector: ${code}\n`);
+}
+const checks: { name: string; status: string; detail?: string }[] = [];
+function check(name: string, run: () => void) {
+  try { run(); checks.push({ name, status: "PASS" }); console.log(`PASS ${name}`); }
+  catch (error) { checks.push({ name, status: "FAIL", detail: error instanceof Error ? error.stack : String(error) }); console.error(`FAIL ${name}`, error); }
+}
+
+check("multi-item projection preserves native order, filtering, normalization, hints and raw candidate copies", () => {
+  const stimulus = scenario();
+  const texts = ["I used SQL with guidance.", "Build UI tokens for accessible component focus.", "Practice SQL later.", "No skill label is supplied."];
+  stimulus.reference.text = texts.join("\n");
+  let start = 0;
+  stimulus.reference.segments = texts.map((text, index) => { const span = { id: `spec-span-${index}`, start, end: start + text.length }; start = span.end + 1; return span; });
+  stimulus.extraction.items = texts.map((text, index) => ({ id: ["z-fact", "a-fact", "m-fact", "b-fact"][index]!, kind: ["experience", "requirement", "constraint", "requirement"][index]!, text: `  ${text}  `, requirementLevel: index === 1 || index === 3 ? "must" : null, skillLabels: index === 0 ? [" Rust ", " SQL "] : index === 1 ? [" UI tokens "] : [], selfLevelHint: index === 0 ? "guided" : null, source: { segmentId: `spec-span-${index}`, quote: text } }));
+  stimulus.extraction.reviewPoints = [{ code: "confirm-self-assessment", source: { segmentId: "spec-span-0", quote: texts[0] } }];
+  const snapshot = structuredClone(stimulus);
+  const report = collect([stimulus]), observed = projected(report);
+  const native = validateDocumentExtraction(stimulus.extraction, stimulus.ownerId, stimulus.reference, KIMI_GROUNDED_TERMS_POLICY_ID);
+  assert.deepEqual(observed.projection, native);
+  assert.deepEqual(observed.termMappings, mapMaterialItemTerms(native.items, flagshipBlueprint, flagshipUnitRegistry));
+  assert.deepEqual(observed.itemMappings, mapMaterialItems(native.items, flagshipBlueprint, flagshipUnitRegistry));
+  assert.deepEqual(observed.labelRemovals, [
+    { candidateId: "z-fact", submittedLabels: [" Rust ", " SQL "], validatedLabels: ["Rust", "SQL"], projectedLabels: ["SQL"], removedLabels: ["Rust"] },
+    { candidateId: "a-fact", submittedLabels: [" UI tokens "], validatedLabels: ["UI tokens"], projectedLabels: ["UI tokens"], removedLabels: [] },
+    { candidateId: "m-fact", submittedLabels: [], validatedLabels: [], projectedLabels: [], removedLabels: [] },
+    { candidateId: "b-fact", submittedLabels: [], validatedLabels: [], projectedLabels: [], removedLabels: [] },
+  ]);
+  assert.deepEqual(observed.projection.items.map(item => item.id), ["z-fact", "a-fact", "m-fact", "b-fact"]);
+  assert.deepEqual(observed.projection.items.map(item => item.text), texts);
+  assert.deepEqual(observed.projection.selfAssessmentHints, [{ id: "hint-z-fact-1", candidateId: "z-fact", skillLabel: "SQL", level: "guided" }]);
+  assert.ok(observed.projection.items.every(item => !Object.hasOwn(item, "selfLevelHint")));
+  assert.equal(observed.projection.reviewPoints[0]?.resolution, "unresolved");
+  assert.deepEqual(observed.projection.reviewPoints[0]?.sourceRef, observed.projection.items[0]?.sourceRef);
+  assert.deepEqual(observed.gaps.filter(gap => gap.code === "empty-term-list").map(gap => gap.itemId), ["m-fact", "b-fact"]);
+  assert.deepEqual(observed.termMappings.map(term => [term.itemId, term.term, term.basis]), [["z-fact", "SQL", "literal"], ["a-fact", "UI tokens", "contextual"]]);
+  assert.deepEqual(observed.rawExtraction, snapshot.extraction);
+  assert.deepEqual(stimulus, snapshot);
+  assertIncomplete(report);
+});
+
+check("empty lists and fully filtered labels never create null terms or inferred item groups", () => {
+  const empty = scenario("spec-empty"), filtered = scenario("spec-filtered");
+  empty.extraction.items[0]!.skillLabels = [];
+  filtered.extraction.items[0]!.skillLabels = ["Rust"];
+  const report = collect([empty, filtered]);
+  for (let index = 0; index < 2; index++) {
+    const observed = projected(report, index);
+    assert.deepEqual(observed.termMappings, []);
+    assert.deepEqual(observed.itemMappings, []);
+    assert.deepEqual(observed.projection.items[0]?.skillLabels, []);
+    assert.deepEqual(observed.gaps, [{ code: "native-task-coverage-absent" }, { code: "empty-term-list", itemId: "spec-item" }]);
+  }
+  assertIncomplete(report);
+});
+
+check("explicit intent changes only the native constraint mapping stimulus", () => {
+  const plain = scenario("spec-constraint-plain");
+  plain.extraction.items[0]!.kind = "constraint";
+  plain.extraction.items[0]!.requirementLevel = null;
+  const intent = structuredClone(plain); intent.id = "spec-constraint-intent"; intent.learningIntentItemIds = ["spec-item"];
+  const report = collect([plain, intent]);
+  assert.equal(projected(report).termMappings[0]?.status, "non-learning");
+  assert.equal(projected(report, 1).termMappings[0]?.status, "mapped");
+  assert.deepEqual(projected(report).projection, projected(report, 1).projection);
+  plain.extraction.items[0]!.skillLabels = []; intent.extraction.items[0]!.skillLabels = [];
+  const empties = collect([plain, intent]);
+  assert.deepEqual(projected(empties).termMappings, []);
+  assert.deepEqual(projected(empties).itemMappings, [{ itemId: "spec-item", status: "non-learning", skillIds: [], labels: [] }]);
+  assert.deepEqual(projected(empties, 1).termMappings, []);
+  assert.deepEqual(projected(empties, 1).itemMappings, []);
+  assertIncomplete(report); assertIncomplete(empties);
+});
+
+check("source span offsets are native, and only labels supported by the quoted span survive", () => {
+  const stimulus = scenario();
+  stimulus.reference.text = "😀 SQL is required. Rust elsewhere.";
+  stimulus.reference.segments = [{ id: "spec-span", start: 3, end: 19 }];
+  stimulus.extraction.items[0]!.text = "SQL and Rust are both required.";
+  stimulus.extraction.items[0]!.skillLabels = ["SQL", "Rust"];
+  const observed = projected(collect([stimulus]));
+  assert.deepEqual(observed.projection.items[0]?.skillLabels, ["SQL"]);
+  assert.deepEqual(observed.projection.items[0]?.sourceRef, { documentId: "spec-document", documentVersionId: "spec-version", textVersionId: "spec-text", start: 3, end: 19 });
+  for (const mutation of ["split-start", "split-end", "beyond-end", "inverted", "duplicate"] as const) {
+    const invalid = structuredClone(stimulus);
+    if (mutation === "split-start") invalid.reference.segments[0]!.start = 1;
+    if (mutation === "split-end") { invalid.reference.segments[0]!.start = 0; invalid.reference.segments[0]!.end = 1; }
+    if (mutation === "beyond-end") invalid.reference.segments[0]!.end = invalid.reference.text.length + 1;
+    if (mutation === "inverted") invalid.reference.segments[0]!.end = 2;
+    if (mutation === "duplicate") invalid.reference.segments.push({ ...invalid.reference.segments[0]! });
+    assert.throws(() => collect([invalid]), { message: "invalid-input" }, mutation);
+  }
+});
+
+check("owner mismatch, revoked fixtures, missing or ambiguous quotes produce native rejection only", () => {
+  for (const condition of ["owner", "revoked", "quote-outside-segment", "empty-segments", "ambiguous"] as const) {
+    const stimulus = scenario(`spec-reject-${condition}`);
+    if (condition === "owner") stimulus.ownerId = "Other_OWNER";
+    if (condition === "revoked") stimulus.reference.lifecycle = "revoked";
+    if (condition === "quote-outside-segment") { stimulus.reference.text += " Rust"; stimulus.extraction.items[0]!.source.quote = "Rust"; }
+    if (condition === "empty-segments") stimulus.reference.segments = [];
+    if (condition === "ambiguous") { stimulus.reference.text = "SQL SQL"; stimulus.reference.segments[0]!.end = 7; stimulus.extraction.items[0]!.source.quote = "SQL"; }
+    assert.throws(() => validateDocumentExtraction(stimulus.extraction, stimulus.ownerId, stimulus.reference, KIMI_GROUNDED_TERMS_POLICY_ID), error => error instanceof DocumentServiceError && error.code === "invalid-content");
+    const report = collect([stimulus]), observed = report.scenarios[0]!;
+    assert.equal(observed.outcome, "rejected");
+    assert.deepEqual(observed.rawExtraction, stimulus.extraction);
+    assert.deepEqual(Object.keys(observed).sort(), ["id", "ownerId", "inputSha256", "rawExtraction", "sourceFixture", "learningIntentItemIds", "outcome", "rejection", "gaps"].sort());
+    assertIncomplete(report);
+  }
+});
+
+check("malformed canonical candidates retain raw JSON and are not repaired or treated as outer errors", () => {
+  const duplicate = scenario(); duplicate.extraction.items.push(structuredClone(duplicate.extraction.items[0]!));
+  const duplicateLabels = scenario(); duplicateLabels.extraction.items[0]!.skillLabels = ["SQL", " SQL "];
+  const candidates: unknown[] = [null, false, 0, "", [], { items: [] }, duplicate.extraction, duplicateLabels.extraction,
+    { ...scenario().extraction, courseObservations: [{ topicId: "forged" }], planObservations: [{ action: "forged" }] },
+    JSON.parse('{"__proto__":{"specPolluted":true},"schemaVersion":"bad","items":[],"generatedAt":{"b":2,"a":1}}')];
+  for (const extraction of candidates) {
+    const stimulus = { ...scenario(), extraction }, report = collect([stimulus]), observed = report.scenarios[0]!;
+    assert.equal(observed.outcome, "rejected");
+    assert.deepEqual(observed.rawExtraction, extraction);
+    assert.equal(observed.inputSha256, hash(canonical(stimulus)));
+    assertIncomplete(report);
+  }
+  assert.equal(({} as any).specPolluted, undefined);
+});
+
+check("strict wrapper/reference/segment boundaries reject supplied policy, catalog, mapping or answer overrides", () => {
+  for (const key of ["providerPolicyId", "blueprint", "registry", "aliases", "userMappings", "termMappings", "expectedOutputs", "expectedCoverage", "scorerAnswer", "courseObservations", "planObservations", "actualModelQualityEvaluated"]) {
+    const root = input([scenario()]);
+    assert.throws(() => collectProjectionObservations(JSON.stringify({ ...root, [key]: "forged" })), { message: "invalid-input" }, `root ${key}`);
+    assert.throws(() => collect([{ ...scenario(), [key]: "forged" }]), { message: "invalid-input" }, `scenario ${key}`);
+  }
+  const base = scenario();
+  assert.throws(() => collect([{ ...base, reference: { ...base.reference, authenticatedRepositoryRecord: true } }]), { message: "invalid-input" });
+  assert.throws(() => collect([{ ...base, reference: { ...base.reference, segments: [{ ...base.reference.segments[0], quote: "forged" }] } }]), { message: "invalid-input" });
+  assert.throws(() => collectProjectionObservations(JSON.stringify({ ...input([base]), provenance: { kind: "constructed-control", description: "okay", approved: true } })), { message: "invalid-input" });
+  assert.throws(() => collectProjectionObservations(input([base]) as unknown as string), { message: "invalid-input" });
+});
+
+check("intent membership is checked without requiring valid candidate adoption semantics", () => {
+  for (const ids of [["missing"], ["spec-item", "spec-item"], ["INVALID ID"]]) {
+    assert.throws(() => collect([{ ...scenario(), learningIntentItemIds: ids }]), { message: "invalid-input" });
+  }
+  assert.throws(() => collect([{ ...scenario(), extraction: { items: [{ id: null }] }, learningIntentItemIds: ["spec-item"] }]), { message: "invalid-input" });
+  const malformed = { ...scenario(), extraction: { items: [{ id: "spec-item", notACandidate: true }] }, learningIntentItemIds: ["spec-item"] };
+  const observed = collect([malformed]).scenarios[0]!;
+  assert.equal(observed.outcome, "rejected");
+  assert.deepEqual(observed.rawExtraction, malformed.extraction);
+});
+
+check("all 512 scenarios and 1000 unique source segments remain within the bounded outer contract", () => {
+  const many = Array.from({ length: 512 }, (_, index) => ({ ...scenario(`spec-${index}`), extraction: null }));
+  const report = collect(many);
+  assert.equal(report.scenarios.length, 512);
+  assert.deepEqual(report.scenarios.map(item => item.id), many.map(item => item.id));
+  assert.ok(report.scenarios.every(item => item.outcome === "rejected"));
+  assertIncomplete(report);
+  const segmented = scenario();
+  segmented.reference.segments = Array.from({ length: 1000 }, (_, index) => ({ id: `spec-segment-${index}`, start: 0, end: 16 }));
+  segmented.extraction.items[0]!.source.segmentId = "spec-segment-999";
+  assert.equal(projected(collect([segmented])).projection.items.length, 1);
+  assert.throws(() => collect([...many, { ...scenario("spec-513"), extraction: null }]), { message: "invalid-input" });
+});
+
+check("determinism includes exact input bytes, lexical scenario canonicalization, array order and all metadata keys", () => {
+  const first = { ...scenario("spec-a"), extraction: { generatedAt: "one", id: "arbitrary", nested: { "10": 10, "2": 2, z: -0, a: [true, null, "😀"] } } };
+  const second = scenario("spec-b"), wrapper = input([first, second]);
+  const json = JSON.stringify(wrapper, null, 2), report = collectProjectionObservations(json);
+  assert.equal(report.inputSha256, hash(Buffer.from(json)));
+  assert.deepEqual(report, collectProjectionObservations(json));
+  assert.deepEqual(report.scenarios.map(item => item.inputSha256), [first, second].map(item => hash(canonical(item))));
+  const reordered = collectProjectionObservations(JSON.stringify(reverseKeys(wrapper)));
+  assert.notEqual(reordered.inputSha256, report.inputSha256);
+  assert.deepEqual(reordered.scenarios, report.scenarios);
+  const reverseScenarios = collectProjectionObservations(JSON.stringify(input([second, first])));
+  assert.deepEqual(reverseScenarios.scenarios.map(item => item.inputSha256), report.scenarios.map(item => item.inputSha256).reverse());
+  const changed = structuredClone(first); changed.extraction.generatedAt = "two";
+  assert.notEqual(collect([changed]).scenarios[0]?.inputSha256, report.scenarios[0]?.inputSha256);
+  assert.deepEqual(report.product.blueprint, { id: flagshipBlueprint.id, version: flagshipBlueprint.version, canonicalSha256: hash(canonical(flagshipBlueprint)) });
+  assert.deepEqual(report.product.registry, { id: flagshipUnitRegistry.id, version: flagshipUnitRegistry.version, canonicalSha256: hash(canonical(flagshipUnitRegistry)) });
+  assert.equal(report.product.mappingVersion, MATERIAL_MAPPING_VERSION);
+  assert.equal(report.product.providerPolicyId, KIMI_GROUNDED_TERMS_POLICY_ID);
+  assert.equal(report.product.codeProvenance.scope, "declared-relevant-files-only");
+  assert.equal(report.product.codeProvenance.completeRuntimeAttestation, false);
+  for (const code of report.product.codeProvenance.files) assert.equal(code.sha256, hash(readFileSync(join(checkout, code.path))));
+});
+
+check("overflowing JSON numeric literals are rejected instead of silently becoming null", () => {
+  const encoded = JSON.stringify(input([{ ...scenario(), extraction: "SPEC_INFINITY" }])).replace('"SPEC_INFINITY"', '{"n":1e999}');
+  assert.throws(() => collectProjectionObservations(encoded), { message: "invalid-json" });
+});
+
+check("unexpected native Zod exception aborts the collection and CLI emits no partial report", () => {
+  const stimulus = scenario("spec-native-exception");
+  stimulus.reference.segments.push({ ...stimulus.reference.segments[0]!, id: "spec-overlap" });
+  stimulus.extraction.reviewPoints = ["spec-span", "spec-overlap"].map(segmentId => ({ code: "missing-information", source: { segmentId, quote: "SQL" } }));
+  assert.throws(() => validateDocumentExtraction(stimulus.extraction, stimulus.ownerId, stimulus.reference, KIMI_GROUNDED_TERMS_POLICY_ID), error => error instanceof Error && error.name === "ZodError" && error.message.includes("Duplicate review point IDs"));
+  assert.throws(() => collect([scenario("spec-earlier-projection"), stimulus]), error => error instanceof Error && error.name === "ZodError");
+  cliError("unexpected-native-exception", fixture("unexpected-native-exception.json", JSON.stringify(input([scenario("spec-earlier-projection"), stimulus]))), "implementation-error");
+});
+
+check("deep malformed extraction JSON is preserved without recursive API or CLI serialization failure", () => {
+  const depth = 12_000;
+  const nested = "[".repeat(depth) + "null" + "]".repeat(depth);
+  const encoded = JSON.stringify(input([{ ...scenario(), extraction: "SPEC_DEEP" }])).replace('"SPEC_DEEP"', nested);
+  const report = collectProjectionObservations(encoded);
+  assert.equal(report.scenarios[0]?.outcome, "rejected");
+  let current: any = report.scenarios[0]!.rawExtraction;
+  for (let index = 0; index < depth; index++) { assert.ok(Array.isArray(current) && current.length === 1); current = current[0]; }
+  assert.equal(current, null);
+  const result = cli("deep-malformed-json", [fixture("deep-malformed-json.json", encoded)]);
+  assert.equal(result.status, 1); assert.equal(result.stderr, "");
+  const emitted = JSON.parse(result.stdout);
+  assert.equal(emitted.scenarios[0].outcome, "rejected");
+  assert.equal(emitted.inputSha256, hash(encoded));
+  assertIncomplete(report);
+});
+
+check("exact 8 MiB API and CLI input succeeds, while one extra byte is rejected", () => {
+  const maximum = 8 * 1024 * 1024, base = JSON.stringify(input([scenario()]));
+  const exact = base + " ".repeat(maximum - Buffer.byteLength(base));
+  assert.equal(Buffer.byteLength(exact), maximum);
+  const report = collectProjectionObservations(exact);
+  assert.equal(report.inputSha256, hash(exact));
+  assertIncomplete(report);
+  const exactFile = fixture("exact-eight-mib.json", exact), result = cli("exact-eight-mib", [exactFile]);
+  assert.equal(result.status, 1); assert.equal(result.stderr, "");
+  assert.deepEqual(JSON.parse(result.stdout), report);
+  assert.equal(hash(readFileSync(exactFile)), hash(exact));
+  assert.throws(() => collectProjectionObservations(exact + " "), { message: "input-too-large" });
+  cliError("eight-mib-plus-one", fixture("eight-mib-plus-one.json", exact + " "), "input-too-large");
+  const multibyte = `"${"界".repeat(Math.floor(maximum / 3))}"`;
+  assert.ok(multibyte.length < maximum && Buffer.byteLength(multibyte) > maximum);
+  assert.throws(() => collectProjectionObservations(multibyte), { message: "input-too-large" });
+});
+
+check("CLI fatal decoding rejects overlong, truncated, surrogate and out-of-range UTF-8 sequences", () => {
+  const cases = { overlong: [0xc0, 0xaf], truncated: [0xf0, 0x9f, 0x98], surrogate: [0xed, 0xa0, 0x80], "out-of-range": [0xf4, 0x90, 0x80, 0x80] };
+  for (const [name, bytes] of Object.entries(cases)) cliError(`utf8-${name}`, fixture(`utf8-${name}.json`, Buffer.from(bytes)), "invalid-utf8");
+  cliError("utf8-bom-preserved", fixture("utf8-bom.json", Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(JSON.stringify(input([scenario()]))) ])), "invalid-json");
+});
+
+check("CLI reads JSON text only and never executes a caller file or accepts an extra output argument", () => {
+  cliError("javascript-is-not-json", fixture("not-json.js", "globalThis.PROJECTION_SPEC_EXECUTED = true;"), "invalid-json");
+  const inputPath = fixture("valid-input.unusual-extension", JSON.stringify(input([{ ...scenario(), extraction: null }])));
+  const result = cli("one-json-input-only", [inputPath]);
+  assert.equal(result.status, 1); assert.equal(JSON.parse(result.stdout).scenarios[0].outcome, "rejected");
+  const extra = cli("extra-output-argument", [inputPath, join(evidence, "must-not-create.json")]);
+  assert.equal(extra.status, 2); assert.equal(extra.stdout, ""); assert.equal(extra.stderr, "projection-collector: usage\n");
+});
+
+check("reviewed files remain unchanged during independent probes", () => assert.deepEqual(reviewed(), before));
+const summary = {
+  schemaVersion: "product-projections-spec-independent-review-1", baseline: "59df723197c0959dca926e2d31258846145d136b",
+  script: { path: scriptPath, sha256: hash(readFileSync(scriptPath)) }, reviewedFiles: before,
+  checks, counts: { total: checks.length, passed: checks.filter(check => check.status === "PASS").length, failed: checks.filter(check => check.status === "FAIL").length },
+  cliResults, fixtures, runtime: { node: process.version, platform: process.platform, architecture: process.arch },
+  limits: ["Component specification review only", "No product modifications or integration verdict", "Static imports and wrapper denial evidence are not complete runtime attestation"],
+};
+writeFileSync(resultsPath, JSON.stringify(summary, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ resultsPath, resultsSha256: hash(readFileSync(resultsPath)), counts: summary.counts }));
+if (summary.counts.failed) process.exitCode = 1;

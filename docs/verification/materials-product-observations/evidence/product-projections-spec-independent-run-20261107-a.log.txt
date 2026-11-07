@@ -1,0 +1,34 @@
+PASS multi-item projection preserves native order, filtering, normalization, hints and raw candidate copies
+PASS empty lists and fully filtered labels never create null terms or inferred item groups
+PASS explicit intent changes only the native constraint mapping stimulus
+PASS source span offsets are native, and only labels supported by the quoted span survive
+PASS owner mismatch, revoked fixtures, missing or ambiguous quotes produce native rejection only
+PASS malformed canonical candidates retain raw JSON and are not repaired or treated as outer errors
+PASS strict wrapper/reference/segment boundaries reject supplied policy, catalog, mapping or answer overrides
+PASS intent membership is checked without requiring valid candidate adoption semantics
+PASS all 512 scenarios and 1000 unique source segments remain within the bounded outer contract
+PASS determinism includes exact input bytes, lexical scenario canonicalization, array order and all metadata keys
+PASS overflowing JSON numeric literals are rejected instead of silently becoming null
+PASS unexpected native Zod exception aborts the collection and CLI emits no partial report
+PASS deep malformed extraction JSON is preserved without recursive API or CLI serialization failure
+FAIL exact 8 MiB API and CLI input succeeds, while one extra byte is rejected AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert.ok(multibyte.length < maximum && Buffer.byteLength(multibyte) > maximum)
+
+    at <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\product-projections-spec-independent-20261107-a.ts:320:10)
+    at check (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\product-projections-spec-independent-20261107-a.ts:91:9)
+    at <anonymous> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\work\grounded-verification\product-projections-spec-independent-20261107-a.ts:306:1)
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+PASS CLI fatal decoding rejects overlong, truncated, surrogate and out-of-range UTF-8 sequences
+PASS CLI reads JSON text only and never executes a caller file or accepts an extra output argument
+PASS reviewed files remain unchanged during independent probes
+{"resultsPath":"C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\product-projections-spec-independent-20261107-a-results.json","resultsSha256":"be6964545777221986aa8721d3f331ce865faa35c4bf672459b00d7d83f09dfa","counts":{"total":17,"passed":16,"failed":1}}

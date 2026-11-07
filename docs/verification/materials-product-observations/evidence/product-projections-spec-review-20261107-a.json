@@ -1,0 +1,435 @@
+{
+  "schemaVersion": "product-projections-independent-specification-review-1",
+  "date": "2026-11-07",
+  "baseline": "59df723197c0959dca926e2d31258846145d136b",
+  "reviewer": "/root/review_product_projection_spec",
+  "verdict": "PASS",
+  "actionableFindings": [],
+  "scope": "Task 1 only: JSON-only native projection observation collector, its author tests, and protocol. Task 2 dataset/report and subsequent code-quality review are outside this verdict.",
+  "reviewedFiles": [
+    {
+      "path": "docs/verification/materials-product-observations/collect-projections.ts",
+      "sha256": "6752131d91ba7be945b33fae2c32d460b12caae076f74f15d1413c46b82a60e0"
+    },
+    {
+      "path": "docs/verification/materials-product-observations/collect-projections.test.ts",
+      "sha256": "3138e94e8d18ab9413533ff742618a7e8f1f29087c01275c7a400e5577df20b1"
+    },
+    {
+      "path": "docs/verification/materials-product-observations/collector-protocol.md",
+      "sha256": "90007da618ee8c070bb657acd78a6b1688ae83c98b22c9ef554109bd647d9238"
+    }
+  ],
+  "plan": {
+    "path": "docs/superpowers/plans/2026-11-07-materials-product-observation-collector.md",
+    "sha256": "895eb1388de3ee4798b3f78fb8f51e2496044df8c2328caf3367a7ecf61c9a5a"
+  },
+  "requirements": [
+    {
+      "verdict": "PASS",
+      "requirement": "Only bounded JSON input; strict wrapper/reference/segment objects, bounded source syntax, unique scenario/segment/intent IDs, actual candidate ID membership.",
+      "anchors": [
+        "docs/verification/materials-product-observations/collect-projections.ts:14",
+        "docs/verification/materials-product-observations/collect-projections.ts:50",
+        "docs/verification/materials-product-observations/collect-projections.ts:73",
+        "docs/verification/materials-product-observations/collect-projections.ts:93",
+        "docs/verification/materials-product-observations/collector-protocol.md:31"
+      ],
+      "evidence": "Author suite plus independent strict-override/membership/source-span groups, 512 accepted scenarios, 1000 accepted unique segments, and 513 rejection."
+    },
+    {
+      "verdict": "PASS",
+      "requirement": "Real production projection exactly once per scenario; fixed grounded policy and published native mapper/catalog imports; no oracle/coverage inputs.",
+      "anchors": [
+        "docs/verification/materials-product-observations/collect-projections.ts:6",
+        "docs/verification/materials-product-observations/collect-projections.ts:161",
+        "docs/verification/materials-product-observations/collect-projections.ts:168",
+        "app/server/documents/extraction-validator.ts:25",
+        "app/lib/materials/skill-mapper.ts:100"
+      ],
+      "evidence": "Static import/call graph inspection plus independent direct production equality for multi-item projection, terms and item groups; caller policy/catalog/mapping/answer overrides reject."
+    },
+    {
+      "verdict": "PASS",
+      "requirement": "Raw candidates and label normalization/removals remain distinct and ordered by candidate; exact hints/review points and native empty-list behavior.",
+      "anchors": [
+        "docs/verification/materials-product-observations/collect-projections.ts:153",
+        "docs/verification/materials-product-observations/collect-projections.ts:173",
+        "docs/verification/materials-product-observations/collect-projections.ts:181",
+        "docs/verification/materials-product-observations/collector-protocol.md:41"
+      ],
+      "evidence": "Independent four-item order z-fact/a-fact/m-fact/b-fact, Rust removal and SQL/UI-token whitespace normalization, original extraction equality, source-bound hint and unresolved review point, no synthetic null mappings, empty non-learning constraint group preserved."
+    },
+    {
+      "verdict": "PASS",
+      "requirement": "Only native invalid-content is an ordinary rejection; malformed extraction preserved; unexpected exceptions fail the whole API/CLI run.",
+      "anchors": [
+        "docs/verification/materials-product-observations/collect-projections.ts:160",
+        "docs/verification/materials-product-observations/collect-projections.ts:164",
+        "docs/verification/materials-product-observations/collector-protocol.md:45"
+      ],
+      "evidence": "Independent malformed primitive/object/duplicate candidate/duplicate normalized-label cases and source owner/revocation/quote rejection. Duplicate resolved native review-point IDs throw ZodError; CLI emits implementation-error with no partial stdout after an earlier successful scenario."
+    },
+    {
+      "verdict": "PASS",
+      "requirement": "Projected does not mean confirmed; explicit intent does not mean service adoption; incomplete evaluation, false gates, no real model calls, and native gaps are unconditional.",
+      "anchors": [
+        "docs/verification/materials-product-observations/collect-projections.ts:193",
+        "docs/verification/materials-product-observations/collect-projections.ts:195",
+        "docs/verification/materials-product-observations/collect-projections.ts:197",
+        "docs/verification/materials-product-observations/collector-protocol.md:5",
+        "docs/verification/materials-product-observations/collector-protocol.md:43",
+        "docs/verification/materials-product-observations/collector-protocol.md:67"
+      ],
+      "evidence": "Independent assertions on successful, rejected, empty-label, and intent-toggle outputs; no courseObservations/planObservations; all gaps and flags retained. Static code invokes no confirmation/adoption/service mutation."
+    },
+    {
+      "verdict": "PASS",
+      "requirement": "Deterministic exact-input SHA, ordered canonical scenario SHA and actual catalog canonical SHA; declared code hashes explicitly partial.",
+      "anchors": [
+        "docs/verification/materials-product-observations/collect-projections.ts:113",
+        "docs/verification/materials-product-observations/collect-projections.ts:154",
+        "docs/verification/materials-product-observations/collect-projections.ts:192",
+        "docs/verification/materials-product-observations/collect-projections.ts:200",
+        "docs/verification/materials-product-observations/collector-protocol.md:71",
+        "docs/verification/materials-product-observations/collector-protocol.md:73"
+      ],
+      "evidence": "Independent repeated equality, changed formatting/key order, reversed scenario order, integer-like keys and metadata preservation, actual catalog/version comparison and every declared-file hash verified. 12,000-deep malformed JSON survives API and CLI."
+    },
+    {
+      "verdict": "PASS",
+      "requirement": "CLI consumes one local regular input file, reads at most 8 MiB+1 bytes, uses fatal UTF-8, guards import entry, stdout only; exits 1 incomplete / 2 error.",
+      "anchors": [
+        "docs/verification/materials-product-observations/collect-projections.ts:210",
+        "docs/verification/materials-product-observations/collect-projections.ts:217",
+        "docs/verification/materials-product-observations/collect-projections.ts:238",
+        "docs/verification/materials-product-observations/collect-projections.ts:242",
+        "docs/verification/materials-product-observations/collect-projections.ts:253",
+        "docs/verification/materials-product-observations/collector-protocol.md:77"
+      ],
+      "evidence": "Author argument/directory/missing-file/import tests; independent exact 8 MiB successful API+CLI equality, +1 byte rejection, byte-vs-character bound, malformed UTF-8 variants, retained BOM rejected as invalid JSON, JSON text with arbitrary extension, non-JSON JS rejected, extra argument rejected. Bounded read verified statically."
+    },
+    {
+      "verdict": "PASS",
+      "requirement": "No provider/network/storage action, credentials read, or product/frozen asset mutation.",
+      "anchors": [
+        "docs/verification/materials-product-observations/collect-projections.ts:1",
+        "docs/verification/materials-product-observations/collect-projections.ts:161",
+        "docs/verification/materials-product-observations/collect-projections.ts:169",
+        "docs/verification/materials-product-observations/collect-projections.ts:204",
+        "docs/verification/materials-product-observations/collect-projections.ts:221",
+        "docs/verification/materials-product-observations/collector-protocol.md:3"
+      ],
+      "evidence": "Collector imports no provider client and has no environment/credential read or file/DB write path. Only read-only source hashes, input read, and stdout/stderr are used; D1 import supplies the error class only. Fresh reviewer runs report 0 non-loopback denials. Protected app/worker/materials-quality-v2 diff versus baseline is empty. This is bounded source/run evidence, not full runtime attestation."
+    }
+  ],
+  "testEvidence": {
+    "authorFresh": {
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "run": "product-projections-spec-author-20261107-a"
+    },
+    "independent": {
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "groups": [
+        {
+          "name": "multi-item projection preserves native order, filtering, normalization, hints and raw candidate copies",
+          "status": "PASS"
+        },
+        {
+          "name": "empty lists and fully filtered labels never create null terms or inferred item groups",
+          "status": "PASS"
+        },
+        {
+          "name": "explicit intent changes only the native constraint mapping stimulus",
+          "status": "PASS"
+        },
+        {
+          "name": "source span offsets are native, and only labels supported by the quoted span survive",
+          "status": "PASS"
+        },
+        {
+          "name": "owner mismatch, revoked fixtures, missing or ambiguous quotes produce native rejection only",
+          "status": "PASS"
+        },
+        {
+          "name": "malformed canonical candidates retain raw JSON and are not repaired or treated as outer errors",
+          "status": "PASS"
+        },
+        {
+          "name": "strict wrapper/reference/segment boundaries reject supplied policy, catalog, mapping or answer overrides",
+          "status": "PASS"
+        },
+        {
+          "name": "intent membership is checked without requiring valid candidate adoption semantics",
+          "status": "PASS"
+        },
+        {
+          "name": "all 512 scenarios and 1000 unique source segments remain within the bounded outer contract",
+          "status": "PASS"
+        },
+        {
+          "name": "determinism includes exact input bytes, lexical scenario canonicalization, array order and all metadata keys",
+          "status": "PASS"
+        },
+        {
+          "name": "overflowing JSON numeric literals are rejected instead of silently becoming null",
+          "status": "PASS"
+        },
+        {
+          "name": "unexpected native Zod exception aborts the collection and CLI emits no partial report",
+          "status": "PASS"
+        },
+        {
+          "name": "deep malformed extraction JSON is preserved without recursive API or CLI serialization failure",
+          "status": "PASS"
+        },
+        {
+          "name": "exact 8 MiB API and CLI input succeeds, while one extra byte is rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "CLI fatal decoding rejects overlong, truncated, surrogate and out-of-range UTF-8 sequences",
+          "status": "PASS"
+        },
+        {
+          "name": "CLI reads JSON text only and never executes a caller file or accepts an extra output argument",
+          "status": "PASS"
+        },
+        {
+          "name": "reviewed files remain unchanged during independent probes",
+          "status": "PASS"
+        }
+      ],
+      "runtime": {
+        "node": "v24.14.1",
+        "platform": "win32",
+        "architecture": "x64"
+      }
+    },
+    "preservedProbeFailure": {
+      "run": "product-projections-spec-independent-run-20261107-a",
+      "path": "work/grounded-verification/product-projections-spec-independent-20261107-a.ts",
+      "line": 320,
+      "cause": "Reviewer fixture used floor(8388608 / 3) three-byte characters plus two quote bytes: exactly 8388608 bytes. Its claim of being over limit was false before calling the collector. The corrected B fixture adds one character and is 8388611 bytes. A source, result and log remain unchanged; only probe paths and this construction changed in B.",
+      "collectorBug": false
+    }
+  },
+  "runs": [
+    {
+      "name": "product-projections-author-red-20261107",
+      "interpretation": "Preexisting author Red evidence inspected: first assertion is collector returns observed SQL projection, actual undefined; no missing-module failure.",
+      "metadata": {
+        "path": "work/grounded-verification/product-projections-author-red-20261107.json",
+        "sha256": "26d7f3d17e063f5c4fee75b4981743d69c7bfbe166f5ea0b0283573a039b8476"
+      },
+      "log": {
+        "path": "work/grounded-verification/product-projections-author-red-20261107.log",
+        "sha256": "464426371404697799732cada1dff5a83b137d5daecdb9bdd1bc472dff46d59e"
+      },
+      "exit": 1,
+      "nonLoopbackDenials": 0,
+      "denialLog": {
+        "path": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-9eJLdN\\network.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "product-projections-author-green-20261107",
+      "interpretation": "Preexisting author Green evidence inspected, 36/36.",
+      "metadata": {
+        "path": "work/grounded-verification/product-projections-author-green-20261107.json",
+        "sha256": "1cee70e297bd0d213462fe6b896ee9331eefd5e9b55de493051c76fc9d0601fe"
+      },
+      "log": {
+        "path": "work/grounded-verification/product-projections-author-green-20261107.log",
+        "sha256": "ea5456c24a9f8c908db99ef4d669e1e90cfb471cc680be59f21dcff0d6461f32"
+      },
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "denialLog": {
+        "path": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-sHkvvD\\network.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "product-projections-author-lint-20261107",
+      "interpretation": "Preexisting targeted-lint evidence inspected: exit 0 and empty log. Not a fresh reviewer lint run.",
+      "metadata": {
+        "path": "work/grounded-verification/product-projections-author-lint-20261107.json",
+        "sha256": "fd1bc026ee61e0bc1c7730a1850863fba83ffada4f7efc7d8fe239b5b183922d"
+      },
+      "log": {
+        "path": "work/grounded-verification/product-projections-author-lint-20261107.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "denialLog": {
+        "path": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-mp7OQA\\network.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "product-projections-spec-author-20261107-a",
+      "interpretation": "Fresh reviewer execution of the complete author suite: 36 passed, 0 failed.",
+      "metadata": {
+        "path": "work/grounded-verification/product-projections-spec-author-20261107-a.json",
+        "sha256": "c3bf3b773407631fc96f3bc4893329d3c17137bc349619eee9f8e9dd3e715b8c"
+      },
+      "log": {
+        "path": "work/grounded-verification/product-projections-spec-author-20261107-a.log",
+        "sha256": "9357eec8bf559e44f69e30cdfacafb2c2561349cff80972b146393119374e93e"
+      },
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "denialLog": {
+        "path": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-t5szXm\\network.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "product-projections-spec-independent-run-20261107-a",
+      "interpretation": "Preserved independent probe with a reviewer fixture arithmetic error: 16/17 groups passed; collector exact-limit and plus-one checks passed before the failing fixture precondition.",
+      "metadata": {
+        "path": "work/grounded-verification/product-projections-spec-independent-run-20261107-a.json",
+        "sha256": "3bd63c0c69ca7cb541e896fac377975f3c1f72c7efb79a79fe0f253365271e75"
+      },
+      "log": {
+        "path": "work/grounded-verification/product-projections-spec-independent-run-20261107-a.log",
+        "sha256": "8ae4bd65e17817729c687f0ad8d29ed94d4e98f534df0fc8cfe49f1252641ed5"
+      },
+      "exit": 1,
+      "nonLoopbackDenials": 0,
+      "denialLog": {
+        "path": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-8pkBUm\\network.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "product-projections-spec-independent-run-20261107-b",
+      "interpretation": "Fresh corrected independent probe: 17/17 groups passed.",
+      "metadata": {
+        "path": "work/grounded-verification/product-projections-spec-independent-run-20261107-b.json",
+        "sha256": "f19635225ae4cb1402407b95dec3d6f7d159f14201979f2c2774ce84cede0242"
+      },
+      "log": {
+        "path": "work/grounded-verification/product-projections-spec-independent-run-20261107-b.log",
+        "sha256": "8b099a4ed13846a118b9b59bfb202136a6f5588b2cec1e000a04828d67489b70"
+      },
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "denialLog": {
+        "path": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-qNalPt\\network.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "probeArtifacts": [
+    {
+      "path": "work/grounded-verification/product-projections-spec-independent-20261107-a.ts",
+      "sha256": "1e2422434daca9233981b6a01d7fcf2fce67d6b65379812d108c27bfb1442ac1"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-spec-independent-20261107-a-results.json",
+      "sha256": "be6964545777221986aa8721d3f331ce865faa35c4bf672459b00d7d83f09dfa"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-spec-independent-20261107-b.ts",
+      "sha256": "f60a8e921084aa8bcedc62d07c3c3e0ec2384dcb88a45a3dbce5525a3d95e169"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-spec-independent-20261107-b-results.json",
+      "sha256": "3d81a023189b73a40e763c35c3ae811edf3089e8de89013eaa4aadffcd27a852"
+    },
+    {
+      "path": "work/grounded-verification/product-projections-spec-memo-20261107-a.mjs",
+      "sha256": "6fc770ca842c503109b0a48ec59a7a2f05d38e2738a9bb6aafe896100235908d"
+    }
+  ],
+  "supportFiles": [
+    {
+      "path": "work/grounded-verification/run.mjs",
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    },
+    {
+      "path": "work/materials-browser-handoff/block-outbound.cjs",
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    },
+    {
+      "path": "app/contracts/documents.ts",
+      "sha256": "081b385f3ef2357d7f14dac08bc687caf6126f58beded75c9b230586073635e8"
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "3f6da9ca836f902bc9a4385813dfccf897c1cde189ff17a4d3759c2ef57175b7"
+    },
+    {
+      "path": "app/lib/materials/skill-mapper.ts",
+      "sha256": "6f4498453530bd5fbcb8074501bbcea958a792eee3899eb6a9c66b5f514a2889"
+    },
+    {
+      "path": "app/server/documents/review-points.ts",
+      "sha256": "a6d7f26e42c0dcef85d649237e92f0f2cf9c3836d3b45984f8e15343720a0c06"
+    },
+    {
+      "path": "app/server/documents/d1-repository.ts",
+      "sha256": "6371159830da4b26ec3ccc2dace5939c556ee54eb510f3c352629d259c02db36"
+    },
+    {
+      "path": "app/server/documents/policy.ts",
+      "sha256": "4bb7bf065ac2b221ae92f4874ab32efc7b75f4b99c2c02d23941a888b1cc8c7d"
+    },
+    {
+      "path": "app/data/flagship-blueprint.ts",
+      "sha256": "b7aafe379b7c27eb133b378090ec50818835cdd39a9a274f7ba603aa72c46264"
+    },
+    {
+      "path": "app/data/flagship-unit-registry.ts",
+      "sha256": "feda4ce53ee53ebb3cc1e80f486dc8c32014193cb79f856d44962b0501bdd4cc"
+    },
+    {
+      "path": "package.json",
+      "sha256": "6c0453db9cd4387879050bea47b355794320b769d4ecd7f44665bf7f0758babf"
+    },
+    {
+      "path": "node_modules/tsx/package.json",
+      "sha256": "453711ce1bb4082eab5b1405df671666b4e61eaedce5f50c67b734269c9f72f7"
+    },
+    {
+      "path": "node_modules/zod/package.json",
+      "sha256": "c630bd10b52dcf71c112a2bf78dbf2734b9db58d62de663b8d86c2ec2c8cda2e"
+    }
+  ],
+  "workspace": {
+    "protectedPathsDiffVersusBaseline": "",
+    "statusAtMemo": "?? docs/verification/2026-11-07-materials-product-observation-gaps.md\n?? docs/verification/materials-product-observations/",
+    "reviewerChanges": "Only ignored work/grounded-verification/product-projections-spec-* probes, fixtures, results and memo; no reviewed/product/frozen files modified."
+  },
+  "reproduction": {
+    "originalCommands": [
+      "node work/grounded-verification/run.mjs product-projections-spec-author-20261107-a --import tsx --test docs/verification/materials-product-observations/collect-projections.test.ts",
+      "node work/grounded-verification/run.mjs product-projections-spec-independent-run-20261107-a --import tsx work/grounded-verification/product-projections-spec-independent-20261107-a.ts",
+      "node work/grounded-verification/run.mjs product-projections-spec-independent-run-20261107-b --import tsx work/grounded-verification/product-projections-spec-independent-20261107-b.ts"
+    ],
+    "safeRerun": "Never reuse the original labels. The independent script creates fixture/result files with wx. For a rerun, copy the B script to a fresh product-projections-spec-* basename and replace every product-projections-spec-independent-20261107-b evidence basename consistently with that fresh basename, then invoke it through run.mjs using another unique wrapper label. Script, results and wrapper JSON names must remain distinct.",
+    "independentFixtureManifest": "The B results JSON includes exact fixture byte counts/SHA-256 plus per-CLI stdout and stderr hashes; the fixtures remain beside the script in its -fixtures directory."
+  },
+  "limitations": [
+    "The PASS is a specification review for the three exact reviewed file hashes, not code quality, Task 2 dataset provenance, service integration, model quality, qualification or Gate success.",
+    "No real provider, network, repository persistence, user confirmation, adoption, planning service, browser flow, deployment, migration, push or commit was exercised.",
+    "The production validator can still throw on colliding resolved review-point IDs; propagating that exception is required collector behavior and does not repair that product limitation.",
+    "The declared code-file hashes are partial evidence and cannot prove loaded dependency identity or complete runtime state. The wrapper blocks non-loopback attempts; its zero denial count alone is not a whole-process network audit.",
+    "Source records are authored synthetic fixtures. Native task coverage/planning outputs and authenticated state remain absent. Explicit intent only changes component inputs.",
+    "Preexisting Red/Green/lint logs were inspected and hashed, but the old Red stub was not reconstructed. The author suite was freshly rerun; subsequent quality review remains required."
+  ]
+}

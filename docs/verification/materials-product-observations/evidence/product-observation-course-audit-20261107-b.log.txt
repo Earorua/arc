@@ -1,0 +1,1 @@
+{"output":"work/grounded-verification/product-observation-course-audit-results-20261107.json","sha256":"121b7fc71fd285bb56e2a20964b3e11717d6bb3c9e7aa6a1da6460597a3a49c1","summary":{"relations":256,"topicMatches":118,"topicDifferences":138,"missingTaskCoverage":256,"noTermOutput":11},"actualProductIntegrationVerified":false,"qualificationApproved":false}

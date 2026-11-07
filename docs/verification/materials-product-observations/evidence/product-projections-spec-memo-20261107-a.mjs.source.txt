@@ -1,0 +1,114 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const self = fileURLToPath(import.meta.url);
+const root = fileURLToPath(new URL("../../", import.meta.url));
+const work = dirname(self);
+const sha = value => createHash("sha256").update(value).digest("hex");
+const full = path => join(root, path);
+const fingerprint = path => ({ path, sha256: sha(readFileSync(full(path))) });
+const parse = path => JSON.parse(readFileSync(full(path), "utf8"));
+const git = args => {
+  const result = spawnSync("git", args, { cwd: root, encoding: "utf8", windowsHide: true });
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
+};
+const expectedFiles = [
+  ["docs/verification/materials-product-observations/collect-projections.ts", "6752131d91ba7be945b33fae2c32d460b12caae076f74f15d1413c46b82a60e0"],
+  ["docs/verification/materials-product-observations/collect-projections.test.ts", "3138e94e8d18ab9413533ff742618a7e8f1f29087c01275c7a400e5577df20b1"],
+  ["docs/verification/materials-product-observations/collector-protocol.md", "90007da618ee8c070bb657acd78a6b1688ae83c98b22c9ef554109bd647d9238"],
+];
+const reviewedFiles = expectedFiles.map(([path, expected]) => {
+  const evidence = fingerprint(path);
+  assert.equal(evidence.sha256, expected);
+  return evidence;
+});
+const baseline = "59df723197c0959dca926e2d31258846145d136b";
+assert.equal(git(["rev-parse", "HEAD"]), baseline);
+const protectedDiff = git(["diff", "--name-only", baseline, "--", "app", "worker", "docs/verification/materials-quality-v2"]);
+assert.equal(protectedDiff, "");
+const independentA = parse("work/grounded-verification/product-projections-spec-independent-20261107-a-results.json");
+const independentB = parse("work/grounded-verification/product-projections-spec-independent-20261107-b-results.json");
+assert.deepEqual(independentB.counts, { total: 17, passed: 17, failed: 0 });
+assert.deepEqual(independentB.reviewedFiles, reviewedFiles);
+assert.deepEqual(independentA.counts, { total: 17, passed: 16, failed: 1 });
+const authoredLog = readFileSync(join(work, "product-projections-spec-author-20261107-a.log"), "utf8");
+assert.match(authoredLog, /tests 36/);
+assert.match(authoredLog, /pass 36/);
+assert.match(authoredLog, /fail 0/);
+const runs = [
+  ["product-projections-author-red-20261107", "Preexisting author Red evidence inspected: first assertion is collector returns observed SQL projection, actual undefined; no missing-module failure.", 1],
+  ["product-projections-author-green-20261107", "Preexisting author Green evidence inspected, 36/36.", 0],
+  ["product-projections-author-lint-20261107", "Preexisting targeted-lint evidence inspected: exit 0 and empty log. Not a fresh reviewer lint run.", 0],
+  ["product-projections-spec-author-20261107-a", "Fresh reviewer execution of the complete author suite: 36 passed, 0 failed.", 0],
+  ["product-projections-spec-independent-run-20261107-a", "Preserved independent probe with a reviewer fixture arithmetic error: 16/17 groups passed; collector exact-limit and plus-one checks passed before the failing fixture precondition.", 1],
+  ["product-projections-spec-independent-run-20261107-b", "Fresh corrected independent probe: 17/17 groups passed.", 0],
+].map(([name, interpretation, expectedExit]) => {
+  const metadataPath = `work/grounded-verification/${name}.json`;
+  const logPath = `work/grounded-verification/${name}.log`;
+  const metadata = parse(metadataPath), log = fingerprint(logPath);
+  assert.equal(metadata.exit, expectedExit);
+  assert.equal(metadata.logSha256, log.sha256);
+  assert.equal(metadata.nonLoopbackDenials, 0);
+  const denialPath = join(metadata.profile, "network.log");
+  const denial = readFileSync(denialPath);
+  assert.equal(denial.length, 0);
+  return { name, interpretation, metadata: fingerprint(metadataPath), log, exit: metadata.exit, nonLoopbackDenials: metadata.nonLoopbackDenials, denialLog: { path: denialPath, bytes: denial.length, sha256: sha(denial) } };
+});
+const code = "docs/verification/materials-product-observations/collect-projections.ts";
+const protocol = "docs/verification/materials-product-observations/collector-protocol.md";
+const memo = {
+  schemaVersion: "product-projections-independent-specification-review-1",
+  date: "2026-11-07", baseline, reviewer: "/root/review_product_projection_spec", verdict: "PASS", actionableFindings: [],
+  scope: "Task 1 only: JSON-only native projection observation collector, its author tests, and protocol. Task 2 dataset/report and subsequent code-quality review are outside this verdict.",
+  reviewedFiles, plan: fingerprint("docs/superpowers/plans/2026-11-07-materials-product-observation-collector.md"),
+  requirements: [
+    { verdict: "PASS", requirement: "Only bounded JSON input; strict wrapper/reference/segment objects, bounded source syntax, unique scenario/segment/intent IDs, actual candidate ID membership.", anchors: [`${code}:14`, `${code}:50`, `${code}:73`, `${code}:93`, `${protocol}:31`], evidence: "Author suite plus independent strict-override/membership/source-span groups, 512 accepted scenarios, 1000 accepted unique segments, and 513 rejection." },
+    { verdict: "PASS", requirement: "Real production projection exactly once per scenario; fixed grounded policy and published native mapper/catalog imports; no oracle/coverage inputs.", anchors: [`${code}:6`, `${code}:161`, `${code}:168`, "app/server/documents/extraction-validator.ts:25", "app/lib/materials/skill-mapper.ts:100"], evidence: "Static import/call graph inspection plus independent direct production equality for multi-item projection, terms and item groups; caller policy/catalog/mapping/answer overrides reject." },
+    { verdict: "PASS", requirement: "Raw candidates and label normalization/removals remain distinct and ordered by candidate; exact hints/review points and native empty-list behavior.", anchors: [`${code}:153`, `${code}:173`, `${code}:181`, `${protocol}:41`], evidence: "Independent four-item order z-fact/a-fact/m-fact/b-fact, Rust removal and SQL/UI-token whitespace normalization, original extraction equality, source-bound hint and unresolved review point, no synthetic null mappings, empty non-learning constraint group preserved." },
+    { verdict: "PASS", requirement: "Only native invalid-content is an ordinary rejection; malformed extraction preserved; unexpected exceptions fail the whole API/CLI run.", anchors: [`${code}:160`, `${code}:164`, `${protocol}:45`], evidence: "Independent malformed primitive/object/duplicate candidate/duplicate normalized-label cases and source owner/revocation/quote rejection. Duplicate resolved native review-point IDs throw ZodError; CLI emits implementation-error with no partial stdout after an earlier successful scenario." },
+    { verdict: "PASS", requirement: "Projected does not mean confirmed; explicit intent does not mean service adoption; incomplete evaluation, false gates, no real model calls, and native gaps are unconditional.", anchors: [`${code}:193`, `${code}:195`, `${code}:197`, `${protocol}:5`, `${protocol}:43`, `${protocol}:67`], evidence: "Independent assertions on successful, rejected, empty-label, and intent-toggle outputs; no courseObservations/planObservations; all gaps and flags retained. Static code invokes no confirmation/adoption/service mutation." },
+    { verdict: "PASS", requirement: "Deterministic exact-input SHA, ordered canonical scenario SHA and actual catalog canonical SHA; declared code hashes explicitly partial.", anchors: [`${code}:113`, `${code}:154`, `${code}:192`, `${code}:200`, `${protocol}:71`, `${protocol}:73`], evidence: "Independent repeated equality, changed formatting/key order, reversed scenario order, integer-like keys and metadata preservation, actual catalog/version comparison and every declared-file hash verified. 12,000-deep malformed JSON survives API and CLI." },
+    { verdict: "PASS", requirement: "CLI consumes one local regular input file, reads at most 8 MiB+1 bytes, uses fatal UTF-8, guards import entry, stdout only; exits 1 incomplete / 2 error.", anchors: [`${code}:210`, `${code}:217`, `${code}:238`, `${code}:242`, `${code}:253`, `${protocol}:77`], evidence: "Author argument/directory/missing-file/import tests; independent exact 8 MiB successful API+CLI equality, +1 byte rejection, byte-vs-character bound, malformed UTF-8 variants, retained BOM rejected as invalid JSON, JSON text with arbitrary extension, non-JSON JS rejected, extra argument rejected. Bounded read verified statically." },
+    { verdict: "PASS", requirement: "No provider/network/storage action, credentials read, or product/frozen asset mutation.", anchors: [`${code}:1`, `${code}:161`, `${code}:169`, `${code}:204`, `${code}:221`, `${protocol}:3`], evidence: "Collector imports no provider client and has no environment/credential read or file/DB write path. Only read-only source hashes, input read, and stdout/stderr are used; D1 import supplies the error class only. Fresh reviewer runs report 0 non-loopback denials. Protected app/worker/materials-quality-v2 diff versus baseline is empty. This is bounded source/run evidence, not full runtime attestation." },
+  ],
+  testEvidence: {
+    authorFresh: { tests: 36, pass: 36, fail: 0, run: "product-projections-spec-author-20261107-a" },
+    independent: { ...independentB.counts, groups: independentB.checks, runtime: independentB.runtime },
+    preservedProbeFailure: { run: "product-projections-spec-independent-run-20261107-a", path: "work/grounded-verification/product-projections-spec-independent-20261107-a.ts", line: 320, cause: "Reviewer fixture used floor(8388608 / 3) three-byte characters plus two quote bytes: exactly 8388608 bytes. Its claim of being over limit was false before calling the collector. The corrected B fixture adds one character and is 8388611 bytes. A source, result and log remain unchanged; only probe paths and this construction changed in B.", collectorBug: false },
+  },
+  runs,
+  probeArtifacts: [
+    "work/grounded-verification/product-projections-spec-independent-20261107-a.ts",
+    "work/grounded-verification/product-projections-spec-independent-20261107-a-results.json",
+    "work/grounded-verification/product-projections-spec-independent-20261107-b.ts",
+    "work/grounded-verification/product-projections-spec-independent-20261107-b-results.json",
+    "work/grounded-verification/product-projections-spec-memo-20261107-a.mjs",
+  ].map(fingerprint),
+  supportFiles: ["work/grounded-verification/run.mjs", "work/materials-browser-handoff/block-outbound.cjs", "app/contracts/documents.ts", "app/server/documents/extraction-validator.ts", "app/lib/materials/skill-mapper.ts", "app/server/documents/review-points.ts", "app/server/documents/d1-repository.ts", "app/server/documents/policy.ts", "app/data/flagship-blueprint.ts", "app/data/flagship-unit-registry.ts", "package.json", "node_modules/tsx/package.json", "node_modules/zod/package.json"].filter(path => existsSync(full(path))).map(fingerprint),
+  workspace: { protectedPathsDiffVersusBaseline: protectedDiff, statusAtMemo: git(["status", "--porcelain=v1"]), reviewerChanges: "Only ignored work/grounded-verification/product-projections-spec-* probes, fixtures, results and memo; no reviewed/product/frozen files modified." },
+  reproduction: {
+    originalCommands: [
+      "node work/grounded-verification/run.mjs product-projections-spec-author-20261107-a --import tsx --test docs/verification/materials-product-observations/collect-projections.test.ts",
+      "node work/grounded-verification/run.mjs product-projections-spec-independent-run-20261107-a --import tsx work/grounded-verification/product-projections-spec-independent-20261107-a.ts",
+      "node work/grounded-verification/run.mjs product-projections-spec-independent-run-20261107-b --import tsx work/grounded-verification/product-projections-spec-independent-20261107-b.ts",
+    ],
+    safeRerun: "Never reuse the original labels. The independent script creates fixture/result files with wx. For a rerun, copy the B script to a fresh product-projections-spec-* basename and replace every product-projections-spec-independent-20261107-b evidence basename consistently with that fresh basename, then invoke it through run.mjs using another unique wrapper label. Script, results and wrapper JSON names must remain distinct.",
+    independentFixtureManifest: "The B results JSON includes exact fixture byte counts/SHA-256 plus per-CLI stdout and stderr hashes; the fixtures remain beside the script in its -fixtures directory.",
+  },
+  limitations: [
+    "The PASS is a specification review for the three exact reviewed file hashes, not code quality, Task 2 dataset provenance, service integration, model quality, qualification or Gate success.",
+    "No real provider, network, repository persistence, user confirmation, adoption, planning service, browser flow, deployment, migration, push or commit was exercised.",
+    "The production validator can still throw on colliding resolved review-point IDs; propagating that exception is required collector behavior and does not repair that product limitation.",
+    "The declared code-file hashes are partial evidence and cannot prove loaded dependency identity or complete runtime state. The wrapper blocks non-loopback attempts; its zero denial count alone is not a whole-process network audit.",
+    "Source records are authored synthetic fixtures. Native task coverage/planning outputs and authenticated state remain absent. Explicit intent only changes component inputs.",
+    "Preexisting Red/Green/lint logs were inspected and hashed, but the old Red stub was not reconstructed. The author suite was freshly rerun; subsequent quality review remains required.",
+  ],
+};
+const destination = join(work, "product-projections-spec-review-20261107-a.json");
+writeFileSync(destination, JSON.stringify(memo, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ verdict: memo.verdict, actionableFindings: 0, destination, sha256: sha(readFileSync(destination)), reviewedFiles, freshAuthorTests: 36, independentGroups: 17 }));

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "materials-product-planning-surface-audit-1",
+  "scope": "One actual service/DB confirmation on a legal product workspace, plus three direct adoption-component observations. Not the fixed 14-case integration run.",
+  "actualFactConfirmation": {
+    "beforeWorkspaceRevision": 0,
+    "afterWorkspaceRevision": 0,
+    "beforeDocumentRevision": 0,
+    "afterDocumentRevision": 1,
+    "fullWorkspaceUnchanged": true,
+    "planningAuditUnchanged": true,
+    "confirmationRow": {
+      "id": "document-8",
+      "revision": 1,
+      "items_json": "[{\"id\":\"experience-sql\",\"kind\":\"experience\",\"text\":\"I practiced SQL joins in a toy database.\",\"origin\":\"user\",\"sourceRef\":null,\"requirementLevel\":null}]"
+    }
+  },
+  "frozenFixtureFactConfirmation": {
+    "beforeRevision": 3,
+    "expectedRevision": 4,
+    "action": {
+      "type": "confirm-fact",
+      "documentId": "resume-a",
+      "candidateId": "experience-sql"
+    },
+    "expectedAudit": [
+      {
+        "id": "audit-0",
+        "action": "baseline",
+        "targetId": "engineer"
+      },
+      {
+        "id": "audit-fact-confirm-only",
+        "action": "confirm-fact",
+        "targetId": "resume-a"
+      }
+    ]
+  },
+  "adoptionComponentObservations": [
+    {
+      "name": "single-guided",
+      "outcome": "accepted",
+      "after": {
+        "sql": "guided",
+        "react": "guided"
+      }
+    },
+    {
+      "name": "batch-independent",
+      "outcome": "rejected",
+      "errorName": "ZodError"
+    },
+    {
+      "name": "single-independent",
+      "outcome": "accepted",
+      "after": {
+        "sql": "independent",
+        "react": "guided"
+      }
+    }
+  ],
+  "adapterGap": "The fixture revision/audit cannot be silently projected as actual workspace revision/events. Document revisions, selection revisions, context versions and workspace revisions are distinct product records. Define and review a faithful binding before claiming the fixed scene passed.",
+  "realModelCalls": 0,
+  "remoteMigrations": 0,
+  "actualProductIntegrationVerified": false,
+  "qualificationApproved": false
+}
