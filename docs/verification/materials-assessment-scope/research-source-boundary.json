@@ -1,0 +1,53 @@
+{
+  "status": "test-environment-source-boundary-confirmed",
+  "files": 164,
+  "cleanCopy": {
+    "dependencyJunction": true,
+    "outsideRoot": 79,
+    "hashMismatches": 0,
+    "passed": 22,
+    "failed": 77
+  },
+  "sourceWorktree": {
+    "dependencyJunction": false,
+    "outsideRoot": 0,
+    "hashMismatches": 0,
+    "passed": 99,
+    "failed": 0
+  },
+  "normalizedInputHashesEqual": true,
+  "normalizedInputManifestSha256": "3b98a8e4811fb874d1b51e9216a2e879eb0e4358566f32248f8a11dfab2b4381",
+  "productionOrTestCodeChangedForThisFailure": false,
+  "checks": [
+    {
+      "name": "assessment-research-isolated",
+      "exit": 1,
+      "elapsedMs": 139874,
+      "logSha256": "a04b6a4df1ef73990e957148a0c590b1795b41e453167ff01ff07e22ccb6583e",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "assessment-research-isolated-final",
+      "exit": 0,
+      "elapsedMs": 230051,
+      "logSha256": "68a5f13974f24f3e191f25c0a2cf026684050360cc667984983be5f5e5c3fd3c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "assessment-research-root-audit",
+      "exit": 0,
+      "elapsedMs": 95,
+      "logSha256": "8cc5f9edc70e933e1b0ded5cbc0f5c179870529f7ea07be5713583640a0f9553",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "assessment-research-worktree-audit",
+      "exit": 0,
+      "elapsedMs": 214,
+      "logSha256": "ea8720f9d03317716a2905fa2d77204f156101aaf4ecfcf288381777eb1c60ae",
+      "nonLoopbackDenials": 0
+    }
+  ],
+  "limitation": "Native suites remain serialized; this does not establish default parallel stability.",
+  "modelCalls": 0
+}

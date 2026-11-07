@@ -1,0 +1,387 @@
+{
+  "schemaVersion": "materials-quality-v2-source-review-evidence.1",
+  "status": "source-layer-reviewed-course-and-candidate-evaluator-pending",
+  "recordedAtUtc": "2026-11-07T07:35:41.682Z",
+  "annotationSha256": "e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9",
+  "draftStatus": "draft-not-approved",
+  "sourceReviewPassed": true,
+  "annotationToolsQualityReviewPassed": true,
+  "qualificationApproved": false,
+  "independentCandidateEvaluatorImplemented": false,
+  "courseReviewCompleted": false,
+  "summary": {
+    "status": "PASS",
+    "documents": 30,
+    "legacyFields": 84,
+    "uniqueLegacyFields": 84,
+    "additionalFields": 2,
+    "groups": {
+      "b2-normal": 18,
+      "b2-edge": 6,
+      "supplement-normal": 3,
+      "supplement-edge": 3
+    },
+    "classifications": {
+      "primary-jd-classified": 31,
+      "secondary-jd-classified": 1,
+      "unresolved-jd-conflict": 2
+    },
+    "hints": {
+      "guided": 11,
+      "conceptual": 6,
+      "uncertain": 0,
+      "null": 67
+    },
+    "checkedReferences": 137,
+    "checkedLiteralAlternatives": 223,
+    "checkedCombinedAlternatives": 62,
+    "requiredReviews": 35,
+    "optionalReviews": 11,
+    "frozenHashesUnchanged": true,
+    "productionImports": 0,
+    "candidateOutputsRead": 0,
+    "annotationSha256": "e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9"
+  },
+  "annotationMutationChecks": {
+    "status": "PASS",
+    "rejectedAnnotationMutations": 26,
+    "results": [
+      {
+        "name": "missing-document",
+        "rejected": true
+      },
+      {
+        "name": "duplicate-legacy-field",
+        "rejected": true
+      },
+      {
+        "name": "nonexistent-source",
+        "rejected": true
+      },
+      {
+        "name": "utf16-source-offset-after-emoji",
+        "rejected": true
+      },
+      {
+        "name": "nonliteral-unit-tests",
+        "rejected": true
+      },
+      {
+        "name": "missing-task-group",
+        "rejected": true
+      },
+      {
+        "name": "invalid-compound-group",
+        "rejected": true
+      },
+      {
+        "name": "nonliteral-compound",
+        "rejected": true
+      },
+      {
+        "name": "resource-promoted-to-preferred",
+        "rejected": true
+      },
+      {
+        "name": "positive-hint-erased",
+        "rejected": true
+      },
+      {
+        "name": "contradictory-review-obligations",
+        "rejected": true
+      },
+      {
+        "name": "extra-additional-field",
+        "rejected": true
+      },
+      {
+        "name": "declared-legacy-denominator",
+        "rejected": true
+      },
+      {
+        "name": "declared-primary-jd-denominator",
+        "rejected": true
+      },
+      {
+        "name": "declared-secondary-jd-denominator",
+        "rejected": true
+      },
+      {
+        "name": "declared-conflict-denominator",
+        "rejected": true
+      },
+      {
+        "name": "declared-additional-denominator",
+        "rejected": true
+      },
+      {
+        "name": "declared-b2-normal-count",
+        "rejected": true
+      },
+      {
+        "name": "declared-b2-edge-count",
+        "rejected": true
+      },
+      {
+        "name": "declared-supplement-normal-count",
+        "rejected": true
+      },
+      {
+        "name": "declared-supplement-edge-count",
+        "rejected": true
+      },
+      {
+        "name": "missing-reporting-group-declarations",
+        "rejected": true
+      },
+      {
+        "name": "missing-reporting-group",
+        "rejected": true
+      },
+      {
+        "name": "duplicate-reporting-group",
+        "rejected": true
+      },
+      {
+        "name": "extra-reporting-group",
+        "rejected": true
+      },
+      {
+        "name": "swapped-document-groups-preserving-totals",
+        "rejected": true
+      }
+    ],
+    "scope": "annotation-structure-only; not a candidate or production scorer"
+  },
+  "filesSha256": {
+    "annotations.draft.json": "e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9",
+    "authoring-notes.md": "1a8705a78c7fa5c328be30e0863efd20ddb7caacc25c136e28c935067aaf605e",
+    "validate-annotations.mjs": "6611b36facf987a7f6c1c3c0bad739d04d6c216c621ca34b5bd5e76e6e82a34b",
+    "validate-annotation-mutations.mjs": "5fe16d4c7448df00bb3c2ba7220ebf8ee0aaed5b65a7184092abd01b8195083d"
+  },
+  "immutableInputs": [
+    {
+      "path": "tests/fixtures/documents/quality-corpus.json",
+      "sha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750"
+    },
+    {
+      "path": "tests/fixtures/documents/supplement-quality-corpus.json",
+      "sha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7"
+    },
+    {
+      "path": "tests/helpers/document-quality-evaluation.ts",
+      "sha256": "6297b7bdd112833cbd8a58b3bd63f6cbaf46d86b77cbab760744fe66babec351"
+    }
+  ],
+  "closedReviewFindings": [
+    {
+      "code": "secondary-role-actor",
+      "fields": [
+        "supplement-06-field-1",
+        "supplement-06-field-2"
+      ],
+      "initialAnnotationSha256": "622b09d9d82fb7f3978ad430c9d37c9c30e28e8e5743d3472c19e2eb54f079d3",
+      "change": "Only the two actor values changed from document-author to target-role."
+    },
+    {
+      "code": "declared-coverage-consistency",
+      "change": "Exact two additional IDs; declared denominators and groups match actual frozen counts; each document group matches frozen kind/category."
+    }
+  ],
+  "finalChecks": [
+    {
+      "name": "quality-v2-final-structure",
+      "exit": 0,
+      "elapsedMs": 57,
+      "logSha256": "8b03d6f13cab4e9b0184cf95944c7b5324c0d511dbd903f7127d37250eb9c2de",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-final-negative",
+      "exit": 0,
+      "elapsedMs": 1547,
+      "logSha256": "fb1b84a3bca6d3b68c4318e9d6381897bc2717926a991828340a16063710414b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-final-lint",
+      "exit": 0,
+      "elapsedMs": 3657,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "source-review-quality-v2-20261107-c",
+      "exit": 0,
+      "elapsedMs": 62,
+      "logSha256": "42199be91600e908490227980ca409a57df79800cbfe3a8eb344da4319e044d8",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-tools-rereview-structure-20261107-b27dc4",
+      "exit": 0,
+      "elapsedMs": 60,
+      "logSha256": "8b03d6f13cab4e9b0184cf95944c7b5324c0d511dbd903f7127d37250eb9c2de",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-tools-rereview-negative-20261107-b27dc4",
+      "exit": 0,
+      "elapsedMs": 1497,
+      "logSha256": "fb1b84a3bca6d3b68c4318e9d6381897bc2717926a991828340a16063710414b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-tools-rereview-prior-repros-20261107-b27dc4",
+      "exit": 0,
+      "elapsedMs": 865,
+      "logSha256": "321cb476e1423bdcb6e6b9dc15c98d19b1a35575993b2b97a07c3b8e7e3b137e",
+      "nonLoopbackDenials": 0
+    }
+  ],
+  "intermediateChecks": [
+    {
+      "name": "quality-v2-actor-green",
+      "exit": 0,
+      "elapsedMs": 56,
+      "logSha256": "8b03d6f13cab4e9b0184cf95944c7b5324c0d511dbd903f7127d37250eb9c2de",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-actor-negative",
+      "exit": 0,
+      "elapsedMs": 670,
+      "logSha256": "060111a27327045e87c74f3aae7628da9d6034db006f4e8c8138b23926db4c96",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-actor-red",
+      "exit": 1,
+      "elapsedMs": 53,
+      "logSha256": "72aff2bb8bd18fcfcfa326a294534c91480db99cce5ceccc0720d11d744d7f28",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-annotations-negative",
+      "exit": 0,
+      "elapsedMs": 695,
+      "logSha256": "060111a27327045e87c74f3aae7628da9d6034db006f4e8c8138b23926db4c96",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-annotations-structure",
+      "exit": 0,
+      "elapsedMs": 61,
+      "logSha256": "9f7830b02d18f22609e74b7e46aa0c201a5c7cec57342dde67c1f6cda8361165",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-counts-green",
+      "exit": 0,
+      "elapsedMs": 63,
+      "logSha256": "8b03d6f13cab4e9b0184cf95944c7b5324c0d511dbd903f7127d37250eb9c2de",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-counts-lint",
+      "exit": 0,
+      "elapsedMs": 3759,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-counts-negative",
+      "exit": 0,
+      "elapsedMs": 1578,
+      "logSha256": "fb1b84a3bca6d3b68c4318e9d6381897bc2717926a991828340a16063710414b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-counts-red",
+      "exit": 1,
+      "elapsedMs": 708,
+      "logSha256": "af56d1523944ec96839f9c2f1c93c2a9a50235fb988751fa28dbdc7838b430fe",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-durable-lint",
+      "exit": 0,
+      "elapsedMs": 4437,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-durable-negative",
+      "exit": 0,
+      "elapsedMs": 684,
+      "logSha256": "060111a27327045e87c74f3aae7628da9d6034db006f4e8c8138b23926db4c96",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-durable-structure",
+      "exit": 0,
+      "elapsedMs": 64,
+      "logSha256": "8b03d6f13cab4e9b0184cf95944c7b5324c0d511dbd903f7127d37250eb9c2de",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-tools-review-cardinality-20261107-a8c16e",
+      "exit": 0,
+      "elapsedMs": 120,
+      "logSha256": "4af6f7784d7831a9b2e39859701d4982b7b5d8405ccaba3f1fd3f831dedcd8cb",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-tools-review-declared-counts-20261107-a8c16e",
+      "exit": 0,
+      "elapsedMs": 767,
+      "logSha256": "5f55671be3c425085e6db6a8fdb76c81e29d5196702fe853216f0edc83af5dbb",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-tools-review-group-swap-20261107-a8c16e",
+      "exit": 0,
+      "elapsedMs": 113,
+      "logSha256": "eac5a7619140622cfa5918f8dcb79329c003fad400b5c29c2eb44ef00283545d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-tools-review-negative-20261107-a8c16e",
+      "exit": 0,
+      "elapsedMs": 670,
+      "logSha256": "060111a27327045e87c74f3aae7628da9d6034db006f4e8c8138b23926db4c96",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "quality-v2-tools-review-structure-20261107-a8c16e",
+      "exit": 0,
+      "elapsedMs": 61,
+      "logSha256": "8b03d6f13cab4e9b0184cf95944c7b5324c0d511dbd903f7127d37250eb9c2de",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "source-review-quality-v2-20261107-a",
+      "exit": 0,
+      "elapsedMs": 60,
+      "logSha256": "9d2b90a15cde9f80e8ad4eeebc760f793de18991ce2bba6accf1b052ca5f2853",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "source-review-quality-v2-20261107-b",
+      "exit": 0,
+      "elapsedMs": 67,
+      "logSha256": "64a8374770bff5b8455ec6a72c8fa0e9581578fe717930639d9b990d09aa98c0",
+      "nonLoopbackDenials": 0
+    }
+  ],
+  "realModelCalls": 0,
+  "inferenceCostMicroUsd": 0,
+  "deployments": 0,
+  "remoteMigrations": 0,
+  "remaining": [
+    "Independent complete course/alias/content review and hashes.",
+    "Independent candidate evaluator and semantic fault injection.",
+    "Freeze the complete contract and candidate before preparing a fresh paid authorization.",
+    "Historical R2/P1 failures remain unchanged."
+  ]
+}
