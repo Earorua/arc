@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "materials-candidate-v2-final-packet-quality-review-1",
+  "reviewer": "/root/review_candidate_evaluator_quality",
+  "reviewDate": "2026-11-07",
+  "verdict": "PASS",
+  "readyForLocalDocumentationCommit": true,
+  "outstandingFindings": [],
+  "resolvedFindings": [
+    {
+      "file": "docs/verification/2026-11-07-materials-assessment-scope-repair.md",
+      "line": 53,
+      "issue": "Active next-step bullet conflated B5 Gate work with public-release and post-release verification.",
+      "resolution": "Rechecked corrected line: B5 accounting, cleanup, rollback evidence and Gate sign-off now precede separate release and post-release checks."
+    }
+  ],
+  "auditResultPath": "work/grounded-verification/candidate-v2-quality-packet-audit-results-20261107.json",
+  "auditResultSha256": "f98257dadb0fdc69bdda6b14514a407a46b953ec7fb97376c049c2a6197f0bcd",
+  "auditScriptPath": "work/grounded-verification/candidate-v2-quality-packet-audit-20261107.mjs",
+  "auditScriptSha256": "47952e51b9ddb35d3329640bed0c35f7c5aceb0cacdf17e94a823a3cba87cd95",
+  "runRecordPath": "work/grounded-verification/candidate-v2-quality-packet-audit-20261107-001.json",
+  "runRecordSha256": "92aa29b9528cecbdbf6605bd31b30781ebc8a01b0e1efbf80ada6eb447d7a025",
+  "runRecord": {
+    "name": "candidate-v2-quality-packet-audit-20261107-001",
+    "exit": 0,
+    "elapsedMs": 1773,
+    "logSha256": "a8df9dcab3eb79fad76e3b271c948fc61630f278c364d3181f56ed967811b28d",
+    "nonLoopbackDenials": 0,
+    "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-t6N7rr"
+  },
+  "audit": {
+    "schemaVersion": "candidate-v2-quality-whole-packet-audit-1",
+    "passed": true,
+    "proofPath": "docs/verification/materials-quality-v2/candidate-review-verification.json",
+    "proofSha256": "13c2a2276787653f8a53cb13e08ca09a07d0383c68ab28867dad71c7c5327dd9",
+    "candidateCodeCommit": "5d9fa487a09c3747dc10c6e5e739390ef8e06df3",
+    "candidateAssets": 12,
+    "reviewedReferenceAssets": 9,
+    "sourceAssets": 4,
+    "courseAssets": 6,
+    "candidateRunRecords": 37,
+    "courseRunRecords": 62,
+    "sourceRunRecords": 26,
+    "runRecordAndLogPairsChecked": 125,
+    "courseDependencies": 85,
+    "productFiles": 991,
+    "totalFileHashComparisons": 1245,
+    "sourceManifestCompactObjectSha256": "cb14108c1360bbf066af0a5b076162f5f86b12ee7eecb2def735da41746463c9",
+    "sourceManifestRawFileSha256": "3840afdf6e23cbbc33fd090528b93473eb72ece3ea852f42b857b6a55cd22cf1",
+    "noCandidateDriftSinceQualityPass": true,
+    "codeTestsRerun": false,
+    "resolvedDocumentationCorrection": {
+      "file": "docs/verification/2026-11-07-materials-assessment-scope-repair.md",
+      "line": 53,
+      "issue": "Old active next-step bullet conflated B5 and post-release verification.",
+      "current": "B5 accounting, cleanup, rollback evidence and Gate sign-off precede separate public release and post-release checks."
+    },
+    "reviewedDocuments": [
+      {
+        "path": "docs/verification/2026-11-07-materials-course-candidate-evaluator.md",
+        "sha256": "c090a613ef1c841af91334010f98940aecdf3349f935276bdae6b88396d689bd"
+      },
+      {
+        "path": "docs/superpowers/plans/2026-11-07-materials-course-and-candidate-evaluator.md",
+        "sha256": "5c3682631a6415f31457ac99d9b2aed9f6a39273960cf36ccc2b47cd8cc8c60f"
+      },
+      {
+        "path": "docs/superpowers/plans/2026-11-07-materials-assessment-scope-repair.md",
+        "sha256": "93adc46cf7c3a323474b1f64c3286ffcba6a6462d346f5485f93ad681f8cd967"
+      },
+      {
+        "path": "docs/verification/2026-11-04-materials-public-release-progress.md",
+        "sha256": "bab079c10d6902b610660c6772e81b301beee781ce6b8dd56f95ea3ffcbcb1d1"
+      },
+      {
+        "path": "docs/verification/2026-11-06-materials-grounding-pause.md",
+        "sha256": "6a70ae88c801d881568eb565771b7b1286924891f0d2ba6ab62df9a1d3e2a6a2"
+      },
+      {
+        "path": "docs/verification/2026-11-07-materials-assessment-scope-repair.md",
+        "sha256": "98239bd9b7bc1977f831cdc07ce816d096f97e1bed4bc1184737a7825066b5f0"
+      }
+    ],
+    "limits": [
+      "Read-only audit apart from new ignored script/results/memo.",
+      "No model, actual product observation, deployment, migration, push or commit.",
+      "Frozen earlier review memos and proof were not modified.",
+      "Historical final status remains unqualified; new offline artifact is not Gate or public-release approval."
+    ]
+  },
+  "assessment": "All 12 candidate assets match reviewed and committed bytes. Both independent review memos and the frozen proof retain their exact hashes. All 125 bound source/course/candidate run records match on-disk records and log bytes. All 991 product files, 85 course dependencies, original source/course references and both original manifest digest recipes match. Counts, report/recovery state and limits align; no product/model/Gate/release approval is implied.",
+  "codeTestsRerun": false,
+  "reasonForNoTestRerun": "No implementation, fixture or durable-test drift after the independently verified 111/111 suite and seven quality probe groups.",
+  "qualificationApproved": false,
+  "actualModelQualityEvaluated": false,
+  "actualProductIntegrationVerified": false,
+  "provenanceVerified": false,
+  "unchangedFrozenMemoPaths": [
+    "work/grounded-verification/candidate-v2-quality-review-20261107.json",
+    "work/grounded-verification/candidate-v2-spec-review-20261107.json"
+  ],
+  "unchangedProofPath": "docs/verification/materials-quality-v2/candidate-review-verification.json",
+  "archiveProvenance": {
+    "originalMemoPath": "work/grounded-verification/candidate-v2-quality-packet-review-20261107.json",
+    "originalMemoRawSha256": "3cd496f7517439ba7ed2383afcdce3c41d1654e4fdd270df260ad32158b2b6fc",
+    "serialization": "LF JSON archive; original review payload and original memo bytes preserved"
+  }
+}

@@ -1,0 +1,554 @@
+{
+  "schemaVersion": "materials-candidate-review-verification-v2.1",
+  "createdAt": "2026-11-07T11:05:16.564Z",
+  "status": "independently-reviewed-offline-evaluator-candidate",
+  "scope": "Frozen source and course references, strict three-axis offline scorer, and constructed positive/negative controls; no actual model or product observation evidence.",
+  "candidateCodeCommit": "5d9fa487a09c3747dc10c6e5e739390ef8e06df3",
+  "filesSha256": {
+    "candidate-common.mjs": "e823515667fec92f788c7ee1801633c066f0013b43c9b33262fab6403a0213a9",
+    "candidate-input.mjs": "16ab9f3d0c3c6a13c5de0f9cb2b86125754467127fc489a2febc6a283d43e432",
+    "candidate-references.mjs": "9786c8d9247680ae9827db73e3530fd62d50abd5b07d9e1bf28f94a4306e6c86",
+    "candidate-source.mjs": "9c7955b3497b121f034813c9f8676b733585ded21a83dbe0ee6d8cbe31a0c5db",
+    "candidate-course.mjs": "18c0be3efe195d984422effbe5c97d1e8109d66afe784af02fd17509a0bdbb45",
+    "candidate-planning.mjs": "9c91f1ba3b219e04cea03013f4429288b7c77070362c1020d35c9d457bc1d443",
+    "candidate-evaluator.mjs": "3d15c2b60cfd3917bb25dc670c8a40a4c2ea7e37f5d785bb4cbca6e856ad82da",
+    "candidate-controls.mjs": "1a09ffa14935fb2b0f6808efc7b65b747975ddebacf3e5be893901e8a1c4e8cc",
+    "evaluate-candidates.mjs": "a3bd31b5e92402e0a16ea5e2441fec074b268c0cdababa9f2b169b446400dca4",
+    "candidate-evaluator.test.mjs": "a2b51ad9c039beab6f7624f05893f759c4c8b8c1cf2491e306e8121916259088",
+    "candidate-protocol.md": "af3d01d8c89b3d789405aaf73e6f2a5360a967da9a11fbc4f20c05320389cd37",
+    "planning-reference-cases.json": "b4980e489b40857514e85afb1fafad15efa8a8976bfd388d0af378430e9a2c51"
+  },
+  "reviewedReferenceHashes": {
+    "annotations.draft.json": "e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9",
+    "source-review-verification.json": "8e2fc2715be731a8dda200b581914920751a50ab16a88f222e3efcd308bebd3b",
+    "course-reference.snapshot.json": "bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676",
+    "course-annotations.draft.json": "c602035d36fba77a36287149891b775c2ed9420d64612f0cbd76309fc02d6bcf",
+    "capture-course-reference.mjs": "3735c41c91d7d5dbaaf9ebf5b0037dd8a4b3c09f225fdac6d3d734a000db4423",
+    "validate-course-annotations.mjs": "f03741ca32f54e73163d07c0a353c9491513274214f8d058e5304b8469f30886",
+    "course-annotations.test.mjs": "ede46489ed7f46ee51437692e30a5704fbde361b68da8971a15c4a4231c99789",
+    "course-authoring-notes.md": "fc2c0bca859ed44504879916951190d2e119ac89c7a2228172287e06a30a39bd",
+    "course-review-verification.json": "3cde20901af973bb446c931aab64b57f66dae9683c6d78277dec1cec1c4598dc"
+  },
+  "frozenInputs": [
+    {
+      "path": "tests/fixtures/documents/quality-corpus.json",
+      "sha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750"
+    },
+    {
+      "path": "tests/fixtures/documents/supplement-quality-corpus.json",
+      "sha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7"
+    },
+    {
+      "path": "tests/helpers/document-quality-evaluation.ts",
+      "sha256": "6297b7bdd112833cbd8a58b3bd63f6cbaf46d86b77cbab760744fe66babec351"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-11-arc-private-materials-personalized-planning-design.zh-CN.md",
+      "sha256": "5d978e38d1c3b4a85eb83327e800df2c561aef598a63edc6c61c433acba21822"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-07-materials-quality-contract-v2.md",
+      "sha256": "d428b2ffefb184b8578102e639120407dcdc432d6fb78623bc753961d2e127a1"
+    }
+  ],
+  "courseObjectHashes": {
+    "role": "3d63cfe446a8ae5a78e8a10164020d5ecd150a00c9363c92dbbcffff7fdee007",
+    "blueprint": "9f3c951eef3c4f2e26a9dba73ece80b4d1be6899970c1423bb2281c156b55f41",
+    "registry": "513853f6f699bc42336222d067a14900f5b76982fd789c30e916e97e9caeb3f7"
+  },
+  "sourcePrompt": {
+    "path": "worker/document-executor/source-span-extraction.ts",
+    "sha256": "307009d79c572d8ab3df820cf4d6cd3e367ea72aac20ed80b7023620f46e99e9",
+    "readOnlyHash": true,
+    "called": false
+  },
+  "fixedDenominators": {
+    "documents": 30,
+    "legacyFields": 84,
+    "additionalFields": 2,
+    "primaryJdClassifications": 31,
+    "secondaryJdClassifications": 1,
+    "unresolvedClassificationAnchors": 2,
+    "courseRelations": 256,
+    "courseActualRelationPositionsWithoutSharedFacetDuplication": 255,
+    "planningCases": 14,
+    "planningBeforeAfterStates": 28
+  },
+  "independentReviews": {
+    "specification": {
+      "passed": true,
+      "reviewer": "review_candidate_evaluator_spec",
+      "reviewMemoPath": "work/grounded-verification/candidate-v2-spec-review-20261107.json",
+      "reviewMemoSha256": "9c8e7edb1d42acfd5fcd477de6f0fafbb5872751ad29930c5edc400b047bb020",
+      "reviewedFilesSha256": {
+        "candidate-common.mjs": "e823515667fec92f788c7ee1801633c066f0013b43c9b33262fab6403a0213a9",
+        "candidate-input.mjs": "16ab9f3d0c3c6a13c5de0f9cb2b86125754467127fc489a2febc6a283d43e432",
+        "candidate-references.mjs": "9786c8d9247680ae9827db73e3530fd62d50abd5b07d9e1bf28f94a4306e6c86",
+        "candidate-source.mjs": "9c7955b3497b121f034813c9f8676b733585ded21a83dbe0ee6d8cbe31a0c5db",
+        "candidate-course.mjs": "18c0be3efe195d984422effbe5c97d1e8109d66afe784af02fd17509a0bdbb45",
+        "candidate-planning.mjs": "9c91f1ba3b219e04cea03013f4429288b7c77070362c1020d35c9d457bc1d443",
+        "candidate-evaluator.mjs": "3d15c2b60cfd3917bb25dc670c8a40a4c2ea7e37f5d785bb4cbca6e856ad82da",
+        "candidate-controls.mjs": "1a09ffa14935fb2b0f6808efc7b65b747975ddebacf3e5be893901e8a1c4e8cc",
+        "evaluate-candidates.mjs": "a3bd31b5e92402e0a16ea5e2441fec074b268c0cdababa9f2b169b446400dca4",
+        "candidate-evaluator.test.mjs": "a2b51ad9c039beab6f7624f05893f759c4c8b8c1cf2491e306e8121916259088",
+        "candidate-protocol.md": "af3d01d8c89b3d789405aaf73e6f2a5360a967da9a11fbc4f20c05320389cd37",
+        "planning-reference-cases.json": "b4980e489b40857514e85afb1fafad15efa8a8976bfd388d0af378430e9a2c51"
+      },
+      "blindReadBeforeImplementation": true,
+      "resolvedFindings": [
+        {
+          "priority": "P1",
+          "finding": "Primary-JD replacement mutated the current plan before acceptance",
+          "resolution": "Replacement preserves active context/order; independent explicit current-preview acceptance case adopts the bound context"
+        },
+        {
+          "priority": "P2",
+          "finding": "Stale-preview case had a current preview and stale caller revision",
+          "resolution": "Preview origin revision 2 versus current and caller revision 3"
+        },
+        {
+          "priority": "P2",
+          "finding": "Proof digest regex coerced JSON arrays and threw on noncoercible JSON objects",
+          "resolution": "Strict string guard; API/CLI durable regressions and independent repros pass"
+        },
+        {
+          "priority": "P2",
+          "finding": "Non-JSON Proxy input could pass, execute traps and escape caught-value handling",
+          "resolution": "Native Proxy detection before introspection and private error-code receipt; independent traps remain unexecuted"
+        }
+      ],
+      "independentChecks": {
+        "testGroups": 18,
+        "uniqueSourceCandidates": 85,
+        "candidateTextAndUnknownLiteralMutations": 170,
+        "requiredReviewLocations": 35,
+        "actualCourseObservationLocations": 134,
+        "planningCases": 14,
+        "protectedPlanningMutationsPerCase": 13,
+        "unknownObjectKeyLocations": 1197,
+        "malformedPrimitiveLocations": 3936,
+        "authorSuiteTests": 111,
+        "allFinalChecksPassed": true
+      },
+      "successfulRunNames": [
+        "candidate-v2-spec-fixture-audit-20261107-b",
+        "candidate-v2-spec-independent-20261107-b",
+        "candidate-v2-spec-author-tests-20261107-b"
+      ]
+    },
+    "codeQuality": {
+      "passed": true,
+      "reviewer": "/root/review_candidate_evaluator_quality",
+      "reviewMemoPath": "work/grounded-verification/candidate-v2-quality-review-20261107.json",
+      "reviewMemoSha256": "1b5817014be2d04e4931e560a2bf0198ddcf07d6f5ebf18ce350222cf07479ca",
+      "reviewedAssets": [
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-common.mjs",
+          "sha256": "e823515667fec92f788c7ee1801633c066f0013b43c9b33262fab6403a0213a9"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-input.mjs",
+          "sha256": "16ab9f3d0c3c6a13c5de0f9cb2b86125754467127fc489a2febc6a283d43e432"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-references.mjs",
+          "sha256": "9786c8d9247680ae9827db73e3530fd62d50abd5b07d9e1bf28f94a4306e6c86"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-source.mjs",
+          "sha256": "9c7955b3497b121f034813c9f8676b733585ded21a83dbe0ee6d8cbe31a0c5db"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-course.mjs",
+          "sha256": "18c0be3efe195d984422effbe5c97d1e8109d66afe784af02fd17509a0bdbb45"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-planning.mjs",
+          "sha256": "9c91f1ba3b219e04cea03013f4429288b7c77070362c1020d35c9d457bc1d443"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-evaluator.mjs",
+          "sha256": "3d15c2b60cfd3917bb25dc670c8a40a4c2ea7e37f5d785bb4cbca6e856ad82da"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-controls.mjs",
+          "sha256": "1a09ffa14935fb2b0f6808efc7b65b747975ddebacf3e5be893901e8a1c4e8cc"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/evaluate-candidates.mjs",
+          "sha256": "a3bd31b5e92402e0a16ea5e2441fec074b268c0cdababa9f2b169b446400dca4"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-evaluator.test.mjs",
+          "sha256": "a2b51ad9c039beab6f7624f05893f759c4c8b8c1cf2491e306e8121916259088"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/candidate-protocol.md",
+          "sha256": "af3d01d8c89b3d789405aaf73e6f2a5360a967da9a11fbc4f20c05320389cd37"
+        },
+        {
+          "path": "docs/verification/materials-quality-v2/planning-reference-cases.json",
+          "sha256": "b4980e489b40857514e85afb1fafad15efa8a8976bfd388d0af378430e9a2c51"
+        }
+      ],
+      "verification": {
+        "authorTestsPassed": 111,
+        "authorTestsFailed": 0,
+        "independentProbeGroups": 7,
+        "planningLeafMutationsSemanticallyRejected": 2086,
+        "planningLeafMutationsShapeRejected": 0,
+        "requiredReviewRemovalsRejected": 35,
+        "optionalReviewInsertionsAccepted": 11,
+        "unregisteredReviewCombinationsRejected": 666,
+        "getterPositionsRejectedWithoutInvocation": 1197,
+        "independentProbePath": "work/grounded-verification/candidate-v2-quality-probe-20261107.mjs",
+        "independentProbeSha256": "e531848374cca89a37f2855bcf6a24b0a943ed113594f1ccfd2763e9c0bbb0f4",
+        "independentProbeResultsPath": "work/grounded-verification/candidate-v2-quality-probe-results-20261107.json",
+        "independentProbeResultsSha256": "e8065f737546b451f884795e382ab14e76559106bb5ff980143c0b461a13c7a0"
+      },
+      "independentControlDoesNotImportAuthorControls": true,
+      "outstandingFindings": [],
+      "successfulRunNames": [
+        "candidate-v2-quality-tests-20261107-001",
+        "candidate-v2-quality-probes-20261107-001"
+      ],
+      "limits": [
+        "PASS concerns finite offline observation validation only.",
+        "Constructed controls and mutations are not actual model or product observations.",
+        "No model call, network request, external-link fetch, deployment, migration, push or commit performed.",
+        "No claim that no production helper was ever seen by the author; disclosed accidental source-helper read does not affect observed reference/implementation independence.",
+        "Forthcoming final packet/report/proof consistency is outside this verdict and may be checked separately."
+      ]
+    }
+  },
+  "finalRunNames": [
+    "candidate-v2-root-final-tests-20261107-a",
+    "candidate-v2-root-final-lint-20261107-a",
+    "candidate-v2-root-final-integrity-20261107-b",
+    "candidate-v2-spec-independent-20261107-b",
+    "candidate-v2-quality-probes-20261107-001",
+    "candidate-v2-root-review-hashes-20261107"
+  ],
+  "runs": [
+    {
+      "name": "candidate-v2-author-classification-red-004",
+      "exit": 1,
+      "elapsedMs": 619,
+      "logSha256": "101f870c9a6a35b4fbee74051416dd3ff819192def8d21669c0320db953a96d7",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-classification-red-005",
+      "exit": 1,
+      "elapsedMs": 562,
+      "logSha256": "2ff8f04746968e964f50ab41de15eb1dbcf1dfd3e97d73a6589562d5ce19e349",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-green-001",
+      "exit": 0,
+      "elapsedMs": 4370,
+      "logSha256": "1efa89324da6f04c65bcf327568149d380d9fcc83bfdac8681c87bbfd8296190",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-green-002",
+      "exit": 1,
+      "elapsedMs": 6636,
+      "logSha256": "6b5605f920b9c16f7c991e6da05014884007853d7d83b87a50068628b31b4c29",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-green-003",
+      "exit": 0,
+      "elapsedMs": 6461,
+      "logSha256": "d4347075abaff8726539f336aeb8067a286d0da5603bb565f63cafe04838e789",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-green-004",
+      "exit": 0,
+      "elapsedMs": 6456,
+      "logSha256": "6b61a33cae031ccf373c3b5776b968b39062ff9c3e4931486bba35df5d68eb13",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-green-005",
+      "exit": 0,
+      "elapsedMs": 6549,
+      "logSha256": "68dcc13d29968d13cc45a5f4d38b7463d7e8cf76f1ecc1a20b5db5b6ccc58008",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-green-006",
+      "exit": 0,
+      "elapsedMs": 6436,
+      "logSha256": "246e32ec99fd4e9875607bf84d95897ac24bff81fc23c68c90ffa27475e42593",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-green-007",
+      "exit": 0,
+      "elapsedMs": 7517,
+      "logSha256": "cf02ea592421098fac601d8b082f27036fb645eb393c8e58e8381efb826acaf3",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-green-008",
+      "exit": 0,
+      "elapsedMs": 7388,
+      "logSha256": "7754a50b4aa57d31eb03d1adde595779fc16ae888dde974cd47d9b1108a68060",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-lint-001",
+      "exit": 0,
+      "elapsedMs": 4358,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-lint-002",
+      "exit": 0,
+      "elapsedMs": 4170,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-lint-003",
+      "exit": 0,
+      "elapsedMs": 3988,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-lint-004",
+      "exit": 0,
+      "elapsedMs": 4240,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-lint-005",
+      "exit": 0,
+      "elapsedMs": 3998,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-planning-red-002",
+      "exit": 1,
+      "elapsedMs": 129,
+      "logSha256": "2b8a449fbfc29424ab25137d058927375660e8ca84c03c3f4e493eee94a250ee",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-proof-digest-red-007",
+      "exit": 1,
+      "elapsedMs": 571,
+      "logSha256": "05ea3a895cbc794c7d8c8429731aa51bcff83a64058d854e2fdce6a7ed8053a8",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-proof-digest-red-008",
+      "exit": 1,
+      "elapsedMs": 1578,
+      "logSha256": "86256670ca7ccf2b3defe93a07c101fd1992cc0a6874311e7822a5bdda4ca5f8",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-proxy-red-009",
+      "exit": 1,
+      "elapsedMs": 632,
+      "logSha256": "463612d43e543ccf9600b7a7f85a479cd2dd278f786223892b887b4532983de0",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-red-001",
+      "exit": 1,
+      "elapsedMs": 578,
+      "logSha256": "a866453d2effb809002bbf71fd0c1499b087d6996d481ccaad184ee840fa9570",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-self-level-red-006",
+      "exit": 1,
+      "elapsedMs": 600,
+      "logSha256": "73136c84b463560fbc7d8da50dee961a0cb4c55f03010eeb8ae048bc096f8381",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-author-source-span-red-003",
+      "exit": 1,
+      "elapsedMs": 575,
+      "logSha256": "d381991d8db7201fa2281eb58ac4f50dba39032b54a422a024fd941144f06e9f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-quality-probes-20261107-001",
+      "exit": 0,
+      "elapsedMs": 22806,
+      "logSha256": "05d706b65b114e7389f74b61cde216a91600b39bff904e4f7a21d60dc9208bda",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-quality-tests-20261107-001",
+      "exit": 0,
+      "elapsedMs": 8770,
+      "logSha256": "1bbbb0e93aeb6ed655e7a54931f58ac260e9c80afa4fb49d0e722219f068eed1",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-root-final-integrity-20261107-a",
+      "exit": 1,
+      "elapsedMs": 77,
+      "logSha256": "cc63997d830dcb2fef7ef80bb9f76e05c7f45321c3d521236f8ac8d935bef02e",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-root-final-integrity-20261107-b",
+      "exit": 0,
+      "elapsedMs": 174,
+      "logSha256": "e37c02289679aafb21f70dbf7a1c2ec97493df31654a58624bddf281debc5ca2",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-root-final-lint-20261107-a",
+      "exit": 0,
+      "elapsedMs": 5263,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-root-final-tests-20261107-a",
+      "exit": 0,
+      "elapsedMs": 8040,
+      "logSha256": "7b6cd76638cee4c709d22d167adc574eb9a1037e726c418945465ca25c6b9a87",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-root-manifest-diagnosis-20261107",
+      "exit": 0,
+      "elapsedMs": 513,
+      "logSha256": "912291d77d41816332a2cd9632974c54abaf94b1c9ca12dac837ff4eb1406a77",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-root-review-hashes-20261107",
+      "exit": 0,
+      "elapsedMs": 53,
+      "logSha256": "d441574611d4b236e10fbe808172dc954373da782e984a612ec82665dbbf6361",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-spec-author-tests-20261107-a",
+      "exit": 0,
+      "elapsedMs": 6544,
+      "logSha256": "8c31da5d1692e11c24fa17e28b6e84f3ed2a1ac51d83ff6f4257b0fd97e6b6f4",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-spec-author-tests-20261107-b",
+      "exit": 0,
+      "elapsedMs": 7786,
+      "logSha256": "65004c6d2ab006d3368e13e837ad12a1bccbd2791b23c1de2447abe7aa38b127",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-spec-fixture-audit-20261107-a",
+      "exit": 0,
+      "elapsedMs": 58,
+      "logSha256": "02e2aaccad3121109db2d9e34b9f2e85144f3cdd8a30dd4e3698adde279f7f54",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-spec-fixture-audit-20261107-b",
+      "exit": 0,
+      "elapsedMs": 54,
+      "logSha256": "333cc006937cfd5e3d412cd2a47c9e8b6ad531b63bb3f517e7565fafcba6c8af",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-spec-independent-20261107-a",
+      "exit": 1,
+      "elapsedMs": 11256,
+      "logSha256": "bb7dbefdda559fd283e7f6bc9d24615bdc435afb847ba65cb0c2442de7e6ec1f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-spec-independent-20261107-b",
+      "exit": 0,
+      "elapsedMs": 24279,
+      "logSha256": "e75883d43a5715a0b74dd3a3fc9f1a83289a1794d62e2c8d86629060fa57b15f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "candidate-v2-spec-proxy-boundary-20261107-a",
+      "exit": 1,
+      "elapsedMs": 567,
+      "logSha256": "165e4147b9cdbc7c6c001a7b121c68605b26f394047268462f736ae08b12df32",
+      "nonLoopbackDenials": 0
+    }
+  ],
+  "priorProductVerification": {
+    "sourceCommit": "67a1af32f7e680d9995552e1d9703c8597420eed",
+    "sourceManifest": "docs/verification/materials-assessment-scope/source-manifest.json",
+    "sourceManifestSha256": "cb14108c1360bbf066af0a5b076162f5f86b12ee7eecb2def735da41746463c9",
+    "sourceManifestDigestEncoding": "JSON.stringify(parsedManifest), original property order",
+    "sourceManifestFileSha256": "3840afdf6e23cbbc33fd090528b93473eb72ece3ea852f42b857b6a55cd22cf1",
+    "sourceFilesRechecked": 991,
+    "evidenceFile": "docs/verification/materials-assessment-scope/candidate-verification.json",
+    "evidenceSha256": "f961330adf33f41fd9bcd08589d4329a40cc3ca05d0a10c8b9762fc877653461",
+    "summary": {
+      "vitestFiles": 369,
+      "vitestTests": 8645,
+      "nodeTests": 290,
+      "renderedTests": 5,
+      "nativeCases": 39
+    },
+    "fullRepositoryTestsRerunThisTask": false
+  },
+  "interpretation": {
+    "referencesReadBeforeCandidateEvaluation": true,
+    "legacyScorerImportedOrExecuted": false,
+    "productionMappingOrPlannerUsedAsTruth": false,
+    "constructedControlsProveModelRecall": false,
+    "observedProductOutputsCollected": false,
+    "provenanceVerified": false,
+    "actualModelQualityEvaluated": false,
+    "actualProductIntegrationVerified": false,
+    "historyRewritten": false,
+    "qualificationApproved": false
+  },
+  "restrictions": {
+    "realModelCalls": 0,
+    "inferenceCostMicroUsd": 0,
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "githubPushes": 0
+  },
+  "historicalResultsUnchanged": {
+    "realInferences": 30,
+    "settledCostMicroUsd": 547151,
+    "unsettledCostMicroUsd": 0,
+    "r2": {
+      "normalPassed": 0,
+      "normalTotal": 18,
+      "edgePassed": 0,
+      "edgeTotal": 6
+    },
+    "p1": {
+      "normalPassed": 0,
+      "normalTotal": 3,
+      "edgePassed": 0,
+      "edgeTotal": 1
+    },
+    "previousPaidAuthorizationsReusable": false
+  },
+  "remaining": [
+    "Collect genuine product observations for the fixed course and adoption/planning cases; no test controls as observation substitutes.",
+    "Review and qualify the next frozen candidate and new evaluation protocol; reverify current provider endpoint/privacy/price and obtain fresh scoped paid authorization before any model calls.",
+    "Run new actual synthetic-material quality evaluation and close failures without rewriting historical results.",
+    "Complete separately authorized B3/B4 environment, storage, cleanup and browser acceptance; then B5 accounting, cleanup, rollback evidence and Gate sign-off before public release and post-release checks."
+  ]
+}

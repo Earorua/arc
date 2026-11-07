@@ -37,13 +37,13 @@ node work/grounded-verification/run.mjs course-v2-validate docs/verification/mat
 
 Files: create `candidate-protocol.md`, `candidate-evaluator.mjs`, focused helper modules as needed, `candidate-evaluator.test.mjs`, and `evaluate-candidates.mjs` in the same directory.
 
-- [ ] 协议区分真实提取候选（text/kind/source/skillLabels/selfLevelHint/requirementLevel）和站点课程/采用观测；不要求模型生成评分器私有的真值 ID。文档/文本版本和完整原文来源必须随输入固定。适配仅重命名与补齐已知文档标识，不能纠正输出。
-- [ ] 首先以人工构造输入写正反例；记录实际 RED，再实现纯函数 `evaluateCandidateBatch(input, references)`。正例构造函数只放测试，不作为评分器的补默认路径。
-- [ ] 原文轴独立核验全文/分段/UTF-16 唯一定位、版本、JSON/数组上限、一对一匹配、完整文本、必需词组/允许组合词、hint、主/次 JD 分类、required/optional/forbidden 提醒。重复、额外事实、额外提醒、额外词均不能获得通过；不能信任候选传来的 legacy ID 或通过声明。
-- [ ] 固定 30 文档/84 旧字段和 2 个单列增补；共享增补仅允许已声明的学习主题 facet。逐文档阈值 0.9/0.9/1；零分母报告 not-applicable，supplement-05 仍须检查风险提醒和无伪事实。
-- [ ] 课程轴按已审有限原词对应，核验状态、候选课程集合、依据和任务覆盖；无课程输出是未评测，非法课程、全清空、遗漏词、将 partial/none 报 full 均失败。原文正确不能抵消课程失败。
-- [ ] 采用/计划轴读取显式 before/action/after 观测，检查事实确认不自动写自评、学习重点必须显式采用、非主 JD 不能变硬要求；未采用/撤回/删除/排除词和过期预览不影响计划；已完成任务、工时、内容、依赖、Proof 与不相关自评保持。输入缺少必需场景不得取得完整通过。这是观测校验，不在评分器内模拟产品生成器。
-- [ ] 分层结果包含具体 document/field/term/error；不以平均分抵消严重来源、人物、否定、冲突错误。CLI 错误与候选失败均非零退出；报告必须声明 synthetic/offline 与未批准新 Gate。
+- [x] 协议区分真实提取候选（text/kind/source/skillLabels/selfLevelHint/requirementLevel）和站点课程/采用观测；不要求模型生成评分器私有的真值 ID。文档/文本版本和完整原文来源必须随输入固定。适配仅重命名与补齐已知文档标识，不能纠正输出。
+- [x] 首先以人工构造输入写正反例；记录实际 RED，再实现纯函数 `evaluateCandidateBatch(input, references)`。正例构造函数只放测试，不作为评分器的补默认路径。
+- [x] 原文轴独立核验全文/分段/UTF-16 唯一定位、版本、JSON/数组上限、一对一匹配、完整文本、必需词组/允许组合词、hint、主/次 JD 分类、required/optional/forbidden 提醒。重复、额外事实、额外提醒、额外词均不能获得通过；不能信任候选传来的 legacy ID 或通过声明。
+- [x] 固定 30 文档/84 旧字段和 2 个单列增补；共享增补仅允许已声明的学习主题 facet。逐文档阈值 0.9/0.9/1；零分母报告 not-applicable，supplement-05 仍须检查风险提醒和无伪事实。
+- [x] 课程轴按已审有限原词对应，核验状态、候选课程集合、依据和任务覆盖；无课程输出是未评测，非法课程、全清空、遗漏词、将 partial/none 报 full 均失败。原文正确不能抵消课程失败。
+- [x] 采用/计划轴读取显式 before/action/after 观测，检查事实确认不自动写自评、学习重点必须显式采用、非主 JD 不能变硬要求；未采用/撤回/删除/排除词和过期预览不影响计划；已完成任务、工时、内容、依赖、Proof 与不相关自评保持。输入缺少必需场景不得取得完整通过。这是观测校验，不在评分器内模拟产品生成器。
+- [x] 分层结果包含具体 document/field/term/error；不以平均分抵消严重来源、人物、否定、冲突错误。CLI 错误与候选失败均非零退出；报告必须声明 synthetic/offline 与未批准新 Gate。
 
 采用/计划场景的输入和动作必须是独立固定的参考夹具，并以摘要绑定观测；不能由候选自报任意 before/action 再自行证明不变。最少场景为：只确认事实、单项采用 guided、批量 independent 拒绝、单项明确 independent、未采用学习意向、明确采用软重点、撤回重点、删除资料、逐词排除、同岗位替换主 JD、次要 JD 不产生硬要求、未决冲突不自动裁定、过期预览拒绝。每个结果同时检查完整未完成任务集合、依赖次序、预算和受保护的完成记录/Proof；仅被本次明确自评采用选中的技能允许发生等级变化。场景参考数据可以使用最小合成任务集合，不声称它们是实际产品运行。
 
@@ -55,10 +55,10 @@ Required semantic mutations: 丢否定、换人物/版本/引用、删工具或�
 
 Files: create `candidate-review-verification.json` and `docs/verification/2026-11-07-materials-course-candidate-evaluator.md`; update the assessment plan, public-release progress, and pause/recovery entry.
 
-- [ ] 评分器规格审查→代码质量审查，补充独立故障注入，不以构造正例证明模型质量。
-- [ ] 根任务复跑原文结构/26 坏例、新课程验证/测试、新评分器测试及相关 ESLint。无产品源码变化时不重复声称全仓重新通过；引用已冻结产品批次的既有全仓证据。
-- [ ] 保存全部资产、原输入、课程文件/对象、评分器、当前提取提示词的 SHA 和运行日志/出口计数；新候选可审阅冻结不等于新 Gate 批准，构建和真实运行资格另行验证。
-- [ ] 更新报告与恢复入口，列出真实评估、环境/发布验收等剩余项；本轮真实调用/费用/部署/迁移均为零。仅按本次授权做本机提交，不自动推送。
+- [x] 评分器规格审查→代码质量审查，补充独立故障注入，不以构造正例证明模型质量。
+- [x] 根任务复跑原文结构/26 坏例、新课程验证/测试、新评分器测试及相关 ESLint。无产品源码变化时不重复声称全仓重新通过；引用已冻结产品批次的既有全仓证据。
+- [x] 保存全部资产、原输入、课程文件/对象、评分器、当前提取提示词的 SHA 和运行日志/出口计数；新候选可审阅冻结不等于新 Gate 批准，构建和真实运行资格另行验证。
+- [x] 更新报告与恢复入口，列出真实评估、环境/发布验收等剩余项；本轮真实调用/费用/部署/迁移均为零。仅按本次授权做本机提交，不自动推送。
 
 Verification examples:
 
