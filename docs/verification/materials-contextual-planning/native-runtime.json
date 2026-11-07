@@ -1,0 +1,124 @@
+{
+  "checks": [
+    {
+      "name": "ui-token",
+      "passed": true
+    },
+    {
+      "name": "figma-alone",
+      "passed": true
+    },
+    {
+      "name": "retained-only",
+      "passed": true
+    },
+    {
+      "name": "empty-retained",
+      "passed": true
+    },
+    {
+      "name": "relational-modeling",
+      "passed": true
+    },
+    {
+      "name": "financial-modeling",
+      "passed": true
+    },
+    {
+      "name": "runtime-logs",
+      "passed": true
+    },
+    {
+      "name": "unrelated-clause",
+      "passed": true
+    },
+    {
+      "name": "oauth-token",
+      "passed": true
+    },
+    {
+      "name": "async-testing",
+      "passed": true
+    },
+    {
+      "name": "chinese-modeling",
+      "passed": true
+    },
+    {
+      "name": "research-isolation",
+      "passed": true
+    },
+    {
+      "name": "version-isolation",
+      "passed": true
+    },
+    {
+      "name": "per-term-omit",
+      "passed": true
+    },
+    {
+      "name": "unadopted-topic",
+      "passed": true
+    },
+    {
+      "name": "adopted-topic",
+      "passed": true
+    },
+    {
+      "name": "other-team-ui",
+      "passed": true
+    },
+    {
+      "name": "negative-ui",
+      "passed": true
+    },
+    {
+      "name": "negative-database",
+      "passed": true
+    },
+    {
+      "name": "negative-telemetry",
+      "passed": true
+    },
+    {
+      "name": "other-team-ui-zh",
+      "passed": true
+    },
+    {
+      "name": "negative-ui-zh",
+      "passed": true
+    },
+    {
+      "name": "negative-database-zh",
+      "passed": true
+    },
+    {
+      "name": "other-actor-telemetry-zh",
+      "passed": true
+    },
+    {
+      "name": "paper-service-log",
+      "passed": true
+    },
+    {
+      "name": "paper-service-log-zh",
+      "passed": true
+    },
+    {
+      "name": "physical-retry-tests",
+      "passed": true
+    },
+    {
+      "name": "customer-request-tests",
+      "passed": true
+    },
+    {
+      "name": "physical-retry-tests-zh",
+      "passed": true
+    }
+  ],
+  "passed": 29,
+  "failed": 0,
+  "outbound": 0,
+  "modelCalls": 0
+}
