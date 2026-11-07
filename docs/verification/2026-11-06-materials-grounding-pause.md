@@ -1,5 +1,15 @@
 # 多类型资料离线修复暂停点
 
+## 用户请求暂停：2026-11-07 15:40（北京时间）
+
+本次按用户“保存目前进度，我需要暂时关闭 codex”暂停持续工作目标。工作树为 `C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision`，分支 `codex/materials-replan-recovery-20261106`。产品修复提交 `67a1af32f7e680d9995552e1d9703c8597420eed`，完整验收、源事实标注与校验工具提交 `078193c6b955b23367aa33047a8322dbc2a7a7c1`；本段随后的本地提交仅保存暂停记录，未推送 GitHub。
+
+暂停前重新核对产品证据、源标注四个资产摘要及三个原冻结输入，均一致。下方第四批验收结果继续有效；所有所属子任务已结束，没有本轮遗留运行中的测试或后台服务。本次自动续行仅检查工作树并阅读课程数据，没有开始新的课程标注、评分器实现或模型运行。
+
+下次从**独立课程内容审阅**继续：`app/data/flagship-role.ts`、`app/data/flagship-blueprint.ts`、`app/data/flagship-unit-registry.ts` 已定位；核验完整蓝图/单元对象与文件摘要，依据已审的 `docs/verification/materials-quality-v2/annotations.draft.json` 逐词区分名称对应、具体任务覆盖、部分覆盖及未覆盖。不要用现有 grounding/mapping 输出生成真值，也不要访问语料中的外链。随后实现独立候选评分器、语义正反例并冻结整套契约。原文层和结构工具已经复审通过，无需重做已关闭的修复。
+
+当前仍在 Gate 1B 的离线质量准备阶段。课程层、候选评分器、修复后真实模型质量、B3/B4 和 B5 均未完成；目标尚未达成。本轮新增模型调用、费用、部署和远程迁移均为零。历史 30 次推理、0.547151 USD 和 R2/P1 失败结果保留；旧 B1/B2/P1 付费授权不可复用。恢复后先继续离线工作，再按既定关卡准备新的具体授权材料。
+
 ## 最新恢复检查点：2026-11-07 第四批修复
 
 能力范围、明确个人核对、职责待确认和学习 constraint 核对已完成本批离线修复、独立规格/质量复审及全仓验证。源码提交 `67a1af32f7e680d9995552e1d9703c8597420eed`；991 个非文档文件清单摘要 `cb14108c1360bbf066af0a5b076162f5f86b12ee7eecb2def735da41746463c9`。完整报告见[第四批验收](2026-11-07-materials-assessment-scope-repair.md)，证据在 `docs/verification/materials-assessment-scope/`。
