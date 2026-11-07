@@ -1,6 +1,16 @@
 # 多类型资料离线修复暂停点
 
-2026-11-06 北京时间 22:46，按持有人要求暂停。工作分支为 `codex/materials-replan-recovery-20261106`。本页与在制源码处于同一个本地 Git 提交，开始本轮前的完整检查点为 `e9fe0578f0d991b4b6342927363fc6e3c645d356`。恢复时可用 `git log -1 --oneline -- docs/verification/2026-11-06-materials-grounding-pause.md` 找到本次暂停提交。
+## 最新暂停状态：2026-11-07
+
+2026-11-07 北京时间 10:33，持有人再次要求保存并关闭 Codex。本次核对源码检查点为 `8186858a7afde6e673e4ccad885dc32bc87bb25c`，分支仍为 `codex/materials-replan-recovery-20261106`，工作树在更新暂停文档前干净。当前工作树路径为 `C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision`。
+
+本次恢复后仅核对状态，尚未修改源码或重跑测试。以下 9 项失败及其余未完成事项仍适用，旧版本全仓通过记录不能用于当前在制源码。已确认无运行中的子代理，也未发现命令行引用当前工作树的 Node、workerd 或 PowerShell 后台任务。本次保存只更新暂停文档，未新增模型调用、费用、部署、远程迁移或 GitHub 推送。
+
+下次直接说“从暂停点继续，先完成离线修复”，按下方恢复顺序从 9 项红例开始。已用完的真实模型授权不可重用；恢复离线工作无需重新申请授权。
+
+## 2026-11-06 源码检查点
+
+2026-11-06 北京时间 22:46，按持有人要求暂停。工作分支为 `codex/materials-replan-recovery-20261106`。当时的暂停文档与在制源码一起保存在本地提交 `8186858a7afde6e673e4ccad885dc32bc87bb25c`，开始该轮前的完整检查点为 `e9fe0578f0d991b4b6342927363fc6e3c645d356`。可用 `git log -1 --oneline -- docs/verification/2026-11-06-materials-grounding-pause.md` 找到最新暂停记录提交。
 
 ## 已保存
 
