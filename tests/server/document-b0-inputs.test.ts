@@ -17,7 +17,7 @@ it("binds the offline candidate, page register and admission manifest to the exa
   expect(parseDocumentWorkflowArgs({ jobId: "fixture-job", contractVersion: "2026.11.1" }).contractVersion).toBe("2026.11.1");
   const frozen = JSON.parse(readFileSync("docs/verification/materials-gate-1b-b0/candidate.json", "utf8"));
   expect(frozen.mappingVersion).toBe("2026.11.2");
-  expect(MATERIAL_MAPPING_VERSION).toBe("2026.11.4");
+  expect(MATERIAL_MAPPING_VERSION).toBe("2026.11.5");
   expect(Object.keys(documentAcceptanceCases)).toHaveLength(24);
   expect([...worksheet.matchAll(/^## \d{2}　`([^\x60]+)`/gmu)].map(x => x[1])).toEqual(corpus.documents.map(d => d.id));
   const bounds = corpus.documents.map(d => {

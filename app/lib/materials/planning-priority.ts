@@ -1,6 +1,6 @@
 import type { SkillAuditVersion } from "../../contracts/planning";
 
-export const MATERIAL_PLANNING_POLICY_VERSION = "2026.11.1" as const;
+export const MATERIAL_PLANNING_POLICY_VERSION = "2026.11.2" as const;
 export type MaterialOverlay = Readonly<{
   skillRanks: Readonly<Record<string, number>>;
   mandatorySkillIds: readonly string[];
@@ -41,6 +41,7 @@ export function createMaterialOverlay(input: Readonly<{
   audit: SkillAuditVersion; knownSkillIds: readonly string[]; semanticFingerprint: string;
   requirements: readonly { skillId: string; level: "must" | "preferred" | "unspecified" }[];
   practiceSkillIds: readonly string[];
+  learningIntentSkillIds?: readonly string[];
 }>): MaterialOverlay {
   const known = new Set(input.knownSkillIds), answers = new Map(input.audit.answers.map(a => [a.skillId, a.level]));
   const skillRanks: Record<string, number> = Object.fromEntries(input.knownSkillIds.map(id => [id, 5]));
@@ -52,6 +53,12 @@ export function createMaterialOverlay(input: Readonly<{
     if (requirement.level === "must") mandatorySkillIds.add(requirement.skillId);
     const rank = requirement.level === "must" ? level === "independent" ? 2 : level === "uncertain" ? 1 : 0 : requirement.level === "preferred" ? 4 : 5;
     skillRanks[requirement.skillId] = Math.min(skillRanks[requirement.skillId]!, rank);
+  }
+  // Explicit primary JD classification wins over supplemental learning intentions.
+  // Existing experience priorities retain their previous semantics.
+  const classified = new Set(input.requirements.filter(item => item.level !== "unspecified").map(item => item.skillId));
+  for (const skillId of input.learningIntentSkillIds ?? []) if (known.has(skillId) && !classified.has(skillId)) {
+    skillRanks[skillId] = Math.min(skillRanks[skillId]!, 3);
   }
   return { skillRanks, mandatorySkillIds: [...mandatorySkillIds].sort(), semanticFingerprint: input.semanticFingerprint, policyVersion: MATERIAL_PLANNING_POLICY_VERSION };
 }

@@ -20,6 +20,28 @@ const target = { id: "target-a", schemaVersion: "2026.08.1", targetWeeks: 8, inp
 const snapshot = { schemaVersion: "2026.11.1", ownerId: "owner-a", selectionRef: { selectionId: "selection-a", selectionRevision: 1 }, scope, sourceReference: { source: "flagship", roleId: "ai-native-full-stack-engineer" }, dependencies: [{ slot: "resume", documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", confirmationId: "confirmation-a", generation: 1, confirmationDigest: "a".repeat(64) }], audit, availability, target, planningDate: "2026-11-04", selectedScope: "full-scope", policyVersion: "2026.11.1", mappingVersion: "2026.11.1", explanationVersion: "2026.11.1" };
 
 describe("material planning contract", () => {
+  it("binds term choices and learning intent adoption to the selected version without order semantics", async () => {
+    const term = { confirmationId: "confirmation-a", itemId: "fact-a", skillLabel: "UI tokens", skillIds: ["design-systems", "react"] };
+    const intent = { confirmationId: "confirmation-a", itemId: "fact-a" };
+    const value = { ...snapshot, termMappings: [term], learningIntents: [intent] };
+    expect(materials.contextInputSnapshotSchema.safeParse(value).success).toBe(true);
+    const digest = await materials.createMaterialContextFingerprint(value);
+    expect(await materials.createMaterialContextFingerprint({ ...value, termMappings: [{ ...term, skillIds: [...term.skillIds].reverse() }] })).toBe(digest);
+    expect(await materials.createMaterialContextFingerprint({ ...value, learningIntents: [] })).not.toBe(digest);
+    expect(await materials.createMaterialContextFingerprint({ ...value, termMappings: [{ ...term, skillIds: [] }] })).not.toBe(digest);
+    expect(await materials.createMaterialContextFingerprint({ ...snapshot, termMappings: [], learningIntents: [] })).toBe(await materials.createMaterialContextFingerprint(snapshot));
+    const reordered = { ...value, termMappings: [term, { ...term, skillLabel: "React", skillIds: [] }], learningIntents: [intent, { ...intent, itemId: "fact-b" }] };
+    expect(await materials.createMaterialContextFingerprint(reordered)).toBe(await materials.createMaterialContextFingerprint({ ...reordered,
+      termMappings: [...reordered.termMappings].reverse(), learningIntents: [...reordered.learningIntents].reverse() }));
+    for (const invalid of [
+      { ...value, learningIntents: [intent, intent] },
+      { ...value, learningIntents: [{ ...intent, confirmationId: "other" }] },
+      { ...value, termMappings: [term, term] },
+      { ...value, termMappings: [{ ...term, skillIds: ["react", "react"] }] },
+      { ...value, termMappings: [{ ...term, confirmationId: "other" }] },
+      { ...value, skillMappings: [{ ...intent, skillId: "sql" }] },
+    ]) expect(materials.contextInputSnapshotSchema.safeParse(invalid).success).toBe(false);
+  });
   it("strictly binds opaque mapping choices to selected confirmations and semantic fingerprints", async () => {
     const mapping = { confirmationId: "confirmation-a", itemId: "fact-a", skillId: "react" };
     const mapped = { ...snapshot, skillMappings: [mapping] };

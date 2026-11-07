@@ -21,11 +21,36 @@ export const materialSkillMappingsSchema = z.array(materialSkillMappingSchema).m
   "Duplicate explicit skill mappings",
 );
 export type MaterialSkillMappingChoice = z.infer<typeof materialSkillMappingSchema>;
+const materialItemChoiceSchema = z.object({ confirmationId: materialIdSchema, itemId: materialIdSchema }).strict();
+const itemChoiceKey = (item: { confirmationId: string; itemId: string }) => `${item.confirmationId}:${item.itemId}`;
+export const materialLearningIntentsSchema = z.array(materialItemChoiceSchema).max(500).refine(
+  items => new Set(items.map(itemChoiceKey)).size === items.length, "Duplicate learning intents",
+);
+export const materialTermMappingSchema = materialItemChoiceSchema.extend({
+  skillLabel: z.string().trim().min(1).max(100),
+  skillIds: z.array(materialIdSchema).max(64).refine(ids => new Set(ids).size === ids.length, "Duplicate mapped skills"),
+}).strict();
+export const materialTermMappingsSchema = z.array(materialTermMappingSchema).max(500 * MAX_MATERIAL_SKILL_LABELS_PER_ITEM).refine(
+  mappings => new Set(mappings.map(mapping => `${itemChoiceKey(mapping)}:${mapping.skillLabel}`)).size === mappings.length,
+  "Duplicate term mappings",
+);
+export type MaterialTermMappingChoice = z.infer<typeof materialTermMappingSchema>;
+export type MaterialLearningIntentChoice = z.infer<typeof materialItemChoiceSchema>;
+const materialChoicesShape = {
+  skillMappings: materialSkillMappingsSchema.optional(),
+  termMappings: materialTermMappingsSchema.optional(),
+  learningIntents: materialLearningIntentsSchema.optional(),
+};
+function validateChoiceMix(value: { skillMappings?: MaterialSkillMappingChoice[]; termMappings?: MaterialTermMappingChoice[] }, ctx: z.RefinementCtx) {
+  if (value.termMappings?.some(term => value.skillMappings?.some(item => itemChoiceKey(item) === itemChoiceKey(term)))) {
+    ctx.addIssue({ code: "custom", path: ["termMappings"], message: "Cannot mix item and term mappings for one fact" });
+  }
+}
 export const contextInputSnapshotSchema = boundedMaterialJson(z.object({
   schemaVersion: z.literal(DOCUMENT_SCHEMA_VERSION), ownerId: materialOwnerIdSchema,
   selectionRef: materialSelectionRefSchema, scope: materialScopeSchema, sourceReference: planningSourceReferenceSchema,
   dependencies: z.array(materialContextDependencySchema).max(5),
-  skillMappings: materialSkillMappingsSchema.optional(),
+  ...materialChoicesShape,
   sourceVersions: z.object({ blueprintId: materialIdSchema, blueprintVersion: materialVersionSchema, registryId: materialIdSchema, registryVersion: materialVersionSchema, contentDigest: materialDigestSchema }).strict().optional(),
   audit: skillAuditVersionSchema, availability: availabilityVersionSchema, target: planningTargetSchema,
   planningDate: calendarDateSchema.max(10), selectedScope: z.enum(["full-scope", "target-date"]).nullable(),
@@ -33,7 +58,10 @@ export const contextInputSnapshotSchema = boundedMaterialJson(z.object({
 }).strict().superRefine((snapshot, ctx) => {
   const selected = materialSelectionEntriesSchema.safeParse(snapshot.dependencies.map(({ slot, documentId, documentVersionId, confirmationId }) => ({ slot, documentId, documentVersionId, confirmationId })));
   if (!selected.success) ctx.addIssue({ code: "custom", path: ["dependencies"], message: "Invalid or duplicate selected versions" });
-  if (snapshot.skillMappings?.some(mapping => !snapshot.dependencies.some(dependency => dependency.confirmationId === mapping.confirmationId))) ctx.addIssue({ code: "custom", path: ["skillMappings"], message: "Mappings must use selected confirmations" });
+  for (const field of ["skillMappings", "termMappings", "learningIntents"] as const) {
+    if (snapshot[field]?.some(choice => !snapshot.dependencies.some(dependency => dependency.confirmationId === choice.confirmationId))) ctx.addIssue({ code: "custom", path: [field], message: "Choices must use selected confirmations" });
+  }
+  validateChoiceMix(snapshot, ctx);
   const reference = snapshot.sourceReference;
   const blueprintId = reference.source === "flagship" ? reference.roleId : reference.blueprintId;
   if (snapshot.audit.blueprintId !== blueprintId || (reference.source === "research" && snapshot.audit.blueprintVersion !== reference.blueprintVersion)) ctx.addIssue({ code: "custom", path: ["audit"], message: "Audit must match source blueprint" });
@@ -46,7 +74,7 @@ function byString(left: string, right: string): number { return left < right ? -
 /** Preserve all semantic values; omit only explicitly named metadata, never recursively strip keys. */
 export function normalizeContextInputSnapshot(input: unknown) {
   const snapshot = contextInputSnapshotSchema.parse(input);
-  const { skillMappings, ...semanticSnapshot } = snapshot;
+  const { skillMappings, termMappings, learningIntents, ...semanticSnapshot } = snapshot;
   const { id: auditId, inputFingerprint: auditFingerprint, ...audit } = snapshot.audit;
   const { id: availabilityId, inputFingerprint: availabilityFingerprint, ...availability } = snapshot.availability;
   const { id: targetId, inputFingerprint: targetFingerprint, ...target } = snapshot.target;
@@ -54,6 +82,8 @@ export function normalizeContextInputSnapshot(input: unknown) {
   return {
     ...semanticSnapshot,
     ...(skillMappings?.length ? { skillMappings: [...skillMappings].sort((left, right) => byString(`${left.confirmationId}:${left.itemId}:${left.skillId}`, `${right.confirmationId}:${right.itemId}:${right.skillId}`)) } : {}),
+    ...(termMappings?.length ? { termMappings: termMappings.map(mapping => ({ ...mapping, skillIds: [...mapping.skillIds].sort(byString) })).sort((left, right) => byString(`${itemChoiceKey(left)}:${left.skillLabel}`, `${itemChoiceKey(right)}:${right.skillLabel}`)) } : {}),
+    ...(learningIntents?.length ? { learningIntents: [...learningIntents].sort((left, right) => byString(itemChoiceKey(left), itemChoiceKey(right))) } : {}),
     dependencies: [...snapshot.dependencies].sort((left, right) => byString(`${left.slot}:${left.documentId}`, `${right.slot}:${right.documentId}`)),
     audit: { ...audit, answers: audit.answers.map((answer) => ({ ...answer, evidenceRefs: [...answer.evidenceRefs].sort(byString) })).sort((left, right) => byString(left.skillId, right.skillId)), evidence: [...audit.evidence].sort((left, right) => byString(left.id, right.id)) },
     availability: { ...availability, exceptions: [...availability.exceptions].sort((left, right) => byString(left.date, right.date)) },
@@ -70,19 +100,25 @@ export const materialContextPreviewSchema = boundedMaterialJson(z.object({
   overlay: z.object({ skillRanks: z.record(materialIdSchema, z.number().int().min(0).max(5)), mandatorySkillIds: z.array(materialIdSchema).max(64), semanticFingerprint: materialDigestSchema, policyVersion: materialVersionSchema }).strict().optional(),
   planning: z.object({ fullScope: z.object({ estimatedCompletionDate: calendarDateSchema, totalMinutes: z.number().int().nonnegative() }).strict(), targetDate: z.object({ estimatedCompletionDate: calendarDateSchema, totalMinutes: z.number().int().nonnegative() }).strict().nullable(), infeasibleReason: z.string().max(1000).nullable() }).strict().optional(),
   confirmedItems: z.array(confirmedMaterialItemSchema).max(500).refine(items => new Set(items.map(item => item.id)).size === items.length, "Duplicate item IDs"),
-  itemReferences: z.array(z.object({ id: materialIdSchema, confirmationId: materialIdSchema, itemId: materialIdSchema }).strict()).max(500).optional(),
-  skillMappings: materialSkillMappingsSchema.optional(),
-  priorities: z.array(z.object({ skillId: materialIdSchema, tier: z.number().int().min(0).max(5), itemIds: z.array(materialIdSchema).max(500) }).strict()).max(64),
-  // At most one individual issue per fact, a shared uncovered group, and the target issue.
-  issues: z.array(z.object({ code: z.enum(["ambiguous-mapping", "self-assessment-conflict", "uncovered", "source-unavailable", "target-infeasible"]), itemIds: z.array(materialIdSchema).max(500), skillIds: z.array(materialIdSchema).max(64) }).strict()).max(502),
+  itemReferences: z.array(z.object({ id: materialIdSchema, confirmationId: materialIdSchema, itemId: materialIdSchema, learningIntentEligible: z.boolean().optional() }).strict()).max(500).optional(),
+  ...materialChoicesShape,
+  // Equivalent results share one row; terms reference retained label indexes, -1 is legacy confirmed text.
+  mappingDetails: z.array(z.object({ itemId: materialIdSchema, termIndexes: z.array(z.number().int().min(-1).max(MAX_MATERIAL_SKILL_LABELS_PER_ITEM - 1)).min(1).max(MAX_MATERIAL_SKILL_LABELS_PER_ITEM),
+    status: z.enum(["mapped", "ambiguous", "uncovered", "non-learning", "omitted"]), skillIds: z.array(materialIdSchema).max(64), basis: z.enum(["literal", "contextual", "manual"]).nullable(),
+  }).strict()).max(500 * MAX_MATERIAL_SKILL_LABELS_PER_ITEM).optional(),
+  priorities: z.array(z.object({ skillId: materialIdSchema, tier: z.number().int().min(0).max(5), itemIds: z.array(materialIdSchema).max(500),
+    practiceItemIds: z.array(materialIdSchema).max(500).optional(), learningIntentItemIds: z.array(materialIdSchema).max(500).optional(),
+  }).strict()).max(64),
+  // One individual ambiguity per fact, three shared groups and the target issue.
+  issues: z.array(z.object({ code: z.enum(["ambiguous-mapping", "self-assessment-conflict", "uncovered", "source-unavailable", "target-infeasible", "learning-intent-not-adopted", "mapping-omitted"]), itemIds: z.array(materialIdSchema).max(500), skillIds: z.array(materialIdSchema).max(64) }).strict()).max(504),
   uncoveredLabels: z.array(z.string().trim().min(1).max(100)).max(500 * MAX_MATERIAL_SKILL_LABELS_PER_ITEM),
 }).strict(), MAX_MATERIAL_CONTEXT_JSON_BYTES);
 export const createMaterialContextRequestSchema = boundedMaterialJson(z.object({
   selectionRef: materialSelectionRefSchema, scope: materialScopeSchema, source: planningGenerateSourceSchema,
-  skillMappings: materialSkillMappingsSchema.optional(),
+  ...materialChoicesShape,
   audit: skillAuditVersionSchema, availability: availabilityVersionSchema, target: planningTargetSchema,
   planningDate: calendarDateSchema.max(10), selectedScope: z.enum(["full-scope", "target-date"]).nullable(), mutationId: materialIdSchema,
-}).strict().refine((request) => !(request.scope.kind === "draft" && request.scope.previousGoalId !== null && request.source.source !== "research"), "A new goal requires ready Research"), MAX_MATERIAL_CONTEXT_JSON_BYTES);
+}).strict().refine((request) => !(request.scope.kind === "draft" && request.scope.previousGoalId !== null && request.source.source !== "research"), "A new goal requires ready Research").superRefine(validateChoiceMix), MAX_MATERIAL_CONTEXT_JSON_BYTES);
 export const createMaterialContextResponseSchema = boundedMaterialJson(z.object({ contextVersionId: materialIdSchema, previewToken: materialDigestSchema, preview: materialContextPreviewSchema }).strict(), MAX_MATERIAL_CONTEXT_JSON_BYTES);
 export const materialReplanRequestSchema = z.object({
   scope: materialGoalScopeSchema, selectionRef: materialSelectionRefSchema, contextVersionId: materialIdSchema, previewToken: materialDigestSchema, mutationId: materialIdSchema,

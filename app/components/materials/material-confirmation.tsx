@@ -34,7 +34,8 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
   documentKind?: "resume" | "jd" | "supplement";
   skills?: readonly { id: string; name: string }[]; onAdoptLevels?: (levels: Record<string, SkillSelfLevel>) => void;
 }) {
-  const conflicts = draft.items.filter(item => item.kind === "requirement" && item.requirementLevel === "unspecified");
+  const isMainJd = documentKind === "jd";
+  const conflicts = isMainJd ? draft.items.filter(item => item.kind === "requirement" && item.requirementLevel === "unspecified") : [];
   const hints = retainedMaterialSelfAssessmentHints(draft.items, draft.selfAssessmentHints);
   const unresolved = (draft.reviewPoints ?? []).filter(point => point.resolution === "unresolved" && (MATERIAL_HIGH_IMPACT_REVIEW_CODES as readonly string[]).includes(point.code));
   return <div className="material-review">
@@ -42,7 +43,8 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
     {(draft.reviewPoints?.length ?? 0) > 0 && <section className="material-review-points"><h4>重点核对</h4>
       {unresolved.length > 0 && <p role="alert">还有 {unresolved.length} 项重点提醒需要处理。</p>}
       {draft.reviewPoints!.map(point => {
-        const label = draft.reviewProjection && point.code === "uncovered-skill" ? "原文提到课程覆盖缺口，请核对" : reviewLabels[point.code];
+        const label = draft.reviewProjection && point.code === "uncovered-skill" ? "原文提到课程覆盖缺口，请核对"
+          : !isMainJd && point.code === "conflicting-requirement" ? "建议或学习要求分类存在冲突" : reviewLabels[point.code];
         return <fieldset key={point.id}><legend>{label ?? "请核对原文"}</legend>
         <blockquote>{text.slice(point.sourceRef.start, point.sourceRef.end)}</blockquote>
         <label>处理结果<select aria-label={label ?? point.code} disabled={saving || !onReviewPointsChange} value={point.resolution}
@@ -58,7 +60,7 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
       <label>信息类型<select aria-label={`事实 ${index + 1} 信息类型`} value={item.kind} onChange={event => onItemsChange(draft.items.map(row => row.id === item.id ? {
         ...row, kind: event.target.value as ConfirmedMaterialItem["kind"], origin: "user", skillLabels: row.skillLabels ? [] : undefined,
         requirementLevel: event.target.value === "requirement" ? row.requirementLevel ?? "unspecified" : null,
-      } : row))}><option value="experience">经历</option><option value="skill-claim">技能描述</option><option value="requirement">岗位要求</option><option value="constraint">其他约束</option></select></label>
+      } : row))}><option value="experience">经历</option><option value="skill-claim">技能描述</option><option value="requirement">{isMainJd ? "岗位要求" : "建议或学习要求"}</option><option value="constraint">其他约束</option></select></label>
       <label>内容<textarea aria-label={`事实 ${index + 1}`} value={item.text} maxLength={1000} onChange={event => onItemsChange(draft.items.map(row => row.id === item.id ? {
         ...row, text: event.target.value, origin: "user", skillLabels: row.skillLabels?.filter(label => supportsReviewedSkillLabel(event.target.value, label, draft.reviewProjection))
       } : row))} /></label>
@@ -74,7 +76,9 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
       {draft.reviewProjection && quote && !draft.reclassifiedItemIds?.includes(item.id) && <AddSourceTerm item={item} index={index} quote={quote} saving={saving}
         onAdd={(sourceTerm, label) => onItemsChange(draft.items.map(row => row.id === item.id
           ? { ...row, origin: "user", skillLabels: [...row.skillLabels ?? [], label] } : row), { itemId: item.id, sourceTerm })} />}
-      {item.kind === "requirement" && <label>要求类型<select aria-label={`事实 ${index + 1} 要求类型`} value={item.requirementLevel ?? "unspecified"} onChange={event => onItemsChange(draft.items.map(row => row.id === item.id ? { ...row, origin: "user", requirementLevel: event.target.value as "must" | "preferred" | "unspecified" } : row))}><option value="unspecified">需要核对</option><option value="must">必备</option><option value="preferred">加分</option></select></label>}
+      {item.kind === "requirement" && (isMainJd
+        ? <label>要求类型<select aria-label={`事实 ${index + 1} 要求类型`} value={item.requirementLevel ?? "unspecified"} onChange={event => onItemsChange(draft.items.map(row => row.id === item.id ? { ...row, origin: "user", requirementLevel: event.target.value as "must" | "preferred" | "unspecified" } : row))}><option value="unspecified">需要核对</option><option value="must">必备</option><option value="preferred">加分</option></select></label>
+        : <p>这条建议或学习要求可在路线预览中单独采用为本轮学习重点。</p>)}
       <button type="button" className="text-action" onClick={() => onItemsChange(draft.items.filter(row => row.id !== item.id))}>移除事实 {index + 1}</button>
       </fieldset>;
     })}

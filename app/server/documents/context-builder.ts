@@ -1,14 +1,14 @@
-import { explainMaterialPreview } from "../../lib/materials/explanations";
+import { explainMaterialPreview, MATERIAL_EXPLANATION_VERSION } from "../../lib/materials/explanations";
 import { materialHistoryResponseSchema, type MaterialHistoryResponse } from "../../contracts/material-planning";
 import { z } from "zod";
 import { DOCUMENT_SCHEMA_VERSION, confirmedMaterialItemsSchema, materialIdSchema, type ConfirmedMaterialItem } from "../../contracts/documents";
-import { contextInputSnapshotSchema, createMaterialContextFingerprint, createMaterialContextRequestSchema, createMaterialContextResponseSchema, materialContextPreviewSchema, materialReplanRequestSchema, materialSha256, readMaterialContextResponseSchema, type ContextInputSnapshot, type MaterialPlanningReference, type MaterialSkillMappingChoice } from "../../contracts/material-planning";
+import { contextInputSnapshotSchema, createMaterialContextFingerprint, createMaterialContextRequestSchema, createMaterialContextResponseSchema, materialContextPreviewSchema, materialReplanRequestSchema, materialSha256, readMaterialContextResponseSchema, type ContextInputSnapshot, type MaterialPlanningReference } from "../../contracts/material-planning";
 import type { GeneratePlanningRequest } from "../../contracts/planning-api";
 import { planningWorkspaceSchema, type PlanningSourceContext } from "../../contracts/planning";
 import { canonicalJson, deterministicId } from "../../lib/planning/fingerprint";
 import { buildLearningPaths } from "../../lib/planning/path-builder";
 import { createMaterialOverlay, MATERIAL_PLANNING_POLICY_VERSION } from "../../lib/materials/planning-priority";
-import { mapMaterialItems, MATERIAL_MAPPING_VERSION } from "../../lib/materials/skill-mapper";
+import { mapMaterialItems, mapMaterialItemTerms, MATERIAL_MAPPING_VERSION, type MappingOptions } from "../../lib/materials/skill-mapper";
 import { validateUnitRegistry } from "../../lib/planning/registry-validation";
 import { PlanningConflictError, PlanningInvalidInputError, PlanningNotFoundError } from "../planning/service";
 import type { PlanningSourceResolver } from "../planning/source-resolver";
@@ -50,9 +50,9 @@ export class MaterialContextService {
     const source = await this.options.sourceResolver.resolveForGenerate(ownerId, request.source);
     const selected = await this.selected(ownerId, request.selectionRef.selectionId);
     if (selected.some(row => row.lifecycle !== "active" || row.version_state !== "ready" || row.confirmation_state !== "active")) throw new PlanningConflictError();
-    const skillMappings = this.validateSkillMappings(request.skillMappings ?? [], selected, source);
+    const choices = this.validateChoices(request, selected, source);
     const dependencies = await Promise.all(selected.map(async row => ({ slot: row.slot, documentId: row.document_id, documentVersionId: row.document_version_id, textVersionId: row.text_version_id, confirmationId: row.confirmation_id, generation: row.generation, confirmationDigest: await materialSha256(JSON.parse(row.items_json)) })));
-    const snapshot = contextInputSnapshotSchema.parse({ schemaVersion: DOCUMENT_SCHEMA_VERSION, ownerId, selectionRef: request.selectionRef, scope: request.scope, sourceReference: source.reference, sourceVersions: await sourceVersions(source), dependencies, ...(skillMappings.length ? { skillMappings } : {}), audit: request.audit, availability: request.availability, target: request.target, planningDate: request.planningDate, selectedScope: request.selectedScope, policyVersion: MATERIAL_PLANNING_POLICY_VERSION, mappingVersion: MATERIAL_MAPPING_VERSION, explanationVersion: "2026.11.2" });
+    const snapshot = contextInputSnapshotSchema.parse({ schemaVersion: DOCUMENT_SCHEMA_VERSION, ownerId, selectionRef: request.selectionRef, scope: request.scope, sourceReference: source.reference, sourceVersions: await sourceVersions(source), dependencies, ...choices, audit: request.audit, availability: request.availability, target: request.target, planningDate: request.planningDate, selectedScope: request.selectedScope, policyVersion: MATERIAL_PLANNING_POLICY_VERSION, mappingVersion: MATERIAL_MAPPING_VERSION, explanationVersion: MATERIAL_EXPLANATION_VERSION });
     const fingerprint = await createMaterialContextFingerprint(snapshot);
     const preview = this.project(snapshot, selected, source, fingerprint);
     const contextVersionId = this.createId();
@@ -199,15 +199,27 @@ export class MaterialContextService {
     return { row, commit, preview: materialContextPreviewSchema.parse(JSON.parse(row.preview_json)) };
   }
 
-  private validateSkillMappings(mappings: MaterialSkillMappingChoice[], selected: SelectedRow[], source: PlanningSourceContext): MaterialSkillMappingChoice[] {
-    if (!mappings.length) return [];
+  private validateChoices(choices: Pick<ContextInputSnapshot, "skillMappings" | "termMappings" | "learningIntents">, selected: SelectedRow[], source: PlanningSourceContext) {
+    const { skillMappings = [], termMappings = [], learningIntents = [] } = choices;
+    if (!skillMappings.length && !termMappings.length && !learningIntents.length) return {};
     if (source.blueprint.status !== "ready" || !validateUnitRegistry(source.registry, source.blueprint).valid) throw new PlanningInvalidInputError(["material-mapping-source"]);
-    for (const mapping of mappings) {
-      const rows = selected.filter(row => row.confirmation_id === mapping.confirmationId);
-      const item = rows.length === 1 ? confirmedMaterialItemsSchema.parse(JSON.parse(rows[0]!.items_json)).find(item => item.id === mapping.itemId) : null;
-      if (!item || item.kind === "constraint" || !source.blueprint.skills.some(skill => skill.id === mapping.skillId)) throw new PlanningInvalidInputError(["material-mapping-reference"]);
+    const items = new Map<string, { row: SelectedRow; item: ConfirmedMaterialItem }>(selected.flatMap(row => confirmedMaterialItemsSchema.parse(JSON.parse(row.items_json))
+      .map(item => [`${row.confirmation_id}:${item.id}`, { row, item }] as const)));
+    const key = (choice: { confirmationId: string; itemId: string }) => `${choice.confirmationId}:${choice.itemId}`;
+    const adopted = new Set(learningIntents.map(key));
+    for (const choice of learningIntents) {
+      const selectedItem = items.get(key(choice));
+      if (!selectedItem || !learningIntentEligible(selectedItem.row, selectedItem.item)) throw new PlanningInvalidInputError(["material-intent-reference"]);
     }
-    return mappings;
+    const known = new Set(source.blueprint.skills.map(skill => skill.id));
+    for (const mapping of [...skillMappings, ...termMappings]) {
+      const selectedItem = items.get(key(mapping));
+      const skillIds = "skillId" in mapping ? [mapping.skillId] : mapping.skillIds;
+      if (!selectedItem || (selectedItem.item.kind === "constraint" && !adopted.has(key(mapping))) || skillIds.some(skillId => !known.has(skillId))
+        || ("skillId" in mapping && selectedItem.item.skillLabels !== undefined)
+        || ("skillLabel" in mapping && !selectedItem.item.skillLabels?.includes(mapping.skillLabel))) throw new PlanningInvalidInputError(["material-mapping-reference"]);
+    }
+    return { ...(skillMappings.length ? { skillMappings } : {}), ...(termMappings.length ? { termMappings } : {}), ...(learningIntents.length ? { learningIntents } : {}) };
   }
 
   private project(snapshot: ContextInputSnapshot, selected: SelectedRow[], source: PlanningSourceContext, fingerprint: string): MaterialPreview {
@@ -215,21 +227,50 @@ export class MaterialContextService {
     const itemReferences: NonNullable<MaterialPreview["itemReferences"]> = [];
     const requirements: { skillId: string; level: "must" | "preferred" | "unspecified"; itemId: string }[] = [];
     const practices: { skillId: string; itemId: string }[] = [];
+    const intents: { skillId: string; itemId: string }[] = [];
+    const mappingDetails: NonNullable<MaterialPreview["mappingDetails"]> = [];
     const uncoveredLabels: string[] = [];
     const issues: MaterialPreview["issues"] = [];
     const uncoveredFactIds: string[] = [];
+    const unadoptedFactIds: string[] = [], omittedFactIds: string[] = [];
     for (const row of selected) {
       const userMappings: Record<string, string[]> = {};
+      const termMappings: NonNullable<MappingOptions["termMappings"]> = {};
+      const learningIntentItemIds: string[] = [];
+      const unadopted = new Set<string>();
       const items = confirmedMaterialItemsSchema.parse(JSON.parse(row.items_json)).map(item => {
         const id = deterministicId("material-item", { confirmationId: row.confirmation_id, itemId: item.id });
-        itemReferences.push({ id, confirmationId: row.confirmation_id, itemId: item.id });
+        const eligible = learningIntentEligible(row, item);
+        itemReferences.push({ id, confirmationId: row.confirmation_id, itemId: item.id, ...(eligible ? { learningIntentEligible: true } : {}) });
+        if (snapshot.learningIntents?.some(choice => choice.confirmationId === row.confirmation_id && choice.itemId === item.id)) learningIntentItemIds.push(id);
+        else if (eligible) {
+          unadopted.add(id);
+          if (item.kind === "requirement" || item.skillLabels?.length) unadoptedFactIds.push(id);
+        }
         const explicit = snapshot.skillMappings?.filter(mapping => mapping.confirmationId === row.confirmation_id && mapping.itemId === item.id).map(mapping => mapping.skillId);
         if (explicit?.length) userMappings[id] = explicit;
+        const terms = snapshot.termMappings?.filter(mapping => mapping.confirmationId === row.confirmation_id && mapping.itemId === item.id);
+        if (terms?.length) termMappings[id] = terms;
         return { ...item, id };
       });
       confirmedItems.push(...items);
-      for (const mapping of mapMaterialItems(items, source.blueprint, source.registry, { userMappings })) {
+      const options = { userMappings, termMappings, learningIntentItemIds };
+      const details = mapMaterialItemTerms(items, source.blueprint, source.registry, options);
+      const groups = new Map<string, NonNullable<MaterialPreview["mappingDetails"]>[number]>();
+      for (const detail of details) {
+        const item = items.find(item => item.id === detail.itemId)!;
+        const termIndex = item.skillLabels?.indexOf(detail.term) ?? -1;
+        const groupKey = canonicalJson({ itemId: item.id, status: detail.status, skillIds: detail.skillIds, basis: detail.basis });
+        const group = groups.get(groupKey) ?? { itemId: item.id, termIndexes: [], status: detail.status, skillIds: detail.skillIds, basis: detail.basis };
+        if (!group.termIndexes.includes(termIndex)) group.termIndexes.push(termIndex);
+        groups.set(groupKey, group);
+        if (detail.status === "omitted") omittedFactIds.push(item.id);
+      }
+      mappingDetails.push(...groups.values());
+      for (const id of learningIntentItemIds) if (!details.some(detail => detail.itemId === id)) uncoveredFactIds.push(id);
+      for (const mapping of mapMaterialItems(items, source.blueprint, source.registry, options)) {
         const item = items.find(value => value.id === mapping.itemId)!;
+        if (unadopted.has(item.id)) continue;
         if (mapping.status === "non-learning") continue;
         if (mapping.status !== "mapped") {
           if (mapping.status === "uncovered" || item.skillLabels === undefined) uncoveredLabels.push(...mapping.labels);
@@ -240,19 +281,28 @@ export class MaterialContextService {
         for (const skillId of mapping.skillIds) {
           if (row.slot === "jd" && item.kind === "requirement") requirements.push({ skillId, level: item.requirementLevel ?? "unspecified", itemId: item.id });
           if (row.slot !== "jd" && ["experience", "skill-claim"].includes(item.kind)) practices.push({ skillId, itemId: item.id });
+          if (learningIntentItemIds.includes(item.id)) intents.push({ skillId, itemId: item.id });
         }
       }
     }
-    if (uncoveredFactIds.length) issues.push({ code: "uncovered", itemIds: uncoveredFactIds, skillIds: [] });
-    const overlay = createMaterialOverlay({ audit: snapshot.audit, knownSkillIds: source.blueprint.skills.map(skill => skill.id), semanticFingerprint: fingerprint, requirements, practiceSkillIds: practices.map(item => item.skillId) });
+    if (uncoveredFactIds.length) issues.push({ code: "uncovered", itemIds: [...new Set(uncoveredFactIds)], skillIds: [] });
+    if (unadoptedFactIds.length) issues.push({ code: "learning-intent-not-adopted", itemIds: unadoptedFactIds, skillIds: [] });
+    if (omittedFactIds.length) issues.push({ code: "mapping-omitted", itemIds: [...new Set(omittedFactIds)], skillIds: [] });
+    const overlay = createMaterialOverlay({ audit: snapshot.audit, knownSkillIds: source.blueprint.skills.map(skill => skill.id), semanticFingerprint: fingerprint, requirements, practiceSkillIds: practices.map(item => item.skillId), learningIntentSkillIds: intents.map(item => item.skillId) });
     const priorities = Object.entries(overlay.skillRanks).filter(([, tier]) => tier < 5).map(([skillId, tier]) => {
       const sources = tier === 3 ? practices : requirements.filter(item => item.level === (tier === 4 ? "preferred" : "must"));
-      return { skillId, tier, itemIds: sources.filter(item => item.skillId === skillId).map(item => item.itemId) };
+      const practiceItemIds = [...new Set(practices.filter(item => item.skillId === skillId).map(item => item.itemId))];
+      const learningIntentItemIds = tier === 3 && !requirements.some(item => item.skillId === skillId && item.level !== "unspecified")
+        ? [...new Set(intents.filter(item => item.skillId === skillId).map(item => item.itemId))] : [];
+      return { skillId, tier, itemIds: [...new Set([...sources.filter(item => item.skillId === skillId).map(item => item.itemId), ...learningIntentItemIds])],
+        ...(learningIntentItemIds.length ? { practiceItemIds, learningIntentItemIds } : {}) };
     });
     const paths = buildLearningPaths({ blueprint: source.blueprint, registry: source.registry, audit: snapshot.audit, availability: snapshot.availability, target: snapshot.target, planningDate: snapshot.planningDate, materialOverlay: overlay });
     if (paths.infeasibleReason) issues.push({ code: "target-infeasible", itemIds: [], skillIds: overlay.mandatorySkillIds.slice() });
     const summary = (path: typeof paths.fullScope) => ({ estimatedCompletionDate: path.estimatedCompletionDate, totalMinutes: path.units.reduce((sum, unit) => sum + unit.estimatedMinutes, 0) });
-    return materialContextPreviewSchema.parse({ confirmedItems, itemReferences, ...(snapshot.skillMappings?.length ? { skillMappings: snapshot.skillMappings } : {}), priorities, issues, uncoveredLabels: [...new Set(uncoveredLabels)], overlay, planning: { fullScope: summary(paths.fullScope), targetDate: paths.targetDate ? summary(paths.targetDate) : null, infeasibleReason: paths.infeasibleReason } });
+    return materialContextPreviewSchema.parse({ confirmedItems, itemReferences, mappingDetails, ...(snapshot.skillMappings?.length ? { skillMappings: snapshot.skillMappings } : {}),
+      ...(snapshot.termMappings?.length ? { termMappings: snapshot.termMappings } : {}), ...(snapshot.learningIntents?.length ? { learningIntents: snapshot.learningIntents } : {}),
+      priorities, issues, uncoveredLabels: [...new Set(uncoveredLabels)], overlay, planning: { fullScope: summary(paths.fullScope), targetDate: paths.targetDate ? summary(paths.targetDate) : null, infeasibleReason: paths.infeasibleReason } });
   }
 
   private async selected(ownerId: string, selectionId: string): Promise<SelectedRow[]> {
@@ -273,6 +323,10 @@ export class MaterialContextService {
   private receipt(ownerId: string, endpoint: string, mutationId: string) {
     return this.options.db.prepare("SELECT body_digest,result_json FROM document_mutations WHERE owner_id=?1 AND endpoint=?2 AND mutation_id=?3").bind(ownerId, endpoint, mutationId).first<{ body_digest: string; result_json: string }>();
   }
+}
+
+function learningIntentEligible(row: SelectedRow, item: ConfirmedMaterialItem): boolean {
+  return row.slot !== "jd" && (item.kind === "constraint" || item.kind === "requirement");
 }
 
 async function sourceVersions(source: PlanningSourceContext) {
