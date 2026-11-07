@@ -213,6 +213,102 @@ const grounded = {
 const localText = practice + " " + obligation;
 
 describe("Kimi grounded terms and reviews", () => {
+  it.each([false, true])("keeps an explicit unpractised learning constraint and its question with provider nomination=%s", async nominated => {
+    const text = "I have not designed a live experiment and want practice with experiment planning.", source = localSource(text);
+    const reviewPoints = [{ code: "confirm-self-assessment", source }];
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "constraint", source,
+      skillTerms: ["experiment planning"], selfLevelHint: null, requirementLevel: null }], reviewPoints: nominated ? reviewPoints : [] },
+    { policyId: groundedPolicy, kind: "resume", text });
+    expect(outcome.candidate).toMatchObject({ items: [{ kind: "constraint", text, source,
+      skillLabels: ["experiment planning"], selfLevelHint: null, requirementLevel: null }], reviewPoints });
+    const draft = validateDocumentExtraction(outcome.candidate, "owner", { ownerId: "owner", lifecycle: "active", documentId: "doc-one",
+      documentVersionId: "version-one", textVersionId: "text-one", text, segments: [{ id: "section-one", start: 0, end: text.length }] }, groundedPolicy);
+    expect(draft.items[0]).toMatchObject({ kind: "constraint", text, skillLabels: ["experiment planning"], sourceRef: { start: 0, end: text.length } });
+    expect(draft.selfAssessmentHints).toEqual([]);
+    expect(draft.reviewPoints).toMatchObject([{ code: "confirm-self-assessment", resolution: "unresolved", sourceRef: { start: 0, end: text.length } }]);
+  });
+
+  it.each([
+    "I have not designed a live experiment and do not want practice with experiment planning.",
+    "I have not designed a live experiment and no longer want practice with experiment planning.",
+    "If I have not designed a live experiment and want practice with experiment planning, I will ask.",
+    "My mentor said, I have not designed a live experiment and want practice with experiment planning.",
+    "My colleague has not designed a live experiment and wants practice with experiment planning.",
+  ])("preserves a constraint without endorsing a denied or embedded practice wish: %s", async text => {
+    const source = localSource(text);
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "constraint", source,
+      skillTerms: ["experiment planning"], selfLevelHint: null, requirementLevel: null }],
+      reviewPoints: [{ code: "confirm-self-assessment", source }] }, { policyId: groundedPolicy, kind: "resume", text });
+    expect(outcome.candidate).toMatchObject({ items: [{ kind: "constraint", text, source, selfLevelHint: null }], reviewPoints: [] });
+  });
+
+  it("preserves compatible resume claims and a separate responsibility question through v2 decoding and site validation", async () => {
+    const quotes = ["简介：熟悉 SQL，可独立完成报表。", "项目说明：所有 SQL 由导师提供，我只替换了日期参数。", "工作时间：未填写；本人是否编写查询待确认。"];
+    const text = quotes.join("\n");
+    const { outcome } = await analyze({ format: "source-spans-v2", items: quotes.map((quote, index) => ({
+      kind: index === 0 ? "skill-claim" : index === 1 ? "experience" : "constraint", source: localSource(quote),
+      skillTerms: index < 2 ? ["SQL"] : [], requirementLevel: null, selfLevelHint: index < 2 ? "uncertain" : null,
+    })), reviewPoints: quotes.map(quote => ({ code: "conflicting-self-assessment", source: localSource(quote) })) },
+    { policyId: groundedPolicy, kind: "resume", text });
+    expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: {
+      items: quotes.map((quote, index) => ({ text: quote, source: localSource(quote), skillLabels: index < 2 ? ["SQL"] : [], selfLevelHint: null })),
+      reviewPoints: [{ code: "confirm-self-assessment", source: localSource(quotes[0]!) }, { code: "missing-information", source: localSource(quotes[2]!) }],
+    } });
+    const draft = validateDocumentExtraction(outcome.candidate, "owner", { ownerId: "owner", lifecycle: "active", documentId: "doc-one",
+      documentVersionId: "version-one", textVersionId: "text-one", text, segments: [{ id: "section-one", start: 0, end: text.length }] }, groundedPolicy);
+    expect(draft.items.map(row => ({ text: row.text, labels: row.skillLabels, source: text.slice(row.sourceRef!.start, row.sourceRef!.end) })))
+      .toEqual(quotes.map((quote, index) => ({ text: quote, labels: index < 2 ? ["SQL"] : [], source: quote })));
+    expect(draft.selfAssessmentHints).toEqual([]);
+    expect(draft.reviewPoints.map(row => ({ code: row.code, resolution: row.resolution, source: text.slice(row.sourceRef.start, row.sourceRef.end) })))
+      .toEqual([{ code: "confirm-self-assessment", resolution: "unresolved", source: quotes[0] }, { code: "missing-information", resolution: "unresolved", source: quotes[2] }]);
+  });
+
+  it.each([
+    ["我用 React 实现了原型，交互测试由结对伙伴协助。", "React", "guided", null, false],
+    ["我在导师指导下用 React 实现了原型。", "React", "guided", "guided", true],
+    ["个人简介：我熟悉 SQL。", "SQL", "conceptual", "conceptual", true],
+    ["我目前不能独立配置 Kubernetes 集群。", "Kubernetes", "uncertain", null, true],
+    ["I can independently write SQL reports.", "SQL", null, null, true],
+    ["I built a React prototype, and I tested React under peer guidance.", "React", "guided", null, true],
+    ["简介：可独立完成 SQL 报表。", "SQL", "uncertain", null, true],
+    ["I cannot independently configure Kubernetes.", "Kubernetes", "uncertain", null, true],
+    ["I cannot write SQL reports independently.", "SQL", "uncertain", null, true],
+  ] as const)("projects the complete fact, exact terms and optional task-scoped hint for %s", async (text, label, proposed, hint, review) => {
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "skill-claim", source: localSource(text),
+      skillTerms: [label], selfLevelHint: proposed, requirementLevel: null }], reviewPoints: [] }, { policyId: groundedPolicy, kind: "resume", text });
+    const draft = validateDocumentExtraction(outcome.candidate, "owner", { ownerId: "owner", lifecycle: "active", documentId: "doc-one",
+      documentVersionId: "version-one", textVersionId: "text-one", text, segments: [{ id: "section-one", start: 0, end: text.length }] }, groundedPolicy);
+    expect(draft.items).toHaveLength(1);
+    expect(draft.items[0]).toMatchObject({ text, skillLabels: [label], sourceRef: { start: 0, end: text.length } });
+    expect(draft.selfAssessmentHints).toEqual(hint ? [{ id: "hint-candidate-1-0", candidateId: "candidate-1", skillLabel: label, level: hint }] : []);
+    expect(draft.reviewPoints.map(point => point.code)).toEqual(review ? ["confirm-self-assessment"] : []);
+  });
+
+  it.each([
+    ["例如我负责 SQL 查询，我熟悉 SQL。", "SQL", "conceptual"],
+    ["例如，我熟悉 SQL。", "SQL", "conceptual"],
+    ["例如，我在导师指导下用 React 实现了原型。", "React", "guided"],
+    ["简介：例如我负责 SQL 查询，我熟悉 SQL。", "SQL", "conceptual"],
+    ["不能说我负责 SQL 查询，我熟悉 SQL。", "SQL", "conceptual"],
+    ["我没有说过，我熟悉 SQL。", "SQL", "conceptual"],
+    ["导师说，我熟悉 SQL。", "SQL", "conceptual"],
+    ["如果我完成了 React 原型，我在导师指导下测试 React。", "React", "guided"],
+    ["我完成了 React 原型，但导师说，我熟悉 SQL。", "SQL", "conceptual"],
+    ["I built a React prototype, but Alice said, I am familiar with SQL.", "SQL", "conceptual"],
+    ["I built a React prototype, and my mentor said, I tested SQL under supervision.", "SQL", "guided"],
+  ] as const)("keeps a modal statement as a fact without adopting its nested self-assessment: %s", async (text, label, hint) => {
+    const source = localSource(text);
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "skill-claim", source,
+      skillTerms: [label], selfLevelHint: hint, requirementLevel: null }],
+      reviewPoints: [{ code: "confirm-self-assessment", source }] }, { policyId: groundedPolicy, kind: "resume", text });
+    expect(outcome.candidate).toMatchObject({ items: [{ text, source, skillLabels: [label], selfLevelHint: null }], reviewPoints: [] });
+    const draft = validateDocumentExtraction(outcome.candidate, "owner", { ownerId: "owner", lifecycle: "active", documentId: "doc-one",
+      documentVersionId: "version-one", textVersionId: "text-one", text, segments: [{ id: "section-one", start: 0, end: text.length }] }, groundedPolicy);
+    expect(draft.items[0]).toMatchObject({ text, skillLabels: [label], sourceRef: { start: 0, end: text.length } });
+    expect(draft.selfAssessmentHints).toEqual([]);
+    expect(draft.reviewPoints).toEqual([]);
+  });
+
   it.each(["resume", "jd", "supplement"] as const)("extracts source terms, preserves unknown tools and separates role coverage for %s", async kind => {
     const { outcome, body } = await analyze(grounded, { policyId: groundedPolicy, text: localText, kind });
     expect(body.messages[0].content).toContain("source-spans-v2");
@@ -246,6 +342,14 @@ describe("Kimi grounded terms and reviews", () => {
     expect(outcome).toMatchObject({ candidate: null, actualMicroUsd: 7, audit: { extractionRead: "invalid-shape" } });
   });
 
+  it("keeps a JD familiarity requirement without accepting a model's personal assessment question", async () => {
+    const text = "熟悉 SQL。", source = localSource(text);
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "requirement", source,
+      skillTerms: ["SQL"], selfLevelHint: null, requirementLevel: "unspecified" }],
+      reviewPoints: [{ code: "confirm-self-assessment", source }] }, { policyId: groundedPolicy, kind: "jd", text });
+    expect(outcome.candidate).toMatchObject({ items: [{ text, skillLabels: ["SQL"], selfLevelHint: null }], reviewPoints: [] });
+  });
+
   it("keeps a URL query and the following access restriction together in the fact and in its review", async () => {
     const text = "课后仅可在内网查看 https://learn.invalid/lesson?q=queue，访问前需登记。";
     const source = localSource(text);
@@ -265,23 +369,32 @@ describe("Kimi grounded terms and reviews", () => {
   });
 
   it.each([
-    ["I am familiar with HTML, but my colleague uses PostgreSQL.", ["HTML", "PostgreSQL"], "conceptual", null],
-    ["I rehearsed migrations under supervision, but I independently use PostgreSQL.", ["PostgreSQL"], "guided", null],
-    ["I am familiar with log sampling, but I never used FakeTool.", ["log sampling", "invented"], "conceptual", "conceptual"],
-    ["- I am familiar with SQL.", ["SQL"], "conceptual", "conceptual"],
-    ["I am familiar with the example “My colleague uses PostgreSQL.”", ["PostgreSQL"], "conceptual", null],
-    ["I am familiar with “PostgreSQL”.", ["PostgreSQL"], "conceptual", "conceptual"],
-    ["I documented that my colleague used PostgreSQL under supervision.", ["PostgreSQL"], "guided", null],
-    ["I explained how my colleague built PostgreSQL under supervision.", ["PostgreSQL"], "guided", null],
-    ["我在导师指导下，安排同事使用 PostgreSQL。", ["PostgreSQL"], "guided", null],
-  ] as const)("binds a level to the retained terms and the full-document assertion: %s", async (text, skillTerms, hint, expected) => {
+    ["I am familiar with HTML, but my colleague uses PostgreSQL.", ["HTML", "PostgreSQL"], "conceptual", null, true],
+    ["I rehearsed migrations under supervision, but I independently use PostgreSQL.", ["PostgreSQL"], "guided", null, true],
+    ["I am familiar with log sampling, but I never used FakeTool.", ["log sampling", "invented"], "conceptual", "conceptual", true],
+    ["- I am familiar with SQL.", ["SQL"], "conceptual", "conceptual", true],
+    ["I am familiar with the example “My colleague uses PostgreSQL.”", ["PostgreSQL"], "conceptual", null, false],
+    ["I am familiar with “PostgreSQL”.", ["PostgreSQL"], "conceptual", "conceptual", true],
+    ["没有证据说我能独立配置 React，但我熟悉 SQL。", ["SQL"], "conceptual", "conceptual", true],
+    ["It is false that I configured React, but I am familiar with SQL.", ["SQL"], "conceptual", "conceptual", true],
+    ["我熟悉 SQL，但导师说，我熟悉 React。", ["SQL"], "conceptual", "conceptual", true],
+    ["我熟悉 SQL 但导师说，我熟悉 React。", ["SQL"], "conceptual", "conceptual", true],
+    ["I am familiar with SQL, but Alice said, I am familiar with React.", ["SQL"], "conceptual", "conceptual", true],
+    ["I am familiar with SQL but Alice said, I am familiar with React.", ["SQL"], "conceptual", "conceptual", true],
+    ["I tested SQL under supervision and my mentor said, I tested React under supervision.", ["SQL"], "guided", "guided", true],
+    ["It is false that I configured React, but I am familiar with SQL but Alice said, I am familiar with React.", ["SQL"], "conceptual", "conceptual", true],
+    ["I am familiar with SQL, but Alice said, I am familiar with React.", ["React"], "conceptual", null, true],
+    ["I documented that my colleague used PostgreSQL under supervision.", ["PostgreSQL"], "guided", null, false],
+    ["I explained how my colleague built PostgreSQL under supervision.", ["PostgreSQL"], "guided", null, false],
+    ["我在导师指导下，安排同事使用 PostgreSQL。", ["PostgreSQL"], "guided", null, false],
+  ] as const)("binds a level to the retained terms and the full-document assertion: %s", async (text, skillTerms, hint, expected, review) => {
     const source = localSource(text);
     const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "skill-claim", source,
       skillTerms, selfLevelHint: hint, requirementLevel: null }], reviewPoints: [] }, { policyId: groundedPolicy, text, kind: "resume" });
     expect(outcome.audit).toMatchObject({ extractionRead: "parsed" });
     expect(outcome.candidate).toMatchObject({ items: [{ selfLevelHint: expected }] });
     const candidate = outcome.candidate as { reviewPoints: { code: string }[] };
-    expect(candidate.reviewPoints.some(point => point.code === "confirm-self-assessment")).toBe(expected !== null);
+    expect(candidate.reviewPoints.some(point => point.code === "confirm-self-assessment")).toBe(review);
   });
 
   it.each(["labels", "priority", "kind", "list marker"])("rejects repeated v2 source facts even when the model varies %s", async variant => {

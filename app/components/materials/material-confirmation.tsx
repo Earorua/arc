@@ -5,7 +5,7 @@ import type { SkillSelfLevel } from "../../contracts/planning";
 import { findMaterialSkillEvidence } from "../../lib/materials/grounded-skill-terms";
 import { labelForAddedSourceTerm, supportsReviewedSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
 const hintLabels = { conceptual: "了解概念", guided: "需指导完成", uncertain: "不确定" };
-const reviewLabels: Record<string, string> = { "confirm-self-assessment": "请单独确认能力自评", "prompt-injection": "原文包含指令，请核对并忽略其操作要求", "team-attribution": "团队成果不直接等于个人独立能力", "conflicting-self-assessment": "能力表述存在冲突", "conflicting-requirement": "岗位要求分类存在冲突", "uncovered-skill": "可能超出当前技能蓝图", "untrusted-resource-url": "原文链接不会作为受信课程采用" };
+const reviewLabels: Record<string, string> = { "confirm-self-assessment": "请单独确认能力自评", "prompt-injection": "原文包含指令，请核对并忽略其操作要求", "team-attribution": "团队成果不直接等于个人独立能力", "conflicting-self-assessment": "能力表述存在冲突", "conflicting-requirement": "岗位要求分类存在冲突", "missing-information": "信息缺失或待确认", "uncovered-skill": "可能超出当前技能蓝图", "untrusted-resource-url": "原文链接不会作为受信课程采用" };
 
 function AddSourceTerm({ item, index, quote, saving, onAdd }: { item: ConfirmedMaterialItem; index: number; quote: string; saving: boolean;
   onAdd(sourceTerm: string, label: string): void }) {

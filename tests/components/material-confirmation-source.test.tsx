@@ -13,6 +13,23 @@ const draft: DocumentReviewDraft = {
 describe("source-aware material requirement confirmation", () => {
   afterEach(cleanup);
 
+  it("names unresolved information and keeps fact confirmation separate from capability adoption", () => {
+    const text = "本人是否编写查询待确认。", confirmed = vi.fn(), adopted = vi.fn(), changed = vi.fn();
+    const value: DocumentReviewDraft = { ...draft,
+      items: [{ ...draft.items[0]!, kind: "constraint", requirementLevel: null, text, skillLabels: [] }],
+      reviewPoints: [{ id: "missing-role", code: "missing-information", resolution: "unresolved",
+        sourceRef: { documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", start: 0, end: text.length } }],
+    };
+    render(<MaterialConfirmation draft={value} text={text} saving={false} confirmed={false} onItemsChange={vi.fn()}
+      onReviewPointsChange={changed} onConfirm={confirmed} onAdoptLevels={adopted} />);
+    expect(screen.getByRole("combobox", { name: "信息缺失或待确认" })).toHaveValue("unresolved");
+    expect(screen.getByText(text, { selector: "blockquote" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(confirmed).toHaveBeenCalledOnce();
+    expect(adopted).not.toHaveBeenCalled();
+    expect(changed).not.toHaveBeenCalled();
+  });
+
   it.each(["resume", "supplement"] as const)("confirms an unclassified %s suggestion without imposing a JD requirement", documentKind => {
     const confirmed = vi.fn(), changed = vi.fn(), adopted = vi.fn();
     render(<MaterialConfirmation draft={draft} text="建议练习 SQL" documentKind={documentKind} saving={false} confirmed={false}

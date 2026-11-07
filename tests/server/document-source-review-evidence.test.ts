@@ -244,11 +244,240 @@ describe("source-supported review reminders", () => {
   it.each([
     "I cannot yet configure PhaseDock myself.",
     "I have not designed a live validation exercise and want practice with validation planning.",
+    "我可独立完成 SQL 报表。",
+    "I can independently write SQL reports.",
+    "我目前不能独立配置 Kubernetes 集群。",
+    "I cannot yet configure Kubernetes independently.",
+    "I cannot independently configure Kubernetes.",
+    "I cannot write SQL reports independently.",
+    "I cannot yet independently configure Kubernetes.",
   ])("retains a proposed capability question without inventing an uncertain rating: %s", quote => {
     const proposed = point("confirm-self-assessment", quote);
     const fact = item("skill-claim", quote, null);
     expect(groundSourceReviewPoints([proposed], [fact], document(quote))).toEqual([proposed]);
+    expect(groundSourceReviewPoints([], [fact], document(quote))).toEqual([proposed]);
+    expect(groundSourceReviewPoints([], [], document(quote))).toEqual([proposed]);
     expect(groundSourceSelfLevelHint({ ...fact, selfLevelHint: "uncertain" })).toBeNull();
+  });
+
+  it.each([
+    "I have not designed a live experiment and want practice with experiment planning.",
+    "I have not yet configured the probe and need more practice with calibration.",
+    "I had not built a deployment pipeline and would like practice with deployment planning.",
+    "I have not run the drill and still want practice with recovery.",
+    "I have not designed a simulator and do want more practice with model design.",
+  ])("retains an affirmative unpractised learning-limit question on a constraint: %s", quote => {
+    const fact = item("constraint", quote), expected = [point("confirm-self-assessment", quote)];
+    expect(groundSourceReviewPoints([], [fact], document(quote))).toEqual(expected);
+    expect(groundSourceReviewPoints(expected, [fact], document(quote))).toEqual(expected);
+    expect(groundSourceReviewPoints([], [], document(quote))).toEqual(expected);
+    expect(groundSourceSelfLevelHint({ ...fact, selfLevelHint: "uncertain" })).toBeNull();
+    expect(groundSourceReviewPoints(expected, [item("requirement", quote)], document(quote))).toEqual([]);
+  });
+
+  it.each([
+    "I have not designed a live experiment and do not want practice with experiment planning.",
+    "I have not designed a live experiment and don't want practice with experiment planning.",
+    "I have not designed a live experiment and no longer want practice with experiment planning.",
+    "I have not designed a live experiment and do not need practice with experiment planning.",
+    "I have not designed a live experiment and no longer need practice with experiment planning.",
+    "I have not designed a live experiment and would not like practice with experiment planning.",
+    "I have not designed a live experiment and a colleague would like practice with experiment planning.",
+    "My colleague has not designed a live experiment and wants practice with experiment planning.",
+    "If I have not designed a live experiment and want practice with experiment planning, I will ask.",
+    "For example, I have not designed a live experiment and want practice with experiment planning.",
+    "My mentor said, I have not designed a live experiment and want practice with experiment planning.",
+  ])("does not turn denied, other-person or embedded practice wishes into a learning limit: %s", quote => {
+    const proposed = [point("confirm-self-assessment", quote)];
+    for (const facts of [[], [item("constraint", quote)], [item("skill-claim", quote)]]) {
+      expect(groundSourceReviewPoints([], facts, document(quote))).toEqual([]);
+      expect(groundSourceReviewPoints(proposed, facts, document(quote))).toEqual([]);
+    }
+  });
+
+  it.each([
+    "I am familiar with SQL.",
+    "I can independently configure Kubernetes.",
+    "I can study for five hours each week.",
+    "I can attend the workshop in Shanghai.",
+    "I want practice with experiment planning.",
+  ])("keeps the learning-limit exception narrower than general constraint wording: %s", quote => {
+    const fact = item("constraint", quote);
+    expect(groundSourceReviewPoints([], [fact], document(quote))).toEqual([]);
+    expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [fact], document(quote))).toEqual([]);
+  });
+
+  it("recognizes an implicit capability only within an explicit personal heading and candidate", () => {
+    const quote = "简介：可独立完成 SQL 报表。", fact = { ...item("skill-claim", quote), skillLabels: ["SQL"] };
+    const expected = [point("confirm-self-assessment", quote)];
+    expect(groundSourceReviewPoints([], [fact], document(quote))).toEqual(expected);
+    expect(groundSourceReviewPoints(expected, [fact], document(quote))).toEqual(expected);
+    expect(groundSourceReviewPoints([], [], document(quote))).toEqual([]);
+    for (const hint of ["conceptual", "guided", "uncertain"] as const) {
+      expect(groundSourceSelfLevelHint({ ...fact, selfLevelHint: hint })).toBeNull();
+    }
+  });
+
+  it.each([
+    ["例如我负责 SQL 查询，我熟悉 SQL。", "SQL", "conceptual"],
+    ["例如，我熟悉 SQL。", "SQL", "conceptual"],
+    ["例如，我在导师指导下用 React 实现了原型。", "React", "guided"],
+    ["简介：例如我负责 SQL 查询，我熟悉 SQL。", "SQL", "conceptual"],
+    ["不能说我负责 SQL 查询，我熟悉 SQL。", "SQL", "conceptual"],
+    ["我没有说过，我熟悉 SQL。", "SQL", "conceptual"],
+    ["导师说，我熟悉 SQL。", "SQL", "conceptual"],
+    ["导师表示，我在导师指导下用 React 实现了原型。", "React", "guided"],
+    ["My mentor said, I am familiar with SQL.", "SQL", "conceptual"],
+    ["Alice said, I am familiar with SQL.", "SQL", "conceptual"],
+    ["张宁说，我熟悉 SQL。", "SQL", "conceptual"],
+    ["简介：不能说我负责 SQL 查询，我熟悉 SQL。", "SQL", "conceptual"],
+    ["如果我完成了 React 原型，我在导师指导下测试 React。", "React", "guided"],
+    ["简介：如果我完成了 React 原型，我在导师指导下测试 React。", "React", "guided"],
+    ["For example, I wrote SQL queries, and I am familiar with SQL.", "SQL", "conceptual"],
+    ["It is false that I wrote SQL queries, and I am familiar with SQL.", "SQL", "conceptual"],
+    ["If I built a React prototype, and I tested React under peer guidance.", "React", "guided"],
+    ["没有证据说我能独立配置 React，我熟悉 SQL。", "SQL", "conceptual"],
+    ["例如，我不熟悉 React，但我熟悉 SQL。", "SQL", "conceptual"],
+    ["如果我不熟悉 React，但我熟悉 SQL，就申请。", "SQL", "conceptual"],
+    ["导师说，我不熟悉 React，但我熟悉 SQL。", "SQL", "conceptual"],
+    ["It is false that I configured React, but my mentor said, I am familiar with SQL.", "SQL", "conceptual"],
+    ["我完成了 React 原型，但导师说，我熟悉 SQL。", "SQL", "conceptual"],
+    ["I built a React prototype, but Alice said, I am familiar with SQL.", "SQL", "conceptual"],
+    ["I built a React prototype, and my mentor said, I tested SQL under supervision.", "SQL", "guided"],
+    ["我完成了 React 原型，但例如我负责 SQL 查询，我熟悉 SQL。", "SQL", "conceptual"],
+    ["I built a React prototype, but if I wrote SQL queries, I am familiar with SQL.", "SQL", "conceptual"],
+  ] as const)("keeps whole-statement modality attached before separating personal clauses: %s", (quote, label, hint) => {
+    const fact = { ...item("skill-claim", quote, hint), skillLabels: [label] };
+    expect(groundSourceSelfLevelHint(fact)).toBeNull();
+    expect(groundSourceReviewPoints([], [fact], document(quote))).toEqual([]);
+    expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [fact], document(quote))).toEqual([]);
+  });
+
+  it.each([
+    ["我熟悉 SQL，但导师说，我熟悉 React。", "conceptual"],
+    ["我熟悉 SQL 但导师说，我熟悉 React。", "conceptual"],
+    ["I am familiar with SQL, but Alice said, I am familiar with React.", "conceptual"],
+    ["I am familiar with SQL but Alice said, I am familiar with React.", "conceptual"],
+    ["I tested SQL under supervision, and my mentor said, I tested React under supervision.", "guided"],
+    ["I tested SQL under supervision and my mentor said, I tested React under supervision.", "guided"],
+    ["It is false that I configured React, but I am familiar with SQL but Alice said, I am familiar with React.", "conceptual"],
+  ] as const)("preserves earlier personal evidence while a later report remains embedded: %s", (quote, level) => {
+    const fact = { ...item("skill-claim", quote, level), skillLabels: ["SQL"] };
+    expect(groundSourceSelfLevelHint(fact)).toBe(level);
+    expect(groundSourceSelfLevelHint({ ...fact, skillLabels: ["React"] })).toBeNull();
+    expect(groundSourceSelfLevelHint({ ...fact, skillLabels: ["SQL", "React"] })).toBeNull();
+    expect(groundSourceReviewPoints([], [fact], document(quote))).toEqual([point("confirm-self-assessment", quote)]);
+  });
+
+  it.each([
+    "我不熟悉 React，但我熟悉 SQL。",
+    "I am not familiar with React, but I am familiar with SQL.",
+    "我熟悉 SQL，但没有证据说我能独立配置 React。",
+    "I am familiar with SQL, but it is false that I configured React.",
+    "没有证据说我能独立配置 React，但我熟悉 SQL。",
+    "It is false that I configured React, but I am familiar with SQL.",
+  ])("preserves a direct personal assertion across a genuine contrast: %s", quote => {
+    const fact = { ...item("skill-claim", quote, "conceptual"), skillLabels: ["SQL"] };
+    expect(groundSourceSelfLevelHint(fact)).toBe("conceptual");
+    expect(groundSourceReviewPoints([], [fact], document(quote))).toEqual([point("confirm-self-assessment", quote)]);
+  });
+
+  it.each([
+    "简介：熟悉 SQL，可独立完成报表。",
+    "个人简介：我熟悉 SQL。",
+    "Personal profile: I am familiar with SQL.",
+    "我熟悉 SQL，但同事负责 PostgreSQL。",
+    "I am familiar with SQL, but my colleague uses PostgreSQL.",
+  ])("keeps the complete personal assessment question independently of optional hints: %s", quote => {
+    const fact = { ...item("skill-claim", quote), skillLabels: ["SQL", "PostgreSQL"] };
+    const expected = [point("confirm-self-assessment", quote)];
+    expect(groundSourceReviewPoints([], [fact], document(quote))).toEqual(expected);
+    expect(groundSourceReviewPoints(expected, [fact], document(quote))).toEqual(expected);
+  });
+
+  it.each([
+    "团队简介：熟悉 SQL，可独立完成报表。",
+    "同事简介：熟悉 SQL，可独立完成报表。",
+    "Alice's profile: I am familiar with SQL.",
+    "招聘条件：熟悉 SQL，可独立完成报表。",
+    "简介：例如我可独立完成 SQL 报表。",
+    "简介：如果我可独立完成 SQL 报表，就申请。",
+    "简介：不能说我可独立完成 SQL 报表。",
+    "简介：我将学习如何独立完成 SQL 报表。",
+    "简介：“我可独立完成 SQL 报表。”",
+    "My team can independently write SQL reports.",
+    "I will be able to independently write SQL reports.",
+    "I did not say I can independently write SQL reports.",
+    "I installed SQL tooling.",
+    "我配置了 Kubernetes 集群。",
+    "团队简介：可独立完成 SQL 报表。",
+    "招聘条件：可独立完成 SQL 报表。",
+    "简介：如果可独立完成 SQL 报表，就申请。",
+    "简介：不能说可独立完成 SQL 报表。",
+    "简介：将能独立完成 SQL 报表。",
+    "简介：“可独立完成 SQL 报表。”",
+    "My colleague cannot independently configure Kubernetes.",
+    "I did not say I cannot write SQL reports independently.",
+    "If I cannot independently configure Kubernetes, I will ask for help.",
+    "The example says ‘I cannot write SQL reports independently.’",
+    "I cannot independently afford Kubernetes.",
+  ])("does not erase attribution, modality or ordinary activity to invent an assessment: %s", quote => {
+    const candidate = { ...item("skill-claim", quote, "conceptual"), skillLabels: ["SQL"] };
+    expect(groundSourceSelfLevelHint(candidate)).toBeNull();
+    expect(groundSourceReviewPoints([], [candidate], document(quote))).toEqual([]);
+    expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [candidate], document(quote))).toEqual([]);
+  });
+
+  it.each(["requirement", "constraint"] as const)("does not treat a %s anchor as a personal assessment", kind => {
+    for (const quote of ["熟悉 SQL。", "能够独立完成 SQL 报表。", "I am familiar with SQL."]) {
+      const candidate = { ...item(kind, quote), skillLabels: ["SQL"] };
+      expect(groundSourceReviewPoints([], [candidate], document(quote))).toEqual([]);
+      expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [candidate], document(quote))).toEqual([]);
+    }
+  });
+
+  it("requires a personal candidate for an implicit familiarity assertion", () => {
+    const quote = "熟悉 SQL。", proposed = [point("confirm-self-assessment", quote)];
+    expect(groundSourceReviewPoints([], [], document(quote))).toEqual([]);
+    expect(groundSourceReviewPoints(proposed, [], document(quote))).toEqual([]);
+    for (const kind of ["experience", "skill-claim"] as const) {
+      expect(groundSourceReviewPoints([], [item(kind, quote)], document(quote))).toEqual(proposed);
+    }
+  });
+
+  it.each([
+    "本人是否编写查询待确认。",
+    "本人负责的范围待确认。",
+    "我的个人职责尚未明确。",
+    "Whether I wrote the queries remains unconfirmed.",
+  ])("finds a missing personal responsibility without borrowing a time omission: %s", quote => {
+    const expected = [point("missing-information", quote)];
+    expect(groundSourceReviewPoints([], [], document(quote))).toEqual(expected);
+    expect(groundSourceReviewPoints(expected, [], document(quote))).toEqual(expected);
+  });
+
+  it.each([
+    "同事是否编写查询待确认。",
+    "团队是否编写查询待确认。",
+    "例如：本人是否编写查询待确认。",
+    "如果本人是否编写查询待确认，就询问导师。",
+    "不能说本人是否编写查询待确认。",
+    "表格示例：“本人是否编写查询待确认。”",
+    "本人是否编写查询已经确认。",
+    "本人是否编写查询并非待确认。",
+    "本人是否编写查询已不再待确认。",
+  ])("does not invent a missing personal responsibility from %s", quote => {
+    expect(groundSourceReviewPoints([point("missing-information", quote)], [], document(quote))).toEqual([]);
+  });
+
+  it("keeps report capability, supplied queries and unresolved responsibility separate", () => {
+    const quotes = ["简介：熟悉 SQL，可独立完成报表。", "项目说明：所有 SQL 由导师提供，我只替换了日期参数。", "工作时间：未填写；本人是否编写查询待确认。"];
+    const facts = quotes.map((quote, index) => ({ ...item(index === 0 ? "skill-claim" : index === 1 ? "experience" : "constraint", quote), skillLabels: index < 2 ? ["SQL"] : [] }));
+    const proposals = quotes.flatMap(quote => [point("conflicting-self-assessment", quote), point("team-attribution", quote)]);
+    expect(groundSourceReviewPoints(proposals, facts, document(quotes.join("\n")))).toEqual([
+      point("confirm-self-assessment", quotes[0]!), point("missing-information", quotes[2]!),
+    ]);
+    expect(facts.map(fact => groundSourceSelfLevelHint({ ...fact, selfLevelHint: "uncertain" }))).toEqual([null, null, null]);
   });
 
   it.each([
@@ -307,7 +536,8 @@ describe("grounding a proposed self-level hint", () => {
     ["With a mentor, I traced one failing command using SpanProbe.", "guided", "SpanProbe"],
     ["在同伴 review 下把重复步骤改成 FluxQuery 管道。", "guided", "FluxQuery"],
     ["练习项目中，我跟随教程编写 FluxQuery 查询。", "guided", "FluxQuery"],
-    ["我用 BeamLang 写过解析器，边界情况由导师协助补充。", "guided", "BeamLang"],
+    ["我在导师指导下用 BeamLang 编写了解析器。", "guided", "BeamLang"],
+    ["我在导师指导下用 React 实现了原型。", "guided", "React"],
     ["I followed a runbook to inspect SpanProbe errors.", "guided", "SpanProbe"],
     ["阅读过 PhaseDock 的告警说明，尚未独立开展告警审计。", "conceptual", "PhaseDock"],
     ["I explained sampling weights in a class presentation.", "conceptual", "sampling weights"],
@@ -434,11 +664,42 @@ describe("grounding a proposed self-level hint", () => {
 
   it.each([
     ["With a mentor using TraceKit, I tested BeamLang under supervision.", "BeamLang", "TraceKit"],
-    ["我用 BeamLang 写过解析器，边界情况由导师协助补充 TraceKit 测试。", "BeamLang", "TraceKit"],
+    ["我在导师指导下用 BeamLang 编写了解析器，同事用 TraceKit 补充了边界测试。", "BeamLang", "TraceKit"],
   ])("limits an assisted-practice hint to the learner's own action in %s", (quote, own, other) => {
     expect(groundSourceSelfLevelHint({ ...item("experience", quote, "guided"), skillLabels: [own] })).toBe("guided");
     expect(groundSourceSelfLevelHint({ ...item("experience", quote, "guided"), skillLabels: [other] })).toBeNull();
     expect(groundSourceSelfLevelHint({ ...item("experience", quote, "guided"), skillLabels: [own, other] })).toBeNull();
+  });
+
+  it.each([
+    ["我用 React 实现了原型，交互测试由结对伙伴协助。", ["React"]],
+    ["I built a React prototype, and interaction testing was assisted by a pair partner.", ["React"]],
+    ["我用 BeamLang 写过解析器，边界情况由导师协助补充。", ["BeamLang"]],
+    ["我用 BeamLang 写过解析器，边界情况由导师协助补充 TraceKit 测试。", ["BeamLang"]],
+    ["我用 BeamLang 写过解析器，边界情况由导师协助补充 TraceKit 测试。", ["TraceKit"]],
+    ["我用 BeamLang 写过解析器，边界情况由导师协助补充 TraceKit 测试。", ["BeamLang", "TraceKit"]],
+  ] as const)("does not borrow assistance from another task or actor: %s", (quote, labels) => {
+    const candidate = { ...item("experience", quote, "guided"), skillLabels: [...labels] };
+    expect(groundSourceSelfLevelHint(candidate)).toBeNull();
+    expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [candidate], document(quote))).toEqual([]);
+  });
+
+  it.each([
+    "I built a React prototype, and I tested React under peer guidance.",
+    "I built a React prototype, I tested React under peer guidance.",
+    "我用 React 实现了原型，我在同伴指导下用 React 编写了测试。",
+  ])("does not let a repeated tool join different tasks into one guided level: %s", quote => {
+    const candidate = { ...item("experience", quote, "guided"), skillLabels: ["React"] };
+    expect(groundSourceSelfLevelHint(candidate)).toBeNull();
+    expect(groundSourceReviewPoints([], [{ ...candidate, selfLevelHint: null }], document(quote)))
+      .toEqual([point("confirm-self-assessment", quote)]);
+  });
+
+  it.each([
+    "I tested React and BeamLang under peer guidance.",
+    "在导师指导下，我用 React 和 BeamLang 实现了原型。",
+  ])("preserves a shared guidance scope for several terms: %s", quote => {
+    expect(groundSourceSelfLevelHint({ ...item("experience", quote, "guided"), skillLabels: ["React", "BeamLang"] })).toBe("guided");
   });
 
   it.each([

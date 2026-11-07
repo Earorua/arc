@@ -91,6 +91,7 @@ const requirementConflict = /\b(?:requirements?|priorities|job descriptions?)\s+
 const dualPriority = /\b(?:both (?:mandatory|required) and (?:optional|preferred)|(?:mandatory|required) in one (?:section|paragraph|list) (?:but|and) (?:only )?(?:optional|preferred) in another|one (?:section|paragraph|list) (?:calls|lists|marks)\s+.{1,48}\s+(?:mandatory|required),?\s+(?:but|and)\s+another (?:calls|lists|marks) it (?:as )?(?:optional|preferred))\b|(?:同时|既)(?:被|列为|标为|是)*(?:必备|必需|必须)(?:又列为|又标为|和|又是)(?:可选|加分|优先)/iu;
 const deniedConflict = /\b(?:(?:do(?:es)? not|never|no longer) (?:conflict|contradict|disagree)|no (?:remaining )?conflict|conflict (?:is|was|has been) resolved)\b|(?:没有|并无|不存在|已解决|并不)(?:矛盾|冲突)/iu;
 const missingInformation = /\b(?:availability|available time|study time|work(?:ing)? time|time budget|hours|proficiency level|experience level|years of experience|requirement priority|(?:remote )?location|salary)\s*[:：]?\s*(?:(?:is|are|was|were|remains?)\s+)?(?:not (?:stated|specified|given|provided|documented)|unknown|unspecified|undocumented)\b|(?:可用(?:的)?(?:学习)?时间|学习时间|工作时间|时间预算|能力水平|要求优先级|(?:远程)?地点|薪酬|经验年限|个人职责|个人贡献)\s*[:：]?\s*(?:目前|仍|尚|未被|均|都)*(?:未(?:说明|明确|提供|填写|给出)|不详|未知)/iu;
+const missingPersonalResponsibility = /^(?:本人|我)(?:是否(?:亲自|独立)?(?:编写|完成|实现|配置|设计|测试|部署)[^，,；;。]{1,60}|负责的(?:范围|部分|工作|职责))\s*(?:仍|尚)?(?:待确认|未确认|未明确)[。.]?$|^Whether I (?:personally )?(?:wrote|completed|implemented|configured|designed|tested|deployed)\b[^.;]{1,100}\s+(?:is|remains)\s+(?:unconfirmed|unknown|not (?:confirmed|specified))[.!]?$/iu;
 
 const englishConceptual = /^I(?:['’]m| am| was)\s+(?:(?:only|somewhat|basically)\s+)?familiar with\b|^I (?:have|had)\s+(?:(?:only|a|some|basic|conceptual|theoretical|limited)\s+)+(?:knowledge|understanding|familiarity) (?:of|with)\b|^my experience (?:with|of|in)\b.{1,60}\bis limited to reading\b|^I (?:have )?only read (?:about|the documentation for)\b|^I (?:(?:can|am able to) explain|(?:have )?explained)\s+(?!(?:how|that|whether)\b)\S/iu;
 const chineseConceptual = /^(?:我|本人)?(?:目前|仅|只|基本|初步|比较)*(?:了解|熟悉)\s*[\p{L}\p{N}]|^(?:我|本人)?对[^，,；;。]{1,55}(?:只有|仅有|有|只有一点|有些)(?:基础|基本|初步|概念上|理论上)的?(?:了解|认识|理解)|^(?:我|本人)?(?:目前|此前|对[^，,。]{1,40})?(?:仅|只)?(?:读过|阅读过|有阅读[^，,。]{0,45}(?:经验|经历))|^(?:我|本人)(?:能|能够|可以)解释\s*[\p{L}\p{N}]/u;
@@ -149,14 +150,8 @@ function guidedPractice(part: string) {
 }
 
 function guidedSkillScope(raw: string, text: string) {
-  // A trailing mentor contribution can support an assisted-practice suggestion,
-  // but its own tools must not become the learner's skills.
-  const help = /[，,]\s*[^，,；;。]{0,35}由(?:导师|同伴|同事|老师|讲师|结对伙伴)(?:协助|帮助|指导)/u.exec(text);
-  if (help && !/(?:并非|不是|没有|未|不曾|从未|将|计划|打算|准备|待)/u.test(help[0])) {
-    const own = text.slice(0, help.index);
-    if (/^(?:我|本人)?(?:曾|以前|之前)?(?:用|使用)\s*\S.{0,80}(?:写过|编写|完成|实现|配置|搭建|练习|测试)/u.test(own)
-      && !/(?:没有|并未|从未|未曾|计划|打算|将要|声称|报告)/u.test(own)) return raw.slice(0, help.index);
-  }
+  // A helper doing another task does not establish guidance for the learner's
+  // preceding work. Require the learner's own practice and guidance together.
   if (!guidedPractice(text)) return null;
   const fragment = instructionalFragmentStart(text);
   if (fragment !== null) return raw.slice(fragment);
@@ -164,28 +159,73 @@ function guidedSkillScope(raw: string, text: string) {
   return actor ? raw.slice(actor.index) : raw;
 }
 
-function personalCapabilityQuestion(quote: string, masked: string) {
-  // A stated limit can justify asking the user to assess themselves without
-  // implying that they are uncertain, conceptual, guided, or entirely unskilled.
-  return assessmentScopes(quote, masked).some(({ text }) =>
-    /^I (?:(?:cannot|can['’]t)(?: yet)?|am not (?:yet )?able to)\s+(?:configure|design|build|implement|run|complete|deploy|test|debug|repair)\b[^.;]{0,160}\b(?:myself|independently|on my own)\b/iu.test(text)
-    || /^I (?:have|had) not (?:yet )?(?:designed|built|implemented|run|completed|deployed|configured|tested)\b[^.;]{0,160}\b(?:want|need|would like)\s+(?:more )?practice\b/iu.test(text));
+function personalPracticeNeed(text: string) {
+  // The same speaker must affirm wanting practice, not merely mention a wish
+  // that is negated or belongs to another person later in the sentence.
+  return /^I (?:have|had) not (?:yet )?(?:designed|built|implemented|run|completed|deployed|configured|tested)\b[^.;]{0,160}\band\s+(?:(?:do|still|now)\s+)?(?:want|need|would like)\s+(?:more )?practice\b/iu.test(text);
 }
 
-const scopeBreak = /[;；]|,?\s+\b(?:but|whereas|while|although|however|rather than|except for|excluding)\b\s*|,?\s+\band\s+(?=(?:I|we|our|they|my|she|he|the|have|had|never|not|independently)\b)|(?:,\s*|\s+and\s+)(?=(?:[\p{L}\p{N}_][\p{L}\p{N}_.+#'’-]*\s+){1,5}(?:is|are|was|were|has|have|uses?|used|requires?|manages?|maintains?)\b)|[,，]\s*(?=(?:not|except)\b)|[，,]?\s*(?:但是|不过|然而|而非|但(?=[\p{L}]))|[，,]\s*(?=(?:我(?:独立|还|也|负责)|同事|导师|团队|小组|他们|她们))/giu;
+function personalCapabilityQuestion(quote: string, masked: string, allowImplicit: boolean) {
+  // Review a directly stated ability, limit or learning scope independently of
+  // whether one optional level can safely apply to every term in the whole fact.
+  const headedPersonalAbility = allowImplicit && personalAssessmentHeading.test(masked);
+  return assessmentScopes(quote, masked).some(({ raw, text }) => {
+    // An unanchored “熟悉 SQL” could be a JD requirement. First-person evidence
+    // can stand alone; implicit résumé phrasing needs a personal fact candidate.
+    if (!allowImplicit && !/^(?:I\b|my\b|我|本人)|\bI\s+|[，,]\s*(?:我|本人)/iu.test(text)) return false;
+    return conceptualAssessment(text) || (selfUncertain.test(text) && personalUncertainty(text)) || guidedSkillScope(raw, text) !== null
+    || /^I (?:(?:can|cannot|can['’]t)(?: yet)?|am (?:not )?(?:yet )?able to)\s+(?:independently\s+(?:configure|design|build|implement|run|complete|deploy|test|debug|repair|write|use)\b|(?:configure|design|build|implement|run|complete|deploy|test|debug|repair|write|use)\b[^.;]{0,160}\b(?:myself|independently|on my own)\b)/iu.test(text)
+    || ((headedPersonalAbility || /^(?:我|本人)/u.test(text))
+      && /^(?:我|本人)?(?:目前|现在|还|仍|尚)*(?:能|能够|可以|可|不能|无法)独立(?:配置|设计|构建|实现|运行|完成|部署|测试|调试|修复|编写|使用)\s*[\p{L}\p{N}]/u.test(text))
+    || personalPracticeNeed(text);
+  });
+}
+
+const scopeBreak = /[;；]|,?\s+\b(?:but|whereas|while|although|however|rather than|except for|excluding)\b\s*|,?\s+\band\s+(?=(?:I|we|our|they|my|she|he|the|have|had|never|not|independently)\b)|(?:,\s*|\s+and\s+)(?=(?:[\p{L}\p{N}_][\p{L}\p{N}_.+#'’-]*\s+){1,5}(?:is|are|was|were|has|have|uses?|used|requires?|manages?|maintains?)\b)|[,，]\s*(?=(?:I|not|except)\b)|[，,]?\s*(?:但是|不过|然而|而非|但(?=[\p{L}]))|[，,]\s*(?=(?:我|本人|同事|导师|团队|小组|他们|她们|(?:可|能|能够|可以|不能|无法)独立)|[^，,；;。]{1,35}由(?:导师|同伴|同事|老师|讲师|结对伙伴))/giu;
+const personalAssessmentHeading = /^(?:简介|个人简介|自我介绍|个人技能|个人能力|(?:my |personal )?(?:profile|summary))\s*[:：]\s*/iu;
+const reportedAssessment = /^[^，,；;。.]{1,80}\b(?:said|say|says|reported|claimed|wrote)\s*[:,，]|^[^，,；;。.]{1,40}(?:(?:说|表示|声称|报告)(?:过)?|写道)\s*[:：,，]/iu;
 function assessmentScopes(quote: string, masked: string) {
   const scopes: { raw: string; text: string }[] = [];
-  let start = 0;
-  function add(end: number) {
+  // Strip only conventional personal headings for matching, never attribution
+  // such as a team's profile or quoted/reporting prose. Citations remain intact.
+  let start = personalAssessmentHeading.exec(masked)?.[0].length ?? 0;
+  type AssertionScope = "asserted" | "denied" | "embedded";
+  let assertionScope: AssertionScope = "asserted";
+  function reportedInRange(from: number, end: number) {
+    const ending = masked[end] ?? "";
+    const range = masked.slice(from, end) + (/^[,，:：]$/u.test(ending) ? ending : "");
+    return reportedAssessment.test(range.replace(/\s+/gu, " ").trim());
+  }
+  function add(end: number, inherited: AssertionScope): AssertionScope {
     const text = masked.slice(start, end).replace(/\s+/gu, " ").trim();
-    if (text && !hypothetical.test(text) && !deniedAssertion.test(text)) scopes.push({ raw: quote.slice(start, end), text });
+    // Preserve the adjacent reporting comma without reading another range's
+    // actor across an already recognized conjunction boundary.
+    const next = inherited === "embedded" || hypothetical.test(text) || reportedInRange(start, end) ? "embedded"
+      : inherited === "denied" || deniedAssertion.test(text) ? "denied" : "asserted";
+    if (text && next === "asserted") scopes.push({ raw: quote.slice(start, end), text });
+    return next;
   }
   for (const separator of masked.matchAll(scopeBreak)) {
-    add(separator.index);
+    const prefix = masked.slice(start, separator.index).trim();
+    // In “在导师指导下，我…”, the comma separates a shared qualifier from its
+    // actor, not two tasks. Keep that qualifier attached to the actual action.
+    const frontedGuidance = !/\bI\s+/iu.test(prefix) && /^(?:with|under|during|in|on)\b/iu.test(prefix) && supervised.test(prefix + ",");
+    if (/^[，,]\s*$/u.test(separator[0]) && (chineseGuidance.exec(prefix)?.[0].length === prefix.length || frontedGuidance)) continue;
+    assertionScope = add(separator.index, assertionScope);
     start = separator.index + separator[0].length;
+    const next = masked.slice(start).trimStart();
+    const nextEnd = start + (masked.slice(start).matchAll(scopeBreak).next().value?.index ?? masked.length - start);
+    // Only a denial can end at a new direct personal contrast. An example,
+    // condition or report continues to govern its nested clauses.
+    if (assertionScope === "denied" && /^[\s，,]*(?:but|但是|但)\s*$/iu.test(separator[0])
+      && /^(?:I\b|my experience\b|我(?!们|的)|本人(?!的|团队))/iu.test(next) && !reportedInRange(start, nextEnd)) assertionScope = "asserted";
   }
-  add(masked.length);
+  add(masked.length, assertionScope);
   return scopes;
+}
+function conceptualAssessment(text: string) {
+  return (englishConceptual.test(text) || chineseConceptual.test(text))
+    && !/\b(?:familiar with|knowledge of|understanding of)\s+(?:(?:the|an?|this)\s+)?(?:example|sample|quotation|quote)\b|^(?:我|本人)?(?:熟悉|了解)(?:示例|例句|引文)/iu.test(text);
 }
 function personalUncertainty(part: string) {
   return !deniedConflict.test(part) && !/\b(?:my|our) (?:team|colleague)['’]s\b|(?:团队|小组)的?(?:能力|自评)/iu.test(part)
@@ -194,18 +234,22 @@ function personalUncertainty(part: string) {
 function supportsLevel(quote: string, masked: string, proposed: NonNullable<Hint>, labels?: readonly string[]) {
   const scopes = assessmentScopes(quote, masked);
   if (proposed !== "uncertain" && scopes.some(scope => personalUncertainty(scope.text))) return false;
-  const supported = scopes.flatMap(scope => {
+  const supported = scopes.map(scope => {
     const raw = scope.raw.replace(/\s+/gu, " ").trim(), text = maskQuotes(raw);
     if (proposed === "guided") {
       const evidence = guidedSkillScope(raw, text);
-      return evidence ? [evidence] : [];
+      return evidence;
     }
-    return (proposed === "uncertain" ? personalUncertainty(text) : englishConceptual.test(text) || chineseConceptual.test(text)) ? [raw] : [];
+    return (proposed === "uncertain" ? personalUncertainty(text) : conceptualAssessment(text)) ? raw : null;
   });
-  if (!supported.length) return false;
+  if (!supported.some(Boolean)) return false;
   // In v2 these labels have already been grounded in the complete quote. Re-check
   // each against the supported clause(s) when part of the quote lies outside them.
-  return !labels?.length || labels.every(label => supported.some(scope => assertedSkillEvidence(scope, label)));
+  // A repeated term in a second, unsupported task must not inherit the first
+  // task's level. The wire contract still has only one optional hint per fact.
+  return !labels?.length || labels.every(label => supported.some(scope => scope !== null && assertedSkillEvidence(scope, label))
+    && scopes.every((scope, index) => !assertedSkillEvidence(scope.raw, label)
+      || supported[index] !== null && assertedSkillEvidence(supported[index]!, label)));
 }
 
 /** A proposed level is optional, and an individual skill rating requires personal evidence. */
@@ -314,12 +358,22 @@ function supportedCodes(quote: string, masked: string, anchors: Anchor[]) {
     }
     if (missingInformation.test(clause)) codes.add("missing-information");
   }
+  // “Whether I wrote … remains unconfirmed” states an actual omission. Its
+  // question-shaped subject must not be mistaken for a hypothetical assertion.
+  if (masked.split(/[;；]/u).some(clause => missingPersonalResponsibility.test(clause.trim())
+    && !/(?:并非|不是|不再)\s*(?:待确认|未确认|未明确)/u.test(clause))) codes.add("missing-information");
   const hint = anchors.some(({ item }) => item && (item.kind === "experience" || item.kind === "skill-claim")
     && item.selfLevelHint && supportsLevel(quote, masked, item.selfLevelHint, item.skillLabels));
+  const personal = anchors.some(({ item }) => item?.kind === "experience" || item?.kind === "skill-claim");
+  // An explicit unpractised learning need can remain a constraint and still
+  // warrant a question. It does not supply a level or reclassify the fact.
+  const learningLimit = anchors.some(({ item }) => item?.kind === "constraint")
+    && assessmentScopes(quote, masked).some(({ text }) => personalPracticeNeed(text));
+  const noItems = !anchors.some(anchor => anchor.item);
   const asked = anchors.some(anchor => anchor.code === "confirm-self-assessment");
   const labels = anchors.flatMap(anchor => anchor.item?.skillLabels ?? []);
-  if (hint || (asked && ((["conceptual", "guided", "uncertain"] as const).some(level => supportsLevel(quote, masked, level, labels))
-    || personalCapabilityQuestion(quote, masked)))) {
+  if (hint || learningLimit || ((personal || noItems) && personalCapabilityQuestion(quote, masked, personal))
+    || (asked && personal && (["conceptual", "guided", "uncertain"] as const).some(level => supportsLevel(quote, masked, level, labels)))) {
     codes.add("confirm-self-assessment");
   }
   return codes;
