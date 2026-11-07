@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { MaterialTextPanel } from "../../app/components/materials/material-text-panel";
 import { MaterialConfirmation } from "../../app/components/materials/material-confirmation";
 import { validateDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
 import { mapMaterialItems } from "../../app/lib/materials/skill-mapper";
 import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
 import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
@@ -105,7 +106,7 @@ describe("AI-first material review", () => {
     const projection = validateDocumentExtraction({ schemaVersion: "2026.11.1", items: [
       { id: "practice", kind: "experience", text: practice, requirementLevel: null, skillLabels: ["data cleaning"], selfLevelHint: "guided", source: { segmentId: "segment-1", quote: practice } },
       { id: "limit", kind: "constraint", text: limit, requirementLevel: null, skillLabels: ["TypeScript"], selfLevelHint: null, source: { segmentId: "segment-1", quote: limit } },
-    ] }, "owner", reference);
+    ] }, "owner", reference, KIMI_GROUNDED_TERMS_POLICY_ID);
     const confirmed = vi.fn();
     function Harness() {
       const [review, setReview] = useState<DocumentReviewDraft>({ id: "review", schemaVersion: "2026.11.1", ...receipt, origin: "ai", extractionId: "extraction", ...projection, updatedAt: draft.updatedAt });

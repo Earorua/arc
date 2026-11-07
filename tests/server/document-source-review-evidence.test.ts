@@ -208,6 +208,9 @@ describe("grounding a proposed self-level hint", () => {
     ["I rehearsed migrations under supervision, but I independently use PostgreSQL.", "guided", ["PostgreSQL"], null],
     ["I reheated the board under supervision, and my colleague used an oscillator.", "guided", ["board", "oscillator"], null],
     ["I am familiar with HTML and PostgreSQL.", "conceptual", ["HTML", "PostgreSQL"], "conceptual"],
+    ["I am familiar with HTML, PostgreSQL is maintained by my colleague.", "conceptual", ["HTML", "PostgreSQL"], null],
+    ["I am familiar with HTML and PostgreSQL is maintained by my colleague.", "conceptual", ["PostgreSQL"], null],
+    ["I practised SQL under my colleague's guidance.", "guided", ["SQL"], "guided"],
     ["我熟悉点火校验，但同事负责线圈检测。", "conceptual", ["点火校验", "线圈检测"], null],
     ["我熟悉点火校验和线圈检测。", "conceptual", ["点火校验", "线圈检测"], "conceptual"],
   ] as const)("binds the per-fact %s hint to each nominated term within its own clause", (quote, hint, labels, expected) => {

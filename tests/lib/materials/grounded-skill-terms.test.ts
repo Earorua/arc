@@ -159,7 +159,24 @@ it("allows an explicitly named programming language in a list governed by the sa
 });
 
 it.each([
+  ["I used CaféFlux and Go.", ["CaféFlux", "Go"]],
+  ["I used Azure Data Factory, R and C.", ["Azure Data Factory", "R", "C"]],
+  ["使用CaféFlux和Go。", ["CaféFlux", "Go"]],
+] as const)("preserves the governing language context across a literal list in %s", (quote, labels) => {
+  expect(groundMaterialSkillTerms(quote, labels)).toEqual(labels);
+  for (const label of labels) expect(findMaterialSkillEvidence(quote, label)).toBe(label);
+});
+
+it.each([
   ["PostgreSQL experience is not necessary for this role.", ["PostgreSQL"]],
+  ["I did not actually use PostgreSQL.", ["PostgreSQL"]],
+  ["I cannot currently use SQL.", ["SQL"]],
+  ["I have not recently used SQL.", ["SQL"]],
+  ["I have never really used PostgreSQL.", ["PostgreSQL"]],
+  ["I do not yet know how to use PostgreSQL.", ["PostgreSQL"]],
+  ["I am not proficient in PostgreSQL.", ["PostgreSQL"]],
+  ["There is no need to know SQL.", ["SQL"]],
+  ["Not required: SQL and PostgreSQL.", ["SQL", "PostgreSQL"]],
   ["I used neither SQL nor PostgreSQL.", ["SQL", "PostgreSQL"]],
   ["SQL and PostgreSQL are not prerequisites for this role.", ["SQL", "PostgreSQL"]],
   ["岗位不要求有 SQL 经验。", ["SQL"]],
@@ -174,4 +191,110 @@ it.each([
 it("retains named technology across contrasting clauses and distinguishes technical use from a verb", () => {
   expect(groundMaterialSkillTerms("SQL is required, but PostgreSQL is not necessary.", ["SQL", "PostgreSQL"])).toEqual(["SQL"]);
   expect(groundMaterialSkillTerms("I use react to build forms and Excel to analyze inventory.", ["React", "Excel"])).toEqual(["react", "Excel"]);
+});
+
+it.each([
+  ["Neither CaféFlux nor ΟΣ is required.", ["CaféFlux", "ΟΣ"]],
+  ["No experience with Nova Flux or PostgreSQL is required.", ["Nova Flux", "PostgreSQL"]],
+  ["SQL and Azure Data Factory are not prerequisites.", ["SQL", "Azure Data Factory"]],
+  ["No experience with WAI-ARIA, Node.js, or PostgreSQL is required.", ["WAI-ARIA", "Node.js", "PostgreSQL"]],
+  ["SQL, CaféFlux, and PostgreSQL are not required.", ["SQL", "CaféFlux", "PostgreSQL"]],
+  ["Data analysis and code review are not prerequisites.", ["Data analysis", "code review"]],
+  ["无需有PostgreSQL、SQL或ＷＡＩ－ＡＲＩＡ经验。", ["PostgreSQL", "SQL", "WAI-ARIA"]],
+  ["SQL 和 PostgreSQL 经验并非必要。", ["SQL", "PostgreSQL"]],
+] as const)("attaches an explicit denial to each member of the bounded list in %s", (quote, terms) => {
+  expect(groundMaterialSkillTerms(quote, terms)).toEqual([]);
+  for (const term of terms) expect(findMaterialSkillEvidence(quote, term)).toBeNull();
+});
+
+it.each([
+  "I have no experience with “SQL”.",
+  'I have no experience with "SQL".',
+  "I have no experience with 'SQL'.",
+  "I have no experience with ‘SQL’.",
+  "I haven’t used 'SQL'.",
+  "“SQL” is not required.",
+  "岗位不要求有“SQL”经验。",
+  "No experience with “SQL” or ‘PostgreSQL’ is required.",
+  "No experience with “SQL or PostgreSQL” is required.",
+])("keeps an attached denial visible through boundary quote wrappers in %s", quote => {
+  expect(groundMaterialSkillTerms(quote, ["SQL", "PostgreSQL"])).toEqual([]);
+  expect(findMaterialSkillEvidence(quote, "SQL")).toBeNull();
+  expect(findMaterialSkillEvidence(quote, "PostgreSQL")).toBeNull();
+});
+
+it("preserves quoted evidence spelling and contractions outside the supported phrase", () => {
+  expect(groundMaterialSkillTerms("I use “Ｃ＋＋” and ‘Cafe\u0301Flux’.", ["C++", "CaféFlux"]))
+    .toEqual(["Ｃ＋＋", "Cafe\u0301Flux"]);
+  expect(findMaterialSkillEvidence("I use “Cafe\u0301Flux”.", "CaféFlux")).toBe("Cafe\u0301Flux");
+  expect(groundMaterialSkillTerms("I haven’t used QuartzFlux, but I use ‘SQL’.", ["QuartzFlux", "SQL"])).toEqual(["SQL"]);
+  expect(findMaterialSkillEvidence("I use SQL’s formatter.", "SQL")).toBe("SQL");
+});
+
+it("scopes a denial over a source list even when it exceeds the nominated-label limit", () => {
+  const names = Array.from({ length: 60 }, (_, index) => `Flux${index}`);
+  const prefix = `No experience with ${names.join(", ")}, or PostgreSQL is required.`;
+  const suffix = `SQL, ${names.join(", ")}, and PostgreSQL are not required.`;
+  expect(prefix.length).toBeLessThanOrEqual(1000);
+  expect(suffix.length).toBeLessThanOrEqual(1000);
+  expect(findMaterialSkillEvidence(prefix, "PostgreSQL")).toBeNull();
+  expect(findMaterialSkillEvidence(suffix, "SQL")).toBeNull();
+});
+
+it.each([
+  ["SQL is required and PostgreSQL is not necessary.", ["SQL", "PostgreSQL"], ["SQL"]],
+  ["I never used SQL and later used PostgreSQL.", ["SQL", "PostgreSQL"], ["PostgreSQL"]],
+  ["Neither SQL nor PostgreSQL was used, but I tried QuartzFlux.", ["SQL", "PostgreSQL", "QuartzFlux"], ["QuartzFlux"]],
+  ["No SQL experience is required; PostgreSQL is required.", ["SQL", "PostgreSQL"], ["PostgreSQL"]],
+  ["I used SQL and PostgreSQL was never required.", ["SQL", "PostgreSQL"], ["SQL"]],
+  ["Not only SQL but also PostgreSQL is required.", ["SQL", "PostgreSQL"], ["SQL", "PostgreSQL"]],
+  ["无需有 SQL 经验，但需要 PostgreSQL。", ["SQL", "PostgreSQL"], ["PostgreSQL"]],
+  ["不仅使用SQL，还使用PostgreSQL。", ["SQL", "PostgreSQL"], ["SQL", "PostgreSQL"]],
+] as const)("keeps a denial within its clause in %s", (quote, terms, labels) => {
+  expect(groundMaterialSkillTerms(quote, terms)).toEqual(labels);
+  for (const label of labels) expect(findMaterialSkillEvidence(quote, label)).toBe(label);
+});
+
+it.each([
+  "React quickly when incidents happen.",
+  "Our engineers react faster.",
+  "I can quickly react.",
+  "Team members excel.",
+  "Most candidates confidently excel.",
+  "react",
+  "excel",
+  "People react more slowly to unclear alerts.",
+  "I can react to customer feedback.",
+  "We excel at explaining the data.",
+  "I excel in customer communication.",
+])("does not read ordinary verbs as tools in %s", quote => {
+  expect(groundMaterialSkillTerms(quote, ["React", "Excel"])).toEqual([]);
+  expect(findMaterialSkillEvidence(quote, "React")).toBeNull();
+  expect(findMaterialSkillEvidence(quote, "Excel")).toBeNull();
+});
+
+it.each([
+  ["Tools: React, Excel, and QuartzFlux.", ["React", "Excel", "QuartzFlux"]],
+  ["Tools: react, excel.", ["react", "excel"]],
+  ["Tools: CaféFlux, react and excel.", ["CaféFlux", "react", "excel"]],
+  ["Tools: Azure Data Factory, react and excel.", ["Azure Data Factory", "react", "excel"]],
+  ["I build react components and excel spreadsheets.", ["react", "excel"]],
+  ["I use “react” to build forms and “Excel” to analyze inventory.", ["react", "Excel"]],
+  ["Our engineers use React faster to build prototypes.", ["React"]],
+  ["I built navigation with React Router.", ["React"]],
+  ["I did actually use PostgreSQL.", ["PostgreSQL"]],
+  ["I have really used PostgreSQL.", ["PostgreSQL"]],
+  ["I do know how to use PostgreSQL.", ["PostgreSQL"]],
+  ["I am proficient in PostgreSQL.", ["PostgreSQL"]],
+  ["There is a need to know SQL.", ["SQL"]],
+  ["Required: SQL and PostgreSQL.", ["SQL", "PostgreSQL"]],
+  ["I used React and Excel for reporting.", ["React", "Excel"]],
+  ["I built React components and Excel spreadsheets.", ["React", "Excel"]],
+  ["I use react to build forms.", ["react"]],
+  ["We use Excel at work.", ["Excel"]],
+  ["React", ["React"]],
+  ["Excel", ["Excel"]],
+] as const)("preserves named tools in %s", (quote, labels) => {
+  expect(groundMaterialSkillTerms(quote, labels)).toEqual(labels);
+  for (const label of labels) expect(findMaterialSkillEvidence(quote, label)).toBe(label);
 });

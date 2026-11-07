@@ -261,8 +261,72 @@ describe("Kimi grounded terms and reviews", () => {
     const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "skill-claim", source,
       skillTerms: ["DuckDB"], selfLevelHint: "conceptual", requirementLevel: null }],
       reviewPoints: [{ code: "confirm-self-assessment", source }] }, { policyId: groundedPolicy, text, kind: "supplement" });
-    expect(outcome.candidate).toMatchObject({ items: [{ text: example, selfLevelHint: null }], reviewPoints: [] });
+    expect(outcome).toMatchObject({ candidate: null, audit: { extractionRead: "invalid-source" } });
   });
+
+  it.each([
+    ["I am familiar with HTML, but my colleague uses PostgreSQL.", ["HTML", "PostgreSQL"], "conceptual", null],
+    ["I rehearsed migrations under supervision, but I independently use PostgreSQL.", ["PostgreSQL"], "guided", null],
+    ["I am familiar with log sampling, but I never used FakeTool.", ["log sampling", "invented"], "conceptual", "conceptual"],
+    ["- I am familiar with SQL.", ["SQL"], "conceptual", "conceptual"],
+    ["I am familiar with the example “My colleague uses PostgreSQL.”", ["PostgreSQL"], "conceptual", null],
+    ["I am familiar with “PostgreSQL”.", ["PostgreSQL"], "conceptual", "conceptual"],
+    ["I documented that my colleague used PostgreSQL under supervision.", ["PostgreSQL"], "guided", null],
+    ["I explained how my colleague built PostgreSQL under supervision.", ["PostgreSQL"], "guided", null],
+    ["我在导师指导下，安排同事使用 PostgreSQL。", ["PostgreSQL"], "guided", null],
+  ] as const)("binds a level to the retained terms and the full-document assertion: %s", async (text, skillTerms, hint, expected) => {
+    const source = localSource(text);
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "skill-claim", source,
+      skillTerms, selfLevelHint: hint, requirementLevel: null }], reviewPoints: [] }, { policyId: groundedPolicy, text, kind: "resume" });
+    expect(outcome.audit).toMatchObject({ extractionRead: "parsed" });
+    expect(outcome.candidate).toMatchObject({ items: [{ selfLevelHint: expected }] });
+    const candidate = outcome.candidate as { reviewPoints: { code: string }[] };
+    expect(candidate.reviewPoints.some(point => point.code === "confirm-self-assessment")).toBe(expected !== null);
+  });
+
+  it.each(["labels", "priority", "kind", "list marker"])("rejects repeated v2 source facts even when the model varies %s", async variant => {
+    const text = "- SQL and PostgreSQL are required.";
+    const first = { kind: "requirement", source: localSource(text), requirementLevel: "must", skillTerms: ["SQL"], selfLevelHint: null };
+    const second = { ...first,
+      ...(variant === "labels" ? { skillTerms: ["PostgreSQL"] } : {}),
+      ...(variant === "priority" ? { requirementLevel: "preferred" } : {}),
+      ...(variant === "kind" ? { kind: "skill-claim", requirementLevel: null } : {}),
+      ...(variant === "list marker" ? { source: localSource(text.slice(2)) } : {}),
+    };
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [first, second], reviewPoints: [] }, { policyId: groundedPolicy, text });
+    expect(outcome).toMatchObject({ candidate: null, actualMicroUsd: 7, audit: { status: "verified", extractionRead: "invalid-shape" } });
+  });
+
+  it("preserves separate source statements containing overlapping skill lists", async () => {
+    const quotes = ["SQL and PostgreSQL are required.", "SQL is preferred for the optional analytics rotation."];
+    const { outcome } = await analyze({ format: "source-spans-v2", items: quotes.map((quote, index) => ({
+      kind: "requirement", source: localSource(quote), requirementLevel: index ? "preferred" : "must",
+      skillTerms: index ? ["SQL"] : ["SQL", "PostgreSQL"], selfLevelHint: null,
+    })), reviewPoints: [] }, { policyId: groundedPolicy, text: quotes.join(" ") });
+    expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: {
+      items: [{ text: quotes[0], skillLabels: ["SQL", "PostgreSQL"], requirementLevel: "must" },
+        { text: quotes[1], skillLabels: ["SQL"], requirementLevel: "preferred" }],
+    } });
+  });
+
+  it.each([
+    ["PostgreSQL is optional for this role.", "must", "preferred"],
+    ["PostgreSQL is required for this role.", "preferred", "must"],
+    ["We use PostgreSQL.", "must", "unspecified"],
+    ["SQL is required, but PostgreSQL is optional.", "must", "unspecified"],
+  ])("derives the requirement level from source evidence: %s", async (text, proposed, expected) => {
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "requirement", source: localSource(text),
+      skillTerms: ["PostgreSQL"], selfLevelHint: null, requirementLevel: proposed }], reviewPoints: [] }, { policyId: groundedPolicy, text });
+    expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: { items: [{ text, requirementLevel: expected }] } });
+  });
+
+  it.each([["Required:", "must"], ["Must have", "must"], ["必备：", "must"], ["Preferred skills", "preferred"]])(
+    "uses a complete unbulleted entry beneath the v2 heading %s", async (heading, expected) => {
+      const text = heading + "\nSQL";
+      const { outcome } = await analyze({ format: "source-spans-v2", items: [{ kind: "requirement", source: localSource("SQL"),
+        skillTerms: ["SQL"], requirementLevel: "unspecified", selfLevelHint: null }], reviewPoints: [] }, { policyId: groundedPolicy, text });
+      expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: { items: [{ text: "SQL", skillLabels: ["SQL"], requirementLevel: expected }] } });
+    });
 
   it("refuses downgraded and cross-version reply formats", async () => {
     const oldAtNew = await analyze(compact, { policyId: groundedPolicy });

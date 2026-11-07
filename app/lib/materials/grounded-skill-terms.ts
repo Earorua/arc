@@ -68,23 +68,56 @@ function wordBoundary(quote: ReturnType<typeof indexQuote>, index: number) {
 
 // Match a denial attached to the term (or to a list it belongs to). Allow only
 // words introducing a skill, so an unrelated negative clause cannot erase it.
-const deniedEnglishPrefix = /\b(?:no|not|never|without|cannot|[a-z]+n['’]t|lack(?:s|ed|ing)?|unfamiliar)\b(?:\s+(?:yet|ever|any|prior|hands-on|practical|experience|knowledge|exposure|proficiency|familiarity|familiar|able|with|of|in|to|do|know|use|used|using|work|worked|working|have|had|been|trained|learned|require|required)){0,6}\s*$/u;
-const deniedEnglishSuffix = /^\s+(?:experience\s+)?(?:(?:is|was|were|are|has|had|have)\s+(?:not|never)|(?:is|was|were|are|has|had|have)n['’]t)\s+(?:been\s+)?(?:used|required|needed|covered|supported)\b/u;
-const deniedChinesePrefix = /(?:没(?:有)?|未|不|无[需须]?)(?:\s*(?:曾经|曾|会|能|懂|擅长|需要|要求|具备|学过|学会|学习|接触|使用|用|掌握|熟悉|了解|参与|做|进行|过)){0,5}\s*$/u;
+const deniedEnglishPrefix = /\b(?:no|not|never|neither|without|cannot|[a-z]+n['’]t|lack(?:s|ed|ing)?|unfamiliar)\b(?:\s+(?:(?!only\b)[a-z]{1,30}ly|yet|ever|any|prior|hands-on|practical|experience|knowledge|exposure|proficiency|proficient|familiarity|familiar|able|with|of|in|to|how|do|know|use|used|using|work|worked|working|have|had|been|trained|learned|need|require|required)){0,6}\s*:?\s*$/u;
+const deniedEnglishSuffix = /^\s+(?:experience\s+)?(?:(?:is|was|were|are|has|had|have)\s+(?:not|never)|(?:is|was|were|are|has|had|have)n['’]t)\s+(?:been\s+)?(?:used|required|needed|necessary|prerequisites?|covered|supported)\b/u;
+const deniedChinesePrefix = /(?:没(?:有)?|未|不|无[需须]?)(?:\s*(?:曾经|曾|会|能|懂|擅长|需要|要求|具备|学过|学会|学习|接触|使用|用|掌握|熟悉|了解|参与|做|进行|过|有)){0,5}\s*$/u;
 const deniedChineseSuffix = /^\s*(?:经验\s*)?(?:并非|并不|不|未|从未|没有)(?:必需|必备|必要|需要|要求|使用|用过)/u;
 
+// A list may join short literal phrases, but cannot swallow a predicate or
+// cross a sentence/contrast boundary. The source quote permits 1000 UTF-16
+// units, so even one-character members cannot have more than 500 neighbors.
+// This bound is separate from the eight nominated labels and adds no taxonomy.
+const listJoin = String.raw`(?:\s*(?:,|、)\s*(?:(?:and|or|nor)\s+)?|\s+(?:and|or|nor)\s+|\s*[和或及]\s*)`;
+const listIdentifier = String.raw`(?!(?:and|or|nor|but|yet|however|is|are|was|were|has|have|had|no|not|never|neither|only|also|used|using|use|required|necessary|later|then|i|we|you|they|can|could|must|should|will|would)\b)(?:(?![和或及但却])[\p{L}\p{M}\p{N}_#+/-]|\.(?=[\p{L}\p{N}])){1,100}`;
+const listItem = `${listIdentifier}(?:[ \t]+${listIdentifier}){0,3}`;
+const precedingList = `(?:${listItem}${listJoin}){0,500}`;
+const followingList = `(?:${listJoin}${listItem}){0,500}`;
+const deniedListPrefix = new RegExp(`(?:${deniedEnglishPrefix.source.slice(0, -1)}|${deniedChinesePrefix.source.slice(0, -1)})${precedingList}$`, "u");
+const deniedListSuffix = new RegExp(`^${followingList}(?:${deniedEnglishSuffix.source.slice(1)}|${deniedChineseSuffix.source.slice(1)})`, "u");
+const toolUsePrefix = new RegExp(String.raw`(?:\b(?:use|used|using|with|in|tools|skills|microsoft)|使用|采用|熟悉|学习|工具|技能)\s*:?\s*${precedingList}$`, "u");
+const languageUsePrefix = new RegExp(String.raw`(?:\b(?:in|with|using|used|use|languages?|skills)|使用|采用|熟悉|学习|技能)\s*:?\s*${precedingList}$`, "u");
+const affirmativeUse = /(?:\b(?:use|used|using|know|knew|learned|learnt|need|require)|使用|采用|熟悉|学习|需要|要求)\s*$/u;
+
+// Ignore quotation wrappers only while reading grammar. Apostrophes inside a
+// word still carry contractions/possessives; source evidence and offsets stay
+// untouched. A letter sentinel preserves that distinction beside the term.
+function withoutQuoteWrappers(context: string) {
+  return context.replace(/["“”‘«»‹›「」『』]|(?<![a-z0-9])['’]|['’](?![a-z0-9])/gu, "");
+}
+
 function supportsTerm(before: string, after: string, token: string, original: string) {
-  const listHead = before.replace(/(?:[\w.#+/-]+(?:\s+(?:and|or|nor)\s+|,\s*|、|和|或))+$/u, "");
-  if (deniedEnglishPrefix.test(listHead) || deniedChinesePrefix.test(listHead)
-    || deniedEnglishSuffix.test(after) || deniedChineseSuffix.test(after)) return false;
+  before = withoutQuoteWrappers(before + "a").slice(0, -1);
+  after = withoutQuoteWrappers("a" + after).slice(1);
+  if (deniedListPrefix.test(before) || deniedEnglishSuffix.test(after) || deniedChineseSuffix.test(after)
+    || (!affirmativeUse.test(before) && deniedListSuffix.test(after))) return false;
   if (/^clean\s/u.test(token) && (/\b(?:the|some|with|using|used|have|had|received|needs?|requires?|from)\s+$/u.test(before)
     || /^\s+(?:is|was|will be|must be)\b/u.test(after))) return false;
   if (/^(?:cleaned|cleansed)\s/u.test(token) && /\b(?:the|with|used|using|received|downloaded|provided)\s+$/u.test(before)) return false;
   if (wholeCleaningAction.test(token) && /^(?:库|中心|机房|硬件|设备|\s+(?:cent(?:er|re)|racks?|cabinets?|hardware|cables?)\b)/u.test(after)) return false;
   if (token === "it") return original.normalize("NFKC") === "IT";
+  if (token === "react" || token === "excel") {
+    const toolUse = toolUsePrefix.test(before);
+    if (!toolUse && (/\b(?:i|we|you|they|can|could|must|should|will|would)\s+$/u.test(before)
+      || (token === "react" && /^\s+(?:(?:(?:more|less)\s+)?[a-z]+ly|faster|slower|better|worse|to|when|if)\b/u.test(after))
+      || (token === "excel" && /^\s+(?:at|in)\b/u.test(after)))) return false;
+    // Lowercase verb/tool homographs require positive technical context. This
+    // deliberately withholds bare "react"/"excel" while keeping named tools.
+    const technicalNoun = token === "react" ? /^\s+components?\b/u : /^\s+spreadsheets?\b/u;
+    if (original.normalize("NFKC") === token && !toolUse && !technicalNoun.test(after)) return false;
+  }
   if (["go", "r", "c"].includes(token)) {
     return (!before.trim() && /^[.!。\s]*$/u.test(after) && /^[A-Z]/u.test(original.normalize("NFKC")))
-      || /(?:\b(?:in|with|using|used|use|languages?|skills)|使用|采用|熟悉|学习|技能)\s*:?\s*$/u.test(listHead)
+      || languageUsePrefix.test(before)
       || /^\s*(?:\b(?:language|code|programming|scripts?|packages?|developer)\b|语言|代码|脚本|开发)/u.test(after);
   }
   return true;

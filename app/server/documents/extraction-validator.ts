@@ -3,13 +3,17 @@ import { documentExtractionSchema, GROUNDED_MATERIAL_REVIEW_PROJECTION, MAX_DOCU
 import { supportsReviewedSkillLabel } from "../../lib/materials/skill-labels";
 import { DocumentServiceError } from "./d1-repository";
 import { validateDocumentReviewPoints } from "./review-points";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "./policy";
 
 // The server writes this envelope only after validating the provider's canonical candidate.
 // Unwrapped historical captures originally projected facts without a skill-word list.
 const storedProjection = z.enum(["literal-skill-labels-v1", GROUNDED_MATERIAL_REVIEW_PROJECTION]);
 const storedExtractionSchema = z.object({ reviewProjection: storedProjection, candidate: z.unknown() }).strict();
-export function serializeDocumentExtraction(candidate: unknown) {
-    const json = JSON.stringify({ reviewProjection: GROUNDED_MATERIAL_REVIEW_PROJECTION, candidate });
+function extractionProjection(providerPolicyId?: string) {
+    return providerPolicyId === KIMI_GROUNDED_TERMS_POLICY_ID ? GROUNDED_MATERIAL_REVIEW_PROJECTION : "literal-skill-labels-v1";
+}
+export function serializeDocumentExtraction(candidate: unknown, providerPolicyId?: string) {
+    const json = JSON.stringify({ reviewProjection: extractionProjection(providerPolicyId), candidate });
     if (utf8Bytes(json) > MAX_DOCUMENT_ITEMS_JSON_BYTES) throw new DocumentServiceError("invalid-content");
     return json;
 }
@@ -18,8 +22,8 @@ export function validateStoredDocumentExtraction(json: string, ownerId: string, 
     const stored = storedExtractionSchema.safeParse(raw);
     return stored.success ? projectExtraction(stored.data.candidate, ownerId, reference, stored.data.reviewProjection) : projectExtraction(raw, ownerId, reference, "legacy");
 }
-export function validateDocumentExtraction(candidate: unknown, ownerId: string, reference: MaterialReferenceContext) {
-    return projectExtraction(candidate, ownerId, reference, GROUNDED_MATERIAL_REVIEW_PROJECTION);
+export function validateDocumentExtraction(candidate: unknown, ownerId: string, reference: MaterialReferenceContext, providerPolicyId?: string) {
+    return projectExtraction(candidate, ownerId, reference, extractionProjection(providerPolicyId));
 }
 function projectExtraction(candidate: unknown, ownerId: string, reference: MaterialReferenceContext, projection: "legacy" | z.infer<typeof storedProjection>) {
     const parsed = documentExtractionSchema.safeParse(candidate);

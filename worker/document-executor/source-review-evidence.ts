@@ -4,6 +4,7 @@ import {
 } from "../../app/contracts/documents";
 import { findMaterialSkillEvidence } from "../../app/lib/materials/grounded-skill-terms";
 import { statementBoundaries } from "./source-statements";
+import { isRequirementLevelHeading } from "./source-requirement-evidence";
 
 type EvidenceItem = Pick<DocumentCandidate, "kind" | "source" | "selfLevelHint"> &
   Partial<Pick<DocumentCandidate, "requirementLevel" | "skillLabels">>;
@@ -17,6 +18,20 @@ type Hint = DocumentCandidate["selfLevelHint"];
 const quoted = /“[^“”]*”|「[^「」]*」|『[^『』]*』|‘(?:[^‘’]|’(?=[\p{L}]))*’|"(?:\\.|[^"\\])*"|(?<![\p{L}\p{N}])'(?:[^']|'(?=[\p{L}]))*'|\x60[^\x60]*\x60/gu;
 function maskQuotes(text: string) {
   return text.replace(quoted, match => "Q" + " ".repeat(match.length - 1));
+}
+
+/** A sentence detached from an enclosing quotation loses who actually asserted it. */
+export function isDetachedQuotedStatement(source: Source, sources: Sources) {
+  const span = locateCandidateQuote(source, sources);
+  return !span || Array.from(sources.text.matchAll(quoted)).some(match => match.index < span.start && match.index + match[0].length >= span.end);
+}
+
+function assertedSkillEvidence(text: string, label: string) {
+  const evidence = findMaterialSkillEvidence(text, label);
+  if (!evidence) return false;
+  if (findMaterialSkillEvidence(maskQuotes(text), label) !== null) return true;
+  // Quoting a tool name is different from quoting a proposition about that tool.
+  return Array.from(text.matchAll(quoted)).some(match => match[0].slice(1, -1).trim() === evidence);
 }
 
 const hypothetical = /^(?:(?:if|whether|unless|suppose|assuming|example|for example)\b|如果|假如|假设|例如|举例)|[?？]\s*$/iu;
@@ -61,7 +76,7 @@ export function groundedStatementBoundaries(text: string) {
     const literal = urlLiteral(token);
     return literal.replace(/[.!?]/gu, "x") + token.slice(literal.length);
   });
-  return statementBoundaries(layout);
+  return statementBoundaries(layout, isRequirementLevelHeading);
 }
 
 const instructionOverride = /^(?:(?:instructions? (?:for|to) (?:the )?(?:assistant|model)|assistant|system|ai)\s*[:,，：]\s*)?(?:please\s+)?(?:ignore|disregard|override|forget|bypass)\s+(?:(?:all|any|the|your|system|higher.priority|earlier|above|preceding|prior|previous|original)\s+){1,6}(?:instructions?|prompts?|rules?|safeguards?)\b|^(?:(?:给|致)?(?:助手|模型|系统)[：:，,]\s*)?(?:请|务必|必须|现在)*(?:忽略|无视|绕过|覆盖)(?:之前|先前|此前|上面|上述|前面|原有|所有|全部|系统|的)*(?:指令|指示|提示词|规则)/iu;
@@ -83,13 +98,13 @@ const supervised = /\b(?:under (?:[\w'’-]+ ){0,2}(?:supervision|guidance|revie
 const selfUncertain = /^I(?:['’]m| am| remain)\s+(?:(?:still|currently)\s+)?(?:unsure|uncertain|not sure) (?:about (?:my|whether)|whether I|if I)\b|^我(?:目前|还|仍)?(?:不确定|不清楚)(?:自己|我|是否|能否)|^(?:我的|我对).{0,45}自评(?:仍|还)?不确定/iu;
 const chineseGuidance = /^(?:我|本人)?(?:之前|目前|此前|曾经|只|仅|曾|还)*(?:在[^，,；;。]{0,20}(?:指导|监督|辅导|带领|复核|审阅|review)\s*下|由[^，,；;。]{1,16}(?:指导|带领)|(?:跟随|跟着|按(?:照)?|依照)[^，,；;。]{0,18}?(?:教程|示例|样例|示范|演示))/iu;
 const practiceAction = /(?:练习|演练|复现|操作|使用|实现|完成|实践|调试|配置|部署|搭建|编写|制作|做过|执行|测试|修复|排查|构建|开发)/u;
-const guidedNegation = /\b(?:without (?:any )?(?:guidance|supervision)|(?:under|with) (?:no|zero) (?:guidance|supervision)|my (?:colleagues?|team)|the (?:team|interns?))\b|(?:无须|无需|没有|未经|未受)(?:任何|导师|同伴|老师|他人|的)*(?:指导|监督|复核)|(?:下|指导[，,]\s*)(?:并|也|仍)?(?:未能|不会|没有|不曾|从未)/iu;
+const guidedNegation = /\b(?:without (?:any )?(?:guidance|supervision)|(?:under|with) (?:no|zero) (?:guidance|supervision))\b|(?:无须|无需|没有|未经|未受)(?:任何|导师|同伴|老师|他人|的)*(?:指导|监督|复核)|(?:下|指导[，,]\s*)(?:并|也|仍)?(?:未能|不会|没有|不曾|从未)/iu;
 function guidedPractice(part: string) {
   if (guidedNegation.test(part)) return false;
   const zh = chineseGuidance.exec(part);
   if (zh) {
     const action = part.slice(zh[0].length);
-    return !/^[，,\s]*(?:团队|小组|我们|同事|其他人|学员们|他们|她们)/u.test(action) && practiceAction.test(action);
+    return !/^[，,\s]*(?:团队|小组|我们|同事|其他人|学员们|他们|她们|安排|要求|让|叫|记录|说明|解释|报告|描述)/u.test(action) && practiceAction.test(action);
   }
   if (!supervised.test(part)) return false;
   // The speaker must actually practise. A fronted qualifier can precede I, while
@@ -99,11 +114,13 @@ function guidedPractice(part: string) {
   const prefix = part.slice(0, actor.index);
   if (prefix && (!/^(?:with|under|during|in|on)\b/iu.test(prefix) || !supervised.test(prefix))) return false;
   const action = part.slice(actor.index + actor[0].length);
+  if (/\b(?:documented|reported|explained|described|recorded|noted|said|wrote)\b[^.;]{0,80}\b(?:that|how|whether)\b/iu.test(action)
+    || /\b(?:my|our|the|a|an)\s+(?:colleagues?|team|manager|mentor|interns?|supervisor)\s+(?:used|built|practised|practiced|rehearsed|ran|wrote|made|tested|configured|implemented)\b/iu.test(action)) return false;
   return /^(?:(?:have|had|also|only|previously|personally)\s+)*(?:[\w-]+ed|built|ran|wrote|made|did|set|took|drew|used)\b/iu.test(action)
     && !/\b(?:planned|enrolled|hired|intended|asked|wanted|expected|hoped|watched|observed|pretended|claimed)\b/iu.test(action);
 }
 
-const scopeBreak = /[;；]|,?\s+\b(?:but|whereas|while|although|however|rather than|except for|excluding)\b\s*|,?\s+\band\s+(?=(?:I|we|our|they|my|she|he|the|have|had|never|not|independently)\b)|[,，]\s*(?=(?:not|except)\b)|[，,]?\s*(?:但是|不过|然而|而非|但(?=[\p{L}]))|[，,]\s*(?=(?:我(?:独立|还|也|负责)|同事|导师|团队|小组|他们|她们))/giu;
+const scopeBreak = /[;；]|,?\s+\b(?:but|whereas|while|although|however|rather than|except for|excluding)\b\s*|,?\s+\band\s+(?=(?:I|we|our|they|my|she|he|the|have|had|never|not|independently)\b)|(?:,\s*|\s+and\s+)(?=(?:[\p{L}\p{N}_][\p{L}\p{N}_.+#'’-]*\s+){1,5}(?:is|are|was|were|has|have|uses?|used|requires?|manages?|maintains?)\b)|[,，]\s*(?=(?:not|except)\b)|[，,]?\s*(?:但是|不过|然而|而非|但(?=[\p{L}]))|[，,]\s*(?=(?:我(?:独立|还|也|负责)|同事|导师|团队|小组|他们|她们))/giu;
 function assessmentScopes(quote: string, masked: string) {
   const scopes: { raw: string; text: string }[] = [];
   let start = 0;
@@ -133,8 +150,7 @@ function supportsLevel(quote: string, masked: string, proposed: NonNullable<Hint
   if (!supported.length) return false;
   // In v2 these labels have already been grounded in the complete quote. Re-check
   // each against the supported clause(s) when part of the quote lies outside them.
-  if (supported.length === 1 && supported[0]!.raw === quote) return true;
-  return !labels?.length || labels.every(label => supported.some(scope => findMaterialSkillEvidence(scope.raw, label) !== null));
+  return !labels?.length || labels.every(label => supported.some(scope => assertedSkillEvidence(scope.raw, label)));
 }
 
 /** A proposed level is optional, and an individual skill rating requires personal evidence. */
@@ -200,7 +216,8 @@ function supportedCodes(quote: string, masked: string, anchors: Anchor[]) {
   const hint = anchors.some(({ item }) => item && (item.kind === "experience" || item.kind === "skill-claim")
     && item.selfLevelHint && supportsLevel(quote, masked, item.selfLevelHint, item.skillLabels));
   const asked = anchors.some(anchor => anchor.code === "confirm-self-assessment");
-  if (hint || (asked && (["conceptual", "guided", "uncertain"] as const).some(level => supportsLevel(quote, masked, level)))) {
+  const labels = anchors.flatMap(anchor => anchor.item?.skillLabels ?? []);
+  if (hint || (asked && (["conceptual", "guided", "uncertain"] as const).some(level => supportsLevel(quote, masked, level, labels)))) {
     codes.add("confirm-self-assessment");
   }
   return codes;

@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
-import { validateDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { serializeDocumentExtraction, validateDocumentExtraction, validateStoredDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
 const reference = {
     ownerId: "owner",
     documentId: "doc",
@@ -64,4 +65,36 @@ it("also bounds the stored projection with its verified source references and sk
     const longId = "a".repeat(240);
     expect(() => validateDocumentExtraction(input, "owner", { ...reference, documentId: longId, documentVersionId: longId, textVersionId: longId,
         text: span, segments: [{ id: "segment-1", start: 0, end: span.length }] })).toThrow("invalid-content");
+});
+
+it.each([undefined, "qualified-policy", "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1", KIMI_GROUNDED_TERMS_POLICY_ID])(
+    "selects the edit projection only from the trusted provider policy %s", providerPolicyId => {
+        const text = "我在指导下清洗数据。每天学习 TypeScript 三十分钟。";
+        const original = { ...reference, text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+        const extraction = { schemaVersion: "2026.11.1", items: [
+            { ...candidate.items[0]!, kind: "experience", text, requirementLevel: null, skillLabels: ["data cleaning"], selfLevelHint: "guided",
+                source: { segmentId: "segment-1", quote: "我在指导下清洗数据。" } },
+            { ...candidate.items[0]!, id: "limit", kind: "constraint", text, requirementLevel: null, skillLabels: ["TypeScript"],
+                source: { segmentId: "segment-1", quote: "每天学习 TypeScript 三十分钟。" } },
+        ] };
+        const grounded = providerPolicyId === KIMI_GROUNDED_TERMS_POLICY_ID;
+        const review = validateDocumentExtraction(extraction, "owner", original, providerPolicyId);
+        expect(review.reviewProjection).toBe(grounded ? "grounded-skill-labels-v2" : undefined);
+        expect(review.items.map(item => item.skillLabels)).toEqual(grounded ? [["data cleaning"], ["TypeScript"]] : [[], undefined]);
+        expect(review.selfAssessmentHints).toEqual(grounded ? [{ id: "hint-fact-0", candidateId: "fact", skillLabel: "data cleaning", level: "guided" }] : []);
+        const json = serializeDocumentExtraction(extraction, providerPolicyId);
+        expect(JSON.parse(json).reviewProjection).toBe(grounded ? "grounded-skill-labels-v2" : "literal-skill-labels-v1");
+        expect(validateStoredDocumentExtraction(json, "owner", original)).toEqual(review);
+        expect(() => validateDocumentExtraction({ ...extraction, reviewProjection: "grounded-skill-labels-v2" }, "owner", original, providerPolicyId)).toThrow("invalid-content");
+    });
+
+it("keeps historical unwrapped captures separate from the explicit v1 and v2 envelopes", () => {
+    const text = "我在指导下清洗数据。";
+    const original = { ...reference, text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+    const extraction = { schemaVersion: "2026.11.1", items: [{ ...candidate.items[0]!, kind: "experience", text,
+        requirementLevel: null, skillLabels: ["data cleaning"], selfLevelHint: "guided", source: { segmentId: "segment-1", quote: text } }] };
+    const legacy = validateStoredDocumentExtraction(JSON.stringify(extraction), "owner", original);
+    expect(legacy.items[0]).not.toHaveProperty("skillLabels");
+    expect(legacy).not.toHaveProperty("reviewProjection");
+    expect(legacy.selfAssessmentHints.map(hint => hint.skillLabel)).toEqual(["data cleaning"]);
 });

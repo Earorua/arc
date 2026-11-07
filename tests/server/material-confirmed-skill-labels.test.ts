@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import type { ConfirmedMaterialItem, DocumentCandidate, DocumentReviewDraft } from "../../app/contracts/documents";
 import { createMaterialAnalysisFixture } from "../helpers/material-analysis-e2e";
 import { materialContextRequest } from "../helpers/material-planning";
-import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../worker/document-executor/source-span-extraction";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
 
 const requirements: DocumentCandidate[] = [
   { id: "queries", kind: "requirement", text: "Improve slow queries", requirementLevel: "must",
@@ -27,11 +27,18 @@ const groundedCandidates: DocumentCandidate[] = [
     source: { segmentId: "segment-1", quote: "每天至多用三十分钟学 TypeScript。" } },
 ];
 
+function sourceSpanResponse(candidates: DocumentCandidate[]) {
+  return { format: "source-spans-v2", items: candidates.map(({ kind, source, skillLabels, requirementLevel, selfLevelHint }) => ({
+    kind, source, skillTerms: skillLabels.map(word => word === "data cleaning" ? "清洗数据" : word), requirementLevel, selfLevelHint,
+  })), reviewPoints: [] };
+}
+
 async function extractedJd(f: Awaited<ReturnType<typeof createMaterialAnalysisFixture>>, candidates = requirements, providerPolicyId = "qualified-policy") {
   const doc = await f.http("createDocument", { kind: "jd", displayName: "Query specialist", text: candidates.map(item => item.source.quote).join("\n"), mutationId: "document" });
   const consent = await f.http("createDocumentConsent", { textVersionId: doc.textVersionId, purpose: "analysis", providerPolicyId, policyVersion: "2026.11.1", mutationId: "consent" });
   const job = await f.http("createDocumentJob", { textVersionId: doc.textVersionId, consentId: consent.consentId, mutationId: "analysis" });
   await f.execute(job.jobId);
+  expect(await f.http("readDocumentJob", { jobId: job.jobId })).toMatchObject({ state: "succeeded", errorCode: null });
   const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
   const draft = (await f.http("readDocumentReviewDraft", ref)).draft!;
   const save = async (base: DocumentReviewDraft, items: ConfirmedMaterialItem[], mutationId: string, skillTermAddition?: { itemId: string; sourceTerm: string }) =>
@@ -132,9 +139,9 @@ it("carries bilingual source terms through review, reload and confirmation, then
 });
 
 it("requires each retained label to belong to the original source and last saved fact, including a rewrite back to the original summary", async () => {
-  const f = await createMaterialAnalysisFixture({ candidates: groundedCandidates });
+  const f = await createMaterialAnalysisFixture({ sourceSpanResponse: sourceSpanResponse(groundedCandidates) });
   try {
-    const { draft, save } = await extractedJd(f, groundedCandidates);
+    const { draft, save } = await extractedJd(f, groundedCandidates, KIMI_GROUNDED_TERMS_POLICY_ID);
     const [practice, tools, limit] = draft.items as [ConfirmedMaterialItem, ConfirmedMaterialItem, ConfirmedMaterialItem];
     await expect(save(draft, [{ ...practice, origin: "user", text: "PostgreSQL", skillLabels: ["PostgreSQL"] }], "neighbor")).rejects.toThrow();
     await expect(save(draft, [{ ...practice, origin: "user", sourceRef: tools.sourceRef, skillLabels: ["data cleaning"] }], "borrow-source")).rejects.toThrow();
@@ -142,7 +149,7 @@ it("requires each retained label to belong to the original source and last saved
     const reworded = await save(draft, [{ ...practice, origin: "user", text: "Yesterday I cleaned data." },
       { ...limit, kind: "skill-claim", origin: "user" }], "prepare");
     expect(reworded.items.map(item => item.skillLabels)).toEqual([["data cleaning"], []]);
-    const back = await save(reworded, [{ ...reworded.items[0]!, text: practice.text }], "back-to-summary");
+    const back = await save(reworded, [{ ...reworded.items[0]!, text: groundedCandidates[0]!.text }], "back-to-summary");
     expect(back.items[0]?.skillLabels).toEqual([]);
     expect(back.selfAssessmentHints).toEqual([]);
     await expect(save(back, [{ ...practice, skillLabels: ["data cleaning"] }], "restore-source")).rejects.toThrow();
@@ -183,9 +190,9 @@ it("authorizes one explicitly added verbatim term on the current saved fact, wit
   const quote = "我在指导下用 QuillBin 清洗数据，并使用 PostgreSQL 归档。";
   const archived = { ...groundedCandidates[0]!, text: quote, source: { segmentId: "segment-1", quote }, skillLabels: ["QuillBin"] };
   const candidates = [archived, groundedCandidates[2]!];
-  const f = await createMaterialAnalysisFixture({ candidates });
+  const f = await createMaterialAnalysisFixture({ sourceSpanResponse: sourceSpanResponse(candidates) });
   try {
-    const { doc, draft, save } = await extractedJd(f, candidates);
+    const { doc, draft, save } = await extractedJd(f, candidates, KIMI_GROUNDED_TERMS_POLICY_ID);
     const [practice, limit] = draft.items as [ConfirmedMaterialItem, ConfirmedMaterialItem];
     const withWord = (word: string): ConfirmedMaterialItem => ({ ...practice, origin: "user", skillLabels: [...practice.skillLabels!, word] });
     const intent = { itemId: practice.id, sourceTerm: "清洗数据" };
@@ -221,18 +228,109 @@ it("authorizes one explicitly added verbatim term on the current saved fact, wit
 it("commits one of two concurrent source-term corrections at the same revision", async () => {
   const source = { segmentId: "segment-1", quote: "PostgreSQL and WAI-ARIA are required." };
   const candidate = { ...requirements[0]!, text: source.quote, source, skillLabels: [] };
-  const f = await createMaterialAnalysisFixture({ candidates: [candidate] });
+  const f = await createMaterialAnalysisFixture({ sourceSpanResponse: sourceSpanResponse([candidate]) });
   try {
-    const { doc, draft, save } = await extractedJd(f, [candidate]);
+    const { doc, draft, save } = await extractedJd(f, [candidate], KIMI_GROUNDED_TERMS_POLICY_ID);
     const results = await Promise.allSettled(["PostgreSQL", "WAI-ARIA"].map((sourceTerm, index) => save(draft, [
       { ...draft.items[0]!, origin: "user", skillLabels: [sourceTerm] },
-    ], `concurrent-${index}`, { itemId: candidate.id, sourceTerm })));
+    ], `concurrent-${index}`, { itemId: draft.items[0]!.id, sourceTerm })));
     const committed = results.filter(result => result.status === "fulfilled");
     expect(committed).toHaveLength(1);
     expect(results.find(result => result.status === "rejected")?.reason.message).toContain("HTTP 409");
     const read = (await f.http("readDocumentReviewDraft", { documentId: doc.documentId, textVersionId: doc.textVersionId })).draft!;
     expect(read).toEqual(committed[0]!.value);
     expect(read.revision).toBe(1);
+  } finally { await f.dispose(); }
+});
+
+it("rejects ambiguous source evidence, duplicate additions and a ninth word without advancing the saved revision", async () => {
+  const words = ["React", "TypeScript", "PostgreSQL", "Vitest", "WAI-ARIA", "QuillBin", "Python", "Rust"];
+  const quote = `${words.join(", ")} and Docker are required.`;
+  const repeated = "PostgreSQL training and PostgreSQL support are required.";
+  const candidates = [
+    { ...requirements[0]!, text: quote, source: { segmentId: "segment-1", quote }, skillLabels: words },
+    { ...requirements[0]!, id: "repeated", text: repeated, source: { segmentId: "segment-1", quote: repeated }, skillLabels: [] },
+  ];
+  const f = await createMaterialAnalysisFixture({ sourceSpanResponse: sourceSpanResponse(candidates) });
+  try {
+    const { doc, draft, save } = await extractedJd(f, candidates, KIMI_GROUNDED_TERMS_POLICY_ID);
+    const [full, ambiguous] = draft.items as [ConfirmedMaterialItem, ConfirmedMaterialItem];
+    expect(full.skillLabels).toEqual(words);
+    await expect(save(draft, [{ ...full, origin: "user", skillLabels: [...words, "Docker"] }], "ninth",
+      { itemId: full.id, sourceTerm: "Docker" })).rejects.toThrow();
+    await expect(save(draft, [{ ...full, origin: "user" }], "duplicate",
+      { itemId: full.id, sourceTerm: "React" })).rejects.toThrow("HTTP 422");
+    await expect(save(draft, [{ ...ambiguous, origin: "user", skillLabels: ["PostgreSQL"] }], "ambiguous",
+      { itemId: ambiguous.id, sourceTerm: "PostgreSQL" })).rejects.toThrow("HTTP 422");
+    const withRoom = await save(draft, [{ ...full, skillLabels: words.slice(0, 7) }, ambiguous], "make-room");
+    const eighth = await save(withRoom, [{ ...withRoom.items[0]!, origin: "user", skillLabels: [...words.slice(0, 7), "Docker"] }, ambiguous], "eighth",
+      { itemId: full.id, sourceTerm: "Docker" });
+    expect(eighth.items[0]?.skillLabels).toEqual([...words.slice(0, 7), "Docker"]);
+    expect(eighth.revision).toBe(2);
+    expect((await f.http("readDocumentReviewDraft", { documentId: doc.documentId, textVersionId: doc.textVersionId })).draft).toEqual(eighth);
+  } finally { await f.dispose(); }
+});
+
+it("binds corrections to the current source version and keeps corrected time constraints out of capability mapping", async () => {
+  const candidates = [{ ...groundedCandidates[2]!, skillLabels: [] }];
+  const f = await createMaterialAnalysisFixture({ sourceSpanResponse: sourceSpanResponse(candidates) });
+  try {
+    const { doc, draft, save } = await extractedJd(f, candidates, KIMI_GROUNDED_TERMS_POLICY_ID);
+    const limit = draft.items[0]!, intent = { itemId: limit.id, sourceTerm: "TypeScript" };
+    const corrected: ConfirmedMaterialItem = { ...limit, origin: "user", skillLabels: ["TypeScript"] };
+    for (const key of ["documentId", "documentVersionId", "textVersionId"] as const) {
+      await expect(save(draft, [{ ...corrected, sourceRef: { ...limit.sourceRef!, [key]: "another-version" } }], `cross-${key.toLowerCase()}`, intent))
+        .rejects.toThrow("HTTP 422");
+    }
+    await expect(f.http("saveDocumentReviewDraft", { documentId: doc.documentId, textVersionId: doc.textVersionId, extractionId: draft.extractionId,
+      expectedRevision: draft.revision, items: [corrected], selfAssessmentHints: [], skillTermAddition: intent,
+      reviewProjection: "grounded-skill-labels-v2", mutationId: "client-projection" } as never)).rejects.toThrow();
+    await expect(save(draft, [{ ...corrected, kind: "skill-claim" }], "same-save-reclassification", intent)).rejects.toThrow("HTTP 422");
+    const saved = await save(draft, [corrected], "constraint-topic", intent);
+    expect(saved.items[0]?.skillLabels).toEqual(["TypeScript"]);
+    expect(saved.selfAssessmentHints).toEqual([]);
+    const { confirmationId } = await f.http("createDocumentConfirmation", { documentId: doc.documentId, documentVersionId: doc.documentVersionId,
+      textVersionId: doc.textVersionId, items: saved.items, reviewRevision: saved.revision, expectedRevision: doc.revision, mutationId: "confirm-topic" });
+    const inputs = materialContextRequest();
+    const selectionRef = await f.http("createMaterialSelection", { scope: inputs.scope, entries: [{ slot: "jd", documentId: doc.documentId,
+      documentVersionId: doc.documentVersionId, confirmationId }], mutationId: "select-topic" });
+    const { preview } = await f.http("createMaterialContext", { ...inputs, selectionRef, mutationId: "context-topic" });
+    expect(preview.priorities).toEqual([]);
+    expect(preview.overlay?.mandatorySkillIds ?? []).toEqual([]);
+    const reclassified = await save(saved, [{ ...saved.items[0]!, kind: "skill-claim", skillLabels: [] }], "reclassify");
+    expect(reclassified.reclassifiedItemIds).toEqual([limit.id]);
+    await expect(save(reclassified, [{ ...reclassified.items[0]!, skillLabels: ["TypeScript"] }], "later-reclassification", intent)).rejects.toThrow("HTTP 422");
+    const removed = await save(reclassified, [], "remove-fact");
+    await expect(save(removed, [corrected], "restore-removed-fact", intent)).rejects.toThrow("HTTP 422");
+  } finally { await f.dispose(); }
+});
+
+it("keeps an optional JD source term preferred after explicit correction, confirmation and plan generation", async () => {
+  const quote = "PostgreSQL is optional for this role.";
+  const candidates = [{ ...requirements[0]!, text: quote, source: { segmentId: "segment-1", quote }, skillLabels: [] }];
+  const f = await createMaterialAnalysisFixture({ sourceSpanResponse: sourceSpanResponse(candidates) });
+  try {
+    const { doc, draft, save } = await extractedJd(f, candidates, KIMI_GROUNDED_TERMS_POLICY_ID);
+    expect(draft.items[0]?.requirementLevel).toBe("preferred");
+    const item = draft.items[0]!;
+    const corrected = await save(draft, [{ ...item, origin: "user", skillLabels: ["PostgreSQL"] }], "add-optional",
+      { itemId: item.id, sourceTerm: "PostgreSQL" });
+    const { confirmationId } = await f.http("createDocumentConfirmation", { documentId: doc.documentId, documentVersionId: doc.documentVersionId,
+      textVersionId: doc.textVersionId, items: corrected.items, reviewRevision: corrected.revision, expectedRevision: doc.revision, mutationId: "confirm-optional" });
+    const inputs = materialContextRequest();
+    const selectionRef = await f.http("createMaterialSelection", { scope: inputs.scope, entries: [{ slot: "jd", documentId: doc.documentId,
+      documentVersionId: doc.documentVersionId, confirmationId }], mutationId: "select-optional" });
+    const { preview, contextVersionId, previewToken } = await f.http("createMaterialContext", { ...inputs, selectionRef, mutationId: "context-optional" });
+    expect(preview.priorities).toEqual([expect.objectContaining({ skillId: "sql", tier: 4 })]);
+    expect(preview.overlay?.mandatorySkillIds ?? []).toEqual([]);
+    const { source, audit, availability, target, selectedScope, planningDate } = inputs;
+    const { result } = await f.http("generatePlanning", { source, audit, availability, target, selectedScope, planningDate, mutationId: "plan-optional",
+      materials: { contextVersionId, previewToken, selectionRef } });
+    expect(result.workspace.audit.answers).toEqual(audit.answers);
+    const history = await f.http("readMaterialHistory", { goalId: result.workspace.goalId });
+    const explanations = history.plans.find(plan => plan.contextVersionId === contextVersionId)!.explanations;
+    expect(explanations).toContainEqual(expect.objectContaining({ skillId: "sql", ruleId: "preferred-after-mandatory-v1" }));
+    expect(explanations.some(reason => reason.ruleId === "mandatory-scope-protection-v1" && reason.skillId === "sql")).toBe(false);
   } finally { await f.dispose(); }
 });
 

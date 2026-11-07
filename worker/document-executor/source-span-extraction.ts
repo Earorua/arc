@@ -7,7 +7,8 @@ import type { DocumentExtractionRead } from "../../app/server/documents/provider
 import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
 import { groundMaterialSkillTerms } from "../../app/lib/materials/grounded-skill-terms";
 import { statementBoundaries } from "./source-statements";
-import { groundedStatementBoundaries, groundSourceReviewPoints, groundSourceSelfLevelHint } from "./source-review-evidence";
+import { groundedStatementBoundaries, groundSourceReviewPoints, groundSourceSelfLevelHint, isDetachedQuotedStatement } from "./source-review-evidence";
+import { groundSourceRequirementLevel } from "./source-requirement-evidence";
 
 export const KIMI_SOURCE_SPAN_POLICY_ID = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1";
 export { KIMI_GROUNDED_TERMS_POLICY_ID };
@@ -98,20 +99,39 @@ export function readSourceSpanExtraction(raw: Record<string, unknown>, sources: 
     return { candidate: null, extractionRead: "invalid-source" };
   }
   const bounds = groundedTerms ? groundedStatementBoundaries(sources.text) : statementBoundaries(sources.text);
+  const statementStarts = new Map([...bounds].map(([start, end]) => [end, start]));
   const observed = new Set<string>(), candidates = [];
   for (const item of items) {
     const source = groundedFact(item.source, sources, bounds);
-    if (!source) return { candidate: null, extractionRead: "invalid-source" };
+    if (!source || (groundedTerms && isDetachedQuotedStatement(source, sources))) return { candidate: null, extractionRead: "invalid-source" };
+    const span = locateCandidateQuote(source, sources)!;
     const skillLabels = groundedTerms ? groundMaterialSkillTerms(source.quote, item.skillLabels) : item.skillLabels;
+    // The complete fact may include a list marker; assess the same statement body
+    // used for the review citation without discarding any attribution or qualifier.
+    const assessmentSource = { ...source, quote: sources.text.slice(statementStarts.get(span.end) ?? span.start, span.end) };
     const selfLevelHint = groundedTerms && (item.kind === "experience" || item.kind === "skill-claim")
-      ? groundSourceSelfLevelHint({ ...item, source }) : item.selfLevelHint;
-    const key = JSON.stringify([item.kind, source.segmentId, source.quote, item.requirementLevel, selfLevelHint, [...skillLabels].sort()]);
+      ? groundSourceSelfLevelHint({ ...item, source: assessmentSource, skillLabels }) : item.selfLevelHint;
+    const requirementLevel = groundedTerms && item.kind === "requirement" ? groundSourceRequirementLevel(source, sources) : item.requirementLevel;
+    const key = JSON.stringify(groundedTerms ? [source.segmentId, span.end]
+      : [item.kind, source.segmentId, source.quote, item.requirementLevel, selfLevelHint, [...skillLabels].sort()]);
     if (observed.has(key)) return { candidate: null, extractionRead: "invalid-shape" };
     observed.add(key);
-    candidates.push({ ...item, skillLabels, selfLevelHint, source, id: `candidate-${candidates.length + 1}`, text: source.quote });
+    candidates.push({ ...item, skillLabels, selfLevelHint, requirementLevel, source, id: `candidate-${candidates.length + 1}`, text: source.quote });
   }
   const questions = groundedTerms ? groundSourceReviewPoints(reviewPoints, candidates, sources, bounds) : reviewPoints;
   if (!questions) return { candidate: null, extractionRead: "invalid-source" };
+  if (groundedTerms) {
+    // Review evidence uses the full document's quotation context. A standalone
+    // sentence inside a quoted example cannot supply the person's own rating.
+    const assessments = new Set(questions.filter(point => point.code === "confirm-self-assessment")
+      .map(point => JSON.stringify([point.source.segmentId, locateCandidateQuote(point.source, sources)!.end])));
+    for (const item of candidates) {
+      if (item.selfLevelHint && (item.kind === "experience" || item.kind === "skill-claim")
+        && !assessments.has(JSON.stringify([item.source.segmentId, locateCandidateQuote(item.source, sources)!.end]))) {
+        item.selfLevelHint = null;
+      }
+    }
+  }
   const decoded = documentExtractionSchema.safeParse({ schemaVersion: DOCUMENT_SCHEMA_VERSION, reviewPoints: questions, items: candidates });
   return decoded.success ? { candidate: decoded.data, extractionRead: "parsed" } : { candidate: null, extractionRead: "invalid-shape" };
 }
