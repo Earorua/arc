@@ -125,9 +125,15 @@ export function readSourceSpanExtraction(raw: Record<string, unknown>, sources: 
     // sentence inside a quoted example cannot supply the person's own rating.
     const assessments = new Set(questions.filter(point => point.code === "confirm-self-assessment")
       .map(point => JSON.stringify([point.source.segmentId, locateCandidateQuote(point.source, sources)!.end])));
+    const conflicts = new Set(questions.filter(point => point.code === "conflicting-requirement")
+      .map(point => JSON.stringify([point.source.segmentId, locateCandidateQuote(point.source, sources)!.end])));
     for (const item of candidates) {
+      const statement = JSON.stringify([item.source.segmentId, locateCandidateQuote(item.source, sources)!.end]);
+      // Conflicting source statements stay visible, but neither priority can
+      // become a hard planning constraint before the user resolves the conflict.
+      if (item.kind === "requirement" && conflicts.has(statement)) item.requirementLevel = "unspecified";
       if (item.selfLevelHint && (item.kind === "experience" || item.kind === "skill-claim")
-        && !assessments.has(JSON.stringify([item.source.segmentId, locateCandidateQuote(item.source, sources)!.end]))) {
+        && !assessments.has(statement)) {
         item.selfLevelHint = null;
       }
     }

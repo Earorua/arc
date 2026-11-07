@@ -10,13 +10,13 @@ const mandatory = [
   /^(?:required|mandatory|essential)\s+(?:skills?|qualifications?|knowledge|experience|proficiency|expertise|competenc(?:e|y|ies)|ability|familiarity)\b/iu,
   /\b(?:required|mandatory|essential|must[- ]have)\s*[.!。！]?$/iu,
   /^(?:required|mandatory|essential|must[- ]have)(?:\s+(?:skills?|qualifications?|tools?|experience))?\s*[:：]\s*\S/iu,
-  /\bmust\s+(?:have|be|know|understand|use|learn|demonstrate|possess|show|work|maintain|develop|deliver|support|manage|perform|complete|write|build|design|implement|troubleshoot)\b/iu,
+  /\bmust\s+(?:have|be|know|understand|use|learn|demonstrate|possess|show|work|maintain|develop|deliver|support|manage|perform|complete|write|build|design|implement|troubleshoot|test)\b/iu,
   /^(?:(?:you|candidates?|applicants?)\s+)?need(?:s)?\s+to\s+\S|\b(?:you|candidates?|applicants?)\s+(?:are\s+)?required to\s+\S/iu,
   /^(?:(?:(?:the|this|our)\s+)?(?:role|position|job|employer|company)|we)\s+requires?\s+\S|^requires?\s+(?:experience|knowledge|familiarity|proficiency|expertise|the ability)\b/iu,
   /^(?:(?:you|the role|this role)\s+(?:(?:will|would)\s+be|are|is)\s+)?responsible for\s+\S|^(?:your|the role['’]s)\s+(?:duties|responsibilities)\s+include\s+\S/iu,
   /(?:必须|须要)(?:具备|掌握|熟悉|能够|能|使用|会|了解|完成|负责)|(?:需要|需|须)(?:具备|掌握|熟悉|能够|能|使用|会|了解|熟练|完成|负责)/u,
   /^(?:该岗位|本岗位|此职位)?负责\s*[\p{L}\p{N}]|(?:是|为|属于)(?:必备(?:技能|条件|项)?|必需(?:技能|条件|项)?|硬性要求)/u,
-  /^(?:要求|任职要求|岗位要求|任职资格|必备(?:技能|条件)?|硬性要求)\s*[:：]\s*\S/u,
+  /^(?:要求|任职要求|岗位要求|任职资格|任职必备|必须|必备(?:技能|条件)?|硬性要求)\s*[:：]\s*\S/u,
 ];
 const preferred = [
   /\b(?:is|are|be|remains?)\s+(?:(?:strongly|particularly|especially|highly)\s+)?(?:preferred|desirable|a plus|an advantage|a bonus|nice[- ]to[- ]have)\b/iu,
@@ -25,10 +25,10 @@ const preferred = [
   /\b(?:preferred|optional|desirable|nice[- ]to[- ]have|a plus|an advantage|a bonus)\s*[.!。！]?$/iu,
   /^(?:preferred|optional|desirable|nice[- ]to[- ]have|bonus)(?:\s+(?:skills?|qualifications?|tools?|experience))?\s*[:：]\s*\S/iu,
   /优先(?:考虑|录用)|优先(?=\s*(?:[，,。！;；]|$))|(?:是|为|属于)?加分项|更佳(?=\s*(?:[，,。！;；]|$))/u,
-  /可选(?:的)?(?:技能|条件|项)?(?=\s*(?:[，,。！;；]|$))|^(?:加分项|优先条件|可选技能)\s*[:：]\s*\S/u,
+  /可选(?:的)?(?:技能|条件|项)?(?=\s*(?:[，,。！;；]|$))|^(?:加分项?|优先条件|可选技能)\s*[:：]\s*\S/u,
 ];
 const mustWord = /\b(?:must|required|mandatory|essential)\b|(?:必须|必需|必备|硬性要求)/iu;
-const preferredWord = /\b(?:preferred|optional|desirable|nice[- ]to[- ]have|a plus|an advantage|a bonus)\b|(?:可选|加分项|优先考虑|优先录用|优先[。；，\s]|更佳)/iu;
+const preferredWord = /\b(?:preferred|optional|desirable|nice[- ]to[- ]have|a plus|an advantage|a bonus)\b|(?:可选|加分项|加分\s*[:：]|优先考虑|优先录用|优先[。；，\s]|更佳)/iu;
 
 // Absence of a requirement does not mean preference. Conditions, reported examples
 // and contradictory priorities are intentionally left for the user's review.
@@ -37,8 +37,8 @@ const uncertain = /\b(?:requirements?|priorities|priority|job descriptions?)\b[^
 
 const quoted = /“[^“”]*”|「[^「」]*」|『[^『』]*』|‘(?:[^‘’]|’(?=[\p{L}]))*’|"(?:\\.|[^"\\])*"|(?<![\p{L}\p{N}])'(?:[^']|'(?=[\p{L}]))*'|\x60[^\x60]*\x60/gu;
 const listPrefix = /^(?:[-*•▪‣]\s+|[\d０-９]{1,3}\.\s+|(?:[\d０-９]{1,3}|[一二三四五六七八九十]{1,3})[、)）]\s*|[(（](?:[\d０-９]{1,3}|[一二三四五六七八九十]{1,3})[)）]\s*)/u;
-const mustHeading = /^(?:(?:(?:job|role|minimum|mandatory|essential|basic)\s+)?(?:requirements|qualifications)|(?:required|mandatory|essential|must[- ]have)\s+(?:skills|qualifications|tools|experience|competencies)|required|mandatory|essential|must[- ]haves?|(?:(?:job|role|key)\s+)?responsibilities|duties|岗位职责|工作职责|任职要求|岗位要求|任职资格|必备|必备技能|必备条件|硬性要求|基本要求)$/iu;
-const preferredHeading = /^(?:(?:preferred|optional|desirable|bonus)\s+(?:skills|qualifications|tools|experience|competencies)|nice[- ]to[- ]haves?|preferred|optional|加分项|优先条件|优先要求|可选技能|可选条件)$/iu;
+const mustHeading = /^(?:(?:(?:job|role|minimum|mandatory|essential|basic)\s+)?(?:requirements|qualifications)|(?:required|mandatory|essential|must[- ]have)\s+(?:skills|qualifications|tools|experience|competencies)|required|mandatory|essential|must[- ]haves?|(?:(?:job|role|key)\s+)?responsibilities|duties|岗位职责|工作职责|任职要求|岗位要求|任职资格|任职必备|必须|必备|必备技能|必备条件|硬性要求|基本要求)$/iu;
+const preferredHeading = /^(?:(?:preferred|optional|desirable|bonus)\s+(?:skills|qualifications|tools|experience|competencies)|nice[- ]to[- ]haves?|preferred|optional|加分项?|优先条件|优先要求|可选技能|可选条件)$/iu;
 const exampleHeading = /^(?:(?:illustrative|quoted|hypothetical)\s+)?(?:examples?|samples?)$|^(?:示例|例子|举例|假设)$/iu;
 
 function headingText(line: string) {

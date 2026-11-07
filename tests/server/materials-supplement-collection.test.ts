@@ -22,7 +22,8 @@ const endpoint = "https://openrouter.ai/api/v1/chat/completions";
 const routingPolicy = { policyVersion: "2026.11.3", providerOrder: ["moonshotai/mxfp4"], allowFallback: false as const, dataPolicy: "zdr-only" as const };
 const config = { provider: "OpenRouter / Moonshot AI", model: "moonshotai/kimi-k3.1-pro", endpoint, providerPolicyId: "materials-openrouter-kimi-k31-pro-mxfp4-zdr",
   routingPolicy, priceVersion: "2026.11.3", maxInputTokens: 16_000, maxOutputTokens: 4096, maxJobMicroUsd: 75_000,
-  userDailyMicroUsd: 450_000, globalDailyMicroUsd: 450_000, httpTimeoutMs: 1000 };
+  // Fixture callbacks also do durable SQLite work; deadline behavior has its own clock-driven case below.
+  userDailyMicroUsd: 450_000, globalDailyMicroUsd: 450_000, httpTimeoutMs: 5000 };
 const qualification = { qualified: true as const, model: config.model, endpoint, providerPolicyId: config.providerPolicyId,
   priceVersion: config.priceVersion, routingPolicy, receiptRoute: { providerName: "Moonshot AI", endpointId: "a3fafaac-f097-4ef1-86b3-842854dad5c6", generationModel: "moonshotai/kimi-k3.1-pro-20261023" },
   inputMicroUsdPerMillionTokens: 2_000_000, outputMicroUsdPerMillionTokens: 10_000_000, inputTokenBound: "utf8-bytes-plus-4096" as const };
@@ -289,12 +290,14 @@ it("holds the source-span reservation and preserves the reply when neither side 
 });
 it.each(["raw", "canonical", "missing", "version"] as const)("refuses to replay a %s archive mismatch instead of rescoring an alternative", async evidence => {
   const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory);
-  await collect(JSON.stringify(grant), directory, transport(index => spanChat(index)));
+  // Corrupt a completed capture: an incomplete setup may leave no settled target.
+  expect(await collect(JSON.stringify(grant), directory, transport(index => spanChat(index))))
+    .toMatchObject({ status: "complete", requestsSent: 6, settledMicroUsd: 42, heldMicroUsd: 0 });
   const db = new DatabaseSync(join(directory, "ledger.sqlite"));
   try {
     const action = { raw: "UPDATE attempts SET raw_content_json='null'", canonical: "UPDATE source_span_outputs SET extraction_json='null'",
       missing: "DELETE FROM source_span_outputs", version: "UPDATE attempts SET text_version_id='wrong-version'" }[evidence];
-    db.prepare(action + " WHERE run_id=? AND document_id=?").run(grant.authorization.runId, "supplement-01");
+    expect(db.prepare(action + " WHERE run_id=? AND document_id=?").run(grant.authorization.runId, "supplement-01").changes).toBe(1);
   } finally { db.close(); }
   const reopened = ledger.openSupplementLedger(directory, grant.authorization.runId, grant.authorization.ledgerSha256);
   try { expect(() => reopened.captures(fixtureBinding(grant))).toThrow("supplement-capture-mismatch"); }
@@ -499,6 +502,28 @@ it("fails quality on malformed unedited content with a verified bill and never r
   expect(result).toMatchObject({ status: "quality-failed", reason: "quality-threshold-failed", requestsSent: 6, heldMicroUsd: 0, settledMicroUsd: 42, quality: { passed: false } });
   expect(inspectDb(directory, "SELECT raw_content_json, state FROM attempts ORDER BY rowid LIMIT 1")[0])
     .toEqual({ raw_content_json: JSON.stringify(" {broken"), state: "settled" });
+});
+
+it("holds an expired fixture response without accepting its extraction, sending another request or permitting a replay", async () => {
+  const directory = temporaryDirectory(), grant = await sourceSpanFixture(directory), raw = JSON.stringify(grant);
+  const clock = vi.spyOn(Date, "now");
+  const http = transport(index => {
+    clock.mockReturnValue(Date.now() + config.httpTimeoutMs + 1);
+    return spanChat(index);
+  });
+  try {
+    expect(await collect(raw, directory, http)).toMatchObject({ status: "held", reason: "timeout", requestsSent: 1,
+      settledMicroUsd: 0, heldMicroUsd: 72_960, quality: null });
+  } finally { clock.mockRestore(); }
+  expect(http).toHaveBeenCalledTimes(1);
+  expect(inspectDb(directory, "SELECT state,raw_content_json FROM attempts"))
+    .toEqual([{ state: "held", raw_content_json: JSON.stringify(spanContent(0)) }]);
+  expect(inspectDb(directory, "SELECT * FROM source_span_outputs")).toEqual([]);
+  const reopened = ledger.openSupplementLedger(directory, grant.authorization.runId, grant.authorization.ledgerSha256);
+  try { expect(reopened.captures(fixtureBinding(grant))).toEqual([]); }
+  finally { reopened.close(); }
+  await expect(collect(raw, directory, http)).rejects.toThrow("supplement-run-unavailable");
+  expect(http).toHaveBeenCalledTimes(1);
 });
 
 it("rechecks the window at transport handoff and blocks metadata after expiry or a clock rollback", async () => {

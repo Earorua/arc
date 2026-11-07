@@ -53,3 +53,19 @@ it("maps each retained literal skill word through its own blueprint and leaves u
     const research = { ...flagshipBlueprint, id: "other-role" };
     expect(mapMaterialItems([{ ...reviewed, skillLabels: ["Vitest"] }], research, { ...flagshipUnitRegistry, blueprintId: research.id })[0]?.status).toBe("uncovered");
 });
+
+it("maps English distributed tracing like its reviewed Chinese equivalent without borrowing another catalog", () => {
+    const requirement = { ...item, kind: "requirement" as const, text: "Distributed tracing is preferred.",
+      requirementLevel: "preferred" as const, skillLabels: ["distributed tracing"] };
+    expect(mapMaterialItems([requirement], flagshipBlueprint, flagshipUnitRegistry))
+      .toMatchObject([{ status: "mapped", skillIds: ["observability"] }]);
+    const other = { ...flagshipBlueprint, id: "other-catalog" };
+    expect(mapMaterialItems([requirement], other, { ...flagshipUnitRegistry, blueprintId: other.id }))
+      .toMatchObject([{ status: "uncovered", skillIds: [] }]);
+    expect(mapMaterialItems([{ ...requirement, skillLabels: [] }], flagshipBlueprint, flagshipUnitRegistry)).toEqual([]);
+    expect(mapMaterialItems([{ ...requirement, skillLabels: ["distributed transactions"] }], flagshipBlueprint, flagshipUnitRegistry))
+      .toMatchObject([{ status: "uncovered", skillIds: [] }]);
+    expect(mapMaterialItems([requirement], other, { ...flagshipUnitRegistry, blueprintId: other.id }, {
+      aliases: { version: "2026.11.3", skills: { observability: ["distributed tracing"] } },
+    })).toMatchObject([{ status: "mapped", skillIds: ["observability"] }]);
+});

@@ -37,6 +37,10 @@ describe("source-grounded requirement levels", () => {
     ["流式校验为可选技能。", "preferred"],
     ["加分项：流式校验。", "preferred"],
     ["任职要求：熟练使用 FlarnDock。", "must"],
+    ["任职必备：检查流式校验结果。", "must"],
+    ["必须：排查 FlarnDock 异常。", "must"],
+    ["加分：维护流式校验工具。", "preferred"],
+    ["Must test asynchronous FlarnDock behavior.", "must"],
   ] as const)("derives %s from explicit wording", (quote, expected) => {
     expect(level(quote)).toBe(expected);
   });
@@ -82,6 +86,16 @@ describe("source-grounded requirement levels", () => {
     "Required skills",
     "Preferred qualifications",
     "流式校验使用优先队列。",
+    "任职必备：如果安排轮岗，检查流式校验结果。",
+    "必须：不要求使用 FlarnDock。",
+    "加分：仅在夜班时维护流式校验工具。",
+    "Must test whether FlarnDock is required.",
+    "The score includes an extra 加分：10 points.",
+    "必须：掌握 FlarnDock；加分：了解 QuantumCompass。",
+    "任职必备：掌握 FlarnDock，另有加分：熟悉 QuantumCompass。",
+    "加分：掌握 FlarnDock，任职必备：熟悉 QuantumCompass。",
+    "必须：FlarnDock；加分：FlarnDock。",
+    "加分：FlarnDock；任职必备：FlarnDock。",
   ])("leaves absent or qualified priority for user review: %s", quote => {
     expect(level(quote)).toBe("unspecified");
   });
@@ -91,6 +105,9 @@ describe("source-grounded requirement levels", () => {
     ["Required:\n- FlarnDock", "FlarnDock", "must"],
     ["Mandatory:\n- FlarnDock", "FlarnDock", "must"],
     ["必备：\n- FlarnDock", "FlarnDock", "must"],
+    ["任职必备：\n- FlarnDock", "FlarnDock", "must"],
+    ["必须：\n- FlarnDock", "FlarnDock", "must"],
+    ["加分：\n- FlarnDock", "FlarnDock", "preferred"],
     ["## Required skills\n\n- FlarnDock", "FlarnDock", "must"],
     ["**Preferred qualifications**\n1. FlarnDock", "FlarnDock", "preferred"],
     ["岗位要求：\n（1）熟练使用 FlarnDock。", "熟练使用 FlarnDock。", "must"],

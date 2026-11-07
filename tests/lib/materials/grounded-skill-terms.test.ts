@@ -26,7 +26,7 @@ it.each([
   expect(findMaterialSkillEvidence(quote, term)).toBeNull();
 });
 
-it("requires one grounded occurrence within the supplied quote", () => {
+it("does not choose between different original spellings within the supplied quote", () => {
   const quote = "After testing QuartzFluxish, we tried QuartzFlux.";
   expect(findMaterialSkillEvidence(quote, "QuartzFlux")).toBe("QuartzFlux");
   expect(findMaterialSkillEvidence("SQL and sql", "SQL")).toBeNull();
@@ -297,4 +297,114 @@ it.each([
 ] as const)("preserves named tools in %s", (quote, labels) => {
   expect(groundMaterialSkillTerms(quote, labels)).toEqual(labels);
   for (const label of labels) expect(findMaterialSkillEvidence(quote, label)).toBe(label);
+});
+
+it.each([
+  ["Required：AuroraForge integration.", "AuroraForge"],
+  ["Must have:LumenKit experience.", "LumenKit"],
+  ["Nice to have：distributed tracing 阅读经验。", "distributed tracing"],
+  ["Optional tools：Élan Data Engine.", "Élan Data Engine"],
+  ["Skills:Orion:Forge.", "Orion:Forge"],
+  ["Requirements\n- Essential：ＣａｆéFlux。", "ＣａｆéFlux"],
+] as const)("retains a literal term after an adjoining skill heading in %s", (quote, term) => {
+  expect(groundMaterialSkillTerms(quote, [term])).toEqual([term]);
+  expect(findMaterialSkillEvidence(quote, term)).toBe(term);
+});
+
+it.each([
+  ["Required:AuroraForgeHelper.", "AuroraForge"],
+  ["Required:PostgreSQL.", "SQL"],
+  ["I used Orion:Forge.", "Forge"],
+  ["Skills:Orion:Forge.", "Forge"],
+  ["Read urn:AuroraForge for the identifier.", "AuroraForge"],
+  ["See https://Required:AuroraForge/setup.", "AuroraForge"],
+  ["Not required:AuroraForge.", "AuroraForge"],
+  ["Tools:No AuroraForge experience.", "AuroraForge"],
+] as const)("does not make an adjoining heading a shortcut past name or denial checks in %s", (quote, term) => {
+  expect(groundMaterialSkillTerms(quote, [term])).toEqual([]);
+  expect(findMaterialSkillEvidence(quote, term)).toBeNull();
+});
+
+it.each([
+  ["The identifier is urn:DuckDB.", "DuckDB"],
+  ["The identifier is urn:霜桥.", "霜桥"],
+  ["The namespace is Orion::Flux.", "Flux"],
+  ["The namespace is Orion::Flux.", "Orion"],
+  ["标识符是服务:光羽。", "光羽"],
+  ["Skills:Orion:Forge.", "Orion"],
+] as const)("rejects a partial colon-delimited identifier independently of word segmentation in %s", (quote, term) => {
+  expect(groundMaterialSkillTerms(quote, [term])).toEqual([]);
+  expect(findMaterialSkillEvidence(quote, term)).toBeNull();
+});
+
+it.each([
+  ["必备：NebulaKit。", "NebulaKit"],
+  ["任职必备：LuminaDB。", "LuminaDB"],
+  ["技能：MossWeave。", "MossWeave"],
+  ["加分项：RadialMesh。", "RadialMesh"],
+  ["技术栈：GlyphFlow。", "GlyphFlow"],
+  ["I used these tools: AuroraForge.", "AuroraForge"],
+  ["我使用了这些工具：光羽。", "光羽"],
+  ["岗位摘要：PhaseDock 为必备。", "PhaseDock"],
+  ["职位概述：PhaseDock 为加分项。", "PhaseDock"],
+  ["任职清单：PhaseDock 为必备。", "PhaseDock"],
+  ["Job summary:PhaseDock is required.", "PhaseDock"],
+  ["Requirements:PhaseDock is required.", "PhaseDock"],
+  ["Qualifications:PhaseDock is required.", "PhaseDock"],
+  ["We used Orion::Flux.", "Orion::Flux"],
+] as const)("preserves heading delimiters, spaced prose and complete names in %s", (quote, term) => {
+  expect(groundMaterialSkillTerms(quote, [term])).toEqual([term]);
+  expect(findMaterialSkillEvidence(quote, term)).toBe(term);
+});
+
+it.each([
+  ["The draft says AuroraForge is required and AuroraForge is preferred.", "AuroraForge", "AuroraForge"],
+  ["I used LumenKit for import and LumenKit for export.", "LumenKit", "LumenKit"],
+  ["同一份补充说明同时写着 SQL 必备和 SQL 仅加分。", "SQL", "SQL"],
+  ["I used “Ｃ＋＋” and later “Ｃ＋＋”.", "Ｃ＋＋", "Ｃ＋＋"],
+  ["I cleaned data and then cleaned data.", "cleaned data", "data cleaning"],
+] as const)("keeps one label for the same supported phrase repeated in %s", (quote, term, label) => {
+  expect(groundMaterialSkillTerms(quote, [term, term])).toEqual([label]);
+  expect(findMaterialSkillEvidence(quote, label)).toBe(term);
+});
+
+it.each([
+  ["I never used LumenKit and never used LumenKit.", "LumenKit"],
+  ["Read urn:StellarKit and urn:StellarKit.", "StellarKit"],
+  ["I used LumenKitExtra and LumenKitExtra.", "LumenKit"],
+] as const)("does not let repetition supply missing affirmative literal evidence in %s", (quote, term) => {
+  expect(groundMaterialSkillTerms(quote, [term])).toEqual([]);
+  expect(findMaterialSkillEvidence(quote, term)).toBeNull();
+});
+
+it.each([
+  ["本周练习增量加载。", "增量加载", "incremental loading"],
+  ["I added component tests for the payment panel.", "component tests", "component testing"],
+  ["今天补充组件测试。", "组件测试", "component testing"],
+  ["I prototyped a dashboard for maintenance scheduling.", "dashboard", "dashboards"],
+] as const)("normalizes only the same named activity or noun in %s", (quote, phrase, label) => {
+  expect(groundMaterialSkillTerms(quote, [phrase])).toEqual([label]);
+  expect(findMaterialSkillEvidence(quote, label)).toBe(phrase);
+  expect(groundMaterialSkillTerms(quote, [label])).toEqual([]);
+});
+
+it.each([
+  ["我尚未接触增量加载。", "增量加载", "incremental loading"],
+  ["Component tests are not required.", "Component tests", "component testing"],
+  ["We never used dashboards.", "dashboards", "dashboards"],
+] as const)("keeps a denial attached to a reviewed equivalent in %s", (quote, phrase, label) => {
+  expect(groundMaterialSkillTerms(quote, [phrase])).toEqual([]);
+  expect(findMaterialSkillEvidence(quote, label)).toBeNull();
+});
+
+it.each([
+  ["I built a dashboard.", "analytics"],
+  ["I built a dashboard.", "data visualization"],
+  ["I test asynchronous logic.", "unit testing"],
+  ["I test asynchronous logic.", "component testing"],
+  ["我设计交互组件。", "component testing"],
+  ["I loaded a cargo container.", "incremental loading"],
+] as const)("does not promote a different or broader concept in %s to %s", (quote, label) => {
+  expect(groundMaterialSkillTerms(quote, [label])).toEqual([]);
+  expect(findMaterialSkillEvidence(quote, label)).toBeNull();
 });

@@ -29,6 +29,9 @@ const reviewedForms: readonly (readonly string[])[] = [
   ["financial modeling", "financial modelling", "财务建模"],
   ["spreadsheets", "spreadsheet", "电子表格"],
   ["unit testing", "unit test", "unit tests", "单元测试"],
+  ["incremental loading", "增量加载"],
+  ["component testing", "component test", "component tests", "组件测试"],
+  ["dashboards", "dashboard"],
 ];
 
 function reviewedGroup(token: string) {
@@ -59,8 +62,14 @@ function indexQuote(text: string) {
   return { text, normalized, offsets, boundaries };
 }
 
+// ICU versions disagree about colon boundaries. Explicit skill headings make
+// that colon punctuation; a namespace or URI such as "urn:Tool" does not.
+const englishSkillHeading = String.raw`(?:required|preferred|essential|mandatory|optional)(?:\s+(?:skills?|tools?|experience|qualifications?))?|(?:(?:job|role)\s+)?(?:requirements|qualifications|summary|overview)|must(?:\s+have)?|nice\s+to\s+have|bonus|skills?|tools?|technologies|languages?|(?:tech|technology)\s+stack`;
+const chineseSkillHeading = "任职(?:要求|资格|必备|清单)|(?:岗位|职位)(?:要求|职责|摘要|概述)|工作(?:要求|职责)|要求清单|摘要|概述|硬性要求|基本要求|要求|必须|必备(?:技能|条件)?|加分项?|优先(?:条件|要求)?|可选(?:技能|条件)?|技能|工具|技术栈|(?:我|本人)(?:使用了?|采用了?)(?:这些|以下)?工具";
+const skillHeadingPrefix = new RegExp(String.raw`(?:^|\n)\s*(?:[-*•]\s*)?(?:${englishSkillHeading}|${chineseSkillHeading})\s*:\s*$`, "u");
+
 function wordBoundary(quote: ReturnType<typeof indexQuote>, index: number) {
-  if (quote.boundaries) return quote.boundaries.has(index);
+  if (quote.boundaries) return quote.boundaries.has(index) || skillHeadingPrefix.test(quote.normalized.slice(0, index));
   const left = quote.normalized.slice(0, index).match(/[\p{L}\p{M}\p{N}_]$/u)?.[0];
   const right = quote.normalized.slice(index).match(/^[\p{L}\p{M}\p{N}_]/u)?.[0];
   return !left || !right || /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Hangul}]/u.test(left + right);
@@ -131,6 +140,9 @@ function* literalEvidence(quote: ReturnType<typeof indexQuote>, token: string) {
     if (!wordBoundary(quote, at) || (!wordBoundary(quote, limit) && !/^['’]s\b/u.test(after))) continue;
     // A word boundary can still be inside a technical name such as .NET, C++ or WAI-ARIA.
     if (/[.#+]$|[\p{L}\p{N}_]-$/u.test(before) || /^[#+]|^[.-][\p{L}\p{N}_]/u.test(after)) continue;
+    // Do not depend on ICU joining a URI/namespace, including unfamiliar and
+    // non-Latin names. Whitespace after a prose colon remains a word boundary.
+    if ((before.endsWith(":") && !skillHeadingPrefix.test(before)) || /^:[\p{L}\p{M}\p{N}_:]/u.test(after)) continue;
     if (supportsTerm(before, after, token, original)) yield original;
   }
 }
@@ -141,7 +153,10 @@ function uniqueEvidence(quote: ReturnType<typeof indexQuote>, forms: readonly st
     ? new Set([...forms, ...Array.from(quote.normalized.matchAll(cleaningSpans), match => match[0])]) : forms;
   for (const form of phrases) {
     for (const match of literalEvidence(quote, form)) {
-      if (evidence !== null) return null;
+      // Labels refer to the uniquely located fact, not to separate term offsets.
+      // Repeating the same supported spelling does not make that fact ambiguous.
+      // Distinct original phrases still need a more specific nomination.
+      if (evidence !== null && evidence !== match) return null;
       evidence = match;
     }
   }

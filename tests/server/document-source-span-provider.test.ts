@@ -309,6 +309,36 @@ describe("Kimi grounded terms and reviews", () => {
     } });
   });
 
+  it("keeps source-grounded contradictory priorities unresolved before user review", async () => {
+    const quotes = ["FlarnDock is required.", "FlarnDock is preferred."];
+    const { outcome } = await analyze({ format: "source-spans-v2", items: quotes.map((quote, index) => ({
+      kind: "requirement", source: localSource(quote), requirementLevel: index ? "preferred" : "must",
+      skillTerms: ["FlarnDock"], selfLevelHint: null,
+    })), reviewPoints: [] }, { policyId: groundedPolicy, text: quotes.join("\n") });
+    expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: {
+      items: quotes.map(text => ({ text, requirementLevel: "unspecified" })),
+      reviewPoints: quotes.map(quote => ({ code: "conflicting-requirement", source: localSource(quote) })),
+    } });
+  });
+
+  it("does not downgrade a requirement for an unsupported model conflict warning", async () => {
+    const text = "FlarnDock is required.";
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{
+      kind: "requirement", source: localSource(text), requirementLevel: "must", skillTerms: ["FlarnDock"], selfLevelHint: null,
+    }], reviewPoints: [{ code: "conflicting-requirement", source: localSource(text) }] }, { policyId: groundedPolicy, text });
+    expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: {
+      items: [{ text, requirementLevel: "must" }], reviewPoints: [],
+    } });
+  });
+
+  it("still rejects an ambiguous complete fact when skill terms may repeat within a fact", async () => {
+    const quote = "FlarnDock training and FlarnDock support are required.";
+    const { outcome } = await analyze({ format: "source-spans-v2", items: [{
+      kind: "requirement", source: localSource(quote), requirementLevel: "must", skillTerms: ["FlarnDock"], selfLevelHint: null,
+    }], reviewPoints: [] }, { policyId: groundedPolicy, text: quote + "\n" + quote });
+    expect(outcome).toMatchObject({ candidate: null, audit: { extractionRead: "invalid-source" } });
+  });
+
   it.each([
     ["PostgreSQL is optional for this role.", "must", "preferred"],
     ["PostgreSQL is required for this role.", "preferred", "must"],

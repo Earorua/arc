@@ -243,31 +243,42 @@ it("commits one of two concurrent source-term corrections at the same revision",
   } finally { await f.dispose(); }
 });
 
-it("rejects ambiguous source evidence, duplicate additions and a ninth word without advancing the saved revision", async () => {
+it("rejects duplicate additions and a ninth word without advancing the saved revision", async () => {
   const words = ["React", "TypeScript", "PostgreSQL", "Vitest", "WAI-ARIA", "QuillBin", "Python", "Rust"];
   const quote = `${words.join(", ")} and Docker are required.`;
-  const repeated = "PostgreSQL training and PostgreSQL support are required.";
   const candidates = [
     { ...requirements[0]!, text: quote, source: { segmentId: "segment-1", quote }, skillLabels: words },
-    { ...requirements[0]!, id: "repeated", text: repeated, source: { segmentId: "segment-1", quote: repeated }, skillLabels: [] },
   ];
   const f = await createMaterialAnalysisFixture({ sourceSpanResponse: sourceSpanResponse(candidates) });
   try {
     const { doc, draft, save } = await extractedJd(f, candidates, KIMI_GROUNDED_TERMS_POLICY_ID);
-    const [full, ambiguous] = draft.items as [ConfirmedMaterialItem, ConfirmedMaterialItem];
+    const full = draft.items[0]!;
     expect(full.skillLabels).toEqual(words);
     await expect(save(draft, [{ ...full, origin: "user", skillLabels: [...words, "Docker"] }], "ninth",
       { itemId: full.id, sourceTerm: "Docker" })).rejects.toThrow();
     await expect(save(draft, [{ ...full, origin: "user" }], "duplicate",
       { itemId: full.id, sourceTerm: "React" })).rejects.toThrow("HTTP 422");
-    await expect(save(draft, [{ ...ambiguous, origin: "user", skillLabels: ["PostgreSQL"] }], "ambiguous",
-      { itemId: ambiguous.id, sourceTerm: "PostgreSQL" })).rejects.toThrow("HTTP 422");
-    const withRoom = await save(draft, [{ ...full, skillLabels: words.slice(0, 7) }, ambiguous], "make-room");
-    const eighth = await save(withRoom, [{ ...withRoom.items[0]!, origin: "user", skillLabels: [...words.slice(0, 7), "Docker"] }, ambiguous], "eighth",
+    const withRoom = await save(draft, [{ ...full, skillLabels: words.slice(0, 7) }], "make-room");
+    const eighth = await save(withRoom, [{ ...withRoom.items[0]!, origin: "user", skillLabels: [...words.slice(0, 7), "Docker"] }], "eighth",
       { itemId: full.id, sourceTerm: "Docker" });
     expect(eighth.items[0]?.skillLabels).toEqual([...words.slice(0, 7), "Docker"]);
     expect(eighth.revision).toBe(2);
     expect((await f.http("readDocumentReviewDraft", { documentId: doc.documentId, textVersionId: doc.textVersionId })).draft).toEqual(eighth);
+  } finally { await f.dispose(); }
+});
+
+it("adds a repeated skill word against one unique complete fact without duplicating the label", async () => {
+  const quote = "PostgreSQL training and PostgreSQL support are required.";
+  const candidates = [{ ...requirements[0]!, text: quote, source: { segmentId: "segment-1", quote }, skillLabels: [] }];
+  const f = await createMaterialAnalysisFixture({ sourceSpanResponse: sourceSpanResponse(candidates) });
+  try {
+    const { doc, draft, save } = await extractedJd(f, candidates, KIMI_GROUNDED_TERMS_POLICY_ID);
+    const fact = draft.items[0]!, intent = { itemId: fact.id, sourceTerm: "PostgreSQL" };
+    const saved = await save(draft, [{ ...fact, origin: "user", skillLabels: ["PostgreSQL"] }], "repeat-word", intent);
+    expect(saved.items[0]).toMatchObject({ sourceRef: fact.sourceRef, skillLabels: ["PostgreSQL"] });
+    expect(saved.revision).toBe(1);
+    await expect(save(saved, saved.items, "duplicate", intent)).rejects.toThrow("HTTP 422");
+    expect((await f.http("readDocumentReviewDraft", { documentId: doc.documentId, textVersionId: doc.textVersionId })).draft).toEqual(saved);
   } finally { await f.dispose(); }
 });
 
