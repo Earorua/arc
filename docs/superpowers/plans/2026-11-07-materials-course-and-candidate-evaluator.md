@@ -19,12 +19,12 @@
 
 Files: create `course-reference.snapshot.json`, `course-annotations.draft.json`, `course-authoring-notes.md`, `capture-course-reference.mjs`, `validate-course-annotations.mjs`, `course-annotations.test.mjs` in the asset directory.
 
-- [ ] 读取并冻结完整 `app/data/flagship-role.ts`、`flagship-blueprint.ts`、`flagship-unit-registry.ts` 文件及其三个导出对象。记录打包依赖文件和对象 SHA；快照重新生成须与当前对象逐值相同。
-- [ ] 对全部 84 个旧字段和 2 个增补项建立独立账目。逐个允许原词给出唯一政策；没有学习词的字段也保留显式 non-learning 账目。合并短语可以覆盖多个语义组，但不能把未覆盖部分吞掉。
-- [ ] 分开记录 `mapped/ambiguous/uncovered/non-learning`、具体 skill ID、`literal/contextual` 依据，以及 `full/partial/none/not-applicable` 任务覆盖。课程证据用对象 JSON pointer＋精确引文；未覆盖范围必须写明。名称匹配不等于任务完整覆盖。
-- [ ] 核查 CSS grid/animation、Kubernetes、Python/dbt/分析任务、SQL 窗口/仓库任务、TypeScript 异步测试、UI tokens、表单标签双候选、OpenTelemetry/trace/log、迁移清单/回滚记录和学习意向。引用材料不授予能力、不提升主 JD 权威。
-- [ ] 先写结构/坏例测试并记录失败，再实现校验器。坏例至少包含丢字段/词、重复词、非法课程 ID、伪造对象引文、版本/对象哈希变化、残缺注册表和没有证据的完整覆盖。
-- [ ] 独立规格审阅通过后做工具质量审阅；修复真实问题并复审，保存结果与限制。
+- [x] 读取并冻结完整 `app/data/flagship-role.ts`、`flagship-blueprint.ts`、`flagship-unit-registry.ts` 文件及其三个导出对象。记录打包依赖文件和对象 SHA；快照重新生成须与当前对象逐值相同。
+- [x] 对全部 84 个旧字段和 2 个增补项建立独立账目。逐个允许原词给出唯一政策；没有学习词的字段也保留显式 non-learning 账目。合并短语可以覆盖多个语义组，但不能把未覆盖部分吞掉。
+- [x] 分开记录 `mapped/ambiguous/uncovered/non-learning`、具体 skill ID、`literal/contextual` 依据，以及 `full/partial/none/not-applicable` 任务覆盖。课程证据用对象 JSON pointer＋精确引文；未覆盖范围必须写明。名称匹配不等于任务完整覆盖。
+- [x] 核查 CSS grid/animation、Kubernetes、Python/dbt/分析任务、SQL 窗口/仓库任务、TypeScript 异步测试、UI tokens、表单标签双候选、OpenTelemetry/trace/log、迁移清单/回滚记录和学习意向。引用材料不授予能力、不提升主 JD 权威。
+- [x] 先写结构/坏例测试并记录失败，再实现校验器。坏例至少包含丢字段/词、重复词、非法课程 ID、伪造对象引文、版本/对象哈希变化、残缺注册表和没有证据的完整覆盖。
+- [x] 独立规格审阅通过后做工具质量审阅；修复真实问题并复审，保存结果与限制。
 
 Run from repository root (use unique wrapper labels):
 

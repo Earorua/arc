@@ -1,0 +1,552 @@
+{
+  "schemaVersion": "materials-course-review-verification-v2.1",
+  "createdAt": "2026-11-07T10:22:42.232Z",
+  "status": "independently-reviewed-offline-course-contract-candidate",
+  "scope": "Complete course truth and its capture/structural tools; no actual model or product evaluation.",
+  "filesSha256": {
+    "course-reference.snapshot.json": "bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676",
+    "course-annotations.draft.json": "c602035d36fba77a36287149891b775c2ed9420d64612f0cbd76309fc02d6bcf",
+    "capture-course-reference.mjs": "3735c41c91d7d5dbaaf9ebf5b0037dd8a4b3c09f225fdac6d3d734a000db4423",
+    "validate-course-annotations.mjs": "f03741ca32f54e73163d07c0a353c9491513274214f8d058e5304b8469f30886",
+    "course-annotations.test.mjs": "ede46489ed7f46ee51437692e30a5704fbde361b68da8971a15c4a4231c99789",
+    "course-authoring-notes.md": "fc2c0bca859ed44504879916951190d2e119ac89c7a2228172287e06a30a39bd"
+  },
+  "sourceAnnotationSha256": "e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9",
+  "frozenInputs": [
+    {
+      "path": "tests/fixtures/documents/quality-corpus.json",
+      "sha256": "69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750"
+    },
+    {
+      "path": "tests/fixtures/documents/supplement-quality-corpus.json",
+      "sha256": "9775b595f4b44563beb9e3b7f9249b171e731658b454e0f26279d2b46db213d7"
+    },
+    {
+      "path": "tests/helpers/document-quality-evaluation.ts",
+      "sha256": "6297b7bdd112833cbd8a58b3bd63f6cbaf46d86b77cbab760744fe66babec351"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-11-arc-private-materials-personalized-planning-design.zh-CN.md",
+      "sha256": "5d978e38d1c3b4a85eb83327e800df2c561aef598a63edc6c61c433acba21822"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-07-materials-quality-contract-v2.md",
+      "sha256": "d428b2ffefb184b8578102e639120407dcdc432d6fb78623bc753961d2e127a1"
+    }
+  ],
+  "courseObjectHashes": {
+    "role": "3d63cfe446a8ae5a78e8a10164020d5ecd150a00c9363c92dbbcffff7fdee007",
+    "blueprint": "9f3c951eef3c4f2e26a9dba73ece80b4d1be6899970c1423bb2281c156b55f41",
+    "registry": "513853f6f699bc42336222d067a14900f5b76982fd789c30e916e97e9caeb3f7"
+  },
+  "totals": {
+    "documents": 30,
+    "legacyFields": 84,
+    "additionalFields": 2,
+    "relations": 256,
+    "finiteLiteralRelations": 245,
+    "nullNonLearningAccounts": 11,
+    "topicStatuses": {
+      "ambiguous": 5,
+      "mapped": 139,
+      "non-learning": 13,
+      "uncovered": 99
+    },
+    "coverageStatuses": {
+      "full": 39,
+      "none": 130,
+      "not-applicable": 13,
+      "partial": 74
+    },
+    "basis": {
+      "contextual": 119,
+      "literal": 25,
+      "none": 99,
+      "not-applicable": 13
+    }
+  },
+  "courseInventory": {
+    "skills": 16,
+    "units": 48,
+    "dependencyFiles": 85
+  },
+  "independentReviews": {
+    "specification": {
+      "passed": true,
+      "reviewer": "review_independent_course_v2",
+      "sourceAndCourseReadBeforeCandidateOutputs": true,
+      "allRelationsRead": 256,
+      "semanticRowsCorrected": 5,
+      "sourceAnnotationChanged": false
+    },
+    "codeQuality": {
+      "passed": true,
+      "reviewer": "review_course_v2_tools_quality",
+      "requiredFixes": [
+        "Reject unresolved runtime imports before evaluating captured data.",
+        "Require concrete task evidence for every supporting skill."
+      ]
+    }
+  },
+  "finalRunNames": [
+    "course-v2-root-final-tests-v2-20261107",
+    "course-v2-root-final-cli-v2-20261107",
+    "course-v2-root-final-lint-v2-20261107",
+    "course-v2-quality-rereview-regressions-001",
+    "course-v2-quality-rereview-boundaries-001",
+    "course-v2-spec-independent-20261107-hardened-tests"
+  ],
+  "runs": [
+    {
+      "name": "course-v2-author-capture-green-001",
+      "exit": 1,
+      "elapsedMs": 163,
+      "logSha256": "f2230dc4a9422ad7f1bfeea3fb860df79544ee39ff25cecd27c9007fbd5d958d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-capture-green-002",
+      "exit": 0,
+      "elapsedMs": 245,
+      "logSha256": "4b27d748e1b73c6894770d8e9c1fcce5b73fb1585a8e44a45d3953388a8053f4",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-capture-red-001",
+      "exit": 1,
+      "elapsedMs": 119,
+      "logSha256": "5d631cf436ef65f83f2b01b30f68355f312f97307268c408c1209dec9a8e8a79",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-capture-write-001",
+      "exit": 0,
+      "elapsedMs": 161,
+      "logSha256": "dce036064f89066ac275df435cf0e2c95b7116af09554af73b73d7685d1be65a",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-cli-green-001",
+      "exit": 0,
+      "elapsedMs": 207,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-cli-green-002",
+      "exit": 0,
+      "elapsedMs": 216,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-combined-scope-fix-001",
+      "exit": 0,
+      "elapsedMs": 58,
+      "logSha256": "1cc78644e2d6ee0607e15acee8e5dadc34a1e8ad59149d0f2c4dbe817dbdb54a",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-combined-scope-green-001",
+      "exit": 0,
+      "elapsedMs": 829,
+      "logSha256": "fac8a54d4bd2cee1fa6212403ff13504b171018a4ccdaaab46fca8f095aa2fad",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-combined-scope-red-001",
+      "exit": 1,
+      "elapsedMs": 801,
+      "logSha256": "cf42585eb39735120db2ffbd592d8afe19c84be02983a323b2caf4cbb2166575",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-complete-cli-001",
+      "exit": 0,
+      "elapsedMs": 218,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-complete-eslint-001",
+      "exit": 0,
+      "elapsedMs": 4549,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-complete-tests-001",
+      "exit": 0,
+      "elapsedMs": 876,
+      "logSha256": "615b5b7d0e2d5b6e73e8da7d1f3b7d4e51fc7ce4a5f37bc16536fba931aab806",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-durable-quality-green-001",
+      "exit": 0,
+      "elapsedMs": 1497,
+      "logSha256": "071e55c6f5c97d4f29e05e2c8b776b2f674e1c426520a6cf61422842c62d245c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-durable-quality-red-001",
+      "exit": 1,
+      "elapsedMs": 1373,
+      "logSha256": "7a1015e521f9bdfd1c29723b66a5b8812883415a721a568dbdd715eab698932d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-eslint-001",
+      "exit": 1,
+      "elapsedMs": 4933,
+      "logSha256": "d9a9e6fd5df803ed6a690caa7f8a2966e3af12960c661f47e2840e99d4ac468c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-eslint-002",
+      "exit": 0,
+      "elapsedMs": 3756,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-eslint-003",
+      "exit": 0,
+      "elapsedMs": 3840,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-final-tests-001",
+      "exit": 0,
+      "elapsedMs": 819,
+      "logSha256": "80a29cc4c43f13760315e7eecd835209767b95e0619881c43ade295bd7faaac9",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-input-integrity-green-001",
+      "exit": 0,
+      "elapsedMs": 889,
+      "logSha256": "ad35705cb3c8335fcf8fc83e79c233dd88c2d4bffc27b5697471c1a3d824f88d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-input-integrity-red-001",
+      "exit": 1,
+      "elapsedMs": 850,
+      "logSha256": "ed812d204b00a61041740541bb0bd1de818112acbb94d1215b7371b66200e54d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-ledger-write-001",
+      "exit": 0,
+      "elapsedMs": 77,
+      "logSha256": "68ad5310699e82142c64278de460a2efcdd8bd5daaaa5da5bd32ad8cc6438e20",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-quality-cli-001",
+      "exit": 0,
+      "elapsedMs": 547,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-quality-eslint-001",
+      "exit": 0,
+      "elapsedMs": 3833,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-quality-review-green-001",
+      "exit": 0,
+      "elapsedMs": 832,
+      "logSha256": "1a2ae4dd681e193de248dd3f57577b44890eb3987e2147029063e6b1b9257873",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-quality-review-red-001",
+      "exit": 1,
+      "elapsedMs": 391,
+      "logSha256": "87f39782c42d1ec8fe100bfacb35c32282b71b47607fd528fb73be8bc201bd09",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-semantic-review-fix-001",
+      "exit": 0,
+      "elapsedMs": 53,
+      "logSha256": "1391d945707f219f1fa9c98d5dd3342995554ac8f541e0c28e147c73fafbd2b3",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-semantic-review-green-001",
+      "exit": 0,
+      "elapsedMs": 759,
+      "logSha256": "70d5a3d982f51162f8e5ad6ff2f18c9707c0ff0280b5477150123bb197b54f35",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-semantic-review-red-001",
+      "exit": 1,
+      "elapsedMs": 792,
+      "logSha256": "1b026bb2833726677955faba805434c71322d133baec81fb1445ec13601b6830",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-validator-green-001",
+      "exit": 0,
+      "elapsedMs": 820,
+      "logSha256": "bc2852e4ab7cd222128524c5c72107fda92e6081e06ec9514859b98e110766be",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-author-validator-red-001",
+      "exit": 1,
+      "elapsedMs": 409,
+      "logSha256": "8a651feae8e8571e10615ba9484376d35490abea4e800a8cb394594dc661a479",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-baseline-source-20261107",
+      "exit": 0,
+      "elapsedMs": 59,
+      "logSha256": "8b03d6f13cab4e9b0184cf95944c7b5324c0d511dbd903f7127d37250eb9c2de",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-baseline-source-mutations-20261107",
+      "exit": 0,
+      "elapsedMs": 1498,
+      "logSha256": "fb1b84a3bca6d3b68c4318e9d6381897bc2717926a991828340a16063710414b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-rereview-boundaries-001",
+      "exit": 0,
+      "elapsedMs": 882,
+      "logSha256": "cad25a0b17759d18e008549c5d12414933f9ac7928957bae798f775997c03800",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-rereview-cli-001",
+      "exit": 0,
+      "elapsedMs": 594,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-rereview-eslint-001",
+      "exit": 0,
+      "elapsedMs": 3904,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-rereview-regressions-001",
+      "exit": 0,
+      "elapsedMs": 868,
+      "logSha256": "0f11611b6f1b7d1b3bbc531b1affb71338a2c26510154a2767b67af7250c03ad",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-rereview-tests-001",
+      "exit": 0,
+      "elapsedMs": 1504,
+      "logSha256": "f80554c278851fb7e80a1da8b52569948e1a604a7b86a8a41a241575bb0fd94d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-review-cli-001",
+      "exit": 0,
+      "elapsedMs": 246,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-review-eslint-001",
+      "exit": 0,
+      "elapsedMs": 3749,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-review-probes-001",
+      "exit": 0,
+      "elapsedMs": 656,
+      "logSha256": "565a650c65da4051c032734c64b5e3a79534e10c488ee39c5c1cf2dafb83f41b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-review-regressions-001",
+      "exit": 1,
+      "elapsedMs": 419,
+      "logSha256": "c92013ddf791a30038d61617a904e30f7fa0e2d34781256d18dfb47f00d81ebd",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-quality-review-tests-001",
+      "exit": 0,
+      "elapsedMs": 863,
+      "logSha256": "d8b879ee645336d862207c6c7322d1cae8623b8ce1074427b720a6cf77329e0d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-root-final-cli-20261107",
+      "exit": 0,
+      "elapsedMs": 261,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-root-final-cli-v2-20261107",
+      "exit": 0,
+      "elapsedMs": 545,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-root-final-lint-20261107",
+      "exit": 0,
+      "elapsedMs": 4376,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-root-final-lint-v2-20261107",
+      "exit": 0,
+      "elapsedMs": 3801,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-root-final-tests-20261107",
+      "exit": 0,
+      "elapsedMs": 967,
+      "logSha256": "5b8c8d7a644536d481f4208f839a59226b1a94844c82dbab1ddfa85dc13d3c10",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-root-final-tests-v2-20261107",
+      "exit": 0,
+      "elapsedMs": 1444,
+      "logSha256": "5a8826a8e304b8a8eb9bb1e8e04a399c30577be3e4e9dad36340555c28d51945",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-root-original-artifacts-20261107",
+      "exit": 0,
+      "elapsedMs": 63,
+      "logSha256": "a55ca9ae6f8e6222335bc9b6ecd814788093e4f9ec19f2eef00407a6eab1a30f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-root-review-20261107",
+      "exit": 1,
+      "elapsedMs": 837,
+      "logSha256": "a783d7729be9616e640593622dfdb64464d8b045d33c53048255c7b1156579f8",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-cli",
+      "exit": 0,
+      "elapsedMs": 193,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-combined-fix",
+      "exit": 0,
+      "elapsedMs": 68,
+      "logSha256": "e8f79e093b14607f619c12001ce2a1386c4b8cee0be5e27c0eed006836e95707",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-final-cli",
+      "exit": 0,
+      "elapsedMs": 231,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-final-tests",
+      "exit": 0,
+      "elapsedMs": 989,
+      "logSha256": "739cd5dd1fc9bc432a35dd54a9a104013f2f0e08cbaf47236db31467e07d54aa",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-hardened-cli",
+      "exit": 0,
+      "elapsedMs": 520,
+      "logSha256": "44c07cf553ad7f5d2927556b7b7542fdb54022bdb5d3600bdff2a56099a67b3f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-hardened-notes",
+      "exit": 0,
+      "elapsedMs": 55,
+      "logSha256": "37d927a6a913d21c2d0206405ff618253dfdbe36032bcbe647742bd20ce26e03",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-hardened-tests",
+      "exit": 0,
+      "elapsedMs": 1503,
+      "logSha256": "ba6a46b93d4f4e1660bf714d012b03a2ad21cbc3a7b026cf7c241d813a68303d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-incremental",
+      "exit": 0,
+      "elapsedMs": 90,
+      "logSha256": "597b94c3796c027619352497d196f80f5bf66903bfe199e9aaeaaeaf1093f4f8",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-integrity",
+      "exit": 0,
+      "elapsedMs": 190,
+      "logSha256": "80294ba1180ed91b28c2bc0fb0396d3fe1cf6eae203ef7fe0cea9a8c5734bbe3",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-malformed",
+      "exit": 0,
+      "elapsedMs": 275,
+      "logSha256": "169a079a470e86a3ef87838b7b38b6b808d0e2089aeb606a29ef3ac8bfd2f0ef",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-notes",
+      "exit": 0,
+      "elapsedMs": 58,
+      "logSha256": "57b03f84226bfeb807b51ec53ac89da321e33fd6512f19378ad6c108a589462d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "course-v2-spec-independent-20261107-tests",
+      "exit": 0,
+      "elapsedMs": 783,
+      "logSha256": "2a447ba05c5628ba09b8bdac9b18bc5cbf7c16102e9634d4768a64a9f9747202",
+      "nonLoopbackDenials": 0
+    }
+  ],
+  "interpretation": {
+    "structuralValidationIsSemanticCertification": false,
+    "constructedTestsAreModelRecall": false,
+    "ambiguousCoverageIsPerCandidateGuarantee": false,
+    "historyRewritten": false,
+    "qualificationApproved": false,
+    "independentCandidateEvaluatorCompletedAtThisCheckpoint": false
+  },
+  "realModelCalls": 0,
+  "inferenceCostMicroUsd": 0,
+  "deployments": 0,
+  "remoteMigrations": 0,
+  "remainingAtThisCheckpoint": [
+    "Independent candidate evaluator and semantic mutation tests.",
+    "Separate actual product/model observations and fresh Gate authorization before paid evaluation.",
+    "Subsequent environment/release verification and public release."
+  ]
+}
