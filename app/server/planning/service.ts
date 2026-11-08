@@ -1,4 +1,4 @@
-import { materialReplanRequestSchema, materialReplanResponseSchema, materialSha256, type MaterialReplanResponse } from "../../contracts/material-planning";
+import { materialReplanRequestSchema, materialReplanResponseSchema, materialSha256, type ContextInputSnapshot, type MaterialReplanResponse } from "../../contracts/material-planning";
 import { prioritizeReadyNodes } from "../../lib/materials/planning-priority";
 import { canonicalJson } from "../../lib/planning/fingerprint";
 import type { MaterialContextService } from "../documents/context-builder";
@@ -237,9 +237,10 @@ export class PlanningService {
     if (scope.goalId !== request.scope.goalId) throw new PlanningConflictError();
     const verified = await materials.verifyProposalRequest(ownerId, request);
     if (canonicalJson(verified.commit.snapshot.scope) !== canonicalJson(request.scope)) throw new PlanningConflictError();
-    if (verified.noChange) return { outcome: "no-change", message: "现有未完成任务的顺序和日程无需变化。", unappliedChanges: verified.unapplied ? [MATERIAL_UNAPPLIED_MESSAGE] : [] };
+    if (verified.noChange) return { outcome: "no-change", message: "现有资料采用方式、任务顺序和日程无需变化。", unappliedChanges: verified.unapplied ? [MATERIAL_UNAPPLIED_MESSAGE] : [] };
     const replay = await this.loadReplay(scope, request.mutationId, "material-proposal", await materialSha256(request));
-    if (replay) return materialReplanResponseSchema.parse({ outcome: "proposed", planning: replay, unappliedChanges: [] });
+    if (replay) return materialReplanResponseSchema.parse({ outcome: "proposed", planning: replay,
+      unappliedChanges: materialUnappliedChanges(verified.commit.snapshot, replay.result.workspace) });
     const stored = await repositoryRead(() => this.dependencies.repository.load(scope));
     if (!stored) throw new PlanningNotFoundError();
     const { workspace, sourceContext } = await this.parseOwnedWorkspace(stored, scope);
@@ -248,9 +249,7 @@ export class PlanningService {
     const frozen = verified.commit.snapshot;
     if (canonicalJson(frozen.sourceReference) !== canonicalJson(sourceContext.reference)
       || canonicalJson(frozen.availability) !== canonicalJson(workspace.availability)) throw new PlanningConflictError();
-    const unappliedChanges: string[] = [];
-    if (canonicalJson(frozen.audit.answers) !== canonicalJson(workspace.audit.answers)
-      || canonicalJson(frozen.target) !== canonicalJson(workspace.target)) unappliedChanges.push(MATERIAL_UNAPPLIED_MESSAGE);
+    const unappliedChanges = materialUnappliedChanges(frozen, workspace);
     const path = workspace.pathVersions.find(value => value.id === workspace.activePathVersionId)!;
     const completed = new Set(workspace.events.filter(event => event.kind === "completed").map(event => event.unitId));
     const unfinished = path.units.filter(unit => !completed.has(unit.id));
@@ -262,9 +261,13 @@ export class PlanningService {
         sequence: workspace.lastSequence + 1, targetPlanVersionId: workspace.activePlanVersionId, occurredAt: this.now().toISOString() });
       const transition = applyPlanningEvent({ workspace, event, blueprint: sourceContext.blueprint, registry: sourceContext.registry });
       const result = resultFromTransition(transition);
-      if (canonicalJson(unitOrder) === canonicalJson(unfinished.map(unit => unit.id)) && result.diff?.items.every(item => item.change === "unchanged")) {
-        await materials.recordNoChange(ownerId, request, verified.commit, unappliedChanges.length > 0);
-        return { outcome: "no-change", message: "现有未完成任务的顺序和日程无需变化。", unappliedChanges };
+      if (canonicalJson(unitOrder) === canonicalJson(unfinished.map(unit => unit.id)) && result.diff?.items.every(item => item.change === "unchanged")
+        && result.diff.previousEstimatedCompletionDate === result.diff.nextEstimatedCompletionDate) {
+        const adopted = await materials.compareAdoptedContext(ownerId, verified.commit);
+        if (adopted.matches) {
+          await materials.recordNoChange(ownerId, request, verified.commit, unappliedChanges.length > 0, adopted);
+          return { outcome: "no-change", message: "现有资料采用方式、任务顺序和日程无需变化。", unappliedChanges };
+        }
       }
       const saved = await this.dependencies.repository.saveEvent({ ...scope, mutationId: request.mutationId, baseRevision: workspace.revision, baseVersionId: workspace.activePlanVersionId, previous: workspace, result, sourceReference: sourceContext.reference, materialCommit: { ...verified.commit, kind: "proposal", requestDigest: await materialSha256(request) } });
       return materialReplanResponseSchema.parse({ outcome: "proposed", planning: await this.parseOwnedResult(saved, scope, sourceContext.reference), unappliedChanges });
@@ -443,6 +446,11 @@ function responseForEvent(response: PlanningMutationResponse, mutationId: string
 }
 
 // The browser consumes version snapshots. Only repository replay needs the server's proposal fingerprint.
+function materialUnappliedChanges(frozen: Pick<ContextInputSnapshot, "audit" | "target">, workspace: Pick<PlanningWorkspace, "audit" | "target">): string[] {
+  return canonicalJson(frozen.audit.answers) !== canonicalJson(workspace.audit.answers)
+    || canonicalJson(frozen.target) !== canonicalJson(workspace.target) ? [MATERIAL_UNAPPLIED_MESSAGE] : [];
+}
+
 function clientWorkspace(workspace: PlanningWorkspace): PlanningWorkspace {
   return { ...workspace, events: workspace.events.map(event => {
     if (event.kind !== "agent_replanned" || !event.materialContextFingerprint) return event;

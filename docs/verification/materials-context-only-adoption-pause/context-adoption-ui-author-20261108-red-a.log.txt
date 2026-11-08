@@ -1,0 +1,2022 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:41520) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/components/materials-plan-diff.test.tsx [2m([22m[2m14 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 691[2mms[22m[39m
+[31m   [31m×[31m explains a reducer-built context-only proposal without reading private history or saving it[39m[32m 117[2mms[22m[39m
+[31m   [31m×[31m saves a context-only proposal only on explicit accept using the current candidate ID[39m[32m 131[2mms[22m[39m
+[31m   [31m×[31m saves a context-only proposal only on explicit discard using the current candidate ID[39m[32m 61[2mms[22m[39m
+[31m   [31m×[31m honors an explicit accept label and reports the materials update to the parent[39m[32m 36[2mms[22m[39m
+[31m   [31m×[31m disables both context-only actions while accept is pending and lets a failed decision be retried[39m[32m 56[2mms[22m[39m
+[31m   [31m×[31m disables both context-only actions while discard is pending and lets a failed decision be retried[39m[32m 53[2mms[22m[39m
+   [32m✓[39m keeps an ordinary no-change agent proposal generic even when material history arrives[32m 39[2mms[22m[39m
+   [32m✓[39m keeps a material proposal with outside-week task changes generic[32m 37[2mms[22m[39m
+   [32m✓[39m keeps a material proposal with next-day task changes generic[32m 34[2mms[22m[39m
+[31m   [31m×[31m shows only the pending candidate's material explanation before a decision without mutating canonical workspace[39m[32m 30[2mms[22m[39m
+   [32m✓[39m shows generation, discarded and accepted as three distinct history entries[32m 19[2mms[22m[39m
+   [32m✓[39m reads an older server without the option and does not mistake an undated proposal for a pending one[32m 16[2mms[22m[39m
+   [32m✓[39m aborts and discards an earlier owner's delayed material history across A→B→A[32m 29[2mms[22m[39m
+   [32m✓[39m keeps existing non-material comparisons unchanged and reads no private history without a cloud owner[32m 33[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mexplains a reducer-built context-only proposal without reading private history or saving it
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+      [33mclass[39m=[32m"plan-diff-review"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"section-index"[39m
+      [36m>[39m
+        [0m调整建议 · 等待你的确认[0m
+      [36m</p>[39m
+      [36m<h2[39m
+        [33mid[39m=[32m"plan-diff-title"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [0m这次调整会改变什么[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0m查看时间与任务变化。只有点击「[0m
+        [0m接受新安排[0m
+        [0m」后，建议才会生效。[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-source-summary"[39m
+      [36m>[39m
+        [0mEstimated completion remains 2026-12-01.[0m
+      [36m</p>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"diff-counts"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m新增[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m调整日期[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m移除[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m不变[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m7[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-completion"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0m当前预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0m调整后预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+      [36m</p>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"diff-details"[39m
+      [36m>[39m
+        [36m<summary>[39m
+          [0m查看逐项变化[0m
+        [36m</summary>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"diff-items"[39m
+        [36m>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-04[0m
+              [0m → [0m
+              [0m2026-11-04[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-04.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-05[0m
+              [0m → [0m
+              [0m2026-11-05[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-05.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-06[0m
+              [0m → [0m
+              [0m2026-11-06[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-06.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-07[0m
+              [0m → [0m
+              [0m2026-11-07[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-07.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-08[0m
+              [0m → [0m
+              [0m2026-11-08[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-08.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-09[0m
+              [0m → [0m
+              [0m2026-11-09[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-09.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mAuthor a keyboard-safe component state model[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-10[0m
+              [0m → [0m
+              [0m2026-11-10[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-10.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"diff-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m接受新安排[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m保留当前安排[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m62:17[22m[39m
+    [90m 60|[39m   [35mconst[39m onAccept [33m=[39m vi[33m.[39m[34mfn[39m()[33m;[39m [35mconst[39m onDiscard [33m=[39m vi[33m.[39m[34mfn[39m()[33m;[39m
+    [90m 61|[39m   render(<PlanDiffReview workspace={current} onAccept={onAccept} onDis…
+    [90m 62|[39m   [34mexpect[39m(screen[33m.[39m[34mgetByText[39m(contextOnlyExplanation))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                 [31m^[39m
+    [90m 63|[39m   [34mexpect[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"接受资料更新"[39m }))[33m.[39m[34mtoBeEnabled[39m()[33m;[39m
+    [90m 64|[39m   expect(screen.getByRole("button", { name: "保留当前资料与安排" })).toBeEnable…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22msaves a context-only proposal only on explicit accept using the current candidate ID
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "接受资料更新"
+
+Here are the accessible roles:
+
+  region:
+
+  Name "这次调整会改变什么":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+    [33mclass[39m=[32m"plan-diff-review"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"section-index"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"diff-source-summary"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"diff-completion"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "这次调整会改变什么":
+  [36m<h2[39m
+    [33mid[39m=[32m"plan-diff-title"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  term:
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  --------------------------------------------------
+  definition:
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"diff-details"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"diff-items"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "接受新安排":
+  [36m<button[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "保留当前安排":
+  [36m<button[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+      [33mclass[39m=[32m"plan-diff-review"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"section-index"[39m
+      [36m>[39m
+        [0m调整建议 · 等待你的确认[0m
+      [36m</p>[39m
+      [36m<h2[39m
+        [33mid[39m=[32m"plan-diff-title"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [0m这次调整会改变什么[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0m查看时间与任务变化。只有点击「[0m
+        [0m接受新安排[0m
+        [0m」后，建议才会生效。[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-source-summary"[39m
+      [36m>[39m
+        [0mEstimated completion remains 2026-12-01.[0m
+      [36m</p>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"diff-counts"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m新增[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m调整日期[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m移除[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m不变[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m7[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-completion"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0m当前预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0m调整后预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+      [36m</p>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"diff-details"[39m
+      [36m>[39m
+        [36m<summary>[39m
+          [0m查看逐项变化[0m
+        [36m</summary>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"diff-items"[39m
+        [36m>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-04[0m
+              [0m → [0m
+              [0m2026-11-04[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-04.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-05[0m
+              [0m → [0m
+              [0m2026-11-05[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-05.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-06[0m
+              [0m → [0m
+              [0m2026-11-06[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-06.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-07[0m
+              [0m → [0m
+              [0m2026-11-07[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-07.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-08[0m
+              [0m → [0m
+              [0m2026-11-08[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-08.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-09[0m
+              [0m → [0m
+              [0m2026-11-09[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-09.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mAuthor a keyboard-safe component state model[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-10[0m
+              [0m → [0m
+              [0m2026-11-10[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-10.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"diff-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m接受新安排[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m保留当前安排[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m75:32[22m[39m
+    [90m 73|[39m   render(<PlanDiffReview workspace={current} onAccept={onAccept} onDis…
+    [90m 74|[39m   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHav…
+    [90m 75|[39m   await userEvent.click(screen.getByRole("button", { name: decision ==…
+    [90m   |[39m                                [31m^[39m
+    [90m 76|[39m   expect(decision === "accept" ? onAccept : onDiscard).toHaveBeenCalle…
+    [90m 77|[39m   expect(decision === "accept" ? onDiscard : onAccept).not.toHaveBeenC…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22msaves a context-only proposal only on explicit discard using the current candidate ID
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "保留当前资料与安排"
+
+Here are the accessible roles:
+
+  region:
+
+  Name "这次调整会改变什么":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+    [33mclass[39m=[32m"plan-diff-review"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"section-index"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"diff-source-summary"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"diff-completion"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "这次调整会改变什么":
+  [36m<h2[39m
+    [33mid[39m=[32m"plan-diff-title"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  term:
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  --------------------------------------------------
+  definition:
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"diff-details"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"diff-items"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "接受新安排":
+  [36m<button[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "保留当前安排":
+  [36m<button[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+      [33mclass[39m=[32m"plan-diff-review"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"section-index"[39m
+      [36m>[39m
+        [0m调整建议 · 等待你的确认[0m
+      [36m</p>[39m
+      [36m<h2[39m
+        [33mid[39m=[32m"plan-diff-title"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [0m这次调整会改变什么[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0m查看时间与任务变化。只有点击「[0m
+        [0m接受新安排[0m
+        [0m」后，建议才会生效。[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-source-summary"[39m
+      [36m>[39m
+        [0mEstimated completion remains 2026-12-01.[0m
+      [36m</p>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"diff-counts"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m新增[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m调整日期[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m移除[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m不变[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m7[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-completion"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0m当前预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0m调整后预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+      [36m</p>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"diff-details"[39m
+      [36m>[39m
+        [36m<summary>[39m
+          [0m查看逐项变化[0m
+        [36m</summary>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"diff-items"[39m
+        [36m>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-04[0m
+              [0m → [0m
+              [0m2026-11-04[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-04.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-05[0m
+              [0m → [0m
+              [0m2026-11-05[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-05.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-06[0m
+              [0m → [0m
+              [0m2026-11-06[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-06.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-07[0m
+              [0m → [0m
+              [0m2026-11-07[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-07.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-08[0m
+              [0m → [0m
+              [0m2026-11-08[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-08.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-09[0m
+              [0m → [0m
+              [0m2026-11-09[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-09.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mAuthor a keyboard-safe component state model[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-10[0m
+              [0m → [0m
+              [0m2026-11-10[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-10.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"diff-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m接受新安排[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m保留当前安排[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m75:32[22m[39m
+    [90m 73|[39m   render(<PlanDiffReview workspace={current} onAccept={onAccept} onDis…
+    [90m 74|[39m   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHav…
+    [90m 75|[39m   await userEvent.click(screen.getByRole("button", { name: decision ==…
+    [90m   |[39m                                [31m^[39m
+    [90m 76|[39m   expect(decision === "accept" ? onAccept : onDiscard).toHaveBeenCalle…
+    [90m 77|[39m   expect(decision === "accept" ? onDiscard : onAccept).not.toHaveBeenC…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mhonors an explicit accept label and reports the materials update to the parent
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+      [33mclass[39m=[32m"plan-diff-review"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"section-index"[39m
+      [36m>[39m
+        [0m调整建议 · 等待你的确认[0m
+      [36m</p>[39m
+      [36m<h2[39m
+        [33mid[39m=[32m"plan-diff-title"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [0m这次调整会改变什么[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0m查看时间与任务变化。只有点击「[0m
+        [0m保存调整[0m
+        [0m」后，建议才会生效。[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-source-summary"[39m
+      [36m>[39m
+        [0mEstimated completion remains 2026-12-01.[0m
+      [36m</p>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"diff-counts"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m新增[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m调整日期[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m移除[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m不变[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m7[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-completion"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0m当前预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0m调整后预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+      [36m</p>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"diff-details"[39m
+      [36m>[39m
+        [36m<summary>[39m
+          [0m查看逐项变化[0m
+        [36m</summary>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"diff-items"[39m
+        [36m>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-04[0m
+              [0m → [0m
+              [0m2026-11-04[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-04.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-05[0m
+              [0m → [0m
+              [0m2026-11-05[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-05.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-06[0m
+              [0m → [0m
+              [0m2026-11-06[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-06.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-07[0m
+              [0m → [0m
+              [0m2026-11-07[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-07.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-08[0m
+              [0m → [0m
+              [0m2026-11-08[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-08.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-09[0m
+              [0m → [0m
+              [0m2026-11-09[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-09.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mAuthor a keyboard-safe component state model[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-10[0m
+              [0m → [0m
+              [0m2026-11-10[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-10.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"diff-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m保存调整[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m保留当前安排[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m85:17[22m[39m
+    [90m 83|[39m   const onAccept = vi.fn().mockResolvedValue(true); const onSuccess = …
+    [90m 84|[39m   render(<PlanDiffReview workspace={current} acceptLabel="保存调整" onAcce…
+    [90m 85|[39m   [34mexpect[39m(screen[33m.[39m[34mgetByText[39m(contextOnlyExplanation))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                 [31m^[39m
+    [90m 86|[39m   [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/只有点击「保存调整」后/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 87|[39m   expect(screen.queryByRole("button", { name: "接受资料更新" })).not.toBeInT…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mdisables both context-only actions while accept is pending and lets a failed decision be retried
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mdisables both context-only actions while discard is pending and lets a failed decision be retried
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "接受资料更新"
+
+Here are the accessible roles:
+
+  region:
+
+  Name "这次调整会改变什么":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+    [33mclass[39m=[32m"plan-diff-review"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"section-index"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"diff-source-summary"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"diff-completion"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p />[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "这次调整会改变什么":
+  [36m<h2[39m
+    [33mid[39m=[32m"plan-diff-title"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  term:
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  --------------------------------------------------
+  definition:
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"diff-details"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"diff-items"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "接受新安排":
+  [36m<button[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "保留当前安排":
+  [36m<button[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+      [33mclass[39m=[32m"plan-diff-review"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"section-index"[39m
+      [36m>[39m
+        [0m调整建议 · 等待你的确认[0m
+      [36m</p>[39m
+      [36m<h2[39m
+        [33mid[39m=[32m"plan-diff-title"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [0m这次调整会改变什么[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0m查看时间与任务变化。只有点击「[0m
+        [0m接受新安排[0m
+        [0m」后，建议才会生效。[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-source-summary"[39m
+      [36m>[39m
+        [0mEstimated completion remains 2026-12-01.[0m
+      [36m</p>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"diff-counts"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m新增[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m调整日期[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m移除[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m不变[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m7[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-completion"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0m当前预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0m调整后预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+      [36m</p>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"diff-details"[39m
+      [36m>[39m
+        [36m<summary>[39m
+          [0m查看逐项变化[0m
+        [36m</summary>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"diff-items"[39m
+        [36m>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-04[0m
+              [0m → [0m
+              [0m2026-11-04[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-04.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-05[0m
+              [0m → [0m
+              [0m2026-11-05[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-05.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-06[0m
+              [0m → [0m
+              [0m2026-11-06[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-06.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-07[0m
+              [0m → [0m
+              [0m2026-11-07[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-07.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-08[0m
+              [0m → [0m
+              [0m2026-11-08[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-08.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-09[0m
+              [0m → [0m
+              [0m2026-11-09[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-09.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mAuthor a keyboard-safe component state model[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-10[0m
+              [0m → [0m
+              [0m2026-11-10[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-10.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"diff-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m接受新安排[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m保留当前安排[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m100:25[22m[39m
+    [90m 98|[39m   [35mconst[39m otherDecision [33m=[39m vi[33m.[39m[34mfn[39m()[33m;[39m
+    [90m 99|[39m   render(<PlanDiffReview workspace={current} onAccept={decision === "a…
+    [90m100|[39m   [35mconst[39m accept [33m=[39m screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"接受资料更新"[39m })[33m;[39m
+    [90m   |[39m                         [31m^[39m
+    [90m101|[39m   [35mconst[39m discard [33m=[39m screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"保留当前资料与安排"[39m })[33m;[39m
+    [90m102|[39m   [35mconst[39m button [33m=[39m decision [33m===[39m [32m"accept"[39m [33m?[39m accept [33m:[39m discard[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mshows only the pending candidate's material explanation before a decision without mutating canonical workspace
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"plan-diff-title"[39m
+      [33mclass[39m=[32m"plan-diff-review"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"section-index"[39m
+      [36m>[39m
+        [0m调整建议 · 等待你的确认[0m
+      [36m</p>[39m
+      [36m<h2[39m
+        [33mid[39m=[32m"plan-diff-title"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [0m这次调整会改变什么[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0m查看时间与任务变化。只有点击「[0m
+        [0m接受新安排[0m
+        [0m」后，建议才会生效。[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-source-summary"[39m
+      [36m>[39m
+        [0mEstimated completion remains 2026-12-01.[0m
+      [36m</p>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"diff-counts"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m新增[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m调整日期[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m移除[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m0[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0m不变[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m7[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"diff-completion"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0m当前预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+        [36m<span>[39m
+          [0m调整后预计完成 · [0m
+          [0m2026-12-01[0m
+        [36m</span>[39m
+      [36m</p>[39m
+      [36m<details[39m
+        [33mclass[39m=[32m"diff-details"[39m
+      [36m>[39m
+        [36m<summary>[39m
+          [0m查看逐项变化[0m
+        [36m</summary>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"diff-items"[39m
+        [36m>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-04[0m
+              [0m → [0m
+              [0m2026-11-04[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-04.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mTrace a browser interaction end to end[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-05[0m
+              [0m → [0m
+              [0m2026-11-05[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-05.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-06[0m
+              [0m → [0m
+              [0m2026-11-06[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-06.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mModel one UI-to-API contract[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-07[0m
+              [0m → [0m
+              [0m2026-11-07[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-07.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-08[0m
+              [0m → [0m
+              [0m2026-11-08[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-08.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mBuild an accessible async React flow[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-09[0m
+              [0m → [0m
+              [0m2026-11-09[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-09.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+          [36m<li>[39m
+            [36m<strong>[39m
+              [36m<span>[39m
+                [0m不变[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mAuthor a keyboard-safe component state model[0m
+              [36m</span>[39m
+            [36m</strong>[39m
+            [36m<span>[39m
+              [0m2026-11-10[0m
+              [0m → [0m
+              [0m2026-11-10[0m
+            [36m</span>[39m
+            [36m<p>[39m
+              [0mRemains scheduled for 2026-11-10.[0m
+            [36m</p>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+      [36m</details>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"diff-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m接受新安排[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0m保留当前安排[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m150:17[22m[39m
+    [90m148|[39m   [35mconst[39m accept [33m=[39m vi[33m.[39m[34mfn[39m()[33m;[39m [35mconst[39m discard [33m=[39m vi[33m.[39m[34mfn[39m()[33m;[39m
+    [90m149|[39m   render(<PlanDiffReview workspace={current} materialOwnerId="owner-a"…
+    [90m150|[39m   [34mexpect[39m(screen[33m.[39m[34mgetByText[39m(contextOnlyExplanation))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                 [31m^[39m
+    [90m151|[39m   expect(accept).not.toHaveBeenCalled(); expect(discard).not.toHaveBee…
+    [90m152|[39m   [35mawait[39m [34mact[39m([35masync[39m () [33m=>[39m { [34mfinish[39m({ plans[33m:[39m [
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (14)[39m
+[2m   Start at [22m 16:14:53
+[2m   Duration [22m 2.31s[2m (transform 247ms, setup 214ms, import 473ms, tests 691ms, environment 771ms)[22m
+

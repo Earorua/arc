@@ -1,0 +1,142 @@
+// @vitest-environment node
+import { describe, expect, it } from "vitest";
+import { compareAdoptedContext } from "../../app/server/documents/adopted-context";
+import { detachAdoptedMaterial } from "../../app/server/documents/detach-adopted-material";
+import { createMaterialContextFingerprint, type ContextInputSnapshot } from "../../app/contracts/material-planning";
+import { canonicalJson } from "../../app/lib/planning/fingerprint";
+import { setup, primary, scopeFor } from "./context-adoption-quality-20261108-fixture";
+
+const tableSnapshot = (f: Awaited<ReturnType<typeof setup>>) => Object.fromEntries([
+  "planning_workspaces", "planning_events", "learning_path_versions", "plan_versions", "daily_units",
+  "skill_audit_versions", "availability_versions", "idempotency_records",
+  "goal_document_links", "document_usage_links", "material_plan_proposals", "document_mutations",
+].map(table => [table, f.db.database.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()]));
+
+describe("independent context-adoption quality probes", () => {
+  it("supports all five legal sources and bounds comparator SQL to two reads", async () => {
+    const f = await setup(true);
+    const entries = [primary, f.document("resume", "resume", []), ...["one", "two", "three"].map(id => f.document(id, "supplement", []))];
+    const first = await f.preview(entries);
+    const proposal = await f.planning.proposeMaterialReplanResponse("owner-a", first.input);
+    expect(proposal.outcome).toBe("proposed");
+    if (proposal.outcome !== "proposed") throw new Error("Expected adoption");
+    const { workspace } = await f.decide(proposal.planning.result.workspace, "accept");
+    const fresh = await f.preview([...entries].reverse());
+    const { commit } = await f.materials.verifyProposalRequest("owner-a", fresh.input);
+    const prepare = f.db.prepare.bind(f.db);
+    const reads: string[] = [];
+    f.db.prepare = sql => { reads.push(sql); return prepare(sql); };
+    const match = await compareAdoptedContext(f.db as unknown as D1Database, "owner-a", commit);
+    f.db.prepare = prepare;
+    expect(match.matches).toBe(true);
+    expect(reads.length).toBe(2);
+    expect(reads[0]).toContain("LIMIT 6");
+    const before = tableSnapshot(f);
+    const result = await f.planning.proposeMaterialReplanResponse("owner-a", fresh.input);
+    expect(result).toMatchObject({ outcome: "no-change" });
+    const after = tableSnapshot(f);
+    const { document_mutations: oldReceipts, ...oldTables } = before;
+    const { document_mutations: newReceipts, ...newTables } = after;
+    expect(newTables).toEqual(oldTables);
+    expect(newReceipts.length).toBe(oldReceipts.length + 1);
+    expect(await f.planning.getWorkspace("owner-a")).toEqual(workspace);
+    await f.preserved(workspace);
+  });
+
+  it("does not mistake a sixth broken enabled link for the same legal five-source adoption", async () => {
+    const f = await setup(true);
+    const entries = [primary, f.document("resume", "resume", []), ...["one", "two", "three"].map(id => f.document(id, "supplement", []))];
+    const first = await f.preview(entries);
+    const proposal = await f.planning.proposeMaterialReplanResponse("owner-a", first.input);
+    if (proposal.outcome !== "proposed") throw new Error("Expected adoption");
+    await f.decide(proposal.planning.result.workspace, "accept");
+    const fresh = await f.preview(entries);
+    const sixth = f.document("sixth", "supplement", []);
+    f.db.database.prepare("INSERT INTO goal_document_links(owner_id,goal_id,document_id,document_version_id,confirmation_id,context_version_id,slot,purpose,enabled,created_at) VALUES ('owner-a','goal-a',?,?,?,?,'supplement','planning',1,0)")
+      .run(sixth.documentId, sixth.documentVersionId, sixth.confirmationId, first.context.contextVersionId);
+    const links = f.links();
+    const result = await f.planning.proposeMaterialReplanResponse("owner-a", fresh.input);
+    expect(result.outcome).toBe("proposed");
+    expect(f.links()).toEqual(links);
+    if (result.outcome === "proposed") await f.preserved(result.planning.result.workspace);
+  });
+
+  it.each(["negative-generation", "null-choice-array", "wrong-owner", "missing-source-reference", "bad-digest", "extra-property"] as const)("handles an unprovable JSON baseline conservatively: %s", async broken => {
+    const f = await setup(true);
+    const { input } = await f.preview([primary]);
+    const row = f.db.database.prepare("SELECT snapshot_json,fingerprint FROM material_context_versions WHERE id=?").get(f.initialContext!.contextVersionId) as { snapshot_json: string; fingerprint: string };
+    const baseline = JSON.parse(row.snapshot_json);
+    if (broken === "negative-generation") baseline.dependencies[0].generation = -1;
+    if (broken === "null-choice-array") baseline.learningIntents = null;
+    if (broken === "wrong-owner") baseline.ownerId = "owner-b";
+    if (broken === "missing-source-reference") delete baseline.sourceReference;
+    if (broken === "bad-digest") baseline.dependencies[0].confirmationDigest = "not-a-digest";
+    if (broken === "extra-property") baseline.unexpected = true;
+    f.db.database.prepare("UPDATE material_context_versions SET snapshot_json=? WHERE id=?").run(JSON.stringify(baseline), f.initialContext!.contextVersionId);
+    const links = f.links();
+    expect(await f.planning.proposeMaterialReplanResponse("owner-a", input)).toMatchObject({ outcome: "proposed" });
+    expect(f.links()).toEqual(links);
+  });
+
+  it("treats historical explicit empty choices as absent without undefined canonical JSON values", async () => {
+    const f = await setup(true);
+    const row = f.db.database.prepare("SELECT snapshot_json FROM material_context_versions WHERE id=?").get(f.initialContext!.contextVersionId) as { snapshot_json: string };
+    const baseline: ContextInputSnapshot = { ...JSON.parse(row.snapshot_json), skillMappings: [], termMappings: [], learningIntents: [] };
+    f.db.database.prepare("UPDATE material_context_versions SET snapshot_json=?,fingerprint=? WHERE id=?")
+      .run(canonicalJson(baseline), await createMaterialContextFingerprint(baseline), f.initialContext!.contextVersionId);
+    const { input } = await f.preview([primary]);
+    expect(await f.planning.proposeMaterialReplanResponse("owner-a", input)).toMatchObject({ outcome: "no-change" });
+  });
+
+  it("fences an initially empty link set when a source becomes enabled before receipt commit", async () => {
+    const f = await setup(true);
+    await detachAdoptedMaterial(f.documents, f.planning, "owner-a", { scope: scopeFor(f.before), entry: primary, mutationId: "quality-detach" });
+    const { input } = await f.preview([]);
+    const workspace = await f.planning.getWorkspace("owner-a");
+    const batch = f.db.batch.bind(f.db);
+    f.db.batch = async statements => {
+      f.db.batch = batch;
+      f.db.database.exec("UPDATE goal_document_links SET enabled=1");
+      return batch(statements);
+    };
+    await expect(f.planning.proposeMaterialReplanResponse("owner-a", input)).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(await f.planning.getWorkspace("owner-a")).toEqual(workspace);
+    expect(f.db.database.prepare("SELECT count(*) AS n FROM document_mutations WHERE endpoint='POST /api/planning/material-replans'").get()).toEqual({ n: 0 });
+  });
+
+  it("rolls a failing no-change receipt back and retries exactly once", async () => {
+    const f = await setup(true);
+    const { input } = await f.preview([primary]);
+    const before = tableSnapshot(f);
+    f.db.database.exec("CREATE TRIGGER quality_fail_receipt BEFORE INSERT ON document_mutations WHEN NEW.endpoint='POST /api/planning/material-replans' BEGIN SELECT RAISE(ABORT,'quality injected'); END");
+    await expect(f.planning.proposeMaterialReplanResponse("owner-a", input)).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(tableSnapshot(f)).toEqual(before);
+    f.db.database.exec("DROP TRIGGER quality_fail_receipt");
+    const result = await f.planning.proposeMaterialReplanResponse("owner-a", input);
+    expect(result).toMatchObject({ outcome: "no-change" });
+    const committed = tableSnapshot(f);
+    expect(await f.planning.proposeMaterialReplanResponse("owner-a", input)).toEqual(result);
+    expect(tableSnapshot(f)).toEqual(committed);
+  });
+
+  it("preserves unapplied warnings when replaying a newly routed context-only proposal", async () => {
+    const f = await setup(false);
+    const audit = { ...f.before.audit, answers: f.before.audit.answers.map(answer => ({ ...answer, level: "uncertain" as const })) };
+    const { input } = await f.preview([primary], {}, { audit });
+    const first = await f.planning.proposeMaterialReplanResponse("owner-a", input);
+    expect(first.outcome).toBe("proposed");
+    expect(first.unappliedChanges).toHaveLength(1);
+    if (first.outcome !== "proposed") throw new Error("Expected context-only proposal");
+    expect(first.planning.result.diff!.items.every(item => item.change === "unchanged")).toBe(true);
+    const beforeReplay = tableSnapshot(f);
+    const replay = await f.planning.proposeMaterialReplanResponse("owner-a", input);
+    expect(replay.outcome).toBe("proposed");
+    expect(replay.unappliedChanges).toEqual(first.unappliedChanges);
+    expect(tableSnapshot(f)).toEqual(beforeReplay);
+    expect(replay.outcome === "proposed" && replay.planning).toEqual(first.planning);
+    const { workspace } = await f.decide(first.planning.result.workspace, "accept");
+    expect(workspace.audit).toEqual(f.before.audit);
+    expect(workspace.target).toEqual(f.before.target);
+    await f.preserved(workspace);
+  });
+});

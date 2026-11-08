@@ -1,0 +1,76 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:35152) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21144) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39516) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36424) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-replan-atomic.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 2263[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks new material accepts when planning is closed but retains discard and successful receipt recovery [33m 414[2mms[22m[39m
+ [32m✓[39m tests/server/material-learning-intent-flow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1786[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through discard [33m 642[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through accept [33m 468[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks acceptance after deleting the adopted coach source and still permits discard without changing progress or Proof [33m 379[2mms[22m[39m
+(node:30560) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35272) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-adopted-refs.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 2972[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps A adopted while B is pending and atomically reflects accept while preserving completed work [33m 366[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps A adopted while B is pending and atomically reflects discard while preserving completed work [33m 314[2mms[22m[39m
+   [33m[2m✓[22m[39m re-proposes discarded B with distinct immutable decisions and keeps completed work and adopted links through acceptance [33m 1966[2mms[22m[39m
+ [32m✓[39m tests/components/materials-plan-diff.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 1186[2mms[22m[39m
+(node:39276) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-detach.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1282[2mms[22m[39m
+   [33m[2m✓[22m[39m detaches the last adopted document without changing its library or historical plan, and invalidates a concurrent old preview [33m 373[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects wrong owner, stale scope, wrong current reference and pending replans without partial writes [33m 518[2mms[22m[39m
+(node:23968) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/plan-diff-review.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 858[2mms[22m[39m
+(node:14192) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-mappings.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 730[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an oversized preview response before committing its context or mutation receipt [33m 348[2mms[22m[39m
+ [32m✓[39m tests/server/material-confirmed-skill-labels.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 853[2mms[22m[39m
+(node:36072) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-generation-atomic.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 519[2mms[22m[39m
+ [32m✓[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 7775[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on accept [33m 390[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on accept [33m 301[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on discard [33m 308[2mms[22m[39m
+     [33m[2m✓[22m[39m adopts a SQL-to-React company JD replacement despite a prerequisite-constrained unchanged schedule [33m 321[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=false without task movement [33m 595[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=true without task movement [33m 582[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied audit warnings when replaying a context-only proposal and accepting it [33m 364[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied target warnings when replaying a context-only proposal and accepting it [33m 355[2mms[22m[39m
+     [33m[2m✓[22m[39m compares only still-enabled dependencies and choices after an explicit detach [33m 308[2mms[22m[39m
+     [33m[2m✓[22m[39m requires adoption of a new confirmation even when its confirmed text is identical [33m 311[2mms[22m[39m
+     [33m[2m✓[22m[39m requires adoption of a new document-version even when its confirmed text is identical [33m 302[2mms[22m[39m
+     [33m[2m✓[22m[39m normalizes dependency, skill mapping, term skill, and intent order across fresh previews [33m 479[2mms[22m[39m
+(node:40732) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32148) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-learning-intents.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 436[2mms[22m[39m
+ [32m✓[39m tests/server/material-generation-recovery.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 271[2mms[22m[39m
+(node:19044) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36784) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-context.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 154[2mms[22m[39m
+ [32m✓[39m tests/server/material-supplement-flow.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 496[2mms[22m[39m
+   [33m[2m✓[22m[39m uses a reviewed supplement to reorder existing practice while preserving primary JD precedence, progress, audit and privacy [33m 494[2mms[22m[39m
+ [32m✓[39m tests/server/material-selection.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m tests/components/basic-time-edit.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 154[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m126 passed[39m[22m[90m (126)[39m
+[2m   Start at [22m 16:25:10
+[2m   Duration [22m 10.40s[2m (transform 2.47s, setup 3.42s, import 9.72s, tests 21.78s, environment 2.52s)[22m
+

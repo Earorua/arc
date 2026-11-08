@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { parsePlanningWorkspaceAtRepositoryBoundary, type UnitRegistry } from "../../contracts/planning";
 import { flagshipUnitRegistry } from "../../data/flagship-unit-registry";
+import { canonicalJson } from "../../lib/planning/fingerprint";
 import { diffPlans } from "../../lib/planning/plan-diff";
 import type { PlanningRecoveryState } from "../../lib/use-planning-workspace";
 import { PlanningVersionBoundary } from "./planning-version-boundary";
@@ -19,7 +20,7 @@ type PlanDiffReviewProps = {
   materialOwnerId?: string;
 };
 
-export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, onDiscard, onSuccess, registry = flagshipUnitRegistry, acceptLabel = "接受新安排", materialOwnerId }: PlanDiffReviewProps) {
+export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, onDiscard, onSuccess, registry = flagshipUnitRegistry, acceptLabel, materialOwnerId }: PlanDiffReviewProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
@@ -33,7 +34,7 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
       const activePath = workspace.pathVersions.find(({ id }) => id === active.pathVersionId);
       const candidatePath = workspace.pathVersions.find(({ id }) => id === candidate.pathVersionId);
       const paths = [activePath, candidatePath];
-      if (paths.some((path) => !path || path.registryId !== registry.id || path.registryVersion !== registry.version
+      if (!activePath || !candidatePath || paths.some((path) => !path || path.registryId !== registry.id || path.registryVersion !== registry.version
         || path.blueprintId !== registry.blueprintId || path.blueprintVersion !== registry.blueprintVersion)) return { kind: "unavailable" } as const;
       const completed = new Set(workspace.events.filter((event) => event.kind === "completed").map((event) => event.unitId));
       const templates = new Map(registry.tracks.flatMap(({ templates: rows }) => rows).map((template) => [template.id, template.title]));
@@ -43,17 +44,25 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
         if (title) labels.set(unit.id, title);
       }
       const proposalEvent = [...workspace.events].reverse().find(({ targetPlanVersionId }) => targetPlanVersionId === active.id);
+      const updatesOnlyMaterialContext = candidate.replanReason === "agent_replanned"
+        && proposalEvent?.kind === "agent_replanned" && proposalEvent.materialContextFingerprint !== undefined
+        && canonicalJson(activePath.units) === canonicalJson(candidatePath.units)
+        && active.planningDate === candidate.planningDate
+        && canonicalJson(active.days) === canonicalJson(candidate.days)
+        && active.estimatedCompletionDate === candidate.estimatedCompletionDate;
       const claimedSkillId = candidate.replanReason === "already_known" && proposalEvent?.kind === "already_known"
         ? workspace.dailyUnits.find(({ id, planVersionId }) => id === proposalEvent.unitId && planVersionId === active.id)?.skillId
         : undefined;
       const keepsUncertainLearning = active.pathVersionId === candidate.pathVersionId
         && workspace.audit.answers.some(({ skillId, level }) => skillId === claimedSkillId && level === "uncertain");
-      return { kind: "ready", goalId: workspace.goalId, candidate, diff: diffPlans({ active, candidate, completedUnitIds: completed }), labels, keepsUncertainLearning } as const;
+      return { kind: "ready", goalId: workspace.goalId, candidate, diff: diffPlans({ active, candidate, completedUnitIds: completed }), labels, keepsUncertainLearning, updatesOnlyMaterialContext } as const;
     } catch { return { kind: "unavailable" } as const; }
   }, [registry, value]);
   useEffect(() => { if (resolved.kind === "ready") headingRef.current?.focus(); }, [resolved]);
   if (resolved.kind === "none") return null;
   if (resolved.kind === "unavailable") return <PlanningVersionBoundary />;
+  const resolvedAcceptLabel = acceptLabel ?? (resolved.updatesOnlyMaterialContext ? "接受资料更新" : "接受新安排");
+  const discardLabel = resolved.updatesOnlyMaterialContext ? "保留当前资料与安排" : "保留当前安排";
   const changeLabels = { added: "新增", moved: "调整日期", removed: "移除", unchanged: "不变" };
   const counts = (["added", "moved", "removed", "unchanged"] as const).map((change) => ({ change, count: resolved.diff.items.filter((item) => item.change === change).length }));
   const decide = async (kind: "accept" | "discard") => {
@@ -62,7 +71,9 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
     try {
       const succeeded = await (kind === "accept" ? onAccept : onDiscard)(resolved.candidate.id);
       if (succeeded) {
-        const text = kind === "accept" ? "已接受新安排。" : "已保留当前安排。";
+        const text = resolved.updatesOnlyMaterialContext
+          ? kind === "accept" ? "已更新当前路线采用的资料。" : "已保留当前资料与安排。"
+          : kind === "accept" ? "已接受新安排。" : "已保留当前安排。";
         if (onSuccess) onSuccess(text, kind);
         else setMessage({ kind: "status", text });
       }
@@ -76,13 +87,14 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
   return <section className="plan-diff-review" aria-labelledby="plan-diff-title">
     <p className="section-index">调整建议 · 等待你的确认</p>
     <h2 id="plan-diff-title" ref={headingRef} tabIndex={-1}>这次调整会改变什么</h2>
-    <p>查看时间与任务变化。只有点击「{acceptLabel}」后，建议才会生效。</p><p className="diff-source-summary">{resolved.diff.summary}</p>
+    {resolved.updatesOnlyMaterialContext && <p className="workspace-notice">任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。</p>}
+    <p>{!resolved.updatesOnlyMaterialContext && "查看时间与任务变化。"}只有点击「{resolvedAcceptLabel}」后，建议才会生效。</p><p className="diff-source-summary">{resolved.diff.summary}</p>
     {resolved.keepsUncertainLearning && <p className="workspace-notice">这项技能的自评是“不确定”，本次自评不会移除学习任务。完成校准只记录练习，作品审核后才会更新技能证明。你可以保留当前安排，再延后任务或调整学习时间。</p>}
     <dl className="diff-counts">{counts.map(({ change, count }) => <div key={change}><dt>{changeLabels[change]}</dt><dd>{count}</dd></div>)}</dl>
     <p className="diff-completion"><span>当前预计完成 · {resolved.diff.previousEstimatedCompletionDate}</span><span>调整后预计完成 · {resolved.diff.nextEstimatedCompletionDate}</span></p>
     <details className="diff-details"><summary>查看逐项变化</summary><ul className="diff-items">{resolved.diff.items.map((item) => <li key={item.unitId}><strong><span>{changeLabels[item.change]}</span><span>{resolved.labels.get(item.unitId) ?? "已记录的学习单元"}</span></strong><span>{item.fromDate ?? "未安排"} → {item.toDate ?? "未安排"}</span><p>{item.reason}</p></li>)}</ul></details>
     {materialOwnerId && <MaterialHistory ownerId={materialOwnerId} goalId={resolved.goalId} planVersionId={resolved.candidate.id} />}
-    <div className="diff-actions"><button disabled={pending} onClick={() => void decide("accept")} type="button">{acceptLabel}</button><button disabled={pending} onClick={() => void decide("discard")} type="button">保留当前安排</button></div>
+    <div className="diff-actions"><button disabled={pending} onClick={() => void decide("accept")} type="button">{resolvedAcceptLabel}</button><button disabled={pending} onClick={() => void decide("discard")} type="button">{discardLabel}</button></div>
     {message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "计划已在另一台设备上发生变化，请刷新后再决定。" : message.text}</p>}
   </section>;
 }

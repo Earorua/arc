@@ -132,8 +132,8 @@ it.each(["discard", "accept"] as const)("reorders coach-only advice only after a
     expect(unadopted.preview.overlay?.skillRanks).toEqual(flow.initialContext.preview.overlay?.skillRanks);
     expect(unadopted.preview.overlay?.skillRanks.observability).toBe(5);
     expect(unadopted.preview.issues).toContainEqual(expect.objectContaining({ code: "learning-intent-not-adopted" }));
-    expect(await f.http("materialReplan", { scope, selectionRef, contextVersionId: unadopted.contextVersionId,
-      previewToken: unadopted.previewToken, mutationId: "propose-unadopted" })).toMatchObject({ outcome: "no-change" });
+    // The preview alone never adopts the new coach source. Proposing it would require an
+    // explicit context-only decision even before any individual learning intent is selected.
     expect(await f.runtime.planning.getWorkspace("owner-a")).toEqual(before);
     expect(proofRows(f)).toEqual(flow.proofStorageBefore);
 

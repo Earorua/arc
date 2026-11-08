@@ -1,5 +1,7 @@
 # 资料变化但任务不变时的显式采用修复
 
+> **11月8日下午用户暂停检查点：** Task 1已实现并完成定向测试，重试提醒补修复尚待独立复审；Task 2现有实现未通过实际服务边界审查。下文“客户端读取materialContextFingerprint”的原测试前提已证实无效：公开响应会移除该私有字段。恢复后必须先修订为隐私安全的公开提案识别方式，并加入提案响应及刷新后的真实服务到界面测试；不能直接暴露指纹。Task 3完整回归尚未执行。[当前证据与恢复顺序](../../verification/2026-11-08-materials-context-only-adoption.md)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 同岗位换JD、首次采用资料、学习重点采用／撤回即使不改变任务顺序和日期，也能经预览与明确接受更新当前规划依据；真正无变化的请求仍不产生规划事件。
@@ -52,6 +54,7 @@ if (tasksUnchanged) {
 `compareAdoptedContext` 返回有明确类型的只读匹配结果及最终guard所需的关联快照；不得接收客户端提供的等价断言。后续现有 `saveEvent` 提案与accept事务保持原有流程。
 
 - [ ] 补齐真正无变化、重新生成等价预览、selection变化但语义相同、choices排列、来源版本变化、audit-only仍unapplied、其他owner/goal、过期、重试、同key不同body、并发完成／detach／删除、proposal与accept写失败回滚等反例。无变化请求不能加pending plan或规划事件；新语义提案重试不能重复接受。
+- [ ] 独立质量审查补充：修复提案重试把 `unappliedChanges` 置空的旧问题。首次与重试都用冻结资料输入和原提案workspace比较audit.answers／target；接受后重试仍返回原提案的提醒，不能改用后来状态，也不能因此采用自评或目标。
 - [ ] 原学习意图流程里的“加了补充资料但未采用重点”只表示任务无变化。若调用提议，应观察待确认资料提案并明确放弃／接受后再进行下一动作；不能继续宣称workspace完全不变。只有预览时仍完全不变。原已撤回草稿、当前仍为同一JD的无变化用例保留。
 - [ ] 跑新服务器套件、原material replan/learning-intent/adopted refs/detach相关套件，先完成规格复审，再完成代码质量复审。
 

@@ -1,0 +1,122 @@
+// @vitest-environment node
+import { afterEach, describe, expect, it } from "vitest";
+import type { ConfirmedMaterialItem, MaterialSelectionEntry } from "../../app/contracts/documents";
+import { createMaterialContextFingerprint, type ContextInputSnapshot } from "../../app/contracts/material-planning";
+import type { PlanningWorkspace } from "../../app/contracts/planning";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { canonicalJson } from "../../app/lib/planning/fingerprint";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
+import { detachAdoptedMaterial } from "../../app/server/documents/detach-adopted-material";
+import { DeletionService } from "../../app/server/documents/deletion-service";
+import { SelectionService } from "../../app/server/documents/selection-service";
+import { DocumentStorage } from "../../app/server/documents/storage";
+import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
+import { PlanningService } from "../../app/server/planning/service";
+import { PlanningSourceResolver } from "../../app/server/planning/source-resolver";
+import { D1ProofRepository } from "../../app/server/proof/d1-proof-repository";
+import { ProofService } from "../../app/server/proof/service";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { memoryBucket } from "../../tests/helpers/document-bucket";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+
+const databases: ReturnType<typeof createMaterialsD1>[] = [];
+afterEach(() => databases.splice(0).forEach(db => db.close()));
+type Choices = Pick<ContextInputSnapshot, "skillMappings" | "termMappings" | "learningIntents">;
+const primary: MaterialSelectionEntry = { slot: "jd", documentId: "doc-a", documentVersionId: "version-a", confirmationId: "confirmation-a" };
+const activePath = (workspace: PlanningWorkspace) => workspace.pathVersions.find(path => path.id === workspace.activePathVersionId)!;
+const activePlan = (workspace: PlanningWorkspace) => workspace.planVersions.find(plan => plan.id === workspace.activePlanVersionId)!;
+const scopeFor = (workspace: PlanningWorkspace) => ({ kind: "goal" as const, goalId: workspace.goalId, workspaceId: workspace.id,
+  baseVersionId: workspace.activePlanVersionId, revision: workspace.revision });
+
+async function setup(adoptInitially = false, initialFocus?: boolean, constrainedJD = false) {
+  const db = createMaterialsD1(); databases.push(db); seedMaterialSelection(db);
+  // Two company JDs may have identical confirmed requirements and still be distinct adopted sources.
+  db.database.prepare("UPDATE document_confirmations SET items_json=?").run(JSON.stringify([
+    { id: "confirmed-a", kind: "requirement", text: "SQL", origin: "user", sourceRef: null, requirementLevel: constrainedJD ? "must" : "unspecified" },
+  ]));
+  let counter = 0;
+  let clock = materialNow().getTime();
+  const now = () => new Date(clock);
+  const id = () => `context-only-${++counter}`;
+  // This legal native source declares a prerequisite chain. SQL precedes React regardless
+  // of which company JD gives its skill the highest priority; no expected task order is patched in.
+  const chain = ["web-platform", "typescript", "sql", "react", ...flagshipBlueprint.skills.map(skill => skill.id).filter(skill => !["web-platform", "typescript", "sql", "react"].includes(skill))];
+  const blueprint = constrainedJD ? { ...flagshipBlueprint,
+    skills: chain.map((skillId, index) => ({ ...flagshipBlueprint.skills.find(skill => skill.id === skillId)!, prerequisiteIds: index ? [chain[index - 1]!] : [] })),
+    phases: [{ id: "prerequisite-chain", name: "Prerequisite-constrained product work", weeks: 52, outcome: "Complete every declared prerequisite before its dependent skill.", skillIds: chain }],
+  } : flagshipBlueprint;
+  const sourceResolver = constrainedJD ? new PlanningSourceResolver({ intelligence: { getPublished: async () => blueprint }, flagshipRegistry: flagshipUnitRegistry }) : materialSourceResolver();
+  const repository = new D1PlanningRepository(db as unknown as D1Database, { sourceResolver, now, createId: id });
+  const materials = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver, planningRepository: repository, now, createId: id });
+  const planning = new PlanningService({ repository, materials, sourceResolver, now, createId: id });
+  const documents = new D1DocumentRepository(db as unknown as D1Database, now, id);
+  const selections = new SelectionService(documents);
+  const request = materialContextRequest();
+  const { scope: draftScope, selectionRef: originalSelection, ...generation } = request;
+  let selectionRef = originalSelection;
+  const coach = initialFocus === undefined ? undefined : document("coach", "supplement", [{ id: "focus", kind: "constraint",
+    text: "Focus on the browser platform", skillLabels: ["web-platform"], origin: "user", sourceRef: null, requirementLevel: null }]);
+  const focusChoices: Choices = coach ? { learningIntents: [{ confirmationId: coach.confirmationId, itemId: "focus" }],
+    termMappings: [{ confirmationId: coach.confirmationId, itemId: "focus", skillLabel: "web-platform", skillIds: ["web-platform"] }] } : {};
+  if (coach) selectionRef = await selections.createMaterialSelection({ ownerId: "owner-a" }, { scope: draftScope, entries: [primary, coach], mutationId: id() });
+  let initialContext: Awaited<ReturnType<typeof materials.create>> | undefined;
+  if (adoptInitially) initialContext = await materials.create("owner-a", { ...request, scope: draftScope, selectionRef, ...(initialFocus ? focusChoices : {}) });
+  const initial = await planning.generate("owner-a", { ...generation, ...(initialContext ? { materials: { selectionRef,
+    contextVersionId: initialContext.contextVersionId, previewToken: initialContext.previewToken } } : {}) });
+  const completed = initial.workspace.dailyUnits[0]!;
+  const { workspace: before } = await planning.appendEvent("owner-a", { mutationId: id(), baseVersionId: initial.workspace.activePlanVersionId,
+    event: { kind: "completed", unitId: completed.id, actualMinutes: completed.estimatedMinutes, planningDate: request.planningDate } });
+  const proof = new ProofService({ repository: new D1ProofRepository(db as unknown as D1Database), blueprint,
+    registry: flagshipUnitRegistry, now, createId: id });
+  const submitted = await proof.create("owner-a", { mutationId: id(), baseRevision: 0, intent: "submit", validatorKey: null,
+    dailyUnitId: completed.id, title: "Completed task evidence", kind: "document", summary: "Existing evidence before material replacement.",
+    artifactUrl: "https://example.com/completed-task", assetId: null, skillIds: [completed.skillId],
+    completionCriteria: completed.completionCriteria, visibility: "private" });
+  expect(submitted.outcome).toBe("demonstrated");
+  const proofRows = () => Object.fromEntries(["proof_items", "proof_versions", "proof_review_events", "user_skill_projections"].map(table =>
+    [table, db.database.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()]));
+  const proofBefore = await proof.getWorkspace("owner-a");
+  const proofStorageBefore = proofRows();
+  for (const rows of Object.values(proofStorageBefore)) expect(rows.length).toBeGreaterThan(0);
+  const links = () => db.database.prepare("SELECT * FROM goal_document_links WHERE owner_id='owner-a' AND goal_id='goal-a' AND purpose='planning' AND enabled=1 ORDER BY slot,document_id").all();
+  async function preview(entries: MaterialSelectionEntry[], choices: Choices = {}, overrides: Partial<Pick<ContextInputSnapshot, "audit" | "availability" | "target" | "planningDate" | "selectedScope">> = {}) {
+    const workspace = (await planning.getWorkspace("owner-a"))!;
+    const scope = scopeFor(workspace);
+    const selected = await selections.createMaterialSelection({ ownerId: "owner-a" }, { scope, entries, mutationId: id() });
+    const context = await materials.create("owner-a", { ...generation, ...overrides, ...choices, scope, selectionRef: selected, mutationId: id() });
+    return { context, input: { scope, selectionRef: selected, contextVersionId: context.contextVersionId, previewToken: context.previewToken, mutationId: id() } };
+  }
+  function document(name: string, slot: MaterialSelectionEntry["slot"], items: ConfirmedMaterialItem[]): MaterialSelectionEntry {
+    const documentId = `doc-${name}`, documentVersionId = `version-${name}`, textVersionId = `text-${name}`, confirmationId = `confirmation-${name}`;
+    db.database.prepare("INSERT INTO documents(owner_id,id,kind,display_name,current_document_version_id,created_at,updated_at) VALUES ('owner-a',?,?,?,?,0,0)").run(documentId, slot, name, documentVersionId);
+    db.database.prepare("INSERT INTO document_versions(owner_id,document_id,id,text_version_id,state,generation,revision,text_digest,object_key,utf8_bytes,code_points,segments_json,parser_version,created_at) VALUES ('owner-a',?,?,?,'ready',0,0,?,?,3,3,'[]','2026.11.1',0)").run(documentId, documentVersionId, textVersionId, "b".repeat(64), `object-${name}`);
+    db.database.prepare("INSERT INTO document_text_versions(owner_id,document_id,document_version_id,id,parser_version,text_hash,object_key,created_at) VALUES ('owner-a',?,?,?,'2026.11.1',?,?,0)").run(documentId, documentVersionId, textVersionId, "b".repeat(64), `object-${name}`);
+    db.database.prepare("INSERT INTO document_confirmations(owner_id,document_id,document_version_id,id,text_version_id,review_revision,revision,origin,state,items_json,created_at) VALUES ('owner-a',?,?,?,?,0,0,'manual','active',?,0)").run(documentId, documentVersionId, confirmationId, textVersionId, JSON.stringify(items));
+    return { slot, documentId, documentVersionId, confirmationId };
+  }
+  async function preserved(workspace: PlanningWorkspace, pathId = workspace.activePathVersionId) {
+    const candidate = workspace.pathVersions.find(path => path.id === pathId)!;
+    expect(candidate.units).toEqual(activePath(before).units); // Full tasks, dependency edges and duration, in exactly the same order.
+    expect(workspace.events.filter(event => event.kind === "completed")).toEqual(before.events.filter(event => event.kind === "completed"));
+    expect(workspace.dailyUnits).toEqual(expect.arrayContaining(before.dailyUnits));
+    expect(workspace.audit).toEqual(before.audit);
+    expect(workspace.target).toEqual(before.target);
+    expect(workspace.availability).toEqual(before.availability);
+    expect(workspace.availabilityVersions).toEqual(before.availabilityVersions);
+    expect(activePlan(workspace).days.map(day => [day.date, day.budgetMinutes])).toEqual(activePlan(before).days.map(day => [day.date, day.budgetMinutes]));
+    expect(await proof.getWorkspace("owner-a")).toEqual(proofBefore);
+    expect(proofRows()).toEqual(proofStorageBefore);
+  }
+  async function decide(staged: PlanningWorkspace, decision: "accept" | "discard") {
+    const input = { baseVersionId: staged.activePlanVersionId, candidatePlanVersionId: staged.pendingPlanVersionId!, mutationId: id() };
+    return decision === "accept" ? planning.acceptReplan("owner-a", input) : planning.discardReplan("owner-a", input);
+  }
+  return { db, materials, planning, documents, selections, request, before, initialContext, coach, focusChoices, links, preview, document, preserved, decide, proofRows, proofStorageBefore,
+    advance: (milliseconds: number) => { clock += milliseconds; } };
+}
+
+
+export { setup, primary, activePath, activePlan, scopeFor };
+

@@ -1,0 +1,130 @@
+// Offline native D1/service probe. Synthetic seeded input; no provider or HTTP transport is constructed.
+import assert from "node:assert/strict";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { resolve } from "node:path";
+import { build } from "esbuild";
+import { Miniflare, Log, LogLevel } from "miniflare";
+import { materialContextRequest, seedMaterialSelection } from "../../tests/helpers/material-planning.ts";
+
+const resultName = process.argv[2] ?? "context-adoption-native-20261108-results.json";
+assert.match(resultName, /^context-adoption-native-[a-z0-9-]+-results\.json$/);
+
+const compiled = await build({ stdin: { resolveDir: process.cwd(), loader: "ts", contents: `
+import { PlanningService } from './app/server/planning/service';
+import { D1PlanningRepository } from './app/server/planning/d1-planning-repository';
+import { PlanningSourceResolver } from './app/server/planning/source-resolver';
+import { MaterialContextService } from './app/server/documents/context-builder';
+import { SelectionService } from './app/server/documents/selection-service';
+import { D1DocumentRepository } from './app/server/documents/d1-repository';
+import { flagshipBlueprint } from './app/data/flagship-blueprint';
+import { flagshipUnitRegistry } from './app/data/flagship-unit-registry';
+let serial = 0;
+export default { async fetch(request, env) {
+  const body = await request.json();
+  let raced = false;
+  const db = body.raceLinks ? { prepare: sql => env.DB.prepare(sql), batch: async statements => {
+    if (!raced) { raced = true; await env.DB.prepare("UPDATE goal_document_links SET enabled=0 WHERE owner_id='owner-a' AND goal_id='goal-a'").run(); }
+    return env.DB.batch(statements);
+  } } : env.DB;
+  const now = () => new Date(body.now || '2026-11-04T08:00:00.000Z');
+  const createId = () => 'native-adoption-' + ++serial;
+  const sourceResolver = new PlanningSourceResolver({ intelligence: { getPublished: async () => flagshipBlueprint }, flagshipRegistry: flagshipUnitRegistry });
+  const repository = new D1PlanningRepository(db, { sourceResolver, now, createId });
+  const materials = new MaterialContextService({ db, sourceResolver, planningRepository: repository, now, createId });
+  const planning = new PlanningService({ repository, materials, sourceResolver, now, createId });
+  const selection = new SelectionService(new D1DocumentRepository(db, now, createId));
+  try {
+    let value;
+    if (body.action === 'generate') value = await planning.generate('owner-a', body.input);
+    else if (body.action === 'preview') {
+      const workspace = await planning.getWorkspace('owner-a');
+      const scope = { kind: 'goal', goalId: workspace.goalId, workspaceId: workspace.id, revision: workspace.revision, baseVersionId: workspace.activePlanVersionId };
+      const selectionRef = await selection.createMaterialSelection({ ownerId: 'owner-a' }, { scope, entries: body.entries, mutationId: createId() });
+      const context = await materials.create('owner-a', { ...body.input, scope, selectionRef, mutationId: createId() });
+      value = { context, input: { scope, selectionRef, contextVersionId: context.contextVersionId, previewToken: context.previewToken, mutationId: createId() } };
+    } else if (body.action === 'propose') value = await planning.proposeMaterialReplanResponse('owner-a', body.input);
+    else if (body.action === 'accept') value = await planning.acceptReplan('owner-a', body.input);
+    else if (body.action === 'discard') value = await planning.discardReplan('owner-a', body.input);
+    else if (body.action === 'workspace') value = await planning.getWorkspace('owner-a');
+    else throw Error('unsupported local probe');
+    return Response.json({ ok: true, value });
+  } catch (error) { return Response.json({ ok: false, code: error.code, message: String(error.message) }); }
+} };
+` }, bundle: true, write: false, format: "esm", platform: "browser", target: "es2022" });
+
+let outboundCalls = 0;
+const script = compiled.outputFiles[0].text;
+const runtime = new Miniflare({ cf: false, modules: true, script, compatibilityDate: "2026-05-15",
+  d1Databases: { DB: "context-adoption-native" }, log: new Log(LogLevel.ERROR),
+  outboundService: async () => { outboundCalls++; throw new Error("Outbound denied"); } });
+const observations = [];
+const sha = value => createHash("sha256").update(value).digest("hex");
+try {
+  const db = await runtime.getD1Database("DB");
+  for (const file of readdirSync("drizzle").filter(name => /^\d{4}_.+\.sql$/.test(name) && Number(name.slice(0, 4)) <= 15).sort()) {
+    for (const sql of readFileSync(resolve("drizzle", file), "utf8").split("--> statement-breakpoint").map(value => value.trim()).filter(Boolean)) await db.prepare(sql).run();
+  }
+  const seeds = [];
+  seedMaterialSelection({ database: { prepare: sql => ({ run: (...values) => seeds.push({ sql, values }) }) } });
+  await db.batch(seeds.map(({ sql, values }) => db.prepare(sql).bind(...values)));
+  await db.prepare("UPDATE document_confirmations SET items_json=json_set(items_json,'$[0].requirementLevel','unspecified')").run();
+  async function call(action, fields = {}) {
+    const response = await runtime.dispatchFetch("http://localhost/probe", { method: "POST", body: JSON.stringify({ action, ...fields }) });
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    observations.push({ action, fields, result });
+    return result;
+  }
+  async function ok(action, fields) {
+    const result = await call(action, fields);
+    assert.equal(result.ok, true, JSON.stringify(result));
+    return result.value;
+  }
+  const { scope: ignoredScope, selectionRef: ignoredSelection, ...input } = materialContextRequest();
+  void ignoredScope; void ignoredSelection;
+  const entry = { slot: "jd", documentId: "doc-a", documentVersionId: "version-a", confirmationId: "confirmation-a" };
+  const initial = await ok("generate", { input });
+  const before = initial.workspace;
+  const linkRows = async () => (await db.prepare("SELECT * FROM goal_document_links WHERE owner_id='owner-a' AND goal_id='goal-a' AND enabled=1 ORDER BY slot,document_id").all()).results;
+  const original = await linkRows();
+  assert.deepEqual(original, []);
+  const preview = await ok("preview", { input, entries: [entry] });
+  assert.deepEqual(await linkRows(), original);
+  const proposal = await ok("propose", { input: preview.input });
+  assert.equal(proposal.outcome, "proposed");
+  const pending = proposal.planning.result.workspace;
+  assert.equal(pending.activePlanVersionId, before.activePlanVersionId);
+  assert.ok(proposal.planning.result.diff.items.every(item => item.change === "unchanged"));
+  assert.deepEqual(await linkRows(), original);
+  const decision = { mutationId: "native-accept-first", baseVersionId: pending.activePlanVersionId, candidatePlanVersionId: pending.pendingPlanVersionId };
+  const accepted = await ok("accept", { input: decision });
+  const adoptedLinks = await linkRows();
+  assert.equal(adoptedLinks.length, 1);
+  assert.equal(adoptedLinks[0].context_version_id, preview.context.contextVersionId);
+  assert.equal(accepted.workspace.revision, before.revision + 2);
+  const oldPath = before.pathVersions.find(path => path.id === before.activePathVersionId);
+  const newPath = accepted.workspace.pathVersions.find(path => path.id === accepted.workspace.activePathVersionId);
+  assert.deepEqual(newPath.units, oldPath.units);
+  assert.deepEqual(accepted.workspace.audit, before.audit);
+  const replay = await ok("accept", { input: decision });
+  assert.deepEqual(replay, accepted);
+  const same = await ok("preview", { input, entries: [entry] });
+  assert.equal((await ok("propose", { input: same.input })).outcome, "no-change");
+  assert.equal((await ok("propose", { input: same.input })).outcome, "no-change");
+  assert.deepEqual(await ok("workspace"), accepted.workspace);
+  assert.deepEqual(await linkRows(), adoptedLinks);
+  const racePreview = await ok("preview", { input, entries: [entry] });
+  const raced = await call("propose", { input: racePreview.input, raceLinks: true });
+  assert.equal(raced.ok, false);
+  assert.equal(raced.code, "CONFLICT");
+  assert.deepEqual(await ok("workspace"), accepted.workspace);
+  const racedReceipt = await db.prepare("SELECT mutation_id FROM document_mutations WHERE endpoint='POST /api/planning/material-replans' AND mutation_id=?").bind(racePreview.input.mutationId).first();
+  assert.equal(racedReceipt, null);
+  assert.equal(outboundCalls, 0);
+  const output = { mode: "offline-native-workerd-d1-context-adoption", tests: ["first-adoption-staged", "explicit-accept", "unchanged-full-task-objects", "unchanged-audit", "accept-replay", "equivalent-preview-no-change", "no-change-replay", "concurrent-link-change-rejected"],
+    inputProvenance: "synthetic database-seeded native service controls", limits: "No model, browser flow or Proof ledger measurement; those remain separate evidence.",
+    scriptSha256: sha(script), outboundCalls, realModelCalls: 0, observations };
+  writeFileSync("work/grounded-verification/" + resultName, JSON.stringify(output, null, 2) + "\n", { flag: "wx" });
+  console.log(JSON.stringify({ checks: output.tests.length, outboundCalls, scriptSha256: output.scriptSha256 }));
+} finally { await runtime.dispose(); }

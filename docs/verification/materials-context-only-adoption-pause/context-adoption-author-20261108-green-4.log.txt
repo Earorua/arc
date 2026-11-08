@@ -1,0 +1,34 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:33992) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17008) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39816) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9480) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/materials-plan-diff.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 261[2mms[22m[39m
+ [32m✓[39m tests/server/material-replan-atomic.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 2516[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks new material accepts when planning is closed but retains discard and successful receipt recovery [33m 504[2mms[22m[39m
+ [32m✓[39m tests/server/material-learning-intent-flow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1852[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through discard [33m 687[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through accept [33m 469[2mms[22m[39m
+   [33m[2m✓[22m[39m invalidates the adopted-choice preview when the selection revision removes its coach source [33m 321[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks acceptance after deleting the adopted coach source and still permits discard without changing progress or Proof [33m 374[2mms[22m[39m
+ [32m✓[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 6433[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on accept [33m 485[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on discard [33m 378[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on accept [33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on discard [33m 329[2mms[22m[39m
+     [33m[2m✓[22m[39m adopts a SQL-to-React company JD replacement despite a prerequisite-constrained unchanged schedule [33m 348[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=false without task movement [33m 638[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=true without task movement [33m 598[2mms[22m[39m
+     [33m[2m✓[22m[39m normalizes dependency, skill mapping, term skill, and intent order across fresh previews [33m 428[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m41 passed[39m[22m[90m (41)[39m
+[2m   Start at [22m 16:02:01
+[2m   Duration [22m 7.40s[2m (transform 1.90s, setup 1.09s, import 3.72s, tests 11.06s, environment 940ms)[22m
+

@@ -1,0 +1,11 @@
+import base from "../../vitest.config";
+
+export default {
+  ...base,
+  test: {
+    ...base.test,
+    environment: "node",
+    setupFiles: [],
+    include: ["work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts"],
+  },
+};

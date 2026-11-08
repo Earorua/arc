@@ -1,0 +1,156 @@
+// Independent SPEC-review probes. Confirmations are synthetic seeded controls;
+// native services, reducers, SQLite transactions, and ProofService are exercised.
+// This is not an input-confirmation, real-model, or release-quality evaluation.
+import { afterEach, expect, it } from "vitest";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
+import { SelectionService } from "../../app/server/documents/selection-service";
+import { PlanningService } from "../../app/server/planning/service";
+import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
+import { ProofService } from "../../app/server/proof/service";
+import { D1ProofRepository } from "../../app/server/proof/d1-proof-repository";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { canonicalJson } from "../../app/lib/planning/fingerprint";
+import { createMaterialContextFingerprint, type ContextInputSnapshot } from "../../app/contracts/material-planning";
+import type { PlanningWorkspace } from "../../app/contracts/planning";
+
+const databases: ReturnType<typeof createMaterialsD1>[] = [];
+afterEach(() => databases.splice(0).forEach(db => db.close()));
+const entry = { slot: "jd" as const, documentId: "doc-a", documentVersionId: "version-a", confirmationId: "confirmation-a" };
+const choices = (skillIds: string[]) => ({ termMappings: [{ confirmationId: "confirmation-a", itemId: "confirmed-a", skillLabel: "Web Platform", skillIds }] });
+const scope = (w: PlanningWorkspace) => ({ kind: "goal" as const, goalId: w.goalId, workspaceId: w.id, baseVersionId: w.activePlanVersionId, revision: w.revision });
+
+async function fixture() {
+  const db = createMaterialsD1(); databases.push(db); seedMaterialSelection(db);
+  db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE owner_id='owner-a' AND id='confirmation-a'").run(JSON.stringify([
+    { id: "confirmed-a", kind: "requirement", text: "Foundational practice", skillLabels: ["Web Platform"], origin: "user", sourceRef: null, requirementLevel: "unspecified" },
+  ]));
+  let serial = 0;
+  const id = () => `spec-review-${++serial}`;
+  const sourceResolver = materialSourceResolver();
+  const repository = new D1PlanningRepository(db as unknown as D1Database, { sourceResolver, now: materialNow, createId: id });
+  const materials = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver, planningRepository: repository, now: materialNow, createId: id });
+  const planning = new PlanningService({ repository, materials, sourceResolver, now: materialNow, createId: id });
+  const selections = new SelectionService(new D1DocumentRepository(db as unknown as D1Database, materialNow, id));
+  const request = materialContextRequest();
+  const initialContext = await materials.create("owner-a", { ...request, ...choices(["web-platform"]) });
+  const { scope: draft, selectionRef, ...generation } = request;
+  void draft;
+  const generated = await planning.generate("owner-a", { ...generation, materials: { selectionRef, contextVersionId: initialContext.contextVersionId, previewToken: initialContext.previewToken } });
+  const unit = generated.workspace.dailyUnits[0]!;
+  const completed = await planning.appendEvent("owner-a", { mutationId: id(), baseVersionId: generated.workspace.activePlanVersionId,
+    event: { kind: "completed", unitId: unit.id, actualMinutes: unit.estimatedMinutes, planningDate: request.planningDate } });
+  const proof = new ProofService({ repository: new D1ProofRepository(db as unknown as D1Database), blueprint: flagshipBlueprint, registry: flagshipUnitRegistry, now: materialNow, createId: id });
+  expect((await proof.create("owner-a", { mutationId: id(), baseRevision: 0, intent: "submit", validatorKey: null, dailyUnitId: unit.id,
+    title: "Review probe evidence", kind: "document", summary: "Synthetic control through the native Proof service", artifactUrl: "https://example.com/proof",
+    assetId: null, skillIds: [unit.skillId], completionCriteria: unit.completionCriteria, visibility: "private" })).outcome).toBe("demonstrated");
+  const links = () => db.database.prepare("SELECT * FROM goal_document_links WHERE owner_id='owner-a' AND goal_id='goal-a' AND enabled=1 ORDER BY rowid").all();
+  const ledger = () => Object.fromEntries(["proof_items", "proof_versions", "proof_review_events", "user_skill_projections"].map(table => [table, db.database.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()]));
+  const proofBefore = ledger();
+  for (const rows of Object.values(proofBefore)) expect(rows.length).toBeGreaterThan(0);
+  async function preview(skillIds: string[] = ["web-platform"]) {
+    const w = (await planning.getWorkspace("owner-a"))!;
+    const selected = await selections.createMaterialSelection({ ownerId: "owner-a" }, { scope: scope(w), entries: [entry], mutationId: id() });
+    const context = await materials.create("owner-a", { ...generation, ...choices(skillIds), scope: scope(w), selectionRef: selected, mutationId: id() });
+    return { context, input: { scope: scope(w), selectionRef: selected, contextVersionId: context.contextVersionId, previewToken: context.previewToken, mutationId: id() } };
+  }
+  const before = completed.workspace;
+  const path = before.pathVersions.find(p => p.id === before.activePathVersionId)!;
+  async function invariant(w: PlanningWorkspace, candidate = false) {
+    const candidatePlan = candidate ? w.planVersions.find(p => p.id === w.pendingPlanVersionId)! : w.planVersions.find(p => p.id === w.activePlanVersionId)!;
+    expect(w.pathVersions.find(p => p.id === candidatePlan.pathVersionId)!.units).toEqual(path.units);
+    expect(w.dailyUnits).toEqual(expect.arrayContaining(before.dailyUnits));
+    expect(w.events.filter(e => e.kind === "completed")).toEqual(before.events.filter(e => e.kind === "completed"));
+    expect(w.audit).toEqual(before.audit); expect(w.target).toEqual(before.target);
+    expect(ledger()).toEqual(proofBefore);
+  }
+  async function changeBaseline(change: (snapshot: ContextInputSnapshot) => void) {
+    const row = db.database.prepare("SELECT snapshot_json FROM material_context_versions WHERE id=?").get(initialContext.contextVersionId) as { snapshot_json: string };
+    const value: ContextInputSnapshot = JSON.parse(row.snapshot_json); change(value);
+    db.database.prepare("UPDATE material_context_versions SET snapshot_json=?,fingerprint=? WHERE id=?")
+      .run(canonicalJson(value), await createMaterialContextFingerprint(value), initialContext.contextVersionId);
+  }
+  return { db, id, planning, materials, initialContext, before, links, ledger, proofBefore, preview, invariant, changeBaseline };
+}
+
+it("requires explicit term-only acceptance, retains discard, and makes proposal/accept/discard replay idempotent", async () => {
+  const f = await fixture();
+  const originalLinks = f.links();
+  for (const accept of [false, true]) {
+    const { input } = await f.preview(["typescript"]);
+    expect(f.links()).toEqual(originalLinks);
+    const proposed = await f.planning.proposeMaterialReplanResponse("owner-a", input);
+    expect(proposed.outcome).toBe("proposed");
+    if (proposed.outcome !== "proposed") throw new Error("Term-only change must be proposed");
+    const staged = proposed.planning.result.workspace;
+    expect(proposed.planning.result.diff!.items.every(item => item.change === "unchanged")).toBe(true);
+    expect(proposed.planning.result.diff!.previousEstimatedCompletionDate).toBe(proposed.planning.result.diff!.nextEstimatedCompletionDate);
+    expect(f.links()).toEqual(originalLinks); await f.invariant(staged, true);
+    expect((await f.planning.proposeMaterialReplanResponse("owner-a", input)).outcome).toBe("proposed");
+    expect(await f.planning.getWorkspace("owner-a")).toEqual(staged);
+    const decision = { mutationId: f.id(), candidatePlanVersionId: staged.pendingPlanVersionId!, baseVersionId: staged.activePlanVersionId };
+    const apply = () => accept ? f.planning.acceptReplan("owner-a", decision) : f.planning.discardReplan("owner-a", decision);
+    const after = await apply(); const links = f.links();
+    expect(await apply()).toEqual(after); expect(f.links()).toEqual(links);
+    expect(links).toEqual(accept ? [expect.objectContaining({ context_version_id: input.contextVersionId })] : originalLinks);
+    await f.invariant(after.workspace);
+  }
+  const accepted = (await f.planning.getWorkspace("owner-a"))!;
+  const fresh = await f.preview(["typescript"]);
+  expect(await f.planning.proposeMaterialReplanResponse("owner-a", fresh.input)).toMatchObject({ outcome: "no-change" });
+  expect(await f.planning.getWorkspace("owner-a")).toEqual(accepted);
+});
+
+it("does not use the current goal's adoption evidence for a different workspace in helper comparison", async () => {
+  const f = await fixture(); const fresh = await f.preview();
+  const { commit } = await f.materials.verifyProposalRequest("owner-a", fresh.input);
+  expect((await f.materials.compareAdoptedContext("owner-a", commit)).matches).toBe(true);
+  const changedScope = { ...scope(f.before), workspaceId: "unrelated-workspace" };
+  expect((await f.materials.compareAdoptedContext("owner-a", { ...commit, snapshot: { ...commit.snapshot, scope: changedScope } })).matches).toBe(false);
+  expect((await f.materials.compareAdoptedContext("owner-b", commit)).matches).toBe(false);
+});
+
+it.each(["mapping-version", "explanation-version", "broken-dependency", "invalid-digest", "wrong-goal", "redacted"])("never trusts invalid baseline: %s", async kind => {
+  const f = await fixture(); const fresh = await f.preview();
+  if (kind === "mapping-version") await f.changeBaseline(s => { s.mappingVersion = "2026.10.1"; });
+  else if (kind === "explanation-version") await f.changeBaseline(s => { s.explanationVersion = "2026.10.1"; });
+  else if (kind === "broken-dependency") f.db.database.prepare("DELETE FROM material_context_dependencies WHERE context_version_id=?").run(f.initialContext.contextVersionId);
+  else if (kind === "invalid-digest") f.db.database.prepare("UPDATE material_context_dependencies SET confirmation_digest=? WHERE context_version_id=?").run("f".repeat(64), f.initialContext.contextVersionId);
+  else if (kind === "wrong-goal") await f.changeBaseline(s => { s.scope = { ...scope(f.before), goalId: "unrelated-goal" }; });
+  else f.db.database.prepare("UPDATE material_context_versions SET snapshot_json='{}' WHERE id=?").run(f.initialContext.contextVersionId);
+  const old = f.links();
+  expect(await f.planning.proposeMaterialReplanResponse("owner-a", fresh.input)).toMatchObject({ outcome: "proposed" });
+  expect(f.links()).toEqual(old); expect(f.ledger()).toEqual(f.proofBefore);
+});
+
+it.each(["snapshot", "usage", "dependency"])("fences post-comparison baseline %s changes before the receipt write", async race => {
+  const f = await fixture(); const fresh = await f.preview();
+  const batch = f.db.batch.bind(f.db);
+  f.db.batch = async statements => {
+    f.db.batch = batch;
+    if (race === "snapshot") await f.changeBaseline(s => { s.explanationVersion = "2026.10.1"; });
+    else if (race === "usage") f.db.database.prepare("DELETE FROM document_usage_links WHERE context_version_id=?").run(f.initialContext.contextVersionId);
+    else f.db.database.prepare("UPDATE material_context_dependencies SET generation=generation+1 WHERE context_version_id=?").run(f.initialContext.contextVersionId);
+    return batch(statements);
+  };
+  await expect(f.planning.proposeMaterialReplanResponse("owner-a", fresh.input)).rejects.toMatchObject({ code: "CONFLICT" });
+  expect(f.db.database.prepare("SELECT count(*) AS n FROM document_mutations WHERE endpoint='POST /api/planning/material-replans'").get()).toEqual({ n: 0 });
+  expect(await f.planning.getWorkspace("owner-a")).toEqual(f.before); expect(f.ledger()).toEqual(f.proofBefore);
+});
+
+it("rolls back all accept sidecars, active links and planning writes when the accepted usage insert fails", async () => {
+  const f = await fixture(); const fresh = await f.preview(["typescript"]);
+  const proposal = await f.planning.proposeMaterialReplanResponse("owner-a", fresh.input);
+  if (proposal.outcome !== "proposed") throw new Error("Expected term-only proposal");
+  const staged = proposal.planning.result.workspace, links = f.links();
+  const ledger = f.db.database.prepare("SELECT * FROM document_usage_links ORDER BY rowid").all();
+  f.db.database.exec("CREATE TRIGGER fail_spec_accept BEFORE INSERT ON document_usage_links WHEN NEW.kind='accepted' BEGIN SELECT RAISE(ABORT,'spec injected accepted usage failure'); END");
+  await expect(f.planning.acceptReplan("owner-a", { mutationId: f.id(), candidatePlanVersionId: staged.pendingPlanVersionId!, baseVersionId: staged.activePlanVersionId })).rejects.toBeTruthy();
+  expect(await f.planning.getWorkspace("owner-a")).toEqual(staged); expect(f.links()).toEqual(links);
+  expect(f.db.database.prepare("SELECT * FROM document_usage_links ORDER BY rowid").all()).toEqual(ledger);
+  expect(f.db.database.prepare("SELECT state FROM material_plan_proposals WHERE candidate_plan_version_id=?").get(staged.pendingPlanVersionId)).toEqual({ state: "pending" });
+  await f.invariant(staged, true);
+});

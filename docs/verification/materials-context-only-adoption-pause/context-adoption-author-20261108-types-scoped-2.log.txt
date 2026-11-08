@@ -1,0 +1,6 @@
+tests/server/material-context-only-adoption.test.ts(212,114): error TS2322: Type '{ id: string; answers: { level: "uncertain"; skillId: string; evidenceRefs: string[]; }[]; schemaVersion: "2026.08.1"; blueprintId: string; blueprintVersion: string; evidence: { id: string; skillId: string; kind: "document" | ... 3 more ... | "deployment"; url: string; note: string; }[]; createdBy: string; inputFing...' is not assignable to type '{ id: string; schemaVersion: "2026.08.1"; blueprintId: string; blueprintVersion: string; answers: { skillId: string; level: "conceptual"; evidenceRefs: never[]; }[]; evidence: never[]; createdBy: string; inputFingerprint: string; }'.
+  Types of property 'answers' are incompatible.
+    Type '{ level: "uncertain"; skillId: string; evidenceRefs: string[]; }[]' is not assignable to type '{ skillId: string; level: "conceptual"; evidenceRefs: never[]; }[]'.
+      Type '{ level: "uncertain"; skillId: string; evidenceRefs: string[]; }' is not assignable to type '{ skillId: string; level: "conceptual"; evidenceRefs: never[]; }'.
+        Types of property 'level' are incompatible.
+          Type '"uncertain"' is not assignable to type '"conceptual"'.

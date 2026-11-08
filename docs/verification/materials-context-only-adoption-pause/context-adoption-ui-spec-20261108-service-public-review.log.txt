@@ -1,0 +1,64 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:40464) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstdout[2m | work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts[2m > [22m[2mexplains a context-only adoption from actual public service responses
+[22m[39m{"surface":"proposal-response","eventKind":"agent_replanned","hasMaterialMarker":false,"hasContextOnlyCopy":false,"hasGenericAccept":true}
+{"surface":"workspace-reload","eventKind":"agent_replanned","hasMaterialMarker":false,"hasContextOnlyCopy":false,"hasGenericAccept":true}
+
+ [31m❯[39m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 223[2mms[22m[39m
+[31m   [31m×[31m explains a context-only adoption from actual public service responses[39m[32m 223[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts[2m > [22mexplains a context-only adoption from actual public service responses
+[31m[1mAssertionError[22m: proposal-response: expected '<section class="plan-diff-review" ari…' to contain '任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。'[39m
+
+Expected: [32m"任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts:[2m49:34[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts[2m > [22mexplains a context-only adoption from actual public service responses
+[31m[1mAssertionError[22m: proposal-response: expected '<section class="plan-diff-review" ari…' to contain '接受资料更新'[39m
+
+Expected: [32m"接受资料更新"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts:[2m50:34[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts[2m > [22mexplains a context-only adoption from actual public service responses
+[31m[1mAssertionError[22m: workspace-reload: expected '<section class="plan-diff-review" ari…' to contain '任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。'[39m
+
+Expected: [32m"任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts:[2m49:34[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts[2m > [22mexplains a context-only adoption from actual public service responses
+[31m[1mAssertionError[22m: workspace-reload: expected '<section class="plan-diff-review" ari…' to contain '接受资料更新'[39m
+
+Expected: [32m"接受资料更新"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts:[2m50:34[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 16:20:42
+[2m   Duration [22m 859ms[2m (transform 307ms, setup 0ms, import 481ms, tests 223ms, environment 0ms)[22m
+

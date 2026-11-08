@@ -1,0 +1,95 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:18520) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m12 failed[39m[2m)[22m[33m 1166[2mms[22m[39m
+[31m   [31m×[31m requires explicit term-only acceptance, retains discard, and makes proposal/accept/discard replay idempotent[39m[32m 154[2mms[22m[39m
+[31m   [31m×[31m never trusts invalid baseline: mapping-version[39m[32m 98[2mms[22m[39m
+[31m   [31m×[31m never trusts invalid baseline: explanation-version[39m[32m 90[2mms[22m[39m
+[31m   [31m×[31m never trusts invalid baseline: wrong-workspace[39m[32m 92[2mms[22m[39m
+[31m   [31m×[31m never trusts invalid baseline: broken-dependency[39m[32m 93[2mms[22m[39m
+[31m   [31m×[31m never trusts invalid baseline: invalid-digest[39m[32m 90[2mms[22m[39m
+[31m   [31m×[31m never trusts invalid baseline: wrong-goal[39m[32m 91[2mms[22m[39m
+[31m   [31m×[31m never trusts invalid baseline: redacted[39m[32m 94[2mms[22m[39m
+[31m   [31m×[31m fences post-comparison baseline snapshot changes before the receipt write[39m[32m 92[2mms[22m[39m
+[31m   [31m×[31m fences post-comparison baseline usage changes before the receipt write[39m[32m 93[2mms[22m[39m
+[31m   [31m×[31m fences post-comparison baseline dependency changes before the receipt write[39m[32m 91[2mms[22m[39m
+[31m   [31m×[31m rolls back all accept sidecars, active links and planning writes when the accepted usage insert fails[39m[32m 85[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 12 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mrequires explicit term-only acceptance, retains discard, and makes proposal/accept/discard replay idempotent
+[31m[1mProofServiceError[22m: Proof input is invalid.[39m
+[36m [2m❯[22m parseRequest app/server/proof/service.ts:[2m363:17[22m[39m
+    [90m361|[39m [35mfunction[39m parseRequest[33m<[39m[33mT[39m[33m>[39m(schema[33m:[39m z[33m.[39m[33mZodType[39m[33m<[39m[33mT[39m[33m>[39m[33m,[39m input[33m:[39m unknown)[33m:[39m [33mT[39m {
+    [90m362|[39m   [35mtry[39m { [35mreturn[39m schema[33m.[39m[34mparse[39m([34mstructuredClone[39m(input))[33m;[39m }
+    [90m363|[39m   [35mcatch[39m { [35mthrow[39m [35mnew[39m [33mProofServiceError[39m([32m"INVALID_INPUT"[39m[33m,[39m [[32m"contract"[39m])[33m;[39m }
+    [90m   |[39m                 [31m^[39m
+    [90m364|[39m }
+    [90m365|[39m
+[90m [2m❯[22m ProofService.create app/server/proof/service.ts:[2m78:21[22m[39m
+[90m [2m❯[22m fixture work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m47:23[22m[39m
+[90m [2m❯[22m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m80:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mnever trusts invalid baseline: mapping-version
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mnever trusts invalid baseline: explanation-version
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mnever trusts invalid baseline: wrong-workspace
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mnever trusts invalid baseline: broken-dependency
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mnever trusts invalid baseline: invalid-digest
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mnever trusts invalid baseline: wrong-goal
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mnever trusts invalid baseline: redacted
+[31m[1mProofServiceError[22m: Proof input is invalid.[39m
+[36m [2m❯[22m parseRequest app/server/proof/service.ts:[2m363:17[22m[39m
+    [90m361|[39m [35mfunction[39m parseRequest[33m<[39m[33mT[39m[33m>[39m(schema[33m:[39m z[33m.[39m[33mZodType[39m[33m<[39m[33mT[39m[33m>[39m[33m,[39m input[33m:[39m unknown)[33m:[39m [33mT[39m {
+    [90m362|[39m   [35mtry[39m { [35mreturn[39m schema[33m.[39m[34mparse[39m([34mstructuredClone[39m(input))[33m;[39m }
+    [90m363|[39m   [35mcatch[39m { [35mthrow[39m [35mnew[39m [33mProofServiceError[39m([32m"INVALID_INPUT"[39m[33m,[39m [[32m"contract"[39m])[33m;[39m }
+    [90m   |[39m                 [31m^[39m
+    [90m364|[39m }
+    [90m365|[39m
+[90m [2m❯[22m ProofService.create app/server/proof/service.ts:[2m78:21[22m[39m
+[90m [2m❯[22m fixture work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m47:23[22m[39m
+[90m [2m❯[22m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m108:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mfences post-comparison baseline snapshot changes before the receipt write
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mfences post-comparison baseline usage changes before the receipt write
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mfences post-comparison baseline dependency changes before the receipt write
+[31m[1mProofServiceError[22m: Proof input is invalid.[39m
+[36m [2m❯[22m parseRequest app/server/proof/service.ts:[2m363:17[22m[39m
+    [90m361|[39m [35mfunction[39m parseRequest[33m<[39m[33mT[39m[33m>[39m(schema[33m:[39m z[33m.[39m[33mZodType[39m[33m<[39m[33mT[39m[33m>[39m[33m,[39m input[33m:[39m unknown)[33m:[39m [33mT[39m {
+    [90m362|[39m   [35mtry[39m { [35mreturn[39m schema[33m.[39m[34mparse[39m([34mstructuredClone[39m(input))[33m;[39m }
+    [90m363|[39m   [35mcatch[39m { [35mthrow[39m [35mnew[39m [33mProofServiceError[39m([32m"INVALID_INPUT"[39m[33m,[39m [[32m"contract"[39m])[33m;[39m }
+    [90m   |[39m                 [31m^[39m
+    [90m364|[39m }
+    [90m365|[39m
+[90m [2m❯[22m ProofService.create app/server/proof/service.ts:[2m78:21[22m[39m
+[90m [2m❯[22m fixture work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m47:23[22m[39m
+[90m [2m❯[22m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m122:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mrolls back all accept sidecars, active links and planning writes when the accepted usage insert fails
+[31m[1mProofServiceError[22m: Proof input is invalid.[39m
+[36m [2m❯[22m parseRequest app/server/proof/service.ts:[2m363:17[22m[39m
+    [90m361|[39m [35mfunction[39m parseRequest[33m<[39m[33mT[39m[33m>[39m(schema[33m:[39m z[33m.[39m[33mZodType[39m[33m<[39m[33mT[39m[33m>[39m[33m,[39m input[33m:[39m unknown)[33m:[39m [33mT[39m {
+    [90m362|[39m   [35mtry[39m { [35mreturn[39m schema[33m.[39m[34mparse[39m([34mstructuredClone[39m(input))[33m;[39m }
+    [90m363|[39m   [35mcatch[39m { [35mthrow[39m [35mnew[39m [33mProofServiceError[39m([32m"INVALID_INPUT"[39m[33m,[39m [[32m"contract"[39m])[33m;[39m }
+    [90m   |[39m                 [31m^[39m
+    [90m364|[39m }
+    [90m365|[39m
+[90m [2m❯[22m ProofService.create app/server/proof/service.ts:[2m78:21[22m[39m
+[90m [2m❯[22m fixture work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m47:23[22m[39m
+[90m [2m❯[22m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m137:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m12 failed[39m[22m[90m (12)[39m
+[2m   Start at [22m 16:07:48
+[2m   Duration [22m 1.99s[2m (transform 336ms, setup 192ms, import 475ms, tests 1.17s, environment 0ms)[22m
+

@@ -139,7 +139,7 @@ describe("material proposal transactions", () => {
     await expect(materials.history("owner-b", "goal-a")).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
   it("rejects a concurrent same-key proposal with a different material request digest", async () => {
-    const { service, materials, request, input } = await setup();
+    const { service, materials, request, input } = await setup(true);
     const other = await materials.create("owner-a", { ...request, scope: input.scope, mutationId: "other-context" });
     const results = await Promise.allSettled([
       service.proposeMaterialReplanResponse("owner-a", input),
@@ -161,17 +161,21 @@ describe("material proposal transactions", () => {
     const completedId = initial.workspace.events[0]!.kind === "completed" ? initial.workspace.events[0]!.unitId : "missing";
     expect(after.units.findIndex(unit => unit.id === completedId)).toBe(before.units.findIndex(unit => unit.id === completedId));
   });
-  it("returns no-change without adding a pending plan or planning event", async () => {
+  it("stages first adoption even when priorities leave every task unchanged", async () => {
     const { db, service, input } = await setup(true);
-    expect(await service.proposeMaterialReplanResponse("owner-a", input)).toMatchObject({ outcome: "no-change" });
-    expect(db.database.prepare("SELECT revision,pending_plan_version_id FROM planning_workspaces").get()).toMatchObject({ revision: 0, pending_plan_version_id: null });
-    expect(db.database.prepare("SELECT count(*) AS n FROM planning_events").get()).toMatchObject({ n: 0 });
+    const proposed = await service.proposeMaterialReplanResponse("owner-a", input);
+    expect(proposed.outcome).toBe("proposed");
+    if (proposed.outcome !== "proposed") throw new Error("First adoption requires a reviewable proposal");
+    expect(proposed.planning.result.diff!.items.every(item => item.change === "unchanged")).toBe(true);
+    expect(db.database.prepare("SELECT revision,pending_plan_version_id FROM planning_workspaces").get()).toMatchObject({ revision: 1, pending_plan_version_id: proposed.planning.result.workspace.pendingPlanVersionId });
+    expect(db.database.prepare("SELECT count(*) AS n FROM planning_events").get()).toMatchObject({ n: 1 });
     const receipt = db.database.prepare("SELECT result_json FROM document_mutations WHERE endpoint='POST /api/planning/material-replans'").get() as { result_json: string } | undefined;
     expect(receipt).toBeTruthy();
-    expect(JSON.parse(receipt!.result_json)).toMatchObject({ outcome: "no-change", contextVersionId: input.contextVersionId });
+    expect(JSON.parse(receipt!.result_json)).toMatchObject({ contextVersionId: input.contextVersionId, planVersionId: proposed.planning.result.workspace.pendingPlanVersionId });
+    expect(db.database.prepare("SELECT count(*) AS n FROM goal_document_links WHERE enabled=1").get()).toMatchObject({ n: 0 });
   });
   it("rechecks deletion after legacy accept validation and rolls back every acceptance write", async () => {
-    const { db, service, input } = await setup();
+    const { db, service, input } = await setup(true);
     const proposed = await service.proposeMaterialReplanResponse("owner-a", input);
     if (proposed.outcome !== "proposed") throw new Error("expected proposal");
     const workspace = proposed.planning.result.workspace;
@@ -183,7 +187,7 @@ describe("material proposal transactions", () => {
     expect(db.database.prepare("SELECT count(*) AS n FROM document_usage_links WHERE kind='accepted'").get()).toMatchObject({ n: 0 });
   });
   it("rolls back a proposal sidecar failure with the planning event", async () => {
-    const { db, service, input } = await setup();
+    const { db, service, input } = await setup(true);
     db.database.exec("CREATE TRIGGER fail_material_proposal BEFORE INSERT ON material_plan_proposals BEGIN SELECT RAISE(ABORT,'injected'); END");
     await expect(service.proposeMaterialReplanResponse("owner-a", input)).rejects.toBeTruthy();
     expect(db.database.prepare("SELECT revision,pending_plan_version_id FROM planning_workspaces").get()).toMatchObject({ revision: 0, pending_plan_version_id: null });

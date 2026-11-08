@@ -1,0 +1,58 @@
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { expect, it, vi } from "vitest";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { PlanningService } from "../../app/server/planning/service";
+import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
+import { PlanDiffReview } from "../../app/components/workspace/plan-diff-review";
+import type { PlanningWorkspace } from "../../app/contracts/planning";
+
+it("explains a context-only adoption from actual public service responses", async () => {
+  const db = createMaterialsD1();
+  try {
+    seedMaterialSelection(db);
+    let id = 0;
+    const sourceResolver = materialSourceResolver();
+    const repository = new D1PlanningRepository(db as unknown as D1Database, { sourceResolver, now: materialNow, createId: () => `spec-stored-${++id}` });
+    const materials = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver, planningRepository: repository, now: materialNow, createId: () => `spec-context-${++id}` });
+    const service = new PlanningService({ repository, materials, sourceResolver, now: materialNow, createId: () => `spec-event-${++id}` });
+    const request = materialContextRequest();
+    const { scope: draftScope, selectionRef, ...generation } = request;
+    void draftScope;
+    const initial = await service.generate("owner-a", generation);
+    const scope = { kind: "goal" as const, goalId: "goal-a", workspaceId: initial.workspace.id, baseVersionId: initial.workspace.activePlanVersionId, revision: initial.workspace.revision };
+    db.database.prepare("UPDATE material_selections SET scope_json=?").run(JSON.stringify(scope));
+    db.database.exec("UPDATE document_confirmations SET items_json=json_set(items_json,'$[0].requirementLevel','unspecified')");
+    const preview = await materials.create("owner-a", { ...request, scope, mutationId: "spec-replan-context" });
+    const proposed = await service.proposeMaterialReplanResponse("owner-a", { scope, selectionRef, contextVersionId: preview.contextVersionId, previewToken: preview.previewToken, mutationId: "spec-material-proposal" });
+    if (proposed.outcome !== "proposed") throw new Error("Expected first-adoption proposal");
+    const reload = await service.getWorkspaceResponse("owner-a");
+    expect(reload.workspace).not.toBeNull();
+    const onAccept = vi.fn(async () => true);
+    const onDiscard = vi.fn(async () => true);
+    for (const [surface, workspace] of [["proposal-response", proposed.planning.result.workspace], ["workspace-reload", reload.workspace!]] as const) {
+      const current: PlanningWorkspace = workspace;
+      const active = current.planVersions.find(plan => plan.id === current.activePlanVersionId)!;
+      const candidate = current.planVersions.find(plan => plan.id === current.pendingPlanVersionId)!;
+      const activePath = current.pathVersions.find(path => path.id === active.pathVersionId)!;
+      const candidatePath = current.pathVersions.find(path => path.id === candidate.pathVersionId)!;
+      expect(candidate.replanReason).toBe("agent_replanned");
+      expect(candidatePath.units).toEqual(activePath.units);
+      expect(candidate.days).toEqual(active.days);
+      expect(candidate.planningDate).toBe(active.planningDate);
+      expect(candidate.estimatedCompletionDate).toBe(active.estimatedCompletionDate);
+      const html = renderToStaticMarkup(createElement(PlanDiffReview, { workspace: current, onAccept, onDiscard }));
+      const event = current.events.at(-1)!;
+      console.info(JSON.stringify({ surface, eventKind: event.kind, hasMaterialMarker: "materialContextFingerprint" in event, hasContextOnlyCopy: html.includes("任务和日程保持不变"), hasGenericAccept: html.includes("接受新安排") }));
+      expect.soft(html.includes("任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"), `${surface}: context-only explanation`).toBe(true);
+      expect.soft(html.includes("接受资料更新"), `${surface}: material accept label`).toBe(true);
+      expect(html).not.toContain("PRIVATE-MATERIAL-SENTINEL");
+    }
+    expect(onAccept).not.toHaveBeenCalled();
+    expect(onDiscard).not.toHaveBeenCalled();
+  } finally {
+    db.close();
+  }
+});

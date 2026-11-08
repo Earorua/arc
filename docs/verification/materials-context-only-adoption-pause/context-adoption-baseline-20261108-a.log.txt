@@ -1,0 +1,22 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:13264) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-replan-atomic.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 1949[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks new material accepts when planning is closed but retains discard and successful receipt recovery [33m 345[2mms[22m[39m
+(node:21232) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-learning-intent-flow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1635[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through discard [33m 576[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through accept [33m 433[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks acceptance after deleting the adopted coach source and still permits discard without changing progress or Proof [33m 344[2mms[22m[39m
+(node:19832) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/materials-plan-diff.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 202[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m20 passed[39m[22m[90m (20)[39m
+[2m   Start at [22m 15:48:35
+[2m   Duration [22m 8.99s[2m (transform 1.15s, setup 750ms, import 2.73s, tests 3.79s, environment 1.26s)[22m
+

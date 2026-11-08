@@ -1,0 +1,693 @@
+{
+  "schemaVersion": 1,
+  "status": "paused-incomplete-known-ui-failure",
+  "capturedAt": "2026-11-08T16:28:12.3889718+08:00",
+  "baseHead": "f875d2184033fe64a94b08d02d2fbfed61780143",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "checkout": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+  "purpose": "User-requested local pause checkpoint, not an acceptance or release candidate",
+  "verification": {
+    "focused": {
+      "files": 16,
+      "passed": 126,
+      "failed": 0,
+      "run": "context-adoption-pause-root-focused-20261108-a"
+    },
+    "publicServiceUi": {
+      "files": 1,
+      "passed": 0,
+      "failed": 1,
+      "failedAssertions": 4,
+      "run": "context-adoption-pause-public-probe-20261108-a"
+    },
+    "fullRepository": "not-run-on-current-source",
+    "independentServerReplayRereview": "pending",
+    "uiSpec": "FAIL-P1",
+    "uiQuality": "not-started",
+    "nativeWorkerFinal": "pending"
+  },
+  "operations": {
+    "newModelInferences": 0,
+    "newModelCostUsd": 0,
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "githubPushes": 0,
+    "historicalModelInferences": 30,
+    "historicalModelCostUsd": 0.547151,
+    "historicalUnsettled": 0
+  },
+  "changedProductFiles": [
+    {
+      "path": "app/server/documents/adopted-context.ts",
+      "sha256": "7d91e1ceef766ce5fe3e3afbdea3de6578fc8e59bfc7ea93c2241f6187a7c697"
+    },
+    {
+      "path": "app/server/documents/context-builder.ts",
+      "sha256": "de0d52a3288249004e6fcb2a726fc848e72e00f3a7e76e86ec193c207c34d091"
+    },
+    {
+      "path": "app/server/planning/service.ts",
+      "sha256": "db9b9b98ac2a5145ca7e745711105c91bf3e2e55cd80cc3f600377f013c87d71"
+    },
+    {
+      "path": "app/components/workspace/plan-diff-review.tsx",
+      "sha256": "fe6633d76107918f33008123801db0af3b61127ae9f2bc4108ae144173f875a6"
+    },
+    {
+      "path": "tests/server/material-context-only-adoption.test.ts",
+      "sha256": "fadd0d21508bed564acb10196088920ad30c30b4d31a03beba38afb0c12b0ecf"
+    },
+    {
+      "path": "tests/server/material-replan-atomic.test.ts",
+      "sha256": "6b7e3892ff971edcc1880ba6262beb644d88a63f4a4fc19ab69a42661ac4d2ab"
+    },
+    {
+      "path": "tests/server/material-learning-intent-flow.test.ts",
+      "sha256": "afe155764c2817928b387d2b7b8b152efbc4d649367f567aa7e1021ad8c489f6"
+    },
+    {
+      "path": "tests/components/materials-plan-diff.test.tsx",
+      "sha256": "f4822c1c8a4255bf79a05b4a8607da3124db1a0818ff4ca473891ad2681f9baa"
+    }
+  ],
+  "archivedFiles": [
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-1.json",
+      "archivePath": "context-adoption-author-20261108-green-1.json",
+      "bytes": 280,
+      "sha256": "38f9db5f2b819cc1ce5bba2c29c4349ee01ac4ce1e2459130995c923e928b8f7"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-1.log",
+      "archivePath": "context-adoption-author-20261108-green-1.log.txt",
+      "bytes": 1130,
+      "sha256": "d4686bd50936b8cb38800815bb5ffabc4c63b06e046f2a992e27ddce5bf722f7"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-2.json",
+      "archivePath": "context-adoption-author-20261108-green-2.json",
+      "bytes": 280,
+      "sha256": "4d79a04ddb461452a8ba9708372c86ed44bcd7b3cf630cd6e84a17576e2e092c"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-2.log",
+      "archivePath": "context-adoption-author-20261108-green-2.log.txt",
+      "bytes": 2735,
+      "sha256": "584b7d4938f7362cb746d3be7a8825988701443b933ea81ccaec1912350a4e2e"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-3.json",
+      "archivePath": "context-adoption-author-20261108-green-3.json",
+      "bytes": 280,
+      "sha256": "f5bee2c606e49e276e93a4f76f98ca50600781d17ba71a54351860013cb1fb1a"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-3.log",
+      "archivePath": "context-adoption-author-20261108-green-3.log.txt",
+      "bytes": 4246,
+      "sha256": "2f2e0e3c20c333642fc8d6edf86dcfc391e2f36cda641ae69d8dd5918d2c6191"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-4.json",
+      "archivePath": "context-adoption-author-20261108-green-4.json",
+      "bytes": 280,
+      "sha256": "989bd38f60dd93b185f916afab0e6f73be5ebe9460b1d2e19062eaca4c294f09"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-4.log",
+      "archivePath": "context-adoption-author-20261108-green-4.log.txt",
+      "bytes": 3464,
+      "sha256": "928454d3ce45fb58c173ece6d1a4111f4a23664a7dbf69fe8ffc452f8d7225ea"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-5.json",
+      "archivePath": "context-adoption-author-20261108-green-5.json",
+      "bytes": 280,
+      "sha256": "80a614de759394918d1cc49f59a0ea5f4b7d0c9c2316d3bd2db3c966315f3e6c"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-green-5.log",
+      "archivePath": "context-adoption-author-20261108-green-5.log.txt",
+      "bytes": 3321,
+      "sha256": "012265f053773f8b5cbd5c2fdef0f0d069d1f95d212b5696a12adb01f4245bbc"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-lint-1.json",
+      "archivePath": "context-adoption-author-20261108-lint-1.json",
+      "bytes": 279,
+      "sha256": "c6bde127735a740563599da4676ea945a1a511ecc9d4f9d010a42c00e0293b5c"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-lint-1.log",
+      "archivePath": "context-adoption-author-20261108-lint-1.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-lint-2.json",
+      "archivePath": "context-adoption-author-20261108-lint-2.json",
+      "bytes": 279,
+      "sha256": "ab406e2f9195d3c273b4d54a726ed5d47555f700ebdb40c4bebc750ff588315e"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-lint-2.log",
+      "archivePath": "context-adoption-author-20261108-lint-2.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-lint-final.json",
+      "archivePath": "context-adoption-author-20261108-lint-final.json",
+      "bytes": 283,
+      "sha256": "903ad294f64fd100c9289a54a46faa7293bf6e12a6eb1ca2559831566fb72c48"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-lint-final.log",
+      "archivePath": "context-adoption-author-20261108-lint-final.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-red-1.json",
+      "archivePath": "context-adoption-author-20261108-red-1.json",
+      "bytes": 278,
+      "sha256": "b45cfd1ec3484a1ffb4d330c357438851140a97a47dd834246651f92c1f3219d"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-red-1.log",
+      "archivePath": "context-adoption-author-20261108-red-1.log.txt",
+      "bytes": 5510,
+      "sha256": "19c465efd0db5acd13c61f175e01efa597d6e475af8d619a10cc3a6fa52d7f64"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-red-2.json",
+      "archivePath": "context-adoption-author-20261108-red-2.json",
+      "bytes": 278,
+      "sha256": "36eb6d4e9df3608380d894a6a85caadceb71864a97d9fedadc8629024c132882"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-red-2.log",
+      "archivePath": "context-adoption-author-20261108-red-2.log.txt",
+      "bytes": 10544,
+      "sha256": "3daa8500fe73ceb8e01bfc0b868ff48911223fa2d628178231b7d56148b0e24c"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-red-3.json",
+      "archivePath": "context-adoption-author-20261108-red-3.json",
+      "bytes": 278,
+      "sha256": "1e4fad4f63fe91bb5127b0a9ea865e6bc83d6f9ae1e128be6ef1a8ef4f537906"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-red-3.log",
+      "archivePath": "context-adoption-author-20261108-red-3.log.txt",
+      "bytes": 4339,
+      "sha256": "6f62be0e62579fb024c0201b506198b1c7df3989aa5a1235ccc0aaf929aa0c05"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-replay-green-1.json",
+      "archivePath": "context-adoption-author-20261108-replay-green-1.json",
+      "bytes": 287,
+      "sha256": "4291507b093ba6a7a7da7d6623feb4440eb82ba5e3069a3e20e697bb3105cefb"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-replay-green-1.log",
+      "archivePath": "context-adoption-author-20261108-replay-green-1.log.txt",
+      "bytes": 4162,
+      "sha256": "6746044e946bda2701dcd4c4541ede7621e1484dd37434938f729872f34b0381"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-replay-lint-1.json",
+      "archivePath": "context-adoption-author-20261108-replay-lint-1.json",
+      "bytes": 286,
+      "sha256": "23c75f5d10df86a30af08bc9f89693abe19e2555a13ae9cd4465f1c415ae4bd2"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-replay-lint-1.log",
+      "archivePath": "context-adoption-author-20261108-replay-lint-1.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-replay-red-1.json",
+      "archivePath": "context-adoption-author-20261108-replay-red-1.json",
+      "bytes": 285,
+      "sha256": "e51d70091d758836d9f7c98eb2168d293e31930ffa4568efe31e684309d0df2d"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-replay-red-1.log",
+      "archivePath": "context-adoption-author-20261108-replay-red-1.log.txt",
+      "bytes": 5486,
+      "sha256": "92030d4a3a9fc61080421c850ceafbc73546022b3c8fabc6040e5ad2d535fa85"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-replay-types-scoped-1.json",
+      "archivePath": "context-adoption-author-20261108-replay-types-scoped-1.json",
+      "bytes": 295,
+      "sha256": "6e8e5dd068cf0877a1a38d65de50abe20a3f72c44175ba50e0f3d5a247c85033"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-replay-types-scoped-1.log",
+      "archivePath": "context-adoption-author-20261108-replay-types-scoped-1.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-types-1.json",
+      "archivePath": "context-adoption-author-20261108-types-1.json",
+      "bytes": 281,
+      "sha256": "6652307f30d2627967fc18722a89da52fd376e01cb86319acda8559966ec68f0"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-types-1.log",
+      "archivePath": "context-adoption-author-20261108-types-1.log.txt",
+      "bytes": 1029,
+      "sha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-types-scoped-2.json",
+      "archivePath": "context-adoption-author-20261108-types-scoped-2.json",
+      "bytes": 288,
+      "sha256": "a2d5a91694f0f90df312fb30a10baf5f997ec3a7a572e90f68b7efe775ba8754"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-types-scoped-2.log",
+      "archivePath": "context-adoption-author-20261108-types-scoped-2.log.txt",
+      "bytes": 1188,
+      "sha256": "d2715ced7340d287db52a95b9d4403650ddfef1357156a982a2b64ae8b7d2c5c"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-types-scoped-3.json",
+      "archivePath": "context-adoption-author-20261108-types-scoped-3.json",
+      "bytes": 288,
+      "sha256": "d44570178b7cc58d0385b8be5f5c09a2b7c52a1b9f814759a1378ce32cbaf0bb"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-author-20261108-types-scoped-3.log",
+      "archivePath": "context-adoption-author-20261108-types-scoped-3.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-baseline-20261108-a.json",
+      "archivePath": "context-adoption-baseline-20261108-a.json",
+      "bytes": 276,
+      "sha256": "64881819d1b3bba35b32c15817d7c22656c5c77177c2d117e9b74143ca60226f"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-baseline-20261108-a.log",
+      "archivePath": "context-adoption-baseline-20261108-a.log.txt",
+      "bytes": 1917,
+      "sha256": "199e228f3f3b38b7ab3a42de3b6db64e60d4fedf573e6f56b47e39b5eb0143e7"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-flagship-20261108.ts",
+      "archivePath": "context-adoption-flagship-20261108.ts.source.txt",
+      "bytes": 12133,
+      "sha256": "39b7dba3eeb06af42baf1ff19754f8c057e8861cc7cf0921594884d597b6b2b0"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-flagship-after-20261108-results.json",
+      "archivePath": "context-adoption-flagship-after-20261108-results.json",
+      "bytes": 311663,
+      "sha256": "9f15048cc72a445fe478e651fea15a3869a574aa15c972504d61214955df2812"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-flagship-before-20261108-results.json",
+      "archivePath": "context-adoption-flagship-before-20261108-results.json",
+      "bytes": 432207,
+      "sha256": "2aff2d7999fee6ea44d3e2338ddb308a3611ccd56256de072ca1e6b13382da69"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-flagship-root-20261108-a.json",
+      "archivePath": "context-adoption-flagship-root-20261108-a.json",
+      "bytes": 281,
+      "sha256": "f3ba12812b3863712e825a3c4c5fb043d07b8768a9a767d37f8282fcd536f2c5"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-flagship-root-20261108-a.log",
+      "archivePath": "context-adoption-flagship-root-20261108-a.log.txt",
+      "bytes": 163094,
+      "sha256": "5c5ab6055d998f251b2844d81c27272a44e055d7933ed270cd8e4b1f9d874673"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-20261108-results.json",
+      "archivePath": "context-adoption-native-20261108-results.json",
+      "bytes": 623744,
+      "sha256": "460bed105e4517ff682ea37b6fcb85429c88697bcf5d1cb420ae05d22a84abe3"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-20261108.mjs",
+      "archivePath": "context-adoption-native-20261108.mjs.source.txt",
+      "bytes": 9331,
+      "sha256": "529f5f659660e018a8eb685852739b5a0a848852246024c70ee7862886eded26"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-first-green-20261108.source.txt",
+      "archivePath": "context-adoption-native-first-green-20261108.source.txt",
+      "bytes": 9195,
+      "sha256": "421d2fa4a3e475b08f3b69c101e89c4bdc4dc564a48921943d4cde0b276a1fba"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-green-20261108-a.json",
+      "archivePath": "context-adoption-native-green-20261108-a.json",
+      "bytes": 280,
+      "sha256": "c93393b204c564f21b844eeba431d526adcdae7101a33a6d4312d340924e311c"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-green-20261108-a.log",
+      "archivePath": "context-adoption-native-green-20261108-a.log.txt",
+      "bytes": 282,
+      "sha256": "37ee989fb46ca24598f7da4472621555f71f7d7c9d0bc1428b9b7b992ece2da7"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-initial-harness-20261108.source.txt",
+      "archivePath": "context-adoption-native-initial-harness-20261108.source.txt",
+      "bytes": 9199,
+      "sha256": "1031d606638df025b0de8e623f2c4aab9451aff9c948e54cd23dba275497c41a"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-red-20261108-a.json",
+      "archivePath": "context-adoption-native-red-20261108-a.json",
+      "bytes": 278,
+      "sha256": "f3f8abd9c06e863f09f4bfc123ee2e8a0943346a35555276f4d2387e761f50e5"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-red-20261108-a.log",
+      "archivePath": "context-adoption-native-red-20261108-a.log.txt",
+      "bytes": 927,
+      "sha256": "eca5f13d3de51cbc1fa4d98609196d3cc5a72036eb49045d9205108230964acc"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-red-20261108-b.json",
+      "archivePath": "context-adoption-native-red-20261108-b.json",
+      "bytes": 278,
+      "sha256": "236c4569249bea364dd513326ae52bf0ea0c3eb2792f071a058b9fe2ccacac89"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-native-red-20261108-b.log",
+      "archivePath": "context-adoption-native-red-20261108-b.log.txt",
+      "bytes": 786,
+      "sha256": "a551b10bc66fa33b07ff09f6a19b744920c6cc8c155936e37cd70401bd744dc9"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-pause-public-probe-20261108-a.json",
+      "archivePath": "context-adoption-pause-public-probe-20261108-a.json",
+      "bytes": 286,
+      "sha256": "1669af8b3b9a5ed9e895fdf540120cf554d2ff15921e22d387bc786c203c6477"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-pause-public-probe-20261108-a.log",
+      "archivePath": "context-adoption-pause-public-probe-20261108-a.log.txt",
+      "bytes": 4018,
+      "sha256": "5c22ba28fc561629345f611fd1ffb9e7e4c1935385131382b5fda9ccbd5b9ab9"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-pause-root-focused-20261108-a.json",
+      "archivePath": "context-adoption-pause-root-focused-20261108-a.json",
+      "bytes": 287,
+      "sha256": "84048fc7e0730a302feca5d3a12bcc4bda8eeafcde84637b9ebddf7e8ba5d05c"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-pause-root-focused-20261108-a.log",
+      "archivePath": "context-adoption-pause-root-focused-20261108-a.log.txt",
+      "bytes": 8139,
+      "sha256": "a944fe238829fa531293e8e4ca60d0468feb4f371eb527c7b8e6e2406213bc5b"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-fixture.ts",
+      "archivePath": "context-adoption-quality-20261108-fixture.ts.source.txt",
+      "bytes": 11778,
+      "sha256": "234b840c913075c0e20281628939a495709ee2a3f790a5ac7d1b8f1aa9599e31"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-focused-a.json",
+      "archivePath": "context-adoption-quality-20261108-focused-a.json",
+      "bytes": 284,
+      "sha256": "926e3441186c8abfc9a8f5d7c8e7ff1b6346f8f1e885e636b3c3175d6243b5e4"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-focused-a.log",
+      "archivePath": "context-adoption-quality-20261108-focused-a.log.txt",
+      "bytes": 3986,
+      "sha256": "219edcfdfbe3b1ee43c12b10e1e1b53733647f78a0405cb502fefc3582d177ea"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-initial-finding.md",
+      "archivePath": "context-adoption-quality-20261108-initial-finding.md",
+      "bytes": 7755,
+      "sha256": "a1ac15a56832c9b23523f89abe531fdb0b00bc8ce327b213570000ab9988d4a6"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-memo.md",
+      "archivePath": "context-adoption-quality-20261108-memo.md",
+      "bytes": 7755,
+      "sha256": "a1ac15a56832c9b23523f89abe531fdb0b00bc8ce327b213570000ab9988d4a6"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-probes-a.json",
+      "archivePath": "context-adoption-quality-20261108-probes-a.json",
+      "bytes": 282,
+      "sha256": "9bc42ec0b598d651b8d20658266783d4946f1df140125dd6b2e40ca99455c3cc"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-probes-a.log",
+      "archivePath": "context-adoption-quality-20261108-probes-a.log.txt",
+      "bytes": 6121,
+      "sha256": "fec0fb83e39b00a07b6f6aa7d59c40e6836be205957c9c72d65243b9c6eca3f4"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-probes-b.json",
+      "archivePath": "context-adoption-quality-20261108-probes-b.json",
+      "bytes": 282,
+      "sha256": "af53873b3e4aee61988d5d30c3d176d1df859dbd36af417574ecf2ccec9d7529"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-probes-b.log",
+      "archivePath": "context-adoption-quality-20261108-probes-b.log.txt",
+      "bytes": 1001,
+      "sha256": "5b477da91cec9b0e801928d58c797dd3e7d2ba8403dbb96f51bf3b662f97941d"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-probes.test.ts",
+      "archivePath": "context-adoption-quality-20261108-probes.test.ts.source.txt",
+      "bytes": 9593,
+      "sha256": "140268ab3911a512da16c987b35fc004fd3f5bd240417b6872fe859d47371d9d"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-replay-red-a.json",
+      "archivePath": "context-adoption-quality-20261108-replay-red-a.json",
+      "bytes": 286,
+      "sha256": "927b83b876823acead19b9c024d7e5fb6d530c49b89b61b0dc9989263eaa6e7a"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-replay-red-a.log",
+      "archivePath": "context-adoption-quality-20261108-replay-red-a.log.txt",
+      "bytes": 3612,
+      "sha256": "5ff7dbaa16cad861fe7cb9e654adf0557eec52f13f247753c74a6ffbfc868040"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-quality-20261108-vitest.config.ts",
+      "archivePath": "context-adoption-quality-20261108-vitest.config.ts.source.txt",
+      "bytes": 263,
+      "sha256": "9aa2554b20380fab2cd6cd7ca23183b2fef3681ae1dd307cfe6548d2e8969cd2"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-root-server-20261108-a.json",
+      "archivePath": "context-adoption-root-server-20261108-a.json",
+      "bytes": 280,
+      "sha256": "718324f36fd53c2fc7a7383a03adbf3a4887d350d935a12d3209c1eb0a607fef"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-root-server-20261108-a.log",
+      "archivePath": "context-adoption-root-server-20261108-a.log.txt",
+      "bytes": 6360,
+      "sha256": "e4d0ff181fae3a283db08ef336740b7196d14d8f109610624fd8ab8059e694b0"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-snapshot-20261108.mjs",
+      "archivePath": "context-adoption-snapshot-20261108.mjs.source.txt",
+      "bytes": 2443,
+      "sha256": "04adef110bc7e99789017088549bf90a138a37653a1d45cb49cafa791c4140c3"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-focused-a.json",
+      "archivePath": "context-adoption-spec-20261108-focused-a.json",
+      "bytes": 281,
+      "sha256": "060c703176f5a23d5e8db68ccfff3559b1e44c2d0be15153a7ddf03d78e78e43"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-focused-a.log",
+      "archivePath": "context-adoption-spec-20261108-focused-a.log.txt",
+      "bytes": 3712,
+      "sha256": "f21308985c52c659f2f18fd73ecab4c5f51f6f178418e3f5b8d05d56518bf6c6"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-memo.md",
+      "archivePath": "context-adoption-spec-20261108-memo.md",
+      "bytes": 8363,
+      "sha256": "19bfe4890d23fd6a4c12017e9633c886ec8bb31ff219e7be59fb64303b1e82cd"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-probes-a.json",
+      "archivePath": "context-adoption-spec-20261108-probes-a.json",
+      "bytes": 279,
+      "sha256": "b558c86ccab3da417c441d5275adfce58e0e5bf4421c21e98c134ba9b64f3a01"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-probes-a.log",
+      "archivePath": "context-adoption-spec-20261108-probes-a.log.txt",
+      "bytes": 9019,
+      "sha256": "039fd53e0d42b81bdb3085399984c76bc527d673c28acf9d5fc8dbba8f5f930b"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-probes-b.json",
+      "archivePath": "context-adoption-spec-20261108-probes-b.json",
+      "bytes": 279,
+      "sha256": "24a04546922952db02cde6715543be1d6ad1444ad0b4ca2cb3529ef671edbdf8"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-probes-b.log",
+      "archivePath": "context-adoption-spec-20261108-probes-b.log.txt",
+      "bytes": 2611,
+      "sha256": "651170cc31148ffd9179f57d3b4e8a5df9c0b0bc36f9f6fedc0fd9a44f2bc64d"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-probes-c.json",
+      "archivePath": "context-adoption-spec-20261108-probes-c.json",
+      "bytes": 279,
+      "sha256": "d1a0d23517a8934d343d478d30999c76d9e5d3188c019d79534901a3621626a2"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-probes-c.log",
+      "archivePath": "context-adoption-spec-20261108-probes-c.log.txt",
+      "bytes": 896,
+      "sha256": "5b5a638b7ff758cd3ad9429f1d89856a9fef231018036a02aee63ed0b37ceccf"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-probes.test.ts",
+      "archivePath": "context-adoption-spec-20261108-probes.test.ts.source.txt",
+      "bytes": 13580,
+      "sha256": "ec9df36d39384a2c119e2d01ca34b496ed9ad46b23e6fc338d15482719c3b990"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-spec-20261108-vitest.config.ts",
+      "archivePath": "context-adoption-spec-20261108-vitest.config.ts.source.txt",
+      "bytes": 260,
+      "sha256": "26a201c9a5c6cbe4bad395322730b238f25f595b0b6b3d2a001a603fa7188d76"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-author-20261108-green-a.json",
+      "archivePath": "context-adoption-ui-author-20261108-green-a.json",
+      "bytes": 283,
+      "sha256": "86fbfc9ece146e741350e7c92bb999c3b6d28a72851a3794d453bc441f1b413d"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-author-20261108-green-a.log",
+      "archivePath": "context-adoption-ui-author-20261108-green-a.log.txt",
+      "bytes": 948,
+      "sha256": "a0911eb04eda9b6bee73ab7e1b1ac757eebc9eca39cf6521c9bbabd36caf5781"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-author-20261108-lint-a.json",
+      "archivePath": "context-adoption-ui-author-20261108-lint-a.json",
+      "bytes": 282,
+      "sha256": "06a919e98a2feb376d6048f2696b1eb5dc971a3859beb1f50f3e6c3d7a4edd10"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-author-20261108-lint-a.log",
+      "archivePath": "context-adoption-ui-author-20261108-lint-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-author-20261108-red-a.json",
+      "archivePath": "context-adoption-ui-author-20261108-red-a.json",
+      "bytes": 281,
+      "sha256": "dc3b1d755884c162ed4729f42dfe683cd5c34fe3e4a72a58ad33d3921f2f3226"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-author-20261108-red-a.log",
+      "archivePath": "context-adoption-ui-author-20261108-red-a.log.txt",
+      "bytes": 63709,
+      "sha256": "9779abd230eb090a09dc4e8da42a44114c364ef7cbc970bb6f729fdecdf17259"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-eslint-review.json",
+      "archivePath": "context-adoption-ui-spec-20261108-eslint-review.json",
+      "bytes": 287,
+      "sha256": "e71a574d799acf06fcb66cf195bc78871c0e0fabf8b328f72196b1e6b16a9f1b"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-eslint-review.log",
+      "archivePath": "context-adoption-ui-spec-20261108-eslint-review.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-focused-review.json",
+      "archivePath": "context-adoption-ui-spec-20261108-focused-review.json",
+      "bytes": 288,
+      "sha256": "4f7eca2a197e19f277f88c6145f7941bfc20717d9cf8177aed7cce854a5f0ec6"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-focused-review.log",
+      "archivePath": "context-adoption-ui-spec-20261108-focused-review.log.txt",
+      "bytes": 947,
+      "sha256": "87f4fb6dfe1260caa65506a868f21ac5b4f0fb0f942ce2e52bd0f42318c9822f"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-memo.md",
+      "archivePath": "context-adoption-ui-spec-20261108-memo.md",
+      "bytes": 4280,
+      "sha256": "23238c8b0f647fad795f47f70b2702ab13870766c7868a9f03a387d754ec5b15"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-service-public-compact-review.json",
+      "archivePath": "context-adoption-ui-spec-20261108-service-public-compact-review.json",
+      "bytes": 303,
+      "sha256": "83ab3db99246f265eac73ca009ca93fcb39878518a383f9e58ea4a1ecc7896b0"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-service-public-compact-review.log",
+      "archivePath": "context-adoption-ui-spec-20261108-service-public-compact-review.log.txt",
+      "bytes": 4018,
+      "sha256": "0f7fecd6db0aa7bc296218ce72de2d4ea347d1d1d28339f5b3ca97080d70ce52"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.config.ts",
+      "archivePath": "context-adoption-ui-spec-20261108-service-public-probe.config.ts.source.txt",
+      "bytes": 258,
+      "sha256": "0d587dac20909577ea5d2805bc8a60c6a0d1fa49a575964c9310f4a56f6f9a9f"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-service-public-probe.test.ts",
+      "archivePath": "context-adoption-ui-spec-20261108-service-public-probe.test.ts.source.txt",
+      "bytes": 4536,
+      "sha256": "7eeab963e304e06d2c214db235f43dbd33b4da8f1ba5e5c94067e0d858edf642"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-service-public-review.json",
+      "archivePath": "context-adoption-ui-spec-20261108-service-public-review.json",
+      "bytes": 295,
+      "sha256": "20d67dc70669ff9e7f6ad07d0794eec6183a01860a703d62bb57abb3a36f93d0"
+    },
+    {
+      "originalPath": "work/grounded-verification/context-adoption-ui-spec-20261108-service-public-review.log",
+      "archivePath": "context-adoption-ui-spec-20261108-service-public-review.log.txt",
+      "bytes": 12782,
+      "sha256": "15e4a779599005408edace3e7bf53b30cfb7f706b3e80ce1eb9a2a55147c4f3c"
+    },
+    {
+      "originalPath": "work/grounded-verification/run.mjs",
+      "archivePath": "run.mjs.source.txt",
+      "bytes": 2497,
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    },
+    {
+      "originalPath": "work/materials-browser-handoff/block-outbound.cjs",
+      "archivePath": "block-outbound.cjs.source.txt",
+      "bytes": 1134,
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    }
+  ]
+}

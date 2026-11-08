@@ -1,0 +1,132 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:14988) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m15 tests[22m[2m | [22m[31m13 failed[39m[2m)[22m[33m 2762[2mms[22m[39m
+[31m     [31m×[31m stages first material adoption without task changes and preserves completed Proof on accept[39m[32m 254[2mms[22m[39m
+[31m     [31m×[31m stages first material adoption without task changes and preserves completed Proof on discard[39m[32m 164[2mms[22m[39m
+[31m     [31m×[31m replaces a company JD with identical confirmed text only on accept[39m[32m 178[2mms[22m[39m
+[31m     [31m×[31m replaces a company JD with identical confirmed text only on discard[39m[32m 187[2mms[22m[39m
+[31m     [31m×[31m requires acceptance to change initially adopted focus=false without task movement[39m[32m 176[2mms[22m[39m
+[31m     [31m×[31m requires acceptance to change initially adopted focus=true without task movement[39m[32m 161[2mms[22m[39m
+     [32m✓[39m returns genuine no-change for fresh selections with the same adoption, retaining its receipt and unapplied assessment[32m 204[2mms[22m[39m
+     [32m✓[39m compares only still-enabled dependencies and choices after an explicit detach[32m 239[2mms[22m[39m
+[31m     [31m×[31m does not trust an unprovable current adoption: missing-usage[39m[32m 161[2mms[22m[39m
+[31m     [31m×[31m does not trust an unprovable current adoption: proposal-only[39m[32m 162[2mms[22m[39m
+[31m     [31m×[31m does not trust an unprovable current adoption: revoked[39m[32m 159[2mms[22m[39m
+[31m     [31m×[31m does not trust an unprovable current adoption: malformed[39m[32m 160[2mms[22m[39m
+[31m     [31m×[31m does not trust an unprovable current adoption: different-source-version[39m[32m 199[2mms[22m[39m
+[31m     [31m×[31m does not trust an unprovable current adoption: different-policy[39m[32m 175[2mms[22m[39m
+[31m     [31m×[31m rechecks the enabled link set in the final no-change transaction[39m[32m 183[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 13 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mstages first material adoption without task changes and preserves completed Proof on accept
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mstages first material adoption without task changes and preserves completed Proof on discard
+[31m[1mAssertionError[22m: expected 'no-change' to be 'proposed' // Object.is equality[39m
+
+Expected: [32m"proposed"[39m
+Received: [31m"no-change"[39m
+
+[36m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m115:30[22m[39m
+    [90m113|[39m     [34mexpect[39m(f[33m.[39m[34mlinks[39m())[33m.[39m[34mtoEqual[39m(oldLinks)[33m;[39m
+    [90m114|[39m     const proposal = await f.planning.proposeMaterialReplanResponse("o…
+    [90m115|[39m     [34mexpect[39m(proposal[33m.[39moutcome)[33m.[39m[34mtoBe[39m([32m"proposed"[39m)[33m;[39m
+    [90m   |[39m                              [31m^[39m
+    [90m116|[39m     if (proposal.outcome !== "proposed") throw new Error("First adopti…
+    [90m117|[39m     [35mconst[39m staged [33m=[39m proposal[33m.[39mplanning[33m.[39mresult[33m.[39mworkspace[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mreplaces a company JD with identical confirmed text only on accept
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mreplaces a company JD with identical confirmed text only on discard
+[31m[1mAssertionError[22m: expected 'no-change' to be 'proposed' // Object.is equality[39m
+
+Expected: [32m"proposed"[39m
+Received: [31m"no-change"[39m
+
+[36m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m138:30[22m[39m
+    [90m136|[39m     [34mexpect[39m(f[33m.[39m[34mlinks[39m())[33m.[39m[34mtoEqual[39m(oldLinks)[33m;[39m
+    [90m137|[39m     const proposal = await f.planning.proposeMaterialReplanResponse("o…
+    [90m138|[39m     [34mexpect[39m(proposal[33m.[39moutcome)[33m.[39m[34mtoBe[39m([32m"proposed"[39m)[33m;[39m
+    [90m   |[39m                              [31m^[39m
+    [90m139|[39m     if (proposal.outcome !== "proposed") throw new Error("Replacing th…
+    [90m140|[39m     [35mconst[39m staged [33m=[39m proposal[33m.[39mplanning[33m.[39mresult[33m.[39mworkspace[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mrequires acceptance to change initially adopted focus=false without task movement
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mrequires acceptance to change initially adopted focus=true without task movement
+[31m[1mAssertionError[22m: expected 'no-change' to be 'proposed' // Object.is equality[39m
+
+Expected: [32m"proposed"[39m
+Received: [31m"no-change"[39m
+
+[36m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m158:32[22m[39m
+    [90m156|[39m       [34mexpect[39m(f[33m.[39m[34mlinks[39m())[33m.[39m[34mtoEqual[39m(oldLinks)[33m;[39m
+    [90m157|[39m       const proposal = await f.planning.proposeMaterialReplanResponse(…
+    [90m158|[39m       [34mexpect[39m(proposal[33m.[39moutcome)[33m.[39m[34mtoBe[39m([32m"proposed"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m159|[39m       if (proposal.outcome !== "proposed") throw new Error("Source and…
+    [90m160|[39m       expect(proposal.planning.result.diff!.items.every(item => item.c…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mdoes not trust an unprovable current adoption: missing-usage
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mdoes not trust an unprovable current adoption: proposal-only
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mdoes not trust an unprovable current adoption: revoked
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mdoes not trust an unprovable current adoption: malformed
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mdoes not trust an unprovable current adoption: different-source-version
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mdoes not trust an unprovable current adoption: different-policy
+[31m[1mAssertionError[22m: expected { outcome: 'no-change', …(2) } to match object { outcome: 'proposed' }
+(2 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "outcome": "proposed",[39m
+[31m+   "outcome": "no-change",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m212:78[22m[39m
+    [90m210|[39m       invalidation === "different-policy" ? "$.policyVersion" : "$.sou…
+    [90m211|[39m     [35mconst[39m beforeLinks [33m=[39m f[33m.[39m[34mlinks[39m()[33m;[39m
+    [90m212|[39m     expect(await f.planning.proposeMaterialReplanResponse("owner-a", i…
+    [90m   |[39m                                                                              [31m^[39m
+    [90m213|[39m     [34mexpect[39m(f[33m.[39m[34mlinks[39m())[33m.[39m[34mtoEqual[39m(beforeLinks)[33m;[39m
+    [90m214|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mrechecks the enabled link set in the final no-change transaction
+[31m[1mAssertionError[22m: promise resolved "{ outcome: 'no-change', …(2) }" instead of rejecting[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "message": "现有未完成任务的顺序和日程无需变化。",[39m
+[31m+   "outcome": "no-change",[39m
+[31m+   "unappliedChanges": [],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m225:77[22m[39m
+    [90m223|[39m       [35mreturn[39m [34mbatch[39m(statements)[33m;[39m
+    [90m224|[39m     }[33m;[39m
+    [90m225|[39m     await expect(f.planning.proposeMaterialReplanResponse("owner-a", i…
+    [90m   |[39m                                                                             [31m^[39m
+    [90m226|[39m     expect(f.db.database.prepare("SELECT count(*) AS n FROM document_m…
+    [90m227|[39m     [34mexpect[39m([35mawait[39m f[33m.[39mplanning[33m.[39m[34mgetWorkspace[39m([32m"owner-a"[39m))[33m.[39m[34mtoEqual[39m(f[33m.[39mbefore)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m13 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (15)[39m
+[2m   Start at [22m 15:55:52
+[2m   Duration [22m 3.58s[2m (transform 326ms, setup 204ms, import 463ms, tests 2.76s, environment 0ms)[22m
+

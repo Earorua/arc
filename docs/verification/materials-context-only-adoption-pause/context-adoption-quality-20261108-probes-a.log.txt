@@ -1,0 +1,69 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:7064) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 2780[2mms[22m[39m
+[31m     [31m×[31m supports all five legal sources and bounds comparator SQL to two reads[39m[33m 456[2mms[22m[39m
+     [33m[2m✓[22m[39m does not mistake a sixth broken enabled link for the same legal five-source adoption [33m 445[2mms[22m[39m
+     [32m✓[39m handles an unprovable JSON baseline conservatively: negative-generation[32m 207[2mms[22m[39m
+     [32m✓[39m handles an unprovable JSON baseline conservatively: null-choice-array[32m 202[2mms[22m[39m
+     [32m✓[39m handles an unprovable JSON baseline conservatively: wrong-owner[32m 194[2mms[22m[39m
+     [32m✓[39m handles an unprovable JSON baseline conservatively: missing-source-reference[32m 193[2mms[22m[39m
+     [32m✓[39m handles an unprovable JSON baseline conservatively: bad-digest[32m 199[2mms[22m[39m
+     [32m✓[39m handles an unprovable JSON baseline conservatively: extra-property[32m 195[2mms[22m[39m
+     [32m✓[39m treats historical explicit empty choices as absent without undefined canonical JSON values[32m 158[2mms[22m[39m
+     [32m✓[39m fences an initially empty link set when a source becomes enabled before receipt commit[32m 228[2mms[22m[39m
+[31m     [31m×[31m rolls a failing no-change receipt back and retries exactly once[39m[32m 131[2mms[22m[39m
+[31m     [31m×[31m characterizes the existing proposed-replay warning loss on the newly routed context-only path[39m[32m 171[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts[2m > [22mindependent context-adoption quality probes[2m > [22msupports all five legal sources and bounds comparator SQL to two reads
+[31m[1mError[22m: no such table: path_versions[39m
+[36m [2m❯[22m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m12:38[22m[39m
+    [90m 10|[39m   "planning_workspaces", "planning_events", "path_versions", "plan_ver…
+    [90m 11|[39m   "goal_document_links", "document_usage_links", "material_plan_propos…
+    [90m 12|[39m ].map(table => [table, f.db.database.prepare(`SELECT * FROM ${table} O…
+    [90m   |[39m                                      [31m^[39m
+    [90m 13|[39m
+    [90m 14|[39m [34mdescribe[39m([32m"independent context-adoption quality probes"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tableSnapshot work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m12:3[22m[39m
+[90m [2m❯[22m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m33:20[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts[2m > [22mindependent context-adoption quality probes[2m > [22mrolls a failing no-change receipt back and retries exactly once
+[31m[1mError[22m: no such table: path_versions[39m
+[36m [2m❯[22m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m12:38[22m[39m
+    [90m 10|[39m   "planning_workspaces", "planning_events", "path_versions", "plan_ver…
+    [90m 11|[39m   "goal_document_links", "document_usage_links", "material_plan_propos…
+    [90m 12|[39m ].map(table => [table, f.db.database.prepare(`SELECT * FROM ${table} O…
+    [90m   |[39m                                      [31m^[39m
+    [90m 13|[39m
+    [90m 14|[39m [34mdescribe[39m([32m"independent context-adoption quality probes"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tableSnapshot work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m12:3[22m[39m
+[90m [2m❯[22m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m109:20[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts[2m > [22mindependent context-adoption quality probes[2m > [22mcharacterizes the existing proposed-replay warning loss on the newly routed context-only path
+[31m[1mError[22m: no such table: path_versions[39m
+[36m [2m❯[22m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m12:38[22m[39m
+    [90m 10|[39m   "planning_workspaces", "planning_events", "path_versions", "plan_ver…
+    [90m 11|[39m   "goal_document_links", "document_usage_links", "material_plan_propos…
+    [90m 12|[39m ].map(table => [table, f.db.database.prepare(`SELECT * FROM ${table} O…
+    [90m   |[39m                                      [31m^[39m
+    [90m 13|[39m
+    [90m 14|[39m [34mdescribe[39m([32m"independent context-adoption quality probes"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tableSnapshot work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m12:3[22m[39m
+[90m [2m❯[22m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m130:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (12)[39m
+[2m   Start at [22m 16:15:23
+[2m   Duration [22m 3.61s[2m (transform 340ms, setup 194ms, import 477ms, tests 2.78s, environment 0ms)[22m
+

@@ -1,0 +1,49 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:21148) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m20 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 5221[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on accept [33m 339[2mms[22m[39m
+     [32m✓[39m stages first material adoption without task changes and preserves completed Proof on discard[32m 258[2mms[22m[39m
+     [32m✓[39m replaces a company JD with identical confirmed text only on accept[32m 265[2mms[22m[39m
+     [32m✓[39m replaces a company JD with identical confirmed text only on discard[32m 253[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=false without task movement [33m 503[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=true without task movement [33m 477[2mms[22m[39m
+     [32m✓[39m returns genuine no-change for fresh selections with the same adoption, retaining its receipt and unapplied assessment[32m 218[2mms[22m[39m
+     [32m✓[39m compares only still-enabled dependencies and choices after an explicit detach[32m 262[2mms[22m[39m
+     [32m✓[39m treats no adopted sources and no candidate sources as genuine no-change[32m 161[2mms[22m[39m
+     [32m✓[39m requires adoption of a new confirmation even when its confirmed text is identical[32m 274[2mms[22m[39m
+     [32m✓[39m requires adoption of a new document-version even when its confirmed text is identical[32m 269[2mms[22m[39m
+     [33m[2m✓[22m[39m normalizes dependency, skill mapping, term skill, and intent order across fresh previews [33m 406[2mms[22m[39m
+     [32m✓[39m does not trust an unprovable current adoption: missing-usage[32m 199[2mms[22m[39m
+     [32m✓[39m does not trust an unprovable current adoption: proposal-only[32m 190[2mms[22m[39m
+     [32m✓[39m does not trust an unprovable current adoption: revoked[32m 187[2mms[22m[39m
+     [32m✓[39m does not trust an unprovable current adoption: malformed[32m 197[2mms[22m[39m
+     [32m✓[39m does not trust an unprovable current adoption: different-source-version[32m 212[2mms[22m[39m
+     [32m✓[39m does not trust an unprovable current adoption: different-policy[32m 189[2mms[22m[39m
+[31m     [31m×[31m does not trust an unprovable current adoption: missing-source-versions[39m[32m 171[2mms[22m[39m
+     [32m✓[39m rechecks the enabled link set in the final no-change transaction[32m 192[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mdoes not trust an unprovable current adoption: missing-source-versions
+[31m[1mPlanningUnavailableError[22m: Planning is unavailable. The previous valid state is unchanged.[39m
+[36m [2m❯[22m normalizeError app/server/planning/service.ts:[2m518:10[22m[39m
+    [90m516|[39m     [35mreturn[39m [35mnew[39m [33mPlanningInvalidInputError[39m()[33m;[39m
+    [90m517|[39m   }
+    [90m518|[39m   [35mreturn[39m [35mnew[39m [33mPlanningUnavailableError[39m()[33m;[39m
+    [90m   |[39m          [31m^[39m
+    [90m519|[39m }
+    [90m520|[39m
+[90m [2m❯[22m PlanningService.proposeMaterialReplanResponse app/server/planning/service.ts:[2m275:29[22m[39m
+[90m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m281:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m19 passed[39m[22m[90m (20)[39m
+[2m   Start at [22m 15:59:46
+[2m   Duration [22m 6.04s[2m (transform 336ms, setup 199ms, import 469ms, tests 5.22s, environment 0ms)[22m
+

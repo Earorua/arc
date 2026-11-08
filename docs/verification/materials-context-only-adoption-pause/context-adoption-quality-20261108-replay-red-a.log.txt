@@ -1,0 +1,48 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:14884) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m11 skipped[39m[2m)[22m[33m 319[2mms[22m[39m
+     [2m[90m↓[39m[22m supports all five legal sources and bounds comparator SQL to two reads
+     [2m[90m↓[39m[22m does not mistake a sixth broken enabled link for the same legal five-source adoption
+     [2m[90m↓[39m[22m handles an unprovable JSON baseline conservatively: negative-generation
+     [2m[90m↓[39m[22m handles an unprovable JSON baseline conservatively: null-choice-array
+     [2m[90m↓[39m[22m handles an unprovable JSON baseline conservatively: wrong-owner
+     [2m[90m↓[39m[22m handles an unprovable JSON baseline conservatively: missing-source-reference
+     [2m[90m↓[39m[22m handles an unprovable JSON baseline conservatively: bad-digest
+     [2m[90m↓[39m[22m handles an unprovable JSON baseline conservatively: extra-property
+     [2m[90m↓[39m[22m treats historical explicit empty choices as absent without undefined canonical JSON values
+     [2m[90m↓[39m[22m fences an initially empty link set when a source becomes enabled before receipt commit
+     [2m[90m↓[39m[22m rolls a failing no-change receipt back and retries exactly once
+[31m     [31m×[31m preserves unapplied warnings when replaying a newly routed context-only proposal[39m[33m 318[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts[2m > [22mindependent context-adoption quality probes[2m > [22mpreserves unapplied warnings when replaying a newly routed context-only proposal
+[31m[1mAssertionError[22m: expected [] to deeply equal [ Array(1) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "当前路线重排不支持自评引起的任务替换、新增技能或范围变化；本次仅调整已有未完成任务的顺序。",[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts:[2m134:37[22m[39m
+    [90m132|[39m     const replay = await f.planning.proposeMaterialReplanResponse("own…
+    [90m133|[39m     [34mexpect[39m(replay[33m.[39moutcome)[33m.[39m[34mtoBe[39m([32m"proposed"[39m)[33m;[39m
+    [90m134|[39m     [34mexpect[39m(replay[33m.[39munappliedChanges)[33m.[39m[34mtoEqual[39m(first[33m.[39munappliedChanges)[33m;[39m
+    [90m   |[39m                                     [31m^[39m
+    [90m135|[39m     [34mexpect[39m([34mtableSnapshot[39m(f))[33m.[39m[34mtoEqual[39m(beforeReplay)[33m;[39m
+    [90m136|[39m     expect(replay.outcome === "proposed" && replay.planning).toEqual(f…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m11 skipped[39m[90m (12)[39m
+[2m   Start at [22m 16:17:02
+[2m   Duration [22m 1.17s[2m (transform 352ms, setup 201ms, import 489ms, tests 319ms, environment 0ms)[22m
+

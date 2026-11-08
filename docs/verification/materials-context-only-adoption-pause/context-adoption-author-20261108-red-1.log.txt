@@ -1,0 +1,70 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:37468) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 913[2mms[22m[39m
+[31m     [31m×[31m stages first material adoption without task changes and preserves completed Proof on accept[39m[32m 238[2mms[22m[39m
+[31m     [31m×[31m stages first material adoption without task changes and preserves completed Proof on discard[39m[32m 156[2mms[22m[39m
+[31m     [31m×[31m replaces a company JD with identical confirmed text only on accept[39m[32m 167[2mms[22m[39m
+[31m     [31m×[31m replaces a company JD with identical confirmed text only on discard[39m[32m 171[2mms[22m[39m
+[31m     [31m×[31m requires explicit acceptance to add and withdraw learning focus even when ready-task order stays fixed[39m[32m 180[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mstages first material adoption without task changes and preserves completed Proof on accept
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mstages first material adoption without task changes and preserves completed Proof on discard
+[31m[1mAssertionError[22m: expected 'no-change' to be 'proposed' // Object.is equality[39m
+
+Expected: [32m"proposed"[39m
+Received: [31m"no-change"[39m
+
+[36m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m109:30[22m[39m
+    [90m107|[39m     [34mexpect[39m(f[33m.[39m[34mlinks[39m())[33m.[39m[34mtoEqual[39m(oldLinks)[33m;[39m
+    [90m108|[39m     const proposal = await f.planning.proposeMaterialReplanResponse("o…
+    [90m109|[39m     [34mexpect[39m(proposal[33m.[39moutcome)[33m.[39m[34mtoBe[39m([32m"proposed"[39m)[33m;[39m
+    [90m   |[39m                              [31m^[39m
+    [90m110|[39m     if (proposal.outcome !== "proposed") throw new Error("First adopti…
+    [90m111|[39m     [35mconst[39m staged [33m=[39m proposal[33m.[39mplanning[33m.[39mresult[33m.[39mworkspace[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mreplaces a company JD with identical confirmed text only on accept
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mreplaces a company JD with identical confirmed text only on discard
+[31m[1mAssertionError[22m: expected 'no-change' to be 'proposed' // Object.is equality[39m
+
+Expected: [32m"proposed"[39m
+Received: [31m"no-change"[39m
+
+[36m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m131:30[22m[39m
+    [90m129|[39m     [34mexpect[39m(f[33m.[39m[34mlinks[39m())[33m.[39m[34mtoEqual[39m(oldLinks)[33m;[39m
+    [90m130|[39m     const proposal = await f.planning.proposeMaterialReplanResponse("o…
+    [90m131|[39m     [34mexpect[39m(proposal[33m.[39moutcome)[33m.[39m[34mtoBe[39m([32m"proposed"[39m)[33m;[39m
+    [90m   |[39m                              [31m^[39m
+    [90m132|[39m     if (proposal.outcome !== "proposed") throw new Error("Replacing th…
+    [90m133|[39m     [35mconst[39m staged [33m=[39m proposal[33m.[39mplanning[33m.[39mresult[33m.[39mworkspace[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-context-only-adoption.test.ts[2m > [22mcontext-only material adoption[2m > [22mrequires explicit acceptance to add and withdraw learning focus even when ready-task order stays fixed
+[31m[1mAssertionError[22m: expected 'no-change' to be 'proposed' // Object.is equality[39m
+
+Expected: [32m"proposed"[39m
+Received: [31m"no-change"[39m
+
+[36m [2m❯[22m tests/server/material-context-only-adoption.test.ts:[2m154:32[22m[39m
+    [90m152|[39m       [34mexpect[39m(f[33m.[39m[34mlinks[39m())[33m.[39m[34mtoEqual[39m(oldLinks)[33m;[39m
+    [90m153|[39m       const proposal = await f.planning.proposeMaterialReplanResponse(…
+    [90m154|[39m       [34mexpect[39m(proposal[33m.[39moutcome)[33m.[39m[34mtoBe[39m([32m"proposed"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m155|[39m       if (proposal.outcome !== "proposed") throw new Error("Source and…
+    [90m156|[39m       expect(proposal.planning.result.diff!.items.every(item => item.c…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[90m (5)[39m
+[2m   Start at [22m 15:53:20
+[2m   Duration [22m 1.75s[2m (transform 345ms, setup 205ms, import 488ms, tests 913ms, environment 0ms)[22m
+

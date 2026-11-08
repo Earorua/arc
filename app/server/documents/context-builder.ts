@@ -15,6 +15,7 @@ import type { PlanningSourceResolver } from "../planning/source-resolver";
 import type { PlanningRepository } from "../planning/repository";
 import { materialGuardStatement, type MaterialPlanCommit } from "../planning/material-commit";
 import { materialGenerationReceiptRequestSchema, materialGenerationReceiptResponseSchema } from "../../contracts/material-recovery";
+import { adoptedContextGuardStatement, compareAdoptedContext, type AdoptedContextMatch } from "./adopted-context";
 
 export const MATERIAL_PREVIEW_TTL_MS = 30 * 60_000;
 export type MaterialPreview = z.infer<typeof materialContextPreviewSchema>;
@@ -159,12 +160,17 @@ export class MaterialContextService {
     return { ...verified, noChange: result?.outcome === "no-change", unapplied: result?.unapplied === true };
   }
 
-  async recordNoChange(ownerId: string, request: z.infer<typeof materialReplanRequestSchema>, commit: MaterialPlanCommit, unapplied: boolean): Promise<void> {
+  compareAdoptedContext(ownerId: string, commit: MaterialPlanCommit) {
+    return compareAdoptedContext(this.options.db, ownerId, commit);
+  }
+
+  async recordNoChange(ownerId: string, request: z.infer<typeof materialReplanRequestSchema>, commit: MaterialPlanCommit, unapplied: boolean, adopted: AdoptedContextMatch): Promise<void> {
     const digest = await materialSha256(request);
     const { scope } = request;
     try {
       await this.options.db.batch([
         materialGuardStatement(this.options.db, ownerId, { ...commit, checkedAt: this.now().getTime() }),
+        adoptedContextGuardStatement(this.options.db, ownerId, commit, adopted),
         this.options.db.prepare("SELECT json(CASE WHEN EXISTS(SELECT 1 FROM planning_workspaces w JOIN career_goals g ON g.id=w.goal_id AND g.user_id=w.user_id WHERE w.user_id=?1 AND w.goal_id=?2 AND w.id=?3 AND w.revision=?4 AND w.active_plan_version_id=?5 AND w.pending_plan_version_id IS NULL AND g.active_slot=1) THEN '{}' ELSE '' END)").bind(ownerId, scope.goalId, scope.workspaceId, scope.revision, scope.baseVersionId),
         this.options.db.prepare("INSERT INTO document_mutations(owner_id,endpoint,mutation_id,body_digest,result_json,created_at) VALUES (?1,'POST /api/planning/material-replans',?2,?3,?4,?5)").bind(ownerId, request.mutationId, digest, JSON.stringify({ outcome: "no-change", contextVersionId: commit.contextVersionId, goalId: scope.goalId, workspaceId: scope.workspaceId, unapplied }), this.now().getTime()),
       ]);

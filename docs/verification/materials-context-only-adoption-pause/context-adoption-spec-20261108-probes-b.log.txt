@@ -1,0 +1,34 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:39424) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 3173[2mms[22m[39m
+   [33m[2m✓[22m[39m requires explicit term-only acceptance, retains discard, and makes proposal/accept/discard replay idempotent [33m 1059[2mms[22m[39m
+   [32m✓[39m never trusts invalid baseline: mapping-version[32m 198[2mms[22m[39m
+   [32m✓[39m never trusts invalid baseline: explanation-version[32m 197[2mms[22m[39m
+[31m   [31m×[31m never trusts invalid baseline: wrong-workspace[39m[32m 135[2mms[22m[39m
+   [32m✓[39m never trusts invalid baseline: broken-dependency[32m 193[2mms[22m[39m
+   [32m✓[39m never trusts invalid baseline: invalid-digest[32m 190[2mms[22m[39m
+   [32m✓[39m never trusts invalid baseline: wrong-goal[32m 202[2mms[22m[39m
+   [32m✓[39m never trusts invalid baseline: redacted[32m 193[2mms[22m[39m
+   [32m✓[39m fences post-comparison baseline snapshot changes before the receipt write[32m 180[2mms[22m[39m
+   [32m✓[39m fences post-comparison baseline usage changes before the receipt write[32m 172[2mms[22m[39m
+   [32m✓[39m fences post-comparison baseline dependency changes before the receipt write[32m 178[2mms[22m[39m
+   [32m✓[39m rolls back all accept sidecars, active links and planning writes when the accepted usage insert fails[32m 276[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts[2m > [22mnever trusts invalid baseline: wrong-workspace
+[31m[1mError[22m: FOREIGN KEY constraint failed[39m
+[36m [2m❯[22m work/grounded-verification/context-adoption-spec-20261108-probes.test.ts:[2m111:159[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m11 passed[39m[22m[90m (12)[39m
+[2m   Start at [22m 16:08:17
+[2m   Duration [22m 4.02s[2m (transform 344ms, setup 193ms, import 485ms, tests 3.17s, environment 0ms)[22m
+
