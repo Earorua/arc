@@ -1,0 +1,347 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:18164) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-supplement-flow.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 295[2mms[22m[39m
+[31m   [31m×[31m uses a reviewed supplement to reorder existing practice while preserving primary JD precedence, progress, audit and privacy[39m[32m 294[2mms[22m[39m
+ [31m❯[39m tests/lib/materials/experience-evidence.test.ts [2m([22m[2m216 tests[22m[2m | [22m[31m14 failed[39m[2m)[22m[32m 81[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.[39m[32m 10[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: I assist with SQL.[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: I assisted with SQL query testing.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: I am assisting with SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: I have assisted in testing SQL queries.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: Assisted in SQL testing.[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: With my mentor's guidance, I assisted with SQL.[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: I assisted with SQL reports.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains the learner's bounded assistance: I assisted with testing "SQL".[39m[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I never assisted with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I did not assist in SQL testing.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I plan to assist with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I will assist with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: My colleague assisted with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: The team assisted in testing SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: "I assisted with SQL."[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: My mentor said, I assisted with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: If asked, I would assist with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with scheduling a SQL demo.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted in arranging a SQL workshop.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with recording my colleague's SQL practice.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with documenting how my colleague tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with reporting that my colleague tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with a report about SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with a report that my colleague tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with plans to learn SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted in planning SQL training.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with the SQL demo schedule.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted with the SQL training plan.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I assisted a colleague with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn unsupported or administrative assistance into technical practice: I helped with SQL.[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves each assistance actor and target: I assisted with React components; my colleague assisted with SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves each assistance actor and target: I built React components, my colleague assisted with SQL.[39m[32m 12[2mms[22m[39m
+[31m     [31m×[31m preserves each assistance actor and target: I assisted with SQL; I plan to assist with React.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves each assistance actor and target: I assisted with building React components to document my colleague's SQL work.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m does not infer a guided or independent level from assistance[39m[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I used SQL to analyze sales data.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I wrote SQL reports.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I wrote SQL queries for monthly reports and documented the results.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I wrote
+SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I built SQL dashboards independently.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested SQL without supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested SQL not under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested SQL without following tutorials.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I am testing SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I currently use SQL to analyze data.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I have been testing SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I did test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I did not only test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested SQL under supervision.[32m 1[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: Under supervision, I tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: With a mentor's guidance, I tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I followed a tutorial to test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested SQL using supplied examples.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested the SQL queries supplied by my mentor.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested my mentor's SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I modified the SQL supplied by my mentor.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I only changed parameters in the supplied SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: My placement: followed a runbook to configure SQL.[32m 1[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 我使用 SQL 分析了销售数据。[32m 7[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 我独立编写了 SQL 查询。[32m 2[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 我正在测试 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 我测试了 SQL，没有导师指导。[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 在导师指导下，我测试了 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 练习项目中，按讲师示例由本人亲自编写 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 按指导完成 SQL 查询练习。[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 我修改了导师提供的 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 我只调整了导师提供的 SQL 查询参数。[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested 'SQL' under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: I tested “SQL” independently.[32m 0[2mms[22m[39m
+     [32m✓[39m supports actual personal practice: 我测试了「SQL」。[32m 0[2mms[22m[39m
+     [32m✓[39m keeps independent experience separate from a guided level[32m 1[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: I am familiar with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: I know SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: I am proficient in SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: I can write SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: I am able to use SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: My skills include SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: Profile: familiar with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: Skills: SQL, React.[32m 1[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: SQL[32m 1[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: SQL and React[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: Built SQL dashboards for weekly reporting.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: Responsible for SQL reports.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: Maintained SQL queries for the reporting service.[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: 简介：熟悉 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: 个人技能：SQL、React。[32m 1[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: 熟悉 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: 负责 SQL 报表开发。[32m 0[2mms[22m[39m
+     [32m✓[39m accepts personal claims and conventional resume fragments: 编写 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: My colleague tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: Our team wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: We built SQL dashboards.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: Alice tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: Alice supplied SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I arranged for my colleague to test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I recorded my colleague's SQL practice.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I documented that my colleague tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I recorded how the team used SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I wrote that my colleague tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I wrote a report about my colleague's SQL practice.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I wrote reports about my colleague's SQL practice.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I wrote notes about my colleague's SQL practice.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: Alice knows SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I wrote a plan to test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I wrote “My colleague tested SQL.”[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I wrote “I tested SQL.”[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I wrote "I tested SQL."[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: My mentor supplied SQL, and I scheduled a demo.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: My mentor wrote the SQL; I only scheduled the review.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I scheduled a demo of SQL supplied by my mentor.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I scheduled a SQL demo under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I will test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I plan to test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I hope to use SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I am planning to build SQL dashboards.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: If I tested SQL, I would document the result.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: For example, I tested SQL, and I wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: My mentor said, I tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: It is false that I tested SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: “I tested SQL.”[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: The example says ‘I tested SQL.’[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: “I tested SQL. I wrote SQL queries.”[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: My mentor said, I tested SQL. I wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: For example, I tested SQL. I wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: If I tested SQL, I would document it. I wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I copied the example ‘I tested SQL.’[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I am familiar with the example ‘SQL is required.’[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I did not test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I personally did not use SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I have never configured SQL for production.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I have never
+configured SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I will
+write SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I cannot write SQL reports independently.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I cannot yet configure SQL myself.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I am not able to test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I am not familiar with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I lack SQL experience.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: No SQL experience.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: I am unsure whether I can use SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 同事编写了 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 团队完成了 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 我安排同事测试 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 我记录了同事测试 SQL 的过程。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 导师提供 SQL，我只是安排了演示。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 我计划使用 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 我希望完成 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 如果我使用 SQL，就能完成报告。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 例如，我编写了 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 导师说，我测试了 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 我没有使用 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 我从未配置过 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 我无法独立编写 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 按指导完成不了 SQL 查询练习。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 按指导完成 SQL 查询练习是我下周的计划。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 按指导完成 SQL 查询练习的计划尚未执行。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 按指导安排同事完成 SQL 查询练习。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 按指导由同事完成 SQL 查询练习。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: 团队简介：熟悉 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m does not turn a mention into personal practice: Her placement: followed a runbook to configure SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I built React components, while my colleague wrote SQL queries.[32m 1[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I wrote SQL queries, but I cannot build React components.[32m 1[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: Our team built React components, and I tested SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: With a mentor using React, I tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: 我使用 React 构建组件，同事编写 SQL 查询。[32m 2[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: 我编写 SQL 查询，但我无法开发 React 组件。[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I tested SQL under supervision, but Alice said, I built React components.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I built React components. My colleague wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I wrote SQL queries. I cannot build React components.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: My colleague built React components. I tested SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: 我开发 React 组件。同事编写 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: 我编写 SQL 查询。我无法开发 React 组件。[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I tested React.js components. My colleague wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I wrote SQL queries. I plan to build React.js components.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I built React components. My mentor said, I wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I built React components. If I used SQL, and I tested SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I used React to record my colleague's SQL practice.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I tested SQL while recording the results of my colleague's React demo.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I built React components, my colleague wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m binds each original target to its personal action: I built React components and my colleague wrote SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m retains some real practice without erasing another occurrence's limitation: I wrote SQL queries, but I have never configured SQL for production.[32m 0[2mms[22m[39m
+     [32m✓[39m retains some real practice without erasing another occurrence's limitation: I wrote SQL queries, but my colleague configured SQL for production.[32m 0[2mms[22m[39m
+     [32m✓[39m retains some real practice without erasing another occurrence's limitation: I tested SQL, and I plan to test SQL again next week.[32m 0[2mms[22m[39m
+     [32m✓[39m retains some real practice without erasing another occurrence's limitation: My mentor supplied SQL, and I tested the SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m retains some real practice without erasing another occurrence's limitation: My mentor supplied SQL; I only changed parameters in the SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m retains some real practice without erasing another occurrence's limitation: 我编写了 SQL 查询，但我没有配置过生产 SQL 数据库。[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: I tested SQL queries, and I built SQL dashboards.[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: I tested SQL and React independently.[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: I wrote SQL queries. I tested SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: 我编写 SQL 查询。我测试 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: I built React.js components. I tested React.js components.[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: Built accessible product interfaces.[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: 构建可访问的产品界面[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: 负责客户数据报表开发与维护。[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: My placement: followed a runbook to configure SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: 个人简介：熟悉 SQL，并负责数据报表开发。[32m 0[2mms[22m[39m
+     [32m✓[39m supports a confirmed whole fact without treating it as a bounded term: I wrote SQL queries for the weekly reporting process, tested the output against reference records, and maintained the reporting workflow for several months while documenting the results for later review.[32m 0[2mms[22m[39m
+     [32m✓[39m never treats requirement as experience[32m 0[2mms[22m[39m
+     [32m✓[39m never treats constraint as experience[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: I know SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: SQL[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: Built SQL dashboards.[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: I wrote SQL reports.[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: I wrote SQL queries for monthly reports while documenting the results.[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: I tested SQL, modified SQL queries, and documented the results.[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: I only changed parameters in the supplied SQL queries.[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: I tested ‘SQL’ under supervision.[32m 1[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: I tested "SQL" independently.[32m 0[2mms[22m[39m
+     [32m✓[39m retains personal claims and actual report/query work across the reviewed boundaries: I wrote ‘SQL’ queries.[32m 0[2mms[22m[39m
+     [32m✓[39m keeps quoted literal tool objects usable: .NET[32m 0[2mms[22m[39m
+     [32m✓[39m keeps quoted literal tool objects usable: React.js[32m 0[2mms[22m[39m
+     [32m✓[39m keeps quoted literal tool objects usable: SQL Server[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an explicitly empty or ungrounded term list[32m 1[2mms[22m[39m
+     [32m✓[39m preserves technical punctuation and UTF-16 quote boundaries[32m 1[2mms[22m[39m
+     [32m✓[39m does not mutate the supplied fact or target[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 15 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-supplement-flow.test.ts[2m > [22muses a reviewed supplement to reorder existing practice while preserving primary JD precedence, progress, audit and privacy
+[31m[1mAssertionError[22m: expected undefined to deeply equal { skillId: 'observability', …(2) }[39m
+
+[32m- Expected:[39m
+{
+  "itemIds": [
+    "material-item-3c80db1f79f3dc2d733f1d33e5f43921",
+  ],
+  "skillId": "observability",
+  "tier": 3,
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-supplement-flow.test.ts:[2m74:39[22m[39m
+    [90m 72|[39m     const priority = (skill: string) => preview.priorities.find(item =…
+    [90m 73|[39m     const itemRef = (source: string, item: string) => preview.itemRefe…
+    [90m 74|[39m     expect(priority("observability")).toEqual({ skillId: "observabilit…
+    [90m   |[39m                                       [31m^[39m
+    [90m 75|[39m     expect(priority("typescript")).toEqual({ skillId: "typescript", ti…
+    [90m 76|[39m     expect(priority("sql")).toEqual({ skillId: "sql", tier: 4, itemIds…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: I assist with SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: I assisted with SQL query testing.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: I am assisting with SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: I have assisted in testing SQL queries.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: Assisted in SQL testing.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: With my mentor's guidance, I assisted with SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: I assisted with SQL reports.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mretains the learner's bounded assistance: I assisted with testing "SQL".
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/experience-evidence.test.ts:[2m21:33[22m[39m
+    [90m 19|[39m     [[32m'I assisted with testing "SQL".'[39m[33m,[39m [32m"SQL"[39m][33m,[39m
+    [90m 20|[39m   ])([32m"retains the learner's bounded assistance: %s"[39m[33m,[39m (text[33m,[39m term) [33m=>[39m {
+    [90m 21|[39m     [34mexpect[39m([34mterms[39m(text[33m,[39m [term]))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   |[39m                                 [31m^[39m
+    [90m 22|[39m     [34mexpect[39m([34mwhole[39m(text))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m 23|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mpreserves each assistance actor and target: I assisted with React components; my colleague assisted with SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mpreserves each assistance actor and target: I assisted with SQL; I plan to assist with React.
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mpreserves each assistance actor and target: I assisted with building React components to document my colleague's SQL work.
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/experience-evidence.test.ts:[2m59:32[22m[39m
+    [90m 57|[39m     ["I assisted with building React components to document my colleag…
+    [90m 58|[39m   ])("preserves each assistance actor and target: %s", (text, own, oth…
+    [90m 59|[39m     [34mexpect[39m([34mterms[39m(text[33m,[39m [own]))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 60|[39m     [34mexpect[39m([34mterms[39m(text[33m,[39m [other]))[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m 61|[39m     [34mexpect[39m([34mwhole[39m(text))[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mpreserves each assistance actor and target: I built React components, my colleague assisted with SQL.
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m tests/lib/materials/experience-evidence.test.ts:[2m60:34[22m[39m
+    [90m 58|[39m   ])("preserves each assistance actor and target: %s", (text, own, oth…
+    [90m 59|[39m     [34mexpect[39m([34mterms[39m(text[33m,[39m [own]))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m 60|[39m     [34mexpect[39m([34mterms[39m(text[33m,[39m [other]))[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m   |[39m                                  [31m^[39m
+    [90m 61|[39m     [34mexpect[39m([34mwhole[39m(text))[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m 62|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/experience-evidence.test.ts[2m > [22mpersonal assistance in material practice[2m > [22mdoes not infer a guided or independent level from assistance
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/experience-evidence.test.ts:[2m66:25[22m[39m
+    [90m 64|[39m   it("does not infer a guided or independent level from assistance", (…
+    [90m 65|[39m     [35mconst[39m text [33m=[39m [32m"I assisted with SQL."[39m[33m;[39m
+    [90m 66|[39m     [34mexpect[39m([34mterms[39m(text))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   |[39m                         [31m^[39m
+    [90m 67|[39m     expect(supportsMaterialSelfLevelHint({ kind: "experience", text, l…
+    [90m 68|[39m     expect(supportsMaterialSelfLevelHint({ kind: "experience", text, l…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m15 failed[39m[22m[2m | [22m[1m[32m202 passed[39m[22m[90m (217)[39m
+[2m   Start at [22m 20:36:51
+[2m   Duration [22m 3.62s[2m (transform 830ms, setup 395ms, import 1.82s, tests 376ms, environment 713ms)[22m
+

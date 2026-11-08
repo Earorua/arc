@@ -1,0 +1,312 @@
+{
+  "sourceHashes": {
+    "app/lib/materials/experience-evidence.ts": "9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077",
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9"
+  },
+  "rows": [
+    {
+      "text": "I assisted with SQL.",
+      "expected": true,
+      "guard": true,
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": [
+        {
+          "itemId": "fact",
+          "skillId": "sql"
+        }
+      ]
+    },
+    {
+      "text": "I assisted in SQL query testing.",
+      "expected": true,
+      "guard": true,
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": [
+        {
+          "itemId": "fact",
+          "skillId": "sql"
+        }
+      ]
+    },
+    {
+      "text": "I assisted with scheduling a SQL demo.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I assisted with the SQL demo schedule.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I assisted with SQL demo scheduling.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I can assist with SQL demo scheduling.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I assisted in SQL training planning.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I assisted with SQL project progress reporting.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I assisted with writing notes about SQL.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I assisted with writing a summary about SQL.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I assisted with SQL query testing; my colleague assisted with React.",
+      "expected": true,
+      "guard": true,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": [
+        {
+          "itemId": "fact",
+          "skillId": "sql"
+        }
+      ]
+    },
+    {
+      "text": "My colleague assisted with SQL.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I will assist with SQL.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I did not assist with SQL.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "\"I assisted with SQL.\"",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "If asked, I would assist with SQL.",
+      "expected": false,
+      "guard": false,
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    }
+  ],
+  "mismatches": []
+}

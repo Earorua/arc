@@ -1,0 +1,327 @@
+{
+  "sourceHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/experience-evidence.ts": "9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/experience-evidence.test.ts": "10d4fc9a867a51656efae4a64c2e984d3cc45d854e8cf39913391ebeff730437",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+  },
+  "observations": [
+    {
+      "text": "I assisted with status reporting on SQL.",
+      "expected": false,
+      "mapping": [
+        {
+          "itemId": "material-item-b40ed0ba757f21cc15e276e6faeba5d8",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "savedPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "rereadPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I can assist with status reporting on SQL.",
+      "expected": false,
+      "mapping": [
+        {
+          "itemId": "material-item-b40ed0ba757f21cc15e276e6faeba5d8",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "savedPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "rereadPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with progress reporting on SQL.",
+      "expected": false,
+      "mapping": [
+        {
+          "itemId": "material-item-b40ed0ba757f21cc15e276e6faeba5d8",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "savedPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "rereadPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I am able to assist with progress reporting on SQL.",
+      "expected": false,
+      "mapping": [
+        {
+          "itemId": "material-item-b40ed0ba757f21cc15e276e6faeba5d8",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "savedPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "rereadPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with SQL status reporting.",
+      "expected": false,
+      "mapping": [
+        {
+          "itemId": "material-item-b40ed0ba757f21cc15e276e6faeba5d8",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [],
+      "savedPriorities": [],
+      "rereadPriorities": [],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with SQL project progress reporting.",
+      "expected": false,
+      "mapping": [
+        {
+          "itemId": "material-item-b40ed0ba757f21cc15e276e6faeba5d8",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [],
+      "savedPriorities": [],
+      "rereadPriorities": [],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with SQL reporting.",
+      "expected": true,
+      "mapping": [
+        {
+          "itemId": "material-item-b40ed0ba757f21cc15e276e6faeba5d8",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "savedPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "rereadPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with SQL query reporting.",
+      "expected": true,
+      "mapping": [
+        {
+          "itemId": "material-item-b40ed0ba757f21cc15e276e6faeba5d8",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "savedPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "rereadPriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b40ed0ba757f21cc15e276e6faeba5d8"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    }
+  ]
+}

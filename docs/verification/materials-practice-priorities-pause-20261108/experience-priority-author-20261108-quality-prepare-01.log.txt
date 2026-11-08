@@ -1,0 +1,6 @@
+{
+  "sourceCount": 9,
+  "sealedArtifactCount": 293,
+  "manifestSha256": "5f081f822957f0469972d338f02fa0e6964500e633fee0e3a9f130cba8d28258",
+  "copiedAssertionsUnchanged": true
+}

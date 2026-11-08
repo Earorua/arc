@@ -1,0 +1,63 @@
+{
+  "boundary": "Existing supplement flow edited fact uses assisted; approved finite predicate does not recognize that action. No guard or fixture edit made by this probe.",
+  "sourceSha256": {
+    "app/lib/materials/experience-evidence.ts": "48bec30986f63a3937d8f89b7493bd2f570aac332ecd890fb81045ac6e091277",
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "tests/server/material-supplement-flow.test.ts": "415abb22c1b72b8a2f95c1e8eeec76ee20da11e300b6726507aac8fd288301dc"
+  },
+  "rows": [
+    {
+      "text": "I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.",
+      "guard": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "observability",
+          "status": "mapped",
+          "skillIds": [
+            "observability"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    },
+    {
+      "text": "I tested observability under supervision: PRIVATE-SUPPLEMENT-SENTINEL-5c92.",
+      "guard": true,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "observability",
+          "status": "mapped",
+          "skillIds": [
+            "observability"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": [
+        {
+          "itemId": "fact",
+          "skillId": "observability"
+        }
+      ]
+    },
+    {
+      "text": "I assisted with scheduling an observability demo.",
+      "guard": false,
+      "mapping": [
+        {
+          "itemId": "fact",
+          "term": "observability",
+          "status": "mapped",
+          "skillIds": [
+            "observability"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "practices": []
+    }
+  ]
+}

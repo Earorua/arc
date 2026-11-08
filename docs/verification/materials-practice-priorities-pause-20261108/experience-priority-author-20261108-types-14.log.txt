@@ -1,0 +1,1 @@
+tests/lib/materials/experience-evidence.test.ts(338,87): error TS2322: Type '"independent"' is not assignable to type '"conceptual" | "guided" | "uncertain" | null'.

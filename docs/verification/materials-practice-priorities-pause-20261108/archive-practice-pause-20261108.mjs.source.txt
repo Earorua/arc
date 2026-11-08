@@ -1,0 +1,50 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+
+const sourceCommit = process.argv[2];
+assert.match(sourceCommit ?? "", /^[0-9a-f]{40}$/u);
+const work = "work/grounded-verification", destination = "docs/verification/materials-practice-priorities-pause-20261108";
+const sha = value => createHash("sha256").update(value).digest("hex");
+const git = (...args) => execFileSync("git", args, { maxBuffer: 32 * 1024 * 1024 });
+assert.equal(git("rev-parse", "HEAD").toString("utf8").trim(), sourceCommit);
+assert.ok(!existsSync(destination), "Do not overwrite an earlier archive");
+const identityPath = join(work, "experience-priority-pause-identity-20261108-results.json");
+const identityBytes = readFileSync(identityPath), identity = JSON.parse(identityBytes);
+assert.equal(identity.status, "PAUSED_UNVERIFIED");
+const tree = new Map(git("ls-tree", "-rz", "--full-tree", sourceCommit).toString("utf8").split("\0").filter(Boolean).map(entry => { const split = entry.indexOf("\t"); return [entry.slice(split + 1), entry.slice(0, split).split(" ")[2]]; }));
+const sourcePaths = Object.keys(identity.filesSha256);
+const objects = execFileSync("git", ["hash-object", "--no-filters", "--stdin-paths"], { input: sourcePaths.join("\n") + "\n", encoding: "utf8", maxBuffer: 32 * 1024 * 1024 }).trim().split(/\r?\n/u);
+assert.equal(objects.length, sourcePaths.length);
+for (let i = 0; i < sourcePaths.length; i++) { assert.equal(tree.get(sourcePaths[i]), objects[i], sourcePaths[i]); assert.equal(sha(readFileSync(sourcePaths[i])), identity.filesSha256[sourcePaths[i]], sourcePaths[i]); }
+const paths = [];
+function walk(directory) { for (const entry of readdirSync(directory, { withFileTypes: true })) { const path = join(directory, entry.name); if (entry.isDirectory()) walk(path); else if (entry.isFile()) paths.push(path); } }
+for (const entry of readdirSync(work, { withFileTypes: true })) {
+  if (!entry.name.startsWith("experience-priority-") || entry.name.startsWith("experience-priority-history-store-")) continue;
+  if (entry.isDirectory()) walk(join(work, entry.name)); else if (entry.isFile()) paths.push(join(work, entry.name));
+}
+paths.push(join(work, "run.mjs"), "work/materials-browser-handoff/block-outbound.cjs", join(work, "archive-practice-pause-20261108.mjs"), join(work, "archive-experience-priority-20261108.mjs"), join(work, "mention-projection-preparation-20261108.md"));
+const artifacts = [], recordedOutcomes = [];
+for (const path of [...new Set(paths)].sort()) {
+  let name = path.startsWith("work/materials-browser-handoff/") ? "block-outbound.cjs" : relative(work, path).replaceAll("\\", "/");
+  const bytes = readFileSync(path);
+  if (name.endsWith(".json")) {
+    const value = JSON.parse(bytes);
+    if (typeof value.name === "string" && typeof value.exit === "number" && typeof value.logSha256 === "string") {
+      const logPath = join(work, value.name + ".log");
+      assert.equal(sha(readFileSync(logPath)), value.logSha256, path);
+      recordedOutcomes.push({ source: path.replaceAll("\\", "/"), name: value.name, exit: value.exit, nonLoopbackDenials: value.nonLoopbackDenials, logSha256: value.logSha256 });
+    }
+  }
+  if (name.endsWith(".log")) name += ".txt";
+  else if (/\.(?:mjs|cjs|ts|tsx|ps1)$/u.test(name)) name += ".source.txt";
+  const target = join(destination, name);
+  mkdirSync(dirname(target), { recursive: true }); writeFileSync(target, bytes, { flag: "wx" });
+  assert.equal(sha(readFileSync(target)), sha(bytes));
+  artifacts.push({ source: path.replaceAll("\\", "/"), path: name, bytes: bytes.length, sha256: sha(bytes) });
+}
+const manifest = { schemaVersion: 1, status: "PAUSED_UNVERIFIED", userRequestedPause: true, sourceCommit, sourceIdentity: relative(work, identityPath).replaceAll("\\", "/"), sourceIdentitySha256: sha(identityBytes), sourceFileCount: identity.sourceFileCount, sourceManifestSha256: identity.sourceManifestSha256, artifactCount: artifacts.length, artifacts, recordedOutcomes, frozenReferenceCount: identity.frozenReferenceCount, courseDependencyCount: identity.courseDependencyCount, latestTest: identity.latestTest, latestSourceTested: false, fullRepositoryRunForTask2: false, independentFinalAcceptance: false, historicalCandidateResultsDoNotValidateCurrentSource: true, excluded: ["experience-priority-history-store-* local disposable D1/R2 binary stores; creator inputs, row captures and reads retained"], historicalRealModelCalls: 30, historicalCostUsd: 0.547151, historicalUnsettledUsd: 0, newModelCalls: 0, newCostUsd: 0, deployed: false, remoteMigration: false, pushed: false };
+writeFileSync(join(destination, "verification.json"), JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: manifest.status, artifacts: artifacts.length, recordedOutcomes: recordedOutcomes.length, failedOutcomes: recordedOutcomes.filter(row => row.exit !== 0).length, sourceCommit, manifestSha256: sha(readFileSync(join(destination, "verification.json"))), bytes: artifacts.reduce((sum, row) => sum + row.bytes, 0) }));

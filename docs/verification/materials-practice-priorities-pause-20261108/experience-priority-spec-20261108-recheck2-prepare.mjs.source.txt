@@ -1,0 +1,59 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const work = "work/grounded-verification/";
+const prefix = "experience-priority-spec-20261108-recheck2-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const manifestPath = work + "experience-priority-author-20261108-reporting-frozen-source.json";
+const manifestBytes = readFileSync(manifestPath);
+assert.equal(sha(manifestBytes), "b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9");
+const manifest = JSON.parse(manifestBytes);
+const sourceHashes = Object.fromEntries(Object.keys(manifest.sourceHashes).map(path => [path, sha(readFileSync(path))]));
+assert.deepEqual(sourceHashes, manifest.sourceHashes);
+for (const [path, expected] of Object.entries(manifest.unchangedCandidateAndSharedHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+for (const [path, expected] of Object.entries(manifest.historicalManifests)) assert.equal(sha(readFileSync(work + path)), expected, path);
+assert.equal(Object.keys(manifest.preservedReviewerArtifacts).length, 40);
+for (const [path, expected] of Object.entries(manifest.preservedReviewerArtifacts)) assert.equal(sha(readFileSync(work + path)), expected, path);
+const b = JSON.parse(readFileSync(work + "experience-priority-author-20261108-spec-frozen-source.json", "utf8"));
+const changed = Object.keys(sourceHashes).filter(path => sourceHashes[path] !== b.sourceHashes[path]);
+assert.deepEqual(changed, ["app/lib/materials/experience-evidence.ts", "tests/lib/materials/experience-evidence.test.ts"]);
+const beforeDir = work + "experience-priority-author-20261108-reporting-before-candidate-b/";
+const oldGuard = readFileSync(beforeDir + "app__lib__materials__experience-evidence.ts.source.txt");
+const oldTests = readFileSync(beforeDir + "tests__lib__materials__experience-evidence.test.ts.source.txt");
+assert.equal(sha(oldGuard), "caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab");
+assert.equal(sha(oldTests), "244ed72be656e3f6a85cee7c5dbc16c97c4f4247591fa06d3608945282de50ee");
+const currentTests = readFileSync("tests/lib/materials/experience-evidence.test.ts");
+assert.ok(currentTests.subarray(0, oldTests.length).equals(oldTests), "Original 237 tests remain an exact byte prefix");
+const previousCurrentSha = "caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab";
+const currentSha = "9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077";
+const historicalASha = "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2";
+const copies = [];
+for (const [originalName, newName, oldResult, newResult, rebind] of [
+  ["experience-priority-spec-20261108-assistance-probe.mjs", prefix + "original-probe.mjs", "experience-priority-spec-20261108-assistance-results.json", prefix + "original-probe-results.json", false],
+  ["experience-priority-spec-20261108-assistance-service.test.ts", prefix + "original-service.test.ts", "experience-priority-spec-20261108-assistance-service-results.json", prefix + "original-service-results.json", false],
+  ["experience-priority-spec-20261108-recheck-reporting-probe.mjs", prefix + "reporting-probe.mjs", "experience-priority-spec-20261108-recheck-reporting-results.json", prefix + "reporting-results.json", true],
+  ["experience-priority-spec-20261108-recheck-reporting-service.test.ts", prefix + "reporting-service.test.ts", "experience-priority-spec-20261108-recheck-reporting-service-results.json", prefix + "reporting-service-results.json", false],
+]) {
+  const original = readFileSync(work + originalName, "utf8");
+  let copy = original.replace(oldResult, newResult);
+  assert.notEqual(copy, original);
+  if (rebind) {
+    const oldAssertion = 'assert.equal(sha(readFileSync(bPath)), "' + previousCurrentSha + '");';
+    const newAssertion = 'assert.equal(sha(readFileSync(bPath)), "' + currentSha + '");';
+    assert.equal(original.split(oldAssertion).length, 2);
+    copy = copy.replace(oldAssertion, newAssertion);
+    assert.ok(copy.includes('assert.equal(sha(aBytes), "' + historicalASha + '");'));
+    assert.equal(copy.replace(newResult, oldResult).replace(newAssertion, oldAssertion), original);
+  } else assert.equal(copy.replace(newResult, oldResult), original);
+  writeFileSync(work + newName, copy, { flag: "wx" });
+  copies.push({ originalName, originalSha256: sha(Buffer.from(original)), newName, copySha256: sha(Buffer.from(copy)),
+    changes: rebind ? ["exclusive result output path", "literal current-candidate SHA binding"] : ["exclusive result output path"],
+    behaviorAssertionsUnchanged: true, ...(rebind ? { previousCurrentSha, currentSha, historicalAShaUnchanged: historicalASha } : {}) });
+}
+const result = { manifestSha256: sha(manifestBytes), sourceHashes, changedSinceB: changed,
+  unchangedHashes: manifest.unchangedCandidateAndSharedHashes, preservedReviewerArtifactCount: 40,
+  preservedReviewerArtifacts: manifest.preservedReviewerArtifacts, historicalManifests: manifest.historicalManifests,
+  original237TestsExactBytePrefix: true, copies };
+writeFileSync(work + prefix + "identity-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));

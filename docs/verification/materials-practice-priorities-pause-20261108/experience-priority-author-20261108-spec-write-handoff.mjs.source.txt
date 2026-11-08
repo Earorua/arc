@@ -1,0 +1,63 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-spec-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const manifestPath = resolve(work, prefix + "frozen-source.json");
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+for (const [path, hash] of Object.entries(manifest.sourceHashes)) assert.equal(sha(readFileSync(path)), hash, path);
+const freezePath = resolve(work, prefix + "freeze-12.json"), freeze = JSON.parse(readFileSync(freezePath, "utf8"));
+assert.equal(freeze.exit, 0);
+assert.equal(freeze.nonLoopbackDenials, 0);
+const lines = [
+  "# Task 2 specification repair — candidate B frozen",
+  "",
+  "The sealed candidate-A review remains FAIL and is preserved unchanged. Its one P2 finding is repaired in this new candidate identity. No commit, docs/archive edit, provider/model call, deployment, migration, remote/network work or full-repository run was performed.",
+  "",
+  "## Narrow repair",
+  "",
+  "Only app/lib/materials/experience-evidence.ts and tests/lib/materials/experience-evidence.test.ts differ from candidate A. Four predicate lines extend the existing assistance object check to topic-first scheduling/planning/reporting. Existing nested technical-action recognition prevents the new noun-head rule from rejecting real testing/modification. The object head is bounded before for/to purpose phrases, so technical SQL work for reporting/planning remains personal practice. Existing administrative prefixes, schedule/plan nouns and reporting-object rules are unchanged. No new verb, course vocabulary, actor scope or self-level inference was added.",
+  "",
+  "All four review cases now retain SQL mapping but have no practice relation or service priority: I assisted with SQL demo scheduling.; I can assist with SQL demo scheduling.; I assisted in SQL training planning.; I assisted with SQL project progress reporting. The original 224 tests remain an exact prefix and 13 cases were appended: four administrative negatives and nine technical/purpose positives. Existing supplement lifecycle and all other candidate files remain byte-identical.",
+  "",
+  "## Preservation and new identity",
+  "",
+  "Before-state directory: " + prefix + "before-spec/ (nine source files, complete candidate patch and manifest). Before manifest SHA-256: " + manifest.beforeManifestSha256 + ".",
+  "",
+  "New manifest: " + prefix + "frozen-source.json, SHA-256 " + sha(readFileSync(manifestPath)) + ". Exact source copies: " + prefix + "frozen-source/.",
+  "",
+  "| Candidate file | SHA-256 |",
+  "| --- | --- |",
+  ...Object.entries(manifest.sourceHashes).map(([path, hash]) => "| " + path + " | " + hash + " |"),
+  "",
+  "The freeze independently checks permitted file scope, unchanged seven candidate files, shared assertion and self-level files, original supplement/history tests, original 224 test prefix, git diff whitespace, preserved reviewer memo/probes/results/logs and all command outcome/log hashes. Reviewer probe copies change only their exclusive output path; their assertions are identical to the sealed originals. Original RED and green artifacts are never overwritten.",
+  "",
+  "## Executed evidence",
+  "",
+  "All checks use node work/grounded-verification/run.mjs with unique spec-* labels and zero non-loopback denials. Vitest configurations retain the repository base and use maxWorkers=1. The final candidate passes 14 integration files/499 tests, 12 separate level/extraction/review files/1467 tests, the unchanged reviewer 16-case predicate/projection probe and six-case real-service probe, all 237 evidence tests, focused types and focused lint. Node SQLite experimental warnings are expected.",
+  "",
+  "| Command suffix | Result | Exit | Log SHA-256 | Outcome SHA-256 |",
+  "| --- | --- | --- | --- | --- |",
+  ...manifest.outcomes.map(row => "| " + row.name.replace(prefix, "") + " | " + row.result + " | " + row.exit + " | " + row.logSha256 + " | " + row.outcomeSha256 + " |"),
+  "| freeze-12 | source and preservation checks passed | 0 | " + freeze.logSha256 + " | " + sha(readFileSync(freezePath)) + " |",
+  "",
+  "Exact commands:",
+  "",
+  "~~~text",
+  ...manifest.outcomes.map(row => row.command),
+  "node work/grounded-verification/run.mjs " + prefix + "freeze-12 work/grounded-verification/" + prefix + "freeze.mjs",
+  "~~~",
+  "",
+  "Script/config/source snapshot hashes are recorded in the manifest's harnessInputs. The unit RED source is " + prefix + "unit-red-04.test.source.txt; it matches the final test file. The pure RED log is byte-identical to the sealed reviewer RED log, SHA-256 81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760. The real-service author RED remains four failures/two positive passes.",
+  "",
+  "## Review limits and next owner",
+  "",
+  ...manifest.limits.map(line => "- " + line),
+  "- Root owns the new 35 actual HTTP/runtime native cases, parity/history/UI acceptance, independent re-review then quality review, broader checks, archiving and commits. Source edits have stopped.",
+  "",
+];
+const handoff = resolve(work, prefix + "handoff.md");
+writeFileSync(handoff, lines.join("\n"), { flag: "wx" });
+console.log(JSON.stringify({ sourceUnchangedSinceFreeze: true, handoffSha256: sha(readFileSync(handoff)), scriptSha256: sha(readFileSync(new URL(import.meta.url))) }, null, 2));

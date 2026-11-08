@@ -1,0 +1,41 @@
+import { build } from "esbuild";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const output = await build({ stdin: { contents: `
+  export { supportsMaterialExperience } from "./app/lib/materials/experience-evidence.ts";
+  export { mapMaterialItemTerms, mapMaterialPracticeSkills } from "./app/lib/materials/skill-mapper.ts";
+  export { flagshipBlueprint } from "./app/data/flagship-blueprint.ts";
+  export { flagshipUnitRegistry } from "./app/data/flagship-unit-registry.ts";
+`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, platform: "node", format: "esm", write: false });
+const api = await import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`);
+const cases = [
+  ["I assisted with SQL.", true],
+  ["I assisted in SQL query testing.", true],
+  ["I assisted with scheduling a SQL demo.", false],
+  ["I assisted with the SQL demo schedule.", false],
+  ["I assisted with SQL demo scheduling.", false],
+  ["I can assist with SQL demo scheduling.", false],
+  ["I assisted in SQL training planning.", false],
+  ["I assisted with SQL project progress reporting.", false],
+  ["I assisted with writing notes about SQL.", false],
+  ["I assisted with writing a summary about SQL.", false],
+  ["I assisted with SQL query testing; my colleague assisted with React.", true],
+  ["My colleague assisted with SQL.", false],
+  ["I will assist with SQL.", false],
+  ["I did not assist with SQL.", false],
+  ['"I assisted with SQL."', false],
+  ["If asked, I would assist with SQL.", false],
+];
+const rows = cases.map(([text, expected]) => {
+  const item = { id: "fact", kind: "experience", text, skillLabels: ["SQL"], origin: "user", sourceRef: null, requirementLevel: null };
+  return { text, expected, guard: api.supportsMaterialExperience({ kind: item.kind, text, target: { kind: "terms", terms: item.skillLabels } }),
+    whole: api.supportsMaterialExperience({ kind: item.kind, text, target: { kind: "confirmed-whole-fact" } }),
+    mapping: api.mapMaterialItemTerms([item], api.flagshipBlueprint, api.flagshipUnitRegistry),
+    practices: api.mapMaterialPracticeSkills([item], api.flagshipBlueprint, api.flagshipUnitRegistry) };
+});
+const mismatches = rows.filter(row => row.guard !== row.expected || (row.practices.length > 0) !== row.expected);
+const result = { sourceHashes: Object.fromEntries(["app/lib/materials/experience-evidence.ts", "app/lib/materials/skill-mapper.ts"].map(path => [path, createHash("sha256").update(readFileSync(path)).digest("hex")])), rows, mismatches };
+writeFileSync("work/grounded-verification/experience-priority-spec-20261108-recheck2-original-probe-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));
+process.exitCode = mismatches.length ? 1 : 0;

@@ -1,0 +1,28 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:46360) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/material-context-choices.test.tsx [2m([22m[2m29 tests[22m[2m)[22m[33m 1644[2mms[22m[39m
+(node:42076) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-practice-priorities.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 900[2mms[22m[39m
+(node:47680) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-supplement-flow.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 443[2mms[22m[39m
+   [33m[2m✓[22m[39m uses a reviewed supplement to reorder existing practice while preserving primary JD precedence, progress, audit and privacy [33m 442[2mms[22m[39m
+(node:44524) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-learning-intents.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 365[2mms[22m[39m
+(node:39540) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-context.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/experience-evidence.test.ts [2m([22m[2m224 tests[22m[2m)[22m[32m 89[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/practice-skill-mapping.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/skill-mapper.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m338 passed[39m[22m[90m (338)[39m
+[2m   Start at [22m 20:47:54
+[2m   Duration [22m 11.79s[2m (transform 1.09s, setup 1.44s, import 2.76s, tests 3.63s, environment 2.85s)[22m
+

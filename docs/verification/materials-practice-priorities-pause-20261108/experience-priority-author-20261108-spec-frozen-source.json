@@ -1,0 +1,184 @@
+{
+  "baseHead": "c788268b5dbb4e91480ce98738274dfd08a58155",
+  "beforeManifestSha256": "0c40cc6048f7ec223e107f6fd1a35219c12179ac80dbb7d7acf3f0cae8b0b79d",
+  "sourceHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/experience-evidence.ts": "caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/experience-evidence.test.ts": "244ed72be656e3f6a85cee7c5dbc16c97c4f4247591fa06d3608945282de50ee",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+  },
+  "changedSinceCandidateA": [
+    "app/lib/materials/experience-evidence.ts",
+    "tests/lib/materials/experience-evidence.test.ts"
+  ],
+  "original224EvidenceTestsUnchanged": true,
+  "unchangedCandidateAndSharedHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a",
+    "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+    "tests/lib/materials/self-assessment-evidence.test.ts": "d96fba3093470cde72cccf022b13e37293ae2074d40cb77bae25fed7af2178f5",
+    "tests/server/material-supplement-flow.test.ts": "415abb22c1b72b8a2f95c1e8eeec76ee20da11e300b6726507aac8fd288301dc",
+    "tests/server/material-learning-intents.test.ts": "407366f94cc9fbd9862cf98b4c86733d8a0e3324c462d3acc05bf222758de21a"
+  },
+  "originalReviewerArtifacts": {
+    "experience-priority-spec-20261108-memo.md": "a91086611184ef3a11aa7c2c9ca97e6d23a6f1454803d432ec637b601cfcb627",
+    "experience-priority-spec-20261108-assistance-results.json": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+    "experience-priority-spec-20261108-assistance-service-results.json": "8ae3c4238ab9423f1f2c328eb2beb31ca0b92bec3aa0b1cf4793c4b1feb292d0",
+    "experience-priority-spec-20261108-assistance-03.log": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+    "experience-priority-spec-20261108-assistance-service-04.log": "c4fc992a4cf01d4c50c8743ac9145501f13b5d6ab91f90d007541dc5d01ac99c"
+  },
+  "harnessInputs": {
+    "experience-priority-author-20261108-spec-freeze.mjs": "043bad533021affe1eba180cce198675d3dcb5d0dfa4497dc9715d837c960f64",
+    "experience-priority-author-20261108-spec-prepare.mjs": "1a9957a406c90d17932e213c6df3956a96b8b1daf7a3e2f83ffd6d3eb5be9597",
+    "experience-priority-author-20261108-spec-reviewer-green-probe.mjs": "696ff44574469f27401256ca875e5d81615f187ba4750731616abfbf594611ce",
+    "experience-priority-author-20261108-spec-reviewer-green-service.config.ts": "3c52e6d7a2fd22b18acac1d2463cf6796cc2415e32767549902d19065fc0913f",
+    "experience-priority-author-20261108-spec-reviewer-green-service.test.ts": "d266741e901798188ae4ddfd10f8c76ab36da015e28c03537c9f1c1211d0f5de",
+    "experience-priority-author-20261108-spec-reviewer-red-probe.mjs": "e7a17e7ebe70a511ce45da4f23caa7f3337f1784689af6c16c522d5dcbaeab91",
+    "experience-priority-author-20261108-spec-reviewer-red-service.config.ts": "da973dcceb43046f376c02742b8fad4d7bb51efa1fdb15fbb4d33fa0ddded770",
+    "experience-priority-author-20261108-spec-reviewer-red-service.test.ts": "8072b823f3192f7d5a82f2da833e36cbd126f306a3e9757a66f9a8afc64aed92",
+    "experience-priority-author-20261108-spec-unit-red-04.test.source.txt": "244ed72be656e3f6a85cee7c5dbc16c97c4f4247591fa06d3608945282de50ee",
+    "experience-priority-author-20261108-spec-unit.config.ts": "2bb19c7c3366870e06c270a8a478924496a8eb5ef3e6e0260b5e65bb541406c1",
+    "experience-priority-author-20261108-regression.config.ts": "d1d37d0fb563847a930ff0a2bec4cc32558ec3e73e3eb5baf0658647eb43eaa3",
+    "experience-priority-author-20261108-level-regression.config.ts": "e2dad7dbbbded54a50112f8411b6dd52ac495fad7c3ea6d54c8cb68296fdde3d",
+    "experience-priority-author-20261108-final-tsconfig.json": "7f91db09cd1875e6f3e4f36b9ade46bfd74ce0d79a11855589e3fe20faecfd9d"
+  },
+  "outcomes": [
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-prepare-01 work/grounded-verification/experience-priority-author-20261108-spec-prepare.mjs",
+      "result": "preserved nine files, patch and reviewer probes",
+      "outcomeSha256": "c8189411b342af660523494e0756a1bfb94d6ac07a27f965e533370350617e1f",
+      "name": "experience-priority-author-20261108-spec-prepare-01",
+      "exit": 0,
+      "elapsedMs": 137,
+      "logSha256": "41bcd117cf1e35f53cfb604758203de0cb5182ca65be0f32867369d079a38e16",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-geY0vF"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-probe-red-02 work/grounded-verification/experience-priority-author-20261108-spec-reviewer-red-probe.mjs",
+      "result": "16 cases, four expected failures",
+      "outcomeSha256": "c9e3c530f517424e58900b5ad8178fd636ea384fa8adc70215b8195e45165a4c",
+      "name": "experience-priority-author-20261108-spec-probe-red-02",
+      "exit": 1,
+      "elapsedMs": 239,
+      "logSha256": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-HTG6ti"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-service-red-03 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-spec-reviewer-red-service.config.ts",
+      "result": "six cases: four failures, two positives pass",
+      "outcomeSha256": "db4cb21c370f47aafd46f5a8909cf9cf225be086fdb0725c2730cbd6dd5f5d2e",
+      "name": "experience-priority-author-20261108-spec-service-red-03",
+      "exit": 1,
+      "elapsedMs": 1475,
+      "logSha256": "77704835aaee429437218da1d9f4c1d417a9e6bdffcdf2ba0974d7e92c0565ce",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-InvGbL"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-unit-red-04 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-spec-unit.config.ts",
+      "result": "237 cases: four failures, 233 pass",
+      "outcomeSha256": "7e728199c4da002b81f31e8759d946f065f2522ab15044dd196b7419ef298113",
+      "name": "experience-priority-author-20261108-spec-unit-red-04",
+      "exit": 1,
+      "elapsedMs": 1803,
+      "logSha256": "d097731667333bf26940ca9de613f2452e8463da66c3470ead34f72341922c59",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-maHBRi"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-probe-green-05 work/grounded-verification/experience-priority-author-20261108-spec-reviewer-green-probe.mjs",
+      "result": "16 cases, zero mismatches",
+      "outcomeSha256": "2f40c9dc121b79b0a68281321f204304cab0b2ab951c556985e6b37acee7282a",
+      "name": "experience-priority-author-20261108-spec-probe-green-05",
+      "exit": 0,
+      "elapsedMs": 255,
+      "logSha256": "e767841b8e1a04406dcc01fddd26012ab974a1af9c4d84aa3e4764091d4f6f11",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-IISq6F"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-service-green-06 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-spec-reviewer-green-service.config.ts",
+      "result": "six cases pass",
+      "outcomeSha256": "2d0f1326f82f72c0a0c3018329c5f71bd43e2a1ac7e5686769424bf68ce4fdde",
+      "name": "experience-priority-author-20261108-spec-service-green-06",
+      "exit": 0,
+      "elapsedMs": 1661,
+      "logSha256": "86c7bcc62992d661b9f03960fbef502fa76450196e24fa2ccee4627f654dc463",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Mvn7GD"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-unit-green-07 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-spec-unit.config.ts",
+      "result": "237 tests pass",
+      "outcomeSha256": "810f3fc5cf63b3238eda59c8796c8aa52513c42c0147ae05d58adc7d91cd5fb7",
+      "name": "experience-priority-author-20261108-spec-unit-green-07",
+      "exit": 0,
+      "elapsedMs": 2070,
+      "logSha256": "777e19802221a49fc4921a36077ba5b1885277d8f0a25431f8290f0491b213dd",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-hvtjwq"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-regression-08 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-regression.config.ts",
+      "result": "14 files / 499 tests pass",
+      "outcomeSha256": "3f2e567d2161f6fd1c9a890fcdf38f7698d6edcdd8ac5f7260ae8ede26807ded",
+      "name": "experience-priority-author-20261108-spec-regression-08",
+      "exit": 0,
+      "elapsedMs": 30545,
+      "logSha256": "0d96cdc7ddce1bf560b7a537d2af67b7f7a75a480cb8595f90890577290c865e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-ojzgoB"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-level-regression-09 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-level-regression.config.ts",
+      "result": "12 files / 1467 tests pass",
+      "outcomeSha256": "d23f05c90b55b131a3af3ff045a6f12cf6a85b74794e0e83d6124448f2ef5aed",
+      "name": "experience-priority-author-20261108-spec-level-regression-09",
+      "exit": 0,
+      "elapsedMs": 18990,
+      "logSha256": "72e80b9301620ab8c424359944a99dd029be096db7309aa8639902ba7362df32",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-wCPNER"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-types-10 node_modules/typescript/bin/tsc --project work/grounded-verification/experience-priority-author-20261108-final-tsconfig.json --noEmit --pretty false",
+      "result": "focused types pass",
+      "outcomeSha256": "8b44f42a63412a5f505df925e294a5006c1403a520c53ff2b3323a6a651b3d58",
+      "name": "experience-priority-author-20261108-spec-types-10",
+      "exit": 0,
+      "elapsedMs": 2781,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-vXFZPZ"
+    },
+    {
+      "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-spec-lint-11 node_modules/eslint/bin/eslint.js app/lib/materials/skill-mapper.ts app/lib/materials/experience-evidence.ts app/lib/materials/planning-priority.ts app/server/documents/context-builder.ts app/components/materials/material-context-review.tsx tests/lib/materials/experience-evidence.test.ts tests/lib/materials/practice-skill-mapping.test.ts tests/server/material-practice-priorities.test.ts tests/components/material-context-choices.test.tsx",
+      "result": "focused lint pass",
+      "outcomeSha256": "b3e0b4767698d6625cab8efd47f9206e60828d77089aeaa76b60eecbbd5eb6da",
+      "name": "experience-priority-author-20261108-spec-lint-11",
+      "exit": 0,
+      "elapsedMs": 5448,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-9T9GO9"
+    }
+  ],
+  "limits": [
+    "No full-repository, native runtime, persisted historical store, visual browser or real model acceptance performed during this author repair.",
+    "Reviewer probes were copied with output paths changed exclusively; original assertions and evidence are unchanged.",
+    "Service probes use the real MaterialContextService and existing confirmed-record SQLite/D1 fixtures; root owns independent HTTP/runtime acceptance."
+  ]
+}

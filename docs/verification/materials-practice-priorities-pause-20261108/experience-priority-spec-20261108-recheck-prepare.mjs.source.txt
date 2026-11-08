@@ -1,0 +1,47 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const work = "work/grounded-verification/";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const aPath = work + "experience-priority-author-20261108-frozen-source.json";
+const bPath = work + "experience-priority-author-20261108-spec-frozen-source.json";
+assert.equal(sha(readFileSync(aPath)), "8fd58db6d8d7608796a42bda1f29b8d29c5b6e45ac43265a279a577f13fc190a");
+assert.equal(sha(readFileSync(bPath)), "d5afcd9f3545c1a2bd45772b6a6efd6fa41076c27bd169c65dd161aff226d580");
+const a = JSON.parse(readFileSync(aPath, "utf8"));
+const b = JSON.parse(readFileSync(bPath, "utf8"));
+const sourceHashes = Object.fromEntries(Object.keys(b.sourceHashes).map(path => [path, sha(readFileSync(path))]));
+assert.deepEqual(sourceHashes, b.sourceHashes);
+const changed = Object.keys(sourceHashes).filter(path => sourceHashes[path] !== a.sourceHashes[path]);
+assert.deepEqual(changed, ["app/lib/materials/experience-evidence.ts", "tests/lib/materials/experience-evidence.test.ts"]);
+const unchanged = Object.entries(b.unchangedCandidateAndSharedHashes).map(([path, expected]) => {
+  const actual = sha(readFileSync(path)); assert.equal(actual, expected, path); return { path, sha256: actual };
+});
+const originalArtifacts = {
+  ...b.originalReviewerArtifacts,
+  "experience-priority-spec-20261108-assistance-03.json": "21fa352b187dd540686b1a58d798138b354f8a3e16a297652c629daab6777647",
+  "experience-priority-spec-20261108-assistance-service-04.json": "afa8d0b45712ff4bf446b3734e6ab305416fa29776b1fb5ba9d9d9561fbd199f",
+  "experience-priority-spec-20261108-assistance-probe.mjs": "380d89e0c3d3f1a2a3a04f1183b9742ce81d9df6ea1c042c68a391efdacee30f",
+  "experience-priority-spec-20261108-assistance-service.test.ts": "09a4c332b8b86f05d86da59dc3653915df0eb858e709901ff8c3adecebaa39dd",
+  "experience-priority-spec-20261108-focused-01.log": "c6a56aa1da6a319b94ea75a094a69d1ad8e10c51befbea09d24641ae9828ccba",
+  "experience-priority-spec-20261108-compatibility-results.json": "7fd694b547e90244278131823186178d77d2963d2b7790077953af97981ae30c",
+};
+for (const [path, expected] of Object.entries(originalArtifacts)) assert.equal(sha(readFileSync(work + path)), expected, path);
+const oldTestPath = work + "experience-priority-author-20261108-spec-before-spec/tests__lib__materials__experience-evidence.test.ts.source.txt";
+const oldTests = readFileSync(oldTestPath);
+assert.equal(sha(oldTests), a.sourceHashes["tests/lib/materials/experience-evidence.test.ts"]);
+const newTests = readFileSync("tests/lib/materials/experience-evidence.test.ts");
+assert.equal(newTests.subarray(0, oldTests.length).equals(oldTests), true, "Original 224-test candidate-A source must remain byte-for-byte prefix");
+const copies = [];
+for (const [original, destination, oldResult, newResult] of [
+  ["experience-priority-spec-20261108-assistance-probe.mjs", "experience-priority-spec-20261108-recheck-original-probe.mjs", "experience-priority-spec-20261108-assistance-results.json", "experience-priority-spec-20261108-recheck-original-probe-results.json"],
+  ["experience-priority-spec-20261108-assistance-service.test.ts", "experience-priority-spec-20261108-recheck-original-service.test.ts", "experience-priority-spec-20261108-assistance-service-results.json", "experience-priority-spec-20261108-recheck-original-service-results.json"],
+]) {
+  const source = readFileSync(work + original, "utf8"), copy = source.replace(oldResult, newResult);
+  assert.notEqual(copy, source); assert.equal(copy.replace(newResult, oldResult), source);
+  writeFileSync(work + destination, copy, { flag: "wx" });
+  copies.push({ original, destination, onlyOutputPathChanged: true, sha256: sha(Buffer.from(copy)) });
+}
+const result = { manifestSha256: sha(readFileSync(bPath)), sourceHashes, changed, unchanged, original224TestsExactBytePrefix: true, originalArtifactHashes: originalArtifacts, copies };
+writeFileSync(work + "experience-priority-spec-20261108-recheck-identity-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));

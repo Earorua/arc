@@ -1,0 +1,8 @@
+$testPath = Join-Path (Get-Location) 'tests/lib/materials/experience-evidence.test.ts'
+$source = [System.IO.File]::ReadAllText($testPath)
+$start = $source.IndexOf('describe("personal assistance in material practice", () => {')
+$end = $source.IndexOf('const whole = ', $start)
+if ($start -lt 0 -or $end -lt $start) { throw 'Assistance test block not found before whole-fact helper' }
+$block = $source.Substring($start, $end - $start).TrimEnd()
+$reordered = ($source.Substring(0, $start) + $source.Substring($end)).TrimEnd() + "`n`n" + $block + "`n"
+[System.IO.File]::WriteAllText($testPath, $reordered, [System.Text.UTF8Encoding]::new($false))

@@ -1,0 +1,44 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const output = process.argv[2];
+assert.match(output ?? "", /^work\/grounded-verification\/experience-priority-integrity-[a-z0-9-]+-results\.json$/u);
+const sha = value => createHash("sha256").update(value).digest("hex");
+const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+const files = [...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").split("\0").filter(path => path && !path.startsWith("docs/")))].sort();
+const filesSha256 = Object.fromEntries(files.map(path => [path, sha(readFileSync(path))]));
+const previousPath = "docs/verification/materials-experience-evidence/experience-evidence-root-integrity-20261108-quoted-b-results.json";
+const previousBytes = readFileSync(previousPath);
+assert.equal(sha(previousBytes), "6588362a66d6b737212d6f801f8cb2109d81fa21b54374506ec62cd96799809c");
+const previous = JSON.parse(previousBytes);
+const changed = files.filter(path => previous.filesSha256[path] && previous.filesSha256[path] !== filesSha256[path]);
+const added = files.filter(path => !previous.filesSha256[path]);
+const removed = Object.keys(previous.filesSha256).filter(path => !filesSha256[path]);
+assert.deepEqual(changed, [
+  "app/components/materials/material-context-review.tsx", "app/lib/materials/experience-evidence.ts",
+  "app/lib/materials/planning-priority.ts", "app/lib/materials/skill-mapper.ts", "app/server/documents/context-builder.ts",
+  "tests/components/material-context-choices.test.tsx", "tests/lib/materials/experience-evidence.test.ts",
+]);
+assert.deepEqual(added, ["tests/lib/materials/practice-skill-mapping.test.ts", "tests/server/material-practice-priorities.test.ts"]);
+assert.deepEqual(removed, []);
+for (const [path, digest] of Object.entries(previous.frozenReferenceSha256)) assert.equal(sha(readFileSync(path)), digest, path);
+assert.equal(sha(readFileSync(previous.approvedSpec.path)), previous.approvedSpec.sha256);
+const capturePath = "work/grounded-verification/edited-assessment-course-capture-20261108-results.json";
+const capture = JSON.parse(readFileSync(capturePath));
+const dependencies = capture.dependencies.map(dependency => ({ path: dependency.path, before: dependency.sha256, current: sha(readFileSync(dependency.path)) }));
+assert.deepEqual(dependencies.filter(row => row.before !== row.current), [], "This patch does not change the captured course dependency graph");
+const snapshotPath = "work/grounded-verification/experience-priority-snapshot-20261108-b-results.json";
+const snapshotBytes = readFileSync(snapshotPath), snapshot = JSON.parse(snapshotBytes);
+assert.deepEqual(filesSha256, snapshot.filesSha256);
+for (const [path, digest] of Object.entries(filesSha256)) assert.equal(sha(readFileSync(snapshot.checkout + "/" + path)), digest, path);
+const result = { status: "PASS", sourceBaseAtCapture: git("rev-parse", "HEAD").trim(), sourceFileCount: files.length,
+  sourceManifestSha256: sha(JSON.stringify(filesSha256)), filesSha256, previousPath, previousSha256: sha(previousBytes), changed, added, removed,
+  snapshotPath, snapshotSha256: sha(snapshotBytes), checkout: snapshot.checkout,
+  frozenReferenceCount: Object.keys(previous.frozenReferenceSha256).length, frozenReferenceSha256: previous.frozenReferenceSha256,
+  approvedSpec: previous.approvedSpec, courseCapturePath: capturePath, courseDependencyCount: dependencies.length,
+  courseDependencyBytesUnchanged: true, newCourseReferenceApproved: false, realModelCalls: 0 };
+writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: "PASS", files: files.length, sourceManifestSha256: result.sourceManifestSha256,
+  changed, added, frozenReferences: result.frozenReferenceCount, courseDependencies: dependencies.length, output }));

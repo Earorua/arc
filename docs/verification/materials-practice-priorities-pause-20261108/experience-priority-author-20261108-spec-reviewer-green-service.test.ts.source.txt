@@ -1,0 +1,40 @@
+// @vitest-environment node
+import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+
+const databases: ReturnType<typeof createMaterialsD1>[] = [];
+const rows: unknown[] = [];
+afterEach(() => databases.splice(0).forEach(db => db.close()));
+afterAll(() => {
+  const paths = ["app/lib/materials/experience-evidence.ts", "app/lib/materials/skill-mapper.ts", "app/server/documents/context-builder.ts"];
+  writeFileSync("work/grounded-verification/experience-priority-author-20261108-spec-reviewer-green-service-results.json", JSON.stringify({
+    sourceHashes: Object.fromEntries(paths.map(path => [path, createHash("sha256").update(readFileSync(path)).digest("hex")])), rows,
+  }, null, 2) + "\n", { flag: "wx" });
+});
+
+describe("review: approved assistance object boundary reaches material priorities", () => {
+  it.each([
+    ["I assisted with SQL.", ["sql"]],
+    ["I assisted in SQL query testing.", ["sql"]],
+    ["I assisted with SQL demo scheduling.", []],
+    ["I can assist with SQL demo scheduling.", []],
+    ["I assisted in SQL training planning.", []],
+    ["I assisted with SQL project progress reporting.", []],
+  ])("preserves the administrative boundary: %s", async (text, expected) => {
+    const db = createMaterialsD1(); databases.push(db); seedMaterialSelection(db);
+    const item = { id: "review-fact", kind: "experience", text, skillLabels: ["SQL"], origin: "user", sourceRef: null, requirementLevel: null };
+    db.database.prepare("UPDATE documents SET kind='resume'").run();
+    db.database.prepare("UPDATE material_selection_entries SET slot='resume'").run();
+    db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id='confirmation-a'").run(JSON.stringify([item]));
+    const service = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver: materialSourceResolver(), now: materialNow, createId: () => "review-context" });
+    const { preview, contextVersionId } = await service.create("owner-a", materialContextRequest());
+    const persisted = db.database.prepare("SELECT snapshot_json FROM material_context_versions WHERE id=?").get(contextVersionId) as { snapshot_json: string };
+    rows.push({ text, expected, mappingDetails: preview.mappingDetails, priorities: preview.priorities, policyVersion: JSON.parse(persisted.snapshot_json).policyVersion });
+    expect(preview.mappingDetails?.[0]).toMatchObject({ status: "mapped", skillIds: ["sql"], basis: "literal" });
+    expect(preview.priorities.map(row => row.skillId)).toEqual(expected);
+  });
+});

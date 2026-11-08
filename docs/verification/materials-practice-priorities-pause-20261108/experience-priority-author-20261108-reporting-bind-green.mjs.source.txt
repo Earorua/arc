@@ -1,0 +1,30 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-reporting-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const previousCurrentSha = "caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab";
+const currentCandidateSha = "9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077";
+assert.equal(sha(readFileSync("app/lib/materials/experience-evidence.ts")), currentCandidateSha);
+const originalName = "experience-priority-spec-20261108-recheck-reporting-probe.mjs";
+const originalResult = "experience-priority-spec-20261108-recheck-reporting-results.json";
+const nextResult = prefix + "reviewer-green-probe-results.json";
+const original = readFileSync(join(work, originalName), "utf8");
+const oldBinding = 'assert.equal(sha(readFileSync(bPath)), "' + previousCurrentSha + '");';
+const newBinding = 'assert.equal(sha(readFileSync(bPath)), "' + currentCandidateSha + '");';
+const next = original.replace(originalResult, nextResult).replace(oldBinding, newBinding);
+assert.notEqual(next, original);
+assert.equal(next.replace(nextResult, originalResult).replace(newBinding, oldBinding), original);
+const nextName = prefix + "reviewer-green-probe.mjs";
+writeFileSync(join(work, nextName), next, { flag: "wx" });
+const metadata = {
+  scope: "Root-authorized current-candidate source-hash rebinding only; all six expected outcomes and behavior assertions are identical. Historical candidate A hash is unchanged.",
+  previousCurrentSha, currentCandidateSha,
+  historicalCandidateASha: "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2",
+  originalName, originalSha256: sha(Buffer.from(original)), nextName, nextSha256: sha(Buffer.from(next)),
+  permittedEdits: ["exclusive result output path", "literal current-candidate SHA-256 binding"],
+};
+writeFileSync(join(work, prefix + "green-probe-binding.json"), JSON.stringify(metadata, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(metadata, null, 2));

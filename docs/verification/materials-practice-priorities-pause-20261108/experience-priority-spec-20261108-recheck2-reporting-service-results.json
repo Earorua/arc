@@ -1,0 +1,173 @@
+{
+  "sourceHashes": {
+    "app/lib/materials/experience-evidence.ts": "9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077",
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416"
+  },
+  "rows": [
+    {
+      "text": "I assisted with SQL reports.",
+      "expected": [
+        "sql"
+      ],
+      "mappingDetails": [
+        {
+          "itemId": "material-item-4db6d50f5fc067a12df4405b08b4f5ed",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-4db6d50f5fc067a12df4405b08b4f5ed"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with SQL reporting.",
+      "expected": [
+        "sql"
+      ],
+      "mappingDetails": [
+        {
+          "itemId": "material-item-4db6d50f5fc067a12df4405b08b4f5ed",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-4db6d50f5fc067a12df4405b08b4f5ed"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with SQL query reporting.",
+      "expected": [
+        "sql"
+      ],
+      "mappingDetails": [
+        {
+          "itemId": "material-item-4db6d50f5fc067a12df4405b08b4f5ed",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-4db6d50f5fc067a12df4405b08b4f5ed"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with SQL project progress reporting.",
+      "expected": [],
+      "mappingDetails": [
+        {
+          "itemId": "material-item-4db6d50f5fc067a12df4405b08b4f5ed",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with testing SQL reporting queries.",
+      "expected": [
+        "sql"
+      ],
+      "mappingDetails": [
+        {
+          "itemId": "material-item-4db6d50f5fc067a12df4405b08b4f5ed",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-4db6d50f5fc067a12df4405b08b4f5ed"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    },
+    {
+      "text": "I assisted with modifying SQL queries for planning.",
+      "expected": [
+        "sql"
+      ],
+      "mappingDetails": [
+        {
+          "itemId": "material-item-4db6d50f5fc067a12df4405b08b4f5ed",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-4db6d50f5fc067a12df4405b08b4f5ed"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3"
+    }
+  ]
+}

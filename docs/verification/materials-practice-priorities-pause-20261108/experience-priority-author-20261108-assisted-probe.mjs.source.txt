@@ -1,0 +1,31 @@
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { build } from "esbuild";
+
+const bundled = await build({ stdin: { contents: `
+  export { supportsMaterialExperience } from "./app/lib/materials/experience-evidence.ts";
+  export { mapMaterialItemTerms, mapMaterialPracticeSkills } from "./app/lib/materials/skill-mapper.ts";
+  export { flagshipBlueprint } from "./app/data/flagship-blueprint.ts";
+  export { flagshipUnitRegistry } from "./app/data/flagship-unit-registry.ts";
+`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, platform: "node", format: "esm", write: false });
+const api = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString("base64")}`);
+const texts = [
+  "I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.",
+  "I tested observability under supervision: PRIVATE-SUPPLEMENT-SENTINEL-5c92.",
+  "I assisted with scheduling an observability demo.",
+];
+const rows = texts.map(text => {
+  const fact = { id: "fact", kind: "experience", text, skillLabels: ["observability"], origin: "user", sourceRef: null, requirementLevel: null };
+  return { text, guard: api.supportsMaterialExperience({ kind: fact.kind, text, target: { kind: "terms", terms: fact.skillLabels } }),
+    mapping: api.mapMaterialItemTerms([fact], api.flagshipBlueprint, api.flagshipUnitRegistry),
+    practices: api.mapMaterialPracticeSkills([fact], api.flagshipBlueprint, api.flagshipUnitRegistry),
+  };
+});
+const result = {
+  boundary: "Existing supplement flow edited fact uses assisted; approved finite predicate does not recognize that action. No guard or fixture edit made by this probe.",
+  sourceSha256: Object.fromEntries(["app/lib/materials/experience-evidence.ts", "app/lib/materials/skill-mapper.ts", "tests/server/material-supplement-flow.test.ts"].map(path => [path, createHash("sha256").update(readFileSync(path)).digest("hex")])),
+  rows,
+};
+writeFileSync(resolve("work/grounded-verification/experience-priority-author-20261108-assisted-probe-results.json"), JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));

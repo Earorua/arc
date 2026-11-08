@@ -1,0 +1,78 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-spec-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const before = JSON.parse(readFileSync(join(work, prefix + "before-spec/manifest.json"), "utf8"));
+const permitted = ["app/lib/materials/experience-evidence.ts", "tests/lib/materials/experience-evidence.test.ts"];
+const sources = Object.keys(before.sourceHashes);
+for (const [path, expected] of Object.entries(before.sourceHashes)) {
+  if (!permitted.includes(path)) assert.equal(sha(readFileSync(path)), expected, path);
+}
+for (const [path, expected] of Object.entries(before.unchangedHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+for (const [copy, identity] of Object.entries(before.copies)) {
+  assert.equal(sha(readFileSync(join(work, identity.original))), identity.originalSha256, identity.original);
+  assert.equal(sha(readFileSync(join(work, copy))), identity.sha256, copy);
+}
+const reviewerArtifacts = {
+  "experience-priority-spec-20261108-memo.md": before.reviewerMemoSha256,
+  "experience-priority-spec-20261108-assistance-results.json": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+  "experience-priority-spec-20261108-assistance-service-results.json": "8ae3c4238ab9423f1f2c328eb2beb31ca0b92bec3aa0b1cf4793c4b1feb292d0",
+  "experience-priority-spec-20261108-assistance-03.log": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+  "experience-priority-spec-20261108-assistance-service-04.log": "c4fc992a4cf01d4c50c8743ac9145501f13b5d6ab91f90d007541dc5d01ac99c",
+};
+for (const [path, expected] of Object.entries(reviewerArtifacts)) assert.equal(sha(readFileSync(join(work, path))), expected, path);
+const oldTests = readFileSync(join(work, prefix + "before-spec/tests__lib__materials__experience-evidence.test.ts.source.txt"), "utf8");
+const tests = readFileSync(permitted[1], "utf8");
+assert.equal(tests.slice(0, tests.indexOf('describe("assistance administrative object heads"')).trimEnd(), oldTests.trimEnd(), "The original 224 tests must be unchanged");
+const git = args => execFileSync("git", args, { windowsHide: true, encoding: "utf8" });
+const changed = [...git(["diff", "--name-only", "HEAD", "--", "app", "tests"]).trim().split(/\r?\n/u),
+  ...git(["ls-files", "--others", "--exclude-standard", "--", "app", "tests"]).trim().split(/\r?\n/u)].filter(Boolean).sort();
+assert.deepEqual(changed, [...sources].sort(), "Unexpected product/test scope");
+git(["diff", "--check"]);
+const frozenDir = join(work, prefix + "frozen-source");
+mkdirSync(frozenDir);
+const sourceHashes = Object.fromEntries(sources.map(path => {
+  const bytes = readFileSync(path);
+  writeFileSync(join(frozenDir, path.replaceAll("/", "__") + ".source.txt"), bytes, { flag: "wx" });
+  return [path, sha(bytes)];
+}));
+const inputs = readdirSync(work).filter(name => name.startsWith(prefix) && /\.(?:mjs|ts|txt)$/u.test(name));
+const reusedInputs = ["experience-priority-author-20261108-regression.config.ts", "experience-priority-author-20261108-level-regression.config.ts", "experience-priority-author-20261108-final-tsconfig.json"];
+const runs = [
+  ["prepare-01", "work/grounded-verification/" + prefix + "prepare.mjs", "preserved nine files, patch and reviewer probes"],
+  ["probe-red-02", "work/grounded-verification/" + prefix + "reviewer-red-probe.mjs", "16 cases, four expected failures"],
+  ["service-red-03", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/" + prefix + "reviewer-red-service.config.ts", "six cases: four failures, two positives pass"],
+  ["unit-red-04", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/" + prefix + "unit.config.ts", "237 cases: four failures, 233 pass"],
+  ["probe-green-05", "work/grounded-verification/" + prefix + "reviewer-green-probe.mjs", "16 cases, zero mismatches"],
+  ["service-green-06", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/" + prefix + "reviewer-green-service.config.ts", "six cases pass"],
+  ["unit-green-07", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/" + prefix + "unit.config.ts", "237 tests pass"],
+  ["regression-08", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-regression.config.ts", "14 files / 499 tests pass"],
+  ["level-regression-09", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-level-regression.config.ts", "12 files / 1467 tests pass"],
+  ["types-10", "node_modules/typescript/bin/tsc --project work/grounded-verification/experience-priority-author-20261108-final-tsconfig.json --noEmit --pretty false", "focused types pass"],
+  ["lint-11", "node_modules/eslint/bin/eslint.js app/lib/materials/skill-mapper.ts app/lib/materials/experience-evidence.ts app/lib/materials/planning-priority.ts app/server/documents/context-builder.ts app/components/materials/material-context-review.tsx tests/lib/materials/experience-evidence.test.ts tests/lib/materials/practice-skill-mapping.test.ts tests/server/material-practice-priorities.test.ts tests/components/material-context-choices.test.tsx", "focused lint pass"],
+];
+const outcomes = runs.map(([suffix, args, result]) => {
+  const name = prefix + suffix, bytes = readFileSync(join(work, name + ".json")), outcome = JSON.parse(bytes);
+  assert.equal(outcome.nonLoopbackDenials, 0, name);
+  assert.equal(sha(readFileSync(join(work, name + ".log"))), outcome.logSha256, name);
+  assert.equal(outcome.exit, suffix.includes("-red-") ? 1 : 0, name);
+  return { command: "node work/grounded-verification/run.mjs " + name + " " + args, result, outcomeSha256: sha(bytes), ...outcome };
+});
+const manifest = {
+  baseHead: git(["rev-parse", "HEAD"]).trim(),
+  beforeManifestSha256: sha(readFileSync(join(work, prefix + "before-spec/manifest.json"))),
+  sourceHashes,
+  changedSinceCandidateA: sources.filter(path => sourceHashes[path] !== before.sourceHashes[path]),
+  original224EvidenceTestsUnchanged: true,
+  unchangedCandidateAndSharedHashes: { ...Object.fromEntries(Object.entries(before.sourceHashes).filter(([path]) => !permitted.includes(path))), ...before.unchangedHashes },
+  originalReviewerArtifacts: reviewerArtifacts,
+  harnessInputs: Object.fromEntries([...inputs, ...reusedInputs].map(path => [path, sha(readFileSync(join(work, path)))])),
+  outcomes,
+  limits: ["No full-repository, native runtime, persisted historical store, visual browser or real model acceptance performed during this author repair.", "Reviewer probes were copied with output paths changed exclusively; original assertions and evidence are unchanged.", "Service probes use the real MaterialContextService and existing confirmed-record SQLite/D1 fixtures; root owns independent HTTP/runtime acceptance."],
+};
+writeFileSync(join(work, prefix + "frozen-source.json"), JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ sourceHashes, changedSinceCandidateA: manifest.changedSinceCandidateA, original224EvidenceTestsUnchanged: true, preservedReviewEvidence: true, manifestSha256: sha(readFileSync(join(work, prefix + "frozen-source.json"))) }, null, 2));

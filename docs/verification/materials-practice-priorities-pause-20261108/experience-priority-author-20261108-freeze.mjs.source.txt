@@ -1,0 +1,57 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const root = process.cwd(), work = resolve("work/grounded-verification");
+const prefix = "experience-priority-author-20261108-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const sources = [
+  "app/lib/materials/skill-mapper.ts",
+  "app/lib/materials/experience-evidence.ts",
+  "app/lib/materials/planning-priority.ts",
+  "app/server/documents/context-builder.ts",
+  "app/components/materials/material-context-review.tsx",
+  "tests/lib/materials/experience-evidence.test.ts",
+  "tests/lib/materials/practice-skill-mapping.test.ts",
+  "tests/server/material-practice-priorities.test.ts",
+  "tests/components/material-context-choices.test.tsx",
+];
+const unchanged = [
+  "app/lib/materials/personal-assertion-scopes.ts",
+  "app/lib/materials/self-assessment-evidence.ts",
+  "tests/lib/materials/self-assessment-evidence.test.ts",
+  "tests/server/material-supplement-flow.test.ts",
+  "tests/server/material-learning-intents.test.ts",
+];
+execFileSync("git", ["diff", "--exit-code", "HEAD", "--", ...unchanged], { cwd: root, windowsHide: true });
+execFileSync("git", ["diff", "--check"], { cwd: root, windowsHide: true });
+const oldEvidenceTests = readFileSync(join(work, prefix + "before-assistance/tests__lib__materials__experience-evidence.test.ts.source.txt"), "utf8");
+const newEvidenceTests = readFileSync("tests/lib/materials/experience-evidence.test.ts", "utf8");
+assert.equal(newEvidenceTests.slice(0, newEvidenceTests.indexOf('describe("personal assistance in material practice"')).trimEnd(), oldEvidenceTests.trimEnd(), "Original 180 evidence tests must be unchanged");
+const sourceDir = join(work, prefix + "frozen-source");
+mkdirSync(sourceDir);
+const sourceHashes = Object.fromEntries(sources.map(path => {
+  const bytes = readFileSync(path);
+  writeFileSync(join(sourceDir, path.replaceAll("/", "__") + ".source.txt"), bytes, { flag: "wx" });
+  return [path, sha(bytes)];
+}));
+const inputs = readdirSync(work).filter(name => name.startsWith(prefix) && /(?:\.config\.ts|tsconfig\.json|\.mjs|\.ps1)$/.test(name));
+const outcomes = readdirSync(work).filter(name => name.startsWith(prefix) && /-\d{2}\.json$/.test(name)).map(name => {
+  const bytes = readFileSync(join(work, name)), result = JSON.parse(bytes);
+  assert.equal(result.nonLoopbackDenials, 0, name);
+  assert.equal(result.logSha256, sha(readFileSync(join(work, result.name + ".log"))), name);
+  return { path: name, sha256: sha(bytes), ...result };
+});
+const manifest = {
+  sourceHead: execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, windowsHide: true, encoding: "utf8" }).trim(),
+  sourceHashes,
+  unchangedHashes: Object.fromEntries(unchanged.map(path => [path, sha(readFileSync(path))])),
+  original180EvidenceTestsUnchanged: true,
+  harnessInputs: Object.fromEntries(inputs.map(name => [name, sha(readFileSync(join(work, name)))])),
+  outcomeFiles: outcomes,
+  limits: ["No full-repository run, native runtime acceptance, historical policy2 store read or visual browser check was performed by the implementer; root owns those checks.", "New service tests seed confirmed database records. Existing lifecycle regressions use real routes/runtime with an in-memory SQLite/R2 adapter and synthetic provider transport.", "regression-12 (486 tests) predates a test-only correction from invalid independent hint input to the supported conceptual/guided/uncertain inputs; assistance-final-16 (225 tests), types-final-17 and lint-final-18 validate that final correction.", "The first pre-implementation RED run's narrow test file was subsequently expanded. Its original log/config remain; the broader RED-02 source snapshot is separately preserved under red-source."],
+};
+writeFileSync(join(work, prefix + "frozen-source.json"), JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ sourceHead: manifest.sourceHead, sourceHashes, original180EvidenceTestsUnchanged: true, outcomes: outcomes.length, manifestSha256: sha(readFileSync(join(work, prefix + "frozen-source.json"))) }, null, 2));

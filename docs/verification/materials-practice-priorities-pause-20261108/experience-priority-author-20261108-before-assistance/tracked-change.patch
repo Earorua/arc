@@ -1,0 +1,208 @@
+diff --git a/app/components/materials/material-context-review.tsx b/app/components/materials/material-context-review.tsx
+index 98e29ca..486f193 100644
+--- a/app/components/materials/material-context-review.tsx
++++ b/app/components/materials/material-context-review.tsx
+@@ -142,6 +142,8 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
+   const mappingDirty = !recovering && (!state.refs.preview || JSON.stringify(choices) !== JSON.stringify(choicesFromPreview(preview)));
+   const issues = preview?.issues ?? [];
+   const issueCount = issues.reduce((total, issue) => total + Math.max(1, issue.itemIds.length), 0);
++  const mappedSkillCount = preview?.mappingDetails === undefined ? null
++    : new Set(preview.mappingDetails.filter(row => row.status === "mapped").flatMap(row => row.skillIds)).size;
+   const skillNames = (ids: readonly string[]) => ids.map(id => availableSkills.find(skill => skill.id === id)?.name ?? id).join("、");
+   const basisLabels = { literal: "名称或已登记别名", contextual: "上下文对应", manual: "手动选择" };
+   function mappingResult(itemId: string, termIndex: number) {
+@@ -193,7 +195,8 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
+         </li>;
+       })}</ul>
+       {availableSkills.length > 0 && <p>如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。</p>}
+-      <p>已映射 {preview.priorities.length} 项技能；资料没有提到的能力仍以你的自我评估为准。</p>
++      <p>{mappedSkillCount !== null && <>已对应课程 {mappedSkillCount} 项技能；</>}参与当前排序 {preview.priorities.length} 项技能。</p>
++      <p>否定、他人经历或未来计划中的主题也可对应课程，但不代表已有实践或能力等级；能力仍以你的自我评估为准。</p>
+       {issueCount > 0 && <p>有 {issueCount} 项需注意：歧义映射、未覆盖内容或自评冲突会保留为提醒，不会擅自增加技能。</p>}
+       {preview.uncoveredLabels.length > 0 && <p>当前蓝图未覆盖：{preview.uncoveredLabels.join("、")}</p>}
+       {preview.planning && <p>全量预计完成：{preview.planning.fullScope.estimatedCompletionDate}；目标日期方案：{preview.planning.targetDate?.estimatedCompletionDate ?? "不可行"}。{preview.planning.infeasibleReason}</p>}
+diff --git a/app/lib/materials/planning-priority.ts b/app/lib/materials/planning-priority.ts
+index 1be7d04..51fe300 100644
+--- a/app/lib/materials/planning-priority.ts
++++ b/app/lib/materials/planning-priority.ts
+@@ -1,6 +1,6 @@
+ import type { SkillAuditVersion } from "../../contracts/planning";
+ 
+-export const MATERIAL_PLANNING_POLICY_VERSION = "2026.11.2" as const;
++export const MATERIAL_PLANNING_POLICY_VERSION = "2026.11.3" as const;
+ export type MaterialOverlay = Readonly<{
+   skillRanks: Readonly<Record<string, number>>;
+   mandatorySkillIds: readonly string[];
+diff --git a/app/lib/materials/skill-mapper.ts b/app/lib/materials/skill-mapper.ts
+index 786c401..8733d35 100644
+--- a/app/lib/materials/skill-mapper.ts
++++ b/app/lib/materials/skill-mapper.ts
+@@ -3,6 +3,7 @@ import type { RoleBlueprint } from "../../contracts/intelligence";
+ import type { UnitRegistry, SkillSelfLevel } from "../../contracts/planning";
+ import { validateUnitRegistry } from "../planning/registry-validation";
+ import { createContextualSkillMatcher } from "./contextual-skill-mapping";
++import { supportsMaterialExperience } from "./experience-evidence";
+ import { containsMaterialSkillLabel, normalizeMaterialSkillLabel } from "./skill-labels";
+ export const MATERIAL_MAPPING_VERSION = "2026.11.5" as const;
+ const literalAliasVersion = "2026.11.2";
+@@ -52,7 +53,11 @@ const FLAGSHIP_ALIASES: NonNullable<MappingOptions["aliases"]> = {
+         "proof-of-work": ["作品证据", "作品集证明"],
+     }
+ };
+-type ResolvedMaterialTerm = MaterialTermMapping & { labels: string[] };
++type MaterialExperienceTarget = Parameters<typeof supportsMaterialExperience>[0]["target"];
++type ResolvedMaterialTerm = MaterialTermMapping & {
++    labels: string[];
++    practiceEvidence: ReadonlyMap<string, readonly MaterialExperienceTarget[]>;
++};
+ 
+ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint: RoleBlueprint, registry: UnitRegistry, options: MappingOptions): ResolvedMaterialTerm[] {
+     const valid = blueprint.status === "ready" && validateUnitRegistry(registry, blueprint).valid;
+@@ -66,7 +71,7 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
+     return items.flatMap((item): ResolvedMaterialTerm[] => {
+         if (item.kind === "constraint" && !options.learningIntentItemIds?.includes(item.id)) {
+             return (item.skillLabels ?? [item.text]).map(term => ({
+-                itemId: item.id, term, status: "non-learning", skillIds: [], basis: null, labels: [],
++                itemId: item.id, term, status: "non-learning", skillIds: [], basis: null, labels: [], practiceEvidence: new Map(),
+             }));
+         }
+         const manual = options.userMappings && Object.hasOwn(options.userMappings, item.id) ? options.userMappings[item.id] : undefined;
+@@ -78,20 +83,40 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
+             // Exact retained-label membership is intentional. Deleted and legacy terms cannot be restored by an override.
+             const termMapping = !manual && item.skillLabels ? termMappings?.find(mapping => mapping.skillLabel === term) : undefined;
+             if (termMapping && termMapping.skillIds.length === 0) return {
+-                itemId: item.id, term, status: "omitted", skillIds: [], basis: "manual", labels: [],
++                itemId: item.id, term, status: "omitted", skillIds: [], basis: "manual", labels: [], practiceEvidence: new Map(),
+             };
+             const selected = manual ?? termMapping?.skillIds;
+-            let matches = vocabulary.filter(skill => selected ? selected.includes(skill.id) : skill.words.some(word =>
+-                item.skillLabels ? normalizeMaterialSkillLabel(term) === normalizeMaterialSkillLabel(word) : containsMaterialSkillLabel(term, word)));
++            const termTarget: MaterialExperienceTarget = { kind: "terms", terms: [term] };
++            const practiceEvidence = new Map<string, MaterialExperienceTarget[]>();
++            let matches = vocabulary.filter(skill => {
++                if (selected) {
++                    if (!selected.includes(skill.id)) return false;
++                    // The public compatibility API retains legacy whole-item choices.
++                    // New practice cannot use them to bypass reviewed term membership.
++                    practiceEvidence.set(skill.id, manual
++                        ? item.skillLabels === undefined ? [{ kind: "confirmed-whole-fact" }] : []
++                        : [termTarget]);
++                    return true;
++                }
++                const words = skill.words.filter(word => item.skillLabels
++                    ? normalizeMaterialSkillLabel(term) === normalizeMaterialSkillLabel(word)
++                    : containsMaterialSkillLabel(term, word));
++                if (!words.length) return false;
++                // Several vocabulary words may name the same course. Keep each
++                // actual source match as alternative evidence for that relation.
++                practiceEvidence.set(skill.id, item.skillLabels ? [termTarget] : words.map(word => ({ kind: "terms", terms: [word] })));
++                return true;
++            });
+             let basis: MaterialTermMapping["basis"] = selected ? "manual" : valid && matches.length ? "literal" : null;
+             if (!selected && !matches.length && valid && item.skillLabels) {
+                 const contextualIds = matchContextual(term, item.text);
+                 matches = vocabulary.filter(skill => contextualIds.includes(skill.id));
++                for (const skill of matches) practiceEvidence.set(skill.id, [termTarget]);
+                 if (matches.length) basis = "contextual";
+             }
+             const status = !valid || !matches.length ? "uncovered" : !selected && matches.length > 1 ? "ambiguous" : "mapped";
+             return { itemId: item.id, term, status, skillIds: valid ? matches.map(skill => skill.id) : [], basis,
+-                labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)] };
++                labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)], practiceEvidence };
+         });
+     });
+ }
+@@ -120,6 +145,27 @@ export function mapMaterialItems(items: readonly ConfirmedMaterialItem[], bluepr
+         return [...groups.values()].map(group => ({ ...group, skillIds: [...new Set(group.skillIds)], labels: [...new Set(group.labels)] }));
+     });
+ }
++
++/** A course match contributes practice only through its own confirmed source evidence. */
++export function mapMaterialPracticeSkills(items: readonly ConfirmedMaterialItem[], blueprint: RoleBlueprint, registry: UnitRegistry, options: MappingOptions = {}): { itemId: string; skillId: string }[] {
++    const byId = new Map(items.map(item => [item.id, item]));
++    const seen = new Map<string, Set<string>>();
++    const practices: { itemId: string; skillId: string }[] = [];
++    for (const relation of resolveMaterialTerms(items, blueprint, registry, options)) {
++        if (relation.status !== "mapped") continue;
++        const item = byId.get(relation.itemId)!;
++        if (item.kind !== "experience" && item.kind !== "skill-claim") continue;
++        const skills = seen.get(item.id) ?? new Set<string>();
++        for (const skillId of relation.skillIds) {
++            if (skills.has(skillId) || !relation.practiceEvidence.get(skillId)?.some(target =>
++                supportsMaterialExperience({ kind: item.kind, text: item.text, target }))) continue;
++            practices.push({ itemId: item.id, skillId });
++            skills.add(skillId);
++        }
++        seen.set(item.id, skills);
++    }
++    return practices;
++}
+ /** Called only by a separate, explicit user adoption action; fact confirmation never calls this. */
+ export function adoptMaterialSelfAssessments(existing: Record<string, SkillSelfLevel>, adoption: unknown, blueprint: RoleBlueprint): Record<string, SkillSelfLevel> {
+     if (adoption === null)
+diff --git a/app/server/documents/context-builder.ts b/app/server/documents/context-builder.ts
+index 91546c4..80f17e3 100644
+--- a/app/server/documents/context-builder.ts
++++ b/app/server/documents/context-builder.ts
+@@ -8,7 +8,7 @@ import { planningWorkspaceSchema, type PlanningSourceContext } from "../../contr
+ import { canonicalJson, deterministicId } from "../../lib/planning/fingerprint";
+ import { buildLearningPaths } from "../../lib/planning/path-builder";
+ import { createMaterialOverlay, MATERIAL_PLANNING_POLICY_VERSION } from "../../lib/materials/planning-priority";
+-import { mapMaterialItems, mapMaterialItemTerms, MATERIAL_MAPPING_VERSION, type MappingOptions } from "../../lib/materials/skill-mapper";
++import { mapMaterialItems, mapMaterialItemTerms, mapMaterialPracticeSkills, MATERIAL_MAPPING_VERSION, type MappingOptions } from "../../lib/materials/skill-mapper";
+ import { validateUnitRegistry } from "../../lib/planning/registry-validation";
+ import { PlanningConflictError, PlanningInvalidInputError, PlanningNotFoundError } from "../planning/service";
+ import type { PlanningSourceResolver } from "../planning/source-resolver";
+@@ -262,6 +262,7 @@ export class MaterialContextService {
+       confirmedItems.push(...items);
+       const options = { userMappings, termMappings, learningIntentItemIds };
+       const details = mapMaterialItemTerms(items, source.blueprint, source.registry, options);
++      if (row.slot !== "jd") practices.push(...mapMaterialPracticeSkills(items, source.blueprint, source.registry, options));
+       const groups = new Map<string, NonNullable<MaterialPreview["mappingDetails"]>[number]>();
+       for (const detail of details) {
+         const item = items.find(item => item.id === detail.itemId)!;
+@@ -286,7 +287,6 @@ export class MaterialContextService {
+         }
+         for (const skillId of mapping.skillIds) {
+           if (row.slot === "jd" && item.kind === "requirement") requirements.push({ skillId, level: item.requirementLevel ?? "unspecified", itemId: item.id });
+-          if (row.slot !== "jd" && ["experience", "skill-claim"].includes(item.kind)) practices.push({ skillId, itemId: item.id });
+           if (learningIntentItemIds.includes(item.id)) intents.push({ skillId, itemId: item.id });
+         }
+       }
+diff --git a/tests/components/material-context-choices.test.tsx b/tests/components/material-context-choices.test.tsx
+index 1719d36..6068de2 100644
+--- a/tests/components/material-context-choices.test.tsx
++++ b/tests/components/material-context-choices.test.tsx
+@@ -66,6 +66,32 @@ const termControl = (label: string) => screen.getByRole("combobox", { name: `事
+ describe("material term choices and explicit learning intent", () => {
+   beforeEach(() => localStorage.clear()); afterEach(cleanup);
+ 
++  it.each([
++    { name: "mapped topic without practice", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["sql"], status: "mapped" as const, basis: "literal" as const }], priorities: [], mapped: 1, ranked: 0 },
++    { name: "two courses with one practice", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["react", "sql"], status: "mapped" as const, basis: "manual" as const }], priorities: [{ skillId: "react", tier: 3, itemIds: ["preview-fact"] }], mapped: 2, ranked: 1 },
++    { name: "duplicate mapped course", details: [
++      { itemId: "preview-fact", termIndexes: [0], skillIds: ["sql"], status: "mapped" as const, basis: "literal" as const },
++      { itemId: "preview-fact", termIndexes: [1], skillIds: ["sql"], status: "mapped" as const, basis: "manual" as const },
++    ], priorities: [], mapped: 1, ranked: 0 },
++    { name: "ambiguous courses", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["react", "sql"], status: "ambiguous" as const, basis: "literal" as const }], priorities: [], mapped: 0, ranked: 0 },
++    { name: "uncovered omitted and non-learning topics", details: [
++      { itemId: "preview-fact", termIndexes: [0], skillIds: [], status: "uncovered" as const, basis: null },
++      { itemId: "preview-fact", termIndexes: [1], skillIds: [], status: "omitted" as const, basis: "manual" as const },
++      { itemId: "preview-fact", termIndexes: [-1], skillIds: [], status: "non-learning" as const, basis: null },
++    ], priorities: [], mapped: 0, ranked: 0 },
++  ])("distinguishes course mapping from current priorities for $name", async ({ details, priorities, mapped, ranked }) => {
++    fixture({ ...basePreview, mappingDetails: details, priorities }); await openPreview();
++    expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。`)).toBeInTheDocument();
++    expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实践或能力等级/);
++  });
++
++  it("reports only the provable priority count for a historical preview without mapping details", async () => {
++    fixture({ ...basePreview, mappingDetails: undefined }, { recovering: true }); await openPreview(true);
++    expect(screen.getByText("参与当前排序 1 项技能。")).toBeInTheDocument();
++    expect(screen.queryByText(/已对应课程 \d+ 项技能/)).not.toBeInTheDocument();
++    expect(screen.queryByText(/已映射 \d+ 项技能/)).not.toBeInTheDocument();
++  });
++
+   it("shows the retained labels, actual courses and contextual basis for every grouped term", async () => {
+     fixture(); await openPreview();
+     for (const label of ["Figma", "UI tokens"]) {

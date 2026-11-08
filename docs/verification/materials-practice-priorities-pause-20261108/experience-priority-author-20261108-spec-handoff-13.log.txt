@@ -1,0 +1,5 @@
+{
+  "sourceUnchangedSinceFreeze": true,
+  "handoffSha256": "3f0eab5adc88c1f8ecb8d540bcbfb89dbe9d40ae5d16def8ee647517063a46f3",
+  "scriptSha256": "1f062185a18eb99e5be7e82104bb6a7dee6e0f40dd4318682b9aa2e43a495534"
+}

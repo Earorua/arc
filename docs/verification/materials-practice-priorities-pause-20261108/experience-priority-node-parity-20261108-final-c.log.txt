@@ -1,0 +1,13 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:46544) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/experience-priority-node-parity-batched-20261108.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2434[2mms[22m[39m
+   [33m[2m✓[22m[39m matches actual HTTP document/context service results between Node SQLite and native workerd D1 [33m 2433[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 21:00:14
+[2m   Duration [22m 2.82s[2m (transform 666ms, setup 193ms, import 37ms, tests 2.43s, environment 0ms)[22m
+

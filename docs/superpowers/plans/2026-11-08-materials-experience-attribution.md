@@ -1,5 +1,7 @@
 # 按来源词核对个人经历，再参与实践优先级
 
+**2026-11-08 晚暂停检查点：** 用户要求保存后关闭 Codex。Task 1 已验收；Task 2 接入及质量修复保存为 WIP `41bcdd7`，最后的 `about/of` 修改未复测，Task 2/3 尚未完成。先读取[当前暂停报告](../../verification/2026-11-08-materials-practice-priorities-pause.md)与作者交接，用户恢复后再执行 GREEN、独立复审和全仓验证；不要沿用中间候选的通过结论。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 资料中的否定动作、他人经历、未来计划或引用示例仍可作为可发现的主题，但不能因为对应到课程就被当作用户已有实践。真正的个人经历、技能陈述和人工兜底继续参与现有排序，不修改能力等级。
@@ -68,6 +70,7 @@ supportsMaterialExperience({
 **Files:** `app/lib/materials/skill-mapper.ts`、`app/server/documents/context-builder.ts`、`app/lib/materials/planning-priority.ts`、`app/components/materials/material-context-review.tsx`；对应映射、上下文、学习意图、历史读取及组件测试。
 
 - [ ] 先在真实服务中复现否定SQL、同事SQL、未来SQL、混合React／SQL的错误实践优先级，并保留正常个人／指导经历、长人工事实、整条人工对应、显式空词／忽略、主JD／明确学习重点的对照。旧36项观察保持原字节，另建新期望和结果。
+- [ ] 接入回归补修：既有补充资料完整流程中的`I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.`在新谓词下漏掉个人协助经历。保留原服务测试与期望，先保存失败日志和接入源码，再仅补个人`assist/assisted/assisting with/in`的实际协助表达；不把协助提升为独立能力，不放开行政安排、他人工作、否定、未来、条件或引用。允许本项修改经历谓词及其测试，原Task 1提交与232份归档证据保持不动，最终使用新的源码身份和完整回归结果。
 - [ ] 在现有resolver内部携带每个skillId实际采用的证据目标：保留词／逐词人工对应使用原词；无词列表的自动映射使用现有词典真正匹配的别名；整条人工对应使用显式whole-fact目标。不增加第二份技能词典，不从映射后的课程名称反推原文证据。
 - [ ] 同一自动课程关系若命中多个既有别名，分别判断每个实际来源词；其中一个有真实个人实践即可支持该关系。`I wrote SQL queries, but I have never configured SQLite.`不能因SQLite的限制抹去SQL经历，反向顺序亦同；两个别名均无个人实践时不支持。不同课程之间仍不能借证据，公开歧义判定保持原样。
 - [ ] 提供小型实践关系投影（如`mapMaterialPracticeSkills`返回itemId/skillId关系），复用同一resolver。只输出status=mapped且证据谓词通过的个人事实关系。现有`mapMaterialItemTerms`、`mapMaterialItems`的公开字段、分组、顺序、手动选择、空词和忽略行为保持原样；若必须改变公开语义，先明确版本影响，不静默改写。

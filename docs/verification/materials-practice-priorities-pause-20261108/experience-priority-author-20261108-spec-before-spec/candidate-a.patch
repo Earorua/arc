@@ -1,0 +1,618 @@
+diff --git a/app/components/materials/material-context-review.tsx b/app/components/materials/material-context-review.tsx
+index 98e29ca..486f193 100644
+--- a/app/components/materials/material-context-review.tsx
++++ b/app/components/materials/material-context-review.tsx
+@@ -142,6 +142,8 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
+   const mappingDirty = !recovering && (!state.refs.preview || JSON.stringify(choices) !== JSON.stringify(choicesFromPreview(preview)));
+   const issues = preview?.issues ?? [];
+   const issueCount = issues.reduce((total, issue) => total + Math.max(1, issue.itemIds.length), 0);
++  const mappedSkillCount = preview?.mappingDetails === undefined ? null
++    : new Set(preview.mappingDetails.filter(row => row.status === "mapped").flatMap(row => row.skillIds)).size;
+   const skillNames = (ids: readonly string[]) => ids.map(id => availableSkills.find(skill => skill.id === id)?.name ?? id).join("、");
+   const basisLabels = { literal: "名称或已登记别名", contextual: "上下文对应", manual: "手动选择" };
+   function mappingResult(itemId: string, termIndex: number) {
+@@ -193,7 +195,8 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
+         </li>;
+       })}</ul>
+       {availableSkills.length > 0 && <p>如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。</p>}
+-      <p>已映射 {preview.priorities.length} 项技能；资料没有提到的能力仍以你的自我评估为准。</p>
++      <p>{mappedSkillCount !== null && <>已对应课程 {mappedSkillCount} 项技能；</>}参与当前排序 {preview.priorities.length} 项技能。</p>
++      <p>否定、他人经历或未来计划中的主题也可对应课程，但不代表已有实践或能力等级；能力仍以你的自我评估为准。</p>
+       {issueCount > 0 && <p>有 {issueCount} 项需注意：歧义映射、未覆盖内容或自评冲突会保留为提醒，不会擅自增加技能。</p>}
+       {preview.uncoveredLabels.length > 0 && <p>当前蓝图未覆盖：{preview.uncoveredLabels.join("、")}</p>}
+       {preview.planning && <p>全量预计完成：{preview.planning.fullScope.estimatedCompletionDate}；目标日期方案：{preview.planning.targetDate?.estimatedCompletionDate ?? "不可行"}。{preview.planning.infeasibleReason}</p>}
+diff --git a/app/lib/materials/experience-evidence.ts b/app/lib/materials/experience-evidence.ts
+index a0a3dd0..903da6f 100644
+--- a/app/lib/materials/experience-evidence.ts
++++ b/app/lib/materials/experience-evidence.ts
+@@ -5,8 +5,9 @@ import {
+ } from "./personal-assertion-scopes";
+ import { maskQuotes, quoted } from "./quotation-evidence";
+ 
+-const englishPractice = /^(?:(?:have|had|am|was|been|do|did|also|only|currently|previously|personally|independently)\s+)*(?:not only\s+)?(?:us(?:e[ds]?|ing)|test(?:s|ed|ing)?|build(?:s|ing)?|built|writ(?:e[sn]?|ing)|wrote|implement(?:s|ed|ing)?|configur(?:e[ds]?|ing)|run(?:s|ning)?|ran|develop(?:s|ed|ing)?|maintain(?:s|ed|ing)?|debug(?:s|ged|ging)?|repair(?:s|ed|ing)?|modif(?:y|ies|ied|ying)|edit(?:s|ed|ing)?|chang(?:e[ds]?|ing)|analy[sz](?:e[ds]?|ing)|clean(?:s|ed|ing)?|deploy(?:s|ed|ing)?|install(?:s|ed|ing)?)\b/iu;
++const englishPractice = /^(?:(?:have|had|am|was|been|do|did|also|only|currently|previously|personally|independently)\s+)*(?:not only\s+)?(?:us(?:e[ds]?|ing)|test(?:s|ed|ing)?|build(?:s|ing)?|built|writ(?:e[sn]?|ing)|wrote|implement(?:s|ed|ing)?|configur(?:e[ds]?|ing)|run(?:s|ning)?|ran|develop(?:s|ed|ing)?|maintain(?:s|ed|ing)?|debug(?:s|ged|ging)?|repair(?:s|ed|ing)?|modif(?:y|ies|ied|ying)|edit(?:s|ed|ing)?|chang(?:e[ds]?|ing)|analy[sz](?:e[ds]?|ing)|clean(?:s|ed|ing)?|deploy(?:s|ed|ing)?|install(?:s|ed|ing)?|assist(?:s|ed|ing)?)\b/iu;
+ const englishClaim = /^(?:(?:am|was)\s+)?(?:proficient in|skilled (?:in|at)|experienced in|responsible for)\b|^(?:know|knows|knew)\b|^my (?:skills|responsibilities) (?:include|included)\b/iu;
++const reportedActionObject = /^\s+(?:that|how|whether|(?:(?:an?|the)\s+)?(?:(?:reports?|summar(?:y|ies)|notes?)\s+(?:about|on|of)|plans?\s+to))\b/iu;
+ const chinesePractice = new RegExp("^(?:" + practiceAction.source + "|用|修改|调整|维护|分析|清洗|负责)(?!不了)", "u");
+ const chineseClaim = /^(?:掌握|擅长)|^(?:能|能够|可以|可)(?:独立)?(?:使用|编写|测试|配置|开发|完成)/u;
+ 
+@@ -74,9 +75,20 @@ function personalExperienceScope(raw: string) {
+   if (/(?:是[^，,；;。]*计划|的计划)/u.test(firstClause)) return null;
+   const capable = /^(?:can|am able to)\s+/iu.exec(action);
+   const englishAction = englishPractice.exec(action);
++  const assistanceBody = capable ? action.slice(capable[0].length) : action;
++  const assistanceAction = capable ? englishPractice.exec(assistanceBody) : englishAction;
++  if (assistanceAction && /\bassist(?:s|ed|ing)?$/iu.test(assistanceAction[0])) {
++    const object = /^\s+(?:with|in)\s+(.+)/iu.exec(assistanceBody.slice(assistanceAction[0].length))?.[1];
++    // Assisting in the work is personal practice. Assisting in its scheduling,
++    // reporting or planning is not evidence of performing the mentioned work.
++    if (!object || /^(?:(?:an?|the|my|our)\s+)?(?:schedul(?:e[ds]?|ing)|arrang(?:e[ds]?|ing|ements?)|record(?:s|ed|ing)?|document(?:s|ed|ing|ation)?|report(?:s|ed|ing)?|summar(?:y|ies)|notes?|plan(?:s|ned|ning)?)\b/iu.test(object)
++      || /\b(?:schedules?|plans?)\s*[.!]?$/iu.test(object)) return null;
++    const nestedAction = englishPractice.exec(object);
++    if (nestedAction && reportedActionObject.test(object.slice(nestedAction[0].length))) return null;
++  }
+   // The object must be the work itself, not an embedded proposition or a
+   // report about someone else's work, even when the learner wrote that report.
+-  if (englishAction && /^\s+(?:that|how|whether|(?:(?:an?|the)\s+)?(?:(?:reports?|summar(?:y|ies)|notes?)\s+(?:about|on|of)|plans?\s+to))\b/iu.test(action.slice(englishAction[0].length))) return null;
++  if (englishAction && reportedActionObject.test(action.slice(englishAction[0].length))) return null;
+   const practice = englishAction !== null || chinesePractice.test(action)
+     || instructionalFragmentStart(action) !== null;
+   const claim = conceptualAssessment("I " + action) || conceptualAssessment("I am " + action)
+diff --git a/app/lib/materials/planning-priority.ts b/app/lib/materials/planning-priority.ts
+index 1be7d04..51fe300 100644
+--- a/app/lib/materials/planning-priority.ts
++++ b/app/lib/materials/planning-priority.ts
+@@ -1,6 +1,6 @@
+ import type { SkillAuditVersion } from "../../contracts/planning";
+ 
+-export const MATERIAL_PLANNING_POLICY_VERSION = "2026.11.2" as const;
++export const MATERIAL_PLANNING_POLICY_VERSION = "2026.11.3" as const;
+ export type MaterialOverlay = Readonly<{
+   skillRanks: Readonly<Record<string, number>>;
+   mandatorySkillIds: readonly string[];
+diff --git a/app/lib/materials/skill-mapper.ts b/app/lib/materials/skill-mapper.ts
+index 786c401..8733d35 100644
+--- a/app/lib/materials/skill-mapper.ts
++++ b/app/lib/materials/skill-mapper.ts
+@@ -3,6 +3,7 @@ import type { RoleBlueprint } from "../../contracts/intelligence";
+ import type { UnitRegistry, SkillSelfLevel } from "../../contracts/planning";
+ import { validateUnitRegistry } from "../planning/registry-validation";
+ import { createContextualSkillMatcher } from "./contextual-skill-mapping";
++import { supportsMaterialExperience } from "./experience-evidence";
+ import { containsMaterialSkillLabel, normalizeMaterialSkillLabel } from "./skill-labels";
+ export const MATERIAL_MAPPING_VERSION = "2026.11.5" as const;
+ const literalAliasVersion = "2026.11.2";
+@@ -52,7 +53,11 @@ const FLAGSHIP_ALIASES: NonNullable<MappingOptions["aliases"]> = {
+         "proof-of-work": ["作品证据", "作品集证明"],
+     }
+ };
+-type ResolvedMaterialTerm = MaterialTermMapping & { labels: string[] };
++type MaterialExperienceTarget = Parameters<typeof supportsMaterialExperience>[0]["target"];
++type ResolvedMaterialTerm = MaterialTermMapping & {
++    labels: string[];
++    practiceEvidence: ReadonlyMap<string, readonly MaterialExperienceTarget[]>;
++};
+ 
+ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint: RoleBlueprint, registry: UnitRegistry, options: MappingOptions): ResolvedMaterialTerm[] {
+     const valid = blueprint.status === "ready" && validateUnitRegistry(registry, blueprint).valid;
+@@ -66,7 +71,7 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
+     return items.flatMap((item): ResolvedMaterialTerm[] => {
+         if (item.kind === "constraint" && !options.learningIntentItemIds?.includes(item.id)) {
+             return (item.skillLabels ?? [item.text]).map(term => ({
+-                itemId: item.id, term, status: "non-learning", skillIds: [], basis: null, labels: [],
++                itemId: item.id, term, status: "non-learning", skillIds: [], basis: null, labels: [], practiceEvidence: new Map(),
+             }));
+         }
+         const manual = options.userMappings && Object.hasOwn(options.userMappings, item.id) ? options.userMappings[item.id] : undefined;
+@@ -78,20 +83,40 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
+             // Exact retained-label membership is intentional. Deleted and legacy terms cannot be restored by an override.
+             const termMapping = !manual && item.skillLabels ? termMappings?.find(mapping => mapping.skillLabel === term) : undefined;
+             if (termMapping && termMapping.skillIds.length === 0) return {
+-                itemId: item.id, term, status: "omitted", skillIds: [], basis: "manual", labels: [],
++                itemId: item.id, term, status: "omitted", skillIds: [], basis: "manual", labels: [], practiceEvidence: new Map(),
+             };
+             const selected = manual ?? termMapping?.skillIds;
+-            let matches = vocabulary.filter(skill => selected ? selected.includes(skill.id) : skill.words.some(word =>
+-                item.skillLabels ? normalizeMaterialSkillLabel(term) === normalizeMaterialSkillLabel(word) : containsMaterialSkillLabel(term, word)));
++            const termTarget: MaterialExperienceTarget = { kind: "terms", terms: [term] };
++            const practiceEvidence = new Map<string, MaterialExperienceTarget[]>();
++            let matches = vocabulary.filter(skill => {
++                if (selected) {
++                    if (!selected.includes(skill.id)) return false;
++                    // The public compatibility API retains legacy whole-item choices.
++                    // New practice cannot use them to bypass reviewed term membership.
++                    practiceEvidence.set(skill.id, manual
++                        ? item.skillLabels === undefined ? [{ kind: "confirmed-whole-fact" }] : []
++                        : [termTarget]);
++                    return true;
++                }
++                const words = skill.words.filter(word => item.skillLabels
++                    ? normalizeMaterialSkillLabel(term) === normalizeMaterialSkillLabel(word)
++                    : containsMaterialSkillLabel(term, word));
++                if (!words.length) return false;
++                // Several vocabulary words may name the same course. Keep each
++                // actual source match as alternative evidence for that relation.
++                practiceEvidence.set(skill.id, item.skillLabels ? [termTarget] : words.map(word => ({ kind: "terms", terms: [word] })));
++                return true;
++            });
+             let basis: MaterialTermMapping["basis"] = selected ? "manual" : valid && matches.length ? "literal" : null;
+             if (!selected && !matches.length && valid && item.skillLabels) {
+                 const contextualIds = matchContextual(term, item.text);
+                 matches = vocabulary.filter(skill => contextualIds.includes(skill.id));
++                for (const skill of matches) practiceEvidence.set(skill.id, [termTarget]);
+                 if (matches.length) basis = "contextual";
+             }
+             const status = !valid || !matches.length ? "uncovered" : !selected && matches.length > 1 ? "ambiguous" : "mapped";
+             return { itemId: item.id, term, status, skillIds: valid ? matches.map(skill => skill.id) : [], basis,
+-                labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)] };
++                labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)], practiceEvidence };
+         });
+     });
+ }
+@@ -120,6 +145,27 @@ export function mapMaterialItems(items: readonly ConfirmedMaterialItem[], bluepr
+         return [...groups.values()].map(group => ({ ...group, skillIds: [...new Set(group.skillIds)], labels: [...new Set(group.labels)] }));
+     });
+ }
++
++/** A course match contributes practice only through its own confirmed source evidence. */
++export function mapMaterialPracticeSkills(items: readonly ConfirmedMaterialItem[], blueprint: RoleBlueprint, registry: UnitRegistry, options: MappingOptions = {}): { itemId: string; skillId: string }[] {
++    const byId = new Map(items.map(item => [item.id, item]));
++    const seen = new Map<string, Set<string>>();
++    const practices: { itemId: string; skillId: string }[] = [];
++    for (const relation of resolveMaterialTerms(items, blueprint, registry, options)) {
++        if (relation.status !== "mapped") continue;
++        const item = byId.get(relation.itemId)!;
++        if (item.kind !== "experience" && item.kind !== "skill-claim") continue;
++        const skills = seen.get(item.id) ?? new Set<string>();
++        for (const skillId of relation.skillIds) {
++            if (skills.has(skillId) || !relation.practiceEvidence.get(skillId)?.some(target =>
++                supportsMaterialExperience({ kind: item.kind, text: item.text, target }))) continue;
++            practices.push({ itemId: item.id, skillId });
++            skills.add(skillId);
++        }
++        seen.set(item.id, skills);
++    }
++    return practices;
++}
+ /** Called only by a separate, explicit user adoption action; fact confirmation never calls this. */
+ export function adoptMaterialSelfAssessments(existing: Record<string, SkillSelfLevel>, adoption: unknown, blueprint: RoleBlueprint): Record<string, SkillSelfLevel> {
+     if (adoption === null)
+diff --git a/app/server/documents/context-builder.ts b/app/server/documents/context-builder.ts
+index 91546c4..80f17e3 100644
+--- a/app/server/documents/context-builder.ts
++++ b/app/server/documents/context-builder.ts
+@@ -8,7 +8,7 @@ import { planningWorkspaceSchema, type PlanningSourceContext } from "../../contr
+ import { canonicalJson, deterministicId } from "../../lib/planning/fingerprint";
+ import { buildLearningPaths } from "../../lib/planning/path-builder";
+ import { createMaterialOverlay, MATERIAL_PLANNING_POLICY_VERSION } from "../../lib/materials/planning-priority";
+-import { mapMaterialItems, mapMaterialItemTerms, MATERIAL_MAPPING_VERSION, type MappingOptions } from "../../lib/materials/skill-mapper";
++import { mapMaterialItems, mapMaterialItemTerms, mapMaterialPracticeSkills, MATERIAL_MAPPING_VERSION, type MappingOptions } from "../../lib/materials/skill-mapper";
+ import { validateUnitRegistry } from "../../lib/planning/registry-validation";
+ import { PlanningConflictError, PlanningInvalidInputError, PlanningNotFoundError } from "../planning/service";
+ import type { PlanningSourceResolver } from "../planning/source-resolver";
+@@ -262,6 +262,7 @@ export class MaterialContextService {
+       confirmedItems.push(...items);
+       const options = { userMappings, termMappings, learningIntentItemIds };
+       const details = mapMaterialItemTerms(items, source.blueprint, source.registry, options);
++      if (row.slot !== "jd") practices.push(...mapMaterialPracticeSkills(items, source.blueprint, source.registry, options));
+       const groups = new Map<string, NonNullable<MaterialPreview["mappingDetails"]>[number]>();
+       for (const detail of details) {
+         const item = items.find(item => item.id === detail.itemId)!;
+@@ -286,7 +287,6 @@ export class MaterialContextService {
+         }
+         for (const skillId of mapping.skillIds) {
+           if (row.slot === "jd" && item.kind === "requirement") requirements.push({ skillId, level: item.requirementLevel ?? "unspecified", itemId: item.id });
+-          if (row.slot !== "jd" && ["experience", "skill-claim"].includes(item.kind)) practices.push({ skillId, itemId: item.id });
+           if (learningIntentItemIds.includes(item.id)) intents.push({ skillId, itemId: item.id });
+         }
+       }
+diff --git a/tests/components/material-context-choices.test.tsx b/tests/components/material-context-choices.test.tsx
+index 1719d36..6068de2 100644
+--- a/tests/components/material-context-choices.test.tsx
++++ b/tests/components/material-context-choices.test.tsx
+@@ -66,6 +66,32 @@ const termControl = (label: string) => screen.getByRole("combobox", { name: `事
+ describe("material term choices and explicit learning intent", () => {
+   beforeEach(() => localStorage.clear()); afterEach(cleanup);
+ 
++  it.each([
++    { name: "mapped topic without practice", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["sql"], status: "mapped" as const, basis: "literal" as const }], priorities: [], mapped: 1, ranked: 0 },
++    { name: "two courses with one practice", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["react", "sql"], status: "mapped" as const, basis: "manual" as const }], priorities: [{ skillId: "react", tier: 3, itemIds: ["preview-fact"] }], mapped: 2, ranked: 1 },
++    { name: "duplicate mapped course", details: [
++      { itemId: "preview-fact", termIndexes: [0], skillIds: ["sql"], status: "mapped" as const, basis: "literal" as const },
++      { itemId: "preview-fact", termIndexes: [1], skillIds: ["sql"], status: "mapped" as const, basis: "manual" as const },
++    ], priorities: [], mapped: 1, ranked: 0 },
++    { name: "ambiguous courses", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["react", "sql"], status: "ambiguous" as const, basis: "literal" as const }], priorities: [], mapped: 0, ranked: 0 },
++    { name: "uncovered omitted and non-learning topics", details: [
++      { itemId: "preview-fact", termIndexes: [0], skillIds: [], status: "uncovered" as const, basis: null },
++      { itemId: "preview-fact", termIndexes: [1], skillIds: [], status: "omitted" as const, basis: "manual" as const },
++      { itemId: "preview-fact", termIndexes: [-1], skillIds: [], status: "non-learning" as const, basis: null },
++    ], priorities: [], mapped: 0, ranked: 0 },
++  ])("distinguishes course mapping from current priorities for $name", async ({ details, priorities, mapped, ranked }) => {
++    fixture({ ...basePreview, mappingDetails: details, priorities }); await openPreview();
++    expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。`)).toBeInTheDocument();
++    expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实践或能力等级/);
++  });
++
++  it("reports only the provable priority count for a historical preview without mapping details", async () => {
++    fixture({ ...basePreview, mappingDetails: undefined }, { recovering: true }); await openPreview(true);
++    expect(screen.getByText("参与当前排序 1 项技能。")).toBeInTheDocument();
++    expect(screen.queryByText(/已对应课程 \d+ 项技能/)).not.toBeInTheDocument();
++    expect(screen.queryByText(/已映射 \d+ 项技能/)).not.toBeInTheDocument();
++  });
++
+   it("shows the retained labels, actual courses and contextual basis for every grouped term", async () => {
+     fixture(); await openPreview();
+     for (const label of ["Figma", "UI tokens"]) {
+diff --git a/tests/lib/materials/experience-evidence.test.ts b/tests/lib/materials/experience-evidence.test.ts
+index e1cfa05..95da481 100644
+--- a/tests/lib/materials/experience-evidence.test.ts
++++ b/tests/lib/materials/experience-evidence.test.ts
+@@ -267,3 +267,74 @@ describe("material experience evidence", () => {
+     expect(input.text).toBe("I wrote SQL queries.");
+   });
+ });
++
++describe("personal assistance in material practice", () => {
++  it.each([
++    ["I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.", "observability"],
++    ["I assist with SQL.", "SQL"],
++    ["I assisted with SQL query testing.", "SQL"],
++    ["I am assisting with SQL.", "SQL"],
++    ["I have assisted in testing SQL queries.", "SQL"],
++    ["Assisted in SQL testing.", "SQL"],
++    ["With my mentor's guidance, I assisted with SQL.", "SQL"],
++    ["I assisted with SQL reports.", "SQL"],
++    ['I assisted with testing "SQL".', "SQL"],
++    ["I can assist with SQL.", "SQL"],
++  ])("retains the learner's bounded assistance: %s", (text, term) => {
++    expect(terms(text, [term])).toBe(true);
++    expect(whole(text)).toBe(true);
++  });
++
++  it.each([
++    "I never assisted with SQL.",
++    "I did not assist in SQL testing.",
++    "I plan to assist with SQL.",
++    "I will assist with SQL.",
++    "My colleague assisted with SQL.",
++    "The team assisted in testing SQL.",
++    '"I assisted with SQL."',
++    "My mentor said, I assisted with SQL.",
++    "If asked, I would assist with SQL.",
++    "I assisted with scheduling a SQL demo.",
++    "I assisted in arranging a SQL workshop.",
++    "I assisted with recording my colleague's SQL practice.",
++    "I assisted with documenting how my colleague tested SQL.",
++    "I assisted with reporting that my colleague tested SQL.",
++    "I assisted with a report about SQL.",
++    "I assisted with a report that my colleague tested SQL.",
++    "I assisted with plans to learn SQL.",
++    "I assisted in planning SQL training.",
++    "I assisted with the SQL demo schedule.",
++    "I assisted with the SQL training plan.",
++    "I can assist with scheduling a SQL demo.",
++    "I am able to assist in documenting my colleague's SQL practice.",
++    "I can assist a colleague with SQL.",
++    "I assisted with a summary about SQL.",
++    "I assisted with notes about my colleague's SQL practice.",
++    "I assisted with writing notes about my colleague's SQL practice.",
++    "I assisted with writing that my colleague used SQL.",
++    "I assisted a colleague with SQL.",
++    "I helped with SQL.",
++  ])("does not turn unsupported or administrative assistance into technical practice: %s", text => {
++    expect(terms(text)).toBe(false);
++    expect(whole(text)).toBe(false);
++  });
++
++  it.each([
++    ["I assisted with React components; my colleague assisted with SQL.", "React", "SQL"],
++    ["I built React components, my colleague assisted with SQL.", "React", "SQL"],
++    ["I assisted with SQL; I plan to assist with React.", "SQL", "React"],
++    ["I assisted with building React components to document my colleague's SQL work.", "React", "SQL"],
++  ])("preserves each assistance actor and target: %s", (text, own, other) => {
++    expect(terms(text, [own])).toBe(true);
++    expect(terms(text, [other])).toBe(false);
++    expect(whole(text)).toBe(false);
++  });
++
++  it("does not infer a self-level hint from assistance", () => {
++    const text = "I assisted with SQL.";
++    expect(terms(text)).toBe(true);
++    for (const level of ["conceptual", "guided", "uncertain"] as const)
++      expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level })).toBe(false);
++  });
++});
+
+diff --git a/tests/lib/materials/practice-skill-mapping.test.ts b/tests/lib/materials/practice-skill-mapping.test.ts
+new file mode 100644
+--- /dev/null
++++ b/tests/lib/materials/practice-skill-mapping.test.ts
+@@ -0,0 +1,103 @@
++import { describe, expect, it } from "vitest";
++import type { ConfirmedMaterialItem } from "../../../app/contracts/documents";
++import { flagshipBlueprint } from "../../../app/data/flagship-blueprint";
++import { flagshipUnitRegistry } from "../../../app/data/flagship-unit-registry";
++import { mapMaterialItems, mapMaterialItemTerms, mapMaterialPracticeSkills, type MappingOptions } from "../../../app/lib/materials/skill-mapper";
++
++const fact = (text: string, skillLabels?: string[]): ConfirmedMaterialItem => ({
++  id: "fact", kind: "experience", text, origin: "user", sourceRef: null, requirementLevel: null,
++  ...(skillLabels === undefined ? {} : { skillLabels }),
++});
++const project = (item: ConfirmedMaterialItem, options: MappingOptions = {}) => mapMaterialPracticeSkills([item], flagshipBlueprint, flagshipUnitRegistry, options);
++
++describe("source evidence for practice skill relations", () => {
++  it.each([
++    ["I wrote SQL queries.", ["sql"]],
++    ["I configured SQLite.", ["sql"]],
++    ["我使用关系数据库。", ["sql"]],
++    ["I built React.js components.", ["react"]],
++    ["I wrote SQL queries, but I have never configured SQLite.", ["sql"]],
++    ["I have never used SQL, but I configured SQLite.", ["sql"]],
++    ["I have never used SQL; my colleague configured SQLite.", []],
++  ] as const)("retains each actual vocabulary match as alternative evidence: %s", (text, expected) => {
++    expect(project(fact(text))).toEqual(expected.map(skillId => ({ itemId: "fact", skillId })));
++  });
++
++  it("does not substitute course labels or borrow another course's personal evidence", () => {
++    const item = fact("I built React components; my colleague wrote SQL queries.", ["React", "SQL"]);
++    expect(project(item)).toEqual([{ itemId: "fact", skillId: "react" }]);
++    expect(mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([
++      { itemId: "fact", term: "React", status: "mapped", skillIds: ["react"], basis: "literal" },
++      { itemId: "fact", term: "SQL", status: "mapped", skillIds: ["sql"], basis: "literal" },
++    ]);
++    expect(mapMaterialItems([item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([
++      { itemId: "fact", status: "mapped", skillIds: ["react", "sql"], labels: ["React 19", "SQL & Relational Modeling"] },
++    ]);
++  });
++
++  it.each([
++    ["Built UI tokens for accessible component focus.", ["design-systems"]],
++    ["My colleague built UI tokens for accessible component focus.", []],
++  ] as const)("uses retained source evidence for a contextual relation: %s", (text, expected) => {
++    const item = fact(text, ["UI tokens"]);
++    expect(mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)[0]).toMatchObject({ status: "mapped", basis: "contextual", skillIds: ["design-systems"] });
++    expect(project(item)).toEqual(expected.map(skillId => ({ itemId: "fact", skillId })));
++  });
++
++  it.each([
++    ["I wrote SQL queries; my colleague built React components.", ["react"]],
++    ["I have never used SQL; I built React components.", []],
++  ] as const)("keeps SQL as evidence when its term is manually mapped to React: %s", (text, expected) => {
++    expect(project(fact(text, ["SQL"]), { termMappings: { fact: [{ skillLabel: "SQL", skillIds: ["react"] }] } }))
++      .toEqual(expected.map(skillId => ({ itemId: "fact", skillId })));
++  });
++
++  it.each([
++    ["Built accessible product interfaces.", ["react", "sql"]],
++    ["I have never used SQL.", []],
++    ["I built React components; my colleague wrote SQL queries.", []],
++  ] as const)("uses the confirmed whole fact for explicit whole-fact choices: %s", (text, expected) => {
++    expect(project(fact(text), { userMappings: { fact: ["react", "sql"] } }))
++      .toEqual(expected.map(skillId => ({ itemId: "fact", skillId })));
++  });
++
++  it("requires a mapped result and does not silently disambiguate an unlabelled fact", () => {
++    const item = fact("I built React components; my colleague wrote SQL queries.");
++    expect(mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)[0]?.status).toBe("ambiguous");
++    expect(project(item)).toEqual([]);
++    expect(project(fact("I used unlisted-topic."))).toEqual([]);
++    expect(mapMaterialPracticeSkills([fact("I wrote SQL queries.")], flagshipBlueprint, { ...flagshipUnitRegistry, tracks: [] })).toEqual([]);
++  });
++
++  it("deduplicates supported relations across aliases and facts without sharing their evidence", () => {
++    const items = [fact("I used SQL and SQLite.", ["SQL", "SQLite"]), { ...fact("My colleague wrote SQL queries.", ["SQL"]), id: "other" }];
++    expect(mapMaterialPracticeSkills(items, flagshipBlueprint, flagshipUnitRegistry)).toEqual([{ itemId: "fact", skillId: "sql" }]);
++  });
++
++  it("keeps empty, deleted and explicitly omitted terms out of practice", () => {
++    const item = fact("I wrote SQL queries and built React components.", ["React"]);
++    const options = { termMappings: { fact: [{ skillLabel: "SQL", skillIds: ["sql"] }, { skillLabel: "React", skillIds: [] }] } };
++    expect(project(item, options)).toEqual([]);
++    expect(project({ ...item, skillLabels: [] }, options)).toEqual([]);
++    // The compatibility mapping API accepts legacy whole-fact overrides, but
++    // new practice must not restore a reviewed empty list through that path.
++    expect(project({ ...item, skillLabels: [] }, { userMappings: { fact: ["sql"] } })).toEqual([]);
++  });
++
++  it.each(["requirement", "constraint"] as const)("never treats %s or its explicit intent as personal practice", kind => {
++    expect(project({ ...fact("I wrote SQL queries.", ["SQL"]), kind }, { learningIntentItemIds: ["fact"] })).toEqual([]);
++  });
++
++  it("retains bare manual skill claims", () => {
++    expect(project({ ...fact("SQL"), kind: "skill-claim" })).toEqual([{ itemId: "fact", skillId: "sql" }]);
++  });
++
++  it.each(["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5"] as const)("uses the actual alias from legacy vocabulary %s", version => {
++    const blueprint = { ...flagshipBlueprint, id: "research-catalog" };
++    const registry = { ...flagshipUnitRegistry, blueprintId: blueprint.id };
++    const item = fact("I configured QuillBin.");
++    expect(mapMaterialPracticeSkills([item], blueprint, registry, { aliases: { version, skills: { sql: ["QuillBin"] } } }))
++      .toEqual([{ itemId: "fact", skillId: "sql" }]);
++    expect(mapMaterialPracticeSkills([item], blueprint, registry)).toEqual([]);
++  });
++});
+
+diff --git a/tests/server/material-practice-priorities.test.ts b/tests/server/material-practice-priorities.test.ts
+new file mode 100644
+--- /dev/null
++++ b/tests/server/material-practice-priorities.test.ts
+@@ -0,0 +1,179 @@
++// @vitest-environment node
++import { afterEach, describe, expect, it } from "vitest";
++import type { ConfirmedMaterialItem } from "../../app/contracts/documents";
++import { MaterialContextService } from "../../app/server/documents/context-builder";
++import { createMaterialsD1 } from "../helpers/materials-d1";
++import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../helpers/material-planning";
++
++const databases: ReturnType<typeof createMaterialsD1>[] = [];
++afterEach(() => databases.splice(0).forEach(db => db.close()));
++const fact = (text: string, skillLabels?: string[]): ConfirmedMaterialItem => ({
++  id: "practice-fact", kind: "experience", text, origin: "user", sourceRef: null, requirementLevel: null,
++  ...(skillLabels === undefined ? {} : { skillLabels }),
++});
++const longFact = "I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.";
++function setup(items: ConfirmedMaterialItem[], slot: "resume" | "jd" | "supplement" = "resume") {
++  const db = createMaterialsD1(); databases.push(db); seedMaterialSelection(db);
++  db.database.prepare("UPDATE documents SET kind=?").run(slot);
++  db.database.prepare("UPDATE material_selection_entries SET slot=?").run(slot);
++  db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id='confirmation-a'").run(JSON.stringify(items));
++  let id = 0;
++  const materials = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver: materialSourceResolver(), now: materialNow, createId: () => `practice-context-${++id}` });
++  return { db, materials };
++}
++
++describe("personal practice priorities from confirmed material relations", () => {
++  it.each([
++    ["denied SQL", "I have never used SQL.", ["SQL"], []],
++    ["colleague SQL", "My colleague wrote SQL queries.", ["SQL"], []],
++    ["future SQL", "I plan to learn SQL next month.", ["SQL"], []],
++    ["own React and colleague SQL", "I built React components; my colleague wrote SQL queries.", ["React", "SQL"], ["react"]],
++  ] as const)("keeps %s mapped without borrowing personal practice", async (_name, text, labels, expected) => {
++    const { db, materials } = setup([fact(text, [...labels])]);
++    const request = materialContextRequest();
++    const { preview, contextVersionId } = await materials.create("owner-a", request);
++    expect(preview.mappingDetails?.filter(row => row.status === "mapped").flatMap(row => row.skillIds).sort())
++      .toEqual(labels.map(label => label.toLowerCase()).sort());
++    expect(preview.priorities.map(row => row.skillId).sort()).toEqual(expected);
++    expect(preview.confirmedItems[0]).toMatchObject({ text, skillLabels: labels });
++    expect(preview.itemReferences?.[0]).not.toHaveProperty("learningIntentEligible");
++    const saved = db.database.prepare("SELECT snapshot_json FROM material_context_versions WHERE id=?").get(contextVersionId) as { snapshot_json: string };
++    expect(JSON.parse(saved.snapshot_json)).toMatchObject({ audit: request.audit, availability: request.availability, target: request.target });
++    expect((await materials.read("owner-a", contextVersionId)).preview).toEqual(preview);
++  });
++
++  it("retains a personal SQL practice priority", async () => {
++    const { materials } = setup([fact("I wrote SQL queries.", ["SQL"])]);
++    const { preview } = await materials.create("owner-a", materialContextRequest());
++    expect(preview.priorities).toEqual([{ skillId: "sql", tier: 3, itemIds: [preview.confirmedItems[0]!.id] }]);
++  });
++
++  it.each([
++    "I tested SQL under my mentor's guidance.",
++    "I tested SQL without guidance.",
++    "I tested the SQL queries supplied by my mentor.",
++    "I modified the SQL supplied by my mentor.",
++    "I only changed parameters in the supplied SQL queries.",
++    "My mentor supplied SQL; I only changed parameters in the SQL queries.",
++    "I wrote SQL queries, but I have never configured SQL for production.",
++    longFact,
++    "SQL",
++  ])("retains bounded personal practice without changing self-assessment: %s", async text => {
++    const { db, materials } = setup([fact(text)]);
++    const request = materialContextRequest();
++    const { preview, contextVersionId } = await materials.create("owner-a", request);
++    expect(preview.priorities.map(row => [row.skillId, row.tier])).toEqual([["sql", 3]]);
++    const saved = db.database.prepare("SELECT snapshot_json FROM material_context_versions WHERE id=?").get(contextVersionId) as { snapshot_json: string };
++    expect(JSON.parse(saved.snapshot_json).audit).toEqual(request.audit);
++  });
++
++  it.each([
++    ["I wrote SQL queries, but I have never configured SQLite.", ["sql"]],
++    ["I have never used SQL, but I configured SQLite.", ["sql"]],
++    ["I have never used SQL; my colleague configured SQLite.", []],
++  ] as const)("checks alternative words for one automatic course independently: %s", async (text, expected) => {
++    const { materials } = setup([fact(text)]);
++    const { preview } = await materials.create("owner-a", materialContextRequest());
++    expect(preview.mappingDetails).toEqual([{ itemId: preview.confirmedItems[0]!.id, termIndexes: [-1], status: "mapped", skillIds: ["sql"], basis: "literal" }]);
++    expect(preview.priorities.map(row => row.skillId)).toEqual(expected);
++  });
++
++  it.each([
++    ["Built accessible product interfaces.", ["react"]],
++    [longFact, ["react"]],
++    ["I have never used SQL.", []],
++    ["I built React components; my colleague wrote SQL queries.", []],
++  ] as const)("uses confirmed whole-fact evidence for a nonliteral manual relation: %s", async (text, expected) => {
++    const { materials } = setup([fact(text)]);
++    const { preview } = await materials.create("owner-a", { ...materialContextRequest(),
++      skillMappings: [{ confirmationId: "confirmation-a", itemId: "practice-fact", skillId: "react" }],
++    });
++    expect(preview.mappingDetails?.[0]).toMatchObject({ status: "mapped", skillIds: ["react"], basis: "manual" });
++    expect(preview.priorities.map(row => row.skillId)).toEqual(expected);
++  });
++
++  it.each([
++    ["I wrote SQL queries; my colleague built React components.", ["react"]],
++    ["I have never used SQL; I built React components.", []],
++  ] as const)("uses the original SQL term for its manual React relation: %s", async (text, expected) => {
++    const { materials } = setup([fact(text, ["SQL"])]);
++    const { preview } = await materials.create("owner-a", { ...materialContextRequest(),
++      termMappings: [{ confirmationId: "confirmation-a", itemId: "practice-fact", skillLabel: "SQL", skillIds: ["react"] }],
++    });
++    expect(preview.mappingDetails?.[0]).toMatchObject({ status: "mapped", skillIds: ["react"], basis: "manual" });
++    expect(preview.priorities.map(row => row.skillId)).toEqual(expected);
++  });
++
++  it("keeps removed and explicitly omitted terms out of practice", async () => {
++    const { materials } = setup([fact("I wrote SQL queries and built React components.", ["React"])]);
++    const request = materialContextRequest();
++    const retained = await materials.create("owner-a", request);
++    expect(retained.preview.priorities.map(row => row.skillId)).toEqual(["react"]);
++    const omitted = await materials.create("owner-a", { ...request, mutationId: "omit-react",
++      termMappings: [{ confirmationId: "confirmation-a", itemId: "practice-fact", skillLabel: "React", skillIds: [] }],
++    });
++    expect(omitted.preview.priorities).toEqual([]);
++    expect(omitted.preview.mappingDetails?.[0]).toMatchObject({ status: "omitted", skillIds: [] });
++    await expect(materials.create("owner-a", { ...request, mutationId: "restore-sql",
++      termMappings: [{ confirmationId: "confirmation-a", itemId: "practice-fact", skillLabel: "SQL", skillIds: ["sql"] }],
++    })).rejects.toMatchObject({ code: "INVALID_INPUT" });
++  });
++
++  it("keeps an empty retained list empty and rejects whole-fact overrides for labelled facts", async () => {
++    const { materials } = setup([fact("I wrote SQL queries.", [])]);
++    const request = materialContextRequest();
++    const { preview } = await materials.create("owner-a", request);
++    expect(preview.mappingDetails).toEqual([]); expect(preview.priorities).toEqual([]);
++    await expect(materials.create("owner-a", { ...request, mutationId: "whole-override",
++      skillMappings: [{ confirmationId: "confirmation-a", itemId: "practice-fact", skillId: "sql" }],
++    })).rejects.toMatchObject({ code: "INVALID_INPUT" });
++  });
++
++  it("retains the ambiguity of an unlabelled fact matching multiple courses", async () => {
++    const { materials } = setup([fact("I built React components; my colleague wrote SQL queries.")]);
++    const { preview } = await materials.create("owner-a", materialContextRequest());
++    expect(preview.mappingDetails?.[0]).toMatchObject({ status: "ambiguous", skillIds: ["react", "sql"] });
++    expect(preview.priorities).toEqual([]);
++  });
++
++  it.each(["must", "preferred"] as const)("retains primary JD %s requirements without personal practice", async level => {
++    const { materials } = setup([{ ...fact("The role requires SQL.", ["SQL"]), kind: "requirement", requirementLevel: level }], "jd");
++    const { preview } = await materials.create("owner-a", materialContextRequest());
++    expect(preview.priorities.map(row => [row.skillId, row.tier])).toEqual([["sql", level === "must" ? 0 : 4]]);
++    expect(preview.overlay?.mandatorySkillIds).toEqual(level === "must" ? ["sql"] : []);
++  });
++
++  it.each(["requirement", "constraint"] as const)("requires separate learning-intent adoption for a supplemental %s", async kind => {
++    const { materials } = setup([{ ...fact("I plan to learn SQL.", ["SQL"]), kind, requirementLevel: kind === "requirement" ? "unspecified" : null }], "supplement");
++    const request = materialContextRequest();
++    const before = await materials.create("owner-a", request);
++    expect(before.preview.priorities).toEqual([]);
++    expect(before.preview.itemReferences?.[0]?.learningIntentEligible).toBe(true);
++    const after = await materials.create("owner-a", { ...request, mutationId: "adopt-topic",
++      learningIntents: [{ confirmationId: "confirmation-a", itemId: "practice-fact" }],
++    });
++    expect(after.preview.priorities).toEqual([{ skillId: "sql", tier: 3, itemIds: [after.preview.confirmedItems[0]!.id], practiceItemIds: [], learningIntentItemIds: [after.preview.confirmedItems[0]!.id] }]);
++  });
++
++  it("does not adopt an unsupported ordinary experience as learning intent", async () => {
++    const { materials } = setup([fact("I plan to learn SQL.", ["SQL"])]);
++    await expect(materials.create("owner-a", { ...materialContextRequest(),
++      learningIntents: [{ confirmationId: "confirmation-a", itemId: "practice-fact" }],
++    })).rejects.toMatchObject({ code: "INVALID_INPUT" });
++  });
++
++  it("binds new contexts to policy 2026.11.3 without changing mapping identity or saved reads", async () => {
++    expect(longFact).toHaveLength(164);
++    const { db, materials } = setup([fact("I have never used SQL.", ["SQL"])]);
++    const request = materialContextRequest();
++    const first = await materials.create("owner-a", request);
++    const row = db.database.prepare("SELECT snapshot_json, preview_json, fingerprint FROM material_context_versions WHERE id=?").get(first.contextVersionId) as { snapshot_json: string; preview_json: string; fingerprint: string };
++    expect(JSON.parse(row.snapshot_json)).toMatchObject({ policyVersion: "2026.11.3", mappingVersion: "2026.11.5" });
++    expect(first.preview.overlay?.policyVersion).toBe("2026.11.3");
++    expect(JSON.parse(row.preview_json)).toEqual(first.preview);
++    expect(await materials.create("owner-a", request)).toEqual(first);
++    const reopened = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver: materialSourceResolver(), now: materialNow });
++    expect((await reopened.read("owner-a", first.contextVersionId)).preview).toEqual(first.preview);
++    expect(db.database.prepare("SELECT snapshot_json, preview_json, fingerprint FROM material_context_versions WHERE id=?").get(first.contextVersionId)).toEqual(row);
++  });
++});

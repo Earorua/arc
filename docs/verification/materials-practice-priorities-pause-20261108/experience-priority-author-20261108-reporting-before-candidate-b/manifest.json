@@ -1,0 +1,102 @@
+{
+  "sourceHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/experience-evidence.ts": "caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/experience-evidence.test.ts": "244ed72be656e3f6a85cee7c5dbc16c97c4f4247591fa06d3608945282de50ee",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+  },
+  "unchangedHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a",
+    "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+    "tests/lib/materials/self-assessment-evidence.test.ts": "d96fba3093470cde72cccf022b13e37293ae2074d40cb77bae25fed7af2178f5",
+    "tests/server/material-supplement-flow.test.ts": "415abb22c1b72b8a2f95c1e8eeec76ee20da11e300b6726507aac8fd288301dc",
+    "tests/server/material-learning-intents.test.ts": "407366f94cc9fbd9862cf98b4c86733d8a0e3324c462d3acc05bf222758de21a"
+  },
+  "reviewerArtifacts": {
+    "experience-priority-spec-20261108-assistance-03.json": "21fa352b187dd540686b1a58d798138b354f8a3e16a297652c629daab6777647",
+    "experience-priority-spec-20261108-assistance-03.log": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+    "experience-priority-spec-20261108-assistance-probe.mjs": "380d89e0c3d3f1a2a3a04f1183b9742ce81d9df6ea1c042c68a391efdacee30f",
+    "experience-priority-spec-20261108-assistance-results.json": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+    "experience-priority-spec-20261108-assistance-service-04.json": "afa8d0b45712ff4bf446b3734e6ab305416fa29776b1fb5ba9d9d9561fbd199f",
+    "experience-priority-spec-20261108-assistance-service-04.log": "c4fc992a4cf01d4c50c8743ac9145501f13b5d6ab91f90d007541dc5d01ac99c",
+    "experience-priority-spec-20261108-assistance-service-results.json": "8ae3c4238ab9423f1f2c328eb2beb31ca0b92bec3aa0b1cf4793c4b1feb292d0",
+    "experience-priority-spec-20261108-assistance-service.config.ts": "d3744781164b99d395d6ff76e48adcd83a4fab187d564936e260e99d40745273",
+    "experience-priority-spec-20261108-assistance-service.test.ts": "09a4c332b8b86f05d86da59dc3653915df0eb858e709901ff8c3adecebaa39dd",
+    "experience-priority-spec-20261108-compatibility-02.json": "801a0ec17d851a67af1de5558e37e4ee68a33587a725d375851a8ec1517dd787",
+    "experience-priority-spec-20261108-compatibility-02.log": "7fd694b547e90244278131823186178d77d2963d2b7790077953af97981ae30c",
+    "experience-priority-spec-20261108-compatibility-probe.mjs": "aed6922f5cd355aa65771850d32ceebff04c21541b5aaa8ea3b31236f59f9c7a",
+    "experience-priority-spec-20261108-compatibility-results.json": "7fd694b547e90244278131823186178d77d2963d2b7790077953af97981ae30c",
+    "experience-priority-spec-20261108-focused-01.json": "d90a155d679056b0e792145e0c635bc7519cb808567bfb6f3f3ac0155251b526",
+    "experience-priority-spec-20261108-focused-01.log": "c6a56aa1da6a319b94ea75a094a69d1ad8e10c51befbea09d24641ae9828ccba",
+    "experience-priority-spec-20261108-focused.config.ts": "acacece3e260305225ccc94306cd5568ae476862d4759fad37d31db027d1d1a1",
+    "experience-priority-spec-20261108-memo.md": "a91086611184ef3a11aa7c2c9ca97e6d23a6f1454803d432ec637b601cfcb627",
+    "experience-priority-spec-20261108-recheck-focused-07.json": "6868766a7f9f3f26c4ea7b6f0187647031d5a6c07ac0ddcd040ee5d8bfa40ba3",
+    "experience-priority-spec-20261108-recheck-focused-07.log": "16b8a7dcb0fd8177e88cad870fffae5d7710c41fcf8e7b228b79a49ca0fb81e8",
+    "experience-priority-spec-20261108-recheck-focused.config.ts": "69be8e7f6f4392c4591ef5bae99a82ce60f06db6408b2a710532b3365e5d0985",
+    "experience-priority-spec-20261108-recheck-identity-results.json": "7e2872528ee03e6729aa1721745ab915e88628449db60f185a9a9151ab230ab9",
+    "experience-priority-spec-20261108-recheck-memo.md": "e1f2de3a18c9da982abaa8384da3100064a0584a1e0c770a8cc71ead2856f3f8",
+    "experience-priority-spec-20261108-recheck-original-probe-06.json": "b72c882dc37dd8de1d4f46dd30815af4f7b199db6a8d8f3788fa63b4e3fbcab3",
+    "experience-priority-spec-20261108-recheck-original-probe-06.log": "e767841b8e1a04406dcc01fddd26012ab974a1af9c4d84aa3e4764091d4f6f11",
+    "experience-priority-spec-20261108-recheck-original-probe-results.json": "e767841b8e1a04406dcc01fddd26012ab974a1af9c4d84aa3e4764091d4f6f11",
+    "experience-priority-spec-20261108-recheck-original-probe.mjs": "cd299b0c52c0cb139cc51b1787c48589f37ca784f9ef8e80466d919e97727d18",
+    "experience-priority-spec-20261108-recheck-original-service-results.json": "a57bf4debcd388bcfd1f35f524831d87bb22b27a61aefb8b5aec363736492a26",
+    "experience-priority-spec-20261108-recheck-original-service.test.ts": "8955ff3e20e3ccb802e040829f1e9c9cc0302086d7ced104f5a326f651bda756",
+    "experience-priority-spec-20261108-recheck-prepare-05.json": "d95326eda68de82de89c145c850267adbf68930feb673f642443b1d674101402",
+    "experience-priority-spec-20261108-recheck-prepare-05.log": "7e2872528ee03e6729aa1721745ab915e88628449db60f185a9a9151ab230ab9",
+    "experience-priority-spec-20261108-recheck-prepare.mjs": "f846986b7fbdd32b7a347d0d7ddc72c3a530c0b5716770e0bb9c3c9f7e89ec0e",
+    "experience-priority-spec-20261108-recheck-reporting-08.json": "0938a252d753742e5c332f2952018d3f96920ed28b150cbfabbd024978580557",
+    "experience-priority-spec-20261108-recheck-reporting-08.log": "3ed443d3f596a2b229e58fb9ca156df4ab026c2cb718d19a735126b24515d9bf",
+    "experience-priority-spec-20261108-recheck-reporting-probe.mjs": "bdff3cb1c867fed8e044e970c540a540f3fa5d850333c82555c2bef3d933e9ec",
+    "experience-priority-spec-20261108-recheck-reporting-results.json": "3ed443d3f596a2b229e58fb9ca156df4ab026c2cb718d19a735126b24515d9bf",
+    "experience-priority-spec-20261108-recheck-reporting-service-09.json": "205651d5281931abedca2f9d93b7bf383c467166e0a6d6c37495ef5feef31fd4",
+    "experience-priority-spec-20261108-recheck-reporting-service-09.log": "249fbeb7e74674f672f9c621aad29b17a131579e0b1a749eed174df07938501d",
+    "experience-priority-spec-20261108-recheck-reporting-service-results.json": "2fe50582aa0c89d835f9cc536d8e2ce2a18f94652f24df1c1a096f6b88a01bfd",
+    "experience-priority-spec-20261108-recheck-reporting-service.config.ts": "32c5d5f0fc9f552fafc663e7e56ba1ce3b0e50de4dc49779d2d273a0cfa1a426",
+    "experience-priority-spec-20261108-recheck-reporting-service.test.ts": "f13eb26f9f243b6749d540e4d41ed83828da4ee434f980b6fe2e35d45d008d4a"
+  },
+  "patchSha256": "99b4354bd28111a9f5c5209dab0786046980386e63f11ea93622b37ea444f586",
+  "copies": {
+    "experience-priority-author-20261108-reporting-original-probe.mjs": {
+      "original": "experience-priority-spec-20261108-assistance-probe.mjs",
+      "originalSha256": "380d89e0c3d3f1a2a3a04f1183b9742ce81d9df6ea1c042c68a391efdacee30f",
+      "sha256": "13d83a9abf58fe2ba71c22e64dd4922c98d8ddee464ddaa90c8635ae9914393d",
+      "outputPathOnly": true
+    },
+    "experience-priority-author-20261108-reporting-original-service.test.ts": {
+      "original": "experience-priority-spec-20261108-assistance-service.test.ts",
+      "originalSha256": "09a4c332b8b86f05d86da59dc3653915df0eb858e709901ff8c3adecebaa39dd",
+      "sha256": "d854b1ce253978404e360c91951cc4ecb4d06949222bf8bdfa21c9240ea42ce9",
+      "outputPathOnly": true
+    },
+    "experience-priority-author-20261108-reporting-reviewer-red-probe.mjs": {
+      "original": "experience-priority-spec-20261108-recheck-reporting-probe.mjs",
+      "originalSha256": "bdff3cb1c867fed8e044e970c540a540f3fa5d850333c82555c2bef3d933e9ec",
+      "sha256": "162fdc6b321437cd0e28596f07389f3e8946990628ab3312b089b0547f6ecdfc",
+      "outputPathOnly": true
+    },
+    "experience-priority-author-20261108-reporting-reviewer-red-service.test.ts": {
+      "original": "experience-priority-spec-20261108-recheck-reporting-service.test.ts",
+      "originalSha256": "f13eb26f9f243b6749d540e4d41ed83828da4ee434f980b6fe2e35d45d008d4a",
+      "sha256": "520a8888d15c5103e15cc7952771270cc3ef53045f5a155c383487dc99451783",
+      "outputPathOnly": true
+    },
+    "experience-priority-author-20261108-reporting-reviewer-green-service.test.ts": {
+      "original": "experience-priority-spec-20261108-recheck-reporting-service.test.ts",
+      "originalSha256": "f13eb26f9f243b6749d540e4d41ed83828da4ee434f980b6fe2e35d45d008d4a",
+      "sha256": "c0aba8b33b37ef871033656885d970c52f203e9bc25fb0f86cb88f682a8e1fa8",
+      "outputPathOnly": true
+    }
+  }
+}

@@ -1,0 +1,4 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+export default defineConfig({ ...base, test: { ...base.test, include: ["tests/lib/materials/experience-evidence.test.ts", "tests/server/material-supplement-flow.test.ts"], maxWorkers: 1 } });

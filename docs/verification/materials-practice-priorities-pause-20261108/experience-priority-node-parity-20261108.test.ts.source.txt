@@ -1,0 +1,38 @@
+// @vitest-environment node
+import { webcrypto, createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { afterEach, expect, it, vi } from "vitest";
+import { createMaterialsD1, seedUser } from "../../tests/helpers/materials-d1";
+import { memoryBucket } from "../../tests/helpers/document-bucket";
+import worker from "./experience-priority-cases-worker-20261108";
+afterEach(() => vi.unstubAllGlobals());
+
+it("matches actual HTTP document/context service results between Node SQLite and native workerd D1", async () => {
+  vi.stubGlobal("crypto", webcrypto);
+  const source = import.meta.env.ARC_PRACTICE_NATIVE_RESULT;
+  const output = import.meta.env.ARC_PRACTICE_NODE_RESULT;
+  expect(source).toMatch(/^work\/grounded-verification\/experience-priority-root-cases-[a-z0-9-]+-results\.json$/u);
+  expect(output).toMatch(/^work\/grounded-verification\/experience-priority-node-parity-[a-z0-9-]+-results\.json$/u);
+  const bytes = readFileSync(source), native = JSON.parse(bytes.toString("utf8"));
+  const db = createMaterialsD1(), bucket = memoryBucket(); seedUser(db, "owner-a");
+  const observations: unknown[] = [];
+  try {
+    for (const { entry, observed: expected } of native.observations) {
+      const response = await worker.fetch(new Request("http://localhost/parity", { method: "POST", body: JSON.stringify(entry) }),
+        { DB: db as unknown as D1Database, DOCS: bucket as unknown as R2Bucket });
+      const observed = await response.json() as typeof expected;
+      observations.push({ id: entry.id, observed });
+      expect(observed.ok, entry.id + ": " + JSON.stringify(observed)).toBe(true);
+      expect(observed.context.preview, entry.id + " preview").toEqual(expected.context.preview);
+      expect(observed.reread, entry.id + " read").toEqual(expected.reread);
+      expect(observed.document, entry.id + " document").toEqual(expected.document);
+      expect(observed.draft, entry.id + " draft").toEqual(expected.draft);
+      expect(JSON.parse(observed.row.snapshot_json), entry.id + " snapshot").toEqual(JSON.parse(expected.row.snapshot_json));
+      expect(observed.replay).toEqual(observed.context);
+    }
+    writeFileSync(output, JSON.stringify({ status: "PASS", cases: observations.length, nativeSource: source,
+      nativeSha256: createHash("sha256").update(bytes).digest("hex"), sourceStatus: native.status,
+      observations, realModelCalls: 0,
+      transport: "Actual shared HTTP factory/createDocumentRuntime; Node SQLite D1 adapter and in-memory R2 compared with local workerd real D1/R2. Synthetic owner/rate and explicit inert legacy extraction fixtures. Analysis disabled." }, null, 2) + "\n", { flag: "wx" });
+  } finally { db.close(); }
+}, 30000);

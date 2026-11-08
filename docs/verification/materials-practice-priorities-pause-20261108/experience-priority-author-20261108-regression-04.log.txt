@@ -1,0 +1,83 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:44144) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 6812[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on accept [33m 414[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on discard [33m 303[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on accept [33m 313[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on discard [33m 329[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=false without task movement [33m 534[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=true without task movement [33m 500[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied audit warnings when replaying a context-only proposal and accepting it [33m 317[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied target warnings when replaying a context-only proposal and accepting it [33m 308[2mms[22m[39m
+     [33m[2m✓[22m[39m normalizes dependency, skill mapping, term skill, and intent order across fresh previews [33m 365[2mms[22m[39m
+(node:30280) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-learning-intent-flow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1481[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through discard [33m 527[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through accept [33m 380[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks acceptance after deleting the adopted coach source and still permits discard without changing progress or Proof [33m 324[2mms[22m[39m
+(node:40952) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/material-context-choices.test.tsx [2m([22m[2m29 tests[22m[2m)[22m[33m 1647[2mms[22m[39m
+(node:34404) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-practice-priorities.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 933[2mms[22m[39m
+(node:21000) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-confirmed-skill-labels.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 710[2mms[22m[39m
+(node:46872) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-mappings.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 729[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an oversized preview response before committing its context or mutation receipt [33m 383[2mms[22m[39m
+(node:7276) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-supplement-flow.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 284[2mms[22m[39m
+[31m   [31m×[31m uses a reviewed supplement to reorder existing practice while preserving primary JD precedence, progress, audit and privacy[39m[32m 283[2mms[22m[39m
+(node:46644) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-learning-intents.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 351[2mms[22m[39m
+(node:43312) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-context.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/experience-evidence.test.ts [2m([22m[2m180 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/planning-priority.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/contextual-skill-mapping.test.ts [2m([22m[2m89 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/practice-skill-mapping.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/skill-mapper.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-supplement-flow.test.ts[2m > [22muses a reviewed supplement to reorder existing practice while preserving primary JD precedence, progress, audit and privacy
+[31m[1mAssertionError[22m: expected undefined to deeply equal { skillId: 'observability', …(2) }[39m
+
+[32m- Expected:[39m
+{
+  "itemIds": [
+    "material-item-a2dd7ac08cdafb9663fb69d44c13527a",
+  ],
+  "skillId": "observability",
+  "tier": 3,
+}
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-supplement-flow.test.ts:[2m74:39[22m[39m
+    [90m 72|[39m     const priority = (skill: string) => preview.priorities.find(item =…
+    [90m 73|[39m     const itemRef = (source: string, item: string) => preview.itemRefe…
+    [90m 74|[39m     expect(priority("observability")).toEqual({ skillId: "observabilit…
+    [90m   |[39m                                       [31m^[39m
+    [90m 75|[39m     expect(priority("typescript")).toEqual({ skillId: "typescript", ti…
+    [90m 76|[39m     expect(priority("sql")).toEqual({ skillId: "sql", tier: 4, itemIds…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m13 passed[39m[22m[90m (14)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m441 passed[39m[22m[90m (442)[39m
+[2m   Start at [22m 20:32:56
+[2m   Duration [22m 27.41s[2m (transform 1.37s, setup 2.56s, import 5.36s, tests 13.30s, environment 4.22s)[22m
+

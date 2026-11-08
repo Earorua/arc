@@ -1,0 +1,74 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-reporting-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const manifestPath = resolve(work, prefix + "frozen-source.json");
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+for (const [path, hash] of Object.entries(manifest.sourceHashes)) assert.equal(sha(readFileSync(path)), hash, path);
+const freezePath = resolve(work, prefix + "freeze-15.json"), freeze = JSON.parse(readFileSync(freezePath, "utf8"));
+assert.equal(freeze.exit, 0);
+assert.equal(freeze.nonLoopbackDenials, 0);
+const binding = manifest.currentProbeBinding;
+const lines = [
+  "# Task 2 technical-reporting repair — candidate C frozen",
+  "",
+  "The candidate A and B FAIL reviews remain sealed and unchanged. This repair addresses B's technical-reporting regression under a new source identity. Only the evidence predicate and appended evidence tests differ from B; no commits, docs/archive edits, full-repository run, provider/model calls, network work, deployment or migration were performed.",
+  "",
+  "## Change and preservation",
+  "",
+  "The trailing administrative activity check now requires progress/status to qualify reporting. Unqualified SQL reporting and SQL query reporting retain personal practice, while SQL project progress reporting remains excluded. The existing scheduling/planning, nested technical-action, for/to purpose and report-about-other-work checks remain unchanged. No SQL/course-name special case, new action verb, actor parser or self-level inference was introduced.",
+  "",
+  "One predicate condition changed and one explanatory comment was added. Eight new tests cover SQL/React reporting, capable phrasing and explicit progress/status reporting. The original 237 tests remain an exact byte prefix. All other seven candidate files, shared/level code and original supplement/history tests are byte-identical to B. The integrity check also verifies all 40 sealed reviewer artifacts and both earlier frozen manifests.",
+  "",
+  "Before-state: " + prefix + "before-candidate-b/ contains nine sources, the complete candidate-B patch and manifest. Before manifest SHA-256: " + manifest.beforeManifestSha256 + ".",
+  "",
+  "New frozen manifest: " + prefix + "frozen-source.json, SHA-256 " + sha(readFileSync(manifestPath)) + ". Exact source copies: " + prefix + "frozen-source/.",
+  "",
+  "| Candidate source | SHA-256 |",
+  "| --- | --- |",
+  ...Object.entries(manifest.sourceHashes).map(([path, hash]) => "| " + path + " | " + hash + " |"),
+  "",
+  "## Reviewer probe binding",
+  "",
+  "All original sixteen-case/six-service and new six-case/six-service semantic expectations remain unchanged. Copies use exclusive new result paths. The new reporting pure probe also hard-coded B's current-source identity, so root explicitly authorized a literal current-source SHA rebinding in the GREEN copy. No hash check was removed or made dynamic; historical A's fixed source identity remains unchanged.",
+  "",
+  "- Historical A fixed SHA: " + binding.historicalCandidateASha,
+  "- Previous current SHA: " + binding.previousCurrentSha,
+  "- New current SHA: " + binding.currentCandidateSha,
+  "- Original probe SHA: " + binding.originalSha256,
+  "- GREEN probe SHA: " + binding.nextSha256,
+  "",
+  "The binding metadata is " + prefix + "green-probe-binding.json. The copied probe retains its original candidateB result-field name for current-candidate observations; its fixed source identity now identifies C. Reversing only the result path and current-source hash substitutions reproduces the original probe exactly, which the freeze verifies.",
+  "",
+  "## Checks",
+  "",
+  "Original administrative 16-case predicate/mapping and six-service probes pass, new reporting six-case predicate/mapping and six-service probes pass, all 245 evidence tests pass, the 14-file integration group passes 507 tests, and the separate 12-file level/extraction/review group passes 1467 tests. Focused types and lint pass. Every wrapped command has zero non-loopback denials. SQLite experimental warnings are expected.",
+  "",
+  "| Run suffix | Result | Exit | Log SHA-256 | Outcome SHA-256 |",
+  "| --- | --- | --- | --- | --- |",
+  ...manifest.outcomes.map(row => "| " + row.name.replace(prefix, "") + " | " + row.result + " | " + row.exit + " | " + row.logSha256 + " | " + row.outcomeSha256 + " |"),
+  "| freeze-15 | scope, source and preservation checks pass | 0 | " + freeze.logSha256 + " | " + sha(readFileSync(freezePath)) + " |",
+  "",
+  "The reporting RED pure-probe log is byte-identical to the sealed reviewer result, SHA 3ed443d3f596a2b229e58fb9ca156df4ab026c2cb718d19a735126b24515d9bf. Actual-service RED preserves two failures and four passing controls. The unit RED file is separately preserved and matches the final appended test source.",
+  "",
+  "Exact commands:",
+  "",
+  "~~~text",
+  ...manifest.outcomes.map(row => row.command),
+  "node work/grounded-verification/run.mjs " + prefix + "freeze-15 work/grounded-verification/" + prefix + "freeze.mjs",
+  "~~~",
+  "",
+  "Input/script/config and standalone result hashes are in the frozen manifest. All Vitest configs spread the repository base, replace include and use maxWorkers=1. Focused types include worker-configuration.d.ts/tests/setup.ts and exclude ignored harness fixtures.",
+  "",
+  "## Limits and next owner",
+  "",
+  ...manifest.limits.map(line => "- " + line),
+  "- Root owns the 37-case real HTTP/runtime native run, parity/history/UI acceptance, independent specification re-review then quality review, full-repository checks, archives and commits. Product/test edits have stopped.",
+  "",
+];
+const handoffPath = resolve(work, prefix + "handoff.md");
+writeFileSync(handoffPath, lines.join("\n"), { flag: "wx" });
+console.log(JSON.stringify({ sourceUnchangedSinceFreeze: true, handoffSha256: sha(readFileSync(handoffPath)), scriptSha256: sha(readFileSync(new URL(import.meta.url))) }, null, 2));

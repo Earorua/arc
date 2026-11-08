@@ -1,0 +1,64 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:15700) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-practice-priorities.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 216[2mms[22m[39m
+[31m     [31m×[31m keeps denied SQL mapped without borrowing personal practice[39m[32m 76[2mms[22m[39m
+[31m     [31m×[31m keeps colleague SQL mapped without borrowing personal practice[39m[32m 47[2mms[22m[39m
+[31m     [31m×[31m keeps future SQL mapped without borrowing personal practice[39m[32m 32[2mms[22m[39m
+[31m     [31m×[31m keeps own React and colleague SQL mapped without borrowing personal practice[39m[32m 29[2mms[22m[39m
+     [32m✓[39m retains a personal SQL practice priority[32m 31[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mkeeps denied SQL mapped without borrowing personal practice
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mkeeps colleague SQL mapped without borrowing personal practice
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mkeeps future SQL mapped without borrowing personal practice
+[31m[1mAssertionError[22m: expected [ 'sql' ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "sql",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m36:63[22m[39m
+    [90m 34|[39m     expect(preview.mappingDetails?.filter(row => row.status === "mappe…
+    [90m 35|[39m       [33m.[39m[34mtoEqual[39m(labels[33m.[39m[34mmap[39m(label [33m=>[39m label[33m.[39m[34mtoLowerCase[39m())[33m.[39m[34msort[39m())[33m;[39m
+    [90m 36|[39m     expect(preview.priorities.map(row => row.skillId).sort()).toEqual(…
+    [90m   |[39m                                                               [31m^[39m
+    [90m 37|[39m     expect(preview.confirmedItems[0]).toMatchObject({ text, skillLabel…
+    [90m 38|[39m     expect(preview.itemReferences?.[0]).not.toHaveProperty("learningIn…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mkeeps own React and colleague SQL mapped without borrowing personal practice
+[31m[1mAssertionError[22m: expected [ 'react', 'sql' ] to deeply equal [ 'react' ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    "react",[22m
+[31m+   "sql",[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m36:63[22m[39m
+    [90m 34|[39m     expect(preview.mappingDetails?.filter(row => row.status === "mappe…
+    [90m 35|[39m       [33m.[39m[34mtoEqual[39m(labels[33m.[39m[34mmap[39m(label [33m=>[39m label[33m.[39m[34mtoLowerCase[39m())[33m.[39m[34msort[39m())[33m;[39m
+    [90m 36|[39m     expect(preview.priorities.map(row => row.skillId).sort()).toEqual(…
+    [90m   |[39m                                                               [31m^[39m
+    [90m 37|[39m     expect(preview.confirmedItems[0]).toMatchObject({ text, skillLabel…
+    [90m 38|[39m     expect(preview.itemReferences?.[0]).not.toHaveProperty("learningIn…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 20:27:07
+[2m   Duration [22m 1000ms[2m (transform 292ms, setup 211ms, import 421ms, tests 216ms, environment 0ms)[22m
+

@@ -1,0 +1,8 @@
+{
+  "sourceUnchanged": true,
+  "handoff": "experience-priority-author-20261108-handoff.md",
+  "handoffSha256": "1aa859c03192df2c66b0fc699ef6477aafce5d164d03541f128d77d13eec5288",
+  "commandLedger": "experience-priority-author-20261108-command-ledger.json",
+  "commandLedgerSha256": "1a8423120b42519448dee6b13369639e9c4d4957f73547ba96b411d125ad5adf",
+  "scriptSha256": "24b3f518a53d08f8efc84a1ebfe29f40bc75fc9b413a1ba7233c9408181ecdb8"
+}

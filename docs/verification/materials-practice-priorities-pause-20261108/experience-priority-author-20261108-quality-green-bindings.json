@@ -1,0 +1,42 @@
+{
+  "experience-priority-author-20261108-quality-reviewer-green-probe.mjs": {
+    "originalName": "experience-priority-quality-20261108-boundary-probe.mjs",
+    "originalSha256": "406951d42023a7f7e9d29ea14fe7f0ec1eb2f786b2e572801848c7c9b5022822",
+    "nextSha256": "b9ea00eb0263b30fe6cac846ae28238effd13f923bfe3fd14d51ea45d4967148",
+    "permittedEdits": [
+      "exclusive output path",
+      "fixed current-candidate manifest path",
+      "fixed current-candidate manifest SHA"
+    ],
+    "previousManifest": "experience-priority-author-20261108-reporting-frozen-source.json",
+    "previousManifestSha": "b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9",
+    "currentManifest": "experience-priority-author-20261108-quality-candidate-source.json",
+    "currentManifestSha": "eb65c7dfe62dd4b907f20e502166cfbf7cdc99aef62b4e17810c338c94ef7c1c"
+  },
+  "experience-priority-author-20261108-quality-reviewer-green-service.test.ts": {
+    "originalName": "experience-priority-quality-20261108-service.test.ts",
+    "originalSha256": "ef355f5c1d36c7dcfb5729394c2e5fefaf4b4d04b97f2af7e6b1db1d6c43d135",
+    "nextSha256": "13226ef67ef1ac4895f61dddf19d8e326afb73b846ef7ce25d49758a20da4e6e",
+    "permittedEdits": [
+      "exclusive output path",
+      "fixed current-candidate manifest path",
+      "fixed current-candidate manifest SHA"
+    ],
+    "previousManifest": "experience-priority-author-20261108-reporting-frozen-source.json",
+    "previousManifestSha": "b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9",
+    "currentManifest": "experience-priority-author-20261108-quality-candidate-source.json",
+    "currentManifestSha": "eb65c7dfe62dd4b907f20e502166cfbf7cdc99aef62b4e17810c338c94ef7c1c"
+  },
+  "experience-priority-author-20261108-quality-reporting-probe.mjs": {
+    "originalName": "experience-priority-spec-20261108-recheck-reporting-probe.mjs",
+    "originalSha256": "bdff3cb1c867fed8e044e970c540a540f3fa5d850333c82555c2bef3d933e9ec",
+    "nextSha256": "48a2b62f893841f3d71115fbdb89e53be945aca897df4100041644cdbc47f0e3",
+    "permittedEdits": [
+      "exclusive output path",
+      "fixed current guard SHA"
+    ],
+    "previousGuardSha": "caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab",
+    "currentGuardSha": "8560cd4f8ad8b2d1c079a991e259541bd3e1602e4520498bfeab5289dd9c81c8",
+    "historicalCandidateASha": "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2"
+  }
+}

@@ -1,0 +1,45 @@
+import assert from "node:assert/strict";
+import { build } from "esbuild";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const aPath = "work/grounded-verification/experience-priority-author-20261108-spec-before-spec/app__lib__materials__experience-evidence.ts.source.txt";
+const aBytes = readFileSync(aPath);
+assert.equal(sha(aBytes), "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2");
+const bPath = "app/lib/materials/experience-evidence.ts";
+assert.equal(sha(readFileSync(bPath)), "9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077");
+async function api(contents, resolveDir) {
+  const output = await build({ stdin: { contents, resolveDir, loader: "ts" }, bundle: true, platform: "node", format: "esm", write: false });
+  return import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`);
+}
+const previous = await api(aBytes.toString("utf8"), resolve("app/lib/materials"));
+const current = await api(`
+  export { supportsMaterialExperience } from "./app/lib/materials/experience-evidence.ts";
+  export { mapMaterialItemTerms, mapMaterialPracticeSkills } from "./app/lib/materials/skill-mapper.ts";
+  export { flagshipBlueprint } from "./app/data/flagship-blueprint.ts";
+  export { flagshipUnitRegistry } from "./app/data/flagship-unit-registry.ts";
+`, process.cwd());
+const cases = [
+  ["I assisted with SQL reports.", true],
+  ["I assisted with SQL reporting.", true],
+  ["I assisted with SQL query reporting.", true],
+  ["I assisted with SQL project progress reporting.", false],
+  ["I assisted with testing SQL reporting queries.", true],
+  ["I assisted with modifying SQL queries for planning.", true],
+];
+const rows = cases.map(([text, expected]) => {
+  const item = { id: "fact", kind: "experience", text, skillLabels: ["SQL"], origin: "user", sourceRef: null, requirementLevel: null };
+  const evidence = (candidate, target) => candidate.supportsMaterialExperience({ kind: item.kind, text, target });
+  const termTarget = { kind: "terms", terms: ["SQL"] }, wholeTarget = { kind: "confirmed-whole-fact" };
+  return { text, expected, candidateA: { term: evidence(previous, termTarget), whole: evidence(previous, wholeTarget) },
+    candidateB: { term: evidence(current, termTarget), whole: evidence(current, wholeTarget),
+      mapping: current.mapMaterialItemTerms([item], current.flagshipBlueprint, current.flagshipUnitRegistry),
+      practices: current.mapMaterialPracticeSkills([item], current.flagshipBlueprint, current.flagshipUnitRegistry) } };
+});
+const mismatches = rows.filter(row => row.candidateB.term !== row.expected || row.candidateB.whole !== row.expected || (row.candidateB.practices.length > 0) !== row.expected);
+const result = { candidateASha256: sha(aBytes), candidateBSha256: sha(readFileSync(bPath)), rows, mismatches };
+writeFileSync("work/grounded-verification/experience-priority-author-20261108-reporting-reviewer-green-probe-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));
+process.exitCode = mismatches.length ? 1 : 0;

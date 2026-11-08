@@ -1,0 +1,19 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"ok":false,"message":"HTTP saveDocumentReviewDraft 400","trace":[{"endpoint":"createDocument","input":{"kind":"resume","displayName":"Synthetic historical preview","text":"I have never configured SQL for production.","mutationId":"history-create"},"status":201,"value":{"documentId":"native-practice-1","documentVersionId":"native-practice-2","textVersionId":"native-practice-3","revision":0}},{"endpoint":"saveDocumentReviewDraft","input":{"documentId":"native-practice-1","textVersionId":"native-practice-3","extractionId":null,"items":[{"id":"fact","kind":"experience","text":"I have never configured SQL for production.","origin":"user","sourceRef":null}],"selfAssessmentHints":[],"expectedRevision":0,"mutationId":"history-save"},"status":400,"value":{"error":{"code":"invalid-request","status":400}}}]}
+
+false !== true
+
+    at file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/experience-priority-history-create-20261108.mjs:34:46
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.1

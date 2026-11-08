@@ -1,0 +1,60 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-quality-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const candidatePath = join(work, "experience-priority-author-20261108-reporting-frozen-source.json");
+assert.equal(sha(readFileSync(candidatePath)), "b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9");
+const candidate = JSON.parse(readFileSync(candidatePath, "utf8"));
+const memo = "experience-priority-quality-20261108-memo.md";
+assert.equal(sha(readFileSync(join(work, memo))), "33af77e7c2448abee6472aaed96a60a813a51205dbff2aea52ac1c4ab9e9153d");
+const before = join(work, prefix + "before-candidate-c");
+mkdirSync(before);
+for (const [path, expected] of Object.entries(candidate.sourceHashes)) {
+  const bytes = readFileSync(path);
+  assert.equal(sha(bytes), expected, path);
+  writeFileSync(join(before, path.replaceAll("/", "__") + ".source.txt"), bytes, { flag: "wx" });
+}
+let patch = execFileSync("git", ["diff", "--binary", "HEAD", "--", ...Object.keys(candidate.sourceHashes)], { encoding: "utf8", windowsHide: true });
+for (const path of ["tests/lib/materials/practice-skill-mapping.test.ts", "tests/server/material-practice-priorities.test.ts"]) {
+  const lines = readFileSync(path, "utf8").trimEnd().split(/\r?\n/u);
+  patch += "\ndiff --git a/" + path + " b/" + path + "\nnew file mode 100644\n--- /dev/null\n+++ b/" + path + "\n@@ -0,0 +1," + lines.length + " @@\n" + lines.map(line => "+" + line).join("\n") + "\n";
+}
+writeFileSync(join(before, "candidate-c.patch"), patch, { flag: "wx" });
+const plans = [
+  ["experience-priority-quality-20261108-boundary-probe.mjs", "experience-priority-quality-20261108-boundary-results.json", "reviewer-red-probe.mjs", "reviewer-red-probe-results.json"],
+  ["experience-priority-quality-20261108-service.test.ts", "experience-priority-quality-20261108-service-results.json", "reviewer-red-service.test.ts", "reviewer-red-service-results.json"],
+  ["experience-priority-spec-20261108-assistance-probe.mjs", "experience-priority-spec-20261108-assistance-results.json", "original-spec-probe.mjs", "original-spec-probe-results.json"],
+  ["experience-priority-spec-20261108-assistance-service.test.ts", "experience-priority-spec-20261108-assistance-service-results.json", "original-spec-service.test.ts", "original-spec-service-results.json"],
+  ["experience-priority-spec-20261108-recheck-reporting-service.test.ts", "experience-priority-spec-20261108-recheck-reporting-service-results.json", "reporting-service.test.ts", "reporting-service-results.json"],
+];
+const copies = {};
+for (const [oldName, oldResult, suffix, resultSuffix] of plans) {
+  const original = readFileSync(join(work, oldName), "utf8"), next = original.replace(oldResult, prefix + resultSuffix);
+  assert.notEqual(next, original);
+  assert.equal(next.replace(prefix + resultSuffix, oldResult), original);
+  writeFileSync(join(work, prefix + suffix), next, { flag: "wx" });
+  copies[prefix + suffix] = { original: oldName, originalSha256: sha(Buffer.from(original)), sha256: sha(Buffer.from(next)), outputPathOnly: true };
+}
+for (const suffix of ["reviewer-red-service", "reviewer-green-service", "original-spec-service", "reporting-service"]) {
+  const config = 'import { defineConfig } from "vitest/config";\nimport base from "../../vitest.config";\n\nexport default defineConfig({ ...base, test: { ...base.test, include: ["work/grounded-verification/' + prefix + suffix + '.test.ts"], maxWorkers: 1 } });\n';
+  writeFileSync(join(work, prefix + suffix + ".config.ts"), config, { flag: "wx" });
+}
+const sealedArtifactHashes = {};
+function preserve(path) {
+  if (statSync(join(work, path)).isDirectory()) {
+    for (const name of readdirSync(join(work, path))) preserve(path + "/" + name);
+  } else sealedArtifactHashes[path] = sha(readFileSync(join(work, path)));
+}
+for (const name of readdirSync(work)) if (!name.startsWith(prefix) && (
+  name.startsWith("experience-priority-spec-20261108-")
+  || name.startsWith("experience-priority-quality-20261108-")
+  || name.startsWith("experience-priority-author-20261108-")
+)) preserve(name);
+const manifest = { sourceHashes: candidate.sourceHashes, unchangedHashes: candidate.unchangedCandidateAndSharedHashes,
+  sealedArtifactHashes, patchSha256: sha(readFileSync(join(before, "candidate-c.patch"))), copies };
+writeFileSync(join(before, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ sourceCount: Object.keys(candidate.sourceHashes).length, sealedArtifactCount: Object.keys(sealedArtifactHashes).length, manifestSha256: sha(readFileSync(join(before, "manifest.json"))), copiedAssertionsUnchanged: true }, null, 2));

@@ -1,0 +1,47 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-reporting-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const candidateB = JSON.parse(readFileSync(join(work, "experience-priority-author-20261108-spec-frozen-source.json"), "utf8"));
+const memo = "experience-priority-spec-20261108-recheck-memo.md";
+assert.equal(sha(readFileSync(join(work, memo))), "e1f2de3a18c9da982abaa8384da3100064a0584a1e0c770a8cc71ead2856f3f8");
+const before = join(work, prefix + "before-candidate-b");
+mkdirSync(before);
+for (const [path, expected] of Object.entries(candidateB.sourceHashes)) {
+  const bytes = readFileSync(path);
+  assert.equal(sha(bytes), expected, path);
+  writeFileSync(join(before, path.replaceAll("/", "__") + ".source.txt"), bytes, { flag: "wx" });
+}
+let patch = execFileSync("git", ["diff", "--binary", "HEAD", "--", ...Object.keys(candidateB.sourceHashes)], { encoding: "utf8", windowsHide: true });
+for (const path of ["tests/lib/materials/practice-skill-mapping.test.ts", "tests/server/material-practice-priorities.test.ts"]) {
+  const lines = readFileSync(path, "utf8").trimEnd().split(/\r?\n/u);
+  patch += "\ndiff --git a/" + path + " b/" + path + "\nnew file mode 100644\n--- /dev/null\n+++ b/" + path + "\n@@ -0,0 +1," + lines.length + " @@\n" + lines.map(line => "+" + line).join("\n") + "\n";
+}
+writeFileSync(join(before, "candidate-b.patch"), patch, { flag: "wx" });
+const copyPlans = [
+  ["experience-priority-spec-20261108-assistance-probe.mjs", "experience-priority-spec-20261108-assistance-results.json", "original-probe.mjs", "original-probe-results.json"],
+  ["experience-priority-spec-20261108-assistance-service.test.ts", "experience-priority-spec-20261108-assistance-service-results.json", "original-service.test.ts", "original-service-results.json"],
+  ["experience-priority-spec-20261108-recheck-reporting-probe.mjs", "experience-priority-spec-20261108-recheck-reporting-results.json", "reviewer-red-probe.mjs", "reviewer-red-probe-results.json"],
+  ...["red", "green"].map(phase => ["experience-priority-spec-20261108-recheck-reporting-service.test.ts", "experience-priority-spec-20261108-recheck-reporting-service-results.json", "reviewer-" + phase + "-service.test.ts", "reviewer-" + phase + "-service-results.json"]),
+];
+const copies = {};
+for (const [oldName, oldResult, suffix, resultSuffix] of copyPlans) {
+  const original = readFileSync(join(work, oldName), "utf8"), next = original.replace(oldResult, prefix + resultSuffix);
+  assert.notEqual(next, original);
+  assert.equal(next.replace(prefix + resultSuffix, oldResult), original);
+  writeFileSync(join(work, prefix + suffix), next, { flag: "wx" });
+  copies[prefix + suffix] = { original: oldName, originalSha256: sha(Buffer.from(original)), sha256: sha(Buffer.from(next)), outputPathOnly: true };
+}
+for (const suffix of ["original-service", "reviewer-red-service", "reviewer-green-service"]) {
+  const config = 'import { defineConfig } from "vitest/config";\nimport base from "../../vitest.config";\n\nexport default defineConfig({ ...base, test: { ...base.test, include: ["work/grounded-verification/' + prefix + suffix + '.test.ts"], maxWorkers: 1 } });\n';
+  writeFileSync(join(work, prefix + suffix + ".config.ts"), config, { flag: "wx" });
+}
+const reviewerArtifacts = Object.fromEntries(readdirSync(work).filter(name => name.startsWith("experience-priority-spec-20261108-")).map(name => [name, sha(readFileSync(join(work, name)))]));
+const manifest = { sourceHashes: candidateB.sourceHashes, unchangedHashes: candidateB.unchangedCandidateAndSharedHashes, reviewerArtifacts,
+  patchSha256: sha(readFileSync(join(before, "candidate-b.patch"))), copies };
+writeFileSync(join(before, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ sourceCount: Object.keys(manifest.sourceHashes).length, originalReviewerArtifactCount: Object.keys(reviewerArtifacts).length, manifestSha256: sha(readFileSync(join(before, "manifest.json"))), copiedAssertionsUnchanged: true }, null, 2));

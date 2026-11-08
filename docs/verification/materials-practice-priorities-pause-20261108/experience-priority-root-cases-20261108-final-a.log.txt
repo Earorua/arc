@@ -1,0 +1,19 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: assisted-other: {"ok":false,"message":"HTTP createDocument 429","trace":[{"endpoint":"createDocument","input":{"kind":"resume","displayName":"Synthetic assisted-other","text":"My colleague assisted with SQL queries.","mutationId":"assisted-other-create"},"status":429,"value":{"error":{"code":"quota-exceeded","status":429}}}]}
+
+false !== true
+
+    at file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/experience-priority-root-cases-final-20261108.mjs:72:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.1

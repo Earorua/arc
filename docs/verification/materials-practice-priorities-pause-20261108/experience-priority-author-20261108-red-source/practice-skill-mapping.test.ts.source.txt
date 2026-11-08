@@ -1,0 +1,103 @@
+import { describe, expect, it } from "vitest";
+import type { ConfirmedMaterialItem } from "../../../app/contracts/documents";
+import { flagshipBlueprint } from "../../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../../app/data/flagship-unit-registry";
+import { mapMaterialItems, mapMaterialItemTerms, mapMaterialPracticeSkills, type MappingOptions } from "../../../app/lib/materials/skill-mapper";
+
+const fact = (text: string, skillLabels?: string[]): ConfirmedMaterialItem => ({
+  id: "fact", kind: "experience", text, origin: "user", sourceRef: null, requirementLevel: null,
+  ...(skillLabels === undefined ? {} : { skillLabels }),
+});
+const project = (item: ConfirmedMaterialItem, options: MappingOptions = {}) => mapMaterialPracticeSkills([item], flagshipBlueprint, flagshipUnitRegistry, options);
+
+describe("source evidence for practice skill relations", () => {
+  it.each([
+    ["I wrote SQL queries.", ["sql"]],
+    ["I configured SQLite.", ["sql"]],
+    ["我使用关系数据库。", ["sql"]],
+    ["I built React.js components.", ["react"]],
+    ["I wrote SQL queries, but I have never configured SQLite.", ["sql"]],
+    ["I have never used SQL, but I configured SQLite.", ["sql"]],
+    ["I have never used SQL; my colleague configured SQLite.", []],
+  ] as const)("retains each actual vocabulary match as alternative evidence: %s", (text, expected) => {
+    expect(project(fact(text))).toEqual(expected.map(skillId => ({ itemId: "fact", skillId })));
+  });
+
+  it("does not substitute course labels or borrow another course's personal evidence", () => {
+    const item = fact("I built React components; my colleague wrote SQL queries.", ["React", "SQL"]);
+    expect(project(item)).toEqual([{ itemId: "fact", skillId: "react" }]);
+    expect(mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([
+      { itemId: "fact", term: "React", status: "mapped", skillIds: ["react"], basis: "literal" },
+      { itemId: "fact", term: "SQL", status: "mapped", skillIds: ["sql"], basis: "literal" },
+    ]);
+    expect(mapMaterialItems([item], flagshipBlueprint, flagshipUnitRegistry)).toEqual([
+      { itemId: "fact", status: "mapped", skillIds: ["react", "sql"], labels: ["React Product UI", "SQL & Relational Modeling"] },
+    ]);
+  });
+
+  it.each([
+    ["Built UI tokens for accessible component focus.", ["design-systems"]],
+    ["My colleague built UI tokens for accessible component focus.", []],
+  ] as const)("uses retained source evidence for a contextual relation: %s", (text, expected) => {
+    const item = fact(text, ["UI tokens"]);
+    expect(mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)[0]).toMatchObject({ status: "mapped", basis: "contextual", skillIds: ["design-systems"] });
+    expect(project(item)).toEqual(expected.map(skillId => ({ itemId: "fact", skillId })));
+  });
+
+  it.each([
+    ["I wrote SQL queries; my colleague built React components.", ["react"]],
+    ["I have never used SQL; I built React components.", []],
+  ] as const)("keeps SQL as evidence when its term is manually mapped to React: %s", (text, expected) => {
+    expect(project(fact(text, ["SQL"]), { termMappings: { fact: [{ skillLabel: "SQL", skillIds: ["react"] }] } }))
+      .toEqual(expected.map(skillId => ({ itemId: "fact", skillId })));
+  });
+
+  it.each([
+    ["Built accessible product interfaces.", ["react", "sql"]],
+    ["I have never used SQL.", []],
+    ["I built React components; my colleague wrote SQL queries.", []],
+  ] as const)("uses the confirmed whole fact for explicit whole-fact choices: %s", (text, expected) => {
+    expect(project(fact(text), { userMappings: { fact: ["react", "sql"] } }))
+      .toEqual(expected.map(skillId => ({ itemId: "fact", skillId })));
+  });
+
+  it("requires a mapped result and does not silently disambiguate an unlabelled fact", () => {
+    const item = fact("I built React components; my colleague wrote SQL queries.");
+    expect(mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry)[0]?.status).toBe("ambiguous");
+    expect(project(item)).toEqual([]);
+    expect(project(fact("I used unlisted-topic."))).toEqual([]);
+    expect(mapMaterialPracticeSkills([fact("I wrote SQL queries.")], flagshipBlueprint, { ...flagshipUnitRegistry, tracks: [] })).toEqual([]);
+  });
+
+  it("deduplicates supported relations across aliases and facts without sharing their evidence", () => {
+    const items = [fact("I used SQL and SQLite.", ["SQL", "SQLite"]), { ...fact("My colleague wrote SQL queries.", ["SQL"]), id: "other" }];
+    expect(mapMaterialPracticeSkills(items, flagshipBlueprint, flagshipUnitRegistry)).toEqual([{ itemId: "fact", skillId: "sql" }]);
+  });
+
+  it("keeps empty, deleted and explicitly omitted terms out of practice", () => {
+    const item = fact("I wrote SQL queries and built React components.", ["React"]);
+    const options = { termMappings: { fact: [{ skillLabel: "SQL", skillIds: ["sql"] }, { skillLabel: "React", skillIds: [] }] } };
+    expect(project(item, options)).toEqual([]);
+    expect(project({ ...item, skillLabels: [] }, options)).toEqual([]);
+    // The compatibility mapping API accepts legacy whole-fact overrides, but
+    // new practice must not restore a reviewed empty list through that path.
+    expect(project({ ...item, skillLabels: [] }, { userMappings: { fact: ["sql"] } })).toEqual([]);
+  });
+
+  it.each(["requirement", "constraint"] as const)("never treats %s or its explicit intent as personal practice", kind => {
+    expect(project({ ...fact("I wrote SQL queries.", ["SQL"]), kind }, { learningIntentItemIds: ["fact"] })).toEqual([]);
+  });
+
+  it("retains bare manual skill claims", () => {
+    expect(project({ ...fact("SQL"), kind: "skill-claim" })).toEqual([{ itemId: "fact", skillId: "sql" }]);
+  });
+
+  it.each(["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5"] as const)("uses the actual alias from legacy vocabulary %s", version => {
+    const blueprint = { ...flagshipBlueprint, id: "research-catalog" };
+    const registry = { ...flagshipUnitRegistry, blueprintId: blueprint.id };
+    const item = fact("I configured QuillBin.");
+    expect(mapMaterialPracticeSkills([item], blueprint, registry, { aliases: { version, skills: { sql: ["QuillBin"] } } }))
+      .toEqual([{ itemId: "fact", skillId: "sql" }]);
+    expect(mapMaterialPracticeSkills([item], blueprint, registry)).toEqual([]);
+  });
+});

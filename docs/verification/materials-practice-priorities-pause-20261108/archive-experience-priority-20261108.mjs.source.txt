@@ -1,0 +1,72 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+const [sourceCommit, requiredJson] = process.argv.slice(2);
+assert.match(sourceCommit ?? "", /^[0-9a-f]{40}$/u);
+assert.ok(requiredJson?.startsWith("work/grounded-verification/experience-priority-archive-required-"));
+const work = "work/grounded-verification", destination = "docs/verification/materials-practice-priorities";
+const sha = value => createHash("sha256").update(value).digest("hex");
+const git = (...args) => execFileSync("git", args, { maxBuffer: 32 * 1024 * 1024 });
+assert.equal(git("rev-parse", "HEAD").toString("utf8").trim(), sourceCommit);
+assert.ok(!existsSync(destination), "Archive a new edition instead of overwriting evidence");
+const integrityPath = join(work, "experience-priority-integrity-20261108-final-a-results.json");
+const integrity = JSON.parse(readFileSync(integrityPath));
+const tree = new Map(git("ls-tree", "-rz", "--full-tree", sourceCommit).toString("utf8").split("\0").filter(Boolean).map(entry => {
+  const split = entry.indexOf("\t"); return [entry.slice(split + 1), entry.slice(0, split).split(" ")[2]];
+}));
+const sourcePaths = Object.keys(integrity.filesSha256);
+const rawObjects = execFileSync("git", ["hash-object", "--no-filters", "--stdin-paths"], {
+  input: sourcePaths.join("\n") + "\n", encoding: "utf8", maxBuffer: 32 * 1024 * 1024,
+}).trim().split(/\r?\n/u);
+assert.equal(rawObjects.length, sourcePaths.length);
+for (let index = 0; index < sourcePaths.length; index++) assert.equal(tree.get(sourcePaths[index]), rawObjects[index], "committed bytes " + sourcePaths[index]);
+for (const [path, digest] of Object.entries(integrity.filesSha256)) {
+  assert.equal(sha(readFileSync(path)), digest, path);
+}
+const requirements = JSON.parse(readFileSync(requiredJson));
+const requiredChecks = requirements.checks.map(name => {
+  const value = JSON.parse(readFileSync(join(work, name + ".json")));
+  assert.equal(value.name, name); assert.equal(value.exit, 0); assert.equal(value.nonLoopbackDenials, 0);
+  assert.equal(sha(readFileSync(join(work, name + ".log"))), value.logSha256);
+  return value;
+});
+const reviews = requirements.reviews.map(({ path, sha256 }) => {
+  assert.equal(sha(readFileSync(join(work, path))), sha256, path);
+  return { path, sha256 };
+});
+const paths = [];
+function walk(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) walk(path); else if (entry.isFile()) paths.push(path);
+  }
+}
+for (const entry of readdirSync(work, { withFileTypes: true })) {
+  if (!entry.name.startsWith("experience-priority-")) continue;
+  // Native history stores are local disposable SQLite/R2 state, never source.
+  // Their creation inputs, original row captures and old-to-new reads are archived.
+  if (entry.name.startsWith("experience-priority-history-store-")) continue;
+  if (entry.isDirectory()) walk(join(work, entry.name)); else if (entry.isFile()) paths.push(join(work, entry.name));
+}
+paths.push(join(work, "run.mjs"), "work/materials-browser-handoff/block-outbound.cjs", "work/grounded-verification/archive-experience-priority-20261108.mjs");
+const artifacts = [];
+for (const path of paths.sort()) {
+  let name = path.startsWith("work/materials-browser-handoff/") ? "block-outbound.cjs" : relative(work, path).replaceAll("\\", "/");
+  if (name.endsWith(".log")) name += ".txt";
+  else if (/\.(?:mjs|cjs|ts|tsx|ps1)$/u.test(name)) name += ".source.txt";
+  const target = join(destination, name), bytes = readFileSync(path);
+  mkdirSync(dirname(target), { recursive: true }); writeFileSync(target, bytes, { flag: "wx" });
+  assert.equal(sha(readFileSync(target)), sha(bytes));
+  artifacts.push({ source: path.replaceAll("\\", "/"), path: name, bytes: bytes.length, sha256: sha(bytes) });
+}
+const manifest = { schemaVersion: 1, status: "personal-experience-priority-library-offline-verified-not-production-wiring", sourceCommit,
+  sourceManifest: "experience-priority-integrity-20261108-final-a-results.json", sourceFileCount: integrity.sourceFileCount,
+  sourceManifestSha256: integrity.sourceManifestSha256, requiredChecks, reviews, artifactCount: artifacts.length, artifacts,
+  frozenReferenceCount: integrity.frozenReferenceCount, courseDependenciesUnchanged: integrity.courseDependencyCount,
+  limits: ["Topic discovery remains versioned; new mention extraction projection is not yet wired", "Full repository acceptance belongs only to this exact source manifest", "Finite reviewed evidence grammar, not unrestricted natural language understanding", "No model or public release qualification"],
+  realModelCalls: 0, newCostUsd: 0, deployed: false, remoteMigration: false, pushed: false };
+writeFileSync(join(destination, "verification.json"), JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: "ARCHIVED", artifacts: artifacts.length, sourceCommit,
+  manifestSha256: sha(readFileSync(join(destination, "verification.json"))), requiredChecks: requiredChecks.length, reviews: reviews.length }));

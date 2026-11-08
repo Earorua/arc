@@ -1,10 +1,55 @@
 # 多类型资料离线修复暂停点
 
-## 当前恢复入口：2026-11-08，经历归因Task 1已验收，接续Task 2
+## 当前恢复入口：2026-11-08 晚，用户要求保存并暂停
+
+**当前状态为 `PAUSED_UNVERIFIED`。** 后续开发、测试和审查已停止；持续目标在保存完成后设为 `paused`。本机 WIP 源码提交为 `41bcdd7a9110e67c4529468fc26dafb3cfc81ab5`，不是验收通过版本。没有推送 GitHub。以下较早的 active／修复中记录只表示原时点状态。
+
+本批已把逐词个人经历判断接到实践优先级，并区分界面里的课程映射数量与参与排序数量；新上下文策略为 `2026.11.3`，历史预览保持原值。候选 C 规格复审通过，但质量审查发现行政汇报 `status/progress reporting on SQL` 被误认为个人 SQL 实践。on-only 中间修复通过原有探针；补充同组 `about/of` 后，最新一次 RED 为 **2 失败／257 通过**。作者随后已把对象头边界补为 `for|to|about|on|of`，**这一最后修改尚未执行 GREEN、最终冻结或复审**。不得以候选 C、中间候选或此前全仓结果替代当前源码验收。
+
+当前 1,004 个非文档文件的来源清单摘要为 `8ab545fbd75adeaa8274ac9c7b89d7a7bbd37085a473b748071f6d11a5042ecb`，对 Task 1 基线仅 7 项修改和 2 项新增；26 份冻结参考与 85 项课程依赖原字节保留。保存了 471 份原始工件和全部 100 条有退出码的运行记录，其中 25 条非零结果如实保留。该核对只证明保存完整性，不证明当前功能通过。
+
+- [暂停报告与验证边界](2026-11-08-materials-practice-priorities-pause.md)
+- [原始证据入口](materials-practice-priorities-pause-20261108/README.md)及[清单](materials-practice-priorities-pause-20261108/verification.json)
+- [作者暂停交接：九文件摘要和具体命令](materials-practice-priorities-pause-20261108/experience-priority-author-20261108-quality-pause-handoff.md)
+- [当前实施计划](../superpowers/plans/2026-11-08-materials-experience-attribution.md)与[下一批计划（未开始实现）](../superpowers/plans/2026-11-08-materials-mention-projection.md)
+
+**用户恢复后从这里继续：** 先核验当前九文件和旧证据摘要，建立新的固定源码绑定；运行最新 259 项 GREEN 与原质量、规格和技术 reporting 对照，然后运行作者集成／等级／类型／Lint。保留全部原断言与历史绑定，再交独立规格和质量复审。两者通过后才运行已准备的 43 项原生（27＋16 分库）、Node 对照、实际 UI、旧 policy 2 保存预览读取，再取新源码副本做全仓验收和正式归档。当前没有最终质量冻结，没有执行这 43 项，也没有启动本批全仓测试。
+
+本次保存后可关闭 Codex；没有仍在运行的本任务测试或实施代理。历史累计 30 次真实推理、0.547151 USD、未决 0，本批新增模型调用和费用为 0；未部署、未远程迁移。旧付费授权已过期，恢复不会自动发起模型调用或公开发布。Gate 与公开发布尚未完成。
+
+## 当前恢复入口：2026-11-08，经历归因Task 2质量问题修复中
+
+**候选C规格已PASS，但质量FAIL。** 最终规格备忘录`experience-priority-spec-20261108-recheck2-memo.md`摘要`3fd49b756195bbcf6b8d51bdec090ff6c1eb2b12f56523955529b5e8f881ef40`。质量审阅以4条`status/progress reporting on SQL`（含capable）复现行政汇报错误进入SQL tier3：纯探针4/16失败、实际服务4/8失败；既有358项通过。质量备忘录`experience-priority-quality-20261108-memo.md`摘要`33af77e7c2448abee6472aaed96a60a813a51205dbff2aea52ac1c4ab9e9153d`已封存，来源测试停止，无其它actionableissue。
+
+原作者正仅修复同一行政对象头的主题补语边界，先封存C的9文件/patch及293份旧证据摘要（`experience-priority-author-20261108-quality-before-candidate-c/manifest.json`摘要`5f081f822957f0469972d338f02fa0e6964500e633fee0e3a9f130cba8d28258`）。on-only中间候选通过原探针，随后按既有报告语法同组about/on/of补最小反例和技术正例；尚未最终冻结。新GREEN副本须绑定新9文件manifest与固定SHA，原C绑定与所有行为断言保持；不能去掉校验。新证据前缀`experience-priority-author-20261108-quality-*`。根任务已准备43项原生（27+16分库）及新Node/UI配置，尚未执行；本批从未进入全仓，源码没有新提交。
+
+根任务另已保存[下一批版本化主题保留计划](../superpowers/plans/2026-11-08-materials-mention-projection.md)，只细化既定v2.1功能，须等当前Task 2/3全体验收保存后执行，当前未开始该批源码。目标active，仍无新增模型、费用、部署、远程迁移或推送。下述C/A/B验证均为对应历史候选，不能覆盖当前未完成验收。
+
+候选C已冻结：经历源码`9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077`，245项经历测试，9文件清单`experience-priority-author-20261108-reporting-frozen-source.json`摘要`b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9`。仅将行政reporting要求收窄到明确进度／状态限定，SQL/React实际报表、测试和修改继续保留实践；原237断言与40份旧审阅证据未改。作者14套件507项、12套件1,467项、两套原始正反探针、类型／Lint通过。
+
+根任务C的37项真实HTTP/workerd/D1/R2场景与Node完整公开结果逐项一致（`root-cases-final-d`／`node-parity-final-d`），真实UI3项`final-c`通过，历史读取`new-c`仍保留旧策略2及原数据库行。独立规格原16例、reporting6例、7套件329项已通过，正在封存最终备忘录；质量审阅和全仓尚未开始，源码仍未提交。根任务已准备但**未执行**新snapshot-b及对应integrity-repaired脚本，须等最终源码身份确定后创建干净副本。随后依次质量审阅、全仓／附加Node／类型／Lint／构建／页面、最终核对、归档和本地提交；目标active，模型／费用／部署／远程迁移／推送新增0。下列A/B均为保留的失败历史。
+
+**随后候选B仍为规格FAIL：** 原4条行政反例已全部关闭，237项经历测试和301项独立专项通过；但新增后置`reporting`判断过宽，把本人`SQL reporting`／`SQL query reporting`从实践中排除。新服务探针2失败、4正反控制通过。备忘录`experience-priority-spec-20261108-recheck-memo.md`摘要`e1f2de3a18c9da982abaa8384da3100064a0584a1e0c770a8cc71ead2856f3f8`已封存。原作者正在仅将行政汇报判断收窄为明确进度／状态等限定，并保留原237断言、全部历史探针和来源；新证据前缀`experience-priority-author-20261108-reporting-*`。GREEN探针的新副本可精确绑定新候选hash，原B的固定hash/RED和全部行为断言不得更改或绕过。
+
+候选B冻结清单`experience-priority-author-20261108-spec-frozen-source.json`摘要`d5afcd9f3545c1a2bd45772b6a6efd6fa41076c27bd169c65dd161aff226d580`；经历源码`caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab`。根任务对B的35项原生／Node对照、3项真实UI和新3读旧2历史核对通过，均属于B的补充证据，不能覆盖本次FAIL。全仓／质量审阅尚未启动，源码未提交。根任务已准备37项原生（27+10分库）用于下一候选；B之后尚未创建新整仓源码副本，原snapshot-a仍只属于A。
+
+**最新状态：候选A规格FAIL，尚未进入质量审阅或全仓。** 独立审阅以4条行政协助反例证明`I assisted with SQL demo scheduling.`等“主题在前”的安排／规划／汇报仍误进SQL tier3；真实服务4失败、2本人实际协助正例通过。备忘录`experience-priority-spec-20261108-memo.md`摘要`a91086611184ef3a11aa7c2c9ca97e6d23a6f1454803d432ec637b601cfcb627`已封存；338项既有测试与1,350组公开映射兼容对照通过不替代该FAIL。已让原作者`implement_material_practice_mapping`保存候选A后仅修复同一协助对象边界，新证据使用`experience-priority-author-20261108-spec-*`，保留所有原断言。修复后以相同反例复审，再质量审阅。下述31原生／3UI通过和1004源码快照均属于候选A；新源码须另存快照并重新验证，不能沿用验收结论。
+
+持续目标active，仍只离线。Task 2作者已交付7改2增，无源码提交；根任务正在按规格→质量顺序独立审阅。作者交接`experience-priority-author-20261108-handoff.md`摘要`1aa859c03192df2c66b0fc699ef6477aafce5d164d03541f128d77d13eec5288`；9文件冻结清单摘要`8fd58db6d8d7608796a42bda1f29b8d29c5b6e45ac43265a279a577f13fc190a`。经历谓词新增了已批准的协助实践兼容修复，原180项断言与旧补充资料流程未改；最终14套件486项、12套件1,467项、225项协助／完整流程及类型／Lint通过。独立规格作者为`review_material_practice_spec`，尚未取得审阅结论；全仓尚未启动。
+
+根任务31个真实本地workerd/D1/R2场景通过，并与Node完整预览、重读、原文、草稿和快照逐值一致；真实UI3场景通过。政策3读取旧代码实际保存的政策2预览，公开结果及读取前后全部行与基线一致。原生首次把31份放在一个账户，正确触发第31份quota30；该验证夹具失败完整保留，新driver分成27+4两个独立存储，不改产品限额、不删场景，31项全部通过。分别使用`root-cases-final-b`、`node-parity-final-b`、`root-ui-final-a`和`history-read-new-a`的`experience-priority-...-20261108-...`证据。
+
+已匹配1,004源码文件，摘要`b9f444883b804a332f3ecc5743cba8a143f08884df825cb33967aa0ec9499f35`，干净副本`D:/CodexTemp/arc-experience-priority-VPDbJy/source`。快照`experience-priority-snapshot-20261108-a-results.json`、完整性`experience-priority-integrity-20261108-a-results.json`；26份冻结参考与85项已采集课程依赖不变，新课程绑定仍未批准。原始Node执行均经断网包装器，新增模型／费用／部署／远程迁移／推送0。下一步完成两个独立审阅，再对这一副本与原工作树执行全仓分组、附加Node、类型、Lint、构建、页面检查，最后复核源码并归档／本地提交。
+
+### Task 1与Task 2开发过程记录
 
 经历谓词源码已本地保存为`d6aba60209a59313ef2309b2f7b29c395a6b9296`；独立规格及质量复审均PASS。作者13套件1,647项（含180项API）及类型／Lint通过，根任务78项经历／81项等级Node/workerd一致；1,002文件摘要`82da28614aa57e72ef02bcbc44978d4c366f065af918892605fdee80456d568f`，26份参考、85项课程依赖不变。报告见[经历证据验收](2026-11-08-materials-experience-evidence.md)。本批未跑全仓，不能复用`113a9c5`的旧全量结果。
 
-持续目标保持active，当前只离线。232份原字节证据已归档，清单摘要`9ba0f509640cb06ad69ffe5ed18208505551197f730fe6ed47150e11ed3fb9ce`；最终质量备忘录摘要`abd95798e4c9d9ed8b4e60b6d2de5660c4ef623d4afe6f9661c2f587b0d6c437`。保存本批文档后，按[经历归因计划](../superpowers/plans/2026-11-08-materials-experience-attribution.md)Task 2派新作者，逐关系保留来源并接入上下文排序、界面数量说明，策略升级`2026.11.3`，映射语义与`2026.11.5`身份不变。尚未开始Task 2产品修改。模型、费用、部署、远程迁移、推送继续为0；旧付费授权不得复用。
+持续目标保持active，当前只离线。232份原字节证据已保存为文档提交`c788268b5dbb4e91480ce98738274dfd08a58155`，清单摘要`9ba0f509640cb06ad69ffe5ed18208505551197f730fe6ed47150e11ed3fb9ce`；234个目录文件（含README和清单）与Git索引原字节一致。最终质量备忘录摘要`abd95798e4c9d9ed8b4e60b6d2de5660c4ef623d4afe6f9661c2f587b0d6c437`。
+
+Task 2作者为`implement_material_practice_mapping`，证据前缀`experience-priority-author-20261108-*`。第一批真实服务红例已保存：5项测试中4个错误优先级失败、本人SQL正常对照通过，日志`8c91eec95c5ce134cd07b012f26cc95f41d47f51683bf3e77bfb2cabf2d93f0b`，映射／事实对照先通过。接下来逐关系保留来源并接入上下文排序、界面数量说明，策略升级`2026.11.3`，映射语义与`2026.11.5`身份不变；冻结后依次规格审查、质量审查、根任务原生／真实UI／全仓验证。模型、费用、部署、远程迁移、推送继续为0；旧付费授权不得复用。
+
+Task 2首轮3文件86项专项通过后，既有回归出现1失败／441通过：`material-supplement-flow.test.ts`的本人协助可观测性工作被Task 1有限动作词漏掉。原始日志`experience-priority-author-20261108-regression-04.log`摘要`bb5a51508aa2afe926849ac35dc4cbd2312817481443a08a3d1bee8f7880810e`保留。已明确允许作者先冻结原补丁并补红例，再仅修复个人实际协助的缺口及否定／未来／他人对照；不改旧服务用例或其合理期望，不改共享范围和等级规则。该变动将属于新的Task 2源码，不能继续声称经历谓词与Task 1摘要不变。当前尚未冻结，先完成此补修再审阅。
 
 Task 1初版的10项规格失败及后续3项引用命题质量失败、各轮源码与交接均保留，最终相同65项规格／36项质量断言全部通过。最新作者交接`experience-evidence-author-20261108-quality-handoff.md`摘要`405be2e590362df598731c9be81f7ecc39ca6502893c5fa6d2bc8cad2e7ecf78`；最终规格备忘录`experience-evidence-spec-20261108-quoted-memo.md`摘要`d802c927f78fad167b0d94cedc8b8034a1bc8a0aba56173505021f3d916b278e`。旧共享28项声明保留，仅经历谓词消费动作范围；没有修改等级建议、提取投影或worker语法。
 

@@ -1,0 +1,14 @@
+{
+  "scope": "Root-authorized current-candidate source-hash rebinding only; all six expected outcomes and behavior assertions are identical. Historical candidate A hash is unchanged.",
+  "previousCurrentSha": "caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab",
+  "currentCandidateSha": "9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077",
+  "historicalCandidateASha": "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2",
+  "originalName": "experience-priority-spec-20261108-recheck-reporting-probe.mjs",
+  "originalSha256": "bdff3cb1c867fed8e044e970c540a540f3fa5d850333c82555c2bef3d933e9ec",
+  "nextName": "experience-priority-author-20261108-reporting-reviewer-green-probe.mjs",
+  "nextSha256": "43465a767d4a187420d0655754dd1a7ca2452a3fe4f42066f11eb05d804b2117",
+  "permittedEdits": [
+    "exclusive result output path",
+    "literal current-candidate SHA-256 binding"
+  ]
+}

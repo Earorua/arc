@@ -1,0 +1,95 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-reporting-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const beforePath = join(work, prefix + "before-candidate-b/manifest.json");
+const before = JSON.parse(readFileSync(beforePath, "utf8"));
+const permitted = ["app/lib/materials/experience-evidence.ts", "tests/lib/materials/experience-evidence.test.ts"];
+const sources = Object.keys(before.sourceHashes);
+for (const [path, expected] of Object.entries(before.sourceHashes)) {
+  if (!permitted.includes(path)) assert.equal(sha(readFileSync(path)), expected, path);
+}
+for (const [path, expected] of Object.entries(before.unchangedHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+for (const [path, expected] of Object.entries(before.reviewerArtifacts)) assert.equal(sha(readFileSync(join(work, path))), expected, path);
+for (const [copy, identity] of Object.entries(before.copies)) {
+  assert.equal(sha(readFileSync(join(work, identity.original))), identity.originalSha256, identity.original);
+  assert.equal(sha(readFileSync(join(work, copy))), identity.sha256, copy);
+}
+const bindingPath = join(work, prefix + "green-probe-binding.json");
+const binding = JSON.parse(readFileSync(bindingPath, "utf8"));
+assert.equal(sha(readFileSync(permitted[0])), binding.currentCandidateSha);
+assert.equal(sha(readFileSync(join(work, binding.originalName))), binding.originalSha256);
+assert.equal(sha(readFileSync(join(work, binding.nextName))), binding.nextSha256);
+const originalProbe = readFileSync(join(work, binding.originalName), "utf8");
+const greenProbe = readFileSync(join(work, binding.nextName), "utf8");
+assert.equal(greenProbe.replace(prefix + "reviewer-green-probe-results.json", "experience-priority-spec-20261108-recheck-reporting-results.json")
+  .replace('assert.equal(sha(readFileSync(bPath)), "' + binding.currentCandidateSha + '");', 'assert.equal(sha(readFileSync(bPath)), "' + binding.previousCurrentSha + '");'), originalProbe);
+const oldTests = readFileSync(join(work, prefix + "before-candidate-b/tests__lib__materials__experience-evidence.test.ts.source.txt"));
+const currentTests = readFileSync(permitted[1]);
+assert.ok(currentTests.subarray(0, oldTests.length).equals(oldTests), "Original 237 tests must be an exact byte prefix");
+const historicalManifests = {
+  "experience-priority-author-20261108-frozen-source.json": "8fd58db6d8d7608796a42bda1f29b8d29c5b6e45ac43265a279a577f13fc190a",
+  "experience-priority-author-20261108-spec-frozen-source.json": "d5afcd9f3545c1a2bd45772b6a6efd6fa41076c27bd169c65dd161aff226d580",
+};
+for (const [path, expected] of Object.entries(historicalManifests)) assert.equal(sha(readFileSync(join(work, path))), expected);
+const git = args => execFileSync("git", args, { windowsHide: true, encoding: "utf8" });
+const changed = [...git(["diff", "--name-only", "HEAD", "--", "app", "tests"]).trim().split(/\r?\n/u),
+  ...git(["ls-files", "--others", "--exclude-standard", "--", "app", "tests"]).trim().split(/\r?\n/u)].filter(Boolean).sort();
+assert.deepEqual(changed, [...sources].sort());
+git(["diff", "--check"]);
+const frozenDir = join(work, prefix + "frozen-source");
+mkdirSync(frozenDir);
+const sourceHashes = Object.fromEntries(sources.map(path => {
+  const bytes = readFileSync(path);
+  writeFileSync(join(frozenDir, path.replaceAll("/", "__") + ".source.txt"), bytes, { flag: "wx" });
+  return [path, sha(bytes)];
+}));
+const vitest = suffix => "node_modules/vitest/vitest.mjs run --config work/grounded-verification/" + prefix + suffix + ".config.ts";
+const script = suffix => "work/grounded-verification/" + prefix + suffix + ".mjs";
+const runs = [
+  ["prepare-01", script("prepare"), "nine source files and 40 reviewer artifacts preserved"],
+  ["probe-red-02", script("reviewer-red-probe"), "six cases: two expected failures, four controls pass"],
+  ["service-red-03", vitest("reviewer-red-service"), "six cases: two expected failures, four controls pass"],
+  ["unit-red-04", vitest("unit"), "245 tests: four expected failures, 241 pass"],
+  ["bind-green-05", script("bind-green"), "current-source fixed hash rebound; historical A hash and all behavior expectations unchanged"],
+  ["probe-green-06", script("reviewer-green-probe"), "new reporting probe: six cases, zero mismatches"],
+  ["service-green-07", vitest("reviewer-green-service"), "new reporting service: six tests pass"],
+  ["original-probe-08", script("original-probe"), "original administrative probe: 16 cases, zero mismatches"],
+  ["original-service-09", vitest("original-service"), "original administrative service: six tests pass"],
+  ["unit-green-10", vitest("unit"), "245 evidence tests pass"],
+  ["regression-11", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-regression.config.ts", "14 files / 507 tests pass"],
+  ["level-regression-12", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-level-regression.config.ts", "12 files / 1467 tests pass"],
+  ["types-13", "node_modules/typescript/bin/tsc --project work/grounded-verification/experience-priority-author-20261108-final-tsconfig.json --noEmit --pretty false", "focused types pass"],
+  ["lint-14", "node_modules/eslint/bin/eslint.js app/lib/materials/skill-mapper.ts app/lib/materials/experience-evidence.ts app/lib/materials/planning-priority.ts app/server/documents/context-builder.ts app/components/materials/material-context-review.tsx tests/lib/materials/experience-evidence.test.ts tests/lib/materials/practice-skill-mapping.test.ts tests/server/material-practice-priorities.test.ts tests/components/material-context-choices.test.tsx", "focused lint pass"],
+];
+const outcomes = runs.map(([suffix, args, result]) => {
+  const name = prefix + suffix, bytes = readFileSync(join(work, name + ".json")), outcome = JSON.parse(bytes);
+  assert.equal(outcome.nonLoopbackDenials, 0, name);
+  assert.equal(sha(readFileSync(join(work, name + ".log"))), outcome.logSha256, name);
+  assert.equal(outcome.exit, suffix.includes("-red-") ? 1 : 0, name);
+  return { command: "node work/grounded-verification/run.mjs " + name + " " + args, result, outcomeSha256: sha(bytes), ...outcome };
+});
+const inputs = readdirSync(work).filter(name => name.startsWith(prefix) && /\.(?:mjs|ts|txt)$/u.test(name));
+const reusedInputs = ["experience-priority-author-20261108-regression.config.ts", "experience-priority-author-20261108-level-regression.config.ts", "experience-priority-author-20261108-final-tsconfig.json", prefix + "green-probe-binding.json"];
+const resultFiles = readdirSync(work).filter(name => name.startsWith(prefix) && name.endsWith("-results.json"));
+const manifest = {
+  baseHead: git(["rev-parse", "HEAD"]).trim(),
+  beforeManifestSha256: sha(readFileSync(beforePath)),
+  sourceHashes, changedSinceCandidateB: sources.filter(path => sourceHashes[path] !== before.sourceHashes[path]),
+  original237EvidenceTestsExactBytePrefix: true,
+  unchangedCandidateAndSharedHashes: before.unchangedHashes,
+  historicalManifests, preservedReviewerArtifacts: before.reviewerArtifacts,
+  currentProbeBinding: binding,
+  harnessInputs: Object.fromEntries([...inputs, ...reusedInputs].map(path => [path, sha(readFileSync(join(work, path)))])),
+  resultFiles: Object.fromEntries(resultFiles.map(path => [path, sha(readFileSync(join(work, path)))])),
+  outcomes,
+  limits: ["No full-repository, native runtime, persisted historical store, visual browser or real-model acceptance performed during this author repair.",
+    "All original probe behavior expectations were preserved. The new reporting GREEN pure probe also received root-authorized exact current-source hash rebinding; historical candidate A's fixed hash remains unchanged.",
+    "Service probes use real MaterialContextService with the existing confirmed-record SQLite/D1 adapter. Root owns independent HTTP/runtime acceptance."],
+};
+writeFileSync(join(work, prefix + "frozen-source.json"), JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ sourceHashes, changedSinceCandidateB: manifest.changedSinceCandidateB, original237EvidenceTestsExactBytePrefix: true, preservedReviewerArtifacts: Object.keys(before.reviewerArtifacts).length, manifestSha256: sha(readFileSync(join(work, prefix + "frozen-source.json"))) }, null, 2));

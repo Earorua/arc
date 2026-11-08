@@ -1,0 +1,222 @@
+{
+  "sourceHead": "c788268b5dbb4e91480ce98738274dfd08a58155",
+  "sourceHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/experience-evidence.ts": "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/experience-evidence.test.ts": "01865af190dea120b09eb83a7707d4a9f304662e6aaefa33ed4067580a7a9633",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+  },
+  "unchangedHashes": {
+    "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+    "tests/lib/materials/self-assessment-evidence.test.ts": "d96fba3093470cde72cccf022b13e37293ae2074d40cb77bae25fed7af2178f5",
+    "tests/server/material-supplement-flow.test.ts": "415abb22c1b72b8a2f95c1e8eeec76ee20da11e300b6726507aac8fd288301dc",
+    "tests/server/material-learning-intents.test.ts": "407366f94cc9fbd9862cf98b4c86733d8a0e3324c462d3acc05bf222758de21a"
+  },
+  "original180EvidenceTestsUnchanged": true,
+  "harnessInputs": {
+    "experience-priority-author-20261108-assistance.config.ts": "5dbe6eb6bdc38830605615260ba7595e79cc6ee7f2fd38d772381db92a260a72",
+    "experience-priority-author-20261108-assisted-probe.mjs": "d651d1ae5482098891c16a0fdaa53490b5a20c60b49abe338b71de25ccc40909",
+    "experience-priority-author-20261108-final-tsconfig.json": "7f91db09cd1875e6f3e4f36b9ade46bfd74ce0d79a11855589e3fe20faecfd9d",
+    "experience-priority-author-20261108-focused.config.ts": "2c25e094afb604e0cb2e4136a79328dc1a5904c8c21f4dc47f9015ae7297f9b5",
+    "experience-priority-author-20261108-freeze.mjs": "18779a5d55953998ee852d1f22fc3d1d3581092e78e2c45e22aaae81662cb959",
+    "experience-priority-author-20261108-level-regression.config.ts": "e2dad7dbbbded54a50112f8411b6dd52ac495fad7c3ea6d54c8cb68296fdde3d",
+    "experience-priority-author-20261108-move-assistance-tests.ps1": "a89ed94b76c21b4cb5095ba29b1fcbf8674da75e2c65b2d596e3ad45e069744c",
+    "experience-priority-author-20261108-regression.config.ts": "d1d37d0fb563847a930ff0a2bec4cc32558ec3e73e3eb5baf0658647eb43eaa3",
+    "experience-priority-author-20261108-service-red.config.ts": "06cec80b53558471896308439de1dfbe617aa02c880c1fd0a52a0e8e522e2e2c",
+    "experience-priority-author-20261108-tsconfig.json": "d0e408f5dfbf90b2765bdbb70057342eb5e09483eec1bb97945944316e0a8dcc"
+  },
+  "outcomeFiles": [
+    {
+      "path": "experience-priority-author-20261108-assistance-boundary-green-11.json",
+      "sha256": "9d0cf4251cf3f03a9e8bc224e53baa6323e7e76e85134dabeae96616efb671b2",
+      "name": "experience-priority-author-20261108-assistance-boundary-green-11",
+      "exit": 0,
+      "elapsedMs": 4064,
+      "logSha256": "95b2d28cddbb678b697c7c79749d6a08023aa29fcbb4d3e15e0381829f479dd0",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Stj2a7"
+    },
+    {
+      "path": "experience-priority-author-20261108-assistance-boundary-red-10.json",
+      "sha256": "85196ba837b3c8b6154fd8321000f5d2cce9f1ce44732ee06026c8528cacd013",
+      "name": "experience-priority-author-20261108-assistance-boundary-red-10",
+      "exit": 1,
+      "elapsedMs": 4175,
+      "logSha256": "6b72c3c1e85f1eaa0170f834dbbb8b0e9f0a7c49470b1056408a9efb6c318098",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-uc0fYy"
+    },
+    {
+      "path": "experience-priority-author-20261108-assistance-final-16.json",
+      "sha256": "688eef6e19f04df3f6689ce59904eef4a6c6dd051516b9324c7c8a627c09fb85",
+      "name": "experience-priority-author-20261108-assistance-final-16",
+      "exit": 0,
+      "elapsedMs": 4633,
+      "logSha256": "08737102cc31cb9b5fb03f80d430c8463baab84caab62d2e37e7829c76ec9845",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-3wrvi7"
+    },
+    {
+      "path": "experience-priority-author-20261108-assistance-green-09.json",
+      "sha256": "7999f98db8690714cf4407a2ce12e3ef9214d467e4e852fd8caee331e72dc28c",
+      "name": "experience-priority-author-20261108-assistance-green-09",
+      "exit": 0,
+      "elapsedMs": 4137,
+      "logSha256": "a0eaf216807c170115b67a62022067c4c67ae9512bd9c6ee8c0897ec2eab3736",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-XojXQu"
+    },
+    {
+      "path": "experience-priority-author-20261108-assistance-red-08.json",
+      "sha256": "8745c9ad84f21c7f7b61e61653d1cb074b8d018f2dec15edbc2585957b2814d7",
+      "name": "experience-priority-author-20261108-assistance-red-08",
+      "exit": 1,
+      "elapsedMs": 4019,
+      "logSha256": "ae6aa05ff16a0628317e9a7305ca60ca6a2f7e5ee5f19d967bb9cd8bb57bd424",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Fwq8xM"
+    },
+    {
+      "path": "experience-priority-author-20261108-assisted-probe-07.json",
+      "sha256": "dbaa457282f234f4194f8db1a17da4599e0b1fbcd90946f9f2b955ba896cdc27",
+      "name": "experience-priority-author-20261108-assisted-probe-07",
+      "exit": 0,
+      "elapsedMs": 200,
+      "logSha256": "aec6f1c404966667bf61314a54a4e3027d6e02644a5bec27973f10f7dd7ee488",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-K6fyTJ"
+    },
+    {
+      "path": "experience-priority-author-20261108-focused-green-03.json",
+      "sha256": "d1c7f77fc8fbcb5d98ba1462d1e90f95b2a237d2b4d90278f75a0d2447732b1f",
+      "name": "experience-priority-author-20261108-focused-green-03",
+      "exit": 0,
+      "elapsedMs": 6489,
+      "logSha256": "fe900104267d2f5dfeecc8496cbadf39e6a48262cc62898d0d65e2c516b333b7",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-3Oh09S"
+    },
+    {
+      "path": "experience-priority-author-20261108-focused-red-02.json",
+      "sha256": "6362b99bc408be981760082413e4e08e81fe94a8a415f2c3a66ba08287d3d3b4",
+      "name": "experience-priority-author-20261108-focused-red-02",
+      "exit": 1,
+      "elapsedMs": 6302,
+      "logSha256": "8dd6eae22da405f3f9bd820a0579dc56e846cf0762fa58b3f4ffc0f77e0ffb5a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Ek67bN"
+    },
+    {
+      "path": "experience-priority-author-20261108-level-regression-13.json",
+      "sha256": "c103f29c293aec2eaddbf1d620179ecf5aa70eaaec8c7205e446f9438818dd5d",
+      "name": "experience-priority-author-20261108-level-regression-13",
+      "exit": 0,
+      "elapsedMs": 19375,
+      "logSha256": "ed065c79834ab88e9ae2c51bcf488953fdf683e42af5c6b4f128935de8348fb9",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-acKEq3"
+    },
+    {
+      "path": "experience-priority-author-20261108-lint-06.json",
+      "sha256": "c5f4dde9dfa53bba2c87e2562f63e8b3d9e306e007a234ab571e9fbc9ae3f2f0",
+      "name": "experience-priority-author-20261108-lint-06",
+      "exit": 0,
+      "elapsedMs": 4749,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-vbUSQH"
+    },
+    {
+      "path": "experience-priority-author-20261108-lint-15.json",
+      "sha256": "28233b0d598d00ea8097b10b9860056a5ce35e313370f5447abbfb7c0eca9417",
+      "name": "experience-priority-author-20261108-lint-15",
+      "exit": 0,
+      "elapsedMs": 5536,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-DO1lEW"
+    },
+    {
+      "path": "experience-priority-author-20261108-lint-final-18.json",
+      "sha256": "c3b90470b7aefbbb8b737317097557c5ea82a404e5de63ee03455a8d7d5fdab8",
+      "name": "experience-priority-author-20261108-lint-final-18",
+      "exit": 0,
+      "elapsedMs": 4609,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-vEc985"
+    },
+    {
+      "path": "experience-priority-author-20261108-regression-04.json",
+      "sha256": "bee137692c5ff8fe52d9168e84ad5a225786295a737b3db89a2184d83fd36a17",
+      "name": "experience-priority-author-20261108-regression-04",
+      "exit": 1,
+      "elapsedMs": 27877,
+      "logSha256": "bb5a51508aa2afe926849ac35dc4cbd2312817481443a08a3d1bee8f7880810e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-yWgA6W"
+    },
+    {
+      "path": "experience-priority-author-20261108-regression-12.json",
+      "sha256": "025cba18f64a425d5f8374ab52670cafa712179ef04e02e0729f71de603b440f",
+      "name": "experience-priority-author-20261108-regression-12",
+      "exit": 0,
+      "elapsedMs": 29418,
+      "logSha256": "e58ee638f71e990f3714ea27a5c4f49bdddbebcc9567cb48d3f66f6b9ac8bdf1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-4E62R4"
+    },
+    {
+      "path": "experience-priority-author-20261108-service-red-01.json",
+      "sha256": "4042bc4ef932d6e7d14b748f015e29d57034c933546af5653877ac6827176791",
+      "name": "experience-priority-author-20261108-service-red-01",
+      "exit": 1,
+      "elapsedMs": 1346,
+      "logSha256": "8c91eec95c5ce134cd07b012f26cc95f41d47f51683bf3e77bfb2cabf2d93f0b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-OZhS5f"
+    },
+    {
+      "path": "experience-priority-author-20261108-types-05.json",
+      "sha256": "762c391bdec763196ab0ff4e880481d75a4d9f41b766ba7e1dfa8981bcb26563",
+      "name": "experience-priority-author-20261108-types-05",
+      "exit": 0,
+      "elapsedMs": 2729,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-FSN0U4"
+    },
+    {
+      "path": "experience-priority-author-20261108-types-14.json",
+      "sha256": "9977c4d071f30b1a17a35fd297b127fa71d75c7d31cb7331b8aa57b7f1aa4023",
+      "name": "experience-priority-author-20261108-types-14",
+      "exit": 2,
+      "elapsedMs": 2961,
+      "logSha256": "4d3cbb67327c0822185b6a843eeb76b17c53f536060c6cfc642e63b6173ac65e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-xl4CPw"
+    },
+    {
+      "path": "experience-priority-author-20261108-types-final-17.json",
+      "sha256": "2453c4432c10025b994fb3ca9b2a86dd9805e34d0c6320b9a26f87841f7026c1",
+      "name": "experience-priority-author-20261108-types-final-17",
+      "exit": 0,
+      "elapsedMs": 2673,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Ise8th"
+    }
+  ],
+  "limits": [
+    "No full-repository run, native runtime acceptance, historical policy2 store read or visual browser check was performed by the implementer; root owns those checks.",
+    "New service tests seed confirmed database records. Existing lifecycle regressions use real routes/runtime with an in-memory SQLite/R2 adapter and synthetic provider transport.",
+    "regression-12 (486 tests) predates a test-only correction from invalid independent hint input to the supported conceptual/guided/uncertain inputs; assistance-final-16 (225 tests), types-final-17 and lint-final-18 validate that final correction.",
+    "The first pre-implementation RED run's narrow test file was subsequently expanded. Its original log/config remain; the broader RED-02 source snapshot is separately preserved under red-source."
+  ]
+}

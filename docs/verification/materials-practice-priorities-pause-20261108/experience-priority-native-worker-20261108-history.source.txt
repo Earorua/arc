@@ -1,0 +1,67 @@
+import { createDocumentRuntime } from "../../app/server/documents/runtime";
+import { createDocumentRoute } from "../../app/server/http/document-route-factories";
+import { documentEndpointContracts, type DocumentEndpoint } from "../../app/contracts/documents-api";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+
+const clock = () => new Date("2026-11-04T08:00:00.000Z");
+let serial = 0;
+export default { async fetch(request: Request, env: { DB: D1Database; DOCS: R2Bucket }) {
+  const payload = await request.json() as { action: string; contextVersionId?: string };
+  const trace: unknown[] = [];
+  try {
+    const runtime = createDocumentRuntime({ DB: env.DB, DOCUMENT_ASSETS: env.DOCS,
+      ARC_DOCUMENTS_ENABLED: "true", ARC_DOCUMENT_PLANNING_ENABLED: "true", ARC_DOCUMENT_ANALYSIS_ENABLED: "false" },
+    { now: clock, createId: () => "native-practice-" + ++serial });
+    async function http(endpoint: DocumentEndpoint, input: Record<string, unknown>, ownerId = "owner-a") {
+      const contract = documentEndpointContracts[endpoint];
+      const body = { ...input }, params: Record<string, string> = {};
+      const path = contract.path.replace(/\[([A-Za-z]+)\]/gu, (_match, key: string) => {
+        const value = String(body[key]); params[key] = value; delete body[key]; return encodeURIComponent(value);
+      });
+      const url = new URL(path, "https://arc.test");
+      if (contract.method === "GET") for (const [key, value] of Object.entries(body)) if (value !== undefined) url.searchParams.set(key, String(value));
+      const response = await createDocumentRoute(endpoint, {
+        requireUser: async () => ({ id: ownerId }), configuredOrigin: () => "https://arc.test", createService: () => runtime,
+        rateLimiter: { reserve: async () => ({ allowed: true }) },
+      })(new Request(url, { method: contract.method,
+        headers: contract.method === "GET" ? {} : { origin: "https://arc.test", "content-type": "application/json" },
+        ...(contract.method === "GET" ? {} : { body: JSON.stringify(body) }) }), { params });
+      const value = await response.json();
+      trace.push({ endpoint, input, status: response.status, value });
+      if (!response.ok) throw new Error("HTTP " + endpoint + " " + response.status);
+      return value as Record<string, any>;
+    }
+    if (payload.action === "read") {
+      const value = await http("readMaterialContext", { contextVersionId: payload.contextVersionId });
+      return Response.json({ ok: true, value, trace });
+    }
+    if (payload.action !== "create-history") throw new Error("Unknown local verification action");
+    const text = "I have never configured SQL for production.";
+    const created = await http("createDocument", { kind: "resume", displayName: "Synthetic historical preview", text, mutationId: "history-create" });
+    const saved = await http("saveDocumentReviewDraft", { documentId: created.documentId, textVersionId: created.textVersionId,
+      extractionId: null, items: [{ id: "fact", kind: "experience", text, origin: "user", sourceRef: null, requirementLevel: null }],
+      selfAssessmentHints: [], expectedRevision: 0, mutationId: "history-save" });
+    const confirmation = await http("createDocumentConfirmation", { documentId: created.documentId, documentVersionId: created.documentVersionId,
+      textVersionId: created.textVersionId, reviewRevision: saved.draft.revision, items: saved.draft.items,
+      expectedRevision: created.revision, mutationId: "history-confirm" });
+    const scope = { kind: "draft", draftId: "history-draft", previousGoalId: null };
+    const selectionRef = await http("createMaterialSelection", { scope,
+      entries: [{ slot: "resume", documentId: created.documentId, documentVersionId: created.documentVersionId, confirmationId: confirmation.confirmationId }],
+      mutationId: "history-select" });
+    const input = { scope, selectionRef, source: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+      audit: { id: "audit-a", schemaVersion: "2026.08.1", blueprintId: flagshipBlueprint.id, blueprintVersion: flagshipBlueprint.version,
+        answers: flagshipBlueprint.skills.map(skill => ({ skillId: skill.id, level: "conceptual", evidenceRefs: [] })),
+        evidence: [], createdBy: "owner-a", inputFingerprint: "audit-fingerprint" },
+      availability: { id: "availability-a", schemaVersion: "2026.08.1", timeZone: "UTC",
+        weekdays: { monday: 60, tuesday: 60, wednesday: 60, thursday: 60, friday: 60, saturday: 60, sunday: 60 },
+        exceptions: [], weeklyMinutes: 420, inputFingerprint: "availability-fingerprint" },
+      target: { id: "target-a", schemaVersion: "2026.08.1", targetWeeks: 52, inputFingerprint: "target-fingerprint" },
+      planningDate: "2026-11-04", selectedScope: "full-scope", mutationId: "history-context" };
+    const context = await http("createMaterialContext", input);
+    const reread = await http("readMaterialContext", { contextVersionId: context.contextVersionId });
+    const document = await http("readDocument", { documentId: created.documentId });
+    return Response.json({ ok: true, context, reread, document, input, trace });
+  } catch (error) {
+    return Response.json({ ok: false, message: String(error instanceof Error ? error.message : error), trace });
+  }
+} };

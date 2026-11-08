@@ -1,0 +1,82 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { build } from "esbuild";
+import { Miniflare, Log, LogLevel } from "miniflare";
+const output = process.argv[2];
+assert.match(output ?? "", /^work\/grounded-verification\/experience-priority-root-cases-[a-z0-9-]+-results\.json$/u);
+const cases = [
+  { id: "own", text: "I wrote SQL queries.", mapped: ["sql"], priorities: ["sql"] },
+  { id: "denied", text: "I have never configured SQL for production.", mapped: ["sql"], priorities: [] },
+  { id: "future", text: "I will test SQL queries.", mapped: ["sql"], priorities: [] },
+  { id: "colleague", text: "My colleague tested SQL.", mapped: ["sql"], priorities: [] },
+  { id: "manual-whole", text: "构建可访问的产品界面", wholeTarget: "react", mapped: ["react"], priorities: ["react"] },
+  { id: "denied-whole", text: "我没有构建过可访问的产品界面", wholeTarget: "react", mapped: ["react"], priorities: [] },
+  { id: "long", text: "I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.", mapped: ["sql"], priorities: ["sql"] },
+  { id: "bare", text: "SQL", itemKind: "skill-claim", mapped: ["sql"], priorities: ["sql"] },
+  { id: "own-other", text: "I built React components, but my colleague wrote SQL queries.", labels: ["React", "SQL"], mapped: ["react", "sql"], priorities: ["react"] },
+  { id: "own-denied", text: "I tested SQL, but I have never configured React.", labels: ["SQL", "React"], mapped: ["react", "sql"], priorities: ["sql"] },
+  { id: "team-own", text: "Our team built React components, but I wrote SQL queries.", labels: ["React", "SQL"], mapped: ["react", "sql"], priorities: ["sql"] },
+  { id: "provided-admin", text: "My mentor wrote SQL queries; I scheduled the review.", labels: ["SQL"], mapped: ["sql"], priorities: [] },
+  { id: "modified-provided", text: "I modified the parameters in SQL queries supplied by my mentor.", labels: ["SQL"], mapped: ["sql"], priorities: ["sql"] },
+  { id: "empty-labels", text: "I wrote SQL queries.", labels: ["SQL"], retained: [], mapped: [], priorities: [] },
+  { id: "omitted", text: "I wrote SQL queries.", labels: ["SQL"], termTarget: { label: "SQL", skills: [] }, mapped: [], priorities: [] },
+  { id: "negative-remap", text: "I have never configured SQL.", labels: ["SQL"], termTarget: { label: "SQL", skills: ["react"] }, mapped: ["react"], priorities: [] },
+  { id: "some-experience", text: "I wrote SQL queries, but I have never configured SQL for production.", labels: ["SQL"], mapped: ["sql"], priorities: ["sql"] },
+  { id: "primary-jd", text: "Must know SQL.", docKind: "jd", itemKind: "requirement", labels: ["SQL"], mapped: ["sql"], priorities: ["sql"], tier: 0 },
+  { id: "adopted-intent", text: "希望学习 SQL", docKind: "supplement", itemKind: "constraint", labels: ["SQL"], adopt: true, mapped: ["sql"], priorities: ["sql"] },
+  { id: "unadopted-intent", text: "希望学习 SQL", docKind: "supplement", itemKind: "constraint", labels: ["SQL"], mapped: [], priorities: [] },
+  { id: "own-alias", text: "I tested SQLite queries.", mapped: ["sql"], priorities: ["sql"] },
+  { id: "future-alias", text: "I will test SQLite queries.", mapped: ["sql"], priorities: [] },
+  { id: "ambiguous", text: "I built React components and wrote SQL queries.", mapped: [], priorities: [] },
+  { id: "technical-dot", text: "I built React.js components.", labels: ["React.js"], mapped: ["react"], priorities: ["react"] },
+  { id: "positive-name-denied-alias", text: "I wrote SQL queries, but I have never configured SQLite.", mapped: ["sql"], priorities: ["sql"] },
+  { id: "denied-name-positive-alias", text: "I have never configured SQL for production, but I tested SQLite queries.", mapped: ["sql"], priorities: ["sql"] },
+  { id: "unsupported-name-alias", text: "My colleague wrote SQL queries, but I have never configured SQLite.", mapped: ["sql"], priorities: [] },
+  { id: "assisted", text: "I assisted with SQL queries.", mapped: ["sql"], priorities: ["sql"] },
+  { id: "assisted-denied", text: "I did not assist with SQL queries.", mapped: ["sql"], priorities: [] },
+  { id: "assisted-future", text: "I will assist with SQL queries.", mapped: ["sql"], priorities: [] },
+  { id: "assisted-other", text: "My colleague assisted with SQL queries.", mapped: ["sql"], priorities: [] },
+];
+const sha = value => createHash("sha256").update(value).digest("hex");
+const worker = "work/grounded-verification/experience-priority-cases-worker-20261108.ts";
+const compiled = await build({ entryPoints: [worker], bundle: true, write: false, format: "esm", platform: "browser", target: "es2022",
+  external: ["cloudflare:workers", "node:*"], metafile: true });
+let outboundCalls = 0;
+const script = compiled.outputFiles[0].text;
+const runtime = new Miniflare({ cf: false, modules: true, script, compatibilityDate: "2026-05-15", compatibilityFlags: ["nodejs_compat"],
+  d1Databases: { DB: "experience-priority-cases" }, r2Buckets: { DOCS: "experience-priority-cases-docs" }, log: new Log(LogLevel.ERROR),
+  outboundService: async () => { outboundCalls++; throw Error("Outbound denied"); } });
+try {
+  const db = await runtime.getD1Database("DB");
+  for (const file of readdirSync("drizzle").filter(name => /^\d{4}_.+\.sql$/u.test(name) && Number(name.slice(0,4)) <= 15).sort()) {
+    for (const sql of readFileSync("drizzle/" + file, "utf8").split("--> statement-breakpoint").map(value => value.trim()).filter(Boolean)) await db.prepare(sql).run();
+  }
+  await db.prepare("INSERT INTO users(id,name,email,email_verified) VALUES('owner-a','Synthetic owner','owner-a@example.test',0)").run();
+  const observations = [];
+  for (const entry of cases) {
+    const response = await runtime.dispatchFetch("http://localhost/case", { method: "POST", body: JSON.stringify(entry) });
+    const observed = await response.json();
+    const preview = observed.context?.preview;
+    const mapped = preview ? [...new Set((preview.mappingDetails ?? []).filter(row => row.status === "mapped").flatMap(row => row.skillIds))].sort() : null;
+    const priorities = preview ? preview.priorities.map(row => row.skillId).sort() : null;
+    observations.push({ entry, status: response.status, observed, mapped, priorities,
+      mappingMatches: JSON.stringify(mapped) === JSON.stringify(entry.mapped), prioritiesMatch: JSON.stringify(priorities) === JSON.stringify(entry.priorities) });
+  }
+  const inputs = Object.fromEntries(Object.keys(compiled.metafile.inputs).sort().map(path => [path, sha(readFileSync(path))]));
+  writeFileSync(output, JSON.stringify({ status: observations.every(row => row.observed.ok && row.mappingMatches && row.prioritiesMatch) ? "PASS" : "EXPECTED_BEHAVIOR_NOT_MET",
+    observations, inputs, compiledSha256: sha(script), sourceBaseHead: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+    outboundCalls, realModelCalls: 0, transport: "Actual public HTTP factory and createDocumentRuntime in local workerd/D1/R2; synthetic owner/rate and inert legacy extraction delivery fixtures; analysis disabled" }, null, 2) + "\n", { flag: "wx" });
+  for (const { entry, status, observed, mappingMatches, prioritiesMatch } of observations) {
+    assert.equal(status, 200); assert.equal(observed.ok, true, entry.id + ": " + JSON.stringify(observed));
+    assert.equal(mappingMatches, true, entry.id + " mapping"); assert.equal(prioritiesMatch, true, entry.id + " priority");
+    assert.deepEqual(observed.context, observed.replay); assert.deepEqual(observed.context.preview, observed.reread.preview);
+    assert.equal(observed.document.text, entry.text); assert.equal(observed.draft.selfAssessmentHints.length, 0);
+    const snapshot = JSON.parse(observed.row.snapshot_json); assert.equal(snapshot.policyVersion, "2026.11.3"); assert.equal(snapshot.mappingVersion, "2026.11.5");
+    assert.deepEqual(snapshot.audit, observed.input.audit); assert.deepEqual(snapshot.availability, observed.input.availability); assert.deepEqual(snapshot.target, observed.input.target);
+    assert.equal(observed.context.preview.priorities.every(row => row.tier === (entry.tier ?? 3)), true);
+  }
+  assert.equal(outboundCalls, 0);
+  console.log(JSON.stringify({ status: "PASS", cases: cases.length, outboundCalls, output }));
+} finally { await runtime.dispose(); }

@@ -1,0 +1,44 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-spec-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const oldManifest = JSON.parse(readFileSync(join(work, "experience-priority-author-20261108-frozen-source.json"), "utf8"));
+const memo = join(work, "experience-priority-spec-20261108-memo.md");
+assert.equal(sha(readFileSync(memo)), "a91086611184ef3a11aa7c2c9ca97e6d23a6f1454803d432ec637b601cfcb627");
+const before = join(work, prefix + "before-spec");
+mkdirSync(before);
+for (const [path, expected] of Object.entries(oldManifest.sourceHashes)) {
+  const bytes = readFileSync(path);
+  assert.equal(sha(bytes), expected, path);
+  writeFileSync(join(before, path.replaceAll("/", "__") + ".source.txt"), bytes, { flag: "wx" });
+}
+let patch = execFileSync("git", ["diff", "--binary", "HEAD", "--", ...Object.keys(oldManifest.sourceHashes)], { encoding: "utf8", windowsHide: true });
+for (const path of ["tests/lib/materials/practice-skill-mapping.test.ts", "tests/server/material-practice-priorities.test.ts"]) {
+  const lines = readFileSync(path, "utf8").trimEnd().split(/\r?\n/u);
+  patch += "\ndiff --git a/" + path + " b/" + path + "\nnew file mode 100644\n--- /dev/null\n+++ b/" + path + "\n@@ -0,0 +1," + lines.length + " @@\n" + lines.map(line => "+" + line).join("\n") + "\n";
+}
+writeFileSync(join(before, "candidate-a.patch"), patch, { flag: "wx" });
+const copies = {};
+for (const phase of ["red", "green"]) {
+  for (const [oldName, oldResult, newName, newResult] of [
+    ["experience-priority-spec-20261108-assistance-probe.mjs", "experience-priority-spec-20261108-assistance-results.json", prefix + "reviewer-" + phase + "-probe.mjs", prefix + "reviewer-" + phase + "-probe-results.json"],
+    ["experience-priority-spec-20261108-assistance-service.test.ts", "experience-priority-spec-20261108-assistance-service-results.json", prefix + "reviewer-" + phase + "-service.test.ts", prefix + "reviewer-" + phase + "-service-results.json"],
+  ]) {
+    const original = readFileSync(join(work, oldName), "utf8");
+    const copy = original.replace(oldResult, newResult);
+    assert.notEqual(copy, original);
+    assert.equal(copy.replace(newResult, oldResult), original, "Reviewer assertions must remain identical");
+    writeFileSync(join(work, newName), copy, { flag: "wx" });
+    copies[newName] = { original: oldName, originalSha256: sha(Buffer.from(original)), sha256: sha(Buffer.from(copy)), onlyChangedOutputPath: true };
+  }
+  const config = readFileSync(join(work, "experience-priority-spec-20261108-assistance-service.config.ts"), "utf8")
+    .replace("experience-priority-spec-20261108-assistance-service.test.ts", prefix + "reviewer-" + phase + "-service.test.ts");
+  writeFileSync(join(work, prefix + "reviewer-" + phase + "-service.config.ts"), config, { flag: "wx" });
+}
+const manifest = { sourceHashes: oldManifest.sourceHashes, unchangedHashes: oldManifest.unchangedHashes, reviewerMemoSha256: sha(readFileSync(memo)), patchSha256: sha(readFileSync(join(before, "candidate-a.patch"))), copies };
+writeFileSync(join(before, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ preservedFiles: Object.keys(manifest.sourceHashes).length, beforeManifestSha256: sha(readFileSync(join(before, "manifest.json"))), copiedReviewerAssertionsUnchanged: true }, null, 2));

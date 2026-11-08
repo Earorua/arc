@@ -1,0 +1,135 @@
+[
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-service-red-01 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-service-red.config.ts",
+    "result": "5 tests: 4 expected priority failures, 1 positive pass; first meaningful service RED",
+    "exit": 1,
+    "outcomeSha256": "4042bc4ef932d6e7d14b748f015e29d57034c933546af5653877ac6827176791",
+    "logSha256": "8c91eec95c5ce134cd07b012f26cc95f41d47f51683bf3e77bfb2cabf2d93f0b"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-focused-red-02 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-focused.config.ts",
+    "result": "86 tests: 40 fail / 46 pass (9 service/policy, 6 UI, 25 missing projection API)",
+    "exit": 1,
+    "outcomeSha256": "6362b99bc408be981760082413e4e08e81fe94a8a415f2c3a66ba08287d3d3b4",
+    "logSha256": "8dd6eae22da405f3f9bd820a0579dc56e846cf0762fa58b3f4ffc0f77e0ffb5a"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-focused-green-03 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-focused.config.ts",
+    "result": "3 files / 86 pass",
+    "exit": 0,
+    "outcomeSha256": "d1c7f77fc8fbcb5d98ba1462d1e90f95b2a237d2b4d90278f75a0d2447732b1f",
+    "logSha256": "fe900104267d2f5dfeecc8496cbadf39e6a48262cc62898d0d65e2c516b333b7"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-regression-04 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-regression.config.ts",
+    "result": "14 files: 441 pass / 1 real assistance lifecycle regression",
+    "exit": 1,
+    "outcomeSha256": "bee137692c5ff8fe52d9168e84ad5a225786295a737b3db89a2184d83fd36a17",
+    "logSha256": "bb5a51508aa2afe926849ac35dc4cbd2312817481443a08a3d1bee8f7880810e"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-types-05 node_modules/typescript/bin/tsc --project work/grounded-verification/experience-priority-author-20261108-tsconfig.json --noEmit --pretty false",
+    "result": "pass before assistance extension",
+    "exit": 0,
+    "outcomeSha256": "762c391bdec763196ab0ff4e880481d75a4d9f41b766ba7e1dfa8981bcb26563",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-lint-06 node_modules/eslint/bin/eslint.js app/lib/materials/skill-mapper.ts app/lib/materials/planning-priority.ts app/server/documents/context-builder.ts app/components/materials/material-context-review.tsx tests/lib/materials/practice-skill-mapping.test.ts tests/server/material-practice-priorities.test.ts tests/components/material-context-choices.test.tsx",
+    "result": "pass before assistance extension",
+    "exit": 0,
+    "outcomeSha256": "c5f4dde9dfa53bba2c87e2562f63e8b3d9e306e007a234ab571e9fbc9ae3f2f0",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-assisted-probe-07 work/grounded-verification/experience-priority-author-20261108-assisted-probe.mjs",
+    "result": "diagnostic: assisted false, tested true, scheduling false; not acceptance",
+    "exit": 0,
+    "outcomeSha256": "dbaa457282f234f4194f8db1a17da4599e0b1fbcd90946f9f2b955ba896cdc27",
+    "logSha256": "aec6f1c404966667bf61314a54a4e3027d6e02644a5bec27973f10f7dd7ee488"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-assistance-red-08 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-assistance.config.ts",
+    "result": "217 tests: 15 fail / 202 pass, original supplement flow unchanged",
+    "exit": 1,
+    "outcomeSha256": "8745c9ad84f21c7f7b61e61653d1cb074b8d018f2dec15edbc2585957b2814d7",
+    "logSha256": "ae6aa05ff16a0628317e9a7305ca60ca6a2f7e5ee5f19d967bb9cd8bb57bd424"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-assistance-green-09 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-assistance.config.ts",
+    "result": "2 files / 217 pass",
+    "exit": 0,
+    "outcomeSha256": "7999f98db8690714cf4407a2ce12e3ef9214d467e4e852fd8caee331e72dc28c",
+    "logSha256": "a0eaf216807c170115b67a62022067c4c67ae9512bd9c6ee8c0897ec2eab3736"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-assistance-boundary-red-10 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-assistance.config.ts",
+    "result": "225 tests: 7 fail / 218 pass, capable and reporting object bypasses",
+    "exit": 1,
+    "outcomeSha256": "85196ba837b3c8b6154fd8321000f5d2cce9f1ce44732ee06026c8528cacd013",
+    "logSha256": "6b72c3c1e85f1eaa0170f834dbbb8b0e9f0a7c49470b1056408a9efb6c318098"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-assistance-boundary-green-11 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-assistance.config.ts",
+    "result": "2 files / 225 pass",
+    "exit": 0,
+    "outcomeSha256": "9d0cf4251cf3f03a9e8bc224e53baa6323e7e76e85134dabeae96616efb671b2",
+    "logSha256": "95b2d28cddbb678b697c7c79749d6a08023aa29fcbb4d3e15e0381829f479dd0"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-regression-12 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-regression.config.ts",
+    "result": "14 files / 486 pass; product source final, before test-only hint-enum correction",
+    "exit": 0,
+    "outcomeSha256": "025cba18f64a425d5f8374ab52670cafa712179ef04e02e0729f71de603b440f",
+    "logSha256": "e58ee638f71e990f3714ea27a5c4f49bdddbebcc9567cb48d3f66f6b9ac8bdf1"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-level-regression-13 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-level-regression.config.ts",
+    "result": "12 files / 1467 pass",
+    "exit": 0,
+    "outcomeSha256": "c103f29c293aec2eaddbf1d620179ecf5aa70eaaec8c7205e446f9438818dd5d",
+    "logSha256": "ed065c79834ab88e9ae2c51bcf488953fdf683e42af5c6b4f128935de8348fb9"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-types-14 node_modules/typescript/bin/tsc --project work/grounded-verification/experience-priority-author-20261108-final-tsconfig.json --noEmit --pretty false",
+    "result": "fail: new test supplied independent, excluded by existing hint API type",
+    "exit": 2,
+    "outcomeSha256": "9977c4d071f30b1a17a35fd297b127fa71d75c7d31cb7331b8aa57b7f1aa4023",
+    "logSha256": "4d3cbb67327c0822185b6a843eeb76b17c53f536060c6cfc642e63b6173ac65e"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-lint-15 node_modules/eslint/bin/eslint.js app/lib/materials/skill-mapper.ts app/lib/materials/experience-evidence.ts app/lib/materials/planning-priority.ts app/server/documents/context-builder.ts app/components/materials/material-context-review.tsx tests/lib/materials/experience-evidence.test.ts tests/lib/materials/practice-skill-mapping.test.ts tests/server/material-practice-priorities.test.ts tests/components/material-context-choices.test.tsx",
+    "result": "pass",
+    "exit": 0,
+    "outcomeSha256": "28233b0d598d00ea8097b10b9860056a5ce35e313370f5447abbfb7c0eca9417",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-assistance-final-16 node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-priority-author-20261108-assistance.config.ts",
+    "result": "2 files / 225 pass after valid conceptual/guided/uncertain test correction",
+    "exit": 0,
+    "outcomeSha256": "688eef6e19f04df3f6689ce59904eef4a6c6dd051516b9324c7c8a627c09fb85",
+    "logSha256": "08737102cc31cb9b5fb03f80d430c8463baab84caab62d2e37e7829c76ec9845"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-types-final-17 node_modules/typescript/bin/tsc --project work/grounded-verification/experience-priority-author-20261108-final-tsconfig.json --noEmit --pretty false",
+    "result": "pass",
+    "exit": 0,
+    "outcomeSha256": "2453c4432c10025b994fb3ca9b2a86dd9805e34d0c6320b9a26f87841f7026c1",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-lint-final-18 node_modules/eslint/bin/eslint.js app/lib/materials/skill-mapper.ts app/lib/materials/experience-evidence.ts app/lib/materials/planning-priority.ts app/server/documents/context-builder.ts app/components/materials/material-context-review.tsx tests/lib/materials/experience-evidence.test.ts tests/lib/materials/practice-skill-mapping.test.ts tests/server/material-practice-priorities.test.ts tests/components/material-context-choices.test.tsx",
+    "result": "pass",
+    "exit": 0,
+    "outcomeSha256": "c3b90470b7aefbbb8b737317097557c5ea82a404e5de63ee03455a8d7d5fdab8",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": "node work/grounded-verification/run.mjs experience-priority-author-20261108-freeze-19 work/grounded-verification/experience-priority-author-20261108-freeze.mjs",
+    "result": "pass: nine frozen files, original 180 tests unchanged, unchanged shared/level/lifecycle files, logs verified",
+    "exit": 0,
+    "outcomeSha256": "ee835a407fe6c304932d89f1644e783fe4febe7e1c3e675e1db5100b278ee887",
+    "logSha256": "45b6d444e7f97d2c93203f045955136db21529e5af72cc936ba3fdd590ece7ad"
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": { "incremental": false },
+  "include": [
+    "../../next-env.d.ts",
+    "../../worker-configuration.d.ts",
+    "../../tests/setup.ts",
+    "../../app/lib/materials/skill-mapper.ts",
+    "../../app/lib/materials/planning-priority.ts",
+    "../../app/server/documents/context-builder.ts",
+    "../../app/components/materials/material-context-review.tsx",
+    "../../tests/lib/materials/practice-skill-mapping.test.ts",
+    "../../tests/server/material-practice-priorities.test.ts",
+    "../../tests/components/material-context-choices.test.tsx"
+  ],
+  "exclude": ["../../node_modules", "../../work", "../../docs/verification"]
+}

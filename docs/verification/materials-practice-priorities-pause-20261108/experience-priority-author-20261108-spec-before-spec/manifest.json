@@ -1,0 +1,48 @@
+{
+  "sourceHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/experience-evidence.ts": "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/experience-evidence.test.ts": "01865af190dea120b09eb83a7707d4a9f304662e6aaefa33ed4067580a7a9633",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+  },
+  "unchangedHashes": {
+    "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+    "tests/lib/materials/self-assessment-evidence.test.ts": "d96fba3093470cde72cccf022b13e37293ae2074d40cb77bae25fed7af2178f5",
+    "tests/server/material-supplement-flow.test.ts": "415abb22c1b72b8a2f95c1e8eeec76ee20da11e300b6726507aac8fd288301dc",
+    "tests/server/material-learning-intents.test.ts": "407366f94cc9fbd9862cf98b4c86733d8a0e3324c462d3acc05bf222758de21a"
+  },
+  "reviewerMemoSha256": "a91086611184ef3a11aa7c2c9ca97e6d23a6f1454803d432ec637b601cfcb627",
+  "patchSha256": "446c12df31ec7da388f9779139a8986eb912380681fe6b5b0d1180db501063f1",
+  "copies": {
+    "experience-priority-author-20261108-spec-reviewer-red-probe.mjs": {
+      "original": "experience-priority-spec-20261108-assistance-probe.mjs",
+      "originalSha256": "380d89e0c3d3f1a2a3a04f1183b9742ce81d9df6ea1c042c68a391efdacee30f",
+      "sha256": "e7a17e7ebe70a511ce45da4f23caa7f3337f1784689af6c16c522d5dcbaeab91",
+      "onlyChangedOutputPath": true
+    },
+    "experience-priority-author-20261108-spec-reviewer-red-service.test.ts": {
+      "original": "experience-priority-spec-20261108-assistance-service.test.ts",
+      "originalSha256": "09a4c332b8b86f05d86da59dc3653915df0eb858e709901ff8c3adecebaa39dd",
+      "sha256": "8072b823f3192f7d5a82f2da833e36cbd126f306a3e9757a66f9a8afc64aed92",
+      "onlyChangedOutputPath": true
+    },
+    "experience-priority-author-20261108-spec-reviewer-green-probe.mjs": {
+      "original": "experience-priority-spec-20261108-assistance-probe.mjs",
+      "originalSha256": "380d89e0c3d3f1a2a3a04f1183b9742ce81d9df6ea1c042c68a391efdacee30f",
+      "sha256": "696ff44574469f27401256ca875e5d81615f187ba4750731616abfbf594611ce",
+      "onlyChangedOutputPath": true
+    },
+    "experience-priority-author-20261108-spec-reviewer-green-service.test.ts": {
+      "original": "experience-priority-spec-20261108-assistance-service.test.ts",
+      "originalSha256": "09a4c332b8b86f05d86da59dc3653915df0eb858e709901ff8c3adecebaa39dd",
+      "sha256": "d266741e901798188ae4ddfd10f8c76ab36da015e28c03537c9f1c1211d0f5de",
+      "onlyChangedOutputPath": true
+    }
+  }
+}

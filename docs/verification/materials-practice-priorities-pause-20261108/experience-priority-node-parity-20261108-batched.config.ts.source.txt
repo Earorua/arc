@@ -1,0 +1,9 @@
+import base from "../../vitest.config";
+export default {
+  ...base,
+  define: {
+    "import.meta.env.ARC_PRACTICE_NATIVE_RESULT": JSON.stringify("work/grounded-verification/experience-priority-root-cases-20261108-final-b-results.json"),
+    "import.meta.env.ARC_PRACTICE_NODE_RESULT": JSON.stringify("work/grounded-verification/experience-priority-node-parity-20261108-final-b-results.json"),
+  },
+  test: { ...base.test, include: ["work/grounded-verification/experience-priority-node-parity-batched-20261108.test.ts"], maxWorkers: 1 },
+};

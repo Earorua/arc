@@ -1,0 +1,42 @@
+[
+  {
+    "path": "app/lib/materials/experience-evidence.ts",
+    "sha256": "48bec30986f63a3937d8f89b7493bd2f570aac332ecd890fb81045ac6e091277"
+  },
+  {
+    "path": "tests/lib/materials/experience-evidence.test.ts",
+    "sha256": "fe3d431e722b6b0254224abfb755ddb23e41a59ca4ed5e9a6e0d5434a0af71aa"
+  },
+  {
+    "path": "app/lib/materials/skill-mapper.ts",
+    "sha256": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9"
+  },
+  {
+    "path": "app/lib/materials/planning-priority.ts",
+    "sha256": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b"
+  },
+  {
+    "path": "app/server/documents/context-builder.ts",
+    "sha256": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416"
+  },
+  {
+    "path": "app/components/materials/material-context-review.tsx",
+    "sha256": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389"
+  },
+  {
+    "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+    "sha256": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8"
+  },
+  {
+    "path": "tests/server/material-practice-priorities.test.ts",
+    "sha256": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91"
+  },
+  {
+    "path": "tests/components/material-context-choices.test.tsx",
+    "sha256": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+  },
+  {
+    "path": "tests/server/material-supplement-flow.test.ts",
+    "sha256": "415abb22c1b72b8a2f95c1e8eeec76ee20da11e300b6726507aac8fd288301dc"
+  }
+]

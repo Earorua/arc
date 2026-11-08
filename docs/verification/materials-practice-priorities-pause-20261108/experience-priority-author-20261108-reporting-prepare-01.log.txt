@@ -1,0 +1,6 @@
+{
+  "sourceCount": 9,
+  "originalReviewerArtifactCount": 40,
+  "manifestSha256": "d6f71f0cf686910f1cc0cb81266791069b44231bfe86aa91e0aafc979ddca397",
+  "copiedAssertionsUnchanged": true
+}

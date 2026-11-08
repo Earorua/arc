@@ -1,0 +1,25 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-quality-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const beforePath = join(work, prefix + "before-candidate-c/manifest.json");
+const before = JSON.parse(readFileSync(beforePath, "utf8"));
+const sourceHashes = { ...before.sourceHashes,
+  "app/lib/materials/experience-evidence.ts": "8560cd4f8ad8b2d1c079a991e259541bd3e1602e4520498bfeab5289dd9c81c8",
+  "tests/lib/materials/experience-evidence.test.ts": "997d8304e25e2b3f1da9e94976f0047edff3494a566e1e33ffc690a0d616efa2",
+};
+const sourceDir = join(work, prefix + "candidate-source");
+mkdirSync(sourceDir);
+for (const [path, expected] of Object.entries(sourceHashes)) {
+  const bytes = readFileSync(path);
+  assert.equal(sha(bytes), expected, path);
+  writeFileSync(join(sourceDir, path.replaceAll("/", "__") + ".source.txt"), bytes, { flag: "wx" });
+}
+const manifest = { beforeManifestSha256: sha(readFileSync(beforePath)), sourceHashes,
+  scope: "Fixed nine-file candidate D source binding for independent-probe reruns; verification outcomes are archived separately after all checks." };
+const path = join(work, prefix + "candidate-source.json");
+writeFileSync(path, JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ sourceCount: Object.keys(sourceHashes).length, manifestSha256: sha(readFileSync(path)) }, null, 2));

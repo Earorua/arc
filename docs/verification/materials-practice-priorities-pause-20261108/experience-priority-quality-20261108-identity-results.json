@@ -1,0 +1,379 @@
+{
+  "head": "c788268b5dbb4e91480ce98738274dfd08a58155",
+  "manifestPath": "work/grounded-verification/experience-priority-author-20261108-reporting-frozen-source.json",
+  "manifestSha256": "b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9",
+  "sources": [
+    {
+      "path": "app/lib/materials/skill-mapper.ts",
+      "sha256": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+      "match": true
+    },
+    {
+      "path": "app/lib/materials/experience-evidence.ts",
+      "sha256": "9f63f3f86d99f3758e39935441e13c8a26978216eac070fd19ec37ff63f13077",
+      "match": true
+    },
+    {
+      "path": "app/lib/materials/planning-priority.ts",
+      "sha256": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+      "match": true
+    },
+    {
+      "path": "app/server/documents/context-builder.ts",
+      "sha256": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+      "match": true
+    },
+    {
+      "path": "app/components/materials/material-context-review.tsx",
+      "sha256": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+      "match": true
+    },
+    {
+      "path": "tests/lib/materials/experience-evidence.test.ts",
+      "sha256": "10d4fc9a867a51656efae4a64c2e984d3cc45d854e8cf39913391ebeff730437",
+      "match": true
+    },
+    {
+      "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+      "sha256": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+      "match": true
+    },
+    {
+      "path": "tests/server/material-practice-priorities.test.ts",
+      "sha256": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+      "match": true
+    },
+    {
+      "path": "tests/components/material-context-choices.test.tsx",
+      "sha256": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a",
+      "match": true
+    }
+  ],
+  "shared": [
+    {
+      "path": "app/lib/materials/skill-mapper.ts",
+      "sha256": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+      "match": true
+    },
+    {
+      "path": "app/lib/materials/planning-priority.ts",
+      "sha256": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+      "match": true
+    },
+    {
+      "path": "app/server/documents/context-builder.ts",
+      "sha256": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+      "match": true
+    },
+    {
+      "path": "app/components/materials/material-context-review.tsx",
+      "sha256": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+      "match": true
+    },
+    {
+      "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+      "sha256": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+      "match": true
+    },
+    {
+      "path": "tests/server/material-practice-priorities.test.ts",
+      "sha256": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+      "match": true
+    },
+    {
+      "path": "tests/components/material-context-choices.test.tsx",
+      "sha256": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a",
+      "match": true
+    },
+    {
+      "path": "app/lib/materials/personal-assertion-scopes.ts",
+      "sha256": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+      "match": true
+    },
+    {
+      "path": "app/lib/materials/self-assessment-evidence.ts",
+      "sha256": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+      "match": true
+    },
+    {
+      "path": "tests/lib/materials/self-assessment-evidence.test.ts",
+      "sha256": "d96fba3093470cde72cccf022b13e37293ae2074d40cb77bae25fed7af2178f5",
+      "match": true
+    },
+    {
+      "path": "tests/server/material-supplement-flow.test.ts",
+      "sha256": "415abb22c1b72b8a2f95c1e8eeec76ee20da11e300b6726507aac8fd288301dc",
+      "match": true
+    },
+    {
+      "path": "tests/server/material-learning-intents.test.ts",
+      "sha256": "407366f94cc9fbd9862cf98b4c86733d8a0e3324c462d3acc05bf222758de21a",
+      "match": true
+    }
+  ],
+  "preserved": [
+    {
+      "path": "experience-priority-spec-20261108-assistance-03.json",
+      "sha256": "21fa352b187dd540686b1a58d798138b354f8a3e16a297652c629daab6777647",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-assistance-03.log",
+      "sha256": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-assistance-probe.mjs",
+      "sha256": "380d89e0c3d3f1a2a3a04f1183b9742ce81d9df6ea1c042c68a391efdacee30f",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-assistance-results.json",
+      "sha256": "81f0d8a2d4b16e1bb98d543776800c99b8d8197333cfaeed33b5ec41103f4760",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-assistance-service-04.json",
+      "sha256": "afa8d0b45712ff4bf446b3734e6ab305416fa29776b1fb5ba9d9d9561fbd199f",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-assistance-service-04.log",
+      "sha256": "c4fc992a4cf01d4c50c8743ac9145501f13b5d6ab91f90d007541dc5d01ac99c",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-assistance-service-results.json",
+      "sha256": "8ae3c4238ab9423f1f2c328eb2beb31ca0b92bec3aa0b1cf4793c4b1feb292d0",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-assistance-service.config.ts",
+      "sha256": "d3744781164b99d395d6ff76e48adcd83a4fab187d564936e260e99d40745273",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-assistance-service.test.ts",
+      "sha256": "09a4c332b8b86f05d86da59dc3653915df0eb858e709901ff8c3adecebaa39dd",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-compatibility-02.json",
+      "sha256": "801a0ec17d851a67af1de5558e37e4ee68a33587a725d375851a8ec1517dd787",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-compatibility-02.log",
+      "sha256": "7fd694b547e90244278131823186178d77d2963d2b7790077953af97981ae30c",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-compatibility-probe.mjs",
+      "sha256": "aed6922f5cd355aa65771850d32ceebff04c21541b5aaa8ea3b31236f59f9c7a",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-compatibility-results.json",
+      "sha256": "7fd694b547e90244278131823186178d77d2963d2b7790077953af97981ae30c",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-focused-01.json",
+      "sha256": "d90a155d679056b0e792145e0c635bc7519cb808567bfb6f3f3ac0155251b526",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-focused-01.log",
+      "sha256": "c6a56aa1da6a319b94ea75a094a69d1ad8e10c51befbea09d24641ae9828ccba",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-focused.config.ts",
+      "sha256": "acacece3e260305225ccc94306cd5568ae476862d4759fad37d31db027d1d1a1",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-memo.md",
+      "sha256": "a91086611184ef3a11aa7c2c9ca97e6d23a6f1454803d432ec637b601cfcb627",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-focused-07.json",
+      "sha256": "6868766a7f9f3f26c4ea7b6f0187647031d5a6c07ac0ddcd040ee5d8bfa40ba3",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-focused-07.log",
+      "sha256": "16b8a7dcb0fd8177e88cad870fffae5d7710c41fcf8e7b228b79a49ca0fb81e8",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-focused.config.ts",
+      "sha256": "69be8e7f6f4392c4591ef5bae99a82ce60f06db6408b2a710532b3365e5d0985",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-identity-results.json",
+      "sha256": "7e2872528ee03e6729aa1721745ab915e88628449db60f185a9a9151ab230ab9",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-memo.md",
+      "sha256": "e1f2de3a18c9da982abaa8384da3100064a0584a1e0c770a8cc71ead2856f3f8",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-original-probe-06.json",
+      "sha256": "b72c882dc37dd8de1d4f46dd30815af4f7b199db6a8d8f3788fa63b4e3fbcab3",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-original-probe-06.log",
+      "sha256": "e767841b8e1a04406dcc01fddd26012ab974a1af9c4d84aa3e4764091d4f6f11",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-original-probe-results.json",
+      "sha256": "e767841b8e1a04406dcc01fddd26012ab974a1af9c4d84aa3e4764091d4f6f11",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-original-probe.mjs",
+      "sha256": "cd299b0c52c0cb139cc51b1787c48589f37ca784f9ef8e80466d919e97727d18",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-original-service-results.json",
+      "sha256": "a57bf4debcd388bcfd1f35f524831d87bb22b27a61aefb8b5aec363736492a26",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-original-service.test.ts",
+      "sha256": "8955ff3e20e3ccb802e040829f1e9c9cc0302086d7ced104f5a326f651bda756",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-prepare-05.json",
+      "sha256": "d95326eda68de82de89c145c850267adbf68930feb673f642443b1d674101402",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-prepare-05.log",
+      "sha256": "7e2872528ee03e6729aa1721745ab915e88628449db60f185a9a9151ab230ab9",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-prepare.mjs",
+      "sha256": "f846986b7fbdd32b7a347d0d7ddc72c3a530c0b5716770e0bb9c3c9f7e89ec0e",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-08.json",
+      "sha256": "0938a252d753742e5c332f2952018d3f96920ed28b150cbfabbd024978580557",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-08.log",
+      "sha256": "3ed443d3f596a2b229e58fb9ca156df4ab026c2cb718d19a735126b24515d9bf",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-probe.mjs",
+      "sha256": "bdff3cb1c867fed8e044e970c540a540f3fa5d850333c82555c2bef3d933e9ec",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-results.json",
+      "sha256": "3ed443d3f596a2b229e58fb9ca156df4ab026c2cb718d19a735126b24515d9bf",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-service-09.json",
+      "sha256": "205651d5281931abedca2f9d93b7bf383c467166e0a6d6c37495ef5feef31fd4",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-service-09.log",
+      "sha256": "249fbeb7e74674f672f9c621aad29b17a131579e0b1a749eed174df07938501d",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-service-results.json",
+      "sha256": "2fe50582aa0c89d835f9cc536d8e2ce2a18f94652f24df1c1a096f6b88a01bfd",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-service.config.ts",
+      "sha256": "32c5d5f0fc9f552fafc663e7e56ba1ce3b0e50de4dc49779d2d273a0cfa1a426",
+      "match": true
+    },
+    {
+      "path": "experience-priority-spec-20261108-recheck-reporting-service.test.ts",
+      "sha256": "f13eb26f9f243b6749d540e4d41ed83828da4ee434f980b6fe2e35d45d008d4a",
+      "match": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "experience-priority-quality-20261108-boundary-01.json",
+      "sha256": "c7da1b6e74393b1aa7e67ac5b922e13293fa76041df7e65536258f7e1a015913"
+    },
+    {
+      "path": "experience-priority-quality-20261108-boundary-01.log",
+      "sha256": "b9fd78c3b5c8f66c8bb77629945949a700d892b341471fd061d73edf3e856166"
+    },
+    {
+      "path": "experience-priority-quality-20261108-boundary-probe.mjs",
+      "sha256": "406951d42023a7f7e9d29ea14fe7f0ec1eb2f786b2e572801848c7c9b5022822"
+    },
+    {
+      "path": "experience-priority-quality-20261108-boundary-results.json",
+      "sha256": "b9fd78c3b5c8f66c8bb77629945949a700d892b341471fd061d73edf3e856166"
+    },
+    {
+      "path": "experience-priority-quality-20261108-focused-02.json",
+      "sha256": "bf0fa64b45e86232913e41d912b7cc671543dad84c25d76d83d2cdaa31fdcffd"
+    },
+    {
+      "path": "experience-priority-quality-20261108-focused-02.log",
+      "sha256": "a1a9dbc705bc16d6d8bd4c9c521a300c84173f5224d072da52e87f00c2d739b5"
+    },
+    {
+      "path": "experience-priority-quality-20261108-focused.config.ts",
+      "sha256": "410720ef578d5681113736436b3fed0a0dec7c08ba20998122e754fa5e230ddf"
+    },
+    {
+      "path": "experience-priority-quality-20261108-service-03.json",
+      "sha256": "6a73cafd43d39b042c6b2f8b53586dbf5bac32034fdf47a478508f0416d36d28"
+    },
+    {
+      "path": "experience-priority-quality-20261108-service-03.log",
+      "sha256": "2ce5c7ef947d9a1d7938818fe89ee46bd82240a765c1961bbb1c98a9c692c43b"
+    },
+    {
+      "path": "experience-priority-quality-20261108-service-results.json",
+      "sha256": "30a76340647e948f827b85f331c0da59c47fb65f1fb845a7681e0455f4491532"
+    },
+    {
+      "path": "experience-priority-quality-20261108-service.config.ts",
+      "sha256": "48726f50d5d184056f42617a54e8b1e0c7d1641f70eefe31fa886e1970ab2dd5"
+    },
+    {
+      "path": "experience-priority-quality-20261108-service.test.ts",
+      "sha256": "ef355f5c1d36c7dcfb5729394c2e5fefaf4b4d04b97f2af7e6b1db1d6c43d135"
+    }
+  ],
+  "status": [
+    " M app/components/materials/material-context-review.tsx",
+    " M app/lib/materials/experience-evidence.ts",
+    " M app/lib/materials/planning-priority.ts",
+    " M app/lib/materials/skill-mapper.ts",
+    " M app/server/documents/context-builder.ts",
+    " M docs/superpowers/plans/2026-11-08-materials-experience-attribution.md",
+    " M docs/verification/2026-11-06-materials-grounding-pause.md",
+    " M tests/components/material-context-choices.test.tsx",
+    " M tests/lib/materials/experience-evidence.test.ts",
+    "?? tests/lib/materials/practice-skill-mapping.test.ts",
+    "?? tests/server/material-practice-priorities.test.ts"
+  ]
+}

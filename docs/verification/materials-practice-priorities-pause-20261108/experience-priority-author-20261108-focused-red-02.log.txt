@@ -1,0 +1,1590 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:27344) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-practice-priorities.test.ts [2m([22m[2m32 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[33m 897[2mms[22m[39m
+[31m     [31m×[31m keeps denied SQL mapped without borrowing personal practice[39m[32m 65[2mms[22m[39m
+[31m     [31m×[31m keeps colleague SQL mapped without borrowing personal practice[39m[32m 49[2mms[22m[39m
+[31m     [31m×[31m keeps future SQL mapped without borrowing personal practice[39m[32m 35[2mms[22m[39m
+[31m     [31m×[31m keeps own React and colleague SQL mapped without borrowing personal practice[39m[32m 29[2mms[22m[39m
+     [32m✓[39m retains a personal SQL practice priority[32m 29[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I tested SQL under my mentor's guidance.[32m 26[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I tested SQL without guidance.[32m 26[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I tested the SQL queries supplied by my mentor.[32m 24[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I modified the SQL supplied by my mentor.[32m 25[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I only changed parameters in the supplied SQL queries.[32m 24[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: My mentor supplied SQL; I only changed parameters in the SQL queries.[32m 27[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I wrote SQL queries, but I have never configured SQL for production.[32m 23[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.[32m 27[2mms[22m[39m
+     [32m✓[39m retains bounded personal practice without changing self-assessment: SQL[32m 25[2mms[22m[39m
+     [32m✓[39m checks alternative words for one automatic course independently: I wrote SQL queries, but I have never configured SQLite.[32m 26[2mms[22m[39m
+     [32m✓[39m checks alternative words for one automatic course independently: I have never used SQL, but I configured SQLite.[32m 23[2mms[22m[39m
+[31m     [31m×[31m checks alternative words for one automatic course independently: I have never used SQL; my colleague configured SQLite.[39m[32m 24[2mms[22m[39m
+     [32m✓[39m uses confirmed whole-fact evidence for a nonliteral manual relation: Built accessible product interfaces.[32m 25[2mms[22m[39m
+     [32m✓[39m uses confirmed whole-fact evidence for a nonliteral manual relation: I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.[32m 25[2mms[22m[39m
+[31m     [31m×[31m uses confirmed whole-fact evidence for a nonliteral manual relation: I have never used SQL.[39m[32m 23[2mms[22m[39m
+[31m     [31m×[31m uses confirmed whole-fact evidence for a nonliteral manual relation: I built React components; my colleague wrote SQL queries.[39m[32m 24[2mms[22m[39m
+     [32m✓[39m uses the original SQL term for its manual React relation: I wrote SQL queries; my colleague built React components.[32m 24[2mms[22m[39m
+[31m     [31m×[31m uses the original SQL term for its manual React relation: I have never used SQL; I built React components.[39m[32m 24[2mms[22m[39m
+     [32m✓[39m keeps removed and explicitly omitted terms out of practice[32m 39[2mms[22m[39m
+     [32m✓[39m keeps an empty retained list empty and rejects whole-fact overrides for labelled facts[32m 25[2mms[22m[39m
+     [32m✓[39m retains the ambiguity of an unlabelled fact matching multiple courses[32m 23[2mms[22m[39m
+     [32m✓[39m retains primary JD must requirements without personal practice[32m 23[2mms[22m[39m
+     [32m✓[39m retains primary JD preferred requirements without personal practice[32m 24[2mms[22m[39m
+     [32m✓[39m requires separate learning-intent adoption for a supplemental requirement[32m 35[2mms[22m[39m
+     [32m✓[39m requires separate learning-intent adoption for a supplemental constraint[32m 36[2mms[22m[39m
+     [32m✓[39m does not adopt an unsupported ordinary experience as learning intent[32m 13[2mms[22m[39m
+[31m     [31m×[31m binds new contexts to policy 2026.11.3 without changing mapping identity or saved reads[39m[32m 27[2mms[22m[39m
+(node:21468) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/components/material-context-choices.test.tsx [2m([22m[2m29 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[33m 1609[2mms[22m[39m
+[31m     [31m×[31m distinguishes course mapping from current priorities for 'mapped topic without practice'[39m[32m 133[2mms[22m[39m
+[31m     [31m×[31m distinguishes course mapping from current priorities for 'two courses with one practice'[39m[32m 44[2mms[22m[39m
+[31m     [31m×[31m distinguishes course mapping from current priorities for 'duplicate mapped course'[39m[32m 46[2mms[22m[39m
+[31m     [31m×[31m distinguishes course mapping from current priorities for 'ambiguous courses'[39m[32m 39[2mms[22m[39m
+[31m     [31m×[31m distinguishes course mapping from current priorities for 'uncovered omitted and non-learning to…'[39m[32m 38[2mms[22m[39m
+[31m     [31m×[31m reports only the provable priority count for a historical preview without mapping details[39m[32m 32[2mms[22m[39m
+     [32m✓[39m shows the retained labels, actual courses and contextual basis for every grouped term[32m 49[2mms[22m[39m
+     [32m✓[39m changes one term without changing other automatic mappings and supports explicit omit and return to automatic[32m 105[2mms[22m[39m
+     [32m✓[39m preserves a stored multi-course choice on another term when editing one term[32m 63[2mms[22m[39m
+     [32m✓[39m adopts a constraint separately and removes its explicit mappings when adoption is withdrawn[32m 92[2mms[22m[39m
+     [32m✓[39m immediately invalidates the adoption reference and resets choices after 修改自评[32m 62[2mms[22m[39m
+     [32m✓[39m immediately invalidates the adoption reference and resets choices after 修改课程来源[32m 78[2mms[22m[39m
+     [32m✓[39m does not accept a context response after the selected material was removed[32m 98[2mms[22m[39m
+     [32m✓[39m restores saved choices as read-only without persisting their labels or intent[32m 17[2mms[22m[39m
+     [32m✓[39m shows an old labelled fact's saved whole-fact mapping ["sql"] without implying per-term automatic matches[32m 26[2mms[22m[39m
+     [32m✓[39m shows an old labelled fact's saved whole-fact mapping ["sql","retired-course"] without implying per-term automatic matches[32m 30[2mms[22m[39m
+     [32m✓[39m locks both explicit choice controls when disabled[32m 51[2mms[22m[39m
+     [32m✓[39m does not offer a whole-fact override when the user retained an empty term list[32m 41[2mms[22m[39m
+     [32m✓[39m requires another preview even when an intent is toggled back to its original value[32m 57[2mms[22m[39m
+     [32m✓[39m does not revive private choices or an old preview when a prior source is selected again[32m 76[2mms[22m[39m
+     [32m✓[39m hides a recovered snapshot immediately when its saved reference changes[32m 26[2mms[22m[39m
+     [32m✓[39m keeps the parent preview invalid when reading a replacement recovery snapshot fails[32m 43[2mms[22m[39m
+     [32m✓[39m rejects a pending response after changing the source away and back[32m 55[2mms[22m[39m
+     [32m✓[39m does not publish a pending context after its review component was unmounted[32m 87[2mms[22m[39m
+     [32m✓[39m invalidates an in-flight preview synchronously when a term changes before the next render[32m 51[2mms[22m[39m
+     [32m✓[39m shows the saved ambiguous result without treating it as an automatic match[32m 41[2mms[22m[39m
+     [32m✓[39m shows the saved uncovered result without treating it as an automatic match[32m 49[2mms[22m[39m
+     [32m✓[39m shows the saved omitted result without treating it as an automatic match[32m 34[2mms[22m[39m
+     [32m✓[39m shows the saved mapped result without treating it as an automatic match[32m 44[2mms[22m[39m
+ [31m❯[39m tests/lib/materials/practice-skill-mapping.test.ts [2m([22m[2m25 tests[22m[2m | [22m[31m25 failed[39m[2m)[22m[32m 20[2mms[22m[39m
+[31m     [31m×[31m retains each actual vocabulary match as alternative evidence: I wrote SQL queries.[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m retains each actual vocabulary match as alternative evidence: I configured SQLite.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains each actual vocabulary match as alternative evidence: 我使用关系数据库。[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains each actual vocabulary match as alternative evidence: I built React.js components.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains each actual vocabulary match as alternative evidence: I wrote SQL queries, but I have never configured SQLite.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains each actual vocabulary match as alternative evidence: I have never used SQL, but I configured SQLite.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains each actual vocabulary match as alternative evidence: I have never used SQL; my colleague configured SQLite.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m does not substitute course labels or borrow another course's personal evidence[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m uses retained source evidence for a contextual relation: Built UI tokens for accessible component focus.[39m[32m 12[2mms[22m[39m
+[31m     [31m×[31m uses retained source evidence for a contextual relation: My colleague built UI tokens for accessible component focus.[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m keeps SQL as evidence when its term is manually mapped to React: I wrote SQL queries; my colleague built React components.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m keeps SQL as evidence when its term is manually mapped to React: I have never used SQL; I built React components.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m uses the confirmed whole fact for explicit whole-fact choices: Built accessible product interfaces.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m uses the confirmed whole fact for explicit whole-fact choices: I have never used SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m uses the confirmed whole fact for explicit whole-fact choices: I built React components; my colleague wrote SQL queries.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m requires a mapped result and does not silently disambiguate an unlabelled fact[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m deduplicates supported relations across aliases and facts without sharing their evidence[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m keeps empty, deleted and explicitly omitted terms out of practice[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m never treats requirement or its explicit intent as personal practice[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m never treats constraint or its explicit intent as personal practice[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains bare manual skill claims[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m uses the actual alias from legacy vocabulary 2026.11.2[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m uses the actual alias from legacy vocabulary 2026.11.3[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m uses the actual alias from legacy vocabulary 2026.11.4[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m uses the actual alias from legacy vocabulary 2026.11.5[39m[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 40 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-context-choices.test.tsx[2m > [22mmaterial term choices and explicit learning intent[2m > [22mdistinguishes course mapping from current priorities for 'mapped topic without practice'
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 已对应课程 1 项技能；参与当前排序 0 项技能。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0m选择资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改自评[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改课程来源[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m清除资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m切换保存预览[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m关闭核对界面[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m锁定[0m
+    [36m</button>[39m
+    [36m<output[39m
+      [33maria-label[39m=[32m"可采用预览"[39m
+    [36m>[39m
+      [0mcontext-2[0m
+    [36m</output>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"material-context-review"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"本次资料选择"[39m
+        [33mclass[39m=[32m"material-selection-summary"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0m本次采用的资料[0m
+        [36m</h2>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [0m补充资料 [0m
+            [0m1[0m
+            [0m · [0m
+            [0m事实已确认[0m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-action"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m移除补充资料 [0m
+              [0m1[0m
+              [0m 选择[0m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m路线将采用本次选择的资料版本。[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0m核对资料对路线的影响[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"material-preview"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [0m资料预览已就绪。创建路线时将再次校验所选版本。[0m
+        [36m</p>[39m
+        [36m<h3>[39m
+          [0m确认的事实与要求[0m
+        [36m</h3>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [36m<span>[39m
+              [0mPRIVATE-FIGMA-FACT[0m
+            [36m</span>[39m
+            [36m<small>[39m
+              [0m · [0m
+              [0m已确认技能词[0m
+              [0m [0m
+              [0mFigma、UI tokens[0m
+            [36m</small>[39m
+            [36m<ul>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mFigma[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m已对应：SQL[0m
+                  [0m · 依据：名称或已登记别名[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 Figma 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mUI tokens[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m历史预览未记录逐词对应结果。[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 UI tokens 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。[0m
+        [36m</p>[39m
+        [36m<p>[39m
+          [0m已映射 [0m
+          [0m0[0m
+          [0m 项技能；资料没有提到的能力仍以你的自我评估为准。[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-context-choices.test.tsx:[2m84:19[22m[39m
+    [90m 82|[39m   ])("distinguishes course mapping from current priorities for $name",…
+    [90m 83|[39m     fixture({ ...basePreview, mappingDetails: details, priorities }); …
+    [90m 84|[39m     expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。…
+    [90m   |[39m                   [31m^[39m
+    [90m 85|[39m     expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实…
+    [90m 86|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-context-choices.test.tsx[2m > [22mmaterial term choices and explicit learning intent[2m > [22mdistinguishes course mapping from current priorities for 'two courses with one practice'
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 已对应课程 2 项技能；参与当前排序 1 项技能。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0m选择资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改自评[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改课程来源[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m清除资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m切换保存预览[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m关闭核对界面[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m锁定[0m
+    [36m</button>[39m
+    [36m<output[39m
+      [33maria-label[39m=[32m"可采用预览"[39m
+    [36m>[39m
+      [0mcontext-2[0m
+    [36m</output>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"material-context-review"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"本次资料选择"[39m
+        [33mclass[39m=[32m"material-selection-summary"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0m本次采用的资料[0m
+        [36m</h2>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [0m补充资料 [0m
+            [0m1[0m
+            [0m · [0m
+            [0m事实已确认[0m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-action"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m移除补充资料 [0m
+              [0m1[0m
+              [0m 选择[0m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m路线将采用本次选择的资料版本。[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0m核对资料对路线的影响[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"material-preview"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [0m资料预览已就绪。创建路线时将再次校验所选版本。[0m
+        [36m</p>[39m
+        [36m<h3>[39m
+          [0m确认的事实与要求[0m
+        [36m</h3>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [36m<span>[39m
+              [0mPRIVATE-FIGMA-FACT[0m
+            [36m</span>[39m
+            [36m<small>[39m
+              [0m · [0m
+              [0m已确认技能词[0m
+              [0m [0m
+              [0mFigma、UI tokens[0m
+            [36m</small>[39m
+            [36m<ul>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mFigma[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m已对应：React 19、SQL[0m
+                  [0m · 依据：手动选择[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 Figma 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mUI tokens[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m历史预览未记录逐词对应结果。[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 UI tokens 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。[0m
+        [36m</p>[39m
+        [36m<p>[39m
+          [0m已映射 [0m
+          [0m1[0m
+          [0m 项技能；资料没有提到的能力仍以你的自我评估为准。[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-context-choices.test.tsx:[2m84:19[22m[39m
+    [90m 82|[39m   ])("distinguishes course mapping from current priorities for $name",…
+    [90m 83|[39m     fixture({ ...basePreview, mappingDetails: details, priorities }); …
+    [90m 84|[39m     expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。…
+    [90m   |[39m                   [31m^[39m
+    [90m 85|[39m     expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实…
+    [90m 86|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-context-choices.test.tsx[2m > [22mmaterial term choices and explicit learning intent[2m > [22mdistinguishes course mapping from current priorities for 'duplicate mapped course'
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 已对应课程 1 项技能；参与当前排序 0 项技能。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0m选择资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改自评[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改课程来源[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m清除资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m切换保存预览[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m关闭核对界面[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m锁定[0m
+    [36m</button>[39m
+    [36m<output[39m
+      [33maria-label[39m=[32m"可采用预览"[39m
+    [36m>[39m
+      [0mcontext-2[0m
+    [36m</output>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"material-context-review"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"本次资料选择"[39m
+        [33mclass[39m=[32m"material-selection-summary"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0m本次采用的资料[0m
+        [36m</h2>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [0m补充资料 [0m
+            [0m1[0m
+            [0m · [0m
+            [0m事实已确认[0m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-action"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m移除补充资料 [0m
+              [0m1[0m
+              [0m 选择[0m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m路线将采用本次选择的资料版本。[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0m核对资料对路线的影响[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"material-preview"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [0m资料预览已就绪。创建路线时将再次校验所选版本。[0m
+        [36m</p>[39m
+        [36m<h3>[39m
+          [0m确认的事实与要求[0m
+        [36m</h3>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [36m<span>[39m
+              [0mPRIVATE-FIGMA-FACT[0m
+            [36m</span>[39m
+            [36m<small>[39m
+              [0m · [0m
+              [0m已确认技能词[0m
+              [0m [0m
+              [0mFigma、UI tokens[0m
+            [36m</small>[39m
+            [36m<ul>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mFigma[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m已对应：SQL[0m
+                  [0m · 依据：名称或已登记别名[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 Figma 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mUI tokens[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m已对应：SQL[0m
+                  [0m · 依据：手动选择[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 UI tokens 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。[0m
+        [36m</p>[39m
+        [36m<p>[39m
+          [0m已映射 [0m
+          [0m0[0m
+          [0m 项技能；资料没有提到的能力仍以你的自我评估为准。[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-context-choices.test.tsx:[2m84:19[22m[39m
+    [90m 82|[39m   ])("distinguishes course mapping from current priorities for $name",…
+    [90m 83|[39m     fixture({ ...basePreview, mappingDetails: details, priorities }); …
+    [90m 84|[39m     expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。…
+    [90m   |[39m                   [31m^[39m
+    [90m 85|[39m     expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实…
+    [90m 86|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-context-choices.test.tsx[2m > [22mmaterial term choices and explicit learning intent[2m > [22mdistinguishes course mapping from current priorities for 'ambiguous courses'
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 已对应课程 0 项技能；参与当前排序 0 项技能。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0m选择资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改自评[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改课程来源[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m清除资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m切换保存预览[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m关闭核对界面[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m锁定[0m
+    [36m</button>[39m
+    [36m<output[39m
+      [33maria-label[39m=[32m"可采用预览"[39m
+    [36m>[39m
+      [0mcontext-2[0m
+    [36m</output>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"material-context-review"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"本次资料选择"[39m
+        [33mclass[39m=[32m"material-selection-summary"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0m本次采用的资料[0m
+        [36m</h2>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [0m补充资料 [0m
+            [0m1[0m
+            [0m · [0m
+            [0m事实已确认[0m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-action"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m移除补充资料 [0m
+              [0m1[0m
+              [0m 选择[0m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m路线将采用本次选择的资料版本。[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0m核对资料对路线的影响[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"material-preview"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [0m资料预览已就绪。创建路线时将再次校验所选版本。[0m
+        [36m</p>[39m
+        [36m<h3>[39m
+          [0m确认的事实与要求[0m
+        [36m</h3>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [36m<span>[39m
+              [0mPRIVATE-FIGMA-FACT[0m
+            [36m</span>[39m
+            [36m<small>[39m
+              [0m · [0m
+              [0m已确认技能词[0m
+              [0m [0m
+              [0mFigma、UI tokens[0m
+            [36m</small>[39m
+            [36m<ul>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mFigma[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m对应待核对：React 19、SQL[0m
+                  [0m · 依据：名称或已登记别名[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 Figma 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mUI tokens[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m历史预览未记录逐词对应结果。[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 UI tokens 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。[0m
+        [36m</p>[39m
+        [36m<p>[39m
+          [0m已映射 [0m
+          [0m0[0m
+          [0m 项技能；资料没有提到的能力仍以你的自我评估为准。[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-context-choices.test.tsx:[2m84:19[22m[39m
+    [90m 82|[39m   ])("distinguishes course mapping from current priorities for $name",…
+    [90m 83|[39m     fixture({ ...basePreview, mappingDetails: details, priorities }); …
+    [90m 84|[39m     expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。…
+    [90m   |[39m                   [31m^[39m
+    [90m 85|[39m     expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实…
+    [90m 86|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-context-choices.test.tsx[2m > [22mmaterial term choices and explicit learning intent[2m > [22mdistinguishes course mapping from current priorities for 'uncovered omitted and non-learning to…'
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 已对应课程 0 项技能；参与当前排序 0 项技能。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0m选择资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改自评[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改课程来源[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m清除资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m切换保存预览[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m关闭核对界面[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m锁定[0m
+    [36m</button>[39m
+    [36m<output[39m
+      [33maria-label[39m=[32m"可采用预览"[39m
+    [36m>[39m
+      [0mcontext-2[0m
+    [36m</output>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"material-context-review"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"本次资料选择"[39m
+        [33mclass[39m=[32m"material-selection-summary"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0m本次采用的资料[0m
+        [36m</h2>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [0m补充资料 [0m
+            [0m1[0m
+            [0m · [0m
+            [0m事实已确认[0m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-action"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m移除补充资料 [0m
+              [0m1[0m
+              [0m 选择[0m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m路线将采用本次选择的资料版本。[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0m核对资料对路线的影响[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"material-preview"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [0m资料预览已就绪。创建路线时将再次校验所选版本。[0m
+        [36m</p>[39m
+        [36m<h3>[39m
+          [0m确认的事实与要求[0m
+        [36m</h3>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [36m<span>[39m
+              [0mPRIVATE-FIGMA-FACT[0m
+            [36m</span>[39m
+            [36m<small>[39m
+              [0m · [0m
+              [0m已确认技能词[0m
+              [0m [0m
+              [0mFigma、UI tokens[0m
+            [36m</small>[39m
+            [36m<ul>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mFigma[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m当前蓝图未覆盖[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 Figma 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mUI tokens[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m已明确不用于本轮映射[0m
+                  [0m · 依据：手动选择[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 UI tokens 对应的已有技能"[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。[0m
+        [36m</p>[39m
+        [36m<p>[39m
+          [0m已映射 [0m
+          [0m0[0m
+          [0m 项技能；资料没有提到的能力仍以你的自我评估为准。[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-context-choices.test.tsx:[2m84:19[22m[39m
+    [90m 82|[39m   ])("distinguishes course mapping from current priorities for $name",…
+    [90m 83|[39m     fixture({ ...basePreview, mappingDetails: details, priorities }); …
+    [90m 84|[39m     expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。…
+    [90m   |[39m                   [31m^[39m
+    [90m 85|[39m     expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实…
+    [90m 86|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-context-choices.test.tsx[2m > [22mmaterial term choices and explicit learning intent[2m > [22mreports only the provable priority count for a historical preview without mapping details
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: 参与当前排序 1 项技能。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0m选择资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改自评[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m修改课程来源[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m清除资料[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m切换保存预览[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m关闭核对界面[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0m锁定[0m
+    [36m</button>[39m
+    [36m<output[39m
+      [33maria-label[39m=[32m"可采用预览"[39m
+    [36m>[39m
+      [0mcontext-saved[0m
+    [36m</output>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"material-context-review"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"本次资料选择"[39m
+        [33mclass[39m=[32m"material-selection-summary"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0m本次采用的资料[0m
+        [36m</h2>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [0m补充资料 [0m
+            [0m1[0m
+            [0m · [0m
+            [0m事实已确认[0m
+            [36m<button[39m
+              [33mclass[39m=[32m"text-action"[39m
+              [33mdisabled[39m=[32m""[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m移除补充资料 [0m
+              [0m1[0m
+              [0m 选择[0m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m路线将采用本次选择的资料版本。[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<button[39m
+        [33mdisabled[39m=[32m""[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0m核对资料对路线的影响[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"material-preview"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [0m资料预览已就绪。创建路线时将再次校验所选版本。[0m
+        [36m</p>[39m
+        [36m<h3>[39m
+          [0m确认的事实与要求[0m
+        [36m</h3>[39m
+        [36m<ul>[39m
+          [36m<li>[39m
+            [36m<span>[39m
+              [0mPRIVATE-FIGMA-FACT[0m
+            [36m</span>[39m
+            [36m<small>[39m
+              [0m · [0m
+              [0m已确认技能词[0m
+              [0m [0m
+              [0mFigma、UI tokens[0m
+            [36m</small>[39m
+            [36m<ul>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mFigma[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m历史预览未记录逐词对应结果。[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 Figma 对应的已有技能"[39m
+                    [33mdisabled[39m=[32m""[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<span>[39m
+                  [0mUI tokens[0m
+                [36m</span>[39m
+                [36m<p>[39m
+                  [0m历史预览未记录逐词对应结果。[0m
+                [36m</p>[39m
+                [36m<label>[39m
+                  [0m对应的已有技能[0m
+                  [36m<select[39m
+                    [33maria-label[39m=[32m"事实 1 技能词 UI tokens 对应的已有技能"[39m
+                    [33mdisabled[39m=[32m""[39m
+                  [36m>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m>[39m
+                      [0m自动对应；未匹配时保留未覆盖[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"__omit__"[39m
+                    [36m>[39m
+                      [0m不用于本轮映射[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"design-systems"[39m
+                    [36m>[39m
+                      [0m设计系统[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"react"[39m
+                    [36m>[39m
+                      [0mReact 19[0m
+                    [36m</option>[39m
+                    [36m<option[39m
+                      [33mvalue[39m=[32m"sql"[39m
+                    [36m>[39m
+                      [0mSQL[0m
+                    [36m</option>[39m
+                  [36m</select>[39m
+                [36m</label>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p>[39m
+          [0m如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。[0m
+        [36m</p>[39m
+        [36m<p>[39m
+          [0m已映射 [0m
+          [0m1[0m
+          [0m 项技能；资料没有提到的能力仍以你的自我评估为准。[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-context-choices.test.tsx:[2m90:19[22m[39m
+    [90m 88|[39m   it("reports only the provable priority count for a historical previe…
+    [90m 89|[39m     fixture({ ...basePreview, mappingDetails: undefined }, { recoverin…
+    [90m 90|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m"参与当前排序 1 项技能。"[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m 91|[39m     expect(screen.queryByText(/已对应课程 \d+ 项技能/)).not.toBeInTheDocument(…
+    [90m 92|[39m     [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/已映射 \d+ 项技能/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mkeeps denied SQL mapped without borrowing personal practice
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mkeeps colleague SQL mapped without borrowing personal practice
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mkeeps future SQL mapped without borrowing personal practice
+[31m[1mAssertionError[22m: expected [ 'sql' ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "sql",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m37:63[22m[39m
+    [90m 35|[39m     expect(preview.mappingDetails?.filter(row => row.status === "mappe…
+    [90m 36|[39m       [33m.[39m[34mtoEqual[39m(labels[33m.[39m[34mmap[39m(label [33m=>[39m label[33m.[39m[34mtoLowerCase[39m())[33m.[39m[34msort[39m())[33m;[39m
+    [90m 37|[39m     expect(preview.priorities.map(row => row.skillId).sort()).toEqual(…
+    [90m   |[39m                                                               [31m^[39m
+    [90m 38|[39m     expect(preview.confirmedItems[0]).toMatchObject({ text, skillLabel…
+    [90m 39|[39m     expect(preview.itemReferences?.[0]).not.toHaveProperty("learningIn…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mkeeps own React and colleague SQL mapped without borrowing personal practice
+[31m[1mAssertionError[22m: expected [ 'react', 'sql' ] to deeply equal [ 'react' ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    "react",[22m
+[31m+   "sql",[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m37:63[22m[39m
+    [90m 35|[39m     expect(preview.mappingDetails?.filter(row => row.status === "mappe…
+    [90m 36|[39m       [33m.[39m[34mtoEqual[39m(labels[33m.[39m[34mmap[39m(label [33m=>[39m label[33m.[39m[34mtoLowerCase[39m())[33m.[39m[34msort[39m())[33m;[39m
+    [90m 37|[39m     expect(preview.priorities.map(row => row.skillId).sort()).toEqual(…
+    [90m   |[39m                                                               [31m^[39m
+    [90m 38|[39m     expect(preview.confirmedItems[0]).toMatchObject({ text, skillLabel…
+    [90m 39|[39m     expect(preview.itemReferences?.[0]).not.toHaveProperty("learningIn…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mchecks alternative words for one automatic course independently: I have never used SQL; my colleague configured SQLite.
+[31m[1mAssertionError[22m: expected [ 'sql' ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "sql",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m78:56[22m[39m
+    [90m 76|[39m     const { preview } = await materials.create("owner-a", materialCont…
+    [90m 77|[39m     expect(preview.mappingDetails).toEqual([{ itemId: preview.confirme…
+    [90m 78|[39m     expect(preview.priorities.map(row => row.skillId)).toEqual(expecte…
+    [90m   |[39m                                                        [31m^[39m
+    [90m 79|[39m   })[33m;[39m
+    [90m 80|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22muses confirmed whole-fact evidence for a nonliteral manual relation: I have never used SQL.
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22muses confirmed whole-fact evidence for a nonliteral manual relation: I built React components; my colleague wrote SQL queries.
+[31m[1mAssertionError[22m: expected [ 'react' ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "react",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m92:56[22m[39m
+    [90m 90|[39m     })[33m;[39m
+    [90m 91|[39m     expect(preview.mappingDetails?.[0]).toMatchObject({ status: "mappe…
+    [90m 92|[39m     expect(preview.priorities.map(row => row.skillId)).toEqual(expecte…
+    [90m   |[39m                                                        [31m^[39m
+    [90m 93|[39m   })[33m;[39m
+    [90m 94|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22muses the original SQL term for its manual React relation: I have never used SQL; I built React components.
+[31m[1mAssertionError[22m: expected [ 'react' ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "react",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m104:56[22m[39m
+    [90m102|[39m     })[33m;[39m
+    [90m103|[39m     expect(preview.mappingDetails?.[0]).toMatchObject({ status: "mappe…
+    [90m104|[39m     expect(preview.priorities.map(row => row.skillId)).toEqual(expecte…
+    [90m   |[39m                                                        [31m^[39m
+    [90m105|[39m   })[33m;[39m
+    [90m106|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-practice-priorities.test.ts[2m > [22mpersonal practice priorities from confirmed material relations[2m > [22mbinds new contexts to policy 2026.11.3 without changing mapping identity or saved reads
+[31m[1mAssertionError[22m: expected { audit: { …(8) }, …(14) } to match object { policyVersion: '2026.11.3', …(1) }
+(44 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[2m    "mappingVersion": "2026.11.5",[22m
+[32m-   "policyVersion": "2026.11.3",[39m
+[31m+   "policyVersion": "2026.11.2",[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/material-practice-priorities.test.ts:[2m171:43[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mretains each actual vocabulary match as alternative evidence: I wrote SQL queries.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mretains each actual vocabulary match as alternative evidence: I configured SQLite.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mretains each actual vocabulary match as alternative evidence: 我使用关系数据库。
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mretains each actual vocabulary match as alternative evidence: I built React.js components.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mretains each actual vocabulary match as alternative evidence: I wrote SQL queries, but I have never configured SQLite.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mretains each actual vocabulary match as alternative evidence: I have never used SQL, but I configured SQLite.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mretains each actual vocabulary match as alternative evidence: I have never used SQL; my colleague configured SQLite.
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m23:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mdoes not substitute course labels or borrow another course's personal evidence
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m28:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses retained source evidence for a contextual relation: Built UI tokens for accessible component focus.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses retained source evidence for a contextual relation: My colleague built UI tokens for accessible component focus.
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m44:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mkeeps SQL as evidence when its term is manually mapped to React: I wrote SQL queries; my colleague built React components.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mkeeps SQL as evidence when its term is manually mapped to React: I have never used SQL; I built React components.
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m51:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses the confirmed whole fact for explicit whole-fact choices: Built accessible product interfaces.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses the confirmed whole fact for explicit whole-fact choices: I have never used SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses the confirmed whole fact for explicit whole-fact choices: I built React components; my colleague wrote SQL queries.
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m60:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mrequires a mapped result and does not silently disambiguate an unlabelled fact
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m67:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mdeduplicates supported relations across aliases and facts without sharing their evidence
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m74:12[22m[39m
+    [90m 72|[39m   it("deduplicates supported relations across aliases and facts withou…
+    [90m 73|[39m     const items = [fact("I used SQL and SQLite.", ["SQL", "SQLite"]), …
+    [90m 74|[39m     expect(mapMaterialPracticeSkills(items, flagshipBlueprint, flagshi…
+    [90m   |[39m            [31m^[39m
+    [90m 75|[39m   })[33m;[39m
+    [90m 76|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mkeeps empty, deleted and explicitly omitted terms out of practice
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m80:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mnever treats requirement or its explicit intent as personal practice
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mnever treats constraint or its explicit intent as personal practice
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m88:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22mretains bare manual skill claims
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m project tests/lib/materials/practice-skill-mapping.test.ts:[2m11:80[22m[39m
+    [90m  9|[39m   [33m...[39m(skillLabels [33m===[39m undefined [33m?[39m {} [33m:[39m { skillLabels })[33m,[39m
+    [90m 10|[39m })[33m;[39m
+    [90m 11|[39m const project = (item: ConfirmedMaterialItem, options: MappingOptions …
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 12|[39m
+    [90m 13|[39m [34mdescribe[39m([32m"source evidence for practice skill relations"[39m[33m,[39m () [33m=>[39m {
+[90m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m92:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/40]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses the actual alias from legacy vocabulary 2026.11.2
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses the actual alias from legacy vocabulary 2026.11.3
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses the actual alias from legacy vocabulary 2026.11.4
+[41m[1m FAIL [22m[49m tests/lib/materials/practice-skill-mapping.test.ts[2m > [22msource evidence for practice skill relations[2m > [22muses the actual alias from legacy vocabulary 2026.11.5
+[31m[1mTypeError[22m: mapMaterialPracticeSkills is not a function[39m
+[36m [2m❯[22m tests/lib/materials/practice-skill-mapping.test.ts:[2m99:12[22m[39m
+    [90m 97|[39m     const registry = { ...flagshipUnitRegistry, blueprintId: blueprint…
+    [90m 98|[39m     [35mconst[39m item [33m=[39m [34mfact[39m([32m"I configured QuillBin."[39m)[33m;[39m
+    [90m 99|[39m     expect(mapMaterialPracticeSkills([item], blueprint, registry, { al…
+    [90m   |[39m            [31m^[39m
+    [90m100|[39m       [33m.[39m[34mtoEqual[39m([{ itemId[33m:[39m [32m"fact"[39m[33m,[39m skillId[33m:[39m [32m"sql"[39m }])[33m;[39m
+    [90m101|[39m     expect(mapMaterialPracticeSkills([item], blueprint, registry)).toE…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/40]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m40 failed[39m[22m[2m | [22m[1m[32m46 passed[39m[22m[90m (86)[39m
+[2m   Start at [22m 20:30:30
+[2m   Duration [22m 5.91s[2m (transform 559ms, setup 573ms, import 931ms, tests 2.53s, environment 1.41s)[22m
+

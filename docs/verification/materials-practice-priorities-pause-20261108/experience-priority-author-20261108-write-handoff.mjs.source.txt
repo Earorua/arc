@@ -1,0 +1,88 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261108-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const frozenName = prefix + "frozen-source.json";
+const frozen = JSON.parse(readFileSync(resolve(work, frozenName), "utf8"));
+for (const [path, expected] of Object.entries(frozen.sourceHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+const vitest = name => "node_modules/vitest/vitest.mjs run --config work/grounded-verification/" + prefix + name + ".config.ts";
+const tsc = name => "node_modules/typescript/bin/tsc --project work/grounded-verification/" + prefix + name + ".json --noEmit --pretty false";
+const lintFiles = ["app/lib/materials/skill-mapper.ts", "app/lib/materials/planning-priority.ts", "app/server/documents/context-builder.ts", "app/components/materials/material-context-review.tsx", "tests/lib/materials/practice-skill-mapping.test.ts", "tests/server/material-practice-priorities.test.ts", "tests/components/material-context-choices.test.tsx"];
+const lint = files => "node_modules/eslint/bin/eslint.js " + files.join(" ");
+const finalLintFiles = ["app/lib/materials/skill-mapper.ts", "app/lib/materials/experience-evidence.ts", "app/lib/materials/planning-priority.ts", "app/server/documents/context-builder.ts", "app/components/materials/material-context-review.tsx", "tests/lib/materials/experience-evidence.test.ts", "tests/lib/materials/practice-skill-mapping.test.ts", "tests/server/material-practice-priorities.test.ts", "tests/components/material-context-choices.test.tsx"];
+const runs = [
+  ["service-red-01", vitest("service-red"), "5 tests: 4 expected priority failures, 1 positive pass; first meaningful service RED"],
+  ["focused-red-02", vitest("focused"), "86 tests: 40 fail / 46 pass (9 service/policy, 6 UI, 25 missing projection API)"],
+  ["focused-green-03", vitest("focused"), "3 files / 86 pass"],
+  ["regression-04", vitest("regression"), "14 files: 441 pass / 1 real assistance lifecycle regression"],
+  ["types-05", tsc("tsconfig"), "pass before assistance extension"],
+  ["lint-06", lint(lintFiles), "pass before assistance extension"],
+  ["assisted-probe-07", "work/grounded-verification/" + prefix + "assisted-probe.mjs", "diagnostic: assisted false, tested true, scheduling false; not acceptance"],
+  ["assistance-red-08", vitest("assistance"), "217 tests: 15 fail / 202 pass, original supplement flow unchanged"],
+  ["assistance-green-09", vitest("assistance"), "2 files / 217 pass"],
+  ["assistance-boundary-red-10", vitest("assistance"), "225 tests: 7 fail / 218 pass, capable and reporting object bypasses"],
+  ["assistance-boundary-green-11", vitest("assistance"), "2 files / 225 pass"],
+  ["regression-12", vitest("regression"), "14 files / 486 pass; product source final, before test-only hint-enum correction"],
+  ["level-regression-13", vitest("level-regression"), "12 files / 1467 pass"],
+  ["types-14", tsc("final-tsconfig"), "fail: new test supplied independent, excluded by existing hint API type"],
+  ["lint-15", lint(finalLintFiles), "pass"],
+  ["assistance-final-16", vitest("assistance"), "2 files / 225 pass after valid conceptual/guided/uncertain test correction"],
+  ["types-final-17", tsc("final-tsconfig"), "pass"],
+  ["lint-final-18", lint(finalLintFiles), "pass"],
+  ["freeze-19", "work/grounded-verification/" + prefix + "freeze.mjs", "pass: nine frozen files, original 180 tests unchanged, unchanged shared/level/lifecycle files, logs verified"],
+];
+const commands = runs.map(([suffix, args, result]) => {
+  const label = prefix + suffix, path = resolve(work, label + ".json"), outcome = JSON.parse(readFileSync(path, "utf8"));
+  assert.equal(outcome.nonLoopbackDenials, 0, label);
+  return { command: "node work/grounded-verification/run.mjs " + label + " " + args, result, exit: outcome.exit,
+    outcomeSha256: sha(readFileSync(path)), logSha256: outcome.logSha256 };
+});
+const commandName = prefix + "command-ledger.json";
+writeFileSync(resolve(work, commandName), JSON.stringify(commands, null, 2) + "\n", { flag: "wx" });
+const lines = [
+  "# Task 2 implementer handoff — source frozen",
+  "",
+  "Base c788268b5dbb4e91480ce98738274dfd08a58155. Scope: seven modified files plus two added test files. No commits, docs/archive edits, native acceptance, full-repository run, deployment, migration, provider call, or subagent work by the implementer.",
+  "",
+  "The shared resolver now retains per-skill original source targets. Retained/manual terms use their original wording; unlabelled literal matches keep every actual vocabulary match as alternative evidence; legal whole-fact manual choices use the whole-fact guard. Both public mapping projections retain their shapes, order and semantics; mappingVersion remains 2026.11.5. New practices require a mapped relation and its own evidence. New contexts bind planning policy 2026.11.3. Facts, mappings, intent eligibility, audit, time and target retain their original paths. UI deduplicates mapped skill IDs separately from current priority count; older previews without details show only the priority count.",
+  "",
+  "A real integration failure used the unchanged edited fact I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92. Root explicitly approved a scoped Task 1 predicate repair within Task 2. The new action support is assist/assisted/assisting with/in. Direct and capable paths share the same assistance object restriction; administrative/reporting/planning objects remain unsupported, and nested reporting uses the existing report-object regex. Shared assertion scopes and self-level implementation are unchanged. No help/team broadening or second skill dictionary was introduced. Original 180 guard tests remain identical; 44 assistance controls were appended.",
+  "",
+  "## Frozen source",
+  "",
+  "| File | SHA-256 |",
+  "| --- | --- |",
+  ...Object.entries(frozen.sourceHashes).map(([path, hash]) => "| " + path + " | " + hash + " |"),
+  "",
+  "Manifest: " + frozenName + " SHA-256 " + sha(readFileSync(resolve(work, frozenName))) + ". Exact source copies are in " + prefix + "frozen-source/.",
+  "",
+  "## Checks and preserved failures",
+  "",
+  "All 19 wrapped commands had zero non-loopback denials. Node SQLite experimental warnings remain expected. The final product was tested by 14 files/486 tests plus 12 separate files/1467 tests. A later test-only correction replaced an invalid independent hint input with the three valid hint levels; the final 225-test assistance/lifecycle suite, focused types and lint pass against that correction.",
+  "",
+  "| Run suffix | Result | Exit | Log SHA-256 | Outcome SHA-256 |",
+  "| --- | --- | --- | --- | --- |",
+  ...commands.map((run, index) => "| " + runs[index][0] + " | " + run.result + " | " + run.exit + " | " + run.logSha256 + " | " + run.outcomeSha256 + " |"),
+  "",
+  "Exact commands are in " + commandName + ", SHA-256 " + sha(readFileSync(resolve(work, commandName))) + ". Vitest configs spread the repository base and replace include; every config uses maxWorkers=1. Focused types include worker-configuration.d.ts/tests/setup.ts and exclude ignored work fixtures.",
+  "",
+  "The initial new projection test used a guessed React Product UI label; source inspection corrected it to the published React 19 before the first green run. No pre-existing expectation was changed. The types-14 failure was likewise a new-test input error, not a product contract change; its source is preserved in before-type-fixture.test.source.txt. The real assistance lifecycle failure and all RED/green logs remain original. Pre-assistance sources/patch and the broader pre-implementation RED-02 source snapshot are preserved. The narrow RED-01 test file was subsequently expanded before source freezing; its original log/config remain and this limitation is explicit in the manifest.",
+  "",
+  "## Review boundaries",
+  "",
+  "Source assertions for policy identity were searched: new contexts require 2026.11.3; old historical fixtures and the root's real policy2 store were not edited. Existing supplement lifecycle and legacy historical-read tests remain unchanged. Root owns persisted-old-to-new read acceptance, native workerd/D1/R2 and strict Node parity, actual UI recovery/visual checks, independent spec then quality review, full repository checks, source archive and commits. New unit service tests seed confirmed records; existing lifecycle regressions run actual HTTP/runtime services with SQLite/R2 adapters and a synthetic provider transport. No provider/network acceptance is claimed.",
+  "",
+  "## Harness input hashes",
+  "",
+  "| Input | SHA-256 |",
+  "| --- | --- |",
+  ...Object.entries(frozen.harnessInputs).map(([path, hash]) => "| " + path + " | " + hash + " |"),
+  ...["work/grounded-verification/run.mjs", "work/materials-browser-handoff/block-outbound.cjs"].map(path => "| " + path + " | " + sha(readFileSync(path)) + " |"),
+  "",
+];
+const handoffName = prefix + "handoff.md";
+writeFileSync(resolve(work, handoffName), lines.join("\n"), { flag: "wx" });
+console.log(JSON.stringify({ sourceUnchanged: true, handoff: handoffName, handoffSha256: sha(readFileSync(resolve(work, handoffName))), commandLedger: commandName, commandLedgerSha256: sha(readFileSync(resolve(work, commandName))), scriptSha256: sha(readFileSync(new URL(import.meta.url))) }, null, 2));

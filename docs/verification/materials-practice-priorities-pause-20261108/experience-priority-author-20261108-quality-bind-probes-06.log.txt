@@ -1,0 +1,7 @@
+{
+  "currentManifestSha": "eb65c7dfe62dd4b907f20e502166cfbf7cdc99aef62b4e17810c338c94ef7c1c",
+  "currentGuardSha": "8560cd4f8ad8b2d1c079a991e259541bd3e1602e4520498bfeab5289dd9c81c8",
+  "boundProbes": 3,
+  "allBehaviorAssertionsUnchanged": true,
+  "metadataSha256": "cf8ebd5af6401a2c61411e3e3b58e6ba3b97d74d661e71fcae1b3aa42a669a6b"
+}

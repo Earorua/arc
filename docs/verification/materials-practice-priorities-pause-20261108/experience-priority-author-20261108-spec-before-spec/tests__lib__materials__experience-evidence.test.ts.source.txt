@@ -1,0 +1,340 @@
+import { describe, expect, it } from "vitest";
+import { supportsMaterialExperience } from "../../../app/lib/materials/experience-evidence";
+import { supportsMaterialSelfLevelHint } from "../../../app/lib/materials/self-assessment-evidence";
+
+const terms = (text: string, sourceTerms: readonly string[] = ["SQL"]) => supportsMaterialExperience({
+  kind: "experience", text, target: { kind: "terms", terms: sourceTerms },
+});
+const whole = (text: string) => supportsMaterialExperience({ kind: "experience", text, target: { kind: "confirmed-whole-fact" } });
+
+describe("material experience evidence", () => {
+  it.each([
+    "I used SQL to analyze sales data.",
+    "I wrote SQL queries.",
+    "I wrote SQL reports.",
+    "I wrote SQL queries for monthly reports and documented the results.",
+    "I wrote\nSQL queries.",
+    "I built SQL dashboards independently.",
+    "I tested SQL without supervision.",
+    "I tested SQL not under supervision.",
+    "I tested SQL without following tutorials.",
+    "I am testing SQL queries.",
+    "I currently use SQL to analyze data.",
+    "I have been testing SQL queries.",
+    "I did test SQL.",
+    "I did not only test SQL.",
+    "I tested SQL under supervision.",
+    "Under supervision, I tested SQL.",
+    "With a mentor's guidance, I tested SQL.",
+    "I followed a tutorial to test SQL.",
+    "I tested SQL using supplied examples.",
+    "I tested the SQL queries supplied by my mentor.",
+    "I tested my mentor's SQL queries.",
+    "I modified the SQL supplied by my mentor.",
+    "I only changed parameters in the supplied SQL queries.",
+    "My placement: followed a runbook to configure SQL.",
+    "我使用 SQL 分析了销售数据。",
+    "我独立编写了 SQL 查询。",
+    "我正在测试 SQL 查询。",
+    "我测试了 SQL，没有导师指导。",
+    "在导师指导下，我测试了 SQL。",
+    "练习项目中，按讲师示例由本人亲自编写 SQL 查询。",
+    "按指导完成 SQL 查询练习。",
+    "我修改了导师提供的 SQL 查询。",
+    "我只调整了导师提供的 SQL 查询参数。",
+    "I tested 'SQL' under supervision.",
+    "I tested “SQL” independently.",
+    "我测试了「SQL」。",
+  ])("supports actual personal practice: %s", text => {
+    expect(terms(text)).toBe(true);
+  });
+
+  it("keeps independent experience separate from a guided level", () => {
+    const text = "I tested SQL without supervision.";
+    expect(terms(text)).toBe(true);
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(false);
+  });
+
+  it.each([
+    "I am familiar with SQL.",
+    "I know SQL.",
+    "I am proficient in SQL.",
+    "I can write SQL queries.",
+    "I am able to use SQL.",
+    "My skills include SQL.",
+    "Profile: familiar with SQL.",
+    "Skills: SQL, React.",
+    "SQL",
+    "SQL and React",
+    "Built SQL dashboards for weekly reporting.",
+    "Responsible for SQL reports.",
+    "Maintained SQL queries for the reporting service.",
+    "简介：熟悉 SQL。",
+    "个人技能：SQL、React。",
+    "熟悉 SQL。",
+    "负责 SQL 报表开发。",
+    "编写 SQL 查询。",
+  ])("accepts personal claims and conventional resume fragments: %s", text => {
+    expect(supportsMaterialExperience({ kind: "skill-claim", text, target: { kind: "terms", terms: ["SQL"] } })).toBe(true);
+  });
+
+  it.each([
+    "My colleague tested SQL.",
+    "Our team wrote SQL queries.",
+    "We built SQL dashboards.",
+    "Alice tested SQL.",
+    "Alice supplied SQL.",
+    "I arranged for my colleague to test SQL.",
+    "I recorded my colleague's SQL practice.",
+    "I documented that my colleague tested SQL.",
+    "I recorded how the team used SQL.",
+    "I wrote that my colleague tested SQL.",
+    "I wrote a report about my colleague's SQL practice.",
+    "I wrote reports about my colleague's SQL practice.",
+    "I wrote notes about my colleague's SQL practice.",
+    "Alice knows SQL.",
+    "I wrote a plan to test SQL.",
+    "I wrote “My colleague tested SQL.”",
+    "I wrote “I tested SQL.”",
+    'I wrote "I tested SQL."',
+    "My mentor supplied SQL, and I scheduled a demo.",
+    "My mentor wrote the SQL; I only scheduled the review.",
+    "I scheduled a demo of SQL supplied by my mentor.",
+    "I scheduled a SQL demo under supervision.",
+    "I will test SQL.",
+    "I plan to test SQL.",
+    "I hope to use SQL.",
+    "I am planning to build SQL dashboards.",
+    "If I tested SQL, I would document the result.",
+    "For example, I tested SQL, and I wrote SQL queries.",
+    "My mentor said, I tested SQL.",
+    "It is false that I tested SQL.",
+    "“I tested SQL.”",
+    "The example says ‘I tested SQL.’",
+    "“I tested SQL. I wrote SQL queries.”",
+    "My mentor said, I tested SQL. I wrote SQL queries.",
+    "For example, I tested SQL. I wrote SQL queries.",
+    "If I tested SQL, I would document it. I wrote SQL queries.",
+    "I copied the example ‘I tested SQL.’",
+    "I am familiar with the example ‘SQL is required.’",
+    "I did not test SQL.",
+    "I personally did not use SQL.",
+    "I have never configured SQL for production.",
+    "I have never\nconfigured SQL.",
+    "I will\nwrite SQL queries.",
+    "I cannot write SQL reports independently.",
+    "I cannot yet configure SQL myself.",
+    "I am not able to test SQL.",
+    "I am not familiar with SQL.",
+    "I lack SQL experience.",
+    "No SQL experience.",
+    "I am unsure whether I can use SQL.",
+    "同事编写了 SQL 查询。",
+    "团队完成了 SQL 查询。",
+    "我安排同事测试 SQL。",
+    "我记录了同事测试 SQL 的过程。",
+    "导师提供 SQL，我只是安排了演示。",
+    "我计划使用 SQL。",
+    "我希望完成 SQL 查询。",
+    "如果我使用 SQL，就能完成报告。",
+    "例如，我编写了 SQL 查询。",
+    "导师说，我测试了 SQL。",
+    "我没有使用 SQL。",
+    "我从未配置过 SQL。",
+    "我无法独立编写 SQL 查询。",
+    "按指导完成不了 SQL 查询练习。",
+    "按指导完成 SQL 查询练习是我下周的计划。",
+    "按指导完成 SQL 查询练习的计划尚未执行。",
+    "按指导安排同事完成 SQL 查询练习。",
+    "按指导由同事完成 SQL 查询练习。",
+    "团队简介：熟悉 SQL。",
+    "Her placement: followed a runbook to configure SQL.",
+  ])("does not turn a mention into personal practice: %s", text => {
+    expect(terms(text)).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it.each([
+    ["I built React components, while my colleague wrote SQL queries.", "React", "SQL"],
+    ["I wrote SQL queries, but I cannot build React components.", "SQL", "React"],
+    ["Our team built React components, and I tested SQL queries.", "SQL", "React"],
+    ["With a mentor using React, I tested SQL under supervision.", "SQL", "React"],
+    ["我使用 React 构建组件，同事编写 SQL 查询。", "React", "SQL"],
+    ["我编写 SQL 查询，但我无法开发 React 组件。", "SQL", "React"],
+    ["I tested SQL under supervision, but Alice said, I built React components.", "SQL", "React"],
+    ["I built React components. My colleague wrote SQL queries.", "React", "SQL"],
+    ["I wrote SQL queries. I cannot build React components.", "SQL", "React"],
+    ["My colleague built React components. I tested SQL queries.", "SQL", "React"],
+    ["我开发 React 组件。同事编写 SQL 查询。", "React", "SQL"],
+    ["我编写 SQL 查询。我无法开发 React 组件。", "SQL", "React"],
+    ["I tested React.js components. My colleague wrote SQL queries.", "React.js", "SQL"],
+    ["I wrote SQL queries. I plan to build React.js components.", "SQL", "React.js"],
+    ["I built React components. My mentor said, I wrote SQL queries.", "React", "SQL"],
+    ["I built React components. If I used SQL, and I tested SQL queries.", "React", "SQL"],
+    ["I used React to record my colleague's SQL practice.", "React", "SQL"],
+    ["I tested SQL while recording the results of my colleague's React demo.", "SQL", "React"],
+    ["I built React components, my colleague wrote SQL queries.", "React", "SQL"],
+    ["I built React components and my colleague wrote SQL queries.", "React", "SQL"],
+  ])("binds each original target to its personal action: %s", (text, personal, other) => {
+    expect(terms(text, [personal])).toBe(true);
+    expect(terms(text, [other])).toBe(false);
+    expect(terms(text, [personal, other])).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it.each([
+    "I wrote SQL queries, but I have never configured SQL for production.",
+    "I wrote SQL queries, but my colleague configured SQL for production.",
+    "I tested SQL, and I plan to test SQL again next week.",
+    "My mentor supplied SQL, and I tested the SQL queries.",
+    "My mentor supplied SQL; I only changed parameters in the SQL queries.",
+    "我编写了 SQL 查询，但我没有配置过生产 SQL 数据库。",
+  ])("retains some real practice without erasing another occurrence's limitation: %s", text => {
+    expect(terms(text)).toBe(true);
+    expect(whole(text)).toBe(false);
+  });
+
+  it.each([
+    "I tested SQL queries, and I built SQL dashboards.",
+    "I tested SQL and React independently.",
+    "I wrote SQL queries. I tested SQL queries.",
+    "我编写 SQL 查询。我测试 SQL 查询。",
+    "I built React.js components. I tested React.js components.",
+    "Built accessible product interfaces.",
+    "构建可访问的产品界面",
+    "负责客户数据报表开发与维护。",
+    "My placement: followed a runbook to configure SQL.",
+    "个人简介：熟悉 SQL，并负责数据报表开发。",
+    "I wrote SQL queries for the weekly reporting process, tested the output against reference records, and maintained the reporting workflow for several months while documenting the results for later review.",
+  ])("supports a confirmed whole fact without treating it as a bounded term: %s", text => {
+    expect(whole(text)).toBe(true);
+  });
+
+  it.each(["requirement", "constraint"] as const)("never treats %s as experience", kind => {
+    expect(supportsMaterialExperience({ kind, text: "I wrote SQL queries.", target: { kind: "terms", terms: ["SQL"] } })).toBe(false);
+    expect(supportsMaterialExperience({ kind, text: "I wrote SQL queries.", target: { kind: "confirmed-whole-fact" } })).toBe(false);
+  });
+
+  it.each([
+    "I know SQL.",
+    "SQL",
+    "Built SQL dashboards.",
+    "I wrote SQL reports.",
+    "I wrote SQL queries for monthly reports while documenting the results.",
+    "I tested SQL, modified SQL queries, and documented the results.",
+    "I only changed parameters in the supplied SQL queries.",
+    "I tested ‘SQL’ under supervision.",
+    'I tested "SQL" independently.',
+    "I wrote ‘SQL’ queries.",
+  ])("retains personal claims and actual report/query work across the reviewed boundaries: %s", text => {
+    expect(terms(text)).toBe(true);
+    expect(whole(text)).toBe(true);
+  });
+
+  it.each([".NET", "React.js", "SQL Server"])("keeps quoted literal tool objects usable: %s", tool => {
+    const text = `I tested ‘${tool}’ independently.`;
+    expect(terms(text, [tool])).toBe(true);
+    expect(whole(text)).toBe(true);
+  });
+
+  it("does not restore an explicitly empty or ungrounded term list", () => {
+    expect(terms("I wrote SQL queries.", [])).toBe(false);
+    expect(terms("I wrote SQL queries.", [""])).toBe(false);
+    expect(terms("I wrote SQL queries.", ["React"])).toBe(false);
+    expect(terms("I wrote MySQL queries.", ["SQL"])).toBe(false);
+    expect(terms("I wrote SQL queries.", ["I wrote SQL queries.".repeat(8)])).toBe(false);
+    expect(whole("")).toBe(false);
+    expect(whole("   ")).toBe(false);
+  });
+
+  it("preserves technical punctuation and UTF-16 quote boundaries", () => {
+    expect(terms("我测试了 ‘🧪 SQL’，并记录结果。", ["SQL"])).toBe(false);
+    expect(terms("我测试了 ‘SQL’，并记录结果。", ["SQL"])).toBe(true);
+    expect(terms("按指导完成 React.js 组件练习。", ["React.js"])).toBe(true);
+    expect(terms("按指导完成不了 React.js 组件练习。", ["React.js"])).toBe(false);
+    expect(terms("按指导完成 React.js 组件练习是我下周的计划。", ["React.js"])).toBe(false);
+    expect(terms("I tested “🧪” and SQL.", ["SQL"])).toBe(true);
+  });
+
+  it("does not mutate the supplied fact or target", () => {
+    const input = Object.freeze({
+      kind: "experience" as const,
+      text: "I wrote SQL queries.",
+      target: Object.freeze({ kind: "terms" as const, terms: Object.freeze(["SQL"]) }),
+    });
+    expect(supportsMaterialExperience(input)).toBe(true);
+    expect(input.target.terms).toEqual(["SQL"]);
+    expect(input.text).toBe("I wrote SQL queries.");
+  });
+});
+
+describe("personal assistance in material practice", () => {
+  it.each([
+    ["I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.", "observability"],
+    ["I assist with SQL.", "SQL"],
+    ["I assisted with SQL query testing.", "SQL"],
+    ["I am assisting with SQL.", "SQL"],
+    ["I have assisted in testing SQL queries.", "SQL"],
+    ["Assisted in SQL testing.", "SQL"],
+    ["With my mentor's guidance, I assisted with SQL.", "SQL"],
+    ["I assisted with SQL reports.", "SQL"],
+    ['I assisted with testing "SQL".', "SQL"],
+    ["I can assist with SQL.", "SQL"],
+  ])("retains the learner's bounded assistance: %s", (text, term) => {
+    expect(terms(text, [term])).toBe(true);
+    expect(whole(text)).toBe(true);
+  });
+
+  it.each([
+    "I never assisted with SQL.",
+    "I did not assist in SQL testing.",
+    "I plan to assist with SQL.",
+    "I will assist with SQL.",
+    "My colleague assisted with SQL.",
+    "The team assisted in testing SQL.",
+    '"I assisted with SQL."',
+    "My mentor said, I assisted with SQL.",
+    "If asked, I would assist with SQL.",
+    "I assisted with scheduling a SQL demo.",
+    "I assisted in arranging a SQL workshop.",
+    "I assisted with recording my colleague's SQL practice.",
+    "I assisted with documenting how my colleague tested SQL.",
+    "I assisted with reporting that my colleague tested SQL.",
+    "I assisted with a report about SQL.",
+    "I assisted with a report that my colleague tested SQL.",
+    "I assisted with plans to learn SQL.",
+    "I assisted in planning SQL training.",
+    "I assisted with the SQL demo schedule.",
+    "I assisted with the SQL training plan.",
+    "I can assist with scheduling a SQL demo.",
+    "I am able to assist in documenting my colleague's SQL practice.",
+    "I can assist a colleague with SQL.",
+    "I assisted with a summary about SQL.",
+    "I assisted with notes about my colleague's SQL practice.",
+    "I assisted with writing notes about my colleague's SQL practice.",
+    "I assisted with writing that my colleague used SQL.",
+    "I assisted a colleague with SQL.",
+    "I helped with SQL.",
+  ])("does not turn unsupported or administrative assistance into technical practice: %s", text => {
+    expect(terms(text)).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it.each([
+    ["I assisted with React components; my colleague assisted with SQL.", "React", "SQL"],
+    ["I built React components, my colleague assisted with SQL.", "React", "SQL"],
+    ["I assisted with SQL; I plan to assist with React.", "SQL", "React"],
+    ["I assisted with building React components to document my colleague's SQL work.", "React", "SQL"],
+  ])("preserves each assistance actor and target: %s", (text, own, other) => {
+    expect(terms(text, [own])).toBe(true);
+    expect(terms(text, [other])).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it("does not infer a self-level hint from assistance", () => {
+    const text = "I assisted with SQL.";
+    expect(terms(text)).toBe(true);
+    for (const level of ["conceptual", "guided", "uncertain"] as const)
+      expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level })).toBe(false);
+  });
+});

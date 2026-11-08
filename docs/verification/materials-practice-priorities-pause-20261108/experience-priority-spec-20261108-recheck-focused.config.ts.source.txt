@@ -1,0 +1,10 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+export default defineConfig({ ...base, test: { ...base.test, include: [
+  "work/grounded-verification/experience-priority-spec-20261108-recheck-original-service.test.ts",
+  "tests/lib/materials/experience-evidence.test.ts",
+  "tests/lib/materials/practice-skill-mapping.test.ts",
+  "tests/server/material-practice-priorities.test.ts",
+  "tests/server/material-supplement-flow.test.ts",
+], maxWorkers: 1 } });

@@ -1,0 +1,287 @@
+{
+  "observations": [
+    {
+      "id": "ui-denied",
+      "paragraph": "已对应课程 1 项技能；参与当前排序 0 项技能。",
+      "expectedMapped": 1,
+      "expectedPriorities": [],
+      "actualPreview": {
+        "overlay": {
+          "skillRanks": {
+            "web-platform": 5,
+            "typescript": 5,
+            "react": 5,
+            "design-systems": 5,
+            "http-apis": 5,
+            "edge-runtime": 5,
+            "sql": 5,
+            "object-storage": 5,
+            "testing": 5,
+            "security": 5,
+            "cloud-delivery": 5,
+            "observability": 5,
+            "llm-contracts": 5,
+            "retrieval": 5,
+            "product-thinking": 5,
+            "proof-of-work": 5
+          },
+          "mandatorySkillIds": [],
+          "semanticFingerprint": "1b481cc3b4ad92d186c69ec5566044a14c31030c6b19d5ebef6f1af2fff0199c",
+          "policyVersion": "2026.11.3"
+        },
+        "planning": {
+          "fullScope": {
+            "estimatedCompletionDate": "2026-12-01",
+            "totalMinutes": 1260
+          },
+          "targetDate": {
+            "estimatedCompletionDate": "2026-12-01",
+            "totalMinutes": 1260
+          },
+          "infeasibleReason": null
+        },
+        "confirmedItems": [
+          {
+            "id": "material-item-009e40564d366dd84de1bcea7e4fd74c",
+            "kind": "experience",
+            "text": "I have never configured SQL for production.",
+            "origin": "user",
+            "sourceRef": null,
+            "requirementLevel": null
+          }
+        ],
+        "itemReferences": [
+          {
+            "id": "material-item-009e40564d366dd84de1bcea7e4fd74c",
+            "confirmationId": "practice-case-6",
+            "itemId": "fact"
+          }
+        ],
+        "mappingDetails": [
+          {
+            "itemId": "material-item-009e40564d366dd84de1bcea7e4fd74c",
+            "termIndexes": [
+              -1
+            ],
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "priorities": [],
+        "issues": [],
+        "uncoveredLabels": []
+      },
+      "requests": [
+        "readDocumentCapabilities",
+        "readMaterialContext"
+      ],
+      "localStorage": "{\"arc:setup-draft:v1:user%3Aowner-a:materials%3Aui-denied\":\"{\\\"version\\\":1,\\\"owner\\\":\\\"user:owner-a\\\",\\\"source\\\":\\\"materials:ui-denied\\\",\\\"updatedAt\\\":1794142755804,\\\"data\\\":{\\\"draftId\\\":\\\"draft-ee57ce6c-a16c-4e6f-81d7-d88431bf8f98\\\",\\\"slots\\\":{\\\"resume\\\":{\\\"documentId\\\":\\\"practice-case-1\\\",\\\"documentVersionId\\\":\\\"practice-case-2\\\",\\\"textVersionId\\\":\\\"practice-case-3\\\",\\\"revision\\\":1,\\\"confirmationId\\\":\\\"practice-case-6\\\"}},\\\"supplements\\\":[],\\\"selection\\\":{\\\"selectionId\\\":\\\"practice-case-7\\\",\\\"selectionRevision\\\":0},\\\"preview\\\":{\\\"contextVersionId\\\":\\\"practice-case-8\\\",\\\"selectionRef\\\":{\\\"selectionId\\\":\\\"practice-case-7\\\",\\\"selectionRevision\\\":0},\\\"previewToken\\\":\\\"19fa3239fbff1bcc4b95c5e57c0bd1d5058d42e21baa4a9b9ae0128acde5d465\\\"}}}\"}"
+    },
+    {
+      "id": "ui-mixed",
+      "paragraph": "已对应课程 2 项技能；参与当前排序 1 项技能。",
+      "expectedMapped": 2,
+      "expectedPriorities": [
+        "react"
+      ],
+      "actualPreview": {
+        "overlay": {
+          "skillRanks": {
+            "web-platform": 5,
+            "typescript": 5,
+            "react": 3,
+            "design-systems": 5,
+            "http-apis": 5,
+            "edge-runtime": 5,
+            "sql": 5,
+            "object-storage": 5,
+            "testing": 5,
+            "security": 5,
+            "cloud-delivery": 5,
+            "observability": 5,
+            "llm-contracts": 5,
+            "retrieval": 5,
+            "product-thinking": 5,
+            "proof-of-work": 5
+          },
+          "mandatorySkillIds": [],
+          "semanticFingerprint": "6532652f6a15df21f758e6ed43489bceec6c36b372463850e5e973d84cc4e789",
+          "policyVersion": "2026.11.3"
+        },
+        "planning": {
+          "fullScope": {
+            "estimatedCompletionDate": "2026-12-01",
+            "totalMinutes": 1260
+          },
+          "targetDate": {
+            "estimatedCompletionDate": "2026-12-01",
+            "totalMinutes": 1260
+          },
+          "infeasibleReason": null
+        },
+        "confirmedItems": [
+          {
+            "id": "material-item-39e9027027f2fce2dbd4ba8c9414a32e",
+            "kind": "experience",
+            "text": "I built React components, but my colleague wrote SQL queries.",
+            "origin": "extracted",
+            "sourceRef": {
+              "documentId": "practice-case-9",
+              "documentVersionId": "practice-case-10",
+              "textVersionId": "practice-case-11",
+              "start": 0,
+              "end": 61
+            },
+            "requirementLevel": null,
+            "skillLabels": [
+              "React",
+              "SQL"
+            ]
+          }
+        ],
+        "itemReferences": [
+          {
+            "id": "material-item-39e9027027f2fce2dbd4ba8c9414a32e",
+            "confirmationId": "practice-case-15",
+            "itemId": "fact"
+          }
+        ],
+        "mappingDetails": [
+          {
+            "itemId": "material-item-39e9027027f2fce2dbd4ba8c9414a32e",
+            "termIndexes": [
+              0
+            ],
+            "status": "mapped",
+            "skillIds": [
+              "react"
+            ],
+            "basis": "literal"
+          },
+          {
+            "itemId": "material-item-39e9027027f2fce2dbd4ba8c9414a32e",
+            "termIndexes": [
+              1
+            ],
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "priorities": [
+          {
+            "skillId": "react",
+            "tier": 3,
+            "itemIds": [
+              "material-item-39e9027027f2fce2dbd4ba8c9414a32e"
+            ]
+          }
+        ],
+        "issues": [],
+        "uncoveredLabels": []
+      },
+      "requests": [
+        "readDocumentCapabilities",
+        "readMaterialContext"
+      ],
+      "localStorage": "{\"arc:setup-draft:v1:user%3Aowner-a:materials%3Aui-mixed\":\"{\\\"version\\\":1,\\\"owner\\\":\\\"user:owner-a\\\",\\\"source\\\":\\\"materials:ui-mixed\\\",\\\"updatedAt\\\":1794142755953,\\\"data\\\":{\\\"draftId\\\":\\\"draft-0466f5af-4937-4a37-9ac2-c94f403126d1\\\",\\\"slots\\\":{\\\"resume\\\":{\\\"documentId\\\":\\\"practice-case-9\\\",\\\"documentVersionId\\\":\\\"practice-case-10\\\",\\\"textVersionId\\\":\\\"practice-case-11\\\",\\\"revision\\\":1,\\\"confirmationId\\\":\\\"practice-case-15\\\"}},\\\"supplements\\\":[],\\\"selection\\\":{\\\"selectionId\\\":\\\"practice-case-16\\\",\\\"selectionRevision\\\":0},\\\"preview\\\":{\\\"contextVersionId\\\":\\\"practice-case-17\\\",\\\"selectionRef\\\":{\\\"selectionId\\\":\\\"practice-case-16\\\",\\\"selectionRevision\\\":0},\\\"previewToken\\\":\\\"5e6ad979a39406c449a2a0e068ea8ebb93a76e6346fdabb5be3ddc864d8c50e7\\\"}}}\"}"
+    },
+    {
+      "id": "ui-positive",
+      "paragraph": "已对应课程 1 项技能；参与当前排序 1 项技能。",
+      "expectedMapped": 1,
+      "expectedPriorities": [
+        "sql"
+      ],
+      "actualPreview": {
+        "overlay": {
+          "skillRanks": {
+            "web-platform": 5,
+            "typescript": 5,
+            "react": 5,
+            "design-systems": 5,
+            "http-apis": 5,
+            "edge-runtime": 5,
+            "sql": 3,
+            "object-storage": 5,
+            "testing": 5,
+            "security": 5,
+            "cloud-delivery": 5,
+            "observability": 5,
+            "llm-contracts": 5,
+            "retrieval": 5,
+            "product-thinking": 5,
+            "proof-of-work": 5
+          },
+          "mandatorySkillIds": [],
+          "semanticFingerprint": "ef4e4158a889e35d037f64aff04c471bac76fa0b8e321b11ebf7e1d78ff2b760",
+          "policyVersion": "2026.11.3"
+        },
+        "planning": {
+          "fullScope": {
+            "estimatedCompletionDate": "2026-12-01",
+            "totalMinutes": 1260
+          },
+          "targetDate": {
+            "estimatedCompletionDate": "2026-12-01",
+            "totalMinutes": 1260
+          },
+          "infeasibleReason": null
+        },
+        "confirmedItems": [
+          {
+            "id": "material-item-dd0912759b823c9ff824caf981a5ec23",
+            "kind": "experience",
+            "text": "I wrote SQL queries.",
+            "origin": "user",
+            "sourceRef": null,
+            "requirementLevel": null
+          }
+        ],
+        "itemReferences": [
+          {
+            "id": "material-item-dd0912759b823c9ff824caf981a5ec23",
+            "confirmationId": "practice-case-23",
+            "itemId": "fact"
+          }
+        ],
+        "mappingDetails": [
+          {
+            "itemId": "material-item-dd0912759b823c9ff824caf981a5ec23",
+            "termIndexes": [
+              -1
+            ],
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "priorities": [
+          {
+            "skillId": "sql",
+            "tier": 3,
+            "itemIds": [
+              "material-item-dd0912759b823c9ff824caf981a5ec23"
+            ]
+          }
+        ],
+        "issues": [],
+        "uncoveredLabels": []
+      },
+      "requests": [
+        "readDocumentCapabilities",
+        "readMaterialContext"
+      ],
+      "localStorage": "{\"arc:setup-draft:v1:user%3Aowner-a:materials%3Aui-positive\":\"{\\\"version\\\":1,\\\"owner\\\":\\\"user:owner-a\\\",\\\"source\\\":\\\"materials:ui-positive\\\",\\\"updatedAt\\\":1794142756024,\\\"data\\\":{\\\"draftId\\\":\\\"draft-a1b7ebe2-5984-4fb9-88a3-84fe0a830b50\\\",\\\"slots\\\":{\\\"resume\\\":{\\\"documentId\\\":\\\"practice-case-18\\\",\\\"documentVersionId\\\":\\\"practice-case-19\\\",\\\"textVersionId\\\":\\\"practice-case-20\\\",\\\"revision\\\":1,\\\"confirmationId\\\":\\\"practice-case-23\\\"}},\\\"supplements\\\":[],\\\"selection\\\":{\\\"selectionId\\\":\\\"practice-case-24\\\",\\\"selectionRevision\\\":0},\\\"preview\\\":{\\\"contextVersionId\\\":\\\"practice-case-25\\\",\\\"selectionRef\\\":{\\\"selectionId\\\":\\\"practice-case-24\\\",\\\"selectionRevision\\\":0},\\\"previewToken\\\":\\\"f59665028b8fbf287a98f3de64a322a5ad790bf7fbc8b82646fdb0e1c0bb194b\\\"}}}\"}"
+    }
+  ],
+  "realModelCalls": 0,
+  "transport": "Actual MaterialContextReview and public HTTP factory/createDocumentRuntime over Node SQLite and in-memory R2; explicit synthetic legacy deliveries only"
+}
