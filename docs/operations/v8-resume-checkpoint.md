@@ -1,12 +1,14 @@
-# Source routing — 2026-11-08
+# Source routing — 2026-11-09
 
 Read [SOURCE_INDEX.md](../../SOURCE_INDEX.md) before resuming work. It distinguishes the current application, the deployed English release, and paused materials development. Historical directory pointers below are evidence for their recorded release, not instructions to select a checkout. The source consolidation does not deploy or resume the materials task.
+
+Branch cleanup retained `master` and `codex/materials-replan-recovery-20261106`; obsolete branch names below are historical identifiers. Their commits remain in the retained histories or archive tags. Historical worktrees retain their files at pinned commits. See the [branch cleanup record](../verification/2026-11-09-branch-cleanup.md) for the inventory and recovery instructions.
 
 ## Deployed English interface — 2026-11-08
 
 Current website: https://arcmaps.net/. The interface is English throughout; duplicate bilingual labels are removed, responsive typography is checked, and the latest mist/ink-teal palette and quiet loading behavior are preserved.
 
-**Current application source:** `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision`, branch `codex/english-interface-20261108`, application commit `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`. For new website work use the consolidated application source listed in SOURCE_INDEX.md. The older `.worktrees/ui-warm-precision` below contains paused materials work and is not the current production baseline.
+**Deployed release source:** `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision`, pinned at release-record commit `43179bcd3d5d62441d3bf1f439541fcb8ab46a5f`, application commit `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`. The former `codex/english-interface-20261108` branch is merged and deleted. For new website work use the consolidated `master` source listed in SOURCE_INDEX.md. The older `.worktrees/ui-warm-precision` below contains paused materials work and is not the current production baseline.
 
 Site version `f56682e8-ac26-446e-a6dd-c87d38f3684a`, deployment `19cab0f2-aecc-4019-a140-8bf319758ced`, 100% traffic. All 44 bindings/runtime settings remain unchanged. Research executor remains `60b176c2-be13-4df2-8743-c899b596f6d4`. No model calls or migrations were made. The release record is `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision/docs/verification/2026-11-08-english-only-interface.md`; receipts and screenshots are in `D:/CodexTemp/arc-english-20261108`.
 

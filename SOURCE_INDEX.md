@@ -6,8 +6,8 @@
 
 | 任务 | 使用的源码 | 状态 |
 | --- | --- | --- |
-| 网站功能、界面、修复和一般开发 | GitHub `master`；本次汇总合并前使用 `codex/source-consolidation-20261108` | 汇总英文界面、墨青配色、轻量加载、首页改进、Logo，以及主线已有的修复和双语说明 |
-| 查看当前已发布网站的原始源码 | [`codex/english-interface-20261108`](https://github.com/Earorua/arc/tree/codex/english-interface-20261108) | 应用提交 `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`；[发布记录](./docs/verification/2026-11-08-english-only-interface.md) |
+| 网站功能、界面、修复和一般开发 | GitHub [`master`](https://github.com/Earorua/arc/tree/master) | 已合并英文界面、墨青配色、轻量加载、首页改进、Logo，以及主线已有的修复和双语说明 |
+| 查看当前已发布网站的原始源码 | [英文发布源码固定提交](https://github.com/Earorua/arc/tree/43179bcd3d5d62441d3bf1f439541fcb8ab46a5f) | 应用提交 `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`；[发布记录](./docs/verification/2026-11-08-english-only-interface.md) |
 | 继续资料导入、JD / 简历分析和资料驱动规划 | [`codex/materials-replan-recovery-20261106`](https://github.com/Earorua/arc/tree/codex/materials-replan-recovery-20261106) | 保存到 `714ea9e54d87b91a1fee4883176d4f1dd06ecf63`，暂停开发、尚未验收，不属于已发布功能 |
 | 修改或导出品牌素材 | 本应用源码中的 [`docs/brand/`](./docs/brand/) 和 [`public/brand/`](./public/brand/) | 原始设计与当前主题导出分别标明；不要回拷旧网站组件 |
 
@@ -17,7 +17,7 @@
 
 ```bash
 git status --short --branch
-git fetch origin
+git fetch --prune origin
 git remote set-head origin -a
 git log -1 --oneline origin/master
 git log --oneline origin/master..HEAD
@@ -28,12 +28,20 @@ git log --oneline HEAD..origin/master
 
 先判断正在处理网站主线还是资料功能，再选择对应分支。若当前目录落后或包含其他任务的未提交内容，保留原目录，在正确基线上创建任务分支；不要靠目录名、文件修改时间或历史文档中的“当前版本”决定来源。
 
+## 分支与历史记录
+
+GitHub 长期保留 `master` 和 `codex/materials-replan-recovery-20261106`。一般任务从最新 `master` 创建 `codex/` 分支，验证并合并后清理任务分支；资料功能继续使用上表的暂停分支，验收前不并入主线。
+
+2026-11-09 已清理 24 个远端旧分支和 40 个本地旧分支引用。已合并提交仍在主线或资料分支的历史中；三段较早的独立历史保存于 `archive/2026-11-09/*` 标签。完整对应关系和恢复方法见[分支整理记录](./docs/verification/2026-11-09-branch-cleanup.md)及[分支清单](./docs/source/2026-11-09-branches.json)。
+
+历史工作目录保留文件，并固定在原提交上；`detached HEAD` 表示历史快照，不是最新开发分支。读取旧记录时使用其提交号或归档标签，不能依赖已删除的分支名。
+
 ## 本机目录对应关系
 
 | 目录 | 用途 |
 | --- | --- |
 | `D:/CodexScratch/arc-source-readme-20261029` | 本次完整应用源码的整理和验证工作区；以实际分支和远端同步状态为准 |
-| `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision` | 11 月 8 日已发布英文界面的原始工作区 |
+| `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision` | 11 月 8 日已发布英文界面的原始工作区，固定在发布记录提交 |
 | `C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision` | 最新资料功能的暂停检查点 |
 | 外层 `v8-openrouter-research-beta` | 较早的 Research 工作区；其中独立完成的 Logo 已汇总，不作为网站开发起点 |
 | 外层目录下的 `.worktrees/ui-warm-precision` | 较早的资料功能工作区；实现已由最新资料检查点承接 |
