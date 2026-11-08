@@ -1,0 +1,73 @@
+$ErrorActionPreference = 'Stop'
+$packetRoot = (Get-Location).Path
+$packetFolder = Join-Path $packetRoot 'docs/verification/materials-context-only-adoption'
+$packetPrior = Get-Content -LiteralPath (Join-Path $packetRoot 'docs/verification/materials-context-only-adoption-pause/pause-manifest.json') -Raw | ConvertFrom-Json
+$packetSnapshot = Get-Content -LiteralPath (Join-Path $packetRoot 'work/grounded-verification/context-adoption-snapshot-20261108-results.json') -Raw | ConvertFrom-Json
+$packetChecks = @(
+  @{name='context-adoption-full-unit-20261108-a';files=367;passed=8539},
+  @{name='context-adoption-full-serial-20261108-a';files=2;passed=50},
+  @{name='context-adoption-full-research-20261108-a';files=2;passed=99},
+  @{name='context-adoption-full-node-20261108-a';files=9;passed=290},
+  @{name='context-adoption-full-types-20261108-a'},
+  @{name='context-adoption-full-lint-20261108-a';existingWarnings=4},
+  @{name='context-adoption-build-20261108-a'},
+  @{name='context-adoption-render-20261108-a';passed=5},
+  @{name='context-adoption-native-final-20261108-a';checks=11},
+  @{name='context-adoption-course-binding-20261108-a'},
+  @{name='context-adoption-final-source-check-20261108-a'}
+)
+foreach ($packetCheck in $packetChecks) {
+  $packetResult = Get-Content -LiteralPath (Join-Path $packetRoot ('work/grounded-verification/' + $packetCheck.name + '.json')) -Raw | ConvertFrom-Json
+  if ($packetResult.exit -ne 0 -or $packetResult.nonLoopbackDenials -ne 0) { throw "Required check failed: $($packetCheck.name)" }
+  $packetCheck['run'] = $packetResult
+}
+foreach ($packetProperty in $packetSnapshot.filesSha256.PSObject.Properties) {
+  if ((Get-FileHash -LiteralPath (Join-Path $packetRoot $packetProperty.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packetProperty.Value) { throw "Source drift: $($packetProperty.Name)" }
+}
+$packetReviewNames = @('context-replay-spec-20261108-memo.md','context-server-final-quality-20261108-memo.md','public-material-spec-20261108-memo.md','public-material-quality-20261108-memo.md','context-adoption-final-review-20261108-memo.md')
+foreach ($packetReview in $packetReviewNames) {
+  if (-not (Test-Path -LiteralPath (Join-Path $packetRoot ('work/grounded-verification/' + $packetReview)))) { throw "Missing review: $packetReview" }
+}
+if (Test-Path -LiteralPath (Join-Path $packetFolder 'verification.json')) { throw 'Use a new evidence packet; do not overwrite' }
+New-Item -ItemType Directory -Path $packetFolder -Force | Out-Null
+$packetPreviousHashes = @{}
+foreach ($packetFile in $packetPrior.archivedFiles) { $packetPreviousHashes[$packetFile.originalPath] = $packetFile }
+$packetInputs = @(Get-ChildItem -LiteralPath (Join-Path $packetRoot 'work/grounded-verification') -File | Where-Object { $_.Name -match '^(context-adoption-|public-material-|context-replay-|context-server-final-)' } | Sort-Object Name)
+$packetInputs += Get-Item -LiteralPath $PSCommandPath
+$packetArchives = @()
+$packetPriorReferences = @()
+foreach ($packetFile in $packetInputs) {
+  $packetOriginal = [IO.Path]::GetRelativePath($packetRoot,$packetFile.FullName).Replace('\','/')
+  $packetHash = (Get-FileHash -LiteralPath $packetFile.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+  $packetPrevious = $packetPreviousHashes[$packetOriginal]
+  if ($packetPrevious -and $packetPrevious.sha256 -eq $packetHash) {
+    $packetPriorReferences += [ordered]@{originalPath=$packetOriginal;archivePath=('../materials-context-only-adoption-pause/' + $packetPrevious.archivePath);sha256=$packetHash}
+    continue
+  }
+  $packetName = $packetFile.Name
+  if ($packetFile.Extension -in @('.ts','.tsx','.mjs','.cjs','.ps1')) { $packetName += '.source.txt' }
+  elseif ($packetFile.Extension -eq '.log') { $packetName += '.txt' }
+  $packetDestination = Join-Path $packetFolder $packetName
+  if (Test-Path -LiteralPath $packetDestination) { throw "Archive collision: $packetName" }
+  Copy-Item -LiteralPath $packetFile.FullName -Destination $packetDestination
+  if ((Get-FileHash -LiteralPath $packetDestination -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packetHash) { throw "Archive mismatch: $packetName" }
+  $packetArchives += [ordered]@{originalPath=$packetOriginal;archivePath=$packetName;bytes=$packetFile.Length;sha256=$packetHash}
+}
+$packetEvidence = [ordered]@{
+  schemaVersion=1
+  status='offline-context-only-adoption-repair-verified'
+  sourceBase=$packetSnapshot.head
+  sourceManifest='context-adoption-snapshot-20261108-results.json'
+  sourceFileCount=$packetSnapshot.sourceFileCount
+  sourceManifestSha256=$packetSnapshot.manifestSha256
+  checks=$packetChecks
+  reviews=$packetReviewNames
+  courseBinding=[ordered]@{completeContentUnchanged=$true;changedDependency='app/contracts/planning.ts';priorFrozenReferencesUnchanged=$true;legacyEvaluatorRejectsCurrentBinding=$true;newReferenceApproved=$false}
+  limitations=@('No real model quality evaluation','No complete 14-scenario native acceptance','New course dependency binding remains unapproved','No browser or remote acceptance from Node SSR','No Gate approval or release')
+  operations=[ordered]@{newModelInferences=0;newModelCostUsd=0;deployments=0;remoteMigrations=0;githubPushes=0;historicalModelInferences=30;historicalModelCostUsd=0.547151;historicalUnsettled=0}
+  archivedFiles=$packetArchives
+  priorPauseEvidence=$packetPriorReferences
+}
+$packetOutput = Join-Path $packetFolder 'verification.json'
+[IO.File]::WriteAllText($packetOutput, ($packetEvidence | ConvertTo-Json -Depth 12) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+[ordered]@{archives=$packetArchives.Count;priorReferences=$packetPriorReferences.Count;sourceFiles=$packetSnapshot.sourceFileCount;verificationSha256=(Get-FileHash -LiteralPath $packetOutput -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json

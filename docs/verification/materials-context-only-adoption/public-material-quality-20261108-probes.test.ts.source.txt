@@ -1,0 +1,101 @@
+// @vitest-environment node
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { afterEach, expect, it, vi } from "vitest";
+import { PlanDiffReview } from "../../app/components/workspace/plan-diff-review";
+import { materialReplanResponseSchema } from "../../app/contracts/material-planning";
+import { planningMutationResultSchema, planningWorkspaceSchema, type PlanningWorkspace } from "../../app/contracts/planning";
+import { planningMutationResponseSchema, planningWorkspaceResponseSchema } from "../../app/contracts/planning-api";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
+import { PlanningService } from "../../app/server/planning/service";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+
+const databases: ReturnType<typeof createMaterialsD1>[] = [];
+afterEach(() => { vi.restoreAllMocks(); databases.splice(0).forEach(db => db.close()); });
+const notice = "任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。";
+const scopeOf = (workspace: PlanningWorkspace) => ({ kind: "goal" as const, goalId: workspace.goalId,
+  workspaceId: workspace.id, baseVersionId: workspace.activePlanVersionId, revision: workspace.revision });
+function ordinaryInput(workspace: PlanningWorkspace) {
+  const active = workspace.planVersions.find(plan => plan.id === workspace.activePlanVersionId)!;
+  const path = workspace.pathVersions.find(path => path.id === active.pathVersionId)!;
+  return { mutationId: "quality-current-ordinary", baseVersionId: active.id,
+    event: { kind: "agent_replanned" as const, baseRevision: workspace.revision,
+      unitOrder: path.units.map(unit => unit.id), planningDate: active.planningDate } };
+}
+async function setup() {
+  const db = createMaterialsD1(); databases.push(db); seedMaterialSelection(db);
+  let id = 0;
+  const createId = () => `quality-public-${++id}`;
+  const sourceResolver = materialSourceResolver();
+  const repository = new D1PlanningRepository(db as unknown as D1Database, { sourceResolver, now: materialNow, createId });
+  const materials = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver, planningRepository: repository, now: materialNow, createId });
+  const planning = new PlanningService({ repository, materials, sourceResolver, now: materialNow, createId });
+  const request = materialContextRequest();
+  const { scope: unusedScope, selectionRef, ...generation } = request;
+  void unusedScope;
+  const initial = planningMutationResponseSchema.parse(await planning.generateResponse("owner-a", generation)).result.workspace;
+  const scope = scopeOf(initial);
+  return { db, repository, materials, planning, request, selectionRef, initial, scope };
+}
+
+it.each(["accept", "discard"] as const)("keeps a later ordinary proposal generic after material %s, including historical exact retries", async decision => {
+  const f = await setup();
+  f.db.database.prepare("UPDATE material_selections SET scope_json=?").run(JSON.stringify(f.scope));
+  f.db.database.exec("UPDATE document_confirmations SET items_json=json_set(items_json,'$[0].requirementLevel','unspecified')");
+  const preview = await f.materials.create("owner-a", { ...f.request, scope: f.scope, mutationId: "quality-material-context" });
+  const materialRequest = { scope: f.scope, selectionRef: f.selectionRef, contextVersionId: preview.contextVersionId,
+    previewToken: preview.previewToken, mutationId: "quality-material-proposal" };
+  const material = materialReplanResponseSchema.parse(await f.planning.proposeMaterialReplanResponse("owner-a", materialRequest));
+  if (material.outcome !== "proposed") throw new Error("Expected the first material adoption proposal");
+  const materialWorkspace = material.planning.result.workspace;
+  const materialDecision = { mutationId: "quality-material-decision", candidatePlanVersionId: materialWorkspace.pendingPlanVersionId!,
+    baseVersionId: materialWorkspace.activePlanVersionId };
+  const decided = planningMutationResponseSchema.parse(decision === "accept"
+    ? await f.planning.acceptReplanResponse("owner-a", materialDecision)
+    : await f.planning.discardReplanResponse("owner-a", materialDecision));
+  const input = ordinaryInput(decided.result.workspace);
+  const ordinary = planningMutationResponseSchema.parse(await f.planning.appendAgentEventResponse("owner-a", input, scopeOf(decided.result.workspace)));
+  expect(ordinary.result.outcome).toBe("proposed");
+  const latest = ordinary.result.workspace.events.at(-1)!;
+  expect(latest.kind).toBe("agent_replanned");
+  expect(latest).not.toHaveProperty("materialProposal");
+  expect(ordinary.result.workspace.events.filter(event => event.kind === "agent_replanned" && event.materialProposal)).toHaveLength(1);
+  const onAccept = vi.fn(async () => true); const onDiscard = vi.fn(async () => true);
+  const reload = planningWorkspaceResponseSchema.parse(await f.planning.getSavedWorkspaceResponse("owner-a", f.scope.goalId));
+  for (const workspace of [ordinary.result.workspace, reload.workspace!]) {
+    const html = renderToStaticMarkup(createElement(PlanDiffReview, { workspace, onAccept, onDiscard }));
+    expect(html).not.toContain(notice);
+    expect(html).toContain("接受新安排");
+    expect(html).toContain("保留当前安排");
+    expect(JSON.stringify(workspace)).not.toContain("materialContextFingerprint");
+  }
+  const ordinaryDecision = { mutationId: "quality-ordinary-discard", baseVersionId: ordinary.result.workspace.activePlanVersionId,
+    candidatePlanVersionId: ordinary.result.workspace.pendingPlanVersionId! };
+  await f.planning.discardReplanResponse("owner-a", ordinaryDecision);
+  const beforeReplay = f.db.database.prepare("SELECT payload_json FROM planning_events ORDER BY sequence").all();
+  expect(await f.planning.appendAgentEventResponse("owner-a", input, scopeOf(decided.result.workspace))).toEqual(ordinary);
+  expect(await f.planning.proposeMaterialReplanResponse("owner-a", materialRequest)).toEqual(material);
+  expect(f.db.database.prepare("SELECT payload_json FROM planning_events ORDER BY sequence").all()).toEqual(beforeReplay);
+  const storedEvents = beforeReplay.map(row => JSON.parse(String(row.payload_json)));
+  expect(storedEvents.filter(event => event.materialContextFingerprint)).toHaveLength(1);
+  expect(storedEvents.every(event => !("materialProposal" in event))).toBe(true);
+  expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHaveBeenCalled();
+});
+
+it.each([null, "a".repeat(63), "G".repeat(64)])("rejects invalid private evidence before read or replay projection: %s", async invalid => {
+  const f = await setup(); const input = ordinaryInput(f.initial);
+  await f.planning.appendAgentEventResponse("owner-a", input, f.scope);
+  const scope = { ownerId: "owner-a", goalId: f.scope.goalId };
+  const stored = (await f.repository.load(scope))!;
+  const workspace = planningWorkspaceSchema.parse(stored.payload);
+  const corrupt = (workspace: PlanningWorkspace) => ({ ...workspace, events: workspace.events.map(event => ({
+    ...event, materialContextFingerprint: invalid, materialProposal: true })) });
+  vi.spyOn(f.repository, "load").mockResolvedValue({ ...stored, payload: corrupt(workspace) });
+  await expect(f.planning.getWorkspaceResponse("owner-a")).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+  const saved = (await f.repository.findMutation({ ...scope, mutationId: input.mutationId, operation: "event" }))!;
+  const result = planningMutationResultSchema.parse(saved.payload);
+  vi.spyOn(f.repository, "findMutation").mockResolvedValue({ ...saved, payload: { ...result, workspace: corrupt(result.workspace) } });
+  await expect(f.planning.appendAgentEventResponse("owner-a", input, f.scope)).rejects.toMatchObject({ code: "PLANNING_UNAVAILABLE" });
+});

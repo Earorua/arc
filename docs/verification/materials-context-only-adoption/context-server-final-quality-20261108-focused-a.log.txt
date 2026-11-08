@@ -1,0 +1,41 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:39712) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 7404[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on accept [33m 359[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=false without task movement [33m 514[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=true without task movement [33m 519[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied audit warnings when replaying a context-only proposal and accepting it [33m 334[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied target warnings when replaying a context-only proposal and accepting it [33m 352[2mms[22m[39m
+     [33m[2m✓[22m[39m compares only still-enabled dependencies and choices after an explicit detach [33m 302[2mms[22m[39m
+     [33m[2m✓[22m[39m requires adoption of a new confirmation even when its confirmed text is identical [33m 311[2mms[22m[39m
+     [33m[2m✓[22m[39m requires adoption of a new document-version even when its confirmed text is identical [33m 311[2mms[22m[39m
+     [33m[2m✓[22m[39m normalizes dependency, skill mapping, term skill, and intent order across fresh previews [33m 444[2mms[22m[39m
+(node:42904) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-adopted-refs.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 2869[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps A adopted while B is pending and atomically reflects accept while preserving completed work [33m 334[2mms[22m[39m
+   [33m[2m✓[22m[39m re-proposes discarded B with distinct immutable decisions and keeps completed work and adopted links through acceptance [33m 1968[2mms[22m[39m
+(node:6956) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-replan-atomic.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 2182[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks new material accepts when planning is closed but retains discard and successful receipt recovery [33m 435[2mms[22m[39m
+(node:17568) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-learning-intent-flow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1672[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through discard [33m 604[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through accept [33m 455[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks acceptance after deleting the adopted coach source and still permits discard without changing progress or Proof [33m 349[2mms[22m[39m
+(node:6272) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-detach.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1178[2mms[22m[39m
+   [33m[2m✓[22m[39m detaches the last adopted document without changing its library or historical plan, and invalidates a concurrent old preview [33m 330[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects wrong owner, stale scope, wrong current reference and pending replans without partial writes [33m 467[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m52 passed[39m[22m[90m (52)[39m
+[2m   Start at [22m 16:39:57
+[2m   Duration [22m 21.12s[2m (transform 970ms, setup 938ms, import 4.13s, tests 15.31s, environment 0ms)[22m
+

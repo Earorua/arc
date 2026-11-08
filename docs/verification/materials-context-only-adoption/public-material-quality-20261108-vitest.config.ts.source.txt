@@ -1,0 +1,4 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+export default defineConfig({ ...base, test: { ...base.test, environment: "node",
+  include: ["work/grounded-verification/public-material-quality-20261108-probes.test.ts"] } });

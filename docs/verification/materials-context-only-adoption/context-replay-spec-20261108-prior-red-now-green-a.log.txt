@@ -1,0 +1,13 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:39092) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/context-adoption-quality-20261108-probes.test.ts [2m([22m[2m12 tests[22m[2m | [22m[33m11 skipped[39m[2m)[22m[33m 416[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves unapplied warnings when replaying a newly routed context-only proposal [33m 415[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[2m | [22m[33m11 skipped[39m[90m (12)[39m
+[2m   Start at [22m 16:36:54
+[2m   Duration [22m 1.28s[2m (transform 356ms, setup 199ms, import 503ms, tests 416ms, environment 0ms)[22m
+

@@ -1,0 +1,14 @@
+app/server/auth/runtime.ts(35,26): error TS2339: Property 'ARC_ENVIRONMENT' does not exist on type 'Env'.
+app/server/auth/runtime.ts(36,26): error TS2339: Property 'BETTER_AUTH_URL' does not exist on type 'Env'.
+app/server/auth/runtime.ts(37,29): error TS2339: Property 'BETTER_AUTH_SECRET' does not exist on type 'Env'.
+app/server/auth/runtime.ts(38,27): error TS2339: Property 'GOOGLE_CLIENT_ID' does not exist on type 'Env'.
+app/server/auth/runtime.ts(39,31): error TS2339: Property 'GOOGLE_CLIENT_SECRET' does not exist on type 'Env'.
+app/server/auth/runtime.ts(40,27): error TS2339: Property 'GITHUB_CLIENT_ID' does not exist on type 'Env'.
+app/server/auth/runtime.ts(41,31): error TS2339: Property 'GITHUB_CLIENT_SECRET' does not exist on type 'Env'.
+app/server/documents/runtime.ts(113,38): error TS2339: Property 'BETTER_AUTH_URL' does not exist on type 'Env'.
+app/server/documents/runtime.ts(113,73): error TS2339: Property 'BETTER_AUTH_URL' does not exist on type 'Env'.
+app/server/documents/runtime.ts(120,47): error TS2339: Property 'DB' does not exist on type 'Env'.
+app/server/documents/runtime.ts(120,127): error TS2339: Property 'DB' does not exist on type 'Env'.
+db/d1.ts(12,24): error TS2339: Property 'DB' does not exist on type 'Env'.
+db/index.ts(6,12): error TS2339: Property 'DB' does not exist on type 'Env'.
+db/index.ts(12,22): error TS2339: Property 'DB' does not exist on type 'Env'.

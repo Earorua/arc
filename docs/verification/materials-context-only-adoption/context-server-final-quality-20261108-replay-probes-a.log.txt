@@ -1,0 +1,22 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:43796) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/context-replay-spec-20261108-probes.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 4877[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with audit-answers against historical workspace before and after acceptance [33m 653[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with target against historical workspace before and after acceptance [33m 531[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with both against historical workspace before and after acceptance [33m 494[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with audit-id-only against historical workspace before and after acceptance [33m 646[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with none against historical workspace before and after acceptance [33m 727[2mms[22m[39m
+     [33m[2m✓[22m[39m retains existing no-change receipt semantics for audit-answers [33m 392[2mms[22m[39m
+     [33m[2m✓[22m[39m retains existing no-change receipt semantics for target [33m 361[2mms[22m[39m
+     [33m[2m✓[22m[39m retains existing no-change receipt semantics for both [33m 376[2mms[22m[39m
+     [33m[2m✓[22m[39m retains existing no-change receipt semantics for audit-id-only [33m 347[2mms[22m[39m
+     [33m[2m✓[22m[39m retains existing no-change receipt semantics for none [33m 349[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 16:41:07
+[2m   Duration [22m 6.14s[2m (transform 496ms, setup 345ms, import 696ms, tests 4.88s, environment 0ms)[22m
+

@@ -1,0 +1,17 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:39176) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/context-replay-spec-20261108-probes.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2743[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with audit-answers against historical workspace before and after acceptance [33m 470[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with target against historical workspace before and after acceptance [33m 345[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with both against historical workspace before and after acceptance [33m 340[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with audit-id-only against historical workspace before and after acceptance [33m 335[2mms[22m[39m
+     [33m[2m✓[22m[39m replays first adoption with none against historical workspace before and after acceptance [33m 340[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 16:36:54
+[2m   Duration [22m 3.59s[2m (transform 350ms, setup 197ms, import 495ms, tests 2.74s, environment 0ms)[22m
+

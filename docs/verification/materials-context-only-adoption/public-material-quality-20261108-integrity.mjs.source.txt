@@ -1,0 +1,71 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { captureCourseReference, canonicalJson, sha256 } from "../../docs/verification/materials-quality-v2/capture-course-reference.mjs";
+import { loadReviewedReferences, REFERENCE_HASHES } from "../../docs/verification/materials-quality-v2/candidate-references.mjs";
+
+const root = process.cwd(), directory = "docs/verification/materials-quality-v2";
+const read = path => readFile(join(root, path));
+const evidencePath = "work/grounded-verification/context-adoption-course-binding-20261108-results.json";
+const evidenceBytes = await read(evidencePath), evidence = JSON.parse(evidenceBytes);
+const originalBytes = await read(evidence.priorReference.path), prior = JSON.parse(originalBytes);
+assert.equal(sha256(originalBytes), "bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676");
+assert.equal(sha256(originalBytes), evidence.priorReference.sha256);
+const recordedBytes = await read(evidence.currentCapture.path), recorded = JSON.parse(recordedBytes);
+assert.equal(sha256(recordedBytes), evidence.currentCapture.sha256);
+const current = await captureCourseReference({ root });
+assert.deepEqual(current, recorded, "Fresh capture must equal recorded full capture");
+assert.deepEqual(current.objects, prior.objects);
+assert.deepEqual(current.sourceFiles, prior.sourceFiles);
+assert.deepEqual(current.inventory, prior.inventory);
+assert.deepEqual(current.dependencies.map(row => row.path), prior.dependencies.map(row => row.path));
+const differences = current.dependencies.flatMap((after, index) => canonicalJson(after) === canonicalJson(prior.dependencies[index])
+  ? [] : [{ path: after.path, before: prior.dependencies[index], after }]);
+assert.equal(current.dependencies.length, 85);
+assert.deepEqual(differences.map(row => row.path), ["app/contracts/planning.ts"]);
+assert.deepEqual(differences, evidence.changedDependencies);
+assert.equal(evidence.dependencyCount, 85); assert.equal(evidence.unchangedDependencyCount, 84);
+assert.equal(evidence.bundleEqual, current.capture.bundleSha256 === prior.capture.bundleSha256);
+assert.equal(evidence.bundleEqual, false);
+assert.deepEqual(evidence.objectHashes, Object.fromEntries(Object.entries(current.objects).map(([key, object]) => [key, object.sha256])));
+for (const key of ["fullObjectsEqual", "sourceFilesEqual", "inventoryEqual", "legacyEvaluatorRejectsCurrentSource"]) assert.equal(evidence[key], true);
+for (const key of ["newCandidateReferenceApproved", "realModelQualificationPassed", "gatePassed"]) assert.equal(evidence[key], false);
+assert.equal(evidence.modelCalls, 0); assert.equal(evidence.externalLinksFetched, 0);
+assert.equal(evidence.status, "current-course-content-equivalent-new-dependency-binding-requires-review");
+
+const frozenPaths = execFileSync("git", ["ls-tree", "-r", "--name-only", "f875d21", "--", directory], { encoding: "utf8", windowsHide: true }).trim().split(/\r?\n/u);
+const frozenHashes = {};
+for (const path of frozenPaths) {
+  const bytes = await read(path);
+  assert.deepEqual(bytes, execFileSync("git", ["show", `f875d21:${path}`], { windowsHide: true }), `${path} must retain frozen bytes`);
+  frozenHashes[path] = sha256(bytes);
+}
+for (const [name, digest] of Object.entries(REFERENCE_HASHES)) assert.equal(sha256(await read(`${directory}/${name}`)), digest);
+const source = JSON.parse(await read(`${directory}/annotations.draft.json`));
+const failedPins = [];
+for (const entry of [...source.inputHashes, ...source.basis, ...prior.dependencies]) {
+  const bytes = await read(entry.path);
+  if (sha256(bytes) !== entry.sha256) failedPins.push(entry.path);
+}
+assert.deepEqual(failedPins, ["app/contracts/planning.ts"], "Old evaluator rejection must be attributable to this precise binding change");
+await assert.rejects(() => loadReviewedReferences(root), /reference-integrity: pinned bytes differ/u);
+const snapshot = JSON.parse(await read("work/grounded-verification/context-adoption-snapshot-20261108-results.json"));
+assert.equal(snapshot.sourceFileCount, 994);
+const reviewedPaths = ["app/contracts/planning.ts", "app/server/planning/service.ts", "app/components/workspace/plan-diff-review.tsx",
+  "tests/components/materials-plan-diff.test.tsx", "tests/lib/planning/agent-replanned.test.ts", "tests/server/material-adopted-refs.test.ts",
+  "tests/server/material-proposal-public-view.test.ts"];
+const reviewedHashes = {};
+for (const path of reviewedPaths) {
+  const digest = sha256(await read(path));
+  assert.equal(digest, snapshot.filesSha256[path], `Review source must match root's frozen source snapshot: ${path}`);
+  reviewedHashes[path] = digest;
+}
+const result = { status: "PASS-limited-evidence-integrity-only", originalReferenceSha256: sha256(originalBytes),
+  recordedCaptureSha256: sha256(recordedBytes), evidenceSha256: sha256(evidenceBytes),
+  completeCourseObjectsSourceFilesInventoryEqual: true, freshCaptureMatchesRecorded: true,
+  dependencies: 85, unchangedDependencies: 84, changedDependencies: ["app/contracts/planning.ts"],
+  frozenFilesComparedToF875d21: frozenPaths.length, frozenHashes, reviewedHashes,
+  oldEvaluatorRejectsExactlyChangedDependency: true, newReferenceApproved: false, gatePassed: false };
+await writeFile(join(root, "work/grounded-verification/public-material-quality-20261108-integrity-results.json"), JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ ...result, frozenHashes: undefined, reviewedHashes: undefined }));

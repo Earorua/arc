@@ -1,0 +1,114 @@
+
+  vinext build  (Vite 8.1.5)
+
+[34m[1/5] analyze client references...[39m
+[2Ktransforming...✓ 1146 modules transformed.
+rendering chunks...
+[32m✓ built in 2.11s[39m
+[34m[2/5] analyze server references...[39m
+[2Ktransforming...✓ 309 modules transformed.
+rendering chunks...
+[32m✓ built in 346ms[39m
+[34m[3/5] build rsc environment...[39m
+[2Ktransforming...✓ 1152 modules transformed.
+rendering chunks...
+computing gzip size...
+[32m✓ built in 2.38s[39m
+[34m[4/5] build client environment...[39m
+[2Ktransforming...✓ 313 modules transformed.
+rendering chunks...
+computing gzip size...
+[32m✓ built in 578ms[39m
+[34m[5/5] build ssr environment...[39m
+[2Ktransforming...✓ 315 modules transformed.
+rendering chunks...
+computing gzip size...
+[32m✓ built in 487ms[39m
+[0m
+  Route (app)
+  ┌ ? /                                                   
+  ├ ? /admin                                              
+  ├ λ /api/account-link/cancel                            
+  ├ λ /api/account-link/continue                          
+  ├ λ /api/account-link/start                             
+  ├ λ /api/account-link/status                            
+  ├ λ /api/admin/account-recovery                         
+  ├ λ /api/admin/health                                   
+  ├ λ /api/agents/planner                                 
+  ├ λ /api/agents/planner/:id                             
+  ├ λ /api/agents/planner/:id/apply                       
+  ├ λ /api/agents/tutor                                   
+  ├ λ /api/agents/workspace                               
+  ├ λ /api/auth/:all+                                     
+  ├ λ /api/auth/providers                                 
+  ├ λ /api/document-consents                              
+  ├ λ /api/document-consents/:consentId/revoke            
+  ├ λ /api/document-deletions/:deletionJobId              
+  ├ λ /api/document-jobs                                  
+  ├ λ /api/document-jobs/:jobId                           
+  ├ λ /api/document-jobs/:jobId/cancel                    
+  ├ λ /api/document-mutations/:mutationId                 
+  ├ λ /api/documents                                      
+  ├ λ /api/documents/:documentId                          
+  ├ λ /api/documents/:documentId/adopt-extraction         
+  ├ λ /api/documents/:documentId/confirmations            
+  ├ λ /api/documents/:documentId/extractions/:extractionId
+  ├ λ /api/documents/:documentId/review-draft             
+  ├ λ /api/documents/:documentId/versions                 
+  ├ λ /api/documents/capabilities                         
+  ├ λ /api/intelligence/flagship                          
+  ├ λ /api/intelligence/preview                           
+  ├ λ /api/intelligence/research                          
+  ├ λ /api/intelligence/research/:id                      
+  ├ λ /api/intelligence/research/:id/retry                
+  ├ λ /api/intelligence/research/closed-preflight         
+  ├ λ /api/intelligence/research/eligibility              
+  ├ λ /api/intelligence/research/recover                  
+  ├ λ /api/internal/research-bridge/:operation            
+  ├ λ /api/learning/events                                
+  ├ λ /api/material-selections                            
+  ├ λ /api/material-selections/:selectionId               
+  ├ λ /api/migrations/local-state                         
+  ├ λ /api/planning/adopted-materials                     
+  ├ λ /api/planning/adopted-materials/detach              
+  ├ λ /api/planning/events                                
+  ├ λ /api/planning/generate                              
+  ├ λ /api/planning/history                               
+  ├ λ /api/planning/material-contexts                     
+  ├ λ /api/planning/material-contexts/:contextVersionId   
+  ├ λ /api/planning/material-generation-receipts          
+  ├ λ /api/planning/material-history                      
+  ├ λ /api/planning/material-replans                      
+  ├ λ /api/planning/replans/accept                        
+  ├ λ /api/planning/replans/discard                       
+  ├ λ /api/planning/workspace                             
+  ├ λ /api/proofs                                         
+  ├ λ /api/proofs/:id/asset                               
+  ├ λ /api/proofs/:id/sharing                             
+  ├ λ /api/proofs/:id/versions                            
+  ├ λ /api/proofs/:id/visibility                          
+  ├ λ /api/proofs/:id/withdraw                            
+  ├ λ /api/proofs/upload                                  
+  ├ λ /api/proofs/workspace                               
+  ├ λ /api/public/proofs/:token                           
+  ├ λ /api/workspace                                      
+  ├ ? /coach                                              
+  ├ ? /history                                            
+  ├ ? /intelligence                                       
+  ├ ? /method                                             
+  ├ ? /path                                               
+  ├ ? /proof                                              
+  ├ ? /setup                                              
+  ├ ? /showcase                                           
+  ├ ? /sign-in                                            
+  ├ ? /stack                                              
+  └ ? /today                                              
+
+  λ API  ? Unknown
+
+  ? Some routes could not be classified. vinext currently uses static analysis
+    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.
+    Automatic classification will be improved in a future release.
+
+  Build complete. Run `vinext start` to start the production server.
+

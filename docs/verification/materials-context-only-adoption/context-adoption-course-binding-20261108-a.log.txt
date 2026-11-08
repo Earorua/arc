@@ -1,0 +1,1 @@
+{"output":"work/grounded-verification/context-adoption-course-binding-20261108-results.json","dependencyCount":85,"changedDependencies":["app/contracts/planning.ts"],"fullObjectsEqual":true,"originalEvaluatorRejected":true,"newCandidateReferenceApproved":false}

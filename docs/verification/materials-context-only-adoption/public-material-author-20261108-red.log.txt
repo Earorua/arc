@@ -1,0 +1,341 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:40900) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/components/materials-plan-diff.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/server/material-proposal-public-view.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 532[2mms[22m[39m
+[31m   [31m×[31m renders explicit material adoption from the actual proposal, same-request replay and workspace reload[39m[32m 290[2mms[22m[39m
+   [32m✓[39m keeps an actual ordinary no-change agent proposal generic across response, replay and reload[32m 142[2mms[22m[39m
+[31m   [31m×[31m removes a preexisting display indicator when repository evidence does not identify a material proposal[39m[32m 100[2mms[22m[39m
+ [31m❯[39m tests/lib/planning/agent-replanned.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 342[2mms[22m[39m
+     [32m✓[39m creates a proposed plan without activating it and replays identically[32m 92[2mms[22m[39m
+     [32m✓[39m accepts material context evidence only on the stored proposal, outside the client event contract[32m 19[2mms[22m[39m
+[31m     [31m×[31m accepts the display indicator only as literal true on a recorded agent proposal and still reads old events[39m[32m 24[2mms[22m[39m
+     [32m✓[39m rejects a client-injected material proposal indicator: true[32m 14[2mms[22m[39m
+     [32m✓[39m rejects a client-injected material proposal indicator: false[32m 13[2mms[22m[39m
+     [32m✓[39m rejects a client-injected material proposal indicator: true[32m 14[2mms[22m[39m
+     [32m✓[39m rejects missing unit order[32m 17[2mms[22m[39m
+     [32m✓[39m rejects duplicate unit order[32m 16[2mms[22m[39m
+     [32m✓[39m rejects unknown unit order[32m 15[2mms[22m[39m
+     [32m✓[39m rejects dependency unit order[32m 20[2mms[22m[39m
+     [32m✓[39m preserves completed history through replan_accepted and replay[32m 49[2mms[22m[39m
+     [32m✓[39m preserves completed history through replan_discarded and replay[32m 47[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m [ tests/components/materials-plan-diff.test.tsx ][22m
+[31m[1mError[22m: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mIdentifier `current` has already been declared
+    [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m tests/components/materials-plan-diff.test.tsx:23:9 [38;5;246m][0m
+    [38;5;246m│[0m
+ [38;5;246m23 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0mcurrent[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249mw[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mk[0m[38;5;249ms[0m[38;5;249mp[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249me[0m[38;5;249m([0m[38;5;249m)[0m[38;5;249m;[0m
+ [38;5;240m   │[0m         ───┬───  
+ [38;5;240m   │[0m            ╰───── `current` has already been declared here
+ [38;5;240m   │[0m 
+ [38;5;246m44 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0mcurrent[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249mp[0m[38;5;249ml[0m[38;5;249ma[0m[38;5;249mn[0m[38;5;249mn[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249mg[0m[38;5;249mW[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mk[0m[38;5;249ms[0m[38;5;249mp[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249me[0m[38;5;249mS[0m[38;5;249mc[0m[38;5;249mh[0m[38;5;249me[0m[38;5;249mm[0m[38;5;249ma[0m[38;5;249m.[0m[38;5;249mp[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249ms[0m[38;5;249me[0m[38;5;249m([0m[38;5;249m{[0m[38;5;249m [0m[38;5;249m.[0m[38;5;249m.[0m[38;5;249m.[0m[38;5;249mt[0m[38;5;249mr[0m[38;5;249ma[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249mi[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249m.[0m[38;5;249mw[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mk[0m[38;5;249ms[0m[38;5;249mp[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249me[0m[38;5;249m,[0m[38;5;249m [0m[38;5;249me[0m[38;5;249mv[0m[38;5;249me[0m[38;5;249mn[0m[38;5;249mt[0m[38;5;249ms[0m[38;5;249m:[0m[38;5;249m [0m[38;5;249mt[0m[38;5;249mr[0m[38;5;249ma[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249mi[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249m.[0m[38;5;249mw[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mk[0m[38;5;249ms[0m[38;5;249mp[0m[38;5;249ma[0m[38;5;249mc[0m[38;5;249me[0m[38;5;249m.[0m[38;5;249me[0m[38;5;249mv[0m[38;5;249me[0m[38;5;249mn[0m[38;5;249mt[0m[38;5;249ms[0m[38;5;249m.[0m[38;5;249mm[0m[38;5;249ma[0m[38;5;249mp[0m[38;5;249m([0m[38;5;249me[0m[38;5;249mv[0m[38;5;249me[0m[38;5;249mn[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m>[0m[38;5;249m [0m[38;5;249m{[0m
+ [38;5;240m   │[0m         ───┬───  
+ [38;5;240m   │[0m            ╰───── It can not be redeclared here
+[38;5;246m────╯[0m
+[39m
+  Plugin: [35mvite:oxc[39m
+  File: [36mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/components/materials-plan-diff.test.tsx[39m
+[90m [2m❯[22m transformWithOxc node_modules/vite/dist/node/chunks/node.js:[2m4033:19[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:[2m4104:26[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:[2m30201:51[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/node.js:[2m20124:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected { kind: 'agent_replanned', …(8) } to have property "materialProposal" with value true[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m81:51[22m[39m
+    [90m 79|[39m     expect(workspace.activePlanVersionId).toBe(f.initial.activePlanVer…
+    [90m 80|[39m     [34mexpect[39m(workspace[33m.[39mpendingPlanVersionId)[33m.[39mnot[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m 81|[39m     expect.soft(workspace.events.at(-1), surface).toHaveProperty("mate…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 82|[39m     [35mconst[39m json [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m(response)[33m;[39m
+    [90m 83|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"materialContextFingerprint"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected '<section class="plan-diff-review" ari…' to contain '任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。'[39m
+
+Expected: [32m"任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m87:32[22m[39m
+    [90m 85|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"PRIVATE-MATERIAL-SENTINEL"[39m)[33m;[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected '<section class="plan-diff-review" ari…' to contain '接受资料更新'[39m
+
+Expected: [32m"接受资料更新"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m88:32[22m[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected '<section class="plan-diff-review" ari…' to contain '保留当前资料与安排'[39m
+
+Expected: [32m"保留当前资料与安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m89:32[22m[39m
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m 91|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected '<section class="plan-diff-review" ari…' not to contain '接受新安排'[39m
+
+Expected: [32m"接受新安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m90:36[22m[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 91|[39m   }
+    [90m 92|[39m   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHav…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected { kind: 'agent_replanned', …(8) } to have property "materialProposal" with value true[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m81:51[22m[39m
+    [90m 79|[39m     expect(workspace.activePlanVersionId).toBe(f.initial.activePlanVer…
+    [90m 80|[39m     [34mexpect[39m(workspace[33m.[39mpendingPlanVersionId)[33m.[39mnot[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m 81|[39m     expect.soft(workspace.events.at(-1), surface).toHaveProperty("mate…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 82|[39m     [35mconst[39m json [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m(response)[33m;[39m
+    [90m 83|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"materialContextFingerprint"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected '<section class="plan-diff-review" ari…' to contain '任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。'[39m
+
+Expected: [32m"任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m87:32[22m[39m
+    [90m 85|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"PRIVATE-MATERIAL-SENTINEL"[39m)[33m;[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected '<section class="plan-diff-review" ari…' to contain '接受资料更新'[39m
+
+Expected: [32m"接受资料更新"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m88:32[22m[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected '<section class="plan-diff-review" ari…' to contain '保留当前资料与安排'[39m
+
+Expected: [32m"保留当前资料与安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m89:32[22m[39m
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m 91|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected '<section class="plan-diff-review" ari…' not to contain '接受新安排'[39m
+
+Expected: [32m"接受新安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m90:36[22m[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 91|[39m   }
+    [90m 92|[39m   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHav…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected { kind: 'agent_replanned', …(8) } to have property "materialProposal" with value true[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m81:51[22m[39m
+    [90m 79|[39m     expect(workspace.activePlanVersionId).toBe(f.initial.activePlanVer…
+    [90m 80|[39m     [34mexpect[39m(workspace[33m.[39mpendingPlanVersionId)[33m.[39mnot[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m 81|[39m     expect.soft(workspace.events.at(-1), surface).toHaveProperty("mate…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 82|[39m     [35mconst[39m json [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m(response)[33m;[39m
+    [90m 83|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"materialContextFingerprint"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected '<section class="plan-diff-review" ari…' to contain '任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。'[39m
+
+Expected: [32m"任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m87:32[22m[39m
+    [90m 85|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"PRIVATE-MATERIAL-SENTINEL"[39m)[33m;[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected '<section class="plan-diff-review" ari…' to contain '接受资料更新'[39m
+
+Expected: [32m"接受资料更新"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m88:32[22m[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected '<section class="plan-diff-review" ari…' to contain '保留当前资料与安排'[39m
+
+Expected: [32m"保留当前资料与安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m89:32[22m[39m
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m 91|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected '<section class="plan-diff-review" ari…' not to contain '接受新安排'[39m
+
+Expected: [32m"接受新安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m90:36[22m[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 91|[39m   }
+    [90m 92|[39m   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHav…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mremoves a preexisting display indicator when repository evidence does not identify a material proposal
+[31m[1mPlanningUnavailableError[22m: Planning is unavailable. The previous valid state is unchanged.[39m
+[36m [2m❯[22m PlanningService.parseOwnedWorkspace app/server/planning/service.ts:[2m393:13[22m[39m
+    [90m391|[39m     [35mcatch[39m (error) {
+    [90m392|[39m       [35mif[39m (error [35minstanceof[39m [33mPlanningNotFoundError[39m) [35mthrow[39m error[33m;[39m
+    [90m393|[39m       [35mthrow[39m [35mnew[39m [33mPlanningUnavailableError[39m()[33m;[39m
+    [90m   |[39m             [31m^[39m
+    [90m394|[39m     }
+    [90m395|[39m   }
+[90m [2m❯[22m PlanningService.readWorkspaceResponse app/server/planning/service.ts:[2m128:53[22m[39m
+[90m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m129:56[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/18]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/planning/agent-replanned.test.ts[2m > [22magent planning proposals[2m > [22maccepts the display indicator only as literal true on a recorded agent proposal and still reads old events
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/planning/agent-replanned.test.ts:[2m39:89[22m[39m
+    [90m 37|[39m     [35mconst[39m { event } [33m=[39m [34minput[39m()[33m;[39m
+    [90m 38|[39m     expect(planningEventSchema.parse(event)).not.toHaveProperty("mater…
+    [90m 39|[39m     expect(planningEventSchema.safeParse({ ...event, materialProposal:…
+    [90m   |[39m                                                                                         [31m^[39m
+    [90m 40|[39m     [35mfor[39m ([35mconst[39m materialProposal [35mof[39m [[35mfalse[39m[33m,[39m [32m"true"[39m[33m,[39m [34m1[39m[33m,[39m [35mnull[39m]) {
+    [90m 41|[39m       expect(planningEventSchema.safeParse({ ...event, materialProposa…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/18]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m12 passed[39m[22m[90m (15)[39m
+[2m   Start at [22m 16:36:44
+[2m   Duration [22m 1.82s[2m (transform 554ms, setup 661ms, import 809ms, tests 874ms, environment 1.61s)[22m
+

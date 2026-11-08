@@ -1,0 +1,44 @@
+[
+  {
+    "Path": "app/contracts/planning.ts",
+    "Sha256": "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93",
+    "CRLF": 0,
+    "BareLF": 597
+  },
+  {
+    "Path": "app/server/planning/service.ts",
+    "Sha256": "38ed8060e2405202afe83fdaa4d67362cc93f5b71f6f8174cd866007664f331b",
+    "CRLF": 0,
+    "BareLF": 541
+  },
+  {
+    "Path": "app/components/workspace/plan-diff-review.tsx",
+    "Sha256": "c173c958d17737b68fe7e1603a5a6e13bca77299baf0bdb39bd81cd6d97a333b",
+    "CRLF": 100,
+    "BareLF": 0
+  },
+  {
+    "Path": "tests/components/materials-plan-diff.test.tsx",
+    "Sha256": "8be3d47b2dab3af62fd3d5f8f71b2af347384a44bbab920dc75674710fa91767",
+    "CRLF": 0,
+    "BareLF": 225
+  },
+  {
+    "Path": "tests/lib/planning/agent-replanned.test.ts",
+    "Sha256": "211a75fe92b8e884ad318b1ec7d865a88025213eb0df75395dd3ec4f54265942",
+    "CRLF": 0,
+    "BareLF": 89
+  },
+  {
+    "Path": "tests/server/material-proposal-public-view.test.ts",
+    "Sha256": "57f5a08a99dab6cb7db26162d8d8e6ea8f07cce4a422cea3177002d2ec0e09d7",
+    "CRLF": 0,
+    "BareLF": 133
+  },
+  {
+    "Path": "tests/server/material-adopted-refs.test.ts",
+    "Sha256": "c4b1c1224c0303387214ceecaf40b6ba283c922a49f87829055ca67f5737775f",
+    "CRLF": 0,
+    "BareLF": 188
+  }
+]

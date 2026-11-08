@@ -1,0 +1,2223 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:15328) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8152) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-proposal-public-view.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 562[2mms[22m[39m
+[31m   [31m×[31m renders explicit material adoption from the actual proposal, same-request replay and workspace reload[39m[33m 310[2mms[22m[39m
+   [32m✓[39m keeps an actual ordinary no-change agent proposal generic across response, replay and reload[32m 138[2mms[22m[39m
+[31m   [31m×[31m removes a preexisting display indicator when repository evidence does not identify a material proposal[39m[32m 114[2mms[22m[39m
+(node:40844) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/lib/planning/agent-replanned.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 391[2mms[22m[39m
+     [32m✓[39m creates a proposed plan without activating it and replays identically[32m 106[2mms[22m[39m
+     [32m✓[39m accepts material context evidence only on the stored proposal, outside the client event contract[32m 22[2mms[22m[39m
+[31m     [31m×[31m accepts the display indicator only as literal true on a recorded agent proposal and still reads old events[39m[32m 26[2mms[22m[39m
+     [32m✓[39m rejects a client-injected material proposal indicator: true[32m 17[2mms[22m[39m
+     [32m✓[39m rejects a client-injected material proposal indicator: false[32m 15[2mms[22m[39m
+     [32m✓[39m rejects a client-injected material proposal indicator: true[32m 18[2mms[22m[39m
+     [32m✓[39m rejects missing unit order[32m 20[2mms[22m[39m
+     [32m✓[39m rejects duplicate unit order[32m 19[2mms[22m[39m
+     [32m✓[39m rejects unknown unit order[32m 19[2mms[22m[39m
+     [32m✓[39m rejects dependency unit order[32m 22[2mms[22m[39m
+     [32m✓[39m preserves completed history through replan_accepted and replay[32m 55[2mms[22m[39m
+     [32m✓[39m preserves completed history through replan_discarded and replay[32m 52[2mms[22m[39m
+ [31m❯[39m tests/components/materials-plan-diff.test.tsx [2m([22m[2m15 tests[22m[2m | [22m[31m10 failed[39m[2m)[22m[33m 617[2mms[22m[39m
+[31m   [31m×[31m explains a public context-only proposal without reading private history or saving it[39m[32m 101[2mms[22m[39m
+[31m   [31m×[31m does not use a private fingerprint as the public material proposal indicator[39m[32m 76[2mms[22m[39m
+[31m   [31m×[31m saves a context-only proposal only on explicit accept using the current candidate ID[39m[32m 33[2mms[22m[39m
+[31m   [31m×[31m saves a context-only proposal only on explicit discard using the current candidate ID[39m[32m 33[2mms[22m[39m
+[31m   [31m×[31m honors an explicit accept label and reports the materials update to the parent[39m[32m 32[2mms[22m[39m
+[31m   [31m×[31m disables both context-only actions while accept is pending and lets a failed decision be retried[39m[32m 30[2mms[22m[39m
+[31m   [31m×[31m disables both context-only actions while discard is pending and lets a failed decision be retried[39m[32m 33[2mms[22m[39m
+   [32m✓[39m keeps an ordinary no-change agent proposal generic even when material history arrives[32m 106[2mms[22m[39m
+[31m   [31m×[31m keeps a material proposal with outside-week task changes generic[39m[32m 34[2mms[22m[39m
+[31m   [31m×[31m keeps a material proposal with next-day task changes generic[39m[32m 30[2mms[22m[39m
+[31m   [31m×[31m shows only the pending candidate's material explanation before a decision without mutating canonical workspace[39m[32m 27[2mms[22m[39m
+   [32m✓[39m shows generation, discarded and accepted as three distinct history entries[32m 7[2mms[22m[39m
+   [32m✓[39m reads an older server without the option and does not mistake an undated proposal for a pending one[32m 15[2mms[22m[39m
+   [32m✓[39m aborts and discards an earlier owner's delayed material history across A→B→A[32m 36[2mms[22m[39m
+   [32m✓[39m keeps existing non-material comparisons unchanged and reads no private history without a cloud owner[32m 24[2mms[22m[39m
+ [31m❯[39m tests/server/material-adopted-refs.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1088[2mms[22m[39m
+   [32m✓[39m reads only the active goal's adopted confirmations, pins old versions, rejects a wrong owner/plan and retains other links after deletion[32m 147[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps A adopted while B is pending and atomically reflects accept while preserving completed work [33m 309[2mms[22m[39m
+   [32m✓[39m keeps A adopted while B is pending and atomically reflects discard while preserving completed work[32m 268[2mms[22m[39m
+[31m   [31m×[31m re-proposes discarded B with distinct immutable decisions and keeps completed work and adopted links through acceptance[39m[32m 243[2mms[22m[39m
+   [32m✓[39m returns an empty selection for an active plan that adopted no material[32m 52[2mms[22m[39m
+   [32m✓[39m does not expose live-looking links if their context was only proposed for the workspace[32m 67[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 14 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mexplains a public context-only proposal without reading private history or saving it
+[31m[1mZodError[22m[39m: [
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "completed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"completed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "number",
+          "code": "invalid_type",
+          "path": [
+            "actualMinutes"
+          ],
+          "message": "Invalid input: expected number, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "delayed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"delayed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "skipped"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"skipped\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "too_hard"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"too_hard\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "already_known"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"already_known\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "availability_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"availability_changed\""
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "availability"
+          ],
+          "message": "Invalid input: expected object, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized key: \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_accepted"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_accepted\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_discarded"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_discarded\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "material_usage_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"material_usage_changed\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ]
+    ],
+    "path": [
+      "events",
+      0
+    ],
+    "message": "Invalid input"
+  }
+]
+[36m [2m❯[22m materialProposal tests/components/materials-plan-diff.test.tsx:[2m44:51[22m[39m
+    [90m 42|[39m   const candidate = transition.workspace.planVersions.find(plan => pla…
+    [90m 43|[39m   const candidatePath = transition.workspace.pathVersions.find(path =>…
+    [90m 44|[39m   const publicWorkspace = planningWorkspaceSchema.parse({ ...transitio…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 45|[39m     [35mif[39m (event[33m.[39mkind [33m!==[39m [32m"agent_replanned"[39m) [35mreturn[39m event[33m;[39m
+    [90m 46|[39m     [35mconst[39m visible [33m=[39m { [33m...[39mevent }[33m;[39m
+[90m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m59:75[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mdoes not use a private fingerprint as the public material proposal indicator
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <p
+  class="workspace-notice"
+>
+  任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。
+</p> instead[31m[39m
+[36m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m81:58[22m[39m
+    [90m 79|[39m     ? { ...event, materialContextFingerprint: "a".repeat(64) } : event…
+    [90m 80|[39m   render(<PlanDiffReview workspace={privateOnly} onAccept={vi.fn()} on…
+    [90m 81|[39m   expect(screen.queryByText(contextOnlyExplanation)).not.toBeInTheDocu…
+    [90m   |[39m                                                          [31m^[39m
+    [90m 82|[39m   [34mexpect[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"接受新安排"[39m }))[33m.[39m[34mtoBeEnabled[39m()[33m;[39m
+    [90m 83|[39m   [34mexpect[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"保留当前安排"[39m }))[33m.[39m[34mtoBeEnabled[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22msaves a context-only proposal only on explicit accept using the current candidate ID
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22msaves a context-only proposal only on explicit discard using the current candidate ID
+[31m[1mZodError[22m[39m: [
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "completed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"completed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "number",
+          "code": "invalid_type",
+          "path": [
+            "actualMinutes"
+          ],
+          "message": "Invalid input: expected number, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "delayed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"delayed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "skipped"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"skipped\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "too_hard"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"too_hard\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "already_known"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"already_known\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "availability_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"availability_changed\""
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "availability"
+          ],
+          "message": "Invalid input: expected object, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized key: \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_accepted"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_accepted\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_discarded"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_discarded\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "material_usage_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"material_usage_changed\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ]
+    ],
+    "path": [
+      "events",
+      0
+    ],
+    "message": "Invalid input"
+  }
+]
+[36m [2m❯[22m materialProposal tests/components/materials-plan-diff.test.tsx:[2m44:51[22m[39m
+    [90m 42|[39m   const candidate = transition.workspace.planVersions.find(plan => pla…
+    [90m 43|[39m   const candidatePath = transition.workspace.pathVersions.find(path =>…
+    [90m 44|[39m   const publicWorkspace = planningWorkspaceSchema.parse({ ...transitio…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 45|[39m     [35mif[39m (event[33m.[39mkind [33m!==[39m [32m"agent_replanned"[39m) [35mreturn[39m event[33m;[39m
+    [90m 46|[39m     [35mconst[39m visible [33m=[39m { [33m...[39mevent }[33m;[39m
+[90m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m87:34[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mhonors an explicit accept label and reports the materials update to the parent
+[31m[1mZodError[22m[39m: [
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "completed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"completed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "number",
+          "code": "invalid_type",
+          "path": [
+            "actualMinutes"
+          ],
+          "message": "Invalid input: expected number, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "delayed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"delayed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "skipped"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"skipped\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "too_hard"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"too_hard\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "already_known"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"already_known\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "availability_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"availability_changed\""
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "availability"
+          ],
+          "message": "Invalid input: expected object, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized key: \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_accepted"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_accepted\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_discarded"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_discarded\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "material_usage_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"material_usage_changed\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ]
+    ],
+    "path": [
+      "events",
+      0
+    ],
+    "message": "Invalid input"
+  }
+]
+[36m [2m❯[22m materialProposal tests/components/materials-plan-diff.test.tsx:[2m44:51[22m[39m
+    [90m 42|[39m   const candidate = transition.workspace.planVersions.find(plan => pla…
+    [90m 43|[39m   const candidatePath = transition.workspace.pathVersions.find(path =>…
+    [90m 44|[39m   const publicWorkspace = planningWorkspaceSchema.parse({ ...transitio…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 45|[39m     [35mif[39m (event[33m.[39mkind [33m!==[39m [32m"agent_replanned"[39m) [35mreturn[39m event[33m;[39m
+    [90m 46|[39m     [35mconst[39m visible [33m=[39m { [33m...[39mevent }[33m;[39m
+[90m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m98:34[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mdisables both context-only actions while accept is pending and lets a failed decision be retried
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mdisables both context-only actions while discard is pending and lets a failed decision be retried
+[31m[1mZodError[22m[39m: [
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "completed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"completed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "number",
+          "code": "invalid_type",
+          "path": [
+            "actualMinutes"
+          ],
+          "message": "Invalid input: expected number, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "delayed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"delayed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "skipped"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"skipped\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "too_hard"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"too_hard\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "already_known"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"already_known\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "availability_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"availability_changed\""
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "availability"
+          ],
+          "message": "Invalid input: expected object, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized key: \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_accepted"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_accepted\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_discarded"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_discarded\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "material_usage_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"material_usage_changed\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ]
+    ],
+    "path": [
+      "events",
+      0
+    ],
+    "message": "Invalid input"
+  }
+]
+[36m [2m❯[22m materialProposal tests/components/materials-plan-diff.test.tsx:[2m44:51[22m[39m
+    [90m 42|[39m   const candidate = transition.workspace.planVersions.find(plan => pla…
+    [90m 43|[39m   const candidatePath = transition.workspace.pathVersions.find(path =>…
+    [90m 44|[39m   const publicWorkspace = planningWorkspaceSchema.parse({ ...transitio…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 45|[39m     [35mif[39m (event[33m.[39mkind [33m!==[39m [32m"agent_replanned"[39m) [35mreturn[39m event[33m;[39m
+    [90m 46|[39m     [35mconst[39m visible [33m=[39m { [33m...[39mevent }[33m;[39m
+[90m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m110:34[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mkeeps a material proposal with outside-week task changes generic
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mkeeps a material proposal with next-day task changes generic
+[31m[1mZodError[22m[39m: [
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "completed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"completed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "number",
+          "code": "invalid_type",
+          "path": [
+            "actualMinutes"
+          ],
+          "message": "Invalid input: expected number, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "delayed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"delayed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "skipped"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"skipped\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "too_hard"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"too_hard\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "already_known"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"already_known\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "availability_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"availability_changed\""
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "availability"
+          ],
+          "message": "Invalid input: expected object, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized key: \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_accepted"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_accepted\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_discarded"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_discarded\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "material_usage_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"material_usage_changed\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ]
+    ],
+    "path": [
+      "events",
+      0
+    ],
+    "message": "Invalid input"
+  }
+]
+[36m [2m❯[22m materialProposal tests/components/materials-plan-diff.test.tsx:[2m44:51[22m[39m
+    [90m 42|[39m   const candidate = transition.workspace.planVersions.find(plan => pla…
+    [90m 43|[39m   const candidatePath = transition.workspace.pathVersions.find(path =>…
+    [90m 44|[39m   const publicWorkspace = planningWorkspaceSchema.parse({ ...transitio…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 45|[39m     [35mif[39m (event[33m.[39mkind [33m!==[39m [32m"agent_replanned"[39m) [35mreturn[39m event[33m;[39m
+    [90m 46|[39m     [35mconst[39m visible [33m=[39m { [33m...[39mevent }[33m;[39m
+[90m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m145:75[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/materials-plan-diff.test.tsx[2m > [22mshows only the pending candidate's material explanation before a decision without mutating canonical workspace
+[31m[1mZodError[22m[39m: [
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "completed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"completed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "number",
+          "code": "invalid_type",
+          "path": [
+            "actualMinutes"
+          ],
+          "message": "Invalid input: expected number, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "delayed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"delayed\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "skipped"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"skipped\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "too_hard"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"too_hard\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "already_known"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"already_known\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "unitId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "availability_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"availability_changed\""
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "availability"
+          ],
+          "message": "Invalid input: expected object, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized key: \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_accepted"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_accepted\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "replan_discarded"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"replan_discarded\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "candidatePlanVersionId"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ],
+      [
+        {
+          "code": "invalid_value",
+          "values": [
+            "material_usage_changed"
+          ],
+          "path": [
+            "kind"
+          ],
+          "message": "Invalid input: expected \"material_usage_changed\""
+        },
+        {
+          "code": "unrecognized_keys",
+          "keys": [
+            "baseRevision",
+            "unitOrder",
+            "planningDate",
+            "materialProposal"
+          ],
+          "path": [],
+          "message": "Unrecognized keys: \"baseRevision\", \"unitOrder\", \"planningDate\", \"materialProposal\""
+        }
+      ]
+    ],
+    "path": [
+      "events",
+      0
+    ],
+    "message": "Invalid input"
+  }
+]
+[36m [2m❯[22m materialProposal tests/components/materials-plan-diff.test.tsx:[2m44:51[22m[39m
+    [90m 42|[39m   const candidate = transition.workspace.planVersions.find(plan => pla…
+    [90m 43|[39m   const candidatePath = transition.workspace.pathVersions.find(path =>…
+    [90m 44|[39m   const publicWorkspace = planningWorkspaceSchema.parse({ ...transitio…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 45|[39m     [35mif[39m (event[33m.[39mkind [33m!==[39m [32m"agent_replanned"[39m) [35mreturn[39m event[33m;[39m
+    [90m 46|[39m     [35mconst[39m visible [33m=[39m { [33m...[39mevent }[33m;[39m
+[90m [2m❯[22m tests/components/materials-plan-diff.test.tsx:[2m160:23[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-adopted-refs.test.ts[2m > [22mre-proposes discarded B with distinct immutable decisions and keeps completed work and adopted links through acceptance
+[31m[1mAssertionError[22m: expected { kind: 'agent_replanned', …(8) } to have property "materialProposal" with value true[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m expectPublicMaterialProposalEvents tests/server/material-adopted-refs.test.ts:[2m24:19[22m[39m
+    [90m 22|[39m     [35mif[39m (event[33m.[39mkind [33m!==[39m [32m"agent_replanned"[39m) [35mcontinue[39m[33m;[39m
+    [90m 23|[39m     [34mexpect[39m(event)[33m.[39mnot[33m.[39m[34mtoHaveProperty[39m([32m"materialContextFingerprint"[39m)[33m;[39m
+    [90m 24|[39m     [34mexpect[39m(event)[33m.[39m[34mtoHaveProperty[39m([32m"materialProposal"[39m[33m,[39m [35mtrue[39m)[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m 25|[39m     // The public display indicator is server metadata, never accepted…
+    [90m 26|[39m     const body = Object.fromEntries(Object.entries(event).filter(([key…
+[90m [2m❯[22m tests/server/material-adopted-refs.test.ts:[2m136:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected { kind: 'agent_replanned', …(8) } to have property "materialProposal" with value true[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m81:51[22m[39m
+    [90m 79|[39m     expect(workspace.activePlanVersionId).toBe(f.initial.activePlanVer…
+    [90m 80|[39m     [34mexpect[39m(workspace[33m.[39mpendingPlanVersionId)[33m.[39mnot[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m 81|[39m     expect.soft(workspace.events.at(-1), surface).toHaveProperty("mate…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 82|[39m     [35mconst[39m json [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m(response)[33m;[39m
+    [90m 83|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"materialContextFingerprint"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected '<section class="plan-diff-review" ari…' to contain '任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。'[39m
+
+Expected: [32m"任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m87:32[22m[39m
+    [90m 85|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"PRIVATE-MATERIAL-SENTINEL"[39m)[33m;[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected '<section class="plan-diff-review" ari…' to contain '接受资料更新'[39m
+
+Expected: [32m"接受资料更新"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m88:32[22m[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected '<section class="plan-diff-review" ari…' to contain '保留当前资料与安排'[39m
+
+Expected: [32m"保留当前资料与安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m89:32[22m[39m
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m 91|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: proposal: expected '<section class="plan-diff-review" ari…' not to contain '接受新安排'[39m
+
+Expected: [32m"接受新安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m90:36[22m[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 91|[39m   }
+    [90m 92|[39m   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHav…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected { kind: 'agent_replanned', …(8) } to have property "materialProposal" with value true[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m81:51[22m[39m
+    [90m 79|[39m     expect(workspace.activePlanVersionId).toBe(f.initial.activePlanVer…
+    [90m 80|[39m     [34mexpect[39m(workspace[33m.[39mpendingPlanVersionId)[33m.[39mnot[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m 81|[39m     expect.soft(workspace.events.at(-1), surface).toHaveProperty("mate…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 82|[39m     [35mconst[39m json [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m(response)[33m;[39m
+    [90m 83|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"materialContextFingerprint"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected '<section class="plan-diff-review" ari…' to contain '任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。'[39m
+
+Expected: [32m"任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m87:32[22m[39m
+    [90m 85|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"PRIVATE-MATERIAL-SENTINEL"[39m)[33m;[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected '<section class="plan-diff-review" ari…' to contain '接受资料更新'[39m
+
+Expected: [32m"接受资料更新"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m88:32[22m[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected '<section class="plan-diff-review" ari…' to contain '保留当前资料与安排'[39m
+
+Expected: [32m"保留当前资料与安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m89:32[22m[39m
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m 91|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: same-request replay: expected '<section class="plan-diff-review" ari…' not to contain '接受新安排'[39m
+
+Expected: [32m"接受新安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m90:36[22m[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 91|[39m   }
+    [90m 92|[39m   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHav…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected { kind: 'agent_replanned', …(8) } to have property "materialProposal" with value true[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m81:51[22m[39m
+    [90m 79|[39m     expect(workspace.activePlanVersionId).toBe(f.initial.activePlanVer…
+    [90m 80|[39m     [34mexpect[39m(workspace[33m.[39mpendingPlanVersionId)[33m.[39mnot[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m 81|[39m     expect.soft(workspace.events.at(-1), surface).toHaveProperty("mate…
+    [90m   |[39m                                                   [31m^[39m
+    [90m 82|[39m     [35mconst[39m json [33m=[39m [33mJSON[39m[33m.[39m[34mstringify[39m(response)[33m;[39m
+    [90m 83|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"materialContextFingerprint"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected '<section class="plan-diff-review" ari…' to contain '任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。'[39m
+
+Expected: [32m"任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m87:32[22m[39m
+    [90m 85|[39m     [34mexpect[39m(json)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"PRIVATE-MATERIAL-SENTINEL"[39m)[33m;[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected '<section class="plan-diff-review" ari…' to contain '接受资料更新'[39m
+
+Expected: [32m"接受资料更新"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m88:32[22m[39m
+    [90m 86|[39m     const html = renderToStaticMarkup(createElement(PlanDiffReview, { …
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected '<section class="plan-diff-review" ari…' to contain '保留当前资料与安排'[39m
+
+Expected: [32m"保留当前资料与安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m89:32[22m[39m
+    [90m 87|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m(contextOnlyExplanation)[33m;[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m 91|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mrenders explicit material adoption from the actual proposal, same-request replay and workspace reload
+[31m[1mAssertionError[22m: workspace reload: expected '<section class="plan-diff-review" ari…' not to contain '接受新安排'[39m
+
+Expected: [32m"接受新安排"[39m
+Received: [31m"<section class="plan-diff-review" aria-labelledby="plan-diff-title"><p class="section-index">调整建议 · 等待你的确认</p><h2 id="plan-diff-title" tabindex="-1">这次调整会改变什么</h2><p>查看时间与任务变化。只有点击「接受新安排」后，建议才会生效。</p><p class="diff-source-summary">Estimated completion remains 2026-12-01.</p><dl class="diff-counts"><div><dt>新增</dt><dd>0</dd></div><div><dt>调整日期</dt><dd>0</dd></div><div><dt>移除</dt><dd>0</dd></div><div><dt>不变</dt><dd>7</dd></div></dl><p class="diff-completion"><span>当前预计完成 · 2026-12-01</span><span>调整后预计完成 · 2026-12-01</span></p><details class="diff-details"><summary>查看逐项变化</summary><ul class="diff-items"><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-04 → 2026-11-04</span><p>Remains scheduled for 2026-11-04.</p></li><li><strong><span>不变</span><span>Trace a browser interaction end to end</span></strong><span>2026-11-05 → 2026-11-05</span><p>Remains scheduled for 2026-11-05.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-06 → 2026-11-06</span><p>Remains scheduled for 2026-11-06.</p></li><li><strong><span>不变</span><span>Model one UI-to-API contract</span></strong><span>2026-11-07 → 2026-11-07</span><p>Remains scheduled for 2026-11-07.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-08 → 2026-11-08</span><p>Remains scheduled for 2026-11-08.</p></li><li><strong><span>不变</span><span>Build an accessible async React flow</span></strong><span>2026-11-09 → 2026-11-09</span><p>Remains scheduled for 2026-11-09.</p></li><li><strong><span>不变</span><span>Author a keyboard-safe component state model</span></strong><span>2026-11-10 → 2026-11-10</span><p>Remains scheduled for 2026-11-10.</p></li></ul></details><div class="diff-actions"><button type="button">接受新安排</button><button type="button">保留当前安排</button></div></section>"[39m
+
+[36m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m90:36[22m[39m
+    [90m 88|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"接受资料更新"[39m)[33m;[39m
+    [90m 89|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39m[34mtoContain[39m([32m"保留当前资料与安排"[39m)[33m;[39m
+    [90m 90|[39m     expect[33m.[39m[34msoft[39m(html[33m,[39m surface)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m"接受新安排"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 91|[39m   }
+    [90m 92|[39m   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHav…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-proposal-public-view.test.ts[2m > [22mremoves a preexisting display indicator when repository evidence does not identify a material proposal
+[31m[1mPlanningUnavailableError[22m: Planning is unavailable. The previous valid state is unchanged.[39m
+[36m [2m❯[22m PlanningService.parseOwnedWorkspace app/server/planning/service.ts:[2m393:13[22m[39m
+    [90m391|[39m     [35mcatch[39m (error) {
+    [90m392|[39m       [35mif[39m (error [35minstanceof[39m [33mPlanningNotFoundError[39m) [35mthrow[39m error[33m;[39m
+    [90m393|[39m       [35mthrow[39m [35mnew[39m [33mPlanningUnavailableError[39m()[33m;[39m
+    [90m   |[39m             [31m^[39m
+    [90m394|[39m     }
+    [90m395|[39m   }
+[90m [2m❯[22m PlanningService.readWorkspaceResponse app/server/planning/service.ts:[2m128:53[22m[39m
+[90m [2m❯[22m tests/server/material-proposal-public-view.test.ts:[2m129:56[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/planning/agent-replanned.test.ts[2m > [22magent planning proposals[2m > [22maccepts the display indicator only as literal true on a recorded agent proposal and still reads old events
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/planning/agent-replanned.test.ts:[2m39:89[22m[39m
+    [90m 37|[39m     [35mconst[39m { event } [33m=[39m [34minput[39m()[33m;[39m
+    [90m 38|[39m     expect(planningEventSchema.parse(event)).not.toHaveProperty("mater…
+    [90m 39|[39m     expect(planningEventSchema.safeParse({ ...event, materialProposal:…
+    [90m   |[39m                                                                                         [31m^[39m
+    [90m 40|[39m     [35mfor[39m ([35mconst[39m materialProposal [35mof[39m [[35mfalse[39m[33m,[39m [32m"true"[39m[33m,[39m [34m1[39m[33m,[39m [35mnull[39m]) {
+    [90m 41|[39m       expect(planningEventSchema.safeParse({ ...event, materialProposa…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/28]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m14 failed[39m[22m[2m | [22m[1m[32m22 passed[39m[22m[90m (36)[39m
+[2m   Start at [22m 16:37:14
+[2m   Duration [22m 3.32s[2m (transform 1.41s, setup 900ms, import 3.01s, tests 2.66s, environment 1.67s)[22m
+

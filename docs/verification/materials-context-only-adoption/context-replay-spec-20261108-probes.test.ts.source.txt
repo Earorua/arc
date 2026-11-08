@@ -1,0 +1,83 @@
+// @vitest-environment node
+import { describe, expect, it, vi } from "vitest";
+import type { ContextInputSnapshot } from "../../app/contracts/material-planning";
+import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
+import { PlanningService } from "../../app/server/planning/service";
+import { materialSourceResolver } from "../../tests/helpers/material-planning";
+import { setup, primary } from "./context-adoption-quality-20261108-fixture";
+
+type Fixture = Awaited<ReturnType<typeof setup>>;
+type Change = "audit-answers" | "target" | "both" | "audit-id-only" | "none";
+const changes: Change[] = ["audit-answers", "target", "both", "audit-id-only", "none"];
+const snapshot = (f: Fixture) => Object.fromEntries([
+  "planning_workspaces", "planning_events", "learning_path_versions", "plan_versions", "daily_units",
+  "skill_audit_versions", "availability_versions", "idempotency_records", "goal_document_links",
+  "document_usage_links", "material_plan_proposals", "document_mutations", "proof_items", "proof_versions",
+  "proof_review_events", "user_skill_projections",
+].map(table => [table, f.db.database.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()]));
+
+function overrides(f: Fixture, change: Change): Partial<Pick<ContextInputSnapshot, "audit" | "target">> {
+  return {
+    ...(change === "audit-answers" || change === "both" ? {
+      audit: { ...f.before.audit, answers: f.before.audit.answers.map(answer => ({ ...answer, level: "uncertain" as const })) },
+    } : change === "audit-id-only" ? { audit: { ...f.before.audit, id: "unapplied-id-only" } } : {}),
+    ...(change === "target" || change === "both" ? {
+      target: { ...f.before.target, id: "unapplied-target", targetWeeks: 26, inputFingerprint: "unapplied-target-fingerprint" },
+    } : {}),
+  };
+}
+
+describe("independent material proposal replay warning spec", () => {
+  it.each(changes)("replays first adoption with %s against historical workspace before and after acceptance", async change => {
+    const f = await setup(false);
+    const { input } = await f.preview([primary], {}, overrides(f, change));
+    const originalLinks = f.links();
+    const first = await f.planning.proposeMaterialReplanResponse("owner-a", input);
+    expect(first.outcome).toBe("proposed");
+    if (first.outcome !== "proposed") throw new Error("Expected first material adoption proposal");
+    expect(first.unappliedChanges).toHaveLength(["audit-answers", "target", "both"].includes(change) ? 1 : 0);
+    const staged = first.planning.result.workspace;
+    expect(first.planning.result.diff!.items.every(item => item.change === "unchanged")).toBe(true);
+    expect(first.planning.result.diff!.nextEstimatedCompletionDate).toBe(first.planning.result.diff!.previousEstimatedCompletionDate);
+    expect(f.links()).toEqual(originalLinks);
+    await f.preserved(staged, staged.planVersions.find(plan => plan.id === staged.pendingPlanVersionId)!.pathVersionId);
+
+    // Real historical replay is retained. Any attempt to read the latest active workspace fails this probe.
+    const sourceResolver = materialSourceResolver();
+    const repository = new D1PlanningRepository(f.db as unknown as D1Database, { sourceResolver });
+    const latest = vi.spyOn(repository, "load").mockRejectedValue(new Error("Exact replay must not load latest workspace"));
+    const replayService = new PlanningService({ repository, materials: f.materials, sourceResolver });
+    const beforePendingReplay = snapshot(f);
+    expect(await replayService.proposeMaterialReplanResponse("owner-a", input)).toEqual(first);
+    expect(latest).not.toHaveBeenCalled();
+    expect(snapshot(f)).toEqual(beforePendingReplay);
+
+    const { workspace: accepted } = await f.decide(staged, "accept");
+    await f.preserved(accepted);
+    expect(accepted.pendingPlanVersionId).toBeNull();
+    expect(accepted.activePlanVersionId).not.toBe(staged.activePlanVersionId);
+    expect(f.links()).toEqual([expect.objectContaining({ document_id: primary.documentId })]);
+    const beforeAcceptedReplay = snapshot(f);
+    expect(await replayService.proposeMaterialReplanResponse("owner-a", input)).toEqual(first);
+    expect(latest).not.toHaveBeenCalled();
+    expect(snapshot(f)).toEqual(beforeAcceptedReplay);
+    expect((await f.planning.getWorkspace("owner-a"))!).toEqual(accepted);
+  });
+
+  it.each(changes)("retains existing no-change receipt semantics for %s", async change => {
+    const f = await setup(true);
+    const { input } = await f.preview([primary], {}, overrides(f, change));
+    const before = snapshot(f);
+    const first = await f.planning.proposeMaterialReplanResponse("owner-a", input);
+    expect(first.outcome).toBe("no-change");
+    expect(first.unappliedChanges).toHaveLength(["audit-answers", "target", "both"].includes(change) ? 1 : 0);
+    const after = snapshot(f);
+    const { document_mutations: receiptsBefore, ...tablesBefore } = before;
+    const { document_mutations: receiptsAfter, ...tablesAfter } = after;
+    expect(receiptsAfter).toHaveLength(receiptsBefore.length + 1);
+    expect(tablesAfter).toEqual(tablesBefore);
+    expect(await f.planning.proposeMaterialReplanResponse("owner-a", input)).toEqual(first);
+    expect(snapshot(f)).toEqual(after);
+    await f.preserved((await f.planning.getWorkspace("owner-a"))!);
+  });
+});

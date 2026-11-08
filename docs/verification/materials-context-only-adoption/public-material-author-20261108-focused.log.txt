@@ -1,0 +1,67 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:19220) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35760) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28676) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41120) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29364) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-proposal-public-view.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1023[2mms[22m[39m
+   [33m[2m✓[22m[39m renders explicit material adoption from the actual proposal, same-request replay and workspace reload [33m 551[2mms[22m[39m
+ [32m✓[39m tests/contracts/planning-api.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m tests/contracts/material-planning.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+(node:39508) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/contracts/planning.test.ts [2m([22m[2m122 tests[22m[2m)[22m[33m 385[2mms[22m[39m
+ [32m✓[39m tests/components/basic-time-edit.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 299[2mms[22m[39m
+ [32m✓[39m tests/lib/planning/agent-replanned.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 741[2mms[22m[39m
+ [32m✓[39m tests/server/planning-service.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 989[2mms[22m[39m
+ [32m✓[39m tests/components/plan-diff-review.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1243[2mms[22m[39m
+     [33m[2m✓[22m[39m reports the explicit accept decision to its parent [33m 341[2mms[22m[39m
+ [32m✓[39m tests/components/materials-plan-diff.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 1831[2mms[22m[39m
+   [33m[2m✓[22m[39m explains a public context-only proposal without reading private history or saving it [33m 385[2mms[22m[39m
+ [32m✓[39m tests/server/material-replan-atomic.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 4189[2mms[22m[39m
+     [33m[2m✓[22m[39m reads an owner's archived history conservatively for revoked and older proposals without matching decision records [33m 456[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps ordinary replan acceptance available when material planning is closed [33m 316[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks new material accepts when planning is closed but retains discard and successful receipt recovery [33m 789[2mms[22m[39m
+     [33m[2m✓[22m[39m revokes old pending proposals when the same goal selects a new material set [33m 460[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the exact unfinished set and guards the legacy accept path with proposalRevision [33m 349[2mms[22m[39m
+     [33m[2m✓[22m[39m deletion invalidates legacy accept while allowing discard and history redaction [33m 415[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a concurrent same-key proposal with a different material request digest [33m 311[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves completed records and the exact remaining task set through accept [33m 450[2mms[22m[39m
+ [32m✓[39m tests/api/planning.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 1115[2mms[22m[39m
+ [32m✓[39m tests/server/material-learning-intent-flow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 2998[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through discard [33m 1164[2mms[22m[39m
+   [33m[2m✓[22m[39m reorders coach-only advice only after adoption, preserving the plan and Proof through accept [33m 770[2mms[22m[39m
+   [33m[2m✓[22m[39m invalidates the adopted-choice preview when the selection revision removes its coach source [33m 471[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks acceptance after deleting the adopted coach source and still permits discard without changing progress or Proof [33m 591[2mms[22m[39m
+ [32m✓[39m tests/server/material-adopted-refs.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 4587[2mms[22m[39m
+   [33m[2m✓[22m[39m reads only the active goal's adopted confirmations, pins old versions, rejects a wrong owner/plan and retains other links after deletion [33m 344[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps A adopted while B is pending and atomically reflects accept while preserving completed work [33m 660[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps A adopted while B is pending and atomically reflects discard while preserving completed work [33m 545[2mms[22m[39m
+   [33m[2m✓[22m[39m re-proposes discarded B with distinct immutable decisions and keeps completed work and adopted links through acceptance [33m 2890[2mms[22m[39m
+ [32m✓[39m tests/server/material-context-only-adoption.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 10785[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on accept [33m 761[2mms[22m[39m
+     [33m[2m✓[22m[39m stages first material adoption without task changes and preserves completed Proof on discard [33m 600[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on accept [33m 686[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces a company JD with identical confirmed text only on discard [33m 621[2mms[22m[39m
+     [33m[2m✓[22m[39m adopts a SQL-to-React company JD replacement despite a prerequisite-constrained unchanged schedule [33m 594[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=false without task movement [33m 1021[2mms[22m[39m
+     [33m[2m✓[22m[39m requires acceptance to change initially adopted focus=true without task movement [33m 922[2mms[22m[39m
+     [33m[2m✓[22m[39m returns genuine no-change for fresh selections with the same adoption, retaining its receipt and unapplied assessment [33m 371[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied audit warnings when replaying a context-only proposal and accepting it [33m 474[2mms[22m[39m
+     [33m[2m✓[22m[39m retains unapplied target warnings when replaying a context-only proposal and accepting it [33m 461[2mms[22m[39m
+     [33m[2m✓[22m[39m compares only still-enabled dependencies and choices after an explicit detach [33m 381[2mms[22m[39m
+     [33m[2m✓[22m[39m requires adoption of a new confirmation even when its confirmed text is identical [33m 332[2mms[22m[39m
+     [33m[2m✓[22m[39m normalizes dependency, skill mapping, term skill, and intent order across fresh previews [33m 494[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m      Tests [22m [1m[32m282 passed[39m[22m[90m (282)[39m
+[2m   Start at [22m 16:38:49
+[2m   Duration [22m 12.35s[2m (transform 5.86s, setup 6.68s, import 14.61s, tests 30.29s, environment 14.20s)[22m
+

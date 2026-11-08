@@ -1,6 +1,6 @@
 # 资料变化但任务不变时的显式采用修复
 
-> **11月8日下午用户暂停检查点：** Task 1已实现并完成定向测试，重试提醒补修复尚待独立复审；Task 2现有实现未通过实际服务边界审查。下文“客户端读取materialContextFingerprint”的原测试前提已证实无效：公开响应会移除该私有字段。恢复后必须先修订为隐私安全的公开提案识别方式，并加入提案响应及刷新后的真实服务到界面测试；不能直接暴露指纹。Task 3完整回归尚未执行。[当前证据与恢复顺序](../../verification/2026-11-08-materials-context-only-adoption.md)
+> **11月8日恢复后的状态：** 暂停时的公开响应／界面问题已按Task 2修订设计关闭；重试提醒和界面两阶段审查及最终集成复核通过。371个Vitest文件8,688项、附加Node 290项、原生Worker 11项、页面5项与类型／Lint／构建均通过。原课程参考未改，新依赖绑定仍需后续审定；本批不代表Gate或发布通过。[当前证据与恢复顺序](../../verification/2026-11-08-materials-context-only-adoption.md)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -31,15 +31,15 @@
 
 **Files:** 新增 `app/server/documents/adopted-context.ts`、`tests/server/material-context-only-adoption.test.ts`；修改 `app/server/documents/context-builder.ts`、`app/server/planning/service.ts`；必要的事务比较guard限定在上述helper与 `recordNoChange`。调整 `tests/server/material-replan-atomic.test.ts` 和 `tests/server/material-learning-intent-flow.test.ts` 中不正确的旧前提。
 
-- [ ] 先用真实内存SQLite、现有服务和合法生成状态增加红例：首次无优先级资料应产生proposal；现有SQL主JD换React主JD且前置依赖使顺序不变，接受后关联换JD；学习重点采用／撤回在顺序不变时同样可接受。断言提议前后active links不变，accept后切换，discard后保留。
-- [ ] 用真实完成事件和ProofService创建学习证据，比较完整Proof四表、全部PathUnit对象／依赖／分钟、已完成事件、保留的DailyUnit、audit和target。不是只比较task ID，也不以audit evidence代替Proof。
-- [ ] 运行红例并保留断言失败记录：
+- [x] 先用真实内存SQLite、现有服务和合法生成状态增加红例：首次无优先级资料应产生proposal；现有SQL主JD换React主JD且前置依赖使顺序不变，接受后关联换JD；学习重点采用／撤回在顺序不变时同样可接受。断言提议前后active links不变，accept后切换，discard后保留。
+- [x] 用真实完成事件和ProofService创建学习证据，比较完整Proof四表、全部PathUnit对象／依赖／分钟、已完成事件、保留的DailyUnit、audit和target。不是只比较task ID，也不以audit evidence代替Proof。
+- [x] 运行红例并保留断言失败记录：
 
 ```powershell
 node work/grounded-verification/run.mjs context-adoption-red-20261108-a node_modules/vitest/vitest.mjs run --maxWorkers=1 tests/server/material-context-only-adoption.test.ts
 ```
 
-- [ ] 实现单一职责的服务端比较与精确最终guard；`MaterialContextService` 提供比较结果给planning service。将原no-change分支改为以下逻辑（比较只在已确认任务无变化时执行）：
+- [x] 实现单一职责的服务端比较与精确最终guard；`MaterialContextService` 提供比较结果给planning service。将原no-change分支改为以下逻辑（比较只在已确认任务无变化时执行）：
 
 ```typescript
 if (tasksUnchanged) {
@@ -53,27 +53,34 @@ if (tasksUnchanged) {
 
 `compareAdoptedContext` 返回有明确类型的只读匹配结果及最终guard所需的关联快照；不得接收客户端提供的等价断言。后续现有 `saveEvent` 提案与accept事务保持原有流程。
 
-- [ ] 补齐真正无变化、重新生成等价预览、selection变化但语义相同、choices排列、来源版本变化、audit-only仍unapplied、其他owner/goal、过期、重试、同key不同body、并发完成／detach／删除、proposal与accept写失败回滚等反例。无变化请求不能加pending plan或规划事件；新语义提案重试不能重复接受。
-- [ ] 独立质量审查补充：修复提案重试把 `unappliedChanges` 置空的旧问题。首次与重试都用冻结资料输入和原提案workspace比较audit.answers／target；接受后重试仍返回原提案的提醒，不能改用后来状态，也不能因此采用自评或目标。
-- [ ] 原学习意图流程里的“加了补充资料但未采用重点”只表示任务无变化。若调用提议，应观察待确认资料提案并明确放弃／接受后再进行下一动作；不能继续宣称workspace完全不变。只有预览时仍完全不变。原已撤回草稿、当前仍为同一JD的无变化用例保留。
-- [ ] 跑新服务器套件、原material replan/learning-intent/adopted refs/detach相关套件，先完成规格复审，再完成代码质量复审。
+- [x] 补齐真正无变化、重新生成等价预览、selection变化但语义相同、choices排列、来源版本变化、audit-only仍unapplied、其他owner/goal、过期、重试、同key不同body、并发完成／detach／删除、proposal与accept写失败回滚等反例。无变化请求不能加pending plan或规划事件；新语义提案重试不能重复接受。
+- [x] 独立质量审查补充：修复提案重试把 `unappliedChanges` 置空的旧问题。首次与重试都用冻结资料输入和原提案workspace比较audit.answers／target；接受后重试仍返回原提案的提醒，不能改用后来状态，也不能因此采用自评或目标。
+- [x] 原学习意图流程里的“加了补充资料但未采用重点”只表示任务无变化。若调用提议，应观察待确认资料提案并明确放弃／接受后再进行下一动作；不能继续宣称workspace完全不变。只有预览时仍完全不变。原已撤回草稿、当前仍为同一JD的无变化用例保留。
+- [x] 跑新服务器套件、原material replan/learning-intent/adopted refs/detach相关套件，先完成规格复审，再完成代码质量复审。
 
 ## Task 2：明确展示仅更新资料依据
 
-**Files:** 修改 `app/components/workspace/plan-diff-review.tsx`；测试 `tests/components/materials-plan-diff.test.tsx`。
+**Files:** 修改 `app/components/workspace/plan-diff-review.tsx`、`app/contracts/planning.ts` 和 `app/server/planning/service.ts`；测试 `tests/components/materials-plan-diff.test.tsx`、`tests/lib/planning/agent-replanned.test.ts`；新增 `tests/server/material-proposal-public-view.test.ts`。
 
-- [ ] 先增加同任务／同日期、但带materialContextFingerprint的真实reducer提案测试。界面必须清楚说明接受会更新资料依据，提供接受与保留两个动作；不能因diff全unchanged隐藏操作或自动提交。
-- [ ] 从已有提案事件与完整路径／日程比较判断是否仅资料变化，不从“0个日期变化”推断整条路径没有顺序变化，也不依赖易迟到的私有history来允许接受。
-- [ ] 对此类提案显示 `任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。`；按钮使用 `接受资料更新` 与 `保留当前资料与安排`，成功提示分别为 `已更新当前路线采用的资料。` / `已保留当前资料与安排。`。普通重排与显式传入acceptLabel的调用方兼容。
-- [ ] 验证点击前无写动作、点击后使用现有candidate ID、放弃不采用、失败可重试、任务变化提案与非资料提案仍保留原语义。继续验证迟到history与账号切换保护。
-- [ ] 服务器＋界面专项、类型、Lint、必要原生Worker验证与完整回归；证据使用新文件名，旧记录与基线不覆盖。
+**11月8日恢复后的修订设计：** 公开工作区的 `agent_replanned` 事件增加可选的字面量标识 `materialProposal: true`，仅表示该提案来自资料规划。`clientWorkspace` 从已验证、仅服务端保存的 `materialContextFingerprint` 推导标识，并继续移除指纹。输出时不能信任已有的公开标识，须从私有指纹重新推导，普通事件保持无标识。标识不参与摘要、计划计算、接受授权或数据库持久化，无需迁移。请求输入契约继续严格拒绝客户端注入该标识；旧事件缺少它时兼容。界面只用该标识和完整任务／日程比较决定文案，不能以服务端指纹或异步私有历史作为显示依据。
+
+- [x] 把已归档的真实服务到SSR红例提升为仓库测试，覆盖提案响应、重复请求和工作区重新读取，并经过客户端响应契约解析。断言私有指纹未返回，仓库仍保留私有指纹、无公开标识；公开标识不能通过事件输入注入。实际普通提案仍使用通用文案。保留明确接受／放弃、完整路径变化、按钮失败重试等组件用例，组件夹具必须使用公开形态。
+- [x] 新增公开标识并在服务器响应统一推导；界面替换原指纹判断，私有数据过滤不变。
+- [x] `app/contracts/planning.ts` 属于已冻结课程参考的依赖。记录新版本依赖差异并验证实际课程内容是否相同；原课程／评分器参考及摘要不得覆盖，也不能静默宣称旧依赖摘要与当前源码一致。
+
+- [x] 原先只带materialContextFingerprint的reducer测试已证实遗漏公开响应边界，按上述修订补齐。界面必须清楚说明接受会更新资料依据，提供接受与保留两个动作；不能因diff全unchanged隐藏操作或自动提交。
+- [x] 从已有提案事件与完整路径／日程比较判断是否仅资料变化，不从“0个日期变化”推断整条路径没有顺序变化，也不依赖易迟到的私有history来允许接受。
+- [x] 对此类提案显示 `任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。`；按钮使用 `接受资料更新` 与 `保留当前资料与安排`，成功提示分别为 `已更新当前路线采用的资料。` / `已保留当前资料与安排。`。普通重排与显式传入acceptLabel的调用方兼容。
+- [x] 验证点击前无写动作、点击后使用现有candidate ID、放弃不采用、失败可重试、任务变化提案与非资料提案仍保留原语义。继续验证迟到history与账号切换保护。
+- [x] 服务器＋界面专项、类型、Lint、必要原生Worker验证与完整回归；证据使用新文件名，旧记录与基线不覆盖。
 
 ## Task 3：集成验证、报告与恢复入口
 
-- [ ] 根任务独立复跑最终专项；依实际改动范围完成全仓Vitest分组、Node补充、类型/Lint/构建和页面验证。不以旧checkpoint测试替代新版本验证。
-- [ ] 验证课程／评分器输入未改；新产品源码单独记录摘要，不重写历史991文件清单。若Research出现来源边界失败，先检查真实路径和依赖归属，不改校验或降低断言。
-- [ ] 两阶段审查全部关闭后保存源码、本批报告与恢复入口。本地提交，继续目标而不声称整体完成；下一项仍为词语保留与课程任务覆盖等离线缺口。
+- [x] 根任务独立复跑最终专项；依实际改动范围完成全仓Vitest分组、Node补充、类型/Lint/构建和页面验证。不以旧checkpoint测试替代新版本验证。
+- [x] 验证课程／评分器输入未改；新产品源码单独记录摘要，不重写历史991文件清单。若Research出现来源边界失败，先检查真实路径和依赖归属，不改校验或降低断言。
+- [x] 两阶段审查全部关闭后保存源码、本批报告与恢复入口。本地提交，继续目标而不声称整体完成；下一项仍为词语保留与课程任务覆盖等离线缺口。源码提交 `5345317f99d77a62d3bb174dcd6922156a988949`，994文件与已测快照一致，192份证据与原始文件摘要一致。
 
 ## 执行记录
 
 - 2026-11-08：当前HEAD `69cca9429ce5ef5d6708f99fe1dedc3091e8f86b`，工作树干净。基线3套件20/20，日志 `context-adoption-baseline-20261108-a`，摘要 `199e228f3f3b38b7ab3a42de3b6db64e60d4fedf573e6f56b47e39b5eb0143e7`，出站拦截计数0；原测试的首次资料无变化前提需纠正。本记录不是新模型质量证明。
+- 2026-11-08恢复：从暂停提交 `73685fa` 完成公开提案标识和真实服务到界面测试。最终994个非文档文件摘要清单身份 `3a5205089a301e2b8cc1dfec630a46dcf14c09fb9dfc67dbb02eed7f3febc5a2`；五份独立复审及全量产品检查见[最终证据](../../verification/materials-context-only-adoption/verification.json)。新模型、费用、部署、远程迁移和推送均为0。
