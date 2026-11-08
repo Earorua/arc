@@ -15,7 +15,9 @@
 - [x] Adjust English heading wrapping, single-label tab spacing, action wrapping, and font loading.
 - [x] Pass 1,357 related component, page, library, and service tests; pass TypeScript and whitespace checks.
 - [x] Inspect 19 desktop/mobile route views with synthetic data; verify English interface copy, no horizontal overflow, and current teal colors.
-- [ ] Complete source review, production build, rendered HTML checks, and artifact provenance verification.
-- [ ] Publish only the website application with unchanged runtime configuration, then verify deployed state and page output.
+- [x] Complete source review, production build, rendered HTML checks, and artifact provenance verification.
+- [x] Publish only the website application with unchanged runtime configuration, then verify deployed state and page output.
 
 Source and test snapshots and intermediate evidence are retained under `D:/CodexTemp/arc-english-20261108` and ignored `work/english-only-20261108`. The older materials worktree was consulted because its checkpoint was stale; the final release uses the newer production worktree above.
+
+Release and verification: [English interface release](../../verification/2026-11-08-english-only-interface.md).
