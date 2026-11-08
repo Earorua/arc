@@ -1,7 +1,7 @@
 /* Warm precision: a shared, legible working scale over the editorial foundation. */
 :root {
-  --stone: #696359;
-  --action: #ad3c22;
+  --stone: #53686c;
+  --action: #176b68;
   --content: min(1180px, calc(100% - 48px));
 }
 body { font-size: 16px; line-height: 1.65; }
@@ -119,7 +119,7 @@ summary { cursor: pointer; }
 }
 @media (max-width: 1050px) {
   .companion-root:has(.companion-panel) { width: min(520px, 100%); isolation: isolate; }
-  .companion-root:has(.companion-panel)::before { content: ""; position: fixed; inset: 0; background: #17171566; z-index: -1; }
+  .companion-root:has(.companion-panel)::before { content: ""; position: fixed; inset: 0; background: #182b3066; z-index: -1; }
   body:has(.workspace-header) .companion-root:has(.companion-panel) { bottom: 0; }
   body:has(.workspace-header) .companion-panel { height: 100dvh; width: 100%; }
 }
