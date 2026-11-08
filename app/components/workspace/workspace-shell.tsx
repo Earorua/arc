@@ -60,10 +60,10 @@ export function WorkspaceShell({
   const isRestoring = state === null;
   const isCustomRole = sourceUnresolved || planningState ? false : state !== null && state.setup.roleId !== flagshipRole.id;
   const context = sourceUnresolved ? undefined : planningState
-    ? `${roleName ?? "学习计划"} · ${planningState.target.targetWeeks} 周`
+    ? `${roleName ?? "Learning plan"} · ${planningState.target.targetWeeks} weeks`
     : state === null
     ? undefined
-    : `${getRoleDisplayName(state.setup.roleId)} · ${state.setup.targetWeeks} 周`;
+    : `${getRoleDisplayName(state.setup.roleId)} · ${state.setup.targetWeeks} weeks`;
 
   return (
     <div className="workspace-shell">
@@ -98,7 +98,7 @@ export function WorkspaceShell({
             )}
             {isCustomRole && (
               <p className="workspace-banner">
-                当前内容使用 AI 原生全栈旗舰样本；Product Intelligence 后续研究并替换该岗位内容。
+                This path currently uses the AI-native full-stack sample. Role research will replace it with content for your chosen role.
               </p>
             )}
             {children}

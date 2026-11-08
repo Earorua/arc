@@ -12,7 +12,7 @@ vi.mock("../../app/lib/use-arc-state", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-arc-state")>();
   return { ...actual, useArcState: () => actual.useArcState({ useSession: () => ({ data: null, isPending: false }) }) };
 });
-vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>账号</span> }));
+vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>Account</span> }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }), usePathname: () => window.location.pathname,
@@ -47,14 +47,14 @@ describe("TodayPage", () => {
     expect(screen.queryByText("45")).not.toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText("数据产品经理 · 10 周")).toBeInTheDocument();
+      expect(screen.getByText("数据产品经理 · 10 weeks")).toBeInTheDocument();
       expect(screen.getByText("45")).toBeInTheDocument();
-      expect(screen.getByText(/本单元预计45分钟，超出当前每周30分钟预算15分钟/)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: /调整学习时间/ })).toHaveAttribute("href", "/setup?mode=edit&section=time");
-      expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
-      expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
+      expect(screen.getByText(/This unit takes about 45 min, exceeding your weekly budget of 30 min by 15 min/)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /Adjust study time/ })).toHaveAttribute("href", "/setup?mode=edit&section=time");
+      expect(screen.getByText(/This path currently uses the AI-native full-stack sample/)).toBeInTheDocument();
+      expect(screen.getByText(/Role research will replace it/)).toBeInTheDocument();
     });
-    expect(screen.getByText("分钟")).toBeInTheDocument();
+    expect(screen.getByText("min")).toBeInTheDocument();
     expect(usePlanningWorkspace).toHaveBeenCalled();
   });
 
@@ -62,8 +62,8 @@ describe("TodayPage", () => {
     render(<TodayPage />);
 
     await screen.findByText("45");
-    expect(screen.queryByText(/当前内容使用 AI 原生全栈旗舰样本/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/超出当前每周/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/This path currently uses the AI-native full-stack sample/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/exceeding your weekly budget/)).not.toBeInTheDocument();
   });
 
   it("stays on Today and restores retry when completion cannot be saved", async () => {
@@ -77,10 +77,10 @@ describe("TodayPage", () => {
     for (const step of flagshipRole.today.steps) {
       await user.click(screen.getByRole("checkbox", { name: step.label }));
     }
-    const button = screen.getByRole("button", { name: "完成任务" });
+    const button = screen.getByRole("button", { name: "Complete task" });
     await user.click(button);
 
-    expect(screen.getByRole("alert")).toHaveTextContent("完成记录未能保存");
+    expect(screen.getByRole("alert")).toHaveTextContent("Your progress could not be saved");
     expect(push).not.toHaveBeenCalled();
     expect(button).toBeEnabled();
 
@@ -88,7 +88,7 @@ describe("TodayPage", () => {
     await user.click(button);
 
     expect(push).not.toHaveBeenCalled();
-    expect(screen.getByRole("link", { name: /添加作品证据/ }).getAttribute("href")).toContain("compose=1");
+    expect(screen.getByRole("link", { name: /Add proof/ }).getAttribute("href")).toContain("compose=1");
     expect(button).toBeDisabled();
     const stored = JSON.parse(window.localStorage.getItem("arc-demo-state-v1") ?? "{}") as {
       proofs?: Array<{ verified?: boolean }>;
@@ -113,8 +113,8 @@ describe("TodayPage", () => {
 
     render(<TodayPage />);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
-    expect(screen.getByRole("alert")).toHaveTextContent("原有计划与学习记录已保留");
+    expect(await screen.findByRole("alert")).toHaveTextContent("This plan is temporarily unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("Your plan and learning history are preserved");
     expect(screen.queryByText("45")).not.toBeInTheDocument();
   });
 
@@ -139,11 +139,11 @@ describe("TodayPage", () => {
 
     render(<TodayPage />);
 
-    expect(await screen.findByText(source === "restoring" ? "正在加载学习内容…" : "学习计划暂不可用")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "完成任务" })).not.toBeInTheDocument();
+    expect(await screen.findByText(source === "restoring" ? "Loading your learning content…" : "Learning plan unavailable")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Complete task" })).not.toBeInTheDocument();
     expect(screen.queryByText("45")).not.toBeInTheDocument();
     if (source === "offline-cloud") {
-      await userEvent.click(screen.getByRole("button", { name: /重新读取计划/ }));
+      await userEvent.click(screen.getByRole("button", { name: /Reload plan/ }));
       expect(retry).toHaveBeenCalledTimes(1);
     }
   });

@@ -10,6 +10,6 @@ export function WorkspaceLoading() {
   }, []);
 
   return <div className="workspace-loading">
-    <p role="status" aria-atomic="true">{announce ? "正在加载学习内容…" : null}</p>
+    <p role="status" aria-atomic="true">{announce ? "Loading your learning content…" : null}</p>
   </div>;
 }

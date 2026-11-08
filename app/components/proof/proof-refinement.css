@@ -1,5 +1,5 @@
 .proof-workspace { margin-top: 36px; }
-.proof-workspace .proof-section-heading { align-items: center; }
+.proof-workspace .proof-section-heading { align-items: center; flex-wrap: wrap; }
 .proof-workspace h2, .proof-workspace .proof-section-heading h2 { margin: 8px 0 20px; font-family: var(--sans); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.3; letter-spacing: -.025em; }
 .proof-workspace .primary-action { margin-top: 0; }
 .proof-workspace .proof-ledger, .proof-workspace .proof-editor { border-top-color: var(--hairline); padding: 26px 0 40px; }
@@ -9,7 +9,7 @@
 .proof-list-item > strong { font-size: 1.2rem; line-height: 1.45; }
 .proof-list-kind, .proof-list-meta { color: var(--stone); font-size: .78rem; line-height: 1.5; }
 .proof-list-summary { color: var(--stone); line-height: 1.65; overflow-wrap: anywhere; }
-.proof-list-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--hairline); }
+.proof-list-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--hairline); }
 .proof-list-meta > span { color: var(--signal); white-space: nowrap; }
 .proof-back, .proof-context-return { margin: 0 20px 24px 0; }
 .proof-context-return { display: inline-flex; align-items: center; min-height: 44px; }

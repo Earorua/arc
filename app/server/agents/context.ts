@@ -10,11 +10,11 @@ export class AgentServiceError extends Error {
   constructor(readonly status: number, message: string) { super(message); }
 }
 export class AgentSetupRequiredError extends AgentServiceError {
-  constructor() { super(409, "请先完成学习设置，再开始规划或答疑。"); }
+  constructor() { super(409, "Complete your learning setup before planning or asking questions."); }
 }
 export function learningContext(response: PlanningWorkspaceResponse, now = new Date()) {
   const parsed = planningWorkspaceResponseSchema.safeParse(response);
-  if (!parsed.success) throw new AgentServiceError(503, "学习路线资料暂时无法读取，请刷新后重试。");
+  if (!parsed.success) throw new AgentServiceError(503, "Your learning path is temporarily unavailable. Refresh and try again.");
   const { workspace, sourceContext } = parsed.data;
   if (!workspace) throw new AgentSetupRequiredError();
   // The response schema permits a missing source only for the exact legacy Flagship identity.
@@ -22,7 +22,7 @@ export function learningContext(response: PlanningWorkspaceResponse, now = new D
   const registry = sourceContext?.registry ?? flagshipUnitRegistry;
   const path = workspace.pathVersions.find(path => path.id === workspace.activePathVersionId)!;
   const plan = workspace.planVersions.find(plan => plan.id === workspace.activePlanVersionId)!;
-  if (plan.pathVersionId !== path.id) throw new AgentServiceError(503, "学习路线资料暂时无法读取，请刷新后重试。");
+  if (plan.pathVersionId !== path.id) throw new AgentServiceError(503, "Your learning path is temporarily unavailable. Refresh and try again.");
   const templates = new Map(registry.tracks.flatMap(track => track.templates).map(unit => [unit.id, unit]));
   const completed = new Set(workspace.events.filter(event => event.kind === "completed").map(event => event.unitId));
   const planningDate = planningDateForInstant(now.toISOString(), workspace.availability.timeZone);
@@ -54,7 +54,7 @@ export function learningContext(response: PlanningWorkspaceResponse, now = new D
 export type LearningContext = ReturnType<typeof learningContext>;
 export function assertCurrent(context: LearningContext, expected: Pick<AgentRequest, "goalId" | "baseVersionId" | "revision">) {
   if (context.workspace.goalId !== expected.goalId || context.workspace.activePlanVersionId !== expected.baseVersionId
-    || context.workspace.revision !== expected.revision) throw new AgentServiceError(409, "学习计划已经变化，请刷新后重新规划。");
+    || context.workspace.revision !== expected.revision) throw new AgentServiceError(409, "Your plan has changed. Refresh before creating a new proposal.");
 }
 export function promptContext(context: LearningContext, request: AgentRequest, planner: boolean) {
   const relevantIds = new Set(context.units.slice(0, 4).flatMap(unit => [unit.resourceId, ...unit.alternativeResourceIds]));
@@ -73,13 +73,13 @@ export function promptContext(context: LearningContext, request: AgentRequest, p
   };
   const serialized = JSON.stringify(body);
   if (new TextEncoder().encode(serialized).byteLength > (planner ? 85000 : 22000))
-    throw new AgentServiceError(413, "学习资料过长，请缩小本次问题的范围。");
+    throw new AgentServiceError(413, "There is too much learning material for one request. Narrow your question.");
   return serialized;
 }
 export function proposalEvent(context: LearningContext, advice: PlannerAdvice, mutationId: string) {
   const ids = new Set(context.units.map(unit => unit.id));
   if (advice.milestones.some(m => m.unitIds.some(id => !ids.has(id))))
-    throw new AgentServiceError(422, "规划结果引用了未知任务，请重新生成。");
+    throw new AgentServiceError(422, "The proposal refers to an unknown task. Generate a new proposal.");
   const event = planningEventSchema.parse({
     kind: "agent_replanned", baseRevision: context.workspace.revision, unitOrder: advice.unitOrder,
     planningDate: context.planningDate, eventId: mutationId, mutationId,

@@ -5,27 +5,27 @@ import { AccountMenu } from "../account/account-menu";
 import { WorkspaceHelp } from "../agents/workspace-help";
 
 const primaryLinks = [
-  ["Today", "今日学习", "/today"], ["Path", "学习路线", "/path"],
-  ["Stack", "技能与资料", "/stack"], ["Proof", "作品证据", "/proof"],
+  ["Today", "Today", "/today"], ["Path", "Path", "/path"],
+  ["Stack", "Stack", "/stack"], ["Proof", "Proof", "/proof"],
 ] as const;
 export type WorkspaceDestination = (typeof primaryLinks)[number][0] | "Coach" | "History";
 
 export function WorkspaceHeader({ current, context }: { current: WorkspaceDestination; context?: string }) {
   return <header className="workspace-header">
-    <Link className="wordmark" href="/" lang="en" aria-label="Arc. 首页">Arc.</Link>
-    <nav className="workspace-primary-nav workspace-bottom-nav" aria-label="学习工作区">
+    <Link className="wordmark" href="/" lang="en" aria-label="Arc. Home">Arc.</Link>
+    <nav className="workspace-primary-nav workspace-bottom-nav" aria-label="Learning workspace">
       {primaryLinks.map(([key, label, href]) => <Link key={key} href={href} aria-current={current === key ? "page" : undefined}>{label}</Link>)}
     </nav>
     <div className="workspace-meta"><AccountMenu /></div>
     <div className="workspace-context-row">
-      <span className="workspace-context workspace-goal" title={context}>{context ?? "你的学习工作区"}</span>
+      <span className="workspace-context workspace-goal" title={context}>{context ?? "Your learning workspace"}</span>
       <div className="workspace-context-actions"><WorkspaceHelp />
       {current === "Path" && <details className="workspace-tools">
-        <summary>计划管理</summary>
-        <nav className="workspace-tools-menu" aria-label="学习工具">
-            <Link href="/history">历史计划</Link>
-            <Link href="/setup?mode=edit&section=time">编辑时间</Link>
-            <Link href="/setup?mode=create">新建路线</Link>
+        <summary>Manage plan</summary>
+        <nav className="workspace-tools-menu" aria-label="Learning tools">
+            <Link href="/history">Plan history</Link>
+            <Link href="/setup?mode=edit&section=time">Edit availability</Link>
+            <Link href="/setup?mode=create">New path</Link>
         </nav>
       </details>}
       </div>

@@ -1,5 +1,11 @@
 /* Arc working surfaces: editorial rhythm, quiet controls, one clear next action. */
 :root { --workspace-width: 1160px; --reading-width: 760px; }
+/* English headings wrap by phrase; controls keep room for their full labels. */
+:is(.discovery-home, .reading-page, .showcase-page, .setup-page, .workspace-main, .sign-in-page, .coach-overview) :is(h1, h2, h3) { text-wrap: balance; }
+.discovery-prose, .showcase-lede, .account-boundary-description { text-wrap: pretty; }
+.workspace-header :is(.workspace-meta, .workspace-primary-nav), .companion-heading > div { min-width: 0; }
+.companion-heading strong, .companion-heading small { overflow-wrap: anywhere; }
+.companion-compose-actions { flex-wrap: wrap; row-gap: 8px; }
 .workspace-main { width: min(var(--workspace-width), calc(100% - 64px)); padding-block: 44px 104px; }
 .workspace-main, .coach-work-page, .setup-page, .sign-in-paper { font-size: 16px; line-height: 1.75; }
 .workspace-loading { min-height: 104px; }

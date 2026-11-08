@@ -28,9 +28,9 @@ test("unknown pages retain HTTP 404 and offer branded recovery navigation", asyn
   const response = await render("/arc-unknown-page-for-404-verification");
   assert.equal(response.status, 404);
   const html = await response.text();
-  assert.match(html, /这个页面暂时找不到了/);
+  assert.match(html, /We couldn(?:&#x27;|&#39;|&apos;|')t find this page\./);
   assert.match(html, /href="\/today"/);
-  assert.match(html, /返回首页/);
+  assert.match(html, /Back to home/);
 });
 
 test("server-renders the Arc landing page", async () => {
@@ -39,7 +39,7 @@ test("server-renders the Arc landing page", async () => {
   const html = await response.text();
   assert.match(html, /Arc\./);
   assert.match(html, /Learn only what moves you forward/);
-  assert.match(html, /正在读取学习状态/);
+  assert.match(html, /Loading your progress/);
   assert.match(html, /<main[\s>]/);
   const document = new JSDOM(html).window.document;
   const notices = document.querySelectorAll("p.development-notice");
@@ -50,13 +50,13 @@ test("server-renders the Arc landing page", async () => {
   assert.equal(main.querySelectorAll('.learning-entry-text').length, 0, "the finale must not repeat the hero learning action");
   assert.equal(notices.length, 0);
   assert.equal(document.querySelector(".skip-link")?.getAttribute("href"), "#main-content");
-  assert.match(html, /aria-label="网站导航"/);
+  assert.match(html, /aria-label="Site navigation"/);
   assert.equal(document.querySelectorAll('a[href="/method"]').length, 1, "the homepage keeps one method entry in public navigation");
-  assert.equal(document.querySelector('nav a[href="/method"]')?.textContent, "学习方法");
-  assert.equal(document.querySelector('a[href="#learning-method"]')?.textContent, "向下浏览");
+  assert.equal(document.querySelector('nav a[href="/method"]')?.textContent, "Method");
+  assert.equal(document.querySelector('a[href="#learning-method"]')?.textContent, "Scroll to explore");
   assert.ok(document.getElementById("learning-method"), "the scroll cue retains a valid in-page destination");
   assert.equal(document.querySelectorAll('a[href="/showcase"]').length, 1, "the homepage keeps one showcase entry in public navigation");
-  assert.equal(document.querySelector('nav a[href="/showcase"]')?.textContent, "产品样例");
+  assert.equal(document.querySelector('nav a[href="/showcase"]')?.textContent, "Showcase");
   assert.equal(document.querySelector('link[rel="canonical"]')?.getAttribute("href"), "https://arcmaps.net/");
   assert.equal(document.querySelector('meta[property="og:url"]')?.getAttribute("content"), "https://arcmaps.net/");
   assert.match(html, /property="og:image" content="https:\/\/arcmaps\.net\/og\.png"/);
@@ -108,8 +108,8 @@ test("ships the adaptive workspace recovery and review copy without replacing th
   const clientDirectory = fileURLToPath(new URL("client", artifactRoot));
   const bundle = await readBundleText(clientDirectory);
 
-  assert.match(bundle, /这次调整会改变什么/);
-  assert.match(bundle, /暂时无法读取这个计划/);
-  assert.match(bundle, /学习路线/);
+  assert.match(bundle, /What will change/);
+  assert.match(bundle, /This plan is temporarily unavailable/);
+  assert.match(bundle, /Learning path/);
   assert.doesNotMatch(bundle, /self-assessment is verified/iu);
 });

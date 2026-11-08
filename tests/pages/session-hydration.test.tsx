@@ -38,10 +38,10 @@ afterEach(() => {
 });
 
 const pages = [
-  { Page: TodayPage, route: "/today", pending: "", guest: "从今天的一项任务开始", signedIn: "" },
-  { Page: PathPage, route: "/path", pending: "", guest: "你的下一步，有迹可循", signedIn: "" },
-  { Page: HistoryPage, route: "/history?offset=20", pending: "正在确认登录…", guest: "回看走过的学习路线", signedIn: "历史学习计划" },
-  { Page: SetupPage, route: "/setup?step=confirm", pending: "正在确认账户…", guest: "你想学习哪个岗位或方向？", signedIn: "你想学习哪个岗位或方向？" },
+  { Page: TodayPage, route: "/today", pending: "", guest: "Start with one task today", signedIn: "" },
+  { Page: PathPage, route: "/path", pending: "", guest: "A clear path to your next step", signedIn: "" },
+  { Page: HistoryPage, route: "/history?offset=20", pending: "Checking your session…", guest: "Revisit your learning journey", signedIn: "Past learning plans" },
+  { Page: SetupPage, route: "/setup?step=confirm", pending: "Checking your account…", guest: "What role or field do you want to learn?", signedIn: "What role or field do you want to learn?" },
 ];
 
 describe("page session hydration", () => {

@@ -22,7 +22,7 @@ export default function StackPage() {
   const pending = !hydrated || session.isPending;
   if (pending || !session.data?.user) return <div className="workspace-shell">
     <WorkspaceHeader current="Stack" />
-    <main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/stack" title="登录后查看技能与资料" description="把岗位要求、推荐资料和学习记录集中到你的路线中。">{null}</AccountBoundary></main>
+    <main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/stack" title="Sign in to explore your skills and resources" description="Bring role requirements, recommended resources, and learning progress into your path.">{null}</AccountBoundary></main>
   </div>;
   return <SessionStackPage key={session.data.user.id} ownerKey={`user:${session.data.user.id}`} />;
 }
@@ -32,9 +32,9 @@ function StackSignInBoundary() {
   return <div className="workspace-shell">
     <WorkspaceHeader current="Stack" />
     <main id="main-content" tabIndex={-1} className="workspace-main">
-      <h1>重新登录后继续</h1>
-      <p className="lede" role="status">登录已过期，请重新登录后查看你的技能与资料。</p>
-      <Link className="primary-action" href={href}>重新登录</Link>
+      <h1>Sign in again to continue</h1>
+      <p className="lede" role="status">Your session has expired. Sign in again to view your skills and resources.</p>
+      <Link className="primary-action" href={href}>Sign in again</Link>
     </main>
   </div>;
 }
@@ -44,10 +44,10 @@ function EmptyAccountStack() {
   return <div className="workspace-shell">
     <WorkspaceHeader current="Stack" />
     <main id="main-content" tabIndex={-1} className="workspace-main">
-      <p className="eyebrow">你的账户 · 技能与资料</p>
-      <h1>技能与资料</h1>
-      <p className="lede">创建学习路线后，即可查看保存到当前账户的技能和来源。</p>
-      <Link className="primary-action" href={setupHref(location)}>创建学习路线 →</Link>
+      <p className="eyebrow">Your account · Skills and resources</p>
+      <h1>Skills and resources</h1>
+      <p className="lede">Create a learning path to view the skills and sources saved to your account.</p>
+      <Link className="primary-action" href={setupHref(location)}>Create a learning path →</Link>
     </main>
   </div>;
 }
@@ -94,15 +94,15 @@ function SessionStackPage({ ownerKey }: { ownerKey: string }) {
       planningState={workspace}
     >
       <section className="workspace-intro">
-        <p className="eyebrow">岗位资料 · {blueprint.version}</p>
-        <h1>技能与资料</h1>
-        <p>看清每项技能的价值，找到下一份值得学习的资料。</p>
+        <p className="eyebrow">Role resources · {blueprint.version}</p>
+        <h1>Skills and resources</h1>
+        <p>Understand why each skill matters and find your next learning resource.</p>
       </section>
       {(proof.source === "offline-cloud" || proof.recovery === "unavailable") && (
-        <p className="workspace-notice" role="status">云端作品状态暂不可用；这里只展示能够安全读取的技能证据。</p>
+        <p className="workspace-notice" role="status">Cloud proof status is temporarily unavailable. Only available skill evidence is shown.</p>
       )}
       {proof.recovery === "conflict" && (
-        <p className="workspace-notice" role="status">作品证据已在另一处发生变化，请前往作品证据重新加载后再修改。</p>
+        <p className="workspace-notice" role="status">Your proof changed elsewhere. Open Proof and reload before making changes.</p>
       )}
       <StackBrowser key={workspace?.goalId} ownerKey={`${ownerKey}:${workspace?.goalId}`} blueprint={blueprint} evidence={evidence} evidenceReady={proof.source !== "restoring"} projections={proof.projections} planningWorkspace={workspace} />
     </WorkspaceShell>

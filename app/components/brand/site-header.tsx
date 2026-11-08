@@ -26,14 +26,14 @@ export function SiteHeader({ current }: { current?: "home" | "method" | "showcas
           onClick={() => setMenuOpen((current) => !current)}
           type="button"
         >
-          浏览
+          Browse
         </button>
-        <nav className="public-nav" id="public-navigation" aria-label="网站导航" data-open={menuOpen}>
-          <Link href="/method" aria-current={activePath === "/method" ? "page" : undefined} onClick={() => setMenuOpen(false)}>学习方法</Link>
-          <Link href="/showcase" aria-current={activePath === "/showcase" ? "page" : undefined} onClick={() => setMenuOpen(false)}>产品样例</Link>
+        <nav className="public-nav" id="public-navigation" aria-label="Site navigation" data-open={menuOpen}>
+          <Link href="/method" aria-current={activePath === "/method" ? "page" : undefined} onClick={() => setMenuOpen(false)}>Method</Link>
+          <Link href="/showcase" aria-current={activePath === "/showcase" ? "page" : undefined} onClick={() => setMenuOpen(false)}>Showcase</Link>
         </nav>
         <div className="header-end">
-          {signedIn && activePath !== "/" && <Link className="header-cta" href="/today">学习工作区</Link>}
+          {signedIn && activePath !== "/" && <Link className="header-cta" href="/today">Workspace</Link>}
           <AccountMenu />
         </div>
       </div>

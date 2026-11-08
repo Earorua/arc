@@ -6,10 +6,10 @@ import { WorkspaceLoading } from "./workspace-loading";
 export function PlanningVersionBoundary() {
   return (
     <section className="planning-version-recovery" role="alert">
-      <p className="section-index">暂时无法读取这个计划</p>
-      <h2>计划使用的内容版本暂不可用</h2>
-      <p>原有计划与学习记录已保留，没有发生更改。</p>
-      <p>当前暂不支持自动转换这个版本，请稍后再试。</p>
+      <p className="section-index">This plan is temporarily unavailable</p>
+      <h2>This plan’s content version is unavailable</h2>
+      <p>Your plan and learning history are preserved and unchanged.</p>
+      <p>This version cannot be converted automatically yet. Please try again later.</p>
     </section>
   );
 }
@@ -28,10 +28,10 @@ export function PlanningLoadBoundary({ loading, onRetry }: { loading: boolean; o
 
   return (
     <section className="planning-version-recovery" role="alert">
-      <p className="section-index">学习计划暂不可用</p>
-      <h2>暂时无法确认已保存的学习计划</h2>
-      <p>确认计划后即可继续学习，原有记录会保留。</p>
-      <button disabled={retrying} onClick={() => void retry()} type="button">{retrying ? "正在重试…" : "重新读取计划"}</button>
+      <p className="section-index">Learning plan unavailable</p>
+      <h2>Your saved plan could not be confirmed</h2>
+      <p>Continue learning once your plan is confirmed. Your existing records are preserved.</p>
+      <button disabled={retrying} onClick={() => void retry()} type="button">{retrying ? "Retrying…" : "Reload plan"}</button>
     </section>
   );
 }

@@ -19,11 +19,11 @@ export default function SignInPage() {
   const requestedNext = search.get("next");
   const destination = requestedNext && safeReturnTo(requestedNext) === requestedNext ? requestedNext : null;
   const destinationPath = destination?.split(/[?#]/u, 1)[0];
-  const destinationHint = destinationPath === "/setup" ? "登录后继续设置你的学习路线。"
-    : destinationPath === "/stack" ? "登录后继续查看技能与资料。"
-    : destinationPath === "/proof" ? "登录后继续整理你的作品证据。"
-    : destinationPath === "/coach" ? "登录后继续调整你的学习计划。"
-    : "保存学习路线、每日进度与作品证据。";
+  const destinationHint = destinationPath === "/setup" ? "Sign in to continue setting up your learning path."
+    : destinationPath === "/stack" ? "Sign in to return to your skills and resources."
+    : destinationPath === "/proof" ? "Sign in to continue organizing your work."
+    : destinationPath === "/coach" ? "Sign in to continue refining your learning plan."
+    : "Save your learning path, daily progress, and evidence of your work.";
   const oauthFailed = search.has("error");
   const reauthenticate = search.get("reauth") === "1";
   const userId = hydrated && !session.isPending ? session.data?.user.id : undefined;
@@ -83,36 +83,36 @@ export default function SignInPage() {
   }, []);
 
   return (
-    <main className="sign-in-page sign-in-paper" id="main-content" tabIndex={-1} lang="zh-CN">
+    <main className="sign-in-page sign-in-paper" id="main-content" tabIndex={-1} lang="en">
       <header className="sign-in-header">
-        <Link className="wordmark" href="/" aria-label="Arc. 首页" lang="en">Arc.</Link>
-        <Link className="sign-in-return" href={destination ?? "/"}>{destination ? "返回来源页面" : "返回首页"}</Link>
+        <Link className="wordmark" href="/" aria-label="Arc. home" lang="en">Arc.</Link>
+        <Link className="sign-in-return" href={destination ?? "/"}>{destination ? "Back to previous page" : "Back to home"}</Link>
       </header>
       <section className="sign-in-composition">
         <div className="sign-in-intro">
-          <p className="eyebrow">你的 Arc. 账号</p>
-          <h1>登录，继续你的学习</h1>
+          <p className="eyebrow">Your Arc. account</p>
+          <h1>Sign in. Keep moving.</h1>
           <p>{destinationHint}</p>
         </div>
-        <div className="sign-in-actions paper-surface" aria-label="登录方式">
-          <p className="section-index">选择登录方式</p>
-          {oauthFailed && <p className="account-error" role="alert">登录未完成，请重试。你要返回的页面已保留。</p>}
-          {expired && <p className="account-error" role="alert">登录已过期，请重新验证身份后继续。</p>}
+        <div className="sign-in-actions paper-surface" aria-label="Sign-in methods">
+          <p className="section-index">Choose how to sign in</p>
+          {oauthFailed && <p className="account-error" role="alert">Sign-in didn&apos;t finish. Try again; we&apos;ve kept your destination.</p>}
+          {expired && <p className="account-error" role="alert">Your session has expired. Sign in again to continue.</p>}
           {userId && !oauthFailed && !expired ? failed ? <div className="sign-in-recovery">
-            <p className="account-error" role="alert">已登录，暂时无法读取你的学习路线。请重试。</p>
-            <button className="primary-action" onClick={() => setAttempt((value) => value + 1)} type="button">重试</button>
-          </div> : <p className="account-availability" role="status">正在打开你的学习工作区…</p> : <SignInPanel
+            <p className="account-error" role="alert">You&apos;re signed in, but we couldn&apos;t load your learning path. Please try again.</p>
+            <button className="primary-action" onClick={() => setAttempt((value) => value + 1)} type="button">Retry</button>
+          </div> : <p className="account-availability" role="status">Opening your workspace…</p> : <SignInPanel
             destination={destination}
             pending={!hydrated || session.isPending || pending}
             providers={providers}
             signIn={(request) => authClient.signIn.social(request)}
           />}
-          <p className="account-device-note">本设备已有的学习记录会保留。登录后如有可迁移记录，你可以选择是否导入账号。</p>
+          <p className="account-device-note">Your learning records stay on this device. After signing in, you can choose whether to import eligible records into your account.</p>
         </div>
       </section>
       <footer className="sign-in-footer">
-        {!panelHasShowcaseExit && <Link href="/showcase">先看公开样例</Link>}
-        <span>作品默认私密，由你决定是否公开。</span>
+        {!panelHasShowcaseExit && <Link href="/showcase">Explore the showcase</Link>}
+        <span>Your work is private until you choose to share it.</span>
       </footer>
     </main>
   );

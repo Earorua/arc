@@ -19,11 +19,11 @@ export function PrecisionPathHero() {
           <span className="discovery-brand">Arc<span className="discovery-brand-dot">.</span><ArcMark /></span>
           <span className="discovery-promise">Learn only what moves you forward.</span>
         </h1>
-        <div className="discovery-hero-actions" lang="zh-CN">
+        <div className="discovery-hero-actions" lang="en">
           <HomeLearningAction />
         </div>
       </div>
-      <a className="discovery-scroll" href="#learning-method" lang="zh-CN"><span>向下浏览</span><i aria-hidden="true" /></a>
+      <a className="discovery-scroll" href="#learning-method" lang="en"><span>Scroll to explore</span><i aria-hidden="true" /></a>
     </section>
   );
 }

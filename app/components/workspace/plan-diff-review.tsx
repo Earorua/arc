@@ -17,7 +17,7 @@ type PlanDiffReviewProps = {
   acceptLabel?: string;
 };
 
-export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, onDiscard, onSuccess, registry = flagshipUnitRegistry, acceptLabel = "接受新安排" }: PlanDiffReviewProps) {
+export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, onDiscard, onSuccess, registry = flagshipUnitRegistry, acceptLabel = "Accept new schedule" }: PlanDiffReviewProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{ kind: "status" | "alert"; text: string } | null>(null);
@@ -52,7 +52,7 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
   useEffect(() => { if (resolved.kind === "ready") headingRef.current?.focus(); }, [resolved]);
   if (resolved.kind === "none") return null;
   if (resolved.kind === "unavailable") return <PlanningVersionBoundary />;
-  const changeLabels = { added: "新增", moved: "调整日期", removed: "移除", unchanged: "不变" };
+  const changeLabels = { added: "Added", moved: "Rescheduled", removed: "Removed", unchanged: "Unchanged" };
   const counts = (["added", "moved", "removed", "unchanged"] as const).map((change) => ({ change, count: resolved.diff.items.filter((item) => item.change === change).length }));
   const decide = async (kind: "accept" | "discard") => {
     if (pending) return;
@@ -60,26 +60,26 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
     try {
       const succeeded = await (kind === "accept" ? onAccept : onDiscard)(resolved.candidate.id);
       if (succeeded) {
-        const text = kind === "accept" ? "已接受新安排。" : "已保留当前安排。";
+        const text = kind === "accept" ? "New schedule accepted." : "Current schedule kept.";
         if (onSuccess) onSuccess(text, kind);
         else setMessage({ kind: "status", text });
       }
-      else setMessage({ kind: "alert", text: recovery === "conflict" ? "计划已在另一台设备上发生变化，请刷新后再决定。" : "暂时无法保存这个决定，请在连接恢复后重试。" });
+      else setMessage({ kind: "alert", text: recovery === "conflict" ? "Your plan changed on another device. Refresh before making a decision." : "Your choice could not be saved. Try again when your connection is restored." });
     } catch {
-      setMessage({ kind: "alert", text: recovery === "conflict" ? "计划已在另一台设备上发生变化，请刷新后再决定。" : "暂时无法保存这个决定，请在连接恢复后重试。" });
+      setMessage({ kind: "alert", text: recovery === "conflict" ? "Your plan changed on another device. Refresh before making a decision." : "Your choice could not be saved. Try again when your connection is restored." });
     } finally {
       setPending(false);
     }
   };
   return <section className="plan-diff-review" aria-labelledby="plan-diff-title">
-    <p className="section-index">调整建议 · 等待你的确认</p>
-    <h2 id="plan-diff-title" ref={headingRef} tabIndex={-1}>这次调整会改变什么</h2>
-    <p>查看时间与任务变化。只有点击「{acceptLabel}」后，建议才会生效。</p><p className="diff-source-summary">{resolved.diff.summary}</p>
-    {resolved.keepsUncertainLearning && <p className="workspace-notice">这项技能的自评是“不确定”，本次自评不会移除学习任务。完成校准只记录练习，作品审核后才会更新技能证明。你可以保留当前安排，再延后任务或调整学习时间。</p>}
+    <p className="section-index">Proposed changes · Ready for review</p>
+    <h2 id="plan-diff-title" ref={headingRef} tabIndex={-1}>What will change</h2>
+    <p>Review the schedule and task changes. They take effect only after you select {acceptLabel}.</p><p className="diff-source-summary">{resolved.diff.summary}</p>
+    {resolved.keepsUncertainLearning && <p className="workspace-notice">You rated this skill Unsure, so this self-assessment keeps its learning tasks. Calibration records practice; proof is updated after your work is reviewed. You can keep your schedule, then delay the task or adjust your study time.</p>}
     <dl className="diff-counts">{counts.map(({ change, count }) => <div key={change}><dt>{changeLabels[change]}</dt><dd>{count}</dd></div>)}</dl>
-    <p className="diff-completion"><span>当前预计完成 · {resolved.diff.previousEstimatedCompletionDate}</span><span>调整后预计完成 · {resolved.diff.nextEstimatedCompletionDate}</span></p>
-    <details className="diff-details"><summary>查看逐项变化</summary><ul className="diff-items">{resolved.diff.items.map((item) => <li key={item.unitId}><strong><span>{changeLabels[item.change]}</span><span>{resolved.labels.get(item.unitId) ?? "已记录的学习单元"}</span></strong><span>{item.fromDate ?? "未安排"} → {item.toDate ?? "未安排"}</span><p>{item.reason}</p></li>)}</ul></details>
-    <div className="diff-actions"><button disabled={pending} onClick={() => void decide("accept")} type="button">{acceptLabel}</button><button disabled={pending} onClick={() => void decide("discard")} type="button">保留当前安排</button></div>
-    {message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "计划已在另一台设备上发生变化，请刷新后再决定。" : message.text}</p>}
+    <p className="diff-completion"><span>Current estimated finish · {resolved.diff.previousEstimatedCompletionDate}</span><span>Proposed estimated finish · {resolved.diff.nextEstimatedCompletionDate}</span></p>
+    <details className="diff-details"><summary>View individual changes</summary><ul className="diff-items">{resolved.diff.items.map((item) => <li key={item.unitId}><strong><span>{changeLabels[item.change]}</span><span>{resolved.labels.get(item.unitId) ?? "Saved learning unit"}</span></strong><span>{item.fromDate ?? "Unscheduled"} → {item.toDate ?? "Unscheduled"}</span><p>{item.reason}</p></li>)}</ul></details>
+    <div className="diff-actions"><button disabled={pending} onClick={() => void decide("accept")} type="button">{acceptLabel}</button><button disabled={pending} onClick={() => void decide("discard")} type="button">Keep current schedule</button></div>
+    {message && <p role={message.kind}>{message.kind === "alert" && recovery === "conflict" ? "Your plan changed on another device. Refresh before making a decision." : message.text}</p>}
   </section>;
 }

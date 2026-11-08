@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "@fontsource-variable/jost";
 import "@fontsource-variable/fraunces";
 import "@fontsource-variable/fraunces/wght-italic.css";
-import "@fontsource-variable/noto-serif-sc";
 import "@fontsource-variable/newsreader";
 import "@fontsource-variable/newsreader/wght-italic.css";
 import "./globals.css";
@@ -29,7 +28,7 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
   openGraph: {
     type: "website",
-    locale: "zh_CN",
+    locale: "en_US",
     siteName: "Arc.",
     url: "/",
     title,
@@ -51,9 +50,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <body>
-        <a className="skip-link" href="#main-content">跳到主要内容</a>
+        <a className="skip-link" href="#main-content">Skip to main content</a>
         <LearningAgentsProvider>
           <AgentPageFrame>{children}</AgentPageFrame>
           <AgentCompanion />

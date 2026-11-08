@@ -10,9 +10,9 @@
   --signal: #176b68;
   --action: #176b68;
   --success: #4e7042;
-  --sans: "Jost Variable", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --display: "Fraunces Variable", "Noto Serif SC Variable", "Songti SC", serif;
-  --serif: "Newsreader Variable", "Noto Serif SC Variable", "Songti SC", serif;
+  --sans: "Jost Variable", system-ui, sans-serif;
+  --display: "Fraunces Variable", Georgia, serif;
+  --serif: "Newsreader Variable", Georgia, serif;
   --content: min(1160px, calc(100% - clamp(40px, 10vw, 144px)));
   --motion-ease: cubic-bezier(.2,.7,.2,1);
 }
@@ -32,7 +32,7 @@ a, button, summary { touch-action: manipulation; }
   background: color-mix(in srgb, var(--ivory) 92%, transparent);
   backdrop-filter: blur(12px); border-color: color-mix(in srgb, var(--hairline) 45%, transparent);
 }
-.public-nav { gap: 32px; font-size: 14px; letter-spacing: .12em; }
+.public-nav { gap: 32px; font-size: 14px; letter-spacing: .045em; }
 .public-nav a { position: relative; padding-block: 12px; }
 .public-nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 5px; height: 1px; background: var(--signal); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
 .public-nav a:hover::after, .public-nav a:focus-visible::after { transform: scaleX(1); }

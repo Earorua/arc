@@ -26,15 +26,15 @@ export function SignInPanel({
   const [failed, setFailed] = useState(false);
 
   if (pending) {
-    return <p className="account-availability" role="status">正在确认登录方式…</p>;
+    return <p className="account-availability" role="status">Checking sign-in methods…</p>;
   }
 
   if (providers.length === 0) {
     return (
       <div className="account-unavailable">
-        <p className="account-availability" role="status">账号登录暂未开放。</p>
-        <p>你仍可以查看公开样例，了解学习路线与作品记录。</p>
-        <Link href="/showcase">先看公开样例</Link>
+        <p className="account-availability" role="status">Account sign-in is not available yet.</p>
+        <p>Explore the public example to see a learning path and the work it produces.</p>
+        <Link href="/showcase">Explore the showcase</Link>
       </div>
     );
   }
@@ -62,7 +62,7 @@ export function SignInPanel({
     <div className="provider-list">
       {providers.map((provider) => (
         <button
-          aria-label={`使用 ${provider === "google" ? "Google" : "GitHub"} 继续`}
+          aria-label={`Continue with ${provider === "google" ? "Google" : "GitHub"}`}
           className="provider-action"
           disabled={activeProvider !== null}
           key={provider}
@@ -70,17 +70,17 @@ export function SignInPanel({
           type="button"
         >
           <span aria-hidden="true">{provider === "google" ? "G" : "GH"}</span>
-          <strong>使用 {provider === "google" ? "Google" : "GitHub"} 继续</strong>
-          <small>{activeProvider === provider ? "正在打开…" : "→"}</small>
+          <strong>Continue with {provider === "google" ? "Google" : "GitHub"}</strong>
+          <small>{activeProvider === provider ? "Opening…" : "→"}</small>
         </button>
       ))}
       {failed && (
         <p className="account-error" role="alert">
-          暂时无法开始登录，请检查网络后重试。
+          We couldn&apos;t start sign-in. Check your connection and try again.
         </p>
       )}
       <p className="account-assurance">
-        无需另设密码。由 Google 或 GitHub 验证身份，Arc. 保存账号与学习进度。
+        No new password needed. Google or GitHub verifies your identity; Arc. saves your account and learning progress.
       </p>
     </div>
   );

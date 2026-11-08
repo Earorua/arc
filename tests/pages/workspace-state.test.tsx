@@ -17,7 +17,7 @@ vi.mock("../../app/lib/use-arc-state", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-arc-state")>();
   return { ...actual, useArcState: () => actual.useArcState({ useSession: () => ({ data: null, isPending: false }) }) };
 });
-vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>账号</span> }));
+vi.mock("../../app/components/account/account-menu", () => ({ AccountMenu: () => <span>Account</span> }));
 vi.mock("../../app/lib/use-proof-ledger", async (original) => {
   const actual = await original<typeof import("../../app/lib/use-proof-ledger")>();
   return { ...actual, useProofLedger: (options: Parameters<typeof actual.useProofLedger>[0]) => actual.useProofLedger({ ...options, useSession: () => ({ data: null, isPending: false }) }) };
@@ -61,11 +61,11 @@ describe("personalized workspace state", () => {
     render(<Page />);
 
     if (page === "Today") {
-      expect(await screen.findByText(`今日 · ${currentUtcDate} · 主要任务`)).toBeInTheDocument();
-      fireEvent.click(screen.getByText("查看本周安排"));
-      expect(screen.getByRole("list", { name: "连续七日学习安排" })).toBeInTheDocument();
+      expect(await screen.findByText(`Today · ${currentUtcDate} · Main task`)).toBeInTheDocument();
+      fireEvent.click(screen.getByText("View this week’s schedule"));
+      expect(screen.getByRole("list", { name: "Seven-day learning schedule" })).toBeInTheDocument();
     } else {
-      expect(await screen.findByRole("list", { name: "学习阶段" })).toBeInTheDocument();
+      expect(await screen.findByRole("list", { name: "Learning phases" })).toBeInTheDocument();
     }
     expect(usePlanningWorkspace).toHaveBeenCalled();
   });
@@ -74,15 +74,15 @@ describe("personalized workspace state", () => {
     usePlanningWorkspace.mockClear();
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<Page />);
-    await waitFor(() => expect(screen.getByTitle("数据产品经理 · 10 周")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTitle("数据产品经理 · 10 weeks")).toBeInTheDocument());
     expect(usePlanningWorkspace).toHaveBeenCalled();
   });
 
   it("keeps device-only role details out of a Stack account with no saved plan", async () => {
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<StackPage />);
-    expect(await screen.findByText("创建学习路线后，即可查看保存到当前账户的技能和来源。")).toBeInTheDocument();
-    expect(screen.queryByText("数据产品经理 · 10 周")).not.toBeInTheDocument();
+    expect(await screen.findByText("Create a learning path to view the skills and sources saved to your account.")).toBeInTheDocument();
+    expect(screen.queryByText("数据产品经理 · 10 weeks")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Web Platform" })).not.toBeInTheDocument();
     expect(usePlanningWorkspace).toHaveBeenCalled();
   });
@@ -95,9 +95,9 @@ describe("personalized workspace state", () => {
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText("数据产品经理 · 10 周")).toBeInTheDocument();
-      expect(screen.getByText(/当前内容使用 AI 原生全栈旗舰样本/)).toBeInTheDocument();
-      expect(screen.getByText(/Product Intelligence 后续研究并替换/)).toBeInTheDocument();
+      expect(screen.getByText("数据产品经理 · 10 weeks")).toBeInTheDocument();
+      expect(screen.getByText(/This path currently uses the AI-native full-stack sample/)).toBeInTheDocument();
+      expect(screen.getByText(/Role research will replace it/)).toBeInTheDocument();
     });
 
   });
@@ -123,14 +123,14 @@ describe("personalized workspace state", () => {
 
     render(<ProofPage />);
 
-    const addProof = await screen.findByRole("button", { name: /添加作品/ });
+    const addProof = await screen.findByRole("button", { name: /Add proof/ });
     await waitFor(() => expect(addProof).toBeEnabled());
     fireEvent.click(addProof);
-    const select = await screen.findByLabelText("关联学习单元");
+    const select = await screen.findByLabelText("Related learning unit");
     expect(within(select).getAllByRole("option")).toHaveLength(replanned.dailyUnits.length + 1);
     const firstUnit = replanned.dailyUnits[0]!;
     expect(within(select).getAllByRole("option", {
-      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "主要任务" : "拓展任务"} · ${firstUnit.objective}`,
+      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "Main task" : "Stretch task"} · ${firstUnit.objective}`,
     })).toHaveLength(1);
   });
 });

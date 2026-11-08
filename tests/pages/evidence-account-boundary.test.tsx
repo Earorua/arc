@@ -23,8 +23,8 @@ describe("evidence account boundary", () => {
   it.each([{ Page: StackPage, path: "/stack?skill=react&category=frontend" }, { Page: ProofPage, path: "/proof?compose=1&unit=owned-unit&returnTo=%2Ftoday" }])("keeps $path behind a contextual login with an honest preview route", async ({ Page, path }) => {
     window.history.replaceState(null, "", path);
     render(<Page />);
-    expect(await screen.findByRole("link", { name: "登录并继续" })).toHaveAttribute("href", `/sign-in?next=${encodeURIComponent(path)}`);
-    expect(screen.getByRole("link", { name: "先看公开样例" })).toHaveAttribute("href", "/showcase");
+    expect(await screen.findByRole("link", { name: "Sign in and continue" })).toHaveAttribute("href", `/sign-in?next=${encodeURIComponent(path)}`);
+    expect(screen.getByRole("link", { name: "Explore the showcase" })).toHaveAttribute("href", "/showcase");
     expect(injected.arc).not.toHaveBeenCalled();
     expect(injected.planning).not.toHaveBeenCalled();
     expect(injected.proof).not.toHaveBeenCalled();
@@ -33,7 +33,7 @@ describe("evidence account boundary", () => {
   it.each([StackPage, ProofPage])("does not load private evidence while the session is unresolved", (Page) => {
     injected.pending = true;
     render(<Page />);
-    expect(screen.getByRole("status")).toHaveTextContent("正在确认账号");
+    expect(screen.getByRole("status")).toHaveTextContent("Checking your account");
     expect(injected.arc).not.toHaveBeenCalled();
     expect(injected.proof).not.toHaveBeenCalled();
   });

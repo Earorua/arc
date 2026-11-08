@@ -21,27 +21,27 @@ describe("SevenDayTimeline", () => {
   it("labels the actual viewed week instead of implying the current calendar week", () => {
     render(<SevenDayTimeline workspace={workspace()} />);
     expect(screen.getByRole("heading", { name: "2026-08-14 — 2026-08-20" })).toBeInTheDocument();
-    expect(screen.getByText("当前计划 · 七日安排")).toBeInTheDocument();
+    expect(screen.getByText("Current plan · Seven-day schedule")).toBeInTheDocument();
   });
   it("uses one ordered timeline with exactly seven consecutive dates and retains exceptions and rest", () => {
     render(<SevenDayTimeline workspace={workspace()} />);
-    const timeline = screen.getByRole("list", { name: "连续七日学习安排" });
+    const timeline = screen.getByRole("list", { name: "Seven-day learning schedule" });
     expect(within(timeline).getAllByRole("listitem")).toHaveLength(7);
     expect(within(timeline).getAllByText(/2026-08-(14|15|16|17|18|19|20)/)).toHaveLength(7);
-    expect(within(timeline).getByText(/临时安排：Travel/)).toBeInTheDocument();
-    expect(within(timeline).getAllByText("休息").length).toBeGreaterThan(0);
+    expect(within(timeline).getByText(/Schedule exception: Travel/)).toBeInTheDocument();
+    expect(within(timeline).getAllByText("Rest").length).toBeGreaterThan(0);
   });
 
   it("fails closed when the recorded blueprint or registry version is unavailable", () => {
     const current = workspace();
     const view = render(<SevenDayTimeline workspace={current} registry={{ ...flagshipUnitRegistry, version: "2026.08.99" }} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
-    expect(screen.getByRole("alert")).toHaveTextContent("原有计划与学习记录已保留");
+    expect(screen.getByRole("alert")).toHaveTextContent("This plan is temporarily unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("Your plan and learning history are preserved");
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
 
     view.rerender(<SevenDayTimeline workspace={current} blueprint={{ ...flagshipBlueprint, version: "2026.08.99" }} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
-    expect(screen.getByRole("alert")).toHaveTextContent("当前暂不支持自动转换这个版本");
+    expect(screen.getByRole("alert")).toHaveTextContent("This plan is temporarily unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("This version cannot be converted automatically yet");
   });
 
   it("renders a truthful fallback for an exception without a reason", () => {
@@ -58,7 +58,7 @@ describe("SevenDayTimeline", () => {
 
     render(<SevenDayTimeline workspace={withoutReason} />);
 
-    expect(screen.getByText("临时安排 · 未填写原因")).toBeInTheDocument();
-    expect(screen.queryByText(/临时安排：(null|undefined)/)).not.toBeInTheDocument();
+    expect(screen.getByText("Schedule exception · No reason given")).toBeInTheDocument();
+    expect(screen.queryByText(/Schedule exception: (null|undefined)/)).not.toBeInTheDocument();
   });
 });
