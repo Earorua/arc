@@ -7,6 +7,7 @@
 | 用途 | 入口 |
 | --- | --- |
 | 当前完整源码、开发分支与文件统计 | [源码入口](../../SOURCE_INDEX.md)、[源码整理记录](../verification/2026-11-08-source-consolidation.md) |
+| 当前分支、归档历史与本地同步 | [2026-11-09 分支整理](../verification/2026-11-09-branch-cleanup.md)、[分支清单](../source/2026-11-09-branches.json) |
 | 最新已发布英文界面 | [2026-11-08 英文界面发布](../verification/2026-11-08-english-only-interface.md) |
 | 墨青配色与加载改进 | [配色发布](../verification/2026-11-08-arc-ink-teal.md)、[加载改进](../verification/2026-11-08-quiet-workspace-loading.md) |
 | 历史首页方法入口发布 | [2026-10-29 首页方法入口验收](../verification/2026-10-29-home-method-entry.md) |
