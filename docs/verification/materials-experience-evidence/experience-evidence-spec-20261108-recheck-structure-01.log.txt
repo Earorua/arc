@@ -1,0 +1,153 @@
+{
+  "status": "PASS",
+  "originalDeclarations": 28,
+  "moved": 18,
+  "declarationChecks": [
+    {
+      "name": "Hint",
+      "sha256": "3a6225689dc32d8a81301feb4d9133e2c2ca1e542954566efa8d518c46c9d1ee",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "selfConflict",
+      "sha256": "fc321cc8394c306a2e68e8230e86d6fcb83f3252089d7ca922742e4c18a94ffe",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "deniedConflict",
+      "sha256": "a692d837ee52142bde8ba0442dea50b3aca92e04a0fbd57edf78de83fba031ee",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "assertedSkillEvidence",
+      "sha256": "63beef62b69585ed42abb298d364f89cf626fbd357c36d7491863bfe2958ccf7",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "englishConceptual",
+      "sha256": "9f6589adb88542e0c054ae0a90dc014c529ea80a9fa5fdd13774941ad32310db",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "chineseConceptual",
+      "sha256": "e9e92a03ddb383ad5d7af4015c22d7fd382c524fc34d2372f59cf8bf2d68413a",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "supervised",
+      "sha256": "692a8a38776b2e0fcda887a8136f2c8113f021e05915eb8c748c3208008eca95",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "instructionalPractice",
+      "sha256": "f6e2b58727c7ebe64b4d0ed2b0a246dff3ecc3de4d0183cce5f81636aa34b68b",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "deniedInstructionalPractice",
+      "sha256": "07bf5a751e19a8e37a49b46f20c72d32bdd8d94a31381fa81ea49da96b32ba08",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "selfUncertain",
+      "sha256": "8faaeec5e3cec664d3b03c2e7857bc307831862ca445dc621d7fc7e185d7a214",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "chineseGuidance",
+      "sha256": "996a9b7e90c1a3464fb20a6a0d0d3c54343693c977ae0503df28e57686a5ca58",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "practiceAction",
+      "sha256": "52623bb8d119d809c4529998205817598d40ca13cf9629d7f5c3a76ca8c5eb6b",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "personalPassivePractice",
+      "sha256": "f3eb80409b2586173ed0e30b6d55a504b954e882704bb5b6d1e7bd0d2eb4e38f",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "guidedNegation",
+      "sha256": "9bfdbafb0c040c0807b3d604a6efd5f787a02cfac18e9d964786b837bc64d002",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "instructionalFragmentStart",
+      "sha256": "32bcac304cc59721268d18e2536ddd042f85b4f3457af558e998e8922ba58aaa",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "guidedPractice",
+      "sha256": "35f6adf6e728863f729bd86ea8e07220ef9e7c5c1d1480c5a2b82deee9f45db5",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "guidedSkillScope",
+      "sha256": "03853334fd56f73a0d283e0a70d24a3c98be36d089fab2dc54750d7094fb5d61",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "personalPracticeNeed",
+      "sha256": "f1c0659c23e06c1050fa2e6156c789bdc01672ef8810305b88ca81f0197a283b",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "hasPersonalCapabilityQuestion",
+      "sha256": "5da12abd487ff3c7fe4e459b692cf0ec1fac610127014df9dd925425cc7fecbf",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "scopeBreak",
+      "sha256": "c3ab6cc0fcf1e7f10a7857ab895f761dcf731a516470e84c6747bc314a184b0a",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "personalAssessmentHeading",
+      "sha256": "2278ff89eca6f669eb8053b029e0965e90334d0d604bb2b022dfba05a592a50b",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "reportedAssessment",
+      "sha256": "c37bae7ccc019e42e75e91faad7ec42b59b8080b729a6b03700050505ba111ef",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "assessmentScopes",
+      "sha256": "709a537669c0b63d3e4f89407f18b322151c51c7e3558da71ca60dcaa3e8d9f1",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "conceptualAssessment",
+      "sha256": "e5b6ce0d292b8fb3b4e67c2830b96e427054e58bddf7c9ee6dba4638fe41764c",
+      "location": "app/lib/materials/personal-assertion-scopes.ts"
+    },
+    {
+      "name": "personalUncertainty",
+      "sha256": "1354776549fa28da73223a1b18f51b4198cd31c9b5aceac45e147f9d1942816e",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "supportsSelfLevelHintInScope",
+      "sha256": "6e249f6e0f3e17590bb76fe9d84b6be0fe348eeddc3681fb2276f7f141ee04ca",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "supportsMaterialSelfLevelHint",
+      "sha256": "62812cfa96732159b20314704f72c4871292f3d196f38778b065324f4bc34c76",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    },
+    {
+      "name": "hasPersonalPracticeNeed",
+      "sha256": "4e41b7365204925d6588ea58c05126c30e92fb194d1b96dcedf7ec46d4a0d9a6",
+      "location": "app/lib/materials/self-assessment-evidence.ts"
+    }
+  ],
+  "inputHashes": {
+    "D:/CodexTemp/arc-edited-assessment-repaired-rspZeV/source/app/lib/materials/self-assessment-evidence.ts": "cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70",
+    "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+    "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "app/lib/materials/experience-evidence.ts": "33c4f603ed97d7d22d67e6e4c9b1975bbb34a6b5fd1f68f306a18c7efbf09324"
+  }
+}

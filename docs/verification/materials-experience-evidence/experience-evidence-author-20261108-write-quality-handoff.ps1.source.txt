@@ -1,0 +1,135 @@
+$ErrorActionPreference = 'Stop'
+$prefix = 'experience-evidence-author-20261108-'
+$directory = Join-Path $PWD 'work/grounded-verification'
+$utf8 = [System.Text.UTF8Encoding]::new($false)
+function Write-NewText([string]$path, [string]$text) {
+  $stream = [System.IO.File]::Open($path, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write)
+  try { $bytes = $utf8.GetBytes($text); $stream.Write($bytes, 0, $bytes.Length) } finally { $stream.Dispose() }
+}
+function Hash-File([string]$path) { return (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash.ToLowerInvariant() }
+$source = @(
+  @('app/lib/materials/experience-evidence.ts', '48bec30986f63a3937d8f89b7493bd2f570aac332ecd890fb81045ac6e091277'),
+  @('app/lib/materials/personal-assertion-scopes.ts', '743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a'),
+  @('app/lib/materials/self-assessment-evidence.ts', '385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75'),
+  @('tests/lib/materials/experience-evidence.test.ts', 'fe3d431e722b6b0254224abfb755ddb23e41a59ca4ed5e9a6e0d5434a0af71aa')
+)
+$frozen = foreach ($entry in $source) {
+  $hash = Hash-File $entry[0]
+  if ($hash -ne $entry[1]) { throw ('Source changed after quality repair freeze: ' + $entry[0]) }
+  [pscustomobject]@{ path = $entry[0]; sha256 = $hash; bytes = (Get-Item -LiteralPath $entry[0]).Length }
+}
+$prior = Get-Content -Raw -LiteralPath (Join-Path $directory ($prefix + 'repair-frozen-source.json')) | ConvertFrom-Json
+$snapshot = Join-Path $directory ($prefix + 'quality-original-freeze')
+foreach ($entry in $prior) {
+  if ((Hash-File (Join-Path $snapshot $entry.path)) -ne $entry.sha256) { throw ('Preserved repair source mismatch: ' + $entry.path) }
+}
+if ((Hash-File (Join-Path $snapshot 'repair-handoff.md')) -ne 'c470b8c86f53be8ed30dfd9a3293ba0574c2357078604ceac3caa07cc580b995') { throw 'Preserved repair handoff mismatch' }
+if ((Hash-File (Join-Path $directory 'experience-evidence-quality-20261108-probe-a.log')) -ne '5cd9bc821ce36efe4ae2fcd345ed5bd1493f0111561384d030de6a8e86aa5507') { throw 'Quality RED log changed' }
+$copies = @(
+  @('experience-evidence-spec-20261108-probe.mjs', ($prefix + 'quality-spec-probe.mjs'), 'experience-evidence-spec-20261108-probe-results.json', ($prefix + 'quality-spec-results.json')),
+  @('experience-evidence-quality-20261108-probe.mjs', ($prefix + 'quality-review-probe.mjs'), 'experience-evidence-quality-20261108-probe-results.json', ($prefix + 'quality-review-results.json')),
+  @(($prefix + 'baseline-check.mjs'), ($prefix + 'baseline-check-quality.mjs'), ($prefix + 'compatibility-results.json'), ($prefix + 'quality-compatibility-results.json'))
+)
+foreach ($copy in $copies) {
+  $original = [System.IO.File]::ReadAllText((Join-Path $directory $copy[0]))
+  $executionCopy = [System.IO.File]::ReadAllText((Join-Path $directory $copy[1]))
+  if ($executionCopy.Replace($copy[3], $copy[2]) -cne $original) { throw ('Execution copy changed beyond output path: ' + $copy[1]) }
+}
+$diff = @(git diff --check -- app/lib/materials/self-assessment-evidence.ts app/lib/materials/personal-assertion-scopes.ts app/lib/materials/experience-evidence.ts tests/lib/materials/experience-evidence.test.ts 2>&1)
+if ($LASTEXITCODE -ne 0) { throw 'Scoped git diff --check failed' }
+Write-NewText (Join-Path $directory ($prefix + 'quality-diff-check.txt')) ([string]::Join("`n", $diff))
+Write-NewText (Join-Path $directory ($prefix + 'quality-frozen-source.json')) (($frozen | ConvertTo-Json -Depth 5) + "`n")
+
+$unit = 'node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-evidence-author-20261108-unit.config.ts --reporter verbose'
+$commands = @(
+  @('quality-red-35', $unit),
+  @('quality-green-36', $unit),
+  @('quality-spec-37', 'work/grounded-verification/experience-evidence-author-20261108-quality-spec-probe.mjs'),
+  @('quality-review-38', 'work/grounded-verification/experience-evidence-author-20261108-quality-review-probe.mjs'),
+  @('quality-regression-39', 'node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-evidence-author-20261108-regression.config.ts --reporter verbose'),
+  @('quality-types-40', 'node_modules/typescript/bin/tsc -p work/grounded-verification/experience-evidence-author-20261108-tsconfig.json'),
+  @('quality-lint-41', 'node_modules/eslint/bin/eslint.js app/lib/materials/experience-evidence.ts app/lib/materials/personal-assertion-scopes.ts app/lib/materials/self-assessment-evidence.ts tests/lib/materials/experience-evidence.test.ts'),
+  @('quality-compatibility-42', 'work/grounded-verification/experience-evidence-author-20261108-baseline-check-quality.mjs')
+)
+$header = @'
+# Task 1 quoted-proposition repair handoff
+
+Status: DONE. Source/test files are frozen at the hashes below. This supersedes the previous author freeze for the quality review's quoted-proposition issue. Root owns renewed native verification, review, documentation, and commits. No Task 2 production wiring or commit was performed.
+
+## Preserved review history
+
+The quality probe originally passed 33 of 36 cases and exposed three whole-fact false positives: I wrote “My colleague tested SQL.”, I wrote “I tested SQL.”, and its ASCII-quote variant. Their SQL term targets already returned false. Original quality RED log SHA-256: 5cd9bc821ce36efe4ae2fcd345ed5bd1493f0111561384d030de6a8e86aa5507. Root reported the final quality FAIL memo SHA-256 as 31749b58c8f60918c9955c4e05613485abb4378383b110334654cf596b43816c. Those artifacts remain unchanged; initial native and integrity results remain historical evidence.
+
+Before editing, all four prior source/test files, the repair frozen-source manifest, and the repair handoff were copied byte-for-byte into work/grounded-verification/experience-evidence-author-20261108-quality-original-freeze/. This writer verified those copies against the prior manifest. The preserved repair handoff SHA-256 is c470b8c86f53be8ed30dfd9a3293ba0574c2357078604ceac3caa07cc580b995. The first author freeze and its earlier preservation folder also remain untouched.
+
+## Bounded change
+
+- The experience-only consumer imports the existing quotation-evidence.quoted pattern; no new quotation parser, shared parser-body edit, or hint-level change was introduced.
+- The existing bare-resume prose checks were extracted into hasAssertionProse without changing their conditions. The whole-fact flag now rejects quoted content recognized as assertion prose. An outer writing action cannot convert that embedded proposition into personal practice.
+- The quote check does not impose the bare-resume label-shape regex, so literal quoted tool names such as .NET, React.js, SQL Server, and SQL retain support. Term-target handling remains unchanged, including genuine SQL work followed by documentation and I wrote SQL reports.
+- Added the three exact RED cases and six positive quote/tool controls in the existing new API test file. No old hint/service/UI/source-span expectations changed. The two shared source files are still byte-identical to the initial Task 1 freeze.
+
+## Validation against this freeze
+
+- quality-red-35: the exact three whole-fact assertions fail, with 177 controls passing; saved raw RED is preserved.
+- quality-green-36: all 180 API tests pass.
+- quality-spec-37: unchanged independent spec probe passes 65/65.
+- quality-review-38: unchanged independent quality probe passes 36/36.
+- quality-regression-39: 13 suites / 1,647 tests pass, including existing hint, retention, source/span/reminder, actual review-service, extraction, and UI regressions.
+- quality-types-40 and quality-lint-41: exit 0. Scoped type inputs still include worker-configuration.d.ts and tests/setup.ts and exclude intentionally invalid work fixtures.
+- quality-compatibility-42: 28/28 original non-import declarations are identical to the frozen baseline; 81 cases match five hint/reminder outputs each. All 18 moved declaration bodies/patterns remain unchanged.
+- Scoped git diff --check: exit 0. All eight new Node runs use the prescribed wrapper and record 0 non-loopback denials. Wrapper SHA-256 remains 4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242.
+- The two probe execution copies and compatibility script copy differ only in their unique result-file paths. This writer verifies that exact source equality after reversing those path substitutions. Original scripts/results/logs are untouched.
+- Root's renewed Node/workerd and source-integrity binding are pending after this freeze. No new native result is claimed here.
+
+## Complete changed source/test SHA-256
+
+| Path | SHA-256 | Bytes |
+| --- | --- | ---: |
+'@
+$lines = [System.Collections.Generic.List[string]]::new()
+$lines.Add($header)
+foreach ($entry in $frozen) { $lines.Add('| ' + $entry.path + ' | ' + $entry.sha256 + ' | ' + $entry.bytes + ' |') }
+$lines.Add("`n## Exact Node commands and preserved outcomes`n")
+foreach ($entry in $commands) {
+  $label = $prefix + $entry[0]
+  $outcomePath = Join-Path $directory ($label + '.json')
+  $logPath = Join-Path $directory ($label + '.log')
+  $outcome = Get-Content -Raw -LiteralPath $outcomePath | ConvertFrom-Json
+  $logHash = Hash-File $logPath
+  if ($logHash -ne $outcome.logSha256) { throw ('Log hash mismatch: ' + $label) }
+  if ($outcome.nonLoopbackDenials -ne 0) { throw ('Non-loopback denial: ' + $label) }
+  $lines.Add('### ' + $label + "`n")
+  $lines.Add('```text')
+  $lines.Add('node work/grounded-verification/run.mjs ' + $label + ' ' + $entry[1])
+  $lines.Add('```' + "`n")
+  $lines.Add('- Exit: ' + $outcome.exit + '; non-loopback denials: ' + $outcome.nonLoopbackDenials + '.')
+  $lines.Add('- Raw log SHA-256: ' + $logHash + '.')
+  $lines.Add('- Outcome JSON SHA-256: ' + (Hash-File $outcomePath) + ".`n")
+}
+$lines.Add("`n## Supporting artifacts`n")
+$lines.Add('| Artifact in work/grounded-verification | SHA-256 |')
+$lines.Add('| --- | --- |')
+$supporting = @(
+  'experience-evidence-spec-20261108-probe.mjs',
+  'experience-evidence-quality-20261108-probe.mjs',
+  'experience-evidence-quality-20261108-probe-results.json',
+  ($prefix + 'quality-spec-probe.mjs'),
+  ($prefix + 'quality-spec-results.json'),
+  ($prefix + 'quality-review-probe.mjs'),
+  ($prefix + 'quality-review-results.json'),
+  ($prefix + 'baseline-check-quality.mjs'),
+  ($prefix + 'quality-compatibility-results.json'),
+  ($prefix + 'quality-frozen-source.json'),
+  ($prefix + 'quality-diff-check.txt'),
+  ($prefix + 'write-quality-handoff.ps1'),
+  ($prefix + 'repair-handoff.md'),
+  ($prefix + 'unit.config.ts'),
+  ($prefix + 'regression.config.ts'),
+  ($prefix + 'tsconfig.json')
+)
+foreach ($name in $supporting) { $lines.Add('| ' + $name + ' | ' + (Hash-File (Join-Path $directory $name)) + ' |') }
+$handoffPath = Join-Path $directory ($prefix + 'quality-handoff.md')
+Write-NewText $handoffPath ([string]::Join("`n", $lines) + "`n")
+Write-Output ('Handoff: ' + $handoffPath)
+Write-Output ('Handoff SHA-256: ' + (Hash-File $handoffPath))

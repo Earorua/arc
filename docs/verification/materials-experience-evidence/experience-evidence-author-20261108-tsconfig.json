@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": { "incremental": false, "noEmit": true },
+  "include": [
+    "../../app/lib/materials/experience-evidence.ts",
+    "../../app/lib/materials/personal-assertion-scopes.ts",
+    "../../app/lib/materials/self-assessment-evidence.ts",
+    "../../worker/document-executor/source-review-evidence.ts",
+    "../../tests/lib/materials/experience-evidence.test.ts",
+    "../../tests/lib/materials/self-assessment-evidence.test.ts",
+    "../../tests/lib/materials/retained-assessment-hints.test.ts",
+    "../../tests/server/document-source-review-evidence.test.ts",
+    "../../tests/server/document-source-span-provider.test.ts",
+    "../../tests/server/document-source-requirement-evidence.test.ts",
+    "../../tests/server/document-review-draft.test.ts",
+    "../../tests/components/material-confirmation-source.test.tsx",
+    "../../tests/setup.ts",
+    "../../worker-configuration.d.ts"
+  ],
+  "exclude": ["../../node_modules", "../../work"]
+}

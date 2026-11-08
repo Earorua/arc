@@ -1,0 +1,42 @@
+{
+  "status": "FAIL",
+  "cases": 36,
+  "failures": [
+    {
+      "id": "quoted-report-object-whole",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote “My colleague tested SQL.”",
+        "target": {
+          "kind": "confirmed-whole-fact"
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "quoted-personal-proposition-whole",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote “I tested SQL.”",
+        "target": {
+          "kind": "confirmed-whole-fact"
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "quoted-personal-proposition-ascii-whole",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote \"I tested SQL.\"",
+        "target": {
+          "kind": "confirmed-whole-fact"
+        }
+      },
+      "expected": false,
+      "observed": true
+    }
+  ]
+}

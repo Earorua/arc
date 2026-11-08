@@ -1,0 +1,1 @@
+{"status":"PASS","experienceCases":59,"hintCases":81,"outboundCalls":0,"output":"work/grounded-verification/experience-evidence-root-native-20261108-a-results.json"}

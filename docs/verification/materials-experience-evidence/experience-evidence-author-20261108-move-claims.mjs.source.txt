@@ -1,0 +1,19 @@
+import assert from "node:assert/strict";
+import { readFileSync, writeFileSync } from "node:fs";
+import ts from "typescript";
+
+const sourcePath = "app/lib/materials/self-assessment-evidence.ts";
+const targetPath = "app/lib/materials/personal-assertion-scopes.ts";
+const source = readFileSync(sourcePath, "utf8");
+const file = ts.createSourceFile(sourcePath, source, ts.ScriptTarget.Latest, true);
+const names = new Set(["englishConceptual", "chineseConceptual", "conceptualAssessment"]);
+const nodes = file.statements.filter(node => names.has(ts.isVariableStatement(node)
+  ? node.declarationList.declarations[0]?.name.getText(file) : ts.isFunctionDeclaration(node) ? node.name?.getText(file) : ""));
+assert.equal(nodes.length, names.size);
+let remaining = source;
+for (const node of [...nodes].reverse()) remaining = remaining.slice(0, node.pos) + remaining.slice(node.end);
+remaining = remaining.replace("assertedSkillEvidence, assessmentScopes, guidedSkillScope", "assertedSkillEvidence, assessmentScopes, conceptualAssessment, guidedSkillScope");
+const shared = readFileSync(targetPath, "utf8") + nodes.map(node => node.getFullText().replace(/^(\s*)function conceptualAssessment/u, "$1export function conceptualAssessment")).join("") + "\n";
+writeFileSync(sourcePath, remaining);
+writeFileSync(targetPath, shared);
+console.log(JSON.stringify({ status: "PASS", movedDeclarations: [...names] }));

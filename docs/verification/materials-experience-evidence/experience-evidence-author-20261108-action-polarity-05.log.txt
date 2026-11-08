@@ -1,0 +1,140 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I used SQL to analyze sales data.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I wrote SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I built SQL dashboards independently.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I tested SQL without supervision.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I tested SQL not under supervision.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I tested SQL without following tutorials.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I am testing SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I currently use SQL to analyze data.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I have been testing SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I did test SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I did not only test SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I tested SQL under supervision.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: Under supervision, I tested SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: With a mentor's guidance, I tested SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I followed a tutorial to test SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I tested SQL using supplied examples.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I tested the SQL queries supplied by my mentor.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I modified the SQL supplied by my mentor.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I only changed parameters in the supplied SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: My placement: followed a runbook to configure SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 我使用 SQL 分析了销售数据。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 我独立编写了 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 我正在测试 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 我测试了 SQL，没有导师指导。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 在导师指导下，我测试了 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 练习项目中，按讲师示例由本人亲自编写 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 按指导完成 SQL 查询练习。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 我修改了导师提供的 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 我只调整了导师提供的 SQL 查询参数。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I tested 'SQL' under supervision.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: I tested “SQL” independently.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports actual personal practice: 我测试了「SQL」。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mkeeps independent experience separate from a guided level
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: I am familiar with SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: I know SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: I am proficient in SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: I can write SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: I am able to use SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: My skills include SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: Profile: familiar with SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: Skills: SQL, React.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: SQL
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: SQL and React
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: Built SQL dashboards for weekly reporting.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: Responsible for SQL reports.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: Maintained SQL queries for the reporting service.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: 简介：熟悉 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: 个人技能：SQL、React。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: 熟悉 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: 负责 SQL 报表开发。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22maccepts personal claims and conventional resume fragments: 编写 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: My colleague tested SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: Our team wrote SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: We built SQL dashboards.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: Alice tested SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I arranged for my colleague to test SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I recorded my colleague's SQL practice.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I documented that my colleague tested SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I recorded how the team used SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: My mentor supplied SQL, and I scheduled a demo.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: My mentor wrote the SQL; I only scheduled the review.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I scheduled a demo of SQL supplied by my mentor.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I scheduled a SQL demo under supervision.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I will test SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I plan to test SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I hope to use SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I am planning to build SQL dashboards.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: If I tested SQL, I would document the result.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: For example, I tested SQL, and I wrote SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: My mentor said, I tested SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: It is false that I tested SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: “I tested SQL.”
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: The example says ‘I tested SQL.’
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I copied the example ‘I tested SQL.’
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I am familiar with the example ‘SQL is required.’
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I did not test SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I personally did not use SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I have never configured SQL for production.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I cannot write SQL reports independently.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I cannot yet configure SQL myself.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I am not able to test SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I am not familiar with SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I lack SQL experience.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: No SQL experience.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: I am unsure whether I can use SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 同事编写了 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 团队完成了 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 我安排同事测试 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 我记录了同事测试 SQL 的过程。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 导师提供 SQL，我只是安排了演示。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 我计划使用 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 我希望完成 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 如果我使用 SQL，就能完成报告。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 例如，我编写了 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 导师说，我测试了 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 我没有使用 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 我从未配置过 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 我无法独立编写 SQL 查询。
+ [32m✓[39m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 按指导完成不了 SQL 查询练习。[32m 11[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 按指导完成 SQL 查询练习是我下周的计划。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 按指导完成 SQL 查询练习的计划尚未执行。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 按指导安排同事完成 SQL 查询练习。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 按指导由同事完成 SQL 查询练习。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: 团队简介：熟悉 SQL。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not turn a mention into personal practice: Her placement: followed a runbook to configure SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mbinds each original target to its personal action: I built React components, while my colleague wrote SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mbinds each original target to its personal action: I wrote SQL queries, but I cannot build React components.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mbinds each original target to its personal action: Our team built React components, and I tested SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mbinds each original target to its personal action: With a mentor using React, I tested SQL under supervision.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mbinds each original target to its personal action: 我使用 React 构建组件，同事编写 SQL 查询。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mbinds each original target to its personal action: 我编写 SQL 查询，但我无法开发 React 组件。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mbinds each original target to its personal action: I tested SQL under supervision, but Alice said, I built React components.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mretains some real practice without erasing another occurrence's limitation: I wrote SQL queries, but I have never configured SQL for production.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mretains some real practice without erasing another occurrence's limitation: I wrote SQL queries, but my colleague configured SQL for production.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mretains some real practice without erasing another occurrence's limitation: I tested SQL, and I plan to test SQL again next week.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mretains some real practice without erasing another occurrence's limitation: My mentor supplied SQL, and I tested the SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mretains some real practice without erasing another occurrence's limitation: My mentor supplied SQL; I only changed parameters in the SQL queries.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mretains some real practice without erasing another occurrence's limitation: 我编写了 SQL 查询，但我没有配置过生产 SQL 数据库。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports a confirmed whole fact without treating it as a bounded term: I tested SQL queries, and I built SQL dashboards.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports a confirmed whole fact without treating it as a bounded term: I tested SQL and React independently.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports a confirmed whole fact without treating it as a bounded term: Built accessible product interfaces.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports a confirmed whole fact without treating it as a bounded term: 构建可访问的产品界面
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports a confirmed whole fact without treating it as a bounded term: 负责客户数据报表开发与维护。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports a confirmed whole fact without treating it as a bounded term: My placement: followed a runbook to configure SQL.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports a confirmed whole fact without treating it as a bounded term: 个人简介：熟悉 SQL，并负责数据报表开发。
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22msupports a confirmed whole fact without treating it as a bounded term: I wrote SQL queries for the weekly reporting process, tested the output against reference records, and maintained the reporting workflow for several months while documenting the results for later review.
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mnever treats requirement as experience
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mnever treats constraint as experience
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not restore an explicitly empty or ungrounded term list
+ [32m✓[39m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mpreserves technical punctuation and UTF-16 quote boundaries[32m 26[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/lib/materials/experience-evidence.test.ts[2m > [22mmaterial experience evidence[2m > [22mdoes not mutate the supplied fact or target
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[2m | [22m[33m129 skipped[39m[90m (131)[39m
+[2m   Start at [22m 19:32:59
+[2m   Duration [22m 571ms[2m (transform 97ms, setup 205ms, import 178ms, tests 38ms, environment 0ms)[22m
+

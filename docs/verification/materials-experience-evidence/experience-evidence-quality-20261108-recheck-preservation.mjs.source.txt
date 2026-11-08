@@ -1,0 +1,144 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { performance } from "node:perf_hooks";
+import { build } from "esbuild";
+import ts from "typescript";
+
+const prefix = "work/grounded-verification/experience-evidence-quality-20261108-recheck";
+const previous = "work/grounded-verification/experience-evidence-quality-20261108";
+const sha = value => createHash("sha256").update(value).digest("hex");
+const expectedHashes = {
+  "app/lib/materials/experience-evidence.ts": "48bec30986f63a3937d8f89b7493bd2f570aac332ecd890fb81045ac6e091277",
+  "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+  "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+  "tests/lib/materials/experience-evidence.test.ts": "fe3d431e722b6b0254224abfb755ddb23e41a59ca4ed5e9a6e0d5434a0af71aa",
+};
+const sourceHashes = {};
+for (const [path, expected] of Object.entries(expectedHashes)) {
+  const data = readFileSync(path);
+  sourceHashes[path] = sha(data);
+  assert.equal(sourceHashes[path], expected, path);
+  const frozen = prefix + "-source-freeze/" + path;
+  mkdirSync(dirname(frozen), { recursive: true });
+  writeFileSync(frozen, data, { flag: "wx" });
+}
+
+const historical = {
+  "-memo.md": "31749b58c8f60918c9955c4e05613485abb4378383b110334654cf596b43816c",
+  "-probe.mjs": "2182d41a80aa95a2b3d2d193d953dcc66c15a90bd314d3f349cd28081d04c1b6",
+  "-probe-a.log": "5cd9bc821ce36efe4ae2fcd345ed5bd1493f0111561384d030de6a8e86aa5507",
+  "-probe-a.json": "e39d67024fbbb1ce8e88b349a28976e16e6e96c09f9cbeecdd721582f19d5b62",
+  "-probe-results.json": "4e40f63c355bc03cd03e9c4a8a18046a9249ba0fff90535d9a38a8b6647d6ad9",
+  "-focused.config.ts": "19dd64cc5bf6b541eded977c60bb385af44528379a48c25edf53cc7407c0a72f",
+  "-focused-a.log": "7f80b125f2cb31956c24e45e408be05ba5067302beeb0f986d898552eda95b45",
+  "-focused-a.json": "090407704e0dfb09280b3ce16cc567a6942a9c28fb40ee01ef12a0bfb4cddbe6",
+  "-preservation.mjs": "5e64580c800c164207e5a147116f8929c61b9ff1096cde1a9ce16057da47ea24",
+  "-preservation-a.log": "108e2bc41a9f9e4bf89e23ace5f022ee3208ee7db5c7844a8e767a0dfc9bc515",
+  "-preservation-a.json": "62978826fee6aebe85f5fef6ebcd975d5e685a8349db0505ef74fa3f40c094fc",
+  "-preservation-results.json": "968b5e4a01a890efc7a23e4be073072e7a4cfb000539f68e68c94758cc30ca8c",
+  "-source-freeze/app/lib/materials/experience-evidence.ts": "33c4f603ed97d7d22d67e6e4c9b1975bbb34a6b5fd1f68f306a18c7efbf09324",
+  "-source-freeze/app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+  "-source-freeze/app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+  "-source-freeze/tests/lib/materials/experience-evidence.test.ts": "4bf293f1a5b17ce83c63bff22e15a7f7a7167bc9aa86fdd66325772ff5b56306",
+};
+for (const [suffix, expected] of Object.entries(historical)) assert.equal(sha(readFileSync(previous + suffix)), expected, suffix);
+const originalProbe = readFileSync(previous + "-probe.mjs", "utf8");
+const recheckProbe = readFileSync(prefix + "-probe.mjs", "utf8");
+assert.equal(recheckProbe.replace(prefix + "-probe-results.json", previous + "-probe-results.json"), originalProbe);
+
+function parsed(path) {
+  const text = readFileSync(path, "utf8");
+  const file = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+  assert.equal(file.parseDiagnostics.length, 0, path);
+  const entries = file.statements.filter(node => !ts.isImportDeclaration(node)).map(node => ({
+    name: ts.isVariableStatement(node) ? node.declarationList.declarations[0].name.getText(file) : node.name.getText(file),
+    body: node.getText(file).replace(/^export /u, ""), node,
+  }));
+  return { file, text, entries };
+}
+const baselinePath = "D:/CodexTemp/arc-edited-assessment-repaired-rspZeV/source/app/lib/materials/self-assessment-evidence.ts";
+const baseline = parsed(baselinePath);
+assert.equal(sha(baseline.text), "cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70");
+const moved = parsed("app/lib/materials/personal-assertion-scopes.ts").entries;
+const retained = parsed("app/lib/materials/self-assessment-evidence.ts").entries;
+const currentShared = [...moved, ...retained];
+assert.equal(baseline.entries.length, 28);
+assert.equal(moved.length, 18);
+assert.equal(currentShared.length, 28);
+for (const before of baseline.entries) {
+  const matches = currentShared.filter(after => after.name === before.name);
+  assert.equal(matches.length, 1, before.name);
+  assert.equal(matches[0].body, before.body, before.name);
+}
+
+const originalExperience = parsed(previous + "-source-freeze/app/lib/materials/experience-evidence.ts");
+const currentExperience = parsed("app/lib/materials/experience-evidence.ts");
+const find = (source, name) => source.entries.find(entry => entry.name === name).node;
+const originalCondition = find(originalExperience, "resumeSkillFragment").body.statements.find(ts.isIfStatement).expression;
+const extractedCondition = find(currentExperience, "hasAssertionProse").body.statements.find(ts.isReturnStatement).expression;
+assert.equal(extractedCondition.getText(currentExperience.file), originalCondition.getText(originalExperience.file));
+const unchangedExperienceDeclarations = ["englishPractice", "englishClaim", "chinesePractice", "chineseClaim", "followingActorBoundary", "uncoveredText", "experienceAssertionScopes", "supportsMaterialExperience"];
+for (const name of unchangedExperienceDeclarations) assert.equal(find(currentExperience, name).getText(currentExperience.file), find(originalExperience, name).getText(originalExperience.file), name);
+
+const originalTest = readFileSync(previous + "-source-freeze/tests/lib/materials/experience-evidence.test.ts", "utf8");
+const currentTest = readFileSync("tests/lib/materials/experience-evidence.test.ts", "utf8");
+const oldLines = originalTest.trimEnd().split(/\r?\n/u), newLines = currentTest.trimEnd().split(/\r?\n/u);
+let cursor = 0;
+for (const line of oldLines) {
+  while (cursor < newLines.length && newLines[cursor] !== line) cursor++;
+  assert.ok(cursor < newLines.length, "original test line preserved: " + line);
+  cursor++;
+}
+
+const compiled = await build({
+  stdin: { contents: "export { supportsMaterialExperience } from './app/lib/materials/experience-evidence';", resolveDir: process.cwd(), loader: "ts" },
+  bundle: true, write: false, platform: "node", format: "esm", target: "es2022", nodePaths: [resolve("node_modules")], metafile: true,
+});
+const { supportsMaterialExperience } = await import("data:text/javascript;base64," + Buffer.from(compiled.outputFiles[0].text).toString("base64"));
+const labels = ["SQL", "React", "Python", "Java", "Ruby", "Rust", "TypeScript", "JavaScript"];
+const tail = "I used " + labels.join(", ") + ".", sentenceUnit = "I tested source data. ";
+const manySentences = sentenceUnit.repeat(Math.floor((1000 - tail.length) / sentenceUnit.length)).padEnd(1000 - tail.length) + tail;
+const commaTail = labels.join(", ") + ".", commaHead = "I used ";
+const manyCommas = commaHead + "x, ".repeat(Math.floor((1000 - commaHead.length - commaTail.length) / 3)).padEnd(1000 - commaHead.length - commaTail.length) + commaTail;
+const boundedInputs = [
+  { name: "many-sentences-eight-terms", text: manySentences, target: { kind: "terms", terms: labels } },
+  { name: "many-commas-eight-terms", text: manyCommas, target: { kind: "terms", terms: labels } },
+  { name: "many-sentences-whole", text: manySentences, target: { kind: "confirmed-whole-fact" } },
+  { name: "many-commas-whole", text: manyCommas, target: { kind: "confirmed-whole-fact" } },
+];
+const boundedTiming = boundedInputs.map(row => {
+  assert.equal(row.text.length, 1000);
+  const input = Object.freeze({ kind: "experience", text: row.text, target: Object.freeze(row.target) });
+  for (let index = 0; index < 5; index++) assert.equal(supportsMaterialExperience(input), true, row.name);
+  const timings = [];
+  for (let index = 0; index < 30; index++) {
+    const started = performance.now();
+    assert.equal(supportsMaterialExperience(input), true, row.name);
+    timings.push(performance.now() - started);
+  }
+  timings.sort((left, right) => left - right);
+  return { name: row.name, codeUnits: row.text.length, labelCount: row.target.terms?.length ?? 0, result: true, calls: 35, medianMs: timings[15], p95Ms: timings[28], maxMs: timings[29] };
+});
+const quotedToolChecks = [];
+for (const tool of [".NET", "React.js", "SQL Server", "SQL"]) {
+  const text = `I tested ‘${tool}’ independently.`;
+  for (const target of [{ kind: "terms", terms: [tool] }, { kind: "confirmed-whole-fact" }]) {
+    const observed = supportsMaterialExperience({ kind: "experience", text, target });
+    assert.equal(observed, true, tool + ": " + target.kind);
+    quotedToolChecks.push({ tool, text, target, observed });
+  }
+}
+const result = {
+  status: "PASS", sourceHashes, baselinePath, baselineSha256: sha(baseline.text),
+  declarationCount: baseline.entries.length, movedDeclarations: moved.length,
+  unchangedExperienceDeclarations, extractedProseExpressionIdentical: true,
+  historicalArtifacts: Object.fromEntries(Object.entries(historical).map(([suffix, hash]) => [previous + suffix, hash])),
+  originalProbeUnchangedExceptResultPath: true, originalTestLines: oldLines.length,
+  currentTestLines: newLines.length, allOriginalLinesPreservedInOrder: true,
+  boundedTiming, quotedToolChecks,
+  dependencyHashes: Object.fromEntries(Object.keys(compiled.metafile.inputs).filter(path => path !== "<stdin>").map(path => [path, sha(readFileSync(path))])),
+};
+writeFileSync(prefix + "-preservation-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, declarationCount: result.declarationCount, movedDeclarations: result.movedDeclarations, unchangedExperienceDeclarations: unchangedExperienceDeclarations.length, extractedProseExpressionIdentical: true, historicalArtifactCount: Object.keys(historical).length, originalTestLines: result.originalTestLines, currentTestLines: result.currentTestLines, quotedToolChecks: quotedToolChecks.length, boundedTiming }, null, 2));

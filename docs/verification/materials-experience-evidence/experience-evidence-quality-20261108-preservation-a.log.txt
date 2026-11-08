@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "declarationCount": 28,
+  "movedDeclarations": 18,
+  "originalTestLines": 238,
+  "allOriginalLinesPreservedInOrder": true,
+  "boundedTiming": [
+    {
+      "name": "many-sentences-eight-terms",
+      "codeUnits": 1000,
+      "labelCount": 8,
+      "result": true,
+      "calls": 35,
+      "medianMs": 3.8652999999999906,
+      "p95Ms": 8.349199999999996,
+      "maxMs": 9.373299999999972
+    },
+    {
+      "name": "many-commas-eight-terms",
+      "codeUnits": 1000,
+      "labelCount": 8,
+      "result": true,
+      "calls": 35,
+      "medianMs": 5.850099999999998,
+      "p95Ms": 6.036099999999919,
+      "maxMs": 6.0931000000000495
+    },
+    {
+      "name": "many-sentences-whole",
+      "codeUnits": 1000,
+      "labelCount": 0,
+      "result": true,
+      "calls": 35,
+      "medianMs": 0.18180000000006658,
+      "p95Ms": 0.2095000000000482,
+      "maxMs": 0.22090000000002874
+    },
+    {
+      "name": "many-commas-whole",
+      "codeUnits": 1000,
+      "labelCount": 0,
+      "result": true,
+      "calls": 35,
+      "medianMs": 1.3390999999999167,
+      "p95Ms": 1.4878999999999678,
+      "maxMs": 1.5230999999999995
+    }
+  ]
+}

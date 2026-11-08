@@ -1,0 +1,98 @@
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { build } from "esbuild";
+
+const rows = [];
+const term = (id, text, expected, terms = ["SQL"], kind = "experience") => rows.push({
+  id, input: { kind, text, target: { kind: "terms", terms } }, expected,
+});
+const whole = (id, text, expected) => rows.push({
+  id, input: { kind: "experience", text, target: { kind: "confirmed-whole-fact" } }, expected,
+});
+term("unguided", "I tested SQL without supervision.", true);
+term("mentor-parameter-work", "I only changed parameters in the supplied SQL queries.", true);
+whole("mentor-parameter-whole", "I only changed parameters in the supplied SQL queries.", true);
+term("source-tool-quote", "I tested ‘SQL’ independently.", true);
+term("quoted-proposition", "‘I tested SQL independently.’", false);
+term("astral-before-tool", "I tested ‘🧪’ and SQL.", true);
+term("astral-in-quote", "I tested ‘🧪 SQL’.", false);
+term("technical-dot", "I built React.js components.", true, ["React.js"]);
+term("short-guidance", "按照指导完成 SQL 查询练习。", true);
+term("current-action-denial", "按照指导完成不了 SQL 查询练习。", false);
+whole("nominal-future", "按照指导完成 SQL 查询练习是我下周的计划。", false);
+const limited = "I wrote SQL queries, but I have never configured SQL for production.";
+term("some-practice", limited, true);
+term("specific-denied-task", limited, false, ["configured SQL for production"]);
+whole("mixed-limit-whole", limited, false);
+term("term-empty", "I tested SQL.", false, []);
+term("term-overlong", "I tested SQL.", false, ["SQL ".repeat(30)]);
+term("requirement-kind", "I tested SQL.", false, ["SQL"], "requirement");
+term("constraint-kind", "I tested SQL.", false, ["SQL"], "constraint");
+term("bare-skill", "SQL", true, ["SQL"], "skill-claim");
+term("familiarity", "I am familiar with SQL.", true, ["SQL"], "skill-claim");
+whole("nonliteral-whole", "构建可访问的产品界面", true);
+whole("long-whole", "I wrote SQL queries for monthly reports, tested the output against reference records, and maintained the reporting workflow for several months while documenting the results for later review.", true);
+for (const [id, text, positive, negative] of [
+  ["sentences-en", "I built React components. My colleague wrote SQL queries.", "React", "SQL"],
+  ["sentences-zh", "我开发 React 组件。同事编写 SQL 查询。", "React", "SQL"],
+  ["denied-sentence", "I wrote SQL queries. I cannot build React components.", "SQL", "React"],
+]) {
+  term(id + "-personal", text, true, [positive]);
+  term(id + "-other", text, false, [negative]);
+  term(id + "-both", text, false, [positive, negative]);
+  whole(id + "-whole", text, false);
+}
+whole("two-positive-en", "I wrote SQL queries. I tested SQL queries.", true);
+whole("two-positive-zh", "我编写 SQL 查询。我测试 SQL 查询。", true);
+term("soft-wrap-positive", "I wrote\nSQL queries.", true);
+term("soft-wrap-negative", "I have never\nconfigured SQL.", false);
+term("soft-wrap-future", "I will\nwrite SQL queries.", false);
+for (const [id, text] of [
+  ["report-compound", "My mentor said, I tested SQL. I wrote SQL queries."],
+  ["example-compound", "For example, I tested SQL. I wrote SQL queries."],
+  ["condition-compound", "If I tested SQL, I would document it. I wrote SQL queries."],
+  ["direct-proposition", "I wrote that my colleague tested SQL."],
+  ["report-object", "I wrote a report about my colleague's SQL practice."],
+]) {
+  term(id, text, false);
+  whole(id + "-whole", text, false);
+}
+term("query-report", "I wrote SQL reports.", true);
+whole("query-report-whole", "I wrote SQL reports.", true);
+
+// Bounded variants of the specified attribution and report-object boundaries.
+for (const [id, text] of [
+  ["comma-other-actor", "I built React components, my colleague wrote SQL queries."],
+  ["comma-other-actor-and", "I built React components and my colleague wrote SQL queries."],
+]) {
+  term(id + "-own", text, true, ["React"]);
+  term(id + "-other", text, false);
+  whole(id + "-whole", text, false);
+}
+for (const [id, text] of [
+  ["plural-report-object", "I wrote reports about my colleague's SQL practice."],
+  ["plural-note-object", "I wrote notes about my colleague's SQL practice."],
+  ["other-actor-skill-claim", "Alice knows SQL."],
+  ["plan-object", "I wrote a plan to test SQL."],
+]) {
+  term(id, text, false);
+  whole(id + "-whole", text, false);
+}
+
+const bundled = await build({
+  stdin: { contents: "export { supportsMaterialExperience } from './app/lib/materials/experience-evidence';", resolveDir: process.cwd(), loader: "ts" },
+  bundle: true, write: false, platform: "node", format: "esm", target: "es2022", nodePaths: [resolve("node_modules")], metafile: true,
+});
+const { supportsMaterialExperience } = await import("data:text/javascript;base64," + Buffer.from(bundled.outputFiles[0].text).toString("base64"));
+const observations = rows.map(row => ({ ...row, observed: supportsMaterialExperience(row.input) }));
+const failures = observations.filter(row => row.observed !== row.expected);
+const sha = value => createHash("sha256").update(value).digest("hex");
+const result = {
+  status: failures.length ? "FAIL" : "PASS", cases: rows.length, failures: failures.length,
+  inputHashes: Object.fromEntries(Object.keys(bundled.metafile.inputs).filter(path => path !== "<stdin>").map(path => [path, sha(readFileSync(path))])),
+  observations,
+};
+writeFileSync("work/grounded-verification/experience-evidence-author-20261108-quality-spec-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, cases: rows.length, failures }, null, 2));
+process.exitCode = failures.length ? 1 : 0;

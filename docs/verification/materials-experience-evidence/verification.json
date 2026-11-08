@@ -1,0 +1,1532 @@
+{
+  "schemaVersion": 1,
+  "status": "personal-experience-evidence-library-offline-verified-not-production-wiring",
+  "sourceCommit": "d6aba60209a59313ef2309b2f7b29c395a6b9296",
+  "sourceManifest": "experience-evidence-root-integrity-20261108-quoted-b-results.json",
+  "sourceFileCount": 1002,
+  "sourceManifestSha256": "82da28614aa57e72ef02bcbc44978d4c366f065af918892605fdee80456d568f",
+  "requiredChecks": [
+    {
+      "name": "experience-evidence-author-20261108-quality-regression-39",
+      "exit": 0,
+      "elapsedMs": 10816,
+      "logSha256": "f37a875d9181a61575b37bbd590fed833bfe952c5df4ff5901e7ad02388e6165",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-tmPOAM"
+    },
+    {
+      "name": "experience-evidence-author-20261108-quality-types-40",
+      "exit": 0,
+      "elapsedMs": 2704,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-7wGtxw"
+    },
+    {
+      "name": "experience-evidence-author-20261108-quality-lint-41",
+      "exit": 0,
+      "elapsedMs": 4323,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-uQpKNI"
+    },
+    {
+      "name": "experience-evidence-author-20261108-quality-compatibility-42",
+      "exit": 0,
+      "elapsedMs": 562,
+      "logSha256": "24bdee14c3c8849c6e941b0b656aa1721391ae4eac3da7fc0dded3a5e189a573",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-m0ahqm"
+    },
+    {
+      "name": "experience-evidence-root-native-20261108-quoted-c",
+      "exit": 0,
+      "elapsedMs": 1000,
+      "logSha256": "07f188bcb455878f8109a465d0f5c8ad06c86a9880ee3798e7bdeba67349195c",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-06jjyw"
+    },
+    {
+      "name": "experience-evidence-root-integrity-20261108-quoted-b",
+      "exit": 0,
+      "elapsedMs": 272,
+      "logSha256": "ac6c0a4efc09058d40f71c5eb73d80d01ac866e86ca772d35d07da1b2b5c8de5",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Aybvot"
+    },
+    {
+      "name": "experience-evidence-spec-20261108-quoted-api-01",
+      "exit": 0,
+      "elapsedMs": 1691,
+      "logSha256": "acfacdc081cf42ef237192b77a5696ececd71847e82751ab00d270baebec633f",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-AADuZZ"
+    },
+    {
+      "name": "experience-evidence-spec-20261108-quoted-spec-01",
+      "exit": 0,
+      "elapsedMs": 235,
+      "logSha256": "53006664e0a0015a0224408cd2ac6920d8a88c6f3f2403d9cdf9a1fd1c34d19d",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-AFChDB"
+    },
+    {
+      "name": "experience-evidence-spec-20261108-quoted-quality-01",
+      "exit": 0,
+      "elapsedMs": 238,
+      "logSha256": "4441867c3452c70324c449a9a9be30cb2935898d1d90453fdeca4af915af5b9a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-oJ4iu3"
+    },
+    {
+      "name": "experience-evidence-spec-20261108-quoted-integrity-01",
+      "exit": 0,
+      "elapsedMs": 228,
+      "logSha256": "b45af305f892da3677f5845c58a8348b2a2aa4155df05f3fc1fba037af458698",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-AWIctO"
+    },
+    {
+      "name": "experience-evidence-quality-20261108-recheck-unit-a",
+      "exit": 0,
+      "elapsedMs": 1665,
+      "logSha256": "134b353810c32cfbd8cb3d91ec662c02b24e9eb9046b2944e83d64375d4bc7d8",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-rUZLW6"
+    },
+    {
+      "name": "experience-evidence-quality-20261108-recheck-probe-a",
+      "exit": 0,
+      "elapsedMs": 216,
+      "logSha256": "4441867c3452c70324c449a9a9be30cb2935898d1d90453fdeca4af915af5b9a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-mu3kgc"
+    },
+    {
+      "name": "experience-evidence-quality-20261108-recheck-preservation-a",
+      "exit": 0,
+      "elapsedMs": 852,
+      "logSha256": "561b400b11baee10ba0918f6a8e9f79169df831e08e87e3839effbc574b32ec1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-AJ5w3v"
+    }
+  ],
+  "reviews": [
+    {
+      "path": "experience-evidence-spec-20261108-quoted-memo.md",
+      "sha256": "d802c927f78fad167b0d94cedc8b8034a1bc8a0aba56173505021f3d916b278e"
+    },
+    {
+      "path": "experience-evidence-quality-20261108-recheck-memo.md",
+      "sha256": "abd95798e4c9d9ed8b4e60b6d2de5660c4ef623d4afe6f9661c2f587b0d6c437"
+    }
+  ],
+  "artifactCount": 232,
+  "artifacts": [
+    {
+      "source": "work/grounded-verification/archive-experience-evidence-20261108.mjs",
+      "path": "archive-experience-evidence-20261108.mjs.source.txt",
+      "bytes": 5021,
+      "sha256": "636fccfe243759fb6d85d8ac4c5825603e1986c51d570c21d801e720f285658b"
+    },
+    {
+      "source": "work/materials-browser-handoff/block-outbound.cjs",
+      "path": "block-outbound.cjs.source.txt",
+      "bytes": 1134,
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-archive-required-20261108.json",
+      "path": "experience-evidence-archive-required-20261108.json",
+      "bytes": 1122,
+      "sha256": "d30a6e826ce99da9de8b3f3805287278d6969a17a16fd0601b33c408376a9ad9"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-action-polarity-05.json",
+      "path": "experience-evidence-author-20261108-action-polarity-05.json",
+      "bytes": 293,
+      "sha256": "e0fb5c361d0158e396f77857e97fc9c584e78b89a5096c37058ecaf4ff0423a7"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-action-polarity-05.log",
+      "path": "experience-evidence-author-20261108-action-polarity-05.log.txt",
+      "bytes": 27910,
+      "sha256": "b61e916453f01556b1780f8486195e26de0f14717b49c6d32d7c41f0cb935865"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-baseline-check-final.mjs",
+      "path": "experience-evidence-author-20261108-baseline-check-final.mjs.source.txt",
+      "bytes": 4028,
+      "sha256": "be139663e2578b8ecc464f4b14cea679398238687e1cafd8e8dc1836496dc271"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-baseline-check-quality.mjs",
+      "path": "experience-evidence-author-20261108-baseline-check-quality.mjs.source.txt",
+      "bytes": 4030,
+      "sha256": "790c5945d80f50156ff877f274d15b4f2c93a884db80240bca4a731d537987ec"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-baseline-check-repair.mjs",
+      "path": "experience-evidence-author-20261108-baseline-check-repair.mjs.source.txt",
+      "bytes": 4029,
+      "sha256": "2eb7908e8b0faea4f2e2a3115976a119457557627b90d596cd70881b09a4c77e"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-baseline-check.mjs",
+      "path": "experience-evidence-author-20261108-baseline-check.mjs.source.txt",
+      "bytes": 4022,
+      "sha256": "ee72d7756602588ac226ba74ae8a8d701f9bf4a0b131535f6b9d8ae61c5dec23"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-claims-07.json",
+      "path": "experience-evidence-author-20261108-claims-07.json",
+      "bytes": 284,
+      "sha256": "ce6f6ba3f32d1e2d000fc24dc281b6f160228db89bb0434b787480d2469e9cad"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-claims-07.log",
+      "path": "experience-evidence-author-20261108-claims-07.log.txt",
+      "bytes": 28148,
+      "sha256": "7cbd12afb942f10eacdfde1ce8746af696dc2416f45b6c536403096a60e55e4c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-compatibility-12.json",
+      "path": "experience-evidence-author-20261108-compatibility-12.json",
+      "bytes": 291,
+      "sha256": "5e8afe6f7250e0d55eaa1e2318e232e0fc4861b3c282a25e0e61a18fe1e5253b"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-compatibility-12.log",
+      "path": "experience-evidence-author-20261108-compatibility-12.log.txt",
+      "bytes": 167,
+      "sha256": "d8619dba8e258092cde230aab17b73d07ba7c2a41555583456931a7610294279"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-compatibility-final-results.json",
+      "path": "experience-evidence-author-20261108-compatibility-final-results.json",
+      "bytes": 62922,
+      "sha256": "73abf6bb972b27de828534d671c07d9af7960f565599b6c48944145f9fc3f97d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-compatibility-results.json",
+      "path": "experience-evidence-author-20261108-compatibility-results.json",
+      "bytes": 62922,
+      "sha256": "73abf6bb972b27de828534d671c07d9af7960f565599b6c48944145f9fc3f97d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-declaration-comparison.json",
+      "path": "experience-evidence-author-20261108-declaration-comparison.json",
+      "bytes": 4123,
+      "sha256": "c4ff22970879a1a168fc6d3ca127ae57bda38b55063c5b0325e6b3f239c17200"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-diff-check.txt",
+      "path": "experience-evidence-author-20261108-diff-check.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-final-compatibility-20.json",
+      "path": "experience-evidence-author-20261108-final-compatibility-20.json",
+      "bytes": 297,
+      "sha256": "d624db4798aadf272d250c2eae4d8af4a2a7c6f3f950e9775b260b603886cf53"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-final-compatibility-20.log",
+      "path": "experience-evidence-author-20261108-final-compatibility-20.log.txt",
+      "bytes": 173,
+      "sha256": "5256cfa1c204f237763cbfb79c13588d528af577c9a7777d156d2bb358ea6719"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-final-lint-19.json",
+      "path": "experience-evidence-author-20261108-final-lint-19.json",
+      "bytes": 289,
+      "sha256": "4725962ee6656c22b610c0f5347e9570ef550f2363029f379562a0be4b5dc765"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-final-lint-19.log",
+      "path": "experience-evidence-author-20261108-final-lint-19.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-final-regression-17.json",
+      "path": "experience-evidence-author-20261108-final-regression-17.json",
+      "bytes": 296,
+      "sha256": "81f9412953fbf36bb7bc7465dfd806d9d8588d222743a32a00964e9f06b9ba88"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-final-regression-17.log",
+      "path": "experience-evidence-author-20261108-final-regression-17.log.txt",
+      "bytes": 396294,
+      "sha256": "69ca0073ab8a57eb237a392c1f3172bc58e33f7ea722c28a7d8d8548d393f3c4"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-final-types-18.json",
+      "path": "experience-evidence-author-20261108-final-types-18.json",
+      "bytes": 290,
+      "sha256": "21ef45a193b1af07891afe6e10e3c729317754ecfd5e23934ac6ab732371a32a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-final-types-18.log",
+      "path": "experience-evidence-author-20261108-final-types-18.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-first-action-04.json",
+      "path": "experience-evidence-author-20261108-first-action-04.json",
+      "bytes": 290,
+      "sha256": "9cfce434dde875240f976c703d1681f745916ce2dcacbc7891235c0f6205067b"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-first-action-04.log",
+      "path": "experience-evidence-author-20261108-first-action-04.log.txt",
+      "bytes": 35129,
+      "sha256": "50fb97cd803b05e9ac1629e7b4291613e60f8ba19251f2df377e7e6ba5c2e093"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-freeze-lint-24.json",
+      "path": "experience-evidence-author-20261108-freeze-lint-24.json",
+      "bytes": 290,
+      "sha256": "b8b63665784d0390e5f198d433034d300b76a3b6270f91ea26527c0b0b8be4de"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-freeze-lint-24.log",
+      "path": "experience-evidence-author-20261108-freeze-lint-24.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-freeze-regression-22.json",
+      "path": "experience-evidence-author-20261108-freeze-regression-22.json",
+      "bytes": 297,
+      "sha256": "02d0dc7928ba96c4664780cb76573a41efd8f6ada1e694d66ea47f98786ea0d5"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-freeze-regression-22.log",
+      "path": "experience-evidence-author-20261108-freeze-regression-22.log.txt",
+      "bytes": 394691,
+      "sha256": "e3aaec43a36fdcccb9c6d764911800acbc85426df94cd296e5e464cdacc24b32"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-freeze-types-23.json",
+      "path": "experience-evidence-author-20261108-freeze-types-23.json",
+      "bytes": 291,
+      "sha256": "e3d86526912fc8c9264941da99538aef56a848362b665d7448efa8598dcce8d1"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-freeze-types-23.log",
+      "path": "experience-evidence-author-20261108-freeze-types-23.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-frozen-source.json",
+      "path": "experience-evidence-author-20261108-frozen-source.json",
+      "bytes": 704,
+      "sha256": "e76129877ee05589af1cdd4ffd47b638a6e141b62af6e63eb52bd02f66bb21d7"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-handoff.md",
+      "path": "experience-evidence-author-20261108-handoff.md",
+      "bytes": 19777,
+      "sha256": "974082c1aeacf54d896c8594eb50065bb3d4ef459160d5248029ed63a64c3201"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-lint-11.json",
+      "path": "experience-evidence-author-20261108-lint-11.json",
+      "bytes": 283,
+      "sha256": "a70136c835a3d538ba68097b0ec834c8d01459a11d8edbe711978724a77919e9"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-lint-11.log",
+      "path": "experience-evidence-author-20261108-lint-11.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-move-03.json",
+      "path": "experience-evidence-author-20261108-move-03.json",
+      "bytes": 282,
+      "sha256": "ad0cdbb742f2babf9e1f79b758ae5322e1cd1aacd43834cebdfd92615c5611a8"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-move-03.log",
+      "path": "experience-evidence-author-20261108-move-03.log.txt",
+      "bytes": 168,
+      "sha256": "f79078b089913b947281c5783c9c358c30f03cc6d2f1738b01a4c86f1a09aa0c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-move-claims-06.json",
+      "path": "experience-evidence-author-20261108-move-claims-06.json",
+      "bytes": 289,
+      "sha256": "f8a05c517107a90b45e6be4bd491c97951edbbfd39ef021a7d731ac92e74b32b"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-move-claims-06.log",
+      "path": "experience-evidence-author-20261108-move-claims-06.log.txt",
+      "bytes": 103,
+      "sha256": "08b1802ba93ac4b5f0286d91c725b1f808317ba927654243073e7768f4273272"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-move-claims.mjs",
+      "path": "experience-evidence-author-20261108-move-claims.mjs.source.txt",
+      "bytes": 1398,
+      "sha256": "c9292fee717bfa6042fa3d35c05b21ea684da2e705eb65df0bd1a9e27a10c2d8"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-move-scopes.mjs",
+      "path": "experience-evidence-author-20261108-move-scopes.mjs.source.txt",
+      "bytes": 3400,
+      "sha256": "c5a47abbeef20a615ad54f7403a50fb1b1462fe8f009a77547dba6e6b8ac8fd7"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-objects-green-16.json",
+      "path": "experience-evidence-author-20261108-objects-green-16.json",
+      "bytes": 291,
+      "sha256": "5693f8590cbd1e37c9891fc916a0fe190845b8ac725207e8cc29d96dd9981d8f"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-objects-green-16.log",
+      "path": "experience-evidence-author-20261108-objects-green-16.log.txt",
+      "bytes": 35179,
+      "sha256": "354ec91d65f645bc4efabe6b63f610f182ff8bb3163e783d8b38349061e8b4fe"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-objects-red-15.json",
+      "path": "experience-evidence-author-20261108-objects-red-15.json",
+      "bytes": 289,
+      "sha256": "29972ebc4925da2f6094a1df7875a95a3ddbd6c05d97f5b2ff4fb9355241018c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-objects-red-15.log",
+      "path": "experience-evidence-author-20261108-objects-red-15.log.txt",
+      "bytes": 39297,
+      "sha256": "51af8c2903dce70cc11836939dc3a090e26b70630e92f92897a08cf97e39a723"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-compatibility-42.json",
+      "path": "experience-evidence-author-20261108-quality-compatibility-42.json",
+      "bytes": 299,
+      "sha256": "bb877acff9be146d71765ba691e803709b10d3a7f0ac6ae843934225a238e02d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-compatibility-42.log",
+      "path": "experience-evidence-author-20261108-quality-compatibility-42.log.txt",
+      "bytes": 175,
+      "sha256": "24bdee14c3c8849c6e941b0b656aa1721391ae4eac3da7fc0dded3a5e189a573"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-compatibility-results.json",
+      "path": "experience-evidence-author-20261108-quality-compatibility-results.json",
+      "bytes": 62922,
+      "sha256": "73abf6bb972b27de828534d671c07d9af7960f565599b6c48944145f9fc3f97d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-diff-check.txt",
+      "path": "experience-evidence-author-20261108-quality-diff-check.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-frozen-source.json",
+      "path": "experience-evidence-author-20261108-quality-frozen-source.json",
+      "bytes": 705,
+      "sha256": "cfd2787f2aa37e7a19916404ecbf7a2025a437df22c21bc031764035863b02f9"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-green-36.json",
+      "path": "experience-evidence-author-20261108-quality-green-36.json",
+      "bytes": 291,
+      "sha256": "660d80257faa03dd464b96e8111e21130f31b0a17795eca487779f25b6c52f26"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-green-36.log",
+      "path": "experience-evidence-author-20261108-quality-green-36.log.txt",
+      "bytes": 41190,
+      "sha256": "d6f3ce62ea10d905285436445a1d9a608ee46f505027f8ef5abe2bd93d0c6cd1"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-handoff.md",
+      "path": "experience-evidence-author-20261108-quality-handoff.md",
+      "bytes": 10705,
+      "sha256": "405be2e590362df598731c9be81f7ecc39ca6502893c5fa6d2bc8cad2e7ecf78"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-lint-41.json",
+      "path": "experience-evidence-author-20261108-quality-lint-41.json",
+      "bytes": 291,
+      "sha256": "7766370391fcd689d3794f00c5d0a8ed4482e6cd696f83f25a4e7d1d2a5d1ea7"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-lint-41.log",
+      "path": "experience-evidence-author-20261108-quality-lint-41.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-original-freeze/app/lib/materials/experience-evidence.ts",
+      "path": "experience-evidence-author-20261108-quality-original-freeze/app/lib/materials/experience-evidence.ts.source.txt",
+      "bytes": 9711,
+      "sha256": "33c4f603ed97d7d22d67e6e4c9b1975bbb34a6b5fd1f68f306a18c7efbf09324"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-original-freeze/app/lib/materials/personal-assertion-scopes.ts",
+      "path": "experience-evidence-author-20261108-quality-original-freeze/app/lib/materials/personal-assertion-scopes.ts.source.txt",
+      "bytes": 12561,
+      "sha256": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-original-freeze/app/lib/materials/self-assessment-evidence.ts",
+      "path": "experience-evidence-author-20261108-quality-original-freeze/app/lib/materials/self-assessment-evidence.ts.source.txt",
+      "bytes": 5526,
+      "sha256": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-original-freeze/frozen-source.json",
+      "path": "experience-evidence-author-20261108-quality-original-freeze/frozen-source.json",
+      "bytes": 704,
+      "sha256": "b5e8b42ba5e4ebeb212a1ec3d718a6c60d959f38781114512ce77b63968641ca"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-original-freeze/repair-handoff.md",
+      "path": "experience-evidence-author-20261108-quality-original-freeze/repair-handoff.md",
+      "bytes": 11707,
+      "sha256": "c470b8c86f53be8ed30dfd9a3293ba0574c2357078604ceac3caa07cc580b995"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-original-freeze/tests/lib/materials/experience-evidence.test.ts",
+      "path": "experience-evidence-author-20261108-quality-original-freeze/tests/lib/materials/experience-evidence.test.ts.source.txt",
+      "bytes": 12361,
+      "sha256": "4bf293f1a5b17ce83c63bff22e15a7f7a7167bc9aa86fdd66325772ff5b56306"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-red-35.json",
+      "path": "experience-evidence-author-20261108-quality-red-35.json",
+      "bytes": 289,
+      "sha256": "66832b27fb2a7c8a648a10c09f91fea6ea07d10f87bfadd2323dea782bf74dc0"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-red-35.log",
+      "path": "experience-evidence-author-20261108-quality-red-35.log.txt",
+      "bytes": 42943,
+      "sha256": "201aa7d28b75366060dc1e4aa3006b9cec8ef2bed1d754dab3cb9ad15cde9b80"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-regression-39.json",
+      "path": "experience-evidence-author-20261108-quality-regression-39.json",
+      "bytes": 298,
+      "sha256": "2e5f6bd1e06f93b550a920064275860a54bf623098f3611953170d59ad8e9fdb"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-regression-39.log",
+      "path": "experience-evidence-author-20261108-quality-regression-39.log.txt",
+      "bytes": 399850,
+      "sha256": "f37a875d9181a61575b37bbd590fed833bfe952c5df4ff5901e7ad02388e6165"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-review-38.json",
+      "path": "experience-evidence-author-20261108-quality-review-38.json",
+      "bytes": 292,
+      "sha256": "115e26ed0d24ec8ce5b2f40394e3844fa6d1796b8435a1b5bcbec6a0759b8548"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-review-38.log",
+      "path": "experience-evidence-author-20261108-quality-review-38.log.txt",
+      "bytes": 56,
+      "sha256": "4441867c3452c70324c449a9a9be30cb2935898d1d90453fdeca4af915af5b9a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-review-probe.mjs",
+      "path": "experience-evidence-author-20261108-quality-review-probe.mjs.source.txt",
+      "bytes": 3608,
+      "sha256": "a49101894b52f7b13b0b35eeae551185cf573b9af0e723b7355f25d4c18a5536"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-review-results.json",
+      "path": "experience-evidence-author-20261108-quality-review-results.json",
+      "bytes": 20714,
+      "sha256": "ce877bae0dfa404927189297036ef79dbbb2ba883386d904d3b8a1554b99e3cc"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-spec-37.json",
+      "path": "experience-evidence-author-20261108-quality-spec-37.json",
+      "bytes": 290,
+      "sha256": "068d5966ae84180899ad68c768147e45c5ff6db9c8542dfef6bd20f213effe4e"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-spec-37.log",
+      "path": "experience-evidence-author-20261108-quality-spec-37.log.txt",
+      "bytes": 56,
+      "sha256": "53006664e0a0015a0224408cd2ac6920d8a88c6f3f2403d9cdf9a1fd1c34d19d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-spec-probe.mjs",
+      "path": "experience-evidence-author-20261108-quality-spec-probe.mjs.source.txt",
+      "bytes": 5821,
+      "sha256": "ebd5bea46d670a1eeb33d956f1cc066d44c1ced11bbd60757b130c53b1b03ecd"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-spec-results.json",
+      "path": "experience-evidence-author-20261108-quality-spec-results.json",
+      "bytes": 30043,
+      "sha256": "05854acb86ea8c1bf1881d1f363a14e1bd5282460458bc6e5a0d34508dc69b07"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-types-40.json",
+      "path": "experience-evidence-author-20261108-quality-types-40.json",
+      "bytes": 292,
+      "sha256": "b7b9784e1d9d11a1267a1f9557dc5668ac6e81f3f7e208c3ae8599e33c6404f0"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-quality-types-40.log",
+      "path": "experience-evidence-author-20261108-quality-types-40.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-red-missing-01.json",
+      "path": "experience-evidence-author-20261108-red-missing-01.json",
+      "bytes": 289,
+      "sha256": "f37439c7e7d7b050af20bcb6447804df0c813840cf869b56438c644ef2597fae"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-red-missing-01.log",
+      "path": "experience-evidence-author-20261108-red-missing-01.log.txt",
+      "bytes": 1583,
+      "sha256": "d9ca15392a9db9a9f51b43d5c88569c66413dd69eb701ed87da90894bd9e6015"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-red-positive-02.json",
+      "path": "experience-evidence-author-20261108-red-positive-02.json",
+      "bytes": 291,
+      "sha256": "c150fe03abb20b13fd067eaec8d6d2b2a84e90600f0ff326d605d646a1c6e846"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-red-positive-02.log",
+      "path": "experience-evidence-author-20261108-red-positive-02.log.txt",
+      "bytes": 57441,
+      "sha256": "46c5c7221b0b3a420c9f0cdb64c4a00b4fb86c2dd695df285e2d829855682462"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-regression-09.json",
+      "path": "experience-evidence-author-20261108-regression-09.json",
+      "bytes": 290,
+      "sha256": "cb55bda27595f77c39760842fe74eb331061d126fcbdcad8f776ad2f922d4b08"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-regression-09.log",
+      "path": "experience-evidence-author-20261108-regression-09.log.txt",
+      "bytes": 388345,
+      "sha256": "30e730c15871fae9e3fa5ba691f82f7042af2d0022391a285e4bc3ed8b4ed30e"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-regression.config.ts",
+      "path": "experience-evidence-author-20261108-regression.config.ts.source.txt",
+      "bytes": 982,
+      "sha256": "bd8a46fe6708cf29529385e6cfd4f9fb9768fff1e412b118232b1cd03cfd7d35"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-claims-26.json",
+      "path": "experience-evidence-author-20261108-repair-claims-26.json",
+      "bytes": 291,
+      "sha256": "70baa52d3db6d54e866e5ccbb6d0426e7084d355383173285f3a26be09e24dcb"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-claims-26.log",
+      "path": "experience-evidence-author-20261108-repair-claims-26.log.txt",
+      "bytes": 36968,
+      "sha256": "9b85a2ec0883398e38db7e6b2b506318569e903b950edc3aaa00414aeddcb435"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-comma-green-29.json",
+      "path": "experience-evidence-author-20261108-repair-comma-green-29.json",
+      "bytes": 296,
+      "sha256": "ee3cd7d7a236ae22ebad0278b597b0b91d6138a302ff6e9b598ae03ffe27e0f3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-comma-green-29.log",
+      "path": "experience-evidence-author-20261108-repair-comma-green-29.log.txt",
+      "bytes": 39221,
+      "sha256": "b6af5d3cfb4a08f03d6f94d4824101a5e0328e480bae55047a06ab0f3a4eef92"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-compatibility-34.json",
+      "path": "experience-evidence-author-20261108-repair-compatibility-34.json",
+      "bytes": 298,
+      "sha256": "b7114ef8eb859aa40bb891c9e80b2cd131c5406ad0a9fa310f447aa57c4b9868"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-compatibility-34.log",
+      "path": "experience-evidence-author-20261108-repair-compatibility-34.log.txt",
+      "bytes": 174,
+      "sha256": "b2313a42f34b362455cf08fc33b84b2c79db71cd5437423ecb5e6b9d5d961322"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-compatibility-results.json",
+      "path": "experience-evidence-author-20261108-repair-compatibility-results.json",
+      "bytes": 62922,
+      "sha256": "73abf6bb972b27de828534d671c07d9af7960f565599b6c48944145f9fc3f97d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-diff-check.txt",
+      "path": "experience-evidence-author-20261108-repair-diff-check.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-frozen-source.json",
+      "path": "experience-evidence-author-20261108-repair-frozen-source.json",
+      "bytes": 704,
+      "sha256": "b5e8b42ba5e4ebeb212a1ec3d718a6c60d959f38781114512ce77b63968641ca"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-handoff.md",
+      "path": "experience-evidence-author-20261108-repair-handoff.md",
+      "bytes": 11707,
+      "sha256": "c470b8c86f53be8ed30dfd9a3293ba0574c2357078604ceac3caa07cc580b995"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-lint-33.json",
+      "path": "experience-evidence-author-20261108-repair-lint-33.json",
+      "bytes": 290,
+      "sha256": "7d778cc5721ea970e1ad53ac54d1e8260b11cbd2431264edbdce6eb15d030358"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-lint-33.log",
+      "path": "experience-evidence-author-20261108-repair-lint-33.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/app/lib/materials/experience-evidence.ts",
+      "path": "experience-evidence-author-20261108-repair-original-freeze/app/lib/materials/experience-evidence.ts.source.txt",
+      "bytes": 8659,
+      "sha256": "f52443fc2fa3bbfa9434064afbeacd38caa6efc7ec954e56cb90ddef406296d4"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/app/lib/materials/personal-assertion-scopes.ts",
+      "path": "experience-evidence-author-20261108-repair-original-freeze/app/lib/materials/personal-assertion-scopes.ts.source.txt",
+      "bytes": 12561,
+      "sha256": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/app/lib/materials/self-assessment-evidence.ts",
+      "path": "experience-evidence-author-20261108-repair-original-freeze/app/lib/materials/self-assessment-evidence.ts.source.txt",
+      "bytes": 5526,
+      "sha256": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/frozen-source.json",
+      "path": "experience-evidence-author-20261108-repair-original-freeze/frozen-source.json",
+      "bytes": 704,
+      "sha256": "e76129877ee05589af1cdd4ffd47b638a6e141b62af6e63eb52bd02f66bb21d7"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/handoff.md",
+      "path": "experience-evidence-author-20261108-repair-original-freeze/handoff.md",
+      "bytes": 19777,
+      "sha256": "974082c1aeacf54d896c8594eb50065bb3d4ef459160d5248029ed63a64c3201"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/tests/lib/materials/experience-evidence.test.ts",
+      "path": "experience-evidence-author-20261108-repair-original-freeze/tests/lib/materials/experience-evidence.test.ts.source.txt",
+      "bytes": 11524,
+      "sha256": "3fefcdcb1fc8ef3e0565abe2ad8ccc580c042beee5d6d65470bb2e925e87290c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-plan-object-28.json",
+      "path": "experience-evidence-author-20261108-repair-plan-object-28.json",
+      "bytes": 296,
+      "sha256": "f2812cabf86cb6f85a585451a0d505a07e2f57bce6c0bc937e520a2e18e49e7c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-plan-object-28.log",
+      "path": "experience-evidence-author-20261108-repair-plan-object-28.log.txt",
+      "bytes": 36968,
+      "sha256": "5f4363ba5b46d88b6e75457b07010a75687d233f30d1da865b89ac01159306b3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-red-25.json",
+      "path": "experience-evidence-author-20261108-repair-red-25.json",
+      "bytes": 288,
+      "sha256": "8cd936683f23024182546cad652161d5268eefdd90b77a05c188c54a0a0ea6dc"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-red-25.log",
+      "path": "experience-evidence-author-20261108-repair-red-25.log.txt",
+      "bytes": 42694,
+      "sha256": "01691916f287e0c66414d6d95a6e103c896657ac75979fd362fe9f96ccce1a09"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-regression-31.json",
+      "path": "experience-evidence-author-20261108-repair-regression-31.json",
+      "bytes": 297,
+      "sha256": "351e475605e434690207c7ccc81282f1a69a7c564e0f606e488892a5cd15c97f"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-regression-31.log",
+      "path": "experience-evidence-author-20261108-repair-regression-31.log.txt",
+      "bytes": 397883,
+      "sha256": "8522a48c58ab2b8f71b7ced8f432f60da61b3762c4263ad708fa70b40e939175"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-report-objects-27.json",
+      "path": "experience-evidence-author-20261108-repair-report-objects-27.json",
+      "bytes": 299,
+      "sha256": "10e9494571b5dfcba34caed8aab30d56e642e07d5cd02eb45e310c7a9422615c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-report-objects-27.log",
+      "path": "experience-evidence-author-20261108-repair-report-objects-27.log.txt",
+      "bytes": 36982,
+      "sha256": "e48736abe23983629c0d182998782b0e8239b4817bbea33b1171274199645698"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-spec-30.json",
+      "path": "experience-evidence-author-20261108-repair-spec-30.json",
+      "bytes": 289,
+      "sha256": "ac888ca05b52cf5ee1bea4eba47b3b6fa4ac282418904fd4c4d893b3a0f96906"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-spec-30.log",
+      "path": "experience-evidence-author-20261108-repair-spec-30.log.txt",
+      "bytes": 56,
+      "sha256": "53006664e0a0015a0224408cd2ac6920d8a88c6f3f2403d9cdf9a1fd1c34d19d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-spec-probe.mjs",
+      "path": "experience-evidence-author-20261108-repair-spec-probe.mjs.source.txt",
+      "bytes": 5820,
+      "sha256": "ee7f272d74ca98613eb2d32c453dca8a15bd61c272c532c9857a36f819127b7f"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-spec-results.json",
+      "path": "experience-evidence-author-20261108-repair-spec-results.json",
+      "bytes": 30043,
+      "sha256": "a03e3b3545b7e3f7dbfd54d42a752433fb5faad89d8a545cf185eb3625f963bd"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-types-32.json",
+      "path": "experience-evidence-author-20261108-repair-types-32.json",
+      "bytes": 291,
+      "sha256": "d018811857cdffc655d97e74255ce729ff395ad50d284e23e159ddf7c9f8112d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-repair-types-32.log",
+      "path": "experience-evidence-author-20261108-repair-types-32.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-sentences-green-14.json",
+      "path": "experience-evidence-author-20261108-sentences-green-14.json",
+      "bytes": 294,
+      "sha256": "5c8f4058ed52a9cfa408d57fb9bf1793a3b8d1c3267e41bf2a21807a64507970"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-sentences-green-14.log",
+      "path": "experience-evidence-author-20261108-sentences-green-14.log.txt",
+      "bytes": 33821,
+      "sha256": "f32c0ef881d1861d9b1cf3ee5b5bac1688e25a31d104e228ff7928512c8599fc"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-sentences-red-13.json",
+      "path": "experience-evidence-author-20261108-sentences-red-13.json",
+      "bytes": 291,
+      "sha256": "170a71985732a13aa87a7d59c32657f7e270ff3b494517e82a597569d7f77aa5"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-sentences-red-13.log",
+      "path": "experience-evidence-author-20261108-sentences-red-13.log.txt",
+      "bytes": 39875,
+      "sha256": "61c95fc887e928e691e5bfd28bf2a021d3a8d338f881dc739e232693c95ae3a1"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-soft-wrap-green-21.json",
+      "path": "experience-evidence-author-20261108-soft-wrap-green-21.json",
+      "bytes": 293,
+      "sha256": "2faf9bff3f56650bdb500d51ee695f867544fb2fbd4a92e4de089cb9053874e8"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-soft-wrap-green-21.log",
+      "path": "experience-evidence-author-20261108-soft-wrap-green-21.log.txt",
+      "bytes": 36038,
+      "sha256": "b704212fed6bc7642d701d948bbcebfd1dc0ab4f939bda57bd786f8fec11406f"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-tsconfig.json",
+      "path": "experience-evidence-author-20261108-tsconfig.json",
+      "bytes": 995,
+      "sha256": "c27df9ec6b5764df7214efa12b541b62896e0886583f31b336f879b073c2bcae"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-types-10.json",
+      "path": "experience-evidence-author-20261108-types-10.json",
+      "bytes": 284,
+      "sha256": "5fa6357828f2f4c6058cf991cd942078c9823d22ec33a843749c977d40396eee"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-types-10.log",
+      "path": "experience-evidence-author-20261108-types-10.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-unit-green-08.json",
+      "path": "experience-evidence-author-20261108-unit-green-08.json",
+      "bytes": 288,
+      "sha256": "2d8f576146debc6c28298b5ff9a838ae204f50c9ca52e63187490190b1a64ef3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-unit-green-08.log",
+      "path": "experience-evidence-author-20261108-unit-green-08.log.txt",
+      "bytes": 29684,
+      "sha256": "2bb72de4c130aff9f95727c8478b5143a6f5df44211a0541d1958003aa988cb4"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-unit.config.ts",
+      "path": "experience-evidence-author-20261108-unit.config.ts.source.txt",
+      "bytes": 241,
+      "sha256": "59533735cffd3a4183d7b11d6a9c856d359b14ceb0952c3166e855520326fc07"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-write-handoff-fixed.ps1",
+      "path": "experience-evidence-author-20261108-write-handoff-fixed.ps1.source.txt",
+      "bytes": 10532,
+      "sha256": "e1ca6e1a9b0e23d8a7bb0305d98ef89ae682436fddee9e0f630bfb180f88376a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-write-handoff.ps1",
+      "path": "experience-evidence-author-20261108-write-handoff.ps1.source.txt",
+      "bytes": 10286,
+      "sha256": "3d5a9399851813b704b43ce999dc6a100d63aadb0f5643db4adc0845d3d37f3c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-write-quality-handoff.ps1",
+      "path": "experience-evidence-author-20261108-write-quality-handoff.ps1.source.txt",
+      "bytes": 10938,
+      "sha256": "1cf928bebaffbe76742731116e0af1e70477b02fdf8aa8534c3281501269bc6e"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-author-20261108-write-repair-handoff.ps1",
+      "path": "experience-evidence-author-20261108-write-repair-handoff.ps1.source.txt",
+      "bytes": 10559,
+      "sha256": "ab7d0f9419a9575584226a31390d9e5c5614ddf79042ef97c93f43652164b048"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-focused-a.json",
+      "path": "experience-evidence-quality-20261108-focused-a.json",
+      "bytes": 286,
+      "sha256": "090407704e0dfb09280b3ce16cc567a6942a9c28fb40ee01ef12a0bfb4cddbe6"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-focused-a.log",
+      "path": "experience-evidence-quality-20261108-focused-a.log.txt",
+      "bytes": 269679,
+      "sha256": "7f80b125f2cb31956c24e45e408be05ba5067302beeb0f986d898552eda95b45"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-focused.config.ts",
+      "path": "experience-evidence-quality-20261108-focused.config.ts.source.txt",
+      "bytes": 508,
+      "sha256": "19dd64cc5bf6b541eded977c60bb385af44528379a48c25edf53cc7407c0a72f"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-memo.md",
+      "path": "experience-evidence-quality-20261108-memo.md",
+      "bytes": 11822,
+      "sha256": "31749b58c8f60918c9955c4e05613485abb4378383b110334654cf596b43816c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-preservation-a.json",
+      "path": "experience-evidence-quality-20261108-preservation-a.json",
+      "bytes": 290,
+      "sha256": "62978826fee6aebe85f5fef6ebcd975d5e685a8349db0505ef74fa3f40c094fc"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-preservation-a.log",
+      "path": "experience-evidence-quality-20261108-preservation-a.log.txt",
+      "bytes": 1165,
+      "sha256": "108e2bc41a9f9e4bf89e23ace5f022ee3208ee7db5c7844a8e767a0dfc9bc515"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-preservation-results.json",
+      "path": "experience-evidence-quality-20261108-preservation-results.json",
+      "bytes": 16719,
+      "sha256": "968b5e4a01a890efc7a23e4be073072e7a4cfb000539f68e68c94758cc30ca8c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-preservation.mjs",
+      "path": "experience-evidence-quality-20261108-preservation.mjs.source.txt",
+      "bytes": 6668,
+      "sha256": "5e64580c800c164207e5a147116f8929c61b9ff1096cde1a9ce16057da47ea24"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-probe-a.json",
+      "path": "experience-evidence-quality-20261108-probe-a.json",
+      "bytes": 283,
+      "sha256": "e39d67024fbbb1ce8e88b349a28976e16e6e96c09f9cbeecdd721582f19d5b62"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-probe-a.log",
+      "path": "experience-evidence-quality-20261108-probe-a.log.txt",
+      "bytes": 918,
+      "sha256": "5cd9bc821ce36efe4ae2fcd345ed5bd1493f0111561384d030de6a8e86aa5507"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-probe-results.json",
+      "path": "experience-evidence-quality-20261108-probe-results.json",
+      "bytes": 20711,
+      "sha256": "4e40f63c355bc03cd03e9c4a8a18046a9249ba0fff90535d9a38a8b6647d6ad9"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-probe.mjs",
+      "path": "experience-evidence-quality-20261108-probe.mjs.source.txt",
+      "bytes": 3600,
+      "sha256": "2182d41a80aa95a2b3d2d193d953dcc66c15a90bd314d3f349cd28081d04c1b6"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-memo.md",
+      "path": "experience-evidence-quality-20261108-recheck-memo.md",
+      "bytes": 9910,
+      "sha256": "abd95798e4c9d9ed8b4e60b6d2de5660c4ef623d4afe6f9661c2f587b0d6c437"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-preservation-a.json",
+      "path": "experience-evidence-quality-20261108-recheck-preservation-a.json",
+      "bytes": 298,
+      "sha256": "5198d05dbd041af83fcd74f5a5647ad34071690a8ff62000ea1f1e90c29187f5"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-preservation-a.log",
+      "path": "experience-evidence-quality-20261108-recheck-preservation-a.log.txt",
+      "bytes": 1286,
+      "sha256": "561b400b11baee10ba0918f6a8e9f79169df831e08e87e3839effbc574b32ec1"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-preservation-results.json",
+      "path": "experience-evidence-quality-20261108-recheck-preservation-results.json",
+      "bytes": 16064,
+      "sha256": "dd9c2d6a18e69de2ea3a57f88d6f8ee3744765dc7aed25324120b74d4ea1436b"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-preservation.mjs",
+      "path": "experience-evidence-quality-20261108-recheck-preservation.mjs.source.txt",
+      "bytes": 10359,
+      "sha256": "b7a04f867579586e34f2e1b440770e671dc47c237e59e4f0eaa50be545d8a787"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-probe-a.json",
+      "path": "experience-evidence-quality-20261108-recheck-probe-a.json",
+      "bytes": 291,
+      "sha256": "8767bfb6649c59c815702c804b88492f9584f2c1b31f0bbee0e577ea2739e53d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-probe-a.log",
+      "path": "experience-evidence-quality-20261108-recheck-probe-a.log.txt",
+      "bytes": 56,
+      "sha256": "4441867c3452c70324c449a9a9be30cb2935898d1d90453fdeca4af915af5b9a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-probe-results.json",
+      "path": "experience-evidence-quality-20261108-recheck-probe-results.json",
+      "bytes": 20714,
+      "sha256": "ce877bae0dfa404927189297036ef79dbbb2ba883386d904d3b8a1554b99e3cc"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-probe.mjs",
+      "path": "experience-evidence-quality-20261108-recheck-probe.mjs.source.txt",
+      "bytes": 3608,
+      "sha256": "0db6f2b21da27cb97a6a61db13639b1c97b15eca2919ade6c45dee8d92a316f2"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-source-freeze/app/lib/materials/experience-evidence.ts",
+      "path": "experience-evidence-quality-20261108-recheck-source-freeze/app/lib/materials/experience-evidence.ts.source.txt",
+      "bytes": 10178,
+      "sha256": "48bec30986f63a3937d8f89b7493bd2f570aac332ecd890fb81045ac6e091277"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-source-freeze/app/lib/materials/personal-assertion-scopes.ts",
+      "path": "experience-evidence-quality-20261108-recheck-source-freeze/app/lib/materials/personal-assertion-scopes.ts.source.txt",
+      "bytes": 12561,
+      "sha256": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-source-freeze/app/lib/materials/self-assessment-evidence.ts",
+      "path": "experience-evidence-quality-20261108-recheck-source-freeze/app/lib/materials/self-assessment-evidence.ts.source.txt",
+      "bytes": 5526,
+      "sha256": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-source-freeze/tests/lib/materials/experience-evidence.test.ts",
+      "path": "experience-evidence-quality-20261108-recheck-source-freeze/tests/lib/materials/experience-evidence.test.ts.source.txt",
+      "bytes": 12838,
+      "sha256": "fe3d431e722b6b0254224abfb755ddb23e41a59ca4ed5e9a6e0d5434a0af71aa"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-unit-a.json",
+      "path": "experience-evidence-quality-20261108-recheck-unit-a.json",
+      "bytes": 291,
+      "sha256": "600ccd08fcc31540ab4353bf8e59222b5892706bb7e06ab3b77687a0dfad3682"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-unit-a.log",
+      "path": "experience-evidence-quality-20261108-recheck-unit-a.log.txt",
+      "bytes": 41192,
+      "sha256": "134b353810c32cfbd8cb3d91ec662c02b24e9eb9046b2944e83d64375d4bc7d8"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-recheck-unit.config.ts",
+      "path": "experience-evidence-quality-20261108-recheck-unit.config.ts.source.txt",
+      "bytes": 250,
+      "sha256": "392558942cdbc67799e1e39a341cc3f60a839138abebfc7b0d11f9d9655f7ab3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-source-freeze/app/lib/materials/experience-evidence.ts",
+      "path": "experience-evidence-quality-20261108-source-freeze/app/lib/materials/experience-evidence.ts.source.txt",
+      "bytes": 9711,
+      "sha256": "33c4f603ed97d7d22d67e6e4c9b1975bbb34a6b5fd1f68f306a18c7efbf09324"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-source-freeze/app/lib/materials/personal-assertion-scopes.ts",
+      "path": "experience-evidence-quality-20261108-source-freeze/app/lib/materials/personal-assertion-scopes.ts.source.txt",
+      "bytes": 12561,
+      "sha256": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-source-freeze/app/lib/materials/self-assessment-evidence.ts",
+      "path": "experience-evidence-quality-20261108-source-freeze/app/lib/materials/self-assessment-evidence.ts.source.txt",
+      "bytes": 5526,
+      "sha256": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-quality-20261108-source-freeze/tests/lib/materials/experience-evidence.test.ts",
+      "path": "experience-evidence-quality-20261108-source-freeze/tests/lib/materials/experience-evidence.test.ts.source.txt",
+      "bytes": 12361,
+      "sha256": "4bf293f1a5b17ce83c63bff22e15a7f7a7167bc9aa86fdd66325772ff5b56306"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-harness-syntax-20261108-a.json",
+      "path": "experience-evidence-root-harness-syntax-20261108-a.json",
+      "bytes": 288,
+      "sha256": "d856cd893517620c373c4b803c32120d7f92bdfd075d32f2d37ff9cc2c1af92c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-harness-syntax-20261108-a.log",
+      "path": "experience-evidence-root-harness-syntax-20261108-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-integrity-20261108-a-results.json",
+      "path": "experience-evidence-root-integrity-20261108-a-results.json",
+      "bytes": 120262,
+      "sha256": "68fe7bdd4bf9fcc49396acf3d723fc8ff418d5086dd6299b1684cdc7b4400619"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-integrity-20261108-a.json",
+      "path": "experience-evidence-root-integrity-20261108-a.json",
+      "bytes": 284,
+      "sha256": "8738b2df5dd8f46d75d7bc384399a078d3bd2d089ba6a92ad0404b59c11048d0"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-integrity-20261108-a.log",
+      "path": "experience-evidence-root-integrity-20261108-a.log.txt",
+      "bytes": 476,
+      "sha256": "2a1496f60cca56435c7918ed16c9074a7aac67ce741cc16729d5ccd9ca11164e"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-integrity-20261108-quoted-b-results.json",
+      "path": "experience-evidence-root-integrity-20261108-quoted-b-results.json",
+      "bytes": 120262,
+      "sha256": "6588362a66d6b737212d6f801f8cb2109d81fa21b54374506ec62cd96799809c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-integrity-20261108-quoted-b.json",
+      "path": "experience-evidence-root-integrity-20261108-quoted-b.json",
+      "bytes": 291,
+      "sha256": "7a6c7e158cde6e05c28f656cda3d49acacf9229989ed6e75474481085924e425"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-integrity-20261108-quoted-b.log",
+      "path": "experience-evidence-root-integrity-20261108-quoted-b.log.txt",
+      "bytes": 483,
+      "sha256": "ac6c0a4efc09058d40f71c5eb73d80d01ac866e86ca772d35d07da1b2b5c8de5"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-integrity-20261108.mjs",
+      "path": "experience-evidence-root-integrity-20261108.mjs.source.txt",
+      "bytes": 4049,
+      "sha256": "3a54283f8e832bc2be0da565c439ce7dcb0dda04f4abc2f40ac351cb48c9f30a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-integrity-quoted-20261108.mjs",
+      "path": "experience-evidence-root-integrity-quoted-20261108.mjs.source.txt",
+      "bytes": 4049,
+      "sha256": "d81ff6ed05fa41f40f6ce337a32ad3734b2098466a7ac9c974d06f2f4fc1793c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-a-results.json",
+      "path": "experience-evidence-root-native-20261108-a-results.json",
+      "bytes": 104571,
+      "sha256": "3c9f02e410bb68dc52d0ce28d78556138ede5085f66c9a5db63f186e13de3398"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-a.json",
+      "path": "experience-evidence-root-native-20261108-a.json",
+      "bytes": 281,
+      "sha256": "a1b2ad360c38729aa926af0b1e093e93c5dcc403bcd5e74db5aec9508562a6d8"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-a.log",
+      "path": "experience-evidence-root-native-20261108-a.log.txt",
+      "bytes": 166,
+      "sha256": "d98428d583a5cd9a7e693e92b24435405a4d3cac64ba87662e3a066e018a5ec5"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-quoted-c-results.json",
+      "path": "experience-evidence-root-native-20261108-quoted-c-results.json",
+      "bytes": 115401,
+      "sha256": "307e21670ad8950b932e76ff7ef7fa81cb303109bb49826e1e4e79e74bb849f3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-quoted-c.json",
+      "path": "experience-evidence-root-native-20261108-quoted-c.json",
+      "bytes": 289,
+      "sha256": "16b8e82398d3a1aeef01da265238af571ef61679d8f7eb409385be1a19bc98c3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-quoted-c.log",
+      "path": "experience-evidence-root-native-20261108-quoted-c.log.txt",
+      "bytes": 173,
+      "sha256": "07f188bcb455878f8109a465d0f5c8ad06c86a9880ee3798e7bdeba67349195c"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-repaired-b-results.json",
+      "path": "experience-evidence-root-native-20261108-repaired-b-results.json",
+      "bytes": 110915,
+      "sha256": "d32ef09c10fe2f90ce4057ea25a94f4d19688f3d15b1b9cd881c3e8fdb82ebf0"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-repaired-b.json",
+      "path": "experience-evidence-root-native-20261108-repaired-b.json",
+      "bytes": 290,
+      "sha256": "91152e25e78e8bd0b6c03325773a0af0182ba451980a3d8ebe9129505ebdd2e7"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108-repaired-b.log",
+      "path": "experience-evidence-root-native-20261108-repaired-b.log.txt",
+      "bytes": 175,
+      "sha256": "cb6dfd5296357c0b5481eb4bc908a847bd1604853a41228e986c900aa486badd"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-20261108.mjs",
+      "path": "experience-evidence-root-native-20261108.mjs.source.txt",
+      "bytes": 10799,
+      "sha256": "58533e3225e598a79839a9070dbbd4fc50ca3c258b6d2ea5757344216b298a7e"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-quoted-20261108.mjs",
+      "path": "experience-evidence-root-native-quoted-20261108.mjs.source.txt",
+      "bytes": 12717,
+      "sha256": "86ed5ef0bd5d694b419b1445e725a511682421fb5dbdd3e168e1a39c4bdb95cb"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-root-native-repaired-20261108.mjs",
+      "path": "experience-evidence-root-native-repaired-20261108.mjs.source.txt",
+      "bytes": 11922,
+      "sha256": "e80a351f0a4d32aef190bdd28a69d7792a3a7115fee0a10bcfe6b7aa5fc21f63"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-memo.md",
+      "path": "experience-evidence-spec-20261108-memo.md",
+      "bytes": 9809,
+      "sha256": "eb73aae2b93ff168a759653bc4f5146da9d046b89023bd465e6aabaaf82ce81f"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-probe-01.json",
+      "path": "experience-evidence-spec-20261108-probe-01.json",
+      "bytes": 281,
+      "sha256": "43a27ecaeb63106473bab508047ae96a81af15cc4f1709a0ff7c24eb52c98a47"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-probe-01.log",
+      "path": "experience-evidence-spec-20261108-probe-01.log.txt",
+      "bytes": 3093,
+      "sha256": "9de65b5648a8151ee8837619b1e608b6ae2a81355f540acadef52753076f4a56"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-probe-results.json",
+      "path": "experience-evidence-spec-20261108-probe-results.json",
+      "bytes": 30034,
+      "sha256": "e1e919b654a3cd59468e6532ed6f16ba04bbd6503c738f4edfb6dd24c3cfa6c2"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-probe.mjs",
+      "path": "experience-evidence-spec-20261108-probe.mjs.source.txt",
+      "bytes": 5812,
+      "sha256": "ac75679f27967b03aaf206c853cd6784e1bfc1df90540e29d153ef01e1c71f87"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-api-01.json",
+      "path": "experience-evidence-spec-20261108-quoted-api-01.json",
+      "bytes": 287,
+      "sha256": "c50a651d7ccb91dad52e6889136be90cd12596dc2fbf681146096df1811d6cd3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-api-01.log",
+      "path": "experience-evidence-spec-20261108-quoted-api-01.log.txt",
+      "bytes": 41191,
+      "sha256": "acfacdc081cf42ef237192b77a5696ececd71847e82751ab00d270baebec633f"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-api.config.ts",
+      "path": "experience-evidence-spec-20261108-quoted-api.config.ts.source.txt",
+      "bytes": 250,
+      "sha256": "392558942cdbc67799e1e39a341cc3f60a839138abebfc7b0d11f9d9655f7ab3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-history-binding.json",
+      "path": "experience-evidence-spec-20261108-quoted-history-binding.json",
+      "bytes": 9611,
+      "sha256": "b157ac4eb95cf6b27a60d8461ec912e959bab8e1e709863912b0f4147ef2eb10"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-integrity-01.json",
+      "path": "experience-evidence-spec-20261108-quoted-integrity-01.json",
+      "bytes": 292,
+      "sha256": "a3cb3e543c985d189a1146c26e87b4128127af4c8a08263390c1fe0745fa0a9e"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-integrity-01.log",
+      "path": "experience-evidence-spec-20261108-quoted-integrity-01.log.txt",
+      "bytes": 2151,
+      "sha256": "b45af305f892da3677f5845c58a8348b2a2aa4155df05f3fc1fba037af458698"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-integrity-results.json",
+      "path": "experience-evidence-spec-20261108-quoted-integrity-results.json",
+      "bytes": 2151,
+      "sha256": "b45af305f892da3677f5845c58a8348b2a2aa4155df05f3fc1fba037af458698"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-integrity.mjs",
+      "path": "experience-evidence-spec-20261108-quoted-integrity.mjs.source.txt",
+      "bytes": 6502,
+      "sha256": "bb9ee3b1947045a461d1e6e857b0af9d503dc8012db0689978b42ff90d0acfa3"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-memo.md",
+      "path": "experience-evidence-spec-20261108-quoted-memo.md",
+      "bytes": 10095,
+      "sha256": "d802c927f78fad167b0d94cedc8b8034a1bc8a0aba56173505021f3d916b278e"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-quality-01.json",
+      "path": "experience-evidence-spec-20261108-quoted-quality-01.json",
+      "bytes": 290,
+      "sha256": "21a669cc869be331bee502bb006da0d73393e2edfdddef7f2818385d0f55cf8a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-quality-01.log",
+      "path": "experience-evidence-spec-20261108-quoted-quality-01.log.txt",
+      "bytes": 56,
+      "sha256": "4441867c3452c70324c449a9a9be30cb2935898d1d90453fdeca4af915af5b9a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-quality-probe.mjs",
+      "path": "experience-evidence-spec-20261108-quoted-quality-probe.mjs.source.txt",
+      "bytes": 3606,
+      "sha256": "0e01691b94ae722631846234866c647c00c4261a466048065bc444cfcbc7cbcb"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-quality-results.json",
+      "path": "experience-evidence-spec-20261108-quoted-quality-results.json",
+      "bytes": 20714,
+      "sha256": "ce877bae0dfa404927189297036ef79dbbb2ba883386d904d3b8a1554b99e3cc"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-spec-01.json",
+      "path": "experience-evidence-spec-20261108-quoted-spec-01.json",
+      "bytes": 287,
+      "sha256": "d97174abb7738d505a3c6472703d82c305979de1cac393c826f8d28c23304305"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-spec-01.log",
+      "path": "experience-evidence-spec-20261108-quoted-spec-01.log.txt",
+      "bytes": 56,
+      "sha256": "53006664e0a0015a0224408cd2ac6920d8a88c6f3f2403d9cdf9a1fd1c34d19d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-spec-probe.mjs",
+      "path": "experience-evidence-spec-20261108-quoted-spec-probe.mjs.source.txt",
+      "bytes": 5818,
+      "sha256": "4176d5cb3585289802f1ff8697709edff2a7d027ba660cc6da7c2153fef127ad"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-quoted-spec-results.json",
+      "path": "experience-evidence-spec-20261108-quoted-spec-results.json",
+      "bytes": 30043,
+      "sha256": "05854acb86ea8c1bf1881d1f363a14e1bd5282460458bc6e5a0d34508dc69b07"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-integrity-01.json",
+      "path": "experience-evidence-spec-20261108-recheck-integrity-01.json",
+      "bytes": 292,
+      "sha256": "983a55f8687aa2ac0910600bfc001f56a78dd92167178713c54383e86973c7c9"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-integrity-01.log",
+      "path": "experience-evidence-spec-20261108-recheck-integrity-01.log.txt",
+      "bytes": 2928,
+      "sha256": "a9d06d5e61cbd2c05b8a383ca9fcdf98273361f1116e689ee50d8164716c5ba1"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-integrity-results.json",
+      "path": "experience-evidence-spec-20261108-recheck-integrity-results.json",
+      "bytes": 2928,
+      "sha256": "a9d06d5e61cbd2c05b8a383ca9fcdf98273361f1116e689ee50d8164716c5ba1"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-integrity.mjs",
+      "path": "experience-evidence-spec-20261108-recheck-integrity.mjs.source.txt",
+      "bytes": 5019,
+      "sha256": "447bba4c9e18afd13b483247acb439b1658e294b0ec252feced0e249f838dbdd"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-memo.md",
+      "path": "experience-evidence-spec-20261108-recheck-memo.md",
+      "bytes": 11045,
+      "sha256": "7bca4b592b4f6f4e1c29397f696de40dbdf241c7913bb5e57fdb4c181cbb964b"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-probe-01.json",
+      "path": "experience-evidence-spec-20261108-recheck-probe-01.json",
+      "bytes": 289,
+      "sha256": "3c51c2d3d87c971695e97d11daecf43c46e3f37623db587ecedcefd7c0544229"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-probe-01.log",
+      "path": "experience-evidence-spec-20261108-recheck-probe-01.log.txt",
+      "bytes": 56,
+      "sha256": "53006664e0a0015a0224408cd2ac6920d8a88c6f3f2403d9cdf9a1fd1c34d19d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-probe-results.json",
+      "path": "experience-evidence-spec-20261108-recheck-probe-results.json",
+      "bytes": 30043,
+      "sha256": "a03e3b3545b7e3f7dbfd54d42a752433fb5faad89d8a545cf185eb3625f963bd"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-probe.mjs",
+      "path": "experience-evidence-spec-20261108-recheck-probe.mjs.source.txt",
+      "bytes": 5820,
+      "sha256": "f7e1aeaac1372cbc2f8de90edc65c6887115b6495561f12e2ed7a550dd2e4ce7"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-structure-01.json",
+      "path": "experience-evidence-spec-20261108-recheck-structure-01.json",
+      "bytes": 293,
+      "sha256": "d7f7b319e022353da25f98c3f89caaff84bf29fcc0f5befbf93fb9eacf4e301a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-structure-01.log",
+      "path": "experience-evidence-spec-20261108-recheck-structure-01.log.txt",
+      "bytes": 6259,
+      "sha256": "329b3222b93ac61d2c56e4e81440af12ede19c504e9110a834cc664828d63cc0"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-structure-results.json",
+      "path": "experience-evidence-spec-20261108-recheck-structure-results.json",
+      "bytes": 6259,
+      "sha256": "329b3222b93ac61d2c56e4e81440af12ede19c504e9110a834cc664828d63cc0"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-structure.mjs",
+      "path": "experience-evidence-spec-20261108-recheck-structure.mjs.source.txt",
+      "bytes": 2798,
+      "sha256": "72cb626e3a2df626574daa5fa7d755d86994ecea98b0a3638fd77b15ebd1c24a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-suite-01.json",
+      "path": "experience-evidence-spec-20261108-recheck-suite-01.json",
+      "bytes": 291,
+      "sha256": "cb3bbfd72567495d74dd9e85c4bfcd317314acbd9ac8f1c3ba5d8dd74bbc749a"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-suite-01.log",
+      "path": "experience-evidence-spec-20261108-recheck-suite-01.log.txt",
+      "bytes": 397881,
+      "sha256": "10d3c1931b351462e78d058ae48e019eae83790dd609d20eb5b9882f09c847a4"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-recheck-suite.config.ts",
+      "path": "experience-evidence-spec-20261108-recheck-suite.config.ts.source.txt",
+      "bytes": 982,
+      "sha256": "4171e6512bb829872e0d58774616b7b7aa7d1feacb1983bcd2a41d9de18b530d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-structure-01.json",
+      "path": "experience-evidence-spec-20261108-structure-01.json",
+      "bytes": 285,
+      "sha256": "6aca71fdf62f15e013040b6d89da146892fa07b41ccc275746e66cec5d6b3b8d"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-structure-01.log",
+      "path": "experience-evidence-spec-20261108-structure-01.log.txt",
+      "bytes": 6259,
+      "sha256": "dee58490cd356741eab6a8c9b70f4b7bf8fbc54a4603696e91e234e92e0aeff2"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-structure-results.json",
+      "path": "experience-evidence-spec-20261108-structure-results.json",
+      "bytes": 6259,
+      "sha256": "dee58490cd356741eab6a8c9b70f4b7bf8fbc54a4603696e91e234e92e0aeff2"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-structure.mjs",
+      "path": "experience-evidence-spec-20261108-structure.mjs.source.txt",
+      "bytes": 2790,
+      "sha256": "9a39003aee534a7fe74df9851020d9f0b27ac96048ecc254c49cae46b0535e97"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-suite-01.json",
+      "path": "experience-evidence-spec-20261108-suite-01.json",
+      "bytes": 283,
+      "sha256": "be1b23c3cfa1c3aa49ccd20eb429c3d2879e8a494f56b2858b565b2df0a2cbdb"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-suite-01.log",
+      "path": "experience-evidence-spec-20261108-suite-01.log.txt",
+      "bytes": 394690,
+      "sha256": "c07ed16ded693be09b0b8d5d1f574b7911e06cb257b4634af859485111e8d1d8"
+    },
+    {
+      "source": "work/grounded-verification/experience-evidence-spec-20261108-suite.config.ts",
+      "path": "experience-evidence-spec-20261108-suite.config.ts.source.txt",
+      "bytes": 982,
+      "sha256": "4171e6512bb829872e0d58774616b7b7aa7d1feacb1983bcd2a41d9de18b530d"
+    },
+    {
+      "source": "work/grounded-verification/run.mjs",
+      "path": "run.mjs.source.txt",
+      "bytes": 2497,
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    }
+  ],
+  "frozenReferenceCount": 26,
+  "courseDependenciesUnchanged": 85,
+  "limits": [
+    "Task1 pure guard and unchanged existing hint behavior only",
+    "Full repository checks deferred to Task2/3 integration",
+    "Finite reviewed evidence grammar, not unrestricted natural language understanding",
+    "No model or public release qualification"
+  ],
+  "realModelCalls": 0,
+  "newCostUsd": 0,
+  "deployed": false,
+  "remoteMigration": false,
+  "pushed": false
+}

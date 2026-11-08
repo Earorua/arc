@@ -1,0 +1,1 @@
+{"status":"PASS","unchangedDeclarations":15,"sourcePath":"app/lib/materials/self-assessment-evidence.ts","targetPath":"app/lib/materials/personal-assertion-scopes.ts"}

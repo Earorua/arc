@@ -1,0 +1,25 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+export default defineConfig({
+  ...base,
+  test: {
+    ...base.test,
+    maxWorkers: 2,
+    include: [
+      "tests/lib/materials/experience-evidence.test.ts",
+      "tests/lib/materials/self-assessment-evidence.test.ts",
+      "tests/lib/materials/retained-assessment-hints.test.ts",
+      "tests/lib/materials/grounded-skill-terms.test.ts",
+      "tests/lib/materials/material-skill-mentions.test.ts",
+      "tests/server/document-source-review-evidence.test.ts",
+      "tests/server/document-source-span-provider.test.ts",
+      "tests/server/document-source-requirement-evidence.test.ts",
+      "tests/server/document-review-points.test.ts",
+      "tests/server/document-review-draft.test.ts",
+      "tests/server/document-extraction.test.ts",
+      "tests/components/material-confirmation-source.test.tsx",
+      "tests/components/material-source-term-correction.test.tsx",
+    ],
+  },
+});

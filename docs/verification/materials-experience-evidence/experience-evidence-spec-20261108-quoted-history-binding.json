@@ -1,0 +1,167 @@
+[
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-quality-20261108-memo.md",
+    "sha256": "31749b58c8f60918c9955c4e05613485abb4378383b110334654cf596b43816c",
+    "bytes": 11822
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-quality-20261108-probe-a.json",
+    "sha256": "e39d67024fbbb1ce8e88b349a28976e16e6e96c09f9cbeecdd721582f19d5b62",
+    "bytes": 283
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-quality-20261108-probe-a.log",
+    "sha256": "5cd9bc821ce36efe4ae2fcd345ed5bd1493f0111561384d030de6a8e86aa5507",
+    "bytes": 918
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-quality-20261108-probe-results.json",
+    "sha256": "4e40f63c355bc03cd03e9c4a8a18046a9249ba0fff90535d9a38a8b6647d6ad9",
+    "bytes": 20711
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-quality-20261108-probe.mjs",
+    "sha256": "2182d41a80aa95a2b3d2d193d953dcc66c15a90bd314d3f349cd28081d04c1b6",
+    "bytes": 3600
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-memo.md",
+    "sha256": "eb73aae2b93ff168a759653bc4f5146da9d046b89023bd465e6aabaaf82ce81f",
+    "bytes": 9809
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-probe-01.json",
+    "sha256": "43a27ecaeb63106473bab508047ae96a81af15cc4f1709a0ff7c24eb52c98a47",
+    "bytes": 281
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-probe-01.log",
+    "sha256": "9de65b5648a8151ee8837619b1e608b6ae2a81355f540acadef52753076f4a56",
+    "bytes": 3093
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-probe-results.json",
+    "sha256": "e1e919b654a3cd59468e6532ed6f16ba04bbd6503c738f4edfb6dd24c3cfa6c2",
+    "bytes": 30034
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-probe.mjs",
+    "sha256": "ac75679f27967b03aaf206c853cd6784e1bfc1df90540e29d153ef01e1c71f87",
+    "bytes": 5812
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-integrity-01.json",
+    "sha256": "983a55f8687aa2ac0910600bfc001f56a78dd92167178713c54383e86973c7c9",
+    "bytes": 292
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-integrity-01.log",
+    "sha256": "a9d06d5e61cbd2c05b8a383ca9fcdf98273361f1116e689ee50d8164716c5ba1",
+    "bytes": 2928
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-integrity-results.json",
+    "sha256": "a9d06d5e61cbd2c05b8a383ca9fcdf98273361f1116e689ee50d8164716c5ba1",
+    "bytes": 2928
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-integrity.mjs",
+    "sha256": "447bba4c9e18afd13b483247acb439b1658e294b0ec252feced0e249f838dbdd",
+    "bytes": 5019
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-memo.md",
+    "sha256": "7bca4b592b4f6f4e1c29397f696de40dbdf241c7913bb5e57fdb4c181cbb964b",
+    "bytes": 11045
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-probe-01.json",
+    "sha256": "3c51c2d3d87c971695e97d11daecf43c46e3f37623db587ecedcefd7c0544229",
+    "bytes": 289
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-probe-01.log",
+    "sha256": "53006664e0a0015a0224408cd2ac6920d8a88c6f3f2403d9cdf9a1fd1c34d19d",
+    "bytes": 56
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-probe-results.json",
+    "sha256": "a03e3b3545b7e3f7dbfd54d42a752433fb5faad89d8a545cf185eb3625f963bd",
+    "bytes": 30043
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-probe.mjs",
+    "sha256": "f7e1aeaac1372cbc2f8de90edc65c6887115b6495561f12e2ed7a550dd2e4ce7",
+    "bytes": 5820
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-structure-01.json",
+    "sha256": "d7f7b319e022353da25f98c3f89caaff84bf29fcc0f5befbf93fb9eacf4e301a",
+    "bytes": 293
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-structure-01.log",
+    "sha256": "329b3222b93ac61d2c56e4e81440af12ede19c504e9110a834cc664828d63cc0",
+    "bytes": 6259
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-structure-results.json",
+    "sha256": "329b3222b93ac61d2c56e4e81440af12ede19c504e9110a834cc664828d63cc0",
+    "bytes": 6259
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-structure.mjs",
+    "sha256": "72cb626e3a2df626574daa5fa7d755d86994ecea98b0a3638fd77b15ebd1c24a",
+    "bytes": 2798
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-suite-01.json",
+    "sha256": "cb3bbfd72567495d74dd9e85c4bfcd317314acbd9ac8f1c3ba5d8dd74bbc749a",
+    "bytes": 291
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-suite-01.log",
+    "sha256": "10d3c1931b351462e78d058ae48e019eae83790dd609d20eb5b9882f09c847a4",
+    "bytes": 397881
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-recheck-suite.config.ts",
+    "sha256": "4171e6512bb829872e0d58774616b7b7aa7d1feacb1983bcd2a41d9de18b530d",
+    "bytes": 982
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-structure-01.json",
+    "sha256": "6aca71fdf62f15e013040b6d89da146892fa07b41ccc275746e66cec5d6b3b8d",
+    "bytes": 285
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-structure-01.log",
+    "sha256": "dee58490cd356741eab6a8c9b70f4b7bf8fbc54a4603696e91e234e92e0aeff2",
+    "bytes": 6259
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-structure-results.json",
+    "sha256": "dee58490cd356741eab6a8c9b70f4b7bf8fbc54a4603696e91e234e92e0aeff2",
+    "bytes": 6259
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-structure.mjs",
+    "sha256": "9a39003aee534a7fe74df9851020d9f0b27ac96048ecc254c49cae46b0535e97",
+    "bytes": 2790
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-suite-01.json",
+    "sha256": "be1b23c3cfa1c3aa49ccd20eb429c3d2879e8a494f56b2858b565b2df0a2cbdb",
+    "bytes": 283
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-suite-01.log",
+    "sha256": "c07ed16ded693be09b0b8d5d1f574b7911e06cb257b4634af859485111e8d1d8",
+    "bytes": 394690
+  },
+  {
+    "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\experience-evidence-spec-20261108-suite.config.ts",
+    "sha256": "4171e6512bb829872e0d58774616b7b7aa7d1feacb1983bcd2a41d9de18b530d",
+    "bytes": 982
+  }
+]

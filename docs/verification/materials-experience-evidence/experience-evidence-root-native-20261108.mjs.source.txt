@@ -1,0 +1,118 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { build } from "esbuild";
+import { Miniflare, Log, LogLevel } from "miniflare";
+
+const output = process.argv[2];
+assert.match(output ?? "", /^work\/grounded-verification\/experience-evidence-root-native-[a-z0-9-]+-results\.json$/u);
+const sha = value => createHash("sha256").update(value).digest("hex");
+const referencePath = "docs/verification/materials-edited-assessment-hints/edited-assessment-shared-native-20261108-c-results.json";
+const referenceBytes = readFileSync(referencePath);
+assert.equal(sha(referenceBytes), "96444fd67a7116d247d1e7c2bb3b4135e70f90362efc5e2164802ab98d1c87c9");
+const hintReference = JSON.parse(referenceBytes).observations;
+const terms = (...values) => ({ kind: "terms", terms: values });
+const whole = { kind: "confirmed-whole-fact" };
+const cases = [
+  ["own-query", "experience", "I wrote SQL queries.", terms("SQL"), true],
+  ["unguided-practice", "experience", "I tested SQL without supervision.", terms("SQL"), true],
+  ["supplied-examples", "experience", "I tested SQL queries using supplied examples.", terms("SQL"), true],
+  ["provided-but-modified", "experience", "I modified the parameters in SQL queries supplied by my mentor.", terms("SQL"), true],
+  ["quoted-tool", "experience", "I tested ‘SQL’ under supervision.", terms("SQL"), true],
+  ["conceptual-claim", "skill-claim", "I am familiar with SQL.", terms("SQL"), true],
+  ["implicit-responsibility", "experience", "Built SQL reports.", terms("SQL"), true],
+  ["personal-heading", "skill-claim", "个人简介：熟悉 SQL。", terms("SQL"), true],
+  ["bare-claim", "skill-claim", "SQL", terms("SQL"), true],
+  ["whole-manual-positive", "experience", "构建可访问的产品界面", whole, true],
+  ["whole-long-positive", "experience", "I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.", whole, true],
+  ["cannot", "experience", "I cannot write SQL reports independently.", terms("SQL"), false],
+  ["never", "experience", "I have never configured SQL for production.", terms("SQL"), false],
+  ["future", "experience", "I plan to test SQL under supervision.", terms("SQL"), false],
+  ["conditional", "experience", "If I tested SQL under supervision, I would ask for help.", terms("SQL"), false],
+  ["quoted-proposition", "experience", "The example says “I tested SQL under supervision.”", terms("SQL"), false],
+  ["colleague", "experience", "My colleague tested SQL under supervision.", terms("SQL"), false],
+  ["team", "experience", "Our team built a React prototype.", terms("React"), false],
+  ["provided-only-admin", "experience", "My mentor wrote SQL queries; I scheduled the review.", terms("SQL"), false],
+  ["report-proposition", "experience", "I wrote that my colleague tested SQL.", terms("SQL"), false],
+  ["report-object", "experience", "I wrote a report about my colleague's SQL practice.", terms("SQL"), false],
+  ["actual-sql-report", "experience", "I wrote SQL reports.", terms("SQL"), true],
+  ["wrapped-denial", "experience", "I have never\nconfigured SQL.", terms("SQL"), false],
+  ["wrapped-future", "experience", "I will\nwrite SQL queries.", terms("SQL"), false],
+  ["wrapped-positive", "experience", "I wrote\nSQL queries.", terms("SQL"), true],
+  ["whole-manual-denial", "experience", "我没有构建过可访问的产品界面", whole, false],
+  ["mixed-own-term", "experience", "I built a React prototype, but my colleague configured SQL.", terms("React"), true],
+  ["mixed-other-term", "experience", "I built a React prototype, but my colleague configured SQL.", terms("SQL"), false],
+  ["mixed-both-terms", "experience", "I built a React prototype, but my colleague configured SQL.", terms("React", "SQL"), false],
+  ["mixed-whole", "experience", "I built a React prototype, but my colleague configured SQL.", whole, false],
+  ["positive-denied-own", "experience", "I tested SQL under supervision, but I have never configured React.", terms("SQL"), true],
+  ["positive-denied-other", "experience", "I tested SQL under supervision, but I have never configured React.", terms("React"), false],
+  ["positive-denied-whole", "experience", "I tested SQL under supervision, but I have never configured React.", whole, false],
+  ["same-term-real-experience", "experience", "I wrote SQL queries, but I have never configured SQL for production.", terms("SQL"), true],
+  ["same-term-specific-denial", "experience", "I wrote SQL queries, but I have never configured SQL for production.", terms("configured SQL for production"), false],
+  ["sentence-own", "experience", "I built React components. My colleague wrote SQL queries.", terms("React"), true],
+  ["sentence-other", "experience", "I built React components. My colleague wrote SQL queries.", terms("SQL"), false],
+  ["sentence-mixed-whole", "experience", "I built React components. My colleague wrote SQL queries.", whole, false],
+  ["sentence-own-before-denial", "experience", "I wrote SQL queries. I have never configured React.", terms("SQL"), true],
+  ["sentence-denied", "experience", "I wrote SQL queries. I have never configured React.", terms("React"), false],
+  ["sentence-denied-whole", "experience", "I wrote SQL queries. I have never configured React.", whole, false],
+  ["sentence-both-own", "experience", "I built React components. I wrote SQL queries.", terms("React", "SQL"), true],
+  ["sentence-both-own-whole", "experience", "I built React components. I wrote SQL queries.", whole, true],
+  ["chinese-sentence-own", "experience", "我测试 SQL 查询。同事构建 React 页面。", terms("SQL"), true],
+  ["chinese-sentence-other", "experience", "我测试 SQL 查询。同事构建 React 页面。", terms("React"), false],
+  ["chinese-sentence-whole", "experience", "我测试 SQL 查询。同事构建 React 页面。", whole, false],
+  ["dotted-sentence-own", "experience", "I built React.js components. My colleague wrote SQL queries.", terms("React.js"), true],
+  ["dotted-sentence-other", "experience", "I built React.js components. My colleague wrote SQL queries.", terms("SQL"), false],
+  ["quoted-sentences", "experience", "“I built React components. I wrote SQL queries.”", terms("SQL"), false],
+  ["reported-sentences", "experience", "My colleague reported: I built React components. I wrote SQL queries.", terms("SQL"), false],
+  ["example-sentences", "experience", "Example: I built React components. I wrote SQL queries.", terms("SQL"), false],
+  ["short-guidance-denial", "experience", "按指导完成不了 SQL 查询练习", terms("SQL"), false],
+  ["short-guidance-plan", "experience", "按指导完成 SQL 查询练习是我下周的计划。", terms("SQL"), false],
+  ["dotted-name-plan", "experience", "按指导完成 React.js 组件练习是我下周的计划。", terms("React.js"), false],
+  ["short-guidance-positive", "experience", "按指导完成 SQL 查询练习", terms("SQL"), true],
+  ["empty-terms", "experience", "I wrote SQL queries.", terms(), false],
+  ["missing-term", "experience", "I wrote SQL queries.", terms("React"), false],
+  ["jd-not-personal", "requirement", "I wrote SQL queries.", terms("SQL"), false],
+  ["constraint-not-personal", "constraint", "I wrote SQL queries.", whole, false],
+];
+const compiled = await build({ stdin: { resolveDir: process.cwd(), loader: "ts", contents: `
+import { supportsMaterialExperience } from './app/lib/materials/experience-evidence';
+import { supportsMaterialSelfLevelHint } from './app/lib/materials/self-assessment-evidence';
+import { groundSourceSelfLevelHint } from './worker/document-executor/source-review-evidence';
+export function inspect({cases,hints}) {
+  return {
+    experience: cases.map(([id,kind,text,target,expected]) => ({id,kind,text,target,expected,observed:supportsMaterialExperience({kind,text,target})})),
+    hints: hints.map(({kind,text,labels,level}) => ({kind,text,labels,level,
+      supported:supportsMaterialSelfLevelHint({kind,text,labels,level}),
+      worker:groundSourceSelfLevelHint({kind,source:{segmentId:'synthetic',quote:text},skillLabels:labels,selfLevelHint:level})})),
+  };
+}
+export default {async fetch(request){return Response.json(inspect(await request.json()));}};
+` }, bundle: true, write: false, format: "esm", platform: "browser", target: "es2022", metafile: true });
+const code = compiled.outputFiles[0].text;
+const module = await import("data:text/javascript;base64," + Buffer.from(code).toString("base64"));
+const payload = { cases, hints: hintReference };
+const nodeResult = module.inspect(payload);
+const expectedHints = hintReference.map(({baseline, ...rest}) => rest);
+let outboundCalls = 0;
+const native = new Miniflare({ cf: false, modules: true, script: code, compatibilityDate: "2026-05-15", log: new Log(LogLevel.ERROR),
+  outboundService: async () => { outboundCalls++; throw Error("Outbound denied"); } });
+try {
+  const response = await native.dispatchFetch("http://localhost/experience", {method:"POST",body:JSON.stringify(payload)});
+  assert.equal(response.status, 200);
+  const nativeResult = await response.json();
+  const matches = nodeResult.experience.every(row => row.expected === row.observed);
+  const hintCompatibility = JSON.stringify(nodeResult.hints) === JSON.stringify(expectedHints);
+  const runtimeParity = JSON.stringify(nativeResult) === JSON.stringify(nodeResult);
+  const inputs = Object.fromEntries(Object.keys(compiled.metafile.inputs).filter(path => path !== "<stdin>").sort().map(path => [path, sha(readFileSync(path))]));
+  writeFileSync(output, JSON.stringify({ schemaVersion:1, status:matches && hintCompatibility && runtimeParity ? "PASS" : "EXPECTED_BEHAVIOR_NOT_MET",
+    sourceBase:execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).trim(), cases:cases.length, hintCases:hintReference.length,
+    observations:nodeResult, nativeResult, expectedHints, hintCompatibility, runtimeParity,
+    inputs, compiledSha256:sha(code), hintReference:{path:referencePath,sha256:sha(referenceBytes)}, outboundCalls, realModelCalls:0,
+  }, null, 2)+"\n", {flag:"wx"});
+  assert.equal(outboundCalls, 0);
+  assert.deepEqual(nativeResult, nodeResult, "Node and workerd must agree");
+  assert.deepEqual(nodeResult.hints, expectedHints, "Existing hint behavior must remain unchanged");
+  assert.deepEqual(nodeResult.experience.map(row => row.observed), cases.map(row => row[4]), "Personal experience must match the independent bounded cases");
+  console.log(JSON.stringify({status:"PASS",experienceCases:cases.length,hintCases:hintReference.length,outboundCalls,output}));
+} finally { await native.dispose(); }

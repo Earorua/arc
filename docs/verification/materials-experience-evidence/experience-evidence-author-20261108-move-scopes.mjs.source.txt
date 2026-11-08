@@ -1,0 +1,51 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import ts from "typescript";
+
+const sourcePath = "app/lib/materials/self-assessment-evidence.ts";
+const targetPath = "app/lib/materials/personal-assertion-scopes.ts";
+const source = readFileSync(sourcePath, "utf8");
+const sha = value => createHash("sha256").update(value).digest("hex");
+assert.equal(sha(source), "cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70");
+const movedNames = new Set([
+  "assertedSkillEvidence", "supervised", "instructionalPractice", "deniedInstructionalPractice",
+  "chineseGuidance", "practiceAction", "personalPassivePractice", "guidedNegation",
+  "instructionalFragmentStart", "guidedPractice", "guidedSkillScope", "scopeBreak",
+  "personalAssessmentHeading", "reportedAssessment", "assessmentScopes",
+]);
+const exports = new Set([
+  "assertedSkillEvidence", "chineseGuidance", "practiceAction", "personalPassivePractice",
+  "instructionalFragmentStart", "guidedSkillScope", "scopeBreak", "personalAssessmentHeading", "assessmentScopes",
+]);
+function declarations(text, name) {
+  const file = ts.createSourceFile(name, text, ts.ScriptTarget.Latest, true);
+  return file.statements.map(node => ({
+    node,
+    name: ts.isVariableStatement(node) ? node.declarationList.declarations[0]?.name.getText(file)
+      : ts.isFunctionDeclaration(node) ? node.name?.getText(file) : undefined,
+  }));
+}
+const originals = declarations(source, sourcePath).filter(({ name }) => movedNames.has(name));
+assert.equal(originals.length, movedNames.size);
+let remainder = source;
+for (const { node } of [...originals].reverse()) remainder = remainder.slice(0, node.pos) + remainder.slice(node.end);
+remainder = remainder.replace('import { findMaterialSkillEvidence } from "./grounded-skill-terms";\n', "")
+  .replace('import { deniedAssertion, hypothetical, maskQuotes, quoted } from "./quotation-evidence";',
+    'import { maskQuotes } from "./quotation-evidence";\nimport { assertedSkillEvidence, assessmentScopes, guidedSkillScope, personalAssessmentHeading } from "./personal-assertion-scopes";');
+const shared = 'import { findMaterialSkillEvidence } from "./grounded-skill-terms";\nimport { deniedAssertion, hypothetical, maskQuotes, quoted } from "./quotation-evidence";\n'
+  + originals.map(({ node, name }) => node.getFullText().replace(/^(\s*)(function|const)\b/u, exports.has(name) ? "$1export $2" : "$1$2")).join("") + "\n";
+writeFileSync(targetPath, shared, { flag: "wx" });
+writeFileSync(sourcePath, remainder);
+const moved = declarations(shared, targetPath);
+const comparisons = originals.map(({ node, name }) => {
+  const target = moved.find(entry => entry.name === name);
+  const before = node.getText();
+  const after = target.node.getText().replace(/^export /u, "");
+  assert.equal(after, before, name);
+  return { name, originalSha256: sha(before), movedSha256: sha(after), identical: true };
+});
+writeFileSync("work/grounded-verification/experience-evidence-author-20261108-declaration-comparison.json", JSON.stringify({
+  originalSourceSha256: sha(source), movedDeclarations: comparisons, remainingSourceSha256: sha(remainder), sharedSourceSha256: sha(shared),
+}, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: "PASS", unchangedDeclarations: comparisons.length, sourcePath, targetPath }));

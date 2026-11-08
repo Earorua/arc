@@ -1,0 +1,21 @@
+{
+  "checks": [
+    "experience-evidence-author-20261108-quality-regression-39",
+    "experience-evidence-author-20261108-quality-types-40",
+    "experience-evidence-author-20261108-quality-lint-41",
+    "experience-evidence-author-20261108-quality-compatibility-42",
+    "experience-evidence-root-native-20261108-quoted-c",
+    "experience-evidence-root-integrity-20261108-quoted-b",
+    "experience-evidence-spec-20261108-quoted-api-01",
+    "experience-evidence-spec-20261108-quoted-spec-01",
+    "experience-evidence-spec-20261108-quoted-quality-01",
+    "experience-evidence-spec-20261108-quoted-integrity-01",
+    "experience-evidence-quality-20261108-recheck-unit-a",
+    "experience-evidence-quality-20261108-recheck-probe-a",
+    "experience-evidence-quality-20261108-recheck-preservation-a"
+  ],
+  "reviews": [
+    { "path": "experience-evidence-spec-20261108-quoted-memo.md", "sha256": "d802c927f78fad167b0d94cedc8b8034a1bc8a0aba56173505021f3d916b278e" },
+    { "path": "experience-evidence-quality-20261108-recheck-memo.md", "sha256": "abd95798e4c9d9ed8b4e60b6d2de5660c4ef623d4afe6f9661c2f587b0d6c437" }
+  ]
+}

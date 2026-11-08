@@ -1,0 +1,106 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { performance } from "node:perf_hooks";
+import { build } from "esbuild";
+import ts from "typescript";
+
+const prefix = "work/grounded-verification/experience-evidence-quality-20261108";
+const sha = value => createHash("sha256").update(value).digest("hex");
+const expectedHashes = {
+  "app/lib/materials/experience-evidence.ts": "33c4f603ed97d7d22d67e6e4c9b1975bbb34a6b5fd1f68f306a18c7efbf09324",
+  "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+  "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+  "tests/lib/materials/experience-evidence.test.ts": "4bf293f1a5b17ce83c63bff22e15a7f7a7167bc9aa86fdd66325772ff5b56306",
+};
+const sourceHashes = {};
+for (const [path, expected] of Object.entries(expectedHashes)) {
+  const data = readFileSync(path);
+  sourceHashes[path] = sha(data);
+  assert.equal(sourceHashes[path], expected, path);
+  const frozen = prefix + "-source-freeze/" + path;
+  mkdirSync(dirname(frozen), { recursive: true });
+  writeFileSync(frozen, data, { flag: "wx" });
+}
+
+const baselinePath = "D:/CodexTemp/arc-edited-assessment-repaired-rspZeV/source/app/lib/materials/self-assessment-evidence.ts";
+const baseline = readFileSync(baselinePath, "utf8");
+assert.equal(sha(baseline), "cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70");
+function declarations(path, text = readFileSync(path, "utf8")) {
+  const sourceFile = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+  assert.equal(sourceFile.parseDiagnostics.length, 0, path);
+  return sourceFile.statements.filter(statement => !ts.isImportDeclaration(statement)).map(statement => ({
+    name: ts.isVariableStatement(statement)
+      ? statement.declarationList.declarations[0].name.getText(sourceFile)
+      : statement.name.getText(sourceFile),
+    body: statement.getText(sourceFile).replace(/^export /u, ""),
+  }));
+}
+const original = declarations(baselinePath, baseline);
+const moved = declarations("app/lib/materials/personal-assertion-scopes.ts");
+const retained = declarations("app/lib/materials/self-assessment-evidence.ts");
+const current = [...moved, ...retained];
+assert.equal(original.length, 28);
+assert.equal(moved.length, 18);
+assert.equal(current.length, original.length);
+const declarationChecks = original.map(before => {
+  const matches = current.filter(after => after.name === before.name);
+  assert.equal(matches.length, 1, before.name);
+  assert.equal(matches[0].body, before.body, before.name);
+  return { name: before.name, sha256: sha(before.body), identical: true, moved: moved.some(entry => entry.name === before.name) };
+});
+
+const originalTestPath = "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/tests/lib/materials/experience-evidence.test.ts";
+const originalTest = readFileSync(originalTestPath, "utf8");
+const currentTest = readFileSync("tests/lib/materials/experience-evidence.test.ts", "utf8");
+const oldLines = originalTest.trimEnd().split(/\r?\n/u);
+const newLines = currentTest.trimEnd().split(/\r?\n/u);
+let cursor = 0;
+for (const line of oldLines) {
+  while (cursor < newLines.length && newLines[cursor] !== line) cursor++;
+  assert.ok(cursor < newLines.length, "original test line preserved: " + line);
+  cursor++;
+}
+
+const compiled = await build({
+  stdin: { contents: "export { supportsMaterialExperience } from './app/lib/materials/experience-evidence';", resolveDir: process.cwd(), loader: "ts" },
+  bundle: true, write: false, platform: "node", format: "esm", target: "es2022", nodePaths: [resolve("node_modules")], metafile: true,
+});
+const { supportsMaterialExperience } = await import("data:text/javascript;base64," + Buffer.from(compiled.outputFiles[0].text).toString("base64"));
+const labels = ["SQL", "React", "Python", "Java", "Ruby", "Rust", "TypeScript", "JavaScript"];
+const tail = "I used " + labels.join(", ") + ".";
+const sentenceUnit = "I tested source data. ";
+const manySentences = sentenceUnit.repeat(Math.floor((1000 - tail.length) / sentenceUnit.length)).padEnd(1000 - tail.length) + tail;
+const commaTail = labels.join(", ") + ".";
+const commaHead = "I used ";
+const manyCommas = commaHead + "x, ".repeat(Math.floor((1000 - commaHead.length - commaTail.length) / 3)).padEnd(1000 - commaHead.length - commaTail.length) + commaTail;
+const boundedInputs = [
+  { name: "many-sentences-eight-terms", text: manySentences, target: { kind: "terms", terms: labels } },
+  { name: "many-commas-eight-terms", text: manyCommas, target: { kind: "terms", terms: labels } },
+  { name: "many-sentences-whole", text: manySentences, target: { kind: "confirmed-whole-fact" } },
+  { name: "many-commas-whole", text: manyCommas, target: { kind: "confirmed-whole-fact" } },
+];
+const boundedTiming = boundedInputs.map(row => {
+  assert.equal(row.text.length, 1000);
+  const input = Object.freeze({ kind: "experience", text: row.text, target: Object.freeze(row.target) });
+  for (let index = 0; index < 5; index++) assert.equal(supportsMaterialExperience(input), true, row.name);
+  const timings = [];
+  for (let index = 0; index < 30; index++) {
+    const started = performance.now();
+    assert.equal(supportsMaterialExperience(input), true, row.name);
+    timings.push(performance.now() - started);
+  }
+  timings.sort((left, right) => left - right);
+  return { name: row.name, codeUnits: row.text.length, labelCount: row.target.terms?.length ?? 0, result: true, calls: 35, medianMs: timings[15], p95Ms: timings[28], maxMs: timings[29] };
+});
+const result = {
+  status: "PASS", sourceHashes, baselinePath, baselineSha256: sha(baseline),
+  declarationCount: declarationChecks.length, movedDeclarations: moved.length, declarationChecks,
+  originalTestPath, originalTestSha256: sha(originalTest), originalTestLines: oldLines.length,
+  currentTestLines: newLines.length, allOriginalLinesPreservedInOrder: true,
+  boundedTiming,
+  dependencyHashes: Object.fromEntries(Object.keys(compiled.metafile.inputs).filter(path => path !== "<stdin>").map(path => [path, sha(readFileSync(path))])),
+};
+writeFileSync(prefix + "-preservation-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, declarationCount: result.declarationCount, movedDeclarations: result.movedDeclarations, originalTestLines: result.originalTestLines, allOriginalLinesPreservedInOrder: true, boundedTiming }, null, 2));

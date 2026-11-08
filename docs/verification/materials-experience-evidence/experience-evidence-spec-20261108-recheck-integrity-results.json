@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "checkedHashes": 18,
+  "originalProbeCases": 65,
+  "unchangedInputsAndExpectations": 65,
+  "originalFailures": 10,
+  "currentFailures": 0,
+  "originalTestLinesPreserved": 239,
+  "inputHashes": {
+    "app/lib/materials/experience-evidence.ts": "33c4f603ed97d7d22d67e6e4c9b1975bbb34a6b5fd1f68f306a18c7efbf09324",
+    "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+    "tests/lib/materials/experience-evidence.test.ts": "4bf293f1a5b17ce83c63bff22e15a7f7a7167bc9aa86fdd66325772ff5b56306",
+    "work/grounded-verification/experience-evidence-spec-20261108-memo.md": "eb73aae2b93ff168a759653bc4f5146da9d046b89023bd465e6aabaaf82ce81f",
+    "work/grounded-verification/experience-evidence-spec-20261108-probe.mjs": "ac75679f27967b03aaf206c853cd6784e1bfc1df90540e29d153ef01e1c71f87",
+    "work/grounded-verification/experience-evidence-spec-20261108-probe-results.json": "e1e919b654a3cd59468e6532ed6f16ba04bbd6503c738f4edfb6dd24c3cfa6c2",
+    "work/grounded-verification/experience-evidence-spec-20261108-probe-01.log": "9de65b5648a8151ee8837619b1e608b6ae2a81355f540acadef52753076f4a56",
+    "work/grounded-verification/experience-evidence-spec-20261108-probe-01.json": "43a27ecaeb63106473bab508047ae96a81af15cc4f1709a0ff7c24eb52c98a47",
+    "work/grounded-verification/experience-evidence-spec-20261108-suite-01.log": "c07ed16ded693be09b0b8d5d1f574b7911e06cb257b4634af859485111e8d1d8",
+    "work/grounded-verification/experience-evidence-spec-20261108-suite-01.json": "be1b23c3cfa1c3aa49ccd20eb429c3d2879e8a494f56b2858b565b2df0a2cbdb",
+    "work/grounded-verification/experience-evidence-spec-20261108-suite.config.ts": "4171e6512bb829872e0d58774616b7b7aa7d1feacb1983bcd2a41d9de18b530d",
+    "work/grounded-verification/experience-evidence-spec-20261108-structure.mjs": "9a39003aee534a7fe74df9851020d9f0b27ac96048ecc254c49cae46b0535e97",
+    "work/grounded-verification/experience-evidence-spec-20261108-structure-01.log": "dee58490cd356741eab6a8c9b70f4b7bf8fbc54a4603696e91e234e92e0aeff2",
+    "work/grounded-verification/experience-evidence-spec-20261108-structure-01.json": "6aca71fdf62f15e013040b6d89da146892fa07b41ccc275746e66cec5d6b3b8d",
+    "work/grounded-verification/experience-evidence-spec-20261108-structure-results.json": "dee58490cd356741eab6a8c9b70f4b7bf8fbc54a4603696e91e234e92e0aeff2",
+    "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/app/lib/materials/experience-evidence.ts": "f52443fc2fa3bbfa9434064afbeacd38caa6efc7ec954e56cb90ddef406296d4",
+    "work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/tests/lib/materials/experience-evidence.test.ts": "3fefcdcb1fc8ef3e0565abe2ad8ccc580c042beee5d6d65470bb2e925e87290c"
+  }
+}

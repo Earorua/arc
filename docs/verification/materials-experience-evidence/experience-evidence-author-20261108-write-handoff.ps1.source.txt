@@ -1,0 +1,125 @@
+$ErrorActionPreference = 'Stop'
+$prefix = 'experience-evidence-author-20261108-'
+$directory = Join-Path $PWD 'work/grounded-verification'
+$utf8 = [System.Text.UTF8Encoding]::new($false)
+function Write-NewText([string]$path, [string]$text) {
+  $stream = [System.IO.File]::Open($path, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write)
+  try { $bytes = $utf8.GetBytes($text); $stream.Write($bytes, 0, $bytes.Length) } finally { $stream.Dispose() }
+}
+function Hash-File([string]$path) { return (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash.ToLowerInvariant() }
+$source = @(
+  @('app/lib/materials/experience-evidence.ts', 'f52443fc2fa3bbfa9434064afbeacd38caa6efc7ec954e56cb90ddef406296d4'),
+  @('app/lib/materials/personal-assertion-scopes.ts', '743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a'),
+  @('app/lib/materials/self-assessment-evidence.ts', '385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75'),
+  @('tests/lib/materials/experience-evidence.test.ts', '3fefcdcb1fc8ef3e0565abe2ad8ccc580c042beee5d6d65470bb2e925e87290c')
+)
+$frozen = foreach ($entry in $source) {
+  $hash = Hash-File $entry[0]
+  if ($hash -ne $entry[1]) { throw ('Source changed after freeze: ' + $entry[0]) }
+  [pscustomobject]@{ path = $entry[0]; sha256 = $hash; bytes = (Get-Item -LiteralPath $entry[0]).Length }
+}
+$diff = git diff --check -- app/lib/materials/self-assessment-evidence.ts app/lib/materials/personal-assertion-scopes.ts app/lib/materials/experience-evidence.ts tests/lib/materials/experience-evidence.test.ts 2>&1
+if ($LASTEXITCODE -ne 0) { throw 'Scoped git diff --check failed' }
+Write-NewText (Join-Path $directory ($prefix + 'diff-check.txt')) ([string]::Join("`n", $diff))
+Write-NewText (Join-Path $directory ($prefix + 'frozen-source.json')) (($frozen | ConvertTo-Json -Depth 5) + "`n")
+
+$unit = 'node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-evidence-author-20261108-unit.config.ts --reporter verbose'
+$regression = 'node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-evidence-author-20261108-regression.config.ts --reporter verbose'
+$types = 'node_modules/typescript/bin/tsc -p work/grounded-verification/experience-evidence-author-20261108-tsconfig.json'
+$lint = 'node_modules/eslint/bin/eslint.js app/lib/materials/experience-evidence.ts app/lib/materials/personal-assertion-scopes.ts app/lib/materials/self-assessment-evidence.ts tests/lib/materials/experience-evidence.test.ts'
+$commands = @(
+  @('red-missing-01', $unit),
+  @('red-positive-02', $unit),
+  @('move-03', 'work/grounded-verification/experience-evidence-author-20261108-move-scopes.mjs'),
+  @('first-action-04', $unit),
+  @('action-polarity-05', ($unit + " --testNamePattern '完成不了|technical punctuation'")),
+  @('move-claims-06', 'work/grounded-verification/experience-evidence-author-20261108-move-claims.mjs'),
+  @('claims-07', ($unit + " --testNamePattern 'claims|familiar with the example'")),
+  @('unit-green-08', $unit),
+  @('regression-09', $regression),
+  @('types-10', $types),
+  @('lint-11', $lint),
+  @('compatibility-12', 'work/grounded-verification/experience-evidence-author-20261108-baseline-check.mjs'),
+  @('sentences-red-13', $unit),
+  @('sentences-green-14', $unit),
+  @('objects-red-15', $unit),
+  @('objects-green-16', $unit),
+  @('final-regression-17', $regression),
+  @('final-types-18', $types),
+  @('final-lint-19', $lint),
+  @('final-compatibility-20', 'work/grounded-verification/experience-evidence-author-20261108-baseline-check-final.mjs'),
+  @('soft-wrap-green-21', $unit),
+  @('freeze-regression-22', $regression),
+  @('freeze-types-23', $types),
+  @('freeze-lint-24', $lint)
+)
+$header = @'
+# Task 1 author handoff
+
+Status: DONE. Source/tests are frozen; no implementation work beyond Task 1 was performed. Root owns independent native verification, spec/quality reviews, documentation, and commits.
+
+## Implementation and preservation
+
+- Added supportsMaterialExperience with explicit source-term and confirmed-whole-fact targets. Only experience/skill-claim kinds can support practice; an empty term list never restores evidence.
+- Each term requires some supported personal action or skill claim. Another occurrence's limitation does not erase real practice or create a level. Whole-fact relations remain false across unsupported actors/actions, reports, plans, or omitted shared scopes.
+- Supplied SQL that the learner actually tests/modifies, including parameter edits, supports practice. Mere scheduling/reporting does not. Independent practice is accepted without a guided level.
+- Moved 18 existing declarations and their dependencies unchanged into personal-assertion-scopes.ts. The self-assessment file only replaces those declarations with imports; all 28 original non-import declarations compare equal after removing added export modifiers. No old test expectations changed. Worker APIs, source location, and statement-reminder anchoring remain unchanged.
+- Sentence consumption uses Intl.Segmenter on the existing quotation mask, with whitespace replaced one UTF-16 code unit at a time to preserve soft-wrapped denial/modality and source coordinates. Sentence scopes are parsed by the existing assessmentScopes and intersected with its original allowed ranges. Omitted report/example/conditional/denial content cannot regain assertion status; technical dots and full quoted propositions have controls.
+- A bounded direct-object check excludes an embedded proposition/report object after an apparent action. A real tool-use span can end before a reporting-purpose clause. Result documentation does not create new term evidence or authorize another actor's practice.
+- No mapper/context/UI/contract/projection/policy/provider wiring, source-span changes, schema mutation, network/model calls, deployment, migration, push, worktree, or commit was performed. No existing verification archive or frozen reference was modified.
+
+## Final validation
+
+- freeze-regression-22: 13 suites / 1,625 tests passed, including 158 new pure API tests. Includes all existing self-assessment and retention tests, source-review/source-span/source-requirement/reminder tests, real review-service draft tests, extraction tests, and confirmation/source-term UI tests.
+- freeze-types-23 and freeze-lint-24: exit 0. Scoped types include worker-configuration.d.ts and tests/setup.ts and exclude intentional work fixtures.
+- final-compatibility-20: 28/28 original declarations identical; 81 frozen baseline cases each match on five outputs (public hint, scoped hint, implicit capability reminder, explicit capability reminder, practice-need reminder).
+- Scoped git diff --check: exit 0. Native Node/workerd parity is reserved for root's independent run after this freeze.
+- All 24 Node invocations used the prescribed wrapper; every run recorded zero non-loopback denials. Wrapper SHA-256: 4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242.
+- Frozen baseline self-assessment source: D:/CodexTemp/arc-edited-assessment-repaired-rspZeV/source/app/lib/materials/self-assessment-evidence.ts, SHA-256 cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70. That copy remained read-only.
+
+## RED evidence and intermediate outcomes
+
+- red-missing-01 records the initial absent-module import failure; it is retained as harness history, not claimed as the meaningful behavioral RED.
+- red-positive-02 is the meaningful placeholder RED: 74 failing positive assertions / 57 passing controls, all written before action implementation.
+- first-action-04: six failures (quoted conceptual example, Chinese inability fallback, whole-fact scope coverage, long result continuation, punctuation control). Focused corrections retained their original failing logs.
+- sentences-red-13: ten failures demonstrate cross-sentence target leakage, other-actor attribution, and the supplied-artifact bare-fragment fallback. The unchanged shared parser was not widened.
+- objects-red-15: four failures demonstrate embedded report objects, tool-use/report-purpose separation, and another actor's result-documentation residue.
+- final-regression-17 is preserved as a RED, despite its filename: two soft-wrap modality/denial failures / 1,623 passes. Whitespace normalization in the experience-only sentence mask fixed them; soft-wrap-green-21 passed all 158 API tests and freeze-regression-22 passed all 1,625 targeted tests.
+
+## Changed source/test SHA-256
+
+| Path | SHA-256 | Bytes |
+| --- | --- | ---: |
+'@
+$lines = [System.Collections.Generic.List[string]]::new()
+$lines.Add($header)
+foreach ($entry in $frozen) { $lines.Add('| ' + $entry.path + ' | ' + $entry.sha256 + ' | ' + $entry.bytes + ' |') }
+$lines.Add("`n## Exact Node commands and preserved outcomes`n")
+foreach ($entry in $commands) {
+  $label = $prefix + $entry[0]
+  $outcomePath = Join-Path $directory ($label + '.json')
+  $logPath = Join-Path $directory ($label + '.log')
+  $outcome = Get-Content -Raw -LiteralPath $outcomePath | ConvertFrom-Json
+  $logHash = Hash-File $logPath
+  if ($logHash -ne $outcome.logSha256) { throw ('Log hash mismatch: ' + $label) }
+  if ($outcome.nonLoopbackDenials -ne 0) { throw ('Non-loopback denial: ' + $label) }
+  $lines.Add('### ' + $label)
+  $lines.Add('```text')
+  $lines.Add('node work/grounded-verification/run.mjs ' + $label + ' ' + $entry[1])
+  $lines.Add('```')
+  $lines.Add('- Exit: ' + $outcome.exit + '; non-loopback denials: ' + $outcome.nonLoopbackDenials + '.')
+  $lines.Add('- Raw log SHA-256: ' + $logHash + '.')
+  $lines.Add('- Outcome JSON SHA-256: ' + (Hash-File $outcomePath) + ".`n")
+}
+$lines.Add("`n## Supporting artifacts`n")
+$lines.Add('| Artifact in work/grounded-verification | SHA-256 |')
+$lines.Add('| --- | --- |')
+$runNames = @($commands | ForEach-Object { $prefix + $_[0] })
+foreach ($file in (Get-ChildItem -LiteralPath $directory -Filter ($prefix + '*') -File | Sort-Object Name)) {
+  if ($runNames -contains $file.BaseName) { continue }
+  $lines.Add('| ' + $file.Name + ' | ' + (Hash-File $file.FullName) + ' |')
+}
+$handoffPath = Join-Path $directory ($prefix + 'handoff.md')
+Write-NewText $handoffPath ([string]::Join("`n", $lines) + "`n")
+Write-Output ('Handoff: ' + $handoffPath)
+Write-Output ('Handoff SHA-256: ' + (Hash-File $handoffPath))

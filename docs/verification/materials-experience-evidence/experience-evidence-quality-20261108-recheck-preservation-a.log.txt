@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "declarationCount": 28,
+  "movedDeclarations": 18,
+  "unchangedExperienceDeclarations": 8,
+  "extractedProseExpressionIdentical": true,
+  "historicalArtifactCount": 16,
+  "originalTestLines": 257,
+  "currentTestLines": 269,
+  "quotedToolChecks": 8,
+  "boundedTiming": [
+    {
+      "name": "many-sentences-eight-terms",
+      "codeUnits": 1000,
+      "labelCount": 8,
+      "result": true,
+      "calls": 35,
+      "medianMs": 4.132300000000043,
+      "p95Ms": 8.488300000000038,
+      "maxMs": 10.364199999999926
+    },
+    {
+      "name": "many-commas-eight-terms",
+      "codeUnits": 1000,
+      "labelCount": 8,
+      "result": true,
+      "calls": 35,
+      "medianMs": 6.247700000000009,
+      "p95Ms": 6.828899999999976,
+      "maxMs": 7.005200000000059
+    },
+    {
+      "name": "many-sentences-whole",
+      "codeUnits": 1000,
+      "labelCount": 0,
+      "result": true,
+      "calls": 35,
+      "medianMs": 0.2015999999999849,
+      "p95Ms": 0.22950000000003,
+      "maxMs": 0.46260000000006585
+    },
+    {
+      "name": "many-commas-whole",
+      "codeUnits": 1000,
+      "labelCount": 0,
+      "result": true,
+      "calls": 35,
+      "medianMs": 1.3690000000000282,
+      "p95Ms": 1.8804999999999836,
+      "maxMs": 2.508100000000013
+    }
+  ]
+}

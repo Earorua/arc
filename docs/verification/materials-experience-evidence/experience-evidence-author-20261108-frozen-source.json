@@ -1,0 +1,22 @@
+[
+  {
+    "path": "app/lib/materials/experience-evidence.ts",
+    "sha256": "f52443fc2fa3bbfa9434064afbeacd38caa6efc7ec954e56cb90ddef406296d4",
+    "bytes": 8659
+  },
+  {
+    "path": "app/lib/materials/personal-assertion-scopes.ts",
+    "sha256": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "bytes": 12561
+  },
+  {
+    "path": "app/lib/materials/self-assessment-evidence.ts",
+    "sha256": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+    "bytes": 5526
+  },
+  {
+    "path": "tests/lib/materials/experience-evidence.test.ts",
+    "sha256": "3fefcdcb1fc8ef3e0565abe2ad8ccc580c042beee5d6d65470bb2e925e87290c",
+    "bytes": 11524
+  }
+]

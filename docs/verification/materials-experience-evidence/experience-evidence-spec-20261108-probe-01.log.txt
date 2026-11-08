@@ -1,0 +1,141 @@
+{
+  "status": "FAIL",
+  "cases": 65,
+  "failures": [
+    {
+      "id": "comma-other-actor-other",
+      "input": {
+        "kind": "experience",
+        "text": "I built React components, my colleague wrote SQL queries.",
+        "target": {
+          "kind": "terms",
+          "terms": [
+            "SQL"
+          ]
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "comma-other-actor-whole",
+      "input": {
+        "kind": "experience",
+        "text": "I built React components, my colleague wrote SQL queries.",
+        "target": {
+          "kind": "confirmed-whole-fact"
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "plural-report-object",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote reports about my colleague's SQL practice.",
+        "target": {
+          "kind": "terms",
+          "terms": [
+            "SQL"
+          ]
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "plural-report-object-whole",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote reports about my colleague's SQL practice.",
+        "target": {
+          "kind": "confirmed-whole-fact"
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "plural-note-object",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote notes about my colleague's SQL practice.",
+        "target": {
+          "kind": "terms",
+          "terms": [
+            "SQL"
+          ]
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "plural-note-object-whole",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote notes about my colleague's SQL practice.",
+        "target": {
+          "kind": "confirmed-whole-fact"
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "other-actor-skill-claim",
+      "input": {
+        "kind": "experience",
+        "text": "Alice knows SQL.",
+        "target": {
+          "kind": "terms",
+          "terms": [
+            "SQL"
+          ]
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "other-actor-skill-claim-whole",
+      "input": {
+        "kind": "experience",
+        "text": "Alice knows SQL.",
+        "target": {
+          "kind": "confirmed-whole-fact"
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "plan-object",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote a plan to test SQL.",
+        "target": {
+          "kind": "terms",
+          "terms": [
+            "SQL"
+          ]
+        }
+      },
+      "expected": false,
+      "observed": true
+    },
+    {
+      "id": "plan-object-whole",
+      "input": {
+        "kind": "experience",
+        "text": "I wrote a plan to test SQL.",
+        "target": {
+          "kind": "confirmed-whole-fact"
+        }
+      },
+      "expected": false,
+      "observed": true
+    }
+  ]
+}

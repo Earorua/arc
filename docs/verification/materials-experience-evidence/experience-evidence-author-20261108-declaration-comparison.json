@@ -1,0 +1,97 @@
+{
+  "originalSourceSha256": "cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70",
+  "movedDeclarations": [
+    {
+      "name": "assertedSkillEvidence",
+      "originalSha256": "63beef62b69585ed42abb298d364f89cf626fbd357c36d7491863bfe2958ccf7",
+      "movedSha256": "63beef62b69585ed42abb298d364f89cf626fbd357c36d7491863bfe2958ccf7",
+      "identical": true
+    },
+    {
+      "name": "supervised",
+      "originalSha256": "692a8a38776b2e0fcda887a8136f2c8113f021e05915eb8c748c3208008eca95",
+      "movedSha256": "692a8a38776b2e0fcda887a8136f2c8113f021e05915eb8c748c3208008eca95",
+      "identical": true
+    },
+    {
+      "name": "instructionalPractice",
+      "originalSha256": "f6e2b58727c7ebe64b4d0ed2b0a246dff3ecc3de4d0183cce5f81636aa34b68b",
+      "movedSha256": "f6e2b58727c7ebe64b4d0ed2b0a246dff3ecc3de4d0183cce5f81636aa34b68b",
+      "identical": true
+    },
+    {
+      "name": "deniedInstructionalPractice",
+      "originalSha256": "07bf5a751e19a8e37a49b46f20c72d32bdd8d94a31381fa81ea49da96b32ba08",
+      "movedSha256": "07bf5a751e19a8e37a49b46f20c72d32bdd8d94a31381fa81ea49da96b32ba08",
+      "identical": true
+    },
+    {
+      "name": "chineseGuidance",
+      "originalSha256": "996a9b7e90c1a3464fb20a6a0d0d3c54343693c977ae0503df28e57686a5ca58",
+      "movedSha256": "996a9b7e90c1a3464fb20a6a0d0d3c54343693c977ae0503df28e57686a5ca58",
+      "identical": true
+    },
+    {
+      "name": "practiceAction",
+      "originalSha256": "52623bb8d119d809c4529998205817598d40ca13cf9629d7f5c3a76ca8c5eb6b",
+      "movedSha256": "52623bb8d119d809c4529998205817598d40ca13cf9629d7f5c3a76ca8c5eb6b",
+      "identical": true
+    },
+    {
+      "name": "personalPassivePractice",
+      "originalSha256": "f3eb80409b2586173ed0e30b6d55a504b954e882704bb5b6d1e7bd0d2eb4e38f",
+      "movedSha256": "f3eb80409b2586173ed0e30b6d55a504b954e882704bb5b6d1e7bd0d2eb4e38f",
+      "identical": true
+    },
+    {
+      "name": "guidedNegation",
+      "originalSha256": "9bfdbafb0c040c0807b3d604a6efd5f787a02cfac18e9d964786b837bc64d002",
+      "movedSha256": "9bfdbafb0c040c0807b3d604a6efd5f787a02cfac18e9d964786b837bc64d002",
+      "identical": true
+    },
+    {
+      "name": "instructionalFragmentStart",
+      "originalSha256": "32bcac304cc59721268d18e2536ddd042f85b4f3457af558e998e8922ba58aaa",
+      "movedSha256": "32bcac304cc59721268d18e2536ddd042f85b4f3457af558e998e8922ba58aaa",
+      "identical": true
+    },
+    {
+      "name": "guidedPractice",
+      "originalSha256": "35f6adf6e728863f729bd86ea8e07220ef9e7c5c1d1480c5a2b82deee9f45db5",
+      "movedSha256": "35f6adf6e728863f729bd86ea8e07220ef9e7c5c1d1480c5a2b82deee9f45db5",
+      "identical": true
+    },
+    {
+      "name": "guidedSkillScope",
+      "originalSha256": "03853334fd56f73a0d283e0a70d24a3c98be36d089fab2dc54750d7094fb5d61",
+      "movedSha256": "03853334fd56f73a0d283e0a70d24a3c98be36d089fab2dc54750d7094fb5d61",
+      "identical": true
+    },
+    {
+      "name": "scopeBreak",
+      "originalSha256": "c3ab6cc0fcf1e7f10a7857ab895f761dcf731a516470e84c6747bc314a184b0a",
+      "movedSha256": "c3ab6cc0fcf1e7f10a7857ab895f761dcf731a516470e84c6747bc314a184b0a",
+      "identical": true
+    },
+    {
+      "name": "personalAssessmentHeading",
+      "originalSha256": "2278ff89eca6f669eb8053b029e0965e90334d0d604bb2b022dfba05a592a50b",
+      "movedSha256": "2278ff89eca6f669eb8053b029e0965e90334d0d604bb2b022dfba05a592a50b",
+      "identical": true
+    },
+    {
+      "name": "reportedAssessment",
+      "originalSha256": "c37bae7ccc019e42e75e91faad7ec42b59b8080b729a6b03700050505ba111ef",
+      "movedSha256": "c37bae7ccc019e42e75e91faad7ec42b59b8080b729a6b03700050505ba111ef",
+      "identical": true
+    },
+    {
+      "name": "assessmentScopes",
+      "originalSha256": "709a537669c0b63d3e4f89407f18b322151c51c7e3558da71ca60dcaa3e8d9f1",
+      "movedSha256": "709a537669c0b63d3e4f89407f18b322151c51c7e3558da71ca60dcaa3e8d9f1",
+      "identical": true
+    }
+  ],
+  "remainingSourceSha256": "c5b3503756886778ea8fa1a0e4a53f25d898063738b771184cf39f7f92f07d58",
+  "sharedSourceSha256": "09251b88790f2fa04e82e0f1587d11c9bd3252b84a45b619cd5767dc97a9e400"
+}

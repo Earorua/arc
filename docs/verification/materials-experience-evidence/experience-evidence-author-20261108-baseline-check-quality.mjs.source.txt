@@ -1,0 +1,61 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { build } from "esbuild";
+import ts from "typescript";
+
+const frozenRoot = "D:/CodexTemp/arc-edited-assessment-repaired-rspZeV/source";
+const oldPath = frozenRoot + "/app/lib/materials/self-assessment-evidence.ts";
+const currentPath = "app/lib/materials/self-assessment-evidence.ts";
+const commonPath = "app/lib/materials/personal-assertion-scopes.ts";
+const sha = value => createHash("sha256").update(value).digest("hex");
+const original = readFileSync(oldPath, "utf8");
+assert.equal(sha(original), "cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70");
+function declarations(path, text = readFileSync(path, "utf8")) {
+  const file = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+  return file.statements.filter(node => !ts.isImportDeclaration(node)).map(node => ({
+    name: ts.isVariableStatement(node) ? node.declarationList.declarations[0]?.name.getText(file) : node.name?.getText(file),
+    text: node.getText(file).replace(/^export /u, ""),
+  }));
+}
+const current = [...declarations(currentPath), ...declarations(commonPath)];
+const declarationComparisons = declarations(oldPath, original).map(before => {
+  const matches = current.filter(after => after.name === before.name);
+  assert.equal(matches.length, 1, "one shared declaration: " + before.name);
+  assert.equal(matches[0].text, before.text, before.name);
+  return { name: before.name, originalSha256: sha(before.text), currentSha256: sha(matches[0].text), identical: true };
+});
+assert.equal(current.length, declarationComparisons.length);
+const originalResults = JSON.parse(readFileSync("work/grounded-verification/edited-assessment-shared-native-20261108-c-results.json", "utf8"));
+const cases = originalResults.observations.map(({ kind, text, labels, level }) => ({ kind, text, labels, level }));
+const compiled = await build({
+  stdin: { resolveDir: process.cwd(), loader: "ts", contents: `
+import * as current from './app/lib/materials/self-assessment-evidence';
+import * as baseline from ${JSON.stringify(oldPath)};
+import { maskQuotes } from './app/lib/materials/quotation-evidence';
+export function inspect(cases) {
+  return cases.map(input => {
+    const masked = maskQuotes(input.text);
+    const run = module => ({
+      hint: module.supportsMaterialSelfLevelHint(input),
+      scoped: input.level ? module.supportsSelfLevelHintInScope(input.text, masked, input.level, input.labels) : false,
+      capability: module.hasPersonalCapabilityQuestion(input.text, masked, true),
+      explicitCapability: module.hasPersonalCapabilityQuestion(input.text, masked, false),
+      practiceNeed: module.hasPersonalPracticeNeed(input.text, masked),
+    });
+    return {input, current:run(current), baseline:run(baseline)};
+  });
+}` }, bundle: true, write: false, platform: "node", format: "esm", target: "es2022",
+  nodePaths: [resolve("node_modules")], metafile: true,
+});
+const module = await import("data:text/javascript;base64," + Buffer.from(compiled.outputFiles[0].text).toString("base64"));
+const observations = module.inspect(cases);
+for (const row of observations) assert.deepEqual(row.current, row.baseline, row.input.text);
+const inputHashes = Object.fromEntries(Object.keys(compiled.metafile.inputs).filter(path => path !== "<stdin>").map(path => [path, sha(readFileSync(path))]));
+const output = "work/grounded-verification/experience-evidence-author-20261108-quality-compatibility-results.json";
+writeFileSync(output, JSON.stringify({
+  status: "PASS", frozenSourceSha256: sha(original), declarations: declarationComparisons, cases: observations.length,
+  outputsPerCase: 5, observations, inputHashes, compiledSha256: sha(compiled.outputFiles[0].text),
+}, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: "PASS", declarations: declarationComparisons.length, cases: observations.length, outputsPerCase: 5, output }));

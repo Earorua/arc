@@ -1,0 +1,126 @@
+$ErrorActionPreference = 'Stop'
+$prefix = 'experience-evidence-author-20261108-'
+$directory = Join-Path $PWD 'work/grounded-verification'
+$utf8 = [System.Text.UTF8Encoding]::new($false)
+function Write-NewText([string]$path, [string]$text) {
+  $stream = [System.IO.File]::Open($path, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write)
+  try { $bytes = $utf8.GetBytes($text); $stream.Write($bytes, 0, $bytes.Length) } finally { $stream.Dispose() }
+}
+function Hash-File([string]$path) { return (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash.ToLowerInvariant() }
+$source = @(
+  @('app/lib/materials/experience-evidence.ts', '33c4f603ed97d7d22d67e6e4c9b1975bbb34a6b5fd1f68f306a18c7efbf09324'),
+  @('app/lib/materials/personal-assertion-scopes.ts', '743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a'),
+  @('app/lib/materials/self-assessment-evidence.ts', '385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75'),
+  @('tests/lib/materials/experience-evidence.test.ts', '4bf293f1a5b17ce83c63bff22e15a7f7a7167bc9aa86fdd66325772ff5b56306')
+)
+$frozen = foreach ($entry in $source) {
+  $hash = Hash-File $entry[0]
+  if ($hash -ne $entry[1]) { throw ('Source changed after repair freeze: ' + $entry[0]) }
+  [pscustomobject]@{ path = $entry[0]; sha256 = $hash; bytes = (Get-Item -LiteralPath $entry[0]).Length }
+}
+$initial = Get-Content -Raw -LiteralPath (Join-Path $directory ($prefix + 'frozen-source.json')) | ConvertFrom-Json
+$snapshot = Join-Path $directory ($prefix + 'repair-original-freeze')
+foreach ($entry in $initial) {
+  if ((Hash-File (Join-Path $snapshot $entry.path)) -ne $entry.sha256) { throw ('Preserved source mismatch: ' + $entry.path) }
+}
+if ((Hash-File (Join-Path $snapshot 'handoff.md')) -ne '974082c1aeacf54d896c8594eb50065bb3d4ef459160d5248029ed63a64c3201') { throw 'Preserved handoff mismatch' }
+if ((Hash-File (Join-Path $directory 'experience-evidence-spec-20261108-probe-01.log')) -ne '9de65b5648a8151ee8837619b1e608b6ae2a81355f540acadef52753076f4a56') { throw 'Spec RED log changed' }
+$probe = [System.IO.File]::ReadAllText((Join-Path $directory 'experience-evidence-spec-20261108-probe.mjs'))
+$probeCopy = [System.IO.File]::ReadAllText((Join-Path $directory ($prefix + 'repair-spec-probe.mjs')))
+if ($probeCopy.Replace($prefix + 'repair-spec-results.json', 'experience-evidence-spec-20261108-probe-results.json') -cne $probe) { throw 'Reviewer execution copy changed beyond output path' }
+$diff = @(git diff --check -- app/lib/materials/self-assessment-evidence.ts app/lib/materials/personal-assertion-scopes.ts app/lib/materials/experience-evidence.ts tests/lib/materials/experience-evidence.test.ts 2>&1)
+if ($LASTEXITCODE -ne 0) { throw 'Scoped git diff --check failed' }
+Write-NewText (Join-Path $directory ($prefix + 'repair-diff-check.txt')) ([string]::Join("`n", $diff))
+Write-NewText (Join-Path $directory ($prefix + 'repair-frozen-source.json')) (($frozen | ConvertTo-Json -Depth 5) + "`n")
+
+$unit = 'node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-evidence-author-20261108-unit.config.ts --reporter verbose'
+$commands = @(
+  @('repair-red-25', $unit),
+  @('repair-claims-26', ($unit + " --testNamePattern 'Alice knows|reviewed boundaries'")),
+  @('repair-report-objects-27', ($unit + " --testNamePattern 'I wrote reports about|I wrote notes about|reviewed boundaries'")),
+  @('repair-plan-object-28', ($unit + " --testNamePattern 'I wrote a plan|reviewed boundaries'")),
+  @('repair-comma-green-29', $unit),
+  @('repair-spec-30', 'work/grounded-verification/experience-evidence-author-20261108-repair-spec-probe.mjs'),
+  @('repair-regression-31', 'node_modules/vitest/vitest.mjs run --config work/grounded-verification/experience-evidence-author-20261108-regression.config.ts --reporter verbose'),
+  @('repair-types-32', 'node_modules/typescript/bin/tsc -p work/grounded-verification/experience-evidence-author-20261108-tsconfig.json'),
+  @('repair-lint-33', 'node_modules/eslint/bin/eslint.js app/lib/materials/experience-evidence.ts app/lib/materials/personal-assertion-scopes.ts app/lib/materials/self-assessment-evidence.ts tests/lib/materials/experience-evidence.test.ts'),
+  @('repair-compatibility-34', 'work/grounded-verification/experience-evidence-author-20261108-baseline-check-repair.mjs')
+)
+$header = @'
+# Task 1 spec-repair handoff
+
+Status: DONE. The repaired source/test files are frozen. This handoff supersedes the initial author completion status for the four reviewed boundaries; it does not rewrite the initial evidence. Root owns independent native verification, repeated spec/quality reviews, documentation, and commits. No Task 2 production wiring was performed.
+
+## Review history and preservation
+
+The independent spec probe found 10 false-positive outputs in 65 cases while 55 controls passed. Its original log remains unchanged at SHA-256 9de65b5648a8151ee8837619b1e608b6ae2a81355f540acadef52753076f4a56. The root-recorded initial FAIL memo SHA-256 is eb73aae2b93ff168a759653bc4f5146da9d046b89023bd465e6aabaaf82ce81f. Initial 13/1,625 author regressions and root 59/81 native results remain historical evidence, not repair validation.
+
+Before editing, all four initial source/test files, their frozen-source manifest, and the initial handoff were copied byte-for-byte into work/grounded-verification/experience-evidence-author-20261108-repair-original-freeze/. This writer rechecked every preserved file against the initial manifest. The preserved and original handoff SHA-256 is 974082c1aeacf54d896c8594eb50065bb3d4ef459160d5248029ed63a64c3201. All initial scripts, logs, results, and handoff remain intact.
+
+## Bounded changes
+
+- The report-object exclusion now accepts the evidenced plural and article-omitted report/note forms. SQL reports and actual SQL queries used for reporting stay positive.
+- A bare resume fragment now checks the existing English claim predicate as well as the action predicate. Actor/predicate prose such as Alice knows SQL cannot become a skill list. No actor-name or skill vocabulary was added.
+- The experience-only consumer can end a personal span at a comma followed by a short noun phrase and an already recognized action/claim predicate. A verb immediately after the comma continues the same actor, preserving actual SQL work followed by query modification/result documentation. The new boundary keeps the learner's React evidence and rejects borrowed SQL; mixed whole-fact support remains false. Shared assertion/quote/report/condition grammar is unchanged.
+- A plan-to object after an apparent writing action is insufficient evidence of practicing the planned task.
+- Added exact failing examples and positive controls only in tests/lib/materials/experience-evidence.test.ts. No pre-existing hint, service, source-span, or UI test expectations changed. The two shared source files are byte-identical to the initial Task 1 freeze.
+
+## Repair validation
+
+- repair-red-25: 5 failing test cases and 166 passing controls before the repairs; failure log preserved.
+- repair-comma-green-29: all 171 API tests pass after the four bounded repairs.
+- repair-spec-30: all 65 independent spec probe cases pass. The execution copy differs from the reviewer script only in its fresh result-file path; this writer rechecked that exact equality. The original script/result files are untouched.
+- repair-regression-31: 13 suites / 1,638 tests pass, including the 171 API tests and all previously selected hint, retention, worker source/span/reminder, actual review-service, extraction, and UI regressions.
+- repair-types-32 and repair-lint-33: exit 0. Types include worker-configuration.d.ts and tests/setup.ts, excluding intentional work fixtures.
+- repair-compatibility-34: all 28 original non-import declarations remain equal to the frozen baseline; 81 baseline cases match five hint/reminder outputs each. The 18 moved declarations still have unchanged bodies and patterns.
+- Scoped git diff --check: exit 0. All 10 repair Node invocations use the prescribed wrapper and record 0 non-loopback denials. Wrapper SHA-256 remains 4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242.
+- Root's repaired Node/workerd run and independent re-review are pending after this freeze. No native result is claimed by this author handoff.
+
+## Complete changed source/test SHA-256
+
+| Path | SHA-256 | Bytes |
+| --- | --- | ---: |
+'@
+$lines = [System.Collections.Generic.List[string]]::new()
+$lines.Add($header)
+foreach ($entry in $frozen) { $lines.Add('| ' + $entry.path + ' | ' + $entry.sha256 + ' | ' + $entry.bytes + ' |') }
+$lines.Add("`n## Exact repair Node commands and preserved outcomes`n")
+foreach ($entry in $commands) {
+  $label = $prefix + $entry[0]
+  $outcomePath = Join-Path $directory ($label + '.json')
+  $logPath = Join-Path $directory ($label + '.log')
+  $outcome = Get-Content -Raw -LiteralPath $outcomePath | ConvertFrom-Json
+  $logHash = Hash-File $logPath
+  if ($logHash -ne $outcome.logSha256) { throw ('Log hash mismatch: ' + $label) }
+  if ($outcome.nonLoopbackDenials -ne 0) { throw ('Non-loopback denial: ' + $label) }
+  $lines.Add('### ' + $label + "`n")
+  $lines.Add('```text')
+  $lines.Add('node work/grounded-verification/run.mjs ' + $label + ' ' + $entry[1])
+  $lines.Add('```' + "`n")
+  $lines.Add('- Exit: ' + $outcome.exit + '; non-loopback denials: ' + $outcome.nonLoopbackDenials + '.')
+  $lines.Add('- Raw log SHA-256: ' + $logHash + '.')
+  $lines.Add('- Outcome JSON SHA-256: ' + (Hash-File $outcomePath) + ".`n")
+}
+$lines.Add("`n## Supporting artifacts`n")
+$lines.Add('| Artifact in work/grounded-verification | SHA-256 |')
+$lines.Add('| --- | --- |')
+$supporting = @(
+  'experience-evidence-spec-20261108-probe.mjs',
+  'experience-evidence-spec-20261108-probe-results.json',
+  ($prefix + 'repair-spec-probe.mjs'),
+  ($prefix + 'repair-spec-results.json'),
+  ($prefix + 'baseline-check-repair.mjs'),
+  ($prefix + 'repair-compatibility-results.json'),
+  ($prefix + 'repair-frozen-source.json'),
+  ($prefix + 'repair-diff-check.txt'),
+  ($prefix + 'write-repair-handoff.ps1'),
+  ($prefix + 'handoff.md'),
+  ($prefix + 'unit.config.ts'),
+  ($prefix + 'regression.config.ts'),
+  ($prefix + 'tsconfig.json')
+)
+foreach ($name in $supporting) { $lines.Add('| ' + $name + ' | ' + (Hash-File (Join-Path $directory $name)) + ' |') }
+$handoffPath = Join-Path $directory ($prefix + 'repair-handoff.md')
+Write-NewText $handoffPath ([string]::Join("`n", $lines) + "`n")
+Write-Output ('Handoff: ' + $handoffPath)
+Write-Output ('Handoff SHA-256: ' + (Hash-File $handoffPath))

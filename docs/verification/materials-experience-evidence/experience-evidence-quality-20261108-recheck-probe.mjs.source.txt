@@ -1,0 +1,68 @@
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { build } from "esbuild";
+
+const rows = [];
+function add(id, text, target, expected) {
+  rows.push({ id, input: { kind: "experience", text, target }, expected });
+}
+const terms = (id, text, expected, values = ["SQL"]) => add(id, text, { kind: "terms", terms: values }, expected);
+const whole = (id, text, expected) => add(id, text, { kind: "confirmed-whole-fact" }, expected);
+
+for (const [id, text] of [
+  ["reported-object", "I wrote that my colleague tested SQL."],
+  ["quoted-report-object", "I wrote “My colleague tested SQL.”"],
+  ["quoted-personal-proposition", "I wrote “I tested SQL.”"],
+  ["quoted-personal-proposition-ascii", 'I wrote "I tested SQL."'],
+  ["whole-quote", "“I wrote SQL queries.”"],
+]) {
+  terms(id + "-term", text, false);
+  whole(id + "-whole", text, false);
+}
+for (const [id, text] of [
+  ["quoted-tool", "I tested “SQL” independently."],
+  ["quoted-tool-ascii", 'I tested "SQL" independently.'],
+  ["reporting-work", "I wrote SQL reports."],
+  ["two-personal-sentences", "I wrote SQL queries. I tested SQL queries."],
+  ["soft-wrap-personal", "I wrote\nSQL queries."],
+  ["parameter-work", "I only changed parameters in the supplied SQL queries."],
+]) {
+  terms(id + "-term", text, true);
+  whole(id + "-whole", text, true);
+}
+for (const [id, text] of [
+  ["quoted-sentence-residue", "I wrote SQL queries. “My colleague tested React.”"],
+  ["reported-sentence-residue", "I wrote SQL queries. My mentor said, I tested React."],
+  ["denied-sentence-residue", "I wrote SQL queries. I cannot build React components."],
+]) {
+  terms(id + "-own", text, true);
+  terms(id + "-other", text, false, ["React"]);
+  whole(id + "-whole", text, false);
+}
+terms("bare-sql", "SQL", true);
+whole("bare-sql-whole", "SQL", true);
+terms("technical-dot", "I built React.js components.", true, ["React.js"]);
+terms("utf16-quoted-tool-not-proposition", "我测试了 ‘🧪 SQL’。", false);
+whole("long-personal", "I wrote SQL queries for weekly reporting, tested the output against reference records, and maintained the reporting workflow for several months while documenting the results for later review.", true);
+
+const compiled = await build({
+  stdin: {
+    contents: "export { supportsMaterialExperience } from './app/lib/materials/experience-evidence';",
+    resolveDir: process.cwd(), loader: "ts",
+  },
+  bundle: true, write: false, platform: "node", format: "esm", target: "es2022",
+  nodePaths: [resolve("node_modules")], metafile: true,
+});
+const { supportsMaterialExperience } = await import("data:text/javascript;base64," + Buffer.from(compiled.outputFiles[0].text).toString("base64"));
+const observations = rows.map(row => ({ ...row, observed: supportsMaterialExperience(row.input) }));
+const failures = observations.filter(row => row.observed !== row.expected);
+const sha = value => createHash("sha256").update(value).digest("hex");
+const result = {
+  status: failures.length ? "FAIL" : "PASS", cases: rows.length, failures: failures.length,
+  inputHashes: Object.fromEntries(Object.keys(compiled.metafile.inputs).filter(path => path !== "<stdin>").map(path => [path, sha(readFileSync(path))])),
+  observations,
+};
+writeFileSync("work/grounded-verification/experience-evidence-quality-20261108-recheck-probe-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, cases: rows.length, failures }, null, 2));
+process.exitCode = failures.length ? 1 : 0;

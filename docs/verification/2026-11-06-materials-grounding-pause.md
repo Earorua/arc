@@ -1,10 +1,14 @@
 # 多类型资料离线修复暂停点
 
-## 当前进行中：2026-11-08，个人经历归因Task 1
+## 当前恢复入口：2026-11-08，经历归因Task 1已验收，接续Task 2
 
-上批能力建议修复已完成，源码`113a9c5`、归档提交`9fdfcd091322966e403aec088d348044f23fb483`；308个归档目录文件（306原始证据＋README／清单）的原始字节与Git索引一致。持续目标保持active，当前从[经历归因计划](../superpowers/plans/2026-11-08-materials-experience-attribution.md)Task 1开始，仅新增纯经历谓词并共享既有陈述范围，不进入映射／排序接入。
+经历谓词源码已本地保存为`d6aba60209a59313ef2309b2f7b29c395a6b9296`；独立规格及质量复审均PASS。作者13套件1,647项（含180项API）及类型／Lint通过，根任务78项经历／81项等级Node/workerd一致；1,002文件摘要`82da28614aa57e72ef02bcbc44978d4c366f065af918892605fdee80456d568f`，26份参考、85项课程依赖不变。报告见[经历证据验收](2026-11-08-materials-experience-evidence.md)。本批未跑全仓，不能复用`113a9c5`的旧全量结果。
 
-作者为`implement_material_experience_evidence`，新证据使用`experience-evidence-author-20261108-*`。任务须先保存红例、保持已有等级判断不变，经原生对照和独立规格／质量审查后再本地保存。当前正在开发，不能复用上批全仓结论。词目标只需有真实个人实践；写过SQL但未做生产配置仍有SQL练习，不表示生产能力。混合整条人工对应和他人／否定／未来／引用仍按计划区分。模型、费用、部署、远程迁移、推送继续为0。
+持续目标保持active，当前只离线。232份原字节证据已归档，清单摘要`9ba0f509640cb06ad69ffe5ed18208505551197f730fe6ed47150e11ed3fb9ce`；最终质量备忘录摘要`abd95798e4c9d9ed8b4e60b6d2de5660c4ef623d4afe6f9661c2f587b0d6c437`。保存本批文档后，按[经历归因计划](../superpowers/plans/2026-11-08-materials-experience-attribution.md)Task 2派新作者，逐关系保留来源并接入上下文排序、界面数量说明，策略升级`2026.11.3`，映射语义与`2026.11.5`身份不变。尚未开始Task 2产品修改。模型、费用、部署、远程迁移、推送继续为0；旧付费授权不得复用。
+
+Task 1初版的10项规格失败及后续3项引用命题质量失败、各轮源码与交接均保留，最终相同65项规格／36项质量断言全部通过。最新作者交接`experience-evidence-author-20261108-quality-handoff.md`摘要`405be2e590362df598731c9be81f7ecc39ca6502893c5fa6d2bc8cad2e7ecf78`；最终规格备忘录`experience-evidence-spec-20261108-quoted-memo.md`摘要`d802c927f78fad167b0d94cedc8b8034a1bc8a0aba56173505021f3d916b278e`。旧共享28项声明保留，仅经历谓词消费动作范围；没有修改等级建议、提取投影或worker语法。
+
+Task 2准备已通过实际HTTP工厂及createDocumentRuntime创建旧策略`2026.11.2`预览，保存于隔离D1/R2；`experience-priority-history-create-20261108-b-results.json`摘要`cce394baf72cf455b5e11927302ef2aa61c674780842139510db4762026e1f3d`。该存储只能用于新代码重读，不重写历史记录。另有24个完整创建／核对／确认／选择／预览场景全部合法走完、映射均符合现行契约，10项错误实践优先级已在新红例结果中复现：`experience-priority-root-cases-20261108-red-a-results.json`摘要`94d34e891683d74b240e9603f8d8071ebad2bcc3ff29e9fb53618b5353790f0a`。这只是Task 2修复前表征，未接入新规则。具体脚本／存储位置与初始夹具字段错误见`experience-priority-native-preparation-20261108.md`。
 
 ## 当前恢复入口：2026-11-08，编辑后能力建议已完成离线验收
 

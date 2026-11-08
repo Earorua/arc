@@ -1,0 +1,43 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+const output = process.argv[2];
+assert.match(output ?? "", /^work\/grounded-verification\/experience-evidence-root-integrity-[a-z0-9-]+-results\.json$/u);
+const sha = value => createHash("sha256").update(value).digest("hex");
+const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+const files = [...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").split("\0").filter(path => path && !path.startsWith("docs/")))].sort();
+const filesSha256 = Object.fromEntries(files.map(path => [path, sha(readFileSync(path))]));
+const previousPath = "docs/verification/materials-edited-assessment-hints/edited-assessment-snapshot-20261108-b-results.json";
+const previousBytes = readFileSync(previousPath);
+assert.equal(sha(previousBytes), "beb650d7b3ea12f666dde5c60832a26274991839b21fab4f375a3572163b9a3e");
+const previous = JSON.parse(previousBytes).filesSha256;
+const changed = files.filter(path => previous[path] && previous[path] !== filesSha256[path]);
+const added = files.filter(path => !previous[path]);
+const removed = Object.keys(previous).filter(path => !filesSha256[path]);
+assert.deepEqual(changed, ["app/lib/materials/self-assessment-evidence.ts"]);
+assert.deepEqual(added, ["app/lib/materials/experience-evidence.ts", "app/lib/materials/personal-assertion-scopes.ts", "tests/lib/materials/experience-evidence.test.ts"]);
+assert.deepEqual(removed, []);
+const frozenSource = {
+  "app/lib/materials/experience-evidence.ts": "48bec30986f63a3937d8f89b7493bd2f570aac332ecd890fb81045ac6e091277",
+  "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+  "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+  "tests/lib/materials/experience-evidence.test.ts": "fe3d431e722b6b0254224abfb755ddb23e41a59ca4ed5e9a6e0d5434a0af71aa",
+};
+for (const [path, digest] of Object.entries(frozenSource)) assert.equal(filesSha256[path], digest, path);
+const integrityPath = "docs/verification/materials-edited-assessment-hints/edited-assessment-integrity-20261108-b-results.json";
+const integrityBytes = readFileSync(integrityPath);
+assert.equal(sha(integrityBytes), "343074407d2a01cb0d4fdcfad47c52f3bbf36524a8e1aae0318808acb730107f");
+const integrity = JSON.parse(integrityBytes);
+for (const [path, digest] of Object.entries(integrity.frozenReferenceSha256)) assert.equal(sha(readFileSync(path)), digest, path);
+const specPath = integrity.unchangedApprovedSpec;
+assert.equal(sha(readFileSync(specPath)), sha(readFileSync("D:/CodexTemp/arc-edited-assessment-repaired-rspZeV/source/" + specPath)));
+const capture = JSON.parse(readFileSync("work/grounded-verification/edited-assessment-course-capture-20261108-results.json"));
+for (const dependency of capture.dependencies) assert.equal(sha(readFileSync(dependency.path)), dependency.sha256, dependency.path);
+writeFileSync(output, JSON.stringify({ status: "PASS", sourceBaseAtCapture: git("rev-parse", "HEAD").trim(), sourceFileCount: files.length,
+  sourceManifestSha256: sha(JSON.stringify(filesSha256)), filesSha256, previousPath, changed, added, removed, frozenSource,
+  frozenReferenceCount: Object.keys(integrity.frozenReferenceSha256).length, frozenReferenceSha256: integrity.frozenReferenceSha256,
+  approvedSpec: { path: specPath, sha256: sha(readFileSync(specPath)) }, courseDependencyCount: capture.dependencies.length,
+  courseDependencyBytesUnchanged: true, newCourseReferenceApproved: false, realModelCalls: 0 }, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: "PASS", files: files.length, changed, added, frozenReferences: Object.keys(integrity.frozenReferenceSha256).length,
+  sourceManifestSha256: sha(JSON.stringify(filesSha256)), courseDependencies: capture.dependencies.length, output }));

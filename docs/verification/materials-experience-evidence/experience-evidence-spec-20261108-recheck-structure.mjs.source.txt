@@ -1,0 +1,41 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import ts from "typescript";
+
+const oldPath = "D:/CodexTemp/arc-edited-assessment-repaired-rspZeV/source/app/lib/materials/self-assessment-evidence.ts";
+const currentPath = "app/lib/materials/self-assessment-evidence.ts";
+const sharedPath = "app/lib/materials/personal-assertion-scopes.ts";
+const experiencePath = "app/lib/materials/experience-evidence.ts";
+const sha = value => createHash("sha256").update(value).digest("hex");
+const oldText = readFileSync(oldPath, "utf8");
+assert.equal(sha(oldText), "cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70");
+function parse(path) {
+  const text = readFileSync(path, "utf8");
+  const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+  const declarations = source.statements.filter(statement => !ts.isImportDeclaration(statement)).map(statement => ({
+    name: ts.isVariableStatement(statement) ? statement.declarationList.declarations[0].name.getText(source) : statement.name?.getText(source),
+    body: statement.getText(source).replace(/^export\s+/u, ""),
+  }));
+  return { text, source, declarations, imports: source.statements.filter(ts.isImportDeclaration).map(statement => statement.moduleSpecifier.text) };
+}
+const old = parse(oldPath), current = parse(currentPath), shared = parse(sharedPath), experience = parse(experiencePath);
+const after = [...current.declarations, ...shared.declarations];
+const declarationChecks = old.declarations.map(before => {
+  const matches = after.filter(item => item.name === before.name);
+  assert.equal(matches.length, 1, before.name);
+  assert.equal(matches[0].body, before.body, before.name);
+  return { name: before.name, sha256: sha(before.body), location: shared.declarations.some(item => item.name === before.name) ? sharedPath : currentPath };
+});
+assert.equal(after.length, old.declarations.length);
+assert.deepEqual(shared.imports, ["./grounded-skill-terms", "./quotation-evidence"]);
+assert.deepEqual(experience.imports, ["../../contracts/documents", "./personal-assertion-scopes", "./quotation-evidence"]);
+assert.ok(!/\b(?:process|fetch|localStorage|sessionStorage)\b/u.test(experience.text));
+const result = {
+  status: "PASS", originalDeclarations: old.declarations.length,
+  moved: declarationChecks.filter(row => row.location === sharedPath).length,
+  declarationChecks,
+  inputHashes: Object.fromEntries([oldPath, currentPath, sharedPath, experiencePath].map(path => [path, sha(readFileSync(path))])),
+};
+writeFileSync("work/grounded-verification/experience-evidence-spec-20261108-recheck-structure-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));
