@@ -3,6 +3,7 @@ import { MAX_MATERIAL_SKILL_LABELS_PER_ITEM } from "../../contracts/documents";
 const graphemes = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("und", { granularity: "grapheme" }) : null;
 const words = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("zh", { granularity: "word" }) : null;
 const maxLabelLength = 100;
+type MatchMode = "affirmative" | "mention";
 // Final sigma lowercases contextually; use the same form in a full label and in a source grapheme.
 const fold = (term: string) => term.normalize("NFKC").toLowerCase().replace(/ς/gu, "σ");
 
@@ -57,22 +58,30 @@ function indexQuote(text: string) {
     originalEnd += part.length;
     offsets.set(normalized.length, originalEnd);
   }
-  const boundaries = words ? new Set(Array.from(words.segment(normalized), entry => entry.index)) : null;
-  boundaries?.add(normalized.length);
-  return { text, normalized, offsets, boundaries };
+  const wordSegments = words ? new Map(Array.from(words.segment(normalized), entry => [entry.index, entry.segment])) : null;
+  wordSegments?.set(normalized.length, "");
+  return { text, normalized, offsets, wordSegments };
 }
 
 // ICU versions disagree about colon boundaries. Explicit skill headings make
 // that colon punctuation; a namespace or URI such as "urn:Tool" does not.
 const englishSkillHeading = String.raw`(?:required|preferred|essential|mandatory|optional)(?:\s+(?:skills?|tools?|experience|qualifications?))?|(?:(?:job|role)\s+)?(?:requirements|qualifications|summary|overview)|must(?:\s+have)?|nice\s+to\s+have|bonus|skills?|tools?|technologies|languages?|(?:tech|technology)\s+stack`;
 const chineseSkillHeading = "任职(?:要求|资格|必备|清单)|(?:岗位|职位)(?:要求|职责|摘要|概述)|工作(?:要求|职责)|要求清单|摘要|概述|硬性要求|基本要求|要求|必须|必备(?:技能|条件)?|加分项?|优先(?:条件|要求)?|可选(?:技能|条件)?|技能|工具|技术栈|(?:我|本人)(?:使用了?|采用了?)(?:这些|以下)?工具";
-const skillHeadingPrefix = new RegExp(String.raw`(?:^|\n)\s*(?:[-*•]\s*)?(?:${englishSkillHeading}|${chineseSkillHeading})\s*:\s*$`, "u");
+const personalSkillHeading = String.raw`简介|个人简介|自我介绍|个人技能|个人能力|(?:personal\s+|my\s+)?profile|(?:personal|my)\s+summary`;
+const skillHeadingPrefix = new RegExp(String.raw`(?:^|\n)\s*(?:[-*•]\s*)?(?:${englishSkillHeading}|${chineseSkillHeading}|${personalSkillHeading})\s*:\s*$`, "u");
 
 function wordBoundary(quote: ReturnType<typeof indexQuote>, index: number) {
-  if (quote.boundaries) return quote.boundaries.has(index) || skillHeadingPrefix.test(quote.normalized.slice(0, index));
+  if (quote.wordSegments) return quote.wordSegments.has(index) || skillHeadingPrefix.test(quote.normalized.slice(0, index));
   const left = quote.normalized.slice(0, index).match(/[\p{L}\p{M}\p{N}_]$/u)?.[0];
   const right = quote.normalized.slice(index).match(/^[\p{L}\p{M}\p{N}_]/u)?.[0];
   return !left || !right || /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Hangul}]/u.test(left + right);
+}
+
+// ICU may join the nominal suffix 性 to the structural 的. Require a separate
+// multi-character Han component after 的; start and grapheme checks stay intact.
+function hanNominalEndBoundary(quote: ReturnType<typeof indexQuote>, index: number, token: string) {
+  return /^\p{sc=Han}+性$/u.test(token) && quote.normalized[index] === "的"
+    && /^\p{sc=Han}{2,}$/u.test(quote.wordSegments?.get(index + 1) ?? "");
 }
 
 // Match a denial attached to the term (or to a list it belongs to). Allow only
@@ -104,11 +113,11 @@ function withoutQuoteWrappers(context: string) {
   return context.replace(/["“”‘«»‹›「」『』]|(?<![a-z0-9])['’]|['’](?![a-z0-9])/gu, "");
 }
 
-function supportsTerm(before: string, after: string, token: string, original: string) {
+function supportsTerm(before: string, after: string, token: string, original: string, mode: MatchMode) {
   before = withoutQuoteWrappers(before + "a").slice(0, -1);
   after = withoutQuoteWrappers("a" + after).slice(1);
-  if (deniedListPrefix.test(before) || deniedEnglishSuffix.test(after) || deniedChineseSuffix.test(after)
-    || (!affirmativeUse.test(before) && deniedListSuffix.test(after))) return false;
+  if (mode === "affirmative" && (deniedListPrefix.test(before) || deniedEnglishSuffix.test(after) || deniedChineseSuffix.test(after)
+    || (!affirmativeUse.test(before) && deniedListSuffix.test(after)))) return false;
   if (/^clean\s/u.test(token) && (/\b(?:the|some|with|using|used|have|had|received|needs?|requires?|from)\s+$/u.test(before)
     || /^\s+(?:is|was|will be|must be)\b/u.test(after))) return false;
   if (/^(?:cleaned|cleansed)\s/u.test(token) && /\b(?:the|with|used|using|received|downloaded|provided)\s+$/u.test(before)) return false;
@@ -132,27 +141,28 @@ function supportsTerm(before: string, after: string, token: string, original: st
   return true;
 }
 
-function* literalEvidence(quote: ReturnType<typeof indexQuote>, token: string) {
+function* literalEvidence(quote: ReturnType<typeof indexQuote>, token: string, mode: MatchMode) {
   for (let at = quote.normalized.indexOf(token); at >= 0; at = quote.normalized.indexOf(token, at + 1)) {
     const limit = at + token.length, start = quote.offsets.get(at), end = quote.offsets.get(limit);
     if (start === undefined || end === undefined || end - start > maxLabelLength) continue;
     const before = quote.normalized.slice(0, at), after = quote.normalized.slice(limit), original = quote.text.slice(start, end);
-    if (!wordBoundary(quote, at) || (!wordBoundary(quote, limit) && !/^['’]s\b/u.test(after))) continue;
+    if (!wordBoundary(quote, at) || (!wordBoundary(quote, limit) && !/^['’]s\b/u.test(after)
+      && !hanNominalEndBoundary(quote, limit, token))) continue;
     // A word boundary can still be inside a technical name such as .NET, C++ or WAI-ARIA.
     if (/[.#+]$|[\p{L}\p{N}_]-$/u.test(before) || /^[#+]|^[.-][\p{L}\p{N}_]/u.test(after)) continue;
     // Do not depend on ICU joining a URI/namespace, including unfamiliar and
     // non-Latin names. Whitespace after a prose colon remains a word boundary.
     if ((before.endsWith(":") && !skillHeadingPrefix.test(before)) || /^:[\p{L}\p{M}\p{N}_:]/u.test(after)) continue;
-    if (supportsTerm(before, after, token, original)) yield original;
+    if (supportsTerm(before, after, token, original, mode)) yield original;
   }
 }
 
-function uniqueEvidence(quote: ReturnType<typeof indexQuote>, forms: readonly string[]): string | null {
+function uniqueEvidence(quote: ReturnType<typeof indexQuote>, forms: readonly string[], mode: MatchMode): string | null {
   let evidence: string | null = null;
   const phrases = forms === cleaningNames
     ? new Set([...forms, ...Array.from(quote.normalized.matchAll(cleaningSpans), match => match[0])]) : forms;
   for (const form of phrases) {
-    for (const match of literalEvidence(quote, form)) {
+    for (const match of literalEvidence(quote, form, mode)) {
       // Labels refer to the uniquely located fact, not to separate term offsets.
       // Repeating the same supported spelling does not make that fact ambiguous.
       // Distinct original phrases still need a more specific nomination.
@@ -163,26 +173,44 @@ function uniqueEvidence(quote: ReturnType<typeof indexQuote>, forms: readonly st
   return evidence;
 }
 
-/** Recover the verbatim support for a retained literal or reviewed equivalent. */
-export function findMaterialSkillEvidence(text: string, label: string): string | null {
+function findSkillMatch(text: string, label: string, mode: MatchMode): string | null {
   const token = skillToken(label);
   if (!token) return null;
   const forms = reviewedGroup(token);
-  return uniqueEvidence(indexQuote(text), forms ?? [token]);
+  return uniqueEvidence(indexQuote(text), forms ?? [token], mode);
 }
 
-/** Bind only the wire's nominated source phrases before emitting any canonical label. */
-export function groundMaterialSkillTerms(quote: string, terms: readonly string[]): string[] {
+function groundSkillMatches(quote: string, terms: readonly string[], mode: MatchMode): string[] {
   if (!terms.length) return [];
   const source = indexQuote(quote), labels = new Set<string>();
   for (const term of terms.slice(0, MAX_MATERIAL_SKILL_LABELS_PER_ITEM)) {
     const token = skillToken(term);
     if (!token) continue;
-    const evidence = uniqueEvidence(source, [token]);
+    const evidence = uniqueEvidence(source, [token], mode);
     if (!evidence) continue;
     const forms = reviewedGroup(token);
-    if (forms && uniqueEvidence(source, forms) !== evidence) continue;
+    if (forms && uniqueEvidence(source, forms, mode) !== evidence) continue;
     labels.add(forms?.[0] ?? evidence);
   }
   return [...labels];
+}
+
+/** Recover affirmative verbatim support for a retained literal or reviewed equivalent. */
+export function findMaterialSkillEvidence(text: string, label: string): string | null {
+  return findSkillMatch(text, label, "affirmative");
+}
+
+/** Bind nominated source phrases with affirmative support before normalizing labels. */
+export function groundMaterialSkillTerms(quote: string, terms: readonly string[]): string[] {
+  return groundSkillMatches(quote, terms, "affirmative");
+}
+
+/** Recover a verbatim topic mention, including one inside an attached denial. */
+export function findMaterialSkillMention(text: string, label: string): string | null {
+  return findSkillMatch(text, label, "mention");
+}
+
+/** Bind only nominated source mentions before normalizing; a mention is not proficiency. */
+export function groundMaterialSkillMentions(quote: string, terms: readonly string[]): string[] {
+  return groundSkillMatches(quote, terms, "mention");
 }
