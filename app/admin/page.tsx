@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArcHomeLink } from "../components/brand/arc-home-link";
 import { useEffect, useState } from "react";
 import type { AdminHealthSnapshot } from "../server/admin/repository";
 import { signInHref } from "../lib/navigation-context";
@@ -83,19 +84,19 @@ export default function AdminPage() {
   return (
     <main id="main-content" tabIndex={-1} className="admin-page">
       <header className="admin-header">
-        <Link className="wordmark" href="/">Arc.</Link>
-        <span>站点管理 · 只读</span>
+        <ArcHomeLink />
+        <span>Site administration · Read only</span>
       </header>
       <div className="admin-intro">
-        <p className="eyebrow">运行状态</p>
-        <h1>站点运行概览</h1>
-        <p>查看服务状态、使用额度、迁移与异常记录。</p>
+        <p className="eyebrow">Operational health</p>
+        <h1>Site health at a glance</h1>
+        <p>Review service status, usage, migrations, and recent failures.</p>
       </div>
-      {load.status === "loading" && <p className="admin-loading" role="status">正在读取运行状态…</p>}
+      {load.status === "loading" && <p className="admin-loading" role="status">Loading site health…</p>}
       {load.status === "failed" && (
         <div className="cloud-status" role="alert">
-          <p>{load.signIn ? "请登录后查看管理页面。" : load.forbidden ? "当前账号没有管理权限。" : "暂时无法读取运行状态。"}</p>
-          <Link href={load.signIn ? signInHref("/admin", true) : "/"}>{load.signIn ? "登录并返回" : "返回首页"}</Link>
+          <p>{load.signIn ? "Sign in to view site administration." : load.forbidden ? "This account does not have administrator access." : "Site health is temporarily unavailable."}</p>
+          <Link href={load.signIn ? signInHref("/admin", true) : "/"}>{load.signIn ? "Sign in and return" : "Back to home"}</Link>
         </div>
       )}
       {load.status === "ready" && <AdminHealthView snapshot={load.snapshot} />}

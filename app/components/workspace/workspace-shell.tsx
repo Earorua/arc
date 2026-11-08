@@ -1,6 +1,7 @@
 "use client";
 
 import { WorkspaceHeader, type WorkspaceDestination } from "./workspace-header";
+import { WorkspaceLoading } from "./workspace-loading";
 import { MigrationBanner } from "../sync/migration-banner";
 import { CloudStatus } from "../sync/cloud-status";
 import { flagshipRole } from "../../data/flagship-role";
@@ -58,18 +59,18 @@ export function WorkspaceShell({
 }) {
   const isRestoring = state === null;
   const isCustomRole = sourceUnresolved || planningState ? false : state !== null && state.setup.roleId !== flagshipRole.id;
-  const context = sourceUnresolved ? "正在读取学习计划…" : planningState
-    ? `${roleName ?? "学习计划"} · ${planningState.target.targetWeeks} 周`
+  const context = sourceUnresolved ? undefined : planningState
+    ? `${roleName ?? "Learning plan"} · ${planningState.target.targetWeeks} weeks`
     : state === null
-    ? "正在恢复学习计划…"
-    : `${getRoleDisplayName(state.setup.roleId)} · ${state.setup.targetWeeks} 周`;
+    ? undefined
+    : `${getRoleDisplayName(state.setup.roleId)} · ${state.setup.targetWeeks} weeks`;
 
   return (
     <div className="workspace-shell">
       <WorkspaceHeader current={current} context={context} />
       <main id="main-content" tabIndex={-1} className="workspace-main">
         {isRestoring ? (
-          <p className="workspace-restoring" role="status">正在恢复你的学习计划…</p>
+          <WorkspaceLoading />
         ) : (
           <>
             {onDismissMigration && onImport && migrationState && (
@@ -97,7 +98,7 @@ export function WorkspaceShell({
             )}
             {isCustomRole && (
               <p className="workspace-banner">
-                当前内容使用 AI 原生全栈旗舰样本；Product Intelligence 后续研究并替换该岗位内容。
+                This path currently uses the AI-native full-stack sample. Role research will replace it with content for your chosen role.
               </p>
             )}
             {children}

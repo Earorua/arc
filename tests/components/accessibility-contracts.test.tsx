@@ -116,35 +116,35 @@ describe("navigation accessibility contracts", () => {
       workspace={null}
     />);
 
-    await user.click(screen.getByRole("button", { name: "添加作品" }));
-    for (const label of ["作品标题", "作品类型", "作品说明", "公开 HTTPS 链接", "关联技能", "关联学习单元", "可见范围"]) {
+    await user.click(screen.getByRole("button", { name: "Add proof" }));
+    for (const label of ["Proof title", "Proof type", "Description", "Public HTTPS link", "Related skill", "Related learning unit", "Visibility"]) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     }
-    expect(screen.queryByLabelText("自动检查")).not.toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText("作品类型"), "test_report");
-    expect(screen.getByLabelText("自动检查")).toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText("作品类型"), "repository");
+    expect(screen.queryByLabelText("Automatic check")).not.toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText("Proof type"), "test_report");
+    expect(screen.getByLabelText("Automatic check")).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText("Proof type"), "repository");
     expect(screen.getByRole("option", {
-      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "主要任务" : "拓展任务"} · ${firstUnit.objective}`,
+      name: `${firstUnit.scheduledDate} · ${firstUnit.slot === "primary" ? "Main task" : "Stretch task"} · ${firstUnit.objective}`,
     })).toBeInTheDocument();
-    const save = screen.getByRole("button", { name: "保存草稿" });
-    const submit = screen.getByRole("button", { name: "提交审核" });
+    const save = screen.getByRole("button", { name: "Save draft" });
+    const submit = screen.getByRole("button", { name: "Submit for review" });
     expect(save).toHaveAttribute("type", "button");
     expect(submit).toHaveAttribute("type", "button");
     await user.click(submit);
     expect(await screen.findByRole("alert")).toHaveFocus();
-    expect(screen.getByRole("heading", { name: "添加作品" })).toBeInTheDocument();
-    await user.type(screen.getByLabelText("作品标题"), "Accessible trace");
-    await user.type(screen.getByLabelText("作品说明"), "A labelled request trace.");
-    await user.selectOptions(screen.getByLabelText("关联技能"), "react");
+    expect(screen.getByRole("heading", { name: "Add proof" })).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Proof title"), "Accessible trace");
+    await user.type(screen.getByLabelText("Description"), "A labelled request trace.");
+    await user.selectOptions(screen.getByLabelText("Related skill"), "react");
     await user.click(save);
-    expect(await screen.findByRole("status")).toHaveTextContent("作品已保存");
+    expect(await screen.findByRole("status")).toHaveTextContent("Proof saved");
   });
 
   it("keeps Stack category filters keyboard-operable", async () => {
     const user = userEvent.setup();
     render(<StackBrowser blueprint={flagshipBlueprint} evidence={[]} projections={[]} />);
-    const frontend = screen.getByRole("button", { name: "前端" });
+    const frontend = screen.getByRole("button", { name: "Frontend" });
     frontend.focus();
     await user.keyboard("{Enter}");
     expect(frontend).toHaveAttribute("aria-pressed", "true");
@@ -169,24 +169,24 @@ describe("navigation accessibility contracts", () => {
       </>,
     );
 
-    expect(screen.getByRole("navigation", { name: "网站导航" })).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "学习工作区" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "今日学习" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("navigation", { name: "Site navigation" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Learning workspace" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Today" })).toHaveAttribute("aria-current", "page");
   });
 
   it("keeps one compact public navigation with every destination available", async () => {
     const user = userEvent.setup();
     render(<SiteHeader />);
 
-    const publicNavigation = screen.getByRole("navigation", { name: "网站导航" });
-    expect(screen.getAllByRole("navigation", { name: "网站导航" })).toHaveLength(1);
-    const menuButton = screen.getByRole("button", { name: "浏览" });
+    const publicNavigation = screen.getByRole("navigation", { name: "Site navigation" });
+    expect(screen.getAllByRole("navigation", { name: "Site navigation" })).toHaveLength(1);
+    const menuButton = screen.getByRole("button", { name: "Browse" });
     expect(menuButton).toHaveAttribute("aria-controls", "public-navigation");
     expect(menuButton).toHaveAttribute("aria-expanded", "false");
     await user.click(menuButton);
     expect(menuButton).toHaveAttribute("aria-expanded", "true");
     expect(publicNavigation).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "学习方法" })).toHaveAttribute("href", "/method");
+    expect(screen.getByRole("link", { name: "Method" })).toHaveAttribute("href", "/method");
     expect(screen.queryByRole("link", { name: "Intelligence" })).not.toBeInTheDocument();
   });
 
@@ -390,16 +390,16 @@ describe("navigation accessibility contracts", () => {
       <AdaptiveTodaySession workspace={workspace} record={record} accept={vi.fn()} discard={vi.fn()} />
     </>);
 
-    expect(screen.getByRole("heading", { level: 1, name: "学习路线" })).toBeInTheDocument();
-    expect(screen.getByRole("list", { name: "学习阶段" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Learning path" })).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Learning phases" })).toBeInTheDocument();
     expect(screen.getByRole("article")).toHaveAccessibleName();
     expect(screen.getAllByRole("checkbox").length).toBeGreaterThan(0);
     const resource = screen.getAllByRole("link").find((link) => link.getAttribute("target") === "_blank");
     expect(resource).toHaveAttribute("rel", "noreferrer");
 
-    await user.click(screen.getByText("调整这项任务"));
-    await user.click(screen.getByRole("button", { name: "延后" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Arc 未能更新计划");
+    await user.click(screen.getByText("Adjust this task"));
+    await user.click(screen.getByRole("button", { name: "Delay" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Arc could not update your plan");
   });
 
   it("keeps adaptive focus indication and reduced-motion rules explicit", () => {

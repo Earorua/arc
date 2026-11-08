@@ -55,7 +55,7 @@ export function AdaptiveSetupFlow(props: AdaptiveSetupFlowProps) {
 function OwnedAdaptiveSetupFlow({ blueprint, registry, source, generate, navigate, createMutationId, now, timeZone, onBackToRole, active = true, savesToAccount = false, createsNewGoal = false, draftOwner, lockedGeneration = false, syncUrl = false, buildPaths = buildLearningPaths, buildPathsForSubmit = buildLearningPaths, scheduleForSubmit = buildPlanVersion }: AdaptiveSetupFlowProps) {
   const recoveryLock = useRef(lockedGeneration);
   useLayoutEffect(() => { recoveryLock.current = lockedGeneration; }, [lockedGeneration]);
-  const failureMessage = () => recoveryLock.current ? "保存结果尚未确认，请按原设置重试。" : "Arc 未能保存计划，你仍可修改设置。";
+  const failureMessage = () => recoveryLock.current ? "The save result is still unconfirmed. Retry with the original settings." : "Arc could not save your plan. You can still edit your settings.";
   const [stageIndex, setStageIndex] = useState(0);
   const [furthestStep, setFurthestStep] = useState(1);
   const stage = stages[stageIndex]!;
@@ -98,7 +98,7 @@ function OwnedAdaptiveSetupFlow({ blueprint, registry, source, generate, navigat
   }, [draftReady, draftOwner, draftSource, stageIndex, furthestStep, auditDraft, availabilityDraft, targetWeeks, selectedScope, planningInstant]);
   const [building, setBuilding] = useState(false);
   const [newPlanConfirmed, setNewPlanConfirmed] = useState(false);
-  const [buildStatus, setBuildStatus] = useState("已准备好生成计划。");
+  const [buildStatus, setBuildStatus] = useState("Ready to create your plan.");
   const lifecycle = useRef(0);
   const sourceKey = source?.source === "research" ? source.researchRunId : blueprint.id;
   useLayoutEffect(() => { lifecycle.current += 1; return () => { lifecycle.current += 1; }; }, [active, sourceKey]);
@@ -136,7 +136,7 @@ function OwnedAdaptiveSetupFlow({ blueprint, registry, source, generate, navigat
     if (!active || building || (createsNewGoal && !newPlanConfirmed) || !audit || !availability || !target || !targetPaths || !scopeAvailable) return;
     const epoch = lifecycle.current;
     const current = () => epoch === lifecycle.current;
-    setBuilding(true); setBuildStatus("正在检查你的设置…");
+    setBuilding(true); setBuildStatus("Checking your settings…");
     try {
       const validated = await Promise.resolve().then(() => ({
         audit: skillAuditVersionSchema.parse(audit),
@@ -147,7 +147,7 @@ function OwnedAdaptiveSetupFlow({ blueprint, registry, source, generate, navigat
       const scope = selectedScope ?? (targetPaths.targetDate && targetPaths.targetDate.deferredSkills.length > 0 ? "full-scope" : null);
       if (scope === "target-date" && !targetPaths.targetDate) throw new Error("Path unavailable");
 
-      setBuildStatus("正在生成学习路径…");
+      setBuildStatus("Creating your learning path…");
       const submittedPaths = pathBuildResultSchema.parse(await buildPathsForSubmit({ blueprint, registry, ...validated, planningDate }));
       if (!current()) return;
       if (submittedPaths.fullScope.inputFingerprint !== targetPaths.fullScope.inputFingerprint
@@ -155,13 +155,13 @@ function OwnedAdaptiveSetupFlow({ blueprint, registry, source, generate, navigat
       const selectedPath = scope === "target-date" ? submittedPaths.targetDate : submittedPaths.fullScope;
       if (!selectedPath) throw new Error("Path unavailable");
 
-      setBuildStatus("正在安排未来七天…");
+      setBuildStatus("Scheduling the next seven days…");
       const schedule = await scheduleForSubmit({ path: selectedPath, registry, availability: validated.availability, planningDate, generation: "initial", baseVersionId: null, replanReason: null, completedUnitIds: new Set() });
       if (!current()) return;
       planVersionSchema.parse(schedule.plan);
       schedule.dailyUnits.forEach((unit) => dailyUnitSchema.parse(unit));
 
-      setBuildStatus("正在保存计划…");
+      setBuildStatus("Saving your plan…");
       const input = { ...(source ? { source } : { roleId: blueprint.id }), planningDate, ...validated, selectedScope: scope };
       const key = JSON.stringify(input);
       if (buildAttempt.current?.key !== key) buildAttempt.current = { key, mutationId: createMutationId() };
@@ -171,38 +171,38 @@ function OwnedAdaptiveSetupFlow({ blueprint, registry, source, generate, navigat
       if (!current()) return;
       if (!saved) { setBuildStatus(failureMessage()); return; }
       clearSetupDrafts(draftOwner);
-      setBuildStatus("计划已就绪。"); navigate("/path?created=1");
+      setBuildStatus("Your plan is ready."); navigate("/path?created=1");
     } catch { if (current()) setBuildStatus(failureMessage()); }
     finally { setBuilding(false); }
   };
 
   return <section className="setup-flow adaptive-setup-flow">
     <p className="setup-progress">{String(stageIndex + 2).padStart(2, "0")} / 04 · {setupStepNames[stageIndex + 1]}</p>
-    <ol className="setup-step-names" aria-label="设置进度">{setupStepNames.map((name, index) => <li key={name} aria-current={index === stageIndex + 1 ? "step" : undefined}>{name}</li>)}</ol>
-    {restored && <p className="setup-draft-notice">已恢复本岗位的设置草稿。</p>}
-    {draftError && <p className="setup-draft-notice">暂时无法保存草稿，请保持页面打开。</p>}
-    {draftOwner && <details className="setup-draft-options"><summary>草稿选项</summary><button className="text-action" type="button" disabled={building || lockedGeneration} onClick={() => {
+    <ol className="setup-step-names" aria-label="Setup progress">{setupStepNames.map((name, index) => <li key={name} aria-current={index === stageIndex + 1 ? "step" : undefined}>{name}</li>)}</ol>
+    {restored && <p className="setup-draft-notice">Your setup draft for this role is restored.</p>}
+    {draftError && <p className="setup-draft-notice">Your draft could not be saved. Keep this page open.</p>}
+    {draftOwner && <details className="setup-draft-options"><summary>Draft options</summary><button className="text-action" type="button" disabled={building || lockedGeneration} onClick={() => {
       navigateStep(1, true); setFurthestStep(1); setAuditDraft(createSkillAuditDraft(blueprint)); setAvailabilityDraft(createAvailabilityDraft(timeZone));
       setTargetWeeks(18); setSelectedScope(null); setNewPlanConfirmed(false); setRestored(false); buildAttempt.current = null;
-    }}>重新填写此岗位</button></details>}
-    <h1 ref={headingRef} tabIndex={-1}>{stage === "audit" ? "评估你目前的技能。" : stage === "availability" ? "安排一周可持续的时间。" : "确认你的学习路线。"}</h1>
+    }}>Restart this role&apos;s setup</button></details>}
+    <h1 ref={headingRef} tabIndex={-1}>{stage === "audit" ? "Assess your current skills." : stage === "availability" ? "Make a sustainable weekly schedule." : "Confirm your learning path."}</h1>
     {stage === "audit" && <SkillAuditStep blueprint={blueprint} onChange={(next) => { setAuditDraft(next); setSelectedScope(null); }} value={auditDraft} />}
     {stage === "availability" && <AvailabilityStep onChange={(next) => { setAvailabilityDraft(next); setSelectedScope(null); }} planningDate={planningDate} value={availabilityDraft} />}
-    {stage === "confirm" && audit && availability && <fieldset className="setup-confirm-fields" disabled={building || lockedGeneration}><legend className="sr-only">路线时间与范围</legend><TargetStep blueprint={blueprint} error={targetBuild.failed ? "Arc 未能比较路径，请检查设置后重试。" : undefined} onScopeChange={setSelectedScope} onTargetChange={(weeks) => { setTargetWeeks(weeks); setSelectedScope(null); }} result={targetPaths} selectedScope={scopeAvailable ? selectedScope : null} target={targetDraft} /></fieldset>}
+    {stage === "confirm" && audit && availability && <fieldset className="setup-confirm-fields" disabled={building || lockedGeneration}><legend className="sr-only">Path timing and scope</legend><TargetStep blueprint={blueprint} error={targetBuild.failed ? "Arc could not compare the paths. Check your settings and try again." : undefined} onScopeChange={setSelectedScope} onTargetChange={(weeks) => { setTargetWeeks(weeks); setSelectedScope(null); }} result={targetPaths} selectedScope={scopeAvailable ? selectedScope : null} target={targetDraft} /></fieldset>}
     {stage === "confirm" && <div className="build-ledger">
-      <dl className="setup-confirmation"><div><dt>目标岗位</dt><dd>{blueprint.name}</dd></div><div><dt>每周时间</dt><dd>{availability?.weeklyMinutes} 分钟</dd></div><div><dt>目标周期</dt><dd>{targetWeeks} 周</dd></div></dl>
-      <p>{lockedGeneration ? "正在恢复这次创建的原始设置。完成保存后，可在路线页调整时间。" : "确认后将生成路线与未来七天的任务；完成后可直接开始今日任务。"}</p>
-      {lockedGeneration && <a className="text-action" href="/path">查看当前路线</a>}
-      {savesToAccount && <p>生成后，计划会保存到你的账户；已有的本地历史记录仍保留在此设备上。</p>}
+      <dl className="setup-confirmation"><div><dt>Target role</dt><dd>{blueprint.name}</dd></div><div><dt>Weekly time</dt><dd>{availability?.weeklyMinutes} minutes</dd></div><div><dt>Target duration</dt><dd>{targetWeeks} weeks</dd></div></dl>
+      <p>{lockedGeneration ? "Restoring the original settings for this plan. After saving, you can adjust your time on the path page." : "Confirm to create your path and the next seven days of tasks. Then you can start today's task."}</p>
+      {lockedGeneration && <a className="text-action" href="/path">View current path</a>}
+      {savesToAccount && <p>Your plan will be saved to your account. Existing local history stays on this device.</p>}
       {createsNewGoal && <label><input type="checkbox" checked={newPlanConfirmed} disabled={building}
-        onChange={(event) => setNewPlanConfirmed(event.target.checked)} /> 创建新计划，并将当前计划保留在历史记录中</label>}
-      {(!audit || !availability) && <p role="alert">部分设置需要更新，请返回检查后再创建路线。</p>}
-      <p role={buildStatus.includes("未能") || buildStatus.includes("尚未确认") ? "alert" : "status"}>{buildStatus}</p>
+        onChange={(event) => setNewPlanConfirmed(event.target.checked)} /> Create a new plan and keep the current plan in history</label>}
+      {(!audit || !availability) && <p role="alert">Some settings need attention. Go back and review them before creating your path.</p>}
+      <p role={buildStatus.includes("could not") || buildStatus.includes("unconfirmed") ? "alert" : "status"}>{buildStatus}</p>
     </div>}
-    <nav className="setup-actions setup-primary-actions" aria-label="设置步骤">
-      <button className="setup-back text-action" disabled={building || lockedGeneration} onClick={back} type="button">返回</button>
-      {stage !== "confirm" ? <button className="setup-next" disabled={!canContinue} onClick={advance} type="button">继续</button>
-        : <button className="setup-next" disabled={building || !audit || !availability || !target || !targetPaths || !scopeAvailable || (createsNewGoal && !newPlanConfirmed)} onClick={() => void build()} type="button">{lockedGeneration ? "重试保存原计划" : "创建路线"}</button>}
+    <nav className="setup-actions setup-primary-actions" aria-label="Setup steps">
+      <button className="setup-back text-action" disabled={building || lockedGeneration} onClick={back} type="button">Back</button>
+      {stage !== "confirm" ? <button className="setup-next" disabled={!canContinue} onClick={advance} type="button">Continue</button>
+        : <button className="setup-next" disabled={building || !audit || !availability || !target || !targetPaths || !scopeAvailable || (createsNewGoal && !newPlanConfirmed)} onClick={() => void build()} type="button">{lockedGeneration ? "Retry saving original plan" : "Create path"}</button>}
     </nav>
   </section>;
 }

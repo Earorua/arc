@@ -12,6 +12,8 @@
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
+    "brand:export": "node scripts/export-arc-logo.mjs",
+    "test:brand": "node --test tests/build/brand-assets.test.mjs",
     "test:unit": "vitest run",
     "test:watch": "vitest"
   },
@@ -45,14 +47,17 @@
     "drizzle-kit": "0.31.10",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",
+    "fontkit": "2.0.4",
     "jsdom": "^29.1.1",
     "react-server-dom-webpack": "19.2.6",
+    "sharp": "0.34.5",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
     "undici": "7.24.8",
     "vinext": "0.0.50",
     "vite": "8.1.5",
     "vitest": "^4.1.10",
+    "wawoff2": "2.0.1",
     "wrangler": "4.92.0"
   },
   "type": "module"

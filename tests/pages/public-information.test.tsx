@@ -14,17 +14,18 @@ afterEach(cleanup);
 describe("public trust pages", () => {
   it("explains one concrete example from learning decisions through a task to inspectable evidence", () => {
     render(<MethodPage />);
-    expect(screen.getByRole("heading", { level: 1, name: "把目标，变成每天可完成的一步" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "如何判断学什么" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "如何安排今天" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "如何确认学会" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Turn a goal into daily progress." })).toBeInTheDocument();
+    expect(screen.getByText("A continuous learning journey").closest("main")).toHaveAttribute("lang", "en");
+    expect(screen.getByRole("heading", { name: "Know what to learn" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Make time for today" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Show what you learned" })).toBeInTheDocument();
     const main = within(screen.getByRole("main"));
-    expect(main.getByText("AI 原生全栈工程师")).toBeInTheDocument();
-    expect(main.getByText("把一次表单提交变成可验证的服务端动作")).toBeInTheDocument();
-    expect(main.getByText(/45 分钟/)).toBeInTheDocument();
-    expect(main.getByRole("link", { name: "查看完整样例" })).toHaveAttribute("href", "/showcase?view=path");
-    expect(main.queryByRole("link", { name: /创建.*路线/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "学习方法" })).toHaveAttribute("aria-current", "page");
+    expect(main.getByText("AI-Native Full-Stack Engineer")).toBeInTheDocument();
+    expect(main.getByText("Turn a form submission into a verifiable server action")).toBeInTheDocument();
+    expect(main.getByText(/45 minutes/)).toBeInTheDocument();
+    expect(main.getByRole("link", { name: "Explore the full example" })).toHaveAttribute("href", "/showcase?view=path");
+    expect(main.queryByRole("link", { name: /Create.*path/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Method" })).toHaveAttribute("aria-current", "page");
   });
 
   it("redirects the retired public intelligence page to the account skill workspace", () => {

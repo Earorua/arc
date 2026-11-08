@@ -25,8 +25,8 @@ describe("sign-in destination", () => {
     mocks.search = search;
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ providers: [] })));
     render(<SignInPage />);
-    await screen.findByText("账号登录暂未开放。");
-    expect(screen.getAllByRole("link", { name: "先看公开样例" })).toHaveLength(1);
+    await screen.findByText("Account sign-in is not available yet.");
+    expect(screen.getAllByRole("link", { name: "Explore the showcase" })).toHaveLength(1);
   });
 
   it("keeps the footer exit while the session is pending", async () => {
@@ -34,7 +34,7 @@ describe("sign-in destination", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ providers: [] })));
     render(<SignInPage />);
     await act(async () => {});
-    expect(screen.getByRole("link", { name: "先看公开样例" }).closest("footer")).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Explore the showcase" }).closest("footer")).not.toBeNull();
   });
 
   it("keeps the footer exit during signed-in redirect and plan-read recovery", async () => {
@@ -43,32 +43,32 @@ describe("sign-in destination", () => {
     mocks.loadWorkspace.mockImplementation(() => new Promise((_resolve, reject) => { fail = reject; }));
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ providers: [] })));
     render(<SignInPage />);
-    await screen.findByText("正在打开你的学习工作区…");
-    expect(screen.getByRole("link", { name: "先看公开样例" }).closest("footer")).not.toBeNull();
+    await screen.findByText("Opening your workspace…");
+    expect(screen.getByRole("link", { name: "Explore the showcase" }).closest("footer")).not.toBeNull();
     await act(async () => fail(new Error("offline")));
-    await screen.findByText("已登录，暂时无法读取你的学习路线。请重试。");
-    expect(screen.getByRole("link", { name: "先看公开样例" }).closest("footer")).not.toBeNull();
+    await screen.findByText("You're signed in, but we couldn't load your learning path. Please try again.");
+    expect(screen.getByRole("link", { name: "Explore the showcase" }).closest("footer")).not.toBeNull();
   });
   it("reopens provider authentication when a cached identity fails the plan lookup with 401", async () => {
     signedIn(); mocks.loadWorkspace.mockRejectedValue(new ArcApiError(401, "UNAUTHENTICATED", "expired", "test", "sign-in"));
     render(<SignInPage />);
-    expect(await screen.findByRole("alert")).toHaveTextContent("登录已过期");
-    expect(await screen.findByRole("button", { name: "使用 Google 继续" })).toBeEnabled();
+    expect(await screen.findByRole("alert")).toHaveTextContent("Your session has expired");
+    expect(await screen.findByRole("button", { name: "Continue with Google" })).toBeEnabled();
     expect(mocks.replace).not.toHaveBeenCalled();
   });
   it("does not redirect a known expired session away from reauthentication", async () => {
     signedIn(); mocks.search = "next=%2Fstack%3Fskill%3Dweb&reauth=1";
     render(<SignInPage />);
-    await userEvent.click(await screen.findByRole("button", { name: "使用 Google 继续" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Continue with Google" }));
     expect(mocks.replace).not.toHaveBeenCalled();
     expect(mocks.social).toHaveBeenCalledWith(expect.objectContaining({ callbackURL: "/stack?skill=web" }));
   });
   it("retains source context in the provider callback and return link", async () => {
     mocks.search = "next=%2Fsetup%3Fmode%3Dedit%26section%3Dtime";
     render(<SignInPage />);
-    expect(screen.getByRole("main")).toHaveAttribute("lang", "zh-CN");
-    expect(screen.getByRole("link", { name: "返回来源页面" })).toHaveAttribute("href", "/setup?mode=edit&section=time");
-    await userEvent.click(await screen.findByRole("button", { name: "使用 Google 继续" }));
+    expect(screen.getByRole("main")).toHaveAttribute("lang", "en");
+    expect(screen.getByRole("link", { name: "Back to previous page" })).toHaveAttribute("href", "/setup?mode=edit&section=time");
+    await userEvent.click(await screen.findByRole("button", { name: "Continue with Google" }));
     expect(mocks.social).toHaveBeenCalledWith(expect.objectContaining({ callbackURL: "/setup?mode=edit&section=time" }));
   });
 
@@ -99,19 +99,19 @@ describe("sign-in destination", () => {
     signedIn(); mocks.loadWorkspace.mockRejectedValueOnce(new Error("unavailable"));
     mocks.loadWorkspace.mockResolvedValueOnce({ workspace: { id: "existing-plan" } });
     render(<SignInPage />);
-    expect(await screen.findByRole("alert")).toHaveTextContent("暂时无法读取你的学习路线");
+    expect(await screen.findByRole("alert")).toHaveTextContent("couldn't load your learning path");
     expect(mocks.replace).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole("button", { name: "重试" }));
+    await userEvent.click(screen.getByRole("button", { name: "Retry" }));
     await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/today"));
   });
 
   it("shows an OAuth failure while retaining next and never immediately redirects the error away", async () => {
     signedIn(); mocks.search = "next=%2Fproof%3Fcompose%3D1&error=oauth";
     render(<SignInPage />);
-    expect(await screen.findByRole("alert")).toHaveTextContent("登录未完成");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Sign-in didn't finish");
     expect(mocks.replace).not.toHaveBeenCalled();
     expect(mocks.loadWorkspace).not.toHaveBeenCalled();
-    await userEvent.click(await screen.findByRole("button", { name: "使用 Google 继续" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Continue with Google" }));
     expect(mocks.social).toHaveBeenCalledWith(expect.objectContaining({ callbackURL: "/proof?compose=1" }));
   });
 

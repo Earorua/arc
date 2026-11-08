@@ -115,7 +115,7 @@ describe("learning agent context", () => {
       if (kind === "unsafe-url") f.sourceContext.blueprint.resources[0].url = "https://user:secret@example.com/course";
       const response = { workspace: f.workspace, sourceContext: kind === "missing" ? null : f.sourceContext };
       expect(() => learningContext(response, now)).toThrow(AgentServiceError);
-      expect(() => learningContext(response, now)).toThrow("学习路线资料暂时无法读取");
+      expect(() => learningContext(response, now)).toThrow("Your learning path is temporarily unavailable");
     },
   );
 
@@ -129,10 +129,10 @@ describe("learning agent context", () => {
     f.workspace.pathVersions.push({ ...f.path, id: "another-path" });
     f.workspace.activePathVersionId = "another-path";
     expect(() => learningContext({ workspace: f.workspace, sourceContext: f.sourceContext }, now))
-      .toThrow("学习路线资料暂时无法读取");
+      .toThrow("Your learning path is temporarily unavailable");
   });
 
   it("distinguishes an absent workspace from invalid route data", () => {
-    expect(() => learningContext({ workspace: null }, now)).toThrow("请先完成学习设置");
+    expect(() => learningContext({ workspace: null }, now)).toThrow("Complete your learning setup");
   });
 });

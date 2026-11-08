@@ -24,13 +24,13 @@ describe("AdaptivePath", () => {
     const current = smallWorkspace(1);
     window.history.replaceState(null, "", `/path?unit=${current.pathVersions[0].units[1].id}`);
     render(<AdaptivePath workspace={current} now={() => new Date("2026-08-14T08:00:00.000Z")} />);
-    expect(screen.getAllByText("已完成", { exact: true })).toHaveLength(1);
-    expect(screen.getAllByText("前置已满足", { exact: true })).toHaveLength(1);
-    expect(screen.getAllByText("待学习", { exact: true })).toHaveLength(1);
-    expect(screen.getByText("已完成阶段")).toBeInTheDocument();
-    expect(screen.getByText("当前阶段")).toBeInTheDocument();
-    expect(screen.queryByText("当前任务", { exact: true })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /去做当前任务|继续今日学习/ })).not.toBeInTheDocument();
+    expect(screen.getAllByText("Completed", { exact: true })).toHaveLength(1);
+    expect(screen.getAllByText("Prerequisites met", { exact: true })).toHaveLength(1);
+    expect(screen.getAllByText("To learn", { exact: true })).toHaveLength(1);
+    expect(screen.getByText("Completed phase")).toBeInTheDocument();
+    expect(screen.getByText("Current phase")).toBeInTheDocument();
+    expect(screen.queryByText("Current task", { exact: true })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Start your current task|Continue today’s task/ })).not.toBeInTheDocument();
   });
 
   it("offers the current-task link only on Today's due primary, even when other roots are ready", () => {
@@ -38,19 +38,19 @@ describe("AdaptivePath", () => {
     const first = current.dailyUnits.find(unit => unit.slot === "primary")!;
     window.history.replaceState(null, "", `/path?unit=${first.id}`);
     render(<AdaptivePath workspace={current} now={() => new Date("2026-08-13T16:00:00.000Z")} />);
-    const details = screen.getByText("当前任务", { exact: true }).closest("details")!;
+    const details = screen.getByText("Current task", { exact: true }).closest("details")!;
     expect(details).toHaveClass("path-unit-detail");
-    expect(within(details).getByRole("link", { name: "去做当前任务" })).toHaveAttribute("href", "/today");
-    expect(screen.getAllByText("当前任务", { exact: true })).toHaveLength(1);
-    expect(screen.getAllByText("前置已满足", { exact: true }).length).toBeGreaterThan(0);
+    expect(within(details).getByRole("link", { name: "Start your current task" })).toHaveAttribute("href", "/today");
+    expect(screen.getAllByText("Current task", { exact: true })).toHaveLength(1);
+    expect(screen.getAllByText("Prerequisites met", { exact: true }).length).toBeGreaterThan(0);
     expect(document.querySelectorAll('.path-unit-detail a[href="/today"]')).toHaveLength(1);
   });
 
   it("does not expose current-task actions or labels on a read-only saved route", () => {
     render(<AdaptivePath workspace={workspace()} readOnly now={() => new Date("2026-08-14T08:00:00.000Z")} />);
-    expect(screen.getAllByText("前置已满足", { exact: true }).length).toBeGreaterThan(0);
-    expect(screen.queryByText("当前任务", { exact: true })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /去做当前任务|继续今日学习/ })).not.toBeInTheDocument();
+    expect(screen.getAllByText("Prerequisites met", { exact: true }).length).toBeGreaterThan(0);
+    expect(screen.queryByText("Current task", { exact: true })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Start your current task|Continue today’s task/ })).not.toBeInTheDocument();
   });
 
   it("deduplicates completions and excludes optional stretch and non-completion events from route progress", () => {
@@ -71,14 +71,14 @@ describe("AdaptivePath", () => {
 
   it("shows no current phase after every route unit is completed", () => {
     render(<AdaptivePath workspace={smallWorkspace(3)} />);
-    expect(screen.queryByText("当前阶段", { exact: true })).not.toBeInTheDocument();
-    expect(screen.getAllByText("已完成阶段")).toHaveLength(2);
-    expect(screen.getByText("全部学习单元已完成。")).toBeInTheDocument();
+    expect(screen.queryByText("Current phase", { exact: true })).not.toBeInTheDocument();
+    expect(screen.getAllByText("Completed phase")).toHaveLength(2);
+    expect(screen.getByText("All learning units are complete.")).toBeInTheDocument();
     expect(document.querySelector('[aria-current="step"]')).toBeNull();
-    expect(screen.queryByText("当前任务", { exact: true })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /去做当前任务|继续今日学习/ })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "展开全部阶段" }));
-    expect(screen.getByRole("button", { name: "收起全部阶段" })).toBeInTheDocument();
+    expect(screen.queryByText("Current task", { exact: true })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Start your current task|Continue today’s task/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Expand all phases" }));
+    expect(screen.getByRole("button", { name: "Collapse all phases" })).toBeInTheDocument();
   });
 
   it("uses saved scheduled dates and labels dates outside the saved week as estimates", () => {
@@ -86,14 +86,14 @@ describe("AdaptivePath", () => {
     current.availability.exceptions = [{ date: "2026-08-14", minutes: 120, reason: "Saved day" }, { date: "2026-08-21", minutes: 0, reason: "Unavailable" }];
     current.availabilityVersions[0] = current.availability;
     render(<AdaptivePath workspace={current} />);
-    expect(document.querySelector(".path-phase-range")).toHaveTextContent("预计 2026-08-14—2026-08-22（按保存的学习时间估算）");
-    expect(screen.getByText(/路线预计/)).toBeInTheDocument();
+    expect(document.querySelector(".path-phase-range")).toHaveTextContent("Estimated: 2026-08-14—2026-08-22 (based on your saved availability)");
+    expect(screen.getByText(/Estimated path dates/)).toBeInTheDocument();
   });
 
   it("keeps completed dates distinct from the remaining saved schedule", () => {
     render(<AdaptivePath workspace={smallWorkspace(1)} readOnly />);
-    expect(screen.getByText("完成于 2026-08-14")).toBeInTheDocument();
-    expect(screen.getByText("已排期 2026-08-15—2026-08-16")).toBeInTheDocument();
+    expect(screen.getByText("Completed on 2026-08-14")).toBeInTheDocument();
+    expect(screen.getByText("Scheduled: 2026-08-15—2026-08-16")).toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
@@ -103,7 +103,7 @@ describe("AdaptivePath", () => {
     current.availability.weeklyMinutes = 105;
     current.availabilityVersions[0] = current.availability;
     render(<AdaptivePath workspace={current} />);
-    expect(screen.getAllByText("阶段时间暂不可估算")).toHaveLength(current.pathVersions[0].phases.length);
+    expect(screen.getAllByText("Phase dates are not yet available")).toHaveLength(current.pathVersions[0].phases.length);
   });
 
   it("shows checkpoint-specific names and time instead of repeating the whole template estimate", () => {
@@ -113,7 +113,7 @@ describe("AdaptivePath", () => {
     const checkpoint = template.checkpoints.find(item => item.id === unit.checkpointId)!;
     render(<AdaptivePath workspace={current} />);
     const summary = screen.getByText(checkpoint.label).closest("summary")!;
-    expect(within(summary).getByText(`${unit.estimatedMinutes} 分钟`)).toBeInTheDocument();
+    expect(within(summary).getByText(`${unit.estimatedMinutes} min`)).toBeInTheDocument();
   });
   it("restores selected unit from the URL and browser history", () => {
     const current = workspace();
@@ -127,40 +127,40 @@ describe("AdaptivePath", () => {
   });
   it("provides a clear continuation and makes saved routes read-only", () => {
     const view = render(<AdaptivePath workspace={workspace()} />);
-    expect(screen.getByRole("link", { name: /继续今日学习/ })).toHaveAttribute("href", "/today");
+    expect(screen.getByRole("link", { name: /Continue today’s task/ })).toHaveAttribute("href", "/today");
     view.rerender(<AdaptivePath workspace={workspace()} readOnly />);
-    expect(screen.queryByRole("link", { name: /继续今日学习/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Continue today’s task/ })).not.toBeInTheDocument();
   });
   it("opens only the current phase initially and offers explicit expansion of the entire route", () => {
     const current = workspace();
     render(<AdaptivePath workspace={current} />);
-    const phases = screen.getByRole("list", { name: "学习阶段" }).querySelectorAll<HTMLDetailsElement>("details.adaptive-phase-copy");
+    const phases = screen.getByRole("list", { name: "Learning phases" }).querySelectorAll<HTMLDetailsElement>("details.adaptive-phase-copy");
     expect(phases.length).toBeGreaterThan(1);
     expect([...phases].filter((phase) => phase.open)).toHaveLength(1);
     expect(phases[0].open).toBe(true);
-    fireEvent.click(screen.getByRole("button", { name: "展开全部阶段" }));
+    fireEvent.click(screen.getByRole("button", { name: "Expand all phases" }));
     expect([...phases].every((phase) => phase.open)).toBe(true);
-    fireEvent.click(screen.getByRole("button", { name: "仅展开当前阶段" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show current phase only" }));
     expect([...phases].filter((phase) => phase.open)).toHaveLength(1);
   });
   it("renders the exact ordered scope, current phase, calibration and distinct self-assessment", () => {
     render(<AdaptivePath workspace={workspace()} />);
-    const path = screen.getByRole("list", { name: "学习阶段" });
+    const path = screen.getByRole("list", { name: "Learning phases" });
     expect(within(path).getAllByRole("listitem").length).toBeGreaterThan(4);
-    expect(within(path).getAllByText("当前阶段")).toHaveLength(1);
-    expect(screen.getAllByText("能力校准").length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/你的自评：了解概念/).length).toBeGreaterThan(0);
+    expect(within(path).getAllByText("Current phase")).toHaveLength(1);
+    expect(screen.getAllByText("Calibration").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Your self-assessment: Understand the concepts/).length).toBeGreaterThan(0);
     expect(screen.queryAllByText(/Blueprint claim confidence/i)).toHaveLength(0);
     expect(screen.queryByText(/self-assessment.*verified/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/路线预计 2026-08-14—/)).toBeInTheDocument();
+    expect(screen.getByText(/Estimated path dates 2026-08-14—/)).toBeInTheDocument();
   });
 
   it("fails closed when a recorded registry version is unavailable", () => {
     const current = workspace();
     render(<AdaptivePath workspace={current} registry={{ ...flagshipUnitRegistry, version: "2026.08.99" }} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("暂时无法读取这个计划");
-    expect(screen.getByRole("alert")).toHaveTextContent("原有计划与学习记录已保留");
-    expect(screen.getByRole("alert")).toHaveTextContent("当前暂不支持自动转换这个版本");
+    expect(screen.getByRole("alert")).toHaveTextContent("This plan is temporarily unavailable");
+    expect(screen.getByRole("alert")).toHaveTextContent("Your plan and learning history are preserved");
+    expect(screen.getByRole("alert")).toHaveTextContent("This version cannot be converted automatically yet");
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 

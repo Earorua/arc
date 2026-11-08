@@ -23,22 +23,22 @@ export default function PathPage() {
   const session = authClient.useSession();
   const hydrated = useHydrated();
   if (!hydrated || session.isPending) return <WorkspaceShell current="Path" state={null} />;
-  if (!session.data?.user) return <div className="workspace-shell"><WorkspaceHeader current="Path" /><main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/path" title="你的下一步，有迹可循" description="登录后查看目标、阶段成果与当前学习路线。">{null}</AccountBoundary></main></div>;
+  if (!session.data?.user) return <div className="workspace-shell"><WorkspaceHeader current="Path" /><main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/path" title="A clear path to your next step" description="Sign in to view your goal, milestones, and current learning path.">{null}</AccountBoundary></main></div>;
   return <SessionPathPage key={session.data?.user.id ?? "guest"} authenticated={Boolean(session.data?.user)} />;
 }
 
 function SessionPathPage({ authenticated }: { authenticated: boolean }) {
   const arc = useArcState();
+  const planning = usePlanningWorkspace();
   const { state } = arc;
 
   if (state === null) return <WorkspaceShell current="Path" recovery={arc.recovery} source={arc.source} state={null} />;
 
-  if (authenticated || state.setup.roleId === flagshipRole.id) return <SourceAdaptivePath arc={arc} />;
+  if (authenticated || state.setup.roleId === flagshipRole.id) return <SourceAdaptivePath arc={arc} planning={planning} />;
   return <LegacyPath arc={arc} />;
 }
 
-function SourceAdaptivePath({ arc }: { arc: ReturnType<typeof useArcState> }) {
-  const planning = usePlanningWorkspace();
+function SourceAdaptivePath({ arc, planning }: { arc: ReturnType<typeof useArcState>; planning: ReturnType<typeof usePlanningWorkspace> }) {
   const [decisionMessage, setDecisionMessage] = useState<string | null>(null);
   const resolved = resolveWorkspacePresentation(planning, arc.state !== null && arc.source === "local" && arc.recovery === "none");
   if (resolved.kind === "unavailable") return <WorkspaceShell sourceUnresolved current="Path" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
@@ -75,12 +75,12 @@ function LegacyPath({ arc }: { arc: ReturnType<typeof useArcState> }) {
       state={state}
     >
       <section className="workspace-intro">
-        <p className="eyebrow">{role} · {targetWeeks} 周 · 每周 {weeklyMinutes} 分钟</p>
-        <h1>学习路线</h1>
-        <p>每个阶段只承担一个明确结果；时间变化时，后续路线重新分配但历史保持不变。</p>
+        <p className="eyebrow">{role} · {targetWeeks} weeks · {weeklyMinutes} min per week</p>
+        <h1>Learning path</h1>
+        <p>Each phase has one clear outcome. When your availability changes, future work is rescheduled and your history is preserved.</p>
         <div className="path-primary-actions">
-          <Link className="primary-link" href="/today">继续今日学习 ↗</Link>
-          <Link href="/coach?returnTo=%2Fpath">调整学习计划</Link>
+          <Link className="primary-link" href="/today">Continue today’s task ↗</Link>
+          <Link href="/coach?returnTo=%2Fpath">Adjust your plan</Link>
         </div>
       </section>
       <SetupCompletionNotice />

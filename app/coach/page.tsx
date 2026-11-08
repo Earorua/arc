@@ -1,6 +1,6 @@
 import { LearningCoach } from "../components/agents/learning-coach";
 
-export const metadata = { title: "学习规划师" };
+export const metadata = { title: "Learning coach" };
 export default function CoachPage() {
   return <LearningCoach />;
 }

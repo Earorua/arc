@@ -23,10 +23,10 @@ export function LearningPreferences() {
   const state = useContext(AgentContext);
   if (!state?.authenticated || state.authPending) return null;
   return <details className="account-learning-preferences">
-    <summary>学习偏好</summary>
-    <label><input type="checkbox" checked={state.reducedMotion} onChange={event => state.setReducedMotion(event.target.checked)} />减少动效</label>
-    <p>默认遵循系统设置；勾选后进一步减少全站动画。</p>
-    <label><input type="checkbox" checked={state.view !== "hidden"} onChange={event => state.setView(event.target.checked ? "pet" : "hidden")} />显示学习伙伴</label>
+    <summary>Learning preferences</summary>
+    <label><input type="checkbox" checked={state.reducedMotion} onChange={event => state.setReducedMotion(event.target.checked)} />Reduce motion</label>
+    <p>Uses your system preference by default. Select this to further reduce animation across Arc.</p>
+    <label><input type="checkbox" checked={state.view !== "hidden"} onChange={event => state.setView(event.target.checked ? "pet" : "hidden")} />Show learning companion</label>
   </details>;
 }
 export function useLearningAgents() {
@@ -136,7 +136,7 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
       goal.current = value.goalId; setWorkspace(value); setError(null);
     } catch (e) {
       if (!mounted.current || controller.signal.aborted) return;
-      setWorkspace(null); setError(e instanceof Error ? e.message : "无法读取学习进度。");
+      setWorkspace(null); setError(e instanceof Error ? e.message : "Could not load your progress.");
     } finally { if (mounted.current && !controller.signal.aborted) setLoading(false); }
   }, [identity]);
   useEffect(() => {
@@ -173,7 +173,7 @@ function AgentSession({ children, identity }: { children: ReactNode; identity: s
       }, controller.signal);
     } catch (e) {
       if (!isCurrent()) return;
-      setError(controller.signal.aborted ? "已停止回复，问题已保留。" : e instanceof Error ? e.message : "回复失败，请重试。");
+      setError(controller.signal.aborted ? "Response stopped. Your question has been kept." : e instanceof Error ? e.message : "The response failed. Try again.");
       if (!draftRef.current) setDraft(message);
     } finally { if (isCurrent()) setBusy(false); }
   };

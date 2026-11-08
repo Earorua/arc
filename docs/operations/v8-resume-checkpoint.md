@@ -1,10 +1,24 @@
-## 2026-10-29：最新源码与双语文档同步
+# Source routing — 2026-11-08
+
+Read [SOURCE_INDEX.md](../../SOURCE_INDEX.md) before resuming work. It distinguishes the current application, the deployed English release, and paused materials development. Historical directory pointers below are evidence for their recorded release, not instructions to select a checkout. The source consolidation does not deploy or resume the materials task.
+
+## Deployed English interface — 2026-11-08
+
+Current website: https://arcmaps.net/. The interface is English throughout; duplicate bilingual labels are removed, responsive typography is checked, and the latest mist/ink-teal palette and quiet loading behavior are preserved.
+
+**Current application source:** `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision`, branch `codex/english-interface-20261108`, application commit `19a81a500b5f87085f3aaddb27fc0e9b050fc48c`. For new website work use the consolidated application source listed in SOURCE_INDEX.md. The older `.worktrees/ui-warm-precision` below contains paused materials work and is not the current production baseline.
+
+Site version `f56682e8-ac26-446e-a6dd-c87d38f3684a`, deployment `19cab0f2-aecc-4019-a140-8bf319758ced`, 100% traffic. All 44 bindings/runtime settings remain unchanged. Research executor remains `60b176c2-be13-4df2-8743-c899b596f6d4`. No model calls or migrations were made. The release record is `C:/Users/XF/.codex/worktrees/arc-ink-teal/ui-warm-precision/docs/verification/2026-11-08-english-only-interface.md`; receipts and screenshots are in `D:/CodexTemp/arc-english-20261108`.
+
+1,357 related tests, final focused tests, TypeScript, changed-source lint, production build, five rendered HTML checks, and browser verification passed. Historical deployment/version/source pointers below are superseded by this entry. Paused materials work remains separate; do not rerun old release scripts.
+
+## Historical source synchronization — 2026-10-29
 
 当前源码基线为 `b0847ccd4a7ff500f67303ca00b37f07a469d996`，包含当天 Research 响应修正、学习入口、工作区和首页导航的全部后续提交。根目录提供 [English](../../README.md) 与 [简体中文](../../README.zh-CN.md) 两个版本的项目说明；本次源码与验证说明见[双语文档同步记录](../verification/2026-10-29-source-readme.md)。
 
 本源码中最新正式发布记录为应用 `a826114`、Site `bd827c05-4041-40e3-90cd-b97127fc1f6b`，私有 Executor 为 `60b176c2-be13-4df2-8743-c899b596f6d4`，详见[首页方法入口发布验收](../verification/2026-10-29-home-method-entry.md)。本次 GitHub 文档与源码同步不执行部署、迁移或付费模型请求。下方版本与待办保留为历史；后续操作先核对对应最新发布记录。
 
-## 历史发布 — 2026-10-28，全站体验优化与学习伙伴已整合上线
+## Historical release — 2026-10-28，全站体验优化与学习伙伴已整合上线
 
 **当前正式状态以本段及[最新发布记录](experience-redesign-release-2026-10-28.md)为准。** 正式站为 https://arcmaps.net；北京时间 21:25 发布的 Site `34170daa-a865-410c-91de-125edac48956` 承接 100% 流量，应用源码 `bd91714ee4d87f20dbd73005054ef17ceb6f968a`。私有 Executor 保持 `58ce29e7-80df-4d78-8a28-c7dcdf614555`。
 

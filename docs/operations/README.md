@@ -1,13 +1,15 @@
 # Arc 操作记录与历史索引
 
-当前正式入口为 [arcmaps.net](https://arcmaps.net)。本源码中最新发布记录为 2026-10-29 的首页方法入口精简，应用提交 `a826114`；已包含学习伙伴、Discovery 主题、工作区改版、当天 Research 修正及后续导航调整。先读对应发布记录；旧记录中的“下一步”“待批准”“当前版本”和进程编号描述的是记录当时的状态，不覆盖较新的用户授权和检查点。
+当前源码选择以根目录 [SOURCE_INDEX.md](../../SOURCE_INDEX.md) 为准。最新已发布网站使用英文界面、雾白与墨青配色及轻量加载；资料功能仍在独立开发分支暂停保存。历史记录中的“下一步”“待批准”“当前版本”和目录名描述记录当时的状态，不覆盖最新源码入口。
 
 项目介绍与开发说明：[English](../../README.md) · [简体中文](../../README.zh-CN.md)。
 
 | 用途 | 入口 |
 | --- | --- |
-| 最新源码、双语 README 与本次验证 | [2026-10-29 源码验证记录](../verification/2026-10-29-source-readme.md) |
-| 最新记录的正式版本与首页方法入口 | [2026-10-29 首页方法入口验收](../verification/2026-10-29-home-method-entry.md) |
+| 当前完整源码、开发分支与文件统计 | [源码入口](../../SOURCE_INDEX.md)、[源码整理记录](../verification/2026-11-08-source-consolidation.md) |
+| 最新已发布英文界面 | [2026-11-08 英文界面发布](../verification/2026-11-08-english-only-interface.md) |
+| 墨青配色与加载改进 | [配色发布](../verification/2026-11-08-arc-ink-teal.md)、[加载改进](../verification/2026-11-08-quiet-workspace-loading.md) |
+| 历史首页方法入口发布 | [2026-10-29 首页方法入口验收](../verification/2026-10-29-home-method-entry.md) |
 | 首页学习和样例入口 | [首页学习入口](../verification/2026-10-29-home-learning-action.md)、[首页样例入口](../verification/2026-10-29-home-showcase-entry.md) |
 | 工作区导航与学习入口精简 | [工作区操作精简](../verification/2026-10-29-workspace-control-simplification.md)、[学习入口发布](learning-entry-simplification-2026-10-29.md) |
 | Research 响应兼容修正与验证范围 | [2026-10-29 Research 修正](research-response-recovery-2026-10-29.md) |

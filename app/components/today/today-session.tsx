@@ -34,14 +34,14 @@ function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
   };
 
   return (
-    <section className="today-session" lang="zh-CN">
-      <p className="eyebrow">今日学习 · 主要任务</p>
+    <section className="today-session" lang="en">
+      <p className="eyebrow">Today · Main task</p>
       <div className="time-budget">
         <strong>{unit.minutes}</strong>
-        <span>分钟</span>
+        <span>min</span>
       </div>
       <h1>{unit.title}</h1>
-      <section className="today-deliverable"><h2>本次交付</h2><p>{unit.deliverable}</p></section>
+      <section className="today-deliverable"><h2>Your deliverable</h2><p>{unit.deliverable}</p></section>
 
       <div className="task-steps">
         {unit.steps.map((step, index) => (
@@ -59,8 +59,8 @@ function StatefulTodaySession({ onComplete, unit }: TodaySessionProps) {
       </div>
 
       <div className="deliverable-bar">
-        <span id="legacy-completion-help">{ready ? "检查交付内容后，记录这次进度。" : "完成并勾选上面的学习步骤后，即可记录进度。"}</span>
-        <button aria-describedby="legacy-completion-help" disabled={!ready || isCompleting} onClick={() => void complete()} type="button">完成任务</button>
+        <span id="legacy-completion-help">{ready ? "Review your deliverable, then save your progress." : "Complete and check off the steps above to save your progress."}</span>
+        <button aria-describedby="legacy-completion-help" disabled={!ready || isCompleting} onClick={() => void complete()} type="button">Complete task</button>
       </div>
     </section>
   );

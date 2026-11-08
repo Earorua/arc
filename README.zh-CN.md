@@ -5,13 +5,13 @@
 ![Arc. — 只学真正推动你前进的知识](./public/og.png)
 
 [![质量检查](https://github.com/Earorua/arc/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Earorua/arc/actions/workflows/ci.yml)
-[![访问 Arc](https://img.shields.io/badge/live-arcmaps.net-744596)](https://arcmaps.net)
+[![访问 Arc](https://img.shields.io/badge/live-arcmaps.net-237a74)](https://arcmaps.net)
 
 **从目标岗位，到可执行的学习路径。**
 
 Arc 将岗位要求拆解为技能和学习单元，结合已有能力与可用时间安排每日任务。学习伙伴围绕当前任务答疑，规划师提出调整建议，作品证据则记录学习进步。
 
-[访问网站](https://arcmaps.net) · [查看产品样例](https://arcmaps.net/showcase)
+[访问网站](https://arcmaps.net) · [查看产品样例](https://arcmaps.net/showcase) · [源码入口](./SOURCE_INDEX.md)
 
 ## 核心功能
 
@@ -34,7 +34,7 @@ Arc 将岗位要求拆解为技能和学习单元，结合已有能力与可用�
 3. **关键变化由用户确认。** 「不确定」自评会安排校准；调整计划先展示差异、确认后生效，任务完成和作品审核分别记录。
 4. **个人数据有明确归属。** 通过 Google 或 GitHub 登录个人工作区，登录后的学习状态保存在 D1，本地内容经确认后导入；附件保持私有，公开分享仅展示选定字段。
 
-界面采用暖纸色表面、深色文字和紫色强调，突出下一步学习任务，并支持响应式布局、键盘焦点和减少动效。
+界面采用雾白色表面、深蓝灰文字和墨青强调，突出下一步学习任务，并支持响应式布局、键盘焦点和减少动效。
 
 ## 技术栈
 

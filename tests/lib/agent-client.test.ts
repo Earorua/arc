@@ -22,7 +22,7 @@ describe("learning agent client", () => {
   it("does not retry a disconnected planning stream", async () => {
     const fetcher = vi.fn(async () => new Response(JSON.stringify({ type: "started", run }) + "\n"));
     vi.stubGlobal("fetch", fetcher);
-    await expect(agentClient.start(input)).rejects.toThrow("连接中断");
+    await expect(agentClient.start(input)).rejects.toThrow("The connection was interrupted");
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
   it("surfaces safe server errors and cancels a stalled stream", async () => {

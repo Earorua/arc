@@ -6,7 +6,7 @@
 .showcase-sample-label { margin: 8px 0 0; color: var(--stone); font-size: .875rem; line-height: 1.65; }
 .showcase-case { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 2fr); gap: clamp(28px, 4vw, 56px); padding: 32px 0 48px; border-top: 1px solid var(--hairline); align-items: start; }
 .showcase-context { position: sticky; top: 32px; }
-.showcase-context h2 { margin: 18px 0 14px; font: 500 clamp(1.4rem, 2.2vw, 1.8rem)/1.35 var(--display); letter-spacing: -.03em; }
+.showcase-context h2 { margin: 18px 0 14px; font: 500 clamp(1.4rem, 2.2vw, 1.8rem)/1.35 var(--display); letter-spacing: -.03em; text-wrap: auto; }
 .showcase-context > p:not(.section-index) { color: var(--stone); font-size: .9375rem; line-height: 1.8; }
 .showcase-facts { margin: 32px 0; }
 .showcase-facts > div { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--hairline); }
@@ -17,9 +17,8 @@
 .showcase-preview { min-width: 0; background: var(--chalk); border: 1px solid var(--hairline); }
 .showcase-story-label { margin: 0; padding: 16px 24px 0; color: var(--stone); font-size: .875rem; line-height: 1.65; }
 .showcase-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--hairline); }
-.showcase-tabs button { position: relative; display: flex; align-items: baseline; justify-content: center; gap: 10px; min-height: 62px; padding: 16px 8px; border: 0; background: transparent; color: var(--stone); font-size: 1rem; cursor: pointer; transition: color 160ms ease, background 160ms ease; }
+.showcase-tabs button { position: relative; display: flex; align-items: center; justify-content: center; min-height: 62px; padding: 16px 8px; border: 0; background: transparent; color: var(--stone); font-size: 1rem; cursor: pointer; transition: color 160ms ease, background 160ms ease; }
 .showcase-tabs button strong { font-weight: 500; }
-.showcase-tabs button span { font: .875rem var(--sans); }
 .showcase-tabs button::after { content: ""; position: absolute; bottom: -1px; left: 16px; right: 16px; height: 2px; background: var(--signal); transform: scaleX(0); transition: transform 180ms ease; }
 .showcase-tabs button[aria-selected="true"] { color: var(--charcoal); }
 .showcase-tabs button[aria-selected="true"]::after { transform: scaleX(1); }
@@ -83,8 +82,7 @@
   .showcase-facts dd { font-size: 1.7rem; }
   .showcase-context .showcase-sample-note { margin: 0; }
   .showcase-story-label { padding: 14px 18px 0; font-size: .8125rem; }
-  .showcase-tabs button { flex-direction: column; align-items: center; gap: 5px; min-height: 74px; font-size: .9375rem; }
-  .showcase-tabs button span { font-size: .8125rem; }
+  .showcase-tabs button { min-height: 56px; font-size: .9375rem; }
   .showcase-panel { min-height: 0; padding: 22px 18px; }
   .showcase-roadmap li { gap: 12px; }
   .showcase-week span { display: block; margin-left: 0; }

@@ -13,21 +13,21 @@ const headers = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosnif
 const json = (value: unknown, status = 200) => Response.json(value, { status, headers });
 const errorResult = (error: unknown) => {
   if (error instanceof AgentServiceError) return json({ error: error.message }, error.status);
-  if (error instanceof z.ZodError) return json({ error: "请求内容不完整或过长，请检查后重试。" }, 400);
-  if ((error as { code?: string })?.code === "CONFLICT") return json({ error: "学习进度已变化，请刷新后重试。" }, 409);
-  if ((error as { code?: string })?.code === "AUTH_UNAVAILABLE") return json({ error: "登录服务尚未配置，学习助手暂不可用。" }, 503);
-  return json({ error: "学习助手暂时无法连接，请稍后重试。" }, 503);
+  if (error instanceof z.ZodError) return json({ error: "The request is incomplete or too long. Check it and try again." }, 400);
+  if ((error as { code?: string })?.code === "CONFLICT") return json({ error: "Your progress has changed. Refresh and try again." }, 409);
+  if ((error as { code?: string })?.code === "AUTH_UNAVAILABLE") return json({ error: "Sign-in is not configured. The learning assistant is unavailable." }, 503);
+  return json({ error: "The learning assistant is temporarily unavailable. Try again later." }, 503);
 };
 export function createAgentHandlers(deps: Dependencies) {
   async function guarded(request: Request, action: (service: LearningAgentService, owner: string) => Promise<Response>) {
     try {
       if (request.method !== "GET") {
         const origin = request.headers.get("origin");
-        if (!deps.origin || origin !== deps.origin) throw new AgentServiceError(403, "请从本站发起请求。");
+        if (!deps.origin || origin !== deps.origin) throw new AgentServiceError(403, "Send this request from Arc.");
       }
       const user = await deps.getUser(request.headers);
-      if (!user) throw new AgentServiceError(401, "请先登录 Arc。");
-      if (!await deps.rateLimit(user.id)) throw new AgentServiceError(429, "请求过于频繁，请稍后再试。");
+      if (!user) throw new AgentServiceError(401, "Sign in to Arc first.");
+      if (!await deps.rateLimit(user.id)) throw new AgentServiceError(429, "Too many requests. Try again later.");
       return await action(deps.createService(), user.id);
     } catch (error) { return errorResult(error); }
   }
@@ -68,7 +68,7 @@ function streamResponse(request: Request,
       if (signal.aborted) { close(); return; }
       send({ type: "heartbeat" });
       void task(send, signal).then(run => send({ type: "done", run }))
-        .catch(error => send({ type: "error", message: error instanceof AgentServiceError ? error.message : "本次生成未完成，请重试。" }))
+        .catch(error => send({ type: "error", message: error instanceof AgentServiceError ? error.message : "Generation did not finish. Try again." }))
         .finally(close);
     },
     cancel() { abort.abort(); },
@@ -76,17 +76,17 @@ function streamResponse(request: Request,
   return new Response(stream, { headers: { ...headers, "Content-Type": "application/x-ndjson; charset=utf-8" } });
 }
 async function body(request: Request): Promise<unknown> {
-  if (!request.body) throw new AgentServiceError(400, "消息不能为空。");
+  if (!request.body) throw new AgentServiceError(400, "Enter a message.");
   const reader = request.body.getReader(); let size = 0, text = "";
   const decoder = new TextDecoder();
   try {
     while (true) {
       const chunk = await reader.read(); if (chunk.done) break;
       size += chunk.value.byteLength;
-      if (size > 32768) throw new AgentServiceError(413, "消息过长，请分段提问。");
+      if (size > 32768) throw new AgentServiceError(413, "This message is too long. Try asking one part at a time.");
       text += decoder.decode(chunk.value, { stream: true });
     }
     try { return JSON.parse(text + decoder.decode()); }
-    catch { throw new AgentServiceError(400, "请求格式无效。"); }
+    catch { throw new AgentServiceError(400, "The request format is invalid."); }
   } finally { await reader.cancel().catch(() => undefined); }
 }
