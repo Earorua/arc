@@ -1,0 +1,1228 @@
+{
+  "sourceHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/experience-evidence.ts": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/experience-evidence.test.ts": "0b8f4d54812dfeed46beb53fd18c10b45503b68f0b989bcf1926706ead60d520",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+  },
+  "observations": [
+    {
+      "text": "I assisted with status reporting on SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "db9042a019b234f6493942263f39f0cbbd4746ad7de27212ea89d6ac699b6dcc"
+    },
+    {
+      "text": "I assisted with status reporting about SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "5e371596f00f3eb613ee3255407fd0a060c854abc9877234e6708bae653517ed"
+    },
+    {
+      "text": "I assisted with status reporting of SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "d50a90109f54ffc17bb68842e9c3a768071987366f87ee8e8428b7532cb4f85f"
+    },
+    {
+      "text": "I assisted with progress reporting on SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "d909d070efd286a03d6ffd6d8ec5aea541fc238bca2e861862b259b559952f2e"
+    },
+    {
+      "text": "I assisted with progress reporting about SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "ee11868127ea7e7a9582b6958f493c43775048e18caf8f9b9e74f658109d5e77"
+    },
+    {
+      "text": "I assisted with progress reporting of SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "e5e388c68105e319513ba719c0f99ee9be47e86d786382968e54a8e8504c4910"
+    },
+    {
+      "text": "I assisted in status reporting on SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "a4ec9584ec2904422af9de2d96c67b3cd91eba2ee6719d53ab768bf99dff7e67"
+    },
+    {
+      "text": "I assisted in status reporting about SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "dd8c4e9570f6b99950af5f102dcc1f2cd34cba28323bed4c1b27850554e74d7c"
+    },
+    {
+      "text": "I assisted in status reporting of SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "e54ee63aa02fd80afbf7e41945bacc52a2c1d889373bb2aa7202122c2dcb2deb"
+    },
+    {
+      "text": "I assisted in progress reporting on SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "7752d3cd1faf5ae142e5f8738a21cc27999450c16a505e90838740cc8b0ef8de"
+    },
+    {
+      "text": "I assisted in progress reporting about SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "ff3fc5e96f8754c79a1c3ee015a388e408fd8f161b5068799402dbe2425bfe38"
+    },
+    {
+      "text": "I assisted in progress reporting of SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "dcf1107f71fa6161259edf1c50326e8b4609d0d80cfc09c638d348f5378a0291"
+    },
+    {
+      "text": "I have assisted in SQL demo scheduling for the team.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "71c944a013f651f270af42afe8b864f707f32414f6c9692389cd86c04542a3ed"
+    },
+    {
+      "text": "I am assisting with SQL training planning.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "0ce898261d54d058acdc6821e83f735c7134e88466d038e9ca719a3eac854059"
+    },
+    {
+      "text": "I can assist in SQL project progress reporting about delivery.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "d87213655f129ad09b62cdb4ebff6c1ca2e965cfc90970273c867e09b36019bb"
+    },
+    {
+      "text": "I am able to assist in progress reporting of SQL.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "ec4a66826e3a25ecc61e75840f65cfcaf8aa3dd4646dc2f88ca391d1e7ff727b"
+    },
+    {
+      "text": "Assisted with the SQL demo schedule.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "71d3faa8400dfd740b5037bb78b4c49189b94b8f358c1f748e24e26b8131e1c6"
+    },
+    {
+      "text": "I assisted with writing notes about my colleague's SQL work.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "a76422d0e29d66facb11b5413c78500be0a29b37bdd49cb5fb28df8c561ec7ac"
+    },
+    {
+      "text": "I have assisted in SQL query testing for progress reporting.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "6fced5e490c5f504802d0b70ad4d27609cf70af8cc3b4ee5a623043f849e913d"
+    },
+    {
+      "text": "I am assisting with modifying SQL queries for planning.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "1a34ea1fa1fb619efcba13d6cf530d8cd8553340ea02805d045e1cb90bf5303b"
+    },
+    {
+      "text": "I can assist in testing SQL reporting queries on sample data.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "bfd25778c08ab125f213ba8834479328ae4f170b010488d071663fa670ac27e8"
+    },
+    {
+      "text": "I am able to assist with modifying SQL queries of the reporting workflow.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "c6693f7b0be8a7cccd8b2eb3d7e16c89cac5fd509f8047a0629a09ff9a7f9783"
+    },
+    {
+      "text": "Assisted with SQL query reporting about sales data.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "7083c86d3606e36295ffb66dba797ed5ed268d7599b73e4f0731393348c17098"
+    },
+    {
+      "text": "I assisted in SQL reporting of sales data.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "fa43953b52e4a4b5a8f1403b24e53359fb9c4f567aaa0d75469fd3db2e54fd64"
+    },
+    {
+      "text": "I assisted with SQL reporting on transaction data.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "e2983a5c765c5e866f2ce90300c9988cbba25154d4a31b2f7eca29cbef07154c"
+    },
+    {
+      "text": "I assisted with testing \"SQL\".",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "f2adc42e82bcc102db2fa2597f20e9b797ab130580d2b6a71fb25a057b3729ab"
+    },
+    {
+      "text": "My colleague assisted in SQL query testing.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "4857076271b99fcd62bcad94d78f6469f34fbd520c0b1dc6283c866626243751"
+    },
+    {
+      "text": "I never assisted with SQL reporting.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "976345abc8bc043a64b3f5ff098746c255a00317a1ca515bf34e42bd24da2fe6"
+    },
+    {
+      "text": "I plan to assist in SQL query testing.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "be2f9bbd322f0abc2e4b7dff536f449127a32b14ed96418ceb219c0fb0cff3ba"
+    },
+    {
+      "text": "If asked, I would assist with SQL reporting.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "aa71be1af7cb12fc6b6a4deacc99a2f42dbc16dd20fd92602e893cff89a7c099"
+    },
+    {
+      "text": "\"I assisted with SQL reporting.\"",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "956ee62bd9c064546c45eed8071de59d35a4039daf0a93f681802a928c5d14aa"
+    },
+    {
+      "text": "My mentor said, I assisted with SQL reporting.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "271d292409af778ac3b69b64e417daf62042e03935c6dc59b9b4245a843b8390"
+    },
+    {
+      "text": "I assisted in testing the SQL supplied by my mentor.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "60350527b99d3bba556369779ce554a168e2dbdd3c6dabd3238f8c2778947381"
+    },
+    {
+      "text": "I assisted with modifying the SQL queries supplied by my mentor.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": true,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "e2933e1893ebc17fface33162f4c9302640900cf63c55939b612558d5568b88b"
+    },
+    {
+      "text": "My mentor supplied SQL; I assisted with SQL demo scheduling.",
+      "labels": [
+        "SQL"
+      ],
+      "expected": [],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [],
+      "servicePriorities": [],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "1d0618f3559be47e2a49e429e4ee4ae8abd2e59847a13ae01e24af5b0f7aa4a7"
+    },
+    {
+      "text": "I assisted with React components; my colleague assisted with SQL queries.",
+      "labels": [
+        "React",
+        "SQL"
+      ],
+      "expected": [
+        "react"
+      ],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "React",
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "react"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "react",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "ddab9e113208a493c41adef9b2396897a8b931a9c82b9bcfc54e55c8a8b63c5b"
+    },
+    {
+      "text": "I assisted with SQL demo scheduling; I tested React components.",
+      "labels": [
+        "SQL",
+        "React"
+      ],
+      "expected": [
+        "react"
+      ],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "React",
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "react"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "react",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "0b4c6df1b8d7a62aa6a82727f5fa13a564fd68f184a784ffce68473d55e4b160"
+    },
+    {
+      "text": "I assisted with SQL reporting; I did not assist with React components.",
+      "labels": [
+        "SQL",
+        "React"
+      ],
+      "expected": [
+        "sql"
+      ],
+      "whole": false,
+      "mapping": [
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "quality-boundary-fact",
+          "term": "React",
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "relations": [
+        {
+          "itemId": "quality-boundary-fact",
+          "skillId": "sql"
+        }
+      ],
+      "servicePriorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-b28a39b91c264e9fed0873a5a839eabb"
+          ]
+        }
+      ],
+      "policyVersion": "2026.11.3",
+      "mappingVersion": "2026.11.5",
+      "auditUnchanged": true,
+      "rereadAndReplayEqual": true,
+      "persistedPreviewSha256": "21de01256c2df8b37d087f9ac80e73e3bf8adbd29c2bf7197caa9f514ac55492"
+    }
+  ]
+}

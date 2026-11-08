@@ -1,0 +1,49 @@
+import assert from "node:assert/strict";
+import { build } from "esbuild";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const manifestPath = "work/grounded-verification/experience-priority-author-20261109-resume-source-binding.json";
+assert.equal(sha(readFileSync(manifestPath)), "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c");
+const manifest = JSON.parse(readFileSync(manifestPath));
+const sourceHashes = Object.fromEntries(Object.keys(manifest.sourceHashes).map(path => [path, sha(readFileSync(path))]));
+assert.deepEqual(sourceHashes, manifest.sourceHashes);
+const output = await build({ stdin: { contents: `
+  export { supportsMaterialExperience } from "./app/lib/materials/experience-evidence.ts";
+  export { mapMaterialItemTerms, mapMaterialPracticeSkills } from "./app/lib/materials/skill-mapper.ts";
+  export { flagshipBlueprint } from "./app/data/flagship-blueprint.ts";
+  export { flagshipUnitRegistry } from "./app/data/flagship-unit-registry.ts";
+`, resolveDir: process.cwd(), loader: "ts" }, bundle: true, platform: "node", format: "esm", write: false });
+const api = await import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`);
+const cases = [
+  ["I assisted with SQL status reporting.", false],
+  ["I can assist with SQL status reporting.", false],
+  ["I assisted with SQL progress reporting for the team.", false],
+  ["I assisted with SQL status reporting to the team.", false],
+  ["I assisted with status reporting on SQL.", false],
+  ["I can assist with status reporting on SQL.", false],
+  ["I assisted with progress reporting on SQL.", false],
+  ["I am able to assist with progress reporting on SQL.", false],
+  ["I assisted with SQL reporting.", true],
+  ["I assisted with SQL query reporting.", true],
+  ["I assisted with testing SQL reporting queries.", true],
+  ["I can assist with testing SQL reporting queries.", true],
+  ["I assisted with modifying SQL queries for planning.", true],
+  ["I assisted with SQL query testing for progress reporting.", true],
+  ["I assisted with SQL demo scheduling.", false],
+  ["I assisted with scheduling a SQL demo.", false],
+];
+const rows = cases.map(([text, expected]) => {
+  const item = { id: "fact", kind: "experience", text, skillLabels: ["SQL"], origin: "user", sourceRef: null, requirementLevel: null };
+  const term = api.supportsMaterialExperience({ kind: item.kind, text, target: { kind: "terms", terms: ["SQL"] } });
+  const whole = api.supportsMaterialExperience({ kind: item.kind, text, target: { kind: "confirmed-whole-fact" } });
+  const mapping = api.mapMaterialItemTerms([item], api.flagshipBlueprint, api.flagshipUnitRegistry);
+  const practices = api.mapMaterialPracticeSkills([item], api.flagshipBlueprint, api.flagshipUnitRegistry);
+  return { text, expected, term, whole, mapping, practices };
+});
+const mismatches = rows.filter(row => row.term !== row.expected || row.whole !== row.expected || (row.practices.length > 0) !== row.expected);
+const result = { sourceHashes, rows, mismatches };
+writeFileSync("work/grounded-verification/experience-priority-author-20261109-resume-quality-probe-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));
+process.exitCode = mismatches.length ? 1 : 0;

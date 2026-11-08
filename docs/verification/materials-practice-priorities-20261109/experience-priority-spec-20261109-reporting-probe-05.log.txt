@@ -1,0 +1,176 @@
+{
+  "candidateASha256": "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2",
+  "candidateBSha256": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec",
+  "rows": [
+    {
+      "text": "I assisted with SQL reports.",
+      "expected": true,
+      "candidateA": {
+        "term": true,
+        "whole": true
+      },
+      "candidateB": {
+        "term": true,
+        "whole": true,
+        "mapping": [
+          {
+            "itemId": "fact",
+            "term": "SQL",
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "practices": [
+          {
+            "itemId": "fact",
+            "skillId": "sql"
+          }
+        ]
+      }
+    },
+    {
+      "text": "I assisted with SQL reporting.",
+      "expected": true,
+      "candidateA": {
+        "term": true,
+        "whole": true
+      },
+      "candidateB": {
+        "term": true,
+        "whole": true,
+        "mapping": [
+          {
+            "itemId": "fact",
+            "term": "SQL",
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "practices": [
+          {
+            "itemId": "fact",
+            "skillId": "sql"
+          }
+        ]
+      }
+    },
+    {
+      "text": "I assisted with SQL query reporting.",
+      "expected": true,
+      "candidateA": {
+        "term": true,
+        "whole": true
+      },
+      "candidateB": {
+        "term": true,
+        "whole": true,
+        "mapping": [
+          {
+            "itemId": "fact",
+            "term": "SQL",
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "practices": [
+          {
+            "itemId": "fact",
+            "skillId": "sql"
+          }
+        ]
+      }
+    },
+    {
+      "text": "I assisted with SQL project progress reporting.",
+      "expected": false,
+      "candidateA": {
+        "term": true,
+        "whole": true
+      },
+      "candidateB": {
+        "term": false,
+        "whole": false,
+        "mapping": [
+          {
+            "itemId": "fact",
+            "term": "SQL",
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "practices": []
+      }
+    },
+    {
+      "text": "I assisted with testing SQL reporting queries.",
+      "expected": true,
+      "candidateA": {
+        "term": true,
+        "whole": true
+      },
+      "candidateB": {
+        "term": true,
+        "whole": true,
+        "mapping": [
+          {
+            "itemId": "fact",
+            "term": "SQL",
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "practices": [
+          {
+            "itemId": "fact",
+            "skillId": "sql"
+          }
+        ]
+      }
+    },
+    {
+      "text": "I assisted with modifying SQL queries for planning.",
+      "expected": true,
+      "candidateA": {
+        "term": true,
+        "whole": true
+      },
+      "candidateB": {
+        "term": true,
+        "whole": true,
+        "mapping": [
+          {
+            "itemId": "fact",
+            "term": "SQL",
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "practices": [
+          {
+            "itemId": "fact",
+            "skillId": "sql"
+          }
+        ]
+      }
+    }
+  ],
+  "mismatches": []
+}

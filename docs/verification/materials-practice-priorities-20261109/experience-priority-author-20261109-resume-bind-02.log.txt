@@ -1,0 +1,6 @@
+{
+  "probeCopies": 6,
+  "behaviorAssertionsUnchanged": true,
+  "configCount": 7,
+  "metadataSha256": "c1b255551b72ad3f7108aa6859e5464a95c54a16178e3efd486c69e753624a08"
+}

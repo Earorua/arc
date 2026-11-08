@@ -1,0 +1,19 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+export default defineConfig({ ...base, test: { ...base.test, include: [
+  "tests/lib/materials/experience-evidence.test.ts",
+  "tests/lib/materials/skill-mapper.test.ts",
+  "tests/lib/materials/contextual-skill-mapping.test.ts",
+  "tests/lib/materials/planning-priority.test.ts",
+  "tests/lib/materials/practice-skill-mapping.test.ts",
+  "tests/server/material-practice-priorities.test.ts",
+  "tests/server/material-context.test.ts",
+  "tests/server/material-mappings.test.ts",
+  "tests/server/material-learning-intents.test.ts",
+  "tests/server/material-learning-intent-flow.test.ts",
+  "tests/server/material-confirmed-skill-labels.test.ts",
+  "tests/server/material-context-only-adoption.test.ts",
+  "tests/server/material-supplement-flow.test.ts",
+  "tests/components/material-context-choices.test.tsx",
+], maxWorkers: 1 } });

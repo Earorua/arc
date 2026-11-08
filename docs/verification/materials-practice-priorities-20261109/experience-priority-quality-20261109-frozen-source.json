@@ -1,0 +1,101 @@
+{
+  "review": "PASS",
+  "critical": 0,
+  "important": 0,
+  "scope": "Independent offline Task 2 quality review only; not release acceptance",
+  "head": "714ea9e54d87b91a1fee4883176d4f1dd06ecf63",
+  "sourceHashes": {
+    "app/lib/materials/skill-mapper.ts": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9",
+    "app/lib/materials/experience-evidence.ts": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec",
+    "app/lib/materials/planning-priority.ts": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b",
+    "app/server/documents/context-builder.ts": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416",
+    "app/components/materials/material-context-review.tsx": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389",
+    "tests/lib/materials/experience-evidence.test.ts": "0b8f4d54812dfeed46beb53fd18c10b45503b68f0b989bcf1926706ead60d520",
+    "tests/lib/materials/practice-skill-mapping.test.ts": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8",
+    "tests/server/material-practice-priorities.test.ts": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91",
+    "tests/components/material-context-choices.test.tsx": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+  },
+  "dependencyHashes": {
+    "app/contracts/documents.ts": "081b385f3ef2357d7f14dac08bc687caf6126f58beded75c9b230586073635e8",
+    "app/contracts/material-planning.ts": "d49cd8786457ab59944ce0caca9185acf2b0a006705a69ddff8180b0abe104f6",
+    "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "app/lib/materials/self-assessment-evidence.ts": "385cf5822faf38e13855979333c0d6d5f45cb4ab5e60ca7c34d0f375f35b3f75",
+    "app/lib/materials/quotation-evidence.ts": "03a77ad110f67b56b7f1d6f28facdf9c70a92d0e7cd152ecdad806967297516a",
+    "app/lib/materials/contextual-skill-mapping.ts": "3c3aac73ef6c7acad4904c7a665282e447e9cad66bfadf1d9385aff7aaeba1de",
+    "app/lib/materials/skill-labels.ts": "d2a5c3c69c1bd671a30b9597bcec44435baa21b3ce7aedd7664045217118bad0",
+    "app/lib/materials/explanations.ts": "24fa658dbecea66616f8c4a2984970729e261ca364105c727d68e80052f0c199",
+    "app/lib/planning/path-builder.ts": "8daa896b22a885ee20c5602ed3d4d4bec3560c856393684bd96d98f2e2b9b98d",
+    "app/server/planning/material-commit.ts": "94cb86d457281aa3965ab07b9fb44043e5670f05fdcd6db276ac90dddfcabc71",
+    "app/server/documents/adopted-context.ts": "7d91e1ceef766ce5fe3e3afbdea3de6578fc8e59bfc7ea93c2241f6187a7c697",
+    "app/data/flagship-blueprint.ts": "b7aafe379b7c27eb133b378090ec50818835cdd39a9a274f7ba603aa72c46264",
+    "app/data/flagship-unit-registry.ts": "feda4ce53ee53ebb3cc1e80f486dc8c32014193cb79f856d44962b0501bdd4cc",
+    "tests/helpers/materials-d1.ts": "c8662b2255728ca9036ec25129e8486e4b0703fc373291bc19d911c037b49889",
+    "tests/helpers/sqlite-d1.ts": "76631541f83b52552d689bb0bb1bc38b0306284da649018446a29a58a01ae6ef",
+    "tests/helpers/material-planning.ts": "ab55ceb41dd71aafb8c37776a0dbc6dbbb843b43e3559cbfc261728e938ce2bd",
+    "tests/setup.ts": "9c0e90c56dc36d5426549849f53de2bbb8de61539649393b72b91d9a85aad7e1",
+    "vitest.config.ts": "85a59647517d3e09fd47ec6faebdbea508c1492fc140ca29d90e2fa8b8e40cd4",
+    "package.json": "6c0453db9cd4387879050bea47b355794320b769d4ecd7f44665bf7f0758babf",
+    "package-lock.json": "c41e4bf9d9c08a4e75b869800e5438ab884dae618d7eee5356c0d5e12427f6cd",
+    "node_modules/esbuild/package.json": "4316bc9a54bbf659d5760f299910d1824045178557e0aea6a1e3c64148fe8a50",
+    "node_modules/vitest/package.json": "caa41f04799bd42f3cfd100c4282e630d77ffc7deb1e7e4927794fcb7f137f34"
+  },
+  "safetyHashes": {
+    "work/grounded-verification/run.mjs": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+    "work/materials-browser-handoff/block-outbound.cjs": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+  },
+  "preservedPreviousArtifacts": 370,
+  "focusedFiles": 5,
+  "focusedTests": 383,
+  "independentServiceCases": 38,
+  "beforeIdentitySha256": "9fdfd304956d540949fb02546c1529a9d68904322e67956a991dd374ad5e8895",
+  "afterIdentitySha256": "7c525ea934ad753b748de55068e6b0c532c4aacc2b64773dce4e5f41c207c55b",
+  "memo": {
+    "path": "experience-priority-quality-20261109-memo.md",
+    "sha256": "83c71fed177d2c6b1f44c595b579e347c2fcb4c1f370ed56ece8d62b779329eb"
+  },
+  "artifacts": {
+    "experience-priority-quality-20261109-boundary-service-results.json": "14d025e8dbbf55e9b54eb902a433ab01be1b947c0163fdbf06f25d08e175258c",
+    "experience-priority-quality-20261109-boundary-service.test.ts": "529dd44830134a74022d6ee4b4371c6dd39e77ca9fe34a6429e7b82561b7bb2a",
+    "experience-priority-quality-20261109-focused-02.json": "6f313d11075a931a5299c063f3799b89cbead79014ac931745cb2c9e45b1d5f7",
+    "experience-priority-quality-20261109-focused-02.log": "79b2eee75e863be3d1a5ab169a3f1934536ddc9167a17adf60ee49c6c72d243d",
+    "experience-priority-quality-20261109-focused.config.ts": "5b5bd7eda293eb430bfa91dfb243ae9dd6f34ca76e736e19f9bf4507b16df85b",
+    "experience-priority-quality-20261109-freeze.mjs": "595ffcfccb19fb6741d4a200297670f800cc01f598bc39b66077bc91b15b03f2",
+    "experience-priority-quality-20261109-identity-after-03.json": "f7c716a633d75d8496d8ed00f1fc540e93beb046830f51ca7bdcd20ac507c063",
+    "experience-priority-quality-20261109-identity-after-03.log": "142ef3ebd1df81cc814aaf29d6baf683ec74dc631c103b5698364bc3bdbb2d54",
+    "experience-priority-quality-20261109-identity-after-results.json": "7c525ea934ad753b748de55068e6b0c532c4aacc2b64773dce4e5f41c207c55b",
+    "experience-priority-quality-20261109-identity-before-01.json": "a43b91fff8d1a9ecba73f1e8dd1062e7b51608d3bdb1cc7323cd63b84fe3bf95",
+    "experience-priority-quality-20261109-identity-before-01.log": "f25b74180a5edd11374ac410d404d70adaf6c23f3aa5b3f2d3a167d2b8349da3",
+    "experience-priority-quality-20261109-identity-before-results.json": "9fdfd304956d540949fb02546c1529a9d68904322e67956a991dd374ad5e8895",
+    "experience-priority-quality-20261109-integrity.mjs": "98016bb355876abb35217762be41edf967f8e61669d5c77d1ae4b0b377ac6a88",
+    "experience-priority-quality-20261109-memo.md": "83c71fed177d2c6b1f44c595b579e347c2fcb4c1f370ed56ece8d62b779329eb"
+  },
+  "outcomes": [
+    {
+      "name": "experience-priority-quality-20261109-identity-before-01",
+      "exit": 0,
+      "elapsedMs": 598,
+      "logSha256": "f25b74180a5edd11374ac410d404d70adaf6c23f3aa5b3f2d3a167d2b8349da3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-OH0WKt",
+      "outcomeSha256": "a43b91fff8d1a9ecba73f1e8dd1062e7b51608d3bdb1cc7323cd63b84fe3bf95"
+    },
+    {
+      "name": "experience-priority-quality-20261109-focused-02",
+      "exit": 0,
+      "elapsedMs": 11424,
+      "logSha256": "79b2eee75e863be3d1a5ab169a3f1934536ddc9167a17adf60ee49c6c72d243d",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-2Lg1J0",
+      "outcomeSha256": "6f313d11075a931a5299c063f3799b89cbead79014ac931745cb2c9e45b1d5f7"
+    },
+    {
+      "name": "experience-priority-quality-20261109-identity-after-03",
+      "exit": 0,
+      "elapsedMs": 584,
+      "logSha256": "142ef3ebd1df81cc814aaf29d6baf683ec74dc631c103b5698364bc3bdbb2d54",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Tl2BXf",
+      "outcomeSha256": "f7c716a633d75d8496d8ed00f1fc540e93beb046830f51ca7bdcd20ac507c063"
+    }
+  ]
+}

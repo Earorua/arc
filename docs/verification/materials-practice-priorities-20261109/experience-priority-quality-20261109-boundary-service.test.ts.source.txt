@@ -1,0 +1,97 @@
+// @vitest-environment node
+import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { supportsMaterialExperience } from "../../app/lib/materials/experience-evidence";
+import { mapMaterialItems, mapMaterialItemTerms, mapMaterialPracticeSkills } from "../../app/lib/materials/skill-mapper";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+
+const work = "work/grounded-verification/";
+const prefix = "experience-priority-quality-20261109-";
+const sha = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
+const bindingBytes = readFileSync(work + "experience-priority-author-20261109-resume-source-binding.json");
+expect(sha(bindingBytes)).toBe("c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c");
+const { sourceHashes } = JSON.parse(bindingBytes.toString());
+for (const [path, expected] of Object.entries(sourceHashes)) expect(sha(readFileSync(path))).toBe(expected);
+const observations: unknown[] = [];
+const databases: ReturnType<typeof createMaterialsD1>[] = [];
+afterEach(() => databases.splice(0).forEach(db => db.close()));
+afterAll(() => writeFileSync(work + prefix + "boundary-service-results.json", JSON.stringify({ sourceHashes, observations }, null, 2) + "\n", { flag: "wx" }));
+
+type Case = { text: string; labels: string[]; expected: string[]; whole: boolean };
+const sql = (text: string, supported: boolean): Case => ({ text, labels: ["SQL"], expected: supported ? ["sql"] : [], whole: supported });
+const cases: Case[] = [
+  ...["with", "in"].flatMap(preposition => ["status", "progress"].flatMap(head => ["on", "about", "of"].map(topic =>
+    sql(`I assisted ${preposition} ${head} reporting ${topic} SQL.`, false)))),
+  ...[
+    "I have assisted in SQL demo scheduling for the team.",
+    "I am assisting with SQL training planning.",
+    "I can assist in SQL project progress reporting about delivery.",
+    "I am able to assist in progress reporting of SQL.",
+    "Assisted with the SQL demo schedule.",
+    "I assisted with writing notes about my colleague's SQL work.",
+  ].map(text => sql(text, false)),
+  ...[
+    "I have assisted in SQL query testing for progress reporting.",
+    "I am assisting with modifying SQL queries for planning.",
+    "I can assist in testing SQL reporting queries on sample data.",
+    "I am able to assist with modifying SQL queries of the reporting workflow.",
+    "Assisted with SQL query reporting about sales data.",
+    "I assisted in SQL reporting of sales data.",
+    "I assisted with SQL reporting on transaction data.",
+    'I assisted with testing "SQL".',
+  ].map(text => sql(text, true)),
+  ...[
+    "My colleague assisted in SQL query testing.",
+    "I never assisted with SQL reporting.",
+    "I plan to assist in SQL query testing.",
+    "If asked, I would assist with SQL reporting.",
+    '"I assisted with SQL reporting."',
+    "My mentor said, I assisted with SQL reporting.",
+  ].map(text => sql(text, false)),
+  sql("I assisted in testing the SQL supplied by my mentor.", true),
+  sql("I assisted with modifying the SQL queries supplied by my mentor.", true),
+  sql("My mentor supplied SQL; I assisted with SQL demo scheduling.", false),
+  { text: "I assisted with React components; my colleague assisted with SQL queries.", labels: ["React", "SQL"], expected: ["react"], whole: false },
+  { text: "I assisted with SQL demo scheduling; I tested React components.", labels: ["SQL", "React"], expected: ["react"], whole: false },
+  { text: "I assisted with SQL reporting; I did not assist with React components.", labels: ["SQL", "React"], expected: ["sql"], whole: false },
+];
+
+describe("independent quality review of assistance boundaries", () => {
+  it.each(cases)("keeps source, action and administrative object separate: $text", async ({ text, labels, expected, whole }) => {
+    const item = { id: "quality-boundary-fact", kind: "experience" as const, text, skillLabels: labels, origin: "user" as const, sourceRef: null, requirementLevel: null };
+    for (const term of labels) expect(supportsMaterialExperience({ kind: item.kind, text, target: { kind: "terms", terms: [term] } })).toBe(expected.includes(term.toLowerCase()));
+    expect(supportsMaterialExperience({ kind: item.kind, text, target: { kind: "confirmed-whole-fact" } })).toBe(whole);
+    const relations = mapMaterialPracticeSkills([item], flagshipBlueprint, flagshipUnitRegistry);
+    expect(relations.map(row => row.skillId).sort()).toEqual([...expected].sort());
+    const mapping = mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry);
+    expect(mapping.map(row => ({ term: row.term, status: row.status, skillIds: row.skillIds, basis: row.basis })))
+      .toEqual(labels.map(term => ({ term, status: "mapped", skillIds: [term.toLowerCase()], basis: "literal" })));
+    expect(mapping.every(row => !Object.hasOwn(row, "practiceEvidence"))).toBe(true);
+    expect(mapMaterialItems([item], flagshipBlueprint, flagshipUnitRegistry)[0]?.skillIds.sort()).toEqual(labels.map(term => term.toLowerCase()).sort());
+    const db = createMaterialsD1(); databases.push(db); seedMaterialSelection(db);
+    db.database.prepare("UPDATE documents SET kind='resume'").run();
+    db.database.prepare("UPDATE material_selection_entries SET slot='resume'").run();
+    db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id='confirmation-a'").run(JSON.stringify([item]));
+    const service = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver: materialSourceResolver(), now: materialNow, createId: () => "quality-boundary-context" });
+    const request = materialContextRequest();
+    const created = await service.create("owner-a", request);
+    const persisted = db.database.prepare("SELECT snapshot_json,preview_json,fingerprint,preview_token FROM material_context_versions WHERE id=?").get(created.contextVersionId) as { snapshot_json: string; preview_json: string; fingerprint: string; preview_token: string };
+    expect(created.preview.priorities.map(row => row.skillId).sort()).toEqual([...expected].sort());
+    expect(created.preview.priorities.every(row => row.tier === 3)).toBe(true);
+    expect(created.preview.mappingDetails?.filter(row => row.status === "mapped").flatMap(row => row.skillIds).sort()).toEqual(labels.map(term => term.toLowerCase()).sort());
+    expect(created.preview.confirmedItems[0]).toMatchObject({ text, skillLabels: labels });
+    expect(created.preview.itemReferences?.[0]).not.toHaveProperty("learningIntentEligible");
+    expect(JSON.parse(persisted.snapshot_json)).toMatchObject({ policyVersion: "2026.11.3", mappingVersion: "2026.11.5", audit: request.audit, availability: request.availability, target: request.target });
+    expect(JSON.parse(persisted.preview_json)).toEqual(created.preview);
+    expect((await service.read("owner-a", created.contextVersionId)).preview).toEqual(created.preview);
+    expect(await service.create("owner-a", request)).toEqual(created);
+    expect(db.database.prepare("SELECT snapshot_json,preview_json,fingerprint,preview_token FROM material_context_versions WHERE id=?").get(created.contextVersionId)).toEqual(persisted);
+    observations.push({ text, labels, expected, whole, mapping, relations, servicePriorities: created.preview.priorities,
+      policyVersion: "2026.11.3", mappingVersion: "2026.11.5", auditUnchanged: true, rereadAndReplayEqual: true, persistedPreviewSha256: sha(persisted.preview_json) });
+  });
+});

@@ -1,0 +1,67 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const work = "work/grounded-verification/";
+const prefix = "experience-priority-quality-20261109-";
+const phase = process.argv[2];
+assert.ok(["before", "after"].includes(phase));
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const hash = path => sha(readFileSync(path));
+const git = args => execFileSync("git", args, { encoding: "utf8", windowsHide: true }).trim();
+const frozenPath = work + "experience-priority-author-20261109-resume-frozen-source.json";
+assert.equal(hash(frozenPath), "7c3b39d88da8cce80b3e1a6eff59215508eb8cac18de9fbff328f8966c210134");
+const frozen = JSON.parse(readFileSync(frozenPath));
+assert.equal(hash(work + frozen.sourceBinding.path), "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c");
+const binding = JSON.parse(readFileSync(work + frozen.sourceBinding.path));
+assert.equal(git(["rev-parse", "HEAD"]), "714ea9e54d87b91a1fee4883176d4f1dd06ecf63");
+assert.equal(git(["branch", "--show-current"]), "codex/materials-replan-recovery-20261106");
+assert.equal(git(["status", "--short", "--", "app", "tests"]), "");
+const verify = (hashes, directory = "") => {
+  for (const [path, expected] of Object.entries(hashes)) assert.equal(hash(directory + path), expected, path);
+};
+verify(frozen.sourceHashes);
+assert.equal(Object.keys(frozen.sourceHashes).length, 9);
+assert.deepEqual(frozen.sourceHashes, binding.sourceHashes);
+verify(frozen.unchangedCandidateAndSharedHashes);
+verify(frozen.safetyHashes);
+verify(frozen.harnessInputs, work);
+verify(frozen.preservedPreviousArtifacts, work);
+assert.equal(Object.keys(frozen.preservedPreviousArtifacts).length, 370);
+for (const [path, expected] of Object.entries(frozen.sourceHashes)) {
+  assert.equal(hash(work + "experience-priority-author-20261109-resume-source/" + path.replaceAll("/", "__") + ".source.txt"), expected);
+}
+const originalTests = readFileSync(work + "experience-priority-author-20261108-quality-candidate-source/tests__lib__materials__experience-evidence.test.ts.source.txt");
+assert.equal(sha(originalTests), binding.original253TestsSha256);
+assert.ok(readFileSync("tests/lib/materials/experience-evidence.test.ts").subarray(0, originalTests.length).equals(originalTests));
+const dependencies = [
+  "app/contracts/documents.ts", "app/contracts/material-planning.ts",
+  "app/lib/materials/personal-assertion-scopes.ts", "app/lib/materials/self-assessment-evidence.ts",
+  "app/lib/materials/quotation-evidence.ts", "app/lib/materials/contextual-skill-mapping.ts",
+  "app/lib/materials/skill-labels.ts", "app/lib/materials/explanations.ts", "app/lib/planning/path-builder.ts",
+  "app/server/planning/material-commit.ts", "app/server/documents/adopted-context.ts",
+  "app/data/flagship-blueprint.ts", "app/data/flagship-unit-registry.ts",
+  "tests/helpers/materials-d1.ts", "tests/helpers/sqlite-d1.ts", "tests/helpers/material-planning.ts",
+  "tests/setup.ts", "vitest.config.ts", "package.json", "package-lock.json",
+  "node_modules/esbuild/package.json", "node_modules/vitest/package.json",
+];
+const dependencyHashes = Object.fromEntries(dependencies.map(path => [path, hash(path)]));
+const harness = ["integrity.mjs", "focused.config.ts", "boundary-service.test.ts"].map(suffix => prefix + suffix);
+const reviewerInputHashes = Object.fromEntries(harness.map(path => [path, hash(work + path)]));
+if (phase === "after") {
+  const before = JSON.parse(readFileSync(work + prefix + "identity-before-results.json"));
+  assert.deepEqual(dependencyHashes, before.dependencyHashes);
+  assert.deepEqual(reviewerInputHashes, before.reviewerInputHashes);
+  assert.deepEqual(frozen.sourceHashes, before.sourceHashes);
+}
+const result = { phase, head: frozen.baseHead, branch: git(["branch", "--show-current"]),
+  productTestStatus: git(["status", "--short", "--", "app", "tests"]), fullStatus: git(["status", "--short"]),
+  frozenManifestSha256: hash(frozenPath), sourceBindingSha256: hash(work + frozen.sourceBinding.path),
+  sourceHashes: frozen.sourceHashes, unchangedCandidateAndSharedHashes: frozen.unchangedCandidateAndSharedHashes,
+  safetyHashes: frozen.safetyHashes, dependencyHashes, reviewerInputHashes,
+  preservedPreviousArtifactCount: 370, previousArtifacts: frozen.preservedPreviousArtifacts,
+  original253TestsExactBytePrefix: true, verified: true };
+writeFileSync(work + prefix + "identity-" + phase + "-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ phase, sourceFiles: 9, sharedFiles: Object.keys(frozen.unchangedCandidateAndSharedHashes).length,
+  dependencies: dependencies.length, preservedPreviousArtifacts: 370, verified: true }));

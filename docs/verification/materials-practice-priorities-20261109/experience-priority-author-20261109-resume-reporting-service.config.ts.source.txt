@@ -1,0 +1,4 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+export default defineConfig({ ...base, test: { ...base.test, include: ["work/grounded-verification/experience-priority-author-20261109-resume-reporting-service.test.ts"], maxWorkers: 1 } });

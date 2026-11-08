@@ -1,0 +1,130 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { stripVTControlCharacters } from "node:util";
+
+const work = "work/grounded-verification/", prefix = "experience-priority-spec-20261109-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const read = suffix => readFileSync(work + prefix + suffix);
+const parse = suffix => JSON.parse(read(suffix));
+const before = parse("identity-before-results.json"), after = parse("identity-after-results.json");
+for (const key of ["head", "branch", "productTestStatus", "sourceHashes", "fixedSharedHashes", "safetyHashes", "dependencyHashes", "reviewerInputHashes", "previousArtifacts"])
+  assert.deepEqual(after[key], before[key], key);
+const commands = [
+  ["prepare-01", "work/grounded-verification/" + prefix + "prepare.mjs before", "9 sources / 12 fixed shared / 22 dependencies / 370 prior artifacts verified"],
+  ["compatibility-02", "work/grounded-verification/" + prefix + "compatibility-probe.mjs", "1,350 public-mapper deep comparisons; 0 mismatches"],
+  ["original-probe-03", "work/grounded-verification/" + prefix + "spec-probe.mjs", "16 original spec predicate/mapping cases; 0 mismatches"],
+  ["quality-probe-04", "work/grounded-verification/" + prefix + "quality-probe.mjs", "16 previous quality predicate/mapping cases; 0 mismatches"],
+  ["reporting-probe-05", "work/grounded-verification/" + prefix + "reporting-probe.mjs", "6 technical reporting predicate/mapping cases; 0 mismatches"],
+  ["focused-06", "node_modules/vitest/vitest.mjs run --config work/grounded-verification/" + prefix + "focused.config.ts", "13 files / 408 tests pass"],
+  ["final-integrity-07", "work/grounded-verification/" + prefix + "prepare.mjs after", "All source/dependency/reviewer-input/prior-artifact identities unchanged"],
+];
+const ledger = commands.map(([suffix, args, result]) => {
+  const outcome = parse(suffix + ".json");
+  assert.equal(outcome.exit, 0); assert.equal(outcome.nonLoopbackDenials, 0);
+  assert.equal(outcome.logSha256, sha(read(suffix + ".log")));
+  return { command: "node work/grounded-verification/run.mjs " + prefix + suffix + " " + args, suffix, result, ...outcome };
+});
+const focusedLog = stripVTControlCharacters(read("focused-06.log").toString());
+assert.match(focusedLog, /Test Files\s+13 passed \(13\)/);
+assert.match(focusedLog, /Tests\s+408 passed \(408\)/);
+for (const [name, count, field] of [["spec-probe",16,"rows"],["quality-probe",16,"rows"],["reporting-probe",6,"rows"],["spec-service",6,"rows"],["quality-service",8,"observations"],["reporting-service",6,"rows"],["supplemental-service",7,"observations"]]) {
+  const value = parse(name + "-results.json");
+  assert.equal(value[field].length, count);
+  if (name.endsWith("probe")) assert.deepEqual(value.mismatches, []);
+}
+const compatibility = parse("compatibility-results.json");
+assert.equal(compatibility.comparisons, 1350); assert.deepEqual(compatibility.mismatches, []);
+assert.equal(compatibility.sourceHashMatch, true); assert.equal(compatibility.originalTestsPreserved, true);
+const history = parse("supplemental-service-results.json").observations.at(-1);
+assert.equal(history.oldRowsByteIdentical, true); assert.equal(history.ownerTokenAndStaleGuardsRetained, true);
+const artifactNames = [
+  "identity-before-results.json", "identity-after-results.json", "compatibility-results.json",
+  "spec-probe-results.json", "quality-probe-results.json", "reporting-probe-results.json",
+  "spec-service-results.json", "quality-service-results.json", "reporting-service-results.json", "supplemental-service-results.json",
+  "prepare.mjs", "focused.config.ts", "supplemental-service.test.ts", "compatibility-probe.mjs",
+  "spec-probe.mjs", "quality-probe.mjs", "reporting-probe.mjs", "spec-service.test.ts", "quality-service.test.ts", "reporting-service.test.ts", "finalize.mjs",
+];
+const artifactHashes = Object.fromEntries(artifactNames.map(name => [prefix + name, sha(read(name))]));
+const evidence = { verdict: "PASS", scope: "Task 2 specification only; no outstanding in-scope finding", head: before.head,
+  frozenManifestSha256: before.frozenManifestSha256, sourceBindingSha256: before.sourceBindingSha256,
+  sourceHashes: before.sourceHashes, fixedSharedHashes: before.fixedSharedHashes, dependencyHashes: before.dependencyHashes,
+  safetyHashes: before.safetyHashes, beforeAfterEqual: true, preservedPreviousArtifacts: 370,
+  counts: { publicMappingComparisons: 1350, originalSpecCases: 16, priorQualityCases: 16, reportingCases: 6, testFiles: 13, tests: 408, supplementalServiceCases: 7 },
+  commands: ledger, historicalCreationAndRead: history, artifactHashes,
+};
+writeFileSync(work + prefix + "evidence-ledger.json", JSON.stringify(evidence, null, 2) + "\n", { flag: "wx" });
+const table = (hashes) => ["| File | SHA-256 before and after |", "| --- | --- |", ...Object.entries(hashes).map(([path, hash]) => "| " + path + " | " + hash + " |")].join("\n");
+const memo = [
+  "# Independent Task 2 specification review — resumed frozen source",
+  "",
+  "Verdict: **PASS** for the approved Task 2 specification and its finite assist-with/in object-head repair. No outstanding in-scope specification finding was found. This review does not mark Task 3 or overall materials acceptance complete.",
+  "",
+  "Reviewed branch: codex/materials-replan-recovery-20261106. HEAD: " + before.head + ". Product WIP checkpoint: 41bcdd7. Comparison base: c788268b5dbb4e91480ce98738274dfd08a58155. The only existing tracked local modification was docs/verification/2026-11-06-materials-grounding-pause.md; it was preserved. All reviewer writes are under ignored work/grounded-verification/.",
+  "",
+  "The local AGENTS.md and both required SOURCE_INDEX.md files were read. The sole remote read was the AGENTS-required GitHub master SOURCE_INDEX through the GitHub connector. No fetch/merge/release commands from historical routing documents were executed. Every Node execution used the pinned offline wrapper and blocker. The verification-before-completion skill was applied; no agents were spawned.",
+  "",
+  "Frozen author manifest: experience-priority-author-20261109-resume-frozen-source.json, SHA-256 " + before.frozenManifestSha256 + ". Source binding: experience-priority-author-20261109-resume-source-binding.json, SHA-256 " + before.sourceBindingSha256 + ". Source and tests matched this frozen identity before and after all review execution.",
+  "",
+  "## Requirement-by-requirement conclusion",
+  "",
+  "| Approved requirement | Independent evidence and result |",
+  "| --- | --- |",
+  "| Original source term, actual vocabulary aliases, explicit whole-fact evidence | PASS. skill-mapper.ts:57-117 keeps evidence privately in the shared resolver. Retained/contextual/manual-term relations retain the original term. No-list automatic relations keep each actual matching vocabulary word as a separate alternative. Explicit no-list whole-fact choices use confirmed-whole-fact. No new vocabulary or reverse inference from mapped course names was added. |",
+  "| Mapped personal experience/skill-claim only; per-term isolation | PASS. skill-mapper.ts:150-170 gates mapped status and allowed kinds, checks each selected relation, and deduplicates item/skill pairs. The 25 practice mapper and 32 real-service priority tests cover negative/other/future/mixed scopes, supplied SQL work, aliases in both orders, contextual/manual mapping, long/no-list facts and conservative mixed whole-fact mapping. |",
+  "| Public mapper contract, field order/grouping/choices/empty/omitted semantics | PASS. Both public projections omit the private evidence map. The preserved compatibility probe performed 1,350 deep comparisons against base c788268b across 15 facts, 15 choices, 3 catalog configurations and both public APIs, with zero differences. Public ambiguity and legacy manual behavior remain unchanged; new practice cannot restore an explicit empty retained list. |",
+  "| Approved assistance boundary and latest for/to/about/on/of object-head repair | PASS. experience-evidence.ts:78-96 narrowly handles assist/assisted/assisting with/in, including capable claims. Administrative scheduling/planning and progress/status reporting remain negative. Unqualified technical SQL reporting/query reporting and actual nested technical actions remain positive. All 16 original, 16 prior-quality and 6 reporting probe expectations were preserved. All six latest about/of cases were additionally checked through both predicate targets, pure mapping, actual service create/persist/read and unchanged audit/time/target. |",
+  "| Non-JD practice integration without changing JD/learning-intent or audit/time/target/permission rules | PASS. context-builder.ts:265 replaces only practice collection; requirements and intents continue at :287-288. learningIntentEligible at :334 is unchanged. 10 learning-intent tests, 3 context guard tests, 8 priority tests and the unchanged real supplement lifecycle test passed, including the original observability assistance fact. Existing audit, availability and target values were checked in saved snapshots. |",
+  "| New policy 2026.11.3, unchanged mapping 2026.11.5, no old preview recalculation | PASS. Only the policy constant changes. Current read/loadValid returns parsed saved preview_json. An independent baseline-source service actually created a 2026.11.2 context for denied SQL; current read and same-mutation create returned the old preview unchanged. A new mutation under current source removed the priority and used 2026.11.3. Snapshot, preview, fingerprint and token bytes of the old row remained identical; owner, bad-token and stale-confirmation rejection remained active. |",
+  "| UI separates mapping and ranking counts; old snapshot does not invent mapping count | PASS. material-context-review.tsx:145 computes the unique mapped skill set only when details exist; :198 displays ranking separately. 29 component tests passed, including mapped1/ranked0, mapped2/ranked1, duplicate course deduplication, ambiguous/nonlearning/omitted/uncovered rows and legacy details-absent snapshots. The copy says negative/other/future topics do not establish practice or ability level. |",
+  "| Keep levels, mention projection and wider scope unchanged | PASS by source diff and preserved hashes. No extraction/mention production projection, new learning-intent qualification, assessment adoption, hours/target updates, curriculum expansion, model calls or deployment changes were made. Shared scopes and self-assessment implementation/tests are unchanged. The 259 experience tests include the existing assistance/no-level-hint boundary; no new general language grammar was explored. |",
+  "",
+  "## Fresh executions",
+  "",
+  "| Label suffix | Outcome | Log SHA-256 | Non-loopback denials |",
+  "| --- | --- | --- | --- |",
+  ...ledger.map(row => "| " + row.suffix + " | " + row.result + " | " + row.logSha256 + " | 0 |"),
+  "",
+  ...ledger.map(row => "- " + row.command),
+  "",
+  "The 408 tests comprise: experience evidence 259; public mapper 14; practice mapper 25; priority rules 8; practice-priority service 32; learning intents 10; frozen contexts 3; original supplement lifecycle 1; component choices 29; original spec service 6; previous quality service 8; technical reporting service 6; supplemental about/of plus actual historical creation/read 7. These counts are not added to the author’s earlier totals. The pure probes overlap these behaviors. The scoped suite used the repository Vitest config with an explicit include list and maxWorkers:1. SQLite ExperimentalWarning was emitted; there were no test failures.",
+  "",
+  "## Baseline service and frozen history",
+  "",
+  "The historical check loads exactly three modules from fixed Git base c788268b5dbb4e91480ce98738274dfd08a58155 through an in-memory esbuild loader: the old context builder, old public mapper and old planning policy. Their other dependencies are the unchanged local dependency files recorded below. It calls the actual baseline service create with the SQLite/D1 fixture; it does not fabricate or edit an old preview. The new service then reads the same in-memory store. Root’s existing historical runtime store was never opened or modified.",
+  "",
+  table(history.baselineSourceHashes),
+  "",
+  "The old denied-SQL preview has SQL tier 3 and policy 2026.11.2; the new context has no practice priority and policy 2026.11.3. Original preview SHA-256: " + history.oldPreviewSha256 + ". Original snapshot SHA-256: " + history.oldSnapshotSha256 + ". These remain exact after read, idempotent replay and the independent new context creation.",
+  "",
+  "## Source identity before and after",
+  "",
+  table(before.sourceHashes),
+  "",
+  "The 12 author-bound fixed/shared paths below were checked against the frozen hashes twice. The seven overlapping Task 2 paths remain intentionally present in both tables.",
+  "",
+  table(before.fixedSharedHashes),
+  "",
+  "Additional fixed dependency identities (all 22 matched before and after):",
+  "",
+  table(before.dependencyHashes),
+  "",
+  "Offline safety inputs (matched before and after):",
+  "",
+  table(before.safetyHashes),
+  "",
+  "All 370 previously preserved author/reviewer artifacts matched their sealed hashes before and after, including prior red results and FAIL memos. The original 253-test file is still an exact byte prefix of the current experience test file. All frozen source copies and all author harness inputs also matched. Six current author probe copies were first traced backwards to the original reviewer scripts with exact reversible metadata substitutions; the reviewer copies changed only exclusive output filenames. The compatibility copy changed only the current source-binding path and exclusive output filename. No behavioral assertion or historical hash check was removed or weakened.",
+  "",
+  "Full identities and artifact links are in experience-priority-spec-20261109-evidence-ledger.json, SHA-256 " + sha(read("evidence-ledger.json")) + ". The identity-before/after files contain all 370 preservation hashes; their own digests and every reviewer input/result digest are listed below. Paths in this table are relative to work/grounded-verification/.",
+  "",
+  table(artifactHashes),
+  "",
+  "## Limits and handoff",
+  "",
+  "This is an independent Task 2 specification PASS, not an independent code-quality signoff, whole-repository pass, browser/workerd/native acceptance or release approval. Service probes use real MaterialContextService with confirmed-record SQLite/D1 fixtures; the original supplement lifecycle exercises its existing runtime/HTTP helper flow. Full native ingestion/persistence, historical workerd store, Node/native parity, browser UI and full-repository checks remain root-owned Task 3 work. Type/lint results reported by the author were not claimed as independently rerun here. No arbitrary-natural-language completeness claim is made beyond the approved finite grammar.",
+  "",
+  "No product/test/docs edits, commits, pushes, deployment, remote migrations, real-model calls or additional agents occurred. The only remote request was the required routing read; all executable checks reported zero non-loopback denials. Current source testing stopped after final-integrity-07. This memo and ledger only record already completed checks; earlier red/green evidence is unchanged.",
+  "",
+].join("\n");
+writeFileSync(work + prefix + "memo.md", memo, { flag: "wx" });
+console.log(JSON.stringify({ verdict: "PASS", memo: prefix + "memo.md", memoSha256: sha(Buffer.from(memo)), ledgerSha256: sha(read("evidence-ledger.json")), sourceTestsStopped: true }));

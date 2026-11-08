@@ -1,0 +1,66 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification");
+const prefix = "experience-priority-author-20261109-resume-";
+const priorPrefix = "experience-priority-author-20261108-quality-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const git = args => execFileSync("git", args, { encoding: "utf8", windowsHide: true }).trim();
+const expectedHead = "714ea9e54d87b91a1fee4883176d4f1dd06ecf63";
+assert.equal(git(["rev-parse", "HEAD"]), expectedHead);
+assert.equal(git(["branch", "--show-current"]), "codex/materials-replan-recovery-20261106");
+assert.equal(git(["status", "--short", "--", "app", "tests"]), "");
+const safetyHashes = {
+  "work/grounded-verification/run.mjs": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+  "work/materials-browser-handoff/block-outbound.cjs": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f",
+};
+for (const [path, expected] of Object.entries(safetyHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+const beforePath = join(work, priorPrefix + "before-candidate-c/manifest.json");
+assert.equal(sha(readFileSync(beforePath)), "5f081f822957f0469972d338f02fa0e6964500e633fee0e3a9f130cba8d28258");
+const before = JSON.parse(readFileSync(beforePath, "utf8"));
+const sourceHashes = { ...before.sourceHashes,
+  "app/lib/materials/experience-evidence.ts": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec",
+  "tests/lib/materials/experience-evidence.test.ts": "0b8f4d54812dfeed46beb53fd18c10b45503b68f0b989bcf1926706ead60d520",
+};
+for (const [path, expected] of Object.entries(sourceHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+for (const [path, expected] of Object.entries(before.unchangedHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+assert.equal(Object.keys(before.sealedArtifactHashes).length, 293);
+for (const [path, expected] of Object.entries(before.sealedArtifactHashes)) assert.equal(sha(readFileSync(join(work, path))), expected, path);
+const previousBindingPath = join(work, priorPrefix + "candidate-source.json");
+assert.equal(sha(readFileSync(previousBindingPath)), "eb65c7dfe62dd4b907f20e502166cfbf7cdc99aef62b4e17810c338c94ef7c1c");
+const oldTestsPath = join(work, priorPrefix + "candidate-source/tests__lib__materials__experience-evidence.test.ts.source.txt");
+const oldTests = readFileSync(oldTestsPath);
+assert.equal(sha(oldTests), "997d8304e25e2b3f1da9e94976f0047edff3494a566e1e33ffc690a0d616efa2");
+assert.ok(readFileSync("tests/lib/materials/experience-evidence.test.ts").subarray(0, oldTests.length).equals(oldTests), "Original 253 tests must be an exact byte prefix");
+const previousArtifacts = { ...before.sealedArtifactHashes };
+function preserve(path) {
+  if (statSync(join(work, path)).isDirectory()) {
+    for (const child of readdirSync(join(work, path))) preserve(path + "/" + child);
+  } else previousArtifacts[path] = sha(readFileSync(join(work, path)));
+}
+for (const name of readdirSync(work)) if (name.startsWith(priorPrefix)) preserve(name);
+const sourceDir = join(work, prefix + "source");
+mkdirSync(sourceDir);
+for (const path of Object.keys(sourceHashes))
+  writeFileSync(join(sourceDir, path.replaceAll("/", "__") + ".source.txt"), readFileSync(path), { flag: "wx" });
+const manifest = {
+  baseHead: expectedHead,
+  sourceHashes,
+  beforeManifestSha256: sha(readFileSync(beforePath)),
+  intermediateBindingSha256: sha(readFileSync(previousBindingPath)),
+  safetyHashes,
+  unchangedCandidateAndSharedHashes: before.unchangedHashes,
+  original253TestsExactBytePrefix: true,
+  original253TestsSha256: sha(oldTests),
+  sealed293Verified: true,
+  previousArtifacts,
+  scope: "Candidate D fixed source identity for resumed GREEN; no product changes since the paused WIP.",
+};
+const bindingPath = join(work, prefix + "source-binding.json");
+writeFileSync(bindingPath, JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ sourceCount: Object.keys(sourceHashes).length, unchangedCount: Object.keys(before.unchangedHashes).length,
+  original253TestsExactBytePrefix: true, sealed293Verified: true, previousArtifacts: Object.keys(previousArtifacts).length,
+  sourceBindingSha256: sha(readFileSync(bindingPath)) }, null, 2));

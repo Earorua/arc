@@ -1,5 +1,19 @@
 # 多类型资料离线修复暂停点
 
+## 当前恢复入口：2026-11-09，当前阶段已验收，按用户要求暂停
+
+用户已明确恢复本轮离线工作，范围为当前个人实践优先级修复的复测、独立规格／质量审阅与全仓验收。已读取本机和 GitHub master 的 `SOURCE_INDEX.md`；实际分支仍为 `codex/materials-replan-recovery-20261106`，开始时 HEAD `714ea9e54d87b91a1fee4883176d4f1dd06ecf63`、工作区干净，1,004 个源码文件与暂停身份一致。不会以本分支旧界面覆盖网站主线，不在本轮整合主线界面或启动下一批原词投影开发。
+
+作者已复测并冻结：259 项、原质量／规格／reporting 探针、14 文件 521 项、12 文件 1,467 项及专项类型／Lint 通过，未新增产品修改。冻结清单 `experience-priority-author-20261109-resume-frozen-source.json` 摘要 `7c3b39d88da8cce80b3e1a6eff59215508eb8cac18de9fbff328f8966c210134`。独立规格复审 PASS：1,350 次公开映射对照、13 文件 408 项及真实旧策略创建／重读通过；备忘录摘要 `ebcbd90bd9dfd30da92e22e3db4a5b14fda8f54f340c2451e03ab4f69faecf1f`。独立质量审阅 PASS，Critical／Important 均为 0，新增 38 条服务对照及相关 383 项通过；备忘录摘要 `83c71fed177d2c6b1f44c595b579e347c2fcb4c1f370ed56ece8d62b779329eb`。
+
+根任务 43 项本地 workerd/D1/R2 与 Node 完整对照、3 项实际服务／UI、旧 policy 2 持久预览原样读取已通过。相同 1,004 文件副本 `D:/CodexTemp/arc-experience-priority-P3jdvc/source` 的全仓类型／Lint／构建、5 项页面通过，Lint 保留原 4 项警告。最终全仓 **377 文件 9,647 项、附加 Node 290 项通过**；三个 Vitest 分组逐文件核对无遗漏或交叠。Node 首轮 `a` 与其他长验证并行，288 项通过、2 项因原 45／60 秒上限取消；同源码同阈值独占串行 `b` 全部通过，旧失败日志保留，未绕过来源或断言检查。最终工作树／副本源码、26 份参考和 85 项依赖一致。
+
+本轮 Task 2／3 已完成，详见[验收报告](2026-11-09-materials-practice-priorities.md)。用户随后明确要求“在完成当前阶段任务后暂停目标”；因此本次归档和本地保存完成后暂停，停止进入后续阶段。下一次明确恢复时，先读取两份 `SOURCE_INDEX.md` 并核对当前分支／工作树，再从[版本化原词保留计划](../superpowers/plans/2026-11-08-materials-mention-projection.md)的未开始任务继续，不必把已验收的本批重新当作未测 WIP。真实自评采用、课程任务覆盖／新绑定、完整原生协议、主线新界面整合以及真实模型和发布 Gate 仍未完成。
+
+本轮[197 份原始工件](materials-practice-priorities-20261109/README.md)及[验收清单](materials-practice-priorities-20261109/verification.json)已保存；清单摘要 `54c2967dd15ca7394b027e4ca9dba5f48816cee2cab1243c09274da748bac372`，包含 46 项通过检查和 3 份审阅／交接记录。首轮超时与此前暂停的 471 份工件原样保留。
+
+本轮仍不调用真实模型、不部署、不执行远程迁移、不推送；历史付费授权不续期。后面的 11 月 8 日暂停内容保留为上一检查点。
+
 ## 当前恢复入口：2026-11-08 晚，用户要求保存并暂停
 
 **当前状态为 `PAUSED_UNVERIFIED`。** 后续开发、测试和审查已停止；持续目标在保存完成后设为 `paused`。本机 WIP 源码提交为 `41bcdd7a9110e67c4529468fc26dafb3cfc81ab5`，不是验收通过版本。没有推送 GitHub。以下较早的 active／修复中记录只表示原时点状态。

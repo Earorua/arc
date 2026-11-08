@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { stripVTControlCharacters } from 'node:util';
+const work='work/grounded-verification/';
+const nodeLabel=process.argv[2];
+assert.match(nodeLabel ?? '',/^experience-priority-full-node-20261109-[ab]$/u);
+const sha=value=>createHash('sha256').update(value).digest('hex');
+const snapshot=JSON.parse(readFileSync(work+'experience-priority-snapshot-20261109-a-results.json'));
+const expected=Object.keys(snapshot.filesSha256).filter(path=>/^tests\/.+\.test\.(?:ts|tsx)$/u.test(path)).sort();
+function outcome(name) {
+  const result=JSON.parse(readFileSync(work+name+'.json')),bytes=readFileSync(work+name+'.log');
+  assert.equal(result.name,name);assert.equal(result.exit,0,name);assert.equal(result.nonLoopbackDenials,0,name);assert.equal(sha(bytes),result.logSha256,name);
+  return {result,log:stripVTControlCharacters(bytes.toString('utf8'))};
+}
+const groups=['experience-priority-full-unit-20261109-a','experience-priority-full-serial-20261109-a','experience-priority-full-research-20261109-a'].map(name=>{
+  const {result,log}=outcome(name);
+  const files=[...log.matchAll(/^\s*[✓✔]\s+(tests\/.+?\.test\.(?:ts|tsx))\s+\((\d+) tests?\)/gmu)].map(match=>({path:match[1],tests:Number(match[2])}));
+  const summary=log.match(/Test Files\s+(\d+) passed\s+\((\d+)\)\s*\n\s*Tests\s+(\d+) passed\s+\((\d+)\)/u);
+  assert.ok(summary,name+' clean all-pass summary');assert.equal(Number(summary[1]),files.length,name);assert.equal(summary[1],summary[2],name);assert.equal(summary[3],summary[4],name);
+  const tests=files.reduce((total,file)=>total+file.tests,0);assert.equal(tests,Number(summary[3]),name);
+  return {name,files,tests,logSha256:result.logSha256};
+});
+const actual=groups.flatMap(group=>group.files.map(file=>file.path)).sort();
+assert.deepEqual(actual,expected,'All standard Vitest files run once across the three groups');
+assert.equal(new Set(actual).size,actual.length);
+const additional=outcome(nodeLabel);
+const rendered=outcome('experience-priority-render-20261109-a');
+function nodeCounts(log) {const tests=Number(log.match(/^(?:#|ℹ) tests (\d+)\s*$/mu)?.[1]);const passed=Number(log.match(/^(?:#|ℹ) pass (\d+)\s*$/mu)?.[1]);assert.ok(tests>0);assert.equal(passed,tests);assert.match(log,/^(?:#|ℹ) fail 0\s*$/mu);assert.match(log,/^(?:#|ℹ) cancelled 0\s*$/mu);assert.match(log,/^(?:#|ℹ) skipped 0\s*$/mu);return {tests,passed};}
+const node=nodeCounts(additional.log),render=nodeCounts(rendered.log);
+const nodeScripts=Object.keys(snapshot.filesSha256).filter(path=>/^tests\/.+\.test\.mjs$/u.test(path)).sort();
+assert.deepEqual(nodeScripts,[
+  'tests/build/restricted-candidate-files.test.mjs','tests/build/restricted-research-candidate.test.mjs',
+  'tests/offline-uat/entry.test.mjs','tests/offline-uat/http-clients.test.mjs','tests/offline-uat/legacy-recovery.test.mjs',
+  'tests/offline-uat/research-public-recovery.test.mjs','tests/offline-uat/research-recovery.test.mjs','tests/offline-uat/retained-compatibility.test.mjs',
+  'tests/rendered-html.test.mjs','tests/scripts/auth-tail.test.mjs',
+].sort());
+for(const label of ['experience-priority-full-types-20261109-a','experience-priority-full-lint-20261109-a','experience-priority-build-20261109-a'])outcome(label);
+const native=JSON.parse(readFileSync(work+'experience-priority-root-cases-20261109-final-a-results.json'));
+const parity=JSON.parse(readFileSync(work+'experience-priority-node-parity-20261109-final-a-results.json'));
+const ui=JSON.parse(readFileSync(work+'experience-priority-root-ui-20261109-final-a-results.json'));
+const history=JSON.parse(readFileSync(work+'experience-priority-history-read-20261109-a-results.json'));
+assert.equal(native.status,'PASS');assert.equal(native.observations.length,43);assert.equal(native.outboundCalls,0);
+assert.equal(parity.status,'PASS');assert.equal(parity.cases,43);assert.equal(ui.observations.length,3);assert.equal(history.status,'PASS');assert.equal(history.outboundCalls,0);
+const initialNodeAttempt=JSON.parse(readFileSync(work+'experience-priority-full-node-20261109-a.json'));
+assert.equal(sha(readFileSync(work+'experience-priority-full-node-20261109-a.log')),initialNodeAttempt.logSha256);
+const diagnosis=JSON.parse(readFileSync(work+'experience-priority-node-timeout-diagnosis-20261109-results.json'));
+for(const row of diagnosis.source)assert.equal(sha(readFileSync(row.path)),row.sha256,row.path);
+const result={status:'PASS',sourceManifestSha256:snapshot.manifestSha256,sourceFileCount:snapshot.sourceFileCount,vitestFiles:actual.length,vitestTests:groups.reduce((sum,row)=>sum+row.tests,0),groups,node:{...node,name:nodeLabel,logSha256:additional.result.logSha256},nodeScripts,render,nativeCases:43,nodeParityCases:43,actualServiceUiCases:3,oldPersistedPreviewUnchanged:true,initialNodeAttempt:{name:initialNodeAttempt.name,exit:initialNodeAttempt.exit,logSha256:initialNodeAttempt.logSha256,passed:288,failed:0,cancelled:2},nodeControl:{sameSourceAndAssertions:true,timeBudgetsUnchanged:[60000,45000],isolatedFromOtherLongVerificationRuns:true,scope:'Final serial-control result; earlier timeout failures remain preserved, not reclassified as passes'},newModelCalls:0};
+writeFileSync(work+'experience-priority-full-coverage-20261109-results.json',JSON.stringify(result,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({status:result.status,vitestFiles:result.vitestFiles,vitestTests:result.vitestTests,nodeTests:node.tests,renderTests:render.tests,nativeCases:43,nodeParityCases:43,actualServiceUiCases:3,sourceManifestSha256:result.sourceManifestSha256}));

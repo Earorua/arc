@@ -1,0 +1,37 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { copyFileSync, existsSync, lstatSync, readFileSync, mkdirSync, mkdtempSync, realpathSync, symlinkSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+
+const root = realpathSync(process.cwd());
+const info = join(root, "work/grounded-verification/experience-priority-snapshot-20261109-a-results.json");
+const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+const files = [...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").split("\0").filter(Boolean))].sort();
+const sha = value => createHash("sha256").update(value).digest("hex");
+const hashes = directory => Object.fromEntries(files.filter(file => !file.startsWith("docs/")).map(file => [file, sha(readFileSync(join(directory, file)))]));
+if (process.argv[2] === "--verify") {
+  const snapshot = JSON.parse(readFileSync(info, "utf8"));
+  assert.deepEqual(hashes(root), snapshot.filesSha256);
+  assert.deepEqual(hashes(snapshot.checkout), snapshot.filesSha256);
+  console.log(JSON.stringify({ matched: true, files: Object.keys(snapshot.filesSha256).length, sha256: snapshot.manifestSha256 }));
+} else {
+  assert.ok(!existsSync(info), "Use a new snapshot label instead of overwriting evidence");
+  const area = mkdtempSync(join(realpathSync("D:/CodexTemp"), "arc-experience-priority-"));
+  const checkout = join(area, "source");
+  for (const file of files) {
+    const from = join(root, file), to = join(checkout, file);
+    assert.ok(lstatSync(from).isFile(), file);
+    mkdirSync(dirname(to), { recursive: true });
+    copyFileSync(from, to);
+  }
+  symlinkSync(realpathSync(join(root, "node_modules")), join(checkout, "node_modules"), "junction");
+  const filesSha256 = hashes(root);
+  assert.deepEqual(hashes(checkout), filesSha256);
+  const snapshot = { head: git("rev-parse", "HEAD").trim(), checkout, sourceFileCount: Object.keys(filesSha256).length,
+    manifestSha256: sha(JSON.stringify(filesSha256)), filesSha256,
+    captureState: "Working-tree candidate; head is the capture base, while filesSha256 identifies the tested source. Final archive requires the same bytes committed locally.",
+    dependencyMode: "junction-to-source-worktree; do not run Research source-boundary tests in this copy" };
+  writeFileSync(info, JSON.stringify(snapshot, null, 2) + "\n", { flag: "wx" });
+  console.log(JSON.stringify({ head: snapshot.head, checkout, files: snapshot.sourceFileCount, manifestSha256: snapshot.manifestSha256 }));
+}

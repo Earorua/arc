@@ -1,0 +1,42 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:48028) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/material-context-choices.test.tsx [2m([22m[2m29 tests[22m[2m)[22m[33m 1614[2mms[22m[39m
+(node:55904) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-practice-priorities.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 913[2mms[22m[39m
+(node:51420) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-supplement-flow.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 449[2mms[22m[39m
+   [33m[2m✓[22m[39m uses a reviewed supplement to reorder existing practice while preserving primary JD precedence, progress, audit and privacy [33m 448[2mms[22m[39m
+(node:55144) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-learning-intents.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 370[2mms[22m[39m
+(node:48512) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-context.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/experience-evidence.test.ts [2m([22m[2m259 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+(node:42380) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/experience-priority-spec-20261109-supplemental-service.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 583[2mms[22m[39m
+     [33m[2m✓[22m[39m reads a context actually created by policy 2026.11.2 without recomputing its SQL priority, with all guards retained [33m 344[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/practice-skill-mapping.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+(node:57628) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/experience-priority-spec-20261109-quality-service.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 297[2mms[22m[39m
+(node:38632) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/experience-priority-spec-20261109-reporting-service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 228[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/planning-priority.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/skill-mapper.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+(node:47884) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/experience-priority-spec-20261109-spec-service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m13 passed[39m[22m[90m (13)[39m
+[2m      Tests [22m [1m[32m408 passed[39m[22m[90m (408)[39m
+[2m   Start at [22m 01:40:51
+[2m   Duration [22m 16.34s[2m (transform 1.17s, setup 2.36s, import 3.51s, tests 5.00s, environment 3.63s)[22m
+

@@ -1,0 +1,13 @@
+✔ unknown pages retain HTTP 404 and offer branded recovery navigation (409.6076ms)
+✔ server-renders the Arc landing page (279.2765ms)
+✔ keeps server secret identifiers out of the client bundle (135.1824ms)
+✔ omits unused Provider usage and cost schema from built client artifacts (154.791ms)
+✔ ships the adaptive workspace recovery and review copy without replacing the public shell (138.5131ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2555.7027

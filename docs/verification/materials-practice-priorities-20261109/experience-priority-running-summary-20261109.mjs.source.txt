@@ -1,0 +1,7 @@
+import { readFileSync } from 'node:fs';
+import { stripVTControlCharacters } from 'node:util';
+for (const name of ['experience-priority-full-unit-20261109-a','experience-priority-full-research-20261109-a','experience-priority-full-node-20261109-a']) {
+  const text=stripVTControlCharacters(readFileSync('work/grounded-verification/'+name+'.log','utf8'));
+  const files=[...text.matchAll(/^.*?(tests\/.+?\.test\.(?:ts|tsx))\s+\((\d+) tests?([^)]*)\)/gmu)].map(match=>({path:match[1],tests:Number(match[2]),details:match[3]}));
+  console.log(JSON.stringify({name,partial:true,completedFiles:files.length,completedTests:files.reduce((sum,row)=>sum+row.tests,0),failedFiles:files.filter(row=>/fail/iu.test(row.details)),failedNodeLines:text.split(/\r?\n/u).filter(line=>line.startsWith('\u2716')),tail:text.split(/\r?\n/u).slice(-2)}));
+}

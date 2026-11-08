@@ -1,0 +1,80 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261109-resume-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const bindingName = prefix + "source-binding.json";
+const bindingSha = "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c";
+assert.equal(sha(readFileSync(join(work, bindingName))), bindingSha);
+const binding = JSON.parse(readFileSync(join(work, bindingName), "utf8"));
+for (const [path, expected] of Object.entries(binding.sourceHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+const oldManifest = "experience-priority-author-20261108-reporting-frozen-source.json";
+const oldManifestSha = "b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9";
+assert.equal(sha(readFileSync(join(work, oldManifest))), oldManifestSha);
+const currentGuard = "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec";
+const previousGuard = "caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab";
+const plans = [
+  ["experience-priority-quality-20261108-boundary-probe.mjs", "quality-probe.mjs", [
+    ["experience-priority-quality-20261108-boundary-results.json", prefix + "quality-probe-results.json"],
+    [oldManifest, bindingName], [oldManifestSha, bindingSha],
+  ]],
+  ["experience-priority-quality-20261108-service.test.ts", "quality-service.test.ts", [
+    ["experience-priority-quality-20261108-service-results.json", prefix + "quality-service-results.json"],
+    [oldManifest, bindingName], [oldManifestSha, bindingSha],
+  ]],
+  ["experience-priority-spec-20261108-assistance-probe.mjs", "spec-probe.mjs", [
+    ["experience-priority-spec-20261108-assistance-results.json", prefix + "spec-probe-results.json"],
+  ]],
+  ["experience-priority-spec-20261108-assistance-service.test.ts", "spec-service.test.ts", [
+    ["experience-priority-spec-20261108-assistance-service-results.json", prefix + "spec-service-results.json"],
+  ]],
+  ["experience-priority-spec-20261108-recheck-reporting-probe.mjs", "reporting-probe.mjs", [
+    ["experience-priority-spec-20261108-recheck-reporting-results.json", prefix + "reporting-probe-results.json"],
+    ['assert.equal(sha(readFileSync(bPath)), "' + previousGuard + '");', 'assert.equal(sha(readFileSync(bPath)), "' + currentGuard + '");'],
+  ]],
+  ["experience-priority-spec-20261108-recheck-reporting-service.test.ts", "reporting-service.test.ts", [
+    ["experience-priority-spec-20261108-recheck-reporting-service-results.json", prefix + "reporting-service-results.json"],
+  ]],
+];
+const copies = {};
+for (const [originalName, suffix, replacements] of plans) {
+  const original = readFileSync(join(work, originalName), "utf8");
+  assert.equal(sha(Buffer.from(original)), binding.previousArtifacts[originalName], originalName);
+  let next = original;
+  for (const [oldText, newText] of replacements) {
+    assert.equal(next.split(oldText).length, 2, "Expected exactly one metadata occurrence: " + oldText);
+    next = next.replace(oldText, newText);
+  }
+  let restored = next;
+  for (const [oldText, newText] of [...replacements].reverse()) restored = restored.replace(newText, oldText);
+  assert.equal(restored, original, "All original behavior must remain unchanged");
+  const nextName = prefix + suffix;
+  writeFileSync(join(work, nextName), next, { flag: "wx" });
+  copies[nextName] = { originalName, originalSha256: sha(Buffer.from(original)), nextSha256: sha(Buffer.from(next)), replacements,
+    behaviorAssertionsUnchanged: true };
+}
+const configHashes = {};
+for (const suffix of ["quality-service", "spec-service", "reporting-service", "unit"]) {
+  const include = suffix === "unit" ? "tests/lib/materials/experience-evidence.test.ts" : "work/grounded-verification/" + prefix + suffix + ".test.ts";
+  const contents = 'import { defineConfig } from "vitest/config";\nimport base from "../../vitest.config";\n\nexport default defineConfig({ ...base, test: { ...base.test, include: ["' + include + '"], maxWorkers: 1 } });\n';
+  const path = prefix + suffix + ".config.ts";
+  writeFileSync(join(work, path), contents, { flag: "wx" });
+  configHashes[path] = sha(Buffer.from(contents));
+}
+for (const suffix of ["regression.config.ts", "level-regression.config.ts", "final-tsconfig.json"]) {
+  const originalName = "experience-priority-author-20261108-" + suffix;
+  const bytes = readFileSync(join(work, originalName));
+  assert.equal(sha(bytes), binding.previousArtifacts[originalName], originalName);
+  const nextName = prefix + suffix;
+  writeFileSync(join(work, nextName), bytes, { flag: "wx" });
+  configHashes[nextName] = sha(bytes);
+}
+const metadata = { sourceBinding: bindingName, sourceBindingSha256: bindingSha, copies, configHashes,
+  historicalCandidateASha256: "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2",
+  permittedEdits: "Exclusive result paths and exact current-candidate source identity metadata only; historical bindings and every behavior expectation preserved." };
+const metadataPath = join(work, prefix + "probe-bindings.json");
+writeFileSync(metadataPath, JSON.stringify(metadata, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ probeCopies: Object.keys(copies).length, behaviorAssertionsUnchanged: true,
+  configCount: Object.keys(configHashes).length, metadataSha256: sha(readFileSync(metadataPath)) }, null, 2));

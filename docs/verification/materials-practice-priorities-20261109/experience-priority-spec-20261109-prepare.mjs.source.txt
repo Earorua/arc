@@ -1,0 +1,114 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const work = "work/grounded-verification/";
+const prefix = "experience-priority-spec-20261109-";
+const phase = process.argv[2] ?? "before";
+assert.ok(["before", "after"].includes(phase));
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const hash = path => sha(readFileSync(path));
+const git = args => execFileSync("git", args, { encoding: "utf8", windowsHide: true }).trim();
+const frozenPath = work + "experience-priority-author-20261109-resume-frozen-source.json";
+assert.equal(hash(frozenPath), "7c3b39d88da8cce80b3e1a6eff59215508eb8cac18de9fbff328f8966c210134");
+const frozen = JSON.parse(readFileSync(frozenPath));
+assert.equal(hash(work + frozen.sourceBinding.path), "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c");
+assert.equal(hash(work + frozen.probeBinding.path), "c1b255551b72ad3f7108aa6859e5464a95c54a16178e3efd486c69e753624a08");
+const binding = JSON.parse(readFileSync(work + frozen.sourceBinding.path));
+assert.equal(git(["rev-parse", "HEAD"]), frozen.baseHead);
+assert.equal(git(["branch", "--show-current"]), "codex/materials-replan-recovery-20261106");
+assert.equal(git(["status", "--short", "--", "app", "tests"]), "");
+const verify = (hashes, directory = "") => {
+  for (const [path, expected] of Object.entries(hashes)) assert.equal(hash(directory + path), expected, path);
+};
+verify(frozen.sourceHashes);
+assert.equal(Object.keys(frozen.sourceHashes).length, 9);
+assert.deepEqual(frozen.sourceHashes, binding.sourceHashes);
+verify(frozen.unchangedCandidateAndSharedHashes);
+verify(frozen.safetyHashes);
+verify(frozen.harnessInputs, work);
+verify(frozen.preservedPreviousArtifacts, work);
+assert.equal(Object.keys(frozen.preservedPreviousArtifacts).length, 370);
+for (const [path, expected] of Object.entries(frozen.sourceHashes)) {
+  assert.equal(hash(work + "experience-priority-author-20261109-resume-source/" + path.replaceAll("/", "__") + ".source.txt"), expected, "frozen copy " + path);
+}
+const oldTests = readFileSync(work + "experience-priority-author-20261108-quality-candidate-source/tests__lib__materials__experience-evidence.test.ts.source.txt");
+assert.equal(sha(oldTests), binding.original253TestsSha256);
+assert.ok(readFileSync("tests/lib/materials/experience-evidence.test.ts").subarray(0, oldTests.length).equals(oldTests));
+const probeBinding = JSON.parse(readFileSync(work + frozen.probeBinding.path));
+for (const [path, copy] of Object.entries(probeBinding.copies)) {
+  const original = readFileSync(work + copy.originalName, "utf8");
+  const current = readFileSync(work + path, "utf8");
+  assert.equal(sha(Buffer.from(original)), copy.originalSha256);
+  assert.equal(sha(Buffer.from(current)), copy.nextSha256);
+  let restored = current;
+  for (const [oldText, newText] of [...copy.replacements].reverse()) restored = restored.replace(newText, oldText);
+  assert.equal(restored, original, "historical assertions " + path);
+}
+const dependencies = [
+  "app/contracts/documents.ts", "app/contracts/material-planning.ts",
+  "app/lib/materials/personal-assertion-scopes.ts", "app/lib/materials/self-assessment-evidence.ts",
+  "app/lib/materials/quotation-evidence.ts", "app/lib/materials/contextual-skill-mapping.ts",
+  "app/lib/materials/skill-labels.ts", "app/lib/materials/explanations.ts", "app/lib/planning/path-builder.ts",
+  "app/server/planning/material-commit.ts", "app/server/documents/adopted-context.ts",
+  "app/data/flagship-blueprint.ts", "app/data/flagship-unit-registry.ts",
+  "tests/helpers/materials-d1.ts", "tests/helpers/sqlite-d1.ts", "tests/helpers/material-planning.ts",
+  "tests/setup.ts", "vitest.config.ts", "package.json", "package-lock.json",
+  "node_modules/esbuild/package.json", "node_modules/vitest/package.json",
+];
+const dependencyHashes = Object.fromEntries(dependencies.map(path => [path, hash(path)]));
+const copies = [];
+if (phase === "before") {
+  for (const suffix of ["quality-probe.mjs", "quality-service.test.ts", "spec-probe.mjs", "spec-service.test.ts", "reporting-probe.mjs", "reporting-service.test.ts"]) {
+    const originalName = "experience-priority-author-20261109-resume-" + suffix;
+    const newName = prefix + suffix;
+    const resultSuffix = suffix.replace(/(?:\.mjs|\.test\.ts)$/, "-results.json");
+    const originalResult = "experience-priority-author-20261109-resume-" + resultSuffix;
+    const newResult = prefix + resultSuffix;
+    const original = readFileSync(work + originalName, "utf8");
+    assert.equal(original.split(originalResult).length, 2);
+    const current = original.replace(originalResult, newResult);
+    assert.equal(current.replace(newResult, originalResult), original);
+    writeFileSync(work + newName, current, { flag: "wx" });
+    copies.push({ originalName, originalSha256: hash(work + originalName), newName, sha256: hash(work + newName), changes: ["exclusive result output path"], behavioralAssertionsUnchanged: true });
+  }
+  const originalName = "experience-priority-spec-20261108-compatibility-probe.mjs";
+  const original = readFileSync(work + originalName, "utf8");
+  const replacements = [
+    ["experience-priority-author-20261108-frozen-source.json", frozen.sourceBinding.path],
+    ["experience-priority-spec-20261108-compatibility-results.json", prefix + "compatibility-results.json"],
+  ];
+  let current = original;
+  for (const [oldText, newText] of replacements) {
+    assert.equal(current.split(oldText).length, 2);
+    current = current.replace(oldText, newText);
+  }
+  let restored = current;
+  for (const [oldText, newText] of [...replacements].reverse()) restored = restored.replace(newText, oldText);
+  assert.equal(restored, original);
+  const newName = prefix + "compatibility-probe.mjs";
+  writeFileSync(work + newName, current, { flag: "wx" });
+  copies.push({ originalName, originalSha256: hash(work + originalName), newName, sha256: hash(work + newName), changes: replacements, behavioralAssertionsUnchanged: true });
+} else {
+  const before = JSON.parse(readFileSync(work + prefix + "identity-before-results.json"));
+  assert.deepEqual(dependencyHashes, before.dependencyHashes);
+  verify(before.reviewerInputHashes, work);
+  assert.deepEqual(frozen.sourceHashes, before.sourceHashes);
+  assert.equal(git(["status", "--short", "--", "app", "tests"]), before.productTestStatus);
+}
+const reviewerInputPaths = ["prepare.mjs", "focused.config.ts", "supplemental-service.test.ts",
+  "quality-probe.mjs", "quality-service.test.ts", "spec-probe.mjs", "spec-service.test.ts",
+  "reporting-probe.mjs", "reporting-service.test.ts", "compatibility-probe.mjs"].map(suffix => prefix + suffix);
+const result = { phase, head: frozen.baseHead, branch: git(["branch", "--show-current"]),
+  productTestStatus: git(["status", "--short", "--", "app", "tests"]), fullStatus: git(["status", "--short"]),
+  frozenManifestSha256: hash(frozenPath), sourceBindingSha256: hash(work + frozen.sourceBinding.path),
+  sourceHashes: frozen.sourceHashes, fixedSharedHashes: frozen.unchangedCandidateAndSharedHashes,
+  safetyHashes: frozen.safetyHashes, dependencyHashes,
+  preservedPreviousArtifactCount: 370, previousArtifacts: frozen.preservedPreviousArtifacts,
+  original253TestsExactBytePrefix: true, historicalProbeAssertionsVerified: true, copies,
+  reviewerInputHashes: Object.fromEntries(reviewerInputPaths.map(path => [path, hash(work + path)])),
+};
+writeFileSync(work + prefix + "identity-" + phase + "-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ phase, sourceFiles: 9, fixedShared: Object.keys(frozen.unchangedCandidateAndSharedHashes).length,
+  dependencies: dependencies.length, sealedPreviousArtifacts: 370, copies: copies.length, sourceAndDependenciesVerified: true }));

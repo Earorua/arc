@@ -1,0 +1,78 @@
+import { build } from "esbuild";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { isDeepStrictEqual } from "node:util";
+
+const baseline = "c788268b5dbb4e91480ce98738274dfd08a58155";
+async function api(contents, resolveDir) {
+  const output = await build({ stdin: { contents, resolveDir, loader: "ts" }, bundle: true, platform: "node", format: "esm", write: false });
+  return import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`);
+}
+const oldMapper = await api(execFileSync("git", ["show", `${baseline}:app/lib/materials/skill-mapper.ts`], { encoding: "utf8" }), resolve("app/lib/materials"));
+const current = await api(`
+  export { mapMaterialItemTerms, mapMaterialItems, mapMaterialPracticeSkills } from "./app/lib/materials/skill-mapper.ts";
+  export { flagshipBlueprint } from "./app/data/flagship-blueprint.ts";
+  export { flagshipUnitRegistry } from "./app/data/flagship-unit-registry.ts";
+`, process.cwd());
+const fact = (id, text, skillLabels, kind = "experience") => ({ id, kind, text, origin: "user", sourceRef: null, requirementLevel: kind === "requirement" ? "must" : null, ...(skillLabels === undefined ? {} : { skillLabels }) });
+const items = [
+  fact("a", "I wrote SQL queries."),
+  fact("a", "I have never used SQL.", ["SQL"]),
+  fact("a", "I built React; my colleague wrote SQL.", ["React", "SQL"]),
+  fact("a", "I built React; my colleague wrote SQL."),
+  fact("a", "I wrote SQL and configured SQLite.", ["SQLite", "SQL", "sql"]),
+  fact("a", "I wrote SQL and built React.", []),
+  fact("a", "I wrote SQL and built React.", ["React"]),
+  fact("a", "Built accessible focus UI tokens.", ["UI tokens", "Unknown", "Jest"]),
+  fact("a", "I configured QuillBin.", ["QuillBin"]),
+  fact("a", "I configured shared-term.", ["shared-term"]),
+  fact("a", "x".repeat(200)),
+  fact("a", "SQL", ["SQL"], "skill-claim"),
+  fact("a", "The role requires SQL.", ["SQL"], "requirement"),
+  fact("a", "I plan to learn SQL.", ["SQL"], "constraint"),
+  fact("a", "I plan to learn SQL.", [], "constraint"),
+];
+const choices = [
+  {},
+  { userMappings: { a: ["sql"] } },
+  { userMappings: { a: ["sql", "react", "sql"] } },
+  { userMappings: { a: [] } },
+  { userMappings: { a: ["unknown"] } },
+  { termMappings: { a: [{ skillLabel: "SQL", skillIds: ["react"] }] } },
+  { termMappings: { a: [{ skillLabel: "SQL", skillIds: [] }] } },
+  { termMappings: { a: [{ skillLabel: "sql", skillIds: ["react"] }, { skillLabel: "UI tokens", skillIds: ["sql", "react"] }] } },
+  { userMappings: { a: ["sql"] }, termMappings: { a: [{ skillLabel: "SQL", skillIds: [] }] } },
+  { learningIntentItemIds: ["a"] },
+  { learningIntentItemIds: ["b"] },
+  ...["2026.11.2", "2026.11.3", "2026.11.4", "2026.11.5"].map(version => ({ aliases: { version, skills: { sql: ["QuillBin", "shared-term"], react: ["shared-term"] } } })),
+];
+const catalogs = [
+  [current.flagshipBlueprint, current.flagshipUnitRegistry],
+  [current.flagshipBlueprint, { ...current.flagshipUnitRegistry, tracks: [] }],
+  [{ ...current.flagshipBlueprint, id: "review-research" }, { ...current.flagshipUnitRegistry, blueprintId: "review-research" }],
+];
+const mismatches = [];
+let comparisons = 0;
+for (const [caseIndex, item] of items.entries()) for (const [choiceIndex, options] of choices.entries()) for (const [catalogIndex, [blueprint, registry]] of catalogs.entries()) {
+  const input = [item, fact("b", "I tested SQL.", ["SQL"])];
+  for (const method of ["mapMaterialItemTerms", "mapMaterialItems"]) {
+    const expected = oldMapper[method](input, blueprint, registry, options);
+    const actual = current[method](input, blueprint, registry, options);
+    comparisons++;
+    if (!isDeepStrictEqual(actual, expected)) mismatches.push({ caseIndex, choiceIndex, catalogIndex, method, item, options, expected, actual });
+  }
+}
+const evidencePath = "tests/lib/materials/experience-evidence.test.ts";
+const oldTests = execFileSync("git", ["show", `${baseline}:${evidencePath}`], { encoding: "utf8" });
+const newTests = readFileSync(evidencePath, "utf8").replace(/\r\n/g, "\n");
+const originalTestsPreserved = newTests.startsWith(oldTests.replace(/\r\n/g, "\n"));
+const manifestPath = "work/grounded-verification/experience-priority-author-20261109-resume-source-binding.json";
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+const hashes = Object.fromEntries(Object.keys(manifest.sourceHashes).map(path => [path, createHash("sha256").update(readFileSync(path)).digest("hex")]));
+const sourceHashMatch = isDeepStrictEqual(hashes, manifest.sourceHashes);
+const result = { baseline, comparisons, mismatches, originalTestsPreserved, sourceHashMatch, manifestHash: createHash("sha256").update(readFileSync(manifestPath)).digest("hex"), sourceHashes: hashes };
+writeFileSync("work/grounded-verification/experience-priority-spec-20261109-compatibility-results.json", JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));
+process.exitCode = mismatches.length || !originalTestsPreserved || !sourceHashMatch ? 1 : 0;

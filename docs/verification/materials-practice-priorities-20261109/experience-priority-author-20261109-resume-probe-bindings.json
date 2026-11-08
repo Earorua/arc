@@ -1,0 +1,109 @@
+{
+  "sourceBinding": "experience-priority-author-20261109-resume-source-binding.json",
+  "sourceBindingSha256": "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c",
+  "copies": {
+    "experience-priority-author-20261109-resume-quality-probe.mjs": {
+      "originalName": "experience-priority-quality-20261108-boundary-probe.mjs",
+      "originalSha256": "406951d42023a7f7e9d29ea14fe7f0ec1eb2f786b2e572801848c7c9b5022822",
+      "nextSha256": "1c6767a2a1a49be0347c8de4a615400ac8a90857f29efa3a8768644e06f5303f",
+      "replacements": [
+        [
+          "experience-priority-quality-20261108-boundary-results.json",
+          "experience-priority-author-20261109-resume-quality-probe-results.json"
+        ],
+        [
+          "experience-priority-author-20261108-reporting-frozen-source.json",
+          "experience-priority-author-20261109-resume-source-binding.json"
+        ],
+        [
+          "b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9",
+          "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c"
+        ]
+      ],
+      "behaviorAssertionsUnchanged": true
+    },
+    "experience-priority-author-20261109-resume-quality-service.test.ts": {
+      "originalName": "experience-priority-quality-20261108-service.test.ts",
+      "originalSha256": "ef355f5c1d36c7dcfb5729394c2e5fefaf4b4d04b97f2af7e6b1db1d6c43d135",
+      "nextSha256": "0bd71d16611d579b96f630c73fcc69a051725eb4e7ca666d363be07df1c103e7",
+      "replacements": [
+        [
+          "experience-priority-quality-20261108-service-results.json",
+          "experience-priority-author-20261109-resume-quality-service-results.json"
+        ],
+        [
+          "experience-priority-author-20261108-reporting-frozen-source.json",
+          "experience-priority-author-20261109-resume-source-binding.json"
+        ],
+        [
+          "b9707d05962b2a1d2debc44a8486d33a8b1127aaf548a0fc4fdf4b844d5c6cc9",
+          "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c"
+        ]
+      ],
+      "behaviorAssertionsUnchanged": true
+    },
+    "experience-priority-author-20261109-resume-spec-probe.mjs": {
+      "originalName": "experience-priority-spec-20261108-assistance-probe.mjs",
+      "originalSha256": "380d89e0c3d3f1a2a3a04f1183b9742ce81d9df6ea1c042c68a391efdacee30f",
+      "nextSha256": "5ede26720eb5ebc4c21068de41edfa3dcc041a12e71ef55c8b5334b370392ee4",
+      "replacements": [
+        [
+          "experience-priority-spec-20261108-assistance-results.json",
+          "experience-priority-author-20261109-resume-spec-probe-results.json"
+        ]
+      ],
+      "behaviorAssertionsUnchanged": true
+    },
+    "experience-priority-author-20261109-resume-spec-service.test.ts": {
+      "originalName": "experience-priority-spec-20261108-assistance-service.test.ts",
+      "originalSha256": "09a4c332b8b86f05d86da59dc3653915df0eb858e709901ff8c3adecebaa39dd",
+      "nextSha256": "c97240fef7321798cfce89780943025398f65812b9ba6d81e77b9b067611cff7",
+      "replacements": [
+        [
+          "experience-priority-spec-20261108-assistance-service-results.json",
+          "experience-priority-author-20261109-resume-spec-service-results.json"
+        ]
+      ],
+      "behaviorAssertionsUnchanged": true
+    },
+    "experience-priority-author-20261109-resume-reporting-probe.mjs": {
+      "originalName": "experience-priority-spec-20261108-recheck-reporting-probe.mjs",
+      "originalSha256": "bdff3cb1c867fed8e044e970c540a540f3fa5d850333c82555c2bef3d933e9ec",
+      "nextSha256": "1b364eb04f82f8e6fd5c2c78f5393405923e662f1c5bfb39eb2d7363512242eb",
+      "replacements": [
+        [
+          "experience-priority-spec-20261108-recheck-reporting-results.json",
+          "experience-priority-author-20261109-resume-reporting-probe-results.json"
+        ],
+        [
+          "assert.equal(sha(readFileSync(bPath)), \"caf049868ef709757992246447e19f01ae50606b70994143384c56767b0b7fab\");",
+          "assert.equal(sha(readFileSync(bPath)), \"12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec\");"
+        ]
+      ],
+      "behaviorAssertionsUnchanged": true
+    },
+    "experience-priority-author-20261109-resume-reporting-service.test.ts": {
+      "originalName": "experience-priority-spec-20261108-recheck-reporting-service.test.ts",
+      "originalSha256": "f13eb26f9f243b6749d540e4d41ed83828da4ee434f980b6fe2e35d45d008d4a",
+      "nextSha256": "7311b88b145a6cefaa10e97224b38cf6e4c04aa044b779ded633e1b0df32513c",
+      "replacements": [
+        [
+          "experience-priority-spec-20261108-recheck-reporting-service-results.json",
+          "experience-priority-author-20261109-resume-reporting-service-results.json"
+        ]
+      ],
+      "behaviorAssertionsUnchanged": true
+    }
+  },
+  "configHashes": {
+    "experience-priority-author-20261109-resume-quality-service.config.ts": "7ae3367cd56c10e39d1dd04a3333080e42670ca49e7911c913fa25c982fe0ac4",
+    "experience-priority-author-20261109-resume-spec-service.config.ts": "461220dc82b1c63efae8a1e4527c206cfae067459fa5f7ba0f8ad06c02b307f6",
+    "experience-priority-author-20261109-resume-reporting-service.config.ts": "1824a5c180097451700d4a20b63b8332d4154f96a13d47f44f33bd7cc0a34bbb",
+    "experience-priority-author-20261109-resume-unit.config.ts": "e24c0898d40b6561d4148123a35b7b03f920e4eee257e16530c0f8d426ba1229",
+    "experience-priority-author-20261109-resume-regression.config.ts": "d1d37d0fb563847a930ff0a2bec4cc32558ec3e73e3eb5baf0658647eb43eaa3",
+    "experience-priority-author-20261109-resume-level-regression.config.ts": "e2dad7dbbbded54a50112f8411b6dd52ac495fad7c3ea6d54c8cb68296fdde3d",
+    "experience-priority-author-20261109-resume-final-tsconfig.json": "7f91db09cd1875e6f3e4f36b9ade46bfd74ce0d79a11855589e3fe20faecfd9d"
+  },
+  "historicalCandidateASha256": "e837f6a830d104bbcc5689cfed39edd11a16d3a0fa49bc5185f0ed46f34a7db2",
+  "permittedEdits": "Exclusive result paths and exact current-candidate source identity metadata only; historical bindings and every behavior expectation preserved."
+}

@@ -1,0 +1,8 @@
+{
+  "sourceCount": 9,
+  "unchangedCount": 12,
+  "original253TestsExactBytePrefix": true,
+  "sealed293Verified": true,
+  "previousArtifacts": 370,
+  "sourceBindingSha256": "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c"
+}

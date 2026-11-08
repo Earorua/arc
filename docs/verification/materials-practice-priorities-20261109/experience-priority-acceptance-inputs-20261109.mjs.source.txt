@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+const work='work/grounded-verification/';
+const sha=value=>createHash('sha256').update(value).digest('hex');
+const outcomes=[];
+for(const path of readdirSync(work)) {
+  if(!path.startsWith('experience-priority-')||!path.includes('20261109')||!path.endsWith('.json'))continue;
+  const value=JSON.parse(readFileSync(work+path));
+  if(value.name!==path.slice(0,-5)||typeof value.exit!=='number'||typeof value.logSha256!=='string')continue;
+  assert.equal(sha(readFileSync(work+value.name+'.log')),value.logSha256,value.name);
+  assert.equal(value.nonLoopbackDenials,0,value.name);
+  assert.equal(value.exit,value.name==='experience-priority-full-node-20261109-a'?1:0,value.name);
+  outcomes.push(value);
+}
+const checks=outcomes.filter(value=>value.exit===0).map(value=>value.name).sort();
+for(const name of [
+  'experience-priority-author-20261109-resume-unit-green-03','experience-priority-author-20261109-resume-freeze-14',
+  'experience-priority-spec-20261109-focused-06','experience-priority-spec-20261109-final-integrity-07',
+  'experience-priority-quality-20261109-focused-02','experience-priority-quality-20261109-freeze-04',
+  'experience-priority-root-cases-20261109-final-a','experience-priority-node-parity-20261109-final-a',
+  'experience-priority-root-ui-20261109-final-a','experience-priority-history-read-20261109-a',
+  'experience-priority-full-unit-20261109-a','experience-priority-full-serial-20261109-a','experience-priority-full-research-20261109-a',
+  'experience-priority-full-node-20261109-b','experience-priority-full-types-20261109-a','experience-priority-full-lint-20261109-a',
+  'experience-priority-build-20261109-a','experience-priority-render-20261109-a','experience-priority-full-coverage-20261109-a',
+  'experience-priority-final-source-check-20261109-a','experience-priority-integrity-20261109-final-a',
+])assert.ok(checks.includes(name),name);
+const reviews=[
+  {kind:'spec',verdict:'PASS',path:'experience-priority-spec-20261109-memo.md',sha256:'ebcbd90bd9dfd30da92e22e3db4a5b14fda8f54f340c2451e03ab4f69faecf1f'},
+  {kind:'quality',verdict:'PASS',path:'experience-priority-quality-20261109-memo.md',sha256:'83c71fed177d2c6b1f44c595b579e347c2fcb4c1f370ed56ece8d62b779329eb'},
+  {kind:'integrated-handoff',verdict:'PASS',path:'experience-priority-integrated-review-20261109.md',sha256:process.argv[2]},
+];
+for(const review of reviews){assert.match(review.sha256??'',/^[0-9a-f]{64}$/u);assert.equal(sha(readFileSync(work+review.path)),review.sha256,review.path);}
+const fullCoverage=JSON.parse(readFileSync(work+'experience-priority-full-coverage-20261109-results.json'));
+assert.equal(fullCoverage.status,'PASS');assert.equal(fullCoverage.node.name,'experience-priority-full-node-20261109-b');
+const result={checks,reviews,fullCoverage,preservedFailedAttempt:'experience-priority-full-node-20261109-a',newModelCalls:0};
+writeFileSync(work+'experience-priority-archive-required-20261109-a.json',JSON.stringify(result,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({requiredChecks:checks.length,recordedOutcomes:outcomes.length,reviews:reviews.length,fullVitestFiles:fullCoverage.vitestFiles,fullVitestTests:fullCoverage.vitestTests,additionalNode:fullCoverage.node.tests}));

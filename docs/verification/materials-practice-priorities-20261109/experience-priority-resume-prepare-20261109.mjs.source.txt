@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+const sha = value => createHash('sha256').update(value).digest('hex');
+const root = 'work/grounded-verification/';
+const archive = 'docs/verification/materials-practice-priorities-pause-20261108/';
+const pause = JSON.parse(readFileSync(archive + 'experience-priority-pause-identity-20261108-results.json'));
+assert.equal(execFileSync('git', ['rev-parse', 'HEAD'], {encoding:'utf8'}).trim(), '714ea9e54d87b91a1fee4883176d4f1dd06ecf63');
+for (const [path, digest] of Object.entries(pause.filesSha256)) assert.equal(sha(readFileSync(path)), digest, path);
+const changedScripts = [];
+function clone(from, to, replacements = []) {
+  assert.ok(!existsSync(root + to));
+  const before = readFileSync(root + from), text = before.toString('utf8');
+  let after = text;
+  for (const [oldValue, newValue] of replacements) { assert.ok(after.includes(oldValue), oldValue); after = after.replaceAll(oldValue, newValue); }
+  writeFileSync(root + to, after, {flag:'wx'});
+  changedScripts.push({from, to, beforeSha256:sha(before), afterSha256:sha(readFileSync(root+to)), replacements});
+}
+clone('experience-priority-root-cases-quality-20261108.mjs', 'experience-priority-root-cases-20261109.mjs');
+clone('experience-priority-node-parity-20261108-quality.config.ts', 'experience-priority-node-parity-20261109.config.ts', [
+  ['experience-priority-root-cases-20261108-final-e-results.json','experience-priority-root-cases-20261109-final-a-results.json'],
+  ['experience-priority-node-parity-20261108-final-e-results.json','experience-priority-node-parity-20261109-final-a-results.json'],
+]);
+clone('experience-priority-root-ui-20261108-quality.config.ts', 'experience-priority-root-ui-20261109.config.ts', [
+  ['experience-priority-root-ui-20261108-final-d-results.json','experience-priority-root-ui-20261109-final-a-results.json'],
+]);
+clone('experience-priority-snapshot-20261108-b.mjs', 'experience-priority-snapshot-20261109-a.mjs', [
+  ['experience-priority-snapshot-20261108-b-results.json','experience-priority-snapshot-20261109-a-results.json'],
+]);
+clone('experience-priority-integrity-repaired-20261108.mjs', 'experience-priority-integrity-20261109.mjs', [
+  ['experience-priority-snapshot-20261108-b-results.json','experience-priority-snapshot-20261109-a-results.json'],
+]);
+const result = {status:'PREPARED_ONLY_NOT_TESTED', sourceFileCount:pause.sourceFileCount, sourceManifestSha256:pause.sourceManifestSha256, changedScripts, currentModelCalls:0};
+writeFileSync(root+'experience-priority-resume-prepare-20261109-results.json',JSON.stringify(result,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({status:result.status, scripts:changedScripts.length, sourceFilesMatched:pause.sourceFileCount}));

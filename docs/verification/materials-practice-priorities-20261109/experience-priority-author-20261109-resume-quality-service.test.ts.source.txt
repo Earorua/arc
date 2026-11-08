@@ -1,0 +1,51 @@
+// @vitest-environment node
+import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import type { ConfirmedMaterialItem } from "../../app/contracts/documents";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+
+const sha = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+const manifestPath = "work/grounded-verification/experience-priority-author-20261109-resume-source-binding.json";
+expect(sha(readFileSync(manifestPath))).toBe("c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c");
+const { sourceHashes } = JSON.parse(readFileSync(manifestPath, "utf8"));
+for (const [path, expected] of Object.entries(sourceHashes)) expect(sha(readFileSync(path))).toBe(expected);
+const observations: unknown[] = [];
+const databases: ReturnType<typeof createMaterialsD1>[] = [];
+afterEach(() => databases.splice(0).forEach(db => db.close()));
+afterAll(() => writeFileSync("work/grounded-verification/experience-priority-author-20261109-resume-quality-service-results.json", JSON.stringify({ sourceHashes, observations }, null, 2) + "\n", { flag: "wx" }));
+
+describe("quality review: administrative report object ordering", () => {
+  it.each([
+    ["I assisted with status reporting on SQL.", false],
+    ["I can assist with status reporting on SQL.", false],
+    ["I assisted with progress reporting on SQL.", false],
+    ["I am able to assist with progress reporting on SQL.", false],
+    ["I assisted with SQL status reporting.", false],
+    ["I assisted with SQL project progress reporting.", false],
+    ["I assisted with SQL reporting.", true],
+    ["I assisted with SQL query reporting.", true],
+  ] as const)("preserves topic and gates service priority: %s", async (text, expected) => {
+    const db = createMaterialsD1();
+    databases.push(db);
+    seedMaterialSelection(db);
+    const item: ConfirmedMaterialItem = { id: "quality-fact", kind: "experience", text, skillLabels: ["SQL"], origin: "user", sourceRef: null, requirementLevel: null };
+    db.database.prepare("UPDATE documents SET kind='resume'").run();
+    db.database.prepare("UPDATE material_selection_entries SET slot='resume'").run();
+    db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id='confirmation-a'").run(JSON.stringify([item]));
+    const service = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver: materialSourceResolver(), now: materialNow, createId: () => "quality-context" });
+    const request = materialContextRequest();
+    const created = await service.create("owner-a", request);
+    const reread = await service.read("owner-a", created.contextVersionId);
+    const saved = db.database.prepare("SELECT snapshot_json,preview_json FROM material_context_versions WHERE id=?").get(created.contextVersionId) as { snapshot_json: string; preview_json: string };
+    const snapshot = JSON.parse(saved.snapshot_json);
+    observations.push({ text, expected, mapping: created.preview.mappingDetails, priorities: created.preview.priorities,
+      savedPriorities: JSON.parse(saved.preview_json).priorities, rereadPriorities: reread.preview.priorities, policyVersion: snapshot.policyVersion });
+    expect(created.preview.mappingDetails).toEqual([{ itemId: created.preview.confirmedItems[0]!.id, termIndexes: [0], status: "mapped", skillIds: ["sql"], basis: "literal" }]);
+    expect(snapshot).toMatchObject({ policyVersion: "2026.11.3", mappingVersion: "2026.11.5", audit: request.audit, availability: request.availability, target: request.target });
+    expect(reread.preview).toEqual(created.preview);
+    expect(created.preview.priorities.map(row => [row.skillId, row.tier])).toEqual(expected ? [["sql", 3]] : []);
+  });
+});

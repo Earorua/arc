@@ -1,0 +1,67 @@
+{
+  "status": "PREPARED_ONLY_NOT_TESTED",
+  "sourceFileCount": 1004,
+  "sourceManifestSha256": "8ab545fbd75adeaa8274ac9c7b89d7a7bbd37085a473b748071f6d11a5042ecb",
+  "changedScripts": [
+    {
+      "from": "experience-priority-root-cases-quality-20261108.mjs",
+      "to": "experience-priority-root-cases-20261109.mjs",
+      "beforeSha256": "8fce3b92893452ac688cfa22b1fa3f9edb09c2dd61ca5283ce3191e7972ba6df",
+      "afterSha256": "8fce3b92893452ac688cfa22b1fa3f9edb09c2dd61ca5283ce3191e7972ba6df",
+      "replacements": []
+    },
+    {
+      "from": "experience-priority-node-parity-20261108-quality.config.ts",
+      "to": "experience-priority-node-parity-20261109.config.ts",
+      "beforeSha256": "b2309f6c125d8f4ff92a8544d7fd261265a464f340f00d1e39c820e028501e55",
+      "afterSha256": "8eb81fbd2086a6409b29dc380ba6b18a1784b1728cc0fa3e810491379c1d2a29",
+      "replacements": [
+        [
+          "experience-priority-root-cases-20261108-final-e-results.json",
+          "experience-priority-root-cases-20261109-final-a-results.json"
+        ],
+        [
+          "experience-priority-node-parity-20261108-final-e-results.json",
+          "experience-priority-node-parity-20261109-final-a-results.json"
+        ]
+      ]
+    },
+    {
+      "from": "experience-priority-root-ui-20261108-quality.config.ts",
+      "to": "experience-priority-root-ui-20261109.config.ts",
+      "beforeSha256": "e7132fa7d03cd4c889b6fcef57ce07290e5ccfda98a050264c638ac08ce68a93",
+      "afterSha256": "c24e48d37fdbb3c36d38f62474b911338a9bfae302786970a67b25aeec068595",
+      "replacements": [
+        [
+          "experience-priority-root-ui-20261108-final-d-results.json",
+          "experience-priority-root-ui-20261109-final-a-results.json"
+        ]
+      ]
+    },
+    {
+      "from": "experience-priority-snapshot-20261108-b.mjs",
+      "to": "experience-priority-snapshot-20261109-a.mjs",
+      "beforeSha256": "87758bb9ba3bba11546419e11fddb6a79ae751a1740d419de017386bc99d2154",
+      "afterSha256": "eedde73f9977c321fe051b606ed7a6a234416a1cef71da58fc764a98548b8812",
+      "replacements": [
+        [
+          "experience-priority-snapshot-20261108-b-results.json",
+          "experience-priority-snapshot-20261109-a-results.json"
+        ]
+      ]
+    },
+    {
+      "from": "experience-priority-integrity-repaired-20261108.mjs",
+      "to": "experience-priority-integrity-20261109.mjs",
+      "beforeSha256": "a5e2a309353f168381d99ce6694f31b98665b91738a030400b06528bee1bc7c0",
+      "afterSha256": "19ad4ef9901ab7f85b1a63947e1a39bc178456ddb4fbccb569968262635eb82d",
+      "replacements": [
+        [
+          "experience-priority-snapshot-20261108-b-results.json",
+          "experience-priority-snapshot-20261109-a-results.json"
+        ]
+      ]
+    }
+  ],
+  "currentModelCalls": 0
+}

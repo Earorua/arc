@@ -1,0 +1,101 @@
+// @vitest-environment node
+import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { build } from "esbuild";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { supportsMaterialExperience } from "../../app/lib/materials/experience-evidence";
+import { mapMaterialPracticeSkills } from "../../app/lib/materials/skill-mapper";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+
+const work = "work/grounded-verification/";
+const prefix = "experience-priority-spec-20261109-";
+const sha = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
+const bindingBytes = readFileSync(work + "experience-priority-author-20261109-resume-source-binding.json");
+expect(sha(bindingBytes)).toBe("c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c");
+const { sourceHashes } = JSON.parse(bindingBytes.toString());
+for (const [path, expected] of Object.entries(sourceHashes)) expect(sha(readFileSync(path))).toBe(expected);
+const observations: unknown[] = [];
+const databases: ReturnType<typeof createMaterialsD1>[] = [];
+afterEach(() => databases.splice(0).forEach(db => db.close()));
+afterAll(() => writeFileSync(work + prefix + "supplemental-service-results.json", JSON.stringify({ sourceHashes, observations }, null, 2) + "\n", { flag: "wx" }));
+
+function setup(text: string) {
+  const db = createMaterialsD1(); databases.push(db); seedMaterialSelection(db);
+  const item = { id: "spec-fact", kind: "experience" as const, text, skillLabels: ["SQL"], origin: "user" as const, sourceRef: null, requirementLevel: null };
+  db.database.prepare("UPDATE documents SET kind='resume'").run();
+  db.database.prepare("UPDATE material_selection_entries SET slot='resume'").run();
+  db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id='confirmation-a'").run(JSON.stringify([item]));
+  const options = { db: db as unknown as D1Database, sourceResolver: materialSourceResolver(), now: materialNow };
+  const service = new MaterialContextService({ ...options, createId: () => "current-spec-context" });
+  return { db, item, options, service };
+}
+
+describe("independent current complement and persisted-preview specification", () => {
+  it.each([
+    ["I assisted with status reporting about SQL.", false],
+    ["I assisted with progress reporting of SQL.", false],
+    ["I assisted with SQL reporting about sales data.", true],
+    ["I assisted with SQL query reporting of sales data.", true],
+    ["I assisted with testing SQL reporting queries about sales data.", true],
+    ["I assisted with modifying SQL queries of the reporting workflow.", true],
+  ] as const)("preserves the approved complement boundary through the real service: %s", async (text, expected) => {
+    const { db, item, service } = setup(text);
+    expect(supportsMaterialExperience({ kind: item.kind, text, target: { kind: "terms", terms: ["SQL"] } })).toBe(expected);
+    expect(supportsMaterialExperience({ kind: item.kind, text, target: { kind: "confirmed-whole-fact" } })).toBe(expected);
+    expect(mapMaterialPracticeSkills([item], flagshipBlueprint, flagshipUnitRegistry)).toEqual(expected ? [{ itemId: item.id, skillId: "sql" }] : []);
+    const request = materialContextRequest();
+    const created = await service.create("owner-a", request);
+    const row = db.database.prepare("SELECT snapshot_json,preview_json,fingerprint FROM material_context_versions WHERE id=?").get(created.contextVersionId) as { snapshot_json: string; preview_json: string; fingerprint: string };
+    expect(created.preview.mappingDetails).toEqual([{ itemId: created.preview.confirmedItems[0]!.id, termIndexes: [0], status: "mapped", skillIds: ["sql"], basis: "literal" }]);
+    expect(created.preview.priorities.map(p => [p.skillId, p.tier])).toEqual(expected ? [["sql", 3]] : []);
+    expect(created.preview.itemReferences?.[0]).not.toHaveProperty("learningIntentEligible");
+    expect(JSON.parse(row.snapshot_json)).toMatchObject({ policyVersion: "2026.11.3", mappingVersion: "2026.11.5", audit: request.audit, availability: request.availability, target: request.target });
+    expect((await service.read("owner-a", created.contextVersionId)).preview).toEqual(created.preview);
+    expect(JSON.parse(row.preview_json)).toEqual(created.preview);
+    observations.push({ text, expected, mapping: created.preview.mappingDetails, priorities: created.preview.priorities, persistedPreviewSha256: sha(row.preview_json), rereadEqual: true });
+  });
+
+  it("reads a context actually created by policy 2026.11.2 without recomputing its SQL priority, with all guards retained", async () => {
+    const baseline = "c788268b5dbb4e91480ce98738274dfd08a58155";
+    const baselinePaths = ["app/server/documents/context-builder.ts", "app/lib/materials/planning-priority.ts", "app/lib/materials/skill-mapper.ts"];
+    const baselineSources = new Map(baselinePaths.map(path => [resolve(path), execFileSync("git", ["show", baseline + ":" + path], { encoding: "utf8", windowsHide: true })]));
+    const output = await build({
+      entryPoints: ["app/server/documents/context-builder.ts"], bundle: true, platform: "node", format: "esm", write: false,
+      plugins: [{ name: "fixed-task-two-baseline", setup(builder) {
+        builder.onLoad({ filter: /(?:context-builder|planning-priority|skill-mapper)\.ts$/ }, args => {
+          const contents = baselineSources.get(resolve(args.path));
+          return contents === undefined ? undefined : { contents, loader: "ts", resolveDir: dirname(args.path) };
+        });
+      } }],
+    });
+    const baselineService = await import(/* @vite-ignore */ `data:text/javascript;base64,${Buffer.from(output.outputFiles[0]!.text).toString("base64")}`) as { MaterialContextService: typeof MaterialContextService };
+    const { db, service, options } = setup("I have never used SQL.");
+    const old = new baselineService.MaterialContextService({ ...options, createId: () => "historical-spec-context" });
+    const request = materialContextRequest();
+    const oldCreated = await old.create("owner-a", request);
+    const before = db.database.prepare("SELECT snapshot_json,preview_json,fingerprint,preview_token FROM material_context_versions WHERE id=?").get(oldCreated.contextVersionId) as { snapshot_json: string; preview_json: string; fingerprint: string; preview_token: string };
+    expect(JSON.parse(before.snapshot_json)).toMatchObject({ policyVersion: "2026.11.2", mappingVersion: "2026.11.5" });
+    expect(oldCreated.preview.priorities.map(p => [p.skillId, p.tier])).toEqual([["sql", 3]]);
+    expect(oldCreated.preview.overlay?.policyVersion).toBe("2026.11.2");
+    expect((await service.read("owner-a", oldCreated.contextVersionId)).preview).toEqual(oldCreated.preview);
+    expect(await service.create("owner-a", request)).toEqual(oldCreated);
+    const currentCreated = await service.create("owner-a", { ...request, mutationId: "current-policy-context" });
+    expect(currentCreated.preview.priorities).toEqual([]);
+    expect(currentCreated.preview.overlay?.policyVersion).toBe("2026.11.3");
+    const after = db.database.prepare("SELECT snapshot_json,preview_json,fingerprint,preview_token FROM material_context_versions WHERE id=?").get(oldCreated.contextVersionId);
+    expect(after).toEqual(before);
+    await expect(service.read("owner-b", oldCreated.contextVersionId)).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(service.verifyReference("owner-a", { contextVersionId: oldCreated.contextVersionId, previewToken: "b".repeat(64), selectionRef: request.selectionRef })).rejects.toMatchObject({ code: "CONFLICT" });
+    db.database.prepare("UPDATE document_confirmations SET state='revoked' WHERE id='confirmation-a'").run();
+    await expect(service.read("owner-a", oldCreated.contextVersionId)).rejects.toMatchObject({ code: "CONFLICT" });
+    observations.push({ baseline, baselineSourceHashes: Object.fromEntries(baselinePaths.map(path => [path, sha(baselineSources.get(resolve(path))!)])),
+      oldPolicy: "2026.11.2", newPolicy: "2026.11.3", oldPriorities: oldCreated.preview.priorities, newPriorities: currentCreated.preview.priorities,
+      oldPreviewSha256: sha(before.preview_json), oldSnapshotSha256: sha(before.snapshot_json), oldRowsByteIdentical: true, ownerTokenAndStaleGuardsRetained: true });
+  });
+});

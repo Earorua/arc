@@ -1,0 +1,8 @@
+import base from "../../vitest.config";
+export default {
+  ...base,
+  define: {
+    "import.meta.env.ARC_PRACTICE_UI_RESULT": JSON.stringify("work/grounded-verification/experience-priority-root-ui-20261109-final-a-results.json"),
+  },
+  test: { ...base.test, include: ["work/grounded-verification/experience-priority-root-ui-20261108.test.tsx"], maxWorkers: 1 },
+};

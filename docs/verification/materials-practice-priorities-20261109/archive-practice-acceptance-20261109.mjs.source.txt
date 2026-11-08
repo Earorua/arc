@@ -1,0 +1,63 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
+
+const [sourceCommit, requiredPath] = process.argv.slice(2);
+assert.match(sourceCommit ?? '', /^[0-9a-f]{40}$/u);
+assert.match(requiredPath ?? '', /^work\/grounded-verification\/experience-priority-archive-required-20261109-[a-z0-9-]+\.json$/u);
+const work = 'work/grounded-verification', destination = 'docs/verification/materials-practice-priorities-20261109';
+const sha = value => createHash('sha256').update(value).digest('hex');
+const git = (...args) => execFileSync('git', args, {maxBuffer:32*1024*1024});
+assert.equal(git('rev-parse','HEAD').toString('utf8').trim(), sourceCommit);
+assert.ok(!existsSync(destination), 'Never overwrite an acceptance edition');
+const integrityPath = join(work,'experience-priority-integrity-20261109-final-a-results.json');
+const integrityBytes = readFileSync(integrityPath), integrity = JSON.parse(integrityBytes);
+assert.equal(integrity.status,'PASS');
+const sourcePaths = Object.keys(integrity.filesSha256);
+const tree = new Map(git('ls-tree','-rz','--full-tree',sourceCommit).toString('utf8').split('\0').filter(Boolean).map(entry=>{const split=entry.indexOf('\t');return [entry.slice(split+1),entry.slice(0,split).split(' ')[2]];}));
+const objects = execFileSync('git',['-c','core.longpaths=true','hash-object','--no-filters','--stdin-paths'],{input:sourcePaths.join('\n')+'\n',encoding:'utf8',maxBuffer:32*1024*1024}).trim().split(/\r?\n/u);
+assert.equal(objects.length,sourcePaths.length);
+for(let i=0;i<sourcePaths.length;i++) {assert.equal(tree.get(sourcePaths[i]),objects[i],sourcePaths[i]);assert.equal(sha(readFileSync(sourcePaths[i])),integrity.filesSha256[sourcePaths[i]],sourcePaths[i]);}
+const pausePath = 'docs/verification/materials-practice-priorities-pause-20261108/verification.json';
+const pauseBytes = readFileSync(pausePath);
+assert.equal(sha(pauseBytes),'1bc7445c8c19b33e6ec3e305affd788abcc186294caaebd2cfc6249317aae199');
+const pause = JSON.parse(pauseBytes);
+for(const artifact of pause.artifacts) assert.equal(sha(readFileSync(join(dirname(pausePath),artifact.path))),artifact.sha256,artifact.path);
+const requirements = JSON.parse(readFileSync(requiredPath));
+const requiredChecks = requirements.checks.map(name=>{
+  const result=JSON.parse(readFileSync(join(work,name+'.json')));
+  assert.equal(result.name,name);assert.equal(result.exit,0,name);assert.equal(result.nonLoopbackDenials,0,name);
+  assert.equal(sha(readFileSync(join(work,name+'.log'))),result.logSha256,name);
+  return result;
+});
+const reviews = requirements.reviews.map(review=>{assert.equal(sha(readFileSync(join(work,review.path))),review.sha256,review.path);return review;});
+assert.ok(reviews.some(review=>review.kind==='spec'&&review.verdict==='PASS'));
+assert.ok(reviews.some(review=>review.kind==='quality'&&review.verdict==='PASS'));
+const paths=[];
+function walk(directory) {for(const entry of readdirSync(directory,{withFileTypes:true})){const path=join(directory,entry.name);if(entry.isDirectory())walk(path);else if(entry.isFile())paths.push(path);}}
+for(const entry of readdirSync(work,{withFileTypes:true})) {
+  if(!entry.name.startsWith('experience-priority-')||!entry.name.includes('20261109')||entry.name.startsWith('experience-priority-history-store-'))continue;
+  if(entry.isDirectory())walk(join(work,entry.name));else if(entry.isFile())paths.push(join(work,entry.name));
+}
+paths.push(join(work,'run.mjs'),'work/materials-browser-handoff/block-outbound.cjs',join(work,'archive-practice-acceptance-20261109.mjs'));
+const artifacts=[],recordedOutcomes=[];
+for(const path of [...new Set(paths)].sort()) {
+  let name=path.startsWith('work/materials-browser-handoff/')?'block-outbound.cjs':relative(work,path).replaceAll('\\','/');
+  const bytes=readFileSync(path);
+  assert.ok(!/sk-or-v1-[0-9a-f]{40,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/iu.test(bytes.toString('utf8')),'Secret-like data '+name);
+  if(name.endsWith('.json')) {
+    const value=JSON.parse(bytes);
+    if(typeof value.name==='string'&&typeof value.exit==='number'&&typeof value.logSha256==='string') {
+      assert.equal(sha(readFileSync(join(work,value.name+'.log'))),value.logSha256,path);
+      recordedOutcomes.push({name:value.name,exit:value.exit,logSha256:value.logSha256,nonLoopbackDenials:value.nonLoopbackDenials});
+    }
+  }
+  if(name.endsWith('.log'))name+='.txt';else if(/\.(?:mjs|cjs|ts|tsx|ps1)$/u.test(name))name+='.source.txt';
+  const target=join(destination,name);mkdirSync(dirname(target),{recursive:true});writeFileSync(target,bytes,{flag:'wx'});
+  assert.equal(sha(readFileSync(target)),sha(bytes));artifacts.push({source:path.replaceAll('\\','/'),path:name,bytes:bytes.length,sha256:sha(bytes)});
+}
+const manifest={schemaVersion:1,status:'CURRENT_PRACTICE_ATTRIBUTION_OFFLINE_ACCEPTED',sourceCommit,productSourceCommit:'41bcdd7a9110e67c4529468fc26dafb3cfc81ab5',sourceManifest:relative(work,integrityPath).replaceAll('\\','/'),sourceIdentitySha256:sha(integrityBytes),sourceFileCount:integrity.sourceFileCount,sourceManifestSha256:integrity.sourceManifestSha256,previousPause:{path:pausePath,sha256:sha(pauseBytes),artifactsUnchanged:pause.artifactCount},artifactCount:artifacts.length,artifacts,requiredChecks,reviews,recordedOutcomes,fullCoverage:requirements.fullCoverage,frozenReferenceCount:integrity.frozenReferenceCount,courseDependencyCount:integrity.courseDependencyCount,limits:['Only current Task 2/3 offline acceptance, not Gate 1B or public release','New mention projection, course coverage and self-assessment adoption remain separate work','Finite reviewed evidence grammar','No live model or remote deployment acceptance'],realModelCalls:0,newCostUsd:0,deployed:false,remoteMigration:false,pushed:false};
+writeFileSync(join(destination,'verification.json'),JSON.stringify(manifest,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({status:manifest.status,sourceCommit,artifacts:artifacts.length,requiredChecks:requiredChecks.length,reviews:reviews.length,manifestSha256:sha(readFileSync(join(destination,'verification.json')))}));

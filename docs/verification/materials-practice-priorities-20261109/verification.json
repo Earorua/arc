@@ -1,0 +1,3469 @@
+{
+  "schemaVersion": 1,
+  "status": "CURRENT_PRACTICE_ATTRIBUTION_OFFLINE_ACCEPTED",
+  "sourceCommit": "714ea9e54d87b91a1fee4883176d4f1dd06ecf63",
+  "productSourceCommit": "41bcdd7a9110e67c4529468fc26dafb3cfc81ab5",
+  "sourceManifest": "experience-priority-integrity-20261109-final-a-results.json",
+  "sourceIdentitySha256": "1ad871e4335048d69e50c005f390303da24784982cf18c9659a4a9b061a8a26b",
+  "sourceFileCount": 1004,
+  "sourceManifestSha256": "8ab545fbd75adeaa8274ac9c7b89d7a7bbd37085a473b748071f6d11a5042ecb",
+  "previousPause": {
+    "path": "docs/verification/materials-practice-priorities-pause-20261108/verification.json",
+    "sha256": "1bc7445c8c19b33e6ec3e305affd788abcc186294caaebd2cfc6249317aae199",
+    "artifactsUnchanged": 471
+  },
+  "artifactCount": 197,
+  "artifacts": [
+    {
+      "source": "work/materials-browser-handoff/block-outbound.cjs",
+      "path": "block-outbound.cjs.source.txt",
+      "bytes": 1134,
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    },
+    {
+      "source": "work/grounded-verification/archive-practice-acceptance-20261109.mjs",
+      "path": "archive-practice-acceptance-20261109.mjs.source.txt",
+      "bytes": 6283,
+      "sha256": "104ac932ec44befb59a7089db6367cdedc059cd5ac69e8a166433eb745702466"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-acceptance-inputs-20261109.mjs",
+      "path": "experience-priority-acceptance-inputs-20261109.mjs.source.txt",
+      "bytes": 3362,
+      "sha256": "423939eb107d7e4f7608dcf96f520fa8e4ad08c8a9a68259b9aaddd0460bf20e"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-archive-required-20261109-a.json",
+      "path": "experience-priority-archive-required-20261109-a.json",
+      "bytes": 48865,
+      "sha256": "a677fe3630c18585d110ac6ec77e6879f3b6a5811d538d0ebfade533d562a758"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-bind-02.json",
+      "path": "experience-priority-author-20261109-resume-bind-02.json",
+      "bytes": 288,
+      "sha256": "eaaa5d07f7234c2b81bf727c4dce207d5b8b01e5189661cef59ad9113260268a"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-bind-02.log",
+      "path": "experience-priority-author-20261109-resume-bind-02.log.txt",
+      "bytes": 170,
+      "sha256": "176b6831e38b48172cbcdcde1b90ea5908ca625354676c54e574cb04e2c68aae"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-bind.mjs",
+      "path": "experience-priority-author-20261109-resume-bind.mjs.source.txt",
+      "bytes": 5535,
+      "sha256": "a74b90438370120ea78a4a9661eff8240abb84ce18c239f214cd4747e63483e5"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-final-tsconfig.json",
+      "path": "experience-priority-author-20261109-resume-final-tsconfig.json",
+      "bytes": 801,
+      "sha256": "7f91db09cd1875e6f3e4f36b9ade46bfd74ce0d79a11855589e3fe20faecfd9d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-freeze-14.json",
+      "path": "experience-priority-author-20261109-resume-freeze-14.json",
+      "bytes": 291,
+      "sha256": "94e454c31ac891e3c286bf30b91ecdf68fcef03aa02a042f0b43660e65316c83"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-freeze-14.log",
+      "path": "experience-priority-author-20261109-resume-freeze-14.log.txt",
+      "bytes": 1308,
+      "sha256": "c6555460ca20ce8b7a3ced5c61b09d11f68f0fa511d5cb0ac3c2fa82a045285c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-freeze.mjs",
+      "path": "experience-priority-author-20261109-resume-freeze.mjs.source.txt",
+      "bytes": 8965,
+      "sha256": "e10842d861e8432f8d7a1113cbf119e4a33420ff1738eba6af6f65236408216e"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source.json",
+      "path": "experience-priority-author-20261109-resume-frozen-source.json",
+      "bytes": 72648,
+      "sha256": "7c3b39d88da8cce80b3e1a6eff59215508eb8cac18de9fbff328f8966c210134"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/app__components__materials__material-context-review.tsx.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/app__components__materials__material-context-review.tsx.source.txt",
+      "bytes": 18012,
+      "sha256": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/app__lib__materials__experience-evidence.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/app__lib__materials__experience-evidence.ts.source.txt",
+      "bytes": 11695,
+      "sha256": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/app__lib__materials__planning-priority.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/app__lib__materials__planning-priority.ts.source.txt",
+      "bytes": 3900,
+      "sha256": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/app__lib__materials__skill-mapper.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/app__lib__materials__skill-mapper.ts.source.txt",
+      "bytes": 11575,
+      "sha256": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/app__server__documents__context-builder.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/app__server__documents__context-builder.ts.source.txt",
+      "bytes": 32581,
+      "sha256": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/tests__components__material-context-choices.test.tsx.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/tests__components__material-context-choices.test.tsx.source.txt",
+      "bytes": 26177,
+      "sha256": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/tests__lib__materials__experience-evidence.test.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/tests__lib__materials__experience-evidence.test.ts.source.txt",
+      "bytes": 19684,
+      "sha256": "0b8f4d54812dfeed46beb53fd18c10b45503b68f0b989bcf1926706ead60d520"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/tests__lib__materials__practice-skill-mapping.test.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/tests__lib__materials__practice-skill-mapping.test.ts.source.txt",
+      "bytes": 6395,
+      "sha256": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-frozen-source/tests__server__material-practice-priorities.test.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-frozen-source/tests__server__material-practice-priorities.test.ts.source.txt",
+      "bytes": 12139,
+      "sha256": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-handoff.md",
+      "path": "experience-priority-author-20261109-resume-handoff.md",
+      "bytes": 6661,
+      "sha256": "1ca1529285f625dd19ffaf1cf1580866a55be0a09e121efe432ed06dbaeece06"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-level-regression-11.json",
+      "path": "experience-priority-author-20261109-resume-level-regression-11.json",
+      "bytes": 303,
+      "sha256": "a12003c54a1f7dbac87eb5cbf81014ea028b06fe65c37c44b24a47ea70e48e11"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-level-regression-11.log",
+      "path": "experience-priority-author-20261109-resume-level-regression-11.log.txt",
+      "bytes": 2466,
+      "sha256": "66f120416b004623c181a54fa5f452da0e3456bf8b3abae53f0b6dd59b7cb38f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-level-regression.config.ts",
+      "path": "experience-priority-author-20261109-resume-level-regression.config.ts.source.txt",
+      "bytes": 853,
+      "sha256": "e2dad7dbbbded54a50112f8411b6dd52ac495fad7c3ea6d54c8cb68296fdde3d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-lint-13.json",
+      "path": "experience-priority-author-20261109-resume-lint-13.json",
+      "bytes": 290,
+      "sha256": "9c835580ecb9bf021613584cd4003bfcad7dcfe6928a2dc793286b89e1694c8f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-lint-13.log",
+      "path": "experience-priority-author-20261109-resume-lint-13.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-prepare-01.json",
+      "path": "experience-priority-author-20261109-resume-prepare-01.json",
+      "bytes": 292,
+      "sha256": "66a87a335ed96974b92d9864bb337dfb036173d088fa0e76b96238bcb22cba51"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-prepare-01.log",
+      "path": "experience-priority-author-20261109-resume-prepare-01.log.txt",
+      "bytes": 240,
+      "sha256": "3da963b88dd3ccf2b5932028b4be6536802db2142174fa81f1c482b91fd438ad"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-prepare.mjs",
+      "path": "experience-priority-author-20261109-resume-prepare.mjs.source.txt",
+      "bytes": 4503,
+      "sha256": "a07e97287e860378e65567e628ec17aebe098d0c06c683e24087258455ac216b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-probe-bindings.json",
+      "path": "experience-priority-author-20261109-resume-probe-bindings.json",
+      "bytes": 6028,
+      "sha256": "c1b255551b72ad3f7108aa6859e5464a95c54a16178e3efd486c69e753624a08"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-probe-04.json",
+      "path": "experience-priority-author-20261109-resume-quality-probe-04.json",
+      "bytes": 298,
+      "sha256": "fecc958f8dc90a4eb77ca3b56695e8f5210e52888408de1fb32bc735267959e6"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-probe-04.log",
+      "path": "experience-priority-author-20261109-resume-quality-probe-04.log.txt",
+      "bytes": 7689,
+      "sha256": "3856c578f3661f0461c5be1075578383f8c92d78d3f8b7e7b8b8dc38a7a7da4c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-probe-results.json",
+      "path": "experience-priority-author-20261109-resume-quality-probe-results.json",
+      "bytes": 7689,
+      "sha256": "3856c578f3661f0461c5be1075578383f8c92d78d3f8b7e7b8b8dc38a7a7da4c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-probe.mjs",
+      "path": "experience-priority-author-20261109-resume-quality-probe.mjs.source.txt",
+      "bytes": 3428,
+      "sha256": "1c6767a2a1a49be0347c8de4a615400ac8a90857f29efa3a8768644e06f5303f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-service-07.json",
+      "path": "experience-priority-author-20261109-resume-quality-service-07.json",
+      "bytes": 301,
+      "sha256": "f1ec51102be2cb8059fb311b47a11e054b259ecea88fa06b674dead7034ff5b1"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-service-07.log",
+      "path": "experience-priority-author-20261109-resume-quality-service-07.log.txt",
+      "bytes": 751,
+      "sha256": "f375affb88386b3234b0568197a9ac4fdc9227a45d707afac26866a44e8411fd"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-service-results.json",
+      "path": "experience-priority-author-20261109-resume-quality-service-results.json",
+      "bytes": 6168,
+      "sha256": "f07144bf0f91c226cd1f7b9e8c94d22c8c1ea3d2ebedf69a758d857c4b7aeabf"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-service.config.ts",
+      "path": "experience-priority-author-20261109-resume-quality-service.config.ts.source.txt",
+      "bytes": 276,
+      "sha256": "7ae3367cd56c10e39d1dd04a3333080e42670ca49e7911c913fa25c982fe0ac4"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-quality-service.test.ts",
+      "path": "experience-priority-author-20261109-resume-quality-service.test.ts.source.txt",
+      "bytes": 4038,
+      "sha256": "0bd71d16611d579b96f630c73fcc69a051725eb4e7ca666d363be07df1c103e7"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-regression-10.json",
+      "path": "experience-priority-author-20261109-resume-regression-10.json",
+      "bytes": 297,
+      "sha256": "52221a3a8b8cd0b164e1ca5b344304bc2d113ceac6b0ba1f5274f060abc95068"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-regression-10.log",
+      "path": "experience-priority-author-20261109-resume-regression-10.log.txt",
+      "bytes": 5999,
+      "sha256": "8bf7ace5ce980eeff932e2afe1228dba542ded25e58077690fce26878b5a9e1c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-regression.config.ts",
+      "path": "experience-priority-author-20261109-resume-regression.config.ts.source.txt",
+      "bytes": 918,
+      "sha256": "d1d37d0fb563847a930ff0a2bec4cc32558ec3e73e3eb5baf0658647eb43eaa3"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-probe-06.json",
+      "path": "experience-priority-author-20261109-resume-reporting-probe-06.json",
+      "bytes": 300,
+      "sha256": "5cd8531b3c8b6d32f5e224fe3d1c88251ddd137a5cffaf6fde061fc534085c0f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-probe-06.log",
+      "path": "experience-priority-author-20261109-resume-reporting-probe-06.log.txt",
+      "bytes": 3716,
+      "sha256": "f9c38daa9cb5b8425a5217e8b70b928c40d6b2155a705c8b7ce0857d042eab27"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-probe-results.json",
+      "path": "experience-priority-author-20261109-resume-reporting-probe-results.json",
+      "bytes": 3716,
+      "sha256": "f9c38daa9cb5b8425a5217e8b70b928c40d6b2155a705c8b7ce0857d042eab27"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-probe.mjs",
+      "path": "experience-priority-author-20261109-resume-reporting-probe.mjs.source.txt",
+      "bytes": 3250,
+      "sha256": "1b364eb04f82f8e6fd5c2c78f5393405923e662f1c5bfb39eb2d7363512242eb"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-service-09.json",
+      "path": "experience-priority-author-20261109-resume-reporting-service-09.json",
+      "bytes": 303,
+      "sha256": "2bd4716c555df4966a64245ea0ec5a07c6672193aa49742a8477d231bbaf37f9"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-service-09.log",
+      "path": "experience-priority-author-20261109-resume-reporting-service-09.log.txt",
+      "bytes": 753,
+      "sha256": "78377a052a2b62ae967b82e9e019b1e114562ded351e4844229db493bed12313"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-service-results.json",
+      "path": "experience-priority-author-20261109-resume-reporting-service-results.json",
+      "bytes": 4016,
+      "sha256": "8ad7860407c66f780668fb7787be39adf8b39dc9700b7e8436959b233297ec12"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-service.config.ts",
+      "path": "experience-priority-author-20261109-resume-reporting-service.config.ts.source.txt",
+      "bytes": 278,
+      "sha256": "1824a5c180097451700d4a20b63b8332d4154f96a13d47f44f33bd7cc0a34bbb"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-reporting-service.test.ts",
+      "path": "experience-priority-author-20261109-resume-reporting-service.test.ts.source.txt",
+      "bytes": 2989,
+      "sha256": "7311b88b145a6cefaa10e97224b38cf6e4c04aa044b779ded633e1b0df32513c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source-binding.json",
+      "path": "experience-priority-author-20261109-resume-source-binding.json",
+      "bytes": 58420,
+      "sha256": "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/app__components__materials__material-context-review.tsx.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/app__components__materials__material-context-review.tsx.source.txt",
+      "bytes": 18012,
+      "sha256": "e74ed4b00d3c5495d7564ab4875503a6b3faebeb5744dd45ca07abab12a65389"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/app__lib__materials__experience-evidence.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/app__lib__materials__experience-evidence.ts.source.txt",
+      "bytes": 11695,
+      "sha256": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/app__lib__materials__planning-priority.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/app__lib__materials__planning-priority.ts.source.txt",
+      "bytes": 3900,
+      "sha256": "9620b2a75b3826f7ccaa330bf95aab8ca5ef0608f2e4af4f3df80bdaa8dd154b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/app__lib__materials__skill-mapper.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/app__lib__materials__skill-mapper.ts.source.txt",
+      "bytes": 11575,
+      "sha256": "f6dc1cb1302e72f3904847b9eeabe3ff8bcb4af409fb75dc0bf37f5a68f854c9"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/app__server__documents__context-builder.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/app__server__documents__context-builder.ts.source.txt",
+      "bytes": 32581,
+      "sha256": "aff6dca10db13459beb5d4da00c4e3bb43534b74ffe543f2d307c1c2d2fdd416"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/tests__components__material-context-choices.test.tsx.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/tests__components__material-context-choices.test.tsx.source.txt",
+      "bytes": 26177,
+      "sha256": "b47bfc1a2f016eb6501fd6666d3b7a78a6d22c028f2ac6e5fd3c05ca8bace33a"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/tests__lib__materials__experience-evidence.test.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/tests__lib__materials__experience-evidence.test.ts.source.txt",
+      "bytes": 19684,
+      "sha256": "0b8f4d54812dfeed46beb53fd18c10b45503b68f0b989bcf1926706ead60d520"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/tests__lib__materials__practice-skill-mapping.test.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/tests__lib__materials__practice-skill-mapping.test.ts.source.txt",
+      "bytes": 6395,
+      "sha256": "f28f7049081747cc55638b171f30fc9b0c4d6716e6f3e52c471dada1969941b8"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-source/tests__server__material-practice-priorities.test.ts.source.txt",
+      "path": "experience-priority-author-20261109-resume-source/tests__server__material-practice-priorities.test.ts.source.txt",
+      "bytes": 12139,
+      "sha256": "6b6f4222a6848748fa2eb1503e3fa887c6ae31c95bbd2d6080c7563e00a64b91"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-probe-05.json",
+      "path": "experience-priority-author-20261109-resume-spec-probe-05.json",
+      "bytes": 295,
+      "sha256": "df92c63abaaffe433583257333c0f26bf5369367d77a9f66d32bd8be93973be5"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-probe-05.log",
+      "path": "experience-priority-author-20261109-resume-spec-probe-05.log.txt",
+      "bytes": 6493,
+      "sha256": "f77bb4d4a5266707445e2375116ce88b6fc29dfbb94d80dfc6cf4c0628b1a2cf"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-probe-results.json",
+      "path": "experience-priority-author-20261109-resume-spec-probe-results.json",
+      "bytes": 6493,
+      "sha256": "f77bb4d4a5266707445e2375116ce88b6fc29dfbb94d80dfc6cf4c0628b1a2cf"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-probe.mjs",
+      "path": "experience-priority-author-20261109-resume-spec-probe.mjs.source.txt",
+      "bytes": 2842,
+      "sha256": "5ede26720eb5ebc4c21068de41edfa3dcc041a12e71ef55c8b5334b370392ee4"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-service-08.json",
+      "path": "experience-priority-author-20261109-resume-spec-service-08.json",
+      "bytes": 298,
+      "sha256": "ff3e84186fafafece44bab3aa17356a1ee0105c3939be591f348decf3495e565"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-service-08.log",
+      "path": "experience-priority-author-20261109-resume-spec-service-08.log.txt",
+      "bytes": 748,
+      "sha256": "b7e400e1fa805b9807ef7eca8bc1e78bf465e1c5084e22add752d16cfa32ddbb"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-service-results.json",
+      "path": "experience-priority-author-20261109-resume-spec-service-results.json",
+      "bytes": 3408,
+      "sha256": "c16dbb16b97731a7c8648e9481757393454c8e5c4ff20c7b862e3f599800879b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-service.config.ts",
+      "path": "experience-priority-author-20261109-resume-spec-service.config.ts.source.txt",
+      "bytes": 273,
+      "sha256": "461220dc82b1c63efae8a1e4527c206cfae067459fa5f7ba0f8ad06c02b307f6"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-spec-service.test.ts",
+      "path": "experience-priority-author-20261109-resume-spec-service.test.ts.source.txt",
+      "bytes": 2920,
+      "sha256": "c97240fef7321798cfce89780943025398f65812b9ba6d81e77b9b067611cff7"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-types-12.json",
+      "path": "experience-priority-author-20261109-resume-types-12.json",
+      "bytes": 291,
+      "sha256": "c0e6bddfdfca74ade4e659ef5376c04cf89d0b2e83b19ef4603f84580aa29d5d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-types-12.log",
+      "path": "experience-priority-author-20261109-resume-types-12.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-unit-green-03.json",
+      "path": "experience-priority-author-20261109-resume-unit-green-03.json",
+      "bytes": 296,
+      "sha256": "f91cbd5863738a787405cfa0bb48d789334ffff835fbe53b081ab3ce58fb273c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-unit-green-03.log",
+      "path": "experience-priority-author-20261109-resume-unit-green-03.log.txt",
+      "bytes": 542,
+      "sha256": "24f1c33aef0d26991dba4390f1bf26158645313c035514836b3c084555e3a741"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-author-20261109-resume-unit.config.ts",
+      "path": "experience-priority-author-20261109-resume-unit.config.ts.source.txt",
+      "bytes": 230,
+      "sha256": "e24c0898d40b6561d4148123a35b7b03f920e4eee257e16530c0f8d426ba1229"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-build-20261109-a.json",
+      "path": "experience-priority-build-20261109-a.json",
+      "bytes": 276,
+      "sha256": "377eb1dec8bf31e0df38e1bb9715c5ea09d088090d13c708a417a5c0d6753ff6"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-build-20261109-a.log",
+      "path": "experience-priority-build-20261109-a.log.txt",
+      "bytes": 5911,
+      "sha256": "8f9b94749ac6959b14d7a171fb18a235fae34fbebe75d067a69f57c7ca41c474"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-final-commands-20261109.md",
+      "path": "experience-priority-final-commands-20261109.md",
+      "bytes": 6294,
+      "sha256": "1aae29059ee50164dcbe20b152376616f484137e468c030ffeb8868b2fea7bb7"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-final-source-check-20261109-a.json",
+      "path": "experience-priority-final-source-check-20261109-a.json",
+      "bytes": 288,
+      "sha256": "556bc12ddaf900824032435664bbaa2f6480dfcaed5ebde973d904dc439f3fd5"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-final-source-check-20261109-a.log",
+      "path": "experience-priority-final-source-check-20261109-a.log.txt",
+      "bytes": 106,
+      "sha256": "72cadfea3f87251f007f8b64e831ee49c19bd114cc1265def4dd0e4ada8fa943"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-coverage-20261109-a.json",
+      "path": "experience-priority-full-coverage-20261109-a.json",
+      "bytes": 282,
+      "sha256": "3963fc5d0877e051b9c6a30232d3858a7e36858b28fc016372984d30428d6f54"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-coverage-20261109-a.log",
+      "path": "experience-priority-full-coverage-20261109-a.log.txt",
+      "bytes": 240,
+      "sha256": "d99700a66b0479f1910d77f8247b926be3f03e3ba6391fa9f1909a60860ecc4f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-coverage-20261109-results.json",
+      "path": "experience-priority-full-coverage-20261109-results.json",
+      "bytes": 42295,
+      "sha256": "1556d3e925dd44d06778fbec4f6a25c55d59e09cc7ba617ec60c603f7f6b87de"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-coverage-20261109.mjs",
+      "path": "experience-priority-full-coverage-20261109.mjs.source.txt",
+      "bytes": 5661,
+      "sha256": "5217a5593869bea949369bd601cb902eabb8cb03ae4e9e06968473fc29956f9f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-lint-20261109-a.json",
+      "path": "experience-priority-full-lint-20261109-a.json",
+      "bytes": 281,
+      "sha256": "756db401c411d0b27a529eadc840dfa74a513d37b7537084be6155b35217dda7"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-lint-20261109-a.log",
+      "path": "experience-priority-full-lint-20261109-a.log.txt",
+      "bytes": 840,
+      "sha256": "70b8d36f33de92eaa872af025dfdc418d299af94bef83f856ed853c5fea0514e"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-node-20261109-a.json",
+      "path": "experience-priority-full-node-20261109-a.json",
+      "bytes": 282,
+      "sha256": "98a5ce2ac878d6649c7f04f19e2e5e4fb7ee5ef31b3b77f9571d604e25b8ad13"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-node-20261109-a.log",
+      "path": "experience-priority-full-node-20261109-a.log.txt",
+      "bytes": 35053,
+      "sha256": "2fc24d2e25069d580395af31e089b9df2e51ad46865a122b0f2f75b2e4488929"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-node-20261109-b.json",
+      "path": "experience-priority-full-node-20261109-b.json",
+      "bytes": 282,
+      "sha256": "eb6d96633225a995c47cc727a772e330ed41465072db97e99d8f5474dedf3036"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-node-20261109-b.log",
+      "path": "experience-priority-full-node-20261109-b.log.txt",
+      "bytes": 34115,
+      "sha256": "4cf095923c20e80475962a050c7eae1a0a6141113cf6d05b7157faffe638bfc0"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-research-20261109-a.json",
+      "path": "experience-priority-full-research-20261109-a.json",
+      "bytes": 286,
+      "sha256": "2a4313914091120da1d6f8e0975fb37625636c6ae14221d7e5336e1b091eae63"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-research-20261109-a.log",
+      "path": "experience-priority-full-research-20261109-a.log.txt",
+      "bytes": 303452,
+      "sha256": "87a6b0f424313b6138fce3a1176ecf2d3e34a0e577c50f6f77e3e9d520ff8454"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-run-plan-20261109.md",
+      "path": "experience-priority-full-run-plan-20261109.md",
+      "bytes": 3204,
+      "sha256": "1a7b65ce68529207937d111b6f8d8637c5492b5d220765b3d4e023176563a202"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-serial-20261109-a.json",
+      "path": "experience-priority-full-serial-20261109-a.json",
+      "bytes": 283,
+      "sha256": "642eb3db14e6d6bb5816ee4a1fd3a8da64ea19fbbd48c1767495892a18eacf6d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-serial-20261109-a.log",
+      "path": "experience-priority-full-serial-20261109-a.log.txt",
+      "bytes": 4073,
+      "sha256": "3fa06aae4c5f8247673f07f61a18018f0f652a0a18dc4c5bff4f44130a7804ff"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-types-20261109-a.json",
+      "path": "experience-priority-full-types-20261109-a.json",
+      "bytes": 282,
+      "sha256": "fd38d4f3202179a3da48fe1ac7d9c56b9ff96bd73ebd59565622ee082ae33a1f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-types-20261109-a.log",
+      "path": "experience-priority-full-types-20261109-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-unit-20261109-a.json",
+      "path": "experience-priority-full-unit-20261109-a.json",
+      "bytes": 282,
+      "sha256": "724bf5e585dbb361f87a570e8d5179efe90aeba41331d339538659178621c193"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-full-unit-20261109-a.log",
+      "path": "experience-priority-full-unit-20261109-a.log.txt",
+      "bytes": 852901,
+      "sha256": "846671ec4c6c47dcc41065181b517a82ada9428b97334d5081b879ecf770ea88"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-history-read-20261109-a-results.json",
+      "path": "experience-priority-history-read-20261109-a-results.json",
+      "bytes": 122154,
+      "sha256": "a1d3a0b7e8913d26f64b3b9ef16b3bc90a6ed2fcd528e97134f9d1c41455f146"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-history-read-20261109-a.json",
+      "path": "experience-priority-history-read-20261109-a.json",
+      "bytes": 283,
+      "sha256": "d4a64fd2681f78a774e6810e0f9d7f2bc1a432fc537f34104682e93c2fcec4bd"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-history-read-20261109-a.log",
+      "path": "experience-priority-history-read-20261109-a.log.txt",
+      "bytes": 197,
+      "sha256": "6493e6919605a9fc6c8b1481429eada9cb1ce5743064d0abba93d4c547f74bf0"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-integrated-review-20261109.md",
+      "path": "experience-priority-integrated-review-20261109.md",
+      "bytes": 3115,
+      "sha256": "e7ad28270ff91b165760497651ed081d2d8b407bea6ded0a3c28ef35d196b37e"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-integrity-20261109-final-a-results.json",
+      "path": "experience-priority-integrity-20261109-final-a-results.json",
+      "bytes": 120734,
+      "sha256": "1ad871e4335048d69e50c005f390303da24784982cf18c9659a4a9b061a8a26b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-integrity-20261109-final-a.json",
+      "path": "experience-priority-integrity-20261109-final-a.json",
+      "bytes": 285,
+      "sha256": "de6ca04fde8253db032457b4a74020acee5751d35b67b6c03e568486c8026a20"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-integrity-20261109-final-a.log",
+      "path": "experience-priority-integrity-20261109-final-a.log.txt",
+      "bytes": 712,
+      "sha256": "e54376e9c9355152379c053fcd9f995a045513673bba436b719086035644abef"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-integrity-20261109-pre-a-results.json",
+      "path": "experience-priority-integrity-20261109-pre-a-results.json",
+      "bytes": 120734,
+      "sha256": "1ad871e4335048d69e50c005f390303da24784982cf18c9659a4a9b061a8a26b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-integrity-20261109-pre-a.json",
+      "path": "experience-priority-integrity-20261109-pre-a.json",
+      "bytes": 283,
+      "sha256": "9a2f8f332077ceabfaad850f2d4b260c72ec001f3e0e5dc62eaa9090e6f779cc"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-integrity-20261109-pre-a.log",
+      "path": "experience-priority-integrity-20261109-pre-a.log.txt",
+      "bytes": 710,
+      "sha256": "aedf27c3fe4143c1ea27a20bf0061ef163fbd2a7d691ff38a71b67743d4e2f9e"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-integrity-20261109.mjs",
+      "path": "experience-priority-integrity-20261109.mjs.source.txt",
+      "bytes": 3976,
+      "sha256": "19ad4ef9901ab7f85b1a63947e1a39bc178456ddb4fbccb569968262635eb82d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-node-parity-20261109-final-a-results.json",
+      "path": "experience-priority-node-parity-20261109-final-a-results.json",
+      "bytes": 1883861,
+      "sha256": "baf8505c38bc974d2ef4d846ad751b5229bb75b3dffae3529c98ce4e7aca2d87"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-node-parity-20261109-final-a.json",
+      "path": "experience-priority-node-parity-20261109-final-a.json",
+      "bytes": 288,
+      "sha256": "e1c352a942e494f207b76993c55abd1fc940f5858285201f5daca464c65f56ff"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-node-parity-20261109-final-a.log",
+      "path": "experience-priority-node-parity-20261109-final-a.log.txt",
+      "bytes": 888,
+      "sha256": "8b52b84d83321f074c7df550a381dfbf90501e50e49251d18a2f7c35d4f903b4"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-node-parity-20261109.config.ts",
+      "path": "experience-priority-node-parity-20261109.config.ts.source.txt",
+      "bytes": 540,
+      "sha256": "8eb81fbd2086a6409b29dc380ba6b18a1784b1728cc0fa3e810491379c1d2a29"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-node-timeout-diagnosis-20261109-a.json",
+      "path": "experience-priority-node-timeout-diagnosis-20261109-a.json",
+      "bytes": 292,
+      "sha256": "61fe42be44dc1010cf0d8dd44921dd58b1744c995e004fe895d8315cd85d785d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-node-timeout-diagnosis-20261109-a.log",
+      "path": "experience-priority-node-timeout-diagnosis-20261109-a.log.txt",
+      "bytes": 135,
+      "sha256": "fb14d05e4570d94eaba2a0db62ec1a93132a7c8f528ab9c9f5a2c5ba7112439d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-node-timeout-diagnosis-20261109-results.json",
+      "path": "experience-priority-node-timeout-diagnosis-20261109-results.json",
+      "bytes": 2500,
+      "sha256": "77714a6d598698a00300391368bad018d271bbcda8ff44ce083d139de9b0a5be"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-node-timeout-diagnosis-20261109.mjs",
+      "path": "experience-priority-node-timeout-diagnosis-20261109.mjs.source.txt",
+      "bytes": 3200,
+      "sha256": "9ceaae411e9d09e8225b277971f9174b8a2575f491998a8dab92caafb10b6073"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-boundary-service-results.json",
+      "path": "experience-priority-quality-20261109-boundary-service-results.json",
+      "bytes": 31769,
+      "sha256": "14d025e8dbbf55e9b54eb902a433ab01be1b947c0163fdbf06f25d08e175258c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-boundary-service.test.ts",
+      "path": "experience-priority-quality-20261109-boundary-service.test.ts.source.txt",
+      "bytes": 7940,
+      "sha256": "529dd44830134a74022d6ee4b4371c6dd39e77ca9fe34a6429e7b82561b7bb2a"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-focused-02.json",
+      "path": "experience-priority-quality-20261109-focused-02.json",
+      "bytes": 288,
+      "sha256": "6f313d11075a931a5299c063f3799b89cbead79014ac931745cb2c9e45b1d5f7"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-focused-02.log",
+      "path": "experience-priority-quality-20261109-focused-02.log.txt",
+      "bytes": 1606,
+      "sha256": "79b2eee75e863be3d1a5ab169a3f1934536ddc9167a17adf60ee49c6c72d243d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-focused.config.ts",
+      "path": "experience-priority-quality-20261109-focused.config.ts.source.txt",
+      "bytes": 495,
+      "sha256": "5b5bd7eda293eb430bfa91dfb243ae9dd6f34ca76e736e19f9bf4507b16df85b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-freeze-04.json",
+      "path": "experience-priority-quality-20261109-freeze-04.json",
+      "bytes": 285,
+      "sha256": "a9f83aa9bcaecc41e3caeeb31f9d5be962a12e41cdcc824f373605992918295d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-freeze-04.log",
+      "path": "experience-priority-quality-20261109-freeze-04.log.txt",
+      "bytes": 345,
+      "sha256": "1d12745754434c9a037f1335eecbd1b4467141d9475e9dd3446c05b52eeea3aa"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-freeze.mjs",
+      "path": "experience-priority-quality-20261109-freeze.mjs.source.txt",
+      "bytes": 3009,
+      "sha256": "595ffcfccb19fb6741d4a200297670f800cc01f598bc39b66077bc91b15b03f2"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-frozen-source.json",
+      "path": "experience-priority-quality-20261109-frozen-source.json",
+      "bytes": 7550,
+      "sha256": "5dcd731ce3d8f5a74b47f5fab2a9a7ab799d6ce97d12e4856dd480bb15558e65"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-identity-after-03.json",
+      "path": "experience-priority-quality-20261109-identity-after-03.json",
+      "bytes": 293,
+      "sha256": "f7c716a633d75d8496d8ed00f1fc540e93beb046830f51ca7bdcd20ac507c063"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-identity-after-03.log",
+      "path": "experience-priority-quality-20261109-identity-after-03.log.txt",
+      "bytes": 118,
+      "sha256": "142ef3ebd1df81cc814aaf29d6baf683ec74dc631c103b5698364bc3bdbb2d54"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-identity-after-results.json",
+      "path": "experience-priority-quality-20261109-identity-after-results.json",
+      "bytes": 61231,
+      "sha256": "7c525ea934ad753b748de55068e6b0c532c4aacc2b64773dce4e5f41c207c55b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-identity-before-01.json",
+      "path": "experience-priority-quality-20261109-identity-before-01.json",
+      "bytes": 294,
+      "sha256": "a43b91fff8d1a9ecba73f1e8dd1062e7b51608d3bdb1cc7323cd63b84fe3bf95"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-identity-before-01.log",
+      "path": "experience-priority-quality-20261109-identity-before-01.log.txt",
+      "bytes": 119,
+      "sha256": "f25b74180a5edd11374ac410d404d70adaf6c23f3aa5b3f2d3a167d2b8349da3"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-identity-before-results.json",
+      "path": "experience-priority-quality-20261109-identity-before-results.json",
+      "bytes": 61232,
+      "sha256": "9fdfd304956d540949fb02546c1529a9d68904322e67956a991dd374ad5e8895"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-integrity.mjs",
+      "path": "experience-priority-quality-20261109-integrity.mjs.source.txt",
+      "bytes": 4814,
+      "sha256": "98016bb355876abb35217762be41edf967f8e61669d5c77d1ae4b0b377ac6a88"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-quality-20261109-memo.md",
+      "path": "experience-priority-quality-20261109-memo.md",
+      "bytes": 8946,
+      "sha256": "83c71fed177d2c6b1f44c595b579e347c2fcb4c1f370ed56ece8d62b779329eb"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-render-20261109-a.json",
+      "path": "experience-priority-render-20261109-a.json",
+      "bytes": 277,
+      "sha256": "f227d00b48b1e54a7fc8e1e6f8267644224c8ab83170771a9db36bb05b3f2225"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-render-20261109-a.log",
+      "path": "experience-priority-render-20261109-a.log.txt",
+      "bytes": 520,
+      "sha256": "8387a0651907f74443cf8698ce05c8df5029a7b9a8a5e755f726eae0a2228d23"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-resume-prepare-20261109-a.json",
+      "path": "experience-priority-resume-prepare-20261109-a.json",
+      "bytes": 284,
+      "sha256": "6190f1cbab790c11c098d39cfd1828f4edeb2869605929a783838affe9af1a4e"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-resume-prepare-20261109-a.log",
+      "path": "experience-priority-resume-prepare-20261109-a.log.txt",
+      "bytes": 76,
+      "sha256": "794cf2d7e546968b9c6d9b792718bde2897095816aa67d004dfe7be77ce1227b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-resume-prepare-20261109-results.json",
+      "path": "experience-priority-resume-prepare-20261109-results.json",
+      "bytes": 2780,
+      "sha256": "930fe72f51e7f5027ad9c85c3191b492dca39c13373fa53c6a259df9e4634b6e"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-resume-prepare-20261109.mjs",
+      "path": "experience-priority-resume-prepare-20261109.mjs.source.txt",
+      "bytes": 2898,
+      "sha256": "b7908eeb1f84f9aa78262a802014201abb20213f9b8e9f7b9c2e0edc269ad553"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-root-cases-20261109-final-a-results.json",
+      "path": "experience-priority-root-cases-20261109-final-a-results.json",
+      "bytes": 2006439,
+      "sha256": "d84d93b26e452de216102b64234878d8b6937a4a2cd59cb3ba6227344b86a87f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-root-cases-20261109-final-a.json",
+      "path": "experience-priority-root-cases-20261109-final-a.json",
+      "bytes": 288,
+      "sha256": "d0cf871a6f29b96f4481e5498483056ece5e451715d0758960c7c5e20c9c0cae"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-root-cases-20261109-final-a.log",
+      "path": "experience-priority-root-cases-20261109-final-a.log.txt",
+      "bytes": 146,
+      "sha256": "11a3eb77def346382aa593cdaf6c2c2eff4a4424b1e36c992cfb12ed17a6268f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-root-cases-20261109.mjs",
+      "path": "experience-priority-root-cases-20261109.mjs.source.txt",
+      "bytes": 10401,
+      "sha256": "8fce3b92893452ac688cfa22b1fa3f9edb09c2dd61ca5283ce3191e7972ba6df"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-root-ui-20261109-final-a-results.json",
+      "path": "experience-priority-root-ui-20261109-final-a-results.json",
+      "bytes": 10837,
+      "sha256": "cab41a86e58db9acde19145a10348e4f122238e3e894ebd16ce05dc1d4736ff3"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-root-ui-20261109-final-a.json",
+      "path": "experience-priority-root-ui-20261109-final-a.json",
+      "bytes": 284,
+      "sha256": "6eb557e9fa9494fb19622d5802dcc67c4a85ab9efba7c70d6c193ab35b310db6"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-root-ui-20261109-final-a.log",
+      "path": "experience-priority-root-ui-20261109-final-a.log.txt",
+      "bytes": 732,
+      "sha256": "81058d7e55b6d215ebd904e04e4e5b4647909f5077d334c613d39c444743b176"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-root-ui-20261109.config.ts",
+      "path": "experience-priority-root-ui-20261109.config.ts.source.txt",
+      "bytes": 366,
+      "sha256": "c24e48d37fdbb3c36d38f62474b911338a9bfae302786970a67b25aeec068595"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-running-summary-20261109-a.json",
+      "path": "experience-priority-running-summary-20261109-a.json",
+      "bytes": 284,
+      "sha256": "cdf840e4b984ccbaef511602f6a81a070f93c2dfd6ecf718bd70232f274d15c1"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-running-summary-20261109-a.log",
+      "path": "experience-priority-running-summary-20261109-a.log.txt",
+      "bytes": 850,
+      "sha256": "e5695cf312f972ae2af24421d43ee3e97c1f512b1749154e60fb41a201a66bbc"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-running-summary-20261109.mjs",
+      "path": "experience-priority-running-summary-20261109.mjs.source.txt",
+      "bytes": 834,
+      "sha256": "d3308d143c0e8802c89792937742c2f89e8495f244e06385627a950f0daa8684"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-snapshot-20261109-a-results.json",
+      "path": "experience-priority-snapshot-20261109-a-results.json",
+      "bytes": 115868,
+      "sha256": "0ef2c32dada1182b8ddda84518f3e19a6157593325e37712dcbaad6ff32d8ad8"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-snapshot-20261109-a.json",
+      "path": "experience-priority-snapshot-20261109-a.json",
+      "bytes": 279,
+      "sha256": "d03e9b1a5e540efd187017f417dab28342b1e7bf1b4adfc3bdc051d4eb9c8182"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-snapshot-20261109-a.log",
+      "path": "experience-priority-snapshot-20261109-a.log.txt",
+      "bytes": 216,
+      "sha256": "bd63b98cf619ab56397468b0cf7536eb082b7e752c88995bfe4428ea3f15372f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-snapshot-20261109-a.mjs",
+      "path": "experience-priority-snapshot-20261109-a.mjs.source.txt",
+      "bytes": 2627,
+      "sha256": "eedde73f9977c321fe051b606ed7a6a234416a1cef71da58fc764a98548b8812"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-compatibility-02.json",
+      "path": "experience-priority-spec-20261109-compatibility-02.json",
+      "bytes": 289,
+      "sha256": "9d6534d70b3a9e72273ad7a867375a1127effb332d307f6841718bf68a738caa"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-compatibility-02.log",
+      "path": "experience-priority-spec-20261109-compatibility-02.log.txt",
+      "bytes": 1357,
+      "sha256": "019c3363f94ce79483ea79359df39f63d231f4ca9a2ccfd42d86fa22b793f4a3"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-compatibility-probe.mjs",
+      "path": "experience-priority-spec-20261109-compatibility-probe.mjs.source.txt",
+      "bytes": 5205,
+      "sha256": "a128d7a6e27d8368ed6908413c67b25fc46044d0b0077855f9f184d03dd06629"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-compatibility-results.json",
+      "path": "experience-priority-spec-20261109-compatibility-results.json",
+      "bytes": 1357,
+      "sha256": "019c3363f94ce79483ea79359df39f63d231f4ca9a2ccfd42d86fa22b793f4a3"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-evidence-ledger.json",
+      "path": "experience-priority-spec-20261109-evidence-ledger.json",
+      "bytes": 14101,
+      "sha256": "7adead1f8471dbb228d56639908276b00ebeae161b143929b2947883b095bb92"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-final-integrity-07.json",
+      "path": "experience-priority-spec-20261109-final-integrity-07.json",
+      "bytes": 291,
+      "sha256": "318f060ecdd4db9e04c9db96be3c3f7b2751004d0e85193698e4fea655eaec6a"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-final-integrity-07.log",
+      "path": "experience-priority-spec-20261109-final-integrity-07.log.txt",
+      "bytes": 147,
+      "sha256": "af9e465e9ba8d03014404d656faef1501abbf1014dad0f0181a46ee9abcf0240"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-finalize.mjs",
+      "path": "experience-priority-spec-20261109-finalize.mjs.source.txt",
+      "bytes": 15703,
+      "sha256": "0a473d62adf949165e014b3a8a36f5980cfc030e240bcd3321c20ad8268c43aa"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-focused-06.json",
+      "path": "experience-priority-spec-20261109-focused-06.json",
+      "bytes": 285,
+      "sha256": "97d0eb8dbde29faed3a4204504dcf55b3c3c97eda5b82bd92473c859ce422806"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-focused-06.log",
+      "path": "experience-priority-spec-20261109-focused-06.log.txt",
+      "bytes": 4053,
+      "sha256": "8d63538a3b18b3bd49f6493a3b75ada57309829edadbfcb8c9f3524d59d0932d"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-focused.config.ts",
+      "path": "experience-priority-spec-20261109-focused.config.ts.source.txt",
+      "bytes": 1008,
+      "sha256": "a42ba6ce34cc18d96a336da3b0607322746131c08b6559d7598e9589524f1646"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-identity-after-results.json",
+      "path": "experience-priority-spec-20261109-identity-after-results.json",
+      "bytes": 62160,
+      "sha256": "fbf7aa5a3a24d7e4a896396e26ce307eb8c58da3b8c08b51aaf154fcee014d30"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-identity-before-results.json",
+      "path": "experience-priority-spec-20261109-identity-before-results.json",
+      "bytes": 65696,
+      "sha256": "f9be5a442519e9ac44f2b314b6f5ab0d467d8b9a278f155a91f7370aceb81726"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-memo.md",
+      "path": "experience-priority-spec-20261109-memo.md",
+      "bytes": 20524,
+      "sha256": "ebcbd90bd9dfd30da92e22e3db4a5b14fda8f54f340c2451e03ab4f69faecf1f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-original-probe-03.json",
+      "path": "experience-priority-spec-20261109-original-probe-03.json",
+      "bytes": 290,
+      "sha256": "661324f5a128a289be19a08302cebdd1c4596dc8952e2f6abd29b698f1cf7078"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-original-probe-03.log",
+      "path": "experience-priority-spec-20261109-original-probe-03.log.txt",
+      "bytes": 6493,
+      "sha256": "f77bb4d4a5266707445e2375116ce88b6fc29dfbb94d80dfc6cf4c0628b1a2cf"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-prepare-01.json",
+      "path": "experience-priority-spec-20261109-prepare-01.json",
+      "bytes": 283,
+      "sha256": "e728b709aea40f0e6f97e5d6d2f6cf666cd5810dc092f75dc26e8b626d61c0f8"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-prepare-01.log",
+      "path": "experience-priority-spec-20261109-prepare-01.log.txt",
+      "bytes": 148,
+      "sha256": "bd34b69e587ae2fa2ebf5704dc8f893f1a212f5d67c34461d28336356a3576d1"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-prepare.mjs",
+      "path": "experience-priority-spec-20261109-prepare.mjs.source.txt",
+      "bytes": 7894,
+      "sha256": "2ef8128f8dc3fb56ea4e47ac0f32d616133fb6409c524a28687a00150950435f"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-quality-probe-04.json",
+      "path": "experience-priority-spec-20261109-quality-probe-04.json",
+      "bytes": 289,
+      "sha256": "a69d9396b7b2944aa6f1a196ce96d76306f213e57d323a86318092ad20ec0dc9"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-quality-probe-04.log",
+      "path": "experience-priority-spec-20261109-quality-probe-04.log.txt",
+      "bytes": 7689,
+      "sha256": "3856c578f3661f0461c5be1075578383f8c92d78d3f8b7e7b8b8dc38a7a7da4c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-quality-probe-results.json",
+      "path": "experience-priority-spec-20261109-quality-probe-results.json",
+      "bytes": 7689,
+      "sha256": "3856c578f3661f0461c5be1075578383f8c92d78d3f8b7e7b8b8dc38a7a7da4c"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-quality-probe.mjs",
+      "path": "experience-priority-spec-20261109-quality-probe.mjs.source.txt",
+      "bytes": 3419,
+      "sha256": "2295f06aacefca8fea7cbcf35f27ec8d356b6397b433bd0f0122992ac7efbea3"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-quality-service-results.json",
+      "path": "experience-priority-spec-20261109-quality-service-results.json",
+      "bytes": 6168,
+      "sha256": "f07144bf0f91c226cd1f7b9e8c94d22c8c1ea3d2ebedf69a758d857c4b7aeabf"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-quality-service.test.ts",
+      "path": "experience-priority-spec-20261109-quality-service.test.ts.source.txt",
+      "bytes": 4029,
+      "sha256": "0c7b699922da8de116bf00c9d0d050a916e517d57ef8047abb4e444e05675bf9"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-record-evidence-08.json",
+      "path": "experience-priority-spec-20261109-record-evidence-08.json",
+      "bytes": 290,
+      "sha256": "4bd8298d36c1a8ac3be1cd74591c9e87f369035d81001f76dcf44b513cb46f21"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-record-evidence-08.log",
+      "path": "experience-priority-spec-20261109-record-evidence-08.log.txt",
+      "bytes": 258,
+      "sha256": "b81b5dfe4ac74255cedeb6724a688b7658fadce21030b99b403ef212a9f5d4cf"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-reporting-probe-05.json",
+      "path": "experience-priority-spec-20261109-reporting-probe-05.json",
+      "bytes": 291,
+      "sha256": "7adb9cdfd250cc07360d3ce047bb74b1d89a35352f34df646edc690aee0da9f6"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-reporting-probe-05.log",
+      "path": "experience-priority-spec-20261109-reporting-probe-05.log.txt",
+      "bytes": 3716,
+      "sha256": "f9c38daa9cb5b8425a5217e8b70b928c40d6b2155a705c8b7ce0857d042eab27"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-reporting-probe-results.json",
+      "path": "experience-priority-spec-20261109-reporting-probe-results.json",
+      "bytes": 3716,
+      "sha256": "f9c38daa9cb5b8425a5217e8b70b928c40d6b2155a705c8b7ce0857d042eab27"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-reporting-probe.mjs",
+      "path": "experience-priority-spec-20261109-reporting-probe.mjs.source.txt",
+      "bytes": 3241,
+      "sha256": "a8febdedd720304ab9e320cc95a0ab7a48bb418986efc13f75dc81db5ac1a501"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-reporting-service-results.json",
+      "path": "experience-priority-spec-20261109-reporting-service-results.json",
+      "bytes": 4016,
+      "sha256": "8ad7860407c66f780668fb7787be39adf8b39dc9700b7e8436959b233297ec12"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-reporting-service.test.ts",
+      "path": "experience-priority-spec-20261109-reporting-service.test.ts.source.txt",
+      "bytes": 2980,
+      "sha256": "9569fc5f78026c5cd3dffdaa54080187e05f937c807a598a5ee1db3ec55daeaf"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-spec-probe-results.json",
+      "path": "experience-priority-spec-20261109-spec-probe-results.json",
+      "bytes": 6493,
+      "sha256": "f77bb4d4a5266707445e2375116ce88b6fc29dfbb94d80dfc6cf4c0628b1a2cf"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-spec-probe.mjs",
+      "path": "experience-priority-spec-20261109-spec-probe.mjs.source.txt",
+      "bytes": 2833,
+      "sha256": "2c928caaec7b57088540f8deed6d247a9ebc640b9ec042de87056a91cbb10c96"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-spec-service-results.json",
+      "path": "experience-priority-spec-20261109-spec-service-results.json",
+      "bytes": 3408,
+      "sha256": "c16dbb16b97731a7c8648e9481757393454c8e5c4ff20c7b862e3f599800879b"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-spec-service.test.ts",
+      "path": "experience-priority-spec-20261109-spec-service.test.ts.source.txt",
+      "bytes": 2911,
+      "sha256": "760a97274ae41b9a772b00a4020c89d629a9be846420ad1ac7eee6b110814409"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-supplemental-service-results.json",
+      "path": "experience-priority-spec-20261109-supplemental-service-results.json",
+      "bytes": 6105,
+      "sha256": "b0a5fbfa8ce9097d2db3814c769725c4d0db7d33809ca3e200e418b148dee246"
+    },
+    {
+      "source": "work/grounded-verification/experience-priority-spec-20261109-supplemental-service.test.ts",
+      "path": "experience-priority-spec-20261109-supplemental-service.test.ts.source.txt",
+      "bytes": 8830,
+      "sha256": "ca4e530c702877d60460177515b1c74b9c374bedaa992d5aa094d610fee03814"
+    },
+    {
+      "source": "work/grounded-verification/run.mjs",
+      "path": "run.mjs.source.txt",
+      "bytes": 2497,
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    }
+  ],
+  "requiredChecks": [
+    {
+      "name": "experience-priority-author-20261109-resume-bind-02",
+      "exit": 0,
+      "elapsedMs": 61,
+      "logSha256": "176b6831e38b48172cbcdcde1b90ea5908ca625354676c54e574cb04e2c68aae",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-8xPmGs"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-freeze-14",
+      "exit": 0,
+      "elapsedMs": 354,
+      "logSha256": "c6555460ca20ce8b7a3ced5c61b09d11f68f0fa511d5cb0ac3c2fa82a045285c",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-0eecMX"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-level-regression-11",
+      "exit": 0,
+      "elapsedMs": 19643,
+      "logSha256": "66f120416b004623c181a54fa5f452da0e3456bf8b3abae53f0b6dd59b7cb38f",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-hwZqu9"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-lint-13",
+      "exit": 0,
+      "elapsedMs": 6565,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-N9OYqn"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-prepare-01",
+      "exit": 0,
+      "elapsedMs": 384,
+      "logSha256": "3da963b88dd3ccf2b5932028b4be6536802db2142174fa81f1c482b91fd438ad",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-1LV73a"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-quality-probe-04",
+      "exit": 0,
+      "elapsedMs": 313,
+      "logSha256": "3856c578f3661f0461c5be1075578383f8c92d78d3f8b7e7b8b8dc38a7a7da4c",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-W5FKXZ"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-quality-service-07",
+      "exit": 0,
+      "elapsedMs": 1625,
+      "logSha256": "f375affb88386b3234b0568197a9ac4fdc9227a45d707afac26866a44e8411fd",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-iVEozV"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-regression-10",
+      "exit": 0,
+      "elapsedMs": 29260,
+      "logSha256": "8bf7ace5ce980eeff932e2afe1228dba542ded25e58077690fce26878b5a9e1c",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-x1Oivz"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-reporting-probe-06",
+      "exit": 0,
+      "elapsedMs": 390,
+      "logSha256": "f9c38daa9cb5b8425a5217e8b70b928c40d6b2155a705c8b7ce0857d042eab27",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-pWSqbO"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-reporting-service-09",
+      "exit": 0,
+      "elapsedMs": 1541,
+      "logSha256": "78377a052a2b62ae967b82e9e019b1e114562ded351e4844229db493bed12313",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-6icWCu"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-spec-probe-05",
+      "exit": 0,
+      "elapsedMs": 313,
+      "logSha256": "f77bb4d4a5266707445e2375116ce88b6fc29dfbb94d80dfc6cf4c0628b1a2cf",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-7QejdQ"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-spec-service-08",
+      "exit": 0,
+      "elapsedMs": 1533,
+      "logSha256": "b7e400e1fa805b9807ef7eca8bc1e78bf465e1c5084e22add752d16cfa32ddbb",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-mjvkDg"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-types-12",
+      "exit": 0,
+      "elapsedMs": 3192,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-SfnyKK"
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-unit-green-03",
+      "exit": 0,
+      "elapsedMs": 2715,
+      "logSha256": "24f1c33aef0d26991dba4390f1bf26158645313c035514836b3c084555e3a741",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-CE1Liz"
+    },
+    {
+      "name": "experience-priority-build-20261109-a",
+      "exit": 0,
+      "elapsedMs": 7406,
+      "logSha256": "8f9b94749ac6959b14d7a171fb18a235fae34fbebe75d067a69f57c7ca41c474",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-3gOloC"
+    },
+    {
+      "name": "experience-priority-final-source-check-20261109-a",
+      "exit": 0,
+      "elapsedMs": 753,
+      "logSha256": "72cadfea3f87251f007f8b64e831ee49c19bd114cc1265def4dd0e4ada8fa943",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-w5LzfY"
+    },
+    {
+      "name": "experience-priority-full-coverage-20261109-a",
+      "exit": 0,
+      "elapsedMs": 87,
+      "logSha256": "d99700a66b0479f1910d77f8247b926be3f03e3ba6391fa9f1909a60860ecc4f",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-aO0zLm"
+    },
+    {
+      "name": "experience-priority-full-lint-20261109-a",
+      "exit": 0,
+      "elapsedMs": 23095,
+      "logSha256": "70b8d36f33de92eaa872af025dfdc418d299af94bef83f856ed853c5fea0514e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-dprHaH"
+    },
+    {
+      "name": "experience-priority-full-node-20261109-b",
+      "exit": 0,
+      "elapsedMs": 349214,
+      "logSha256": "4cf095923c20e80475962a050c7eae1a0a6141113cf6d05b7157faffe638bfc0",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-GqX2hj"
+    },
+    {
+      "name": "experience-priority-full-research-20261109-a",
+      "exit": 0,
+      "elapsedMs": 252205,
+      "logSha256": "87a6b0f424313b6138fce3a1176ecf2d3e34a0e577c50f6f77e3e9d520ff8454",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-gGy7zk"
+    },
+    {
+      "name": "experience-priority-full-serial-20261109-a",
+      "exit": 0,
+      "elapsedMs": 69698,
+      "logSha256": "3fa06aae4c5f8247673f07f61a18018f0f652a0a18dc4c5bff4f44130a7804ff",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-jpu00r"
+    },
+    {
+      "name": "experience-priority-full-types-20261109-a",
+      "exit": 0,
+      "elapsedMs": 18229,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-VRKEbH"
+    },
+    {
+      "name": "experience-priority-full-unit-20261109-a",
+      "exit": 0,
+      "elapsedMs": 555357,
+      "logSha256": "846671ec4c6c47dcc41065181b517a82ada9428b97334d5081b879ecf770ea88",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-hHhMs4"
+    },
+    {
+      "name": "experience-priority-history-read-20261109-a",
+      "exit": 0,
+      "elapsedMs": 1593,
+      "logSha256": "6493e6919605a9fc6c8b1481429eada9cb1ce5743064d0abba93d4c547f74bf0",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-He1P0W"
+    },
+    {
+      "name": "experience-priority-integrity-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 805,
+      "logSha256": "e54376e9c9355152379c053fcd9f995a045513673bba436b719086035644abef",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-YyPRcF"
+    },
+    {
+      "name": "experience-priority-integrity-20261109-pre-a",
+      "exit": 0,
+      "elapsedMs": 765,
+      "logSha256": "aedf27c3fe4143c1ea27a20bf0061ef163fbd2a7d691ff38a71b67743d4e2f9e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-6jpPBg"
+    },
+    {
+      "name": "experience-priority-node-parity-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 3585,
+      "logSha256": "8b52b84d83321f074c7df550a381dfbf90501e50e49251d18a2f7c35d4f903b4",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Pcx2x4"
+    },
+    {
+      "name": "experience-priority-node-timeout-diagnosis-20261109-a",
+      "exit": 0,
+      "elapsedMs": 302,
+      "logSha256": "fb14d05e4570d94eaba2a0db62ec1a93132a7c8f528ab9c9f5a2c5ba7112439d",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-xWq7FN"
+    },
+    {
+      "name": "experience-priority-quality-20261109-focused-02",
+      "exit": 0,
+      "elapsedMs": 11424,
+      "logSha256": "79b2eee75e863be3d1a5ab169a3f1934536ddc9167a17adf60ee49c6c72d243d",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-2Lg1J0"
+    },
+    {
+      "name": "experience-priority-quality-20261109-freeze-04",
+      "exit": 0,
+      "elapsedMs": 529,
+      "logSha256": "1d12745754434c9a037f1335eecbd1b4467141d9475e9dd3446c05b52eeea3aa",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Wgo6aM"
+    },
+    {
+      "name": "experience-priority-quality-20261109-identity-after-03",
+      "exit": 0,
+      "elapsedMs": 584,
+      "logSha256": "142ef3ebd1df81cc814aaf29d6baf683ec74dc631c103b5698364bc3bdbb2d54",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Tl2BXf"
+    },
+    {
+      "name": "experience-priority-quality-20261109-identity-before-01",
+      "exit": 0,
+      "elapsedMs": 598,
+      "logSha256": "f25b74180a5edd11374ac410d404d70adaf6c23f3aa5b3f2d3a167d2b8349da3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-OH0WKt"
+    },
+    {
+      "name": "experience-priority-render-20261109-a",
+      "exit": 0,
+      "elapsedMs": 2621,
+      "logSha256": "8387a0651907f74443cf8698ce05c8df5029a7b9a8a5e755f726eae0a2228d23",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-eQyWJx"
+    },
+    {
+      "name": "experience-priority-resume-prepare-20261109-a",
+      "exit": 0,
+      "elapsedMs": 467,
+      "logSha256": "794cf2d7e546968b9c6d9b792718bde2897095816aa67d004dfe7be77ce1227b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-AtHcVs"
+    },
+    {
+      "name": "experience-priority-root-cases-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 14829,
+      "logSha256": "11a3eb77def346382aa593cdaf6c2c2eff4a4424b1e36c992cfb12ed17a6268f",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-9XkRmz"
+    },
+    {
+      "name": "experience-priority-root-ui-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 4040,
+      "logSha256": "81058d7e55b6d215ebd904e04e4e5b4647909f5077d334c613d39c444743b176",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-BRO4Ku"
+    },
+    {
+      "name": "experience-priority-running-summary-20261109-a",
+      "exit": 0,
+      "elapsedMs": 85,
+      "logSha256": "e5695cf312f972ae2af24421d43ee3e97c1f512b1749154e60fb41a201a66bbc",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-EiCA5p"
+    },
+    {
+      "name": "experience-priority-snapshot-20261109-a",
+      "exit": 0,
+      "elapsedMs": 2718,
+      "logSha256": "bd63b98cf619ab56397468b0cf7536eb082b7e752c88995bfe4428ea3f15372f",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-XLZltY"
+    },
+    {
+      "name": "experience-priority-spec-20261109-compatibility-02",
+      "exit": 0,
+      "elapsedMs": 616,
+      "logSha256": "019c3363f94ce79483ea79359df39f63d231f4ca9a2ccfd42d86fa22b793f4a3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-1ljmnq"
+    },
+    {
+      "name": "experience-priority-spec-20261109-final-integrity-07",
+      "exit": 0,
+      "elapsedMs": 513,
+      "logSha256": "af9e465e9ba8d03014404d656faef1501abbf1014dad0f0181a46ee9abcf0240",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-ptawNy"
+    },
+    {
+      "name": "experience-priority-spec-20261109-focused-06",
+      "exit": 0,
+      "elapsedMs": 16890,
+      "logSha256": "8d63538a3b18b3bd49f6493a3b75ada57309829edadbfcb8c9f3524d59d0932d",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-3ULIeJ"
+    },
+    {
+      "name": "experience-priority-spec-20261109-original-probe-03",
+      "exit": 0,
+      "elapsedMs": 293,
+      "logSha256": "f77bb4d4a5266707445e2375116ce88b6fc29dfbb94d80dfc6cf4c0628b1a2cf",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-N96D14"
+    },
+    {
+      "name": "experience-priority-spec-20261109-prepare-01",
+      "exit": 0,
+      "elapsedMs": 461,
+      "logSha256": "bd34b69e587ae2fa2ebf5704dc8f893f1a212f5d67c34461d28336356a3576d1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-3EqPsm"
+    },
+    {
+      "name": "experience-priority-spec-20261109-quality-probe-04",
+      "exit": 0,
+      "elapsedMs": 286,
+      "logSha256": "3856c578f3661f0461c5be1075578383f8c92d78d3f8b7e7b8b8dc38a7a7da4c",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-20Kdq7"
+    },
+    {
+      "name": "experience-priority-spec-20261109-record-evidence-08",
+      "exit": 0,
+      "elapsedMs": 69,
+      "logSha256": "b81b5dfe4ac74255cedeb6724a688b7658fadce21030b99b403ef212a9f5d4cf",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-SxM4Op"
+    },
+    {
+      "name": "experience-priority-spec-20261109-reporting-probe-05",
+      "exit": 0,
+      "elapsedMs": 366,
+      "logSha256": "f9c38daa9cb5b8425a5217e8b70b928c40d6b2155a705c8b7ce0857d042eab27",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-7ZszMy"
+    }
+  ],
+  "reviews": [
+    {
+      "kind": "spec",
+      "verdict": "PASS",
+      "path": "experience-priority-spec-20261109-memo.md",
+      "sha256": "ebcbd90bd9dfd30da92e22e3db4a5b14fda8f54f340c2451e03ab4f69faecf1f"
+    },
+    {
+      "kind": "quality",
+      "verdict": "PASS",
+      "path": "experience-priority-quality-20261109-memo.md",
+      "sha256": "83c71fed177d2c6b1f44c595b579e347c2fcb4c1f370ed56ece8d62b779329eb"
+    },
+    {
+      "kind": "integrated-handoff",
+      "verdict": "PASS",
+      "path": "experience-priority-integrated-review-20261109.md",
+      "sha256": "e7ad28270ff91b165760497651ed081d2d8b407bea6ded0a3c28ef35d196b37e"
+    }
+  ],
+  "recordedOutcomes": [
+    {
+      "name": "experience-priority-author-20261109-resume-bind-02",
+      "exit": 0,
+      "logSha256": "176b6831e38b48172cbcdcde1b90ea5908ca625354676c54e574cb04e2c68aae",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-freeze-14",
+      "exit": 0,
+      "logSha256": "c6555460ca20ce8b7a3ced5c61b09d11f68f0fa511d5cb0ac3c2fa82a045285c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-level-regression-11",
+      "exit": 0,
+      "logSha256": "66f120416b004623c181a54fa5f452da0e3456bf8b3abae53f0b6dd59b7cb38f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-lint-13",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-prepare-01",
+      "exit": 0,
+      "logSha256": "3da963b88dd3ccf2b5932028b4be6536802db2142174fa81f1c482b91fd438ad",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-quality-probe-04",
+      "exit": 0,
+      "logSha256": "3856c578f3661f0461c5be1075578383f8c92d78d3f8b7e7b8b8dc38a7a7da4c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-quality-service-07",
+      "exit": 0,
+      "logSha256": "f375affb88386b3234b0568197a9ac4fdc9227a45d707afac26866a44e8411fd",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-regression-10",
+      "exit": 0,
+      "logSha256": "8bf7ace5ce980eeff932e2afe1228dba542ded25e58077690fce26878b5a9e1c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-reporting-probe-06",
+      "exit": 0,
+      "logSha256": "f9c38daa9cb5b8425a5217e8b70b928c40d6b2155a705c8b7ce0857d042eab27",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-reporting-service-09",
+      "exit": 0,
+      "logSha256": "78377a052a2b62ae967b82e9e019b1e114562ded351e4844229db493bed12313",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-spec-probe-05",
+      "exit": 0,
+      "logSha256": "f77bb4d4a5266707445e2375116ce88b6fc29dfbb94d80dfc6cf4c0628b1a2cf",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-spec-service-08",
+      "exit": 0,
+      "logSha256": "b7e400e1fa805b9807ef7eca8bc1e78bf465e1c5084e22add752d16cfa32ddbb",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-types-12",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-author-20261109-resume-unit-green-03",
+      "exit": 0,
+      "logSha256": "24f1c33aef0d26991dba4390f1bf26158645313c035514836b3c084555e3a741",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-build-20261109-a",
+      "exit": 0,
+      "logSha256": "8f9b94749ac6959b14d7a171fb18a235fae34fbebe75d067a69f57c7ca41c474",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-final-source-check-20261109-a",
+      "exit": 0,
+      "logSha256": "72cadfea3f87251f007f8b64e831ee49c19bd114cc1265def4dd0e4ada8fa943",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-full-coverage-20261109-a",
+      "exit": 0,
+      "logSha256": "d99700a66b0479f1910d77f8247b926be3f03e3ba6391fa9f1909a60860ecc4f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-full-lint-20261109-a",
+      "exit": 0,
+      "logSha256": "70b8d36f33de92eaa872af025dfdc418d299af94bef83f856ed853c5fea0514e",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-full-node-20261109-a",
+      "exit": 1,
+      "logSha256": "2fc24d2e25069d580395af31e089b9df2e51ad46865a122b0f2f75b2e4488929",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-full-node-20261109-b",
+      "exit": 0,
+      "logSha256": "4cf095923c20e80475962a050c7eae1a0a6141113cf6d05b7157faffe638bfc0",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-full-research-20261109-a",
+      "exit": 0,
+      "logSha256": "87a6b0f424313b6138fce3a1176ecf2d3e34a0e577c50f6f77e3e9d520ff8454",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-full-serial-20261109-a",
+      "exit": 0,
+      "logSha256": "3fa06aae4c5f8247673f07f61a18018f0f652a0a18dc4c5bff4f44130a7804ff",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-full-types-20261109-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-full-unit-20261109-a",
+      "exit": 0,
+      "logSha256": "846671ec4c6c47dcc41065181b517a82ada9428b97334d5081b879ecf770ea88",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-history-read-20261109-a",
+      "exit": 0,
+      "logSha256": "6493e6919605a9fc6c8b1481429eada9cb1ce5743064d0abba93d4c547f74bf0",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-integrity-20261109-final-a",
+      "exit": 0,
+      "logSha256": "e54376e9c9355152379c053fcd9f995a045513673bba436b719086035644abef",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-integrity-20261109-pre-a",
+      "exit": 0,
+      "logSha256": "aedf27c3fe4143c1ea27a20bf0061ef163fbd2a7d691ff38a71b67743d4e2f9e",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-node-parity-20261109-final-a",
+      "exit": 0,
+      "logSha256": "8b52b84d83321f074c7df550a381dfbf90501e50e49251d18a2f7c35d4f903b4",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-node-timeout-diagnosis-20261109-a",
+      "exit": 0,
+      "logSha256": "fb14d05e4570d94eaba2a0db62ec1a93132a7c8f528ab9c9f5a2c5ba7112439d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-quality-20261109-focused-02",
+      "exit": 0,
+      "logSha256": "79b2eee75e863be3d1a5ab169a3f1934536ddc9167a17adf60ee49c6c72d243d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-quality-20261109-freeze-04",
+      "exit": 0,
+      "logSha256": "1d12745754434c9a037f1335eecbd1b4467141d9475e9dd3446c05b52eeea3aa",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-quality-20261109-identity-after-03",
+      "exit": 0,
+      "logSha256": "142ef3ebd1df81cc814aaf29d6baf683ec74dc631c103b5698364bc3bdbb2d54",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-quality-20261109-identity-before-01",
+      "exit": 0,
+      "logSha256": "f25b74180a5edd11374ac410d404d70adaf6c23f3aa5b3f2d3a167d2b8349da3",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-render-20261109-a",
+      "exit": 0,
+      "logSha256": "8387a0651907f74443cf8698ce05c8df5029a7b9a8a5e755f726eae0a2228d23",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-resume-prepare-20261109-a",
+      "exit": 0,
+      "logSha256": "794cf2d7e546968b9c6d9b792718bde2897095816aa67d004dfe7be77ce1227b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-root-cases-20261109-final-a",
+      "exit": 0,
+      "logSha256": "11a3eb77def346382aa593cdaf6c2c2eff4a4424b1e36c992cfb12ed17a6268f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-root-ui-20261109-final-a",
+      "exit": 0,
+      "logSha256": "81058d7e55b6d215ebd904e04e4e5b4647909f5077d334c613d39c444743b176",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-running-summary-20261109-a",
+      "exit": 0,
+      "logSha256": "e5695cf312f972ae2af24421d43ee3e97c1f512b1749154e60fb41a201a66bbc",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-snapshot-20261109-a",
+      "exit": 0,
+      "logSha256": "bd63b98cf619ab56397468b0cf7536eb082b7e752c88995bfe4428ea3f15372f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-spec-20261109-compatibility-02",
+      "exit": 0,
+      "logSha256": "019c3363f94ce79483ea79359df39f63d231f4ca9a2ccfd42d86fa22b793f4a3",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-spec-20261109-final-integrity-07",
+      "exit": 0,
+      "logSha256": "af9e465e9ba8d03014404d656faef1501abbf1014dad0f0181a46ee9abcf0240",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-spec-20261109-focused-06",
+      "exit": 0,
+      "logSha256": "8d63538a3b18b3bd49f6493a3b75ada57309829edadbfcb8c9f3524d59d0932d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-spec-20261109-original-probe-03",
+      "exit": 0,
+      "logSha256": "f77bb4d4a5266707445e2375116ce88b6fc29dfbb94d80dfc6cf4c0628b1a2cf",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-spec-20261109-prepare-01",
+      "exit": 0,
+      "logSha256": "bd34b69e587ae2fa2ebf5704dc8f893f1a212f5d67c34461d28336356a3576d1",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-spec-20261109-quality-probe-04",
+      "exit": 0,
+      "logSha256": "3856c578f3661f0461c5be1075578383f8c92d78d3f8b7e7b8b8dc38a7a7da4c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-spec-20261109-record-evidence-08",
+      "exit": 0,
+      "logSha256": "b81b5dfe4ac74255cedeb6724a688b7658fadce21030b99b403ef212a9f5d4cf",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "experience-priority-spec-20261109-reporting-probe-05",
+      "exit": 0,
+      "logSha256": "f9c38daa9cb5b8425a5217e8b70b928c40d6b2155a705c8b7ce0857d042eab27",
+      "nonLoopbackDenials": 0
+    }
+  ],
+  "fullCoverage": {
+    "status": "PASS",
+    "sourceManifestSha256": "8ab545fbd75adeaa8274ac9c7b89d7a7bbd37085a473b748071f6d11a5042ecb",
+    "sourceFileCount": 1004,
+    "vitestFiles": 377,
+    "vitestTests": 9647,
+    "groups": [
+      {
+        "name": "experience-priority-full-unit-20261109-a",
+        "files": [
+          {
+            "path": "tests/server/kimi-launcher-policy.test.ts",
+            "tests": 56
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-build.test.ts",
+            "tests": 43
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-replay.test.ts",
+            "tests": 188
+          },
+          {
+            "path": "tests/server/research-executor-maintenance.test.ts",
+            "tests": 33
+          },
+          {
+            "path": "tests/server/research-public-integration.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/build/materials-production-package.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-launcher.test.ts",
+            "tests": 34
+          },
+          {
+            "path": "tests/server/document-executor-runtime.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/research-executor-runtime.test.ts",
+            "tests": 72
+          },
+          {
+            "path": "tests/components/research-setup-activation.test.tsx",
+            "tests": 103
+          },
+          {
+            "path": "tests/server/research-executor-receipt-store.test.ts",
+            "tests": 26
+          },
+          {
+            "path": "tests/server/document-production-workflow.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/d1-site-import-publication.test.ts",
+            "tests": 57
+          },
+          {
+            "path": "tests/server/site-import.test.ts",
+            "tests": 44
+          },
+          {
+            "path": "tests/server/document-workflow-probe.test.ts",
+            "tests": 18
+          },
+          {
+            "path": "tests/lib/planning/local-repository.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/server/remote-public-reader.test.ts",
+            "tests": 89
+          },
+          {
+            "path": "tests/server/site-import-native-d1.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/material-context-only-adoption.test.ts",
+            "tests": 26
+          },
+          {
+            "path": "tests/lib/use-planning-workspace.test.tsx",
+            "tests": 45
+          },
+          {
+            "path": "tests/api/research-completed-acknowledgement.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/components/setup-flow.test.tsx",
+            "tests": 19
+          },
+          {
+            "path": "tests/build/document-fake-transport.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/live-research-validation.test.ts",
+            "tests": 65
+          },
+          {
+            "path": "tests/server/d1-site-import-repository.test.ts",
+            "tests": 69
+          },
+          {
+            "path": "tests/components/materials-b0-rehearsal.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/site-expiry.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/pages/setup-time-edit.test.tsx",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/d1-site-execution-repository.test.ts",
+            "tests": 87
+          },
+          {
+            "path": "tests/server/d1-research-repository.test.ts",
+            "tests": 121
+          },
+          {
+            "path": "tests/server/live-native-transport.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/api/research-bridge-routes.test.ts",
+            "tests": 34
+          },
+          {
+            "path": "tests/server/live-account-check.test.ts",
+            "tests": 126
+          },
+          {
+            "path": "tests/server/d1-research-budget-repository.test.ts",
+            "tests": 90
+          },
+          {
+            "path": "tests/server/d1-site-begin-repository.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/server/auth-migration-runtime.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/components/research-workspace-pages.test.tsx",
+            "tests": 38
+          },
+          {
+            "path": "tests/components/skill-audit-step.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/components/adaptive-setup-flow.test.tsx",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/site-admission.test.ts",
+            "tests": 35
+          },
+          {
+            "path": "tests/server/material-adopted-refs.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/site-import-integration.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/components/stack-browser.test.tsx",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/live-launcher-output.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-control.test.ts",
+            "tests": 83
+          },
+          {
+            "path": "tests/server/research-service-factory.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/components/accessibility-contracts.test.tsx",
+            "tests": 24
+          },
+          {
+            "path": "tests/lib/material-workspace-selection.test.tsx",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/material-replan-atomic.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/document-storage-runtime.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/d1-site-bridge-repository.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/components/setup-completion.test.tsx",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/document-production-admission.test.ts",
+            "tests": 42
+          },
+          {
+            "path": "tests/api/r9-completion-latency-diagnostic.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/setup-resume.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/document-review-draft.test.ts",
+            "tests": 107
+          },
+          {
+            "path": "tests/components/adaptive-today-session.test.tsx",
+            "tests": 18
+          },
+          {
+            "path": "tests/server/research-orchestrator.test.ts",
+            "tests": 66
+          },
+          {
+            "path": "tests/build/research-acceptance-build.test.ts",
+            "tests": 102
+          },
+          {
+            "path": "tests/server/minimal-probe-transport.test.ts",
+            "tests": 29
+          },
+          {
+            "path": "tests/lib/use-arc-state.test.tsx",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/document-acceptance-admission.test.ts",
+            "tests": 22
+          },
+          {
+            "path": "tests/components/material-context-choices.test.tsx",
+            "tests": 29
+          },
+          {
+            "path": "tests/pages/setup.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/availability-step.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/material-learning-intent-flow.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/research-closed-preflight.test.ts",
+            "tests": 39
+          },
+          {
+            "path": "tests/lib/planning/parity.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/research-planning-integration.test.ts",
+            "tests": 30
+          },
+          {
+            "path": "tests/components/learning-coach.test.tsx",
+            "tests": 26
+          },
+          {
+            "path": "tests/server/d1-planning-repository.test.ts",
+            "tests": 21
+          },
+          {
+            "path": "tests/components/role-research-panel.test.tsx",
+            "tests": 42
+          },
+          {
+            "path": "tests/build/research-acceptance-target.test.ts",
+            "tests": 111
+          },
+          {
+            "path": "tests/server/research-request-contract.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/remote-public-service.test.ts",
+            "tests": 37
+          },
+          {
+            "path": "tests/server/material-detach.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/components/materials-plan-diff.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/components/material-confirmation-source.test.tsx",
+            "tests": 76
+          },
+          {
+            "path": "tests/components/account-menu.test.tsx",
+            "tests": 27
+          },
+          {
+            "path": "tests/build/cloudflare-build.test.ts",
+            "tests": 45
+          },
+          {
+            "path": "tests/components/today-session.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/api/r9-completion-roundtrip-diagnostic.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/components/stack-proof-navigation.test.tsx",
+            "tests": 35
+          },
+          {
+            "path": "tests/server/live-result-diagnostics.test.ts",
+            "tests": 74
+          },
+          {
+            "path": "tests/pages/path.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/research-quality-orchestrator.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/d1-site-import-snapshot.test.ts",
+            "tests": 33
+          },
+          {
+            "path": "tests/server/auth-migration-cleanup.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/server/research-service-binding-integration.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/material-practice-priorities.test.ts",
+            "tests": 32
+          },
+          {
+            "path": "tests/server/d1-entitlement-repository.test.ts",
+            "tests": 71
+          },
+          {
+            "path": "tests/server/site-import-validation.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/components/plan-diff-review.test.tsx",
+            "tests": 8
+          },
+          {
+            "path": "tests/lib/use-proof-ledger.test.tsx",
+            "tests": 9
+          },
+          {
+            "path": "tests/components/adaptive-path.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/components/research-recovery-interaction.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/live-response-preflight.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-transports.test.ts",
+            "tests": 44
+          },
+          {
+            "path": "tests/components/material-library.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/pages/sign-in.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/material-confirmed-skill-labels.test.ts",
+            "tests": 12
+          },
+          {
+            "path": "tests/server/material-mappings.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/live-quality-diagnostic.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/openrouter-response-compatibility.test.ts",
+            "tests": 64
+          },
+          {
+            "path": "tests/server/research-policy-migration-integration.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/research-bridge-transport.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/server/live-native-fetch-diagnostic.test.ts",
+            "tests": 18
+          },
+          {
+            "path": "tests/components/evidence-navigation.test.tsx",
+            "tests": 25
+          },
+          {
+            "path": "tests/api/planning.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/components/materials-ai-flow.test.tsx",
+            "tests": 13
+          },
+          {
+            "path": "tests/components/materials-boundaries.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/migration-banner.test.tsx",
+            "tests": 8
+          },
+          {
+            "path": "tests/components/plan-history.test.tsx",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/live-response-format.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/research-search-policy.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/components/account-link-panel.test.tsx",
+            "tests": 10
+          },
+          {
+            "path": "tests/api/research-routes.test.ts",
+            "tests": 58
+          },
+          {
+            "path": "tests/server/material-proposal-public-view.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/pages/today.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/components/material-generation-recovery.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/material-generation-atomic.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/auth-migration-link-callback.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/components/agent-companion.test.tsx",
+            "tests": 27
+          },
+          {
+            "path": "tests/pages/stack-evidence-restoration.test.tsx",
+            "tests": 2
+          },
+          {
+            "path": "tests/components/public-learning-entry.test.tsx",
+            "tests": 17
+          },
+          {
+            "path": "tests/lib/use-material-selection.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/planning-service.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/lib/planning/event-reducer.test.ts",
+            "tests": 21
+          },
+          {
+            "path": "tests/server/live-candidate-diagnostic.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/planning-security.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/material-supplement-flow.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/components/case-showcase.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/db/site-execution-migration.test.ts",
+            "tests": 72
+          },
+          {
+            "path": "tests/components/material-source-term-correction.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/research-quality-observation.test.ts",
+            "tests": 58
+          },
+          {
+            "path": "tests/server/live-transport-diagnostics.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/learning-agents.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/material-learning-intents.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/components/materials-setup.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/lib/planning/agent-replanned.test.ts",
+            "tests": 12
+          },
+          {
+            "path": "tests/server/auth-migration-link-reset.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/offline-uat/composition.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/document-acceptance-budget.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/kimi-local-validation.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/pages/workspace-state.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/materials-recovery.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/components/agent-context.test.tsx",
+            "tests": 12
+          },
+          {
+            "path": "tests/components/proof-workspace.test.tsx",
+            "tests": 13
+          },
+          {
+            "path": "tests/offline-uat/storage-smoke.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/components/material-workspace-adoption.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/db/research-migration.test.ts",
+            "tests": 48
+          },
+          {
+            "path": "tests/server/materials-e2e.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/document-cancellation-delivery.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/research-executor-job-store.test.ts",
+            "tests": 72
+          },
+          {
+            "path": "tests/server/material-generation-recovery.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/provider-failure-diagnostic.test.ts",
+            "tests": 108
+          },
+          {
+            "path": "tests/components/sign-in-panel.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/account-recovery.test.ts",
+            "tests": 18
+          },
+          {
+            "path": "tests/server/live-research-failure-summary.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/pages/home.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/planning-client.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/components/site-header.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/site-import-diagnostic.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/document-deletion-races.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/components/target-step.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/components/seven-day-timeline.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/agent-context.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/research-package-validator.test.ts",
+            "tests": 97
+          },
+          {
+            "path": "tests/contracts/planning.test.ts",
+            "tests": 122
+          },
+          {
+            "path": "tests/server/live-output-budget.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/components/cloud-recovery.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/document-jobs.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/lib/use-role-research.test.tsx",
+            "tests": 81
+          },
+          {
+            "path": "tests/server/auth-migration-identity.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/document-source-span-provider.test.ts",
+            "tests": 115
+          },
+          {
+            "path": "tests/server/openrouter-provider.test.ts",
+            "tests": 138
+          },
+          {
+            "path": "tests/server/document-source-review-evidence.test.ts",
+            "tests": 448
+          },
+          {
+            "path": "tests/components/material-detach.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/lib/offline-queue.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/research-executor-nonce-store.test.ts",
+            "tests": 51
+          },
+          {
+            "path": "tests/db/site-import-migration.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/auth-oauth-diagnostics.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/auth-migration-oauth-state.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/components/basic-time-edit.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/auth-migration-credentials.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/pages/evidence-account-boundary.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/pages/proof-origin-boundary.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-bridge-contract.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/document-storage.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/material-context.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/components/workspace-header.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/d1-admin-research-health.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/pages/admin.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/pages/not-found.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/document-model-diagnostic-pilot.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/pages/session-hydration.test.tsx",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/planning-history.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/lib/research-client.test.ts",
+            "tests": 61
+          },
+          {
+            "path": "tests/pages/public-information.test.tsx",
+            "tests": 2
+          },
+          {
+            "path": "tests/db/release-schema-snapshot.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/research-resource-access.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/lib/planning/material-path-builder.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/lib/planning/scheduler.test.ts",
+            "tests": 45
+          },
+          {
+            "path": "tests/server/research-source-authority.test.ts",
+            "tests": 33
+          },
+          {
+            "path": "tests/server/document-confirmation.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/research-recovery.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/research-quality-contract.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/document-model-qualification-guards.test.ts",
+            "tests": 23
+          },
+          {
+            "path": "tests/db/site-begin-migration.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/components/account-boundary.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-policy-migration.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/lib/materials/experience-evidence.test.ts",
+            "tests": 259
+          },
+          {
+            "path": "tests/lib/planning/path-builder.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/server/account-link-service.test.ts",
+            "tests": 59
+          },
+          {
+            "path": "tests/server/document-generation-audit.test.ts",
+            "tests": 51
+          },
+          {
+            "path": "tests/server/document-supplement-quality.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/components/section-reveal.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-source-audit.test.ts",
+            "tests": 54
+          },
+          {
+            "path": "tests/db/site-bridge-migration.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/d1-research-run-recorder.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/lib/materials/self-assessment-evidence.test.ts",
+            "tests": 142
+          },
+          {
+            "path": "tests/server/account-link-auth-hooks.test.ts",
+            "tests": 40
+          },
+          {
+            "path": "tests/lib/materials/material-skill-mentions.test.ts",
+            "tests": 123
+          },
+          {
+            "path": "tests/server/document-workflow.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/research-service-binding-transport.test.ts",
+            "tests": 41
+          },
+          {
+            "path": "tests/lib/materials/grounded-skill-terms.test.ts",
+            "tests": 190
+          },
+          {
+            "path": "tests/lib/materials/retained-assessment-hints.test.ts",
+            "tests": 128
+          },
+          {
+            "path": "tests/server/research-executor-receipt.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/server/materials-privacy.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/db/planning-migration.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/lib/intelligence-validation.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/server/openrouter-response-preflight.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/server/site-admission-fixture.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/materials-fixture.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/document-repository.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/contracts/documents.test.ts",
+            "tests": 54
+          },
+          {
+            "path": "tests/server/proof-service.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/document-quality-evaluation.test.ts",
+            "tests": 35
+          },
+          {
+            "path": "tests/server/document-deletion.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/research-executor-auth.test.ts",
+            "tests": 54
+          },
+          {
+            "path": "tests/server/openrouter-transport-observation.test.ts",
+            "tests": 36
+          },
+          {
+            "path": "tests/server/research-executor-configuration.test.ts",
+            "tests": 55
+          },
+          {
+            "path": "tests/contracts/research-contracts.test.ts",
+            "tests": 82
+          },
+          {
+            "path": "tests/server/material-selection.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/research-execution-policy.test.ts",
+            "tests": 22
+          },
+          {
+            "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/lib/materials/planning-priority.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/db/documents-migration.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/provider-result-diagnostic.test.ts",
+            "tests": 93
+          },
+          {
+            "path": "tests/api/account-link.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/lib/materials/contextual-skill-mapping.test.ts",
+            "tests": 89
+          },
+          {
+            "path": "tests/db/proof-ledger-migration.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/research-candidate-diagnostic.test.ts",
+            "tests": 38
+          },
+          {
+            "path": "tests/contracts/material-planning.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/document-extraction.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/research-executor-begin.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/server/document-receipt-credential-privacy.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/api/research-eligibility.test.ts",
+            "tests": 12
+          },
+          {
+            "path": "tests/db/materials-transaction-probe.test.ts",
+            "tests": 37
+          },
+          {
+            "path": "tests/components/proof-profile.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/agent-repository.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-executor-body.test.ts",
+            "tests": 32
+          },
+          {
+            "path": "tests/server/research-executor-byte-identity.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/document-provider.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/guarded-fetch-diagnostic.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/document-executor-auth.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/document-generation-model-identity.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/fake-research-provider.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/api/account-recovery.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/openrouter-response-format.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/server/production-provider-diagnostic.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/api/admin-health.test.ts",
+            "tests": 23
+          },
+          {
+            "path": "tests/server/research-response-preflight.test.ts",
+            "tests": 23
+          },
+          {
+            "path": "tests/server/kimi-output-budget.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-executor-maintenance-policy.test.ts",
+            "tests": 20
+          },
+          {
+            "path": "tests/lib/proof/local-repository.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/lib/planning/calendar.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/contracts/planning-api.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/build/materials-acceptance-target.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/db/migration-safety.test.ts",
+            "tests": 32
+          },
+          {
+            "path": "tests/api/local-migration.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/research-executor-job.test.ts",
+            "tests": 20
+          },
+          {
+            "path": "tests/data/flagship-unit-registry.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/build/cloudflare-target.test.ts",
+            "tests": 43
+          },
+          {
+            "path": "tests/api/proof-ledger.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/document-qualification-journal.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/lib/materials/skill-mapper.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/api/account-link-production.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/api/workspace.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/lib/use-research-eligibility.test.tsx",
+            "tests": 10
+          },
+          {
+            "path": "tests/components/root-layout.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/offline-uat/security.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/research-quality-diagnostic.test.ts",
+            "tests": 55
+          },
+          {
+            "path": "tests/api/proof-sharing.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/db/schema.test.ts",
+            "tests": 21
+          },
+          {
+            "path": "tests/offline-uat/api-trace.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/api/agents.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/research-source-coverage.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/public-operation-scope.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/document-source-requirement-evidence.test.ts",
+            "tests": 124
+          },
+          {
+            "path": "tests/server/account-link-crypto.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/agent-provider.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/lib/planning/fingerprint.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/d1-account-link-repository.test.ts",
+            "tests": 37
+          },
+          {
+            "path": "tests/api/planning-history.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/api/learning-events.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/api/proof-assets.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/d1-proof-repository.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/contracts/proof-ledger.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/lib/cloud-client.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/lib/documents-client.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/api/documents.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/lib/proof-client.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/api/intelligence-flagship.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/entitlements.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/contracts/intelligence.test.ts",
+            "tests": 29
+          },
+          {
+            "path": "tests/server/admin-policy.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/research-annotation-diagnostic.test.ts",
+            "tests": 34
+          },
+          {
+            "path": "tests/lib/planning/registry-validation.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/research-environment.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/lib/proof/projection.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/lib/planning/plan-diff.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/api/intelligence-preview.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/intelligence-service.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/operational-events.test.ts",
+            "tests": 34
+          },
+          {
+            "path": "tests/server/research-budget.test.ts",
+            "tests": 20
+          },
+          {
+            "path": "tests/components/setup-draft.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/auth-runtime.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/document-policy.test.ts",
+            "tests": 26
+          },
+          {
+            "path": "tests/server/ai-gateway.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/lib/agent-client.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/proof-storage.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/live-minimal-probe.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/server/observability.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/lib/planning/v7-upgrade.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/d1-cloud-repository.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/cloud-service.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/lib/research-recovery-storage.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/data/flagship-blueprint.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/research-transport-diagnostic.test.ts",
+            "tests": 50
+          },
+          {
+            "path": "tests/server/document-job-state.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/api/auth-link-bypass.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/document-review-points.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/auth-diagnostics.test.ts",
+            "tests": 67
+          },
+          {
+            "path": "tests/server/research-response-format.test.ts",
+            "tests": 58
+          },
+          {
+            "path": "tests/contracts/proof-api.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/research-bootstrap-diagnostic.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/demo-store.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/native-fetch-diagnostic.test.ts",
+            "tests": 41
+          },
+          {
+            "path": "tests/server/account-link-contracts.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/lib/navigation-context.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/server/document-b0-inputs.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/api/planning-production.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/rate-limit.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/lib/personalized-plan.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/proof-validators.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/document-budget.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/feature-cohort.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/contracts/planning-history.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/sqlite-d1-batch.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/api/auth-providers.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/data/flagship-role.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/document-text.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/core-loop.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/auth-policy.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/materials/explanations.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/agent-configuration.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/proof-profile.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/lib/proof/legacy-adapter.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/db/d1.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/migration-dismissal.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/harness.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/lib/skill-map.test.ts",
+            "tests": 1
+          }
+        ],
+        "tests": 9498,
+        "logSha256": "846671ec4c6c47dcc41065181b517a82ada9428b97334d5081b879ecf770ea88"
+      },
+      {
+        "name": "experience-priority-full-serial-20261109-a",
+        "files": [
+          {
+            "path": "tests/server/document-diagnostic-pilot-host.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/materials-supplement-collection.test.ts",
+            "tests": 45
+          }
+        ],
+        "tests": 50,
+        "logSha256": "3fa06aae4c5f8247673f07f61a18018f0f652a0a18dc4c5bff4f44130a7804ff"
+      },
+      {
+        "name": "experience-priority-full-research-20261109-a",
+        "files": [
+          {
+            "path": "tests/server/research-cloud-smoke-composition.test.ts",
+            "tests": 87
+          },
+          {
+            "path": "tests/server/research-executor-private-integration.test.ts",
+            "tests": 12
+          }
+        ],
+        "tests": 99,
+        "logSha256": "87a6b0f424313b6138fce3a1176ecf2d3e34a0e577c50f6f77e3e9d520ff8454"
+      }
+    ],
+    "node": {
+      "tests": 290,
+      "passed": 290,
+      "name": "experience-priority-full-node-20261109-b",
+      "logSha256": "4cf095923c20e80475962a050c7eae1a0a6141113cf6d05b7157faffe638bfc0"
+    },
+    "nodeScripts": [
+      "tests/build/restricted-candidate-files.test.mjs",
+      "tests/build/restricted-research-candidate.test.mjs",
+      "tests/offline-uat/entry.test.mjs",
+      "tests/offline-uat/http-clients.test.mjs",
+      "tests/offline-uat/legacy-recovery.test.mjs",
+      "tests/offline-uat/research-public-recovery.test.mjs",
+      "tests/offline-uat/research-recovery.test.mjs",
+      "tests/offline-uat/retained-compatibility.test.mjs",
+      "tests/rendered-html.test.mjs",
+      "tests/scripts/auth-tail.test.mjs"
+    ],
+    "render": {
+      "tests": 5,
+      "passed": 5
+    },
+    "nativeCases": 43,
+    "nodeParityCases": 43,
+    "actualServiceUiCases": 3,
+    "oldPersistedPreviewUnchanged": true,
+    "initialNodeAttempt": {
+      "name": "experience-priority-full-node-20261109-a",
+      "exit": 1,
+      "logSha256": "2fc24d2e25069d580395af31e089b9df2e51ad46865a122b0f2f75b2e4488929",
+      "passed": 288,
+      "failed": 0,
+      "cancelled": 2
+    },
+    "nodeControl": {
+      "sameSourceAndAssertions": true,
+      "timeBudgetsUnchanged": [
+        60000,
+        45000
+      ],
+      "isolatedFromOtherLongVerificationRuns": true,
+      "scope": "Final serial-control result; earlier timeout failures remain preserved, not reclassified as passes"
+    },
+    "newModelCalls": 0
+  },
+  "frozenReferenceCount": 26,
+  "courseDependencyCount": 85,
+  "limits": [
+    "Only current Task 2/3 offline acceptance, not Gate 1B or public release",
+    "New mention projection, course coverage and self-assessment adoption remain separate work",
+    "Finite reviewed evidence grammar",
+    "No live model or remote deployment acceptance"
+  ],
+  "realModelCalls": 0,
+  "newCostUsd": 0,
+  "deployed": false,
+  "remoteMigration": false,
+  "pushed": false
+}

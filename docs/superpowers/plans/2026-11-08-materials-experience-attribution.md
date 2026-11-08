@@ -1,12 +1,12 @@
 # 按来源词核对个人经历，再参与实践优先级
 
-**2026-11-08 晚暂停检查点：** 用户要求保存后关闭 Codex。Task 1 已验收；Task 2 接入及质量修复保存为 WIP `41bcdd7`，最后的 `about/of` 修改未复测，Task 2/3 尚未完成。先读取[当前暂停报告](../../verification/2026-11-08-materials-practice-priorities-pause.md)与作者交接，用户恢复后再执行 GREEN、独立复审和全仓验证；不要沿用中间候选的通过结论。
+**2026-11-09 当前结论：** 用户恢复后，暂停源码 `41bcdd7` 完成最后修改的 GREEN、独立规格／质量审阅及全仓验收，Task 1／2／3 均完成。全仓 377 文件 9,647 项、附加 Node 最终 290 项、页面 5 项通过；首轮 Node 的两项时间预算取消保留原日志，以同源码、原阈值下独占串行通过为最终结果。详见[本批报告](../../verification/2026-11-09-materials-practice-priorities.md)。原[暂停报告](../../verification/2026-11-08-materials-practice-priorities-pause.md)作为历史保留，后续原词保留接入未在本轮启动。
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 资料中的否定动作、他人经历、未来计划或引用示例仍可作为可发现的主题，但不能因为对应到课程就被当作用户已有实践。真正的个人经历、技能陈述和人工兜底继续参与现有排序，不修改能力等级。
 
-**Prerequisite:** [编辑后能力建议修复](2026-11-08-materials-edited-assessment-hints.md)的独立审查、全仓验证及证据保存已完成（源码`113a9c5`／归档`9fdfcd0`）。本计划逐项串行实现；Task 1已验收并保存为`d6aba60`，完成归档后接续Task 2。
+**Prerequisite:** [编辑后能力建议修复](2026-11-08-materials-edited-assessment-hints.md)的独立审查、全仓验证及证据保存已完成（源码`113a9c5`／归档`9fdfcd0`）。Task 1 已验收并保存为 `d6aba60`；Task 2／3 的最终离线验收对应 `41bcdd7` 的源码内容。
 
 **Architecture:** 从现有共享证据规则复用引文和陈述范围，在独立的个人经历谓词中判断当前事实。课程映射器保留每个关系实际使用的来源词，规划器只将有个人经历支持的关系加入实践集合。公开课程映射结果保持不变，新上下文使用新的规划策略版本；历史预览继续读取冻结结果。
 
@@ -69,22 +69,22 @@ supportsMaterialExperience({
 
 **Files:** `app/lib/materials/skill-mapper.ts`、`app/server/documents/context-builder.ts`、`app/lib/materials/planning-priority.ts`、`app/components/materials/material-context-review.tsx`；对应映射、上下文、学习意图、历史读取及组件测试。
 
-- [ ] 先在真实服务中复现否定SQL、同事SQL、未来SQL、混合React／SQL的错误实践优先级，并保留正常个人／指导经历、长人工事实、整条人工对应、显式空词／忽略、主JD／明确学习重点的对照。旧36项观察保持原字节，另建新期望和结果。
-- [ ] 接入回归补修：既有补充资料完整流程中的`I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.`在新谓词下漏掉个人协助经历。保留原服务测试与期望，先保存失败日志和接入源码，再仅补个人`assist/assisted/assisting with/in`的实际协助表达；不把协助提升为独立能力，不放开行政安排、他人工作、否定、未来、条件或引用。允许本项修改经历谓词及其测试，原Task 1提交与232份归档证据保持不动，最终使用新的源码身份和完整回归结果。
-- [ ] 在现有resolver内部携带每个skillId实际采用的证据目标：保留词／逐词人工对应使用原词；无词列表的自动映射使用现有词典真正匹配的别名；整条人工对应使用显式whole-fact目标。不增加第二份技能词典，不从映射后的课程名称反推原文证据。
-- [ ] 同一自动课程关系若命中多个既有别名，分别判断每个实际来源词；其中一个有真实个人实践即可支持该关系。`I wrote SQL queries, but I have never configured SQLite.`不能因SQLite的限制抹去SQL经历，反向顺序亦同；两个别名均无个人实践时不支持。不同课程之间仍不能借证据，公开歧义判定保持原样。
-- [ ] 提供小型实践关系投影（如`mapMaterialPracticeSkills`返回itemId/skillId关系），复用同一resolver。只输出status=mapped且证据谓词通过的个人事实关系。现有`mapMaterialItemTerms`、`mapMaterialItems`的公开字段、分组、顺序、手动选择、空词和忽略行为保持原样；若必须改变公开语义，先明确版本影响，不静默改写。
-- [ ] `context-builder`仅用新的逐关系结果生成practices。主JDrequirements、明确learning-intents、未采用的约束／补充要求、可用工时和自评仍按原路径处理。不同技能不能相互借用经历。
-- [ ] 新创建上下文的`MATERIAL_PLANNING_POLICY_VERSION`从`2026.11.2`升级为`2026.11.3`。映射公开结果未变则不改mappingVersion；不重算已保存preview_json，不修改旧策略身份或原评分器。测试旧预览重读仍逐值一致，新上下文绑定新策略，失效引用继续被拦截。
-- [ ] 界面区分“已对应课程的技能”和“参与当前排序的技能”。有mappingDetails时，对status=mapped的skillIds去重计数；不能继续把priorities.length称为映射数量。旧快照缺少逐词信息时只显示能证明的排序数量。加入1项已对应但0项实践优先级、混合2项对应／1项优先级、歧义和旧快照对照。
-- [ ] 不扩大learningIntentEligible。将体验限制写清：负面经历主题可以发现和对应，但不会自动成为个人实践或新的能力等级；现有其他约束／建议的显式学习重点流程不变。
-- [ ] 独立规格与质量审查覆盖纯映射、真实服务与UI，根任务统一保存源码。
+- [x] 先在真实服务中复现否定SQL、同事SQL、未来SQL、混合React／SQL的错误实践优先级，并保留正常个人／指导经历、长人工事实、整条人工对应、显式空词／忽略、主JD／明确学习重点的对照。旧36项观察保持原字节，另建新期望和结果。
+- [x] 接入回归补修：既有补充资料完整流程中的`I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.`在新谓词下漏掉个人协助经历。保留原服务测试与期望，先保存失败日志和接入源码，再仅补个人`assist/assisted/assisting with/in`的实际协助表达；不把协助提升为独立能力，不放开行政安排、他人工作、否定、未来、条件或引用。允许本项修改经历谓词及其测试，原Task 1提交与232份归档证据保持不动，最终使用新的源码身份和完整回归结果。
+- [x] 在现有resolver内部携带每个skillId实际采用的证据目标：保留词／逐词人工对应使用原词；无词列表的自动映射使用现有词典真正匹配的别名；整条人工对应使用显式whole-fact目标。不增加第二份技能词典，不从映射后的课程名称反推原文证据。
+- [x] 同一自动课程关系若命中多个既有别名，分别判断每个实际来源词；其中一个有真实个人实践即可支持该关系。`I wrote SQL queries, but I have never configured SQLite.`不能因SQLite的限制抹去SQL经历，反向顺序亦同；两个别名均无个人实践时不支持。不同课程之间仍不能借证据，公开歧义判定保持原样。
+- [x] 提供小型实践关系投影（如`mapMaterialPracticeSkills`返回itemId/skillId关系），复用同一resolver。只输出status=mapped且证据谓词通过的个人事实关系。现有`mapMaterialItemTerms`、`mapMaterialItems`的公开字段、分组、顺序、手动选择、空词和忽略行为保持原样；若必须改变公开语义，先明确版本影响，不静默改写。
+- [x] `context-builder`仅用新的逐关系结果生成practices。主JDrequirements、明确learning-intents、未采用的约束／补充要求、可用工时和自评仍按原路径处理。不同技能不能相互借用经历。
+- [x] 新创建上下文的`MATERIAL_PLANNING_POLICY_VERSION`从`2026.11.2`升级为`2026.11.3`。映射公开结果未变则不改mappingVersion；不重算已保存preview_json，不修改旧策略身份或原评分器。测试旧预览重读仍逐值一致，新上下文绑定新策略，失效引用继续被拦截。
+- [x] 界面区分“已对应课程的技能”和“参与当前排序的技能”。有mappingDetails时，对status=mapped的skillIds去重计数；不能继续把priorities.length称为映射数量。旧快照缺少逐词信息时只显示能证明的排序数量。加入1项已对应但0项实践优先级、混合2项对应／1项优先级、歧义和旧快照对照。
+- [x] 不扩大learningIntentEligible。将体验限制写清：负面经历主题可以发现和对应，但不会自动成为个人实践或新的能力等级；现有其他约束／建议的显式学习重点流程不变。
+- [x] 独立规格与质量审查覆盖纯映射、真实服务与UI，根任务统一保存源码。
 
 ## Task 3：冻结边界和整体验证
 
-- [ ] 在本地workerd/D1/R2中执行创建资料→确认→选择→预览，并与Node结果对照。通过实际公开响应验证主题发现、实践解释、能力不变及历史读取；不以内部手工组装预览替代服务链路。
-- [ ] 在新的逐文件匹配源码副本执行全仓分组、Node附加测试、类型、Lint、构建和页面检查；Research来源检查在原工作树完成。新标签保存全部红绿结果与必要的脚本版本，不覆盖旧日志。
-- [ ] 原26份课程／候选参考与旧原生14场景协议保持原字节。记录本批依赖变化，新采集仅作为待审绑定，不能让旧评分器跳过摘要检查或把当前未完成的课程覆盖计为通过。
-- [ ] 更新恢复入口、成果／限制和下一步，目标保持active。随后另拟明确版本的mention生产投影与核对接入；不直接改变grounded-v2历史投影的含义。课程任务覆盖、能力采用入口、完整14场景原生绑定、真实模型和发布验收仍按各自步骤推进。
+- [x] 在本地workerd/D1/R2中执行创建资料→确认→选择→预览，并与Node结果对照。通过实际公开响应验证主题发现、实践解释、能力不变及历史读取；不以内部手工组装预览替代服务链路。
+- [x] 在新的逐文件匹配源码副本执行普通／串行 Vitest、类型、Lint、构建和页面检查；Research 来源检查和依赖真实 Git 历史闭包的附加 Node 在同源码的原工作树完成，保留原来源边界。逐文件覆盖与最终源码核对通过。附加 Node 首轮两项时间预算取消后，在其他长验证结束的独占串行条件下原源码／原阈值全量通过；两轮均保存。新标签保存全部红绿结果与必要脚本，不覆盖旧日志。
+- [x] 原26份课程／候选参考与旧原生14场景协议保持原字节。记录本批依赖变化，新采集仅作为待审绑定，不能让旧评分器跳过摘要检查或把当前未完成的课程覆盖计为通过。
+- [x] 更新恢复入口、成果／限制和下一步，长期公开发布目标尚未完成。已保存下一批明确版本的mention生产投影与核对接入计划，本轮不直接改变grounded-v2历史投影的含义。课程任务覆盖、能力采用入口、完整14场景原生绑定、真实模型和发布验收仍按各自步骤推进。
 
 每次Node执行均使用 `node work/grounded-verification/run.mjs <唯一标签> <Node参数>`。脚本、配置、结果文件不得与包装器的`.json`／`.log`输出同名。全程沿用当前工作树；不调用真实模型、不部署、不远程迁移、不推送。

@@ -1,0 +1,116 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { stripVTControlCharacters } from "node:util";
+
+const work = resolve("work/grounded-verification"), prefix = "experience-priority-author-20261109-resume-";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const git = args => execFileSync("git", args, { encoding: "utf8", windowsHide: true }).trim();
+const sourceBindingName = prefix + "source-binding.json";
+const sourceBindingSha256 = "c0a400acc5554be8189708a2b5d1511f306b9e29c6d421655be02aadf723f93c";
+assert.equal(sha(readFileSync(join(work, sourceBindingName))), sourceBindingSha256);
+const binding = JSON.parse(readFileSync(join(work, sourceBindingName), "utf8"));
+assert.equal(git(["rev-parse", "HEAD"]), binding.baseHead);
+assert.equal(git(["branch", "--show-current"]), "codex/materials-replan-recovery-20261106");
+assert.equal(git(["status", "--short", "--", "app", "tests"]), "");
+git(["diff", "--check"]);
+for (const [path, expected] of Object.entries(binding.sourceHashes)) {
+  assert.equal(sha(readFileSync(path)), expected, path);
+  assert.equal(sha(readFileSync(join(work, prefix + "source/" + path.replaceAll("/", "__") + ".source.txt"))), expected, "Snapshot " + path);
+}
+for (const [path, expected] of Object.entries(binding.unchangedCandidateAndSharedHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+for (const [path, expected] of Object.entries(binding.safetyHashes)) assert.equal(sha(readFileSync(path)), expected, path);
+for (const [path, expected] of Object.entries(binding.previousArtifacts)) assert.equal(sha(readFileSync(join(work, path))), expected, path);
+const oldTests = readFileSync(join(work, "experience-priority-author-20261108-quality-candidate-source/tests__lib__materials__experience-evidence.test.ts.source.txt"));
+assert.equal(sha(oldTests), binding.original253TestsSha256);
+assert.ok(readFileSync("tests/lib/materials/experience-evidence.test.ts").subarray(0, oldTests.length).equals(oldTests), "Original 253 test byte prefix");
+const probeBindingName = prefix + "probe-bindings.json";
+const probeBindingSha256 = "c1b255551b72ad3f7108aa6859e5464a95c54a16178e3efd486c69e753624a08";
+assert.equal(sha(readFileSync(join(work, probeBindingName))), probeBindingSha256);
+const probeBinding = JSON.parse(readFileSync(join(work, probeBindingName), "utf8"));
+for (const [path, copy] of Object.entries(probeBinding.copies)) {
+  const original = readFileSync(join(work, copy.originalName), "utf8");
+  const current = readFileSync(join(work, path), "utf8");
+  assert.equal(sha(Buffer.from(original)), copy.originalSha256, copy.originalName);
+  assert.equal(sha(Buffer.from(current)), copy.nextSha256, path);
+  let restored = current;
+  for (const [oldText, newText] of [...copy.replacements].reverse()) restored = restored.replace(newText, oldText);
+  assert.equal(restored, original, "Every original behavior assertion preserved in " + path);
+}
+for (const [path, expected] of Object.entries(probeBinding.configHashes)) assert.equal(sha(readFileSync(join(work, path))), expected, path);
+const resultFiles = {};
+for (const [suffix, count, field] of [
+  ["quality-probe", 16, "rows"], ["spec-probe", 16, "rows"], ["reporting-probe", 6, "rows"],
+  ["quality-service", 8, "observations"], ["spec-service", 6, "rows"], ["reporting-service", 6, "rows"],
+]) {
+  const path = prefix + suffix + "-results.json", bytes = readFileSync(join(work, path)), result = JSON.parse(bytes);
+  assert.equal(result[field].length, count, path);
+  if (suffix.endsWith("probe")) assert.deepEqual(result.mismatches, [], path);
+  if (result.sourceHashes) for (const [source, actual] of Object.entries(result.sourceHashes)) assert.equal(actual, binding.sourceHashes[source], source);
+  resultFiles[path] = { sha256: sha(bytes), cases: count };
+}
+const vitest = suffix => "node_modules/vitest/vitest.mjs run --config work/grounded-verification/" + prefix + suffix + ".config.ts";
+const script = suffix => "work/grounded-verification/" + prefix + suffix + ".mjs";
+const runs = [
+  ["prepare-01", script("prepare"), "9 source hashes; 12 preserved candidate/shared hashes; exact old 253 test prefix; 293 sealed and 370 total earlier artifacts verified"],
+  ["bind-02", script("bind"), "6 original probes cloned with every behavior assertion unchanged; only authorized current identity/output metadata changed"],
+  ["unit-green-03", vitest("unit"), "1 file / 259 tests pass", 259, 1],
+  ["quality-probe-04", script("quality-probe"), "16 predicate/mapping cases; zero mismatches"],
+  ["spec-probe-05", script("spec-probe"), "16 predicate/mapping cases; zero mismatches"],
+  ["reporting-probe-06", script("reporting-probe"), "6 predicate/mapping cases; zero mismatches"],
+  ["quality-service-07", vitest("quality-service"), "8 real MaterialContextService tests pass", 8, 1],
+  ["spec-service-08", vitest("spec-service"), "6 real MaterialContextService tests pass", 6, 1],
+  ["reporting-service-09", vitest("reporting-service"), "6 real MaterialContextService tests pass", 6, 1],
+  ["regression-10", vitest("regression"), "14 files / 521 tests pass", 521, 14],
+  ["level-regression-11", vitest("level-regression"), "12 files / 1467 tests pass", 1467, 12],
+  ["types-12", "node_modules/typescript/bin/tsc --project work/grounded-verification/" + prefix + "final-tsconfig.json --noEmit --pretty false", "focused types pass"],
+  ["lint-13", "node_modules/eslint/bin/eslint.js " + Object.keys(binding.sourceHashes).join(" "), "nine-file lint pass"],
+];
+const outcomes = runs.map(([suffix, args, result, tests, files]) => {
+  const name = prefix + suffix, outcomeBytes = readFileSync(join(work, name + ".json")), outcome = JSON.parse(outcomeBytes);
+  assert.equal(outcome.name, name);
+  assert.equal(outcome.exit, 0, name);
+  assert.equal(outcome.nonLoopbackDenials, 0, name);
+  const logBytes = readFileSync(join(work, name + ".log"));
+  assert.equal(sha(logBytes), outcome.logSha256, name);
+  const plain = stripVTControlCharacters(logBytes.toString("utf8"));
+  if (tests) assert.match(plain, new RegExp("Tests\\s+" + tests + " passed \\(" + tests + "\\)"), name);
+  if (files) assert.match(plain, new RegExp("Test Files\\s+" + files + " passed \\(" + files + "\\)"), name);
+  return { command: "node work/grounded-verification/run.mjs " + name + " " + args,
+    result, ...(tests ? { tests, files } : {}), outcomeSha256: sha(outcomeBytes), ...outcome };
+});
+const frozenDir = join(work, prefix + "frozen-source");
+mkdirSync(frozenDir);
+for (const path of Object.keys(binding.sourceHashes))
+  writeFileSync(join(frozenDir, path.replaceAll("/", "__") + ".source.txt"), readFileSync(path), { flag: "wx" });
+const inputNames = readdirSync(work).filter(name => name.startsWith(prefix) && (/\.(?:mjs|ts)$/u.test(name) || name === prefix + "final-tsconfig.json"));
+const manifest = {
+  baseHead: binding.baseHead,
+  sourceHashes: binding.sourceHashes,
+  sourceBinding: { path: sourceBindingName, sha256: sourceBindingSha256 },
+  probeBinding: { path: probeBindingName, sha256: probeBindingSha256 },
+  productOrTestEditsDuringResume: [],
+  workingProductAndTestsMatchHead: true,
+  original253TestsExactBytePrefix: true,
+  unchangedCandidateAndSharedHashes: binding.unchangedCandidateAndSharedHashes,
+  safetyHashes: binding.safetyHashes,
+  sealed293Verified: true,
+  preservedPreviousArtifactCount: Object.keys(binding.previousArtifacts).length,
+  preservedPreviousArtifacts: binding.previousArtifacts,
+  harnessInputs: Object.fromEntries(inputNames.map(path => [path, sha(readFileSync(join(work, path)))])),
+  resultFiles, outcomes,
+  limits: [
+    "This is author offline verification of the paused candidate, not independent acceptance.",
+    "Unit 259 is included in the 521-test integration run; counts are not distinct totals.",
+    "Service probes use actual MaterialContextService with confirmed-record SQLite/D1 fixtures, not full document ingestion or HTTP/runtime acceptance.",
+    "Known Node SQLite ExperimentalWarning appears in service logs; types and lint emitted no diagnostics.",
+    "No full-repository run, native runtime, historical persisted store, UI/browser, real model, deployment, remote migration, push or commit was performed.",
+    "The only remote read was the AGENTS-required GitHub master SOURCE_INDEX through the connector; test runs used the pinned offline wrapper and blocker.",
+  ],
+};
+const finalPath = join(work, prefix + "frozen-source.json");
+writeFileSync(finalPath, JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ sourceHashes: binding.sourceHashes, previousArtifactsPreserved: Object.keys(binding.previousArtifacts).length,
+  original253TestsExactBytePrefix: true, all13OutcomesPassed: true, manifestSha256: sha(readFileSync(finalPath)) }, null, 2));

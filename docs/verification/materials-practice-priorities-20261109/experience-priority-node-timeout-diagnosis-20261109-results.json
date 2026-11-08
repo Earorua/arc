@@ -1,0 +1,61 @@
+{
+  "status": "TIMEOUTS_CONFIRMED_SERIAL_CONTROL_PENDING",
+  "sourceManifestSha256": "8ab545fbd75adeaa8274ac9c7b89d7a7bbd37085a473b748071f6d11a5042ecb",
+  "sourceFiles": 1004,
+  "source": [
+    {
+      "path": "tests/offline-uat/research-public-recovery.test.mjs",
+      "sha256": "009fa5ab71541058fff464c7f7fc36499553780efef4aaa231ec498640805312",
+      "matchesLastFullyVerifiedBaseline": true
+    },
+    {
+      "path": "tests/offline-uat/research-recovery.test.mjs",
+      "sha256": "87ca8dc79280f7129a255c5cccec8d617531c1c8613a3a89e2660f10960a2b9c",
+      "matchesLastFullyVerifiedBaseline": true
+    },
+    {
+      "path": "tests/offline-uat/server.mjs",
+      "sha256": "d760b28a1eb9f24a380af8d68621b3df22a1504a2c86c8a6d3040fb3e2391326",
+      "matchesLastFullyVerifiedBaseline": true
+    }
+  ],
+  "first": {
+    "name": "experience-priority-full-node-20261109-a",
+    "passed": 288,
+    "failed": 0,
+    "cancelled": 2,
+    "logSha256": "2fc24d2e25069d580395af31e089b9df2e51ad46865a122b0f2f75b2e4488929"
+  },
+  "runs": [
+    {
+      "name": "experience-priority-full-unit-20261109-a",
+      "exit": 0,
+      "elapsedMs": 555357,
+      "approxStartUtc": "2026-11-08T17:43:54.912Z",
+      "endUtc": "2026-11-08T17:53:10.269Z",
+      "logSha256": "846671ec4c6c47dcc41065181b517a82ada9428b97334d5081b879ecf770ea88"
+    },
+    {
+      "name": "experience-priority-full-research-20261109-a",
+      "exit": 0,
+      "elapsedMs": 252205,
+      "approxStartUtc": "2026-11-08T17:48:11.596Z",
+      "endUtc": "2026-11-08T17:52:23.801Z",
+      "logSha256": "87a6b0f424313b6138fce3a1176ecf2d3e34a0e577c50f6f77e3e9d520ff8454"
+    },
+    {
+      "name": "experience-priority-full-node-20261109-a",
+      "exit": 1,
+      "elapsedMs": 518929,
+      "approxStartUtc": "2026-11-08T17:43:54.911Z",
+      "endUtc": "2026-11-08T17:52:33.840Z",
+      "logSha256": "2fc24d2e25069d580395af31e089b9df2e51ad46865a122b0f2f75b2e4488929"
+    }
+  ],
+  "observed": "Original Node test framework budgets cancelled two HTTP harness cases during concurrent repository verification; no assertion failures were reported.",
+  "hypothesis": "Concurrent local compilation/runtime load may have exhausted the 45s/60s budgets. Resource mechanism is not proven by the first run alone.",
+  "control": "Run the exact nine-script Node command with --test-concurrency=1 after every other long verification process has exited. Keep source, assertions and timeouts unchanged.",
+  "productEdits": 0,
+  "testEdits": 0,
+  "newModelCalls": 0
+}

@@ -1,0 +1,36 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+
+const work = "work/grounded-verification/", prefix = "experience-priority-quality-20261109-";
+const hash = path => createHash("sha256").update(readFileSync(path)).digest("hex");
+const before = JSON.parse(readFileSync(work + prefix + "identity-before-results.json"));
+const after = JSON.parse(readFileSync(work + prefix + "identity-after-results.json"));
+assert.deepEqual(before.sourceHashes, after.sourceHashes);
+for (const group of [after.sourceHashes, after.unchangedCandidateAndSharedHashes, after.safetyHashes, after.dependencyHashes]) {
+  for (const [path, expected] of Object.entries(group)) assert.equal(hash(path), expected, path);
+}
+for (const [path, expected] of Object.entries(after.previousArtifacts)) assert.equal(hash(work + path), expected, path);
+for (const [path, expected] of Object.entries(after.reviewerInputHashes)) assert.equal(hash(work + path), expected, path);
+assert.equal(execFileSync("git", ["status", "--short", "--", "app", "tests"], { encoding: "utf8", windowsHide: true }).trim(), "");
+const outcomes = ["identity-before-01", "focused-02", "identity-after-03"].map(suffix => {
+  const path = work + prefix + suffix + ".json";
+  const value = JSON.parse(readFileSync(path));
+  assert.equal(value.exit, 0); assert.equal(value.nonLoopbackDenials, 0);
+  assert.equal(hash(work + value.name + ".log"), value.logSha256);
+  return { ...value, outcomeSha256: hash(path) };
+});
+const observations = JSON.parse(readFileSync(work + prefix + "boundary-service-results.json")).observations;
+assert.equal(observations.length, 38);
+const artifacts = Object.fromEntries(readdirSync(work).filter(name => name.startsWith(prefix)
+  && name !== prefix + "frozen-source.json" && !name.startsWith(prefix + "freeze-04.")).sort().map(name => [name, hash(work + name)]));
+const result = { review: "PASS", critical: 0, important: 0, scope: "Independent offline Task 2 quality review only; not release acceptance", head: after.head,
+  sourceHashes: after.sourceHashes, dependencyHashes: after.dependencyHashes, safetyHashes: after.safetyHashes,
+  preservedPreviousArtifacts: 370, focusedFiles: 5, focusedTests: 383, independentServiceCases: 38,
+  beforeIdentitySha256: hash(work + prefix + "identity-before-results.json"), afterIdentitySha256: hash(work + prefix + "identity-after-results.json"),
+  memo: { path: prefix + "memo.md", sha256: hash(work + prefix + "memo.md") }, artifacts, outcomes };
+const target = work + prefix + "frozen-source.json";
+writeFileSync(target, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ review: result.review, sourceFiles: Object.keys(result.sourceHashes).length, focusedFiles: 5, focusedTests: 383,
+  artifacts: Object.keys(artifacts).length, frozenPath: target, frozenSha256: hash(target), memoSha256: result.memo.sha256 }));
