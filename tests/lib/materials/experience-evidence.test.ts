@@ -267,3 +267,165 @@ describe("material experience evidence", () => {
     expect(input.text).toBe("I wrote SQL queries.");
   });
 });
+
+describe("personal assistance in material practice", () => {
+  it.each([
+    ["I assisted with observability: PRIVATE-SUPPLEMENT-SENTINEL-5c92.", "observability"],
+    ["I assist with SQL.", "SQL"],
+    ["I assisted with SQL query testing.", "SQL"],
+    ["I am assisting with SQL.", "SQL"],
+    ["I have assisted in testing SQL queries.", "SQL"],
+    ["Assisted in SQL testing.", "SQL"],
+    ["With my mentor's guidance, I assisted with SQL.", "SQL"],
+    ["I assisted with SQL reports.", "SQL"],
+    ['I assisted with testing "SQL".', "SQL"],
+    ["I can assist with SQL.", "SQL"],
+  ])("retains the learner's bounded assistance: %s", (text, term) => {
+    expect(terms(text, [term])).toBe(true);
+    expect(whole(text)).toBe(true);
+  });
+
+  it.each([
+    "I never assisted with SQL.",
+    "I did not assist in SQL testing.",
+    "I plan to assist with SQL.",
+    "I will assist with SQL.",
+    "My colleague assisted with SQL.",
+    "The team assisted in testing SQL.",
+    '"I assisted with SQL."',
+    "My mentor said, I assisted with SQL.",
+    "If asked, I would assist with SQL.",
+    "I assisted with scheduling a SQL demo.",
+    "I assisted in arranging a SQL workshop.",
+    "I assisted with recording my colleague's SQL practice.",
+    "I assisted with documenting how my colleague tested SQL.",
+    "I assisted with reporting that my colleague tested SQL.",
+    "I assisted with a report about SQL.",
+    "I assisted with a report that my colleague tested SQL.",
+    "I assisted with plans to learn SQL.",
+    "I assisted in planning SQL training.",
+    "I assisted with the SQL demo schedule.",
+    "I assisted with the SQL training plan.",
+    "I can assist with scheduling a SQL demo.",
+    "I am able to assist in documenting my colleague's SQL practice.",
+    "I can assist a colleague with SQL.",
+    "I assisted with a summary about SQL.",
+    "I assisted with notes about my colleague's SQL practice.",
+    "I assisted with writing notes about my colleague's SQL practice.",
+    "I assisted with writing that my colleague used SQL.",
+    "I assisted a colleague with SQL.",
+    "I helped with SQL.",
+  ])("does not turn unsupported or administrative assistance into technical practice: %s", text => {
+    expect(terms(text)).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it.each([
+    ["I assisted with React components; my colleague assisted with SQL.", "React", "SQL"],
+    ["I built React components, my colleague assisted with SQL.", "React", "SQL"],
+    ["I assisted with SQL; I plan to assist with React.", "SQL", "React"],
+    ["I assisted with building React components to document my colleague's SQL work.", "React", "SQL"],
+  ])("preserves each assistance actor and target: %s", (text, own, other) => {
+    expect(terms(text, [own])).toBe(true);
+    expect(terms(text, [other])).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it("does not infer a self-level hint from assistance", () => {
+    const text = "I assisted with SQL.";
+    expect(terms(text)).toBe(true);
+    for (const level of ["conceptual", "guided", "uncertain"] as const)
+      expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level })).toBe(false);
+  });
+});
+
+describe("assistance administrative object heads", () => {
+  it.each([
+    "I assisted with SQL demo scheduling.",
+    "I can assist with SQL demo scheduling.",
+    "I assisted in SQL training planning.",
+    "I assisted with SQL project progress reporting.",
+  ])("keeps a topic-first administrative activity out of practice: %s", text => {
+    expect(terms(text)).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it.each([
+    "I assisted with SQL.",
+    "I assisted in SQL query testing.",
+    "I assisted with modifying SQL queries.",
+    "I assisted with SQL reports.",
+    "I assisted with testing SQL reporting queries.",
+    "I assisted in testing SQL project reporting.",
+    "I assisted with SQL query testing for progress reporting.",
+    "I assisted with modifying SQL queries for planning.",
+    "I assisted with SQL query testing to support project reporting.",
+  ])("retains technical assistance rather than rejecting administrative word occurrences: %s", text => {
+    expect(terms(text)).toBe(true);
+    expect(whole(text)).toBe(true);
+  });
+});
+
+describe("technical reporting assistance", () => {
+  it.each([
+    ["I assisted with SQL reporting.", "SQL"],
+    ["I assisted with SQL query reporting.", "SQL"],
+    ["I can assist with SQL reporting.", "SQL"],
+    ["I assisted with React reporting.", "React"],
+  ])("does not infer administration from an unqualified reporting activity: %s", (text, term) => {
+    expect(terms(text, [term])).toBe(true);
+    expect(whole(text)).toBe(true);
+  });
+
+  it.each([
+    ["I assisted with SQL project progress reporting.", "SQL"],
+    ["I assisted with SQL status reporting.", "SQL"],
+    ["I can assist with SQL status reporting.", "SQL"],
+    ["I assisted with React project progress reporting.", "React"],
+  ])("requires the stated progress or status reporting to stay administrative: %s", (text, term) => {
+    expect(terms(text, [term])).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+});
+
+describe("administrative assistance with a following topic", () => {
+  it.each([
+    "I assisted with status reporting on SQL.",
+    "I can assist with status reporting on SQL.",
+    "I assisted with progress reporting on SQL.",
+    "I am able to assist with progress reporting on SQL.",
+  ])("keeps an explicit administrative reporting head out of practice: %s", text => {
+    expect(terms(text)).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it.each([
+    "I assisted with SQL reporting on transaction data.",
+    "I assisted with SQL query testing on reporting output.",
+    "I can assist with testing SQL reporting queries on sample data.",
+    "I assisted with modifying SQL queries on a test database.",
+  ])("retains technical assistance with an on-complement: %s", text => {
+    expect(terms(text)).toBe(true);
+    expect(whole(text)).toBe(true);
+  });
+});
+
+describe("administrative assistance report topic complements", () => {
+  it.each([
+    "I assisted with status reporting about SQL.",
+    "I assisted with progress reporting of SQL.",
+  ])("keeps the administrative object head when its topic follows: %s", text => {
+    expect(terms(text)).toBe(false);
+    expect(whole(text)).toBe(false);
+  });
+
+  it.each([
+    "I assisted with SQL reporting about sales data.",
+    "I assisted with SQL query reporting of sales data.",
+    "I assisted with testing SQL reporting queries about sales data.",
+    "I assisted with modifying SQL queries of the reporting workflow.",
+  ])("retains the technical action with a report topic complement: %s", text => {
+    expect(terms(text)).toBe(true);
+    expect(whole(text)).toBe(true);
+  });
+});

@@ -5,8 +5,9 @@ import {
 } from "./personal-assertion-scopes";
 import { maskQuotes, quoted } from "./quotation-evidence";
 
-const englishPractice = /^(?:(?:have|had|am|was|been|do|did|also|only|currently|previously|personally|independently)\s+)*(?:not only\s+)?(?:us(?:e[ds]?|ing)|test(?:s|ed|ing)?|build(?:s|ing)?|built|writ(?:e[sn]?|ing)|wrote|implement(?:s|ed|ing)?|configur(?:e[ds]?|ing)|run(?:s|ning)?|ran|develop(?:s|ed|ing)?|maintain(?:s|ed|ing)?|debug(?:s|ged|ging)?|repair(?:s|ed|ing)?|modif(?:y|ies|ied|ying)|edit(?:s|ed|ing)?|chang(?:e[ds]?|ing)|analy[sz](?:e[ds]?|ing)|clean(?:s|ed|ing)?|deploy(?:s|ed|ing)?|install(?:s|ed|ing)?)\b/iu;
+const englishPractice = /^(?:(?:have|had|am|was|been|do|did|also|only|currently|previously|personally|independently)\s+)*(?:not only\s+)?(?:us(?:e[ds]?|ing)|test(?:s|ed|ing)?|build(?:s|ing)?|built|writ(?:e[sn]?|ing)|wrote|implement(?:s|ed|ing)?|configur(?:e[ds]?|ing)|run(?:s|ning)?|ran|develop(?:s|ed|ing)?|maintain(?:s|ed|ing)?|debug(?:s|ged|ging)?|repair(?:s|ed|ing)?|modif(?:y|ies|ied|ying)|edit(?:s|ed|ing)?|chang(?:e[ds]?|ing)|analy[sz](?:e[ds]?|ing)|clean(?:s|ed|ing)?|deploy(?:s|ed|ing)?|install(?:s|ed|ing)?|assist(?:s|ed|ing)?)\b/iu;
 const englishClaim = /^(?:(?:am|was)\s+)?(?:proficient in|skilled (?:in|at)|experienced in|responsible for)\b|^(?:know|knows|knew)\b|^my (?:skills|responsibilities) (?:include|included)\b/iu;
+const reportedActionObject = /^\s+(?:that|how|whether|(?:(?:an?|the)\s+)?(?:(?:reports?|summar(?:y|ies)|notes?)\s+(?:about|on|of)|plans?\s+to))\b/iu;
 const chinesePractice = new RegExp("^(?:" + practiceAction.source + "|用|修改|调整|维护|分析|清洗|负责)(?!不了)", "u");
 const chineseClaim = /^(?:掌握|擅长)|^(?:能|能够|可以|可)(?:独立)?(?:使用|编写|测试|配置|开发|完成)/u;
 
@@ -74,9 +75,25 @@ function personalExperienceScope(raw: string) {
   if (/(?:是[^，,；;。]*计划|的计划)/u.test(firstClause)) return null;
   const capable = /^(?:can|am able to)\s+/iu.exec(action);
   const englishAction = englishPractice.exec(action);
+  const assistanceBody = capable ? action.slice(capable[0].length) : action;
+  const assistanceAction = capable ? englishPractice.exec(assistanceBody) : englishAction;
+  if (assistanceAction && /\bassist(?:s|ed|ing)?$/iu.test(assistanceAction[0])) {
+    const object = /^\s+(?:with|in)\s+(.+)/iu.exec(assistanceBody.slice(assistanceAction[0].length))?.[1];
+    // Assisting in the work is personal practice. Assisting in its scheduling,
+    // reporting or planning is not evidence of performing the mentioned work.
+    if (!object || /^(?:(?:an?|the|my|our)\s+)?(?:schedul(?:e[ds]?|ing)|arrang(?:e[ds]?|ing|ements?)|record(?:s|ed|ing)?|document(?:s|ed|ing|ation)?|report(?:s|ed|ing)?|summar(?:y|ies)|notes?|plan(?:s|ned|ning)?)\b/iu.test(object)
+      || /\b(?:schedules?|plans?)\s*[.!]?$/iu.test(object)) return null;
+    const nestedAction = englishPractice.exec(object);
+    // A topic can modify an administrative activity ("SQL demo scheduling").
+    // Purposes and report-topic complements do not change the actual object head.
+    const objectHead = object.split(/\s+(?:for|to|about|on|of)\b/iu, 1)[0]!;
+    // Reporting itself can be technical work; progress/status supplies the administrative meaning.
+    if (!nestedAction && /\b(?:scheduling|planning|(?:progress|status)\s+reporting)\s*[.!]?$/iu.test(objectHead)) return null;
+    if (nestedAction && reportedActionObject.test(object.slice(nestedAction[0].length))) return null;
+  }
   // The object must be the work itself, not an embedded proposition or a
   // report about someone else's work, even when the learner wrote that report.
-  if (englishAction && /^\s+(?:that|how|whether|(?:(?:an?|the)\s+)?(?:(?:reports?|summar(?:y|ies)|notes?)\s+(?:about|on|of)|plans?\s+to))\b/iu.test(action.slice(englishAction[0].length))) return null;
+  if (englishAction && reportedActionObject.test(action.slice(englishAction[0].length))) return null;
   const practice = englishAction !== null || chinesePractice.test(action)
     || instructionalFragmentStart(action) !== null;
   const claim = conceptualAssessment("I " + action) || conceptualAssessment("I am " + action)

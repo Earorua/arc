@@ -66,6 +66,32 @@ const termControl = (label: string) => screen.getByRole("combobox", { name: `事
 describe("material term choices and explicit learning intent", () => {
   beforeEach(() => localStorage.clear()); afterEach(cleanup);
 
+  it.each([
+    { name: "mapped topic without practice", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["sql"], status: "mapped" as const, basis: "literal" as const }], priorities: [], mapped: 1, ranked: 0 },
+    { name: "two courses with one practice", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["react", "sql"], status: "mapped" as const, basis: "manual" as const }], priorities: [{ skillId: "react", tier: 3, itemIds: ["preview-fact"] }], mapped: 2, ranked: 1 },
+    { name: "duplicate mapped course", details: [
+      { itemId: "preview-fact", termIndexes: [0], skillIds: ["sql"], status: "mapped" as const, basis: "literal" as const },
+      { itemId: "preview-fact", termIndexes: [1], skillIds: ["sql"], status: "mapped" as const, basis: "manual" as const },
+    ], priorities: [], mapped: 1, ranked: 0 },
+    { name: "ambiguous courses", details: [{ itemId: "preview-fact", termIndexes: [0], skillIds: ["react", "sql"], status: "ambiguous" as const, basis: "literal" as const }], priorities: [], mapped: 0, ranked: 0 },
+    { name: "uncovered omitted and non-learning topics", details: [
+      { itemId: "preview-fact", termIndexes: [0], skillIds: [], status: "uncovered" as const, basis: null },
+      { itemId: "preview-fact", termIndexes: [1], skillIds: [], status: "omitted" as const, basis: "manual" as const },
+      { itemId: "preview-fact", termIndexes: [-1], skillIds: [], status: "non-learning" as const, basis: null },
+    ], priorities: [], mapped: 0, ranked: 0 },
+  ])("distinguishes course mapping from current priorities for $name", async ({ details, priorities, mapped, ranked }) => {
+    fixture({ ...basePreview, mappingDetails: details, priorities }); await openPreview();
+    expect(screen.getByText(`已对应课程 ${mapped} 项技能；参与当前排序 ${ranked} 项技能。`)).toBeInTheDocument();
+    expect(screen.getByText(/否定、他人经历或未来计划/)).toHaveTextContent(/不代表已有实践或能力等级/);
+  });
+
+  it("reports only the provable priority count for a historical preview without mapping details", async () => {
+    fixture({ ...basePreview, mappingDetails: undefined }, { recovering: true }); await openPreview(true);
+    expect(screen.getByText("参与当前排序 1 项技能。")).toBeInTheDocument();
+    expect(screen.queryByText(/已对应课程 \d+ 项技能/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/已映射 \d+ 项技能/)).not.toBeInTheDocument();
+  });
+
   it("shows the retained labels, actual courses and contextual basis for every grouped term", async () => {
     fixture(); await openPreview();
     for (const label of ["Figma", "UI tokens"]) {

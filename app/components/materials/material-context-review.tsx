@@ -142,6 +142,8 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
   const mappingDirty = !recovering && (!state.refs.preview || JSON.stringify(choices) !== JSON.stringify(choicesFromPreview(preview)));
   const issues = preview?.issues ?? [];
   const issueCount = issues.reduce((total, issue) => total + Math.max(1, issue.itemIds.length), 0);
+  const mappedSkillCount = preview?.mappingDetails === undefined ? null
+    : new Set(preview.mappingDetails.filter(row => row.status === "mapped").flatMap(row => row.skillIds)).size;
   const skillNames = (ids: readonly string[]) => ids.map(id => availableSkills.find(skill => skill.id === id)?.name ?? id).join("、");
   const basisLabels = { literal: "名称或已登记别名", contextual: "上下文对应", manual: "手动选择" };
   function mappingResult(itemId: string, termIndex: number) {
@@ -193,7 +195,8 @@ export function MaterialContextReview({ input, availableSkills = [], previousGoa
         </li>;
       })}</ul>
       {availableSkills.length > 0 && <p>如有未覆盖或对应不准确的词，可明确选择当前蓝图已有技能；不会新增课程或改变能力自评。</p>}
-      <p>已映射 {preview.priorities.length} 项技能；资料没有提到的能力仍以你的自我评估为准。</p>
+      <p>{mappedSkillCount !== null && <>已对应课程 {mappedSkillCount} 项技能；</>}参与当前排序 {preview.priorities.length} 项技能。</p>
+      <p>否定、他人经历或未来计划中的主题也可对应课程，但不代表已有实践或能力等级；能力仍以你的自我评估为准。</p>
       {issueCount > 0 && <p>有 {issueCount} 项需注意：歧义映射、未覆盖内容或自评冲突会保留为提醒，不会擅自增加技能。</p>}
       {preview.uncoveredLabels.length > 0 && <p>当前蓝图未覆盖：{preview.uncoveredLabels.join("、")}</p>}
       {preview.planning && <p>全量预计完成：{preview.planning.fullScope.estimatedCompletionDate}；目标日期方案：{preview.planning.targetDate?.estimatedCompletionDate ?? "不可行"}。{preview.planning.infeasibleReason}</p>}

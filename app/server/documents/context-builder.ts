@@ -8,7 +8,7 @@ import { planningWorkspaceSchema, type PlanningSourceContext } from "../../contr
 import { canonicalJson, deterministicId } from "../../lib/planning/fingerprint";
 import { buildLearningPaths } from "../../lib/planning/path-builder";
 import { createMaterialOverlay, MATERIAL_PLANNING_POLICY_VERSION } from "../../lib/materials/planning-priority";
-import { mapMaterialItems, mapMaterialItemTerms, MATERIAL_MAPPING_VERSION, type MappingOptions } from "../../lib/materials/skill-mapper";
+import { mapMaterialItems, mapMaterialItemTerms, mapMaterialPracticeSkills, MATERIAL_MAPPING_VERSION, type MappingOptions } from "../../lib/materials/skill-mapper";
 import { validateUnitRegistry } from "../../lib/planning/registry-validation";
 import { PlanningConflictError, PlanningInvalidInputError, PlanningNotFoundError } from "../planning/service";
 import type { PlanningSourceResolver } from "../planning/source-resolver";
@@ -262,6 +262,7 @@ export class MaterialContextService {
       confirmedItems.push(...items);
       const options = { userMappings, termMappings, learningIntentItemIds };
       const details = mapMaterialItemTerms(items, source.blueprint, source.registry, options);
+      if (row.slot !== "jd") practices.push(...mapMaterialPracticeSkills(items, source.blueprint, source.registry, options));
       const groups = new Map<string, NonNullable<MaterialPreview["mappingDetails"]>[number]>();
       for (const detail of details) {
         const item = items.find(item => item.id === detail.itemId)!;
@@ -286,7 +287,6 @@ export class MaterialContextService {
         }
         for (const skillId of mapping.skillIds) {
           if (row.slot === "jd" && item.kind === "requirement") requirements.push({ skillId, level: item.requirementLevel ?? "unspecified", itemId: item.id });
-          if (row.slot !== "jd" && ["experience", "skill-claim"].includes(item.kind)) practices.push({ skillId, itemId: item.id });
           if (learningIntentItemIds.includes(item.id)) intents.push({ skillId, itemId: item.id });
         }
       }

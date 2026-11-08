@@ -3,6 +3,7 @@ import type { RoleBlueprint } from "../../contracts/intelligence";
 import type { UnitRegistry, SkillSelfLevel } from "../../contracts/planning";
 import { validateUnitRegistry } from "../planning/registry-validation";
 import { createContextualSkillMatcher } from "./contextual-skill-mapping";
+import { supportsMaterialExperience } from "./experience-evidence";
 import { containsMaterialSkillLabel, normalizeMaterialSkillLabel } from "./skill-labels";
 export const MATERIAL_MAPPING_VERSION = "2026.11.5" as const;
 const literalAliasVersion = "2026.11.2";
@@ -52,7 +53,11 @@ const FLAGSHIP_ALIASES: NonNullable<MappingOptions["aliases"]> = {
         "proof-of-work": ["作品证据", "作品集证明"],
     }
 };
-type ResolvedMaterialTerm = MaterialTermMapping & { labels: string[] };
+type MaterialExperienceTarget = Parameters<typeof supportsMaterialExperience>[0]["target"];
+type ResolvedMaterialTerm = MaterialTermMapping & {
+    labels: string[];
+    practiceEvidence: ReadonlyMap<string, readonly MaterialExperienceTarget[]>;
+};
 
 function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint: RoleBlueprint, registry: UnitRegistry, options: MappingOptions): ResolvedMaterialTerm[] {
     const valid = blueprint.status === "ready" && validateUnitRegistry(registry, blueprint).valid;
@@ -66,7 +71,7 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
     return items.flatMap((item): ResolvedMaterialTerm[] => {
         if (item.kind === "constraint" && !options.learningIntentItemIds?.includes(item.id)) {
             return (item.skillLabels ?? [item.text]).map(term => ({
-                itemId: item.id, term, status: "non-learning", skillIds: [], basis: null, labels: [],
+                itemId: item.id, term, status: "non-learning", skillIds: [], basis: null, labels: [], practiceEvidence: new Map(),
             }));
         }
         const manual = options.userMappings && Object.hasOwn(options.userMappings, item.id) ? options.userMappings[item.id] : undefined;
@@ -78,20 +83,40 @@ function resolveMaterialTerms(items: readonly ConfirmedMaterialItem[], blueprint
             // Exact retained-label membership is intentional. Deleted and legacy terms cannot be restored by an override.
             const termMapping = !manual && item.skillLabels ? termMappings?.find(mapping => mapping.skillLabel === term) : undefined;
             if (termMapping && termMapping.skillIds.length === 0) return {
-                itemId: item.id, term, status: "omitted", skillIds: [], basis: "manual", labels: [],
+                itemId: item.id, term, status: "omitted", skillIds: [], basis: "manual", labels: [], practiceEvidence: new Map(),
             };
             const selected = manual ?? termMapping?.skillIds;
-            let matches = vocabulary.filter(skill => selected ? selected.includes(skill.id) : skill.words.some(word =>
-                item.skillLabels ? normalizeMaterialSkillLabel(term) === normalizeMaterialSkillLabel(word) : containsMaterialSkillLabel(term, word)));
+            const termTarget: MaterialExperienceTarget = { kind: "terms", terms: [term] };
+            const practiceEvidence = new Map<string, MaterialExperienceTarget[]>();
+            let matches = vocabulary.filter(skill => {
+                if (selected) {
+                    if (!selected.includes(skill.id)) return false;
+                    // The public compatibility API retains legacy whole-item choices.
+                    // New practice cannot use them to bypass reviewed term membership.
+                    practiceEvidence.set(skill.id, manual
+                        ? item.skillLabels === undefined ? [{ kind: "confirmed-whole-fact" }] : []
+                        : [termTarget]);
+                    return true;
+                }
+                const words = skill.words.filter(word => item.skillLabels
+                    ? normalizeMaterialSkillLabel(term) === normalizeMaterialSkillLabel(word)
+                    : containsMaterialSkillLabel(term, word));
+                if (!words.length) return false;
+                // Several vocabulary words may name the same course. Keep each
+                // actual source match as alternative evidence for that relation.
+                practiceEvidence.set(skill.id, item.skillLabels ? [termTarget] : words.map(word => ({ kind: "terms", terms: [word] })));
+                return true;
+            });
             let basis: MaterialTermMapping["basis"] = selected ? "manual" : valid && matches.length ? "literal" : null;
             if (!selected && !matches.length && valid && item.skillLabels) {
                 const contextualIds = matchContextual(term, item.text);
                 matches = vocabulary.filter(skill => contextualIds.includes(skill.id));
+                for (const skill of matches) practiceEvidence.set(skill.id, [termTarget]);
                 if (matches.length) basis = "contextual";
             }
             const status = !valid || !matches.length ? "uncovered" : !selected && matches.length > 1 ? "ambiguous" : "mapped";
             return { itemId: item.id, term, status, skillIds: valid ? matches.map(skill => skill.id) : [], basis,
-                labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)] };
+                labels: matches.length && (valid || !item.skillLabels) ? matches.map(skill => skill.name) : [term.slice(0, 100)], practiceEvidence };
         });
     });
 }
@@ -119,6 +144,27 @@ export function mapMaterialItems(items: readonly ConfirmedMaterialItem[], bluepr
         }
         return [...groups.values()].map(group => ({ ...group, skillIds: [...new Set(group.skillIds)], labels: [...new Set(group.labels)] }));
     });
+}
+
+/** A course match contributes practice only through its own confirmed source evidence. */
+export function mapMaterialPracticeSkills(items: readonly ConfirmedMaterialItem[], blueprint: RoleBlueprint, registry: UnitRegistry, options: MappingOptions = {}): { itemId: string; skillId: string }[] {
+    const byId = new Map(items.map(item => [item.id, item]));
+    const seen = new Map<string, Set<string>>();
+    const practices: { itemId: string; skillId: string }[] = [];
+    for (const relation of resolveMaterialTerms(items, blueprint, registry, options)) {
+        if (relation.status !== "mapped") continue;
+        const item = byId.get(relation.itemId)!;
+        if (item.kind !== "experience" && item.kind !== "skill-claim") continue;
+        const skills = seen.get(item.id) ?? new Set<string>();
+        for (const skillId of relation.skillIds) {
+            if (skills.has(skillId) || !relation.practiceEvidence.get(skillId)?.some(target =>
+                supportsMaterialExperience({ kind: item.kind, text: item.text, target }))) continue;
+            practices.push({ itemId: item.id, skillId });
+            skills.add(skillId);
+        }
+        seen.set(item.id, skills);
+    }
+    return practices;
 }
 /** Called only by a separate, explicit user adoption action; fact confirmation never calls this. */
 export function adoptMaterialSelfAssessments(existing: Record<string, SkillSelfLevel>, adoption: unknown, blueprint: RoleBlueprint): Record<string, SkillSelfLevel> {

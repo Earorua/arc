@@ -1,6 +1,6 @@
 import type { SkillAuditVersion } from "../../contracts/planning";
 
-export const MATERIAL_PLANNING_POLICY_VERSION = "2026.11.2" as const;
+export const MATERIAL_PLANNING_POLICY_VERSION = "2026.11.3" as const;
 export type MaterialOverlay = Readonly<{
   skillRanks: Readonly<Record<string, number>>;
   mandatorySkillIds: readonly string[];
