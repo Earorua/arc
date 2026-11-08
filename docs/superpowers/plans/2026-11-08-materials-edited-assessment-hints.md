@@ -22,7 +22,7 @@
 
 **Files:** 新增 `app/lib/materials/self-assessment-evidence.ts`；必要的引文公共函数放入 `app/lib/materials/quotation-evidence.ts`；修改 `worker/document-executor/source-review-evidence.ts`，维持其已有导出接口；新增 `tests/lib/materials/self-assessment-evidence.test.ts`。原 `tests/server/document-source-review-evidence.test.ts` 等套件不削弱。
 
-- [ ] 先增加共享接口的红例，覆盖概念、指导练习和明确自评不确定三个等级，以及相同词出现在另一个不支持该等级任务的情况。
+- [x] 先增加共享接口的红例，覆盖概念、指导练习和明确自评不确定三个等级，以及相同词出现在另一个不支持该等级任务的情况。
 
 ```typescript
 export function supportsMaterialSelfLevelHint(input: {
@@ -36,7 +36,7 @@ expect(supportsMaterialSelfLevelHint({ kind: "experience", text: "I tested SQL u
 expect(supportsMaterialSelfLevelHint({ kind: "experience", text: "My colleague tested SQL under supervision.", labels: ["SQL"], level: "guided" })).toBe(false);
 ```
 
-- [ ] 把现有worker的引文遮蔽、个人标题、assertion scopes、guided／conceptual／uncertain支持与必要的个人补问辅助移到共享模块。保留规则与源范围，不复制整套正则；只导出worker确实还要使用的辅助函数。现有 `groundSourceSelfLevelHint` 作为薄适配器，将 `source.quote` 传给共享接口并保留其原null返回语义。
+- [x] 把现有worker的引文遮蔽、个人标题、assertion scopes、guided／conceptual／uncertain支持与必要的个人补问辅助移到共享模块。保留规则与源范围，不复制整套正则；只导出worker确实还要使用的辅助函数。现有 `groundSourceSelfLevelHint` 作为薄适配器，将 `source.quote` 传给共享接口并保留其原null返回语义。
 
 ```typescript
 return supportsMaterialSelfLevelHint({
@@ -45,9 +45,9 @@ return supportsMaterialSelfLevelHint({
 }) ? item.selfLevelHint : null;
 ```
 
-- [ ] 文档完整引文定位、被外围引文包裹的来源判断、JD要求优先级、课程缺失／其他review-point代码留在worker；只从共享模块导入它们需要的文本辅助。新函数不依赖DocumentService或请求上下文。
-- [ ] 用既有全部source-review／source-span套件证明迁移未改变原提醒和范围行为；加引号包裹工具名、引用整句、前置指导、他人指导不同任务、条件、转述、否定指导与否定实际动作等对照。若新反例暴露旧证据函数的真实缺口，先保存红例并向根任务报告，再做该范围内的最小修复；不得把“没有guided建议”当作“没有经历”。
-- [ ] 先独立规格审查、再质量审查；确认无worker→app反向运行时依赖和新增网络依赖。根任务统一保存提交。
+- [x] 文档完整引文定位、被外围引文包裹的来源判断、JD要求优先级、课程缺失／其他review-point代码留在worker；只从共享模块导入它们需要的文本辅助。新函数不依赖DocumentService或请求上下文。
+- [x] 用既有全部source-review／source-span套件证明迁移未改变原提醒和范围行为；加引号包裹工具名、引用整句、前置指导、他人指导不同任务、条件、转述、否定指导与否定实际动作等对照。若新反例暴露旧证据函数的真实缺口，先保存红例并向根任务报告，再做该范围内的最小修复；不得把“没有guided建议”当作“没有经历”。
+- [x] 先独立规格审查、再质量审查；确认无worker→app反向运行时依赖和新增网络依赖。根任务统一保存提交。
 
 ## Task 2：新保存与当前编辑状态的逐建议复核
 
@@ -78,3 +78,10 @@ return retainsOriginalMembership && (!needsEvidence || supportsMaterialSelfLevel
 - [ ] 本地保存源码、红绿结果、审查与恢复文档，持续目标保持进行中。下一批再基于逐词映射来源区分自身经历与他人／未来／否定，完成实践优先级门槛，之后另建显式版本的新mention提取投影并接通UI。
 
 验证命令使用 `node work/grounded-verification/run.mjs <唯一日志标签> node_modules/vitest/vitest.mjs run --maxWorkers=1 <本步测试文件>`。脚本／配置／结果与包装器日志不得同名；不得覆盖历史证据。本项通过不代表实践优先级、新真实模型质量、完整14场景或发布Gate通过。
+
+## 执行记录
+
+- 11月8日Task 1：共享模块迁移先保留原行为，四个did-not场景保持红例；加当前个人动作范围内的否定保护后，作者695项通过，根任务六套件1,008项、28个Node/workerd对照通过。原生对照显式记录旧did-not-test误判与新null结果，其他观察保持一致。当前尚待完整两阶段审查结束与本地源码保存，不能当作Task 2已完成。
+- Task 2原生红例已准备：`work/grounded-verification/edited-assessment-native-20261108.mjs` 使用真实本地workerd、D1和R2，走create→合成候选交付→编辑保存→重载→同请求重试，并核对原文与sourceRef不变。运行 `edited-assessment-root-native-20261108-red` 在8个观察中取得6个预期行为不符（他人、未来、否定、引用、移除指导、编辑旧摘要），正常个人实践和未编辑旧摘要两项对照符合预期；最终断言失败、exit 1、出站拦截0。原结果单独保存，修复后用同一脚本和新的输出名复跑，不能把表征或准备工作计为验收通过。
+- Task 2界面红例：`edited-assessment-root-ui-20261108-red` 用实际MaterialTextPanel、HTTP路由、服务与SQLite储存，只有提供方响应和网络调度是内存合成夹具。把本人SQL指导实践改为同事经历后，立即移除按钮、保存时清除建议、重载后不显示按钮三项均不符预期；事实编辑与原引用正确保存，能力采用调用0。最终断言失败、exit 1、出站拦截0；合成提供方调用1不是真实模型调用。该测试与原生红例共同作为修复前证据。
+- Task 1两阶段审查通过：规格717项及29个迁移／33个保留声明结构检查；质量744项，含2,080个原等级结果和208个提醒结果对照，以及15个did-not纠正对照。独立Lint通过，全部新验证出站拦截0、五份实现摘要一致。尚未完成Task 2接入，亦未将这些专项计为全仓通过。

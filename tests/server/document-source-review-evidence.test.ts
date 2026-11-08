@@ -601,6 +601,27 @@ describe("grounding a proposed self-level hint", () => {
   });
 
   it.each([
+    "I did not test SQL under supervision.",
+    "I did not build SQL queries under supervision.",
+    "I did not configure SQL under supervision.",
+    "Under supervision, I did not test SQL.",
+  ])("does not derive a level or assessment reminder from a denied personal action: %s", quote => {
+    const candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
+    expect(groundSourceSelfLevelHint(candidate)).toBeNull();
+    expect(groundSourceReviewPoints([], [candidate], document(quote))).toEqual([]);
+    expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [candidate], document(quote))).toEqual([]);
+  });
+
+  it.each([
+    "I did not only test SQL under supervision.",
+    "I tested SQL under supervision, but I did not configure React.",
+  ])("keeps affirmative guided evidence separate from unrelated negation: %s", quote => {
+    const candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
+    expect(groundSourceSelfLevelHint(candidate)).toBe("guided");
+    expect(groundSourceReviewPoints([], [candidate], document(quote))).toEqual([point("confirm-self-assessment", quote)]);
+  });
+
+  it.each([
     "I tested the BeamRelay parser not using any tutorials.",
     "I tested the BeamRelay parser not following supplied examples.",
     "I configured BeamRelay not under supervision.",
