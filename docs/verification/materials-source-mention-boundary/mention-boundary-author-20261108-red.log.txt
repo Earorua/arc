@@ -1,0 +1,651 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/lib/materials/material-skill-mentions.test.ts [2m([22m[2m123 tests[22m[2m | [22m[31m123 failed[39m[2m)[22m[32m 58[2mms[22m[39m
+[31m   [31m×[31m retains the nominated source phrase without confusing a mention with evidence in 必须掌握键盘可访问性的基本检查。[39m[32m 5[2mms[22m[39m
+[31m   [31m×[31m retains the nominated source phrase without confusing a mention with evidence in I cannot yet configure a Kubernetes cluster myself.[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m retains the nominated source phrase without confusing a mention with evidence in 简介：熟悉 SQL，可独立完成报表。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m shares the narrow Han nominal end boundary with affirmative evidence in 必须掌握键盘可访问性的基本检查。[39m[32m 5[2mms[22m[39m
+[31m   [31m×[31m shares the narrow Han nominal end boundary with affirmative evidence in 提高可维护性的设计质量。[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m shares the narrow Han nominal end boundary with affirmative evidence in 记录可靠性的评估结果。[39m[32m 21[2mms[22m[39m
+[31m   [31m×[31m shares the narrow Han nominal end boundary with affirmative evidence in 检查一致性的约束。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m shares the narrow Han nominal end boundary with affirmative evidence in 检查可访问性的确切含义。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可访问性的。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可访问性的，基本要求。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可访问性的X。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可访问性的1。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可访问性的了。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可访问性的的检查。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可访问性的基本检查。 (性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查键盘可访问性的基本检查。 (盘可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可维护性的设计。 (护性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可靠性的评估。 (靠性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查可访问性́的基本要求。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 检查UI-可访问性的基本要求。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 标识符是urn:可访问性的基本检查。 (可访问性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not broaden a Han end boundary past lexical protections in 标识符是服务:可维护性的基本检查。 (可维护性)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains the Han topic in a denial without granting affirmative evidence[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading 简介 only as a lexical delimiter[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading 个人简介 only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading 自我介绍 only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading 个人技能 only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading 个人能力 only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading profile only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading personal profile only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading my profile only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading personal summary only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m recognizes the conventional personal heading my summary only as a lexical delimiter[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in 团队简介:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in Team profile:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in 团队技能:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in 报告：简介:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in Report profile:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in Alice's profile:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in He wrote profile:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in 介绍：个人技能:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in Other:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in Read urn:AuroraForge[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in https://profile:AuroraForge/setup[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps team, attribution, report prefixes and partial names outside heading support in profile:AuroraForgeHelper[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves a complete namespace after a heading while rejecting its parts[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in I have no experience with WAI-ARIA.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in We never used QuartzFlux or RasterWax.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in SQL experience isn't required.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in I cannot currently use SQL.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in I have never really used PostgreSQL.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in I do not yet know how to use PostgreSQL.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in I used neither SQL nor PostgreSQL.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in SQL and PostgreSQL are not prerequisites.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in Neither CaféFlux nor ΟΣ is required.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in No experience with Nova Flux or PostgreSQL is required.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in No experience with WAI-ARIA, Node.js, or PostgreSQL is required.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in SQL, CaféFlux, and PostgreSQL are not required.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in No experience with “SQL” or ‘PostgreSQL’ is required.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in No experience with “SQL or PostgreSQL” is required.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in 我没有使用过 PostgreSQL。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in 岗位不要求有 SQL 经验。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in 无需有PostgreSQL、SQL或WAI-ARIA经验。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains topics under attached English and Chinese denials in SQL 和 PostgreSQL 经验并非必要。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains a nominated topic in a denial list longer than the nomination limit[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps mention and affirmative selection distinct across clauses in SQL is required, but PostgreSQL is not necessary.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps mention and affirmative selection distinct across clauses in Neither SQL nor PostgreSQL was used, but I tried QuartzFlux.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps mention and affirmative selection distinct across clauses in 无需有 SQL 经验，但需要 PostgreSQL。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps mention and affirmative selection distinct across clauses in I never used SQL, but I now use SQL.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m normalizes a denied reviewed equivalent only after literal nomination in I haven't cleaned data.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m normalizes a denied reviewed equivalent only after literal nomination in 我尚未清洗数据。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m normalizes a denied reviewed equivalent only after literal nomination in I have never analyzed data.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m normalizes a denied reviewed equivalent only after literal nomination in I haven't reviewed code.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m normalizes a denied reviewed equivalent only after literal nomination in Component tests are not required.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m normalizes a denied reviewed equivalent only after literal nomination in 我尚未接触增量加载。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not mine un-nominated text or reverse-infer a different label[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not choose a source spelling across affirmative and denied phrases in I never used SQL, but I use sql.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not choose a source spelling across affirmative and denied phrases in I never used ＳＱＬ, but I use SQL.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not choose a source spelling across affirmative and denied phrases in I never cleaned data, but I am cleaning data.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m withholds a canonical label when two nominated reviewed forms are ambiguous[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m retains repeated original spellings and a grammatical possessive[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m returns whole original graphemes under NFKC, combining marks and ligatures[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in PostgreSQL (SQL)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in WAI-ARIA (ARIA)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in Node.js (Node)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in C++ (C)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in C# (C)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in .NET (NET)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in fancy_SQL (SQL)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in résuméTools (Tools)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in 𐐐Flux (Flux)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in Aﬃ (ff)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in ﬃ (f)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in Café (Cafe)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in Reactive (React)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in Rusty (Rust)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m preserves whole technical names, words and graphemes in Orion::Flux (Flux)[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m uses the same eight-nomination and 100 UTF-16-unit limits[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: not know SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: no SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: never used SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: without SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: cannot use SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: haven't used SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: 从未使用SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: 尚未使用SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: 未使用SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: 不会SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: 不懂SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: 不熟悉SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m rejects the negative label itself in both modes: 没有使用SQL[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in I do not react quickly.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in We never excel at explaining data.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in react[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in excel[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in I do not go to meetings.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in I did not receive a grade of C.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in I never used it for inventory.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in We never received clean transaction records.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in We never received cleaned transaction records.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in I never cleaned the data center racks.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m does not remove homograph or cleaning-object checks together with denial checks in 我没有清洗数据库机房的冷却管道。[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m keeps other cleaning objects literal without promoting them to data cleaning[39m[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 123 [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains the nominated source phrase without confusing a mention with evidence in 必须掌握键盘可访问性的基本检查。
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains the nominated source phrase without confusing a mention with evidence in I cannot yet configure a Kubernetes cluster myself.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains the nominated source phrase without confusing a mention with evidence in 简介：熟悉 SQL，可独立完成报表。
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m24:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mshares the narrow Han nominal end boundary with affirmative evidence in 必须掌握键盘可访问性的基本检查。
+[31m[1mAssertionError[22m: expected null to be '键盘可访问性' // Object.is equality[39m
+
+[32m- Expected:[39m
+"键盘可访问性"
+
+[31m+ Received:[39m
+null
+
+[36m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m37:50[22m[39m
+    [90m 35|[39m   [[32m"检查可访问性的确切含义。"[39m[33m,[39m [32m"可访问性"[39m][33m,[39m
+    [90m 36|[39m ] as const)("shares the narrow Han nominal end boundary with affirmati…
+    [90m 37|[39m   [34mexpect[39m([34mfindMaterialSkillEvidence[39m(quote[33m,[39m term))[33m.[39m[34mtoBe[39m(term)[33m;[39m
+    [90m   |[39m                                                  [31m^[39m
+    [90m 38|[39m   [34mexpect[39m([34mgroundMaterialSkillTerms[39m(quote[33m,[39m [term]))[33m.[39m[34mtoEqual[39m([term])[33m;[39m
+    [90m 39|[39m   [34mexpectMention[39m(quote[33m,[39m term[33m,[39m term)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mshares the narrow Han nominal end boundary with affirmative evidence in 提高可维护性的设计质量。
+[31m[1mAssertionError[22m: expected null to be '可维护性' // Object.is equality[39m
+
+[32m- Expected:[39m
+"可维护性"
+
+[31m+ Received:[39m
+null
+
+[36m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m37:50[22m[39m
+    [90m 35|[39m   [[32m"检查可访问性的确切含义。"[39m[33m,[39m [32m"可访问性"[39m][33m,[39m
+    [90m 36|[39m ] as const)("shares the narrow Han nominal end boundary with affirmati…
+    [90m 37|[39m   [34mexpect[39m([34mfindMaterialSkillEvidence[39m(quote[33m,[39m term))[33m.[39m[34mtoBe[39m(term)[33m;[39m
+    [90m   |[39m                                                  [31m^[39m
+    [90m 38|[39m   [34mexpect[39m([34mgroundMaterialSkillTerms[39m(quote[33m,[39m [term]))[33m.[39m[34mtoEqual[39m([term])[33m;[39m
+    [90m 39|[39m   [34mexpectMention[39m(quote[33m,[39m term[33m,[39m term)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mshares the narrow Han nominal end boundary with affirmative evidence in 记录可靠性的评估结果。
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mshares the narrow Han nominal end boundary with affirmative evidence in 检查一致性的约束。
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m39:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mshares the narrow Han nominal end boundary with affirmative evidence in 检查可访问性的确切含义。
+[31m[1mAssertionError[22m: expected null to be '可访问性' // Object.is equality[39m
+
+[32m- Expected:[39m
+"可访问性"
+
+[31m+ Received:[39m
+null
+
+[36m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m37:50[22m[39m
+    [90m 35|[39m   [[32m"检查可访问性的确切含义。"[39m[33m,[39m [32m"可访问性"[39m][33m,[39m
+    [90m 36|[39m ] as const)("shares the narrow Han nominal end boundary with affirmati…
+    [90m 37|[39m   [34mexpect[39m([34mfindMaterialSkillEvidence[39m(quote[33m,[39m term))[33m.[39m[34mtoBe[39m(term)[33m;[39m
+    [90m   |[39m                                                  [31m^[39m
+    [90m 38|[39m   [34mexpect[39m([34mgroundMaterialSkillTerms[39m(quote[33m,[39m [term]))[33m.[39m[34mtoEqual[39m([term])[33m;[39m
+    [90m 39|[39m   [34mexpectMention[39m(quote[33m,[39m term[33m,[39m term)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可访问性的。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可访问性的，基本要求。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可访问性的X。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可访问性的1。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可访问性的了。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可访问性的的检查。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可访问性的基本检查。 (性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查键盘可访问性的基本检查。 (盘可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可维护性的设计。 (护性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可靠性的评估。 (靠性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查可访问性́的基本要求。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 检查UI-可访问性的基本要求。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 标识符是urn:可访问性的基本检查。 (可访问性)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not broaden a Han end boundary past lexical protections in 标识符是服务:可维护性的基本检查。 (可维护性)
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m61:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains the Han topic in a denial without granting affirmative evidence
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m67:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading 简介 only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading 个人简介 only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading 自我介绍 only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading 个人技能 only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading 个人能力 only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading profile only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading personal profile only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading my profile only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading personal summary only as a lexical delimiter
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrecognizes the conventional personal heading my summary only as a lexical delimiter
+[31m[1mAssertionError[22m: expected null to be 'AuroraForge' // Object.is equality[39m
+
+[32m- Expected:[39m
+"AuroraForge"
+
+[31m+ Received:[39m
+null
+
+[36m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m79:61[22m[39m
+    [90m 77|[39m   [35mfor[39m ([35mconst[39m prefix [35mof[39m [[32m""[39m[33m,[39m [32m"Overview\n- "[39m[33m,[39m [32m"* "[39m[33m,[39m [32m"• "[39m]) {
+    [90m 78|[39m     [35mconst[39m quote [33m=[39m [32m`[39m[36m${[39mprefix[36m}[39m[32m[39m[36m${[39mheading[36m}[39m[32m：AuroraForge。`[39m[33m;[39m
+    [90m 79|[39m     expect(findMaterialSkillEvidence(quote, "AuroraForge")).toBe("Auro…
+    [90m   |[39m                                                             [31m^[39m
+    [90m 80|[39m     expect(groundMaterialSkillTerms(quote, ["AuroraForge"])).toEqual([…
+    [90m 81|[39m     [34mexpectMention[39m(quote[33m,[39m [32m"AuroraForge"[39m[33m,[39m [32m"AuroraForge"[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in 团队简介:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in Team profile:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in 团队技能:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in 报告：简介:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in Report profile:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in Alice's profile:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in He wrote profile:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in 介绍：个人技能:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in Other:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in Read urn:AuroraForge
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in https://profile:AuroraForge/setup
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps team, attribution, report prefixes and partial names outside heading support in profile:AuroraForgeHelper
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m94:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves a complete namespace after a heading while rejecting its parts
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m100:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in I have no experience with WAI-ARIA.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in We never used QuartzFlux or RasterWax.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in SQL experience isn't required.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in I cannot currently use SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in I have never really used PostgreSQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in I do not yet know how to use PostgreSQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in I used neither SQL nor PostgreSQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in SQL and PostgreSQL are not prerequisites.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in Neither CaféFlux nor ΟΣ is required.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in No experience with Nova Flux or PostgreSQL is required.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in No experience with WAI-ARIA, Node.js, or PostgreSQL is required.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in SQL, CaféFlux, and PostgreSQL are not required.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in No experience with “SQL” or ‘PostgreSQL’ is required.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in No experience with “SQL or PostgreSQL” is required.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in 我没有使用过 PostgreSQL。
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in 岗位不要求有 SQL 经验。
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in 无需有PostgreSQL、SQL或WAI-ARIA经验。
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains topics under attached English and Chinese denials in SQL 和 PostgreSQL 经验并非必要。
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m126:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains a nominated topic in a denial list longer than the nomination limit
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m137:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps mention and affirmative selection distinct across clauses in SQL is required, but PostgreSQL is not necessary.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps mention and affirmative selection distinct across clauses in Neither SQL nor PostgreSQL was used, but I tried QuartzFlux.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps mention and affirmative selection distinct across clauses in 无需有 SQL 经验，但需要 PostgreSQL。
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps mention and affirmative selection distinct across clauses in I never used SQL, but I now use SQL.
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m148:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mnormalizes a denied reviewed equivalent only after literal nomination in I haven't cleaned data.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mnormalizes a denied reviewed equivalent only after literal nomination in 我尚未清洗数据。
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mnormalizes a denied reviewed equivalent only after literal nomination in I have never analyzed data.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mnormalizes a denied reviewed equivalent only after literal nomination in I haven't reviewed code.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mnormalizes a denied reviewed equivalent only after literal nomination in Component tests are not required.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mnormalizes a denied reviewed equivalent only after literal nomination in 我尚未接触增量加载。
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m161:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not mine un-nominated text or reverse-infer a different label
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m170:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not choose a source spelling across affirmative and denied phrases in I never used SQL, but I use sql.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not choose a source spelling across affirmative and denied phrases in I never used ＳＱＬ, but I use SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not choose a source spelling across affirmative and denied phrases in I never cleaned data, but I am cleaning data.
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m182:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mwithholds a canonical label when two nominated reviewed forms are ambiguous
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m188:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mretains repeated original spellings and a grammatical possessive
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m193:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mreturns whole original graphemes under NFKC, combining marks and ligatures
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m202:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in PostgreSQL (SQL)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in WAI-ARIA (ARIA)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in Node.js (Node)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in C++ (C)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in C# (C)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in .NET (NET)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in fancy_SQL (SQL)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in résuméTools (Tools)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in 𐐐Flux (Flux)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in Aﬃ (ff)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in ﬃ (f)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in Café (Cafe)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in Reactive (React)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in Rusty (Rust)
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mpreserves whole technical names, words and graphemes in Orion::Flux (Flux)
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m213:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22muses the same eight-nomination and 100 UTF-16-unit limits
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m221:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: not know SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: no SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: never used SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: without SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: cannot use SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: haven't used SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: 从未使用SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: 尚未使用SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: 未使用SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: 不会SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: 不懂SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: 不熟悉SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mrejects the negative label itself in both modes: 没有使用SQL
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m233:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in I do not react quickly.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in We never excel at explaining data.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in react
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in excel
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in I do not go to meetings.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in I did not receive a grade of C.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in I never used it for inventory.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in We never received clean transaction records.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in We never received cleaned transaction records.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in I never cleaned the data center racks.
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mdoes not remove homograph or cleaning-object checks together with denial checks in 我没有清洗数据库机房的冷却管道。
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMention tests/lib/materials/material-skill-mentions.test.ts:[2m10:36[22m[39m
+    [90m  8|[39m
+    [90m  9|[39m function expectMention(quote: string, label: string, expected: string …
+    [90m 10|[39m   [34mexpect[39m(findMaterialSkillMention)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 11|[39m   [34mexpect[39m([34mfindMaterialSkillMention[39m(quote[33m,[39m label))[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 12|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m248:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/123]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/material-skill-mentions.test.ts[2m > [22mkeeps other cleaning objects literal without promoting them to data cleaning
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m expectMentions tests/lib/materials/material-skill-mentions.test.ts:[2m15:39[22m[39m
+    [90m 13|[39m
+    [90m 14|[39m function expectMentions(quote: string, terms: readonly string[], expec…
+    [90m 15|[39m   [34mexpect[39m(groundMaterialSkillMentions)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 16|[39m   [34mexpect[39m([34mgroundMaterialSkillMentions[39m(quote[33m,[39m terms))[33m.[39m[34mtoEqual[39m(expected)[33m;[39m
+    [90m 17|[39m }
+[90m [2m❯[22m tests/lib/materials/material-skill-mentions.test.ts:[2m254:3[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/123]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m123 failed[39m[22m[90m (123)[39m
+[2m   Start at [22m 17:16:19
+[2m   Duration [22m 1.52s[2m (transform 81ms, setup 216ms, import 150ms, tests 58ms, environment 728ms)[22m
+

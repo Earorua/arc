@@ -22,7 +22,7 @@
 
 **Files:** 修改 `app/lib/materials/grounded-skill-terms.ts`；新增 `tests/lib/materials/material-skill-mentions.test.ts`，必要时在现有 `tests/lib/materials/grounded-skill-terms.test.ts` 补充肯定边界测试。此次不改消费者、公开契约、模型配置或冻结评分器。
 
-- [ ] 先加入调用新增导出接口的红例并记录失败。接口为：
+- [x] 先加入调用新增导出接口的红例并记录失败。接口为：
 
 ```typescript
 export function findMaterialSkillMention(text: string, label: string): string | null;
@@ -40,28 +40,28 @@ expect(groundMaterialSkillTerms(quote, [term])).toEqual([]);
 expect(findMaterialSkillEvidence(quote, term)).toBeNull();
 ```
 
-- [ ] 在同一matcher内以内部模式或明确策略分开否定保护与共同的语法／词法保护；禁止复制整份matcher。两种模式都保留完整字素、英语词边界、完整技术名、namespace、唯一原文拼写、已审等价词和词数／长度限制。`find*`允许已审等价词定位；`ground*`必须先定位实际提名词，再规范化，不允许提名正文没有的规范词来反推。
-- [ ] 新mention模式仅跳过附着的否定前后缀／否定列表判定；不把“not know X”或“不会X”作为技能标签，完整否定保留在事实中。React/Excel动词歧义、IT代词、Go/R/C语言语境、清洗活动对象限制仍沿用。原肯定接口的否定行为不变。
-- [ ] 在已有完整字素／端点校验下，补充中文名词性尾“性”与紧随结构助词“的”的词尾规则。应要求多字汉字词、最后的“性”以及“的”后的实际名词成分，继续校验词首；用可访问性、可维护性、可靠性等异名与技术名／非名词反例验证，不针对单个课程词开特例。若证据不支持这条形态规则，应先报告具体反例再调整设计，不全局放开中文内部边界。
-- [ ] 常规个人标题支持与已有来源核对一致的 `简介／个人简介／自我介绍／个人技能／个人能力／profile／personal profile／my profile／personal summary／my summary`；只在行首或既有列表标记后识别。保留已有JD标题，拒绝团队归属、报告前缀、URI、任意namespace以及名称内部截断。
-- [ ] 测试三条实际句子、其他中英文否定列表／等价词／混合肯否定句、没有提名不加词、大小写不同来源歧义、NFKC／组合字素／ligature、长词与8词上限；复跑全部既有grounded matcher测试，旧否定断言不得改成通过。
+- [x] 在同一matcher内以内部模式或明确策略分开否定保护与共同的语法／词法保护；禁止复制整份matcher。两种模式都保留完整字素、英语词边界、完整技术名、namespace、唯一原文拼写、已审等价词和词数／长度限制。`find*`允许已审等价词定位；`ground*`必须先定位实际提名词，再规范化，不允许提名正文没有的规范词来反推。
+- [x] 新mention模式仅跳过附着的否定前后缀／否定列表判定；不把“not know X”或“不会X”作为技能标签，完整否定保留在事实中。React/Excel动词歧义、IT代词、Go/R/C语言语境、清洗活动对象限制仍沿用。原肯定接口的否定行为不变。
+- [x] 在已有完整字素／端点校验下，补充中文名词性尾“性”与紧随结构助词“的”的词尾规则。应要求多字汉字词、最后的“性”以及“的”后的实际名词成分，继续校验词首；用可访问性、可维护性、可靠性等异名与技术名／非名词反例验证，不针对单个课程词开特例。若证据不支持这条形态规则，应先报告具体反例再调整设计，不全局放开中文内部边界。
+- [x] 常规个人标题支持与已有来源核对一致的 `简介／个人简介／自我介绍／个人技能／个人能力／profile／personal profile／my profile／personal summary／my summary`；只在行首或既有列表标记后识别。保留已有JD标题，拒绝团队归属、报告前缀、URI、任意namespace以及名称内部截断。
+- [x] 测试三条实际句子、其他中英文否定列表／等价词／混合肯否定句、没有提名不加词、大小写不同来源歧义、NFKC／组合字素／ligature、长词与8词上限；复跑全部既有grounded matcher测试，旧否定断言不得改成通过。
 
 ```powershell
 node work/grounded-verification/run.mjs mention-boundary-author-20261108-red node_modules/vitest/vitest.mjs run --maxWorkers=1 tests/lib/materials/material-skill-mentions.test.ts
 node work/grounded-verification/run.mjs mention-boundary-author-20261108-green node_modules/vitest/vitest.mjs run --maxWorkers=1 tests/lib/materials/material-skill-mentions.test.ts tests/lib/materials/grounded-skill-terms.test.ts
 ```
 
-- [ ] 先完成独立规格审查，再完成独立质量审查；修复审阅发现后重新复核。作者只改授权文件与自己的ignored work探针，根任务统一提交。
+- [x] 先完成独立规格审查，再完成独立质量审查；修复审阅发现后重新复核。作者只改授权文件与自己的ignored work探针，根任务统一提交。
 
 ## Task 2：调用边界与运行时验证
 
 **Files:** 在 `work/grounded-verification/` 新建带 `mention-boundary-20261108` 前缀的只读验证脚本及结果，最终按原字节归档到新的证据目录；不修改旧原生脚本或结果。
 
-- [ ] 根任务复跑两组库测试与现有文档提取／审阅专项。新接口尚未接入生产，因此此次只证明词法能力可用，完整投影三个缺口仍作为下一批待办。
-- [ ] 使用本地workerd和相同导入代码执行中英文、字素与namespace对照；Node和workerd观察结果逐值一致。探针结果与包装器日志使用不同文件名，不覆盖旧记录。
-- [ ] 按本次文件范围完成类型、Lint检查；若抽取新共享文件，核验执行器本地打包可包含它。无源码／契约变化时不重复上批全仓构建，集成采用层后再完成完整回归。
-- [ ] 确认原课程、语料、候选参考、计分器和已有肯定接口消费者未被改写。当前旧课程依赖绑定已因上批planning契约而失配，继续如实记录，不在本批重置。
-- [ ] 本地保存源码、红绿日志、两阶段审查、运行时对照和恢复入口，继续下一批“逐词肯定证据采用＋生产调用方切换”的离线实施；不推送、不部署、不远程迁移、不调用真实模型。
+- [x] 根任务复跑两组库测试与现有文档提取／审阅专项。新接口尚未接入生产，因此本批不签收完整采用链路。两个词法问题已用真实解码／投影观察验证；否定任务的生产保留与安全采用仍是下一批待办。
+- [x] 使用本地workerd和相同导入代码执行中英文、字素与namespace对照；Node和workerd观察结果逐值一致。探针结果与包装器日志使用不同文件名，不覆盖旧记录。
+- [x] 按本次文件范围完成类型、Lint检查；若抽取新共享文件，核验执行器本地打包可包含它。无源码／契约变化时不重复上批全仓构建，集成采用层后再完成完整回归。
+- [x] 确认原课程、语料、候选参考、计分器和已有肯定接口消费者未被改写。当前旧课程依赖绑定已因上批planning契约而失配，继续如实记录，不在本批重置。
+- [x] 本地保存源码、红绿日志、两阶段审查、运行时对照和恢复入口，继续下一批“逐词肯定证据采用＋生产调用方切换”的离线实施；不推送、不部署、不远程迁移、不调用真实模型。
 
 ## 后续集成必须满足的验收条件
 

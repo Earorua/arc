@@ -1,0 +1,54 @@
+$ErrorActionPreference = 'Stop'
+$archive = 'docs/verification/materials-source-mention-boundary'
+if (Test-Path -LiteralPath $archive) { throw 'Refuse to overwrite an evidence directory' }
+$snapshotPath = 'work/grounded-verification/mention-boundary-integrity-20261108-results.json'
+$snapshot = Get-Content -LiteralPath $snapshotPath -Raw | ConvertFrom-Json
+foreach ($file in $snapshot.filesSha256.PSObject.Properties) {
+  if ((Get-FileHash -LiteralPath $file.Name -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.Value) { throw "Source changed: $($file.Name)" }
+}
+$runNames = @('mention-boundary-author-20261108-green-1', 'mention-boundary-author-20261108-lint', 'mention-boundary-author-20261108-types',
+  'mention-boundary-root-focused-20261108-a', 'mention-boundary-root-native-20261108-a', 'mention-boundary-root-projection-20261108-b',
+  'mention-boundary-spec-20261108-focused-01', 'mention-boundary-spec-20261108-probes-run-01', 'mention-boundary-quality-20261108-focused-02')
+$checks = @()
+foreach ($name in $runNames) {
+  $run = Get-Content -LiteralPath "work/grounded-verification/$name.json" -Raw | ConvertFrom-Json
+  if ($run.exit -ne 0 -or $run.nonLoopbackDenials -ne 0) { throw "Final check not passing: $name" }
+  if ((Get-FileHash -LiteralPath "work/grounded-verification/$name.log" -Algorithm SHA256).Hash.ToLowerInvariant() -ne $run.logSha256) { throw "Run log differs: $name" }
+  $checks += $run
+}
+$pause = Get-Content -LiteralPath 'docs/verification/materials-context-only-adoption-pause/pause-manifest.json' -Raw | ConvertFrom-Json
+$guards = @('work/grounded-verification/run.mjs', 'work/materials-browser-handoff/block-outbound.cjs')
+foreach ($guard in $guards) {
+  $entry = $pause.archivedFiles | Where-Object { $_.originalPath -eq $guard }
+  if (-not $entry -or (Get-FileHash -LiteralPath $guard -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.sha256) { throw "Unmatched guard: $guard" }
+}
+New-Item -ItemType Directory -Path $archive | Out-Null
+$files = @(rg --files work/grounded-verification -g 'mention-boundary-*' -g 'mention-adoption-investigation-20261108-*') + $guards + @('work/grounded-verification/archive-mention-boundary-20261108.ps1')
+$records = @()
+foreach ($path in ($files | Sort-Object -Unique)) {
+  $name = Split-Path -Leaf $path
+  if ($name -match '\.(ts|tsx|mjs|cjs|ps1)$') { $name += '.source.txt' }
+  elseif ($name -match '\.log$') { $name += '.txt' }
+  $destination = Join-Path $archive $name
+  if (Test-Path -LiteralPath $destination) { throw "Archive collision: $name" }
+  Copy-Item -LiteralPath $path -Destination $destination
+  $digest = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+  if ((Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash.ToLowerInvariant() -ne $digest) { throw "Copy differs: $name" }
+  $records += [ordered]@{ originalPath = $path.Replace('\', '/'); archivePath = $name; bytes = (Get-Item -LiteralPath $path).Length; sha256 = $digest }
+}
+$packet = [ordered]@{
+  schemaVersion = 1
+  status = 'source-mention-library-offline-verified-not-production-wiring'
+  sourceCommit = (git rev-parse HEAD).Trim()
+  sourceFileCount = $snapshot.sourceFileCount
+  sourceManifest = 'mention-boundary-integrity-20261108-results.json'
+  checks = $checks
+  outcomes = [ordered]@{ authorTests = 313; rootFocusedTests = 1052; nativeParityCases = 34; decoderProjectionObservations = 3; specFocusedTests = 313; specIndependentTests = 81; qualityTests = 357; qualityIndependentTests = 44; sourceChecksAndReferences = '995 source hashes; 26 frozen files unchanged; 85 course dependencies retain only the preexisting planning contract drift' }
+  reviews = @('mention-boundary-spec-20261108-memo.md', 'mention-boundary-quality-20261108-memo.md')
+  diagnosis = [ordered]@{ memo = 'mention-adoption-investigation-20261108-memo.md'; observations = 36; result = 'current downstream defects and controls characterized, not repaired'; wrapper = 'mention-adoption-investigation-20261108-run-02.json' }
+  limits = @('New mention APIs not wired into consumers; negative source task still filtered', 'No full repository rerun after this library patch; previous full run belongs to 5345317', 'No-Segmenter fallback retains documented preexisting CJK/grapheme limitations', 'Old reviewed course binding remains unapproved for current source', 'No Gate, model quality, full 14-case product or release approval', 'Aborted root projection run has no final wrapper metadata; do not count it as passing', 'Some intermediate probe source versions were not retained; original logs/results remain intact')
+  operations = [ordered]@{ realModelCalls = 0; newCostUsd = 0; deployments = 0; remoteMigrations = 0; githubPushes = 0; goalStatus = 'active' }
+  archivedFiles = $records
+}
+[IO.File]::WriteAllText((Join-Path (Get-Location).Path "$archive/verification.json"), ($packet | ConvertTo-Json -Depth 9) + "`n", [Text.UTF8Encoding]::new($false))
+[PSCustomObject]@{ sourceCommit=$packet.sourceCommit; archivedFiles=$records.Count; sourceFiles=$snapshot.sourceFileCount; manifestSha256=(Get-FileHash -LiteralPath "$archive/verification.json" -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json

@@ -1,0 +1,12 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [32m✓[39m work/grounded-verification/mention-boundary-quality-20261108-probes.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 189[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/grounded-skill-terms.test.ts [2m([22m[2m190 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/material-skill-mentions.test.ts [2m([22m[2m123 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m357 passed[39m[22m[90m (357)[39m
+[2m   Start at [22m 17:28:33
+[2m   Duration [22m 1.12s[2m (transform 99ms, setup 0ms, import 378ms, tests 318ms, environment 0ms)[22m
+

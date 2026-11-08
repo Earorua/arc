@@ -1,0 +1,243 @@
+{
+  "status": "current-decoder-projection-observation",
+  "observations": [
+    {
+      "id": "jd-02-field-2",
+      "wire": {
+        "format": "source-spans-v2",
+        "items": [
+          {
+            "kind": "requirement",
+            "source": {
+              "segmentId": "section",
+              "quote": "必须掌握键盘可访问性的基本检查。"
+            },
+            "requirementLevel": "must",
+            "skillTerms": [
+              "键盘可访问性"
+            ],
+            "selfLevelHint": null
+          }
+        ],
+        "reviewPoints": []
+      },
+      "canonical": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "requirement",
+            "text": "必须掌握键盘可访问性的基本检查。",
+            "requirementLevel": "must",
+            "skillLabels": [
+              "键盘可访问性"
+            ],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "section",
+              "quote": "必须掌握键盘可访问性的基本检查。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "projected": {
+        "reviewProjection": "grounded-skill-labels-v2",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "requirement",
+            "text": "必须掌握键盘可访问性的基本检查。",
+            "origin": "extracted",
+            "sourceRef": {
+              "documentId": "synthetic-doc",
+              "documentVersionId": "synthetic-version",
+              "textVersionId": "synthetic-text",
+              "start": 0,
+              "end": 16
+            },
+            "requirementLevel": "must",
+            "skillLabels": [
+              "键盘可访问性"
+            ]
+          }
+        ],
+        "selfAssessmentHints": [],
+        "reviewPoints": []
+      }
+    },
+    {
+      "id": "resume-11-field-3",
+      "wire": {
+        "format": "source-spans-v2",
+        "items": [
+          {
+            "kind": "skill-claim",
+            "source": {
+              "segmentId": "section",
+              "quote": "I cannot yet configure a Kubernetes cluster myself."
+            },
+            "requirementLevel": null,
+            "skillTerms": [
+              "configure a Kubernetes cluster"
+            ],
+            "selfLevelHint": null
+          }
+        ],
+        "reviewPoints": []
+      },
+      "canonical": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "skill-claim",
+            "text": "I cannot yet configure a Kubernetes cluster myself.",
+            "requirementLevel": null,
+            "skillLabels": [],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "section",
+              "quote": "I cannot yet configure a Kubernetes cluster myself."
+            }
+          }
+        ],
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "section",
+              "quote": "I cannot yet configure a Kubernetes cluster myself."
+            }
+          }
+        ]
+      },
+      "projected": {
+        "reviewProjection": "grounded-skill-labels-v2",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "skill-claim",
+            "text": "I cannot yet configure a Kubernetes cluster myself.",
+            "origin": "extracted",
+            "sourceRef": {
+              "documentId": "synthetic-doc",
+              "documentVersionId": "synthetic-version",
+              "textVersionId": "synthetic-text",
+              "start": 0,
+              "end": 51
+            },
+            "requirementLevel": null,
+            "skillLabels": []
+          }
+        ],
+        "selfAssessmentHints": [],
+        "reviewPoints": [
+          {
+            "id": "review-point-894e2eb235bcb4f80940a076b85c085c",
+            "code": "confirm-self-assessment",
+            "sourceRef": {
+              "documentId": "synthetic-doc",
+              "documentVersionId": "synthetic-version",
+              "textVersionId": "synthetic-text",
+              "start": 0,
+              "end": 51
+            },
+            "resolution": "unresolved"
+          }
+        ]
+      }
+    },
+    {
+      "id": "resume-12-field-1",
+      "wire": {
+        "format": "source-spans-v2",
+        "items": [
+          {
+            "kind": "skill-claim",
+            "source": {
+              "segmentId": "section",
+              "quote": "简介：熟悉 SQL，可独立完成报表。"
+            },
+            "requirementLevel": null,
+            "skillTerms": [
+              "熟悉 SQL，可独立完成报表"
+            ],
+            "selfLevelHint": null
+          }
+        ],
+        "reviewPoints": []
+      },
+      "canonical": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "skill-claim",
+            "text": "简介：熟悉 SQL，可独立完成报表。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "熟悉 SQL，可独立完成报表"
+            ],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "section",
+              "quote": "简介：熟悉 SQL，可独立完成报表。"
+            }
+          }
+        ],
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "section",
+              "quote": "简介：熟悉 SQL，可独立完成报表。"
+            }
+          }
+        ]
+      },
+      "projected": {
+        "reviewProjection": "grounded-skill-labels-v2",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "skill-claim",
+            "text": "简介：熟悉 SQL，可独立完成报表。",
+            "origin": "extracted",
+            "sourceRef": {
+              "documentId": "synthetic-doc",
+              "documentVersionId": "synthetic-version",
+              "textVersionId": "synthetic-text",
+              "start": 0,
+              "end": 18
+            },
+            "requirementLevel": null,
+            "skillLabels": [
+              "熟悉 SQL，可独立完成报表"
+            ]
+          }
+        ],
+        "selfAssessmentHints": [],
+        "reviewPoints": [
+          {
+            "id": "review-point-d26035ff3eb16fb56ffdc2ebcd8aa451",
+            "code": "confirm-self-assessment",
+            "sourceRef": {
+              "documentId": "synthetic-doc",
+              "documentVersionId": "synthetic-version",
+              "textVersionId": "synthetic-text",
+              "start": 0,
+              "end": 18
+            },
+            "resolution": "unresolved"
+          }
+        ]
+      }
+    }
+  ],
+  "source": "synthetic-wire-fixtures",
+  "realModelCalls": 0,
+  "productionConsumerSwitch": false,
+  "userConfirmationExecuted": false,
+  "actualPlanningIntegrationVerified": false
+}

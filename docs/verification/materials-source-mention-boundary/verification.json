@@ -1,0 +1,475 @@
+{
+  "schemaVersion": 1,
+  "status": "source-mention-library-offline-verified-not-production-wiring",
+  "sourceCommit": "39dd86efa5f276c6120e14f8408bde9ad2414caf",
+  "sourceFileCount": 995,
+  "sourceManifest": "mention-boundary-integrity-20261108-results.json",
+  "checks": [
+    {
+      "name": "mention-boundary-author-20261108-green-1",
+      "exit": 0,
+      "elapsedMs": 2821,
+      "logSha256": "a3509633bf64d3efa264911574362eae6696a52c4a624458ab230789f1bcc264",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-bN6dlz"
+    },
+    {
+      "name": "mention-boundary-author-20261108-lint",
+      "exit": 0,
+      "elapsedMs": 5443,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-WtR2lK"
+    },
+    {
+      "name": "mention-boundary-author-20261108-types",
+      "exit": 0,
+      "elapsedMs": 1443,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-4xgEx2"
+    },
+    {
+      "name": "mention-boundary-root-focused-20261108-a",
+      "exit": 0,
+      "elapsedMs": 6114,
+      "logSha256": "3f1b6a13a94413d0deb977d2bb871c20231e59c9396a651a7fd7de7ff35296e8",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-FLbfYx"
+    },
+    {
+      "name": "mention-boundary-root-native-20261108-a",
+      "exit": 0,
+      "elapsedMs": 781,
+      "logSha256": "b37a0d0b5062abb1fcc6d963b38fdaac36846c6fe863a7413f19c4aef12b1392",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-GWbtdq"
+    },
+    {
+      "name": "mention-boundary-root-projection-20261108-b",
+      "exit": 0,
+      "elapsedMs": 1003,
+      "logSha256": "b8f080f2d4e46043b15691d8e3e9b8fab75f33b96f1fb21aa59dc27151c564da",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Aakxnx"
+    },
+    {
+      "name": "mention-boundary-spec-20261108-focused-01",
+      "exit": 0,
+      "elapsedMs": 939,
+      "logSha256": "b44a59b4ded07e104812b989aae5c56d67435812be419f4e216dd3a77e9984ad",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-FPVbQR"
+    },
+    {
+      "name": "mention-boundary-spec-20261108-probes-run-01",
+      "exit": 0,
+      "elapsedMs": 747,
+      "logSha256": "5e311c4970074e16620ad70aaead369498abc1f355fb18001366790c07bd47a0",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-T5USZD"
+    },
+    {
+      "name": "mention-boundary-quality-20261108-focused-02",
+      "exit": 0,
+      "elapsedMs": 1464,
+      "logSha256": "aaa46d46075de89e5c3300fbef605b8af44c83589e2f400e6358640e7f133367",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-BnLmuC"
+    }
+  ],
+  "outcomes": {
+    "authorTests": 313,
+    "rootFocusedTests": 1052,
+    "nativeParityCases": 34,
+    "decoderProjectionObservations": 3,
+    "specFocusedTests": 313,
+    "specIndependentTests": 81,
+    "qualityTests": 357,
+    "qualityIndependentTests": 44,
+    "sourceChecksAndReferences": "995 source hashes; 26 frozen files unchanged; 85 course dependencies retain only the preexisting planning contract drift"
+  },
+  "reviews": [
+    "mention-boundary-spec-20261108-memo.md",
+    "mention-boundary-quality-20261108-memo.md"
+  ],
+  "diagnosis": {
+    "memo": "mention-adoption-investigation-20261108-memo.md",
+    "observations": 36,
+    "result": "current downstream defects and controls characterized, not repaired",
+    "wrapper": "mention-adoption-investigation-20261108-run-02.json"
+  },
+  "limits": [
+    "New mention APIs not wired into consumers; negative source task still filtered",
+    "No full repository rerun after this library patch; previous full run belongs to 5345317",
+    "No-Segmenter fallback retains documented preexisting CJK/grapheme limitations",
+    "Old reviewed course binding remains unapproved for current source",
+    "No Gate, model quality, full 14-case product or release approval",
+    "Aborted root projection run has no final wrapper metadata; do not count it as passing",
+    "Some intermediate probe source versions were not retained; original logs/results remain intact"
+  ],
+  "operations": {
+    "realModelCalls": 0,
+    "newCostUsd": 0,
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "githubPushes": 0,
+    "goalStatus": "active"
+  },
+  "archivedFiles": [
+    {
+      "originalPath": "work/grounded-verification/archive-mention-boundary-20261108.ps1",
+      "archivePath": "archive-mention-boundary-20261108.ps1.source.txt",
+      "bytes": 5176,
+      "sha256": "8e370617058aeddf0a6467468953bd0813193c9cf25073dd58c9262ce1dfb8db"
+    },
+    {
+      "originalPath": "work/grounded-verification/run.mjs",
+      "archivePath": "run.mjs.source.txt",
+      "bytes": 2497,
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-memo.md",
+      "archivePath": "mention-adoption-investigation-20261108-memo.md",
+      "bytes": 22170,
+      "sha256": "fe2f5d8c9430a255df70c0bffb6ebbe9d85caf5844fa344da6e184b62c78cdbd"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-observations-02.json",
+      "archivePath": "mention-adoption-investigation-20261108-observations-02.json",
+      "bytes": 45295,
+      "sha256": "c354987c0af777cb01c86f18b8329a5f5da459e8d6018de982e6f7db5b3cc84d"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-observations.json",
+      "archivePath": "mention-adoption-investigation-20261108-observations.json",
+      "bytes": 45295,
+      "sha256": "c354987c0af777cb01c86f18b8329a5f5da459e8d6018de982e6f7db5b3cc84d"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-probes.test.ts",
+      "archivePath": "mention-adoption-investigation-20261108-probes.test.ts.source.txt",
+      "bytes": 15555,
+      "sha256": "091b822f786841f9a26269d7f1811bac4037d3deaee1b322d5fd9dffaa153030"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-run-01.json",
+      "archivePath": "mention-adoption-investigation-20261108-run-01.json",
+      "bytes": 286,
+      "sha256": "f02edcd0e1a37eb2a2be22616bd95553e29d14171ad06d7230049352a9f71499"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-run-01.log",
+      "archivePath": "mention-adoption-investigation-20261108-run-01.log.txt",
+      "bytes": 1620,
+      "sha256": "0d83dcc2bdfab97327130753d45cc937fc58193ce191e359216bd0d294e5a9ae"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-run-02.json",
+      "archivePath": "mention-adoption-investigation-20261108-run-02.json",
+      "bytes": 286,
+      "sha256": "e390ba7b2d80094e836beb769b58b7ce9901c00d4f7e71cd64e91f7bec7281e0"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-run-02.log",
+      "archivePath": "mention-adoption-investigation-20261108-run-02.log.txt",
+      "bytes": 1620,
+      "sha256": "d729f5548d371dc784c87b4f7ae61ac304fd3a94dd5c9ec9fe58b4ffe25f9298"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-adoption-investigation-20261108-vitest.config.ts",
+      "archivePath": "mention-adoption-investigation-20261108-vitest.config.ts.source.txt",
+      "bytes": 269,
+      "sha256": "63faeac1d1e7c35a8c043f06f018da6c3673bcebc516245897af27446bba9fac"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-evidence.md",
+      "archivePath": "mention-boundary-author-20261108-evidence.md",
+      "bytes": 4867,
+      "sha256": "b76742bf74e2aed3b56f6e46bc37bfdfd0e3faa5fd34f06a8d6063a7e0ee53a6"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-green-1.json",
+      "archivePath": "mention-boundary-author-20261108-green-1.json",
+      "bytes": 280,
+      "sha256": "af2d6a36fa53d9ea7151a5ae63ee4e0fcfe4c9ef95613f53293761786665fd79"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-green-1.log",
+      "archivePath": "mention-boundary-author-20261108-green-1.log.txt",
+      "bytes": 673,
+      "sha256": "a3509633bf64d3efa264911574362eae6696a52c4a624458ab230789f1bcc264"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-lint.json",
+      "archivePath": "mention-boundary-author-20261108-lint.json",
+      "bytes": 277,
+      "sha256": "65e098386d14018515cefc880e16333e651a1b0a897ba1ec6d983ef617b29c1b"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-lint.log",
+      "archivePath": "mention-boundary-author-20261108-lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-red.json",
+      "archivePath": "mention-boundary-author-20261108-red.json",
+      "bytes": 276,
+      "sha256": "17feade273c642ba970d6eb0391249ebd5f363f2def65f950f9b367735dac883"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-red.log",
+      "archivePath": "mention-boundary-author-20261108-red.log.txt",
+      "bytes": 64144,
+      "sha256": "c9a49c5b90524a0ca27eb0abc9b8b7b8557f438af911e2c26f4b202b04544ffc"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-segmentation-run.json",
+      "archivePath": "mention-boundary-author-20261108-segmentation-run.json",
+      "bytes": 287,
+      "sha256": "572f0a9477045f4494520178aa22120d24cd64c77d43dd9c8ce8676689b93044"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-segmentation-run.log",
+      "archivePath": "mention-boundary-author-20261108-segmentation-run.log.txt",
+      "bytes": 6712,
+      "sha256": "235cb49e71e745f4f81e1c22458dfa0b71a9e04b478410890cf6550148727761"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-segmentation.mjs",
+      "archivePath": "mention-boundary-author-20261108-segmentation.mjs.source.txt",
+      "bytes": 890,
+      "sha256": "ecd41f2164506e50da9096e31aad55da7825af70f4f46ccfd58f701907df5b17"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-tsconfig.json",
+      "archivePath": "mention-boundary-author-20261108-tsconfig.json",
+      "bytes": 403,
+      "sha256": "4fa6f8ad0562f0b7ff7bfa0e9052fa2ba4d5d32929072708680a6ecf6cb10c2a"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-types.json",
+      "archivePath": "mention-boundary-author-20261108-types.json",
+      "bytes": 278,
+      "sha256": "11d8df1bb6acc126684c3723e05728d0169b3420143702304df60dde6163a3a1"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-author-20261108-types.log",
+      "archivePath": "mention-boundary-author-20261108-types.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-course-dependencies-20261108-results.json",
+      "archivePath": "mention-boundary-course-dependencies-20261108-results.json",
+      "bytes": 440,
+      "sha256": "24a7aa84ed362d29fc548a522b42163092f44f57f510648f5286ec5d9670b4db"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-integrity-20261108-results.json",
+      "archivePath": "mention-boundary-integrity-20261108-results.json",
+      "bytes": 119584,
+      "sha256": "3acb5da502507fd33fa4976c68c01036e7af7d399555228e614c85d6c0ba9c1b"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-integrity-20261108.ps1",
+      "archivePath": "mention-boundary-integrity-20261108.ps1.source.txt",
+      "bytes": 2800,
+      "sha256": "5bc13d0c0da0584573f2b9c573c8d0a44bd487aa83b12f0e4359aaead0a476b9"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-native-20261108-a-results.json",
+      "archivePath": "mention-boundary-native-20261108-a-results.json",
+      "bytes": 16760,
+      "sha256": "bf3425a3cc376870b0a995ce6936e332fc00f1121e74b7f2ff261b37f25056d7"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-native-20261108.mjs",
+      "archivePath": "mention-boundary-native-20261108.mjs.source.txt",
+      "bytes": 5733,
+      "sha256": "586fd179ff3a21487b83023488aee7b0cca359b9a8e06d8c2aa1eb3dbb72aa52"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-projection-20261108-focused.config.ts",
+      "archivePath": "mention-boundary-projection-20261108-focused.config.ts.source.txt",
+      "bytes": 259,
+      "sha256": "61918500084bf6e99ab8975c1c44b833fe3d4468d6187f18aaef45db850d6a46"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-projection-20261108-results.json",
+      "archivePath": "mention-boundary-projection-20261108-results.json",
+      "bytes": 7100,
+      "sha256": "26cbb867dcf84ff318437c58e443c76a55827979b4bf53636e78dba640a3ff9b"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-projection-20261108-run-note.md",
+      "archivePath": "mention-boundary-projection-20261108-run-note.md",
+      "bytes": 1513,
+      "sha256": "b5d1f7a51efe4e910fbdbfd020064c26ff5d1b1139d8ec75156b8f89b1032f14"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-projection-20261108.config.ts",
+      "archivePath": "mention-boundary-projection-20261108.config.ts.source.txt",
+      "bytes": 240,
+      "sha256": "e43f9b9b366ce8fc1593bbe1c6d78c7ed91127fe7a51454d1bf2378ec1708ba2"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-projection-20261108.test.ts",
+      "archivePath": "mention-boundary-projection-20261108.test.ts.source.txt",
+      "bytes": 2907,
+      "sha256": "d372c8c987ed15369f9d6d0f617becfc6e961a654d48b3f2c888c7f4de82ffca"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-baseline.ts",
+      "archivePath": "mention-boundary-quality-20261108-baseline.ts.source.txt",
+      "bytes": 13832,
+      "sha256": "46ee5911aedcee20d8e8c91c98ffd8d3b120f901ce35933f9b705f5ee4cd4b6f"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-fallback-observations.json",
+      "archivePath": "mention-boundary-quality-20261108-fallback-observations.json",
+      "bytes": 510,
+      "sha256": "e231c8ec13c50395683cc92f725064f70e325497b7f6805c212e36cf61d57289"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-focused-01.json",
+      "archivePath": "mention-boundary-quality-20261108-focused-01.json",
+      "bytes": 284,
+      "sha256": "ce4d458b27032b246ad8dca03336110638f02e86819b779791cbfdc2968de9fb"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-focused-01.log",
+      "archivePath": "mention-boundary-quality-20261108-focused-01.log.txt",
+      "bytes": 6980,
+      "sha256": "e0923745c8e25f0cfa25c951109ae57154354614cc6ac923b5b1b6e126f52646"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-focused-02.json",
+      "archivePath": "mention-boundary-quality-20261108-focused-02.json",
+      "bytes": 284,
+      "sha256": "2a0b4a0fb83278cfefea25c83c352b1ebbe1cef62b65f5564f33ed74ecd3dc80"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-focused-02.log",
+      "archivePath": "mention-boundary-quality-20261108-focused-02.log.txt",
+      "bytes": 823,
+      "sha256": "aaa46d46075de89e5c3300fbef605b8af44c83589e2f400e6358640e7f133367"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-memo.md",
+      "archivePath": "mention-boundary-quality-20261108-memo.md",
+      "bytes": 12256,
+      "sha256": "6b4905eeb688e583b3b2416ea6025a9fe3526a02929916d3a8e22609130d6500"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-probes.config.ts",
+      "archivePath": "mention-boundary-quality-20261108-probes.config.ts.source.txt",
+      "bytes": 400,
+      "sha256": "bb18505c712a8401607475d54afd2c5ae1ad1ff80e39a4e0d608f08979463793"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-probes.test.ts",
+      "archivePath": "mention-boundary-quality-20261108-probes.test.ts.source.txt",
+      "bytes": 8098,
+      "sha256": "70a70be338a217d1799831587a5460c4e65c8e0aa7cdf921b644bfdf90f28356"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-quality-20261108-timing-observations.json",
+      "archivePath": "mention-boundary-quality-20261108-timing-observations.json",
+      "bytes": 1954,
+      "sha256": "c4da0d33770d136f8665a2ac2216e334d8e8d1190edde46b29c973d19f219fef"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-root-focused-20261108-a.json",
+      "archivePath": "mention-boundary-root-focused-20261108-a.json",
+      "bytes": 280,
+      "sha256": "7d7b9be3ea18dafdd647ce87b512cbc5ea4d0872ca09c3c37f6bbde765a2b175"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-root-focused-20261108-a.log",
+      "archivePath": "mention-boundary-root-focused-20261108-a.log.txt",
+      "bytes": 1863,
+      "sha256": "3f1b6a13a94413d0deb977d2bb871c20231e59c9396a651a7fd7de7ff35296e8"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-root-native-20261108-a.json",
+      "archivePath": "mention-boundary-root-native-20261108-a.json",
+      "bytes": 278,
+      "sha256": "7a7b3ebf4b73477e90dbcf9715aea5d301aefcb1d66a3974e9123555d276cb9d"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-root-native-20261108-a.log",
+      "archivePath": "mention-boundary-root-native-20261108-a.log.txt",
+      "bytes": 152,
+      "sha256": "b37a0d0b5062abb1fcc6d963b38fdaac36846c6fe863a7413f19c4aef12b1392"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-root-projection-20261108-a.log",
+      "archivePath": "mention-boundary-root-projection-20261108-a.log.txt",
+      "bytes": 11945,
+      "sha256": "704d36eb6e713454a8a6920140620f0adafc55cd044b04101e55715e8da7f853"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-root-projection-20261108-b.json",
+      "archivePath": "mention-boundary-root-projection-20261108-b.json",
+      "bytes": 283,
+      "sha256": "6409932cc31b21a43a4823a7a2d2b142b511a67eda99ab31c9691815afdad343"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-root-projection-20261108-b.log",
+      "archivePath": "mention-boundary-root-projection-20261108-b.log.txt",
+      "bytes": 558,
+      "sha256": "b8f080f2d4e46043b15691d8e3e9b8fab75f33b96f1fb21aa59dc27151c564da"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-spec-20261108-focused-01.json",
+      "archivePath": "mention-boundary-spec-20261108-focused-01.json",
+      "bytes": 280,
+      "sha256": "ea688ce47a542e169a28644cf932829c73cd301afb4d33860ca8ca80ebb77391"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-spec-20261108-focused-01.log",
+      "archivePath": "mention-boundary-spec-20261108-focused-01.log.txt",
+      "bytes": 672,
+      "sha256": "b44a59b4ded07e104812b989aae5c56d67435812be419f4e216dd3a77e9984ad"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-spec-20261108-memo.md",
+      "archivePath": "mention-boundary-spec-20261108-memo.md",
+      "bytes": 8225,
+      "sha256": "e7ac1870d10c590615bf807b9c93a08694a972c68c014a26eea0454d1282f153"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-spec-20261108-probes-01.config.ts",
+      "archivePath": "mention-boundary-spec-20261108-probes-01.config.ts.source.txt",
+      "bytes": 220,
+      "sha256": "0dc397c1f9694a6da5ce9673f29bd0b322bf9e4dcd4afcef8c0c86c22291a26e"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-spec-20261108-probes-01.test.ts",
+      "archivePath": "mention-boundary-spec-20261108-probes-01.test.ts.source.txt",
+      "bytes": 8248,
+      "sha256": "927e1fcc8c7ae3e87685f67c33b03615edd3733bc68a7f8d6b602098abead138"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-spec-20261108-probes-run-01.json",
+      "archivePath": "mention-boundary-spec-20261108-probes-run-01.json",
+      "bytes": 283,
+      "sha256": "c3d81a0fc7b4bd4874175537eb0a514094427f5317b6c041e5c376ef4e90bcac"
+    },
+    {
+      "originalPath": "work/grounded-verification/mention-boundary-spec-20261108-probes-run-01.log",
+      "archivePath": "mention-boundary-spec-20261108-probes-run-01.log.txt",
+      "bytes": 562,
+      "sha256": "5e311c4970074e16620ad70aaead369498abc1f355fb18001366790c07bd47a0"
+    },
+    {
+      "originalPath": "work/materials-browser-handoff/block-outbound.cjs",
+      "archivePath": "block-outbound.cjs.source.txt",
+      "bytes": 1134,
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    }
+  ]
+}

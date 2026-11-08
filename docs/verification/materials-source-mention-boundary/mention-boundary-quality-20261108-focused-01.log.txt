@@ -1,0 +1,67 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [32m✓[39m tests/lib/materials/material-skill-mentions.test.ts [2m([22m[2m123 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/grounded-skill-terms.test.ts [2m([22m[2m190 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [31m❯[39m work/grounded-verification/mention-boundary-quality-20261108-probes.test.ts [2m([22m[2m44 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 93[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: OrbitInk[32m 16[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: CaféFlux[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: ΟΣ[32m 5[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: SQL[32m 3[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: React[32m 4[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: react[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: Excel[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: excel[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: Go[32m 4[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: R[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: C[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: IT[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: it[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: WAI-ARIA[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: .NET[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: Node.js[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: Ｃ＋＋[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: cleaned data[32m 2[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: cleaned warehouse hardware[32m 2[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: analyzed data[32m 3[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: unit tests[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: 增量加载[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: 财务建模[32m 1[2mms[22m[39m
+   [32m✓[39m preserves base affirmative behavior for independent surrounding frames: 组件测试[32m 1[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: 个人能力：没有掌握键盘可访问性的基本检查。[32m 1[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Profile:No experience with OrbitInk.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: My summary:OrbitInk is not required.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: • PERSONAL PROFILE:OrbitInk.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Prior record
+  - 自我介绍：OrbitInk。[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Profile:OrbitInḱ.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Profile:OrbitInk‍.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: 个人简介：可访问性️的基本说明。[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Profile:OrbitInk::Cache.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Profile:OrbitInk::Cache.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Profile:OrbitInk::Cache.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: My summary:No experience with Go.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: My summary:I do not go to meetings.[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: 个人简介：清洗数据库机房的冷却管道。[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: 个人简介：没有清洗交易记录。[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Profile:not know OrbitInk[32m 0[2mms[22m[39m
+   [32m✓[39m combines the new delimiters with unchanged safeguards: Profile:cleaned data; never cleaning data.[32m 0[2mms[22m[39m
+   [32m✓[39m keeps literal nomination, caps, and input immutability together[32m 0[2mms[22m[39m
+   [32m✓[39m retains baseline behavior when Intl.Segmenter is absent and records its existing limits[32m 32[2mms[22m[39m
+[31m   [31m×[31m records bounded workload timing without a fragile speed assertion[39m[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/mention-boundary-quality-20261108-probes.test.ts[2m > [22mrecords bounded workload timing without a fragile speed assertion
+[31m[1mAssertionError[22m: expected 1040 to be less than or equal to 1000[39m
+[36m [2m❯[22m work/grounded-verification/mention-boundary-quality-20261108-probes.test.ts:[2m114:35[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m356 passed[39m[22m[90m (357)[39m
+[2m   Start at [22m 17:28:03
+[2m   Duration [22m 1.01s[2m (transform 101ms, setup 0ms, import 372ms, tests 215ms, environment 0ms)[22m
+

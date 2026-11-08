@@ -1,0 +1,12 @@
+{
+  "dependencyCount": 85,
+  "changed": [
+    {
+      "path": "app/contracts/planning.ts",
+      "original": "053972ea8b36f6baef224efa41fbf593153e2dff1271e404cc403851fc2a8fa5",
+      "current": "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93"
+    }
+  ],
+  "newReferenceApproved": false,
+  "observation": "Same pre-existing planning contract dependency change; no additional closure drift from matcher repair"
+}

@@ -1,0 +1,3 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+export default defineConfig({ ...base, test: { ...base.test, environment: "node", include: ["work/grounded-verification/mention-boundary-projection-20261108.test.ts"] } });

@@ -1,0 +1,1896 @@
+{
+  "purpose": "Current-behavior diagnosis only; no new mention API wiring or release qualification",
+  "realModelCalls": 0,
+  "sourceHashesBefore": {
+    "app/lib/materials/grounded-skill-terms.ts": "fa3c23292ed421f3e9ac50a2d09e3dbf636331398160a9bac27152b1d3d7afc7",
+    "app/lib/materials/skill-labels.ts": "f34916313fd3fc62541d014defd28d3d99631a02c2ae8b8cd552c3a13b8170db",
+    "app/lib/materials/skill-mapper.ts": "6f4498453530bd5fbcb8074501bbcea958a792eee3899eb6a9c66b5f514a2889",
+    "app/server/documents/context-builder.ts": "de0d52a3288249004e6fcb2a726fc848e72e00f3a7e76e86ec193c207c34d091",
+    "app/server/documents/review-service.ts": "55e57c60a11d280a3ef47011f5f7734f4084d3a29d3ee6fd28fdcb5196e7e9f6",
+    "app/server/documents/extraction-validator.ts": "3f6da9ca836f902bc9a4385813dfccf897c1cde189ff17a4d3759c2ef57175b7",
+    "worker/document-executor/source-review-evidence.ts": "2b51cb84aa127bf624a100123d042660b08ccad39688b7f4b77f8e4394f99354",
+    "worker/document-executor/source-span-extraction.ts": "307009d79c572d8ab3df820cf4d6cd3e367ea72aac20ed80b7023620f46e99e9"
+  },
+  "sourceHashesAfter": {
+    "app/lib/materials/grounded-skill-terms.ts": "fa3c23292ed421f3e9ac50a2d09e3dbf636331398160a9bac27152b1d3d7afc7",
+    "app/lib/materials/skill-labels.ts": "f34916313fd3fc62541d014defd28d3d99631a02c2ae8b8cd552c3a13b8170db",
+    "app/lib/materials/skill-mapper.ts": "6f4498453530bd5fbcb8074501bbcea958a792eee3899eb6a9c66b5f514a2889",
+    "app/server/documents/context-builder.ts": "de0d52a3288249004e6fcb2a726fc848e72e00f3a7e76e86ec193c207c34d091",
+    "app/server/documents/review-service.ts": "55e57c60a11d280a3ef47011f5f7734f4084d3a29d3ee6fd28fdcb5196e7e9f6",
+    "app/server/documents/extraction-validator.ts": "3f6da9ca836f902bc9a4385813dfccf897c1cde189ff17a4d3759c2ef57175b7",
+    "worker/document-executor/source-review-evidence.ts": "2b51cb84aa127bf624a100123d042660b08ccad39688b7f4b77f8e4394f99354",
+    "worker/document-executor/source-span-extraction.ts": "307009d79c572d8ab3df820cf4d6cd3e367ea72aac20ed80b7023620f46e99e9"
+  },
+  "observations": [
+    {
+      "group": "source-pipeline",
+      "id": "negative-task-short-tool",
+      "text": "I cannot yet configure a Kubernetes cluster myself.",
+      "nominatedTerms": [
+        "Kubernetes"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "Kubernetes",
+          "evidence": "Kubernetes"
+        }
+      ],
+      "retainedTerms": [
+        "Kubernetes"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "Kubernetes",
+          "status": "uncovered",
+          "skillIds": [],
+          "basis": null
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "uncovered",
+          "skillIds": [],
+          "basis": null
+        }
+      ],
+      "priorities": [],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 5,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [
+        {
+          "code": "uncovered",
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ],
+          "skillIds": []
+        }
+      ],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "negative-task-long-term",
+      "text": "I cannot yet configure a Kubernetes cluster myself.",
+      "nominatedTerms": [
+        "configure a Kubernetes cluster"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "configure a Kubernetes cluster",
+          "evidence": null
+        }
+      ],
+      "retainedTerms": [],
+      "hints": [],
+      "termMappings": [],
+      "details": [],
+      "priorities": [],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 5,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "negative-sql-task",
+      "text": "I cannot write SQL reports independently.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "negative-past-action",
+      "text": "I have never configured SQL for production.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "future-action",
+      "text": "I will test SQL under supervision.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "hypothetical-action",
+      "text": "If I tested SQL under supervision, I would learn more.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "quoted-proposition",
+      "text": "An example reads “I tested SQL under supervision.”",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "quoted-tool-positive",
+      "text": "I tested ‘SQL’ under supervision.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "other-actor",
+      "text": "My colleague tested SQL under supervision.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "mixed-own-and-other",
+      "text": "I built a React prototype, but my colleague configured SQL.",
+      "nominatedTerms": [
+        "React",
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "React",
+          "evidence": "React"
+        },
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "React",
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "React",
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            1
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "react",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        },
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 3,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "mixed-own-and-negative",
+      "text": "I tested SQL under supervision, but I have never configured React.",
+      "nominatedTerms": [
+        "SQL",
+        "React"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        },
+        {
+          "term": "React",
+          "evidence": "React"
+        }
+      ],
+      "retainedTerms": [
+        "SQL",
+        "React"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "candidate-1",
+          "term": "React",
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            1
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "react",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        },
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 3,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "team-and-own-task",
+      "text": "Our team built React components, and I wrote SQL queries.",
+      "nominatedTerms": [
+        "React",
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "React",
+          "evidence": "React"
+        },
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "React",
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "React",
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "literal"
+        },
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            1
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "react",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        },
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 3,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "provided-other-task",
+      "text": "My mentor wrote SQL queries; I scheduled the review.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "provided-example-positive",
+      "text": "I tested SQL queries using supplied examples.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "ordinary-own-action-control",
+      "text": "I wrote SQL queries.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "source-pipeline",
+      "id": "familiarity-control",
+      "text": "I am familiar with SQL.",
+      "nominatedTerms": [
+        "SQL"
+      ],
+      "affirmativeMatches": [
+        {
+          "term": "SQL",
+          "evidence": "SQL"
+        }
+      ],
+      "retainedTerms": [
+        "SQL"
+      ],
+      "hints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "SQL",
+          "level": "conceptual"
+        }
+      ],
+      "termMappings": [
+        {
+          "itemId": "candidate-1",
+          "term": "SQL",
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "details": [
+        {
+          "itemId": "material-item-8159103dd597fd03128908d1fff948d7",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-8159103dd597fd03128908d1fff948d7"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "manual-compatibility",
+      "id": "legacy-long-positive",
+      "text": "I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.",
+      "textLength": 164,
+      "retainedTerms": null,
+      "wholeFactAsEvidenceTerm": null,
+      "choices": {},
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            -1
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "manual-compatibility",
+      "id": "legacy-negative",
+      "text": "I have never configured SQL.",
+      "textLength": 28,
+      "retainedTerms": null,
+      "wholeFactAsEvidenceTerm": "I have never configured SQL.",
+      "choices": {},
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            -1
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "manual-compatibility",
+      "id": "manual-whole-positive",
+      "text": "构建可访问的产品界面",
+      "textLength": 10,
+      "retainedTerms": null,
+      "wholeFactAsEvidenceTerm": "构建可访问的产品界面",
+      "choices": {
+        "skillMappings": [
+          {
+            "confirmationId": "confirmation-a",
+            "itemId": "fact",
+            "skillId": "react"
+          }
+        ]
+      },
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            -1
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "manual"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "react",
+          "tier": 3,
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 3,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 5,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "manual-compatibility",
+      "id": "manual-whole-negative",
+      "text": "我没有构建过可访问的产品界面",
+      "textLength": 14,
+      "retainedTerms": null,
+      "wholeFactAsEvidenceTerm": "我没有构建过可访问的产品界面",
+      "choices": {
+        "skillMappings": [
+          {
+            "confirmationId": "confirmation-a",
+            "itemId": "fact",
+            "skillId": "react"
+          }
+        ]
+      },
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            -1
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "manual"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "react",
+          "tier": 3,
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 3,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 5,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "manual-compatibility",
+      "id": "manual-term-negative",
+      "text": "I have never configured SQL.",
+      "textLength": 28,
+      "retainedTerms": [
+        "SQL"
+      ],
+      "wholeFactAsEvidenceTerm": "I have never configured SQL.",
+      "choices": {
+        "termMappings": [
+          {
+            "confirmationId": "confirmation-a",
+            "itemId": "fact",
+            "skillLabel": "SQL",
+            "skillIds": [
+              "react"
+            ]
+          }
+        ]
+      },
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "react"
+          ],
+          "basis": "manual"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "react",
+          "tier": 3,
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 3,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 5,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "manual-compatibility",
+      "id": "bare-manual-skill",
+      "text": "SQL",
+      "textLength": 3,
+      "retainedTerms": null,
+      "wholeFactAsEvidenceTerm": "SQL",
+      "choices": {},
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            -1
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "manual-compatibility",
+      "id": "empty-retained-list",
+      "text": "I wrote SQL queries.",
+      "textLength": 20,
+      "retainedTerms": [],
+      "wholeFactAsEvidenceTerm": "I wrote SQL queries.",
+      "choices": {},
+      "details": [],
+      "priorities": [],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 5,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "manual-compatibility",
+      "id": "explicit-omission",
+      "text": "I wrote SQL queries.",
+      "textLength": 20,
+      "retainedTerms": [
+        "SQL"
+      ],
+      "wholeFactAsEvidenceTerm": "I wrote SQL queries.",
+      "choices": {
+        "termMappings": [
+          {
+            "confirmationId": "confirmation-a",
+            "itemId": "fact",
+            "skillLabel": "SQL",
+            "skillIds": []
+          }
+        ]
+      },
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            0
+          ],
+          "status": "omitted",
+          "skillIds": [],
+          "basis": "manual"
+        }
+      ],
+      "priorities": [],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 5,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [
+        {
+          "code": "mapping-omitted",
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ],
+          "skillIds": []
+        }
+      ],
+      "learningIntentEligible": false
+    },
+    {
+      "group": "hint-retention",
+      "id": "unchanged-guidance",
+      "text": "I tested SQL under supervision.",
+      "retained": [
+        {
+          "id": "hint-fact-0",
+          "candidateId": "fact",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "reviewedLabelSurvives": true,
+      "semanticHint": "guided"
+    },
+    {
+      "group": "hint-retention",
+      "id": "removed-guidance",
+      "text": "I tested SQL.",
+      "retained": [
+        {
+          "id": "hint-fact-0",
+          "candidateId": "fact",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "reviewedLabelSurvives": true,
+      "semanticHint": null
+    },
+    {
+      "group": "hint-retention",
+      "id": "actor-edited",
+      "text": "My colleague tested SQL under supervision.",
+      "retained": [
+        {
+          "id": "hint-fact-0",
+          "candidateId": "fact",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "reviewedLabelSurvives": true,
+      "semanticHint": null
+    },
+    {
+      "group": "hint-retention",
+      "id": "future-edited",
+      "text": "I will test SQL under supervision.",
+      "retained": [
+        {
+          "id": "hint-fact-0",
+          "candidateId": "fact",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "reviewedLabelSurvives": true,
+      "semanticHint": null
+    },
+    {
+      "group": "hint-retention",
+      "id": "negated-action-edited",
+      "text": "I have never configured SQL under supervision.",
+      "retained": [
+        {
+          "id": "hint-fact-0",
+          "candidateId": "fact",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "reviewedLabelSurvives": true,
+      "semanticHint": null
+    },
+    {
+      "group": "hint-retention",
+      "id": "quoted-edited",
+      "text": "An example reads “I tested SQL under supervision.”",
+      "retained": [
+        {
+          "id": "hint-fact-0",
+          "candidateId": "fact",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "reviewedLabelSurvives": true,
+      "semanticHint": null
+    },
+    {
+      "group": "hint-retention",
+      "id": "removed-label-control",
+      "retained": []
+    },
+    {
+      "group": "hint-retention",
+      "id": "kind-changed-control",
+      "retained": []
+    },
+    {
+      "group": "review-service",
+      "id": "actor-edit-save-reload",
+      "originalText": "I tested SQL under supervision.",
+      "savedText": "My colleague tested SQL under supervision.",
+      "retainedTerms": [
+        "SQL"
+      ],
+      "retainedHints": [
+        {
+          "id": "hint-fact-0",
+          "candidateId": "fact",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "sourceRef": {
+        "documentId": "id-1",
+        "documentVersionId": "id-2",
+        "textVersionId": "id-3",
+        "start": 0,
+        "end": 31
+      },
+      "semanticHint": null
+    },
+    {
+      "group": "learning-intent",
+      "id": "constraint-unadopted",
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            0
+          ],
+          "status": "non-learning",
+          "skillIds": [],
+          "basis": null
+        }
+      ],
+      "priorities": [],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 5,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [
+        {
+          "code": "learning-intent-not-adopted",
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ],
+          "skillIds": []
+        }
+      ],
+      "learningIntentEligible": true
+    },
+    {
+      "group": "learning-intent",
+      "id": "constraint-adopted",
+      "details": [
+        {
+          "itemId": "material-item-0d7be636a9d798b8ed963442e8cd9ac4",
+          "termIndexes": [
+            0
+          ],
+          "status": "mapped",
+          "skillIds": [
+            "sql"
+          ],
+          "basis": "literal"
+        }
+      ],
+      "priorities": [
+        {
+          "skillId": "sql",
+          "tier": 3,
+          "itemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ],
+          "practiceItemIds": [],
+          "learningIntentItemIds": [
+            "material-item-0d7be636a9d798b8ed963442e8cd9ac4"
+          ]
+        }
+      ],
+      "ranks": {
+        "web-platform": 5,
+        "typescript": 5,
+        "react": 5,
+        "design-systems": 5,
+        "http-apis": 5,
+        "edge-runtime": 5,
+        "sql": 3,
+        "object-storage": 5,
+        "testing": 5,
+        "security": 5,
+        "cloud-delivery": 5,
+        "observability": 5,
+        "llm-contracts": 5,
+        "retrieval": 5,
+        "product-thinking": 5,
+        "proof-of-work": 5
+      },
+      "issues": [],
+      "learningIntentEligible": true
+    },
+    {
+      "group": "learning-intent",
+      "id": "experience-intent-currently-rejected",
+      "rejected": true
+    }
+  ]
+}

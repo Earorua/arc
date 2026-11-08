@@ -1,0 +1,109 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:35976) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":11,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"workflow-create","state":"started","elapsedMs":11,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"workflow-create","state":"succeeded","elapsedMs":25,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"record-accepted","state":"started","elapsedMs":25,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"record-accepted","state":"succeeded","elapsedMs":80,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":80,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":202,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":11,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":11,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":74,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":8,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"workflow-create","state":"started","elapsedMs":8,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"workflow-create","state":"succeeded","elapsedMs":21,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"record-accepted","state":"started","elapsedMs":21,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"record-accepted","state":"succeeded","elapsedMs":75,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":75,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":191,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":16,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":16,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":16,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":16,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":139,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":124,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":9,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":9,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":69,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":7,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"workflow-create","state":"started","elapsedMs":7,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"workflow-create","state":"succeeded","elapsedMs":19,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"record-accepted","state":"started","elapsedMs":19,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"record-accepted","state":"succeeded","elapsedMs":67,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":67,"aborted":false}
+
+[90mstdout[2m | tests/server/research-cloud-smoke-composition.test.ts[2m > [22m[2mbuilt native smoke composition[2m > [22m[2mstarts through the signed paired binding chain and persists actual acceptance
+[22m[39m{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":171,"aborted":false}
+

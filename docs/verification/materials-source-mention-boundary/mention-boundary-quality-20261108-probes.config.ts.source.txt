@@ -1,0 +1,14 @@
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    environment: "node",
+    include: [
+      "tests/lib/materials/grounded-skill-terms.test.ts",
+      "tests/lib/materials/material-skill-mentions.test.ts",
+      "work/grounded-verification/mention-boundary-quality-20261108-probes.test.ts",
+    ],
+    fileParallelism: false,
+    testTimeout: 10_000,
+  },
+});

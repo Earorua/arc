@@ -1,0 +1,133 @@
+import { expect, it } from "vitest";
+import { findMaterialSkillEvidence as evidence, findMaterialSkillMention as mention, groundMaterialSkillTerms as groundEvidence, groundMaterialSkillMentions as groundMention } from "../../app/lib/materials/grounded-skill-terms";
+
+const same: readonly (readonly [string, string, string | null])[] = [
+  ["审核安全性的评估报告。", "安全性", "安全性"],
+  ["审核稳定性的测量方法。", "稳定性", "稳定性"],
+  ["讨论扩展性的设计方案。", "扩展性", "扩展性"],
+  ["必须掌握键盘可访问性的基本检查。", "键盘可访问性", "键盘可访问性"],
+  ["必须掌握键盘可访问性的基本检查。", "盘可访问性", null],
+  ["必须掌握键盘可访问性的基本检查。", "性", null],
+  ["检查可访问性的A检查。", "可访问性", null],
+  ["检查可访问性的1检查。", "可访问性", null],
+  ["检查可访问性的🧪检查。", "可访问性", null],
+  ["检查可访问性的 基本检查。", "可访问性", null],
+  ["检查可访问性的\n基本检查。", "可访问性", null],
+  ["检查可访问性的基。", "可访问性", null],
+  ["检查可访问性的基本\u0301要求。", "可访问性", null],
+  ["检查可访问性\uFE0F的基本要求。", "可访问性", null],
+  ["检查A-可访问性的基本要求。", "可访问性", null],
+  ["检查.可访问性的基本要求。", "可访问性", null],
+  ["检查服务:可访问性的基本要求。", "可访问性", null],
+  ["Profile:可访问性的基本要求。", "可访问性", "可访问性"],
+  ["个人简介：熟悉 SQL，可独立完成报表。", "熟悉 SQL，可独立完成报表", "熟悉 SQL，可独立完成报表"],
+  ["简介：熟悉 SQL，可独立完成报表。", "熟悉 SQL，可独立完成报表", "熟悉 SQL，可独立完成报表"],
+  ["简介：熟悉 SQL，可独立完成报表。", "independent", null],
+  ["She described profile:KestrelForge.", "KestrelForge", null],
+  ["Team\tprofile:KestrelForge.", "KestrelForge", null],
+  ["团队个人简介:KestrelForge。", "KestrelForge", null],
+  ["报告:个人能力:KestrelForge。", "KestrelForge", null],
+  ["Alice's personal profile:KestrelForge.", "KestrelForge", null],
+  ["https://personal-profile:KestrelForge/setup", "KestrelForge", null],
+  ["urn:profile:KestrelForge", "KestrelForge", null],
+  ["profile:KestrelForge.Extra", "KestrelForge", null],
+  ["profile:KestrelForge++", "KestrelForge", null],
+  ["profile:KestrelForge:Extra", "KestrelForge", null],
+  ["Profile:Kestrel:Forge.", "Forge", null],
+  ["Profile:Kestrel:Forge.", "Kestrel", null],
+  ["Profile:Kestrel:Forge.", "Kestrel:Forge", "Kestrel:Forge"],
+  ["I do not react to pressure.", "React", null],
+  ["I never excel in poetry.", "Excel", null],
+  ["I did not go home.", "Go", null],
+  ["I did not earn a grade of R.", "R", null],
+  ["I did not earn a grade of C.", "C", null],
+  ["I never found it useful.", "IT", null],
+  ["We never used cleaned duplicate records.", "cleaned duplicate records", null],
+  ["We never received clean sensor values.", "clean sensor values", null],
+  ["I never cleaned the data centre cabinets.", "cleaned the data", null],
+  ["我从未清洗数据中心设备。", "清洗数据", null],
+  ["Never use MapKitExtended.", "MapKit", null],
+  ["Never use X-MapKit.", "MapKit", null],
+  ["Never use mapkit_pkg.", "MapKit", null],
+  ["Never use 🧑‍💻Forge.", "💻Forge", null],
+  ["Never use ﬄ.", "fl", null],
+  ["Never use Cafe\u0301.", "Cafe", null],
+];
+
+it.each(same)("independent shared-boundary probe: %s (%s)", (quote, term, expected) => {
+  expect(evidence(quote, term)).toBe(expected);
+  expect(mention(quote, term)).toBe(expected);
+  expect(groundEvidence(quote, [term])).toEqual(expected === null ? [] : [expected]);
+  expect(groundMention(quote, [term])).toEqual(expected === null ? [] : [expected]);
+});
+
+const headings = ["简介", "个人简介", "自我介绍", "个人技能", "个人能力", "PROFILE", "Personal Profile", "My Profile", "PERSONAL SUMMARY", "My Summary", "Required", "Job summary", "岗位要求", "任职必备"];
+it.each(headings)("independent heading/list scope: %s", heading => {
+  for (const prefix of ["", "- ", "* ", "• ", "Previous line\r\n\t- "]) {
+    const quote = `${prefix}${heading}：KestrelForge。`;
+    expect(evidence(quote, "KestrelForge")).toBe("KestrelForge");
+    expect(mention(quote, "KestrelForge")).toBe("KestrelForge");
+    expect(groundEvidence(quote, ["KestrelForge"])).toEqual(["KestrelForge"]);
+    expect(groundMention(quote, ["KestrelForge"])).toEqual(["KestrelForge"]);
+  }
+});
+
+const denied: readonly (readonly [string, string, string])[] = [
+  ["I cannot yet configure a Kubernetes cluster myself.", "configure a Kubernetes cluster", "configure a Kubernetes cluster"],
+  ["I have never used React or Excel.", "React", "React"],
+  ["I have never used React or Excel.", "Excel", "Excel"],
+  ["I have never used Kotlin, Go, R, or C.", "Go", "Go"],
+  ["I have never used Kotlin, Go, R, or C.", "R", "R"],
+  ["I have never used Kotlin, Go, R, or C.", "C", "C"],
+  ["I have never used IT.", "IT", "IT"],
+  ["没有掌握稳定性的测量方法。", "稳定性", "稳定性"],
+  ["我不需要使用KestrelForge。", "KestrelForge", "KestrelForge"],
+  ["KestrelForge、MapKit和StarDB并非必需。", "StarDB", "StarDB"],
+  ["Neither ＭａｐＫｉｔ nor StarDB is required.", "MapKit", "ＭａｐＫｉｔ"],
+  ["I never used Cafe\u0301Kit.", "CaféKit", "Cafe\u0301Kit"],
+  ["I have not used ﬄKit.", "fflKit", "ﬄKit"],
+  ["I have never used ΟΣ.", "ος", "ΟΣ"],
+];
+it.each(denied)("independent denied mention stays separate: %s (%s)", (quote, term, original) => {
+  expect(mention(quote, term)).toBe(original);
+  expect(groundMention(quote, [term])).toEqual([original]);
+  expect(evidence(quote, term)).toBeNull();
+  expect(groundEvidence(quote, [term])).toEqual([]);
+});
+
+it("independently preserves mixed clause polarity and spelling ambiguity", () => {
+  const quote = "I never used MapKit, but I used StarDB.";
+  expect(groundMention(quote, ["MapKit", "StarDB"])).toEqual(["MapKit", "StarDB"]);
+  expect(groundEvidence(quote, ["MapKit", "StarDB"])).toEqual(["StarDB"]);
+  expect(mention("I never used MapKit; I use ＭａｐＫｉｔ.", "MapKit")).toBeNull();
+  expect(groundMention("I never used MapKit; I use ＭａｐＫｉｔ.", ["MapKit"])).toEqual([]);
+  expect(evidence("I never used MapKit; I use ＭａｐＫｉｔ.", "MapKit")).toBe("ＭａｐＫｉｔ");
+});
+
+it("independently binds literal nominations before reviewed normalization", () => {
+  const quote = "I have not cleansed the duplicate order rows.";
+  expect(mention(quote, "data cleaning")).toBe("cleansed the duplicate order rows");
+  expect(groundMention(quote, ["data cleaning"])).toEqual([]);
+  expect(groundMention(quote, ["cleansed the duplicate order rows"])).toEqual(["data cleaning"]);
+  expect(groundMention(quote, [])).toEqual([]);
+  expect(evidence(quote, "data cleaning")).toBeNull();
+  expect(groundEvidence(quote, ["cleansed the duplicate order rows"])).toEqual([]);
+  expect(mention("I have not cleansed data; I do data cleansing.", "data cleaning")).toBeNull();
+  expect(groundMention("I have not cleansed data; I do data cleansing.", ["cleansed data"])).toEqual([]);
+});
+
+it("independently preserves nomination and original UTF-16 bounds", () => {
+  const exact = "a\u0301".repeat(50), above = "a\u0301".repeat(51);
+  expect(mention(exact, "á".repeat(50))).toBe(exact);
+  expect(groundMention(exact, ["á".repeat(50)])).toEqual([exact]);
+  expect(mention(above, "á".repeat(51))).toBeNull();
+  expect(groundMention(above, ["á".repeat(51)])).toEqual([]);
+  expect(groundMention("MapKit", ["", "!!!", "absent", " ", "missing", "wrong", "no MapKit", "not know MapKit", "MapKit"])).toEqual([]);
+  expect(groundMention("MapKit", ["MapKit", "MapKit"])).toEqual(["MapKit"]);
+  for (const label of ["not know MapKit", "不会MapKit", "NEVER USED MapKit", "尚未使用MapKit"]) {
+    expect(mention(label, label)).toBeNull();
+    expect(groundMention(label, [label])).toEqual([]);
+    expect(evidence(label, label)).toBeNull();
+    expect(groundEvidence(label, [label])).toEqual([]);
+  }
+});

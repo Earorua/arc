@@ -1,0 +1,84 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { build } from "esbuild";
+import { Miniflare, Log, LogLevel } from "miniflare";
+
+const result = process.argv[2];
+assert.match(result ?? "", /^work\/grounded-verification\/mention-boundary-native-[a-z0-9-]+-results\.json$/u);
+const cases = [
+  ["必须掌握键盘可访问性的基本检查。", "键盘可访问性", "键盘可访问性", "键盘可访问性"],
+  ["检查可维护性的基础指标。", "可维护性", "可维护性", "可维护性"],
+  ["分析可靠性的变化。", "可靠性", "可靠性", "可靠性"],
+  ["I cannot yet configure a Kubernetes cluster myself.", "configure a Kubernetes cluster", "configure a Kubernetes cluster", null],
+  ["I have never used SQL or React.", "SQL", "SQL", null],
+  ["I have never used SQL or React.", "React", "React", null],
+  ["我尚未接触增量加载。", "增量加载", "incremental loading", null],
+  ["Component tests are not required.", "Component tests", "component testing", null],
+  ["I have never used SQL, but I use React.", "React", "React", "React"],
+  ["I have never used SQL, but I use React.", "SQL", "SQL", null],
+  ["简介：熟悉 SQL，可独立完成报表。", "熟悉 SQL，可独立完成报表", "熟悉 SQL，可独立完成报表", "熟悉 SQL，可独立完成报表"],
+  ["个人简介：QuartzFlux", "QuartzFlux", "QuartzFlux", "QuartzFlux"],
+  ["My profile:QuartzFlux", "QuartzFlux", "QuartzFlux", "QuartzFlux"],
+  ["个人技能：光羽。", "光羽", "光羽", "光羽"],
+  ["Our team profile:QuartzFlux", "QuartzFlux", null, null],
+  ["标识符是服务:光羽。", "光羽", null, null],
+  ["The identifier is urn:SQL.", "SQL", null, null],
+  ["Skills:Orion:Forge.", "Forge", null, null],
+  ["Skills:Orion:Forge.", "Orion:Forge", "Orion:Forge", "Orion:Forge"],
+  ["I use PostgreSQL.", "SQL", null, null],
+  ["I use .NET.", "NET", null, null],
+  ["I use Node.js.", "Node", null, null],
+  ["I use WAI-ARIA.", "ARIA", null, null],
+  ["I use SQL and sql.", "SQL", null, null],
+  ["I use Ｃ＋＋ and Cafe\u0301Flux.", "C++", "Ｃ＋＋", "Ｃ＋＋"],
+  ["I use Ｃ＋＋ and Cafe\u0301Flux.", "CaféFlux", "Cafe\u0301Flux", "Cafe\u0301Flux"],
+  ["I used ﬃxtures.", "ffixtures", "ﬃxtures", "ﬃxtures"],
+  ["I used ﬃxtures.", "fixtures", null, null],
+  ["I react quickly.", "React", null, null],
+  ["I received clean data.", "clean data", null, null],
+  ["I never cleaned data.", "cleaned data", "data cleaning", null],
+  ["I do not know QuartzFlux.", "not know QuartzFlux", null, null],
+  ["我不会财务建模。", "不会财务建模", null, null],
+  ["我不会财务建模。", "财务建模", "financial modeling", null],
+];
+const compiled = await build({ stdin: { resolveDir: process.cwd(), loader: "ts", contents: `
+import { findMaterialSkillMention, groundMaterialSkillMentions, findMaterialSkillEvidence, groundMaterialSkillTerms } from './app/lib/materials/grounded-skill-terms';
+export function inspect(cases) {
+  return cases.map(([quote, term]) => ({ quote, term,
+    mentions: groundMaterialSkillMentions(quote, [term]),
+    mention: findMaterialSkillMention(quote, term),
+    affirmed: groundMaterialSkillTerms(quote, [term]),
+    evidence: findMaterialSkillEvidence(quote, term),
+  }));
+}
+export default { async fetch(request) { return Response.json(inspect(await request.json())); } };
+` }, bundle: true, write: false, format: "esm", platform: "browser", target: "es2022", metafile: true });
+const script = compiled.outputFiles[0].text;
+const nodeModule = await import("data:text/javascript;base64," + Buffer.from(script).toString("base64"));
+const nodeValues = nodeModule.inspect(cases);
+for (let i = 0; i < cases.length; i++) {
+  const [quote, term, mentionLabel, affirmativeLabel] = cases[i];
+  assert.deepEqual(nodeValues[i].mentions, mentionLabel === null ? [] : [mentionLabel], quote + " mention labels");
+  assert.deepEqual(nodeValues[i].affirmed, affirmativeLabel === null ? [] : [affirmativeLabel], quote + " affirmative labels");
+  assert.equal(nodeValues[i].mention !== null, mentionLabel !== null, quote + " mention lookup");
+  assert.equal(nodeValues[i].evidence !== null, affirmativeLabel !== null, quote + " affirmative lookup");
+  if (nodeValues[i].mention !== null) assert.ok(quote.includes(nodeValues[i].mention), term + " verbatim mention");
+}
+let outboundCalls = 0;
+const runtime = new Miniflare({ cf: false, modules: true, script, compatibilityDate: "2026-05-15",
+  log: new Log(LogLevel.ERROR), outboundService: async () => { outboundCalls++; throw new Error("Outbound denied"); } });
+try {
+  const response = await runtime.dispatchFetch("http://localhost/mentions", { method: "POST", body: JSON.stringify(cases) });
+  assert.equal(response.status, 200);
+  const workerValues = await response.json();
+  assert.deepEqual(workerValues, nodeValues);
+  assert.equal(outboundCalls, 0);
+  const sha = value => createHash("sha256").update(value).digest("hex");
+  const inputs = Object.fromEntries(Object.keys(compiled.metafile.inputs).filter(path => path !== "<stdin>").sort()
+    .map(path => [path, sha(readFileSync(path))]));
+  writeFileSync(result, JSON.stringify({ schemaVersion: 1, status: "native-mention-boundary-parity", cases: cases.length,
+    compiledSha256: sha(script), inputs, observations: nodeValues, nativeMatches: workerValues.length,
+    outboundCalls, realModelCalls: 0, deployed: false, productionConsumerSwitch: false }, null, 2) + "\n", { flag: "wx" });
+  console.log(JSON.stringify({ status: "PASS", cases: cases.length, nativeMatches: workerValues.length, outboundCalls, result }));
+} finally { await runtime.dispose(); }

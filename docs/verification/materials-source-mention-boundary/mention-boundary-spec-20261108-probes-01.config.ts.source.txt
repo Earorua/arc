@@ -1,0 +1,2 @@
+import { defineConfig } from "vitest/config";
+export default defineConfig({ test: { environment: "node", include: ["work/grounded-verification/mention-boundary-spec-20261108-probes-01.test.ts"], testTimeout: 10000 } });

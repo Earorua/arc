@@ -1,0 +1,47 @@
+$ErrorActionPreference = 'Stop'
+$resultPath = 'work/grounded-verification/mention-boundary-integrity-20261108-results.json'
+if (Test-Path -LiteralPath $resultPath) { throw 'Use a new result path; never overwrite evidence' }
+$before = Get-Content -LiteralPath 'docs/verification/materials-context-only-adoption/context-adoption-snapshot-20261108-results.json' -Raw | ConvertFrom-Json
+$paths = @(git ls-files --cached --others --exclude-standard | Where-Object { -not $_.StartsWith('docs/') } | Select-Object -Unique)
+if ($LASTEXITCODE -ne 0) { throw 'Git source inventory failed' }
+[Array]::Sort($paths, [StringComparer]::Ordinal)
+$hashes = [ordered]@{}
+$changed = @()
+$added = @()
+foreach ($path in $paths) {
+  $digest = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+  $hashes[$path] = $digest
+  $previous = $before.filesSha256.PSObject.Properties[$path]
+  if ($null -eq $previous) { $added += $path }
+  elseif ($previous.Value -ne $digest) { $changed += $path }
+}
+$removed = @($before.filesSha256.PSObject.Properties.Name | Where-Object { -not $hashes.Contains($_) })
+if ($changed.Count -ne 1 -or $changed[0] -ne 'app/lib/materials/grounded-skill-terms.ts') { throw "Unexpected changed paths: $changed" }
+if ($added.Count -ne 1 -or $added[0] -ne 'tests/lib/materials/material-skill-mentions.test.ts') { throw "Unexpected added paths: $added" }
+if ($removed.Count -ne 0) { throw "Unexpected removals: $removed" }
+$referenceHashes = [ordered]@{}
+foreach ($path in @(git ls-files docs/verification/materials-quality-v2)) {
+  $blob = (git hash-object --no-filters -- $path).Trim()
+  $original = (git rev-parse "07097aa:$path").Trim()
+  if ($LASTEXITCODE -ne 0 -or $blob -ne $original) { throw "Frozen reference changed: $path" }
+  $referenceHashes[$path] = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+}
+$metadata = [ordered]@{
+  schemaVersion = 1
+  sourceBase = (git rev-parse HEAD).Trim()
+  sourceFileCount = $paths.Count
+  previousSnapshot = 'docs/verification/materials-context-only-adoption/context-adoption-snapshot-20261108-results.json'
+  changedPaths = @($changed)
+  addedPaths = @($added)
+  removedPaths = @($removed)
+  filesSha256 = $hashes
+  frozenReferenceCount = $referenceHashes.Count
+  frozenReferenceSha256 = $referenceHashes
+  productionConsumersUnchanged = $true
+  oldAffirmativeLexicalBoundaryFixes = $true
+  newReferenceApproved = $false
+  fullRepositoryTestsRerun = $false
+  realModelCalls = 0
+}
+[IO.File]::WriteAllText((Join-Path (Get-Location).Path $resultPath), ($metadata | ConvertTo-Json -Depth 6) + "`n", [Text.UTF8Encoding]::new($false))
+[PSCustomObject]@{ sourceFiles = $paths.Count; changed = $changed; added = $added; frozenReferences = $referenceHashes.Count; result = $resultPath } | ConvertTo-Json -Depth 3

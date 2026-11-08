@@ -1,0 +1,38 @@
+import { afterAll, expect, it } from "vitest";
+import { writeFileSync } from "node:fs";
+import { readSourceSpanExtraction } from "../../worker/document-executor/source-span-extraction";
+import { validateDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
+import { documentExtractionSchema } from "../../app/contracts/documents";
+
+const observations: unknown[] = [];
+const cases = [
+  { id: "jd-02-field-2", quote: "必须掌握键盘可访问性的基本检查。", term: "键盘可访问性", kind: "requirement", level: "must", retained: true },
+  { id: "resume-11-field-3", quote: "I cannot yet configure a Kubernetes cluster myself.", term: "configure a Kubernetes cluster", kind: "skill-claim", level: null, retained: false },
+  { id: "resume-12-field-1", quote: "简介：熟悉 SQL，可独立完成报表。", term: "熟悉 SQL，可独立完成报表", kind: "skill-claim", level: null, retained: true },
+] as const;
+
+it.each(cases)("records current real decoder and site projection for $id without switching consumers", entry => {
+  const sources = { text: entry.quote, segments: [{ id: "section", start: 0, end: entry.quote.length }] };
+  const wire = { format: "source-spans-v2", items: [{ kind: entry.kind,
+    source: { segmentId: "section", quote: entry.quote }, requirementLevel: entry.level,
+    skillTerms: [entry.term], selfLevelHint: null }], reviewPoints: [] };
+  const decoded = readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(wire) } }] }, sources, undefined, "source-spans-v2");
+  expect(decoded.extractionRead).toBe("parsed");
+  const canonical = documentExtractionSchema.parse(decoded.candidate);
+  const projected = validateDocumentExtraction(canonical, "synthetic-owner", { ...sources,
+    ownerId: "synthetic-owner", documentId: "synthetic-doc", documentVersionId: "synthetic-version",
+    textVersionId: "synthetic-text", lifecycle: "active" }, KIMI_GROUNDED_TERMS_POLICY_ID);
+  expect(canonical.items[0]?.skillLabels).toEqual(entry.retained ? [entry.term] : []);
+  expect(projected.items[0]?.skillLabels).toEqual(entry.retained ? [entry.term] : []);
+  expect(projected.items[0]?.text).toBe(entry.quote);
+  expect(projected.items[0]?.sourceRef).toMatchObject({ start: 0, end: entry.quote.length });
+  expect(projected.selfAssessmentHints).toEqual([]);
+  observations.push({ id: entry.id, wire, canonical, projected });
+});
+
+afterAll(() => writeFileSync("work/grounded-verification/mention-boundary-projection-20261108-results.json", JSON.stringify({
+  status: "current-decoder-projection-observation", observations,
+  source: "synthetic-wire-fixtures", realModelCalls: 0, productionConsumerSwitch: false,
+  userConfirmationExecuted: false, actualPlanningIntegrationVerified: false,
+}, null, 2) + "\n", { flag: "wx" }));

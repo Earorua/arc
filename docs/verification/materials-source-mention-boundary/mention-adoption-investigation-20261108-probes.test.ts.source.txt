@@ -1,0 +1,176 @@
+// @vitest-environment node
+// Read-only diagnosis of the current pipeline. Passing assertions characterize
+// observed behavior; they do not endorse semantic safety or qualify a release.
+import { afterAll, expect, it } from "vitest";
+import { writeFileSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { findMaterialSkillEvidence } from "../../app/lib/materials/grounded-skill-terms";
+import { retainedMaterialSelfAssessmentHints, supportsReviewedSkillLabel } from "../../app/lib/materials/skill-labels";
+import { mapMaterialItemTerms } from "../../app/lib/materials/skill-mapper";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { validateDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { ReviewService } from "../../app/server/documents/review-service";
+import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
+import { DocumentStorage } from "../../app/server/documents/storage";
+import { KIMI_GROUNDED_TERMS_POLICY_ID, readSourceSpanExtraction } from "../../worker/document-executor/source-span-extraction";
+import { groundSourceSelfLevelHint } from "../../worker/document-executor/source-review-evidence";
+import { createMaterialsD1, materialsClock } from "../../tests/helpers/materials-d1";
+import { materialContextRequest, materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+import { setup, closeMaterialsFixtures } from "../../tests/helpers/material-storage-fixture";
+import type { ConfirmedMaterialItem, DocumentCandidate } from "../../app/contracts/documents";
+
+const observations: Record<string, unknown>[] = [];
+const trackedInputs = [
+  "app/lib/materials/grounded-skill-terms.ts", "app/lib/materials/skill-labels.ts", "app/lib/materials/skill-mapper.ts",
+  "app/server/documents/context-builder.ts", "app/server/documents/review-service.ts", "app/server/documents/extraction-validator.ts",
+  "worker/document-executor/source-review-evidence.ts", "worker/document-executor/source-span-extraction.ts",
+];
+const sha = (path: string) => createHash("sha256").update(readFileSync(path)).digest("hex");
+const sourceHashesBefore = Object.fromEntries(trackedInputs.map(path => [path, sha(path)]));
+
+afterAll(() => {
+  closeMaterialsFixtures();
+  writeFileSync("work/grounded-verification/mention-adoption-investigation-20261108-observations-02.json", JSON.stringify({
+    purpose: "Current-behavior diagnosis only; no new mention API wiring or release qualification",
+    realModelCalls: 0, sourceHashesBefore,
+    sourceHashesAfter: Object.fromEntries(trackedInputs.map(path => [path, sha(path)])), observations,
+  }, null, 2) + "\n", { flag: "wx" });
+});
+
+const fact = (text: string, extra: Partial<ConfirmedMaterialItem> = {}): ConfirmedMaterialItem => ({
+  id: "fact", text, kind: "experience", origin: "user", sourceRef: null, requirementLevel: null, ...extra,
+});
+async function preview(item: ConfirmedMaterialItem, choices: Record<string, unknown> = {}) {
+  const db = createMaterialsD1();
+  try {
+    seedMaterialSelection(db);
+    db.database.exec("UPDATE documents SET kind='resume'; UPDATE material_selection_entries SET slot='resume'");
+    db.database.prepare("UPDATE document_confirmations SET items_json=? WHERE id='confirmation-a'").run(JSON.stringify([item]));
+    const service = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver: materialSourceResolver(), now: materialNow, createId: () => "probe-context" });
+    const request = { ...materialContextRequest(), ...choices };
+    const result = await service.create("owner-a", request);
+    const snapshot = JSON.parse(String(db.database.prepare("SELECT snapshot_json FROM material_context_versions WHERE id=?").get(result.contextVersionId)!.snapshot_json));
+    expect(snapshot.audit).toEqual(request.audit);
+    expect(snapshot.availability).toEqual(request.availability);
+    return { details: result.preview.mappingDetails, priorities: result.preview.priorities, ranks: result.preview.overlay?.skillRanks,
+      issues: result.preview.issues, learningIntentEligible: result.preview.itemReferences?.[0]?.learningIntentEligible ?? false };
+  } finally { db.close(); }
+}
+
+it("records the current source decoder, projection, mapping and priority boundary", async () => {
+  const cases: [string, string, string[], DocumentCandidate["selfLevelHint"]][] = [
+    ["negative-task-short-tool", "I cannot yet configure a Kubernetes cluster myself.", ["Kubernetes"], "uncertain"],
+    ["negative-task-long-term", "I cannot yet configure a Kubernetes cluster myself.", ["configure a Kubernetes cluster"], "uncertain"],
+    ["negative-sql-task", "I cannot write SQL reports independently.", ["SQL"], "uncertain"],
+    ["negative-past-action", "I have never configured SQL for production.", ["SQL"], "guided"],
+    ["future-action", "I will test SQL under supervision.", ["SQL"], "guided"],
+    ["hypothetical-action", "If I tested SQL under supervision, I would learn more.", ["SQL"], "guided"],
+    ["quoted-proposition", "An example reads “I tested SQL under supervision.”", ["SQL"], "guided"],
+    ["quoted-tool-positive", "I tested ‘SQL’ under supervision.", ["SQL"], "guided"],
+    ["other-actor", "My colleague tested SQL under supervision.", ["SQL"], "guided"],
+    ["mixed-own-and-other", "I built a React prototype, but my colleague configured SQL.", ["React", "SQL"], "guided"],
+    ["mixed-own-and-negative", "I tested SQL under supervision, but I have never configured React.", ["SQL", "React"], "guided"],
+    ["team-and-own-task", "Our team built React components, and I wrote SQL queries.", ["React", "SQL"], "guided"],
+    ["provided-other-task", "My mentor wrote SQL queries; I scheduled the review.", ["SQL"], "guided"],
+    ["provided-example-positive", "I tested SQL queries using supplied examples.", ["SQL"], "guided"],
+    ["ordinary-own-action-control", "I wrote SQL queries.", ["SQL"], "guided"],
+    ["familiarity-control", "I am familiar with SQL.", ["SQL"], "conceptual"],
+  ];
+  for (const [id, text, terms, proposedHint] of cases) {
+    const source = { segmentId: "segment-1", quote: text };
+    const sources = { text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+    const decoded = readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { role: "assistant", content: JSON.stringify({
+      format: "source-spans-v2", items: [{ kind: "experience", source, requirementLevel: null, skillTerms: terms, selfLevelHint: proposedHint }], reviewPoints: [],
+    }) } }] }, sources, undefined, "source-spans-v2");
+    expect(decoded.extractionRead, id).toBe("parsed");
+    const projected = validateDocumentExtraction(decoded.candidate, "owner-a", { ...sources, ownerId: "owner-a", lifecycle: "active",
+      documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a" }, KIMI_GROUNDED_TERMS_POLICY_ID);
+    const item = projected.items[0]!;
+    observations.push({ group: "source-pipeline", id, text, nominatedTerms: terms,
+      affirmativeMatches: terms.map(term => ({ term, evidence: findMaterialSkillEvidence(text, term) })),
+      retainedTerms: item.skillLabels, hints: projected.selfAssessmentHints,
+      termMappings: mapMaterialItemTerms([item], flagshipBlueprint, flagshipUnitRegistry), ...await preview(item) });
+  }
+  expect(observations.find(row => row.id === "negative-sql-task")).toMatchObject({ retainedTerms: ["SQL"], hints: [], ranks: { sql: 3 } });
+  expect(observations.find(row => row.id === "ordinary-own-action-control")).toMatchObject({ retainedTerms: ["SQL"], hints: [], ranks: { sql: 3 } });
+});
+
+it("records manual and per-term mapping compatibility controls", async () => {
+  const long = "I wrote SQL queries for monthly reports and reviewed the results with finance to correct inconsistent totals before sending the final dataset to the reporting team.";
+  const cases = [
+    { id: "legacy-long-positive", item: fact(long), choices: {} },
+    { id: "legacy-negative", item: fact("I have never configured SQL."), choices: {} },
+    { id: "manual-whole-positive", item: fact("构建可访问的产品界面"), choices: { skillMappings: [{ confirmationId: "confirmation-a", itemId: "fact", skillId: "react" }] } },
+    { id: "manual-whole-negative", item: fact("我没有构建过可访问的产品界面"), choices: { skillMappings: [{ confirmationId: "confirmation-a", itemId: "fact", skillId: "react" }] } },
+    { id: "manual-term-negative", item: fact("I have never configured SQL.", { skillLabels: ["SQL"] }), choices: { termMappings: [{ confirmationId: "confirmation-a", itemId: "fact", skillLabel: "SQL", skillIds: ["react"] }] } },
+    { id: "bare-manual-skill", item: fact("SQL", { kind: "skill-claim" }), choices: {} },
+    { id: "empty-retained-list", item: fact("I wrote SQL queries.", { skillLabels: [] }), choices: {} },
+    { id: "explicit-omission", item: fact("I wrote SQL queries.", { skillLabels: ["SQL"] }), choices: { termMappings: [{ confirmationId: "confirmation-a", itemId: "fact", skillLabel: "SQL", skillIds: [] }] } },
+  ];
+  for (const { id, item, choices } of cases) observations.push({ group: "manual-compatibility", id, text: item.text,
+    textLength: item.text.length, retainedTerms: item.skillLabels ?? null, wholeFactAsEvidenceTerm: findMaterialSkillEvidence(item.text, item.text),
+    choices, ...await preview(item, choices) });
+  expect(observations.find(row => row.id === "legacy-long-positive")).toMatchObject({ wholeFactAsEvidenceTerm: null, ranks: { sql: 3 } });
+  expect(observations.find(row => row.id === "manual-whole-positive")).toMatchObject({ ranks: { react: 3 } });
+  expect(observations.find(row => row.id === "empty-retained-list")).toMatchObject({ priorities: [] });
+});
+
+it("compares existing hint retention with existing task-scoped level support after edits", () => {
+  const hint = { id: "hint-fact-0", candidateId: "fact", skillLabel: "SQL", level: "guided" as const };
+  for (const [id, text] of [
+    ["unchanged-guidance", "I tested SQL under supervision."],
+    ["removed-guidance", "I tested SQL."],
+    ["actor-edited", "My colleague tested SQL under supervision."],
+    ["future-edited", "I will test SQL under supervision."],
+    ["negated-action-edited", "I have never configured SQL under supervision."],
+    ["quoted-edited", "An example reads “I tested SQL under supervision.”"],
+  ]) {
+    const item = fact(text!, { skillLabels: ["SQL"] });
+    observations.push({ group: "hint-retention", id, text, retained: retainedMaterialSelfAssessmentHints([item], [hint]),
+      reviewedLabelSurvives: supportsReviewedSkillLabel(item.text, "SQL", "grounded-skill-labels-v2"),
+      semanticHint: groundSourceSelfLevelHint({ kind: item.kind, source: { segmentId: "segment-1", quote: item.text }, skillLabels: item.skillLabels, selfLevelHint: hint.level }) });
+  }
+  for (const [id, item] of [
+    ["removed-label-control", fact("I tested SQL under supervision.", { skillLabels: [] })],
+    ["kind-changed-control", fact("I tested SQL under supervision.", { kind: "constraint", skillLabels: ["SQL"] })],
+  ] as const) observations.push({ group: "hint-retention", id, retained: retainedMaterialSelfAssessmentHints([item], [hint]) });
+  expect(observations.find(row => row.id === "actor-edited")).toMatchObject({ retained: [hint], semanticHint: null, reviewedLabelSurvives: true });
+});
+
+it("demonstrates the stale hint through a real review save and reload without a model call", async () => {
+  const { services, owner, db, bucket } = setup();
+  const text = "I tested SQL under supervision.";
+  const receipt = await services.createDocument(owner, { kind: "resume", displayName: "Investigation", text, mutationId: "create" });
+  db.database.prepare("INSERT INTO document_processing_consents VALUES(?,?,?,?,?,'analysis','2026.11.1',?,0,0,NULL)")
+    .run(owner.ownerId, "consent", receipt.textVersionId, receipt.documentId, receipt.documentVersionId, KIMI_GROUNDED_TERMS_POLICY_ID);
+  db.database.prepare("INSERT INTO document_jobs(owner_id,id,text_version_id,document_id,document_version_id,consent_id,generation,document_revision,revision,state,dispatch_state,execution_slot,queued_at,queue_expires_at,provider_policy_id,price_version,policy_version,reservation_id,updated_at) VALUES(?,'job',?,?,?,'consent',0,0,0,'running','settled',NULL,0,1,?,'2026.11.1','2026.11.1','reservation',0)")
+    .run(owner.ownerId, receipt.textVersionId, receipt.documentId, receipt.documentVersionId, KIMI_GROUNDED_TERMS_POLICY_ID);
+  const review = new ReviewService(new D1DocumentRepository(db as unknown as D1Database, materialsClock), new DocumentStorage(bucket));
+  const accepted = await review.acceptAiExtraction(owner.ownerId, { ...receipt, jobId: "job", generation: 0, documentRevision: 0, consentId: "consent",
+    candidate: { schemaVersion: "2026.11.1", items: [{ id: "fact", kind: "experience", text, requirementLevel: null, skillLabels: ["SQL"], selfLevelHint: "guided", source: { segmentId: "segment-1", quote: text } }] } });
+  expect(accepted.disposition).toBe("initialized");
+  const current = (await services.readDocumentReviewDraft(owner, { documentId: receipt.documentId, textVersionId: receipt.textVersionId })).draft!;
+  const saved = await services.saveDocumentReviewDraft(owner, { documentId: receipt.documentId, textVersionId: receipt.textVersionId,
+    extractionId: current.extractionId, expectedRevision: current.revision, mutationId: "actor-edit",
+    items: [{ ...current.items[0]!, origin: "user", text: "My colleague tested SQL under supervision." }], selfAssessmentHints: current.selfAssessmentHints });
+  const reloaded = (await services.readDocumentReviewDraft(owner, { documentId: receipt.documentId, textVersionId: receipt.textVersionId })).draft!;
+  expect(reloaded).toEqual(saved.draft);
+  expect(saved.draft.selfAssessmentHints).toEqual(current.selfAssessmentHints);
+  expect(saved.draft.items[0]!.sourceRef).toEqual(current.items[0]!.sourceRef);
+  observations.push({ group: "review-service", id: "actor-edit-save-reload", originalText: text, savedText: saved.draft.items[0]!.text,
+    retainedTerms: saved.draft.items[0]!.skillLabels, retainedHints: saved.draft.selfAssessmentHints, sourceRef: saved.draft.items[0]!.sourceRef,
+    semanticHint: groundSourceSelfLevelHint({ kind: "experience", source: { segmentId: "segment-1", quote: saved.draft.items[0]!.text }, skillLabels: ["SQL"], selfLevelHint: "guided" }) });
+});
+
+it("records explicit learning intent separately from experience and audit", async () => {
+  const constraint = fact("I have not configured SQL and want practice.", { kind: "constraint", skillLabels: ["SQL"] });
+  observations.push({ group: "learning-intent", id: "constraint-unadopted", ...await preview(constraint) });
+  observations.push({ group: "learning-intent", id: "constraint-adopted", ...await preview(constraint, { learningIntents: [{ confirmationId: "confirmation-a", itemId: "fact" }] }) });
+  let rejected = false;
+  try { await preview({ ...constraint, kind: "experience" }, { learningIntents: [{ confirmationId: "confirmation-a", itemId: "fact" }] }); }
+  catch (error) { rejected = (error as { code?: string }).code === "INVALID_INPUT"; }
+  expect(rejected).toBe(true);
+  observations.push({ group: "learning-intent", id: "experience-intent-currently-rejected", rejected });
+});

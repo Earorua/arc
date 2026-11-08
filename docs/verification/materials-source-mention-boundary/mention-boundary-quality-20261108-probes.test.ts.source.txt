@@ -1,0 +1,123 @@
+import { writeFileSync } from "node:fs";
+import { performance } from "node:perf_hooks";
+import { expect, it, vi } from "vitest";
+import * as current from "../../app/lib/materials/grounded-skill-terms";
+import * as baseline from "./mention-boundary-quality-20261108-baseline";
+
+const tokens = ["OrbitInk", "CaféFlux", "ΟΣ", "SQL", "React", "react", "Excel", "excel", "Go", "R", "C", "IT", "it", "WAI-ARIA", ".NET", "Node.js", "Ｃ＋＋", "cleaned data", "cleaned warehouse hardware", "analyzed data", "unit tests", "增量加载", "财务建模", "组件测试"];
+const frames = [
+  (term: string) => `I used ${term}.`,
+  (term: string) => `I have not yet used ${term}.`,
+  (term: string) => `No experience with ${term} or PostgreSQL is required.`,
+  (term: string) => `${term} and PostgreSQL are not prerequisites.`,
+  (term: string) => `I never used ${term}, but I now use ${term}.`,
+  (term: string) => `I never used ${term}, but I now use ${term.toLowerCase()}.`,
+  (term: string) => `Required:${term}.`,
+  (term: string) => `Tools: ${term}.`,
+  (term: string) => `我没有使用过${term}。`,
+  (term: string) => `Read urn:${term}.`,
+  (term: string) => `We received ${term}.`,
+  (term: string) => `${term}Extra`,
+  (term: string) => `${term} and ${term}`,
+];
+
+it.each(tokens)("preserves base affirmative behavior for independent surrounding frames: %s", term => {
+  for (const frame of frames) {
+    const quote = frame(term);
+    expect(current.findMaterialSkillEvidence(quote, term), quote).toBe(baseline.findMaterialSkillEvidence(quote, term));
+    expect(current.groundMaterialSkillTerms(quote, [term, "PostgreSQL"]), quote).toEqual(baseline.groundMaterialSkillTerms(quote, [term, "PostgreSQL"]));
+  }
+});
+
+const boundaryCases = [
+  ["个人能力：没有掌握键盘可访问性的基本检查。", "键盘可访问性", "键盘可访问性", null],
+  ["Profile:No experience with OrbitInk.", "OrbitInk", "OrbitInk", null],
+  ["My summary:OrbitInk is not required.", "OrbitInk", "OrbitInk", null],
+  ["• PERSONAL PROFILE:OrbitInk.", "OrbitInk", "OrbitInk", "OrbitInk"],
+  ["Prior record\r\n  - 自我介绍：OrbitInk。", "OrbitInk", "OrbitInk", "OrbitInk"],
+  ["Profile:OrbitInk\u0301.", "OrbitInk", null, null],
+  ["Profile:OrbitInk\u200d.", "OrbitInk", null, null],
+  ["个人简介：可访问性\ufe0f的基本说明。", "可访问性", null, null],
+  ["Profile:OrbitInk::Cache.", "OrbitInk", null, null],
+  ["Profile:OrbitInk::Cache.", "Cache", null, null],
+  ["Profile:OrbitInk::Cache.", "OrbitInk::Cache", "OrbitInk::Cache", "OrbitInk::Cache"],
+  ["My summary:No experience with Go.", "Go", "Go", null],
+  ["My summary:I do not go to meetings.", "Go", null, null],
+  ["个人简介：清洗数据库机房的冷却管道。", "清洗数据", null, null],
+  ["个人简介：没有清洗交易记录。", "清洗交易记录", "清洗交易记录", null],
+  ["Profile:not know OrbitInk", "not know OrbitInk", null, null],
+  ["Profile:cleaned data; never cleaning data.", "data cleaning", null, "cleaned data"],
+] as const;
+
+it.each(boundaryCases)("combines the new delimiters with unchanged safeguards: %s", (quote, term, mention, affirmative) => {
+  expect(current.findMaterialSkillMention(quote, term)).toBe(mention);
+  expect(current.findMaterialSkillEvidence(quote, term)).toBe(affirmative);
+});
+
+it("keeps literal nomination, caps, and input immutability together", () => {
+  const terms = Object.freeze(["absent", "cleaned data", "OrbitInk", "absent", "absent", "absent", "absent", "absent", "LateMint"]);
+  const quote = "Profile:I never cleaned data. I never used OrbitInk; LateMint is required.";
+  expect(current.groundMaterialSkillMentions(quote, terms)).toEqual(["data cleaning", "OrbitInk"]);
+  expect(current.groundMaterialSkillTerms(quote, terms)).toEqual([]);
+  expect(current.groundMaterialSkillMentions(quote, ["data cleaning"])).toEqual([]);
+  expect(terms[1]).toBe("cleaned data");
+});
+
+it("retains baseline behavior when Intl.Segmenter is absent and records its existing limits", async () => {
+  const segmenterDescriptor = Object.getOwnPropertyDescriptor(Intl, "Segmenter")!;
+  let fallbackCurrent: typeof current;
+  let fallbackBase: typeof baseline;
+  try {
+    Object.defineProperty(Intl, "Segmenter", { ...segmenterDescriptor, value: undefined });
+    vi.resetModules();
+    fallbackCurrent = await import("../../app/lib/materials/grounded-skill-terms");
+    fallbackBase = await import("./mention-boundary-quality-20261108-baseline");
+  } finally {
+    Object.defineProperty(Intl, "Segmenter", segmenterDescriptor);
+  }
+  for (const term of tokens) {
+    for (const frame of frames) {
+      const quote = frame(term);
+      expect(fallbackCurrent!.findMaterialSkillEvidence(quote, term), quote).toBe(fallbackBase!.findMaterialSkillEvidence(quote, term));
+      expect(fallbackCurrent!.groundMaterialSkillTerms(quote, [term, "PostgreSQL"]), quote).toEqual(fallbackBase!.groundMaterialSkillTerms(quote, [term, "PostgreSQL"]));
+    }
+  }
+  for (const [quote, term, expected] of [
+    ["Profile:OrbitInk.", "OrbitInk", "OrbitInk"],
+    ["必须掌握键盘可访问性的基本检查。", "键盘可访问性", "键盘可访问性"],
+    ["I never used Cafe\u0301Flux.", "CaféFlux", "Cafe\u0301Flux"],
+    ["I never used Cafe\u0301Flux.", "Cafe", null],
+    ["I never used ﬃxtures.", "ff", null],
+    ["Profile:OrbitInkExtra.", "OrbitInk", null],
+    ["Profile:urn:OrbitInk.", "OrbitInk", null],
+  ] as const) expect(fallbackCurrent!.findMaterialSkillMention(quote, term), quote).toBe(expected);
+  expect(fallbackCurrent!.findMaterialSkillMention("I cannot yet configure a Kubernetes cluster myself.", "configure a Kubernetes cluster")).toBe("configure a Kubernetes cluster");
+  expect(fallbackCurrent!.findMaterialSkillEvidence("I cannot yet configure a Kubernetes cluster myself.", "configure a Kubernetes cluster")).toBeNull();
+  const limits = [
+    ["检查可访问性的。", "可访问性"],
+    ["检查键盘可访问性的基本检查。", "盘可访问性"],
+    ["Use OrbitInk\u200d.", "OrbitInk"],
+  ].map(([quote, term]) => ({ quote, term, base: fallbackBase!.findMaterialSkillEvidence(quote, term), current: fallbackCurrent!.findMaterialSkillEvidence(quote, term), mention: fallbackCurrent!.findMaterialSkillMention(quote, term) }));
+  for (const row of limits) expect(row.current).toBe(row.base);
+  writeFileSync("work/grounded-verification/mention-boundary-quality-20261108-fallback-observations.json", JSON.stringify(limits, null, 2) + "\n");
+});
+
+it("records bounded workload timing without a fragile speed assertion", () => {
+  const rows: object[] = [];
+  const workloads = [
+    { name: "normal-eight", quote: (`I used OrbitInk, TerraMint, WindKite, SQL, WAI-ARIA, Node.js, Excel, and React. `).repeat(12), terms: ["OrbitInk", "TerraMint", "WindKite", "SQL", "WAI-ARIA", "Node.js", "Excel", "React"] },
+    { name: "dense-repetition", quote: "x ".repeat(500), terms: Array<string>(8).fill("x") },
+    { name: "denied-list", quote: "No experience with " + "x, ".repeat(315) + "OrbitInk is required.", terms: ["x", "OrbitInk", "absent", "absent", "absent", "absent", "absent", "absent"] },
+    { name: "cleaning-equivalents", quote: "I cleaned data; ".repeat(62), terms: Array<string>(8).fill("cleaned data") },
+  ];
+  for (const workload of workloads) {
+    expect(workload.quote.length).toBeLessThanOrEqual(1000);
+    for (const [name, fn] of [["base-affirmative", baseline.groundMaterialSkillTerms], ["current-affirmative", current.groundMaterialSkillTerms], ["current-mention", current.groundMaterialSkillMentions]] as const) {
+      fn(workload.quote, workload.terms);
+      const started = performance.now();
+      for (let i = 0; i < 3; i++) fn(workload.quote, workload.terms);
+      rows.push({ workload: workload.name, function: name, quoteLength: workload.quote.length, nominations: workload.terms.length, msPerCall: (performance.now() - started) / 3 });
+    }
+  }
+  writeFileSync("work/grounded-verification/mention-boundary-quality-20261108-timing-observations.json", JSON.stringify(rows, null, 2) + "\n");
+});

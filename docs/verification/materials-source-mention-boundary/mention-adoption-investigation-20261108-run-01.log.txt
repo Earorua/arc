@@ -1,0 +1,16 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:14708) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/mention-adoption-investigation-20261108-probes.test.ts[2m > [22mrecords the current source decoder, projection, mapping and priority boundary[33m 511[2mms[22m[39m
+ [32m✓[39m work/grounded-verification/mention-adoption-investigation-20261108-probes.test.ts[2m > [22mrecords manual and per-term mapping compatibility controls[32m 190[2mms[22m[39m
+ [32m✓[39m work/grounded-verification/mention-adoption-investigation-20261108-probes.test.ts[2m > [22mcompares existing hint retention with existing task-scoped level support after edits[32m 1[2mms[22m[39m
+ [32m✓[39m work/grounded-verification/mention-adoption-investigation-20261108-probes.test.ts[2m > [22mdemonstrates the stale hint through a real review save and reload without a model call[32m 18[2mms[22m[39m
+ [32m✓[39m work/grounded-verification/mention-adoption-investigation-20261108-probes.test.ts[2m > [22mrecords explicit learning intent separately from experience and audit[32m 63[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 17:19:51
+[2m   Duration [22m 1.65s[2m (transform 378ms, setup 190ms, import 520ms, tests 787ms, environment 0ms)[22m
+

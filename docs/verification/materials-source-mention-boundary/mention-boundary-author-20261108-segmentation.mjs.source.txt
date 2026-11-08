@@ -1,0 +1,8 @@
+const words = new Intl.Segmenter("zh", { granularity: "word" });
+for (const text of [
+  "必须掌握键盘可访问性的基本检查。", "提高可维护性的设计质量。", "记录可靠性的评估结果。",
+  "检查一致性的约束。", "检查可访问性的。", "检查可访问性的，基本要求。", "检查可访问性的性。",
+  "检查可访问性的X。", "检查可访问性的1。", "检查可访问性的确重要。", "检查可访问性的确切含义。",
+  "检查可访问性的确。", "检查可访问性的了。", "检查可访问性的的检查。", "研究弹性的变化。",
+  "检查可访问性地设计。", "检查可访问性和可靠性。", "属性的基本检查。", "属性的确。",
+]) console.log(JSON.stringify({ text, segments: [...words.segment(text)].map(({ segment, index, isWordLike }) => ({ segment, index, isWordLike })) }));
