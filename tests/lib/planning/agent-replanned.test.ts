@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { planningEventInputSchema, planningEventSchema } from "../../../app/contracts/planning";
+import { planningEventRequestSchema } from "../../../app/contracts/planning-api";
 import { applyPlanningEvent, replayPlanningEvents } from "../../../app/lib/planning/event-reducer";
 import { agentFixture } from "../../helpers/agent-fixture";
 
@@ -31,6 +32,25 @@ describe("agent planning proposals", () => {
     expect(planningEventInputSchema.safeParse({ ...body, materialContextFingerprint }).success).toBe(false);
     expect(planningEventSchema.safeParse({ ...event, materialContextFingerprint }).success).toBe(true);
     expect(planningEventSchema.safeParse({ ...event, materialContextFingerprint: "unverified" }).success).toBe(false);
+  });
+  it("accepts the display indicator only as literal true on a recorded agent proposal and still reads old events", () => {
+    const { event } = input();
+    expect(planningEventSchema.parse(event)).not.toHaveProperty("materialProposal");
+    expect(planningEventSchema.safeParse({ ...event, materialProposal: true }).success).toBe(true);
+    for (const materialProposal of [false, "true", 1, null]) {
+      expect(planningEventSchema.safeParse({ ...event, materialProposal }).success).toBe(false);
+    }
+    const { eventId, mutationId, sequence, targetPlanVersionId, occurredAt } = event;
+    expect(planningEventSchema.safeParse({ eventId, mutationId, sequence, targetPlanVersionId, occurredAt,
+      kind: "replan_discarded", candidatePlanVersionId: targetPlanVersionId, materialProposal: true }).success).toBe(false);
+  });
+  it.each([true, false, "true"])("rejects a client-injected material proposal indicator: %s", materialProposal => {
+    const { event } = input();
+    const body = { kind: event.kind, baseRevision: event.baseRevision, unitOrder: event.unitOrder, planningDate: event.planningDate };
+    expect(planningEventRequestSchema.safeParse({ mutationId: event.mutationId, baseVersionId: event.targetPlanVersionId, event: body }).success).toBe(true);
+    expect(planningEventInputSchema.safeParse({ ...body, materialProposal }).success).toBe(false);
+    expect(planningEventRequestSchema.safeParse({ mutationId: event.mutationId, baseVersionId: event.targetPlanVersionId,
+      event: { ...body, materialProposal } }).success).toBe(false);
   });
   it.each(["missing", "duplicate", "unknown", "dependency"] as const)("rejects %s unit order", (kind) => {
     const f = input();

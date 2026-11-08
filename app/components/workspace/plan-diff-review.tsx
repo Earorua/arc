@@ -45,7 +45,7 @@ export function PlanDiffReview({ workspace: value, recovery = "none", onAccept, 
       }
       const proposalEvent = [...workspace.events].reverse().find(({ targetPlanVersionId }) => targetPlanVersionId === active.id);
       const updatesOnlyMaterialContext = candidate.replanReason === "agent_replanned"
-        && proposalEvent?.kind === "agent_replanned" && proposalEvent.materialContextFingerprint !== undefined
+        && proposalEvent?.kind === "agent_replanned" && proposalEvent.materialProposal === true
         && canonicalJson(activePath.units) === canonicalJson(candidatePath.units)
         && active.planningDate === candidate.planningDate
         && canonicalJson(active.days) === canonicalJson(candidate.days)

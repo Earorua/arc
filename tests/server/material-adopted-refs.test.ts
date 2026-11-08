@@ -17,12 +17,14 @@ async function confirm(f: Fixture, slot: MaterialSelectionEntry["slot"], id: str
 }
 const asSelection = ({ slot, documentId, documentVersionId, confirmationId }: MaterialSelectionEntry) => ({ slot, documentId, documentVersionId, confirmationId });
 const adoptedScope = (workspace: PlanningWorkspace) => ({ goalId: workspace.goalId, workspaceId: workspace.id, baseVersionId: workspace.activePlanVersionId });
-function expectLegacyProposalEvents(workspace: PlanningWorkspace) {
+function expectPublicMaterialProposalEvents(workspace: PlanningWorkspace) {
   for (const event of workspace.events) {
     if (event.kind !== "agent_replanned") continue;
-    // The prior browser contract accepted exactly the input body plus these five server metadata fields.
+    expect(event).not.toHaveProperty("materialContextFingerprint");
+    expect(event).toHaveProperty("materialProposal", true);
+    // The public display indicator is server metadata, never accepted in a client event input.
     const body = Object.fromEntries(Object.entries(event).filter(([key]) =>
-      !["eventId", "mutationId", "sequence", "targetPlanVersionId", "occurredAt"].includes(key)));
+      !["eventId", "mutationId", "sequence", "targetPlanVersionId", "occurredAt", "materialProposal"].includes(key)));
     expect(planningEventInputSchema.safeParse(body).success).toBe(true);
   }
 }
@@ -131,9 +133,9 @@ it("re-proposes discarded B with distinct immutable decisions and keeps complete
       const detailed = await f.http("readMaterialHistory", { goalId: current.goalId, includeProposalState: "current" });
       expect(detailed.plans.find(row => row.contextVersionId === contextVersionId && row.planVersionId === candidate))
         .toMatchObject({ kind: "proposal", proposalState: "pending" });
-      expectLegacyProposalEvents(pending);
-      expectLegacyProposalEvents((await f.runtime.planning.getWorkspaceResponse("owner-a")).workspace!);
-      expectLegacyProposalEvents((await f.runtime.planning.getSavedWorkspaceResponse("owner-a", pending.goalId)).workspace!);
+      expectPublicMaterialProposalEvents(pending);
+      expectPublicMaterialProposalEvents((await f.runtime.planning.getWorkspaceResponse("owner-a")).workspace!);
+      expectPublicMaterialProposalEvents((await f.runtime.planning.getSavedWorkspaceResponse("owner-a", pending.goalId)).workspace!);
       const persisted = f.db.database.prepare("SELECT e.payload_json,p.context_fingerprint FROM planning_events e JOIN material_plan_proposals p ON p.owner_id=e.user_id AND p.goal_id=e.goal_id AND p.proposal_revision=e.sequence WHERE e.user_id=? AND e.mutation_id=?").get("owner-a", request.mutationId)!;
       expect(JSON.parse(String(persisted.payload_json)).materialContextFingerprint).toBe(persisted.context_fingerprint);
       expect(attempts.map(a => a.id)).not.toContain(candidate);
@@ -154,7 +156,7 @@ it("re-proposes discarded B with distinct immutable decisions and keeps complete
       const decision = { mutationId: `decide-b-${n}`, candidatePlanVersionId: candidate, baseVersionId: pending.activePlanVersionId };
       const decided = n === 3 ? await f.runtime.planning.acceptReplan("owner-a", decision) : await f.runtime.planning.discardReplan("owner-a", decision);
       current = decided.workspace;
-      expectLegacyProposalEvents(current);
+      expectPublicMaterialProposalEvents(current);
       attempts.push({ id: candidate, context: contextVersionId, state: n === 3 ? "accepted" : "discarded" });
       await expect(f.http("materialReplan", { ...request, mutationId: `stale-preview-${n}` })).rejects.toThrow("HTTP 409");
       expect(current.pendingPlanVersionId).toBeNull();

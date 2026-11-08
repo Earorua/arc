@@ -453,9 +453,12 @@ function materialUnappliedChanges(frozen: Pick<ContextInputSnapshot, "audit" | "
 
 function clientWorkspace(workspace: PlanningWorkspace): PlanningWorkspace {
   return { ...workspace, events: workspace.events.map(event => {
-    if (event.kind !== "agent_replanned" || !event.materialContextFingerprint) return event;
+    if (event.kind !== "agent_replanned") return event;
     const visible = { ...event };
     delete visible.materialContextFingerprint;
+    delete visible.materialProposal;
+    // Derive display metadata only from the already-validated server evidence.
+    if (event.materialContextFingerprint !== undefined) visible.materialProposal = true;
     return visible;
   }) };
 }

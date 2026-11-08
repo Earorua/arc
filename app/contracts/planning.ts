@@ -434,8 +434,9 @@ const decisionEventSchema = z.discriminatedUnion("kind", [
 
 export const planningEventSchema = z.union([
   ...unitAndAvailabilityEventInputs.map((event) => event.extend(eventMetadataSchema.shape).strict()),
-  // Only a verified material proposal records its preview fingerprint. Older events replay without it.
-  agentReplanInput.extend({ ...eventMetadataSchema.shape, materialContextFingerprint: z.string().regex(/^[0-9a-f]{64}$/u).optional() }).strict(),
+  // Verified proposals retain private replay evidence; the public view derives a display-only indicator. Older events omit both.
+  agentReplanInput.extend({ ...eventMetadataSchema.shape,
+    materialContextFingerprint: z.string().regex(/^[0-9a-f]{64}$/u).optional(), materialProposal: z.literal(true).optional() }).strict(),
   ...decisionEventSchema.options.map((event) => event.extend(eventMetadataSchema.shape).strict()),
   eventMetadataSchema.extend({ kind: z.literal("material_usage_changed") }).strict(),
 ]).superRefine((event, ctx) => {

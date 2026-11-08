@@ -41,7 +41,13 @@ function materialProposal({ material = true, reorderAfterWeek = false, planningD
   if (transition.kind !== "proposed") throw new Error("Expected a pending proposal.");
   const candidate = transition.workspace.planVersions.find(plan => plan.id === transition.workspace.pendingPlanVersionId)!;
   const candidatePath = transition.workspace.pathVersions.find(path => path.id === candidate.pathVersionId)!;
-  return { current: transition.workspace, active, activePath, candidate, candidatePath, diff: transition.diff };
+  const publicWorkspace = planningWorkspaceSchema.parse({ ...transition.workspace, events: transition.workspace.events.map(event => {
+    if (event.kind !== "agent_replanned") return event;
+    const visible = { ...event };
+    delete visible.materialContextFingerprint;
+    return { ...visible, ...(material ? { materialProposal: true } : {}) };
+  }) });
+  return { current: publicWorkspace, active, activePath, candidate, candidatePath, diff: transition.diff };
 }
 function history(planVersionId: string, message: string): MaterialHistoryResponse {
   return { plans: [{ planVersionId, contextVersionId: "context-material-diff", kind: "proposal", sourceAvailability: "available", explanations: [{ ruleId: "must-gap-first", changeKind: "reordered", skillId: null, unitIds: [], reasonItemIds: [], message, sourceAvailability: "available" }] }] };
@@ -49,7 +55,7 @@ function history(planVersionId: string, message: string): MaterialHistoryRespons
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const contextOnlyExplanation = "任务和日程保持不变。接受后将更新当前路线采用的资料与学习重点。";
 
-it("explains a reducer-built context-only proposal without reading private history or saving it", () => {
+it("explains a public context-only proposal without reading private history or saving it", () => {
   const { current, active, activePath, candidate, candidatePath, diff } = materialProposal();
   expect(candidatePath.units).toEqual(activePath.units);
   expect(candidate.days).toEqual(active.days);
@@ -65,6 +71,16 @@ it("explains a reducer-built context-only proposal without reading private histo
   expect(request).not.toHaveBeenCalled();
   expect(onAccept).not.toHaveBeenCalled(); expect(onDiscard).not.toHaveBeenCalled();
   expect(JSON.stringify(current)).toBe(before);
+});
+
+it("does not use a private fingerprint as the public material proposal indicator", () => {
+  const { current } = materialProposal({ material: false });
+  const privateOnly = { ...current, events: current.events.map(event => event.kind === "agent_replanned"
+    ? { ...event, materialContextFingerprint: "a".repeat(64) } : event) };
+  render(<PlanDiffReview workspace={privateOnly} onAccept={vi.fn()} onDiscard={vi.fn()} />);
+  expect(screen.queryByText(contextOnlyExplanation)).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "接受新安排" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "保留当前安排" })).toBeEnabled();
 });
 
 it.each(["accept", "discard"] as const)("saves a context-only proposal only on explicit %s using the current candidate ID", async decision => {
