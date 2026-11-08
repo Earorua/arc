@@ -89,6 +89,17 @@ function noFlagship() { expect(screen.queryByText(/AI-Native Full-Stack Engineer
 async function headingReady() { await screen.findByTitle(`${data.blueprint.name} · 18 周`); noFlagship(); }
 
 describe("research workspace page adapters with real controllers and deterministic service", () => {
+  it.each([["Today", TodayPage], ["Path", PathPage]] as const)("starts %s planning without waiting for the account workspace", async (_, Page) => {
+    const readArc = injected.arcClient.loadWorkspace;
+    let finishArc!: (value: Awaited<ReturnType<ArcCloudClient["loadWorkspace"]>>) => void;
+    injected.arcClient.loadWorkspace = vi.fn(() => new Promise<Awaited<ReturnType<ArcCloudClient["loadWorkspace"]>>>(resolve => { finishArc = resolve; }));
+    render(<Page />);
+    await waitFor(() => expect(injected.planningClient.loadWorkspace).toHaveBeenCalledTimes(1));
+    expect(screen.queryByTitle(`${data.blueprint.name} · 18 周`)).not.toBeInTheDocument();
+    await act(async () => { finishArc(await readArc()); });
+    await headingReady();
+  });
+
   it("preserves the full Stack operation when an empty account needs setup", async () => {
     const destination = "/stack?skill=research-basics#sources";
     window.history.replaceState(null, "", destination);

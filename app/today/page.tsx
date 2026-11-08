@@ -26,16 +26,16 @@ export default function TodayPage() {
 
 function SessionTodayPage({ authenticated }: { authenticated: boolean }) {
   const arc = useArcState();
+  const planning = usePlanningWorkspace();
   const { state } = arc;
 
   if (state === null) return <WorkspaceShell current="Today" recovery={arc.recovery} source={arc.source} state={null} />;
 
-  if (authenticated || state.setup.roleId === flagshipRole.id) return <SourceAdaptiveToday arc={arc} />;
+  if (authenticated || state.setup.roleId === flagshipRole.id) return <SourceAdaptiveToday arc={arc} planning={planning} />;
   return <LegacyToday arc={arc} />;
 }
 
-function SourceAdaptiveToday({ arc }: { arc: ReturnType<typeof useArcState> }) {
-  const planning = usePlanningWorkspace();
+function SourceAdaptiveToday({ arc, planning }: { arc: ReturnType<typeof useArcState>; planning: ReturnType<typeof usePlanningWorkspace> }) {
   const resolved = resolveWorkspacePresentation(planning, arc.state !== null && arc.source === "local" && arc.recovery === "none");
   if (resolved.kind === "unavailable") return <WorkspaceShell sourceUnresolved current="Today" recovery={arc.recovery} source={arc.source} state={arc.state} planningRecovery={planning.recovery}>
     <PlanningVersionBoundary />

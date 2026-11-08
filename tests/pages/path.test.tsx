@@ -106,7 +106,7 @@ describe("PathPage", () => {
 
   it("shows the complete 18-week route in four editorial phases", async () => {
     render(<PathPage />);
-    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     const heading = await screen.findByRole("heading", { name: "学习路线" });
@@ -133,7 +133,7 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     await waitFor(() => {
@@ -195,7 +195,7 @@ describe("PathPage", () => {
 
     render(<PathPage />);
 
-    expect(await screen.findByText(source === "restoring" ? "正在读取学习计划" : "学习计划暂不可用")).toBeInTheDocument();
+    expect(await screen.findByText(source === "restoring" ? "正在加载学习内容…" : "学习计划暂不可用")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "学习路线" })).not.toBeInTheDocument();
     if (source === "offline-cloud") {
       await userEvent.click(screen.getByRole("button", { name: /重新读取计划/ }));

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { WorkspaceLoading } from "./workspace-loading";
 
 export function PlanningVersionBoundary() {
   return (
@@ -23,12 +24,14 @@ export function PlanningLoadBoundary({ loading, onRetry }: { loading: boolean; o
     finally { setRetrying(false); }
   };
 
+  if (loading) return <WorkspaceLoading />;
+
   return (
-    <section className="planning-version-recovery" role={loading ? "status" : "alert"}>
-      <p className="section-index">{loading ? "正在读取学习计划" : "学习计划暂不可用"}</p>
-      <h2>{loading ? "正在确认你上次的学习进度" : "暂时无法确认已保存的学习计划"}</h2>
+    <section className="planning-version-recovery" role="alert">
+      <p className="section-index">学习计划暂不可用</p>
+      <h2>暂时无法确认已保存的学习计划</h2>
       <p>确认计划后即可继续学习，原有记录会保留。</p>
-      {!loading && <button disabled={retrying} onClick={() => void retry()} type="button">{retrying ? "正在重试…" : "重新读取计划"}</button>}
+      <button disabled={retrying} onClick={() => void retry()} type="button">{retrying ? "正在重试…" : "重新读取计划"}</button>
     </section>
   );
 }

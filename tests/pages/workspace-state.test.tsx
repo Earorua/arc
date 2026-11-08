@@ -91,7 +91,7 @@ describe("personalized workspace state", () => {
     saveDemoState(mergeSetup(createDemoState(), customSetup));
     render(<ProofPage />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
     expect(screen.queryByText(/18 weeks/)).not.toBeInTheDocument();
 
     await waitFor(() => {

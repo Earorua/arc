@@ -1,6 +1,7 @@
 "use client";
 
 import { WorkspaceHeader, type WorkspaceDestination } from "./workspace-header";
+import { WorkspaceLoading } from "./workspace-loading";
 import { MigrationBanner } from "../sync/migration-banner";
 import { CloudStatus } from "../sync/cloud-status";
 import { flagshipRole } from "../../data/flagship-role";
@@ -58,10 +59,10 @@ export function WorkspaceShell({
 }) {
   const isRestoring = state === null;
   const isCustomRole = sourceUnresolved || planningState ? false : state !== null && state.setup.roleId !== flagshipRole.id;
-  const context = sourceUnresolved ? "正在读取学习计划…" : planningState
+  const context = sourceUnresolved ? undefined : planningState
     ? `${roleName ?? "学习计划"} · ${planningState.target.targetWeeks} 周`
     : state === null
-    ? "正在恢复学习计划…"
+    ? undefined
     : `${getRoleDisplayName(state.setup.roleId)} · ${state.setup.targetWeeks} 周`;
 
   return (
@@ -69,7 +70,7 @@ export function WorkspaceShell({
       <WorkspaceHeader current={current} context={context} />
       <main id="main-content" tabIndex={-1} className="workspace-main">
         {isRestoring ? (
-          <p className="workspace-restoring" role="status">正在恢复你的学习计划…</p>
+          <WorkspaceLoading />
         ) : (
           <>
             {onDismissMigration && onImport && migrationState && (

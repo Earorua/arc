@@ -43,7 +43,7 @@ describe("TodayPage", () => {
 
     render(<TodayPage />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("正在恢复你的学习计划");
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
     expect(screen.queryByText("45")).not.toBeInTheDocument();
 
     await waitFor(() => {
@@ -139,7 +139,7 @@ describe("TodayPage", () => {
 
     render(<TodayPage />);
 
-    expect(await screen.findByText(source === "restoring" ? "正在读取学习计划" : "学习计划暂不可用")).toBeInTheDocument();
+    expect(await screen.findByText(source === "restoring" ? "正在加载学习内容…" : "学习计划暂不可用")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "完成任务" })).not.toBeInTheDocument();
     expect(screen.queryByText("45")).not.toBeInTheDocument();
     if (source === "offline-cloud") {
