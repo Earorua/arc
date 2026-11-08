@@ -52,11 +52,17 @@ function guidedPractice(part: string) {
   const zh = chineseGuidance.exec(body);
   if (zh) {
     const action = body.slice(zh[0].length).replace(/^[，,\s]*(?:我|本人)?/u, "");
+    const practice = practiceAction.exec(action);
     // The short “按指导” qualifier needs a direct practice verb, not a later
     // action inside a denial, plan, report, or another person's activity.
-    if (zh[1] && practiceAction.exec(action)?.index !== 0) return false;
+    if (!practice || (zh[1] && practice.index !== 0)) return false;
+    // A verb's negative complement or a plan predicate does not assert practice.
+    // Limit these checks to this action, before a separate clause about another task.
+    // A dot followed by identifier characters belongs to a technical name, such as React.js.
+    const assertion = action.slice(practice.index + practice[0].length).split(/[，,；;。!?！？]|\.(?![A-Za-z0-9_])/u, 1)[0]!;
+    if (/^不了/u.test(assertion) || /是.*计划\s*$|的计划(?:尚|还|仍)?未执行/u.test(assertion)) return false;
     if (action.startsWith("由") && !personalPassivePractice.test(action)) return false;
-    return !/^(?:团队|小组|我们|同事|其他人|学员们|他们|她们|安排|要求|让|叫|记录|说明|解释|报告|描述|计划|打算|准备|将|会|没有|未能|不会)/u.test(action) && practiceAction.test(action);
+    return !/^(?:团队|小组|我们|同事|其他人|学员们|他们|她们|安排|要求|让|叫|记录|说明|解释|报告|描述|计划|打算|准备|将|会|没有|未能|不会)/u.test(action);
   }
   if (instructionalFragmentStart(part) !== null) return true;
   if (!supervised.test(part) && !(instructionalPractice.test(part) && !deniedInstructionalPractice.test(part))) return false;

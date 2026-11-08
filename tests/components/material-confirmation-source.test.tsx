@@ -87,6 +87,9 @@ describe("edited material self-assessment suggestions", () => {
       "The example says ‘I tested SQL under supervision.’",
       "I tested SQL.",
       "I cannot independently test SQL.",
+      ...["按指导", "按照指导", "在导师指导下"].flatMap(qualifier => [
+        "完成不了 SQL 查询练习", "完成 SQL 查询练习是我下周的计划。", "完成 SQL 查询练习的计划尚未执行。",
+      ].map(action => qualifier + action)),
     ])(`hides the unsupported ${projection ?? "historical"} suggestion on the edit render: %s`, text => {
       const adopted = vi.fn(), changed = vi.fn();
       function Editor() {
@@ -109,7 +112,46 @@ describe("edited material self-assessment suggestions", () => {
     });
   }
 
-  it("offers supported quoted-tool guidance but only adopts it on an explicit click", () => {
+  for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
+    it.each([
+      ["完成不了 React.js 组件练习", false],
+      ["完成 React.js 组件练习是我下周的计划。", false],
+      ["完成 React.js 组件练习的计划尚未执行。", false],
+      ["完成 React.js 组件练习后，我记录了结果。", true],
+      ["完成 React.js 组件练习，明天计划阅读 CSS 文档。", true],
+      ["完成 React.js 组件练习，但我无法完成 CSS 页面。", true],
+      ["完成 React.js 组件练习. 阅读 CSS 文档是我下周的计划。", true],
+      ["完成 React.js 组件练习.阅读 CSS 文档是我下周的计划。", true],
+      ["完成 React.js 组件练习。阅读 CSS 文档是我下周的计划。", true],
+    ] as const)(`immediately checks the dotted-skill action after ${qualifier}: %s`, (action, supported) => {
+      const adopted = vi.fn(), source = "I tested React.js under supervision.", value = assessmentDraft(GROUNDED_MATERIAL_REVIEW_PROJECTION);
+      value.items[0] = { ...value.items[0]!, text: source, skillLabels: ["React.js"], sourceRef: { ...value.items[0]!.sourceRef!, end: source.length } };
+      value.selfAssessmentHints = [{ ...value.selfAssessmentHints[0]!, skillLabel: "React.js" }];
+      function Editor() {
+        const [current, setCurrent] = useState(value);
+        return <MaterialConfirmation draft={current} text={source} saving={false} confirmed={false} skills={[{ id: "reactjs", name: "React.js" }]}
+          onItemsChange={items => setCurrent({ ...current, items })} onConfirm={vi.fn()} onAdoptLevels={adopted} />;
+      }
+      render(<Editor />);
+      const buttonName = "采用 React.js 的需指导完成建议";
+      expect(screen.getByRole("button", { name: buttonName })).toBeInTheDocument();
+      fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: qualifier + action } });
+      expect(screen.queryByRole("button", { name: buttonName }) !== null).toBe(supported);
+      expect(screen.getAllByText(source, { selector: "blockquote" }).length).toBeGreaterThan(0);
+      expect(adopted).not.toHaveBeenCalled();
+      if (supported) {
+        fireEvent.click(screen.getByRole("button", { name: buttonName }));
+        expect(adopted).toHaveBeenCalledExactlyOnceWith({ reactjs: "guided" });
+      }
+    });
+  }
+
+  it.each([
+    "I tested 'SQL' under supervision.",
+    ...["按指导", "按照指导", "在导师指导下"].flatMap(qualifier => [
+      "完成 SQL 查询练习后，我记录了结果。", "完成 SQL 查询练习，明天计划阅读 React 文档。", "完成 SQL 查询练习，但我无法完成 React 页面。",
+    ].map(action => qualifier + action)),
+  ])("offers supported practice but only adopts it on an explicit click: %s", text => {
     const adopted = vi.fn();
     function Editor() {
       const [value, setValue] = useState(assessmentDraft(GROUNDED_MATERIAL_REVIEW_PROJECTION));
@@ -117,7 +159,7 @@ describe("edited material self-assessment suggestions", () => {
         onItemsChange={items => setValue({ ...value, items })} onConfirm={vi.fn()} onAdoptLevels={adopted} />;
     }
     render(<Editor />);
-    fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: "I tested 'SQL' under supervision." } });
+    fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: text } });
     expect(adopted).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: buttonName }));
     expect(adopted).toHaveBeenCalledExactlyOnceWith({ sql: "guided" });

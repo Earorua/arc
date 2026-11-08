@@ -525,6 +525,42 @@ describe("source-supported review reminders", () => {
 });
 
 describe("grounding a proposed self-level hint", () => {
+  for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
+    it.each([
+      ["完成不了 React.js 组件练习", false, null],
+      ["完成 React.js 组件练习是我下周的计划。", false, null],
+      ["完成 React.js 组件练习的计划尚未执行。", false, null],
+      ["完成 React.js 组件练习后，我记录了结果。", true, null],
+      ["完成 React.js 组件练习，明天计划阅读 CSS 文档。", true, null],
+      ["完成 React.js 组件练习，但我无法完成 CSS 页面。", true, null],
+      ["完成 React.js 组件练习. 阅读 CSS 文档是我下周的计划。", true, "完成 React.js 组件练习."],
+      ["完成 React.js 组件练习.阅读 CSS 文档是我下周的计划。", true, "完成 React.js 组件练习."],
+      ["完成 React.js 组件练习。阅读 CSS 文档是我下周的计划。", true, "完成 React.js 组件练习。"],
+    ] as const)(`keeps dotted technical evidence inside its action after ${qualifier}: %s`, (action, supported, reminderAction) => {
+      const quote = qualifier + action, candidate = { ...item("experience", quote, "guided"), skillLabels: ["React.js"] };
+      expect(groundSourceSelfLevelHint(candidate)).toBe(supported ? "guided" : null);
+      // The reminder pipeline binds each candidate to a statement in its document.
+      const reminderQuote = reminderAction ? qualifier + reminderAction : quote;
+      const statementCandidate = { ...candidate, source: source(reminderQuote) };
+      expect(groundSourceReviewPoints([point("confirm-self-assessment", reminderQuote)], [statementCandidate], document(quote))
+        ?.some(reminder => reminder.code === "confirm-self-assessment")).toBe(supported);
+    });
+
+    it.each([
+      ["完成不了 SQL 查询练习", false],
+      ["完成 SQL 查询练习是我下周的计划。", false],
+      ["完成 SQL 查询练习的计划尚未执行。", false],
+      ["完成 SQL 查询练习后，我记录了结果。", true],
+      ["完成 SQL 查询练习，明天计划阅读 React 文档。", true],
+      ["完成 SQL 查询练习，但我无法完成 React 页面。", true],
+    ] as const)(`grounds the action's own assertion after ${qualifier}: %s`, (action, supported) => {
+      const quote = qualifier + action, candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
+      expect(groundSourceSelfLevelHint(candidate)).toBe(supported ? "guided" : null);
+      expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [candidate], document(quote))
+        ?.filter(reminder => reminder.code === "confirm-self-assessment")).toEqual(supported ? [point("confirm-self-assessment", quote)] : []);
+    });
+  }
+
   it.each(["按指导示例完成 SQL 查询练习", "按照指导教程完成 SQL 查询练习"])("preserves the longer instructional qualifier and its reminder: %s", quote => {
     const candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
     expect(groundSourceSelfLevelHint(candidate)).toBe("guided");

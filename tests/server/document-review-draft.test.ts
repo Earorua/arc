@@ -266,6 +266,9 @@ for (const projection of ["legacy", "literal", "grounded"] as const) {
         "The example says ‘I tested SQL under supervision.’",
         "I tested SQL.",
         "I cannot independently test SQL.",
+        ...["按指导", "按照指导", "在导师指导下"].flatMap(qualifier => [
+            "完成不了 SQL 查询练习", "完成 SQL 查询练习是我下周的计划。", "完成 SQL 查询练习的计划尚未执行。",
+        ].map(action => qualifier + action)),
     ])(`saves an unsupported ${projection} edit without its authentic old hint: %s`, async text => {
         const f = await assessmentReview(projection);
         expect(f.draft.selfAssessmentHints).toHaveLength(1);
@@ -288,6 +291,9 @@ it.each([
     ["I tested SQL under supervision.", "I tested 'SQL' under supervision.", "guided"],
     ["I am familiar with SQL.", "I have only basic familiarity with SQL.", "conceptual"],
     ["I am unsure whether I can test SQL independently.", "I remain unsure whether I can test SQL independently.", "uncertain"],
+    ...["按指导", "按照指导", "在导师指导下"].flatMap(qualifier => [
+        "完成 SQL 查询练习后，我记录了结果。", "完成 SQL 查询练习，明天计划阅读 React 文档。", "完成 SQL 查询练习，但我无法完成 React 页面。",
+    ].map(action => ["I tested SQL under supervision.", qualifier + action, "guided"] as const)),
 ] as const)("keeps the authentic %s assessment after a supported personal edit", async (source, text, level) => {
     const f = await assessmentReview("grounded", { source, level });
     const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
@@ -295,6 +301,32 @@ it.each([
     expect(saved.draft.selfAssessmentHints).toEqual(f.draft.selfAssessmentHints);
     expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(saved.draft);
 });
+
+for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
+    it.each([
+        ["完成不了 React.js 组件练习", false],
+        ["完成 React.js 组件练习是我下周的计划。", false],
+        ["完成 React.js 组件练习的计划尚未执行。", false],
+        ["完成 React.js 组件练习后，我记录了结果。", true],
+        ["完成 React.js 组件练习，明天计划阅读 CSS 文档。", true],
+        ["完成 React.js 组件练习，但我无法完成 CSS 页面。", true],
+        ["完成 React.js 组件练习. 阅读 CSS 文档是我下周的计划。", true],
+        ["完成 React.js 组件练习.阅读 CSS 文档是我下周的计划。", true],
+        ["完成 React.js 组件练习。阅读 CSS 文档是我下周的计划。", true],
+    ] as const)(`saves the current dotted-skill assessment after ${qualifier}: %s`, async (action, supported) => {
+        const f = await assessmentReview("grounded", { source: "I tested React.js under supervision.", labels: ["React.js"] });
+        const originalObjects = [...f.bucket.objects], text = qualifier + action;
+        const originalCapture = f.db.database.prepare("SELECT candidates_json FROM document_extractions").get();
+        const request = { ...f.request, items: f.draft.items.map(item => ({ ...item, origin: "user" as const, text })) };
+        const saved = await f.services.saveDocumentReviewDraft(f.owner, request);
+        expect(saved.draft.selfAssessmentHints).toEqual(supported ? f.draft.selfAssessmentHints : []);
+        expect(saved.draft.items[0]).toMatchObject({ text, origin: "user", skillLabels: ["React.js"], sourceRef: f.draft.items[0]!.sourceRef });
+        expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(saved.draft);
+        expect(await f.services.saveDocumentReviewDraft(f.owner, request)).toEqual(saved);
+        expect([...f.bucket.objects]).toEqual(originalObjects);
+        expect(f.db.database.prepare("SELECT candidates_json FROM document_extractions").get()).toEqual(originalCapture);
+    });
+}
 
 it("removes only the hint whose skill lost personal support", async () => {
     const f = await assessmentReview("grounded", { source: "I tested SQL and React under supervision.", labels: ["SQL", "React"] });

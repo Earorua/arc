@@ -2,6 +2,33 @@ import { describe, expect, it } from "vitest";
 import { supportsMaterialSelfLevelHint } from "../../../app/lib/materials/self-assessment-evidence";
 
 describe("material self-assessment evidence", () => {
+  for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
+    it.each([
+      ["完成不了 React.js 组件练习", false],
+      ["完成 React.js 组件练习是我下周的计划。", false],
+      ["完成 React.js 组件练习的计划尚未执行。", false],
+      ["完成 React.js 组件练习后，我记录了结果。", true],
+      ["完成 React.js 组件练习，明天计划阅读 CSS 文档。", true],
+      ["完成 React.js 组件练习，但我无法完成 CSS 页面。", true],
+      ["完成 React.js 组件练习. 阅读 CSS 文档是我下周的计划。", true],
+      ["完成 React.js 组件练习.阅读 CSS 文档是我下周的计划。", true],
+      ["完成 React.js 组件练习。阅读 CSS 文档是我下周的计划。", true],
+    ] as const)(`preserves technical dots but respects clause punctuation after ${qualifier}: %s`, (action, supported) => {
+      expect(supportsMaterialSelfLevelHint({ kind: "experience", text: qualifier + action, labels: ["React.js"], level: "guided" })).toBe(supported);
+    });
+
+    it.each([
+      ["完成不了 SQL 查询练习", false],
+      ["完成 SQL 查询练习是我下周的计划。", false],
+      ["完成 SQL 查询练习的计划尚未执行。", false],
+      ["完成 SQL 查询练习后，我记录了结果。", true],
+      ["完成 SQL 查询练习，明天计划阅读 React 文档。", true],
+      ["完成 SQL 查询练习，但我无法完成 React 页面。", true],
+    ] as const)(`requires the action after ${qualifier} itself to be asserted: %s`, (action, supported) => {
+      expect(supportsMaterialSelfLevelHint({ kind: "experience", text: qualifier + action, labels: ["SQL"], level: "guided" })).toBe(supported);
+    });
+  }
+
   it.each(["按指导示例完成 SQL 查询练习", "按照指导教程完成 SQL 查询练习"])("preserves longer instructional qualifiers beginning with guidance words: %s", text => {
     expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(true);
   });

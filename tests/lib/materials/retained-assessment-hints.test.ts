@@ -13,6 +13,35 @@ function fact(text: string, changes: Partial<ConfirmedMaterialItem> = {}): Confi
 describe("retained material self-assessment hints", () => {
   for (const projection of [undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION]) {
     describe(projection ?? "historical projection", () => {
+      for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
+        it.each([
+          ["完成不了 React.js 组件练习", false],
+          ["完成 React.js 组件练习是我下周的计划。", false],
+          ["完成 React.js 组件练习的计划尚未执行。", false],
+          ["完成 React.js 组件练习后，我记录了结果。", true],
+          ["完成 React.js 组件练习，明天计划阅读 CSS 文档。", true],
+          ["完成 React.js 组件练习，但我无法完成 CSS 页面。", true],
+          ["完成 React.js 组件练习. 阅读 CSS 文档是我下周的计划。", true],
+          ["完成 React.js 组件练习.阅读 CSS 文档是我下周的计划。", true],
+          ["完成 React.js 组件练习。阅读 CSS 文档是我下周的计划。", true],
+        ] as const)(`keeps the whole dotted-skill action after ${qualifier}: %s`, (action, supported) => {
+          const hint = { ...guidedHint, skillLabel: "React.js" };
+          expect(retainedMaterialSelfAssessmentHints([fact(qualifier + action, { skillLabels: ["React.js"] })], [hint], projection))
+            .toEqual(supported ? [hint] : []);
+        });
+
+        it.each([
+          ["完成不了 SQL 查询练习", false],
+          ["完成 SQL 查询练习是我下周的计划。", false],
+          ["完成 SQL 查询练习的计划尚未执行。", false],
+          ["完成 SQL 查询练习后，我记录了结果。", true],
+          ["完成 SQL 查询练习，明天计划阅读 React 文档。", true],
+          ["完成 SQL 查询练习，但我无法完成 React 页面。", true],
+        ] as const)(`retains the hint only for the asserted current action after ${qualifier}: %s`, (action, supported) => {
+          expect(retainedMaterialSelfAssessmentHints([fact(qualifier + action)], [guidedHint], projection)).toEqual(supported ? [guidedHint] : []);
+        });
+      }
+
       it.each([
         "My colleague tested SQL under supervision.",
         "I will test SQL under supervision.",
