@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MaterialConfirmation } from "../../app/components/materials/material-confirmation";
-import type { DocumentReviewDraft } from "../../app/contracts/documents";
+import { GROUNDED_MATERIAL_REVIEW_PROJECTION, type DocumentReviewDraft } from "../../app/contracts/documents";
 
 const draft: DocumentReviewDraft = {
   id: "review-a", schemaVersion: "2026.11.1", documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a",
@@ -62,5 +62,86 @@ describe("source-aware material requirement confirmation", () => {
     expect(screen.getByRole("option", { name: "岗位要求" })).toBeInTheDocument();
     expect(screen.getByLabelText("事实 1 要求类型")).toHaveValue("unspecified");
     expect(screen.getByRole("button", { name: "确认这些事实" })).toBeDisabled();
+  });
+});
+
+describe("edited material self-assessment suggestions", () => {
+  afterEach(cleanup);
+  const guided = "I tested SQL under supervision.";
+  const buttonName = "采用 SQL 的需指导完成建议";
+  const skills = [{ id: "sql", name: "SQL" }, { id: "react", name: "React" }];
+  function assessmentDraft(projection: DocumentReviewDraft["reviewProjection"]): DocumentReviewDraft {
+    return { ...draft, reviewProjection: projection,
+      items: [{ id: "practice", text: guided, kind: "experience", origin: "extracted", requirementLevel: null, skillLabels: ["SQL"],
+        sourceRef: { documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", start: 0, end: guided.length } }],
+      selfAssessmentHints: [{ id: "hint-practice-0", candidateId: "practice", skillLabel: "SQL", level: "guided" }],
+    };
+  }
+
+  for (const projection of [undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION]) {
+    it.each([
+      "My colleague tested SQL under supervision.",
+      "I will test SQL under supervision.",
+      "If I tested SQL under supervision, I would document it.",
+      "I did not test SQL under supervision.",
+      "The example says ‘I tested SQL under supervision.’",
+      "I tested SQL.",
+      "I cannot independently test SQL.",
+    ])(`hides the unsupported ${projection ?? "historical"} suggestion on the edit render: %s`, text => {
+      const adopted = vi.fn(), changed = vi.fn();
+      function Editor() {
+        const [value, setValue] = useState(assessmentDraft(projection));
+        const [saving, setSaving] = useState(false);
+        return <MaterialConfirmation draft={value} text={guided} saving={saving} confirmed={false} skills={skills}
+          onItemsChange={items => { changed(items); setValue({ ...value, items }); setSaving(true); }} onConfirm={vi.fn()} onAdoptLevels={adopted} />;
+      }
+      render(<Editor />);
+      expect(screen.getByRole("button", { name: buttonName })).toBeInTheDocument();
+      expect(adopted).not.toHaveBeenCalled();
+      fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: text } });
+      expect(changed).toHaveBeenCalledWith([expect.objectContaining({ text, origin: "user", skillLabels: ["SQL"] })]);
+      expect(screen.getByText("正在保存核对修改…")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: buttonName })).not.toBeInTheDocument();
+      expect(screen.queryByText("单独核对能力建议")).not.toBeInTheDocument();
+      expect(screen.queryByText(/SQL · 不确定/)).not.toBeInTheDocument();
+      expect(screen.getAllByText(guided, { selector: "blockquote" }).length).toBeGreaterThan(0);
+      expect(adopted).not.toHaveBeenCalled();
+    });
+  }
+
+  it("offers supported quoted-tool guidance but only adopts it on an explicit click", () => {
+    const adopted = vi.fn();
+    function Editor() {
+      const [value, setValue] = useState(assessmentDraft(GROUNDED_MATERIAL_REVIEW_PROJECTION));
+      return <MaterialConfirmation draft={value} text={guided} saving={false} confirmed={false} skills={skills}
+        onItemsChange={items => setValue({ ...value, items })} onConfirm={vi.fn()} onAdoptLevels={adopted} />;
+    }
+    render(<Editor />);
+    fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: "I tested 'SQL' under supervision." } });
+    expect(adopted).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: buttonName }));
+    expect(adopted).toHaveBeenCalledExactlyOnceWith({ sql: "guided" });
+  });
+
+  it("keeps SQL's supported suggestion while hiding React's colleague assessment", () => {
+    const adopted = vi.fn(), value = assessmentDraft(GROUNDED_MATERIAL_REVIEW_PROJECTION);
+    value.items[0] = { ...value.items[0]!, origin: "user", text: "I tested SQL under supervision, but my colleague tested React under supervision.", skillLabels: ["SQL", "React"] };
+    value.selfAssessmentHints.push({ id: "hint-practice-1", candidateId: "practice", skillLabel: "React", level: "guided" });
+    render(<MaterialConfirmation draft={value} text={guided} saving={false} confirmed={false} skills={skills}
+      onItemsChange={vi.fn()} onConfirm={vi.fn()} onAdoptLevels={adopted} />);
+    expect(screen.getByRole("button", { name: buttonName })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "采用 React 的需指导完成建议" })).not.toBeInTheDocument();
+    expect(adopted).not.toHaveBeenCalled();
+  });
+
+  it("revalidates an extracted grounded fact without changing historical summary behavior", () => {
+    const adopted = vi.fn(), value = assessmentDraft(undefined);
+    value.items[0] = { ...value.items[0]!, text: "Tested SQL." };
+    const props = { text: guided, saving: false, confirmed: false, skills, onItemsChange: vi.fn(), onConfirm: vi.fn(), onAdoptLevels: adopted };
+    const page = render(<MaterialConfirmation {...props} draft={value} />);
+    expect(screen.getByRole("button", { name: buttonName })).toBeInTheDocument();
+    page.rerender(<MaterialConfirmation {...props} draft={{ ...value, reviewProjection: GROUNDED_MATERIAL_REVIEW_PROJECTION }} />);
+    expect(screen.queryByRole("button", { name: buttonName })).not.toBeInTheDocument();
+    expect(adopted).not.toHaveBeenCalled();
   });
 });

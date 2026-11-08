@@ -6,7 +6,7 @@ import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
 import { DocumentStorage } from "../../app/server/documents/storage";
 import { ReviewService } from "../../app/server/documents/review-service";
 import { materialsClock } from "../helpers/materials-d1";
-import { MAX_DOCUMENT_ITEMS_JSON_BYTES, utf8Bytes } from "../../app/contracts/documents";
+import { MAX_DOCUMENT_ITEMS_JSON_BYTES, utf8Bytes, type ConfirmedMaterialItem, type DocumentCandidate } from "../../app/contracts/documents";
 import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
 const item = {
     id: "fact",
@@ -76,9 +76,9 @@ it("rejects a review that cannot fit its saved draft envelope before changing th
     expect((await services.readDocumentReviewDraft(owner, { documentId: doc.documentId, textVersionId: doc.textVersionId })).draft).toBeNull();
 });
 
-async function pendingExtraction(providerPolicyId: string) {
+async function pendingExtraction(providerPolicyId: string, candidate?: DocumentCandidate) {
     const { services, owner, db, bucket } = setup();
-    const text = "我在指导下清洗数据。";
+    const text = candidate?.source.quote ?? "我在指导下清洗数据。";
     const receipt = await services.createDocument(owner, { kind: "resume", displayName: "Practice", text, mutationId: "create" });
     db.database.prepare("INSERT INTO document_processing_consents VALUES(?,?,?,?,?,'analysis','2026.11.1',?,0,0,NULL)")
         .run(owner.ownerId, "consent", receipt.textVersionId, receipt.documentId, receipt.documentVersionId, providerPolicyId);
@@ -86,9 +86,9 @@ async function pendingExtraction(providerPolicyId: string) {
         .run(owner.ownerId, receipt.textVersionId, receipt.documentId, receipt.documentVersionId, providerPolicyId);
     const review = new ReviewService(new D1DocumentRepository(db as unknown as D1Database, materialsClock), new DocumentStorage(bucket));
     const input = { ...receipt, jobId: "job", generation: 0, documentRevision: 0, consentId: "consent",
-        candidate: { schemaVersion: "2026.11.1", items: [{ id: "practice", kind: "experience", text, requirementLevel: null,
+        candidate: { schemaVersion: "2026.11.1", items: [candidate ?? { id: "practice", kind: "experience", text, requirementLevel: null,
             skillLabels: ["data cleaning"], selfLevelHint: "guided", source: { segmentId: "segment-1", quote: text } }] } };
-    return { db, owner, services, receipt, review, input };
+    return { db, bucket, owner, services, receipt, review, input };
 }
 
 it.each(["materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1", KIMI_GROUNDED_TERMS_POLICY_ID])(
@@ -232,4 +232,163 @@ it("initializes AI review once and preserves user edits when a later extraction 
         mutationId: "confirm-resolved"
     });
     expect(JSON.parse(String(db.database.prepare("SELECT review_points_json FROM document_confirmations").get()!.review_points_json))[0].resolution).toBe("confirmed");
+});
+
+async function assessmentReview(projection: "legacy" | "literal" | "grounded", options: {
+    source?: string; summary?: string; labels?: string[]; level?: DocumentCandidate["selfLevelHint"];
+} = {}) {
+    const source = options.source ?? "I tested SQL under supervision.";
+    const f = await pendingExtraction(projection === "grounded" ? KIMI_GROUNDED_TERMS_POLICY_ID : "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1", {
+        id: "practice", kind: "experience", text: options.summary ?? source, requirementLevel: null,
+        skillLabels: options.labels ?? ["SQL"], selfLevelHint: options.level ?? "guided", source: { segmentId: "segment-1", quote: source },
+    });
+    expect((await f.review.acceptAiExtraction(f.owner.ownerId, f.input)).disposition).toBe("initialized");
+    const ref = { documentId: f.receipt.documentId, textVersionId: f.receipt.textVersionId };
+    if (projection === "legacy") {
+        // Reproduce the pre-envelope capture and its original list-free draft.
+        f.db.database.prepare("UPDATE document_extractions SET candidates_json=?").run(JSON.stringify(f.input.candidate));
+        const initial = (await f.services.readDocumentReviewDraft(f.owner, ref)).draft!;
+        const items = initial.items.map(({ skillLabels, ...item }) => { void skillLabels; return item; });
+        f.db.database.prepare("UPDATE document_review_drafts SET items_json=?").run(JSON.stringify(items));
+    }
+    const draft = (await f.services.readDocumentReviewDraft(f.owner, ref)).draft!;
+    const request = { ...ref, extractionId: draft.extractionId, items: draft.items, selfAssessmentHints: draft.selfAssessmentHints,
+        expectedRevision: draft.revision, mutationId: "edit-assessment" };
+    return { ...f, ref, draft, request };
+}
+
+for (const projection of ["legacy", "literal", "grounded"] as const) {
+    it.each([
+        "My colleague tested SQL under supervision.",
+        "I will test SQL under supervision.",
+        "If I tested SQL under supervision, I would document it.",
+        "I did not test SQL under supervision.",
+        "The example says ‘I tested SQL under supervision.’",
+        "I tested SQL.",
+        "I cannot independently test SQL.",
+    ])(`saves an unsupported ${projection} edit without its authentic old hint: %s`, async text => {
+        const f = await assessmentReview(projection);
+        expect(f.draft.selfAssessmentHints).toHaveLength(1);
+        const originalCapture = f.db.database.prepare("SELECT candidates_json FROM document_extractions").get();
+        const originalObjects = [...f.bucket.objects];
+        const request = { ...f.request, items: f.draft.items.map(item => ({ ...item, origin: "user" as const, text })) };
+        const saved = await f.services.saveDocumentReviewDraft(f.owner, request);
+        expect(saved.draft.items[0]).toMatchObject({ text, origin: "user", sourceRef: f.draft.items[0]!.sourceRef });
+        expect(saved.draft.selfAssessmentHints).toEqual([]);
+        expect(saved.draft.revision).toBe(1);
+        expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(saved.draft);
+        expect(await f.services.saveDocumentReviewDraft(f.owner, request)).toEqual(saved);
+        expect(f.db.database.prepare("SELECT candidates_json FROM document_extractions").get()).toEqual(originalCapture);
+        expect([...f.bucket.objects]).toEqual(originalObjects);
+        await expect(f.services.saveDocumentReviewDraft(f.owner, { ...request, mutationId: "stale-edit" })).rejects.toMatchObject({ code: "conflict" });
+    });
+}
+
+it.each([
+    ["I tested SQL under supervision.", "I tested 'SQL' under supervision.", "guided"],
+    ["I am familiar with SQL.", "I have only basic familiarity with SQL.", "conceptual"],
+    ["I am unsure whether I can test SQL independently.", "I remain unsure whether I can test SQL independently.", "uncertain"],
+] as const)("keeps the authentic %s assessment after a supported personal edit", async (source, text, level) => {
+    const f = await assessmentReview("grounded", { source, level });
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: f.draft.items.map(item => ({ ...item, origin: "user", text })) });
+    expect(saved.draft.selfAssessmentHints).toEqual(f.draft.selfAssessmentHints);
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(saved.draft);
+});
+
+it("removes only the hint whose skill lost personal support", async () => {
+    const f = await assessmentReview("grounded", { source: "I tested SQL and React under supervision.", labels: ["SQL", "React"] });
+    const text = "I tested SQL under supervision, but my colleague tested React under supervision.";
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: f.draft.items.map(item => ({ ...item, origin: "user", text })) });
+    expect(saved.draft.items[0]?.skillLabels).toEqual(["SQL", "React"]);
+    expect(saved.draft.selfAssessmentHints).toEqual(f.draft.selfAssessmentHints.filter(hint => hint.skillLabel === "SQL"));
+});
+
+it("revalidates an authentic extracted hint using the server's grounded projection", async () => {
+    const f = await assessmentReview("grounded", { source: "My colleague tested SQL under supervision." });
+    expect(f.draft.items[0]?.origin).toBe("extracted");
+    expect(f.draft.selfAssessmentHints).toHaveLength(1);
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, f.request);
+    expect(saved.draft.items).toEqual(f.draft.items);
+    expect(saved.draft.reviewProjection).toBe("grounded-skill-labels-v2");
+    expect(saved.draft.selfAssessmentHints).toEqual([]);
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(saved.draft);
+});
+
+it.each(["legacy", "literal"] as const)("preserves an untouched %s summary when another fact is edited", async projection => {
+    const f = await assessmentReview(projection, { summary: "Tested SQL." });
+    expect(f.draft).not.toHaveProperty("reviewProjection");
+    const added = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request, items: [...f.draft.items, item] });
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request, expectedRevision: added.draft.revision,
+        items: [added.draft.items[0]!, { ...added.draft.items[1]!, text: "I am familiar with React." }], mutationId: "edit-other-fact" });
+    expect(saved.draft.items[0]).toEqual(f.draft.items[0]);
+    expect(saved.draft.selfAssessmentHints).toEqual(f.draft.selfAssessmentHints);
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(saved.draft);
+});
+
+it("does not restore a dropped hint when its evidence is later restored", async () => {
+    const f = await assessmentReview("grounded");
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: f.draft.items.map(item => ({ ...item, origin: "user", text: "My colleague tested SQL under supervision." })) });
+    const restored = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: f.draft.items.map(item => ({ ...item, origin: "user" })), expectedRevision: saved.draft.revision, mutationId: "restore-evidence" });
+    expect(restored.draft.selfAssessmentHints).toEqual([]);
+});
+
+it("does not create a hint for a source term that the reader adds", async () => {
+    const f = await assessmentReview("grounded", { source: "I tested SQL and React under supervision." });
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: f.draft.items.map(item => ({ ...item, origin: "user", skillLabels: ["SQL", "React"] })),
+        skillTermAddition: { itemId: "practice", sourceTerm: "React" } });
+    expect(saved.draft.items[0]?.skillLabels).toEqual(["SQL", "React"]);
+    expect(saved.draft.selfAssessmentHints).toEqual(f.draft.selfAssessmentHints);
+});
+
+it.each([
+    { id: "forged-hint" }, { level: "uncertain" as const }, { skillLabel: "React" }, { candidateId: "other-fact" },
+])("rejects altered hint identity even when the edited text has lost support: %j", async changes => {
+    const f = await assessmentReview("grounded");
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: f.draft.items.map(item => ({ ...item, origin: "user", text: "My colleague tested SQL under supervision." })),
+        selfAssessmentHints: [{ ...f.draft.selfAssessmentHints[0]!, ...changes }] })).rejects.toMatchObject({ code: "invalid-content" });
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(f.draft);
+});
+
+it("keeps the original confirmation and source immutable when dropping an unsupported assessment", async () => {
+    const f = await assessmentReview("grounded");
+    await f.services.createDocumentConfirmation(f.owner, { ...f.ref, documentVersionId: f.receipt.documentVersionId,
+        items: f.draft.items, reviewRevision: f.draft.revision, expectedRevision: f.receipt.revision, mutationId: "confirm-original" });
+    const originalConfirmation = f.db.database.prepare("SELECT * FROM document_confirmations").get();
+    const originalObjects = [...f.bucket.objects];
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: f.draft.items.map(item => ({ ...item, origin: "user", text: "My colleague tested SQL under supervision." })) });
+    expect(saved.draft.selfAssessmentHints).toEqual([]);
+    expect(saved.draft.items[0]?.sourceRef).toEqual(f.draft.items[0]?.sourceRef);
+    expect(f.db.database.prepare("SELECT * FROM document_confirmations").get()).toEqual(originalConfirmation);
+    expect([...f.bucket.objects]).toEqual(originalObjects);
+});
+
+it("requires user edit provenance and the authentic source range before retaining or dropping hints", async () => {
+    const f = await assessmentReview("grounded");
+    const edited: ConfirmedMaterialItem = { ...f.draft.items[0]!, text: "My colleague tested SQL under supervision." };
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...f.request, items: [edited] })).rejects.toMatchObject({ code: "invalid-content" });
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...f.request, items: [{ ...edited, origin: "user",
+        sourceRef: { ...edited.sourceRef!, end: edited.sourceRef!.end - 1 } }] })).rejects.toMatchObject({ code: "invalid-content" });
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(f.draft);
+});
+
+it("keeps unsupported-hint removal inside the owner and atomic revision guards", async () => {
+    const f = await assessmentReview("grounded");
+    const request = { ...f.request, items: f.draft.items.map(item => ({ ...item, origin: "user" as const, text: "My colleague tested SQL under supervision." })) };
+    await expect(f.services.saveDocumentReviewDraft({ ownerId: "owner-b" }, request)).rejects.toMatchObject({ code: "not-found" });
+    f.db.failAtBatchStatement = 2;
+    await expect(f.services.saveDocumentReviewDraft(f.owner, request)).rejects.toMatchObject({ code: "conflict" });
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(f.draft);
+    expect(f.db.database.prepare("SELECT * FROM document_mutations WHERE endpoint='saveDocumentReviewDraft'").all()).toEqual([]);
+    f.db.failAtBatchStatement = null;
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, request);
+    expect(saved.draft.selfAssessmentHints).toEqual([]);
+    expect(saved.draft.revision).toBe(1);
+    expect(await f.services.saveDocumentReviewDraft(f.owner, request)).toEqual(saved);
 });

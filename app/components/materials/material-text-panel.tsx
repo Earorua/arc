@@ -370,7 +370,7 @@ export function MaterialTextPanel({ kind, capabilities, client = documentsClient
         if (!draft || !valueRef.current)
             return;
         const edit = ++edits.current;
-        const selfAssessmentHints = retainedMaterialSelfAssessmentHints(items, draft.selfAssessmentHints);
+        const selfAssessmentHints = retainedMaterialSelfAssessmentHints(items, draft.selfAssessmentHints, draft.reviewProjection);
         const edited = { ...draft, items, selfAssessmentHints, ...(reviewPoints ? { reviewPoints } : {}) };
         setDraft(edited);
         setSaving(true);

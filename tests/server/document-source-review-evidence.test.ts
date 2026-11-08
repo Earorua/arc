@@ -525,6 +525,47 @@ describe("source-supported review reminders", () => {
 });
 
 describe("grounding a proposed self-level hint", () => {
+  it.each(["按指导示例完成 SQL 查询练习", "按照指导教程完成 SQL 查询练习"])("preserves the longer instructional qualifier and its reminder: %s", quote => {
+    const candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
+    expect(groundSourceSelfLevelHint(candidate)).toBe("guided");
+    expect(groundSourceReviewPoints([], [candidate], document(quote))).toEqual([point("confirm-self-assessment", quote)]);
+  });
+
+  it.each([
+    "按指导完成 SQL 查询练习",
+    "按照指导完成 SQL 查询练习",
+    "我按指导完成 SQL 查询练习",
+    "我按照指导完成 SQL 查询练习",
+    "按指导完成 ‘SQL’ 查询练习",
+    "按指导，我完成 SQL 查询练习",
+  ])("grounds the short personal guidance statement and its confirmation reminder: %s", quote => {
+    const candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
+    expect(groundSourceSelfLevelHint(candidate)).toBe("guided");
+    expect(groundSourceReviewPoints([], [candidate], document(quote))).toEqual([point("confirm-self-assessment", quote)]);
+  });
+
+  it.each([
+    "按指导没有完成 SQL 查询练习",
+    "按指导未完成 SQL 查询练习",
+    "按指导计划完成 SQL 查询练习",
+    "按指导安排同事完成 SQL 查询练习",
+    "按指导由同事完成 SQL 查询练习",
+    "按指导同事完成 SQL 查询练习",
+    "按指导团队完成 SQL 查询练习",
+    "按指导，我的同事完成 SQL 查询练习",
+    "按指导将完成 SQL 查询练习",
+    "按指导记录 SQL 查询练习",
+    "按指导 SQL 查询练习",
+    "示例：“按指导完成 SQL 查询练习”",
+    "没有按指导完成 SQL 查询练习",
+    "完成 SQL 查询练习",
+  ])("does not request a self-assessment from an unsupported short guidance mention: %s", quote => {
+    const candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
+    expect(groundSourceSelfLevelHint(candidate)).toBeNull();
+    expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [candidate], document(quote))
+      ?.filter(reminder => reminder.code === "confirm-self-assessment")).toEqual([]);
+  });
+
   it.each([
     ["2022年在山岚工坊参与信号练习，按讲师示例编写 QuantaScript 驱动。", "guided", "QuantaScript"],
     ["参与设备检修演练，在同事指导下设置 PhaseDock 参数。", "guided", "PhaseDock"],

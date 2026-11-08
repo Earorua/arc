@@ -1,5 +1,6 @@
 import { GROUNDED_MATERIAL_REVIEW_PROJECTION, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../contracts/documents";
 import { findMaterialSkillEvidence, groundMaterialSkillTerms } from "./grounded-skill-terms";
+import { supportsMaterialSelfLevelHint } from "./self-assessment-evidence";
 
 export function normalizeMaterialSkillLabel(label: string) {
   return label.normalize("NFKC").toLowerCase();
@@ -29,10 +30,13 @@ export function labelForAddedSourceTerm(quote: string, fact: string, sourceTerm:
   return label && findMaterialSkillEvidence(fact, label) !== null ? label : null;
 }
 
-export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMaterialItem[], hints: DocumentReviewDraft["selfAssessmentHints"]) {
+export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMaterialItem[], hints: DocumentReviewDraft["selfAssessmentHints"], projection?: DocumentReviewDraft["reviewProjection"]) {
   return hints.filter(hint => {
     const item = items.find(item => item.id === hint.candidateId);
     if (!item || (item.kind !== "skill-claim" && item.kind !== "experience")) return false;
-    return item.skillLabels ? item.skillLabels.includes(hint.skillLabel) : item.origin === "extracted" || containsMaterialSkillLabel(item.text, hint.skillLabel);
+    const retainedLabel = item.skillLabels ? item.skillLabels.includes(hint.skillLabel) : item.origin === "extracted" || containsMaterialSkillLabel(item.text, hint.skillLabel);
+    if (!retainedLabel) return false;
+    const needsEvidence = projection === GROUNDED_MATERIAL_REVIEW_PROJECTION || item.origin === "user";
+    return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text: item.text, labels: [hint.skillLabel], level: hint.level });
   });
 }

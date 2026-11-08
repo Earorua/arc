@@ -21,7 +21,7 @@ const supervised = /\b(?:under (?:[\w'’-]+ ){0,2}(?:supervision|guidance|revie
 const instructionalPractice = /\b(?:(?:using|following|followed)\s+(?:(?:[\w'’-]+)\s+){0,3}(?:tutorials?|runbooks?|examples?|review notes))\b/iu;
 const deniedInstructionalPractice = /\b(?:without(?:\s+(?:using|following))?|(?:not|(?:isn|aren|wasn|weren)['’]t)\s+(?:using|following)|(?:used|using|following|followed)\s+(?:no|zero|none|neither|not(?:\s+even)?\s+(?:a|an|any|one))|never\s+(?:used|followed))\b[^.;]{0,45}\b(?:tutorials?|runbooks?|examples?|review notes)\b/iu;
 const selfUncertain = /^I(?:['’]m| am| remain)\s+(?:(?:still|currently)\s+)?(?:unsure|uncertain|not sure) (?:about (?:my|whether)|whether I|if I)\b|^我(?:目前|还|仍)?(?:不确定|不清楚)(?:自己|我|是否|能否)|^(?:我的|我对).{0,45}自评(?:仍|还)?不确定/iu;
-const chineseGuidance = /^(?:我|本人)?(?:之前|目前|此前|曾经|只|仅|曾|还)*(?:在[^，,；;。]{0,20}(?:指导|监督|辅导|带领|复核|审阅|review)\s*下|由[^，,；;。]{1,16}(?:指导|带领)|(?:跟随|跟着|按(?:照)?|依照)[^，,；;。]{0,18}?(?:教程|示例|样例|示范|演示|评审反馈))/iu;
+const chineseGuidance = /^(?:我|本人)?(?:之前|目前|此前|曾经|只|仅|曾|还)*(?:在[^，,；;。]{0,20}(?:指导|监督|辅导|带领|复核|审阅|review)\s*下|由[^，,；;。]{1,16}(?:指导|带领)|(?:跟随|跟着|按(?:照)?|依照)[^，,；;。]{0,18}?(?:教程|示例|样例|示范|演示|评审反馈)|(按(?:照)?指导))/iu;
 const practiceAction = /(?:练习|演练|复现|操作|使用|实现|完成|实践|调试|配置|部署|搭建|编写|制作|做过|执行|测试|修复|排查|构建|开发|设置|改成|改写)/u;
 const personalPassivePractice = new RegExp("^由(?:我|本人)(?=(?:亲自|独立|直接|负责|来|继续)*" + practiceAction.source + ")", "u");
 const guidedNegation = /\b(?:without (?:any )?(?:guidance|supervision)|(?:under|with) (?:no|zero) (?:guidance|supervision)|(?:not|(?:isn|aren|wasn|weren)['’]t)\s+(?:under|with)\s+(?:[\w'’-]+\s+){0,3}(?:guidance|supervision|review))\b|(?:无须|无需|没有|未经|未受)(?:任何|导师|同伴|老师|他人|的)*(?:指导|监督|复核)|(?:下|指导[，,]\s*)(?:并|也|仍)?(?:未能|不会|没有|不曾|从未)/iu;
@@ -52,6 +52,9 @@ function guidedPractice(part: string) {
   const zh = chineseGuidance.exec(body);
   if (zh) {
     const action = body.slice(zh[0].length).replace(/^[，,\s]*(?:我|本人)?/u, "");
+    // The short “按指导” qualifier needs a direct practice verb, not a later
+    // action inside a denial, plan, report, or another person's activity.
+    if (zh[1] && practiceAction.exec(action)?.index !== 0) return false;
     if (action.startsWith("由") && !personalPassivePractice.test(action)) return false;
     return !/^(?:团队|小组|我们|同事|其他人|学员们|他们|她们|安排|要求|让|叫|记录|说明|解释|报告|描述|计划|打算|准备|将|会|没有|未能|不会)/u.test(action) && practiceAction.test(action);
   }

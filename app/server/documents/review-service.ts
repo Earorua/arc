@@ -247,7 +247,7 @@ export class ReviewService {
         if (request.selfAssessmentHints.some(hint => !extraction?.selfAssessmentHints.some(candidate => canonicalJson(candidate) === canonicalJson(hint))))
             throw new DocumentServiceError("invalid-content");
         const selfAssessmentHints = retainedMaterialSelfAssessmentHints(items, request.selfAssessmentHints.filter(hint =>
-            priorReview?.selfAssessmentHints.some(prior => prior.id === hint.id)));
+            priorReview?.selfAssessmentHints.some(prior => prior.id === hint.id)), extraction?.reviewProjection);
         const basePoints = this.retainReviewPoints(current, extraction?.reviewPoints);
         const reviewPoints = mergeDocumentReviewPointResolutions(basePoints, request.reviewPoints);
         const revision = request.expectedRevision + 1, id = current ? String(current.id) : this.repo.id(), origin = request.extractionId ? (request.items.some(item => item.origin === "user") ? "mixed" : "ai") : "manual", now = this.repo.now();

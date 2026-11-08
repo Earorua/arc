@@ -2,6 +2,40 @@ import { describe, expect, it } from "vitest";
 import { supportsMaterialSelfLevelHint } from "../../../app/lib/materials/self-assessment-evidence";
 
 describe("material self-assessment evidence", () => {
+  it.each(["按指导示例完成 SQL 查询练习", "按照指导教程完成 SQL 查询练习"])("preserves longer instructional qualifiers beginning with guidance words: %s", text => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(true);
+  });
+
+  it.each([
+    "按指导完成 SQL 查询练习",
+    "按照指导完成 SQL 查询练习",
+    "我按指导完成 SQL 查询练习",
+    "我按照指导完成 SQL 查询练习",
+    "按指导完成 ‘SQL’ 查询练习",
+    "按指导，我完成 SQL 查询练习",
+  ])("supports a short personal guidance qualifier followed by actual practice: %s", text => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(true);
+  });
+
+  it.each([
+    "按指导没有完成 SQL 查询练习",
+    "按指导未完成 SQL 查询练习",
+    "按指导计划完成 SQL 查询练习",
+    "按指导安排同事完成 SQL 查询练习",
+    "按指导由同事完成 SQL 查询练习",
+    "按指导同事完成 SQL 查询练习",
+    "按指导团队完成 SQL 查询练习",
+    "按指导，我的同事完成 SQL 查询练习",
+    "按指导将完成 SQL 查询练习",
+    "按指导记录 SQL 查询练习",
+    "按指导 SQL 查询练习",
+    "示例：“按指导完成 SQL 查询练习”",
+    "没有按指导完成 SQL 查询练习",
+    "完成 SQL 查询练习",
+  ])("does not read another actor, denial or mere guidance words as short personal practice: %s", text => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(false);
+  });
+
   it("supports a personal guided assertion", () => {
     expect(supportsMaterialSelfLevelHint({ kind: "experience", text: "I tested SQL under supervision.", labels: ["SQL"], level: "guided" })).toBe(true);
   });

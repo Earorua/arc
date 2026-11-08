@@ -36,7 +36,7 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
 }) {
   const isMainJd = documentKind === "jd";
   const conflicts = isMainJd ? draft.items.filter(item => item.kind === "requirement" && item.requirementLevel === "unspecified") : [];
-  const hints = retainedMaterialSelfAssessmentHints(draft.items, draft.selfAssessmentHints);
+  const hints = retainedMaterialSelfAssessmentHints(draft.items, draft.selfAssessmentHints, draft.reviewProjection);
   const unresolved = (draft.reviewPoints ?? []).filter(point => point.resolution === "unresolved" && (MATERIAL_HIGH_IMPACT_REVIEW_CODES as readonly string[]).includes(point.code));
   return <div className="material-review">
     <h3>核对资料事实</h3><p>修改或移除不准确的内容。确认事实不会自动修改能力自评。</p>

@@ -53,8 +53,8 @@ return supportsMaterialSelfLevelHint({
 
 **Files:** 修改 `app/lib/materials/skill-labels.ts`、`app/server/documents/review-service.ts`、`app/components/materials/material-confirmation.tsx`、`app/components/materials/material-text-panel.tsx`；测试加入 `tests/lib/materials/retained-assessment-hints.test.ts`，并扩展 `tests/server/document-review-draft.test.ts` 与 `tests/components/material-confirmation-source.test.tsx`。不修改stored extraction的历史分派规则。
 
-- [ ] 先复现真实服务红例：使用有来源的grounded提取和review草稿，保存作者本人guided事实，再将同一事实编辑为同事完成，重载后旧guided建议应消失；引用、事实正文、版本和所有者仍正确，原建议身份不能伪造。UI应在编辑后立即显示相同结果，而不等保存才变化。
-- [ ] 扩展保留函数接收可选reviewProjection，所有已有调用方显式传入当前草稿／提取的projection。保留当前kind、label及服务端原建议身份／prior membership检查后，按以下规则判断：
+- [x] 先复现真实服务红例：使用有来源的grounded提取和review草稿，保存作者本人guided事实，再将同一事实编辑为同事完成，重载后旧guided建议应消失；引用、事实正文、版本和所有者仍正确，原建议身份不能伪造。UI应在编辑后立即显示相同结果，而不等保存才变化。
+- [x] 扩展保留函数接收可选reviewProjection，所有已有调用方显式传入当前草稿／提取的projection。保留当前kind、label及服务端原建议身份／prior membership检查后，按以下规则判断：
 
 ```typescript
 const needsEvidence = projection === GROUNDED_MATERIAL_REVIEW_PROJECTION || item.origin === "user";
@@ -67,9 +67,11 @@ return retainsOriginalMembership && (!needsEvidence || supportsMaterialSelfLevel
 
 **Task 2回归发现的最小共享规则补充：** 原有 `materials-ai-flow.test.tsx` 使用“按指导完成 SQL 查询练习”验证用户主动采用建议。接入后该用例失败；根任务另存17项共享函数红例，五项有效表达（按指导／按照指导、明确“我”、只引用工具名）为false，其他12项否定／他人／安排／未来／记录／整句引用对照已为false。因此保留原UI用例，最小支持“按指导／按照指导”后紧接明确个人实践动作的表达；仍使用现有动作词与范围，不泛化任意“指导”词，不改能力等级契约。新增分支必须同时保持这12项拒绝，并加worker返回／提醒与编辑保存的回归。该增量在Task 2规格和质量审查中重新覆盖；Task 1原提交与已测结果仍按原摘要保留。
 
-- [ ] 兼容规则明确化：未编辑的legacy／literal-v1提取摘要沿用原保留规则，因为历史摘要可能未复制原文的指导限定；不重写历史提取或已确认事实。用户编辑后若当前文字不足以继续支持旧建议，则移除该建议，不推断新等级；用户既有自评、手动输入和已完成记录均不改变。只改另一条事实时，未编辑的旧事实建议仍保留。
-- [ ] 加入以下失败／保留对照：改成否定动作、未来练习、条件、他人主体或整句引用→移除；仅删掉指导→移除guided；真实个人指导与只引用工具名→保留；概念级改为他人熟悉→移除；明确个人不确定→保留原uncertain；单纯“不会”→不得生成uncertain；混合SQL／React事实按各自建议判断；显式空词、删词和分类改为非能力事实仍移除。
-- [ ] 服务器即使收到原始合法hint ID也必须拒绝其不再支持的采用；但不得把合法修订请求整体报成无效，应该保存修订后的事实并丢弃失效建议。新造hint／改hint等级继续由既有校验拒绝。
+**质量审查后的动作范围修正：** 独立质量审查用真实界面→HTTP→保存／重载确认，“按指导完成不了SQL”“按指导完成SQL是下周的计划”“按指导完成SQL的计划尚未执行”仍留下guided建议。动词前缀不是肯定完成的充分证据。根任务18项对照又确认“在导师指导下”的三个对应场景是继承的旧缺口；另一个技能的未来／否定活动及已完成后记录结果的9项正例已正确。先保留9失败／9通过的红例，再修复当前中文指导动作中的否定补语和本动作被名词化为计划的情况，覆盖新旧指导限定，不按整段任意“计划／不”字取消其他有效SQL经历。修复不自动生成新等级，不把无guided提示解释为没有实践。必须重新进行规格／质量审查，并使用新输出与新源码副本完成最终回归；先前候选的绿色专项不能覆盖这个实际失败。
+
+- [x] 兼容规则明确化：未编辑的legacy／literal-v1提取摘要沿用原保留规则，因为历史摘要可能未复制原文的指导限定；不重写历史提取或已确认事实。用户编辑后若当前文字不足以继续支持旧建议，则移除该建议，不推断新等级；用户既有自评、手动输入和已完成记录均不改变。只改另一条事实时，未编辑的旧事实建议仍保留。
+- [x] 加入以下失败／保留对照：改成否定动作、未来练习、条件、他人主体或整句引用→移除；仅删掉指导→移除guided；真实个人指导与只引用工具名→保留；概念级改为他人熟悉→移除；明确个人不确定→保留原uncertain；单纯“不会”→不得生成uncertain；混合SQL／React事实按各自建议判断；显式空词、删词和分类改为非能力事实仍移除。
+- [x] 服务器即使收到原始合法hint ID也必须拒绝其不再支持的采用；但不得把合法修订请求整体报成无效，应该保存修订后的事实并丢弃失效建议。新造hint／改hint等级继续由既有校验拒绝。
 - [ ] 独立规格与质量审查覆盖纯函数、真实保存／重载和组件编辑。使用原子写入和来源版本保护的既有回归，不削弱任何guard。
 
 ## Task 3：集成复核与后续边界
@@ -87,3 +89,5 @@ return retainsOriginalMembership && (!needsEvidence || supportsMaterialSelfLevel
 - Task 2原生红例已准备：`work/grounded-verification/edited-assessment-native-20261108.mjs` 使用真实本地workerd、D1和R2，走create→合成候选交付→编辑保存→重载→同请求重试，并核对原文与sourceRef不变。运行 `edited-assessment-root-native-20261108-red` 在8个观察中取得6个预期行为不符（他人、未来、否定、引用、移除指导、编辑旧摘要），正常个人实践和未编辑旧摘要两项对照符合预期；最终断言失败、exit 1、出站拦截0。原结果单独保存，修复后用同一脚本和新的输出名复跑，不能把表征或准备工作计为验收通过。
 - Task 2界面红例：`edited-assessment-root-ui-20261108-red` 用实际MaterialTextPanel、HTTP路由、服务与SQLite储存，只有提供方响应和网络调度是内存合成夹具。把本人SQL指导实践改为同事经历后，立即移除按钮、保存时清除建议、重载后不显示按钮三项均不符预期；事实编辑与原引用正确保存，能力采用调用0。最终断言失败、exit 1、出站拦截0；合成提供方调用1不是真实模型调用。该测试与原生红例共同作为修复前证据。
 - Task 1两阶段审查通过：规格717项及29个迁移／33个保留声明结构检查；质量744项，含2,080个原等级结果和208个提醒结果对照，以及15个did-not纠正对照。独立Lint通过，全部新验证出站拦截0、五份实现摘要一致。尚未完成Task 2接入，亦未将这些专项计为全仓通过。
+- Task 2根任务绿例：相同8个workerd/D1/R2流程全部符合预期；相同MaterialTextPanel→HTTP路由流程已做到立即移除按钮、保存0条失效建议、重载不显示，事实与来源仍保留。17个中文指导对照全绿，包含旧有表达的5个红→绿纠正；共享函数／worker共45个Node与workerd对照一致。根任务8套件630项通过。上述全部出站拦截0；作者在完成最终回归，独立规格／质量审查和全仓验证尚待进行。
+- Task 2中间候选：作者20文件1,228项及规格审查681项通过；根任务最终标签630项、17项、8个原生服务、1条实际界面链路和45个跨运行时对照通过。随后质量审查发现上述P2，9失败／624通过；根任务动作范围对照9失败／9通过，均出站拦截0。999文件快照`9424f5b482adbd7b83356926b6baf3008b2e3b1664871ef6ddb9451a6c99026a`仅代表该中间候选。其类型／Lint／构建／页面5项、串行50项及Research99项已通过；普通全仓和附加Node运行因已确认质量缺陷主动中止，保留部分日志，不能计为通过。该候选先本地保存供追溯，再进行边界修复；旧快照不修改，目标继续active。
