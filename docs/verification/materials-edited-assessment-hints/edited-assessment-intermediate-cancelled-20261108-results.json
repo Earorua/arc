@@ -1,0 +1,30 @@
+{
+  "status": "cancelled-intermediate-candidate-checks",
+  "candidateCommit": "32528d541215aa407d6a26b28b26d641fee64bf5",
+  "sourceManifest": "9424f5b482adbd7b83356926b6baf3008b2e3b1664871ef6ddb9451a6c99026a",
+  "reason": "Independent quality real save/UI failures for denied and nominal future guided action",
+  "recordedAtUtc": "2026-11-08T10:29:34.4684111Z",
+  "runs": [
+    {
+      "name": "edited-assessment-full-unit-20261108-a",
+      "action": "root sent Ctrl-C after confirmed quality P2",
+      "execExit": 1,
+      "completedWrapperMetadataExists": false,
+      "logPath": "work/grounded-verification/edited-assessment-full-unit-20261108-a.log",
+      "partialLogSha256": "f046a38f45abebfb37529d4be74c5691fd8336b6cb1ca737f0d45c7169f0dd77",
+      "partialLogBytes": 814636,
+      "countAsPassed": false
+    },
+    {
+      "name": "edited-assessment-full-node-20261108-a",
+      "action": "root sent Ctrl-C after confirmed quality P2",
+      "execExit": 1,
+      "completedWrapperMetadataExists": false,
+      "logPath": "work/grounded-verification/edited-assessment-full-node-20261108-a.log",
+      "partialLogSha256": "13adc161e4595e5a6f727c306bd788db2499b3ccfcec3700a488486968910ae2",
+      "partialLogBytes": 25652,
+      "countAsPassed": false
+    }
+  ],
+  "newModelCalls": 0
+}

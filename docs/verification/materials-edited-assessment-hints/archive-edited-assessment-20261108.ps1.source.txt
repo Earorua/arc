@@ -1,0 +1,82 @@
+$ErrorActionPreference = 'Stop'
+$packetRoot = (Get-Location).Path
+$packetSourceCommit = (git rev-parse HEAD).Trim()
+$packetChangedPaths = @(git diff HEAD --name-only)
+$packetChangedPaths += @(git ls-files --others --exclude-standard)
+$packetDirtySource = @($packetChangedPaths | Where-Object { $_ -and -not $_.StartsWith('docs/') })
+if ($packetDirtySource.Count -ne 0) { throw ('Commit verified source before archive: ' + ($packetDirtySource -join ', ')) }
+$packetFolder = Join-Path $packetRoot 'docs/verification/materials-edited-assessment-hints'
+$packetSnapshot = Get-Content -LiteralPath (Join-Path $packetRoot 'work/grounded-verification/edited-assessment-snapshot-20261108-b-results.json') -Raw | ConvertFrom-Json
+$packetRequiredNames = @(
+  'edited-assessment-root-focused-20261108-c',
+  'edited-assessment-root-native-20261108-repaired',
+  'edited-assessment-root-ui-20261108-repaired',
+  'edited-assessment-root-guidance-20261108-repaired',
+  'edited-assessment-root-action-boundary-20261108-green',
+  'edited-assessment-shared-native-20261108-c',
+  'edited-assessment-full-unit-20261108-b',
+  'edited-assessment-full-serial-20261108-b',
+  'edited-assessment-full-research-20261108-b',
+  'edited-assessment-full-node-20261108-b',
+  'edited-assessment-full-types-20261108-b',
+  'edited-assessment-full-lint-20261108-b',
+  'edited-assessment-build-20261108-b',
+  'edited-assessment-render-20261108-b',
+  'edited-assessment-course-binding-20261108-a',
+  'edited-assessment-final-source-check-20261108-b',
+  'edited-assessment-integrity-20261108-b'
+)
+$packetChecks = foreach ($packetName in $packetRequiredNames) {
+  $packetResult = Get-Content -LiteralPath (Join-Path $packetRoot ('work/grounded-verification/' + $packetName + '.json')) -Raw | ConvertFrom-Json
+  if ($packetResult.exit -ne 0 -or $packetResult.nonLoopbackDenials -ne 0) { throw "Required check failed: $packetName" }
+  $packetLog = Join-Path $packetRoot ('work/grounded-verification/' + $packetName + '.log')
+  if ((Get-FileHash -LiteralPath $packetLog -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packetResult.logSha256) { throw "Log drift: $packetName" }
+  $packetResult
+}
+foreach ($packetProperty in $packetSnapshot.filesSha256.PSObject.Properties) {
+  if ((Get-FileHash -LiteralPath (Join-Path $packetRoot $packetProperty.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packetProperty.Value) { throw "Source drift: $($packetProperty.Name)" }
+}
+$packetReviewNames = @(
+  'shared-assessment-spec-20261108-memo.md',
+  'shared-assessment-quality-20261108-memo.md',
+  'edited-assessment-spec-20261108-recheck2-memo.md',
+  'edited-assessment-quality-20261108-recheck-memo.md',
+  'edited-assessment-final-review-20261108-memo.md'
+)
+foreach ($packetReviewName in $packetReviewNames) {
+  if (-not (Test-Path -LiteralPath (Join-Path $packetRoot ('work/grounded-verification/' + $packetReviewName)))) { throw "Missing review: $packetReviewName" }
+}
+if (Test-Path -LiteralPath $packetFolder) { throw 'Use a new evidence packet; do not overwrite' }
+New-Item -ItemType Directory -Path $packetFolder | Out-Null
+$packetInputs = @(Get-ChildItem -LiteralPath (Join-Path $packetRoot 'work/grounded-verification') -File | Where-Object { $_.Name -match '^(shared-assessment-|edited-assessment-)' } | Sort-Object Name)
+$packetInputs += Get-Item -LiteralPath $PSCommandPath
+$packetArchives = foreach ($packetFile in $packetInputs) {
+  $packetOriginal = [IO.Path]::GetRelativePath($packetRoot, $packetFile.FullName).Replace('\', '/')
+  $packetHash = (Get-FileHash -LiteralPath $packetFile.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+  $packetName = $packetFile.Name
+  if ($packetFile.Extension -in @('.ts', '.tsx', '.mjs', '.cjs', '.ps1')) { $packetName += '.source.txt' }
+  elseif ($packetFile.Extension -eq '.log') { $packetName += '.txt' }
+  $packetDestination = Join-Path $packetFolder $packetName
+  if (Test-Path -LiteralPath $packetDestination) { throw "Archive collision: $packetName" }
+  Copy-Item -LiteralPath $packetFile.FullName -Destination $packetDestination
+  if ((Get-FileHash -LiteralPath $packetDestination -Algorithm SHA256).Hash.ToLowerInvariant() -ne $packetHash) { throw "Archive mismatch: $packetName" }
+  [ordered]@{ originalPath = $packetOriginal; archivePath = $packetName; bytes = $packetFile.Length; sha256 = $packetHash }
+}
+$packetEvidence = [ordered]@{
+  schemaVersion = 1
+  status = 'edited-assessment-hints-offline-verified'
+  sourceCommit = $packetSourceCommit
+  sourceBaseAtCapture = $packetSnapshot.head
+  sourceManifest = 'edited-assessment-snapshot-20261108-b-results.json'
+  sourceFileCount = $packetSnapshot.sourceFileCount
+  sourceManifestSha256 = $packetSnapshot.manifestSha256
+  requiredChecks = @($packetChecks)
+  reviews = $packetReviewNames
+  behavior = @('Revalidate each original hint against current fact and its own retained skill label', 'Preserve unedited legacy summaries', 'No new hint, automatic audit adoption, or historical rewrite')
+  limitations = @('Experience priority attribution remains a separate follow-up', 'New source-mention production projection not wired', 'Course dependency binding remains unapproved', 'No complete 14-scenario native acceptance', 'No new real model quality evaluation or release Gate')
+  operations = [ordered]@{ newModelInferences = 0; newModelCostUsd = 0; deployments = 0; remoteMigrations = 0; githubPushes = 0; historicalModelInferences = 30; historicalModelCostUsd = 0.547151; historicalUnsettled = 0 }
+  archivedFiles = @($packetArchives)
+}
+$packetOutput = Join-Path $packetFolder 'verification.json'
+[IO.File]::WriteAllText($packetOutput, ($packetEvidence | ConvertTo-Json -Depth 12) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+[ordered]@{ archives = @($packetArchives).Count; sourceFiles = $packetSnapshot.sourceFileCount; verificationSha256 = (Get-FileHash -LiteralPath $packetOutput -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json

@@ -1,0 +1,78 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { build } from "esbuild";
+import { Miniflare, Log, LogLevel } from "miniflare";
+
+const result = process.argv[2];
+assert.match(result ?? "", /^work\/grounded-verification\/shared-assessment-native-[a-z0-9-]+-results\.json$/u);
+const cases = [
+  ["experience", "I tested SQL under supervision.", ["SQL"], "guided", true],
+  ["experience", "My colleague tested SQL under supervision.", ["SQL"], "guided", false],
+  ["experience", "I plan to test SQL under supervision.", ["SQL"], "guided", false],
+  ["experience", "If I tested SQL under supervision, I would ask for help.", ["SQL"], "guided", false],
+  ["experience", "The example says “I tested SQL under supervision.”", ["SQL"], "guided", false],
+  ["experience", "I tested ‘SQL’ under supervision.", ["SQL"], "guided", true],
+  ["experience", "I tested SQL without supervision.", ["SQL"], "guided", false],
+  ["experience", "I did not test SQL under supervision.", ["SQL"], "guided", false, "guided"],
+  ["experience", "我在导师指导下测试 SQL。", ["SQL"], "guided", true],
+  ["experience", "在导师指导下，我测试 SQL。", ["SQL"], "guided", true],
+  ["experience", "同事在导师指导下测试 SQL。", ["SQL"], "guided", false],
+  ["experience", "我计划在导师指导下测试 SQL。", ["SQL"], "guided", false],
+  ["experience", "如果我在导师指导下测试 SQL，就能参加考核。", ["SQL"], "guided", false],
+  ["experience", "I followed a tutorial to test SQL.", ["SQL"], "guided", true],
+  ["experience", "I tested SQL under supervision, but I built SQL dashboards alone.", ["SQL"], "guided", false],
+  ["skill-claim", "I am familiar with SQL.", ["SQL"], "conceptual", true],
+  ["skill-claim", "My colleague is familiar with SQL.", ["SQL"], "conceptual", false],
+  ["skill-claim", "I am not familiar with SQL.", ["SQL"], "conceptual", false],
+  ["skill-claim", "I am familiar with SQL.", ["React"], "conceptual", false],
+  ["skill-claim", "简介：熟悉 SQL。", ["SQL"], "conceptual", true],
+  ["skill-claim", "I am unsure whether I can use SQL independently.", ["SQL"], "uncertain", true],
+  ["skill-claim", "I cannot use SQL.", ["SQL"], "uncertain", false],
+  ["skill-claim", "I am familiar with SQL, but I tested React under supervision.", ["SQL"], "conceptual", true],
+  ["skill-claim", "I am familiar with SQL, but I tested React under supervision.", ["React"], "guided", true],
+  ["skill-claim", "I am familiar with SQL, but I tested React under supervision.", ["SQL", "React"], "guided", false],
+  ["requirement", "I tested SQL under supervision.", ["SQL"], "guided", false],
+  ["constraint", "I tested SQL under supervision.", ["SQL"], "guided", false],
+  ["experience", "I tested SQL under supervision.", ["SQL"], null, false],
+];
+const compiled = await build({ stdin: { resolveDir: process.cwd(), loader: "ts", contents: `
+import { supportsMaterialSelfLevelHint } from './app/lib/materials/self-assessment-evidence';
+import { groundSourceSelfLevelHint } from './worker/document-executor/source-review-evidence';
+import { groundSourceSelfLevelHint as baseline } from './work/grounded-verification/shared-assessment-baseline-20261108';
+export function inspect(cases) {
+  return cases.map(([kind, text, labels, level]) => {
+    const item = {kind, source:{segmentId:'synthetic',quote:text},skillLabels:labels,selfLevelHint:level};
+    return { kind, text, labels, level, supported: supportsMaterialSelfLevelHint({kind,text,labels,level}),
+      worker: groundSourceSelfLevelHint(item), baseline: baseline(item) };
+  });
+}
+export default {async fetch(request) {return Response.json(inspect(await request.json()));}};
+` }, bundle: true, write: false, format: "esm", platform: "browser", target: "es2022", metafile: true });
+const script = compiled.outputFiles[0].text;
+const imported = await import("data:text/javascript;base64," + Buffer.from(script).toString("base64"));
+const nodeValues = imported.inspect(cases);
+for (let i = 0; i < cases.length; i++) {
+  const expected = cases[i][4];
+  assert.equal(nodeValues[i].supported, expected, cases[i][1]);
+  assert.equal(nodeValues[i].worker, expected ? cases[i][3] : null, "worker " + cases[i][1]);
+  if (cases[i].length > 5) assert.equal(nodeValues[i].baseline, cases[i][5], "documented old defect " + cases[i][1]);
+  else assert.equal(nodeValues[i].worker, nodeValues[i].baseline, "baseline " + cases[i][1]);
+}
+let outboundCalls = 0;
+const runtime = new Miniflare({cf:false,modules:true,script,compatibilityDate:"2026-05-15",log:new Log(LogLevel.ERROR),
+  outboundService:async()=>{outboundCalls++;throw Error("Outbound denied");}});
+try {
+  const response = await runtime.dispatchFetch("http://localhost/assessment", {method:"POST",body:JSON.stringify(cases)});
+  assert.equal(response.status, 200);
+  const nativeValues = await response.json();
+  assert.deepEqual(nativeValues, nodeValues);
+  assert.equal(outboundCalls, 0);
+  const sha = value => createHash("sha256").update(value).digest("hex");
+  const inputs = Object.fromEntries(Object.keys(compiled.metafile.inputs).filter(path=>path!=="<stdin>").sort().map(path=>[path,sha(readFileSync(path))]));
+  writeFileSync(result, JSON.stringify({schemaVersion:1,status:"shared-assessment-native-parity",cases:cases.length,observations:nodeValues,
+    nativeMatches:nativeValues.length,inputs,compiledSha256:sha(script),outboundCalls,realModelCalls:0,
+    baselineDerivation:"80546d0 worker source, LF-normalized with two local import paths rewritten",
+    intentionalBehaviorRepair:"did not test SQL under supervision: old guided, current null",retentionCallersRepaired:false}, null, 2)+"\n",{flag:"wx"});
+  console.log(JSON.stringify({status:"PASS",cases:cases.length,nativeMatches:nativeValues.length,outboundCalls,result}));
+} finally {await runtime.dispose();}

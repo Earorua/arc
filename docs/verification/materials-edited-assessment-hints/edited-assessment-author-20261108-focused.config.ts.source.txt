@@ -1,0 +1,14 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+export default defineConfig({
+  ...base,
+  test: {
+    ...base.test,
+    include: [
+      "tests/lib/materials/retained-assessment-hints.test.ts",
+      "tests/server/document-review-draft.test.ts",
+      "tests/components/material-confirmation-source.test.tsx",
+    ],
+  },
+});

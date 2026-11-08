@@ -1,0 +1,229 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:35496) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-review-draft.test.ts [2m([22m[2m80 tests[22m[2m)[22m[33m 1216[2mms[22m[39m
+ [32m✓[39m tests/components/material-confirmation-source.test.tsx [2m([22m[2m49 tests[22m[2m)[22m[33m 709[2mms[22m[39m
+ [32m✓[39m tests/components/materials-ai-flow.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 531[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-review-evidence.test.ts [2m([22m[2m421 tests[22m[2m)[22m[32m 150[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/self-assessment-evidence.test.ts [2m([22m[2m115 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+(node:45568) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx [2m([22m[2m40 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[33m 834[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成不了 SQL 组件练习[32m 8[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习是我下周的计划。[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习的计划尚未执行。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习后，我记录了结果。[32m 24[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习，明天计划阅读 CSS 文档。[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习，但我无法完成 CSS 页面。[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成不了 SQL 组件练习[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习是我下周的计划。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习的计划尚未执行。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习后，我记录了结果。[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习，明天计划阅读 CSS 文档。[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习，但我无法完成 CSS 页面。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成不了 SQL 组件练习[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习是我下周的计划。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习的计划尚未执行。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习后，我记录了结果。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习，明天计划阅读 CSS 文档。[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 SQL 组件练习，但我无法完成 CSS 页面。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成不了 React.js 组件练习[32m 0[2mms[22m[39m
+[31m     [31m×[31m applies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m applies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。[39m[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习后，我记录了结果。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习，明天计划阅读 CSS 文档。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习，但我无法完成 CSS 页面。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成不了 React.js 组件练习[32m 0[2mms[22m[39m
+[31m     [31m×[31m applies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m applies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。[39m[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习后，我记录了结果。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习，明天计划阅读 CSS 文档。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习，但我无法完成 CSS 页面。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成不了 React.js 组件练习[32m 0[2mms[22m[39m
+[31m     [31m×[31m applies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m applies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。[39m[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习后，我记录了结果。[32m 0[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习，明天计划阅读 CSS 文档。[32m 1[2mms[22m[39m
+     [32m✓[39m applies the predicate to the whole named action: 完成 React.js 组件练习，但我无法完成 CSS 页面。[32m 0[2mms[22m[39m
+[31m     [31m×[31m offers the old level only after supported action: 按指导完成 React.js 组件练习是我下周的计划。[39m[32m 299[2mms[22m[39m
+[31m     [31m×[31m offers the old level only after supported action: 按指导完成 React.js 组件练习的计划尚未执行。[39m[32m 155[2mms[22m[39m
+     [32m✓[39m offers the old level only after supported action: 按指导完成不了 React.js 组件练习[32m 152[2mms[22m[39m
+     [32m✓[39m offers the old level only after supported action: 按指导完成 React.js 组件练习，明天计划阅读 CSS 文档。[32m 173[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/retained-assessment-hints.test.ts [2m([22m[2m74 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按照指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按照指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m在导师指导下 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m在导师指导下 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx:[2m34:25[22m[39m
+    [90m 32|[39m     const retained = retain([{ id: "f", kind: "experience", text, orig…
+    [90m 33|[39m     observations.push({ kind: "pure", text, label, expected, shared, w…
+    [90m 34|[39m     expect[33m.[39m[34msoft[39m(shared)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m   |[39m                         [31m^[39m
+    [90m 35|[39m     expect[33m.[39m[34msoft[39m(worker)[33m.[39m[34mtoBe[39m(expected [33m?[39m [32m"guided"[39m [33m:[39m [35mnull[39m)[33m;[39m
+    [90m 36|[39m     expect[33m.[39m[34msoft[39m(retained)[33m.[39m[34mtoEqual[39m(expected [33m?[39m [hint] [33m:[39m [])[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按照指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按照指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m在导师指导下 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m在导师指导下 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected 'guided' to be null // Object.is equality[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+"guided"
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx:[2m35:25[22m[39m
+    [90m 33|[39m     observations.push({ kind: "pure", text, label, expected, shared, w…
+    [90m 34|[39m     expect[33m.[39m[34msoft[39m(shared)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 35|[39m     expect[33m.[39m[34msoft[39m(worker)[33m.[39m[34mtoBe[39m(expected [33m?[39m [32m"guided"[39m [33m:[39m [35mnull[39m)[33m;[39m
+    [90m   |[39m                         [31m^[39m
+    [90m 36|[39m     expect[33m.[39m[34msoft[39m(retained)[33m.[39m[34mtoEqual[39m(expected [33m?[39m [hint] [33m:[39m [])[33m;[39m
+    [90m 37|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按照指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m按照指导 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m在导师指导下 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22m在导师指导下 own-action plan boundary for React.js[2m > [22mapplies the predicate to the whole named action: 完成 React.js 组件练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected [ { id: 'h', candidateId: 'f', …(2) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "f",[39m
+[31m+     "id": "h",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "React.js",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx:[2m36:27[22m[39m
+    [90m 34|[39m     expect[33m.[39m[34msoft[39m(shared)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 35|[39m     expect[33m.[39m[34msoft[39m(worker)[33m.[39m[34mtoBe[39m(expected [33m?[39m [32m"guided"[39m [33m:[39m [35mnull[39m)[33m;[39m
+    [90m 36|[39m     expect[33m.[39m[34msoft[39m(retained)[33m.[39m[34mtoEqual[39m(expected [33m?[39m [hint] [33m:[39m [])[33m;[39m
+    [90m   |[39m                           [31m^[39m
+    [90m 37|[39m   })[33m;[39m
+    [90m 38|[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22mdotted technical name through actual panel, HTTP, persistence and reload[2m > [22moffers the old level only after supported action: 按指导完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22mdotted technical name through actual panel, HTTP, persistence and reload[2m > [22moffers the old level only after supported action: 按指导完成 React.js 组件练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx:[2m101:37[22m[39m
+    [90m 99|[39m       observations.push({ kind: "panel-http-save-reload", text: edited…
+    [90m100|[39m         reloadedShown, revision: saved.revision, sourcePreserved: true…
+    [90m101|[39m       expect[33m.[39m[34msoft[39m(immediatelyShown)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m   |[39m                                     [31m^[39m
+    [90m102|[39m       expect[33m.[39m[34msoft[39m(requestHintCount)[33m.[39m[34mtoBe[39m(expected [33m?[39m [34m1[39m [33m:[39m [34m0[39m)[33m;[39m
+    [90m103|[39m       expect.soft(saved.selfAssessmentHints).toEqual(expected ? before…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22mdotted technical name through actual panel, HTTP, persistence and reload[2m > [22moffers the old level only after supported action: 按指导完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22mdotted technical name through actual panel, HTTP, persistence and reload[2m > [22moffers the old level only after supported action: 按指导完成 React.js 组件练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected 1 to be +0 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 1[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx:[2m102:37[22m[39m
+    [90m100|[39m         reloadedShown, revision: saved.revision, sourcePreserved: true…
+    [90m101|[39m       expect[33m.[39m[34msoft[39m(immediatelyShown)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m102|[39m       expect[33m.[39m[34msoft[39m(requestHintCount)[33m.[39m[34mtoBe[39m(expected [33m?[39m [34m1[39m [33m:[39m [34m0[39m)[33m;[39m
+    [90m   |[39m                                     [31m^[39m
+    [90m103|[39m       expect.soft(saved.selfAssessmentHints).toEqual(expected ? before…
+    [90m104|[39m       expect[33m.[39m[34msoft[39m(reloadedShown)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22mdotted technical name through actual panel, HTTP, persistence and reload[2m > [22moffers the old level only after supported action: 按指导完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22mdotted technical name through actual panel, HTTP, persistence and reload[2m > [22moffers the old level only after supported action: 按指导完成 React.js 组件练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected [ { id: 'hint-candidate-1-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "candidate-1",[39m
+[31m+     "id": "hint-candidate-1-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "React.js",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx:[2m103:46[22m[39m
+    [90m101|[39m       expect[33m.[39m[34msoft[39m(immediatelyShown)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m102|[39m       expect[33m.[39m[34msoft[39m(requestHintCount)[33m.[39m[34mtoBe[39m(expected [33m?[39m [34m1[39m [33m:[39m [34m0[39m)[33m;[39m
+    [90m103|[39m       expect.soft(saved.selfAssessmentHints).toEqual(expected ? before…
+    [90m   |[39m                                              [31m^[39m
+    [90m104|[39m       expect[33m.[39m[34msoft[39m(reloadedShown)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m105|[39m     } [35mfinally[39m { gate[33m.[39m[34mresolve[39m()[33m;[39m [34mcleanup[39m()[33m;[39m [35mawait[39m fixture[33m.[39m[34mdispose[39m()[33m;[39m }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22mdotted technical name through actual panel, HTTP, persistence and reload[2m > [22moffers the old level only after supported action: 按指导完成 React.js 组件练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx[2m > [22mdotted technical name through actual panel, HTTP, persistence and reload[2m > [22moffers the old level only after supported action: 按指导完成 React.js 组件练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx:[2m104:34[22m[39m
+    [90m102|[39m       expect[33m.[39m[34msoft[39m(requestHintCount)[33m.[39m[34mtoBe[39m(expected [33m?[39m [34m1[39m [33m:[39m [34m0[39m)[33m;[39m
+    [90m103|[39m       expect.soft(saved.selfAssessmentHints).toEqual(expected ? before…
+    [90m104|[39m       expect[33m.[39m[34msoft[39m(reloadedShown)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m   |[39m                                  [31m^[39m
+    [90m105|[39m     } [35mfinally[39m { gate[33m.[39m[34mresolve[39m()[33m;[39m [34mcleanup[39m()[33m;[39m [35mawait[39m fixture[33m.[39m[34mdispose[39m()[33m;[39m }
+    [90m106|[39m   }[33m,[39m [34m15000[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/26]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m784 passed[39m[22m[90m (792)[39m
+[2m   Start at [22m 18:39:02
+[2m   Duration [22m 12.68s[2m (transform 1.04s, setup 1.29s, import 2.59s, tests 3.55s, environment 4.26s)[22m
+

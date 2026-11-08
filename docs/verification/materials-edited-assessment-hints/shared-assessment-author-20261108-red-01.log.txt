@@ -1,0 +1,237 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/lib/materials/self-assessment-evidence.test.ts [2m([22m[2m70 tests[22m[2m | [22m[31m28 failed[39m[2m)[22m[32m 12[2mms[22m[39m
+[31m     [31m×[31m supports a personal guided assertion[39m[32m 4[2mms[22m[39m
+     [32m✓[39m drops support when an edit attributes the same guided action to a colleague[32m 0[2mms[22m[39m
+[31m     [31m×[31m allows a supported level on experience[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m allows a supported level on skill-claim[39m[32m 0[2mms[22m[39m
+     [32m✓[39m does not assign a personal level to requirement[32m 0[2mms[22m[39m
+     [32m✓[39m does not assign a personal level to constraint[32m 0[2mms[22m[39m
+     [32m✓[39m does not infer a level when none is proposed[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in I have only basic familiarity with SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in My experience with SQL is limited to reading the documentation.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in 个人简介：我熟悉 SQL。[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in 简介：熟悉 SQL，可独立完成报表。[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in I am unsure whether I can test SQL independently.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in 我不确定自己能否独立测试 SQL。[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in 我的 SQL 自评前后矛盾。[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in Under supervision, I tested SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in With a mentor's guidance, I tested SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in 在导师指导下，我测试了 SQL。[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in 练习项目中，按讲师示例由本人亲自编写 SQL 查询。[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in My placement: followed a runbook to configure SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m preserves supported personal semantics in I tested SQL not only using tutorials but also under supervision.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m allows a quoted tool name within a personal assertion: I tested 'SQL' under supervision.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m allows a quoted tool name within a personal assertion: I am familiar with “SQL”.[39m[32m 0[2mms[22m[39m
+     [32m✓[39m does not adopt a quoted proposition as personal evidence: The example says ‘I tested SQL under supervision.’[32m 0[2mms[22m[39m
+     [32m✓[39m does not adopt a quoted proposition as personal evidence: “I am familiar with SQL.”[32m 0[2mms[22m[39m
+     [32m✓[39m does not adopt a quoted proposition as personal evidence: The slide quotes ‘I am unsure whether I can test SQL independently.’[32m 0[2mms[22m[39m
+     [32m✓[39m does not adopt a quoted proposition as personal evidence: I am familiar with the example ‘SQL is required.’[32m 0[2mms[22m[39m
+[31m     [31m×[31m keeps each nominated term inside its own support scope: I tested SQL and React under supervision. / guided / SQL,React[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m keeps each nominated term inside its own support scope: I am familiar with SQL and React. / conceptual / SQL,React[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m keeps each nominated term inside its own support scope: I am familiar with SQL, but my colleague uses React. / conceptual / SQL[39m[32m 0[2mms[22m[39m
+     [32m✓[39m keeps each nominated term inside its own support scope: I am familiar with SQL, but my colleague uses React. / conceptual / React[32m 0[2mms[22m[39m
+     [32m✓[39m keeps each nominated term inside its own support scope: I am familiar with SQL, but my colleague uses React. / conceptual / SQL,React[32m 0[2mms[22m[39m
+[31m     [31m×[31m keeps each nominated term inside its own support scope: With a mentor using React, I tested SQL under supervision. / guided / SQL[39m[32m 0[2mms[22m[39m
+     [32m✓[39m keeps each nominated term inside its own support scope: With a mentor using React, I tested SQL under supervision. / guided / React[32m 0[2mms[22m[39m
+     [32m✓[39m keeps each nominated term inside its own support scope: With a mentor using React, I tested SQL under supervision. / guided / SQL,React[32m 0[2mms[22m[39m
+     [32m✓[39m keeps each nominated term inside its own support scope: I built a SQL prototype, and I tested SQL under peer guidance. / guided / SQL[32m 0[2mms[22m[39m
+     [32m✓[39m keeps each nominated term inside its own support scope: 我用 SQL 实现了原型，我在同伴指导下用 SQL 编写了测试。 / guided / SQL[32m 0[2mms[22m[39m
+     [32m✓[39m keeps each nominated term inside its own support scope: I am familiar with SQL, but I am unsure whether I can use SQL. / conceptual / SQL[32m 0[2mms[22m[39m
+[31m     [31m×[31m accepts personal evidence without nominated labels: I tested SQL under supervision.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m accepts personal evidence without nominated labels: I am familiar with SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m accepts personal evidence without nominated labels: I am unsure whether I can use SQL independently.[39m[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: My colleague is familiar with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: I am unsure about my team's ability to test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: My SQL self-assessments no longer conflict.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: 团队简介：熟悉 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: 在讲师指导下，我的同事编写 SQL 查询。[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: Her placement: followed a runbook to configure SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: I built a SQL prototype, while my colleague tested it under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: I documented that my colleague tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: I will test SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: I enrolled my colleague in a SQL workshop under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: I installed SQL tooling.[32m 0[2mms[22m[39m
+     [32m✓[39m requires a supported personal assessment, not another actor or ordinary action: I can independently test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: If I tested SQL under supervision, I would document it.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: If I built a SQL prototype, and I tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: For example, I wrote SQL queries, and I am familiar with SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: My mentor said, I tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: 导师说，我熟悉 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: It is false that I tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: 没有证据说我能独立配置 React，我熟悉 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: 例如，我不熟悉 React，但我熟悉 SQL。[32m 0[2mms[22m[39m
+     [32m✓[39m preserves hypothetical, report and denial scope: I built a React prototype, but Alice said, I am familiar with SQL.[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains a direct assessment across a contrast or a later report: I am not familiar with React, but I am familiar with SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains a direct assessment across a contrast or a later report: It is false that I configured React, but I am familiar with SQL.[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains a direct assessment across a contrast or a later report: I am familiar with SQL, but Alice said, I am familiar with React.[39m[32m 0[2mms[22m[39m
+     [32m✓[39m does not derive a guided hint from denied action or denied guidance: I did not test SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not derive a guided hint from denied action or denied guidance: Under supervision, I did not test SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not derive a guided hint from denied action or denied guidance: I never tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not derive a guided hint from denied action or denied guidance: I tested SQL without supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not derive a guided hint from denied action or denied guidance: I tested SQL not under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not derive a guided hint from denied action or denied guidance: I tested SQL without following tutorials.[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 28 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22msupports a personal guided assertion
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/self-assessment-evidence.test.ts:[2m6:142[22m[39m
+    [90m  4|[39m [34mdescribe[39m([32m"material self-assessment evidence"[39m[33m,[39m () [33m=>[39m {
+    [90m  5|[39m   [34mit[39m([32m"supports a personal guided assertion"[39m[33m,[39m () [33m=>[39m {
+    [90m  6|[39m     expect(supportsMaterialSelfLevelHint({ kind: "experience", text: "…
+    [90m   |[39m                                                                                                                                              [31m^[39m
+    [90m  7|[39m   })[33m;[39m
+    [90m  8|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mallows a supported level on experience
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mallows a supported level on skill-claim
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/self-assessment-evidence.test.ts:[2m14:124[22m[39m
+    [90m 12|[39m
+    [90m 13|[39m   it.each(["experience", "skill-claim"] as const)("allows a supported …
+    [90m 14|[39m     expect(supportsMaterialSelfLevelHint({ kind, text: "I am familiar …
+    [90m   |[39m                                                                                                                            [31m^[39m
+    [90m 15|[39m   })[33m;[39m
+    [90m 16|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in I have only basic familiarity with SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in My experience with SQL is limited to reading the documentation.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in 个人简介：我熟悉 SQL。
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in 简介：熟悉 SQL，可独立完成报表。
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in I am unsure whether I can test SQL independently.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in 我不确定自己能否独立测试 SQL。
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in 我的 SQL 自评前后矛盾。
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in Under supervision, I tested SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in With a mentor's guidance, I tested SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in 在导师指导下，我测试了 SQL。
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in 练习项目中，按讲师示例由本人亲自编写 SQL 查询。
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in My placement: followed a runbook to configure SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mpreserves supported personal semantics in I tested SQL not only using tutorials but also under supervision.
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/self-assessment-evidence.test.ts:[2m40:98[22m[39m
+    [90m 38|[39m     ["I tested SQL not only using tutorials but also under supervision…
+    [90m 39|[39m   ] as const)("preserves supported personal semantics in %s", (text, l…
+    [90m 40|[39m     expect(supportsMaterialSelfLevelHint({ kind: "skill-claim", text, …
+    [90m   |[39m                                                                                                  [31m^[39m
+    [90m 41|[39m   })[33m;[39m
+    [90m 42|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mallows a quoted tool name within a personal assertion: I tested 'SQL' under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mallows a quoted tool name within a personal assertion: I am familiar with “SQL”.
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/self-assessment-evidence.test.ts:[2m47:97[22m[39m
+    [90m 45|[39m     [[32m"I am familiar with “SQL”."[39m[33m,[39m [32m"conceptual"[39m][33m,[39m
+    [90m 46|[39m   ] as const)("allows a quoted tool name within a personal assertion: …
+    [90m 47|[39m     expect(supportsMaterialSelfLevelHint({ kind: "experience", text, l…
+    [90m   |[39m                                                                                                 [31m^[39m
+    [90m 48|[39m   })[33m;[39m
+    [90m 49|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mkeeps each nominated term inside its own support scope: I tested SQL and React under supervision. / guided / SQL,React
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mkeeps each nominated term inside its own support scope: I am familiar with SQL and React. / conceptual / SQL,React
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mkeeps each nominated term inside its own support scope: I am familiar with SQL, but my colleague uses React. / conceptual / SQL
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mkeeps each nominated term inside its own support scope: With a mentor using React, I tested SQL under supervision. / guided / SQL
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/self-assessment-evidence.test.ts:[2m72:88[22m[39m
+    [90m 70|[39m     ["I am familiar with SQL, but I am unsure whether I can use SQL.",…
+    [90m 71|[39m   ] as const)("keeps each nominated term inside its own support scope:…
+    [90m 72|[39m     expect(supportsMaterialSelfLevelHint({ kind: "experience", text, l…
+    [90m   |[39m                                                                                        [31m^[39m
+    [90m 73|[39m   })[33m;[39m
+    [90m 74|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22maccepts personal evidence without nominated labels: I tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22maccepts personal evidence without nominated labels: I am familiar with SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22maccepts personal evidence without nominated labels: I am unsure whether I can use SQL independently.
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/self-assessment-evidence.test.ts:[2m80:80[22m[39m
+    [90m 78|[39m     [[32m"I am unsure whether I can use SQL independently."[39m[33m,[39m [32m"uncertain"[39m][33m,[39m
+    [90m 79|[39m   ] as const)("accepts personal evidence without nominated labels: %s"…
+    [90m 80|[39m     expect(supportsMaterialSelfLevelHint({ kind: "experience", text, l…
+    [90m   |[39m                                                                                [31m^[39m
+    [90m 81|[39m     expect(supportsMaterialSelfLevelHint({ kind: "experience", text, l…
+    [90m 82|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mretains a direct assessment across a contrast or a later report: I am not familiar with React, but I am familiar with SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mretains a direct assessment across a contrast or a later report: It is false that I configured React, but I am familiar with SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/self-assessment-evidence.test.ts[2m > [22mmaterial self-assessment evidence[2m > [22mretains a direct assessment across a contrast or a later report: I am familiar with SQL, but Alice said, I am familiar with React.
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/lib/materials/self-assessment-evidence.test.ts:[2m120:112[22m[39m
+    [90m118|[39m     "I am familiar with SQL, but Alice said, I am familiar with React.…
+    [90m119|[39m   ])("retains a direct assessment across a contrast or a later report:…
+    [90m120|[39m     expect(supportsMaterialSelfLevelHint({ kind: "skill-claim", text, …
+    [90m   |[39m                                                                                                                [31m^[39m
+    [90m121|[39m   })[33m;[39m
+    [90m122|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m28 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (70)[39m
+[2m   Start at [22m 17:37:55
+[2m   Duration [22m 452ms[2m (transform 39ms, setup 199ms, import 30ms, tests 12ms, environment 0ms)[22m
+

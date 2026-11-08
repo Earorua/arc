@@ -1,0 +1,209 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:46632) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-review-draft.test.ts [2m([22m[2m44 tests[22m[2m)[22m[33m 833[2mms[22m[39m
+ [32m✓[39m tests/components/materials-ai-flow.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 591[2mms[22m[39m
+ [32m✓[39m tests/components/material-confirmation-source.test.tsx [2m([22m[2m22 tests[22m[2m)[22m[33m 506[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-review-evidence.test.ts [2m([22m[2m403 tests[22m[2m)[22m[32m 172[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/self-assessment-evidence.test.ts [2m([22m[2m97 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+(node:46616) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx [2m([22m[2m16 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[33m 994[2mms[22m[39m
+[31m     [31m×[31m keeps only asserted completed practice: 按指导完成不了 SQL 查询练习[39m[32m 42[2mms[22m[39m
+[31m     [31m×[31m keeps only asserted completed practice: 按照指导完成不了 SQL 查询练习[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m keeps only asserted completed practice: 按指导完成 SQL 查询练习是我下周的计划。[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m keeps only asserted completed practice: 按照指导完成 SQL 查询练习是我下周的计划。[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m keeps only asserted completed practice: 按指导完成 SQL 查询练习的计划尚未执行。[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m keeps only asserted completed practice: 按照指导完成 SQL 查询练习的计划尚未执行。[39m[32m 1[2mms[22m[39m
+     [32m✓[39m keeps only asserted completed practice: 按指导完成 SQL 查询练习后，我记录了结果。[32m 1[2mms[22m[39m
+     [32m✓[39m keeps only asserted completed practice: 按照指导完成 SQL 查询练习后，我记录了结果。[32m 1[2mms[22m[39m
+     [32m✓[39m keeps only asserted completed practice: 按指导没有完成 SQL 查询练习[32m 0[2mms[22m[39m
+     [32m✓[39m keeps only asserted completed practice: 按照指导计划完成 SQL 查询练习[32m 0[2mms[22m[39m
+     [32m✓[39m keeps only asserted completed practice: 按指导示例完成 SQL 查询练习[32m 1[2mms[22m[39m
+     [32m✓[39m keeps only asserted completed practice: 按照指导教程完成 SQL 查询练习[32m 1[2mms[22m[39m
+[31m     [31m×[31m retains a suggestion only for actual practice after editing: 按指导完成不了 SQL 查询练习[39m[33m 335[2mms[22m[39m
+[31m     [31m×[31m retains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习是我下周的计划。[39m[32m 221[2mms[22m[39m
+[31m     [31m×[31m retains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习的计划尚未执行。[39m[32m 192[2mms[22m[39m
+     [32m✓[39m retains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习后，我记录了结果。[32m 181[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/retained-assessment-hints.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 9 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成 SQL 查询练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成 SQL 查询练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx:[2m42:25[22m[39m
+    [90m 40|[39m     const retained = retain([{id: "f", kind: "experience", text, origi…
+    [90m 41|[39m     observations.push({kind: "pure", text, expected, baseline: base, s…
+    [90m 42|[39m     expect[33m.[39m[34msoft[39m(shared)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m   |[39m                         [31m^[39m
+    [90m 43|[39m     expect[33m.[39m[34msoft[39m(worker)[33m.[39m[34mtoBe[39m(expected [33m?[39m [32m"guided"[39m [33m:[39m [35mnull[39m)[33m;[39m
+    [90m 44|[39m     expect[33m.[39m[34msoft[39m(retained)[33m.[39m[34mtoEqual[39m(expected [33m?[39m [hint] [33m:[39m [])[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成 SQL 查询练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成 SQL 查询练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected 'guided' to be null // Object.is equality[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+"guided"
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx:[2m43:25[22m[39m
+    [90m 41|[39m     observations.push({kind: "pure", text, expected, baseline: base, s…
+    [90m 42|[39m     expect[33m.[39m[34msoft[39m(shared)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 43|[39m     expect[33m.[39m[34msoft[39m(worker)[33m.[39m[34mtoBe[39m(expected [33m?[39m [32m"guided"[39m [33m:[39m [35mnull[39m)[33m;[39m
+    [90m   |[39m                         [31m^[39m
+    [90m 44|[39m     expect[33m.[39m[34msoft[39m(retained)[33m.[39m[34mtoEqual[39m(expected [33m?[39m [hint] [33m:[39m [])[33m;[39m
+    [90m 45|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按指导完成 SQL 查询练习的计划尚未执行。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mbounded short-qualifier suffix and completion controls[2m > [22mkeeps only asserted completed practice: 按照指导完成 SQL 查询练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected [ { id: 'h', candidateId: 'f', …(2) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "f",[39m
+[31m+     "id": "h",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx:[2m44:27[22m[39m
+    [90m 42|[39m     expect[33m.[39m[34msoft[39m(shared)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m 43|[39m     expect[33m.[39m[34msoft[39m(worker)[33m.[39m[34mtoBe[39m(expected [33m?[39m [32m"guided"[39m [33m:[39m [35mnull[39m)[33m;[39m
+    [90m 44|[39m     expect[33m.[39m[34msoft[39m(retained)[33m.[39m[34mtoEqual[39m(expected [33m?[39m [hint] [33m:[39m [])[33m;[39m
+    [90m   |[39m                           [31m^[39m
+    [90m 45|[39m   })[33m;[39m
+    [90m 46|[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx:[2m109:37[22m[39m
+    [90m107|[39m         savedHintCount: saved.selfAssessmentHints.length, reloadedShow…
+    [90m108|[39m         syntheticProviderCalls: fixture.providerCalls(), realModelCall…
+    [90m109|[39m       expect[33m.[39m[34msoft[39m(immediatelyShown)[33m.[39m[34mtoBe[39m(supported)[33m;[39m
+    [90m   |[39m                                     [31m^[39m
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(requestHintCount)[33m.[39m[34mtoBe[39m(supported [33m?[39m [34m1[39m [33m:[39m [34m0[39m)[33m;[39m
+    [90m111|[39m       expect.soft(saved.selfAssessmentHints).toEqual(supported ? befor…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected 1 to be +0 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 1[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx:[2m110:37[22m[39m
+    [90m108|[39m         syntheticProviderCalls: fixture.providerCalls(), realModelCall…
+    [90m109|[39m       expect[33m.[39m[34msoft[39m(immediatelyShown)[33m.[39m[34mtoBe[39m(supported)[33m;[39m
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(requestHintCount)[33m.[39m[34mtoBe[39m(supported [33m?[39m [34m1[39m [33m:[39m [34m0[39m)[33m;[39m
+    [90m   |[39m                                     [31m^[39m
+    [90m111|[39m       expect.soft(saved.selfAssessmentHints).toEqual(supported ? befor…
+    [90m112|[39m       expect[33m.[39m[34msoft[39m(reloadedShown)[33m.[39m[34mtoBe[39m(supported)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected [ { id: 'hint-candidate-1-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "candidate-1",[39m
+[31m+     "id": "hint-candidate-1-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx:[2m111:46[22m[39m
+    [90m109|[39m       expect[33m.[39m[34msoft[39m(immediatelyShown)[33m.[39m[34mtoBe[39m(supported)[33m;[39m
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(requestHintCount)[33m.[39m[34mtoBe[39m(supported [33m?[39m [34m1[39m [33m:[39m [34m0[39m)[33m;[39m
+    [90m111|[39m       expect.soft(saved.selfAssessmentHints).toEqual(supported ? befor…
+    [90m   |[39m                                              [31m^[39m
+    [90m112|[39m       expect[33m.[39m[34msoft[39m(reloadedShown)[33m.[39m[34mtoBe[39m(supported)[33m;[39m
+    [90m113|[39m     } [35mfinally[39m {gate[33m.[39m[34mresolve[39m()[33m;[39m [34mcleanup[39m()[33m;[39m [35mawait[39m fixture[33m.[39m[34mdispose[39m()[33m;[39m}
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/30]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成不了 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习是我下周的计划。
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx[2m > [22mreal panel to HTTP save and reload for short-qualifier evidence[2m > [22mretains a suggestion only for actual practice after editing: 按指导完成 SQL 查询练习的计划尚未执行。
+[31m[1mAssertionError[22m: expected true to be false // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx:[2m112:34[22m[39m
+    [90m110|[39m       expect[33m.[39m[34msoft[39m(requestHintCount)[33m.[39m[34mtoBe[39m(supported [33m?[39m [34m1[39m [33m:[39m [34m0[39m)[33m;[39m
+    [90m111|[39m       expect.soft(saved.selfAssessmentHints).toEqual(supported ? befor…
+    [90m112|[39m       expect[33m.[39m[34msoft[39m(reloadedShown)[33m.[39m[34mtoBe[39m(supported)[33m;[39m
+    [90m   |[39m                                  [31m^[39m
+    [90m113|[39m     } [35mfinally[39m {gate[33m.[39m[34mresolve[39m()[33m;[39m [34mcleanup[39m()[33m;[39m [35mawait[39m fixture[33m.[39m[34mdispose[39m()[33m;[39m}
+    [90m114|[39m   }[33m,[39m [34m15000[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/30]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m624 passed[39m[22m[90m (633)[39m
+[2m   Start at [22m 18:24:56
+[2m   Duration [22m 14.59s[2m (transform 1.39s, setup 1.70s, import 3.37s, tests 3.20s, environment 5.15s)[22m
+

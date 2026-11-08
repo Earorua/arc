@@ -1,0 +1,115 @@
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { webcrypto } from "node:crypto";
+import { writeFileSync } from "node:fs";
+import { useState } from "react";
+import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
+import { MaterialTextPanel } from "../../app/components/materials/material-text-panel";
+import type { DocumentsClient } from "../../app/lib/documents-client";
+import type { MaterialDocumentDraftRef } from "../../app/lib/use-material-selection";
+import { retainedMaterialSelfAssessmentHints as retain } from "../../app/lib/materials/skill-labels";
+import { supportsMaterialSelfLevelHint as current } from "../../app/lib/materials/self-assessment-evidence";
+import { supportsMaterialSelfLevelHint as baseline } from "./edited-assessment-quality-20261108-base-evidence";
+import { groundSourceSelfLevelHint } from "../../worker/document-executor/source-review-evidence";
+import { createMaterialAnalysisFixture } from "../../tests/helpers/material-analysis-e2e";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
+
+const observations: Record<string, unknown>[] = [];
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterAll(() => writeFileSync("work/grounded-verification/edited-assessment-quality-recheck-20261108-original-probe-results.json", JSON.stringify(observations, null, 2) + "\n", {flag: "wx"}));
+const hint = {id: "h", candidateId: "f", skillLabel: "SQL", level: "guided" as const};
+const cases = [
+  ["按指导完成不了 SQL 查询练习", false],
+  ["按照指导完成不了 SQL 查询练习", false],
+  ["按指导完成 SQL 查询练习是我下周的计划。", false],
+  ["按照指导完成 SQL 查询练习是我下周的计划。", false],
+  ["按指导完成 SQL 查询练习的计划尚未执行。", false],
+  ["按照指导完成 SQL 查询练习的计划尚未执行。", false],
+  ["按指导完成 SQL 查询练习后，我记录了结果。", true],
+  ["按照指导完成 SQL 查询练习后，我记录了结果。", true],
+  ["按指导没有完成 SQL 查询练习", false],
+  ["按照指导计划完成 SQL 查询练习", false],
+  ["按指导示例完成 SQL 查询练习", true],
+  ["按照指导教程完成 SQL 查询练习", true],
+] as const;
+
+describe("bounded short-qualifier suffix and completion controls", () => {
+  it.each(cases)("keeps only asserted completed practice: %s", (text, expected) => {
+    const input = {kind: "experience" as const, text, labels: ["SQL"], level: "guided" as const};
+    const shared = current(input), base = baseline(input);
+    const worker = groundSourceSelfLevelHint({kind: "experience", source: {segmentId: "s", quote: text}, skillLabels: ["SQL"], selfLevelHint: "guided"});
+    const retained = retain([{id: "f", kind: "experience", text, origin: "user", sourceRef: null, requirementLevel: null, skillLabels: ["SQL"]}], [hint], "grounded-skill-labels-v2");
+    observations.push({kind: "pure", text, expected, baseline: base, shared, worker, retainedHintCount: retained.length});
+    expect.soft(shared).toBe(expected);
+    expect.soft(worker).toBe(expected ? "guided" : null);
+    expect.soft(retained).toEqual(expected ? [hint] : []);
+  });
+});
+
+describe("real panel to HTTP save and reload for short-qualifier evidence", () => {
+  it.each([
+    ["按指导完成不了 SQL 查询练习", false],
+    ["按指导完成 SQL 查询练习是我下周的计划。", false],
+    ["按指导完成 SQL 查询练习的计划尚未执行。", false],
+    ["按指导完成 SQL 查询练习后，我记录了结果。", true],
+  ] as const)("retains a suggestion only for actual practice after editing: %s", async (edited, supported) => {
+    vi.stubGlobal("crypto", webcrypto);
+    const source = "I tested SQL under supervision.";
+    const fixture = await createMaterialAnalysisFixture({sourceSpanResponse: {format: "source-spans-v2", items: [{kind: "experience", requirementLevel: null,
+      source: {segmentId: "segment-1", quote: source}, skillTerms: ["SQL"], selfLevelHint: "guided"}], reviewPoints: []}});
+    const gate = Promise.withResolvers<void>();
+    const caps = {documentsEnabled: true, analysisEnabled: true, planningEnabled: true, hasDocuments: true, providerLabel: "Offline fixture",
+      providerPolicyId: KIMI_GROUNDED_TERMS_POLICY_ID, policyVersion: "2026.11.1", reason: "ready"} as const;
+    let saveEntered = false, requestHintCount = -1;
+    const adopted = vi.fn();
+    try {
+      const receipt = await fixture.http("createDocument", {kind: "resume", displayName: "Quality suffix probe", text: source, mutationId: "create-quality"});
+      const consent = await fixture.http("createDocumentConsent", {textVersionId: receipt.textVersionId, purpose: "analysis", policyVersion: caps.policyVersion,
+        providerPolicyId: caps.providerPolicyId, mutationId: "consent-quality"});
+      const job = await fixture.http("createDocumentJob", {textVersionId: receipt.textVersionId, consentId: consent.consentId, mutationId: "job-quality"});
+      await fixture.execute(job.jobId);
+      const query = {documentId: receipt.documentId, textVersionId: receipt.textVersionId};
+      const before = (await fixture.http("readDocumentReviewDraft", query)).draft!;
+      expect(before.selfAssessmentHints).toHaveLength(1);
+      let last: MaterialDocumentDraftRef = receipt;
+      const client: DocumentsClient = {capabilities: async () => caps, request: async (endpoint, input) => {
+        if (endpoint === "saveDocumentReviewDraft") {
+          saveEntered = true;
+          requestHintCount = (input as {selfAssessmentHints: unknown[]}).selfAssessmentHints.length;
+          await gate.promise;
+        }
+        return fixture.http(endpoint, input);
+      }};
+      function Editor() {
+        const [value, setValue] = useState<MaterialDocumentDraftRef>(last);
+        return <MaterialTextPanel kind="resume" capabilities={caps} client={client} value={value} skills={[{id: "sql", name: "SQL"}]}
+          onAdoptLevels={adopted} onChange={next => {last = next; setValue(next);}} />;
+      }
+      const page = render(<Editor />);
+      const buttonName = "采用 SQL 的需指导完成建议";
+      await screen.findByRole("button", {name: buttonName});
+      fireEvent.change(screen.getByRole("textbox", {name: "事实 1"}), {target: {value: edited}});
+      const immediatelyShown = screen.queryByRole("button", {name: buttonName}) !== null;
+      await waitFor(() => expect(saveEntered).toBe(true));
+      expect((await fixture.http("readDocumentReviewDraft", query)).draft?.revision).toBe(0);
+      await act(async () => {gate.resolve(); await gate.promise;});
+      await waitFor(async () => expect((await fixture.http("readDocumentReviewDraft", query)).draft?.revision).toBe(1));
+      const saved = (await fixture.http("readDocumentReviewDraft", query)).draft!;
+      page.unmount();
+      render(<Editor />);
+      await screen.findByDisplayValue(edited);
+      const reloadedShown = screen.queryByRole("button", {name: buttonName}) !== null;
+      expect(saved.items[0]?.text).toBe(edited);
+      expect(saved.items[0]?.sourceRef).toEqual(before.items[0]?.sourceRef);
+      expect((await fixture.http("readDocument", {documentId: receipt.documentId})).text).toBe(source);
+      expect(adopted).not.toHaveBeenCalled();
+      expect(fixture.providerCalls()).toBe(1);
+      observations.push({kind: "panel-http-save-reload", text: edited, expected: supported, immediatelyShown, requestHintCount,
+        savedHintCount: saved.selfAssessmentHints.length, reloadedShown, revision: saved.revision, sourcePreserved: true, adoptedCalls: adopted.mock.calls.length,
+        syntheticProviderCalls: fixture.providerCalls(), realModelCalls: 0});
+      expect.soft(immediatelyShown).toBe(supported);
+      expect.soft(requestHintCount).toBe(supported ? 1 : 0);
+      expect.soft(saved.selfAssessmentHints).toEqual(supported ? before.selfAssessmentHints : []);
+      expect.soft(reloadedShown).toBe(supported);
+    } finally {gate.resolve(); cleanup(); await fixture.dispose();}
+  }, 15000);
+});

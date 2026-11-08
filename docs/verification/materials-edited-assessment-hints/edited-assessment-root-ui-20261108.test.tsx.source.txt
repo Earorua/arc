@@ -1,0 +1,72 @@
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { webcrypto } from "node:crypto";
+import { writeFileSync } from "node:fs";
+import { useState } from "react";
+import { afterEach, expect, it, vi } from "vitest";
+import { MaterialTextPanel } from "../../app/components/materials/material-text-panel";
+import type { DocumentsClient } from "../../app/lib/documents-client";
+import type { MaterialDocumentDraftRef } from "../../app/lib/use-material-selection";
+import { createMaterialAnalysisFixture } from "../../tests/helpers/material-analysis-e2e";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
+
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+it("removes stale advice immediately, saves the valid edit, and keeps it removed after real route reload", async () => {
+  vi.stubGlobal("crypto", webcrypto);
+  const source = "I tested SQL under supervision.", edited = "My colleague tested SQL under supervision.";
+  const fixture = await createMaterialAnalysisFixture({ sourceSpanResponse: { format: "source-spans-v2", items: [{
+    kind: "experience", requirementLevel: null, source: { segmentId: "segment-1", quote: source },
+    skillTerms: ["SQL"], selfLevelHint: "guided",
+  }], reviewPoints: [] } });
+  const gate = Promise.withResolvers<void>();
+  let last: MaterialDocumentDraftRef | null = null, saveEntered = false;
+  const adopted = vi.fn();
+  const caps = { documentsEnabled: true, analysisEnabled: true, planningEnabled: true, hasDocuments: true,
+    providerLabel: "Offline fixture", providerPolicyId: KIMI_GROUNDED_TERMS_POLICY_ID, policyVersion: "2026.11.1", reason: "ready" } as const;
+  const client: DocumentsClient = { capabilities: async () => caps, request: async (endpoint, input) => {
+    if (endpoint === "saveDocumentReviewDraft") { saveEntered = true; await gate.promise; }
+    const result = await fixture.http(endpoint, input);
+    if (endpoint === "createDocumentJob" && "jobId" in result) await fixture.execute(result.jobId);
+    return result;
+  } };
+  function ref() { if (!last) throw Error("missing saved reference"); return last; }
+  function Editor() {
+    const [value, setValue] = useState<MaterialDocumentDraftRef | null>(last);
+    return <MaterialTextPanel kind="resume" capabilities={caps} client={client} value={value} pollIntervalMs={5}
+      skills={[{ id: "sql", name: "SQL" }]} onAdoptLevels={adopted}
+      onChange={next => { last = next; setValue(next); }} />;
+  }
+  try {
+    const page = render(<Editor />);
+    fireEvent.change(screen.getByRole("textbox", { name: "简历正文" }), { target: { value: source } });
+    fireEvent.click(screen.getByRole("checkbox", { name: /允许将当前文本/ }));
+    fireEvent.click(screen.getByRole("button", { name: "保存并 AI 分析" }));
+    await screen.findByRole("button", { name: "采用 SQL 的需指导完成建议" });
+    const query = { documentId: ref().documentId, textVersionId: ref().textVersionId };
+    const before = (await fixture.http("readDocumentReviewDraft", query)).draft!;
+    expect(before.selfAssessmentHints).toHaveLength(1);
+    fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: edited } });
+    const immediatelyRemoved = screen.queryByRole("button", { name: "采用 SQL 的需指导完成建议" }) === null;
+    await waitFor(() => expect(saveEntered).toBe(true));
+    expect((await fixture.http("readDocumentReviewDraft", query)).draft?.revision).toBe(0);
+    await act(async () => { gate.resolve(); await gate.promise; });
+    await waitFor(async () => expect((await fixture.http("readDocumentReviewDraft", query)).draft?.revision).toBe(1));
+    const saved = (await fixture.http("readDocumentReviewDraft", query)).draft!;
+    page.unmount();
+    render(<Editor />);
+    await screen.findByDisplayValue(edited);
+    const reloadedRemoved = screen.queryByRole("button", { name: "采用 SQL 的需指导完成建议" }) === null;
+    expect(saved.items[0]?.sourceRef).toEqual(before.items[0]?.sourceRef);
+    expect(saved.items[0]?.text).toBe(edited);
+    expect((await fixture.http("readDocument", { documentId: ref().documentId })).text).toBe(source);
+    expect(adopted).not.toHaveBeenCalled();
+    expect(fixture.providerCalls()).toBe(1); // In-memory synthetic provider, no network or model inference.
+    const observations = { immediatelyRemoved, savedHintCount: saved.selfAssessmentHints.length, reloadedRemoved,
+      factSaved: saved.items[0]?.text === edited, sourcePreserved: true, adoptedCalls: adopted.mock.calls.length,
+      syntheticProviderCalls: fixture.providerCalls(), realModelCalls: 0 };
+    const result = import.meta.env.ARC_EDITED_HINT_UI_RESULT;
+    expect(result).toMatch(/^work\/grounded-verification\/edited-assessment-root-ui-[a-z0-9-]+-results\.json$/u);
+    writeFileSync(result, JSON.stringify(observations, null, 2) + "\n", { flag: "wx" });
+    expect(observations).toMatchObject({ immediatelyRemoved: true, savedHintCount: 0, reloadedRemoved: true });
+  } finally { gate.resolve(); cleanup(); await fixture.dispose(); }
+}, 15000);

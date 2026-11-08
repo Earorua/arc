@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "baselineCommit": "80546d0",
+  "movedDeclarations": [
+    "quoted",
+    "maskQuotes",
+    "hypothetical",
+    "deniedAssertion",
+    "selfConflict",
+    "deniedConflict",
+    "assertedSkillEvidence",
+    "englishConceptual",
+    "chineseConceptual",
+    "supervised",
+    "instructionalPractice",
+    "deniedInstructionalPractice",
+    "selfUncertain",
+    "chineseGuidance",
+    "practiceAction",
+    "personalPassivePractice",
+    "guidedNegation",
+    "instructionalFragmentStart",
+    "guidedPractice",
+    "guidedSkillScope",
+    "personalPracticeNeed",
+    "personalCapabilityQuestion",
+    "scopeBreak",
+    "personalAssessmentHeading",
+    "reportedAssessment",
+    "assessmentScopes",
+    "conceptualAssessment",
+    "personalUncertainty",
+    "supportsLevel"
+  ],
+  "movedDeclarationsCompared": 29,
+  "workerDeclarationsCompared": 33,
+  "workerPublicExports": [
+    "groundSourceReviewPoints",
+    "groundSourceSelfLevelHint",
+    "groundedStatementBoundaries",
+    "isDetachedQuotedStatement"
+  ],
+  "authorizedOnlySemanticChange": "if (/^(?:(?:have|had|also|only|previously|personally)\\s+)*did\\s+not\\b(?!\\s+only\\b)/iu.test(action)) return false;",
+  "runtimeGraphFiles": [
+    "app/lib/materials/self-assessment-evidence.ts",
+    "app/lib/materials/grounded-skill-terms.ts",
+    "app/contracts/documents.ts",
+    "app/contracts/planning.ts",
+    "app/contracts/intelligence.ts",
+    "app/lib/materials/quotation-evidence.ts"
+  ],
+  "runtimeGraphEdges": [
+    [
+      "app/lib/materials/self-assessment-evidence.ts",
+      "app/lib/materials/grounded-skill-terms.ts"
+    ],
+    [
+      "app/lib/materials/grounded-skill-terms.ts",
+      "app/contracts/documents.ts"
+    ],
+    [
+      "app/contracts/documents.ts",
+      "app/contracts/planning.ts"
+    ],
+    [
+      "app/contracts/planning.ts",
+      "app/contracts/intelligence.ts"
+    ],
+    [
+      "app/lib/materials/self-assessment-evidence.ts",
+      "app/lib/materials/quotation-evidence.ts"
+    ]
+  ],
+  "externalPackages": [
+    "zod"
+  ],
+  "hashes": {
+    "app/lib/materials/self-assessment-evidence.ts": "c134d3b6c41b20172368eb2a2b37277308019901a70cf7940f44e68308f587dd",
+    "app/lib/materials/quotation-evidence.ts": "03a77ad110f67b56b7f1d6f28facdf9c70a92d0e7cd152ecdad806967297516a",
+    "worker/document-executor/source-review-evidence.ts": "e0cbed00b6e2d49c12d4932fddd28457b33ab2a429e4471c711003db520a5ab6",
+    "tests/lib/materials/self-assessment-evidence.test.ts": "1edda4e384d4ead989e4211b1ec167758c036e5d666def6f4c2db6f81fd42cf0",
+    "tests/server/document-source-review-evidence.test.ts": "3c8fca67073e888bba6f51cb4e41c542d5380cba362c55a03db34cd02a51c8a0"
+  },
+  "limitations": "AST equivalence ignores comments and export/name changes; removes only the explicit new did-not guard for comparison. Dependency graph follows relative static runtime imports and reports external package names; it does not audit zod internals."
+}

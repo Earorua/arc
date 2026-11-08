@@ -1,0 +1,63 @@
+// @vitest-environment node
+import { afterEach, describe, expect, it } from "vitest";
+import { setup, closeMaterialsFixtures } from "../../tests/helpers/material-storage-fixture";
+import { materialsClock } from "../../tests/helpers/materials-d1";
+import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
+import { DocumentStorage } from "../../app/server/documents/storage";
+import { ReviewService } from "../../app/server/documents/review-service";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
+
+afterEach(closeMaterialsFixtures);
+const source = "I tested SQL under supervision.";
+async function seed(projection: "legacy" | "literal" | "grounded") {
+  const fixture = setup();
+  const { services, owner, db, bucket } = fixture;
+  const policy = projection === "grounded" ? KIMI_GROUNDED_TERMS_POLICY_ID : "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1";
+  const receipt = await services.createDocument(owner, { kind: "resume", displayName: "Independent short qualifier", text: source, mutationId: "create-spec" });
+  db.database.prepare("INSERT INTO document_processing_consents VALUES(?,?,?,?,?,'analysis','2026.11.1',?,0,0,NULL)")
+    .run(owner.ownerId, "consent-spec", receipt.textVersionId, receipt.documentId, receipt.documentVersionId, policy);
+  db.database.prepare("INSERT INTO document_jobs(owner_id,id,text_version_id,document_id,document_version_id,consent_id,generation,document_revision,revision,state,dispatch_state,execution_slot,queued_at,queue_expires_at,provider_policy_id,price_version,policy_version,reservation_id,updated_at) VALUES(?,'job-spec',?,?,?,'consent-spec',0,0,0,'running','settled',NULL,0,1,?,'2026.11.1','2026.11.1','reservation-spec',0)")
+    .run(owner.ownerId, receipt.textVersionId, receipt.documentId, receipt.documentVersionId, policy);
+  const candidate = { schemaVersion: "2026.11.1", items: [{ id: "practice", kind: "experience", text: source,
+    source: { segmentId: "segment-1", quote: source }, requirementLevel: null, skillLabels: ["SQL"], selfLevelHint: "guided" }] };
+  const review = new ReviewService(new D1DocumentRepository(db as unknown as D1Database, materialsClock), new DocumentStorage(bucket));
+  expect((await review.acceptAiExtraction(owner.ownerId, { ...receipt, jobId: "job-spec", generation: 0, documentRevision: 0, consentId: "consent-spec", candidate })).disposition).toBe("initialized");
+  const reference = { documentId: receipt.documentId, textVersionId: receipt.textVersionId };
+  if (projection === "legacy") {
+    db.database.prepare("UPDATE document_extractions SET candidates_json=?").run(JSON.stringify(candidate));
+    const initial = (await services.readDocumentReviewDraft(owner, reference)).draft!;
+    db.database.prepare("UPDATE document_review_drafts SET items_json=?")
+      .run(JSON.stringify(initial.items.map(({ skillLabels, ...item }) => { void skillLabels; return item; })));
+  }
+  const draft = (await services.readDocumentReviewDraft(owner, reference)).draft!;
+  expect(draft.selfAssessmentHints).toHaveLength(1);
+  await services.createDocumentConfirmation(owner, { ...reference, documentVersionId: receipt.documentVersionId,
+    items: draft.items, reviewRevision: draft.revision, expectedRevision: receipt.revision, mutationId: "confirm-spec" });
+  return { ...fixture, reference, draft };
+}
+const cases = [
+  ["按指导完成 SQL 查询练习", true],
+  ["我按照指导完成 SQL 查询练习", true],
+  ["按照指导，我完成 ‘SQL’ 查询练习", true],
+  ["按照指导教程完成 SQL 查询练习", true],
+  ["按指导，我将完成 SQL 查询练习", false],
+  ["按指导没有完成 SQL 查询练习", false],
+  ["按照指导，我的同事完成 SQL 查询练习", false],
+  ["示例：‘按照指导完成 SQL 查询练习’", false],
+] as const;
+for (const projection of ["legacy", "literal", "grounded"] as const) describe(`independent ${projection} short-guidance persistence`, () => {
+  it.each(cases)("saves and replays %s (supported=%s)", async (text, supported) => {
+    const f = await seed(projection);
+    const before = { capture: f.db.database.prepare("SELECT * FROM document_extractions").all(), confirmation: f.db.database.prepare("SELECT * FROM document_confirmations").all(), objects: [...f.bucket.objects] };
+    const request = { ...f.reference, extractionId: f.draft.extractionId,
+      items: f.draft.items.map(item => ({ ...item, origin: "user" as const, text })), selfAssessmentHints: f.draft.selfAssessmentHints,
+      expectedRevision: f.draft.revision, mutationId: "save-short-spec" };
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, request);
+    expect(saved.draft.items[0]).toMatchObject({ text, origin: "user", sourceRef: f.draft.items[0]!.sourceRef });
+    expect(saved.draft.selfAssessmentHints).toEqual(supported ? f.draft.selfAssessmentHints : []);
+    expect(saved.draft.revision).toBe(f.draft.revision + 1);
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.reference)).draft).toEqual(saved.draft);
+    expect(await f.services.saveDocumentReviewDraft(f.owner, request)).toEqual(saved);
+    expect({ capture: f.db.database.prepare("SELECT * FROM document_extractions").all(), confirmation: f.db.database.prepare("SELECT * FROM document_confirmations").all(), objects: [...f.bucket.objects] }).toEqual(before);
+  });
+});

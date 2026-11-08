@@ -1,0 +1,67 @@
+[
+  {
+    "text": "按指导完成 SQL 查询练习",
+    "base": false,
+    "current": true
+  },
+  {
+    "text": "按照指导完成 SQL 查询练习",
+    "base": false,
+    "current": true
+  },
+  {
+    "text": "按指导示例完成 SQL 查询练习",
+    "base": true,
+    "current": true
+  },
+  {
+    "text": "按照指导教程完成 SQL 查询练习",
+    "base": true,
+    "current": true
+  },
+  {
+    "text": "按指导完成 SQL 示例",
+    "base": false,
+    "current": false
+  },
+  {
+    "text": "按照指导完成 SQL 教程练习",
+    "base": true,
+    "current": true
+  },
+  {
+    "text": "按指导完成不了 SQL 查询练习",
+    "base": false,
+    "current": true
+  },
+  {
+    "text": "按照指导完成不了 SQL 查询练习",
+    "base": false,
+    "current": true
+  },
+  {
+    "text": "在导师指导下完成不了 SQL 查询练习",
+    "base": true,
+    "current": true
+  },
+  {
+    "text": "按指导无法完成 SQL 查询练习",
+    "base": false,
+    "current": false
+  },
+  {
+    "text": "按照指导没有完成 SQL 查询练习",
+    "base": false,
+    "current": false
+  },
+  {
+    "text": "按指导完成同事 SQL 查询练习的记录",
+    "base": false,
+    "current": true
+  },
+  {
+    "text": "在导师指导下完成同事 SQL 查询练习的记录",
+    "base": true,
+    "current": true
+  }
+]

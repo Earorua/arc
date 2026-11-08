@@ -1,0 +1,7 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+export default defineConfig({ ...base, test: { ...base.test, environment: "node", include: [
+  "work/grounded-verification/edited-assessment-action-boundary-20261108.test.ts",
+  "work/grounded-verification/edited-assessment-guidance-20261108.test.ts",
+] } });

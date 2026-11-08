@@ -1,0 +1,14 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [32m✓[39m tests/server/document-source-span-provider.test.ts [2m([22m[2m115 tests[22m[2m)[22m[32m 181[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-review-evidence.test.ts [2m([22m[2m381 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/self-assessment-evidence.test.ts [2m([22m[2m75 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-requirement-evidence.test.ts [2m([22m[2m124 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m work/grounded-verification/shared-assessment-spec-20261108-probe.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m717 passed[39m[22m[90m (717)[39m
+[2m   Start at [22m 17:45:48
+[2m   Duration [22m 4.87s[2m (transform 330ms, setup 908ms, import 756ms, tests 414ms, environment 2.08s)[22m
+

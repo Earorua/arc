@@ -1,0 +1,46 @@
+{
+  "status": "current-course-content-equivalent-new-dependency-binding-requires-review",
+  "priorReference": {
+    "path": "docs/verification/materials-quality-v2/course-reference.snapshot.json",
+    "sha256": "bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676"
+  },
+  "currentCapture": {
+    "path": "work/grounded-verification/edited-assessment-course-capture-20261108-results.json",
+    "sha256": "9a02b60878d5d581353efb66545a56d81c9da254fd59efc3db34456015a8bed8",
+    "note": "Raw output of the unchanged frozen capture utility; its historical id/date are not a new approved reference identity."
+  },
+  "fullObjectsEqual": true,
+  "sourceFilesEqual": true,
+  "inventoryEqual": true,
+  "objectHashes": {
+    "role": "3d63cfe446a8ae5a78e8a10164020d5ecd150a00c9363c92dbbcffff7fdee007",
+    "blueprint": "9f3c951eef3c4f2e26a9dba73ece80b4d1be6899970c1423bb2281c156b55f41",
+    "registry": "513853f6f699bc42336222d067a14900f5b76982fd789c30e916e97e9caeb3f7"
+  },
+  "dependencyCount": 85,
+  "unchangedDependencyCount": 84,
+  "changedDependencies": [
+    {
+      "path": "app/contracts/planning.ts",
+      "before": {
+        "path": "app/contracts/planning.ts",
+        "sha256": "053972ea8b36f6baef224efa41fbf593153e2dff1271e404cc403851fc2a8fa5",
+        "byteLength": 32489,
+        "kind": "bundled"
+      },
+      "after": {
+        "path": "app/contracts/planning.ts",
+        "sha256": "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93",
+        "byteLength": 32565,
+        "kind": "bundled"
+      }
+    }
+  ],
+  "bundleEqual": false,
+  "legacyEvaluatorRejectsCurrentSource": true,
+  "newCandidateReferenceApproved": false,
+  "realModelQualificationPassed": false,
+  "gatePassed": false,
+  "modelCalls": 0,
+  "externalLinksFetched": 0
+}

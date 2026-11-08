@@ -1,0 +1,138 @@
+import { afterAll, describe, expect, it } from "vitest";
+import { writeFileSync } from "node:fs";
+import { performance } from "node:perf_hooks";
+import type { DocumentCandidate, DocumentCandidateReviewPoint } from "../../app/contracts/documents";
+import { supportsMaterialSelfLevelHint as supports } from "../../app/lib/materials/self-assessment-evidence";
+import { maskQuotes } from "../../app/lib/materials/quotation-evidence";
+import { groundSourceSelfLevelHint as currentHint, groundSourceReviewPoints as currentPoints } from "../../worker/document-executor/source-review-evidence";
+import { groundSourceSelfLevelHint as baselineHint, groundSourceReviewPoints as baselinePoints } from "./shared-assessment-quality-20261108-baseline-source";
+
+type Level = DocumentCandidate["selfLevelHint"];
+const source = (quote: string) => ({ segmentId: "quality-section", quote });
+const document = (text: string) => ({ text, segments: [{ id: "quality-section", start: 0, end: text.length }] });
+const candidate = (quote: string, selfLevelHint: Level) => ({ kind: "experience" as const, source: source(quote), skillLabels: ["SQL"], selfLevelHint });
+const point = (quote: string): DocumentCandidateReviewPoint => ({ code: "confirm-self-assessment", source: source(quote) });
+const levels = [null, "conceptual", "guided", "uncertain"] as const;
+const labels = [undefined, [], ["SQL"], ["React"], ["SQL", "React"]];
+const differential = [
+  "I tested SQL under supervision.",
+  "Under a mentor's guidance, I tested SQL.",
+  "My placement: followed a runbook to configure SQL.",
+  "I tested 'SQL' under supervision.",
+  "我在导师指导下编写 SQL。",
+  "个人简介：熟悉 SQL。",
+  "I am familiar with SQL, but my colleague uses React.",
+  "My experience with SQL is limited to reading the documentation.",
+  "I am unsure whether I can test SQL independently.",
+  "我的 SQL 自评前后矛盾。",
+  "I tested SQL under supervision, but my colleague used React.",
+  "I built SQL tooling; I tested SQL with peer guidance.",
+  "I am familiar with SQL; I am unsure whether I can use SQL.",
+  "My colleague tested SQL under supervision.",
+  "I will test SQL under supervision.",
+  "If I tested SQL under supervision, I would document it.",
+  "My mentor said, I tested SQL under supervision.",
+  "It is false that I tested SQL under supervision.",
+  "I tested SQL without following tutorials.",
+  "I tested SQL not under supervision.",
+  "I did not only test SQL under supervision.",
+  "I tested SQL under supervision, but I did not configure React.",
+  "I did not configure React, but I tested SQL under supervision.",
+  "SQL is required. SQL is optional.",
+  "The curriculum does not cover SQL.",
+  "My SQL self-assessments no longer conflict.",
+];
+const denialTemplates = [
+  "I did not ACTION SQL under supervision.",
+  "I personally did not ACTION SQL with peer guidance.",
+  "I previously did not ACTION SQL following a runbook.",
+  "Under supervision, I did not ACTION SQL.",
+  "During a supervised internship, I did not ACTION SQL.",
+];
+const denialCases = denialTemplates.flatMap(template => ["test", "build", "configure"].map(action => template.replace("ACTION", action)));
+const summary: Record<string, unknown> = { baseline: "80546d0", differentialCases: differential.length, differentialHintChecks: 0, differentialReviewChecks: 0, correctedDenials: denialCases.length, performance: [] };
+
+describe("independent Task 1 code-quality probes", () => {
+  it.each(differential)("retains baseline results outside the authorized guard: %s", text => {
+    for (const level of levels) {
+      for (const kind of ["experience", "skill-claim", "requirement", "constraint"] as const) {
+        for (const skillLabels of labels) {
+          const item = { ...candidate(text, level), kind, skillLabels };
+          expect(currentHint(item)).toBe(baselineHint(item));
+          expect(supports({ kind, text, labels: skillLabels, level })).toBe(baselineHint(item) !== null);
+          summary.differentialHintChecks = Number(summary.differentialHintChecks) + 1;
+        }
+      }
+      for (const points of [[], [point(text)]]) {
+        expect(currentPoints(points, [candidate(text, level)], document(text))).toEqual(baselinePoints(points, [candidate(text, level)], document(text)));
+        summary.differentialReviewChecks = Number(summary.differentialReviewChecks) + 1;
+      }
+    }
+  });
+
+  it.each(denialCases)("changes only the denied personal action to unsupported: %s", text => {
+    // Characterize the actual previous bug before verifying the correction.
+    for (const skillLabels of [undefined, [], ["SQL"]]) {
+      const item = { ...candidate(text, "guided"), skillLabels };
+      expect(baselineHint(item)).toBe("guided");
+      expect(currentHint(item)).toBeNull();
+      expect(supports({ kind: item.kind, text, labels: skillLabels, level: "guided" })).toBe(false);
+    }
+    expect(currentPoints([], [candidate(text, "guided")], document(text))).toEqual([]);
+    expect(currentPoints([point(text)], [candidate(text, "guided")], document(text))).toEqual([]);
+    const additive = text.replace("did not", "did not only");
+    expect(currentHint(candidate(additive, "guided"))).toBe("guided");
+    expect(currentHint(candidate(additive, "guided"))).toBe(baselineHint(candidate(additive, "guided")));
+  });
+
+  it.each([["\"", "\""], ["“", "”"], ["「", "」"], ["『", "』"], ["‘", "’"], ["`", "`"]])("keeps enclosing quotation context and UTF-16 offsets with %s%s", (open, close) => {
+    const text = `${open}Training 😀. I tested SQL under supervision. End.${close}`;
+    const quote = "I tested SQL under supervision.";
+    const masked = maskQuotes(text);
+    expect(masked.length).toBe(text.length);
+    expect(masked.slice(text.indexOf(quote), text.indexOf(quote) + quote.length).trim()).toBe("");
+    expect(currentPoints([point(quote)], [candidate(quote, "guided")], document(text))).toEqual([]);
+    expect(currentPoints([point(quote)], [candidate(quote, "guided")], document(text))).toEqual(baselinePoints([point(quote)], [candidate(quote, "guided")], document(text)));
+  });
+
+  it("accepts immutable input and remains deterministic across interleaved clients", () => {
+    const input = Object.freeze({ kind: "experience" as const, text: 'I tested "SQL" under supervision.', labels: Object.freeze(["SQL"]), level: "guided" as const });
+    const before = JSON.stringify(input);
+    for (let i = 0; i < 20; i++) {
+      expect(supports(input)).toBe(true);
+      expect(supports({ ...input, text: '"I tested SQL under supervision."' })).toBe(false);
+      expect(currentPoints([], [candidate(input.text, "guided")], document(input.text))).toEqual([point(input.text)]);
+    }
+    expect(JSON.stringify(input)).toBe(before);
+  });
+
+  it("samples maximum-size facts with eight grounded labels", () => {
+    const eight = ["SQL", "React", "TypeScript", "Python", "Rust", "Git", "Docker", "Kubernetes"];
+    const repeated = Array.from({ length: 18 }, () => "I tested SQL with peer guidance").join("; ");
+    const corpus = [
+      `I tested ${eight.join(", ")} under supervision ${"x".repeat(1000)}`.slice(0, 1000),
+      `I am familiar with ${eight.join(", ")} ${"x".repeat(1000)}`.slice(0, 1000),
+      `${repeated}; I tested ${eight.join(", ")} with peer guidance ${"x".repeat(1000)}`.slice(0, 1000),
+    ];
+    const perf: unknown[] = [];
+    for (const [index, text] of corpus.entries()) {
+      const level = index === 1 ? "conceptual" : "guided";
+      const input = { kind: "experience" as const, text, labels: eight, level } as const;
+      const item = { ...candidate(text, level), skillLabels: eight };
+      expect(text.length).toBe(1000);
+      expect(supports(input)).toBe(baselineHint(item) !== null);
+      for (let warm = 0; warm < 3; warm++) { supports(input); baselineHint(item); }
+      const timings: Record<string, number> = {};
+      for (const [name, call] of [["baseline", () => baselineHint(item)], ["shared", () => supports(input)]] as const) {
+        const start = performance.now();
+        for (let sample = 0; sample < 10; sample++) call();
+        timings[name] = (performance.now() - start) / 10;
+      }
+      perf.push({ index, utf16Length: text.length, labelCount: eight.length, samples: 10, meanMs: timings });
+    }
+    summary.performance = perf;
+    console.log("Quality bounded timing samples", JSON.stringify(perf));
+  });
+});
+
+afterAll(() => writeFileSync("work/grounded-verification/shared-assessment-quality-20261108-probe-results.json", JSON.stringify(summary, null, 2) + "\n", { flag: "wx" }));

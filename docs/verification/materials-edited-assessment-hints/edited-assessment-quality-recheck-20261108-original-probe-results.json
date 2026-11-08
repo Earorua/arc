@@ -1,0 +1,166 @@
+[
+  {
+    "kind": "pure",
+    "text": "按指导完成不了 SQL 查询练习",
+    "expected": false,
+    "baseline": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成不了 SQL 查询练习",
+    "expected": false,
+    "baseline": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 SQL 查询练习是我下周的计划。",
+    "expected": false,
+    "baseline": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 SQL 查询练习是我下周的计划。",
+    "expected": false,
+    "baseline": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 SQL 查询练习的计划尚未执行。",
+    "expected": false,
+    "baseline": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 SQL 查询练习的计划尚未执行。",
+    "expected": false,
+    "baseline": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 SQL 查询练习后，我记录了结果。",
+    "expected": true,
+    "baseline": false,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 SQL 查询练习后，我记录了结果。",
+    "expected": true,
+    "baseline": false,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按指导没有完成 SQL 查询练习",
+    "expected": false,
+    "baseline": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导计划完成 SQL 查询练习",
+    "expected": false,
+    "baseline": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导示例完成 SQL 查询练习",
+    "expected": true,
+    "baseline": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导教程完成 SQL 查询练习",
+    "expected": true,
+    "baseline": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "panel-http-save-reload",
+    "text": "按指导完成不了 SQL 查询练习",
+    "expected": false,
+    "immediatelyShown": false,
+    "requestHintCount": 0,
+    "savedHintCount": 0,
+    "reloadedShown": false,
+    "revision": 1,
+    "sourcePreserved": true,
+    "adoptedCalls": 0,
+    "syntheticProviderCalls": 1,
+    "realModelCalls": 0
+  },
+  {
+    "kind": "panel-http-save-reload",
+    "text": "按指导完成 SQL 查询练习是我下周的计划。",
+    "expected": false,
+    "immediatelyShown": false,
+    "requestHintCount": 0,
+    "savedHintCount": 0,
+    "reloadedShown": false,
+    "revision": 1,
+    "sourcePreserved": true,
+    "adoptedCalls": 0,
+    "syntheticProviderCalls": 1,
+    "realModelCalls": 0
+  },
+  {
+    "kind": "panel-http-save-reload",
+    "text": "按指导完成 SQL 查询练习的计划尚未执行。",
+    "expected": false,
+    "immediatelyShown": false,
+    "requestHintCount": 0,
+    "savedHintCount": 0,
+    "reloadedShown": false,
+    "revision": 1,
+    "sourcePreserved": true,
+    "adoptedCalls": 0,
+    "syntheticProviderCalls": 1,
+    "realModelCalls": 0
+  },
+  {
+    "kind": "panel-http-save-reload",
+    "text": "按指导完成 SQL 查询练习后，我记录了结果。",
+    "expected": true,
+    "immediatelyShown": true,
+    "requestHintCount": 1,
+    "savedHintCount": 1,
+    "reloadedShown": true,
+    "revision": 1,
+    "sourcePreserved": true,
+    "adoptedCalls": 0,
+    "syntheticProviderCalls": 1,
+    "realModelCalls": 0
+  }
+]

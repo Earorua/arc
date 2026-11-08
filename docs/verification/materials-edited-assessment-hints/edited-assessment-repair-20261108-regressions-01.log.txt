@@ -1,0 +1,47 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:15136) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/materials-b0-rehearsal.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 4623[2mms[22m[39m
+   [33m[2m✓[22m[39m rehearses one private review page per frozen case, then compares plans and deletes every document [33m 4623[2mms[22m[39m
+(node:42932) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-review-draft.test.ts [2m([22m[2m80 tests[22m[2m)[22m[33m 1201[2mms[22m[39m
+(node:45988) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-confirmed-skill-labels.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 710[2mms[22m[39m
+ [32m✓[39m tests/components/material-confirmation-source.test.tsx [2m([22m[2m49 tests[22m[2m)[22m[33m 647[2mms[22m[39m
+(node:37192) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/materials-boundaries.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 576[2mms[22m[39m
+ [32m✓[39m tests/components/materials-ai-flow.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 535[2mms[22m[39m
+ [32m✓[39m tests/components/materials-recovery.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 347[2mms[22m[39m
+(node:40044) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-deletion-races.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 182[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-span-provider.test.ts [2m([22m[2m115 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+(node:19584) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/material-source-term-correction.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 428[2mms[22m[39m
+   [33m[2m✓[22m[39m lets the reader restore an omitted source word in the real editor and includes it in the next confirmed plan [33m 427[2mms[22m[39m
+(node:17264) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/material-workspace-adoption.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 283[2mms[22m[39m
+(node:43076) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-confirmation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-review-evidence.test.ts [2m([22m[2m421 tests[22m[2m)[22m[32m 143[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/grounded-skill-terms.test.ts [2m([22m[2m190 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/material-skill-mentions.test.ts [2m([22m[2m123 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m tests/server/document-extraction.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/self-assessment-evidence.test.ts [2m([22m[2m115 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/retained-assessment-hints.test.ts [2m([22m[2m74 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-requirement-evidence.test.ts [2m([22m[2m124 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/server/document-review-points.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m20 passed[39m[22m[90m (20)[39m
+[2m      Tests [22m [1m[32m1363 passed[39m[22m[90m (1363)[39m
+[2m   Start at [22m 18:34:11
+[2m   Duration [22m 33.38s[2m (transform 1.82s, setup 3.66s, import 6.52s, tests 10.23s, environment 10.19s)[22m
+

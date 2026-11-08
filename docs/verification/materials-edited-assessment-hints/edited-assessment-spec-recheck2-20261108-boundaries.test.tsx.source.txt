@@ -1,0 +1,107 @@
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { webcrypto } from "node:crypto";
+import { writeFileSync } from "node:fs";
+import { useState } from "react";
+import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
+import { MaterialTextPanel } from "../../app/components/materials/material-text-panel";
+import type { DocumentsClient } from "../../app/lib/documents-client";
+import type { MaterialDocumentDraftRef } from "../../app/lib/use-material-selection";
+import { retainedMaterialSelfAssessmentHints as retain } from "../../app/lib/materials/skill-labels";
+import { supportsMaterialSelfLevelHint as supports } from "../../app/lib/materials/self-assessment-evidence";
+import { groundSourceSelfLevelHint } from "../../worker/document-executor/source-review-evidence";
+import { createMaterialAnalysisFixture } from "../../tests/helpers/material-analysis-e2e";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
+
+const observations: Record<string, unknown>[] = [];
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterAll(() => writeFileSync("work/grounded-verification/edited-assessment-spec-recheck2-20261108-boundary-results.json", JSON.stringify(observations, null, 2) + "\n", { flag: "wx" }));
+const qualifiers = ["按指导", "按照指导", "在导师指导下"];
+for (const label of ["SQL", "React.js"]) for (const qualifier of qualifiers) describe(`${qualifier} own-action plan boundary for ${label}`, () => {
+  it.each([
+    [`完成不了 ${label} 组件练习`, false],
+    [`完成 ${label} 组件练习是我下周的计划。`, false],
+    [`完成 ${label} 组件练习的计划尚未执行。`, false],
+    [`完成 ${label} 组件练习后，我记录了结果。`, true],
+    [`完成 ${label} 组件练习，明天计划阅读 CSS 文档。`, true],
+    [`完成 ${label} 组件练习，但我无法完成 CSS 页面。`, true],
+  ] as const)("applies the predicate to the whole named action: %s", (action, expected) => {
+    const text = qualifier + action;
+    const hint = { id: "h", candidateId: "f", skillLabel: label, level: "guided" as const };
+    const shared = supports({ kind: "experience", text, labels: [label], level: "guided" });
+    const worker = groundSourceSelfLevelHint({ kind: "experience", source: { segmentId: "s", quote: text }, skillLabels: [label], selfLevelHint: "guided" });
+    const retained = retain([{ id: "f", kind: "experience", text, origin: "user", sourceRef: null, requirementLevel: null, skillLabels: [label] }], [hint], "grounded-skill-labels-v2");
+    observations.push({ kind: "pure", text, label, expected, shared, worker, retainedHintCount: retained.length });
+    expect.soft(shared).toBe(expected);
+    expect.soft(worker).toBe(expected ? "guided" : null);
+    expect.soft(retained).toEqual(expected ? [hint] : []);
+  });
+});
+
+describe("dotted technical name through actual panel, HTTP, persistence and reload", () => {
+  it.each([
+    ["按指导完成 React.js 组件练习是我下周的计划。", false],
+    ["按指导完成 React.js 组件练习的计划尚未执行。", false],
+    ["按指导完成不了 React.js 组件练习", false],
+    ["按指导完成 React.js 组件练习，明天计划阅读 CSS 文档。", true],
+  ] as const)("offers the old level only after supported action: %s", async (edited, expected) => {
+    vi.stubGlobal("crypto", webcrypto);
+    const source = "I tested React.js under supervision.";
+    const fixture = await createMaterialAnalysisFixture({ sourceSpanResponse: { format: "source-spans-v2", items: [{ kind: "experience", requirementLevel: null,
+      source: { segmentId: "segment-1", quote: source }, skillTerms: ["React.js"], selfLevelHint: "guided" }], reviewPoints: [] } });
+    const gate = Promise.withResolvers<void>();
+    const caps = { documentsEnabled: true, analysisEnabled: true, planningEnabled: true, hasDocuments: true, providerLabel: "Offline fixture",
+      providerPolicyId: KIMI_GROUNDED_TERMS_POLICY_ID, policyVersion: "2026.11.1", reason: "ready" } as const;
+    let saveEntered = false, requestHintCount = -1;
+    const adopted = vi.fn();
+    try {
+      const receipt = await fixture.http("createDocument", { kind: "resume", displayName: "Dotted-name spec probe", text: source, mutationId: "create-spec-recheck" });
+      const consent = await fixture.http("createDocumentConsent", { textVersionId: receipt.textVersionId, purpose: "analysis", policyVersion: caps.policyVersion,
+        providerPolicyId: caps.providerPolicyId, mutationId: "consent-spec-recheck" });
+      const job = await fixture.http("createDocumentJob", { textVersionId: receipt.textVersionId, consentId: consent.consentId, mutationId: "job-spec-recheck" });
+      await fixture.execute(job.jobId);
+      const query = { documentId: receipt.documentId, textVersionId: receipt.textVersionId };
+      const before = (await fixture.http("readDocumentReviewDraft", query)).draft!;
+      expect(before.selfAssessmentHints).toHaveLength(1);
+      expect(before.selfAssessmentHints[0]?.skillLabel).toBe("React.js");
+      let last: MaterialDocumentDraftRef = receipt;
+      const client: DocumentsClient = { capabilities: async () => caps, request: async (endpoint, input) => {
+        if (endpoint === "saveDocumentReviewDraft") {
+          saveEntered = true;
+          requestHintCount = (input as { selfAssessmentHints: unknown[] }).selfAssessmentHints.length;
+          await gate.promise;
+        }
+        return fixture.http(endpoint, input);
+      } };
+      function Editor() {
+        const [value, setValue] = useState<MaterialDocumentDraftRef>(last);
+        return <MaterialTextPanel kind="resume" capabilities={caps} client={client} value={value} skills={[{ id: "reactjs", name: "React.js" }]}
+          onAdoptLevels={adopted} onChange={next => { last = next; setValue(next); }} />;
+      }
+      const page = render(<Editor />);
+      const buttonName = "采用 React.js 的需指导完成建议";
+      await screen.findByRole("button", { name: buttonName });
+      fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: edited } });
+      const immediatelyShown = screen.queryByRole("button", { name: buttonName }) !== null;
+      await waitFor(() => expect(saveEntered).toBe(true));
+      expect((await fixture.http("readDocumentReviewDraft", query)).draft?.revision).toBe(0);
+      await act(async () => { gate.resolve(); await gate.promise; });
+      await waitFor(async () => expect((await fixture.http("readDocumentReviewDraft", query)).draft?.revision).toBe(1));
+      const saved = (await fixture.http("readDocumentReviewDraft", query)).draft!;
+      page.unmount();
+      render(<Editor />);
+      await screen.findByDisplayValue(edited);
+      const reloadedShown = screen.queryByRole("button", { name: buttonName }) !== null;
+      expect(saved.items[0]?.text).toBe(edited);
+      expect(saved.items[0]?.sourceRef).toEqual(before.items[0]?.sourceRef);
+      expect((await fixture.http("readDocument", { documentId: receipt.documentId })).text).toBe(source);
+      expect(adopted).not.toHaveBeenCalled();
+      expect(fixture.providerCalls()).toBe(1);
+      observations.push({ kind: "panel-http-save-reload", text: edited, expected, immediatelyShown, requestHintCount, savedHintCount: saved.selfAssessmentHints.length,
+        reloadedShown, revision: saved.revision, sourcePreserved: true, adoptedCalls: adopted.mock.calls.length, syntheticProviderCalls: fixture.providerCalls(), realModelCalls: 0 });
+      expect.soft(immediatelyShown).toBe(expected);
+      expect.soft(requestHintCount).toBe(expected ? 1 : 0);
+      expect.soft(saved.selfAssessmentHints).toEqual(expected ? before.selfAssessmentHints : []);
+      expect.soft(reloadedShown).toBe(expected);
+    } finally { gate.resolve(); cleanup(); await fixture.dispose(); }
+  }, 15000);
+});

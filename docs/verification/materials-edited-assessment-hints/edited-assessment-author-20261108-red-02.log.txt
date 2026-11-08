@@ -1,0 +1,611 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:28364) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/lib/materials/retained-assessment-hints.test.ts [2m([22m[2m36 tests[22m[2m | [22m[31m24 failed[39m[2m)[22m[32m 15[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: My colleague tested SQL under supervision.[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: I will test SQL under supervision.[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: If I tested SQL under supervision, I would document it.[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: I did not test SQL under supervision.[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: The example says ‘I tested SQL under supervision.’[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: I tested SQL.[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: I tested SQL without supervision.[39m[32m 0[2mms[22m[39m
+       [32m✓[39m retains the original hint for supported personal practice: I tested SQL under supervision.[32m 0[2mms[22m[39m
+       [32m✓[39m retains the original hint for supported personal practice: I tested 'SQL' under supervision.[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a conceptual hint when the edited familiarity belongs to a colleague[39m[32m 1[2mms[22m[39m
+       [32m✓[39m retains the original personal uncertainty without changing its level[32m 0[2mms[22m[39m
+[31m       [31m×[31m does not turn an inability statement into uncertainty or create a missing hint[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: My colleague tested SQL under supervision.[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: I will test SQL under supervision.[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: If I tested SQL under supervision, I would document it.[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: I did not test SQL under supervision.[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: The example says ‘I tested SQL under supervision.’[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: I tested SQL.[39m[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a user's edit without the original personal guided evidence: I tested SQL without supervision.[39m[32m 0[2mms[22m[39m
+       [32m✓[39m retains the original hint for supported personal practice: I tested SQL under supervision.[32m 0[2mms[22m[39m
+       [32m✓[39m retains the original hint for supported personal practice: I tested 'SQL' under supervision.[32m 0[2mms[22m[39m
+[31m       [31m×[31m drops a conceptual hint when the edited familiarity belongs to a colleague[39m[32m 0[2mms[22m[39m
+       [32m✓[39m retains the original personal uncertainty without changing its level[32m 0[2mms[22m[39m
+[31m       [31m×[31m does not turn an inability statement into uncertainty or create a missing hint[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m checks each retained hint against its own skill rather than another skill's guidance[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m does not borrow a helper's tool as the learner's guided practice[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m drops a repeated term whose other task does not support that level[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m cannot upgrade or mint a hint when a supported source term is added[39m[32m 0[2mms[22m[39m
+     [32m✓[39m preserves item, kind, and retained-word membership guards for 'deleted fact'[32m 0[2mms[22m[39m
+     [32m✓[39m preserves item, kind, and retained-word membership guards for 'empty word list'[32m 0[2mms[22m[39m
+     [32m✓[39m preserves item, kind, and retained-word membership guards for 'removed word'[32m 0[2mms[22m[39m
+     [32m✓[39m preserves item, kind, and retained-word membership guards for 'requirement'[32m 0[2mms[22m[39m
+     [32m✓[39m preserves item, kind, and retained-word membership guards for 'constraint'[32m 0[2mms[22m[39m
+     [32m✓[39m preserves an untouched historical extracted summary even when it omits guidance[32m 0[2mms[22m[39m
+[31m     [31m×[31m revalidates historical user edits even when no projection or word list was supplied[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m revalidates grounded extracted facts as well as user edits[39m[32m 0[2mms[22m[39m
+ [31m❯[39m tests/server/document-review-draft.test.ts [2m([22m[2m43 tests[22m[2m | [22m[31m25 failed[39m[2m)[22m[33m 767[2mms[22m[39m
+   [32m✓[39m restores manual review, conflicts on stale revision, and confirms immutable facts[32m 35[2mms[22m[39m
+   [32m✓[39m does not grant source authority to forged extracted items[32m 16[2mms[22m[39m
+   [32m✓[39m rejects a review that cannot fit its saved draft envelope before changing the user's revision[32m 20[2mms[22m[39m
+   [32m✓[39m binds a delivered extraction to its persisted job policy materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1 despite a spoofed result policy[32m 19[2mms[22m[39m
+   [32m✓[39m binds a delivered extraction to its persisted job policy materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2 despite a spoofed result policy[32m 44[2mms[22m[39m
+   [32m✓[39m rejects a delivery when the job policy changes between validation and the atomic write[32m 16[2mms[22m[39m
+   [32m✓[39m initializes AI review once and preserves user edits when a later extraction arrives[32m 31[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported legacy edit without its authentic old hint: My colleague tested SQL under supervision.[39m[32m 22[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported legacy edit without its authentic old hint: I will test SQL under supervision.[39m[32m 17[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported legacy edit without its authentic old hint: If I tested SQL under supervision, I would document it.[39m[32m 18[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported legacy edit without its authentic old hint: I did not test SQL under supervision.[39m[32m 16[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported legacy edit without its authentic old hint: The example says ‘I tested SQL under supervision.’[39m[32m 15[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported legacy edit without its authentic old hint: I tested SQL.[39m[32m 15[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported legacy edit without its authentic old hint: I cannot independently test SQL.[39m[32m 15[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported literal edit without its authentic old hint: My colleague tested SQL under supervision.[39m[32m 16[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported literal edit without its authentic old hint: I will test SQL under supervision.[39m[32m 16[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported literal edit without its authentic old hint: If I tested SQL under supervision, I would document it.[39m[32m 17[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported literal edit without its authentic old hint: I did not test SQL under supervision.[39m[32m 17[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported literal edit without its authentic old hint: The example says ‘I tested SQL under supervision.’[39m[32m 17[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported literal edit without its authentic old hint: I tested SQL.[39m[32m 15[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported literal edit without its authentic old hint: I cannot independently test SQL.[39m[32m 15[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported grounded edit without its authentic old hint: My colleague tested SQL under supervision.[39m[32m 16[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported grounded edit without its authentic old hint: I will test SQL under supervision.[39m[32m 16[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported grounded edit without its authentic old hint: If I tested SQL under supervision, I would document it.[39m[32m 15[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported grounded edit without its authentic old hint: I did not test SQL under supervision.[39m[32m 19[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported grounded edit without its authentic old hint: The example says ‘I tested SQL under supervision.’[39m[32m 16[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported grounded edit without its authentic old hint: I tested SQL.[39m[32m 17[2mms[22m[39m
+[31m   [31m×[31m saves an unsupported grounded edit without its authentic old hint: I cannot independently test SQL.[39m[32m 16[2mms[22m[39m
+   [32m✓[39m keeps the authentic I tested SQL under supervision. assessment after a supported personal edit[32m 16[2mms[22m[39m
+   [32m✓[39m keeps the authentic I am familiar with SQL. assessment after a supported personal edit[32m 15[2mms[22m[39m
+   [32m✓[39m keeps the authentic I am unsure whether I can test SQL independently. assessment after a supported personal edit[32m 16[2mms[22m[39m
+[31m   [31m×[31m removes only the hint whose skill lost personal support[39m[32m 19[2mms[22m[39m
+   [32m✓[39m preserves an untouched legacy summary when another fact is edited[32m 18[2mms[22m[39m
+   [32m✓[39m preserves an untouched literal summary when another fact is edited[32m 16[2mms[22m[39m
+[31m   [31m×[31m does not restore a dropped hint when its evidence is later restored[39m[32m 16[2mms[22m[39m
+   [32m✓[39m does not create a hint for a source term that the reader adds[32m 16[2mms[22m[39m
+   [32m✓[39m rejects altered hint identity even when the edited text has lost support: {"id":"forged-hint"}[32m 16[2mms[22m[39m
+   [32m✓[39m rejects altered hint identity even when the edited text has lost support: {"level":"uncertain"}[32m 14[2mms[22m[39m
+   [32m✓[39m rejects altered hint identity even when the edited text has lost support: {"skillLabel":"React"}[32m 14[2mms[22m[39m
+   [32m✓[39m rejects altered hint identity even when the edited text has lost support: {"candidateId":"other-fact"}[32m 14[2mms[22m[39m
+[31m   [31m×[31m keeps the original confirmation and source immutable when dropping an unsupported assessment[39m[32m 15[2mms[22m[39m
+   [32m✓[39m requires user edit provenance and the authentic source range before retaining or dropping hints[32m 15[2mms[22m[39m
+[31m   [31m×[31m keeps unsupported-hint removal inside the owner and atomic revision guards[39m[32m 16[2mms[22m[39m
+ [31m❯[39m tests/components/material-confirmation-source.test.tsx [2m([22m[2m22 tests[22m[2m | [22m[31m16 failed[39m[2m)[22m[33m 409[2mms[22m[39m
+     [32m✓[39m names unresolved information and keeps fact confirmation separate from capability adoption[32m 99[2mms[22m[39m
+     [32m✓[39m confirms an unclassified resume suggestion without imposing a JD requirement[32m 15[2mms[22m[39m
+     [32m✓[39m confirms an unclassified supplement suggestion without imposing a JD requirement[32m 10[2mms[22m[39m
+     [32m✓[39m still requires every high-impact review point for a supplement[32m 15[2mms[22m[39m
+     [32m✓[39m continues blocking an unclassified main JD requirement[32m 13[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported historical suggestion on the edit render: My colleague tested SQL under supervision.[39m[32m 20[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported historical suggestion on the edit render: I will test SQL under supervision.[39m[32m 17[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported historical suggestion on the edit render: If I tested SQL under supervision, I would document it.[39m[32m 16[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported historical suggestion on the edit render: I did not test SQL under supervision.[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported historical suggestion on the edit render: The example says ‘I tested SQL under supervision.’[39m[32m 14[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported historical suggestion on the edit render: I tested SQL.[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported historical suggestion on the edit render: I cannot independently test SQL.[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: My colleague tested SQL under supervision.[39m[32m 27[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I will test SQL under supervision.[39m[32m 15[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: If I tested SQL under supervision, I would document it.[39m[32m 17[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I did not test SQL under supervision.[39m[32m 14[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: The example says ‘I tested SQL under supervision.’[39m[32m 18[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I tested SQL.[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I cannot independently test SQL.[39m[32m 13[2mms[22m[39m
+     [32m✓[39m offers supported quoted-tool guidance but only adopts it on an explicit click[32m 11[2mms[22m[39m
+[31m     [31m×[31m keeps SQL's supported suggestion while hiding React's colleague assessment[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m revalidates an extracted grounded fact without changing historical summary behavior[39m[32m 13[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 65 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported historical suggestion on the edit render: My colleague tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported historical suggestion on the edit render: I will test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported historical suggestion on the edit render: If I tested SQL under supervision, I would document it.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported historical suggestion on the edit render: I did not test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported historical suggestion on the edit render: The example says ‘I tested SQL under supervision.’
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported historical suggestion on the edit render: I tested SQL.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported historical suggestion on the edit render: I cannot independently test SQL.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: My colleague tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I will test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: If I tested SQL under supervision, I would document it.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I did not test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: The example says ‘I tested SQL under supervision.’
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I tested SQL.
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I cannot independently test SQL.
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <button
+  class="text-action"
+  type="button"
+>
+  采用 
+  SQL
+   的
+  需指导完成
+  建议
+</button> instead[31m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m104:70[22m[39m
+    [90m102|[39m       expect(changed).toHaveBeenCalledWith([expect.objectContaining({ …
+    [90m103|[39m       [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m"正在保存核对修改…"[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m104|[39m       expect(screen.queryByRole("button", { name: buttonName })).not.t…
+    [90m   |[39m                                                                      [31m^[39m
+    [90m105|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"单独核对能力建议"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m106|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/SQL · 不确定/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mkeeps SQL's supported suggestion while hiding React's colleague assessment
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <button
+  class="text-action"
+  type="button"
+>
+  采用 
+  React
+   的
+  需指导完成
+  建议
+</button> instead[31m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m133:77[22m[39m
+    [90m131|[39m       onItemsChange={vi.fn()} onConfirm={vi.fn()} onAdoptLevels={adopt…
+    [90m132|[39m     expect(screen.getByRole("button", { name: buttonName })).toBeInThe…
+    [90m133|[39m     expect(screen.queryByRole("button", { name: "采用 React 的需指导完成建议" })…
+    [90m   |[39m                                                                             [31m^[39m
+    [90m134|[39m     [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m135|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mrevalidates an extracted grounded fact without changing historical summary behavior
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <button
+  class="text-action"
+  type="button"
+>
+  采用 
+  SQL
+   的
+  需指导完成
+  建议
+</button> instead[31m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m144:68[22m[39m
+    [90m142|[39m     expect(screen.getByRole("button", { name: buttonName })).toBeInThe…
+    [90m143|[39m     page.rerender(<MaterialConfirmation {...props} draft={{ ...value, …
+    [90m144|[39m     expect(screen.queryByRole("button", { name: buttonName })).not.toB…
+    [90m   |[39m                                                                    [31m^[39m
+    [90m145|[39m     [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m146|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdrops a user's edit without the original personal guided evidence: My colleague tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdrops a user's edit without the original personal guided evidence: I will test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdrops a user's edit without the original personal guided evidence: If I tested SQL under supervision, I would document it.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdrops a user's edit without the original personal guided evidence: I did not test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdrops a user's edit without the original personal guided evidence: The example says ‘I tested SQL under supervision.’
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdrops a user's edit without the original personal guided evidence: I tested SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdrops a user's edit without the original personal guided evidence: I tested SQL without supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdrops a user's edit without the original personal guided evidence: My colleague tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdrops a user's edit without the original personal guided evidence: I will test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdrops a user's edit without the original personal guided evidence: If I tested SQL under supervision, I would document it.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdrops a user's edit without the original personal guided evidence: I did not test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdrops a user's edit without the original personal guided evidence: The example says ‘I tested SQL under supervision.’
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdrops a user's edit without the original personal guided evidence: I tested SQL.
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdrops a user's edit without the original personal guided evidence: I tested SQL without supervision.
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m25:93[22m[39m
+    [90m 23|[39m         [32m"I tested SQL without supervision."[39m[33m,[39m
+    [90m 24|[39m       ])("drops a user's edit without the original personal guided evi…
+    [90m 25|[39m         expect(retainedMaterialSelfAssessmentHints([fact(text)], [guid…
+    [90m   |[39m                                                                                             [31m^[39m
+    [90m 26|[39m       })[33m;[39m
+    [90m 27|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdrops a conceptual hint when the edited familiarity belongs to a colleague
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdrops a conceptual hint when the edited familiarity belongs to a colleague
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-0",[39m
+[31m+     "level": "conceptual",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m36:119[22m[39m
+    [90m 34|[39m       it("drops a conceptual hint when the edited familiarity belongs …
+    [90m 35|[39m         [35mconst[39m hint [33m=[39m { [33m...[39mguidedHint[33m,[39m level[33m:[39m [32m"conceptual"[39m [35mas[39m [35mconst[39m }[33m;[39m
+    [90m 36|[39m         expect(retainedMaterialSelfAssessmentHints([fact("My colleague…
+    [90m   |[39m                                                                                                                       [31m^[39m
+    [90m 37|[39m       })[33m;[39m
+    [90m 38|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mhistorical projection[2m > [22mdoes not turn an inability statement into uncertainty or create a missing hint
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mgrounded-skill-labels-v2[2m > [22mdoes not turn an inability statement into uncertainty or create a missing hint
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m46:86[22m[39m
+    [90m 44|[39m       it("does not turn an inability statement into uncertainty or cre…
+    [90m 45|[39m         [35mconst[39m items [33m=[39m [[34mfact[39m([32m"I cannot independently test SQL."[39m)][33m;[39m
+    [90m 46|[39m         expect(retainedMaterialSelfAssessmentHints(items, [guidedHint]…
+    [90m   |[39m                                                                                      [31m^[39m
+    [90m 47|[39m         expect(retainedMaterialSelfAssessmentHints(items, [{ ...guided…
+    [90m 48|[39m         expect(retainedMaterialSelfAssessmentHints(items, [], projecti…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mchecks each retained hint against its own skill rather than another skill's guidance
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) }, …(1) ] to deeply equal [ { id: 'hint-fact-0', …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -3,6 +3,12 @@[39m
+[2m      "candidateId": "fact",[22m
+[2m      "id": "hint-fact-0",[22m
+[2m      "level": "guided",[22m
+[2m      "skillLabel": "SQL",[22m
+[2m    },[22m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-1",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "React",[39m
+[31m+   },[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m56:118[22m[39m
+    [90m 54|[39m     const reactHint = { ...guidedHint, id: "hint-fact-1", skillLabel: …
+    [90m 55|[39m     const items = [fact("I tested SQL under supervision, but my collea…
+    [90m 56|[39m     expect(retainedMaterialSelfAssessmentHints(items, [guidedHint, rea…
+    [90m   |[39m                                                                                                                      [31m^[39m
+    [90m 57|[39m   })[33m;[39m
+    [90m 58|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mdoes not borrow a helper's tool as the learner's guided practice
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) }, …(1) ] to deeply equal [ { id: 'hint-fact-0', …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -3,6 +3,12 @@[39m
+[2m      "candidateId": "fact",[22m
+[2m      "id": "hint-fact-0",[22m
+[2m      "level": "guided",[22m
+[2m      "skillLabel": "SQL",[22m
+[2m    },[22m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-1",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "React",[39m
+[31m+   },[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m62:118[22m[39m
+    [90m 60|[39m     const reactHint = { ...guidedHint, id: "hint-fact-1", skillLabel: …
+    [90m 61|[39m     const items = [fact("With a mentor using React, I tested SQL under…
+    [90m 62|[39m     expect(retainedMaterialSelfAssessmentHints(items, [guidedHint, rea…
+    [90m   |[39m                                                                                                                      [31m^[39m
+    [90m 63|[39m   })[33m;[39m
+    [90m 64|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mdrops a repeated term whose other task does not support that level
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m66:174[22m[39m
+    [90m 64|[39m
+    [90m 65|[39m   it("drops a repeated term whose other task does not support that lev…
+    [90m 66|[39m     expect(retainedMaterialSelfAssessmentHints([fact("I built a SQL pr…
+    [90m   |[39m                                                                                                                                                                              [31m^[39m
+    [90m 67|[39m   })[33m;[39m
+    [90m 68|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mcannot upgrade or mint a hint when a supported source term is added
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-0",[39m
+[31m+     "level": "conceptual",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m72:135[22m[39m
+    [90m 70|[39m     const items = [fact("I tested SQL and React under supervision.", {…
+    [90m 71|[39m     expect(retainedMaterialSelfAssessmentHints(items, [guidedHint], GR…
+    [90m 72|[39m     expect(retainedMaterialSelfAssessmentHints(items, [{ ...guidedHint…
+    [90m   |[39m                                                                                                                                       [31m^[39m
+    [90m 73|[39m     expect(retainedMaterialSelfAssessmentHints(items, [], GROUNDED_MAT…
+    [90m 74|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mrevalidates historical user edits even when no projection or word list was supplied
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m92:145[22m[39m
+    [90m 90|[39m
+    [90m 91|[39m   it("revalidates historical user edits even when no projection or wor…
+    [90m 92|[39m     expect(retainedMaterialSelfAssessmentHints([fact("My colleague tes…
+    [90m   |[39m                                                                                                                                                 [31m^[39m
+    [90m 93|[39m     expect(retainedMaterialSelfAssessmentHints([fact("I tested SQL und…
+    [90m 94|[39m     expect(retainedMaterialSelfAssessmentHints([fact("I tested MySQL u…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/retained-assessment-hints.test.ts[2m > [22mretained material self-assessment hints[2m > [22mrevalidates grounded extracted facts as well as user edits
+[31m[1mAssertionError[22m: expected [ { id: 'hint-fact-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "fact",[39m
+[31m+     "id": "hint-fact-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/lib/materials/retained-assessment-hints.test.ts:[2m98:179[22m[39m
+    [90m 96|[39m
+    [90m 97|[39m   it("revalidates grounded extracted facts as well as user edits", () …
+    [90m 98|[39m     expect(retainedMaterialSelfAssessmentHints([fact("My colleague tes…
+    [90m   |[39m                                                                                                                                                                                   [31m^[39m
+    [90m 99|[39m     expect(retainedMaterialSelfAssessmentHints([fact("I tested SQL und…
+    [90m100|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported legacy edit without its authentic old hint: My colleague tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported legacy edit without its authentic old hint: I will test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported legacy edit without its authentic old hint: If I tested SQL under supervision, I would document it.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported legacy edit without its authentic old hint: I did not test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported legacy edit without its authentic old hint: The example says ‘I tested SQL under supervision.’
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported legacy edit without its authentic old hint: I tested SQL.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported legacy edit without its authentic old hint: I cannot independently test SQL.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported literal edit without its authentic old hint: My colleague tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported literal edit without its authentic old hint: I will test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported literal edit without its authentic old hint: If I tested SQL under supervision, I would document it.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported literal edit without its authentic old hint: I did not test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported literal edit without its authentic old hint: The example says ‘I tested SQL under supervision.’
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported literal edit without its authentic old hint: I tested SQL.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported literal edit without its authentic old hint: I cannot independently test SQL.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported grounded edit without its authentic old hint: My colleague tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported grounded edit without its authentic old hint: I will test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported grounded edit without its authentic old hint: If I tested SQL under supervision, I would document it.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported grounded edit without its authentic old hint: I did not test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported grounded edit without its authentic old hint: The example says ‘I tested SQL under supervision.’
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported grounded edit without its authentic old hint: I tested SQL.
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22msaves an unsupported grounded edit without its authentic old hint: I cannot independently test SQL.
+[31m[1mAssertionError[22m: expected [ { id: 'hint-practice-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "practice",[39m
+[31m+     "id": "hint-practice-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/document-review-draft.test.ts:[2m277:49[22m[39m
+    [90m275|[39m         const saved = await f.services.saveDocumentReviewDraft(f.owner…
+    [90m276|[39m         expect(saved.draft.items[0]).toMatchObject({ text, origin: "us…
+    [90m277|[39m         [34mexpect[39m(saved[33m.[39mdraft[33m.[39mselfAssessmentHints)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m278|[39m         [34mexpect[39m(saved[33m.[39mdraft[33m.[39mrevision)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m279|[39m         expect((await f.services.readDocumentReviewDraft(f.owner, f.re…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22mremoves only the hint whose skill lost personal support
+[31m[1mAssertionError[22m: expected [ …(2) ] to deeply equal [ { id: 'hint-practice-0', …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -3,6 +3,12 @@[39m
+[2m      "candidateId": "practice",[22m
+[2m      "id": "hint-practice-0",[22m
+[2m      "level": "guided",[22m
+[2m      "skillLabel": "SQL",[22m
+[2m    },[22m
+[31m+   {[39m
+[31m+     "candidateId": "practice",[39m
+[31m+     "id": "hint-practice-1",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "React",[39m
+[31m+   },[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/server/document-review-draft.test.ts:[2m305:45[22m[39m
+    [90m303|[39m         items: f.draft.items.map(item => ({ ...item, origin: "user", t…
+    [90m304|[39m     expect(saved.draft.items[0]?.skillLabels).toEqual(["SQL", "React"]…
+    [90m305|[39m     expect(saved.draft.selfAssessmentHints).toEqual(f.draft.selfAssess…
+    [90m   |[39m                                             [31m^[39m
+    [90m306|[39m })[33m;[39m
+    [90m307|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22mdoes not restore a dropped hint when its evidence is later restored
+[31m[1mAssertionError[22m: expected [ { id: 'hint-practice-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "practice",[39m
+[31m+     "id": "hint-practice-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/document-review-draft.test.ts:[2m325:48[22m[39m
+    [90m323|[39m     const restored = await f.services.saveDocumentReviewDraft(f.owner,…
+    [90m324|[39m         items: f.draft.items.map(item => ({ ...item, origin: "user" })…
+    [90m325|[39m     [34mexpect[39m(restored[33m.[39mdraft[33m.[39mselfAssessmentHints)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m326|[39m })[33m;[39m
+    [90m327|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22mkeeps the original confirmation and source immutable when dropping an unsupported assessment
+[31m[1mAssertionError[22m: expected [ { id: 'hint-practice-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "practice",[39m
+[31m+     "id": "hint-practice-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/document-review-draft.test.ts:[2m355:45[22m[39m
+    [90m353|[39m     const saved = await f.services.saveDocumentReviewDraft(f.owner, { …
+    [90m354|[39m         items: f.draft.items.map(item => ({ ...item, origin: "user", t…
+    [90m355|[39m     [34mexpect[39m(saved[33m.[39mdraft[33m.[39mselfAssessmentHints)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   |[39m                                             [31m^[39m
+    [90m356|[39m     expect(saved.draft.items[0]?.sourceRef).toEqual(f.draft.items[0]?.…
+    [90m357|[39m     expect(f.db.database.prepare("SELECT * FROM document_confirmations…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/65]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-review-draft.test.ts[2m > [22mkeeps unsupported-hint removal inside the owner and atomic revision guards
+[31m[1mAssertionError[22m: expected [ { id: 'hint-practice-0', …(3) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "candidateId": "practice",[39m
+[31m+     "id": "hint-practice-0",[39m
+[31m+     "level": "guided",[39m
+[31m+     "skillLabel": "SQL",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/server/document-review-draft.test.ts:[2m380:45[22m[39m
+    [90m378|[39m     f[33m.[39mdb[33m.[39mfailAtBatchStatement [33m=[39m [35mnull[39m[33m;[39m
+    [90m379|[39m     const saved = await f.services.saveDocumentReviewDraft(f.owner, re…
+    [90m380|[39m     [34mexpect[39m(saved[33m.[39mdraft[33m.[39mselfAssessmentHints)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   |[39m                                             [31m^[39m
+    [90m381|[39m     [34mexpect[39m(saved[33m.[39mdraft[33m.[39mrevision)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m382|[39m     expect(await f.services.saveDocumentReviewDraft(f.owner, request))…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/65]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m65 failed[39m[22m[2m | [22m[1m[32m36 passed[39m[22m[90m (101)[39m
+[2m   Start at [22m 18:01:50
+[2m   Duration [22m 1.83s[2m (transform 361ms, setup 678ms, import 701ms, tests 1.19s, environment 1.71s)[22m
+

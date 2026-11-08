@@ -1,0 +1,96 @@
+import { describe, expect, it } from "vitest";
+import type { DocumentCandidate, DocumentCandidateReviewPoint } from "../../app/contracts/documents";
+import { supportsMaterialSelfLevelHint } from "../../app/lib/materials/self-assessment-evidence";
+import { maskQuotes } from "../../app/lib/materials/quotation-evidence";
+import { groundSourceReviewPoints, groundSourceSelfLevelHint, isDetachedQuotedStatement } from "../../worker/document-executor/source-review-evidence";
+
+type Level = DocumentCandidate["selfLevelHint"];
+const source = (quote: string) => ({ segmentId: "spec-section", quote });
+const document = (text: string) => ({ text, segments: [{ id: "spec-section", start: 0, end: text.length }] });
+const candidate = (quote: string, level: Level) => ({ kind: "experience" as const, source: source(quote), skillLabels: ["SQL"], selfLevelHint: level });
+const point = (quote: string): DocumentCandidateReviewPoint => ({ code: "confirm-self-assessment", source: source(quote) });
+
+describe("independent Task 1 specification probes", () => {
+  it.each([
+    "I did not test SQL under supervision.",
+    "I did not build SQL queries with peer guidance.",
+    "I did not configure SQL following a runbook.",
+    "Under a mentor's guidance, I did not test SQL.",
+    "During a supervised internship, I personally did not configure SQL.",
+  ])("rejects actor-local denied action in both public paths: %s", text => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(false);
+    expect(groundSourceSelfLevelHint(candidate(text, "guided"))).toBeNull();
+    expect(groundSourceReviewPoints([], [candidate(text, "guided")], document(text))).toEqual([]);
+    expect(groundSourceReviewPoints([point(text)], [candidate(text, "guided")], document(text))).toEqual([]);
+  });
+
+  it.each([
+    "Under supervision, I did not only test SQL.",
+    "I did not configure React, but I tested SQL with peer guidance.",
+    "I tested SQL with peer guidance, but my colleague did not configure React.",
+    "I tested SQL under supervision; I did not configure React.",
+  ])("preserves affirmative scope beside unrelated or additive negation: %s", text => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(true);
+    expect(groundSourceSelfLevelHint(candidate(text, "guided"))).toBe("guided");
+    expect(groundSourceReviewPoints([], [candidate(text, "guided")], document(text))?.some(p => p.code === "confirm-self-assessment")).toBe(true);
+  });
+
+  it.each([
+    ["I tested SQL under supervision.", "guided"],
+    ["I am familiar with SQL.", "conceptual"],
+    ["I am unsure whether I can use SQL independently.", "uncertain"],
+  ] as const)("preserves full-document quotation context for %s", (quote, level) => {
+    const full = document("Training worksheet: “Begin. " + quote + " End.”");
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text: quote, labels: ["SQL"], level })).toBe(true);
+    expect(isDetachedQuotedStatement(source(quote), full)).toBe(true);
+    expect(groundSourceReviewPoints([point(quote)], [candidate(quote, level)], full)).toEqual([]);
+    expect(groundSourceReviewPoints([], [], full)).toEqual([]);
+  });
+
+  it("the adapter reads source.quote even when a separate summary disagrees", () => {
+    expect(groundSourceSelfLevelHint({ ...candidate("I tested SQL under supervision.", "guided"), text: "My colleague tested SQL under supervision." })).toBe("guided");
+    expect(groundSourceSelfLevelHint({ ...candidate("My colleague tested SQL under supervision.", "guided"), text: "I tested SQL under supervision." })).toBeNull();
+  });
+
+  it.each(["requirement", "constraint"] as const)("rejects all proposed personal levels for %s", kind => {
+    for (const level of [null, "conceptual", "guided", "uncertain"] as const) {
+      expect(supportsMaterialSelfLevelHint({ kind, text: "I tested SQL under supervision.", labels: ["SQL"], level })).toBe(false);
+    }
+  });
+
+  it("does not manufacture a hint or mutate a fact lacking guidance", () => {
+    const input = Object.freeze({ kind: "experience" as const, text: "I tested SQL without supervision.", labels: Object.freeze(["SQL"]), level: "guided" as const });
+    const before = JSON.stringify(input);
+    expect(supportsMaterialSelfLevelHint(input)).toBe(false);
+    expect(JSON.stringify(input)).toBe(before);
+    for (const level of [null, "conceptual", "guided", "uncertain"] as const) {
+      expect(supportsMaterialSelfLevelHint({ ...input, level })).toBe(false);
+    }
+  });
+
+  it("keeps repeat calls deterministic across quotation and assertion regexes", () => {
+    const labels = Object.freeze(["SQL"]);
+    for (let index = 0; index < 8; index++) {
+      expect(supportsMaterialSelfLevelHint({ kind: "experience", text: 'I tested "SQL" under supervision.', labels, level: "guided" })).toBe(true);
+      expect(supportsMaterialSelfLevelHint({ kind: "experience", text: '"I tested SQL under supervision."', labels, level: "guided" })).toBe(false);
+      expect(supportsMaterialSelfLevelHint({ kind: "skill-claim", text: "I am familiar with SQL, but my colleague uses React.", labels, level: "conceptual" })).toBe(true);
+      expect(supportsMaterialSelfLevelHint({ kind: "skill-claim", text: "I am unsure whether I can use SQL independently.", labels, level: "uncertain" })).toBe(true);
+    }
+  });
+
+  it("keeps UTF-16 offsets intact when masking an emoji inside a quotation", () => {
+    const text = '“Quoted 😀. I tested SQL under supervision.” I am familiar with SQL.';
+    const masked = maskQuotes(text);
+    expect(masked.length).toBe(text.length);
+    expect(masked.indexOf("I am familiar")).toBe(text.indexOf("I am familiar"));
+  });
+
+  it.each([
+    ["I built SQL tooling; I tested SQL with peer guidance.", ["SQL"], false],
+    ["I tested SQL with peer guidance, but my colleague tested React.", ["SQL"], true],
+    ["I tested SQL with peer guidance, but my colleague tested React.", ["React"], false],
+    ["I tested SQL with peer guidance, but my colleague tested React.", ["SQL", "React"], false],
+  ] as const)("keeps a nominated term inside its supported task: %s", (text, labels, expected) => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels, level: "guided" })).toBe(expected);
+  });
+});

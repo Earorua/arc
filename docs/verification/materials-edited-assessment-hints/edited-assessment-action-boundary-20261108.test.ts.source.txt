@@ -1,0 +1,19 @@
+import { expect, it } from "vitest";
+import { supportsMaterialSelfLevelHint } from "../../app/lib/materials/self-assessment-evidence";
+
+for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
+  it.each([
+    "完成不了 SQL 查询练习",
+    "完成 SQL 查询练习是我下周的计划。",
+    "完成 SQL 查询练习的计划尚未执行。",
+  ])(`rejects denied or nominal future action after ${qualifier}: %s`, action => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text: qualifier + action, labels: ["SQL"], level: "guided" })).toBe(false);
+  });
+  it.each([
+    "完成 SQL 查询练习后，我记录了结果。",
+    "完成 SQL 查询练习，明天计划阅读 React 文档。",
+    "完成 SQL 查询练习，但我无法完成 React 页面。",
+  ])(`keeps performed SQL separate from other actions after ${qualifier}: %s`, action => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text: qualifier + action, labels: ["SQL"], level: "guided" })).toBe(true);
+  });
+}

@@ -1,0 +1,36 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const previousPath = "docs/verification/materials-source-mention-boundary/mention-boundary-integrity-20261108-results.json";
+const previous = JSON.parse(readFileSync(previousPath, "utf8"));
+const snapshotPath = "work/grounded-verification/edited-assessment-snapshot-20261108-results.json";
+const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8"));
+for (const [path, hash] of Object.entries(snapshot.filesSha256)) assert.equal(sha(readFileSync(path)), hash, path);
+for (const [path, hash] of Object.entries(previous.frozenReferenceSha256)) assert.equal(sha(readFileSync(path)), hash, path);
+const specPath = "docs/superpowers/specs/2026-09-11-arc-private-materials-personalized-planning-design.zh-CN.md";
+assert.equal(sha(readFileSync(specPath)), "5d978e38d1c3b4a85eb83327e800df2c561aef598a63edc6c61c433acba21822");
+const coursePath = "work/grounded-verification/edited-assessment-course-capture-20261108-results.json";
+const course = JSON.parse(readFileSync(coursePath, "utf8"));
+for (const dependency of course.dependencies) assert.equal(sha(readFileSync(dependency.path)), dependency.sha256, dependency.path);
+const current = snapshot.filesSha256, old = previous.filesSha256;
+const evidence = {
+  status: "source-and-frozen-reference-byte-checks-pass",
+  sourceBaseAtCapture: snapshot.head,
+  sourceSnapshot: { path: snapshotPath, sha256: sha(readFileSync(snapshotPath)), files: snapshot.sourceFileCount, manifestSha256: snapshot.manifestSha256 },
+  previousSource: { path: previousPath, sha256: sha(readFileSync(previousPath)) },
+  changedPaths: Object.keys(old).filter(path => current[path] && current[path] !== old[path]),
+  addedPaths: Object.keys(current).filter(path => !old[path]),
+  removedPaths: Object.keys(old).filter(path => !current[path]),
+  frozenReferenceCount: Object.keys(previous.frozenReferenceSha256).length,
+  frozenReferenceSha256: previous.frozenReferenceSha256,
+  unchangedApprovedSpec: specPath,
+  courseCapture: { path: coursePath, sha256: sha(readFileSync(coursePath)), currentDependencyBytesMatch: true, count: course.dependencies.length },
+  newCourseReferenceApproved: false, realModelCalls: 0,
+};
+const output = "work/grounded-verification/edited-assessment-integrity-20261108-results.json";
+writeFileSync(output, JSON.stringify(evidence, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ output, changedPaths: evidence.changedPaths, addedPaths: evidence.addedPaths,
+  removedPaths: evidence.removedPaths, sourceFiles: snapshot.sourceFileCount, unchangedFrozenReferences: evidence.frozenReferenceCount,
+  courseDependencyBytesMatch: true, newCourseReferenceApproved: false }));

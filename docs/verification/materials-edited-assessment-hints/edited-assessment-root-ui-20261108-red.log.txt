@@ -1,0 +1,42 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:30560) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/edited-assessment-root-ui-20261108.test.tsx [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 397[2mms[22m[39m
+[31m   [31m×[31m removes stale advice immediately, saves the valid edit, and keeps it removed after real route reload[39m[33m 396[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-root-ui-20261108.test.tsx[2m > [22mremoves stale advice immediately, saves the valid edit, and keeps it removed after real route reload
+[31m[1mAssertionError[22m: expected { immediatelyRemoved: false, …(7) } to match object { immediatelyRemoved: true, …(2) }
+(5 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "immediatelyRemoved": true,[39m
+[32m-   "reloadedRemoved": true,[39m
+[32m-   "savedHintCount": 0,[39m
+[31m+   "immediatelyRemoved": false,[39m
+[31m+   "reloadedRemoved": false,[39m
+[31m+   "savedHintCount": 1,[39m
+[2m  }[22m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-root-ui-20261108.test.tsx:[2m70:26[22m[39m
+    [90m 68|[39m     expect(result).toMatch(/^work\/grounded-verification\/edited-asses…
+    [90m 69|[39m     writeFileSync(result, JSON.stringify(observations, null, 2) + "\n"…
+    [90m 70|[39m     expect(observations).toMatchObject({ immediatelyRemoved: true, sav…
+    [90m   |[39m                          [31m^[39m
+    [90m 71|[39m   } [35mfinally[39m { gate[33m.[39m[34mresolve[39m()[33m;[39m [34mcleanup[39m()[33m;[39m [35mawait[39m fixture[33m.[39m[34mdispose[39m()[33m;[39m }
+    [90m 72|[39m }[33m,[39m [34m15000[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 17:53:18
+[2m   Duration [22m 3.68s[2m (transform 886ms, setup 260ms, import 2.01s, tests 397ms, environment 845ms)[22m
+

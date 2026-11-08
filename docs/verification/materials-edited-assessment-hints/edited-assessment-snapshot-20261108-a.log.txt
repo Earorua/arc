@@ -1,0 +1,1 @@
+{"head":"e0dd885288b2a232ad68797e851f14c5aec72c8d","checkout":"D:\\CodexTemp\\arc-edited-assessment-4k7Z67\\source","files":999,"manifestSha256":"9424f5b482adbd7b83356926b6baf3008b2e3b1664871ef6ddb9451a6c99026a"}

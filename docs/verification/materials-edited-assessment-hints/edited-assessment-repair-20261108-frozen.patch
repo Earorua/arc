@@ -1,0 +1,159 @@
+diff --git a/app/lib/materials/self-assessment-evidence.ts b/app/lib/materials/self-assessment-evidence.ts
+index bc98e03..e9c9178 100644
+--- a/app/lib/materials/self-assessment-evidence.ts
++++ b/app/lib/materials/self-assessment-evidence.ts
+@@ -52,11 +52,16 @@ function guidedPractice(part: string) {
+   const zh = chineseGuidance.exec(body);
+   if (zh) {
+     const action = body.slice(zh[0].length).replace(/^[，,\s]*(?:我|本人)?/u, "");
++    const practice = practiceAction.exec(action);
+     // The short “按指导” qualifier needs a direct practice verb, not a later
+     // action inside a denial, plan, report, or another person's activity.
+-    if (zh[1] && practiceAction.exec(action)?.index !== 0) return false;
++    if (!practice || (zh[1] && practice.index !== 0)) return false;
++    // A verb's negative complement or a plan predicate does not assert practice.
++    // Limit these checks to this action, before a separate clause about another task.
++    const assertion = action.slice(practice.index + practice[0].length).split(/[，,；;。.!?！？]/u, 1)[0]!;
++    if (/^不了/u.test(assertion) || /是.*计划\s*$|的计划(?:尚|还|仍)?未执行/u.test(assertion)) return false;
+     if (action.startsWith("由") && !personalPassivePractice.test(action)) return false;
+-    return !/^(?:团队|小组|我们|同事|其他人|学员们|他们|她们|安排|要求|让|叫|记录|说明|解释|报告|描述|计划|打算|准备|将|会|没有|未能|不会)/u.test(action) && practiceAction.test(action);
++    return !/^(?:团队|小组|我们|同事|其他人|学员们|他们|她们|安排|要求|让|叫|记录|说明|解释|报告|描述|计划|打算|准备|将|会|没有|未能|不会)/u.test(action);
+   }
+   if (instructionalFragmentStart(part) !== null) return true;
+   if (!supervised.test(part) && !(instructionalPractice.test(part) && !deniedInstructionalPractice.test(part))) return false;
+diff --git a/tests/components/material-confirmation-source.test.tsx b/tests/components/material-confirmation-source.test.tsx
+index befca0f..33dfddd 100644
+--- a/tests/components/material-confirmation-source.test.tsx
++++ b/tests/components/material-confirmation-source.test.tsx
+@@ -87,6 +87,9 @@ describe("edited material self-assessment suggestions", () => {
+       "The example says ‘I tested SQL under supervision.’",
+       "I tested SQL.",
+       "I cannot independently test SQL.",
++      ...["按指导", "按照指导", "在导师指导下"].flatMap(qualifier => [
++        "完成不了 SQL 查询练习", "完成 SQL 查询练习是我下周的计划。", "完成 SQL 查询练习的计划尚未执行。",
++      ].map(action => qualifier + action)),
+     ])(`hides the unsupported ${projection ?? "historical"} suggestion on the edit render: %s`, text => {
+       const adopted = vi.fn(), changed = vi.fn();
+       function Editor() {
+@@ -109,7 +112,12 @@ describe("edited material self-assessment suggestions", () => {
+     });
+   }
+ 
+-  it("offers supported quoted-tool guidance but only adopts it on an explicit click", () => {
++  it.each([
++    "I tested 'SQL' under supervision.",
++    ...["按指导", "按照指导", "在导师指导下"].flatMap(qualifier => [
++      "完成 SQL 查询练习后，我记录了结果。", "完成 SQL 查询练习，明天计划阅读 React 文档。", "完成 SQL 查询练习，但我无法完成 React 页面。",
++    ].map(action => qualifier + action)),
++  ])("offers supported practice but only adopts it on an explicit click: %s", text => {
+     const adopted = vi.fn();
+     function Editor() {
+       const [value, setValue] = useState(assessmentDraft(GROUNDED_MATERIAL_REVIEW_PROJECTION));
+@@ -117,7 +125,7 @@ describe("edited material self-assessment suggestions", () => {
+         onItemsChange={items => setValue({ ...value, items })} onConfirm={vi.fn()} onAdoptLevels={adopted} />;
+     }
+     render(<Editor />);
+-    fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: "I tested 'SQL' under supervision." } });
++    fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: text } });
+     expect(adopted).not.toHaveBeenCalled();
+     fireEvent.click(screen.getByRole("button", { name: buttonName }));
+     expect(adopted).toHaveBeenCalledExactlyOnceWith({ sql: "guided" });
+diff --git a/tests/lib/materials/retained-assessment-hints.test.ts b/tests/lib/materials/retained-assessment-hints.test.ts
+index d5e2d2c..f8e8b9e 100644
+--- a/tests/lib/materials/retained-assessment-hints.test.ts
++++ b/tests/lib/materials/retained-assessment-hints.test.ts
+@@ -13,6 +13,19 @@ function fact(text: string, changes: Partial<ConfirmedMaterialItem> = {}): Confi
+ describe("retained material self-assessment hints", () => {
+   for (const projection of [undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION]) {
+     describe(projection ?? "historical projection", () => {
++      for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
++        it.each([
++          ["完成不了 SQL 查询练习", false],
++          ["完成 SQL 查询练习是我下周的计划。", false],
++          ["完成 SQL 查询练习的计划尚未执行。", false],
++          ["完成 SQL 查询练习后，我记录了结果。", true],
++          ["完成 SQL 查询练习，明天计划阅读 React 文档。", true],
++          ["完成 SQL 查询练习，但我无法完成 React 页面。", true],
++        ] as const)(`retains the hint only for the asserted current action after ${qualifier}: %s`, (action, supported) => {
++          expect(retainedMaterialSelfAssessmentHints([fact(qualifier + action)], [guidedHint], projection)).toEqual(supported ? [guidedHint] : []);
++        });
++      }
++
+       it.each([
+         "My colleague tested SQL under supervision.",
+         "I will test SQL under supervision.",
+diff --git a/tests/lib/materials/self-assessment-evidence.test.ts b/tests/lib/materials/self-assessment-evidence.test.ts
+index cf51812..2cd58a7 100644
+--- a/tests/lib/materials/self-assessment-evidence.test.ts
++++ b/tests/lib/materials/self-assessment-evidence.test.ts
+@@ -2,6 +2,19 @@ import { describe, expect, it } from "vitest";
+ import { supportsMaterialSelfLevelHint } from "../../../app/lib/materials/self-assessment-evidence";
+ 
+ describe("material self-assessment evidence", () => {
++  for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
++    it.each([
++      ["完成不了 SQL 查询练习", false],
++      ["完成 SQL 查询练习是我下周的计划。", false],
++      ["完成 SQL 查询练习的计划尚未执行。", false],
++      ["完成 SQL 查询练习后，我记录了结果。", true],
++      ["完成 SQL 查询练习，明天计划阅读 React 文档。", true],
++      ["完成 SQL 查询练习，但我无法完成 React 页面。", true],
++    ] as const)(`requires the action after ${qualifier} itself to be asserted: %s`, (action, supported) => {
++      expect(supportsMaterialSelfLevelHint({ kind: "experience", text: qualifier + action, labels: ["SQL"], level: "guided" })).toBe(supported);
++    });
++  }
++
+   it.each(["按指导示例完成 SQL 查询练习", "按照指导教程完成 SQL 查询练习"])("preserves longer instructional qualifiers beginning with guidance words: %s", text => {
+     expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(true);
+   });
+diff --git a/tests/server/document-review-draft.test.ts b/tests/server/document-review-draft.test.ts
+index 474a95e..50439f6 100644
+--- a/tests/server/document-review-draft.test.ts
++++ b/tests/server/document-review-draft.test.ts
+@@ -266,6 +266,9 @@ for (const projection of ["legacy", "literal", "grounded"] as const) {
+         "The example says ‘I tested SQL under supervision.’",
+         "I tested SQL.",
+         "I cannot independently test SQL.",
++        ...["按指导", "按照指导", "在导师指导下"].flatMap(qualifier => [
++            "完成不了 SQL 查询练习", "完成 SQL 查询练习是我下周的计划。", "完成 SQL 查询练习的计划尚未执行。",
++        ].map(action => qualifier + action)),
+     ])(`saves an unsupported ${projection} edit without its authentic old hint: %s`, async text => {
+         const f = await assessmentReview(projection);
+         expect(f.draft.selfAssessmentHints).toHaveLength(1);
+@@ -288,6 +291,9 @@ it.each([
+     ["I tested SQL under supervision.", "I tested 'SQL' under supervision.", "guided"],
+     ["I am familiar with SQL.", "I have only basic familiarity with SQL.", "conceptual"],
+     ["I am unsure whether I can test SQL independently.", "I remain unsure whether I can test SQL independently.", "uncertain"],
++    ...["按指导", "按照指导", "在导师指导下"].flatMap(qualifier => [
++        "完成 SQL 查询练习后，我记录了结果。", "完成 SQL 查询练习，明天计划阅读 React 文档。", "完成 SQL 查询练习，但我无法完成 React 页面。",
++    ].map(action => ["I tested SQL under supervision.", qualifier + action, "guided"] as const)),
+ ] as const)("keeps the authentic %s assessment after a supported personal edit", async (source, text, level) => {
+     const f = await assessmentReview("grounded", { source, level });
+     const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+diff --git a/tests/server/document-source-review-evidence.test.ts b/tests/server/document-source-review-evidence.test.ts
+index 336e83f..efb5152 100644
+--- a/tests/server/document-source-review-evidence.test.ts
++++ b/tests/server/document-source-review-evidence.test.ts
+@@ -525,6 +525,22 @@ describe("source-supported review reminders", () => {
+ });
+ 
+ describe("grounding a proposed self-level hint", () => {
++  for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
++    it.each([
++      ["完成不了 SQL 查询练习", false],
++      ["完成 SQL 查询练习是我下周的计划。", false],
++      ["完成 SQL 查询练习的计划尚未执行。", false],
++      ["完成 SQL 查询练习后，我记录了结果。", true],
++      ["完成 SQL 查询练习，明天计划阅读 React 文档。", true],
++      ["完成 SQL 查询练习，但我无法完成 React 页面。", true],
++    ] as const)(`grounds the action's own assertion after ${qualifier}: %s`, (action, supported) => {
++      const quote = qualifier + action, candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
++      expect(groundSourceSelfLevelHint(candidate)).toBe(supported ? "guided" : null);
++      expect(groundSourceReviewPoints([point("confirm-self-assessment", quote)], [candidate], document(quote))
++        ?.filter(reminder => reminder.code === "confirm-self-assessment")).toEqual(supported ? [point("confirm-self-assessment", quote)] : []);
++    });
++  }
++
+   it.each(["按指导示例完成 SQL 查询练习", "按照指导教程完成 SQL 查询练习"])("preserves the longer instructional qualifier and its reminder: %s", quote => {
+     const candidate = { ...item("experience", quote, "guided"), skillLabels: ["SQL"] };
+     expect(groundSourceSelfLevelHint(candidate)).toBe("guided");

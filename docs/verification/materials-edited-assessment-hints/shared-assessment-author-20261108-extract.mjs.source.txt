@@ -1,0 +1,73 @@
+import { readFileSync, writeFileSync } from "node:fs";
+
+const workerPath = "worker/document-executor/source-review-evidence.ts";
+const original = readFileSync(workerPath, "utf8").replace(/\r\n/g, "\n");
+function between(start, end) {
+  const from = original.indexOf(start), to = original.indexOf(end, from);
+  if (from < 0 || to < from) throw new Error(`Missing extraction boundary: ${start}`);
+  return original.slice(from, to);
+}
+const quotes = between("// Keep UTF-16 offsets stable.", "/** A sentence detached");
+const assertedSkill = between("function assertedSkillEvidence(", "const hypothetical =");
+const assertion = between("const hypothetical =", "function assertedClauses(");
+const personal = between("const englishConceptual =", "/** A proposed level is optional");
+const adapter = between("/** A proposed level is optional", "type Anchor =");
+const selfConflict = original.split("\n").find(line => line.startsWith("const selfConflict ="));
+const deniedConflict = original.split("\n").find(line => line.startsWith("const deniedConflict ="));
+if (!selfConflict || !deniedConflict) throw new Error("Missing shared conflict patterns");
+
+writeFileSync("app/lib/materials/quotation-evidence.ts", (quotes + assertion)
+  .replace("const quoted =", "export const quoted =")
+  .replace("function maskQuotes(", "export function maskQuotes(")
+  .replace("const hypothetical =", "export const hypothetical =")
+  .replace("const deniedAssertion =", "export const deniedAssertion ="));
+
+const shared = `import type { DocumentCandidate } from "../../contracts/documents";
+import { findMaterialSkillEvidence } from "./grounded-skill-terms";
+import { deniedAssertion, hypothetical, maskQuotes, quoted } from "./quotation-evidence";
+
+type Hint = DocumentCandidate["selfLevelHint"];
+
+export ${selfConflict}
+export ${deniedConflict}
+
+${assertedSkill}${personal}
+/** Check a proposed per-fact level using the fact's current personal evidence. */
+export function supportsMaterialSelfLevelHint(input: {
+  kind: DocumentCandidate["kind"];
+  text: string;
+  labels?: readonly string[];
+  level: DocumentCandidate["selfLevelHint"];
+}): boolean {
+  if (!input.level || (input.kind !== "experience" && input.kind !== "skill-claim")) return false;
+  return supportsSelfLevelHintInScope(input.text, maskQuotes(input.text), input.level, input.labels);
+}
+
+/** A learning-limit reminder is separate from assigning a self-level hint. */
+export function hasPersonalPracticeNeed(quote: string, masked: string) {
+  return assessmentScopes(quote, masked).some(({ text }) => personalPracticeNeed(text));
+}
+`.replace("function personalCapabilityQuestion(", "export function hasPersonalCapabilityQuestion(")
+  .replace("function supportsLevel(", "export function supportsSelfLevelHintInScope(");
+writeFileSync("app/lib/materials/self-assessment-evidence.ts", shared);
+
+let worker = original.replace('import { findMaterialSkillEvidence } from "../../app/lib/materials/grounded-skill-terms";', `import {
+  deniedConflict, hasPersonalCapabilityQuestion, hasPersonalPracticeNeed, selfConflict,
+  supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope,
+} from "../../app/lib/materials/self-assessment-evidence";
+import { deniedAssertion, hypothetical, maskQuotes, quoted } from "../../app/lib/materials/quotation-evidence";`);
+for (const block of [quotes, assertedSkill, assertion, personal, selfConflict + "\n", deniedConflict + "\n"]) {
+  if (!worker.includes(block)) throw new Error("Missing worker removal block");
+  worker = worker.replace(block, "");
+}
+worker = worker.replace(adapter, `/** A proposed level is optional, and an individual skill rating requires personal evidence. */
+export function groundSourceSelfLevelHint(item: EvidenceItem): Hint {
+  return supportsMaterialSelfLevelHint({ kind: item.kind, text: item.source.quote, labels: item.skillLabels, level: item.selfLevelHint }) ? item.selfLevelHint : null;
+}
+
+`)
+  .replaceAll("supportsLevel(", "supportsSelfLevelHintInScope(")
+  .replace("personalCapabilityQuestion(", "hasPersonalCapabilityQuestion(")
+  .replace("assessmentScopes(quote, masked).some(({ text }) => personalPracticeNeed(text))", "hasPersonalPracticeNeed(quote, masked)");
+writeFileSync(workerPath, worker);
+console.log("Extracted existing personal-assessment and quotation rules without changing semantic checks.");

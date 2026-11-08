@@ -1,0 +1,53 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m work/grounded-verification/edited-assessment-guidance-20261108.test.ts [2m([22m[2m17 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[32m 18[2mms[22m[39m
+[31m   [31m×[31m retains guidance only for supported personal action: 按指导完成 SQL 查询练习[39m[32m 10[2mms[22m[39m
+[31m   [31m×[31m retains guidance only for supported personal action: 按照指导完成 SQL 查询练习[39m[32m 4[2mms[22m[39m
+[31m   [31m×[31m retains guidance only for supported personal action: 我按指导完成 SQL 查询练习[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m retains guidance only for supported personal action: 我按照指导完成 SQL 查询练习[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m retains guidance only for supported personal action: 按指导完成 ‘SQL’ 查询练习[39m[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导没有完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导未完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导计划完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导安排同事完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导由同事完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导同事完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导团队完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导将完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 按指导记录 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 示例：“按指导完成 SQL 查询练习”[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 没有按指导完成 SQL 查询练习[32m 0[2mms[22m[39m
+   [32m✓[39m retains guidance only for supported personal action: 完成 SQL 查询练习[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-guidance-20261108.test.ts[2m > [22mretains guidance only for supported personal action: 按指导完成 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-guidance-20261108.test.ts[2m > [22mretains guidance only for supported personal action: 按照指导完成 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-guidance-20261108.test.ts[2m > [22mretains guidance only for supported personal action: 我按指导完成 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-guidance-20261108.test.ts[2m > [22mretains guidance only for supported personal action: 我按照指导完成 SQL 查询练习
+[41m[1m FAIL [22m[49m work/grounded-verification/edited-assessment-guidance-20261108.test.ts[2m > [22mretains guidance only for supported personal action: 按指导完成 ‘SQL’ 查询练习
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m work/grounded-verification/edited-assessment-guidance-20261108.test.ts:[2m23:105[22m[39m
+    [90m 21|[39m   [[32m"完成 SQL 查询练习"[39m[33m,[39m [35mfalse[39m][33m,[39m
+    [90m 22|[39m ] as const)("retains guidance only for supported personal action: %s",…
+    [90m 23|[39m   expect(supportsMaterialSelfLevelHint({ kind: "experience", text, lab…
+    [90m   |[39m                                                                                                         [31m^[39m
+    [90m 24|[39m })[33m;[39m
+    [90m 25|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m12 passed[39m[22m[90m (17)[39m
+[2m   Start at [22m 18:05:06
+[2m   Duration [22m 529ms[2m (transform 78ms, setup 200ms, import 153ms, tests 18ms, environment 0ms)[22m
+

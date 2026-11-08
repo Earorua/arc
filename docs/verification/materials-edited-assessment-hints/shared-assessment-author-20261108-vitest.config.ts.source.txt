@@ -1,0 +1,16 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+export default defineConfig({
+  ...base,
+  test: {
+    ...base.test,
+    environment: "node",
+    include: [
+      "tests/lib/materials/self-assessment-evidence.test.ts",
+      "tests/server/document-source-review-evidence.test.ts",
+      "tests/server/document-source-span-provider.test.ts",
+      "tests/server/document-source-requirement-evidence.test.ts",
+    ],
+  },
+});

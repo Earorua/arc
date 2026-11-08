@@ -1,0 +1,89 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { build } from "esbuild";
+import { Miniflare, Log, LogLevel } from "miniflare";
+
+const resultPath = process.argv[2];
+assert.match(resultPath ?? "", /^work\/grounded-verification\/edited-assessment-native-[a-z0-9-]+-results\.json$/u);
+const cases = [
+  { id: "colleague", text: "My colleague tested SQL under supervision.", expectedHints: 0 },
+  { id: "future", text: "I will test SQL under supervision.", expectedHints: 0 },
+  { id: "denied", text: "I did not test SQL under supervision.", expectedHints: 0 },
+  { id: "quoted", text: "An example reads “I tested SQL under supervision.”", expectedHints: 0 },
+  { id: "removed-guidance", text: "I tested SQL.", expectedHints: 0 },
+  { id: "positive", text: "I tested SQL under supervision.", expectedHints: 1 },
+  { id: "legacy-untouched", text: "SQL practice", legacy: true, untouched: true, expectedHints: 1 },
+  { id: "legacy-edited", text: "SQL practice.", legacy: true, expectedHints: 0 },
+];
+const compiled = await build({stdin:{resolveDir:process.cwd(),loader:"ts",contents:`
+import {createDocumentServices} from './app/server/documents/service';
+import {ReviewService} from './app/server/documents/review-service';
+import {D1DocumentRepository} from './app/server/documents/d1-repository';
+import {DocumentStorage} from './app/server/documents/storage';
+import {KIMI_GROUNDED_TERMS_POLICY_ID} from './app/server/documents/policy';
+let serial=0;
+export default {async fetch(request,env) {
+  try {
+    const body=await request.json(), owner={ownerId:'owner-a'};
+    const clock=()=>new Date('2026-11-04T00:00:00.000Z'), id=()=> 'native-hint-'+ ++serial;
+    const services=createDocumentServices({db:env.DB,bucket:env.DOCS,clock,id});
+    const original='I tested SQL under supervision.';
+    const receipt=await services.createDocument(owner,{kind:'resume',displayName:'Synthetic hint edit',text:original,mutationId:'create-'+body.id});
+    const policy=body.legacy?'materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1':KIMI_GROUNDED_TERMS_POLICY_ID;
+    const consent='consent-'+body.id, job='job-'+body.id;
+    await env.DB.prepare("INSERT INTO document_processing_consents VALUES(?,?,?,?,?,'analysis','2026.11.1',?,0,0,NULL)")
+      .bind(owner.ownerId,consent,receipt.textVersionId,receipt.documentId,receipt.documentVersionId,policy).run();
+    await env.DB.prepare("INSERT INTO document_jobs(owner_id,id,text_version_id,document_id,document_version_id,consent_id,generation,document_revision,revision,state,dispatch_state,execution_slot,queued_at,queue_expires_at,provider_policy_id,price_version,policy_version,reservation_id,updated_at) VALUES(?,?,?,?,?,?,0,0,0,'running','settled',NULL,0,1,?,'2026.11.1','2026.11.1',?,0)")
+      .bind(owner.ownerId,job,receipt.textVersionId,receipt.documentId,receipt.documentVersionId,consent,policy,'reservation-'+body.id).run();
+    const review=new ReviewService(new D1DocumentRepository(env.DB,clock,id),new DocumentStorage(env.DOCS));
+    const acceptance=await review.acceptAiExtraction(owner.ownerId,{...receipt,jobId:job,generation:0,documentRevision:0,consentId:consent,
+      candidate:{schemaVersion:'2026.11.1',items:[{id:'fact',kind:'experience',text:body.legacy?'SQL practice':original,
+        requirementLevel:null,skillLabels:['SQL'],selfLevelHint:'guided',source:{segmentId:'segment-1',quote:original}}]}});
+    const current=(await services.readDocumentReviewDraft(owner,{documentId:receipt.documentId,textVersionId:receipt.textVersionId})).draft;
+    const saveRequest={documentId:receipt.documentId,textVersionId:receipt.textVersionId,extractionId:current.extractionId,
+      expectedRevision:current.revision,mutationId:'edit-'+body.id,
+      items:[{...current.items[0],origin:body.untouched?'extracted':'user',text:body.text}],selfAssessmentHints:current.selfAssessmentHints};
+    const saved=await services.saveDocumentReviewDraft(owner,saveRequest);
+    const reloaded=await services.readDocumentReviewDraft(owner,{documentId:receipt.documentId,textVersionId:receipt.textVersionId});
+    const replay=await services.saveDocumentReviewDraft(owner,saveRequest);
+    const document=await services.readDocument(owner,{documentId:receipt.documentId});
+    return Response.json({ok:true,acceptance,current,saved,reloaded,replay,originalText:document.text});
+  } catch(error) {return Response.json({ok:false,code:error.code,message:String(error.message)});}
+}};
+`},bundle:true,write:false,format:"esm",platform:"browser",target:"es2022",metafile:true});
+const script=compiled.outputFiles[0].text;
+let outboundCalls=0;
+const runtime=new Miniflare({cf:false,modules:true,script,compatibilityDate:"2026-05-15",d1Databases:{DB:"edited-assessment-native"},
+  r2Buckets:{DOCS:"edited-assessment-documents"},log:new Log(LogLevel.ERROR),
+  outboundService:async()=>{outboundCalls++;throw Error("Outbound denied");}});
+try {
+  const db=await runtime.getD1Database("DB");
+  for(const file of readdirSync("drizzle").filter(name=>/^\d{4}_.+\.sql$/u.test(name)&&Number(name.slice(0,4))<=15).sort()) {
+    for(const sql of readFileSync("drizzle/"+file,"utf8").split("--> statement-breakpoint").map(value=>value.trim()).filter(Boolean)) await db.prepare(sql).run();
+  }
+  await db.prepare("INSERT INTO users(id,name,email,email_verified) VALUES('owner-a','Synthetic owner','owner-a@example.test',0)").run();
+  const observations=[];
+  for(const entry of cases) {
+    const response=await runtime.dispatchFetch("http://localhost/review-edit",{method:"POST",body:JSON.stringify(entry)});
+    assert.equal(response.status,200);
+    const observed=await response.json();
+    assert.equal(observed.ok,true,JSON.stringify(observed));
+    assert.equal(observed.acceptance.disposition,"initialized");
+    assert.equal(observed.current.selfAssessmentHints.length,1);
+    assert.deepEqual(observed.saved.draft,observed.reloaded.draft);
+    assert.deepEqual(observed.saved,observed.replay);
+    assert.deepEqual(observed.saved.draft.items[0].sourceRef,observed.current.items[0].sourceRef);
+    assert.equal(observed.saved.draft.items[0].text,entry.text);
+    assert.equal(observed.originalText,"I tested SQL under supervision.");
+    observations.push({...entry,observed,hintsMatch:observed.saved.draft.selfAssessmentHints.length===entry.expectedHints});
+  }
+  assert.equal(outboundCalls,0);
+  const sha=value=>createHash("sha256").update(value).digest("hex");
+  const inputs=Object.fromEntries(Object.keys(compiled.metafile.inputs).filter(path=>path!=="<stdin>").sort().map(path=>[path,sha(readFileSync(path))]));
+  writeFileSync(resultPath,JSON.stringify({schemaVersion:1,status:observations.every(row=>row.hintsMatch)?"PASS":"EXPECTED_BEHAVIOR_NOT_MET",
+    cases:cases.length,observations,inputs,compiledSha256:sha(script),outboundCalls,realModelCalls:0,
+    transport:"local workerd with real ephemeral D1/R2; synthetic verified-delivery fixtures, no model/provider transport"},null,2)+"\n",{flag:"wx"});
+  assert.deepEqual(observations.map(row=>row.hintsMatch),cases.map(()=>true),"edited hints must match current evidence and legacy compatibility");
+  console.log(JSON.stringify({status:"PASS",cases:cases.length,outboundCalls,resultPath}));
+} finally {await runtime.dispose();}

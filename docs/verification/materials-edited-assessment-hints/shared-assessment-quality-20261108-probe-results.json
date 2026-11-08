@@ -1,0 +1,39 @@
+{
+  "baseline": "80546d0",
+  "differentialCases": 26,
+  "differentialHintChecks": 2080,
+  "differentialReviewChecks": 208,
+  "correctedDenials": 15,
+  "performance": [
+    {
+      "index": 0,
+      "utf16Length": 1000,
+      "labelCount": 8,
+      "samples": 10,
+      "meanMs": {
+        "baseline": 9.218010000000003,
+        "shared": 9.032780000000002
+      }
+    },
+    {
+      "index": 1,
+      "utf16Length": 1000,
+      "labelCount": 8,
+      "samples": 10,
+      "meanMs": {
+        "baseline": 8.958570000000009,
+        "shared": 8.775070000000005
+      }
+    },
+    {
+      "index": 2,
+      "utf16Length": 1000,
+      "labelCount": 8,
+      "samples": 10,
+      "meanMs": {
+        "baseline": 9.645229999999993,
+        "shared": 8.946639999999979
+      }
+    }
+  ]
+}

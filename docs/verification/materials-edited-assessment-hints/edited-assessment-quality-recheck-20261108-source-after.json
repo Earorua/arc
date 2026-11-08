@@ -1,0 +1,42 @@
+[
+  {
+    "sha256": "d2a5c3c69c1bd671a30b9597bcec44435baa21b3ce7aedd7664045217118bad0",
+    "file": "app/lib/materials/skill-labels.ts"
+  },
+  {
+    "sha256": "cb07c50bfce3fd2554a5fb1b80ac4c672951d7994ce8605f4eb0a892a0836b70",
+    "file": "app/lib/materials/self-assessment-evidence.ts"
+  },
+  {
+    "sha256": "1dfafeaa80382a9a53dcf4a063c6585fad94c9dd52896e0d56b3eb8ded799700",
+    "file": "app/server/documents/review-service.ts"
+  },
+  {
+    "sha256": "085d355db29c4fac069bcad3f353f5de40298d2a53135aff66c0373cb79a81c4",
+    "file": "app/components/materials/material-confirmation.tsx"
+  },
+  {
+    "sha256": "b832754373e432f348f08f44234b39b7f5dfb39baba5e874b251d8a3f157bcf5",
+    "file": "app/components/materials/material-text-panel.tsx"
+  },
+  {
+    "sha256": "6c9c099c258fc7cf71bee4e24e64d69c355d651388509393125052c366bc2892",
+    "file": "tests/lib/materials/retained-assessment-hints.test.ts"
+  },
+  {
+    "sha256": "d96fba3093470cde72cccf022b13e37293ae2074d40cb77bae25fed7af2178f5",
+    "file": "tests/lib/materials/self-assessment-evidence.test.ts"
+  },
+  {
+    "sha256": "9db81934b1155abc00e2f08bf1152a17885c6cd07bc6ba76bec906d5bfa34d54",
+    "file": "tests/server/document-review-draft.test.ts"
+  },
+  {
+    "sha256": "4731c998d61f63770a79ee3980e9b136a49ac35f2c1b453c56a326184ae21980",
+    "file": "tests/server/document-source-review-evidence.test.ts"
+  },
+  {
+    "sha256": "7e073660388dac2d66e8f55497825a35e908597166cd636d4786e46bd1164698",
+    "file": "tests/components/material-confirmation-source.test.tsx"
+  }
+]

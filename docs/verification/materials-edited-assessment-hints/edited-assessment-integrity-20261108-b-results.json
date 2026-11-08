@@ -1,0 +1,69 @@
+{
+  "status": "source-and-frozen-reference-byte-checks-pass",
+  "sourceBaseAtCapture": "fcfb6cda6ffd1f5d98e0d2d61ae4590f392abede",
+  "sourceSnapshot": {
+    "path": "work/grounded-verification/edited-assessment-snapshot-20261108-b-results.json",
+    "sha256": "beb650d7b3ea12f666dde5c60832a26274991839b21fab4f375a3572163b9a3e",
+    "files": 999,
+    "manifestSha256": "24bf6586f377e79cacf7f65b73a43bd70c514a7bbebb08229ece9a30ce0446fa"
+  },
+  "previousSource": {
+    "path": "docs/verification/materials-source-mention-boundary/mention-boundary-integrity-20261108-results.json",
+    "sha256": "3acb5da502507fd33fa4976c68c01036e7af7d399555228e614c85d6c0ba9c1b"
+  },
+  "changedPaths": [
+    "app/components/materials/material-confirmation.tsx",
+    "app/components/materials/material-text-panel.tsx",
+    "app/lib/materials/skill-labels.ts",
+    "app/server/documents/review-service.ts",
+    "tests/components/material-confirmation-source.test.tsx",
+    "tests/server/document-review-draft.test.ts",
+    "tests/server/document-source-review-evidence.test.ts",
+    "worker/document-executor/source-review-evidence.ts"
+  ],
+  "addedPaths": [
+    "app/lib/materials/quotation-evidence.ts",
+    "app/lib/materials/self-assessment-evidence.ts",
+    "tests/lib/materials/retained-assessment-hints.test.ts",
+    "tests/lib/materials/self-assessment-evidence.test.ts"
+  ],
+  "removedPaths": [],
+  "frozenReferenceCount": 26,
+  "frozenReferenceSha256": {
+    "docs/verification/materials-quality-v2/annotations.draft.json": "e512e3fca67fd9133cae4e9186cb054c3044d79b090d567daaba24cb85bd9ef9",
+    "docs/verification/materials-quality-v2/authoring-notes.md": "1a8705a78c7fa5c328be30e0863efd20ddb7caacc25c136e28c935067aaf605e",
+    "docs/verification/materials-quality-v2/candidate-common.mjs": "e823515667fec92f788c7ee1801633c066f0013b43c9b33262fab6403a0213a9",
+    "docs/verification/materials-quality-v2/candidate-controls.mjs": "1a09ffa14935fb2b0f6808efc7b65b747975ddebacf3e5be893901e8a1c4e8cc",
+    "docs/verification/materials-quality-v2/candidate-course.mjs": "18c0be3efe195d984422effbe5c97d1e8109d66afe784af02fd17509a0bdbb45",
+    "docs/verification/materials-quality-v2/candidate-evaluator.mjs": "3d15c2b60cfd3917bb25dc670c8a40a4c2ea7e37f5d785bb4cbca6e856ad82da",
+    "docs/verification/materials-quality-v2/candidate-evaluator.test.mjs": "a2b51ad9c039beab6f7624f05893f759c4c8b8c1cf2491e306e8121916259088",
+    "docs/verification/materials-quality-v2/candidate-input.mjs": "16ab9f3d0c3c6a13c5de0f9cb2b86125754467127fc489a2febc6a283d43e432",
+    "docs/verification/materials-quality-v2/candidate-packet-review.json": "ee28292e3a11daede42630c5c9db757ea9aeb7b247aabffd875b7e8339f33a9d",
+    "docs/verification/materials-quality-v2/candidate-planning.mjs": "9c91f1ba3b219e04cea03013f4429288b7c77070362c1020d35c9d457bc1d443",
+    "docs/verification/materials-quality-v2/candidate-protocol.md": "af3d01d8c89b3d789405aaf73e6f2a5360a967da9a11fbc4f20c05320389cd37",
+    "docs/verification/materials-quality-v2/candidate-references.mjs": "9786c8d9247680ae9827db73e3530fd62d50abd5b07d9e1bf28f94a4306e6c86",
+    "docs/verification/materials-quality-v2/candidate-review-verification.json": "13c2a2276787653f8a53cb13e08ca09a07d0383c68ab28867dad71c7c5327dd9",
+    "docs/verification/materials-quality-v2/candidate-source.mjs": "9c7955b3497b121f034813c9f8676b733585ded21a83dbe0ee6d8cbe31a0c5db",
+    "docs/verification/materials-quality-v2/capture-course-reference.mjs": "3735c41c91d7d5dbaaf9ebf5b0037dd8a4b3c09f225fdac6d3d734a000db4423",
+    "docs/verification/materials-quality-v2/course-annotations.draft.json": "c602035d36fba77a36287149891b775c2ed9420d64612f0cbd76309fc02d6bcf",
+    "docs/verification/materials-quality-v2/course-annotations.test.mjs": "ede46489ed7f46ee51437692e30a5704fbde361b68da8971a15c4a4231c99789",
+    "docs/verification/materials-quality-v2/course-authoring-notes.md": "fc2c0bca859ed44504879916951190d2e119ac89c7a2228172287e06a30a39bd",
+    "docs/verification/materials-quality-v2/course-reference.snapshot.json": "bf458308b5811f60b61f6e5fa24f6910642a7276615f0b212d930d04868d9676",
+    "docs/verification/materials-quality-v2/course-review-verification.json": "3cde20901af973bb446c931aab64b57f66dae9683c6d78277dec1cec1c4598dc",
+    "docs/verification/materials-quality-v2/evaluate-candidates.mjs": "a3bd31b5e92402e0a16ea5e2441fec074b268c0cdababa9f2b169b446400dca4",
+    "docs/verification/materials-quality-v2/planning-reference-cases.json": "b4980e489b40857514e85afb1fafad15efa8a8976bfd388d0af378430e9a2c51",
+    "docs/verification/materials-quality-v2/source-review-verification.json": "8e2fc2715be731a8dda200b581914920751a50ab16a88f222e3efcd308bebd3b",
+    "docs/verification/materials-quality-v2/validate-annotation-mutations.mjs": "5fe16d4c7448df00bb3c2ba7220ebf8ee0aaed5b65a7184092abd01b8195083d",
+    "docs/verification/materials-quality-v2/validate-annotations.mjs": "6611b36facf987a7f6c1c3c0bad739d04d6c216c621ca34b5bd5e76e6e82a34b",
+    "docs/verification/materials-quality-v2/validate-course-annotations.mjs": "f03741ca32f54e73163d07c0a353c9491513274214f8d058e5304b8469f30886"
+  },
+  "unchangedApprovedSpec": "docs/superpowers/specs/2026-09-11-arc-private-materials-personalized-planning-design.zh-CN.md",
+  "courseCapture": {
+    "path": "work/grounded-verification/edited-assessment-course-capture-20261108-results.json",
+    "sha256": "9a02b60878d5d581353efb66545a56d81c9da254fd59efc3db34456015a8bed8",
+    "currentDependencyBytesMatch": true,
+    "count": 85
+  },
+  "newCourseReferenceApproved": false,
+  "realModelCalls": 0
+}

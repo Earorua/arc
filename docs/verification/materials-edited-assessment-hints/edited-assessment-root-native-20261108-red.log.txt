@@ -1,0 +1,44 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: edited hints must match current evidence and legacy compatibility
++ actual - expected
+
+  [
++   false,
++   false,
++   false,
++   false,
++   false,
+    true,
+    true,
++   false
+-   true,
+-   true,
+-   true,
+-   true,
+-   true,
+-   true
+  ]
+
+    at file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/edited-assessment-native-20261108.mjs:87:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    false, false,
+    false, false,
+    false, true,
+    true,  false
+  ],
+  expected: [
+    true, true, true,
+    true, true, true,
+    true, true
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.1

@@ -1,0 +1,13 @@
+import { build } from "esbuild";
+import { writeFileSync } from "node:fs";
+const cases = ["I tested SQL under supervision.", "I did not test SQL under supervision.", "I didn't build SQL under supervision.",
+  "I never tested SQL under supervision.", "I have never configured SQL under supervision.", "I tested SQL without supervision.",
+  "I have not tested SQL under supervision.", "我在导师指导下没有测试 SQL。"];
+const compiled = await build({stdin:{resolveDir:process.cwd(),loader:"ts",contents:`
+import { groundSourceSelfLevelHint } from './work/grounded-verification/shared-assessment-baseline-20261108';
+export function observe(cases) {return cases.map(text=>({text,hint:groundSourceSelfLevelHint({kind:'experience',source:{segmentId:'s',quote:text},selfLevelHint:'guided',skillLabels:['SQL']})}));}
+`},bundle:true,write:false,format:"esm",platform:"browser",target:"es2022"});
+const module = await import("data:text/javascript;base64,"+Buffer.from(compiled.outputFiles[0].text).toString("base64"));
+const observations = module.observe(cases);
+writeFileSync("work/grounded-verification/shared-assessment-negation-20261108-results.json", JSON.stringify({source:"baseline-worker-80546d0",observations,realModelCalls:0},null,2)+"\n", {flag:"wx"});
+console.log(JSON.stringify(observations));

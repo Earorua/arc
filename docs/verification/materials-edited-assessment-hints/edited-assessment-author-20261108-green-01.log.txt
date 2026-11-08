@@ -1,0 +1,1229 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:47540) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/lib/materials/retained-assessment-hints.test.ts [2m([22m[2m36 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m tests/server/document-review-draft.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 816[2mms[22m[39m
+ [31m❯[39m tests/components/material-confirmation-source.test.tsx [2m([22m[2m22 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 417[2mms[22m[39m
+     [32m✓[39m names unresolved information and keeps fact confirmation separate from capability adoption[32m 95[2mms[22m[39m
+     [32m✓[39m confirms an unclassified resume suggestion without imposing a JD requirement[32m 16[2mms[22m[39m
+     [32m✓[39m confirms an unclassified supplement suggestion without imposing a JD requirement[32m 13[2mms[22m[39m
+     [32m✓[39m still requires every high-impact review point for a supplement[32m 16[2mms[22m[39m
+     [32m✓[39m continues blocking an unclassified main JD requirement[32m 12[2mms[22m[39m
+     [32m✓[39m hides the unsupported historical suggestion on the edit render: My colleague tested SQL under supervision.[32m 26[2mms[22m[39m
+     [32m✓[39m hides the unsupported historical suggestion on the edit render: I will test SQL under supervision.[32m 16[2mms[22m[39m
+     [32m✓[39m hides the unsupported historical suggestion on the edit render: If I tested SQL under supervision, I would document it.[32m 12[2mms[22m[39m
+     [32m✓[39m hides the unsupported historical suggestion on the edit render: I did not test SQL under supervision.[32m 13[2mms[22m[39m
+     [32m✓[39m hides the unsupported historical suggestion on the edit render: The example says ‘I tested SQL under supervision.’[32m 16[2mms[22m[39m
+     [32m✓[39m hides the unsupported historical suggestion on the edit render: I tested SQL.[32m 15[2mms[22m[39m
+     [32m✓[39m hides the unsupported historical suggestion on the edit render: I cannot independently test SQL.[32m 12[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: My colleague tested SQL under supervision.[39m[32m 32[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I will test SQL under supervision.[39m[32m 18[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: If I tested SQL under supervision, I would document it.[39m[32m 15[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I did not test SQL under supervision.[39m[32m 15[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: The example says ‘I tested SQL under supervision.’[39m[32m 19[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I tested SQL.[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m hides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I cannot independently test SQL.[39m[32m 15[2mms[22m[39m
+     [32m✓[39m offers supported quoted-tool guidance but only adopts it on an explicit click[32m 10[2mms[22m[39m
+     [32m✓[39m keeps SQL's supported suggestion while hiding React's colleague assessment[32m 9[2mms[22m[39m
+     [32m✓[39m revalidates an extracted grounded fact without changing historical summary behavior[32m 10[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: My colleague tested SQL under supervision.
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: I tested SQL under supervision.
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"material-review"[31m
+    [36m>[31m
+      [36m<h3>[31m
+        [0m核对资料事实[0m
+      [36m</h3>[31m
+      [36m<p>[31m
+        [0m修改或移除不准确的内容。确认事实不会自动修改能力自评。[0m
+      [36m</p>[31m
+      [36m<fieldset[31m
+        [33mclass[31m=[32m"material-fact"[31m
+      [36m>[31m
+        [36m<legend>[31m
+          [0m事实 [0m
+          [0m1[0m
+        [36m</legend>[31m
+        [36m<label>[31m
+          [0m信息类型[0m
+          [36m<select[31m
+            [33maria-label[31m=[32m"事实 1 信息类型"[31m
+          [36m>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"experience"[31m
+            [36m>[31m
+              [0m经历[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"skill-claim"[31m
+            [36m>[31m
+              [0m技能描述[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"requirement"[31m
+            [36m>[31m
+              [0m建议或学习要求[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"constraint"[31m
+            [36m>[31m
+              [0m其他约束[0m
+            [36m</option>[31m
+          [36m</select>[31m
+        [36m</label>[31m
+        [36m<label>[31m
+          [0m内容[0m
+          [36m<textarea[31m
+            [33maria-label[31m=[32m"事实 1"[31m
+            [33mmaxlength[31m=[32m"1000"[31m
+          [36m>[31m
+            [0mMy colleague tested SQL under supervision.[0m
+          [36m</textarea>[31m
+        [36m</label>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m查看原文依据[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+        [36m</details>[31m
+        [36m<div>[31m
+          [36m<p>[31m
+            [0m随事实确认的技能词[0m
+          [36m</p>[31m
+          [36m<ul>[31m
+            [36m<li>[31m
+              [0mSQL[0m
+              [0m [0m
+              [36m<button[31m
+                [33maria-label[31m=[32m"移除技能词 SQL"[31m
+                [33mclass[31m=[32m"text-action"[31m
+                [33mtype[31m=[32m"button"[31m
+              [36m>[31m
+                [0m移除[0m
+              [36m</button>[31m
+            [36m</li>[31m
+          [36m</ul>[31m
+        [36m</div>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m从原文补充[0m
+            [0m技能词[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+          [36m<label>[31m
+            [0m填写原文中的词[0m
+            [36m<input[31m
+              [33maria-label[31m=[32m"事实 1 原文词"[31m
+              [33mmaxlength[31m=[32m"100"[31m
+              [33mvalue[31m=[32m""[31m
+            [36m/>[31m
+          [36m</label>[31m
+          [36m<button[31m
+            [33mclass[31m=[32m"text-action"[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mtype[31m=[32m"button"[31m
+          [36m>[31m
+            [0m补充[0m
+            [0m技能词[0m
+          [36m</button>[31m
+        [36m</details>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"text-action"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m移除事实 [0m
+          [0m1[0m
+        [36m</button>[31m
+      [36m</fieldset>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"text-action"[31m
+        [33mtype[31m=[32m"button"[31m
+      [36m>[31m
+        [0m添加事实[0m
+      [36m</button>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"material-actions"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mdisabled[31m=[32m""[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m确认这些事实[0m
+        [36m</button>[31m
+        [36m<span[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0m正在保存核对修改…[0m
+        [36m</span>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m107:21[22m[39m
+    [90m105|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"单独核对能力建议"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m106|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/SQL · 不确定/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m107|[39m       expect(screen.getByText(guided, { selector: "blockquote" })).toB…
+    [90m   |[39m                     [31m^[39m
+    [90m108|[39m       [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m109|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I will test SQL under supervision.
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: I tested SQL under supervision.
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"material-review"[31m
+    [36m>[31m
+      [36m<h3>[31m
+        [0m核对资料事实[0m
+      [36m</h3>[31m
+      [36m<p>[31m
+        [0m修改或移除不准确的内容。确认事实不会自动修改能力自评。[0m
+      [36m</p>[31m
+      [36m<fieldset[31m
+        [33mclass[31m=[32m"material-fact"[31m
+      [36m>[31m
+        [36m<legend>[31m
+          [0m事实 [0m
+          [0m1[0m
+        [36m</legend>[31m
+        [36m<label>[31m
+          [0m信息类型[0m
+          [36m<select[31m
+            [33maria-label[31m=[32m"事实 1 信息类型"[31m
+          [36m>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"experience"[31m
+            [36m>[31m
+              [0m经历[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"skill-claim"[31m
+            [36m>[31m
+              [0m技能描述[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"requirement"[31m
+            [36m>[31m
+              [0m建议或学习要求[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"constraint"[31m
+            [36m>[31m
+              [0m其他约束[0m
+            [36m</option>[31m
+          [36m</select>[31m
+        [36m</label>[31m
+        [36m<label>[31m
+          [0m内容[0m
+          [36m<textarea[31m
+            [33maria-label[31m=[32m"事实 1"[31m
+            [33mmaxlength[31m=[32m"1000"[31m
+          [36m>[31m
+            [0mI will test SQL under supervision.[0m
+          [36m</textarea>[31m
+        [36m</label>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m查看原文依据[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+        [36m</details>[31m
+        [36m<div>[31m
+          [36m<p>[31m
+            [0m随事实确认的技能词[0m
+          [36m</p>[31m
+          [36m<ul>[31m
+            [36m<li>[31m
+              [0mSQL[0m
+              [0m [0m
+              [36m<button[31m
+                [33maria-label[31m=[32m"移除技能词 SQL"[31m
+                [33mclass[31m=[32m"text-action"[31m
+                [33mtype[31m=[32m"button"[31m
+              [36m>[31m
+                [0m移除[0m
+              [36m</button>[31m
+            [36m</li>[31m
+          [36m</ul>[31m
+        [36m</div>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m从原文补充[0m
+            [0m技能词[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+          [36m<label>[31m
+            [0m填写原文中的词[0m
+            [36m<input[31m
+              [33maria-label[31m=[32m"事实 1 原文词"[31m
+              [33mmaxlength[31m=[32m"100"[31m
+              [33mvalue[31m=[32m""[31m
+            [36m/>[31m
+          [36m</label>[31m
+          [36m<button[31m
+            [33mclass[31m=[32m"text-action"[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mtype[31m=[32m"button"[31m
+          [36m>[31m
+            [0m补充[0m
+            [0m技能词[0m
+          [36m</button>[31m
+        [36m</details>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"text-action"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m移除事实 [0m
+          [0m1[0m
+        [36m</button>[31m
+      [36m</fieldset>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"text-action"[31m
+        [33mtype[31m=[32m"button"[31m
+      [36m>[31m
+        [0m添加事实[0m
+      [36m</button>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"material-actions"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mdisabled[31m=[32m""[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m确认这些事实[0m
+        [36m</button>[31m
+        [36m<span[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0m正在保存核对修改…[0m
+        [36m</span>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m107:21[22m[39m
+    [90m105|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"单独核对能力建议"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m106|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/SQL · 不确定/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m107|[39m       expect(screen.getByText(guided, { selector: "blockquote" })).toB…
+    [90m   |[39m                     [31m^[39m
+    [90m108|[39m       [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m109|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: If I tested SQL under supervision, I would document it.
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: I tested SQL under supervision.
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"material-review"[31m
+    [36m>[31m
+      [36m<h3>[31m
+        [0m核对资料事实[0m
+      [36m</h3>[31m
+      [36m<p>[31m
+        [0m修改或移除不准确的内容。确认事实不会自动修改能力自评。[0m
+      [36m</p>[31m
+      [36m<fieldset[31m
+        [33mclass[31m=[32m"material-fact"[31m
+      [36m>[31m
+        [36m<legend>[31m
+          [0m事实 [0m
+          [0m1[0m
+        [36m</legend>[31m
+        [36m<label>[31m
+          [0m信息类型[0m
+          [36m<select[31m
+            [33maria-label[31m=[32m"事实 1 信息类型"[31m
+          [36m>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"experience"[31m
+            [36m>[31m
+              [0m经历[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"skill-claim"[31m
+            [36m>[31m
+              [0m技能描述[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"requirement"[31m
+            [36m>[31m
+              [0m建议或学习要求[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"constraint"[31m
+            [36m>[31m
+              [0m其他约束[0m
+            [36m</option>[31m
+          [36m</select>[31m
+        [36m</label>[31m
+        [36m<label>[31m
+          [0m内容[0m
+          [36m<textarea[31m
+            [33maria-label[31m=[32m"事实 1"[31m
+            [33mmaxlength[31m=[32m"1000"[31m
+          [36m>[31m
+            [0mIf I tested SQL under supervision, I would document it.[0m
+          [36m</textarea>[31m
+        [36m</label>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m查看原文依据[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+        [36m</details>[31m
+        [36m<div>[31m
+          [36m<p>[31m
+            [0m随事实确认的技能词[0m
+          [36m</p>[31m
+          [36m<ul>[31m
+            [36m<li>[31m
+              [0mSQL[0m
+              [0m [0m
+              [36m<button[31m
+                [33maria-label[31m=[32m"移除技能词 SQL"[31m
+                [33mclass[31m=[32m"text-action"[31m
+                [33mtype[31m=[32m"button"[31m
+              [36m>[31m
+                [0m移除[0m
+              [36m</button>[31m
+            [36m</li>[31m
+          [36m</ul>[31m
+        [36m</div>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m从原文补充[0m
+            [0m技能词[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+          [36m<label>[31m
+            [0m填写原文中的词[0m
+            [36m<input[31m
+              [33maria-label[31m=[32m"事实 1 原文词"[31m
+              [33mmaxlength[31m=[32m"100"[31m
+              [33mvalue[31m=[32m""[31m
+            [36m/>[31m
+          [36m</label>[31m
+          [36m<button[31m
+            [33mclass[31m=[32m"text-action"[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mtype[31m=[32m"button"[31m
+          [36m>[31m
+            [0m补充[0m
+            [0m技能词[0m
+          [36m</button>[31m
+        [36m</details>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"text-action"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m移除事实 [0m
+          [0m1[0m
+        [36m</button>[31m
+      [36m</fieldset>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"text-action"[31m
+        [33mtype[31m=[32m"button"[31m
+      [36m>[31m
+        [0m添加事实[0m
+      [36m</button>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"material-actions"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mdisabled[31m=[32m""[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m确认这些事实[0m
+        [36m</button>[31m
+        [36m<span[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0m正在保存核对修改…[0m
+        [36m</span>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m107:21[22m[39m
+    [90m105|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"单独核对能力建议"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m106|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/SQL · 不确定/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m107|[39m       expect(screen.getByText(guided, { selector: "blockquote" })).toB…
+    [90m   |[39m                     [31m^[39m
+    [90m108|[39m       [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m109|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I did not test SQL under supervision.
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: I tested SQL under supervision.
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"material-review"[31m
+    [36m>[31m
+      [36m<h3>[31m
+        [0m核对资料事实[0m
+      [36m</h3>[31m
+      [36m<p>[31m
+        [0m修改或移除不准确的内容。确认事实不会自动修改能力自评。[0m
+      [36m</p>[31m
+      [36m<fieldset[31m
+        [33mclass[31m=[32m"material-fact"[31m
+      [36m>[31m
+        [36m<legend>[31m
+          [0m事实 [0m
+          [0m1[0m
+        [36m</legend>[31m
+        [36m<label>[31m
+          [0m信息类型[0m
+          [36m<select[31m
+            [33maria-label[31m=[32m"事实 1 信息类型"[31m
+          [36m>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"experience"[31m
+            [36m>[31m
+              [0m经历[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"skill-claim"[31m
+            [36m>[31m
+              [0m技能描述[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"requirement"[31m
+            [36m>[31m
+              [0m建议或学习要求[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"constraint"[31m
+            [36m>[31m
+              [0m其他约束[0m
+            [36m</option>[31m
+          [36m</select>[31m
+        [36m</label>[31m
+        [36m<label>[31m
+          [0m内容[0m
+          [36m<textarea[31m
+            [33maria-label[31m=[32m"事实 1"[31m
+            [33mmaxlength[31m=[32m"1000"[31m
+          [36m>[31m
+            [0mI did not test SQL under supervision.[0m
+          [36m</textarea>[31m
+        [36m</label>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m查看原文依据[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+        [36m</details>[31m
+        [36m<div>[31m
+          [36m<p>[31m
+            [0m随事实确认的技能词[0m
+          [36m</p>[31m
+          [36m<ul>[31m
+            [36m<li>[31m
+              [0mSQL[0m
+              [0m [0m
+              [36m<button[31m
+                [33maria-label[31m=[32m"移除技能词 SQL"[31m
+                [33mclass[31m=[32m"text-action"[31m
+                [33mtype[31m=[32m"button"[31m
+              [36m>[31m
+                [0m移除[0m
+              [36m</button>[31m
+            [36m</li>[31m
+          [36m</ul>[31m
+        [36m</div>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m从原文补充[0m
+            [0m技能词[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+          [36m<label>[31m
+            [0m填写原文中的词[0m
+            [36m<input[31m
+              [33maria-label[31m=[32m"事实 1 原文词"[31m
+              [33mmaxlength[31m=[32m"100"[31m
+              [33mvalue[31m=[32m""[31m
+            [36m/>[31m
+          [36m</label>[31m
+          [36m<button[31m
+            [33mclass[31m=[32m"text-action"[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mtype[31m=[32m"button"[31m
+          [36m>[31m
+            [0m补充[0m
+            [0m技能词[0m
+          [36m</button>[31m
+        [36m</details>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"text-action"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m移除事实 [0m
+          [0m1[0m
+        [36m</button>[31m
+      [36m</fieldset>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"text-action"[31m
+        [33mtype[31m=[32m"button"[31m
+      [36m>[31m
+        [0m添加事实[0m
+      [36m</button>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"material-actions"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mdisabled[31m=[32m""[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m确认这些事实[0m
+        [36m</button>[31m
+        [36m<span[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0m正在保存核对修改…[0m
+        [36m</span>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m107:21[22m[39m
+    [90m105|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"单独核对能力建议"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m106|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/SQL · 不确定/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m107|[39m       expect(screen.getByText(guided, { selector: "blockquote" })).toB…
+    [90m   |[39m                     [31m^[39m
+    [90m108|[39m       [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m109|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: The example says ‘I tested SQL under supervision.’
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: I tested SQL under supervision.
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"material-review"[31m
+    [36m>[31m
+      [36m<h3>[31m
+        [0m核对资料事实[0m
+      [36m</h3>[31m
+      [36m<p>[31m
+        [0m修改或移除不准确的内容。确认事实不会自动修改能力自评。[0m
+      [36m</p>[31m
+      [36m<fieldset[31m
+        [33mclass[31m=[32m"material-fact"[31m
+      [36m>[31m
+        [36m<legend>[31m
+          [0m事实 [0m
+          [0m1[0m
+        [36m</legend>[31m
+        [36m<label>[31m
+          [0m信息类型[0m
+          [36m<select[31m
+            [33maria-label[31m=[32m"事实 1 信息类型"[31m
+          [36m>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"experience"[31m
+            [36m>[31m
+              [0m经历[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"skill-claim"[31m
+            [36m>[31m
+              [0m技能描述[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"requirement"[31m
+            [36m>[31m
+              [0m建议或学习要求[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"constraint"[31m
+            [36m>[31m
+              [0m其他约束[0m
+            [36m</option>[31m
+          [36m</select>[31m
+        [36m</label>[31m
+        [36m<label>[31m
+          [0m内容[0m
+          [36m<textarea[31m
+            [33maria-label[31m=[32m"事实 1"[31m
+            [33mmaxlength[31m=[32m"1000"[31m
+          [36m>[31m
+            [0mThe example says ‘I tested SQL under supervision.’[0m
+          [36m</textarea>[31m
+        [36m</label>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m查看原文依据[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+        [36m</details>[31m
+        [36m<div>[31m
+          [36m<p>[31m
+            [0m随事实确认的技能词[0m
+          [36m</p>[31m
+          [36m<ul>[31m
+            [36m<li>[31m
+              [0mSQL[0m
+              [0m [0m
+              [36m<button[31m
+                [33maria-label[31m=[32m"移除技能词 SQL"[31m
+                [33mclass[31m=[32m"text-action"[31m
+                [33mtype[31m=[32m"button"[31m
+              [36m>[31m
+                [0m移除[0m
+              [36m</button>[31m
+            [36m</li>[31m
+          [36m</ul>[31m
+        [36m</div>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m从原文补充[0m
+            [0m技能词[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+          [36m<label>[31m
+            [0m填写原文中的词[0m
+            [36m<input[31m
+              [33maria-label[31m=[32m"事实 1 原文词"[31m
+              [33mmaxlength[31m=[32m"100"[31m
+              [33mvalue[31m=[32m""[31m
+            [36m/>[31m
+          [36m</label>[31m
+          [36m<button[31m
+            [33mclass[31m=[32m"text-action"[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mtype[31m=[32m"button"[31m
+          [36m>[31m
+            [0m补充[0m
+            [0m技能词[0m
+          [36m</button>[31m
+        [36m</details>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"text-action"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m移除事实 [0m
+          [0m1[0m
+        [36m</button>[31m
+      [36m</fieldset>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"text-action"[31m
+        [33mtype[31m=[32m"button"[31m
+      [36m>[31m
+        [0m添加事实[0m
+      [36m</button>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"material-actions"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mdisabled[31m=[32m""[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m确认这些事实[0m
+        [36m</button>[31m
+        [36m<span[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0m正在保存核对修改…[0m
+        [36m</span>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m107:21[22m[39m
+    [90m105|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"单独核对能力建议"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m106|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/SQL · 不确定/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m107|[39m       expect(screen.getByText(guided, { selector: "blockquote" })).toB…
+    [90m   |[39m                     [31m^[39m
+    [90m108|[39m       [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m109|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I tested SQL.
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: I tested SQL under supervision.
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"material-review"[31m
+    [36m>[31m
+      [36m<h3>[31m
+        [0m核对资料事实[0m
+      [36m</h3>[31m
+      [36m<p>[31m
+        [0m修改或移除不准确的内容。确认事实不会自动修改能力自评。[0m
+      [36m</p>[31m
+      [36m<fieldset[31m
+        [33mclass[31m=[32m"material-fact"[31m
+      [36m>[31m
+        [36m<legend>[31m
+          [0m事实 [0m
+          [0m1[0m
+        [36m</legend>[31m
+        [36m<label>[31m
+          [0m信息类型[0m
+          [36m<select[31m
+            [33maria-label[31m=[32m"事实 1 信息类型"[31m
+          [36m>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"experience"[31m
+            [36m>[31m
+              [0m经历[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"skill-claim"[31m
+            [36m>[31m
+              [0m技能描述[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"requirement"[31m
+            [36m>[31m
+              [0m建议或学习要求[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"constraint"[31m
+            [36m>[31m
+              [0m其他约束[0m
+            [36m</option>[31m
+          [36m</select>[31m
+        [36m</label>[31m
+        [36m<label>[31m
+          [0m内容[0m
+          [36m<textarea[31m
+            [33maria-label[31m=[32m"事实 1"[31m
+            [33mmaxlength[31m=[32m"1000"[31m
+          [36m>[31m
+            [0mI tested SQL.[0m
+          [36m</textarea>[31m
+        [36m</label>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m查看原文依据[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+        [36m</details>[31m
+        [36m<div>[31m
+          [36m<p>[31m
+            [0m随事实确认的技能词[0m
+          [36m</p>[31m
+          [36m<ul>[31m
+            [36m<li>[31m
+              [0mSQL[0m
+              [0m [0m
+              [36m<button[31m
+                [33maria-label[31m=[32m"移除技能词 SQL"[31m
+                [33mclass[31m=[32m"text-action"[31m
+                [33mtype[31m=[32m"button"[31m
+              [36m>[31m
+                [0m移除[0m
+              [36m</button>[31m
+            [36m</li>[31m
+          [36m</ul>[31m
+        [36m</div>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m从原文补充[0m
+            [0m技能词[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+          [36m<label>[31m
+            [0m填写原文中的词[0m
+            [36m<input[31m
+              [33maria-label[31m=[32m"事实 1 原文词"[31m
+              [33mmaxlength[31m=[32m"100"[31m
+              [33mvalue[31m=[32m""[31m
+            [36m/>[31m
+          [36m</label>[31m
+          [36m<button[31m
+            [33mclass[31m=[32m"text-action"[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mtype[31m=[32m"button"[31m
+          [36m>[31m
+            [0m补充[0m
+            [0m技能词[0m
+          [36m</button>[31m
+        [36m</details>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"text-action"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m移除事实 [0m
+          [0m1[0m
+        [36m</button>[31m
+      [36m</fieldset>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"text-action"[31m
+        [33mtype[31m=[32m"button"[31m
+      [36m>[31m
+        [0m添加事实[0m
+      [36m</button>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"material-actions"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mdisabled[31m=[32m""[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m确认这些事实[0m
+        [36m</button>[31m
+        [36m<span[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0m正在保存核对修改…[0m
+        [36m</span>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m107:21[22m[39m
+    [90m105|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"单独核对能力建议"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m106|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/SQL · 不确定/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m107|[39m       expect(screen.getByText(guided, { selector: "blockquote" })).toB…
+    [90m   |[39m                     [31m^[39m
+    [90m108|[39m       [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m109|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/components/material-confirmation-source.test.tsx[2m > [22medited material self-assessment suggestions[2m > [22mhides the unsupported grounded-skill-labels-v2 suggestion on the edit render: I cannot independently test SQL.
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: I tested SQL under supervision.
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+Ignored nodes: comments, script, style
+[36m<blockquote>[31m
+  [0mI tested SQL under supervision.[0m
+[36m</blockquote>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"material-review"[31m
+    [36m>[31m
+      [36m<h3>[31m
+        [0m核对资料事实[0m
+      [36m</h3>[31m
+      [36m<p>[31m
+        [0m修改或移除不准确的内容。确认事实不会自动修改能力自评。[0m
+      [36m</p>[31m
+      [36m<fieldset[31m
+        [33mclass[31m=[32m"material-fact"[31m
+      [36m>[31m
+        [36m<legend>[31m
+          [0m事实 [0m
+          [0m1[0m
+        [36m</legend>[31m
+        [36m<label>[31m
+          [0m信息类型[0m
+          [36m<select[31m
+            [33maria-label[31m=[32m"事实 1 信息类型"[31m
+          [36m>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"experience"[31m
+            [36m>[31m
+              [0m经历[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"skill-claim"[31m
+            [36m>[31m
+              [0m技能描述[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"requirement"[31m
+            [36m>[31m
+              [0m建议或学习要求[0m
+            [36m</option>[31m
+            [36m<option[31m
+              [33mvalue[31m=[32m"constraint"[31m
+            [36m>[31m
+              [0m其他约束[0m
+            [36m</option>[31m
+          [36m</select>[31m
+        [36m</label>[31m
+        [36m<label>[31m
+          [0m内容[0m
+          [36m<textarea[31m
+            [33maria-label[31m=[32m"事实 1"[31m
+            [33mmaxlength[31m=[32m"1000"[31m
+          [36m>[31m
+            [0mI cannot independently test SQL.[0m
+          [36m</textarea>[31m
+        [36m</label>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m查看原文依据[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+        [36m</details>[31m
+        [36m<div>[31m
+          [36m<p>[31m
+            [0m随事实确认的技能词[0m
+          [36m</p>[31m
+          [36m<ul>[31m
+            [36m<li>[31m
+              [0mSQL[0m
+              [0m [0m
+              [36m<button[31m
+                [33maria-label[31m=[32m"移除技能词 SQL"[31m
+                [33mclass[31m=[32m"text-action"[31m
+                [33mtype[31m=[32m"button"[31m
+              [36m>[31m
+                [0m移除[0m
+              [36m</button>[31m
+            [36m</li>[31m
+          [36m</ul>[31m
+        [36m</div>[31m
+        [36m<details>[31m
+          [36m<summary>[31m
+            [0m从原文补充[0m
+            [0m技能词[0m
+          [36m</summary>[31m
+          [36m<blockquote>[31m
+            [0mI tested SQL under supervision.[0m
+          [36m</blockquote>[31m
+          [36m<label>[31m
+            [0m填写原文中的词[0m
+            [36m<input[31m
+              [33maria-label[31m=[32m"事实 1 原文词"[31m
+              [33mmaxlength[31m=[32m"100"[31m
+              [33mvalue[31m=[32m""[31m
+            [36m/>[31m
+          [36m</label>[31m
+          [36m<button[31m
+            [33mclass[31m=[32m"text-action"[31m
+            [33mdisabled[31m=[32m""[31m
+            [33mtype[31m=[32m"button"[31m
+          [36m>[31m
+            [0m补充[0m
+            [0m技能词[0m
+          [36m</button>[31m
+        [36m</details>[31m
+        [36m<button[31m
+          [33mclass[31m=[32m"text-action"[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m移除事实 [0m
+          [0m1[0m
+        [36m</button>[31m
+      [36m</fieldset>[31m
+      [36m<button[31m
+        [33mclass[31m=[32m"text-action"[31m
+        [33mtype[31m=[32m"button"[31m
+      [36m>[31m
+        [0m添加事实[0m
+      [36m</button>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"material-actions"[31m
+      [36m>[31m
+        [36m<button[31m
+          [33mdisabled[31m=[32m""[31m
+          [33mtype[31m=[32m"button"[31m
+        [36m>[31m
+          [0m确认这些事实[0m
+        [36m</button>[31m
+        [36m<span[31m
+          [33mrole[31m=[32m"status"[31m
+        [36m>[31m
+          [0m正在保存核对修改…[0m
+        [36m</span>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/components/material-confirmation-source.test.tsx:[2m107:21[22m[39m
+    [90m105|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"单独核对能力建议"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m106|[39m       [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([36m/SQL · 不确定/[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m107|[39m       expect(screen.getByText(guided, { selector: "blockquote" })).toB…
+    [90m   |[39m                     [31m^[39m
+    [90m108|[39m       [34mexpect[39m(adopted)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m109|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m94 passed[39m[22m[90m (101)[39m
+[2m   Start at [22m 18:02:11
+[2m   Duration [22m 1.90s[2m (transform 376ms, setup 716ms, import 720ms, tests 1.26s, environment 1.82s)[22m
+

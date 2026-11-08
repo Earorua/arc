@@ -1,0 +1,25 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: edited-assessment-shared-native-20261108-c-results.json
++ actual - expected
+
++ 'edited-assessment-shared-native-parity'
+- 'PASS'
+
+    at file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit.mjs:109:10
+    at Array.map (<anonymous>)
+    at file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit.mjs:107:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'edited-assessment-shared-native-parity',
+  expected: 'PASS',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.1

@@ -1,0 +1,382 @@
+[
+  {
+    "kind": "pure",
+    "text": "按指导完成不了 SQL 组件练习",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 SQL 组件练习是我下周的计划。",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 SQL 组件练习的计划尚未执行。",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 SQL 组件练习后，我记录了结果。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 SQL 组件练习，明天计划阅读 CSS 文档。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 SQL 组件练习，但我无法完成 CSS 页面。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成不了 SQL 组件练习",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 SQL 组件练习是我下周的计划。",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 SQL 组件练习的计划尚未执行。",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 SQL 组件练习后，我记录了结果。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 SQL 组件练习，明天计划阅读 CSS 文档。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 SQL 组件练习，但我无法完成 CSS 页面。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成不了 SQL 组件练习",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 SQL 组件练习是我下周的计划。",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 SQL 组件练习的计划尚未执行。",
+    "label": "SQL",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 SQL 组件练习后，我记录了结果。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 SQL 组件练习，明天计划阅读 CSS 文档。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 SQL 组件练习，但我无法完成 CSS 页面。",
+    "label": "SQL",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成不了 React.js 组件练习",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 React.js 组件练习是我下周的计划。",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 React.js 组件练习的计划尚未执行。",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 React.js 组件练习后，我记录了结果。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 React.js 组件练习，明天计划阅读 CSS 文档。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按指导完成 React.js 组件练习，但我无法完成 CSS 页面。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成不了 React.js 组件练习",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 React.js 组件练习是我下周的计划。",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 React.js 组件练习的计划尚未执行。",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 React.js 组件练习后，我记录了结果。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 React.js 组件练习，明天计划阅读 CSS 文档。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "按照指导完成 React.js 组件练习，但我无法完成 CSS 页面。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成不了 React.js 组件练习",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 React.js 组件练习是我下周的计划。",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 React.js 组件练习的计划尚未执行。",
+    "label": "React.js",
+    "expected": false,
+    "shared": false,
+    "worker": null,
+    "retainedHintCount": 0
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 React.js 组件练习后，我记录了结果。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 React.js 组件练习，明天计划阅读 CSS 文档。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "pure",
+    "text": "在导师指导下完成 React.js 组件练习，但我无法完成 CSS 页面。",
+    "label": "React.js",
+    "expected": true,
+    "shared": true,
+    "worker": "guided",
+    "retainedHintCount": 1
+  },
+  {
+    "kind": "panel-http-save-reload",
+    "text": "按指导完成 React.js 组件练习是我下周的计划。",
+    "expected": false,
+    "immediatelyShown": false,
+    "requestHintCount": 0,
+    "savedHintCount": 0,
+    "reloadedShown": false,
+    "revision": 1,
+    "sourcePreserved": true,
+    "adoptedCalls": 0,
+    "syntheticProviderCalls": 1,
+    "realModelCalls": 0
+  },
+  {
+    "kind": "panel-http-save-reload",
+    "text": "按指导完成 React.js 组件练习的计划尚未执行。",
+    "expected": false,
+    "immediatelyShown": false,
+    "requestHintCount": 0,
+    "savedHintCount": 0,
+    "reloadedShown": false,
+    "revision": 1,
+    "sourcePreserved": true,
+    "adoptedCalls": 0,
+    "syntheticProviderCalls": 1,
+    "realModelCalls": 0
+  },
+  {
+    "kind": "panel-http-save-reload",
+    "text": "按指导完成不了 React.js 组件练习",
+    "expected": false,
+    "immediatelyShown": false,
+    "requestHintCount": 0,
+    "savedHintCount": 0,
+    "reloadedShown": false,
+    "revision": 1,
+    "sourcePreserved": true,
+    "adoptedCalls": 0,
+    "syntheticProviderCalls": 1,
+    "realModelCalls": 0
+  },
+  {
+    "kind": "panel-http-save-reload",
+    "text": "按指导完成 React.js 组件练习，明天计划阅读 CSS 文档。",
+    "expected": true,
+    "immediatelyShown": true,
+    "requestHintCount": 1,
+    "savedHintCount": 1,
+    "reloadedShown": true,
+    "revision": 1,
+    "sourcePreserved": true,
+    "adoptedCalls": 0,
+    "syntheticProviderCalls": 1,
+    "realModelCalls": 0
+  }
+]

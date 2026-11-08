@@ -1,0 +1,154 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { stripVTControlCharacters } from "node:util";
+
+const folder = "work/grounded-verification/";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const read = path => readFileSync(path);
+const json = path => JSON.parse(read(path).toString("utf8"));
+const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }).trim();
+const head = git("rev-parse", "HEAD");
+assert.equal(head, "113a9c5775433b8a07006c20b8ebab5809954f8c");
+git("diff", "--exit-code", head, "--", ".", ":(exclude)docs/**");
+git("diff", "--check", "80546d0", head);
+git("diff", "--exit-code", "7fbb79abac39a02be1933782fe83250d466975e8", head, "--",
+  "worker/document-executor/source-review-evidence.ts", "app/lib/materials/quotation-evidence.ts", "app/contracts",
+  "worker/document-executor/source-statements.ts", "app/lib/materials/skill-mapper.ts", "tests/components/materials-ai-flow.test.tsx");
+git("diff", "--exit-code", "80546d0", head, "--", "docs/verification/materials-quality-v2");
+
+const sourceFreeze = json(folder + "edited-assessment-quality-recheck-20261108-source-before.json");
+for (const { file, sha256 } of sourceFreeze) assert.equal(sha(read(file)), sha256, file);
+const snapshotPath = folder + "edited-assessment-snapshot-20261108-b-results.json";
+const snapshot = json(snapshotPath);
+assert.equal(snapshot.sourceFileCount, 999);
+assert.equal(snapshot.manifestSha256, "24bf6586f377e79cacf7f65b73a43bd70c514a7bbebb08229ece9a30ce0446fa");
+assert.equal(sha(JSON.stringify(snapshot.filesSha256)), snapshot.manifestSha256);
+
+const approvalPins = {
+  "edited-assessment-spec-20261108-recheck2-memo.md": "97c5816c241061033f13d5cd4f52ba43b1de04e1623ae6ed604ab995b099c064",
+  "edited-assessment-quality-20261108-recheck-memo.md": "9f3785c3cdb2c8bc612bfe7c2673fe9b74aa5e447b8aa4463418725b47fc236c",
+  "edited-assessment-punctuation-repair-20261108-handoff.md": "c0fd9f5ff53485e8dc64a88edc356475a6145b86323448e7b94d96a6c7615b60",
+  "edited-assessment-quality-20261108-memo.md": "4088b90ede3416c1ffeccf2ce6a226ac7239211dac30f9d2a348db747011fc91",
+  "edited-assessment-spec-20261108-recheck-memo.md": "706e27270588c551605670d0a7043b6d92a589e23e7a4151234045a3cfd65d4b",
+};
+for (const [path, expected] of Object.entries(approvalPins)) assert.equal(sha(read(folder + path)), expected, path);
+
+const copyPairs = [
+  ["edited-assessment-quality-20261108-red-probes.test.tsx", "edited-assessment-quality-recheck-20261108-original-probes.test.tsx",
+    "edited-assessment-quality-20261108-red-probe-results.json", "edited-assessment-quality-recheck-20261108-original-probe-results.json"],
+  ["edited-assessment-spec-recheck-20261108-boundaries.test.tsx", "edited-assessment-spec-recheck2-20261108-boundaries.test.tsx",
+    "edited-assessment-spec-recheck-20261108-boundary-results.json", "edited-assessment-spec-recheck2-20261108-boundary-results.json"],
+  ["edited-assessment-spec-recheck-20261108-boundaries.test.tsx", "edited-assessment-quality-recheck-20261108-dotted-probes.test.tsx",
+    "edited-assessment-spec-recheck-20261108-boundary-results.json", "edited-assessment-quality-recheck-20261108-dotted-probe-results.json"],
+];
+const exactProbeCopies = copyPairs.map(([original, copied, oldOutput, newOutput]) => {
+  const oldText = read(folder + original).toString("utf8"), newText = read(folder + copied).toString("utf8");
+  assert.equal(newText.split(newOutput).length - 1, 1, copied);
+  assert.equal(newText.replace(newOutput, oldOutput), oldText, copied);
+  return { original, copied, outputPathOnlyChanged: true, originalSha256: sha(read(folder + original)), copiedSha256: sha(read(folder + copied)) };
+});
+
+const passes = [
+  "shared-assessment-spec-20261108-focused-a", "shared-assessment-spec-20261108-source-check-a",
+  "shared-assessment-quality-20261108-focused-a", "shared-assessment-quality-20261108-lint-a",
+  "edited-assessment-punctuation-repair-20261108-regressions-01",
+  "edited-assessment-spec-recheck2-20261108-focused-01", "edited-assessment-quality-recheck-20261108-focused-01",
+  "edited-assessment-quality-recheck-20261108-lint-01", "edited-assessment-root-focused-20261108-c",
+  "edited-assessment-root-guidance-20261108-repaired", "edited-assessment-root-action-boundary-20261108-green",
+  "edited-assessment-shared-native-20261108-c", "edited-assessment-root-native-20261108-repaired",
+  "edited-assessment-root-ui-20261108-repaired", "edited-assessment-course-binding-20261108-a",
+  "edited-assessment-full-unit-20261108-b", "edited-assessment-full-node-20261108-b",
+  "edited-assessment-full-serial-20261108-b", "edited-assessment-full-research-20261108-b",
+  "edited-assessment-full-types-20261108-b", "edited-assessment-full-lint-20261108-b",
+  "edited-assessment-build-20261108-b", "edited-assessment-render-20261108-b",
+  "edited-assessment-final-source-check-20261108-b", "edited-assessment-integrity-20261108-b",
+  "edited-assessment-final-review-20261108-snapshot-01",
+];
+const preservedFailures = [
+  "edited-assessment-quality-20261108-focused-01", "edited-assessment-spec-recheck-20261108-focused-01",
+  "edited-assessment-punctuation-repair-20261108-red-01", "edited-assessment-punctuation-repair-20261108-red-02",
+];
+function auditRun(name, expectedExit) {
+  const meta = json(folder + name + ".json"), log = read(folder + name + ".log");
+  assert.equal(meta.name, name);
+  assert.equal(meta.exit, expectedExit, name);
+  assert.equal(meta.nonLoopbackDenials, 0, name);
+  assert.equal(meta.logSha256, sha(log), name);
+  const plain = stripVTControlCharacters(log.toString("utf8"));
+  return { name, exit: meta.exit, nonLoopbackDenials: meta.nonLoopbackDenials, logSha256: meta.logSha256,
+    testSummaries: [...plain.matchAll(/(?:Test Files|Tests)\s+[^\r\n]+|(?:#|ℹ) (?:tests|pass|fail|skipped) \d+/gu)].map(match => match[0]) };
+}
+const verifiedRuns = passes.map(name => auditRun(name, 0));
+const failedRuns = preservedFailures.map(name => auditRun(name, 1));
+
+const expectedSuitePaths = git("ls-files", "tests").split(/\r?\n/u).filter(path => /\.test\.(?:ts|tsx)$/u.test(path)).sort();
+const suiteGroups = ["unit", "serial", "research"].map(group => {
+  const name = `edited-assessment-full-${group}-20261108-b`;
+  const plain = stripVTControlCharacters(read(folder + name + ".log").toString("utf8"));
+  const paths = [...plain.matchAll(/^\s*✓\s+(tests\/[^\s]+\.test\.(?:ts|tsx))\s+\(/gmu)].map(match => match[1]);
+  const summary = /Test Files\s+(\d+) passed \((\d+)\)[\s\S]*?Tests\s+(\d+) passed \((\d+)\)/u.exec(plain);
+  assert.ok(summary, name);
+  assert.equal(Number(summary[1]), Number(summary[2]), name);
+  assert.equal(Number(summary[3]), Number(summary[4]), name);
+  assert.equal(paths.length, Number(summary[1]), name);
+  return { name, files: paths.length, passedTests: Number(summary[3]), paths };
+});
+const allExecutedSuitePaths = suiteGroups.flatMap(group => group.paths).sort();
+assert.equal(new Set(allExecutedSuitePaths).size, allExecutedSuitePaths.length, "Full Vitest partitions must not overlap");
+assert.deepEqual(allExecutedSuitePaths, expectedSuitePaths, "Full Vitest partitions must cover every normal tracked suite");
+const vitestCoverage = { normalSuiteFiles: expectedSuitePaths.length, uniqueExecutedFiles: allExecutedSuitePaths.length,
+  passedTests: suiteGroups.reduce((total, group) => total + group.passedTests, 0), groups: suiteGroups };
+
+const nativeAssociations = [
+  ["edited-assessment-native-20261108-repaired-results.json", 24, "PASS"],
+  ["edited-assessment-shared-native-20261108-c-results.json", 81, "edited-assessment-shared-native-parity"],
+].map(([path, expectedCases, expectedStatus]) => {
+  const result = json(folder + path);
+  assert.equal(result.status, expectedStatus, path);
+  assert.equal(result.observations.length, expectedCases, path);
+  if (expectedStatus === "edited-assessment-shared-native-parity") assert.equal(result.nativeMatches, expectedCases, path);
+  assert.equal(result.cases, expectedCases, path);
+  assert.equal(result.realModelCalls, 0, path);
+  assert.equal(result.outboundCalls, 0, path);
+  for (const [input, expected] of Object.entries(result.inputs)) assert.equal(sha(read(input)), expected, input);
+  return { path, sha256: sha(read(folder + path)), cases: result.cases, inputCount: Object.keys(result.inputs).length, allInputBytesMatch: true };
+});
+
+const integrityPath = folder + "edited-assessment-integrity-20261108-b-results.json";
+assert.equal(sha(read(integrityPath)), "343074407d2a01cb0d4fdcfad47c52f3bbf36524a8e1aae0318808acb730107f");
+const integrity = json(integrityPath);
+assert.equal(integrity.status, "source-and-frozen-reference-byte-checks-pass");
+assert.equal(integrity.sourceSnapshot.manifestSha256, snapshot.manifestSha256);
+assert.equal(integrity.sourceSnapshot.sha256, sha(read(snapshotPath)));
+assert.equal(integrity.frozenReferenceCount, 26);
+for (const [path, expected] of Object.entries(integrity.frozenReferenceSha256)) assert.equal(sha(read(path)), expected, path);
+assert.equal(sha(read(integrity.unchangedApprovedSpec)), "5d978e38d1c3b4a85eb83327e800df2c561aef598a63edc6c61c433acba21822");
+const course = json(integrity.courseCapture.path);
+assert.equal(integrity.courseCapture.sha256, sha(read(integrity.courseCapture.path)));
+assert.equal(course.dependencies.length, 85);
+for (const dependency of course.dependencies) assert.equal(sha(read(dependency.path)), dependency.sha256, dependency.path);
+const binding = json(folder + "edited-assessment-course-binding-20261108-results.json");
+for (const key of ["fullObjectsEqual", "sourceFilesEqual", "inventoryEqual", "legacyEvaluatorRejectsCurrentSource"]) assert.equal(binding[key], true, key);
+for (const key of ["newCandidateReferenceApproved", "realModelQualificationPassed", "gatePassed"]) assert.equal(binding[key], false, key);
+
+const report = "docs/verification/2026-11-08-materials-edited-assessment-hints.md";
+const plan = "docs/superpowers/plans/2026-11-08-materials-edited-assessment-hints.md";
+const commands = folder + "edited-assessment-final-commands-20261108.md";
+assert.equal(sha(read(report)), "ca5ec61918014bfb44d5805454e27d26bd3d2c7a4491141f51052ef5770c689b");
+assert.equal(sha(read(commands)), "ecbe7a0094741af4c3e226e770738d35696a6cf4f1a31559d8202f0d366f4bf6");
+const result = {
+  status: "PASS", reviewer: "independent final integration review", sourceHead: head, integrationBase: "80546d0",
+  scope: "read-only source and evidence association; no new behavioral test run", sourceFreeze,
+  snapshot: { path: snapshotPath, sha256: sha(read(snapshotPath)), files: snapshot.sourceFileCount, manifestSha256: snapshot.manifestSha256 },
+  approvalPins, exactProbeCopies, verifiedRuns, preservedFailures: failedRuns, vitestCoverage, nativeAssociations,
+  integrity: { path: integrityPath, sha256: sha(read(integrityPath)), frozenReferences: 26, approvedSpecUnchanged: true, currentCourseDependencies: 85, newCourseBindingApproved: false },
+  report: { path: report, sha256: sha(read(report)) }, plan: { path: plan, sha256: sha(read(plan)) }, commands: { path: commands, sha256: sha(read(commands)) },
+};
+const output = folder + "edited-assessment-final-review-20261108-evidence-audit-02-results.json";
+writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, sourceHead: head, sourceFiles: snapshot.sourceFileCount,
+  passLogsVerified: verifiedRuns.length, preservedFailureLogsVerified: failedRuns.length,
+  fullVitestFiles: vitestCoverage.normalSuiteFiles, fullVitestTests: vitestCoverage.passedTests, nativeInputsVerified: nativeAssociations.map(row => row.inputCount),
+  frozenReferences: 26, courseDependencies: 85, exactProbeCopies: exactProbeCopies.length, output }));

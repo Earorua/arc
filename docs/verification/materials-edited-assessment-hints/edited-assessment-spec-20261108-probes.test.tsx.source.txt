@@ -1,0 +1,106 @@
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { GROUNDED_MATERIAL_REVIEW_PROJECTION as v2, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../app/contracts/documents";
+import { retainedMaterialSelfAssessmentHints as retain } from "../../app/lib/materials/skill-labels";
+import { supportsMaterialSelfLevelHint as supports } from "../../app/lib/materials/self-assessment-evidence";
+import { MaterialConfirmation } from "../../app/components/materials/material-confirmation";
+import { groundSourceSelfLevelHint } from "../../worker/document-executor/source-review-evidence";
+
+const sql = { id: "old-sql", candidateId: "f", skillLabel: "SQL", level: "guided" as const };
+const react = { id: "old-react", candidateId: "f", skillLabel: "React", level: "conceptual" as const };
+const ref = { documentId: "doc", documentVersionId: "version", textVersionId: "text", start: 0, end: 31 };
+function fact(text: string, edits: Partial<ConfirmedMaterialItem> = {}): ConfirmedMaterialItem {
+  return { id: "f", kind: "experience", text, origin: "user", sourceRef: ref, skillLabels: ["SQL"], requirementLevel: null, ...edits };
+}
+
+afterEach(cleanup);
+describe("independent spec boundary probes", () => {
+  it.each([undefined, v2])("retains independent original levels in a mixed fact (%s)", projection => {
+    const item = fact("I tested SQL under supervision, but I am familiar with React.", { skillLabels: ["SQL", "React"] });
+    const hints = [sql, react];
+    const before = JSON.stringify({ item, hints });
+    const result = retain([item], hints, projection);
+    expect(result).toEqual(hints);
+    expect(result[0]).toBe(sql);
+    expect(result[1]).toBe(react);
+    expect(JSON.stringify({ item, hints })).toBe(before);
+  });
+  it.each([undefined, v2])("does not promote conceptual to guided or invent uncertainty (%s)", projection => {
+    expect(retain([fact("I tested SQL under supervision.")], [{ ...sql, level: "conceptual" }], projection)).toEqual([]);
+    expect(retain([fact("I cannot independently test SQL.")], [{ ...sql, level: "uncertain" }], projection)).toEqual([]);
+    expect(retain([fact("I am unsure whether I can independently test SQL.")], [], projection)).toEqual([]);
+  });
+  it.each([undefined, v2])("requires exact retained label spelling before semantic checking (%s)", projection => {
+    expect(retain([fact("I tested SQL under supervision.", { skillLabels: ["sql"] })], [sql], projection)).toEqual([]);
+    expect(retain([fact("I tested SQL under supervision.", { skillLabels: [] })], [sql], projection)).toEqual([]);
+  });
+  it("isolates untouched legacy summaries from another item's invalid edit", () => {
+    const old = fact("Tested databases.", { origin: "extracted", skillLabels: undefined });
+    const edited = fact("My colleague is familiar with React.", { id: "g", skillLabels: ["React"] });
+    const hints = [sql, { ...react, candidateId: "g" }];
+    expect(retain([old, edited], hints)).toEqual([sql]);
+    expect(retain([{ ...old, origin: "user" }, edited], hints)).toEqual([]);
+    expect(retain([old, edited], hints, v2)).toEqual([]);
+  });
+  it("does not restore a removed suggestion after subsequent evidence restoration", () => {
+    const removed = retain([fact("I tested SQL.")], [sql], v2);
+    expect(retain([fact("I tested SQL under supervision.")], removed, v2)).toEqual([]);
+  });
+  it.each(["skill-claim", "experience", "requirement", "constraint"] as const)("applies personal kind gate: %s", kind => {
+    expect(retain([fact("I tested SQL under supervision.", { kind })], [sql], v2)).toEqual(kind === "skill-claim" || kind === "experience" ? [sql] : []);
+  });
+  it("keeps each repeated skill in its own supported task scope", () => {
+    const items = [fact("I tested SQL under supervision, but I independently tested SQL. I am familiar with React.", { skillLabels: ["SQL", "React"] })];
+    expect(retain(items, [sql], v2)).toEqual([]);
+  });
+});
+
+const allowed = [
+  "按指导完成 SQL 查询练习", "按照指导完成 SQL 查询练习", "我按指导完成 SQL 查询练习", "我按照指导完成 SQL 查询练习",
+  "按指导，我完成 SQL 查询练习", "按照指导，我完成 SQL 查询练习", "按指导,我完成 SQL 查询练习", "我按照指导，完成 SQL 查询练习",
+  "按照指导完成 ‘SQL’ 查询练习", "按指导示例完成 SQL 查询练习", "按照指导教程完成 SQL 查询练习",
+];
+const denied = [
+  "如果按指导完成 SQL 查询练习，就记录结果", "假设我按照指导完成 SQL 查询练习", "按指导，我将完成 SQL 查询练习",
+  "按照指导，我的同事完成 SQL 查询练习", "按指导，我没有完成 SQL 查询练习", "按指导,团队完成 SQL 查询练习",
+  "按照指导并未完成 SQL 查询练习", "按指导由我完成 SQL 查询练习", "按指导记录我完成 SQL 查询练习的计划",
+  "按照指导，我不曾完成 SQL 查询练习", "示例：‘按照指导完成 SQL 查询练习’", "他说：按指导完成 SQL 查询练习",
+  "按指导完成 ‘我测试 SQL’ 的记录", "按指导 SQL 查询练习", "我没有按照指导完成 SQL 查询练习",
+];
+describe("independent authorized guidance probes", () => {
+  it.each(allowed)("supports shared, retained and worker paths: %s", text => {
+    expect(supports({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(true);
+    expect(retain([fact(text)], [sql], v2)).toEqual([sql]);
+    expect(groundSourceSelfLevelHint({ kind: "experience", source: { segmentId: "s", quote: text }, skillLabels: ["SQL"], selfLevelHint: "guided" })).toBe("guided");
+  });
+  it.each(denied)("preserves direct-action, actor, denial and quotation boundaries: %s", text => {
+    expect(supports({ kind: "experience", text, labels: ["SQL"], level: "guided" })).toBe(false);
+    expect(retain([fact(text)], [sql], v2)).toEqual([]);
+    expect(groundSourceSelfLevelHint({ kind: "experience", source: { segmentId: "s", quote: text }, skillLabels: ["SQL"], selfLevelHint: "guided" })).toBeNull();
+  });
+});
+
+it("a saving edit retains only supported per-skill adoption and keeps source evidence", () => {
+  const source = "I tested SQL under supervision, but I am familiar with React.";
+  const original: DocumentReviewDraft = { id: "draft", schemaVersion: "2026.11.1", documentId: "doc", documentVersionId: "version", textVersionId: "text",
+    extractionId: "extraction", origin: "ai", revision: 0, updatedAt: "2026-11-08T00:00:00Z", reviewProjection: v2,
+    items: [fact(source, { origin: "extracted", sourceRef: { ...ref, end: source.length }, skillLabels: ["SQL", "React"] })], selfAssessmentHints: [sql, react] };
+  const adopted = vi.fn();
+  function Editor() {
+    const [draft, setDraft] = useState(original);
+    const [saving, setSaving] = useState(false);
+    return <MaterialConfirmation draft={draft} text={source} saving={saving} confirmed={false} skills={[{ id: "sql", name: "SQL" }, { id: "react", name: "React" }]}
+      onItemsChange={items => { setDraft({ ...draft, items }); setSaving(true); }} onConfirm={vi.fn()} onAdoptLevels={adopted} />;
+  }
+  render(<Editor />);
+  fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: "My colleague tested SQL under supervision, but I am familiar with React." } });
+  expect(screen.queryByRole("button", { name: "采用 SQL 的需指导完成建议" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "采用 React 的了解概念建议" })).toBeInTheDocument();
+  expect(screen.getByText("正在保存核对修改…")).toBeInTheDocument();
+  expect(screen.getAllByText(source, { selector: "blockquote" }).length).toBeGreaterThan(0);
+  expect(adopted).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "采用 React 的了解概念建议" }));
+  expect(adopted).toHaveBeenCalledExactlyOnceWith({ react: "conceptual" });
+});
+

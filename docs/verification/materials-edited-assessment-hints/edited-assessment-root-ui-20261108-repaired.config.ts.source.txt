@@ -1,0 +1,6 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+export default defineConfig({ ...base,
+  define: { "import.meta.env.ARC_EDITED_HINT_UI_RESULT": JSON.stringify("work/grounded-verification/edited-assessment-root-ui-20261108-repaired-results.json") },
+  test: { ...base.test, include: ["work/grounded-verification/edited-assessment-root-ui-20261108.test.tsx"] },
+});

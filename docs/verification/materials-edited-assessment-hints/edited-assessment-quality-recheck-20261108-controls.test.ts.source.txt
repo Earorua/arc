@@ -1,0 +1,76 @@
+// @vitest-environment node
+import { describe, expect, it } from "vitest";
+import { retainedMaterialSelfAssessmentHints as retain } from "../../app/lib/materials/skill-labels";
+import { supportsMaterialSelfLevelHint as supports } from "../../app/lib/materials/self-assessment-evidence";
+import { groundedStatementBoundaries, groundSourceReviewPoints, groundSourceSelfLevelHint } from "../../worker/document-executor/source-review-evidence";
+
+const cases: [string, string, boolean][] = [];
+for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) {
+  for (const [action, expected] of [
+    ["完成 “React.js” 组件练习是我下周的计划。", false],
+    ["完成 “React.js” 组件练习的计划尚未执行。", false],
+    ["完成 “React.js” 组件练习后，我记录了结果。", true],
+    ["完成 React.js 组件练习. 明天计划阅读 CSS 文档。", true],
+    ["完成 React.js 组件练习；明天计划阅读 CSS 文档。", true],
+    ["完成 React.js 组件练习！明天计划阅读 CSS 文档。", true],
+  ] as const) cases.push([qualifier + action, "React.js", expected]);
+}
+cases.push(
+  ["按指导示例完成不了 SQL 查询练习", "SQL", false],
+  ["按照指导教程完成 SQL 查询练习的计划尚未执行。", "SQL", false],
+  ["由老师指导完成 SQL 查询练习是我下周的计划。", "SQL", false],
+  ["按指导示例完成 SQL 查询练习后，我记录了结果。", "SQL", true],
+  ["按照指导教程完成 SQL 查询练习。明天计划阅读 CSS 文档。", "SQL", true],
+  ["由老师指导由本人完成 SQL 查询练习。", "SQL", true],
+);
+
+describe("quality recheck of bounded quoted-name and prior-qualifier compatibility", () => {
+  it.each(cases)("retains only the original supported level: %s", (text, label, expected) => {
+    const hint = {id: "h", candidateId: "f", skillLabel: label, level: "guided" as const};
+    const item = {id: "f", kind: "experience" as const, text, origin: "user" as const, sourceRef: null, requirementLevel: null, skillLabels: [label]};
+    expect(supports({kind: item.kind, text, labels: [label], level: hint.level})).toBe(expected);
+    expect(groundSourceSelfLevelHint({kind: item.kind, source: {segmentId: "s", quote: text}, skillLabels: [label], selfLevelHint: hint.level}))
+      .toBe(expected ? "guided" : null);
+    for (const projection of [undefined, "grounded-skill-labels-v2"] as const) {
+      const kept = retain([item], [hint], projection);
+      expect(kept).toEqual(expected ? [hint] : []);
+      if (expected) expect(kept[0]).toBe(hint);
+    }
+  });
+
+  it("is deterministic on alternating frozen input and never restores removed hints", () => {
+    const hint = {id: "h", candidateId: "f", skillLabel: "React.js", level: "guided" as const};
+    const hints = [hint];
+    const good = {id: "f", kind: "experience" as const, text: "按指导完成 React.js 组件练习后，我记录了结果。", origin: "user" as const,
+      sourceRef: null, requirementLevel: null, skillLabels: ["React.js"]};
+    const bad = {...good, text: "按指导完成 React.js 组件练习的计划尚未执行。"};
+    Object.freeze(hint); Object.freeze(hints); Object.freeze(good.skillLabels); Object.freeze(good); Object.freeze(bad);
+    const before = JSON.stringify({hints, good, bad});
+    for (let n = 0; n < 50; n++) {
+      const kept = retain([good], hints, "grounded-skill-labels-v2");
+      expect(kept).toEqual(hints);
+      expect(kept[0]).toBe(hint);
+      const dropped = retain([bad], hints, "grounded-skill-labels-v2");
+      expect(dropped).toEqual([]);
+      expect(retain([good], dropped, "grounded-skill-labels-v2")).toEqual([]);
+    }
+    expect(JSON.stringify({hints, good, bad})).toBe(before);
+  });
+});
+
+describe("reminder fixture remains bound to its original statement contract", () => {
+  it.each([". ", ".", "。"])("preserves exact first-statement citation at %s", separator => {
+    const first = "按指导完成 React.js 组件练习" + separator.trim();
+    const second = "阅读 CSS 文档是我下周的计划。";
+    const text = "按指导完成 React.js 组件练习" + separator + second;
+    const document = {text, segments: [{id: "s", start: 0, end: text.length}]};
+    const source = (quote: string) => ({segmentId: "s", quote});
+    const point = (quote: string) => ({code: "confirm-self-assessment" as const, source: source(quote)});
+    const compound = {kind: "experience" as const, source: source(text), skillLabels: ["React.js"], selfLevelHint: "guided" as const};
+    expect([...groundedStatementBoundaries(text)].map(([start, end]) => text.slice(start, end))).toEqual([first, second]);
+    expect(groundSourceSelfLevelHint(compound)).toBe("guided");
+    expect(groundSourceReviewPoints([point(text)], [compound], document)?.filter(p => p.code === "confirm-self-assessment")).toEqual([]);
+    expect(groundSourceReviewPoints([point(first)], [{...compound, source: source(first)}], document)?.filter(p => p.code === "confirm-self-assessment"))
+      .toEqual([point(first)]);
+  });
+});

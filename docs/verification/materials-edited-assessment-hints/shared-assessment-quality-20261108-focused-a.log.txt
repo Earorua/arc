@@ -1,0 +1,18 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [32m✓[39m tests/server/document-source-span-provider.test.ts [2m([22m[2m115 tests[22m[2m)[22m[32m 164[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-review-evidence.test.ts [2m([22m[2m381 tests[22m[2m)[22m[32m 135[2mms[22m[39m
+[90mstdout[2m | work/grounded-verification/shared-assessment-quality-20261108-probe.test.ts[2m > [22m[2mindependent Task 1 code-quality probes[2m > [22m[2msamples maximum-size facts with eight grounded labels
+[22m[39mQuality bounded timing samples [{"index":0,"utf16Length":1000,"labelCount":8,"samples":10,"meanMs":{"baseline":9.218010000000003,"shared":9.032780000000002}},{"index":1,"utf16Length":1000,"labelCount":8,"samples":10,"meanMs":{"baseline":8.958570000000009,"shared":8.775070000000005}},{"index":2,"utf16Length":1000,"labelCount":8,"samples":10,"meanMs":{"baseline":9.645229999999993,"shared":8.946639999999979}}]
+
+ [32m✓[39m work/grounded-verification/shared-assessment-quality-20261108-probe.test.ts [2m([22m[2m49 tests[22m[2m)[22m[33m 942[2mms[22m[39m
+     [33m[2m✓[22m[39m samples maximum-size facts with eight grounded labels [33m 771[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/self-assessment-evidence.test.ts [2m([22m[2m75 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-requirement-evidence.test.ts [2m([22m[2m124 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m744 passed[39m[22m[90m (744)[39m
+[2m   Start at [22m 17:55:10
+[2m   Duration [22m 5.74s[2m (transform 328ms, setup 889ms, import 760ms, tests 1.30s, environment 2.08s)[22m
+

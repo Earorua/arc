@@ -1,0 +1,2014 @@
+{
+  "schemaVersion": 1,
+  "status": "edited-assessment-hints-offline-verified",
+  "sourceCommit": "113a9c5775433b8a07006c20b8ebab5809954f8c",
+  "sourceBaseAtCapture": "fcfb6cda6ffd1f5d98e0d2d61ae4590f392abede",
+  "sourceManifest": "edited-assessment-snapshot-20261108-b-results.json",
+  "sourceFileCount": 999,
+  "sourceManifestSha256": "24bf6586f377e79cacf7f65b73a43bd70c514a7bbebb08229ece9a30ce0446fa",
+  "requiredChecks": [
+    {
+      "name": "edited-assessment-root-focused-20261108-c",
+      "exit": 0,
+      "elapsedMs": 15853,
+      "logSha256": "dd61079c166a339a96a653900a1729d3eaeb5f42a43303e5a66b06c4168f5d20",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Ie4YC7"
+    },
+    {
+      "name": "edited-assessment-root-native-20261108-repaired",
+      "exit": 0,
+      "elapsedMs": 6567,
+      "logSha256": "c14af0ca8173958420ae0f3e69ba9eb22debfcc6cc2c782a2af3f5223c3007fd",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-gi1Qrx"
+    },
+    {
+      "name": "edited-assessment-root-ui-20261108-repaired",
+      "exit": 0,
+      "elapsedMs": 3706,
+      "logSha256": "6fdd7dccc7db41d43ee407a213f1039d02c3913d8a5a1b8843e7a5436ee36e7a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-omlgpt"
+    },
+    {
+      "name": "edited-assessment-root-guidance-20261108-repaired",
+      "exit": 0,
+      "elapsedMs": 1006,
+      "logSha256": "54e2ca8495daab2203f8cc49465e5dd9860f7b9073d1b11214749754d68e63e1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-OHD9YB"
+    },
+    {
+      "name": "edited-assessment-root-action-boundary-20261108-green",
+      "exit": 0,
+      "elapsedMs": 1005,
+      "logSha256": "793ef94dd65b33f4fbfb37c001018d44e898a67f1ea6d511f9b50dcc0f91b10e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-OhZXPP"
+    },
+    {
+      "name": "edited-assessment-shared-native-20261108-c",
+      "exit": 0,
+      "elapsedMs": 888,
+      "logSha256": "3a982f8d9302885cafd22c3d9463bf35b8f8368f59b43e59f7df3a31837cb1ff",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-DbdlJi"
+    },
+    {
+      "name": "edited-assessment-full-unit-20261108-b",
+      "exit": 0,
+      "elapsedMs": 531289,
+      "logSha256": "13f3fa1ba15066b9a245aa31eb19da42c62db2a96e45347edd11992b5f203857",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-BgrsuC"
+    },
+    {
+      "name": "edited-assessment-full-serial-20261108-b",
+      "exit": 0,
+      "elapsedMs": 66148,
+      "logSha256": "e701783072b099af17c8b892697702b4debdc9fcfd4787e915d413b10f6f0033",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-zvMy7B"
+    },
+    {
+      "name": "edited-assessment-full-research-20261108-b",
+      "exit": 0,
+      "elapsedMs": 249271,
+      "logSha256": "4f8357abd06a32fef5b8569ddd973c074275c0e0836d55d9c4382e814e563c10",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-tepgGW"
+    },
+    {
+      "name": "edited-assessment-full-node-20261108-b",
+      "exit": 0,
+      "elapsedMs": 495925,
+      "logSha256": "70e48f3e829cddf22dd5bf061daa6c91335224d71b423ab3501d086e27cd2a1a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-GJBdzr"
+    },
+    {
+      "name": "edited-assessment-full-types-20261108-b",
+      "exit": 0,
+      "elapsedMs": 17085,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-tuq2qi"
+    },
+    {
+      "name": "edited-assessment-full-lint-20261108-b",
+      "exit": 0,
+      "elapsedMs": 24258,
+      "logSha256": "25c0c299a9dfed106e7d129b718ded0bb1804bce8a5d1b98e5515147db013f9e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-12P12r"
+    },
+    {
+      "name": "edited-assessment-build-20261108-b",
+      "exit": 0,
+      "elapsedMs": 6483,
+      "logSha256": "c8ca7645e4bc425ef78169c35b3134d83dae8283dc9f646791c0a8d4baca69a7",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-YkMdJl"
+    },
+    {
+      "name": "edited-assessment-render-20261108-b",
+      "exit": 0,
+      "elapsedMs": 2652,
+      "logSha256": "f80f02bd24c2326070ee3a8c493c7b38e6c12a68ba4d4954702d27aec3fb9270",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-eoTlKZ"
+    },
+    {
+      "name": "edited-assessment-course-binding-20261108-a",
+      "exit": 0,
+      "elapsedMs": 444,
+      "logSha256": "c978b5295f10d2a5b6facd7f5c397666124662aa0d91297bec8c956e586cbcf8",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-cOdQrQ"
+    },
+    {
+      "name": "edited-assessment-final-source-check-20261108-b",
+      "exit": 0,
+      "elapsedMs": 861,
+      "logSha256": "a99595916ff6429990580ade5fec13a2cb763e39d82ec5998db5bac282036c97",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-nW8RAf"
+    },
+    {
+      "name": "edited-assessment-integrity-20261108-b",
+      "exit": 0,
+      "elapsedMs": 184,
+      "logSha256": "1667f4c99c9f67901c651f54cbee0a3839358d6765ab695ea96d9d98ce18ce5d",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-5waSei"
+    }
+  ],
+  "reviews": [
+    "shared-assessment-spec-20261108-memo.md",
+    "shared-assessment-quality-20261108-memo.md",
+    "edited-assessment-spec-20261108-recheck2-memo.md",
+    "edited-assessment-quality-20261108-recheck-memo.md",
+    "edited-assessment-final-review-20261108-memo.md"
+  ],
+  "behavior": [
+    "Revalidate each original hint against current fact and its own retained skill label",
+    "Preserve unedited legacy summaries",
+    "No new hint, automatic audit adoption, or historical rewrite"
+  ],
+  "limitations": [
+    "Experience priority attribution remains a separate follow-up",
+    "New source-mention production projection not wired",
+    "Course dependency binding remains unapproved",
+    "No complete 14-scenario native acceptance",
+    "No new real model quality evaluation or release Gate"
+  ],
+  "operations": {
+    "newModelInferences": 0,
+    "newModelCostUsd": 0,
+    "deployments": 0,
+    "remoteMigrations": 0,
+    "githubPushes": 0,
+    "historicalModelInferences": 30,
+    "historicalModelCostUsd": 0.547151,
+    "historicalUnsettled": 0
+  },
+  "archivedFiles": [
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-action-boundary-20261108.config.ts",
+      "archivePath": "edited-assessment-action-boundary-20261108.config.ts.source.txt",
+      "bytes": 265,
+      "sha256": "31129004935be79630f5df649f7b410b28895775e4395eadb4ccb2107ca3695e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-action-boundary-20261108.test.ts",
+      "archivePath": "edited-assessment-action-boundary-20261108.test.ts.source.txt",
+      "bytes": 1045,
+      "sha256": "cf62455ab0cf15d0d56403731cc6ba3d82c12776ae8e979f81aafe8b734685aa"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-focused.config.ts",
+      "archivePath": "edited-assessment-author-20261108-focused.config.ts.source.txt",
+      "bytes": 366,
+      "sha256": "c161e688ac3c7ac62e0b76efb83b0e12e5e2642b910d1ac52bc7af26741d77e0"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-green-01.json",
+      "archivePath": "edited-assessment-author-20261108-green-01.json",
+      "bytes": 282,
+      "sha256": "95b9e4aae7f5aa8f01448e8985b2ebfe0ddb8a2aef5be7636ca5533a8ec9ca78"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-green-01.log",
+      "archivePath": "edited-assessment-author-20261108-green-01.log.txt",
+      "bytes": 51654,
+      "sha256": "68d879324ffeff17c38ee71b7809c72cd33c8f3b8f2f7c4ada10cdef3ccc6005"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-green-02.json",
+      "archivePath": "edited-assessment-author-20261108-green-02.json",
+      "bytes": 282,
+      "sha256": "23ac54d536e9533f8c1ce3bd1c75cef4dcb6c3e82a09f430434424746ada072c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-green-02.log",
+      "archivePath": "edited-assessment-author-20261108-green-02.log.txt",
+      "bytes": 971,
+      "sha256": "fb0b9318434d4fc183c84dee20ed4689a88fba87f24de7cc0bfc047b0edac955"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-green-03.json",
+      "archivePath": "edited-assessment-author-20261108-green-03.json",
+      "bytes": 282,
+      "sha256": "da61d052623d215b301d018fbf87840fe61023e82c12b4f84a3b869979267acd"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-green-03.log",
+      "archivePath": "edited-assessment-author-20261108-green-03.log.txt",
+      "bytes": 971,
+      "sha256": "096964e90bf8a8660c522a449313e40638a884548cea9c25d1db1557862c96e2"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-guidance-green-01.json",
+      "archivePath": "edited-assessment-author-20261108-guidance-green-01.json",
+      "bytes": 291,
+      "sha256": "4199cd21690d3148f997436cc6c727f3c009341ac8df823c0a20cb56a85c51dc"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-guidance-green-01.log",
+      "archivePath": "edited-assessment-author-20261108-guidance-green-01.log.txt",
+      "bytes": 932,
+      "sha256": "beaadd9744fbf2c2a66ee31735bea971573eb3f785d7eb519560379f1c22ab6a"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-guidance-prefix-red-01.json",
+      "archivePath": "edited-assessment-author-20261108-guidance-prefix-red-01.json",
+      "bytes": 296,
+      "sha256": "03fc9dd16990351423d8a121d57921e111704ff84532b5c950b9588009357861"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-guidance-prefix-red-01.log",
+      "archivePath": "edited-assessment-author-20261108-guidance-prefix-red-01.log.txt",
+      "bytes": 83105,
+      "sha256": "59ad115f85eda29ae19e90bd18d02c75d1baecb55ed853514abfdbd28dbf0bbb"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-guidance-red-01.json",
+      "archivePath": "edited-assessment-author-20261108-guidance-red-01.json",
+      "bytes": 289,
+      "sha256": "fd8e0ef2f876b9f32fd4cd76b64ab38b4750d666ec77bad092ed7d2293ea141a"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-guidance-red-01.log",
+      "archivePath": "edited-assessment-author-20261108-guidance-red-01.log.txt",
+      "bytes": 104230,
+      "sha256": "054877456490b4a92874bf0cee56d0df8f3bb95e86f5c5cd03d06d35fe5ce553"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-guidance-root-controls-green-01.json",
+      "archivePath": "edited-assessment-author-20261108-guidance-root-controls-green-01.json",
+      "bytes": 305,
+      "sha256": "0e4185fda2bbd48fd56fc19c37f9a6850304e084f9754abe2b44fd182e1f87ed"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-guidance-root-controls-green-01.log",
+      "archivePath": "edited-assessment-author-20261108-guidance-root-controls-green-01.log.txt",
+      "bytes": 560,
+      "sha256": "500781e13068caefb1a7a6d3c7efff5ab4ea59473f0a9bcad2e9c856bfb35476"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-handoff.md",
+      "archivePath": "edited-assessment-author-20261108-handoff.md",
+      "bytes": 9474,
+      "sha256": "f5bbf6dae768987fc88925baf0d28fb1a8b1ec95c0ff9220ee28cb82e31c53e1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-lint-01.json",
+      "archivePath": "edited-assessment-author-20261108-lint-01.json",
+      "bytes": 281,
+      "sha256": "70d083b17cd5fd1e74a037b8584716cd9954485a2f5aad720c6812e7f1d812a0"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-lint-01.log",
+      "archivePath": "edited-assessment-author-20261108-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-lint-02.json",
+      "archivePath": "edited-assessment-author-20261108-lint-02.json",
+      "bytes": 281,
+      "sha256": "74f025bc2b67e3ca4ec055d901c2591725a513ef37a541bdb8df5bb9c23f1a88"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-lint-02.log",
+      "archivePath": "edited-assessment-author-20261108-lint-02.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-red-01.json",
+      "archivePath": "edited-assessment-author-20261108-red-01.json",
+      "bytes": 280,
+      "sha256": "de92b576d5230294848b48ea3215a1f7f37deade7cacc7ed8561a918f2001cf1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-red-01.log",
+      "archivePath": "edited-assessment-author-20261108-red-01.log.txt",
+      "bytes": 54526,
+      "sha256": "2829902a29fe625c097deccb3a805bcaace0e9411ab0ba93d95debca55a237c5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-red-02.json",
+      "archivePath": "edited-assessment-author-20261108-red-02.json",
+      "bytes": 280,
+      "sha256": "23a21648bee181e75fdcd4db0e8754dba9619f591d6ae1e95918c2e476eb9130"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-red-02.log",
+      "archivePath": "edited-assessment-author-20261108-red-02.log.txt",
+      "bytes": 49539,
+      "sha256": "317106a3553272c46ac028c941f457d12d786717e2f75858bd16e2d392901c29"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-regressions-01.json",
+      "archivePath": "edited-assessment-author-20261108-regressions-01.json",
+      "bytes": 289,
+      "sha256": "857e5087ddee3ed7f66ed430aa3e1e2a589c512c30166f871cf1c8a95ca092d0"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-regressions-01.log",
+      "archivePath": "edited-assessment-author-20261108-regressions-01.log.txt",
+      "bytes": 17660,
+      "sha256": "46889c5f68e603ad53c2c464636534db203c40c18fbd9f00093c66c10aa3d9f2"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-regressions-02.json",
+      "archivePath": "edited-assessment-author-20261108-regressions-02.json",
+      "bytes": 289,
+      "sha256": "ce8b6cce1bab8f1e0d7fdf81612ebd458c854c2dee94ac8d954e215420cdb373"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-regressions-02.log",
+      "archivePath": "edited-assessment-author-20261108-regressions-02.log.txt",
+      "bytes": 4796,
+      "sha256": "70cf1e694d9a594758f6621655850bfb9178730ea70652f4835702b19c8ad7b6"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-regressions.config.ts",
+      "archivePath": "edited-assessment-author-20261108-regressions.config.ts.source.txt",
+      "bytes": 1358,
+      "sha256": "7927eb95c0b9bfbd81177b0487df25a8eeb299692ec4b16074eefdd1b9275695"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-tsconfig.json",
+      "archivePath": "edited-assessment-author-20261108-tsconfig.json",
+      "bytes": 787,
+      "sha256": "fc85422d385b422045c59bc56adecc57abe72577d632c9c5bb97395cf2fd2b86"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-types-01.json",
+      "archivePath": "edited-assessment-author-20261108-types-01.json",
+      "bytes": 282,
+      "sha256": "fbf36b30c5d4264b399c27de9d47da20ad4de441efbb6130ba1eb1aece723f3f"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-types-01.log",
+      "archivePath": "edited-assessment-author-20261108-types-01.log.txt",
+      "bytes": 2993,
+      "sha256": "d4c641ac85a1164b57eecfd804ca308b6c7463cf9ec3ff971ec636c6bca23335"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-types-02.json",
+      "archivePath": "edited-assessment-author-20261108-types-02.json",
+      "bytes": 282,
+      "sha256": "20f619b9e716c95ca5dcfe954bcb6a2c874f58f6600df57b9270993053cf57d8"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-types-02.log",
+      "archivePath": "edited-assessment-author-20261108-types-02.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-types-03.json",
+      "archivePath": "edited-assessment-author-20261108-types-03.json",
+      "bytes": 282,
+      "sha256": "ebb2ba184d2d75c886d38f2e256e75fe2ef437c4d3ca7185dcfc6debf4acd99c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-author-20261108-types-03.log",
+      "archivePath": "edited-assessment-author-20261108-types-03.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-build-20261108-a.json",
+      "archivePath": "edited-assessment-build-20261108-a.json",
+      "bytes": 274,
+      "sha256": "d2501d740c9e6af2d9ef26932890f4cab0cd11c6052fc88dc80c2df573abdc26"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-build-20261108-a.log",
+      "archivePath": "edited-assessment-build-20261108-a.log.txt",
+      "bytes": 5911,
+      "sha256": "d9f8bdc7cb7a8e8f03fa39eade9c79e0f79450cefe2515d590f631d744930295"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-build-20261108-b.json",
+      "archivePath": "edited-assessment-build-20261108-b.json",
+      "bytes": 274,
+      "sha256": "57f225c171b7c80d04a692771e4047c442a1e97fa069aa1ce1206d169d7a7891"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-build-20261108-b.log",
+      "archivePath": "edited-assessment-build-20261108-b.log.txt",
+      "bytes": 5911,
+      "sha256": "c8ca7645e4bc425ef78169c35b3134d83dae8283dc9f646791c0a8d4baca69a7"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-course-binding-20261108-a.json",
+      "archivePath": "edited-assessment-course-binding-20261108-a.json",
+      "bytes": 282,
+      "sha256": "0f05fc711d5086a4d3906ffa873bf673e581e8a873b013cb38f92b2cd5f3483b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-course-binding-20261108-a.log",
+      "archivePath": "edited-assessment-course-binding-20261108-a.log.txt",
+      "bytes": 263,
+      "sha256": "c978b5295f10d2a5b6facd7f5c397666124662aa0d91297bec8c956e586cbcf8"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-course-binding-20261108-results.json",
+      "archivePath": "edited-assessment-course-binding-20261108-results.json",
+      "bytes": 1772,
+      "sha256": "72f08e03922fb7695e5839cf6003d54a7f370f63e7a4e880f37a5c0b594c480c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-course-binding-20261108.mjs",
+      "archivePath": "edited-assessment-course-binding-20261108.mjs.source.txt",
+      "bytes": 3299,
+      "sha256": "2720b5981d428c0d63f50838bedec4ce1d23d74ff4a77f37ccb8d99590220190"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-course-capture-20261108-results.json",
+      "archivePath": "edited-assessment-course-capture-20261108-results.json",
+      "bytes": 244136,
+      "sha256": "9a02b60878d5d581353efb66545a56d81c9da254fd59efc3db34456015a8bed8"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-commands-20261108.md",
+      "archivePath": "edited-assessment-final-commands-20261108.md",
+      "bytes": 8634,
+      "sha256": "ecbe7a0094741af4c3e226e770738d35696a6cf4f1a31559d8202f0d366f4bf6"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit-01.json",
+      "archivePath": "edited-assessment-final-review-20261108-evidence-audit-01.json",
+      "bytes": 296,
+      "sha256": "d8765ed50b78c33c0112c51b8639d36e28dd8debbb5d4f889fbc084af645d4d1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit-01.log",
+      "archivePath": "edited-assessment-final-review-20261108-evidence-audit-01.log.txt",
+      "bytes": 1079,
+      "sha256": "a58a4c2ad4abd3393fd337e0a51e4672695c6fd3243e65effc02bf6c26c9a887"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit-02-results.json",
+      "archivePath": "edited-assessment-final-review-20261108-evidence-audit-02-results.json",
+      "bytes": 35651,
+      "sha256": "f103512ff664393d88f4918adcf77c0a8ea22ff8ed3736fe39ee0e13ab64aa4f"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit-02.json",
+      "archivePath": "edited-assessment-final-review-20261108-evidence-audit-02.json",
+      "bytes": 296,
+      "sha256": "36ac31826895c9e10e6643e70c6e1b2bd408b46c9f379f3e5a091aafa43e370f"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit-02.log",
+      "archivePath": "edited-assessment-final-review-20261108-evidence-audit-02.log.txt",
+      "bytes": 400,
+      "sha256": "f12e031e3a9939cf2d416546a1b805c6c9d0f7dba92b5621f40cd522b308861b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit-02.mjs",
+      "archivePath": "edited-assessment-final-review-20261108-evidence-audit-02.mjs.source.txt",
+      "bytes": 11894,
+      "sha256": "097e91dd0a8e14f89e8739e8f13c86892711513820d143c940ad09bf8f1a06c1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-evidence-audit.mjs",
+      "archivePath": "edited-assessment-final-review-20261108-evidence-audit.mjs.source.txt",
+      "bytes": 11628,
+      "sha256": "829e19e15d9f3b4c63986d5005f7c369dae600d55c412cae7716a15ca73d1634"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-memo.md",
+      "archivePath": "edited-assessment-final-review-20261108-memo.md",
+      "bytes": 13936,
+      "sha256": "95920dfbd81f35915d289d8fd6479ccb811a8259a6eb358ad355738c66822af1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-snapshot-01.json",
+      "archivePath": "edited-assessment-final-review-20261108-snapshot-01.json",
+      "bytes": 290,
+      "sha256": "06b58485940e18664d4578c1f3336deaf6b30531b03b1808146078f9d169dffc"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-review-20261108-snapshot-01.log",
+      "archivePath": "edited-assessment-final-review-20261108-snapshot-01.log.txt",
+      "bytes": 105,
+      "sha256": "a99595916ff6429990580ade5fec13a2cb763e39d82ec5998db5bac282036c97"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-source-check-20261108-b.json",
+      "archivePath": "edited-assessment-final-source-check-20261108-b.json",
+      "bytes": 286,
+      "sha256": "19f27536fec178ef9a48f6d00eee8fcf415c870aac6784f2a378f12a4402e448"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-final-source-check-20261108-b.log",
+      "archivePath": "edited-assessment-final-source-check-20261108-b.log.txt",
+      "bytes": 105,
+      "sha256": "a99595916ff6429990580ade5fec13a2cb763e39d82ec5998db5bac282036c97"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-lint-20261108-a.json",
+      "archivePath": "edited-assessment-full-lint-20261108-a.json",
+      "bytes": 279,
+      "sha256": "1c6bfb551a9ff5c0854e6f9b83c96bb97632bbdfe6ad7f5ea4e17f496a193d7e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-lint-20261108-a.log",
+      "archivePath": "edited-assessment-full-lint-20261108-a.log.txt",
+      "bytes": 832,
+      "sha256": "e79fd7292f95e49c5ced2cfe16a1b3f4abeb1fb22ad4cf9666bdbbe4226b3d74"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-lint-20261108-b.json",
+      "archivePath": "edited-assessment-full-lint-20261108-b.json",
+      "bytes": 279,
+      "sha256": "e090adf100e18efc73ae551d9daf1348460c360767d62d9980a9cd36b6327805"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-lint-20261108-b.log",
+      "archivePath": "edited-assessment-full-lint-20261108-b.log.txt",
+      "bytes": 868,
+      "sha256": "25c0c299a9dfed106e7d129b718ded0bb1804bce8a5d1b98e5515147db013f9e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-node-20261108-a.log",
+      "archivePath": "edited-assessment-full-node-20261108-a.log.txt",
+      "bytes": 25652,
+      "sha256": "13adc161e4595e5a6f727c306bd788db2499b3ccfcec3700a488486968910ae2"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-node-20261108-b.json",
+      "archivePath": "edited-assessment-full-node-20261108-b.json",
+      "bytes": 280,
+      "sha256": "06748a8d888e2809d2783b11472e2b79705d97b08e0463462d3234126665651a"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-node-20261108-b.log",
+      "archivePath": "edited-assessment-full-node-20261108-b.log.txt",
+      "bytes": 34149,
+      "sha256": "70e48f3e829cddf22dd5bf061daa6c91335224d71b423ab3501d086e27cd2a1a"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-research-20261108-a.json",
+      "archivePath": "edited-assessment-full-research-20261108-a.json",
+      "bytes": 284,
+      "sha256": "209f12651cc862bef65fd4b34e178ad7b527f56f33ce11c4b544cc6d04513eeb"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-research-20261108-a.log",
+      "archivePath": "edited-assessment-full-research-20261108-a.log.txt",
+      "bytes": 303268,
+      "sha256": "4fc651ca0f193e37f3c1086319381935653cf101ae83b09040aad10932ed476c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-research-20261108-b.json",
+      "archivePath": "edited-assessment-full-research-20261108-b.json",
+      "bytes": 284,
+      "sha256": "15376361418f9c4f4753bd69d46287d34a3a97f35e87168e7b9fded305a6c827"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-research-20261108-b.log",
+      "archivePath": "edited-assessment-full-research-20261108-b.log.txt",
+      "bytes": 303661,
+      "sha256": "4f8357abd06a32fef5b8569ddd973c074275c0e0836d55d9c4382e814e563c10"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-serial-20261108-a.json",
+      "archivePath": "edited-assessment-full-serial-20261108-a.json",
+      "bytes": 281,
+      "sha256": "58b03771588eaba6bb4dd20fda9cc2cd137b9bd47bdc3abf8084ebd53fea701d"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-serial-20261108-a.log",
+      "archivePath": "edited-assessment-full-serial-20261108-a.log.txt",
+      "bytes": 4392,
+      "sha256": "13db4a93edf49953e90d9c8d71fd37c393ddf1d7d882d30a6b938c3c1321c5c5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-serial-20261108-b.json",
+      "archivePath": "edited-assessment-full-serial-20261108-b.json",
+      "bytes": 281,
+      "sha256": "434eea4fced3c121488ca63b03324b8354fb6576f9c8724a7714c7fbc5b2d8ec"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-serial-20261108-b.log",
+      "archivePath": "edited-assessment-full-serial-20261108-b.log.txt",
+      "bytes": 4238,
+      "sha256": "e701783072b099af17c8b892697702b4debdc9fcfd4787e915d413b10f6f0033"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-types-20261108-a.json",
+      "archivePath": "edited-assessment-full-types-20261108-a.json",
+      "bytes": 280,
+      "sha256": "8f3165e68959d0a594d1770599ae16a5915a644ca47744a690edf91e806d1424"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-types-20261108-a.log",
+      "archivePath": "edited-assessment-full-types-20261108-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-types-20261108-b.json",
+      "archivePath": "edited-assessment-full-types-20261108-b.json",
+      "bytes": 280,
+      "sha256": "c33a93de59721e33b86b92a01562289a22eb28e71ce9ab9907e67ad1a19270ed"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-types-20261108-b.log",
+      "archivePath": "edited-assessment-full-types-20261108-b.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-unit-20261108-a.log",
+      "archivePath": "edited-assessment-full-unit-20261108-a.log.txt",
+      "bytes": 814636,
+      "sha256": "f046a38f45abebfb37529d4be74c5691fd8336b6cb1ca737f0d45c7169f0dd77"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-unit-20261108-b.json",
+      "archivePath": "edited-assessment-full-unit-20261108-b.json",
+      "bytes": 280,
+      "sha256": "e1d886016ad400635d016d3f1e448c615014aa489b17f154ada65dc6b820c6e9"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-full-unit-20261108-b.log",
+      "archivePath": "edited-assessment-full-unit-20261108-b.log.txt",
+      "bytes": 851480,
+      "sha256": "13f3fa1ba15066b9a245aa31eb19da42c62db2a96e45347edd11992b5f203857"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-guidance-20261108.config.ts",
+      "archivePath": "edited-assessment-guidance-20261108.config.ts.source.txt",
+      "bytes": 258,
+      "sha256": "95c46e55edd4ad5b6372d7e511fb45575afa5bd2ee367aaa482f20eef3524b73"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-guidance-20261108.test.ts",
+      "archivePath": "edited-assessment-guidance-20261108.test.ts.source.txt",
+      "bytes": 1240,
+      "sha256": "2b96dbd61817fc0798fe3ef692131aea2b1d5d9d477b8c2b1a3b1b631f4e1bbf"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-integrity-20261108-b-results.json",
+      "archivePath": "edited-assessment-integrity-20261108-b-results.json",
+      "bytes": 5548,
+      "sha256": "343074407d2a01cb0d4fdcfad47c52f3bbf36524a8e1aae0318808acb730107f"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-integrity-20261108-b.json",
+      "archivePath": "edited-assessment-integrity-20261108-b.json",
+      "bytes": 277,
+      "sha256": "969c9ea53cee360b23bf9bfdef65d88d1a154c21da5211c2769ce1530af46c88"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-integrity-20261108-b.log",
+      "archivePath": "edited-assessment-integrity-20261108-b.log.txt",
+      "bytes": 852,
+      "sha256": "1667f4c99c9f67901c651f54cbee0a3839358d6765ab695ea96d9d98ce18ce5d"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-integrity-20261108-b.mjs",
+      "archivePath": "edited-assessment-integrity-20261108-b.mjs.source.txt",
+      "bytes": 2846,
+      "sha256": "be2d2b0d3c3fc12eb3effb3537d7bf84461a29bc33e60e4ebc244ecb950d26bc"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-integrity-20261108.mjs",
+      "archivePath": "edited-assessment-integrity-20261108.mjs.source.txt",
+      "bytes": 2842,
+      "sha256": "29ecdea5fb8e0a93574ed8ee73ed3c4f55836b0a1eb8b5b193e62391b56b5b28"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-intermediate-cancelled-20261108-results.json",
+      "archivePath": "edited-assessment-intermediate-cancelled-20261108-results.json",
+      "bytes": 1322,
+      "sha256": "fe2c1839f5450bdbe42dbb79f674aaded10410f17b9665593f82241270737765"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-native-20261108-final-results.json",
+      "archivePath": "edited-assessment-native-20261108-final-results.json",
+      "bytes": 54036,
+      "sha256": "95bde33c691f5a89438f82455cc7f97eeefd423a2e221ea65f796e3ff36146c1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-native-20261108-green-results.json",
+      "archivePath": "edited-assessment-native-20261108-green-results.json",
+      "bytes": 54036,
+      "sha256": "cdff0a565f93dd8d821c5daa06171f6bc15ccd443cc793cb9c0e0d0066ef9d0d"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-native-20261108-red-results.json",
+      "archivePath": "edited-assessment-native-20261108-red-results.json",
+      "bytes": 57283,
+      "sha256": "2fed510c7c17799928be0a5afc54d8142cbd55df75cd72a24adc9048756352b2"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-native-20261108-repaired-results.json",
+      "archivePath": "edited-assessment-native-20261108-repaired-results.json",
+      "bytes": 142548,
+      "sha256": "f0b62483c1992a7e077323e6ddd898940568b63ee8d4bc9894208df487b030f4"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-native-20261108-repaired.mjs",
+      "archivePath": "edited-assessment-native-20261108-repaired.mjs.source.txt",
+      "bytes": 9586,
+      "sha256": "2b9ea52573e49f0c5b9d3eeb24aeed6fd5d988d32a7397d2295b395963c04397"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-native-20261108.mjs",
+      "archivePath": "edited-assessment-native-20261108.mjs.source.txt",
+      "bytes": 7346,
+      "sha256": "55fb80bdb3b2fa43942201b10175f6d44907593c7beb4dd9bb7d47cf9fb24969"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-controls-green-01.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-controls-green-01.json",
+      "bytes": 303,
+      "sha256": "77b84ae803c56a449ff376e104b1bf45b00177113cbfa8d4fead478c3a8f9788"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-controls-green-01.log",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-controls-green-01.log.txt",
+      "bytes": 715,
+      "sha256": "b407f88bf90a27db06c869f50058e48b144e83a5e971d5d44a72937e099e8fe1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-controls.config.ts",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-controls.config.ts.source.txt",
+      "bytes": 347,
+      "sha256": "0326bee2469b8f11a90767046ca515db05c2659763c147ffc86111ecacb17a40"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-focused.config.ts",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-focused.config.ts.source.txt",
+      "bytes": 450,
+      "sha256": "4e1e0692b0b01c6616118351a1a726d45756a16ed8361ae58b88bab7ad5e16b2"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-green-01.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-green-01.json",
+      "bytes": 294,
+      "sha256": "34a47b380bec490fcef6234a44c1a5d96d2daa1632b72b8180d78faf622491da"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-green-01.log",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-green-01.log.txt",
+      "bytes": 1237,
+      "sha256": "a620a815f87a4ce1c3fa5c1d7172b6ddd450c3820f5a432fe275229d0ec3b7ff"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-handoff.md",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-handoff.md",
+      "bytes": 9418,
+      "sha256": "c0fd9f5ff53485e8dc64a88edc356475a6145b86323448e7b94d96a6c7615b60"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-lint-01.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-lint-01.json",
+      "bytes": 293,
+      "sha256": "ed4da38f01ff7d67a3d8be7d8c35a7d358fe50a71c9e4d2ae1377b502857e99e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-lint-01.log",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-red-01.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-red-01.json",
+      "bytes": 292,
+      "sha256": "8b9449fc8cf7d038e1b37bfc476eeb588ea768b2cad13c029e1b8ddb010bf737"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-red-01.log",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-red-01.log.txt",
+      "bytes": 162070,
+      "sha256": "239c6e39a91329ac4a06bed9fb691b71ba90377c8e4c36cde8dbebb4cd2b40b7"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-red-02.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-red-02.json",
+      "bytes": 292,
+      "sha256": "3b122a740b84b7357b7efe489ba89a4a11d8f004d9d9f7a1eb97d7dbe4e9eead"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-red-02.log",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-red-02.log.txt",
+      "bytes": 158665,
+      "sha256": "01148d2def455841d4a5e86ea9866235a7f1077255b5e68d40389271672f8e1b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-regressions-01.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-regressions-01.json",
+      "bytes": 301,
+      "sha256": "151384ee54e1ac5cc602bbc1b3c5a3ffe25a334b18aa5d94bcebeeef8cf2341f"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-regressions-01.log",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-regressions-01.log.txt",
+      "bytes": 4629,
+      "sha256": "0454fb50cbb84e5bef9df5429be623b9da547bf76335b491bdd2426cf7719c63"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-regressions.config.ts",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-regressions.config.ts.source.txt",
+      "bytes": 1358,
+      "sha256": "7927eb95c0b9bfbd81177b0487df25a8eeb299692ec4b16074eefdd1b9275695"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-spec-green-01.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-spec-green-01.json",
+      "bytes": 299,
+      "sha256": "ed6895bab15b3c40177febeefb2d5c45a422b1d5db444a96f2e471a2e8eea46b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-spec-green-01.log",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-spec-green-01.log.txt",
+      "bytes": 922,
+      "sha256": "4dce14dd8ba9f1a3d345037484f86c8241993a10c2995c8566d7cc1bb808bd80"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-spec-probe-results.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-spec-probe-results.json",
+      "bytes": 9571,
+      "sha256": "2b0bbbe6a6ec276ae17a452f82d9a11876dea53f2216b2219c02cb136463fd41"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-spec-probes.test.tsx",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-spec-probes.test.tsx.source.txt",
+      "bytes": 7926,
+      "sha256": "c961f3b87b031211b18477d58be5ea65ce88088e3d53559b3d0069228a9d41f7"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-spec.config.ts",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-spec.config.ts.source.txt",
+      "bytes": 266,
+      "sha256": "5ff8d977e1238174e956de150ac913d42897dbb602b80fc8e9058be7f3ed9668"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-tsconfig.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-tsconfig.json",
+      "bytes": 787,
+      "sha256": "fc85422d385b422045c59bc56adecc57abe72577d632c9c5bb97395cf2fd2b86"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-types-01.json",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-types-01.json",
+      "bytes": 294,
+      "sha256": "4983efaf63f1d540b7557472af021a2ed7516c9e1195fafb3b73587727b097d7"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-punctuation-repair-20261108-types-01.log",
+      "archivePath": "edited-assessment-punctuation-repair-20261108-types-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-base-evidence.ts",
+      "archivePath": "edited-assessment-quality-20261108-base-evidence.ts.source.txt",
+      "bytes": 17074,
+      "sha256": "495f55312d87d815cd70f4d2d6b31678946421dd474c5ea9f601103808636af1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-bounded-cost-results.json",
+      "archivePath": "edited-assessment-quality-20261108-bounded-cost-results.json",
+      "bytes": 227,
+      "sha256": "77e0673dec3ddc54684eb6d0a27867d2ae837834ad93e385ae94e2d26b08ec48"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-focused-01.json",
+      "archivePath": "edited-assessment-quality-20261108-focused-01.json",
+      "bytes": 286,
+      "sha256": "f03f715883a53ad35f207b9ee075448e3195e73e5c2d7e04c4812e11bb665f6c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-focused-01.log",
+      "archivePath": "edited-assessment-quality-20261108-focused-01.log.txt",
+      "bytes": 20529,
+      "sha256": "70544efb8c97e599d078ddc08496728f68e2a8b0088bb86cfe6149e600200e46"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-focused.config.ts",
+      "archivePath": "edited-assessment-quality-20261108-focused.config.ts.source.txt",
+      "bytes": 581,
+      "sha256": "3951e1bb21e4663a2085f8a099ee6da48e2afd6a7a2422d62c162eb0fbac9e41"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-memo.md",
+      "archivePath": "edited-assessment-quality-20261108-memo.md",
+      "bytes": 11314,
+      "sha256": "4088b90ede3416c1ffeccf2ce6a226ac7239211dac30f9d2a348db747011fc91"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-observations-01.json",
+      "archivePath": "edited-assessment-quality-20261108-observations-01.json",
+      "bytes": 290,
+      "sha256": "e1a305d335343b2158b65814d2cc146de0ed9d3d2e8b6771769dc319c87498c1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-observations-01.log",
+      "archivePath": "edited-assessment-quality-20261108-observations-01.log.txt",
+      "bytes": 2369,
+      "sha256": "564ab250d5c1ac32540e5a86e8dcffb5dd806935aba24afa9c728a26b01a515c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-observations.config.ts",
+      "archivePath": "edited-assessment-quality-20261108-observations.config.ts.source.txt",
+      "bytes": 245,
+      "sha256": "6adecac0968f2256a8f19a240438a595922505e4efb4a10958718bb01769d961"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-observations.test.ts",
+      "archivePath": "edited-assessment-quality-20261108-observations.test.ts.source.txt",
+      "bytes": 3451,
+      "sha256": "33b1c5d3db239caa56c11c04aee3903d63c866c2bc08e797257f2d6bc14acd78"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-phrase-observations.json",
+      "archivePath": "edited-assessment-quality-20261108-phrase-observations.json",
+      "bytes": 1348,
+      "sha256": "3af5d38c0639a6af3eec4cd9b26bf44cf598647aeb19350510c32d2fd345b817"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-recheck-memo.md",
+      "archivePath": "edited-assessment-quality-20261108-recheck-memo.md",
+      "bytes": 13428,
+      "sha256": "9f3785c3cdb2c8bc612bfe7c2673fe9b74aa5e447b8aa4463418725b47fc236c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-red-probe-results.json",
+      "archivePath": "edited-assessment-quality-20261108-red-probe-results.json",
+      "bytes": 4023,
+      "sha256": "3f6e173ebc9eda5427f6e5d0c505af730c8d4a6c04eb06783819697791ac723b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-20261108-red-probes.test.tsx",
+      "archivePath": "edited-assessment-quality-20261108-red-probes.test.tsx.source.txt",
+      "bytes": 8091,
+      "sha256": "8a5d7ae4eb0d1c7200785c364abcc195b38f3c55eded2ab1b7a75834e7fec981"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-controls.test.ts",
+      "archivePath": "edited-assessment-quality-recheck-20261108-controls.test.ts.source.txt",
+      "bytes": 5077,
+      "sha256": "19215dfe98a6242f6897a3a8df640ea2548c1b6f1bb893c2f9ae456afa2d786e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-dotted-probe-results.json",
+      "archivePath": "edited-assessment-quality-recheck-20261108-dotted-probe-results.json",
+      "bytes": 9571,
+      "sha256": "2b0bbbe6a6ec276ae17a452f82d9a11876dea53f2216b2219c02cb136463fd41"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-dotted-probes.test.tsx",
+      "archivePath": "edited-assessment-quality-recheck-20261108-dotted-probes.test.tsx.source.txt",
+      "bytes": 7925,
+      "sha256": "05e56b0887ac6810585d0c4c8b2e767a89d7a8edc62e2f24dae13aabd1126f28"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-focused-01.json",
+      "archivePath": "edited-assessment-quality-recheck-20261108-focused-01.json",
+      "bytes": 294,
+      "sha256": "7e354011a68e036dd05f40ea9cd4af313c17ddbda806bbf65b7f47a17b48959a"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-focused-01.log",
+      "archivePath": "edited-assessment-quality-recheck-20261108-focused-01.log.txt",
+      "bytes": 2527,
+      "sha256": "cf1a76245dc508fc6a0b165c013537d2e98e78347eaad98e2f3aa7df62a61d6e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-focused.config.ts",
+      "archivePath": "edited-assessment-quality-recheck-20261108-focused.config.ts.source.txt",
+      "bytes": 784,
+      "sha256": "809f4bb3a4f6cb0bb8ad3d47a370e206963aff5d6067f4dc43676ba3b2ae5da8"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-lint-01.json",
+      "archivePath": "edited-assessment-quality-recheck-20261108-lint-01.json",
+      "bytes": 290,
+      "sha256": "0730db1ae18f68260388770041601ce337dc994aec652bacdc3a8c4c03cb2e86"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-lint-01.log",
+      "archivePath": "edited-assessment-quality-recheck-20261108-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-original-probe-results.json",
+      "archivePath": "edited-assessment-quality-recheck-20261108-original-probe-results.json",
+      "bytes": 4011,
+      "sha256": "f89d71d8ed45efe5c72e484eb5d450a33afac65e1ee1a2816a32097d49cd9957"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-original-probes.test.tsx",
+      "archivePath": "edited-assessment-quality-recheck-20261108-original-probes.test.tsx.source.txt",
+      "bytes": 8104,
+      "sha256": "d023c738523fb1f08942f49ff0bdc17f59ca871665fb6d5e8af9e01200267fcd"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-source-after.json",
+      "archivePath": "edited-assessment-quality-recheck-20261108-source-after.json",
+      "bytes": 1571,
+      "sha256": "df6d2607f2230c1f0ea87f40b3585eeed2e2dc30133822304070c7d13a6777c5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-quality-recheck-20261108-source-before.json",
+      "archivePath": "edited-assessment-quality-recheck-20261108-source-before.json",
+      "bytes": 1571,
+      "sha256": "df6d2607f2230c1f0ea87f40b3585eeed2e2dc30133822304070c7d13a6777c5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-render-20261108-a.json",
+      "archivePath": "edited-assessment-render-20261108-a.json",
+      "bytes": 275,
+      "sha256": "47e3592e37fdf85154cd78a556f5b869df0d190e704c5071d151088f2cb57016"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-render-20261108-a.log",
+      "archivePath": "edited-assessment-render-20261108-a.log.txt",
+      "bytes": 519,
+      "sha256": "a522b8c35a0bd708d513c020b90d670179d2893542aa37f06b2bcf0f4c1a49d8"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-render-20261108-b.json",
+      "archivePath": "edited-assessment-render-20261108-b.json",
+      "bytes": 275,
+      "sha256": "47dcec037cd8a416ff67722cfbbe46d8aadb3cfc19d16ef09c9efc4c64c1a062"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-render-20261108-b.log",
+      "archivePath": "edited-assessment-render-20261108-b.log.txt",
+      "bytes": 521,
+      "sha256": "f80f02bd24c2326070ee3a8c493c7b38e6c12a68ba4d4954702d27aec3fb9270"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-controls-green-01.json",
+      "archivePath": "edited-assessment-repair-20261108-controls-green-01.json",
+      "bytes": 291,
+      "sha256": "288da05537743f4ad673f5f309c2ef7f49dc9c661ef2824d62707634aa5e07cd"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-controls-green-01.log",
+      "archivePath": "edited-assessment-repair-20261108-controls-green-01.log.txt",
+      "bytes": 715,
+      "sha256": "8f1b854d76aaf88448ebb4543e5531fea5192e79d0e9fab39816b7699217bc4a"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-controls.config.ts",
+      "archivePath": "edited-assessment-repair-20261108-controls.config.ts.source.txt",
+      "bytes": 347,
+      "sha256": "0326bee2469b8f11a90767046ca515db05c2659763c147ffc86111ecacb17a40"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-focused.config.ts",
+      "archivePath": "edited-assessment-repair-20261108-focused.config.ts.source.txt",
+      "bytes": 450,
+      "sha256": "4e1e0692b0b01c6616118351a1a726d45756a16ed8361ae58b88bab7ad5e16b2"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-frozen.patch",
+      "archivePath": "edited-assessment-repair-20261108-frozen.patch",
+      "bytes": 11238,
+      "sha256": "03677e40985e5e6e952a496c9512d88648fcc7aed4c264e4f07d4c620e581d30"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-green-01.json",
+      "archivePath": "edited-assessment-repair-20261108-green-01.json",
+      "bytes": 282,
+      "sha256": "a6f44c8e3c4736f4b8a7d24746b75b4405aa2724bb141aea93a3b3a294e6dee1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-green-01.log",
+      "archivePath": "edited-assessment-repair-20261108-green-01.log.txt",
+      "bytes": 1235,
+      "sha256": "c5ec27f2896aa0e67863c54e0efa99dfe15b28db53ecfd4229f22e1e3b213947"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-handoff.md",
+      "archivePath": "edited-assessment-repair-20261108-handoff.md",
+      "bytes": 8791,
+      "sha256": "64ae4b471a8d9560385f8a217ac3e1f68aa1e6f9bddeb97b8beed3b706d1b078"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-lint-01.json",
+      "archivePath": "edited-assessment-repair-20261108-lint-01.json",
+      "bytes": 281,
+      "sha256": "6d93ed1179a3e4dda98fbf2a2bdddad3c47cb825e40f287b8e28ef4f22d82d40"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-lint-01.log",
+      "archivePath": "edited-assessment-repair-20261108-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-red-01.json",
+      "archivePath": "edited-assessment-repair-20261108-red-01.json",
+      "bytes": 280,
+      "sha256": "a11ef439e2866355729f70d03c573af59b362a8c4ae19095fbd4b7dffca58ad2"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-red-01.log",
+      "archivePath": "edited-assessment-repair-20261108-red-01.log.txt",
+      "bytes": 142894,
+      "sha256": "1d5c247d1ccc3692b15019e0e11378878f1803aed2069874a3184aa47ff4ba7c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-regressions-01.json",
+      "archivePath": "edited-assessment-repair-20261108-regressions-01.json",
+      "bytes": 289,
+      "sha256": "09b28d75db2ce205289e147f7134730f86bbc0fcf9d488d3eddf23c3ac969881"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-regressions-01.log",
+      "archivePath": "edited-assessment-repair-20261108-regressions-01.log.txt",
+      "bytes": 4629,
+      "sha256": "f41407fbedfb95420478af530c936ff7602d26fac9c0c048d04dcadaea1efbfa"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-regressions.config.ts",
+      "archivePath": "edited-assessment-repair-20261108-regressions.config.ts.source.txt",
+      "bytes": 1358,
+      "sha256": "7927eb95c0b9bfbd81177b0487df25a8eeb299692ec4b16074eefdd1b9275695"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-reviewer-green-01.json",
+      "archivePath": "edited-assessment-repair-20261108-reviewer-green-01.json",
+      "bytes": 291,
+      "sha256": "695eaab5e3e018c7226ec9c2c41d18309ce9cabc6552207244771824c89d2ddd"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-reviewer-green-01.log",
+      "archivePath": "edited-assessment-repair-20261108-reviewer-green-01.log.txt",
+      "bytes": 902,
+      "sha256": "78c68e8f5ecb3b44b81cf52f0e039727e2fdba874fc6ef087e49f7033e6d31a5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-reviewer-probe-results.json",
+      "archivePath": "edited-assessment-repair-20261108-reviewer-probe-results.json",
+      "bytes": 4011,
+      "sha256": "f89d71d8ed45efe5c72e484eb5d450a33afac65e1ee1a2816a32097d49cd9957"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-reviewer-probes.test.tsx",
+      "archivePath": "edited-assessment-repair-20261108-reviewer-probes.test.tsx.source.txt",
+      "bytes": 8095,
+      "sha256": "0a85928eb0f45ee082830641e78abb0fb200ba088abd181d05be226b9fe08860"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-reviewer.config.ts",
+      "archivePath": "edited-assessment-repair-20261108-reviewer.config.ts.source.txt",
+      "bytes": 258,
+      "sha256": "ec5011d15f079a92b83c248bb1ea529cbf2a3699d2f33652e947b8824e541333"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-tsconfig.json",
+      "archivePath": "edited-assessment-repair-20261108-tsconfig.json",
+      "bytes": 787,
+      "sha256": "fc85422d385b422045c59bc56adecc57abe72577d632c9c5bb97395cf2fd2b86"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-types-01.json",
+      "archivePath": "edited-assessment-repair-20261108-types-01.json",
+      "bytes": 282,
+      "sha256": "b367719e2f93e35aca3d82e7fbd569d1c1e9ec91a3b9bb2b4ec97454ef0c6719"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-repair-20261108-types-01.log",
+      "archivePath": "edited-assessment-repair-20261108-types-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-action-boundary-20261108-green.json",
+      "archivePath": "edited-assessment-root-action-boundary-20261108-green.json",
+      "bytes": 293,
+      "sha256": "cdc87c033b5f1078a0404593684c6a4a82c4d0aee6972fdb98ed6c5ea588d206"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-action-boundary-20261108-green.log",
+      "archivePath": "edited-assessment-root-action-boundary-20261108-green.log.txt",
+      "bytes": 566,
+      "sha256": "793ef94dd65b33f4fbfb37c001018d44e898a67f1ea6d511f9b50dcc0f91b10e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-action-boundary-20261108-red.json",
+      "archivePath": "edited-assessment-root-action-boundary-20261108-red.json",
+      "bytes": 290,
+      "sha256": "4eac50b33143cc3687853ce095557d6bd7d6fef359f8d689a8b767cd482a9366"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-action-boundary-20261108-red.log",
+      "archivePath": "edited-assessment-root-action-boundary-20261108-red.log.txt",
+      "bytes": 6471,
+      "sha256": "d52bea516d7d23f6fa5716c60ad9736ae80daee39a35e2163926c697d0c48035"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-focused-20261108-a.json",
+      "archivePath": "edited-assessment-root-focused-20261108-a.json",
+      "bytes": 282,
+      "sha256": "67fa63b4377a4eebe87e85e929dc1026725e1c8b0f6454b4d6681f5985d1728d"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-focused-20261108-a.log",
+      "archivePath": "edited-assessment-root-focused-20261108-a.log.txt",
+      "bytes": 2121,
+      "sha256": "b46d209ca1f379ccf9cfa5d5dc08aee92c467b7ce56b255fe82351ac536f65de"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-focused-20261108-b.json",
+      "archivePath": "edited-assessment-root-focused-20261108-b.json",
+      "bytes": 282,
+      "sha256": "2615ab3771a71bcde23e0b26be6d7c4c7994fa22f9b596c9a3676d1d734306a5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-focused-20261108-b.log",
+      "archivePath": "edited-assessment-root-focused-20261108-b.log.txt",
+      "bytes": 2120,
+      "sha256": "f7d7bba81515e32778dfb6598c506258e608d98e0d9bb9aa7a79c0d4ab99bbba"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-focused-20261108-c.json",
+      "archivePath": "edited-assessment-root-focused-20261108-c.json",
+      "bytes": 282,
+      "sha256": "0a4a8b2a70d9c2ee7e71b95e24512f69c2b2d1b70f0722e065e2079c890d38e5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-focused-20261108-c.log",
+      "archivePath": "edited-assessment-root-focused-20261108-c.log.txt",
+      "bytes": 2124,
+      "sha256": "dd61079c166a339a96a653900a1729d3eaeb5f42a43303e5a66b06c4168f5d20"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-guidance-20261108-final.json",
+      "archivePath": "edited-assessment-root-guidance-20261108-final.json",
+      "bytes": 286,
+      "sha256": "ac690d814975bd86107783303d465f325b90f4282402c2be9c66d2964df1b91e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-guidance-20261108-final.log",
+      "archivePath": "edited-assessment-root-guidance-20261108-final.log.txt",
+      "bytes": 559,
+      "sha256": "f80968afc64e8d30d13452b756454b086232890fb4053bd148193b9697c983ec"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-guidance-20261108-green.json",
+      "archivePath": "edited-assessment-root-guidance-20261108-green.json",
+      "bytes": 286,
+      "sha256": "ca93babb647218b08bd62efb86a038700b63b15c98e390f66da97382667b1ace"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-guidance-20261108-green.log",
+      "archivePath": "edited-assessment-root-guidance-20261108-green.log.txt",
+      "bytes": 559,
+      "sha256": "92003d8ce666f08c7c5ebac4ffa080d47b5c7ee76511c1b8de2a29d73b3c0c63"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-guidance-20261108-red.json",
+      "archivePath": "edited-assessment-root-guidance-20261108-red.json",
+      "bytes": 283,
+      "sha256": "56d556ecf0c0198b448123d48e11ae68930fa9a45c84f76ee60d43afd15e4ec5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-guidance-20261108-red.log",
+      "archivePath": "edited-assessment-root-guidance-20261108-red.log.txt",
+      "bytes": 4831,
+      "sha256": "8024f0c72f16e48a933069f9fe1c6b5b48771dd50cf4fd4141f3041e5226923a"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-guidance-20261108-repaired.json",
+      "archivePath": "edited-assessment-root-guidance-20261108-repaired.json",
+      "bytes": 289,
+      "sha256": "81b2be7bd33359c7e7d2b77f77b17c32b69855c737461587c618a2510e47c306"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-guidance-20261108-repaired.log",
+      "archivePath": "edited-assessment-root-guidance-20261108-repaired.log.txt",
+      "bytes": 559,
+      "sha256": "54e2ca8495daab2203f8cc49465e5dd9860f7b9073d1b11214749754d68e63e1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-native-20261108-final.json",
+      "archivePath": "edited-assessment-root-native-20261108-final.json",
+      "bytes": 284,
+      "sha256": "c3e50cf2700b65ffad2d7522be8521c611c5226e0fd868c1f82e90dc958f2444"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-native-20261108-final.log",
+      "archivePath": "edited-assessment-root-native-20261108-final.log.txt",
+      "bytes": 141,
+      "sha256": "b11df0acb968a1e24a4bbb27086075ba257553ee62aca033a5ce56d614d7640d"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-native-20261108-green.json",
+      "archivePath": "edited-assessment-root-native-20261108-green.json",
+      "bytes": 284,
+      "sha256": "3f2ec245c7017f25b0ceee78a7c8651c1564292d7a43891442a7f562314a8c75"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-native-20261108-green.log",
+      "archivePath": "edited-assessment-root-native-20261108-green.log.txt",
+      "bytes": 141,
+      "sha256": "1db7acd6fb393f6b0eb7846bb869af0e75fbcb9fde4f2496dbbb0b154683bc90"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-native-20261108-red.json",
+      "archivePath": "edited-assessment-root-native-20261108-red.json",
+      "bytes": 282,
+      "sha256": "d308c35095beb09c7ae939ebd439d9496a6046fc67899948a2e2bd6d23601094"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-native-20261108-red.log",
+      "archivePath": "edited-assessment-root-native-20261108-red.log.txt",
+      "bytes": 917,
+      "sha256": "5c6eaaaf09e35ef7f62ec29b17d3f94a9c22567a01b785573f83b5721c3dcfe7"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-native-20261108-repaired.json",
+      "archivePath": "edited-assessment-root-native-20261108-repaired.json",
+      "bytes": 287,
+      "sha256": "9ddb705922032f0db1f17ae4261e21d89722bbacabc39a3abf9106fa072fdd7f"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-native-20261108-repaired.log",
+      "archivePath": "edited-assessment-root-native-20261108-repaired.log.txt",
+      "bytes": 145,
+      "sha256": "c14af0ca8173958420ae0f3e69ba9eb22debfcc6cc2c782a2af3f5223c3007fd"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-final-results.json",
+      "archivePath": "edited-assessment-root-ui-20261108-final-results.json",
+      "bytes": 206,
+      "sha256": "7b2ab36c90dcb116e6a076987a1cb7285c011f824088cff7668c88c02d22595e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-final.config.ts",
+      "archivePath": "edited-assessment-root-ui-20261108-final.config.ts.source.txt",
+      "bytes": 399,
+      "sha256": "80ecc1b75084539022b440ceb1d712ff597d52f74da3541feb94879497efdd17"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-final.json",
+      "archivePath": "edited-assessment-root-ui-20261108-final.json",
+      "bytes": 280,
+      "sha256": "dab1d7a2aefaf729dc5aa529bd184a1c2eb65e17fe4a71ea30ee9380f207e099"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-final.log",
+      "archivePath": "edited-assessment-root-ui-20261108-final.log.txt",
+      "bytes": 882,
+      "sha256": "ac56a40c52e9d72d651c2fac00bb648f3d6e3846a5692e3f76aa6f0b878c4f19"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-green-results.json",
+      "archivePath": "edited-assessment-root-ui-20261108-green-results.json",
+      "bytes": 206,
+      "sha256": "7b2ab36c90dcb116e6a076987a1cb7285c011f824088cff7668c88c02d22595e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-green.config.ts",
+      "archivePath": "edited-assessment-root-ui-20261108-green.config.ts.source.txt",
+      "bytes": 399,
+      "sha256": "2fa1cd919eeb48389d51d111bbef4654ce408ba5d431af86f79f075159882924"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-green.json",
+      "archivePath": "edited-assessment-root-ui-20261108-green.json",
+      "bytes": 280,
+      "sha256": "933bd28cfcc0d9dd9c3d1b32f625aadf32f8a62455b23309085cf628e36a8c74"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-green.log",
+      "archivePath": "edited-assessment-root-ui-20261108-green.log.txt",
+      "bytes": 882,
+      "sha256": "8752d6cff39f8d65e7feda30d301809b2a327096d060415798f9a32fa01c235e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-red-results.json",
+      "archivePath": "edited-assessment-root-ui-20261108-red-results.json",
+      "bytes": 208,
+      "sha256": "6752e49c667cb9a4c8ea1f0dcb9976385565c4283b990e6c6f94dadeba36acb0"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-red.config.ts",
+      "archivePath": "edited-assessment-root-ui-20261108-red.config.ts.source.txt",
+      "bytes": 397,
+      "sha256": "29897d104e2271aa1e052e4d34e3b1e555c6160e13f259a2af99a4694b8f7918"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-red.json",
+      "archivePath": "edited-assessment-root-ui-20261108-red.json",
+      "bytes": 278,
+      "sha256": "ee8fad809fbfdbefc352b734e3d9c9e65dae56f9d411a7c2275dc481eacd2b6b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-red.log",
+      "archivePath": "edited-assessment-root-ui-20261108-red.log.txt",
+      "bytes": 2498,
+      "sha256": "b963d16b4b612ec853eb0bd77f7fa1d8139c5b4bb8b2738da63203e071816b87"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-repaired-results.json",
+      "archivePath": "edited-assessment-root-ui-20261108-repaired-results.json",
+      "bytes": 206,
+      "sha256": "7b2ab36c90dcb116e6a076987a1cb7285c011f824088cff7668c88c02d22595e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-repaired.config.ts",
+      "archivePath": "edited-assessment-root-ui-20261108-repaired.config.ts.source.txt",
+      "bytes": 402,
+      "sha256": "50a8e074b832f5f677026ce321350eb138d2c4b9c76515894c2825ac9bd51285"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-repaired.json",
+      "archivePath": "edited-assessment-root-ui-20261108-repaired.json",
+      "bytes": 283,
+      "sha256": "6f26e5f876446bd0c966c2d3d3b935aa2ae66a7e588bc479820913da8b31594e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108-repaired.log",
+      "archivePath": "edited-assessment-root-ui-20261108-repaired.log.txt",
+      "bytes": 882,
+      "sha256": "6fdd7dccc7db41d43ee407a213f1039d02c3913d8a5a1b8843e7a5436ee36e7a"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-root-ui-20261108.test.tsx",
+      "archivePath": "edited-assessment-root-ui-20261108.test.tsx.source.txt",
+      "bytes": 5121,
+      "sha256": "477c073a4f2582c3aa05b06297daf2f8346d89811ee7ad31cb183c734fb7860f"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-a.json",
+      "archivePath": "edited-assessment-shared-native-20261108-a.json",
+      "bytes": 282,
+      "sha256": "929ea60591c0358d52b62e6a90a257bdc34c1d2f292c8ffc3739dcb4bccefb8b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-a.log",
+      "archivePath": "edited-assessment-shared-native-20261108-a.log.txt",
+      "bytes": 158,
+      "sha256": "45086915ee1229f90e3b3bdf68c5b45903a64f9bb809fb908182b02dcdc221eb"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-b-results.json",
+      "archivePath": "edited-assessment-shared-native-20261108-b-results.json",
+      "bytes": 21261,
+      "sha256": "b2ad57e3ec2953e3214a0c5fb8e82b6a0f7ff4b57da2301958d07353b8c40715"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-b.json",
+      "archivePath": "edited-assessment-shared-native-20261108-b.json",
+      "bytes": 281,
+      "sha256": "0db2eb95c0625d500e575b4fb62aeaa778517f1c8b8cdc7ae9589359b0904f55"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-b.log",
+      "archivePath": "edited-assessment-shared-native-20261108-b.log.txt",
+      "bytes": 160,
+      "sha256": "9e84d02980f7f02ea7fbbfbd72e7ef7f98388a378536f16413ca1794ab3418e7"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-c-results.json",
+      "archivePath": "edited-assessment-shared-native-20261108-c-results.json",
+      "bytes": 30886,
+      "sha256": "96444fd67a7116d247d1e7c2bb3b4135e70f90362efc5e2164802ab98d1c87c9"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-c.json",
+      "archivePath": "edited-assessment-shared-native-20261108-c.json",
+      "bytes": 281,
+      "sha256": "2f3a1b36362c743551e72993eb34af513dd57e3de4162c4eb47170dfa34b287e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-c.log",
+      "archivePath": "edited-assessment-shared-native-20261108-c.log.txt",
+      "bytes": 160,
+      "sha256": "3a982f8d9302885cafd22c3d9463bf35b8f8368f59b43e59f7df3a31837cb1ff"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-repaired.mjs",
+      "archivePath": "edited-assessment-shared-native-20261108-repaired.mjs.source.txt",
+      "bytes": 10285,
+      "sha256": "67fd6d72719949476e427b31e0cf4a98eef36ebb334d88d4bd98b2a4b1d0f6b1"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108-results.json",
+      "archivePath": "edited-assessment-shared-native-20261108-results.json",
+      "bytes": 21261,
+      "sha256": "e9a2fa0740218b773164d61af8aee2ccf49fd62760b3775eb9663e42ccf59e20"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-shared-native-20261108.mjs",
+      "archivePath": "edited-assessment-shared-native-20261108.mjs.source.txt",
+      "bytes": 7499,
+      "sha256": "c62bed8bb0f39746e995cf59f473c14d44fb67d3cc4153281e3c452d69b18355"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-snapshot-20261108-a.json",
+      "archivePath": "edited-assessment-snapshot-20261108-a.json",
+      "bytes": 277,
+      "sha256": "97667dfb9a6de2d525c06c98e28ae3aa13fd9b6b69f8550c2c61e5c52f2a4834"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-snapshot-20261108-a.log",
+      "archivePath": "edited-assessment-snapshot-20261108-a.log.txt",
+      "bytes": 213,
+      "sha256": "12ee1ab434d7d7310291ee706b83471fca7b01ce898b937a9e5b3c98cabc0768"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-snapshot-20261108-b-results.json",
+      "archivePath": "edited-assessment-snapshot-20261108-b-results.json",
+      "bytes": 115262,
+      "sha256": "beb650d7b3ea12f666dde5c60832a26274991839b21fab4f375a3572163b9a3e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-snapshot-20261108-b.json",
+      "archivePath": "edited-assessment-snapshot-20261108-b.json",
+      "bytes": 277,
+      "sha256": "e835d4d2f631e7f25fdb0fd6de616d36dc6b65007248b54bc915f49d5672ae0c"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-snapshot-20261108-b.log",
+      "archivePath": "edited-assessment-snapshot-20261108-b.log.txt",
+      "bytes": 222,
+      "sha256": "5b2875ab0108ec75802c0d1858c05ec3e974c083bb6624ff2bb17ace8017c577"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-snapshot-20261108-b.mjs",
+      "archivePath": "edited-assessment-snapshot-20261108-b.mjs.source.txt",
+      "bytes": 2632,
+      "sha256": "f5c43ae5baf3f8fc553a8ad3bac1bb3750aa17898b529450da0486ed566947ff"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-snapshot-20261108-results.json",
+      "archivePath": "edited-assessment-snapshot-20261108-results.json",
+      "bytes": 115253,
+      "sha256": "658d8d413590ac5a02ee4b35453718f58bfd07be192660199da4f407a263658d"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-snapshot-20261108.mjs",
+      "archivePath": "edited-assessment-snapshot-20261108.mjs.source.txt",
+      "bytes": 2621,
+      "sha256": "d40270147b45314c1ab3d7e311b19963d4162e38d52adb706dbcec7b21ba1558"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-memo.md",
+      "archivePath": "edited-assessment-spec-20261108-memo.md",
+      "bytes": 9029,
+      "sha256": "23408394201eaf4ffc8fb2fad9ac03697115fb8b8b685928906ed2877dfa5f1e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-probes.test.tsx",
+      "archivePath": "edited-assessment-spec-20261108-probes.test.tsx.source.txt",
+      "bytes": 8040,
+      "sha256": "7d3419acb8bdf042a17c952284fd63c3602758834819be39dd46d521d10f8ced"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-recheck-memo.md",
+      "archivePath": "edited-assessment-spec-20261108-recheck-memo.md",
+      "bytes": 10033,
+      "sha256": "706e27270588c551605670d0a7043b6d92a589e23e7a4151234045a3cfd65d4b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-recheck2-memo.md",
+      "archivePath": "edited-assessment-spec-20261108-recheck2-memo.md",
+      "bytes": 11690,
+      "sha256": "97c5816c241061033f13d5cd4f52ba43b1de04e1623ae6ed604ab995b099c064"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-save-01.json",
+      "archivePath": "edited-assessment-spec-20261108-save-01.json",
+      "bytes": 279,
+      "sha256": "1d2fb5797dadcdf32fb02a0266687a73db2081084eff508a534691bd1b5dafed"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-save-01.log",
+      "archivePath": "edited-assessment-spec-20261108-save-01.log.txt",
+      "bytes": 739,
+      "sha256": "5785efa87dd40523a01ada861921a812633eb2b350fcfa18aebe6cd54b7b4bf9"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-save-probes.test.ts",
+      "archivePath": "edited-assessment-spec-20261108-save-probes.test.ts.source.txt",
+      "bytes": 5382,
+      "sha256": "1b6799ab07237ac8bdfa14d6cefbba2fec05b6a6f4f3b8933aaf54d2f73b2278"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-save.config.ts",
+      "archivePath": "edited-assessment-spec-20261108-save.config.ts.source.txt",
+      "bytes": 246,
+      "sha256": "998dbc7b02dc586fbec6a064328b7b5cbba87f44c9c147b3e09b754111f39d74"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-targeted-01.json",
+      "archivePath": "edited-assessment-spec-20261108-targeted-01.json",
+      "bytes": 283,
+      "sha256": "ffd162ad98efe4b7658cef5155d4e8e281e0beed17c21c5898c752bf3ebfac94"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-targeted-01.log",
+      "archivePath": "edited-assessment-spec-20261108-targeted-01.log.txt",
+      "bytes": 1508,
+      "sha256": "55387d706a7ed39a97cbb806a72cba7423e05fa06b2fe285ee113c6b9d1619f3"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-20261108-targeted.config.ts",
+      "archivePath": "edited-assessment-spec-20261108-targeted.config.ts.source.txt",
+      "bytes": 579,
+      "sha256": "48c0d6dce390e032e429cf2fd04ae7f657b4ed9e20e7642b92ee7a9ea6b2acd9"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck-20261108-boundaries.test.tsx",
+      "archivePath": "edited-assessment-spec-recheck-20261108-boundaries.test.tsx.source.txt",
+      "bytes": 7918,
+      "sha256": "2529953f2de7cdb4bf1308492509e6a1c24f5848047aa227200fcac7d7b897c5"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck-20261108-boundary-results.json",
+      "archivePath": "edited-assessment-spec-recheck-20261108-boundary-results.json",
+      "bytes": 9585,
+      "sha256": "dd30cbcbde4a63e437fc0d674c55a39b44984d6cf84b9ad2cfb2b90ff2fff485"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck-20261108-focused-01.json",
+      "archivePath": "edited-assessment-spec-recheck-20261108-focused-01.json",
+      "bytes": 291,
+      "sha256": "9c7f5f3ad98d78be43280b9caeeac95ba98f5c7d6017ad8fd4759d4ea8b0c12b"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck-20261108-focused-01.log",
+      "archivePath": "edited-assessment-spec-recheck-20261108-focused-01.log.txt",
+      "bytes": 23197,
+      "sha256": "98f8b44f8858c0af2b99f23024b515a36d927bf2293df626f152a2948e0f2a3e"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck-20261108-focused.config.ts",
+      "archivePath": "edited-assessment-spec-recheck-20261108-focused.config.ts.source.txt",
+      "bytes": 591,
+      "sha256": "9be8de56e61bb26a0613593784c58a1e194d544626e1eae1ca82ffd0fa4bd0dc"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck2-20261108-boundaries.test.tsx",
+      "archivePath": "edited-assessment-spec-recheck2-20261108-boundaries.test.tsx.source.txt",
+      "bytes": 7919,
+      "sha256": "9bbd88db4c1a0b5077a08f7f3a610a22ca04b00f0c896b36545921a77f69d16d"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck2-20261108-boundary-results.json",
+      "archivePath": "edited-assessment-spec-recheck2-20261108-boundary-results.json",
+      "bytes": 9571,
+      "sha256": "2b0bbbe6a6ec276ae17a452f82d9a11876dea53f2216b2219c02cb136463fd41"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck2-20261108-focused-01.json",
+      "archivePath": "edited-assessment-spec-recheck2-20261108-focused-01.json",
+      "bytes": 292,
+      "sha256": "64e69265039b7945a64a2f7fb090345797dc0150632e815f64b136097de1dbc6"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck2-20261108-focused-01.log",
+      "archivePath": "edited-assessment-spec-recheck2-20261108-focused-01.log.txt",
+      "bytes": 2506,
+      "sha256": "fd2e52ab1c57fb5d90e403b8fdd0aa78f9601a211f92bee90a0f6fa432cce820"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck2-20261108-focused.config.ts",
+      "archivePath": "edited-assessment-spec-recheck2-20261108-focused.config.ts.source.txt",
+      "bytes": 847,
+      "sha256": "52aca1b30978fe77dcc444c6c3db9381df1ff2a0d5e9a180aa4558f5c810e234"
+    },
+    {
+      "originalPath": "work/grounded-verification/edited-assessment-spec-recheck2-20261108-reminders.test.ts",
+      "archivePath": "edited-assessment-spec-recheck2-20261108-reminders.test.ts.source.txt",
+      "bytes": 1932,
+      "sha256": "11882d0790fe00787b4f523bd715a427776f9459db9730953c48762726b4bd15"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-denial-red-03.json",
+      "archivePath": "shared-assessment-author-20261108-denial-red-03.json",
+      "bytes": 287,
+      "sha256": "369ba9c58da4cff565c198525a503981b91b873f3b3faad027b0eb58574c1f0e"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-denial-red-03.log",
+      "archivePath": "shared-assessment-author-20261108-denial-red-03.log.txt",
+      "bytes": 77069,
+      "sha256": "22dbfebcfb84e3907f0eb622d7c2a9a79a18194540425879c3aa6e0749ef3679"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-extract.mjs",
+      "archivePath": "shared-assessment-author-20261108-extract.mjs.source.txt",
+      "bytes": 4324,
+      "sha256": "8ed88d55012a389a699fdc4f964998e5bdf502133be8d74556fa3c463cb44d59"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-extraction-01.json",
+      "archivePath": "shared-assessment-author-20261108-extraction-01.json",
+      "bytes": 285,
+      "sha256": "d865757641987a7bb8a4c0c796affa83f6b831fe9b2bfce8ac45fd1c51cd0911"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-extraction-01.log",
+      "archivePath": "shared-assessment-author-20261108-extraction-01.log.txt",
+      "bytes": 93,
+      "sha256": "34b89224678639ee8cf45bf2ff78dc881593c4c77f6cc2a0db48f6367feed73f"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-green-04.json",
+      "archivePath": "shared-assessment-author-20261108-green-04.json",
+      "bytes": 282,
+      "sha256": "3f8a67ebc46c833932cecbe7b58f364d10d305e3ff6d8d1069a2c8e8b918ef7e"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-green-04.log",
+      "archivePath": "shared-assessment-author-20261108-green-04.log.txt",
+      "bytes": 943,
+      "sha256": "62f65c39502e52fb2f1a7c5f6407ea9d7067e9e5f9e7eef698c4f6aa25a0fb19"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-lint-06.json",
+      "archivePath": "shared-assessment-author-20261108-lint-06.json",
+      "bytes": 281,
+      "sha256": "04201fc35cb2905bafeecae1650803748ca341f7a823fce800fcdf0ce8e00e25"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-lint-06.log",
+      "archivePath": "shared-assessment-author-20261108-lint-06.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-memo.md",
+      "archivePath": "shared-assessment-author-20261108-memo.md",
+      "bytes": 4490,
+      "sha256": "560ca6135a7289fc5e08b013fc08a1863435d2b1c2aeba030e76337457ab7410"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-migrated-red-02.json",
+      "archivePath": "shared-assessment-author-20261108-migrated-red-02.json",
+      "bytes": 289,
+      "sha256": "238c763bcc0234a8caf84fd8ff6ce7ec5297418411cd3635de04f98cfca53018"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-migrated-red-02.log",
+      "archivePath": "shared-assessment-author-20261108-migrated-red-02.log.txt",
+      "bytes": 13689,
+      "sha256": "1e689cf0ac15e0d691198a0abc647f9dfc3cb447882d35ce476586e59a8c0bf1"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-red-01.json",
+      "archivePath": "shared-assessment-author-20261108-red-01.json",
+      "bytes": 279,
+      "sha256": "caec80f261c63d276794230e0f3c4e493c135ad5dfbd0dccb31ee7e3c8e8aece"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-red-01.log",
+      "archivePath": "shared-assessment-author-20261108-red-01.log.txt",
+      "bytes": 23398,
+      "sha256": "2ebd07c9ae68555367fa983134acfe356ad32872e1041ec197833d5c53c20a5e"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-types-05.json",
+      "archivePath": "shared-assessment-author-20261108-types-05.json",
+      "bytes": 282,
+      "sha256": "99ebf04336210975f5677f3db8d5d3070fa04c0e4611d4bb4ee7457d280b891c"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-types-05.log",
+      "archivePath": "shared-assessment-author-20261108-types-05.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-types.config.json",
+      "archivePath": "shared-assessment-author-20261108-types.config.json",
+      "bytes": 709,
+      "sha256": "77b8931ebc9278a53242b509cde834e98305daa54d102685e018dae029d700f7"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-author-20261108-vitest.config.ts",
+      "archivePath": "shared-assessment-author-20261108-vitest.config.ts.source.txt",
+      "bytes": 463,
+      "sha256": "6aa548e6e85766a3a1c5f58eb608a329861117a770543297e3baddd8114974ad"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-baseline-20261108.ts",
+      "archivePath": "shared-assessment-baseline-20261108.ts.source.txt",
+      "bytes": 36974,
+      "sha256": "2b9690f58f117f056e23b2a50998b285360d13f4113e5e25b75472c2d6715241"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-native-20261108-a-results.json",
+      "archivePath": "shared-assessment-native-20261108-a-results.json",
+      "bytes": 17171,
+      "sha256": "5a85f91b2973cf87e38afa8db512cee0b65501f1ce2a1fbe8c2430b2f0f4f2ee"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-native-20261108.mjs",
+      "archivePath": "shared-assessment-native-20261108.mjs.source.txt",
+      "bytes": 5920,
+      "sha256": "0134ea666ace0451e6c1d66805cb1355877c0c4bd8f418c5caa2189922c85a9d"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-negation-20261108-results.json",
+      "archivePath": "shared-assessment-negation-20261108-results.json",
+      "bytes": 798,
+      "sha256": "5b747feb1e5ea5518a86a2b37c05467a358ee5283d86d6a9fcbc597b102b5b8c"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-negation-20261108.mjs",
+      "archivePath": "shared-assessment-negation-20261108.mjs.source.txt",
+      "bytes": 1306,
+      "sha256": "fbe411ed4f1b5d5009626f4fbe03b81189c45a7ba63e987a7b1322f9b6514759"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-baseline-source.ts",
+      "archivePath": "shared-assessment-quality-20261108-baseline-source.ts.source.txt",
+      "bytes": 36974,
+      "sha256": "2b9690f58f117f056e23b2a50998b285360d13f4113e5e25b75472c2d6715241"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-focused-a.json",
+      "archivePath": "shared-assessment-quality-20261108-focused-a.json",
+      "bytes": 284,
+      "sha256": "78c376d4a9d47ed0bec98ede1e46f7fbe251a28b9c2c90f5f501c09eaeb117b3"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-focused-a.log",
+      "archivePath": "shared-assessment-quality-20261108-focused-a.log.txt",
+      "bytes": 1846,
+      "sha256": "04bf44b5ad921231b97a9d800f996cb0f68ac59d099e44f7fc927e7f3f10986f"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-lint-a.json",
+      "archivePath": "shared-assessment-quality-20261108-lint-a.json",
+      "bytes": 281,
+      "sha256": "d73548613abf581ffe1e0132ec5857fbb84ca15a3fdbf85d8b4d5fedf3e8226b"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-lint-a.log",
+      "archivePath": "shared-assessment-quality-20261108-lint-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-memo.md",
+      "archivePath": "shared-assessment-quality-20261108-memo.md",
+      "bytes": 8431,
+      "sha256": "8098f62b99f29d0085c39795fca37d7e41dd88ab060d74770df64cfebd23ebcd"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-probe-results.json",
+      "archivePath": "shared-assessment-quality-20261108-probe-results.json",
+      "bytes": 782,
+      "sha256": "106fcbbf18e1ae9a6c132ac77b3192dada5752d59ee82443888e91e220c15aa5"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-probe.test.ts",
+      "archivePath": "shared-assessment-quality-20261108-probe.test.ts.source.txt",
+      "bytes": 8568,
+      "sha256": "6b0b59abbf70bca6baaf988282c1b8afb48af01270ef2b6ddca870e094a98e31"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-quality-20261108-vitest.config.ts",
+      "archivePath": "shared-assessment-quality-20261108-vitest.config.ts.source.txt",
+      "bytes": 523,
+      "sha256": "6b597e0660fbaec7930ecbcf309c6aca8a18f1c915b6eb68d11b02dfcea31f81"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-root-focused-20261108-a.json",
+      "archivePath": "shared-assessment-root-focused-20261108-a.json",
+      "bytes": 281,
+      "sha256": "d1c97de40feee0d39fcbd77c3e4229da651a06c1eea1befbaf40dc5fe8913993"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-root-focused-20261108-a.log",
+      "archivePath": "shared-assessment-root-focused-20261108-a.log.txt",
+      "bytes": 1204,
+      "sha256": "a4a89e391ed9c029954edd64f3ef886a8ccc737b843eb87b8885a061fb28b0a0"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-root-native-20261108-a.json",
+      "archivePath": "shared-assessment-root-native-20261108-a.json",
+      "bytes": 279,
+      "sha256": "26af0574b7ef99f179c20111bf2bfe1b9fea426d54a2e1fc20a9549a6643b861"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-root-native-20261108-a.log",
+      "archivePath": "shared-assessment-root-native-20261108-a.log.txt",
+      "bytes": 153,
+      "sha256": "98b2053cfa07739bbda5198c8bcc7e99ba06cedc2eea1caf20df96e46463c770"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-root-negation-20261108-a.json",
+      "archivePath": "shared-assessment-root-negation-20261108-a.json",
+      "bytes": 281,
+      "sha256": "4f30a15fb58888c7bc846b7c265842affcb778fa41a946f217328bff6f6276f7"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-root-negation-20261108-a.log",
+      "archivePath": "shared-assessment-root-negation-20261108-a.log.txt",
+      "bytes": 503,
+      "sha256": "aa3d5f2a48b5aa75f52b011c8a16e2dcc5be4758e1a61f1720cc585fca4ceee5"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-baseline-source.ts",
+      "archivePath": "shared-assessment-spec-20261108-baseline-source.ts.source.txt",
+      "bytes": 37355,
+      "sha256": "71501cd05956e98d8870e104abbce498b809670ed3dfe3a49ad904c662708eb7"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-focused-a.json",
+      "archivePath": "shared-assessment-spec-20261108-focused-a.json",
+      "bytes": 281,
+      "sha256": "66048386835c4994f30443b2ef98848675cf5e5568c7ec0bb65a8e907a54b47f"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-focused-a.log",
+      "archivePath": "shared-assessment-spec-20261108-focused-a.log.txt",
+      "bytes": 1095,
+      "sha256": "194aa26b7ba1f2cddabc0d63c2ebfea6e6419104ac56f188a56c2d0de1ac036a"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-memo.md",
+      "archivePath": "shared-assessment-spec-20261108-memo.md",
+      "bytes": 7668,
+      "sha256": "3017d37fab2dd36dfc392d69eaa2cf1a6b2339dad7c34a1b39f62c4c5c4ed403"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-probe.test.ts",
+      "archivePath": "shared-assessment-spec-20261108-probe.test.ts.source.txt",
+      "bytes": 6350,
+      "sha256": "7553393020da4fe3be9f1dfc52a13c15587c6235f5c905b76e485bc8f0140d38"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-source-check-a.json",
+      "archivePath": "shared-assessment-spec-20261108-source-check-a.json",
+      "bytes": 285,
+      "sha256": "a4c7a9fc7e765bdfb1f0bd1569a3aed40206ca83d5f45612ec628dbbce628e39"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-source-check-a.log",
+      "archivePath": "shared-assessment-spec-20261108-source-check-a.log.txt",
+      "bytes": 2942,
+      "sha256": "fe78fb098b728282d7f8214c843eaec4dd7b420600266867e7cc7a8182370072"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-source-check-results.json",
+      "archivePath": "shared-assessment-spec-20261108-source-check-results.json",
+      "bytes": 2942,
+      "sha256": "fe78fb098b728282d7f8214c843eaec4dd7b420600266867e7cc7a8182370072"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-source-check.mjs",
+      "archivePath": "shared-assessment-spec-20261108-source-check.mjs.source.txt",
+      "bytes": 7333,
+      "sha256": "553fa6b84f92b0db020b18fb0d0d90b026eba6d80709d063796c34de432663ec"
+    },
+    {
+      "originalPath": "work/grounded-verification/shared-assessment-spec-20261108-vitest.config.ts",
+      "archivePath": "shared-assessment-spec-20261108-vitest.config.ts.source.txt",
+      "bytes": 520,
+      "sha256": "aea8d0def1b7258fe9dbabc38da56a606f425027cce9f693cb37e9d9df2773c9"
+    },
+    {
+      "originalPath": "work/grounded-verification/archive-edited-assessment-20261108.ps1",
+      "archivePath": "archive-edited-assessment-20261108.ps1.source.txt",
+      "bytes": 5928,
+      "sha256": "8ba99b19fde41ad5e1c9cbf40b313027adc5b9b87583f5192b8669b3513abf99"
+    }
+  ]
+}

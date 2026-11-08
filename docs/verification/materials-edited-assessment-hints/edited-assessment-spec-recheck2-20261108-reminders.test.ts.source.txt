@@ -1,0 +1,20 @@
+import { describe, expect, it } from "vitest";
+import { groundedStatementBoundaries, groundSourceReviewPoints, groundSourceSelfLevelHint } from "../../worker/document-executor/source-review-evidence";
+for (const qualifier of ["按指导", "按照指导", "在导师指导下"]) describe(`independent statement-local reminder contract: ${qualifier}`, () => {
+  it.each([". ", ".", "。"])("preserves full hint scope and binds reminders to one statement (%s)", separator => {
+    const first = `${qualifier}完成 React.js 组件练习${separator.trimEnd()}`;
+    const quote = `${qualifier}完成 React.js 组件练习${separator}阅读 CSS 文档是我下周的计划。`;
+    const source = (text: string) => ({ segmentId: "section", quote: text });
+    const point = (text: string) => ({ code: "confirm-self-assessment" as const, source: source(text) });
+    const candidate = { kind: "experience" as const, source: source(quote), skillLabels: ["React.js"], selfLevelHint: "guided" as const };
+    const document = { text: quote, segments: [{ id: "section", start: 0, end: quote.length }] };
+    const statements = [...groundedStatementBoundaries(quote)].map(([start, end]) => quote.slice(start, end));
+    expect(statements).toEqual([first, "阅读 CSS 文档是我下周的计划。"]);
+    expect(groundSourceSelfLevelHint(candidate)).toBe("guided");
+    // This full anchor exceeds the first statement boundary and is not local to it.
+    expect(groundSourceReviewPoints([point(quote)], [candidate], document)?.filter(reminder => reminder.code === "confirm-self-assessment")).toEqual([]);
+    // A first-statement anchor retains that exact citation, never the later CSS plan.
+    const localCandidate = { ...candidate, source: source(first) };
+    expect(groundSourceReviewPoints([point(first)], [localCandidate], document)?.filter(reminder => reminder.code === "confirm-self-assessment")).toEqual([point(first)]);
+  });
+});

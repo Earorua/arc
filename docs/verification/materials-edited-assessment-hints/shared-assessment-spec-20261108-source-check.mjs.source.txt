@@ -1,0 +1,119 @@
+import assert from "node:assert/strict";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { resolve, dirname, relative } from "node:path";
+import { createHash } from "node:crypto";
+import ts from "../../node_modules/typescript/lib/typescript.js";
+
+const root = process.cwd();
+const paths = {
+  old: "work/grounded-verification/shared-assessment-spec-20261108-baseline-source.ts",
+  worker: "worker/document-executor/source-review-evidence.ts",
+  shared: "app/lib/materials/self-assessment-evidence.ts",
+  quotes: "app/lib/materials/quotation-evidence.ts",
+};
+const read = path => readFileSync(resolve(root, path), "utf8");
+const printer = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed });
+function parse(path) {
+  const file = ts.createSourceFile(path, read(path), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const declarations = new Map();
+  for (const statement of file.statements) {
+    if ((ts.isFunctionDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) && statement.name) {
+      declarations.set(statement.name.text, statement);
+    } else if (ts.isVariableStatement(statement)) {
+      assert.equal(statement.declarationList.declarations.length, 1, "probe expects one named declaration per statement");
+      const declaration = statement.declarationList.declarations[0];
+      assert(ts.isIdentifier(declaration.name));
+      declarations.set(declaration.name.text, statement);
+    }
+  }
+  return { file, declarations };
+}
+const baseline = parse(paths.old), worker = parse(paths.worker), shared = parse(paths.shared), quotes = parse(paths.quotes);
+const renamed = new Map([
+  ["personalCapabilityQuestion", "hasPersonalCapabilityQuestion"],
+  ["supportsLevel", "supportsSelfLevelHintInScope"],
+]);
+let negationGuard;
+function canonical(container, name, removeGuard = false) {
+  let node = container.declarations.get(name);
+  assert(node, `missing declaration ${name}`);
+  if (removeGuard) {
+    assert(ts.isFunctionDeclaration(node) && node.body);
+    const guards = node.body.statements.filter(s => ts.isIfStatement(s) && s.getText(container.file).includes("did\\s+not"));
+    assert.equal(guards.length, 1, "exactly one new actor-local did-not guard");
+    negationGuard = guards[0].getText(container.file);
+    node = ts.factory.updateFunctionDeclaration(node, node.modifiers, node.asteriskToken, node.name,
+      node.typeParameters, node.parameters, node.type,
+      ts.factory.updateBlock(node.body, node.body.statements.filter(s => s !== guards[0])));
+  }
+  let output = printer.printNode(ts.EmitHint.Unspecified, node, container.file).replace(/^export /u, "");
+  for (const [oldName, newName] of renamed) output = output.replace(new RegExp(`\\b${newName}\\b`, "gu"), oldName);
+  output = output.replace("hasPersonalPracticeNeed(quote, masked)", "assessmentScopes(quote, masked).some(({ text }) => personalPracticeNeed(text))");
+  return output;
+}
+const moved = [
+  "quoted", "maskQuotes", "hypothetical", "deniedAssertion", "selfConflict", "deniedConflict",
+  "assertedSkillEvidence", "englishConceptual", "chineseConceptual", "supervised", "instructionalPractice",
+  "deniedInstructionalPractice", "selfUncertain", "chineseGuidance", "practiceAction", "personalPassivePractice",
+  "guidedNegation", "instructionalFragmentStart", "guidedPractice", "guidedSkillScope", "personalPracticeNeed",
+  "personalCapabilityQuestion", "scopeBreak", "personalAssessmentHeading", "reportedAssessment", "assessmentScopes",
+  "conceptualAssessment", "personalUncertainty", "supportsLevel",
+];
+for (const oldName of moved) {
+  const newName = renamed.get(oldName) ?? oldName;
+  const current = quotes.declarations.has(newName) ? quotes : shared;
+  assert.equal(canonical(current, newName, newName === "guidedPractice"), canonical(baseline, oldName), `moved declaration differs: ${oldName}`);
+  assert(!worker.declarations.has(oldName), `moved parser still duplicated in worker: ${oldName}`);
+}
+const workerPreserved = [];
+for (const name of baseline.declarations.keys()) {
+  if (moved.includes(name) || name === "groundSourceSelfLevelHint") continue;
+  assert.equal(canonical(worker, name), canonical(baseline, name), `remaining worker declaration differs: ${name}`);
+  workerPreserved.push(name);
+}
+assert.deepEqual([...worker.declarations.keys()].sort(), [...baseline.declarations.keys()].filter(name => !moved.includes(name)).sort());
+const exports = container => container.file.statements.filter(statement => statement.modifiers?.some(m => m.kind === ts.SyntaxKind.ExportKeyword)).map(statement => statement.name?.text).sort();
+assert.deepEqual(exports(worker), exports(baseline), "worker public exports changed");
+
+const edges = [], files = new Map(), external = new Set();
+function visit(absolute, ancestors = []) {
+  const local = relative(root, absolute).replaceAll("\\", "/");
+  assert(!ancestors.includes(local), `runtime import cycle: ${[...ancestors, local].join(" -> ")}`);
+  if (files.has(local)) return;
+  assert(!/(?:^|\/)(?:worker|server)(?:\/|$)/u.test(local), `forbidden runtime dependency ${local}`);
+  const text = readFileSync(absolute, "utf8");
+  assert(!/\bprocess\.env\b|\bfetch\s*\(|\bD1Database\b/u.test(text), `environment/network/D1 coupling in ${local}`);
+  const file = ts.createSourceFile(local, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  files.set(local, createHash("sha256").update(text).digest("hex"));
+  for (const statement of file.statements) {
+    if (!ts.isImportDeclaration(statement) || statement.importClause?.isTypeOnly) continue;
+    const specifier = statement.moduleSpecifier.text;
+    if (!specifier.startsWith(".")) {
+      external.add(specifier);
+      continue;
+    }
+    const base = resolve(dirname(absolute), specifier);
+    const target = [base, base + ".ts", resolve(base, "index.ts")].find(candidate => existsSync(candidate));
+    assert(target, `unresolved import ${specifier} from ${local}`);
+    edges.push([local, relative(root, target).replaceAll("\\", "/")]);
+    visit(target, [...ancestors, local]);
+  }
+}
+visit(resolve(root, paths.shared));
+assert.deepEqual([...external].sort(), ["zod"]);
+const hashPaths = [paths.shared, paths.quotes, paths.worker,
+  "tests/lib/materials/self-assessment-evidence.test.ts", "tests/server/document-source-review-evidence.test.ts"];
+const hashes = Object.fromEntries(hashPaths.map(path => [path, createHash("sha256").update(readFileSync(resolve(root, path))).digest("hex")]));
+const result = {
+  status: "PASS",
+  baselineCommit: "80546d0",
+  movedDeclarations: moved,
+  movedDeclarationsCompared: moved.length,
+  workerDeclarationsCompared: workerPreserved.length,
+  workerPublicExports: exports(worker),
+  authorizedOnlySemanticChange: negationGuard,
+  runtimeGraphFiles: [...files.keys()], runtimeGraphEdges: edges, externalPackages: [...external], hashes,
+  limitations: "AST equivalence ignores comments and export/name changes; removes only the explicit new did-not guard for comparison. Dependency graph follows relative static runtime imports and reports external package names; it does not audit zod internals.",
+};
+writeFileSync(resolve(root, "work/grounded-verification/shared-assessment-spec-20261108-source-check-results.json"), JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result, null, 2));

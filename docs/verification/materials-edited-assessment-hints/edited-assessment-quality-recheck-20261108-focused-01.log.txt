@@ -1,0 +1,26 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:47704) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-review-draft.test.ts [2m([22m[2m107 tests[22m[2m)[22m[33m 1864[2mms[22m[39m
+ [32m✓[39m tests/components/material-confirmation-source.test.tsx [2m([22m[2m76 tests[22m[2m)[22m[33m 1196[2mms[22m[39m
+ [32m✓[39m tests/components/materials-ai-flow.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 501[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-review-evidence.test.ts [2m([22m[2m448 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/self-assessment-evidence.test.ts [2m([22m[2m142 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/retained-assessment-hints.test.ts [2m([22m[2m128 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+(node:13028) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/edited-assessment-quality-recheck-20261108-original-probes.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 831[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a suggestion only for actual practice after editing: 按指导完成不了 SQL 查询练习 [33m 309[2mms[22m[39m
+(node:47976) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m work/grounded-verification/edited-assessment-quality-recheck-20261108-dotted-probes.test.tsx [2m([22m[2m40 tests[22m[2m)[22m[33m 819[2mms[22m[39m
+     [33m[2m✓[22m[39m offers the old level only after supported action: 按指导完成 React.js 组件练习是我下周的计划。 [33m 307[2mms[22m[39m
+ [32m✓[39m work/grounded-verification/edited-assessment-quality-recheck-20261108-controls.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m998 passed[39m[22m[90m (998)[39m
+[2m   Start at [22m 18:57:30
+[2m   Duration [22m 17.58s[2m (transform 1.12s, setup 1.75s, import 3.77s, tests 5.55s, environment 5.17s)[22m
+
