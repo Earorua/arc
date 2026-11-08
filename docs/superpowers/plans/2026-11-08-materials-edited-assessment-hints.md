@@ -16,6 +16,8 @@
 
 这是现有方案内的离线正确性修复。仍不接入新mention投影，不改变课程映射和实践优先级，不扩展学习意图资格，不部署、不远程迁移、不调用真实模型、不推送。
 
+**11月8日Task 1补充的实证修正：** 根任务对 `80546d0` 的原worker函数进行8个只读对照，确认 `I did not test SQL under supervision.` 对SQL错误返回guided，而正常个人实践返回guided、其他6个否定／无指导对照返回null。原日志 `shared-assessment-root-negation-20261108-a`，exit 0、出站拦截0；这是缺陷表征，不是语义验收通过。Task 1须先把该句、前置指导及同类did-not动作写为预期null红例，再增加局限于当前个人动作的否定保护；不能一概拒绝任意包含not的长句，或把未受指导等同于没有经历。其余原行为继续保持并对照；原始基线不得改写。
+
 ## Task 1：共享能力建议的文本证据规则
 
 **Files:** 新增 `app/lib/materials/self-assessment-evidence.ts`；必要的引文公共函数放入 `app/lib/materials/quotation-evidence.ts`；修改 `worker/document-executor/source-review-evidence.ts`，维持其已有导出接口；新增 `tests/lib/materials/self-assessment-evidence.test.ts`。原 `tests/server/document-source-review-evidence.test.ts` 等套件不削弱。
