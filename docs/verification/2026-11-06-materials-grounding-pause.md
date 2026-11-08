@@ -8,7 +8,9 @@
 
 中间源码快照999文件，摘要`9424f5b482adbd7b83356926b6baf3008b2e3b1664871ef6ddb9451a6c99026a`，副本`D:/CodexTemp/arc-edited-assessment-4k7Z67/source`保持冻结。该版本类型／Lint／构建／页面5项、串行50项、Research99项已通过；普通全仓和附加Node因质量缺陷主动中止，部分日志保留，不计通过。所有最终验证须在修复后另取运行名及源码副本，不能覆盖这些结果。
 
-当前作者为`implement_edited_assessment_retention`的修复续任务；新证据前缀`edited-assessment-repair-20261108-*`。修复后依次重新规格审阅、质量审阅、全仓／原生／界面检查、归档和本地提交。下一批[逐词实践归因计划](../superpowers/plans/2026-11-08-materials-experience-attribution.md)已准备，须等本批验收保存后执行。26份冻结课程参考、旧评分器和历史R2/P1结论不改。
+第一次动作修复已取得作者1,363项、原质量16项和根任务35项对照通过，源码摘要`8a44bd187cb5f2bf1f16f9eeb04b5039f237cedd6f65f12ca513ecd0f7da8768`。再次规格审查发现`React.js`内部的ASCII点截断了同类计划谓语，6项纯函数和2项实际界面保存／重载失败；该次8失败／784通过单独保存为`edited-assessment-spec-20261108-recheck-memo.md`，摘要`706e27270588c551605670d0a7043b6d92a589e23e7a4151234045a3cfd65d4b`，不能计为规格通过。完整补丁已冻结，旧失败证据不覆盖。
+
+当前作者为`implement_edited_assessment_retention`的标点修复续任务，新证据使用`edited-assessment-punctuation-*`；只区分技术词内部点与真实动作边界，不扩大其他语法。修复后依次再次规格审阅、质量审阅、全仓／原生／界面检查、归档和本地提交。最终规格备忘录使用新名`edited-assessment-spec-20261108-recheck2-memo.md`。下一批[逐词实践归因计划](../superpowers/plans/2026-11-08-materials-experience-attribution.md)已准备，须等本批验收保存后执行。26份冻结课程参考、旧评分器和历史R2/P1结论不改。
 
 本轮仍无真实模型、费用、部署、远程迁移或推送；历史30次推理、0.547151 USD、未决0。下方“最新恢复检查点”均为此前已完成批次，保留作为历史。
 
