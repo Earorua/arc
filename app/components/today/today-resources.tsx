@@ -15,7 +15,7 @@ export function TodayResources({ children }: { children: ReactNode }) {
   const [choice, setChoice] = useState<boolean | null>(null);
   const open = choice ?? !narrow;
   return <details className="today-resource-disclosure" open={open}>
-    <summary onClick={event => { event.preventDefault(); setChoice(!open); }}>学习资料</summary>
+    <summary id="today-resources-title" onClick={event => { event.preventDefault(); setChoice(!open); }}>Learning resources</summary>
     {children}
   </details>;
 }

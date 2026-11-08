@@ -9,9 +9,9 @@ export function ProofContextReturn() {
   const destination = safeContextReturnTo(query.get("returnTo"), "/proof");
   if (destination === "/proof") return null;
   const url = new URL(destination, "https://arc.invalid");
-  const label = url.pathname === "/stack" ? url.searchParams.has("skill") ? "返回原技能" : "返回技能与资料"
-    : url.pathname === "/today" ? "返回今日学习"
-    : url.pathname === "/path" ? "返回学习路线"
-    : url.pathname === "/history" ? "返回学习历史" : "返回来源页面";
+  const label = url.pathname === "/stack" ? url.searchParams.has("skill") ? "Back to skill" : "Back to skills and resources"
+    : url.pathname === "/today" ? "Back to Today"
+    : url.pathname === "/path" ? "Back to learning path"
+    : url.pathname === "/history" ? "Back to learning history" : "Back to previous page";
   return <Link className="text-action proof-context-return" href={destination} scroll={false}>{label}</Link>;
 }

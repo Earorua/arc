@@ -283,15 +283,15 @@ export function AccountMenu() {
   }
 
   if (signOutStatus === "complete") {
-    return <Link className="account-link" href={loginHref}>登录</Link>;
+    return <Link className="account-link" href={loginHref}>Sign in</Link>;
   }
 
   if (isPending) {
-    return <span className="account-pending" aria-label="正在确认账号">•••</span>;
+    return <span className="account-pending" aria-label="Checking your account">•••</span>;
   }
 
   if (!data?.user) {
-    return <Link className="account-link" href={loginHref}>登录</Link>;
+    return <Link className="account-link" href={loginHref}>Sign in</Link>;
   }
   const signedInUserId = data.user.id;
 
@@ -300,7 +300,7 @@ export function AccountMenu() {
       <details className="account-menu" ref={accountMenuRef}>
         <summary ref={accountSummaryRef}>{data.user.name}</summary>
         <div className="account-popover">
-          <strong>当前账号 · {data.user.name}</strong>
+          <strong>Signed in as {data.user.name}</strong>
           <span>{data.user.email}</span>
           <LearningPreferences />
           <div className="account-connections" aria-label="Sign-in connections">
@@ -347,7 +347,7 @@ export function AccountMenu() {
             />
           )}
           <button className="account-sign-out" disabled={signOutStatus === "pending"} onClick={() => void signOut()} type="button">
-            {signOutStatus === "pending" ? "正在退出…" : "退出登录"}
+            {signOutStatus === "pending" ? "Signing out…" : "Sign out"}
           </button>
           {signOutStatus === "failed" && <p className="account-sign-out-error" role="alert">Couldn&apos;t sign out. Please try again.</p>}
         </div>

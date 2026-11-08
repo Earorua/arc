@@ -38,10 +38,10 @@ afterEach(() => {
 });
 
 const pages = [
-  { Page: TodayPage, route: "/today", pending: "正在恢复你的学习计划…", guest: "从今天的一项任务开始", signedIn: "正在恢复你的学习计划…" },
-  { Page: PathPage, route: "/path", pending: "正在恢复你的学习计划…", guest: "你的下一步，有迹可循", signedIn: "正在恢复你的学习计划…" },
-  { Page: HistoryPage, route: "/history?offset=20", pending: "正在确认登录…", guest: "回看走过的学习路线", signedIn: "历史学习计划" },
-  { Page: SetupPage, route: "/setup?step=confirm", pending: "正在确认账户…", guest: "你想学习哪个岗位或方向？", signedIn: "你想学习哪个岗位或方向？" },
+  { Page: TodayPage, route: "/today", pending: "", guest: "Start with one task today", signedIn: "" },
+  { Page: PathPage, route: "/path", pending: "", guest: "A clear path to your next step", signedIn: "" },
+  { Page: HistoryPage, route: "/history?offset=20", pending: "Checking your session…", guest: "Revisit your learning journey", signedIn: "Past learning plans" },
+  { Page: SetupPage, route: "/setup?step=confirm", pending: "Checking your account…", guest: "What role or field do you want to learn?", signedIn: "What role or field do you want to learn?" },
 ];
 
 describe("page session hydration", () => {
@@ -51,7 +51,8 @@ describe("page session hydration", () => {
       window.history.replaceState(null, "", route);
       const container = document.createElement("div");
       container.innerHTML = renderToString(<Page />);
-      expect(container).toHaveTextContent(pending);
+      if (pending) expect(container).toHaveTextContent(pending);
+      else expect(within(container).getByRole("status")).toBeEmptyDOMElement();
       document.body.appendChild(container);
       // Another client boundary may resolve the shared auth store before this page hydrates.
       mocks.session.mockReturnValue({ isPending: false, data: authenticated
@@ -61,7 +62,9 @@ describe("page session hydration", () => {
       try {
         await act(async () => { root = hydrateRoot(container, <Page />, { onRecoverableError }); });
         expect(onRecoverableError).not.toHaveBeenCalled();
-        expect(within(container).getByText(authenticated ? signedIn : guest)).toBeInTheDocument();
+        const expected = authenticated ? signedIn : guest;
+        if (expected) expect(within(container).getByText(expected)).toBeInTheDocument();
+        else expect(within(container).getByRole("status")).toBeEmptyDOMElement();
       } finally {
         await act(async () => root?.unmount());
         container.remove();

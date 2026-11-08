@@ -20,14 +20,14 @@ export function TimeEditFlow({ arc, signedIn, draftOwner, onResearchActiveChange
   const planning = usePlanningWorkspace({ cloudOnly: signedIn });
   useEffect(() => { onResearchActiveChange(false); }, [onResearchActiveChange]);
   const resolved = planning.cloudGoalMissing && !planning.workspace && !planning.sourceContext ? { kind: "legacy" as const } : resolveWorkspacePresentation(planning);
-  if (resolved.kind === "loading") return <section className="setup-flow"><h1>调整每周时间</h1><p role="status">正在读取当前计划…</p></section>;
-  if (resolved.kind === "legacy" && arc.source === "restoring") return <section className="setup-flow"><h1>调整每周时间</h1><p role="status">正在读取当前计划…</p></section>;
+  if (resolved.kind === "loading") return <section className="setup-flow"><h1>Adjust weekly time</h1><p role="status">Loading your current plan…</p></section>;
+  if (resolved.kind === "legacy" && arc.source === "restoring") return <section className="setup-flow"><h1>Adjust weekly time</h1><p role="status">Loading your current plan…</p></section>;
   if (resolved.kind === "legacy" && (arc.recovery === "session-expired" || arc.source === "offline-cloud" || (signedIn && arc.source === "local" && !planning.cloudGoalMissing))) return <section className="setup-flow">
-    <h1>调整每周时间</h1><p role="alert">{arc.recovery === "session-expired" ? "登录已过期，请重新登录后调整当前计划。" : "暂时无法读取当前计划，已有目标与学习记录保持不变。"}</p>
+    <h1>Adjust weekly time</h1><p role="alert">{arc.recovery === "session-expired" ? "Your session has expired. Sign in again to adjust your plan." : "Your current plan could not be loaded. Your goal and learning records are unchanged."}</p>
     {arc.recovery === "session-expired"
-      ? <Link className="text-action" href="/sign-in?reauth=1&next=%2Fsetup%3Fmode%3Dedit%26section%3Dtime">重新登录</Link>
-      : <button className="setup-next" type="button" onClick={() => void Promise.allSettled([arc.retry(), planning.retry()])}>重新读取计划</button>}
-    <Link className="text-action" href="/path">返回当前路线</Link>
+      ? <Link className="text-action" href="/sign-in?reauth=1&next=%2Fsetup%3Fmode%3Dedit%26section%3Dtime">Sign in again</Link>
+      : <button className="setup-next" type="button" onClick={() => void Promise.allSettled([arc.retry(), planning.retry()])}>Reload plan</button>}
+    <Link className="text-action" href="/path">Back to current path</Link>
   </section>;
   const basicReady = arc.state && arc.recovery === "none" && (signedIn
     ? arc.source === "cloud" && planning.source === "cloud" && !planning.cloudGoalMissing
@@ -35,11 +35,11 @@ export function TimeEditFlow({ arc, signedIn, draftOwner, onResearchActiveChange
   if (resolved.kind === "legacy" && basicReady && arc.state) return <BasicTimeEditor
     key={JSON.stringify([draftOwner, arc.state.setup.roleId, arc.state.setup.level, arc.state.setup.targetWeeks])}
     arc={arc} setup={arc.state.setup} />;
-  if (resolved.kind !== "adaptive") return <section className="setup-flow"><h1>调整每周时间</h1>
-    <p role="alert">{resolved.kind === "legacy" ? "当前还没有可调整时间的自适应计划。创建目标后即可安排每周时间。" : "暂时无法读取当前计划。请重试后再调整时间。"}</p>
-    {resolved.kind !== "legacy" && <button type="button" className="setup-next" onClick={() => void planning.retry()}>重新读取计划</button>}
-    <Link className="text-action" href="/path">返回当前路线</Link>
-    {resolved.kind === "legacy" && <Link className="text-action" href="/setup?mode=create">创建学习目标</Link>}
+  if (resolved.kind !== "adaptive") return <section className="setup-flow"><h1>Adjust weekly time</h1>
+    <p role="alert">{resolved.kind === "legacy" ? "There is no adaptive plan to adjust yet. Create a goal to set your weekly time." : "Your current plan could not be loaded. Try again before adjusting your time."}</p>
+    {resolved.kind !== "legacy" && <button type="button" className="setup-next" onClick={() => void planning.retry()}>Reload plan</button>}
+    <Link className="text-action" href="/path">Back to current path</Link>
+    {resolved.kind === "legacy" && <Link className="text-action" href="/setup?mode=create">Create a learning goal</Link>}
   </section>;
   return <AdaptiveTimeEditFlow key={JSON.stringify([draftOwner, resolved.workspace.goalId])} draftOwner={draftOwner} planning={planning} workspace={resolved.workspace} registry={resolved.registry} roleName={resolved.blueprint.name} />;
 }
@@ -75,26 +75,26 @@ function BasicTimeEditor({ arc, setup }: { arc: ArcStateController; setup: Setup
       const saved = await arc.saveSetup({ ...setup, weeklyMinutes }, controller.signal);
       if (!controller.signal.aborted) setCompleted(saved);
       if (!controller.signal.aborted) setMessage(saved
-        ? { kind: "status", text: "时间已保存，当前目标与已完成的记录保持不变。" }
-        : { kind: "alert", text: "未能保存时间。当前计划保持不变，请重试。" });
+        ? { kind: "status", text: "Your time is saved. Your current goal and completed work are unchanged." }
+        : { kind: "alert", text: "Could not save your time. Your current plan is unchanged. Try again." });
     } catch {
-      if (!controller.signal.aborted) setMessage({ kind: "alert", text: "未能保存时间。当前计划保持不变，请重试。" });
+      if (!controller.signal.aborted) setMessage({ kind: "alert", text: "Could not save your time. Your current plan is unchanged. Try again." });
     } finally {
       if (!controller.signal.aborted) { saving.current = null; setPending(false); }
     }
   };
   return <section className="setup-flow time-edit-flow">
-    <p className="setup-progress">调整当前基础计划 · 时间安排</p>
-    <h1>调整每周时间</h1>
-    <p>仅更新每周学习时间，保留当前目标、基础评估与已完成的记录。</p>
-    <label htmlFor="basic-weekly-minutes">每周可用分钟</label>
+    <p className="setup-progress">Adjust your basic plan · Schedule</p>
+    <h1>Adjust weekly time</h1>
+    <p>Update your weekly study time while keeping your goal, assessment, and completed work.</p>
+    <label htmlFor="basic-weekly-minutes">Available minutes per week</label>
     <input id="basic-weekly-minutes" type="number" min={30} max={2400} step={1} value={minutes} disabled={pending} onChange={(event) => { setMinutes(event.target.value); setCompleted(false); setMessage(null); }} />
     <div className="setup-actions setup-primary-actions">
-      <button className="setup-next" type="button" disabled={pending || !valid || weeklyMinutes === setup.weeklyMinutes} onClick={() => void save()}>{pending ? "正在保存…" : "保存时间"}</button>
-      <Link className="text-action" href="/path" onClick={() => { saving.current?.abort(); setCompleted(false); }}>取消修改</Link>
+      <button className="setup-next" type="button" disabled={pending || !valid || weeklyMinutes === setup.weeklyMinutes} onClick={() => void save()}>{pending ? "Saving…" : "Save time"}</button>
+      <Link className="text-action" href="/path" onClick={() => { saving.current?.abort(); setCompleted(false); }}>Cancel changes</Link>
     </div>
     {message && <p role={message.kind}>{message.text}</p>}
-    {completed && <div className="setup-completion-links"><Link className="text-action" href="/today">继续今日学习</Link></div>}
+    {completed && <div className="setup-completion-links"><Link className="text-action" href="/today">Continue today&apos;s learning</Link></div>}
   </section>;
 }
 
@@ -131,7 +131,7 @@ function CurrentTimeEditor({ planning, workspace, registry, roleName, draftOwner
     if (pending) return;
     const epoch = lifecycle.current; setPending(true);
     try { await planning.retry(); }
-    catch { if (epoch === lifecycle.current) setMessage({ kind: "alert", text: "暂时无法重新读取计划，请稍后重试。" }); }
+    catch { if (epoch === lifecycle.current) setMessage({ kind: "alert", text: "The plan could not be reloaded. Try again shortly." }); }
     finally { if (epoch === lifecycle.current) setPending(false); }
   };
   const preview = async () => {
@@ -141,25 +141,25 @@ function CurrentTimeEditor({ planning, workspace, registry, roleName, draftOwner
       const saved = await planning.record({ kind: "availability_changed", availability: toAvailability(draft), planningDate });
       if (saved) removeSetupDraft(draftOwner, draftSource);
       if (epoch !== lifecycle.current) return;
-      setMessage(saved ? { kind: "status", text: "调整建议已生成，请查看下方变化并选择接受或保留原安排。" } : { kind: "alert", text: "未能生成调整建议。你的当前计划仍保留，请重试。" });
-    } catch { if (epoch === lifecycle.current) setMessage({ kind: "alert", text: "未能生成调整建议。你的当前计划仍保留，请重试。" }); }
+      setMessage(saved ? { kind: "status", text: "Your proposed changes are ready. Review them below, then accept or keep your original schedule." } : { kind: "alert", text: "Could not create proposed changes. Your current plan is saved. Try again." });
+    } catch { if (epoch === lifecycle.current) setMessage({ kind: "alert", text: "Could not create proposed changes. Your current plan is saved. Try again." }); }
     finally { if (epoch === lifecycle.current) setPending(false); }
   };
   return <section className="setup-flow time-edit-flow">
-    <p className="setup-progress">调整当前计划 · 时间安排</p>
-    <h1 ref={heading} tabIndex={-1}>调整每周时间</h1>
-    <p className="setup-intent">{roleName} · {workspace.target.targetWeeks} 周目标。当前目标与已完成的记录会保留。</p>
-    <p>先预览任务日期的变化，再决定是否接受。</p>
-    {restored && <p className="setup-draft-notice">已恢复此目标尚未提交的时间草稿。</p>}
+    <p className="setup-progress">Adjust your plan · Schedule</p>
+    <h1 ref={heading} tabIndex={-1}>Adjust weekly time</h1>
+    <p className="setup-intent">{roleName} · {workspace.target.targetWeeks}-week goal. Your current goal and completed work are saved.</p>
+    <p>Preview changes to task dates before deciding whether to accept them.</p>
+    {restored && <p className="setup-draft-notice">Your unsaved time draft for this goal is restored.</p>}
     <fieldset className="time-edit-fields" disabled={pending || Boolean(workspace.pendingPlanVersionId)}>
-      <legend className="sr-only">每周可用时间</legend>
+      <legend className="sr-only">Weekly availability</legend>
       <AvailabilityStep value={draft} onChange={(next) => { onDecision(null); setMessage(null); setDraftFinished(false); setDraft(next); }} planningDate={planningDate} />
     </fieldset>
-    {!workspace.pendingPlanVersionId && <><div className="setup-actions setup-primary-actions"><button type="button" className="setup-next" disabled={pending || planning.source === "offline-cloud" || !changed || !isAvailabilityDraftValid(draft, planningDate)} onClick={() => void preview()}>{pending ? "正在生成调整建议…" : "预览时间调整"}</button><Link className="text-action" href="/path" onClick={() => { clearDraft(); onDecision(null); }} aria-describedby="time-cancel-note">取消修改</Link></div><p id="time-cancel-note">页头返回会保留时间草稿；取消修改会清除此草稿，已保存的计划保持不变。</p></>}
+    {!workspace.pendingPlanVersionId && <><div className="setup-actions setup-primary-actions"><button type="button" className="setup-next" disabled={pending || planning.source === "offline-cloud" || !changed || !isAvailabilityDraftValid(draft, planningDate)} onClick={() => void preview()}>{pending ? "Preparing proposed changes…" : "Preview time changes"}</button><Link className="text-action" href="/path" onClick={() => { clearDraft(); onDecision(null); }} aria-describedby="time-cancel-note">Cancel changes</Link></div><p id="time-cancel-note">The header&apos;s back link keeps your time draft. Cancel changes clears this draft and keeps your saved plan.</p></>}
     {decision && <p role="status">{decision.text}</p>}
     {message && <p role={message.kind}>{message.text}</p>}
-    {(planning.source === "offline-cloud" || message?.kind === "alert") && <button className="text-action" type="button" disabled={pending} onClick={() => void reconnect()}>重新读取当前计划</button>}
-    {workspace.pendingPlanVersionId && <PlanDiffReview workspace={workspace} registry={registry} recovery={planning.recovery} acceptLabel="保存调整" onAccept={planning.accept} onDiscard={planning.discard} onSuccess={(text, kind) => { if (onDecision({ text, kind })) { clearDraft(); setMessage(null); } }} />}
-    {decision?.kind === "accept" && !workspace.pendingPlanVersionId && <div className="setup-completion-links"><Link className="text-action" href="/today">继续今日学习</Link></div>}
+    {(planning.source === "offline-cloud" || message?.kind === "alert") && <button className="text-action" type="button" disabled={pending} onClick={() => void reconnect()}>Reload current plan</button>}
+    {workspace.pendingPlanVersionId && <PlanDiffReview workspace={workspace} registry={registry} recovery={planning.recovery} acceptLabel="Save changes" onAccept={planning.accept} onDiscard={planning.discard} onSuccess={(text, kind) => { if (onDecision({ text, kind })) { clearDraft(); setMessage(null); } }} />}
+    {decision?.kind === "accept" && !workspace.pendingPlanVersionId && <div className="setup-completion-links"><Link className="text-action" href="/today">Continue today&apos;s learning</Link></div>}
   </section>;
 }

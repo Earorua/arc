@@ -141,7 +141,7 @@ describe("MigrationBanner", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "重试导入" }));
+    await user.click(screen.getByRole("button", { name: "Retry import" }));
 
     await waitFor(() => expect(onImport).toHaveBeenCalledWith("reject"));
   });

@@ -22,6 +22,6 @@ describe("Proof origin when the route is unreadable", () => {
   ])("keeps a source exit when the planning workspace is $name", async (planning) => {
     injected.planning.mockReturnValue({ ...planning, workspace: null, sourceContext: null });
     render(<ProofPage />);
-    expect(await screen.findByRole("link", { name: "返回原技能" })).toHaveAttribute("href", "/stack?skill=testing");
+    expect(await screen.findByRole("link", { name: "Back to skill" })).toHaveAttribute("href", "/stack?skill=testing");
   });
 });

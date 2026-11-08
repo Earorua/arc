@@ -10,7 +10,7 @@ import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
 afterEach(cleanup);
 const base: RoleResearchController = { state: { kind: "idle" }, run: null, planningData: null, error: null, requestId: null, busy: false, restoring: false, recoveryUncertain: false, replacementPending: false, start: vi.fn(), retry: vi.fn(), refresh: vi.fn(), confirmReplacement: vi.fn(), cancelReplacement: vi.fn(), reset: vi.fn() };
 const identity = { id: "research-run-1", role: "Data Product Manager", locale: "en-US" as const, backgroundAccepted: false };
-const backgroundGuidance = "研究已在后台运行。你可以离开此页面，稍后回来查看进度。";
+const backgroundGuidance = "Research is running in the background. You can leave this page and return to check progress.";
 const ready = { ...identity, state: "ready" as const, retryable: false as const, packageId: "package-one", summary: "Research grounded in observable product decisions.", skillCount: 3, sourceCount: 6, observedAt: "2026-09-05", quality: { passed: true as const, issueCodes: [] }, planningData: { id: "package-one", blueprint: flagshipBlueprint, registry: flagshipUnitRegistry } };
 function props(controller = base) { return { controller, role: identity.role, eligible: true, onStart: vi.fn(), onUse: vi.fn(), onFlagship: vi.fn() }; }
 
@@ -21,22 +21,22 @@ describe("RoleResearchPanel", () => {
       ...identity, state: "failed", failureCategory: "invalid-result", retryable: false,
     } });
     render(<RoleResearchPanel {...p} />);
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("本次研究未完成");
-    expect(screen.getByRole("alert")).toHaveTextContent("本次研究结果未通过检查，未生成新学习计划。已有计划和学习记录不受影响。");
-    expect(screen.queryByRole("button", { name: "重试研究" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Research not completed");
+    expect(screen.getByRole("alert")).toHaveTextContent("These research results did not pass validation, so no new plan was created. Existing plans and learning records are unaffected.");
+    expect(screen.queryByRole("button", { name: "Retry research" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use research results" })).not.toBeInTheDocument();
     expect(retry).not.toHaveBeenCalled();
     expect(p.onStart).not.toHaveBeenCalled();
   });
   it("marks only the reported research stage as current without fabricated progress", () => {
     const page = render(<RoleResearchPanel {...props({ ...base, state: { kind: "researching", runId: identity.id }, run: { ...identity, state: "researching", retryable: false } })} />);
-    const stages = screen.getByRole("list", { name: "研究阶段" });
-    expect(within(stages).getByText("研究技能与来源").closest("li")).toHaveAttribute("aria-current", "step");
+    const stages = screen.getByRole("list", { name: "Research stages" });
+    expect(within(stages).getByText("Research skills and sources").closest("li")).toHaveAttribute("aria-current", "step");
     expect(stages.querySelectorAll('[aria-current="step"]')).toHaveLength(1);
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     expect(stages).not.toHaveTextContent(/%/);
     page.rerender(<RoleResearchPanel {...props({ ...base, state: { kind: "failed" }, recoveryUncertain: true })} />);
-    expect(screen.queryByRole("list", { name: "研究阶段" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: "Research stages" })).not.toBeInTheDocument();
   });
   it.each(["queued", "researching", "validating"] as const)("announces server-accepted background %s in the existing polite status", (kind) => {
     const p = props();
@@ -49,8 +49,8 @@ describe("RoleResearchPanel", () => {
     expect(within(status).getByText(backgroundGuidance)).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2 })).toHaveFocus();
     expect(status).not.toHaveTextContent(/OpenRouter|provider|model|token|jobId|owner|executor|guaranteed/i);
-    expect(screen.getByRole("button", { name: "使用精选路径" })).toBeEnabled();
-    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Use curated path" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: "Use research results" })).not.toBeInTheDocument();
   });
   it.each(["queued", "researching", "validating"] as const)("does not infer background acceptance from busy or restoring %s", (kind) => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind, runId: identity.id }, busy: true, restoring: true,
@@ -78,26 +78,26 @@ describe("RoleResearchPanel", () => {
   });
   it.each(["ai-native-full-stack-engineer", " AI-NATIVE-FULL-STACK-ENGINEER ", "AI-Native Full-Stack Engineer", " ai-native   full-stack\tengineer ", "ＡＩ-Native Full-Stack Engineer", flagshipBlueprint.name, " ai　原生全栈工程师 "])("excludes only new starts for Flagship alias %s", async (role) => {
     const p = props(); const page = render(<RoleResearchPanel {...p} role={role} />);
-    expect(screen.queryByRole("button", { name: "研究这个岗位" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Research this role" })).not.toBeInTheDocument();
     expect(p.onStart).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "使用精选路径" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Use curated path" })).toBeInTheDocument();
     page.rerender(<RoleResearchPanel {...p} role={role} eligible={false} controller={{ ...base, state: { kind: "ready", runId: identity.id }, run: ready }} />);
-    await userEvent.setup().click(screen.getByRole("button", { name: "使用研究结果" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Use research results" }));
     expect(p.onUse).toHaveBeenCalledWith(identity.id);
     const retry = vi.fn();
     page.rerender(<RoleResearchPanel {...p} role={role} controller={{ ...base, retry, state: { kind: "failed", runId: identity.id }, run: { ...identity, state: "failed", failureCategory: "timeout", retryable: true } }} />);
-    await userEvent.setup().click(screen.getByRole("button", { name: "重试研究" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Retry research" }));
     expect(retry).toHaveBeenCalledOnce();
   });
-  it.each(["Senior AI-Native Full-Stack Engineer", "AI 原生全栈工程师导师", "ai-native-full-stack-engineer-educator"])("does not fuzzy-match another role %s", (role) => {
+  it.each(["Senior AI-Native Full-Stack Engineer", "AI-Native Full-Stack Engineer导师", "ai-native-full-stack-engineer-educator"])("does not fuzzy-match another role %s", (role) => {
     render(<RoleResearchPanel {...props()} role={role} />);
-    expect(screen.getByRole("button", { name: "研究这个岗位" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Research this role" })).toBeInTheDocument();
   });
   it("requires an explicit keyboard action and keeps a Flagship fallback", async () => {
     const p = props(); const user = userEvent.setup(); render(<RoleResearchPanel {...p} />);
-    const start = screen.getByRole("button", { name: "研究这个岗位" });
+    const start = screen.getByRole("button", { name: "Research this role" });
     start.focus(); await user.keyboard("{Enter}"); expect(p.onStart).toHaveBeenCalledOnce();
-    expect(screen.getByRole("button", { name: "使用精选路径" })).toHaveClass("research-action");
+    expect(screen.getByRole("button", { name: "Use curated path" })).toHaveClass("research-action");
     expect(start).toHaveClass("research-action");
   });
   it.each(["submitting", "queued", "researching", "validating"] as const)("announces %s factually and focuses state changes", (kind) => {
@@ -108,53 +108,53 @@ describe("RoleResearchPanel", () => {
     expect(screen.getByRole("heading", { level: 2 })).toHaveFocus();
     expect(screen.queryByText(backgroundGuidance)).not.toBeInTheDocument();
     expect(screen.queryByText(/%|confidence|OpenRouter|token|cost|model|provider/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use research results" })).not.toBeInTheDocument();
   });
   it("renders Ready facts as text and uses the owner run ID even with eligibility revoked", async () => {
     const p = props({ ...base, state: { kind: "ready", runId: identity.id }, run: { ...ready, summary: "<img src=x onerror=alert(1)> Research summary text." }, planningData: ready.planningData });
     const { container } = render(<RoleResearchPanel {...p} eligible={false} />);
     expect(screen.getByText(/<img src=x/)).toBeInTheDocument(); expect(container.querySelector("img")).toBeNull();
-    expect(screen.getByText("3 项技能")).toBeInTheDocument(); expect(screen.getByText("6 个来源")).toBeInTheDocument();
-    expect(screen.getByText(/2026-09-05/)).toBeInTheDocument(); expect(screen.getByText("质量检查已通过")).toBeInTheDocument();
-    await userEvent.setup().click(screen.getByRole("button", { name: "使用研究结果" })); expect(p.onUse).toHaveBeenCalledWith(identity.id);
+    expect(screen.getByText("3 skills")).toBeInTheDocument(); expect(screen.getByText("6 sources")).toBeInTheDocument();
+    expect(screen.getByText(/2026-09-05/)).toBeInTheDocument(); expect(screen.getByText("Quality checks passed")).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Use research results" })); expect(p.onUse).toHaveBeenCalledWith(identity.id);
   });
   it("explains conditional free access without offering plan activation", () => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "needs-review", runId: identity.id }, run: { ...identity, state: "needs-review", retryable: false, quality: { issueCodes: ["unverified-free-access"], skillCount: 3, sourceCount: 6, unitCount: 9 } } })} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("部分学习材料的免费访问条件尚待确认。");
-    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Free access to some learning materials still needs confirmation.");
+    expect(screen.queryByRole("button", { name: "Use research results" })).not.toBeInTheDocument();
   });
   it("explains unverified publisher authority without offering plan activation", () => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "needs-review", runId: identity.id }, run: { ...identity, state: "needs-review", retryable: false, quality: { issueCodes: ["unverified-source-authority"], skillCount: 3, sourceCount: 6, unitCount: 9 } } })} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("部分学习材料需要经核验的大学或官方发布方来源。");
-    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Some learning materials need verified university or official publisher sources.");
+    expect(screen.queryByRole("button", { name: "Use research results" })).not.toBeInTheDocument();
   });
   it.each([true, false])("offers Retry for Needs review only when retryable is %s", (retryable) => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "needs-review", runId: identity.id }, run: { ...identity, state: "needs-review", retryable, quality: { issueCodes: ["missing-unit"], skillCount: 3, sourceCount: 6, unitCount: 2 } } })} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("部分技能缺少可执行的学习单元。");
-    expect(Boolean(screen.queryByRole("button", { name: "重试研究" }))).toBe(retryable);
-    expect(screen.queryByRole("button", { name: "使用研究结果" })).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Some skills are missing actionable learning units.");
+    expect(Boolean(screen.queryByRole("button", { name: "Retry research" }))).toBe(retryable);
+    expect(screen.queryByRole("button", { name: "Use research results" })).not.toBeInTheDocument();
   });
   it.each([true, false])("limits Failed recovery by retryable %s", (retryable) => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "failed", runId: identity.id }, run: { ...identity, state: "failed", failureCategory: "timeout", retryable } })} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("研究耗时超出预期。");
-    expect(Boolean(screen.queryByRole("button", { name: "重试研究" }))).toBe(retryable);
+    expect(screen.getByRole("alert")).toHaveTextContent("Research took longer than expected.");
+    expect(Boolean(screen.queryByRole("button", { name: "Retry research" }))).toBe(retryable);
   });
   it("keeps recovery visible and request diagnostics collapsed until requested", async () => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "failed" }, error: new ResearchClientError("RESEARCH_UNAVAILABLE", "request-safe"), requestId: "request-safe" })} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("研究服务暂时不可用。");
-    expect(screen.getByRole("button", { name: "研究这个岗位" })).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("The research service is temporarily unavailable.");
+    expect(screen.getByRole("button", { name: "Research this role" })).toBeInTheDocument();
     const request = screen.getByText(/request-safe/);
     expect(request).not.toBeVisible();
-    await userEvent.setup().click(screen.getByText("详细信息", { selector: "summary" }));
+    await userEvent.setup().click(screen.getByText("Details", { selector: "summary" }));
     expect(request).toBeVisible();
-    expect(screen.getByRole("button", { name: "研究这个岗位" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Research this role" })).toBeVisible();
   });
   it("links session recovery back to the exact setup query", () => {
     window.history.replaceState(null, "", "/setup?mode=create");
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "failed" }, error: new ResearchClientError("UNAUTHENTICATED") })} />);
-    expect(screen.getByRole("link", { name: "登录" })).toHaveAttribute("href", "/sign-in?next=%2Fsetup%3Fmode%3Dcreate&reauth=1");
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in?next=%2Fsetup%3Fmode%3Dcreate&reauth=1");
     window.history.replaceState(null, "", "/");
-    expect(screen.queryByRole("button", { name: "研究这个岗位" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Research this role" })).not.toBeInTheDocument();
   });
   it("makes an uncertain prior submission queryable without retrying or starting it", async () => {
     const refresh = vi.fn();
@@ -163,11 +163,11 @@ describe("RoleResearchPanel", () => {
       error: new ResearchClientError("NOT_FOUND"), refresh, retry });
     render(<RoleResearchPanel {...p} eligible={false} />);
 
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("上一次研究的状态尚未确认。");
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("The previous research status is still unconfirmed.");
     expect(screen.queryByText(backgroundGuidance)).not.toBeInTheDocument();
-    expect(screen.getByText(/上一次研究可能仍在运行并产生费用/)).toBeInTheDocument();
-    expect(screen.getByText(/重新发起研究可能再次产生费用/)).toBeInTheDocument();
-    const check = screen.getByRole("button", { name: "查询研究状态" });
+    expect(screen.getByText(/Previous research may still be running and incurring charges/)).toBeInTheDocument();
+    expect(screen.getByText(/Starting again may incur another charge/)).toBeInTheDocument();
+    const check = screen.getByRole("button", { name: "Check research status" });
     expect(check).toBeEnabled();
     await userEvent.setup().click(check);
     expect(refresh).toHaveBeenCalledOnce();
@@ -183,11 +183,11 @@ describe("RoleResearchPanel", () => {
     page.rerender(<RoleResearchPanel {...p} controller={{ ...p.controller, replacementPending: true,
       confirmReplacement, cancelReplacement }} />);
 
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("确认发起新的研究？");
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Start new research?");
     expect(screen.getByRole("heading", { level: 2 })).toHaveFocus();
-    await userEvent.setup().click(screen.getByRole("button", { name: "发起新的研究" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Start new research" }));
     expect(confirmReplacement).toHaveBeenCalledOnce();
-    await userEvent.setup().click(screen.getByRole("button", { name: "继续查询上一次研究" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Keep checking previous research" }));
     expect(cancelReplacement).toHaveBeenCalledOnce();
     expect(p.onStart).not.toHaveBeenCalled();
   });
@@ -195,19 +195,19 @@ describe("RoleResearchPanel", () => {
     render(<RoleResearchPanel {...props({ ...base, recoveryUncertain: true,
       state: { kind: "failed", runId: identity.id },
       run: { ...identity, state: "failed", failureCategory: "timeout", retryable: true } })} />);
-    expect(screen.getByRole("button", { name: "查询研究状态" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "重试研究" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Check research status" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Retry research" })).not.toBeInTheDocument();
   });
   it("keeps the starting label while a newly confirmed Start has a durable pending identity", () => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "submitting" }, busy: true,
       recoveryUncertain: true })} />);
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("正在提交研究");
-    expect(screen.queryByText("正在查询上一次研究…")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Submitting research");
+    expect(screen.queryByText("Checking previous research…")).not.toBeInTheDocument();
   });
   it("announces an actual pending recovery query as checking", () => {
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "failed" }, restoring: true,
       recoveryUncertain: true })} />);
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("正在查询上一次研究…");
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Checking previous research…");
     expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
   });
   it("keeps an actionable device-storage error visible beside its failed Retry source", () => {
@@ -217,7 +217,7 @@ describe("RoleResearchPanel", () => {
     }) as unknown as NonNullable<RoleResearchController["error"]>;
     render(<RoleResearchPanel {...props({ ...base, state: { kind: "failed", runId: identity.id },
       run: { ...identity, state: "failed", failureCategory: "timeout", retryable: true }, error: storageError })} />);
-    expect(screen.getByText(/未能将恢复信息保存在此设备上/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "重试研究" })).toBeInTheDocument();
+    expect(screen.getByText(/could not save recovery information on this device/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry research" })).toBeInTheDocument();
   });
 });

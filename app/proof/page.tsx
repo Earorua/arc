@@ -23,7 +23,7 @@ export default function ProofPage() {
   const hydrated = useHydrated();
   if (!hydrated || session.isPending || !session.data?.user) return <div className="workspace-shell">
     <WorkspaceHeader current="Proof" />
-    <main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/proof" title="登录后保存你的作品证据" description="把练习成果保存到账号，记录每一次修订与技能成长。">{null}</AccountBoundary></main>
+    <main id="main-content" tabIndex={-1} className="workspace-main"><AccountBoundary destination="/proof" title="Sign in to save proof of your work" description="Save your work to your account and track each revision as your skills grow.">{null}</AccountBoundary></main>
   </div>;
   return <SessionProofPage key={session.data.user.id} ownerKey={`user:${session.data.user.id}`} />;
 }
@@ -43,11 +43,11 @@ function EmptyAccountProof() {
   return <div className="workspace-shell">
     <WorkspaceHeader current="Proof" />
     <main id="main-content" tabIndex={-1} className="workspace-main">
-      <p className="eyebrow">你的账户 · 作品证据</p>
-      <h1>作品证据</h1>
-      <p className="lede">先创建学习路线，再保存与学习目标相关的作品证据。</p>
+      <p className="eyebrow">Your account · Proof</p>
+      <h1>Proof</h1>
+      <p className="lede">Create a learning path, then save work that supports your learning goals.</p>
       <ProofContextReturn />
-      <Link className="primary-action" href={setupHref(location)}>创建学习路线 →</Link>
+      <Link className="primary-action" href={setupHref(location)}>Create a learning path →</Link>
     </main>
   </div>;
 }
@@ -88,7 +88,7 @@ function ProofGoalPage({ ownerKey, arc, planning }: { ownerKey: string; arc: Ret
       planningRecovery={planning.recovery}
       planningState={workspace}
     >
-      <section className="workspace-intro"><p className="eyebrow">作品与技能证据</p><h1>作品证据</h1><p>查看已提交的作品，补充修订，并决定每项作品的可见范围。</p></section>
+      <section className="workspace-intro"><p className="eyebrow">Your work and skill evidence</p><h1>Proof</h1><p>Review your submitted work, add revisions, and choose who can see each item.</p></section>
       <ProofWorkspace
         ownerKey={ownerKey}
         profile={<ProofProfile projections={proof.projections} skills={blueprint.skills} />}

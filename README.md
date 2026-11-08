@@ -5,13 +5,13 @@
 ![Arc. — Learn only what moves you forward](./public/og.png)
 
 [![Quality](https://github.com/Earorua/arc/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Earorua/arc/actions/workflows/ci.yml)
-[![Live experience](https://img.shields.io/badge/live-arcmaps.net-744596)](https://arcmaps.net)
+[![Live experience](https://img.shields.io/badge/live-arcmaps.net-237a74)](https://arcmaps.net)
 
 **From a target role to a practical learning path.**
 
 Arc turns role requirements into skills and learning units, then schedules daily work around your existing knowledge and available time. A learning companion helps with the current task, a planner proposes adjustments, and work evidence records progress.
 
-[Visit Arc](https://arcmaps.net) · [Explore the public example](https://arcmaps.net/showcase)
+[Visit Arc](https://arcmaps.net) · [Explore the public example](https://arcmaps.net/showcase) · [Source guide](./SOURCE_INDEX.md)
 
 ## Features
 
@@ -34,7 +34,7 @@ Arc turns role requirements into skills and learning units, then schedules daily
 3. **Changes stay reviewable.** An uncertain assessment leads to calibration. Plan adjustments show a diff and take effect after confirmation; task completion and evidence review retain distinct meanings.
 4. **Personal state has a clear owner.** Google or GitHub sign-in opens the personal workspace. D1 stores signed-in learning state, local work is imported with consent, and attachments remain private while public views expose only selected fields.
 
-The interface uses warm paper surfaces, dark text, and purple accents to keep attention on the next task. Responsive layouts, keyboard focus, and reduced-motion support are built into the experience.
+The interface uses mist surfaces, ink text, and teal accents to keep attention on the next task. Responsive layouts, keyboard focus, and reduced-motion support are built into the experience.
 
 ## Technology stack
 

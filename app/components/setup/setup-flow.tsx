@@ -18,7 +18,7 @@ const flagshipRoleId = "ai-native-full-stack-engineer";
 export function isFlagshipRoleInput(role: string): boolean {
   // Match only known aliases using the same normalization as research input.
   const normalize = (value: string) => value.normalize("NFKC").trim().replace(/\s+/gu, " ").toLowerCase();
-  return [flagshipRoleId, flagshipRole.name, getRoleDisplayName(flagshipRoleId)]
+  return [flagshipRoleId, flagshipRole.name, getRoleDisplayName(flagshipRoleId), "AI \u539f\u751f\u5168\u6808\u5de5\u7a0b\u5e08"]
     .some((alias) => normalize(alias) === normalize(role));
 }
 
@@ -164,51 +164,51 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
   return (
     <>
     {!adaptiveSelected && draftOwner && <div className="setup-draft-bar">
-      {restored && <p>已恢复上次的设置草稿，可继续或重新开始。</p>}
-      {guestAvailable && <div><p>此设备有访客草稿。由你选择是否用于当前账户。</p><button className="text-action" type="button" onClick={() => {
+      {restored && <p>Your setup draft is restored. Continue where you left off or start again.</p>}
+      {guestAvailable && <div><p>This device has a guest draft. You can choose to use it with your account.</p><button className="text-action" type="button" onClick={() => {
         const draft = claimGuestSetupDraft(draftOwner); if (draft) { restore(draft); setGuestAvailable(false); setDraftEpoch((value) => value + 1); }
-      }}>继续访客草稿</button></div>}
-      <details><summary>草稿选项</summary><button className="text-action" type="button" onClick={resetDraft}>重新开始设置</button><p>只清除本次设置草稿，已保存计划与岗位研究仍会保留。</p></details>
-      {draftError && <p>暂时无法保存草稿，请保持此页面打开后完成设置。</p>}
+      }}>Continue guest draft</button></div>}
+      <details><summary>Draft options</summary><button className="text-action" type="button" onClick={resetDraft}>Restart setup</button><p>This clears only the setup draft. Saved plans and role research are kept.</p></details>
+      {draftError && <p>Your draft could not be saved. Keep this page open until you finish setup.</p>}
     </div>}
     <section className="setup-flow" hidden={adaptiveSelected}>
       <p className="setup-progress">{String(step + 1).padStart(2, "0")} / 04</p>
-      <ol className="setup-step-names" aria-label="设置进度">{setupStepNames.map((name, index) => <li key={name} aria-current={index === step ? "step" : undefined}>{name}</li>)}</ol>
-      {!basicCreationAllowed && <p className="setup-intent">已有计划时，请先研究一个新岗位，再使用研究结果创建新目标。</p>}
-      {creationMode && <p className="setup-intent">创建新目标 · 保存前会再次确认；有当前计划时，会说明历史归档方式。</p>}
+      <ol className="setup-step-names" aria-label="Setup progress">{setupStepNames.map((name, index) => <li key={name} aria-current={index === step ? "step" : undefined}>{name}</li>)}</ol>
+      {!basicCreationAllowed && <p className="setup-intent">Research a new role to create a new goal alongside your existing plan.</p>}
+      {creationMode && <p className="setup-intent">Create a new goal · Review before saving, including how your current plan will be archived.</p>}
 
       {step === 0 && (
         <>
-          <h1 ref={questionRef} tabIndex={-1}>你想学习哪个岗位或方向？</h1>
+          <h1 ref={questionRef} tabIndex={-1}>What role or field do you want to learn?</h1>
           {basicCreationAllowed && <button
             aria-pressed={!hasCustomRole}
             className={hasCustomRole ? "answer-choice" : "answer-choice is-selected"}
             onClick={selectFlagshipRole}
             type="button"
           >
-            AI 原生全栈工程师
+            AI-Native Full-Stack Engineer
           </button>}
           <label className="answer-field">
-            {basicCreationAllowed ? "或输入任意岗位" : "输入你想研究的新岗位"}
+            {basicCreationAllowed ? "Or enter a role" : "Enter a new role to research"}
             <input
-              aria-label="自定义岗位"
+              aria-label="Custom role"
               onChange={(event) => updateCustomRole(event.target.value)}
               maxLength={basicCreationAllowed ? 200 : 160}
-              placeholder="例如：数据产品经理"
+              placeholder="For example: Data Product Manager"
               value={customRole}
             />
           </label>
           {hasCustomRole && basicCreationAllowed && <p className="custom-role-disclosure">{signedIn && renderResearch && canResearchRole && researchEligible
-            ? "先研究岗位，可使用有来源依据的技能评估与自适应安排。直接继续将使用按时间比例分配的基础路径。"
+            ? "Research this role for a source-backed skills assessment and adaptive schedule. Continue directly for a basic path allocated by available time."
             : signedIn && renderResearch && canResearchRole && researchRecoveryAvailable && !researchEligible
-              ? "暂时无法发起新研究。直接继续将使用按时间比例分配的基础路径。"
-              : <>完整技能评估与自适应安排目前需要精选岗位蓝图或可用的研究结果。此岗位将使用按时间比例分配的基础路径。</>}</p>}
+              ? "New research is temporarily unavailable. Continue for a basic path allocated by available time."
+              : <>A full skills assessment and adaptive schedule require a curated role blueprint or available research. This role will use a basic path allocated by available time.</>}</p>}
           {signedIn && renderResearch && (researchRecoveryAvailable || researchEligible && canResearchRole) && renderResearch({ role: customRole.trim(), onUseResearch: useResearch, onFlagship: selectFlagshipRole })}
           {!basicCreationAllowed && <div className="setup-research-availability">
-            {!researchEligible && <p role="status">{!signedIn ? "此设备已有学习计划，暂不支持将本地计划归档后创建新目标。你可以继续当前路线。" : researchChecking ? "正在检查岗位研究是否可用…" : "岗位研究暂不可用，当前无法创建新路线。你的现有计划与学习记录会继续保留。"}</p>}
-            {researchEligible && (!canResearchRole || customRole.trim().length < 2) && <p>请输入至少 2 个字符的新岗位名称，研究后即可继续创建。</p>}
+            {!researchEligible && <p role="status">{!signedIn ? "This device already has a learning plan. Archiving a local plan to create a new goal is not available yet. You can continue your current path." : researchChecking ? "Checking role research availability…" : "Role research is temporarily unavailable, so a new path cannot be created yet. Your existing plan and learning records are saved."}</p>}
+            {researchEligible && (!canResearchRole || customRole.trim().length < 2) && <p>Enter a new role name with at least 2 characters. Research it to continue.</p>}
             {signedIn && !researchEligible && onRetryResearchAvailability && <div className="setup-actions">
-              <button className="text-action" disabled={researchChecking} onClick={onRetryResearchAvailability} type="button">重新检查岗位研究</button>
+              <button className="text-action" disabled={researchChecking} onClick={onRetryResearchAvailability} type="button">Check research availability again</button>
             </div>}
           </div>}
         </>
@@ -216,7 +216,7 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
 
       {step === 1 && (
         <>
-          <h1 ref={questionRef} tabIndex={-1}>你现在处于哪个阶段？</h1>
+          <h1 ref={questionRef} tabIndex={-1}>What is your current experience level?</h1>
           <div className="answer-grid">
             {(["new", "beginner", "intermediate", "advanced"] as LearnerLevel[]).map((level) => (
               <button
@@ -226,7 +226,7 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
                 onClick={() => setAnswers((current) => ({ ...current, level }))}
                 type="button"
               >
-                {{ new: "零基础", beginner: "初学", intermediate: "进阶", advanced: "熟练" }[level]}
+                {{ new: "New to this", beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" }[level]}
               </button>
             ))}
           </div>
@@ -235,11 +235,11 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
 
       {step === 2 && (
         <>
-          <h1 ref={questionRef} tabIndex={-1}>你每周真正拥有多少时间？</h1>
+          <h1 ref={questionRef} tabIndex={-1}>How much time can you make each week?</h1>
           <label className="answer-field">
-            每周分钟数
+            Minutes per week
             <input
-              aria-label="每周分钟数"
+              aria-label="Minutes per week"
               aria-describedby={weeklyMinutesValid ? undefined : "weekly-minutes-error"}
               aria-invalid={!weeklyMinutesValid}
               max="2400"
@@ -250,18 +250,18 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
               value={answers.weeklyMinutes}
             />
           </label>
-          {!weeklyMinutesValid && <p id="weekly-minutes-error" role="alert">请输入 30 至 2400 的整数。</p>}
+          {!weeklyMinutesValid && <p id="weekly-minutes-error" role="alert">Enter a whole number from 30 to 2400.</p>}
         </>
       )}
 
       {step === 3 && (
         <>
-          <h1 ref={questionRef} tabIndex={-1}>确认你的学习路线。</h1>
-          <dl className="setup-confirmation"><div><dt>学习目标</dt><dd>{getRoleDisplayName(answers.roleId)}</dd></div><div><dt>每周时间</dt><dd>{answers.weeklyMinutes} 分钟</dd></div></dl>
+          <h1 ref={questionRef} tabIndex={-1}>Confirm your learning path.</h1>
+          <dl className="setup-confirmation"><div><dt>Learning goal</dt><dd>{getRoleDisplayName(answers.roleId)}</dd></div><div><dt>Weekly time</dt><dd>{answers.weeklyMinutes} minutes</dd></div></dl>
           <label className="answer-field">
-            目标周数
+            Target weeks
             <input
-              aria-label="目标周数"
+              aria-label="Target weeks"
               aria-describedby={targetWeeksValid ? undefined : "target-weeks-error"}
               aria-invalid={!targetWeeksValid}
               max="52"
@@ -272,13 +272,13 @@ function OwnedSetupFlow({ onComplete, renderAdaptive, signedIn = false, research
               value={answers.targetWeeks}
             />
           </label>
-          {!targetWeeksValid && <p id="target-weeks-error" role="alert">请输入 4 至 52 的整数。</p>}
+          {!targetWeeksValid && <p id="target-weeks-error" role="alert">Enter a whole number from 4 to 52.</p>}
         </>
       )}
-      {basicCreationAllowed && <nav className="setup-actions setup-primary-actions" aria-label="设置步骤">
-        {step > 0 && <button className="setup-back text-action" onClick={() => navigateStep(step - 1)} type="button">返回</button>}
-        {step < 3 ? <button className="setup-next" disabled={step === 2 && !weeklyMinutesValid} onClick={advance} type="button">继续</button>
-          : <button className="setup-next" disabled={!targetWeeksValid || !weeklyMinutesValid} onClick={() => void onComplete(answers)} type="button">创建路线</button>}
+      {basicCreationAllowed && <nav className="setup-actions setup-primary-actions" aria-label="Setup steps">
+        {step > 0 && <button className="setup-back text-action" onClick={() => navigateStep(step - 1)} type="button">Back</button>}
+        {step < 3 ? <button className="setup-next" disabled={step === 2 && !weeklyMinutesValid} onClick={advance} type="button">Continue</button>
+          : <button className="setup-next" disabled={!targetWeeksValid || !weeklyMinutesValid} onClick={() => void onComplete(answers)} type="button">Create path</button>}
       </nav>}
     </section>
     {renderAdaptive && adaptiveStarted && <div key={`${draftEpoch}:${selection.source.source === "research" ? selection.source.researchRunId : "flagship"}`} hidden={!adaptiveSelected}>{renderAdaptive({ ...selection, active: adaptiveSelected, onBackToRole: () => { setAdaptiveSelected(false); navigateStep(0); } })}</div>}
