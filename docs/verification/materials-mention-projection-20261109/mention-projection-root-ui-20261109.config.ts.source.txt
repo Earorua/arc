@@ -1,0 +1,8 @@
+import base from "../../vitest.config";
+export default {
+  ...base,
+  define: {
+    "import.meta.env.ARC_MENTION_UI_RESULT": JSON.stringify("work/grounded-verification/mention-projection-root-ui-20261109-final-b-results.json"),
+  },
+  test: { ...base.test, include: ["work/grounded-verification/mention-projection-root-ui-20261109.test.tsx"], maxWorkers: 1 },
+};

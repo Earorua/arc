@@ -1,0 +1,33 @@
+{
+  "root": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+  "directory": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-b",
+  "baseline": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-a",
+  "unchangedTimeoutMs": 45000,
+  "sourceUnmodified": true,
+  "changes": [
+    {
+      "before": "      host: \"127.0.0.1\", port, strictPort: true, cors: false, allowedHosts: [\"127.0.0.1\"],",
+      "after": "      watch: null, host: \"127.0.0.1\", port, strictPort: true, cors: false, allowedHosts: [\"127.0.0.1\"],",
+      "reason": "Only behavior difference: retain disabled watcher in the full harness server options"
+    },
+    {
+      "before": "    mark(\"vite:createServer:after\");",
+      "after": "    mark(\"vite:createServer:after\");\n    console.log(JSON.stringify({ event: \"offline-recovery-watch-config\",\n      watchIsNull: server.config.server.watch === null,\n      middlewareMode: server.config.server.middlewareMode,\n      watcherClass: server.watcher.constructor.name,\n      watchedDirectoryCount: Object.keys(server.watcher.getWatched()).length,\n      defaultWatchNullWasOverwritten: !Object.hasOwn(extra.server ?? {}, \"watch\") }));",
+      "reason": "Passive logging of narrowly selected effective Vite watcher options"
+    }
+  ],
+  "files": {
+    "server.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-b\\server.mjs",
+      "sha256": "f1b06a617ccbdfcbbdd3080b69102f5680a1404f4bdd01b760e305f3ca504690"
+    },
+    "research-recovery.test.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-b\\research-recovery.test.mjs",
+      "sha256": "18a11b9ccdaa57be9e19b4978a4493d343dde70726b96433e3f6dd60a98112d8"
+    },
+    "timing.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-b\\timing.mjs",
+      "sha256": "08d6116e68128a0294386836f9f19d71baccdf5fb4dd165b60236264a9dea8f7"
+    }
+  }
+}

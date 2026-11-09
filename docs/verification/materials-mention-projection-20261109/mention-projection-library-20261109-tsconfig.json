@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": { "incremental": false, "noEmit": true },
+  "include": [
+    "../../app/contracts/documents.ts",
+    "../../app/lib/materials/skill-labels.ts",
+    "../../tests/lib/materials/reviewed-source-mentions.test.ts",
+    "../../tests/lib/materials/retained-assessment-hints.test.ts",
+    "../../tests/lib/materials/material-skill-mentions.test.ts",
+    "../../tests/lib/materials/grounded-skill-terms.test.ts",
+    "../../worker-configuration.d.ts"
+  ],
+  "exclude": ["../../node_modules", "../../work", "../../docs/verification"]
+}

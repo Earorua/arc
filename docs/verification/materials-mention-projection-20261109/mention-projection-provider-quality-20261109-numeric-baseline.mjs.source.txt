@@ -1,0 +1,45 @@
+import assert from "node:assert/strict";
+import { build } from "esbuild";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const prefix = "work/grounded-verification/mention-projection-provider-quality-20261109-numeric-baseline-03";
+const output = prefix + "-results.json";
+assert.equal(existsSync(output), false);
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const roots = { before: "D:/CodexTemp/arc-experience-priority-P3jdvc/source", current: resolve(".").replaceAll("\\", "/") };
+const sources = [];
+for (const [name, root] of Object.entries(roots)) {
+  const entry = `export {readSourceSpanExtraction} from ${JSON.stringify(root + "/worker/document-executor/source-span-extraction.ts")};\nexport {groundedStatementBoundaries} from ${JSON.stringify(root + "/worker/document-executor/source-review-evidence.ts")};`;
+  const built = await build({ stdin: { contents: entry, resolveDir: process.cwd(), sourcefile: "numeric-baseline.ts", loader: "ts" }, bundle: true, write: false,
+    platform: "node", format: "esm", target: "node24", nodePaths: [resolve("node_modules")], metafile: true });
+  const compiled = prefix + "-" + name + "-bundle.mjs";
+  writeFileSync(compiled, built.outputFiles[0].contents, { flag: "wx" });
+  const { readSourceSpanExtraction, groundedStatementBoundaries } = await import(pathToFileURL(resolve(compiled)).href);
+  const observations = [];
+  for (const marker of ["1. ", "１２. ", "- "]) for (const mode of ["whole", "body"]) for (const level of ["guided", "conceptual", "uncertain"]) {
+    const body = level === "guided" ? "I tested SQL under supervision." : level === "conceptual" ? "I am familiar with SQL." : "I am unsure about my SQL proficiency.";
+    const text = `Résumé 🧪.\n\n${marker}${body}`, quote = mode === "whole" ? marker + body : body;
+    const ref = { text, segments: [{ id: "section", start: 0, end: text.length }] };
+    const formats = name === "before" ? ["source-spans-v2"] : ["source-spans-v2", "source-spans-v3"];
+    for (const format of formats) {
+      const item = { kind: "skill-claim", source: { segmentId: "section", quote }, skillTerms: ["SQL"], selfLevelHint: level, requirementLevel: null };
+      const wire = { format, items: [item], reviewPoints: [] };
+      const decoded = readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { role: "assistant", content: JSON.stringify(wire) } }] }, ref, undefined, format);
+      observations.push({ marker, mode, level, format, text, quote, decoded, bounds: [...groundedStatementBoundaries(text)].map(([start, end]) => ({ start, end, text: text.slice(start, end) })) });
+    }
+  }
+  sources.push({ name, root, compiledSha256: sha(built.outputFiles[0].contents),
+    inputs: Object.fromEntries(Object.keys(built.metafile.inputs).filter(path => path !== "numeric-baseline.ts").sort().map(path => [path, sha(readFileSync(path))])), observations });
+}
+const comparable = (observations, format) => observations.filter(item => item.format === format).map(({ format: _format, ...item }) => item);
+assert.deepEqual(comparable(sources[0].observations, "source-spans-v2"), comparable(sources[1].observations, "source-spans-v2"));
+assert.deepEqual(comparable(sources[1].observations, "source-spans-v2"), comparable(sources[1].observations, "source-spans-v3"));
+for (const source of sources) for (const observation of source.observations) {
+  assert.equal(observation.decoded.extractionRead, observation.marker !== "- " && observation.mode === "whole" ? "invalid-source" : "parsed");
+}
+const result = { status: "PASS", baselineAndCurrentMatched: true, comparisons: 36, sources, realModelCalls: 0, deployed: false };
+writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, comparisons: result.comparisons, baselineAndCurrentMatched: true, beforeObservations: sources[0].observations.length, currentObservations: sources[1].observations.length, output }));

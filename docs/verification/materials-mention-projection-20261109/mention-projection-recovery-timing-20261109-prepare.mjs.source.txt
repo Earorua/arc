@@ -1,0 +1,96 @@
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { resolve, join } from "node:path";
+import { createHash } from "node:crypto";
+import assert from "node:assert/strict";
+
+const root = process.cwd();
+const work = resolve(root, "work/grounded-verification");
+const prefix = "mention-projection-recovery-timing-20261109";
+const directory = join(work, `${prefix}-probe-a`);
+assert.ok(!existsSync(directory), "Probe directory must be fresh");
+const sha256 = value => createHash("sha256").update(value).digest("hex");
+const originals = Object.fromEntries(["server.mjs", "research-recovery.test.mjs"].map(name => {
+  const path = join(root, "tests/offline-uat", name);
+  const bytes = readFileSync(path);
+  return [name, { path, bytes, sha256: sha256(bytes), text: bytes.toString("utf8") }];
+}));
+const originalSnapshot = readFileSync(join(work, "mention-projection-snapshot-20261109-b-results.json"));
+const snapshot = JSON.parse(originalSnapshot);
+for (const [name, original] of Object.entries(originals)) {
+  assert.equal(original.sha256, snapshot.filesSha256[`tests/offline-uat/${name}`]);
+}
+const edits = [];
+function replaceOne(name, text, before, after, reason) {
+  assert.equal(text.split(before).length - 1, 1, `${name}: exactly one match for ${reason}`);
+  edits.push({ name, reason, before, after });
+  return text.replace(before, after);
+}
+function change(name, text, before, after, reason) {
+  const newline = originals[name].text.includes("\r\n") ? "\r\n" : "\n";
+  return replaceOne(name, text, before.replaceAll("\n", newline), after.replaceAll("\n", newline), reason);
+}
+let server = originals["server.mjs"].text;
+const s = (before, after, reason) => { server = change("server.mjs", server, before, after, reason); };
+s('import { createServer } from "vite";', 'import { mark } from "./timing.mjs";\nimport { createServer } from "vite";', "timing-only import");
+s('const harnessRoot = dirname(fileURLToPath(import.meta.url));', `const harnessRoot = ${JSON.stringify(resolve(root, "tests/offline-uat"))};`, "preserve actual original harness root in relocated copy");
+s('export async function createOfflineVite(extra = {}) {', 'export async function createOfflineVite(extra = {}) {\n  mark("vite:cache:before");', "cache creation begins");
+s('  const removeCache = async () => {', '  mark("vite:cache:after");\n  const removeCache = async () => {', "cache creation ends");
+s('    const server = await createServer({', '    mark("vite:createServer:before");\n    const server = await createServer({', "Vite createServer begins");
+s('    const close = server.close.bind(server);', '    mark("vite:createServer:after");\n    const close = server.close.bind(server);', "Vite createServer ends");
+s('export async function createHarnessServer({ port = 4179, composition = "compatibility" } = {}) {', 'export async function createHarnessServer({ port = 4179, composition = "compatibility" } = {}) {\n  mark("harness:create:before");', "harness creation begins");
+s('    security = await vite.ssrLoadModule("/tests/offline-uat/security.ts");', '    mark("harness:securitySSR:before");\n    security = await vite.ssrLoadModule("/tests/offline-uat/security.ts");\n    mark("harness:securitySSR:after");', "security SSR boundaries");
+s('      ({ createOfflineComposition: compose } = await vite.ssrLoadModule("/tests/offline-uat/composition.ts"));', '      mark("harness:compositionSSR:before");\n      ({ createOfflineComposition: compose } = await vite.ssrLoadModule("/tests/offline-uat/composition.ts"));\n      mark("harness:compositionSSR:after");', "composition SSR boundaries");
+s('      ({ createResearchD1: createDb } = await vite.ssrLoadModule("/tests/helpers/sqlite-d1.ts"));', '      mark("harness:sqliteSSR:before");\n      ({ createResearchD1: createDb } = await vite.ssrLoadModule("/tests/helpers/sqlite-d1.ts"));\n      mark("harness:sqliteSSR:after");', "SQLite SSR boundaries");
+s('    await reset(); await vite.listen();', '    mark("harness:reset:before");\n    await reset();\n    mark("harness:reset:after");\n    mark("harness:listen:before");\n    await vite.listen();\n    mark("harness:listen:after");', "reset and listen boundaries");
+
+let test = originals["research-recovery.test.mjs"].text;
+const t = (before, after, reason) => { test = change("research-recovery.test.mjs", test, before, after, reason); };
+t('import { test } from "node:test";', 'import { mark } from "./timing.mjs";\nimport { test } from "node:test";', "timing-only import");
+t('  const server = await createHarnessServer({ port: 4181 });', '  mark("test:begin");\n  context.signal.addEventListener("abort", () => mark("test:abort"), { once: true });\n  mark("test:harness:before");\n  const server = await createHarnessServer({ port: 4181 });\n  mark("test:harness:after");', "test entry/harness boundaries and passive abort observation");
+t('    const html = await (await send(server.origin, "/setup")).text();', '    mark("test:setup:before");\n    const html = await (await send(server.origin, "/setup")).text();\n    mark("test:setup:after");', "setup HTTP boundaries");
+t('    const entryModule = await (await send(server.origin, "/tests/offline-uat/main.tsx")).text();', '    mark("test:entry:before");\n    const entryModule = await (await send(server.origin, "/tests/offline-uat/main.tsx")).text();\n    mark("test:entry:after");', "entry HTTP boundaries");
+t('    assert.equal((await send(server.origin, dependency)).status, 200);', '    mark("test:reactDependency:before");\n    assert.equal((await send(server.origin, dependency)).status, 200);\n    mark("test:reactDependency:after");', "React optimized dependency HTTP boundaries");
+t('    const { createResearchClient, ResearchClientError } = await server.vite.ssrLoadModule("/app/lib/research-client.ts");', '    mark("test:clientSSR:before");\n    const { createResearchClient, ResearchClientError } = await server.vite.ssrLoadModule("/app/lib/research-client.ts");\n    mark("test:clientSSR:after");', "real client SSR boundaries");
+t('    await assert.rejects(client.startResearch(start, new AbortController().signal),', '    mark("test:startResearch:before");\n    await assert.rejects(client.startResearch(start, new AbortController().signal),', "Start request begins");
+t('    context.diagnostic("Completed Start response was discarded.");', '    mark("test:startResearch:after");\n    context.diagnostic("Completed Start response was discarded.");', "Start request ends");
+t('    const recovered = await client.recoverResearch(recovery, new AbortController().signal);', '    mark("test:recoverResearch:before");\n    const recovered = await client.recoverResearch(recovery, new AbortController().signal);\n    mark("test:recoverResearch:after");', "recovery HTTP boundaries");
+t('  } finally {', '    mark("test:allAssertions:after");\n  } finally {', "assertions finished");
+t('    await server.close();', '    mark("test:close:before");\n    await server.close();\n    mark("test:close:after");', "cleanup boundaries");
+assert.ok(test.includes("{ timeout: 45_000 }"));
+const timing = `import { performance } from "node:perf_hooks";
+const start = performance.now();
+const cpuStart = process.cpuUsage();
+const loopStart = performance.eventLoopUtilization();
+let phase = "module:loaded";
+export function mark(next, heartbeat = false) {
+  const previousPhase = phase;
+  if (!heartbeat) phase = next;
+  const cpu = process.cpuUsage(cpuStart);
+  const loop = performance.eventLoopUtilization(loopStart);
+  console.log(JSON.stringify({ event: "offline-recovery-timing", phase: heartbeat ? phase : next,
+    previousPhase, heartbeat, elapsedMs: Math.round((performance.now() - start) * 1000) / 1000,
+    cpuUserMs: cpu.user / 1000, cpuSystemMs: cpu.system / 1000,
+    eventLoopActiveMs: loop.active, eventLoopIdleMs: loop.idle,
+    rssBytes: process.memoryUsage().rss }));
+}
+setInterval(() => mark(phase, true), 10000).unref();
+`;
+mkdirSync(directory);
+writeFileSync(join(directory, "server.mjs"), server);
+writeFileSync(join(directory, "research-recovery.test.mjs"), test);
+writeFileSync(join(directory, "timing.mjs"), timing);
+const manifest = {
+  root,
+  directory,
+  originalHarnessRoot: resolve(root, "tests/offline-uat"),
+  originalTimeoutMs: 45000,
+  unchangedTimeoutMs: 45000,
+  snapshotManifestSha256: snapshot.manifestSha256,
+  snapshotResultsFileSha256: sha256(originalSnapshot),
+  originals: Object.fromEntries(Object.entries(originals).map(([name, original]) => [name, { path: original.path, sha256: original.sha256 }])),
+  copies: Object.fromEntries([["server.mjs", server], ["research-recovery.test.mjs", test], ["timing.mjs", timing]].map(([name, value]) => [name, { path: join(directory, name), sha256: sha256(value) }])),
+  edits,
+};
+writeFileSync(join(work, `${prefix}-prepare-results.json`), JSON.stringify(manifest, null, 2) + "\n");
+for (const original of Object.values(originals)) assert.equal(sha256(readFileSync(original.path)), original.sha256);
+console.log(JSON.stringify({ directory, originalHashesVerified: true, snapshotInputsVerified: true, markerOnlyEdits: edits.length, originalTimeoutMs: 45000 }));

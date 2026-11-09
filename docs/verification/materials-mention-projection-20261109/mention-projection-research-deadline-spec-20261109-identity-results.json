@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "review": "independent spec identity and preservation check",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "head": "4d6bc823e5609a008acf86644ddc8a3b33f844ca",
+  "manifestSha256": "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0",
+  "sourceFileCount": 1007,
+  "unchangedNonDocFiles": 1005,
+  "sourceHashes": {
+    "scripts/test-research-cloud-smoke.mjs": "6f351aecd1d5723b6f8dd8737965e036a637ee49d5d452944e452d82e0445e20",
+    "tests/server/research-cloud-smoke-composition.test.ts": "da97fada6f1898704331dd7295e93fda085362e527bc53ddfb0c7b8e080681df"
+  },
+  "exactFrozenFiles": true,
+  "entireOriginalTestPreservedByteForByte": true,
+  "originalTestSha256": "bb4a4fbfcd20da8ea2c9f95d7510200ac67a119153e2eee80e25d9d0ce81f6d9",
+  "addedTestBlockLines": 40,
+  "authorEvidence": [
+    {
+      "label": "mention-projection-research-deadline-20261109-probe-a",
+      "exit": 1,
+      "logSha256": "59e609934af03e64d52b29875604c6c7efc1b1c651a49c15fcbe7b042bff6468",
+      "integrity": "PASS"
+    },
+    {
+      "label": "mention-projection-research-deadline-20261109-targeted-red-a",
+      "exit": 1,
+      "logSha256": "752fc284d8f97b56c663c635f9877946265fbc571b4a0791ef9f673eaeb22883",
+      "integrity": "PASS"
+    },
+    {
+      "label": "mention-projection-research-deadline-20261109-targeted-green-a",
+      "exit": 0,
+      "logSha256": "a6d1b8a7d80802edbecc8c03120fdf827f713f3e44e7b9823d0737a26079a1f4",
+      "integrity": "PASS"
+    },
+    {
+      "label": "mention-projection-research-deadline-20261109-probe-green-a",
+      "exit": 0,
+      "logSha256": "63dbde99be50409f3f2007fd54a9d8a177c039b52efcc79ae552fb0707ab81b3",
+      "integrity": "PASS"
+    },
+    {
+      "label": "mention-projection-research-deadline-20261109-lint-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "integrity": "PASS"
+    },
+    {
+      "label": "mention-projection-research-deadline-20261109-operator-green-a",
+      "exit": 0,
+      "logSha256": "ee536632bca603e4aa857e0fd671c6481581418810ff11bd08ff1a5d0206dfa8",
+      "integrity": "PASS"
+    }
+  ],
+  "limits": "Offline identity and preservation evidence; no full-checkout, native, cloud, model, or deployment acceptance claimed."
+}

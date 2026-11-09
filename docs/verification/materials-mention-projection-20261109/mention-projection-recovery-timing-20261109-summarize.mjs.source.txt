@@ -1,0 +1,109 @@
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { resolve, join } from "node:path";
+import { createHash } from "node:crypto";
+import assert from "node:assert/strict";
+
+const work = resolve("work/grounded-verification");
+const prefix = "mention-projection-recovery-timing-20261109";
+const output = join(work, `${prefix}-comparison-results.json`);
+assert.ok(!existsSync(output), "Comparison results must be new");
+const sha256 = value => createHash("sha256").update(value).digest("hex");
+const readJSON = name => JSON.parse(readFileSync(join(work, name), "utf8"));
+const first = readJSON(`${prefix}-prepare-results.json`);
+const b = readJSON(`${prefix}-prepare-b-results.json`);
+const reversal = readJSON(`${prefix}-prepare-reversal-results.json`);
+const round = n => Math.round(n * 1000) / 1000;
+
+function invertOne(text, before, after) {
+  assert.equal(text.split(after).length - 1, 1, "Inverse edit must match uniquely");
+  return text.replace(after, before);
+}
+function proveCopy(name, manifest, subsequent = []) {
+  const file = manifest.files?.[name] ?? manifest.copies[name];
+  const bytes = readFileSync(file.path);
+  assert.equal(sha256(bytes), file.sha256, "Probe bytes unchanged after execution");
+  let text = bytes.toString("utf8");
+  for (const edit of [...subsequent].reverse()) text = invertOne(text, edit.before, edit.after);
+  for (const edit of [...first.edits].reverse()) if (edit.name === name) text = invertOne(text, edit.before, edit.after);
+  assert.equal(sha256(text), first.originals[name].sha256, "All changes accounted for exactly");
+  assert.equal(sha256(readFileSync(first.originals[name].path)), first.originals[name].sha256, "Original source preserved");
+  return { copySha256: file.sha256, originalSha256: first.originals[name].sha256, inverseEditsRecoverExactOriginal: true };
+}
+
+const probeIntegrity = {};
+for (const [variant, manifest, extra] of [["a", first, []], ["b", b, b.changes], ["reversal", reversal, reversal.changes]]) {
+  probeIntegrity[variant] = Object.fromEntries(["server.mjs", "research-recovery.test.mjs"].map(name =>
+    [name, proveCopy(name, manifest, name === "server.mjs" ? extra : [])]));
+}
+assert.equal(probeIntegrity.a["research-recovery.test.mjs"].copySha256, probeIntegrity.b["research-recovery.test.mjs"].copySha256);
+assert.equal(probeIntegrity.a["research-recovery.test.mjs"].copySha256, probeIntegrity.reversal["research-recovery.test.mjs"].copySha256);
+const snapshotBytes = readFileSync(join(work, "mention-projection-snapshot-20261109-b-results.json"));
+assert.equal(sha256(snapshotBytes), first.snapshotResultsFileSha256, "Frozen snapshot results must be unchanged");
+const snapshot = JSON.parse(snapshotBytes);
+assert.equal(snapshot.manifestSha256, "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0");
+assert.equal(snapshot.sourceFileCount, 1007);
+
+const phases = ["vite:createServer", "harness:securitySSR", "harness:compositionSSR", "harness:sqliteSSR", "harness:reset", "harness:listen", "test:harness", "test:setup", "test:entry", "test:reactDependency", "test:clientSSR", "test:startResearch", "test:recoverResearch", "test:close"];
+const runs = {};
+for (const label of ["a", "b", "reversal"]) {
+  const name = `${prefix}-${label}`;
+  const result = readJSON(`${name}.json`);
+  const bytes = readFileSync(join(work, `${name}.log`));
+  assert.equal(sha256(bytes), result.logSha256, "Raw wrapper log must retain hash");
+  const records = bytes.toString("utf8").split(/\r?\n/u).flatMap(line => {
+    try { return [JSON.parse(line)]; } catch { return []; }
+  });
+  const marks = records.filter(record => record.event === "offline-recovery-timing" && !record.heartbeat);
+  const find = phase => marks.find(record => record.phase === phase);
+  const phaseMs = Object.fromEntries(phases.map(phase => [phase, round(find(`${phase}:after`).elapsedMs - find(`${phase}:before`).elapsedMs)]));
+  const aborted = find("test:abort");
+  const bodyStart = find("test:startResearch:before");
+  const allAssertions = find("test:allAssertions:after");
+  runs[label] = {
+    ...result,
+    logPath: join(work, `${name}.log`),
+    resultPath: join(work, `${name}.json`),
+    passed: /ℹ pass 1(?:\r?\n)/u.test(bytes.toString("utf8")),
+    cancelled: /ℹ cancelled 1(?:\r?\n)/u.test(bytes.toString("utf8")),
+    phaseMs,
+    originalTimeoutMs: 45000,
+    assertionsBodyMs: round(allAssertions.elapsedMs - bodyStart.elapsedMs),
+    testContextAbort: { elapsedMs: aborted.elapsedMs, previousPhase: aborted.previousPhase,
+      note: "Node aborts context on both timeout and normal completion; use cancelled status and preceding phase to distinguish." },
+    allAssertionsReached: true,
+    allAssertionsReachedAfterContextAbort: allAssertions.elapsedMs > aborted.elapsedMs,
+    effectiveWatcher: records.find(record => record.event === "offline-recovery-watch-config") ?? null,
+    watchedCounts: records.find(record => record.event === "offline-recovery-watched-counts") ?? null,
+  };
+}
+assert.equal(runs.a.cancelled, true);
+assert.equal(runs.b.passed, true);
+assert.equal(runs.reversal.effectiveWatcher.watchIsNull, false);
+assert.equal(runs.b.effectiveWatcher.watchIsNull, true);
+assert.ok(Object.values(runs).every(run => run.nonLoopbackDenials === 0));
+
+const originalFailure = readJSON("mention-projection-full-node-20261109-b.json");
+assert.equal(originalFailure.logSha256, "87202fb42d1380a05a7179671cdf37e46b247527f8dd239c202190aea823e164");
+assert.equal(sha256(readFileSync(join(work, "mention-projection-full-node-20261109-b.log"))), originalFailure.logSha256);
+const diagnosis = {
+  classification: "Offline harness configuration defect with checkout-size-dependent filesystem watcher cost; no demonstrated product recovery defect.",
+  cause: "createHarnessServer supplies extra.server; final ...extra shallowly replaces createOfflineVite's server object, losing its watch:null. Vite 8.1.5 therefore starts a real root FSWatcher while the SSR composition is loading.",
+  control: "B adds only watch:null to the relocated ignored harness copy's full server options. A and reversal retain original behavior; all three use byte-identical instrumented test with the original 45,000 ms timeout and original assertions.",
+  minimalProposedFix: "Explicit watch:null in createHarnessServer server options, plus actual entry test asserting effective server.vite.config.server.watch===null. No timeout increase or assertion removal.",
+  productSemantics: "Probe B passes the original HTTP lost-Start/recovery, one fake provider call, one run, one budget admission, owner isolation, and recovery-while-disabled assertions. A and reversal observations after cancellation are diagnostics, not accepted passes.",
+  implementationState: "No tracked source or test edit; approval and TDD implementation belong to root agent.",
+  limits: [
+    "Focused diagnostic runs only; not a replacement for required full Node verification after any fix.",
+    "Timings are specific to this Windows checkout and installed Vite 8.1.5; no universal performance guarantee.",
+    "Observed watcher counts identify scan breadth but do not measure per-directory contribution.",
+    "No need to attribute the original isolated failure to parallel test contention; none was introduced in these probes.",
+  ],
+};
+writeFileSync(output, JSON.stringify({
+  timestamp: new Date().toISOString(), checkout: process.cwd(),
+  originalFailure, sourceFileCount: snapshot.sourceFileCount, snapshotManifestSha256: snapshot.manifestSha256,
+  snapshotResultsFileSha256: sha256(snapshotBytes), snapshotUnchanged: true,
+  originalsUnchanged: true, probeIntegrity, runs, diagnosis,
+}, null, 2) + "\n");
+console.log(JSON.stringify({ output, resultsSha256: sha256(readFileSync(output)), snapshotUnchanged: true, originalsUnchanged: true,
+  runs: Object.fromEntries(Object.entries(runs).map(([label, run]) => [label, { passed: run.passed, cancelled: run.cancelled, wrapperMs: run.elapsedMs, compositionMs: run.phaseMs["harness:compositionSSR"], assertionsBodyMs: run.assertionsBodyMs, logSha256: run.logSha256, effectiveWatcher: run.effectiveWatcher, watchedCounts: run.watchedCounts }])) }));

@@ -1,0 +1,84 @@
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { webcrypto } from "node:crypto";
+import { writeFileSync } from "node:fs";
+import { afterAll, afterEach, beforeEach, expect, it, vi } from "vitest";
+import { createMaterialsD1, seedUser } from "../../tests/helpers/materials-d1";
+import { memoryBucket } from "../../tests/helpers/document-bucket";
+import { createDocumentRuntime } from "../../app/server/documents/runtime";
+import { createDocumentRoute } from "../../app/server/http/document-route-factories";
+import { documentEndpointContracts, type DocumentEndpoint } from "../../app/contracts/documents-api";
+import { MaterialContextReview, type MaterialPreviewInputs } from "../../app/components/materials/material-context-review";
+import { MaterialSetupProvider, useMaterialSetup } from "../../app/components/materials/material-setup-provider";
+import type { DocumentsClient } from "../../app/lib/documents-client";
+import worker from "./mention-projection-flow-worker-20261109";
+
+const observations: unknown[] = [];
+beforeEach(() => { localStorage.clear(); vi.stubGlobal("crypto", webcrypto); });
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterAll(() => {
+  const output = import.meta.env.ARC_MENTION_UI_RESULT;
+  expect(output).toMatch(/^work\/grounded-verification\/mention-projection-root-ui-[a-z0-9-]+-results\.json$/u);
+  writeFileSync(output, JSON.stringify({ observations, realModelCalls: 0,
+    transport: "Actual MaterialContextReview and public HTTP factory/createDocumentRuntime over Node SQLite and in-memory R2; actual v3 synthetic-provider deliveries only; analysis disabled" }, null, 2) + "\n", { flag: "wx" });
+});
+
+it.each([
+  { id: "ui-denied", text: "I have never configured SQL for production.", mapped: 1, priorities: [] },
+  { id: "ui-mixed", text: "I built React components, but my colleague wrote SQL queries.", labels: ["React", "SQL"], mapped: 2, priorities: ["react"] },
+  { id: "ui-positive", text: "I wrote SQL queries.", mapped: 1, priorities: ["sql"] },
+])("renders v3 source-mention service mapping and priority counts for $id", async entry => {
+  const db = createMaterialsD1(), bucket = memoryBucket(); seedUser(db, "owner-a");
+  const env = { DB: db as unknown as D1Database, DOCS: bucket as unknown as R2Bucket };
+  try {
+    const original = await worker.fetch(new Request("http://localhost/ui-fixture", { method: "POST", body: JSON.stringify(entry) }), env);
+    const observed = await original.json() as Record<string, any>;
+    expect(observed.ok, JSON.stringify(observed)).toBe(true);
+    const runtime = createDocumentRuntime({ DB: env.DB, DOCUMENT_ASSETS: bucket,
+      ARC_DOCUMENTS_ENABLED: "true", ARC_DOCUMENT_PLANNING_ENABLED: "true", ARC_DOCUMENT_ANALYSIS_ENABLED: "false" },
+    { now: () => new Date("2026-11-09T01:00:00.000Z") });
+    const requests: string[] = [];
+    async function http(endpoint: DocumentEndpoint, input: Record<string, unknown>) {
+      requests.push(endpoint);
+      const contract = documentEndpointContracts[endpoint], body = { ...input }, params: Record<string, string> = {};
+      const path = contract.path.replace(/\[([A-Za-z]+)\]/gu, (_match, key: string) => {
+        const value = String(body[key]); params[key] = value; delete body[key]; return encodeURIComponent(value);
+      });
+      const url = new URL(path, "https://arc.test");
+      if (contract.method === "GET") for (const [key, value] of Object.entries(body)) if (value !== undefined) url.searchParams.set(key, String(value));
+      const response = await createDocumentRoute(endpoint, { requireUser: async () => ({ id: "owner-a" }), configuredOrigin: () => "https://arc.test",
+        createService: () => runtime, rateLimiter: { reserve: async () => ({ allowed: true }) } })(new Request(url, { method: contract.method,
+        headers: contract.method === "GET" ? {} : { origin: "https://arc.test", "content-type": "application/json" },
+        ...(contract.method === "GET" ? {} : { body: JSON.stringify(body) }) }), { params });
+      const result = await response.json(); expect(response.ok, endpoint + ": " + JSON.stringify(result)).toBe(true); return result;
+    }
+    const client = { capabilities: () => http("readDocumentCapabilities", {}), request: http } as unknown as DocumentsClient;
+    const confirmation = observed.trace.find((row: any) => row.endpoint === "createDocumentConfirmation").value;
+    const ref = { documentId: observed.document.document.id, documentVersionId: observed.document.version.id,
+      textVersionId: observed.document.version.textVersionId, revision: observed.document.document.revision, confirmationId: confirmation.confirmationId };
+    const reference = { contextVersionId: observed.context.contextVersionId, previewToken: observed.context.previewToken, selectionRef: observed.input.selectionRef };
+    const input: MaterialPreviewInputs = { source: observed.input.source, audit: observed.input.audit, availability: observed.input.availability,
+      target: observed.input.target, planningDate: observed.input.planningDate, selectedScope: observed.input.selectedScope };
+    const onPreview = vi.fn();
+    function View() {
+      const state = useMaterialSetup();
+      return <><button disabled={!state?.ready} onClick={() => { state?.setSlot("resume", ref); state?.setSelection(reference.selectionRef); state?.setPreview(reference); }}>恢复本地预览</button>
+        <MaterialContextReview input={input} scope={observed.input.scope} availableSkills={[{ id: "sql", name: "SQL" }, { id: "react", name: "React" }]}
+          recovering onPreview={onPreview} /></>;
+    }
+    render(<MaterialSetupProvider ownerId="owner-a" scopeKey={entry.id} client={client}><View /></MaterialSetupProvider>);
+    await waitFor(() => expect(screen.getByRole("button", { name: "恢复本地预览" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "恢复本地预览" }));
+    await screen.findByText(/资料预览已就绪/);
+    const paragraph = [...document.querySelectorAll(".material-preview p")].map(node => node.textContent ?? "")
+      .find(text => text.includes("已对应课程") && text.includes("参与当前排序")) ?? "";
+    observations.push({ id: entry.id, paragraph, expectedMapped: entry.mapped, expectedPriorities: entry.priorities,
+      actualPreview: observed.context.preview, requests, localStorage: JSON.stringify(localStorage) });
+    expect(observed.context.preview.priorities.map((row: any) => row.skillId).sort()).toEqual(entry.priorities);
+    expect(paragraph).toMatch(new RegExp("已对应课程\\s*" + entry.mapped + "\\s*项技能"));
+    expect(paragraph).toMatch(new RegExp("参与当前排序\\s*" + entry.priorities.length + "\\s*项技能"));
+    expect(onPreview.mock.calls.some(([value]) => value?.reference.contextVersionId === reference.contextVersionId)).toBe(true);
+    expect(requests).toContain("readMaterialContext"); expect(requests).not.toContain("createDocumentJob");
+    expect(JSON.stringify(localStorage)).not.toContain(entry.text);
+    expect(JSON.parse(observed.row.snapshot_json).audit).toEqual(input.audit);
+  } finally { cleanup(); db.close(); }
+});

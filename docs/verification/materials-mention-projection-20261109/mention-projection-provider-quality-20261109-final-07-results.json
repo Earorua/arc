@@ -1,0 +1,44 @@
+{
+  "status": "FROZEN_SOURCE_MATCHED",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "baseHead": "afd6254cc8f2989520b19a46144b9ddd9779fd3e",
+  "files": [
+    {
+      "file": "app/server/documents/policy.ts",
+      "sha256": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d",
+      "frozenMatches": true
+    },
+    {
+      "file": "app/server/documents/extraction-validator.ts",
+      "sha256": "ac539b8d3087bd801554d6706840aff3689263c3543403de122406182826f32a",
+      "frozenMatches": true
+    },
+    {
+      "file": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "8a2e82a14485f75531025c8649c22f2086e37fa12d9ca53d1adf2272d2d0310c",
+      "frozenMatches": true
+    },
+    {
+      "file": "tests/server/document-extraction.test.ts",
+      "sha256": "215bde68aa0b8019ef2a100105edcb8421d882bb9f25380cfc65d70e14199708",
+      "frozenMatches": true
+    },
+    {
+      "file": "tests/server/document-source-span-provider.test.ts",
+      "sha256": "98d2a6b57ba0f1228fdd875d9178735547c12eb4e86ba59aea89596227d1f2ed",
+      "frozenMatches": true
+    }
+  ],
+  "workingTree": [
+    " M app/server/documents/extraction-validator.ts",
+    " M app/server/documents/policy.ts",
+    " M docs/verification/2026-11-04-materials-public-release-progress.md",
+    " M docs/verification/2026-11-06-materials-grounding-pause.md",
+    " M tests/server/document-extraction.test.ts",
+    " M tests/server/document-source-span-provider.test.ts",
+    " M worker/document-executor/source-span-extraction.ts"
+  ],
+  "realModelCalls": 0,
+  "deployed": false,
+  "productFilesEditedByReviewer": false
+}

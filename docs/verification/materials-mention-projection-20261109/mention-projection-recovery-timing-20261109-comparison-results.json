@@ -1,0 +1,215 @@
+{
+  "timestamp": "2026-11-09T10:05:37.063Z",
+  "checkout": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+  "originalFailure": {
+    "name": "mention-projection-full-node-20261109-b",
+    "exit": 1,
+    "elapsedMs": 461473,
+    "logSha256": "87202fb42d1380a05a7179671cdf37e46b247527f8dd239c202190aea823e164",
+    "nonLoopbackDenials": 0,
+    "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-K7OlrL"
+  },
+  "sourceFileCount": 1007,
+  "snapshotManifestSha256": "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0",
+  "snapshotResultsFileSha256": "6ffedfe0a40163abbd128f49f4e2c4673450aa76fd299d2fe81236709829792e",
+  "snapshotUnchanged": true,
+  "originalsUnchanged": true,
+  "probeIntegrity": {
+    "a": {
+      "server.mjs": {
+        "copySha256": "9bb49ec70d1ca96d96fe1338fb7b2d9d0c0a4b9e4799fcb2b7132be37efcbeb3",
+        "originalSha256": "d760b28a1eb9f24a380af8d68621b3df22a1504a2c86c8a6d3040fb3e2391326",
+        "inverseEditsRecoverExactOriginal": true
+      },
+      "research-recovery.test.mjs": {
+        "copySha256": "18a11b9ccdaa57be9e19b4978a4493d343dde70726b96433e3f6dd60a98112d8",
+        "originalSha256": "87ca8dc79280f7129a255c5cccec8d617531c1c8613a3a89e2660f10960a2b9c",
+        "inverseEditsRecoverExactOriginal": true
+      }
+    },
+    "b": {
+      "server.mjs": {
+        "copySha256": "f1b06a617ccbdfcbbdd3080b69102f5680a1404f4bdd01b760e305f3ca504690",
+        "originalSha256": "d760b28a1eb9f24a380af8d68621b3df22a1504a2c86c8a6d3040fb3e2391326",
+        "inverseEditsRecoverExactOriginal": true
+      },
+      "research-recovery.test.mjs": {
+        "copySha256": "18a11b9ccdaa57be9e19b4978a4493d343dde70726b96433e3f6dd60a98112d8",
+        "originalSha256": "87ca8dc79280f7129a255c5cccec8d617531c1c8613a3a89e2660f10960a2b9c",
+        "inverseEditsRecoverExactOriginal": true
+      }
+    },
+    "reversal": {
+      "server.mjs": {
+        "copySha256": "b81c514cbee81a0fe908b074a57ece1e24eb8ffa37f8ffffa63297b5087068c9",
+        "originalSha256": "d760b28a1eb9f24a380af8d68621b3df22a1504a2c86c8a6d3040fb3e2391326",
+        "inverseEditsRecoverExactOriginal": true
+      },
+      "research-recovery.test.mjs": {
+        "copySha256": "18a11b9ccdaa57be9e19b4978a4493d343dde70726b96433e3f6dd60a98112d8",
+        "originalSha256": "87ca8dc79280f7129a255c5cccec8d617531c1c8613a3a89e2660f10960a2b9c",
+        "inverseEditsRecoverExactOriginal": true
+      }
+    }
+  },
+  "runs": {
+    "a": {
+      "name": "mention-projection-recovery-timing-20261109-a",
+      "exit": 1,
+      "elapsedMs": 62641,
+      "logSha256": "a01e134fc2916456672743d6ac039afd71ecc9e6ba06a3fbe4eb987eecc0e6b1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-0WYqQK",
+      "logPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-a.log",
+      "resultPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-a.json",
+      "passed": false,
+      "cancelled": true,
+      "phaseMs": {
+        "vite:createServer": 17.093,
+        "harness:securitySSR": 37.123,
+        "harness:compositionSSR": 54091.789,
+        "harness:sqliteSSR": 6.117,
+        "harness:reset": 18.103,
+        "harness:listen": 30.545,
+        "test:harness": 54204.677,
+        "test:setup": 60.193,
+        "test:entry": 21.923,
+        "test:reactDependency": 6211.346,
+        "test:clientSSR": 487.542,
+        "test:startResearch": 390.767,
+        "test:recoverResearch": 42.66,
+        "test:close": 832.373
+      },
+      "originalTimeoutMs": 45000,
+      "assertionsBodyMs": 483.178,
+      "testContextAbort": {
+        "elapsedMs": 45065.348,
+        "previousPhase": "harness:compositionSSR:before",
+        "note": "Node aborts context on both timeout and normal completion; use cancelled status and preceding phase to distinguish."
+      },
+      "allAssertionsReached": true,
+      "allAssertionsReachedAfterContextAbort": true,
+      "effectiveWatcher": null,
+      "watchedCounts": null
+    },
+    "b": {
+      "name": "mention-projection-recovery-timing-20261109-b",
+      "exit": 0,
+      "elapsedMs": 7483,
+      "logSha256": "54dd0dceb2b29c0016ec6d15d91a3c0a220f231ed8295b392b99717c01069655",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-8Va0Be",
+      "logPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-b.log",
+      "resultPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-b.json",
+      "passed": true,
+      "cancelled": false,
+      "phaseMs": {
+        "vite:createServer": 30.623,
+        "harness:securitySSR": 171.758,
+        "harness:compositionSSR": 1310.102,
+        "harness:sqliteSSR": 4.181,
+        "harness:reset": 13.321,
+        "harness:listen": 21.08,
+        "test:harness": 1555.293,
+        "test:setup": 35.431,
+        "test:entry": 48.457,
+        "test:reactDependency": 5318.995,
+        "test:clientSSR": 76.492,
+        "test:startResearch": 62.307,
+        "test:recoverResearch": 12.359,
+        "test:close": 8.245
+      },
+      "originalTimeoutMs": 45000,
+      "assertionsBodyMs": 92.982,
+      "testContextAbort": {
+        "elapsedMs": 7194.368,
+        "previousPhase": "test:close:after",
+        "note": "Node aborts context on both timeout and normal completion; use cancelled status and preceding phase to distinguish."
+      },
+      "allAssertionsReached": true,
+      "allAssertionsReachedAfterContextAbort": false,
+      "effectiveWatcher": {
+        "event": "offline-recovery-watch-config",
+        "watchIsNull": true,
+        "middlewareMode": false,
+        "watcherClass": "NoopWatcher",
+        "watchedDirectoryCount": 0,
+        "defaultWatchNullWasOverwritten": false
+      },
+      "watchedCounts": null
+    },
+    "reversal": {
+      "name": "mention-projection-recovery-timing-20261109-reversal",
+      "exit": 1,
+      "elapsedMs": 52006,
+      "logSha256": "639d8b0b29a7c70fafd25e9eeb1a4b18f9f74799bae093e42c68ee17aaea03cf",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-O2i6Lw",
+      "logPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-reversal.log",
+      "resultPath": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-reversal.json",
+      "passed": false,
+      "cancelled": true,
+      "phaseMs": {
+        "vite:createServer": 18.031,
+        "harness:securitySSR": 36.474,
+        "harness:compositionSSR": 45968.899,
+        "harness:sqliteSSR": 6.435,
+        "harness:reset": 12.869,
+        "harness:listen": 25.825,
+        "test:harness": 46162.515,
+        "test:setup": 39.049,
+        "test:entry": 17.541,
+        "test:reactDependency": 4680.773,
+        "test:clientSSR": 12.549,
+        "test:startResearch": 61.233,
+        "test:recoverResearch": 10.979,
+        "test:close": 677.643
+      },
+      "originalTimeoutMs": 45000,
+      "assertionsBodyMs": 90.432,
+      "testContextAbort": {
+        "elapsedMs": 45071.054,
+        "previousPhase": "harness:compositionSSR:before",
+        "note": "Node aborts context on both timeout and normal completion; use cancelled status and preceding phase to distinguish."
+      },
+      "allAssertionsReached": true,
+      "allAssertionsReachedAfterContextAbort": true,
+      "effectiveWatcher": {
+        "event": "offline-recovery-watch-config",
+        "watchIsNull": false,
+        "watchType": "undefined",
+        "middlewareMode": false,
+        "watcherClass": "FSWatcher",
+        "watchedDirectoryCount": 0,
+        "defaultWatchNullWasOverwritten": true
+      },
+      "watchedCounts": {
+        "event": "offline-recovery-watched-counts",
+        "totalDirectories": 9341,
+        "totalEntries": 40489,
+        "byRoot": {
+          "app": 132,
+          "tests": 24,
+          "docs": 85,
+          "work": 4335,
+          ".worktrees": 0,
+          "node_modules": 0
+        }
+      }
+    }
+  },
+  "diagnosis": {
+    "classification": "Offline harness configuration defect with checkout-size-dependent filesystem watcher cost; no demonstrated product recovery defect.",
+    "cause": "createHarnessServer supplies extra.server; final ...extra shallowly replaces createOfflineVite's server object, losing its watch:null. Vite 8.1.5 therefore starts a real root FSWatcher while the SSR composition is loading.",
+    "control": "B adds only watch:null to the relocated ignored harness copy's full server options. A and reversal retain original behavior; all three use byte-identical instrumented test with the original 45,000 ms timeout and original assertions.",
+    "minimalProposedFix": "Explicit watch:null in createHarnessServer server options, plus actual entry test asserting effective server.vite.config.server.watch===null. No timeout increase or assertion removal.",
+    "productSemantics": "Probe B passes the original HTTP lost-Start/recovery, one fake provider call, one run, one budget admission, owner isolation, and recovery-while-disabled assertions. A and reversal observations after cancellation are diagnostics, not accepted passes.",
+    "implementationState": "No tracked source or test edit; approval and TDD implementation belong to root agent.",
+    "limits": [
+      "Focused diagnostic runs only; not a replacement for required full Node verification after any fix.",
+      "Timings are specific to this Windows checkout and installed Vite 8.1.5; no universal performance guarantee.",
+      "Observed watcher counts identify scan breadth but do not measure per-directory contribution.",
+      "No need to attribute the original isolated failure to parallel test contention; none was introduced in these probes."
+    ]
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "review": "Independent SPEC compliance review of the approved minimal offline Research harness watcher fix",
+  "status": "PASS",
+  "findings": [],
+  "fullTask4Status": "HOLD: this focused review does not replace root's fresh C full acceptance",
+  "timestamp": "2026-11-09T10:16:34.072Z",
+  "root": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "head": "d9a021907cc679e8b7b8960f3f4a167a7304c18b",
+  "inspectedRequirements": "docs/superpowers/plans/2026-11-08-materials-mention-projection.md, Task 4 Node B startup diagnosis and approved two-file fix",
+  "source": {
+    "sourceFileCount": 1007,
+    "manifestSha256": "88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a",
+    "unchangedFromB": 1005,
+    "changes": [
+      {
+        "path": "tests/offline-uat/entry.test.mjs",
+        "baselineSha256": "57bb44044ffdbd39f2fed5cce22f2d9d4da1c47b83ec2d948ecc7b6aab04bb8b",
+        "currentSha256": "f9b44e5e45a92f18f6c7ca07d0f018e3e9bc5f5aa7046c0ebbf6ff4e2b57d68d"
+      },
+      {
+        "path": "tests/offline-uat/server.mjs",
+        "baselineSha256": "d760b28a1eb9f24a380af8d68621b3df22a1504a2c86c8a6d3040fb3e2391326",
+        "currentSha256": "9d8e3948e176b03c90a4cc13636f7e182fb6106e861266d817bf79028427ebaf"
+      }
+    ],
+    "freezePath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-freeze-results.json",
+    "freezeSha256": "00ec3f2516a6775128b7ae8053e76dcf879e8ac5bc3f60ca3c220cf8a4324537",
+    "baselinePath": "work/grounded-verification/mention-projection-snapshot-20261109-b-results.json",
+    "baselineResultsSha256": "6ffedfe0a40163abbd128f49f4e2c4673450aa76fd299d2fe81236709829792e",
+    "baselineManifestSha256": "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0",
+    "diffSha256": "e3de7b2322a13a5cecefc5b16814b2a04eb71acdf195cc51bf4b69e72854d98a",
+    "frozenCopyBytesMatch": true,
+    "inverseEditsRecoverBaselineBytes": true,
+    "recoveryAndPublicRecoveryUnchanged": true,
+    "original45SecondClockStillIncludesHarnessSetup": true,
+    "entryCRLFPreserved": true,
+    "serverLFPreserved": true,
+    "crlfAwareDiffCheckPassed": true
+  },
+  "requirements": [
+    {
+      "item": "Only explicit watch:null in createHarnessServer extra.server",
+      "status": "PASS",
+      "location": "tests/offline-uat/server.mjs:200"
+    },
+    {
+      "item": "Actual harness effective config and empty getWatched regression inside existing try/finally",
+      "status": "PASS",
+      "location": "tests/offline-uat/entry.test.mjs:36"
+    },
+    {
+      "item": "HTTP/auth/origin/nonce/filesystem/private asset/body/provider/counters/budget/cleanup and all prior assertions unchanged",
+      "status": "PASS",
+      "evidence": "Exact byte inversion of the two edits and 1005 unchanged non-document files"
+    },
+    {
+      "item": "No timeout increase, test skip, setup relocation, baseline mutation or production scope extension",
+      "status": "PASS",
+      "evidence": "Exact frozen source manifest and unchanged original recovery test"
+    },
+    {
+      "item": "Targeted old-code RED preserved and correctly fails undefined versus null",
+      "status": "PASS",
+      "evidence": "Author RED log inspected and SHA256 verified; not rerun or overwritten by reviewer"
+    },
+    {
+      "item": "Fresh independent actual entry and both recovery paths plus scoped lint",
+      "status": "PASS",
+      "evidence": "21 pass, 0 fail/cancel/skip; lint exit 0; all run through offline wrapper"
+    }
+  ],
+  "authorRuns": {
+    "red": {
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-red.json",
+      "reportSha256": "1607368356d2df1f7237645fb923d9c22c3c17850114963babc51f06210fad14",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-red.log",
+      "name": "mention-projection-recovery-watcher-20261109-red",
+      "exit": 1,
+      "elapsedMs": 47487,
+      "logSha256": "a2f0fd7a0a9a5dea376645bda15ad21b5c5173d05df4f1d233654967c914f5c3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-rwgmzr"
+    },
+    "green": {
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-green.json",
+      "reportSha256": "55b7226f34bc37277e05ef95b6c6b54e13f99a26fcd213c7130831c19f417c67",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-green.log",
+      "name": "mention-projection-recovery-watcher-20261109-green",
+      "exit": 0,
+      "elapsedMs": 24482,
+      "logSha256": "e5437e84f8a0eebbde36e87c67aa2efc67af8efb9f7d5f92911a74af9654e46c",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-B5fsDQ"
+    },
+    "lint": {
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-lint.json",
+      "reportSha256": "03eb94281f3837f00f58252049c07257f5d163bfe9562c021f14544b2e19701a",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-lint.log",
+      "name": "mention-projection-recovery-watcher-20261109-lint",
+      "exit": 0,
+      "elapsedMs": 5355,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-fMhIM4"
+    }
+  },
+  "freshRuns": {
+    "focused": {
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-focused.json",
+      "reportSha256": "f9677c2a8aa5744a84f5f6a34c03d258c42cb9804b3c9c857b09d7f20ef9dae0",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-focused.log",
+      "name": "mention-projection-recovery-watcher-spec-20261109-focused",
+      "exit": 0,
+      "elapsedMs": 23427,
+      "logSha256": "34453e80907e7fb569d61031f641f6e092e1a6ecf4e2b36936d4b97f065d5f3e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Bd7LCR"
+    },
+    "lint": {
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-lint.json",
+      "reportSha256": "f7dee77c1add25c8b91799e8a567f421b8118facc7d6b37b1f2180091de3ad00",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-lint.log",
+      "name": "mention-projection-recovery-watcher-spec-20261109-lint",
+      "exit": 0,
+      "elapsedMs": 3733,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Cj1wOr"
+    }
+  },
+  "focusedTests": {
+    "total": 21,
+    "passed": 21,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "compatibilityRecoveryMs": 5762.857
+  },
+  "diagnosis": {
+    "path": "work/grounded-verification/mention-projection-recovery-timing-20261109-comparison-results.json",
+    "sha256": "6c5e2518802f8ea532d87a9bbbb4925aad21ef20ad8e6e6c07032ec90493475b",
+    "originalB": {
+      "reportPath": "work/grounded-verification/mention-projection-full-node-20261109-b.json",
+      "reportSha256": "e21114d39ee6e2427a167169fe02f7cf0e433733b1fb677ff27e09f04073b0c8",
+      "logPath": "work/grounded-verification/mention-projection-full-node-20261109-b.log",
+      "name": "mention-projection-full-node-20261109-b",
+      "exit": 1,
+      "elapsedMs": 461473,
+      "logSha256": "87202fb42d1380a05a7179671cdf37e46b247527f8dd239c202190aea823e164",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-K7OlrL"
+    },
+    "runs": {
+      "a": {
+        "reportPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-a.json",
+        "reportSha256": "bc79f8e8dc5a468b0811d30920c9530dd5f977555e07381e2dedc4cfeb2c6d83",
+        "logPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-a.log",
+        "name": "mention-projection-recovery-timing-20261109-a",
+        "exit": 1,
+        "elapsedMs": 62641,
+        "logSha256": "a01e134fc2916456672743d6ac039afd71ecc9e6ba06a3fbe4eb987eecc0e6b1",
+        "nonLoopbackDenials": 0,
+        "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-0WYqQK",
+        "compositionMs": 54091.789,
+        "observedCompositionMs": 54091.789000000004
+      },
+      "b": {
+        "reportPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-b.json",
+        "reportSha256": "bb1a16476add3150aa299bb6c772dc45c2de7a317d07ae5d6261abf039460f77",
+        "logPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-b.log",
+        "name": "mention-projection-recovery-timing-20261109-b",
+        "exit": 0,
+        "elapsedMs": 7483,
+        "logSha256": "54dd0dceb2b29c0016ec6d15d91a3c0a220f231ed8295b392b99717c01069655",
+        "nonLoopbackDenials": 0,
+        "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-8Va0Be",
+        "compositionMs": 1310.102,
+        "observedCompositionMs": 1310.102
+      },
+      "reversal": {
+        "reportPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-reversal.json",
+        "reportSha256": "5330b3b46de3a329f7c968c8d608d82c3853efe736ded5bf71cb8283d1330b7c",
+        "logPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-reversal.log",
+        "name": "mention-projection-recovery-timing-20261109-reversal",
+        "exit": 1,
+        "elapsedMs": 52006,
+        "logSha256": "639d8b0b29a7c70fafd25e9eeb1a4b18f9f74799bae093e42c68ee17aaea03cf",
+        "nonLoopbackDenials": 0,
+        "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-O2i6Lw",
+        "compositionMs": 45968.899,
+        "observedCompositionMs": 45968.899000000005
+      }
+    },
+    "rootCauseSupportedByActualSourceAndRetainedLogs": true,
+    "observedWatcher": {
+      "original": "FSWatcher",
+      "fixed": "NoopWatcher",
+      "originalDirectories": 9341,
+      "originalEntries": 40489
+    },
+    "installedVite": {
+      "version": "8.1.5",
+      "sourcePath": "node_modules/vite/dist/node/chunks/node.js",
+      "sourceSha256": "3968fab97a9d0882f0e2e754bd0d5b417f0a84596e293179a9a6e585919f041c"
+    }
+  },
+  "warning": {
+    "publicOptimizerMissingRuntime": "Existing separate observation, not this watcher root cause and not repaired or masked by the fix",
+    "observedInOriginalB": true,
+    "observedInAuthorGreen": true,
+    "observedInFreshSpecRun": false,
+    "envFileDeprecationAndExperimentalSQLite": "Still present in fresh focused log; no warning suppression added"
+  },
+  "reviewBoundary": {
+    "externalNetworkCalls": 0,
+    "wrapperNonLoopbackDenials": 0,
+    "productionEdits": 0,
+    "sourceEditsByReviewer": 0,
+    "documentationEditsByReviewer": 0,
+    "commits": 0,
+    "fullSuiteRuns": 0,
+    "wrapperSha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+    "outboundBlockerSha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f",
+    "note": "Only uniquely named ignored review artifacts were created. Existing source/docs dirty state preserved. Source listing intentionally excludes documents, as the approved 1007-file freeze does."
+  },
+  "limits": [
+    "Quality review and root fresh C full-source acceptance remain separate gates.",
+    "Timing is local to this checkout; no universal latency claim.",
+    "Retained A/B/A and author RED evidence were verified, not rerun by this reviewer.",
+    "Live model evaluation, migration, deployment, release and full Task 4 acceptance are outside this review."
+  ],
+  "gitStatusAtAudit": " M docs/superpowers/plans/2026-11-08-materials-mention-projection.md\n M docs/verification/2026-11-04-materials-public-release-progress.md\n M docs/verification/2026-11-06-materials-grounding-pause.md\n M tests/offline-uat/entry.test.mjs\n M tests/offline-uat/server.mjs\n?? docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md\n?? docs/verification/2026-11-09-materials-mention-projection.md\n"
+}

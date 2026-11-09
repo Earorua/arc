@@ -1,0 +1,1 @@
+{"status":"BEFORE_CHANGE_OBSERVATIONS_CAPTURED","observedSha256":"fc12860058a9bc735ef12a7aeacfb065d256067331a618b01c0c6afe8c02d4b4","providerCases":150,"helpers":20,"output":"work/grounded-verification/mention-projection-compatibility-before-20261109-a-results.json","realModelCalls":0}

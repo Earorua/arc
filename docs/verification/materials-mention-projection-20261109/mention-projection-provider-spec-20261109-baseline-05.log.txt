@@ -1,0 +1,1 @@
+{"status":"PASS","cases":2,"baselineAndCurrentMatched":true,"output":"work/grounded-verification/mention-projection-provider-spec-20261109-baseline-05-results.json"}

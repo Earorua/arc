@@ -1,0 +1,331 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/server/document-extraction.test.ts [2m([22m[2m30 tests[22m[2m | [22m[31m13 failed[39m[2m)[22m[32m 57[2mms[22m[39m
+   [32m✓[39m resolves exact owner-bound source offsets and rejects invented identities or quotes[32m 5[2mms[22m[39m
+   [32m✓[39m enforces one byte budget across candidates and source-bound review points[32m 3[2mms[22m[39m
+   [32m✓[39m preserves an explicit empty skill list even when the new source-span fact itself names a skill[32m 0[2mms[22m[39m
+   [32m✓[39m projects only hints supported by the cited words, preserving the original hint indices[32m 1[2mms[22m[39m
+   [32m✓[39m also bounds the stored projection with its verified source references and skill words[32m 3[2mms[22m[39m
+   [32m✓[39m selects the edit projection only from the trusted provider policy undefined[32m 1[2mms[22m[39m
+   [32m✓[39m selects the edit projection only from the trusted provider policy qualified-policy[32m 0[2mms[22m[39m
+   [32m✓[39m selects the edit projection only from the trusted provider policy materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1[32m 0[2mms[22m[39m
+   [32m✓[39m selects the edit projection only from the trusted provider policy materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2[32m 24[2mms[22m[39m
+   [32m✓[39m keeps historical unwrapped captures separate from the explicit v1 and v2 envelopes[32m 1[2mms[22m[39m
+[31m   [31m×[31m independently removes an unsupported v3 level while retaining source topics: I cannot yet configure a Kubernetes cluster myself. (configure a Kubernetes cluster, guided)[39m[32m 5[2mms[22m[39m
+[31m   [31m×[31m independently removes an unsupported v3 level while retaining source topics: I cannot yet configure a Kubernetes cluster myself. (configure a Kubernetes cluster, uncertain)[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m independently removes an unsupported v3 level while retaining source topics: I have never used SQL for production. (SQL, guided)[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m independently removes an unsupported v3 level while retaining source topics: My colleague tested React under supervision. (React, guided)[39m[32m 2[2mms[22m[39m
+[31m   [31m×[31m independently removes an unsupported v3 level while retaining source topics: I plan to test React under supervision. (React, guided)[39m[32m 2[2mms[22m[39m
+[31m   [31m×[31m independently removes an unsupported v3 level while retaining source topics: My mentor said, "I tested React under supervision." (React, guided)[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m independently removes an unsupported v3 level while retaining source topics: I tested SQL under supervision and my colleague tested React under supervision. (SQL,React, guided)[39m[32m 1[2mms[22m[39m
+   [32m✓[39m retains a v3 level supported by the full personal statement: I tested SQL under supervision.[32m 0[2mms[22m[39m
+   [32m✓[39m retains a v3 level supported by the full personal statement: I am familiar with SQL.[32m 0[2mms[22m[39m
+   [32m✓[39m retains a v3 level supported by the full personal statement: I am unsure about my SQL proficiency.[32m 0[2mms[22m[39m
+   [32m✓[39m retains a v3 level supported by the full personal statement: - I tested SQL under supervision.[32m 0[2mms[22m[39m
+[31m   [31m×[31m refuses contradictory v3 canonical text without losing the actual source context: I did not test SQL under supervision.[39m[32m 1[2mms[22m[39m
+[31m   [31m×[31m refuses contradictory v3 canonical text without losing the actual source context: I tested SQL under supervision.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m refuses contradictory v3 canonical text without losing the actual source context: My colleague tested SQL under supervision.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m refuses a v3 quote detached from its original attribution: The worksheet illustrates an example: “Begin. I tested SQL under supervision. End.”[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m refuses a v3 quote detached from its original attribution: It is false to claim that I tested SQL under supervision.[39m[32m 0[2mms[22m[39m
+[31m   [31m×[31m refuses a v3 quote detached from its original attribution: It is false to claim that
+I tested SQL under supervision.[39m[32m 0[2mms[22m[39m
+   [32m✓[39m requires v3 source labels to be nominated and grounded without adding other mentioned tools[32m 0[2mms[22m[39m
+   [32m✓[39m selects and reloads v3 only from its exact trusted policy and stored marker[32m 2[2mms[22m[39m
+   [32m✓[39m rejects forged v3 policy, marker, candidate and source fields at the site boundary[32m 1[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 13 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mindependently removes an unsupported v3 level while retaining source topics: I cannot yet configure a Kubernetes cluster myself. (configure a Kubernetes cluster, guided)
+[31m[1mAssertionError[22m: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -10,7 +10,14 @@[39m
+[2m        },[22m
+[2m        "text": "I cannot yet configure a Kubernetes cluster myself.",[22m
+[2m      },[22m
+[2m    ],[22m
+[2m    "reviewProjection": "source-skill-mentions-v3",[22m
+[32m-   "selfAssessmentHints": [],[39m
+[31m+   "selfAssessmentHints": [[39m
+[31m+     {[39m
+[31m+       "candidateId": "fact",[39m
+[31m+       "id": "hint-fact-0",[39m
+[31m+       "level": "guided",[39m
+[31m+       "skillLabel": "configure a Kubernetes cluster",[39m
+[31m+     },[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m120:20[22m[39m
+    [90m118|[39m     [35mconst[39m extraction [33m=[39m [34mmentionExtraction[39m(text[33m,[39m [[33m...[39mlabels][33m,[39m level)[33m;[39m
+    [90m119|[39m     const review = validateDocumentExtraction(extraction, "owner", men…
+    [90m120|[39m     expect(review).toMatchObject({ reviewProjection: "source-skill-men…
+    [90m   |[39m                    [31m^[39m
+    [90m121|[39m         sourceRef: { start: 0, end: text.length } }], selfAssessmentHi…
+    [90m122|[39m     expect(validateStoredDocumentExtraction(serializeDocumentExtractio…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mindependently removes an unsupported v3 level while retaining source topics: I cannot yet configure a Kubernetes cluster myself. (configure a Kubernetes cluster, uncertain)
+[31m[1mAssertionError[22m: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -10,7 +10,14 @@[39m
+[2m        },[22m
+[2m        "text": "I cannot yet configure a Kubernetes cluster myself.",[22m
+[2m      },[22m
+[2m    ],[22m
+[2m    "reviewProjection": "source-skill-mentions-v3",[22m
+[32m-   "selfAssessmentHints": [],[39m
+[31m+   "selfAssessmentHints": [[39m
+[31m+     {[39m
+[31m+       "candidateId": "fact",[39m
+[31m+       "id": "hint-fact-0",[39m
+[31m+       "level": "uncertain",[39m
+[31m+       "skillLabel": "configure a Kubernetes cluster",[39m
+[31m+     },[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m120:20[22m[39m
+    [90m118|[39m     [35mconst[39m extraction [33m=[39m [34mmentionExtraction[39m(text[33m,[39m [[33m...[39mlabels][33m,[39m level)[33m;[39m
+    [90m119|[39m     const review = validateDocumentExtraction(extraction, "owner", men…
+    [90m120|[39m     expect(review).toMatchObject({ reviewProjection: "source-skill-men…
+    [90m   |[39m                    [31m^[39m
+    [90m121|[39m         sourceRef: { start: 0, end: text.length } }], selfAssessmentHi…
+    [90m122|[39m     expect(validateStoredDocumentExtraction(serializeDocumentExtractio…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mindependently removes an unsupported v3 level while retaining source topics: I have never used SQL for production. (SQL, guided)
+[31m[1mAssertionError[22m: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -10,7 +10,14 @@[39m
+[2m        },[22m
+[2m        "text": "I have never used SQL for production.",[22m
+[2m      },[22m
+[2m    ],[22m
+[2m    "reviewProjection": "source-skill-mentions-v3",[22m
+[32m-   "selfAssessmentHints": [],[39m
+[31m+   "selfAssessmentHints": [[39m
+[31m+     {[39m
+[31m+       "candidateId": "fact",[39m
+[31m+       "id": "hint-fact-0",[39m
+[31m+       "level": "guided",[39m
+[31m+       "skillLabel": "SQL",[39m
+[31m+     },[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m120:20[22m[39m
+    [90m118|[39m     [35mconst[39m extraction [33m=[39m [34mmentionExtraction[39m(text[33m,[39m [[33m...[39mlabels][33m,[39m level)[33m;[39m
+    [90m119|[39m     const review = validateDocumentExtraction(extraction, "owner", men…
+    [90m120|[39m     expect(review).toMatchObject({ reviewProjection: "source-skill-men…
+    [90m   |[39m                    [31m^[39m
+    [90m121|[39m         sourceRef: { start: 0, end: text.length } }], selfAssessmentHi…
+    [90m122|[39m     expect(validateStoredDocumentExtraction(serializeDocumentExtractio…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mindependently removes an unsupported v3 level while retaining source topics: My colleague tested React under supervision. (React, guided)
+[31m[1mAssertionError[22m: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -10,7 +10,14 @@[39m
+[2m        },[22m
+[2m        "text": "My colleague tested React under supervision.",[22m
+[2m      },[22m
+[2m    ],[22m
+[2m    "reviewProjection": "source-skill-mentions-v3",[22m
+[32m-   "selfAssessmentHints": [],[39m
+[31m+   "selfAssessmentHints": [[39m
+[31m+     {[39m
+[31m+       "candidateId": "fact",[39m
+[31m+       "id": "hint-fact-0",[39m
+[31m+       "level": "guided",[39m
+[31m+       "skillLabel": "React",[39m
+[31m+     },[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m120:20[22m[39m
+    [90m118|[39m     [35mconst[39m extraction [33m=[39m [34mmentionExtraction[39m(text[33m,[39m [[33m...[39mlabels][33m,[39m level)[33m;[39m
+    [90m119|[39m     const review = validateDocumentExtraction(extraction, "owner", men…
+    [90m120|[39m     expect(review).toMatchObject({ reviewProjection: "source-skill-men…
+    [90m   |[39m                    [31m^[39m
+    [90m121|[39m         sourceRef: { start: 0, end: text.length } }], selfAssessmentHi…
+    [90m122|[39m     expect(validateStoredDocumentExtraction(serializeDocumentExtractio…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mindependently removes an unsupported v3 level while retaining source topics: I plan to test React under supervision. (React, guided)
+[31m[1mAssertionError[22m: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -10,7 +10,14 @@[39m
+[2m        },[22m
+[2m        "text": "I plan to test React under supervision.",[22m
+[2m      },[22m
+[2m    ],[22m
+[2m    "reviewProjection": "source-skill-mentions-v3",[22m
+[32m-   "selfAssessmentHints": [],[39m
+[31m+   "selfAssessmentHints": [[39m
+[31m+     {[39m
+[31m+       "candidateId": "fact",[39m
+[31m+       "id": "hint-fact-0",[39m
+[31m+       "level": "guided",[39m
+[31m+       "skillLabel": "React",[39m
+[31m+     },[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m120:20[22m[39m
+    [90m118|[39m     [35mconst[39m extraction [33m=[39m [34mmentionExtraction[39m(text[33m,[39m [[33m...[39mlabels][33m,[39m level)[33m;[39m
+    [90m119|[39m     const review = validateDocumentExtraction(extraction, "owner", men…
+    [90m120|[39m     expect(review).toMatchObject({ reviewProjection: "source-skill-men…
+    [90m   |[39m                    [31m^[39m
+    [90m121|[39m         sourceRef: { start: 0, end: text.length } }], selfAssessmentHi…
+    [90m122|[39m     expect(validateStoredDocumentExtraction(serializeDocumentExtractio…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mindependently removes an unsupported v3 level while retaining source topics: My mentor said, "I tested React under supervision." (React, guided)
+[31m[1mAssertionError[22m: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -10,7 +10,14 @@[39m
+[2m        },[22m
+[2m        "text": "My mentor said, \"I tested React under supervision.\"",[22m
+[2m      },[22m
+[2m    ],[22m
+[2m    "reviewProjection": "source-skill-mentions-v3",[22m
+[32m-   "selfAssessmentHints": [],[39m
+[31m+   "selfAssessmentHints": [[39m
+[31m+     {[39m
+[31m+       "candidateId": "fact",[39m
+[31m+       "id": "hint-fact-0",[39m
+[31m+       "level": "guided",[39m
+[31m+       "skillLabel": "React",[39m
+[31m+     },[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m120:20[22m[39m
+    [90m118|[39m     [35mconst[39m extraction [33m=[39m [34mmentionExtraction[39m(text[33m,[39m [[33m...[39mlabels][33m,[39m level)[33m;[39m
+    [90m119|[39m     const review = validateDocumentExtraction(extraction, "owner", men…
+    [90m120|[39m     expect(review).toMatchObject({ reviewProjection: "source-skill-men…
+    [90m   |[39m                    [31m^[39m
+    [90m121|[39m         sourceRef: { start: 0, end: text.length } }], selfAssessmentHi…
+    [90m122|[39m     expect(validateStoredDocumentExtraction(serializeDocumentExtractio…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mindependently removes an unsupported v3 level while retaining source topics: I tested SQL under supervision and my colleague tested React under supervision. (SQL,React, guided)
+[31m[1mAssertionError[22m: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -11,7 +11,20 @@[39m
+[2m        },[22m
+[2m        "text": "I tested SQL under supervision and my colleague tested React under supervision.",[22m
+[2m      },[22m
+[2m    ],[22m
+[2m    "reviewProjection": "source-skill-mentions-v3",[22m
+[32m-   "selfAssessmentHints": [],[39m
+[31m+   "selfAssessmentHints": [[39m
+[31m+     {[39m
+[31m+       "candidateId": "fact",[39m
+[31m+       "id": "hint-fact-0",[39m
+[31m+       "level": "guided",[39m
+[31m+       "skillLabel": "SQL",[39m
+[31m+     },[39m
+[31m+     {[39m
+[31m+       "candidateId": "fact",[39m
+[31m+       "id": "hint-fact-1",[39m
+[31m+       "level": "guided",[39m
+[31m+       "skillLabel": "React",[39m
+[31m+     },[39m
+[31m+   ],[39m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m120:20[22m[39m
+    [90m118|[39m     [35mconst[39m extraction [33m=[39m [34mmentionExtraction[39m(text[33m,[39m [[33m...[39mlabels][33m,[39m level)[33m;[39m
+    [90m119|[39m     const review = validateDocumentExtraction(extraction, "owner", men…
+    [90m120|[39m     expect(review).toMatchObject({ reviewProjection: "source-skill-men…
+    [90m   |[39m                    [31m^[39m
+    [90m121|[39m         sourceRef: { start: 0, end: text.length } }], selfAssessmentHi…
+    [90m122|[39m     expect(validateStoredDocumentExtraction(serializeDocumentExtractio…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mrefuses contradictory v3 canonical text without losing the actual source context: I did not test SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mrefuses contradictory v3 canonical text without losing the actual source context: I tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mrefuses contradictory v3 canonical text without losing the actual source context: My colleague tested SQL under supervision.
+[31m[1mAssertionError[22m: expected [Function] to throw an error[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m140:123[22m[39m
+    [90m138|[39m     [35mconst[39m extraction [33m=[39m [34mmentionExtraction[39m(text)[33m;[39m
+    [90m139|[39m     extraction[33m.[39mitems[[34m0[39m][33m![39m[33m.[39mtext [33m=[39m forged[33m;[39m
+    [90m140|[39m     expect(() => validateDocumentExtraction(extraction, "owner", menti…
+    [90m   |[39m                                                                                                                           [31m^[39m
+    [90m141|[39m })[33m;[39m
+    [90m142|[39m it[33m.[39m[34meach[39m([
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mrefuses a v3 quote detached from its original attribution: The worksheet illustrates an example: “Begin. I tested SQL under supervision. End.”
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mrefuses a v3 quote detached from its original attribution: It is false to claim that I tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/server/document-extraction.test.ts[2m > [22mrefuses a v3 quote detached from its original attribution: It is false to claim that
+I tested SQL under supervision.
+[31m[1mAssertionError[22m: expected [Function] to throw an error[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/server/document-extraction.test.ts:[2m148:123[22m[39m
+    [90m146|[39m ])("refuses a v3 quote detached from its original attribution: %s", te…
+    [90m147|[39m     const extraction = mentionExtraction("I tested SQL under supervisi…
+    [90m148|[39m     expect(() => validateDocumentExtraction(extraction, "owner", menti…
+    [90m   |[39m                                                                                                                           [31m^[39m
+    [90m149|[39m })[33m;[39m
+    [90m150|[39m it("requires v3 source labels to be nominated and grounded without add…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m13 failed[39m[22m[2m | [22m[1m[32m17 passed[39m[22m[90m (30)[39m
+[2m   Start at [22m 15:41:46
+[2m   Duration [22m 1.63s[2m (transform 161ms, setup 218ms, import 256ms, tests 57ms, environment 726ms)[22m
+

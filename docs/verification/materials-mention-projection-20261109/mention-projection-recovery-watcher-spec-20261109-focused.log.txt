@@ -1,0 +1,56 @@
+✔ asset classification rejects Windows aliases and private resolved paths without opening files (0.7814ms)
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+(node:48792) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files
+  ✔ rejects non-client source through alternate asset path /app/server/auth/session.ts (1.0756ms)
+  ✔ rejects non-client source through alternate asset path /app/Server/auth/session.ts (9.5631ms)
+  ✔ rejects non-client source through alternate asset path /app/sErVeR/auth/session.ts (1.2468ms)
+  ✔ rejects non-client source through alternate asset path /app/%53erver/auth/session.ts (1.2678ms)
+  ✔ rejects non-client source through alternate asset path /@id/C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/app/server/auth/session.ts (1.1367ms)
+  ✔ rejects non-client source through alternate asset path /@id/C%3A%2FUsers%2FXF%2F.codex%2Fworktrees%2Fmaterials-replan-recovery%2Fui-warm-precision%2Fapp%2Fserver%2Fauth%2Fsession.ts (0.7727ms)
+  ✔ preserves required client asset /app/setup/page.tsx (1.807ms)
+  ✔ preserves required client asset /app/path/page.tsx (0.9751ms)
+  ✔ preserves required client asset /app/today/page.tsx (1.0558ms)
+  ✔ preserves required client asset /app/stack/page.tsx (1.0461ms)
+  ✔ preserves required client asset /app/proof/page.tsx (0.9089ms)
+  ✔ preserves required client asset /app/server/auth/policy.ts (0.7144ms)
+  ✔ preserves required client asset /app/server/account-link/contracts.ts (0.7835ms)
+  ✔ preserves required client asset /app/globals.css (1.0654ms)
+  ✔ preserves required client asset /tests/offline-uat/api-trace.ts (0.7651ms)
+  ✔ preserves required client asset /node_modules/@fontsource-variable/manrope/index.css (0.774ms)
+  ✔ preserves required client asset /node_modules/@fontsource-variable/newsreader/index.css (0.7173ms)
+✔ loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files (5790.1795ms)
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+(node:39088) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":23,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"workflow-create","state":"started","elapsedMs":23,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"workflow-create","state":"succeeded","elapsedMs":23,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"record-accepted","state":"started","elapsedMs":23,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"record-accepted","state":"succeeded","elapsedMs":53,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":53,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":121,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":13,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":14,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":85,"aborted":false}
+✔ public durable HTTP recovery retains one independently executed job across graph and R2 reopenings (11108.3071ms)
+ℹ Real public HTTP/client; synthetic signed private transport and independent executor; no paid Provider.
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+(node:42144) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a completed Start response can be discarded and recovered without another provider call or budget admission (5762.857ms)
+ℹ Offline harness and actual client loaded.
+ℹ Completed Start response was discarded.
+ℹ Recovery query returned.
+ℹ Loopback only; no response bodies, cookies, credentials, or provider payloads are logged.
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23379.5307

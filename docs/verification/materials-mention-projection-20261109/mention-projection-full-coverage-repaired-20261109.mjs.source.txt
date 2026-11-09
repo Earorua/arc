@@ -1,0 +1,72 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { stripVTControlCharacters } from 'node:util';
+const work = 'work/grounded-verification/';
+const sha = value => createHash('sha256').update(value).digest('hex');
+const snapshot = JSON.parse(readFileSync(work + 'mention-projection-snapshot-20261109-b-results.json'));
+const expected = Object.keys(snapshot.filesSha256).filter(path => /^tests\/.+\.test\.(?:ts|tsx)$/u.test(path)).sort();
+function outcome(name) {
+  const result = JSON.parse(readFileSync(work + name + '.json')), bytes = readFileSync(work + name + '.log');
+  assert.equal(result.name, name); assert.equal(result.exit, 0, name); assert.equal(result.nonLoopbackDenials, 0, name);
+  assert.equal(sha(bytes), result.logSha256, name);
+  return { result, log: stripVTControlCharacters(bytes.toString('utf8')) };
+}
+const groups = ['mention-projection-full-unit-20261109-b', 'mention-projection-full-serial-20261109-b', 'mention-projection-full-research-20261109-b'].map(name => {
+  const { result, log } = outcome(name);
+  const files = [...log.matchAll(/^\s*[✓✔]\s+(tests\/.+?\.test\.(?:ts|tsx))\s+\((\d+) tests?\)/gmu)].map(match => ({ path: match[1], tests: Number(match[2]) }));
+  const summary = log.match(/Test Files\s+(\d+) passed\s+\((\d+)\)\s*\n\s*Tests\s+(\d+) passed\s+\((\d+)\)/u);
+  assert.ok(summary, name + ' clean all-pass summary'); assert.equal(Number(summary[1]), files.length, name);
+  assert.equal(summary[1], summary[2], name); assert.equal(summary[3], summary[4], name);
+  const tests = files.reduce((total, file) => total + file.tests, 0); assert.equal(tests, Number(summary[3]), name);
+  return { name, files, tests, logSha256: result.logSha256 };
+});
+const actual = groups.flatMap(group => group.files.map(file => file.path)).sort();
+assert.deepEqual(actual, expected, 'All standard Vitest files run exactly once across the three groups');
+assert.equal(new Set(actual).size, actual.length);
+function nodeCounts(log) {
+  const tests = Number(log.match(/^(?:#|ℹ) tests (\d+)\s*$/mu)?.[1]), passed = Number(log.match(/^(?:#|ℹ) pass (\d+)\s*$/mu)?.[1]);
+  assert.ok(tests > 0); assert.equal(passed, tests);
+  for (const label of ['fail', 'cancelled', 'skipped']) assert.match(log, new RegExp('^(?:#|ℹ) ' + label + ' 0\\s*$', 'mu'));
+  return { tests, passed };
+}
+const additional = outcome('mention-projection-full-node-20261109-b'), rendered = outcome('mention-projection-render-20261109-b');
+const node = nodeCounts(additional.log), render = nodeCounts(rendered.log);
+const nodeScripts = Object.keys(snapshot.filesSha256).filter(path => /^tests\/.+\.test\.mjs$/u.test(path)).sort();
+assert.deepEqual(nodeScripts, [
+  'tests/build/restricted-candidate-files.test.mjs', 'tests/build/restricted-research-candidate.test.mjs',
+  'tests/offline-uat/entry.test.mjs', 'tests/offline-uat/http-clients.test.mjs', 'tests/offline-uat/legacy-recovery.test.mjs',
+  'tests/offline-uat/research-public-recovery.test.mjs', 'tests/offline-uat/research-recovery.test.mjs', 'tests/offline-uat/retained-compatibility.test.mjs',
+  'tests/rendered-html.test.mjs', 'tests/scripts/auth-tail.test.mjs',
+].sort());
+const ordinary = ['mention-projection-full-types-20261109-b', 'mention-projection-full-lint-20261109-b', 'mention-projection-build-20261109-b'];
+for (const label of ordinary) outcome(label);
+const native = JSON.parse(readFileSync(work + 'mention-projection-native-flow-20261109-final-b-results.json'));
+const parity = JSON.parse(readFileSync(work + 'mention-projection-node-parity-20261109-final-b-results.json'));
+const ui = JSON.parse(readFileSync(work + 'mention-projection-root-ui-20261109-final-b-results.json'));
+const history = JSON.parse(readFileSync(work + 'mention-projection-history-final-20261109-a-results.json'));
+assert.equal(native.status, 'PASS'); assert.equal(native.observations.length, 25); assert.equal(native.outboundCalls, 0);
+assert.equal(parity.status, 'PASS'); assert.equal(parity.cases, 25); assert.equal(ui.observations.length, 3);
+assert.equal(history.status, 'READ_ONLY_HISTORY_MATCHED'); assert.equal(history.observed.records.length, 6); assert.equal(history.outboundCalls, 0);
+for (const label of ['mention-projection-native-flow-20261109-final-b', 'mention-projection-node-parity-20261109-final-b',
+  'mention-projection-root-ui-20261109-final-b', 'mention-projection-history-final-20261109-a', 'mention-projection-compatibility-final-20261109-a']) outcome(label);
+const initialResearch = JSON.parse(readFileSync(work + 'mention-projection-full-research-20261109-a.json'));
+assert.equal(initialResearch.exit, 1); assert.equal(initialResearch.nonLoopbackDenials, 0);
+assert.equal(sha(readFileSync(work + initialResearch.name + '.log')), initialResearch.logSha256);
+const diagnosisPath = work + 'mention-projection-research-deadline-20261109-probe-results.json';
+const diagnosisBytes = readFileSync(diagnosisPath), diagnosis = JSON.parse(diagnosisBytes);
+assert.equal(diagnosis.cases.filter(row => row.callContract.status === 'RED').length, 2);
+assert.equal(diagnosis.driver.currentSha256, diagnosis.driver.accepted8cbaSha256);
+assert.equal(diagnosis.test.currentSha256, diagnosis.test.accepted8cbaSha256);
+const result = { status: 'PASS', sourceManifestSha256: snapshot.manifestSha256, sourceFileCount: snapshot.sourceFileCount,
+  vitestFiles: actual.length, vitestTests: groups.reduce((sum, row) => sum + row.tests, 0), groups,
+  node: { ...node, name: additional.result.name, logSha256: additional.result.logSha256 }, nodeScripts, render,
+  nativeCases: 25, nodeParityCases: 25, actualServiceUiCases: 3, oldPersistedReviewsUnchanged: 6,
+  nodeControl: { isolatedFromOtherLongVerificationRuns: true, originalTimeoutsAndAssertions: true },
+  preservedResearchFailure: { name: initialResearch.name, exit: initialResearch.exit, logSha256: initialResearch.logSha256,
+    passed: 98, failed: 1, diagnosisPath, diagnosisSha256: sha(diagnosisBytes), deterministicDeadlineRedCases: 2,
+    originalTimeoutsMs: [10000, 5000], originalCallCountAssertionsPreserved: true, sourceAndSealedHashChecksPreserved: true },
+  whole14ScenarioNativeProtocolApproved: false, newCourseReferenceApproved: false, newModelCalls: 0 };
+writeFileSync(work + 'mention-projection-full-coverage-20261109-b-results.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, vitestFiles: result.vitestFiles, vitestTests: result.vitestTests,
+  nodeTests: node.tests, renderTests: render.tests, nativeCases: 25, nodeParityCases: 25, actualServiceUiCases: 3, sourceManifestSha256: result.sourceManifestSha256 }));

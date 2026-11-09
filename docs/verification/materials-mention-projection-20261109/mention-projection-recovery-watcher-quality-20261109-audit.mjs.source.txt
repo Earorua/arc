@@ -1,0 +1,142 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { stripVTControlCharacters } from "node:util";
+
+const work = "work/grounded-verification/";
+const prefix = `${work}mention-projection-recovery-watcher-quality-20261109`;
+const author = `${work}mention-projection-recovery-watcher-20261109`;
+const specPrefix = `${work}mention-projection-recovery-watcher-spec-20261109`;
+const bytes = path => readFileSync(path);
+const hash = value => createHash("sha256").update(value).digest("hex");
+const json = path => JSON.parse(bytes(path));
+const git = (...args) => execFileSync("git", args, { maxBuffer: 32 * 1024 * 1024 });
+const statusBefore = git("status", "--short").toString();
+const head = git("rev-parse", "HEAD").toString().trim();
+const branch = git("branch", "--show-current").toString().trim();
+assert.equal(head, "d9a021907cc679e8b7b8960f3f4a167a7304c18b");
+assert.equal(branch, "codex/materials-replan-recovery-20261106");
+
+const identities = {};
+function identified(path, expected) {
+  const actual = hash(bytes(path));
+  if (expected) assert.equal(actual, expected, path);
+  identities[path] = actual;
+  return json(path);
+}
+const freeze = identified(`${author}-freeze-results.json`, "00ec3f2516a6775128b7ae8053e76dcf879e8ac5bc3f60ca3c220cf8a4324537");
+const baseline = identified(`${work}mention-projection-snapshot-20261109-b-results.json`, "6ffedfe0a40163abbd128f49f4e2c4673450aa76fd299d2fe81236709829792e");
+const diagnosis = identified(`${work}mention-projection-recovery-timing-20261109-comparison-results.json`, "6c5e2518802f8ea532d87a9bbbb4925aad21ef20ad8e6e6c07032ec90493475b");
+const spec = identified(`${specPrefix}-structured-results.json`, "deaab082db91cbd5af71a27b9f9bf17eee8925b76787c41fc36c4727bd3dfc38");
+const specInitial = identified(`${specPrefix}-structured-results-initial.json`, "348a06dbe58ecfd843f24c0b25ed60e80c12b7bdb88ae7c3b7a78fb76a0def03");
+assert.equal(spec.status, "PASS");
+assert.deepEqual(spec.findings, []);
+assert.deepEqual(spec.source, specInitial.source);
+assert.deepEqual(spec.freshRuns, specInitial.freshRuns);
+assert.deepEqual(spec.authorRuns, specInitial.authorRuns);
+assert.equal(hash(bytes(`${specPrefix}-memo.md`)), "3cc886c21d8a021eba445a7acc078e091093284db3c08564a87e91810988aa57");
+identities[`${specPrefix}-memo.md`] = hash(bytes(`${specPrefix}-memo.md`));
+
+const listed = [...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").toString().split("\0").filter(Boolean))].sort();
+const documentsBefore = Object.fromEntries(listed.filter(path => path.startsWith("docs/")).map(path => [path, hash(bytes(path))]));
+const paths = listed.filter(path => !path.startsWith("docs/"));
+const actualFiles = Object.fromEntries(paths.map(path => [path, hash(bytes(path))]));
+assert.equal(paths.length, 1007);
+assert.deepEqual(actualFiles, freeze.filesSha256);
+assert.deepEqual(Object.keys(actualFiles), Object.keys(baseline.filesSha256));
+const manifestSha256 = hash(JSON.stringify(actualFiles));
+assert.equal(manifestSha256, "88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a");
+const changed = paths.filter(path => actualFiles[path] !== baseline.filesSha256[path]);
+assert.deepEqual(changed, ["tests/offline-uat/entry.test.mjs", "tests/offline-uat/server.mjs"]);
+for (const path of changed) assert.deepEqual(bytes(path), bytes(resolve(freeze.sourceDirectory, path)));
+const diff = git("diff", "--", ...changed);
+assert.deepEqual(diff, bytes(`${author}-fix.diff`));
+assert.equal(hash(diff), "e3de7b2322a13a5cecefc5b16814b2a04eb71acdf195cc51bf4b69e72854d98a");
+git("-c", "core.whitespace=cr-at-eol", "diff", "--check", "--", ...changed);
+
+const entry = bytes(changed[0]).toString();
+const server = bytes(changed[1]).toString();
+const newAssertions = '    assert.equal(server.vite.config.server.watch, null, "offline harness must disable filesystem watching");\r\n'
+  + '    assert.deepEqual(server.vite.watcher.getWatched(), {}, "offline harness must not watch the checkout");\r\n';
+assert.equal(entry.split(newAssertions).length, 2);
+assert.equal(hash(entry.replace(newAssertions, "")), baseline.filesSha256[changed[0]]);
+assert.ok(entry.includes('  const server = await createHarnessServer({ port: 4181 });\r\n  try {\r\n' + newAssertions));
+assert.ok(entry.includes('  } finally { await server.close(); }'));
+assert.ok(!/(?<!\r)\n/u.test(entry));
+assert.ok(!server.includes("\r"));
+const newOptions = '      watch: null, host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],';
+assert.equal(server.split(newOptions).length, 2);
+assert.equal(hash(server.replace(newOptions, newOptions.replace("watch: null, ", ""))), baseline.filesSha256[changed[1]]);
+const recovery = bytes("tests/offline-uat/research-recovery.test.mjs").toString();
+assert.ok(recovery.includes('{ timeout: 45_000 }, async (context) => {\n  const server = await createHarnessServer({ port: 4181 });'));
+
+const runs = {};
+function retainedRun(label, expectedExit, expectedHash) {
+  const path = `${work}${label}.json`;
+  const report = identified(path);
+  const logPath = `${work}${label}.log`;
+  const logBytes = bytes(logPath);
+  assert.equal(report.exit, expectedExit);
+  assert.equal(report.nonLoopbackDenials, 0);
+  assert.equal(hash(logBytes), report.logSha256);
+  if (expectedHash) assert.equal(report.logSha256, expectedHash);
+  identities[logPath] = report.logSha256;
+  runs[label] = { ...report, reportPath: path, reportSha256: identities[path], logPath };
+  return stripVTControlCharacters(logBytes.toString());
+}
+const red = retainedRun("mention-projection-recovery-watcher-20261109-red", 1, "a2f0fd7a0a9a5dea376645bda15ad21b5c5173d05df4f1d233654967c914f5c3");
+for (const marker of ["offline harness must disable filesystem watching", "+ undefined", "- null", "ℹ fail 1", "ℹ cancelled 0"]) assert.ok(red.includes(marker));
+const green = retainedRun("mention-projection-recovery-watcher-20261109-green", 0, "e5437e84f8a0eebbde36e87c67aa2efc67af8efb9f7d5f92911a74af9654e46c");
+retainedRun("mention-projection-recovery-watcher-20261109-lint", 0);
+const focused = retainedRun("mention-projection-recovery-watcher-spec-20261109-focused", 0, "34453e80907e7fb569d61031f641f6e092e1a6ecf4e2b36936d4b97f065d5f3e");
+assert.equal(retainedRun("mention-projection-recovery-watcher-spec-20261109-lint", 0), "");
+for (const log of [green, focused]) {
+  for (const [key, count] of Object.entries({ tests: 21, pass: 21, fail: 0, cancelled: 0, skipped: 0 })) assert.ok(new RegExp(`ℹ ${key} ${count}\\r?\\n`, "u").test(log));
+}
+for (const description of ["loopback entry serves actual modules", "a completed Start response can be discarded", "public durable HTTP recovery retains one"]) assert.ok(focused.includes(description));
+const originalB = retainedRun("mention-projection-full-node-20261109-b", 1, "87202fb42d1380a05a7179671cdf37e46b247527f8dd239c202190aea823e164");
+for (const marker of ["ℹ tests 290", "ℹ pass 289", "ℹ cancelled 1"]) assert.ok(originalB.includes(marker));
+for (const [key, expectedExit] of [["a", 1], ["b", 0], ["reversal", 1]]) {
+  const run = diagnosis.runs[key];
+  const log = retainedRun(run.name, expectedExit, run.logSha256);
+  assert.equal(run.originalTimeoutMs, 45000);
+  assert.ok(log.includes(`ℹ cancelled ${expectedExit}`));
+  if (key === "b") assert.ok(log.includes('"watcherClass":"NoopWatcher"'));
+  if (key === "reversal") {
+    assert.ok(log.includes('"watcherClass":"FSWatcher"'));
+    assert.ok(log.includes('"totalDirectories":9341,"totalEntries":40489'));
+  }
+}
+const warning = "Pre-transform error: The file does not exist at";
+assert.ok(originalB.includes(warning));
+assert.ok(green.includes(warning));
+assert.ok(!focused.includes(warning));
+
+const vitePath = "node_modules/vite/dist/node/chunks/node.js";
+assert.equal(hash(bytes(vitePath)), "3968fab97a9d0882f0e2e754bd0d5b417f0a84596e293179a9a6e585919f041c");
+identities[vitePath] = hash(bytes(vitePath));
+for (const path of [`${work}run.mjs`, "work/materials-browser-handoff/block-outbound.cjs"]) identities[path] = hash(bytes(path));
+assert.equal(identities[`${work}run.mjs`], spec.reviewBoundary.wrapperSha256);
+assert.equal(identities["work/materials-browser-handoff/block-outbound.cjs"], spec.reviewBoundary.outboundBlockerSha256);
+const documentsAfter = Object.fromEntries(Object.keys(documentsBefore).map(path => [path, hash(bytes(path))]));
+assert.deepEqual(documentsAfter, documentsBefore);
+assert.equal(git("status", "--short").toString(), statusBefore);
+
+const result = {
+  status: "PASS", kind: "Independent quality source and retained-evidence audit; no test suite executed",
+  timestamp: new Date().toISOString(), head, branch,
+  source: { count: paths.length, unchangedFromB: paths.length - changed.length, manifestSha256,
+    changes: changed.map(path => ({ path, before: baseline.filesSha256[path], after: actualFiles[path] })),
+    exactInverseRecoversBaseline: true, frozenCopiesMatch: true, diffSha256: hash(diff), crlfAwareWhitespaceCheck: "PASS",
+    entryCRLFPreserved: true, serverLFPreserved: true, original45SecondClockAndSetupPreserved: true },
+  auditedSpecTestEvidence: { tests: 21, passed: 21, failed: 0, cancelled: 0, skipped: 0, lintExit: 0, testsRerunByQualityReviewer: 0 },
+  specReportFinalization: { initialSha256: identities[`${specPrefix}-structured-results-initial.json`], finalSha256: identities[`${specPrefix}-structured-results.json`], sourceAndRunEvidenceIdentical: true },
+  optimizerWarning: { originalB: true, authorGreen: true, specFocused: false, fixedByThisPatch: false },
+  sourceOrDocumentEditsByReviewer: 0, gitStatusBeforeAndAfter: statusBefore, documentHashesUnchangedDuringAudit: true,
+  wrapperBoundaryUnchanged: true, fullTask4Status: "HOLD pending root C full acceptance", runs, identities,
+};
+const output = `${prefix}-separate-results.json`;
+writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, output, sha256: hash(bytes(output)), source: result.source, auditedSpecTestEvidence: result.auditedSpecTestEvidence }));

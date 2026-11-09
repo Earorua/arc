@@ -1,0 +1,215 @@
+import { describe, expect, it } from "vitest";
+import {
+  DOCUMENT_SCHEMA_VERSION,
+  GROUNDED_MATERIAL_REVIEW_PROJECTION as V2,
+  SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION as V3,
+  documentReviewDraftSchema,
+  isSourceLinkedMaterialReviewProjection,
+  type ConfirmedMaterialItem,
+  type DocumentReviewDraft,
+} from "../../app/contracts/documents";
+import * as current from "../../app/lib/materials/skill-labels";
+import * as baseline from "./mention-projection-library-spec-20261109-baseline-skill-labels";
+
+type Projection = DocumentReviewDraft["reviewProjection"];
+const sourceRef = { documentId: "doc", documentVersionId: "version", textVersionId: "text", start: 0, end: 37 };
+const draft = {
+  id: "draft", schemaVersion: DOCUMENT_SCHEMA_VERSION, documentId: "doc", documentVersionId: "version",
+  textVersionId: "text", extractionId: null, origin: "manual", items: [], selfAssessmentHints: [],
+  revision: 0, updatedAt: "2026-11-09T00:00:00.000Z",
+};
+const sqlHint = { id: "hint", candidateId: "fact", skillLabel: "SQL", level: "guided" as const };
+function item(text: string, changes: Partial<ConfirmedMaterialItem> = {}): ConfirmedMaterialItem {
+  return { id: "fact", kind: "experience", text, origin: "extracted", sourceRef, requirementLevel: null, skillLabels: ["SQL"], ...changes };
+}
+
+describe("independent Task 1 contract checks", () => {
+  it("uses the exact markers, schema identity and discriminator", () => {
+    expect(DOCUMENT_SCHEMA_VERSION).toBe("2026.11.1");
+    expect(V2).toBe("grounded-skill-labels-v2");
+    expect(V3).toBe("source-skill-mentions-v3");
+    for (const marker of [V2, V3]) expect(isSourceLinkedMaterialReviewProjection(marker)).toBe(true);
+    for (const marker of [undefined, null, true, 3, {}, new String(V3), V3 + " ", " " + V3, V3.toUpperCase(), "source-skill-mentions-v4"])
+      expect(isSourceLinkedMaterialReviewProjection(marker)).toBe(false);
+  });
+  it("accepts only omission, v2 and v3 in stored draft shape", () => {
+    expect(documentReviewDraftSchema.safeParse(draft).success).toBe(true);
+    for (const reviewProjection of [V2, V3]) expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection }).success).toBe(true);
+    for (const reviewProjection of [null, true, "", "source-skill-mentions-v3 ", "unknown", "source-skill-mentions-v4"])
+      expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection }).success).toBe(false);
+  });
+  it("retains eight labels and the UTF-16 length boundary", () => {
+    const parseLabels = (skillLabels: string[]) => documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: V3, items: [item("SQL", { skillLabels })] }).success;
+    expect(parseLabels(Array.from({ length: 8 }, (_, n) => `Label${n}`))).toBe(true);
+    expect(parseLabels(Array.from({ length: 9 }, (_, n) => `Label${n}`))).toBe(false);
+    expect(parseLabels(["𐐀".repeat(50)])).toBe(true);
+    expect(parseLabels(["𐐀".repeat(50) + "x"])).toBe(false);
+  });
+  it("retains the 100 fact quota", () => {
+    const items = Array.from({ length: 100 }, (_, n) => item("SQL", { id: `fact-${n}` }));
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: V3, items }).success).toBe(true);
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: V3, items: [...items, item("SQL", { id: "extra" })] }).success).toBe(false);
+  });
+});
+
+describe("independent topic versus person probes", () => {
+  it.each([
+    "I have never used SQL for production.",
+    "I have never configured SQL for production.",
+    "SQL is not required for this role.",
+    "My colleague tested SQL under supervision.",
+    "The example says “I tested SQL under supervision.”",
+    "I will test SQL under supervision next year.",
+    "If I tested SQL under supervision, I would document it.",
+    "I have not configured SQL and want more practice.",
+  ])("keeps a real SQL topic without fabricating any self level: %s", text => {
+    const fact = item(text);
+    const before = structuredClone(fact);
+    expect(current.findReviewedSourceTerm(text, "SQL", V3)).toBe("SQL");
+    expect(current.supportsReviewedSkillLabel(text, "SQL", V3)).toBe(true);
+    expect(current.labelForAddedSourceTerm(text, text, "SQL", V3)).toBe("SQL");
+    for (const level of ["guided", "conceptual", "uncertain"] as const)
+      expect(current.retainedMaterialSelfAssessmentHints([fact], [{ ...sqlHint, level }], V3)).toEqual([]);
+    expect(current.retainedMaterialSelfAssessmentHints([fact], [], V3)).toEqual([]);
+    expect(fact).toEqual(before);
+  });
+  it.each([
+    "My colleague tested SQL under supervision, and I tested React under supervision.",
+    "I never used SQL, but I tested React under supervision.",
+  ])("does not lend personal React evidence to SQL: %s", text => {
+    const fact = item(text, { skillLabels: ["SQL", "React"] });
+    const reactHint = { ...sqlHint, id: "react-hint", skillLabel: "React" };
+    expect(current.supportsReviewedSkillLabel(text, "SQL", V3)).toBe(true);
+    expect(current.supportsReviewedSkillLabel(text, "React", V3)).toBe(true);
+    expect(current.retainedMaterialSelfAssessmentHints([fact], [sqlHint, reactHint], V3)).toEqual([reactHint]);
+  });
+  it.each([undefined, V2, V3])("removes a stale level after a user changes the actor under %s", projection => {
+    const edited = item("My colleague tested SQL under supervision.", { origin: "user" });
+    expect(current.retainedMaterialSelfAssessmentHints([edited], [sqlHint], projection)).toEqual([]);
+  });
+  it("keeps historical unedited literal behavior while v2/v3 require personal evidence", () => {
+    const fact = item("Tested SQL.");
+    expect(current.retainedMaterialSelfAssessmentHints([fact], [sqlHint])).toEqual([sqlHint]);
+    expect(current.retainedMaterialSelfAssessmentHints([fact], [sqlHint], V2)).toEqual([]);
+    expect(current.retainedMaterialSelfAssessmentHints([fact], [sqlHint], V3)).toEqual([]);
+  });
+  it("retains complete fact and source range through draft parsing", () => {
+    const text = "My colleague tested SQL under supervision; I have never used SQL for production.";
+    const fact = item(text, { sourceRef: { ...sourceRef, end: text.length } });
+    const parsed = documentReviewDraftSchema.parse({ ...draft, reviewProjection: V3, items: [fact] });
+    expect(parsed.items[0]).toEqual(fact);
+    expect(current.retainedMaterialSelfAssessmentHints(parsed.items, [sqlHint], V3)).toEqual([]);
+    expect(parsed.items[0].text).toBe(text);
+  });
+  it.each([
+    { items: [] },
+    { items: [item("I tested SQL under supervision.", { skillLabels: [] })] },
+    { items: [item("I tested SQL under supervision.", { skillLabels: ["React"] })] },
+    { items: [item("I tested SQL under supervision.", { kind: "requirement", requirementLevel: "must" })] },
+    { items: [item("I tested SQL under supervision.", { kind: "constraint" })] },
+  ])("does not restore deleted/reclassified facts, words or hints: %#", ({ items }) => {
+    expect(current.retainedMaterialSelfAssessmentHints(items, [sqlHint], V3)).toEqual([]);
+  });
+});
+
+describe("independent raw nomination and lexical probes", () => {
+  it("requires both the raw source term and the same topic in the current fact", () => {
+    const quote = "I haven't cleaned customer records or used SQL.";
+    expect(current.labelForAddedSourceTerm(quote, quote, "cleaned customer records", V3)).toBe("data cleaning");
+    expect(current.labelForAddedSourceTerm(quote, quote, "data cleaning", V3)).toBeNull();
+    expect(current.labelForAddedSourceTerm(quote, "I tested React.", "cleaned customer records", V3)).toBeNull();
+    expect(current.labelForAddedSourceTerm("I tested React.", "I tested SQL.", "SQL", V3)).toBeNull();
+    expect(current.labelForAddedSourceTerm(quote, "I used PostgreSQL.", "SQL", V3)).toBeNull();
+    expect(current.labelForAddedSourceTerm(quote, quote, "", V3)).toBeNull();
+    expect(current.findReviewedSourceTerm(quote, "data cleaning", V3)).toBe("cleaned customer records");
+  });
+  it.each([
+    ["I never used SQL, but I used sql.", "SQL"],
+    ["I never used SQL, but I used ＳＱＬ.", "SQL"],
+    ["I never cleaned data, but I cleaned customer records.", "cleaned data"],
+  ])("rejects source spelling ambiguity in the whole quote: %s", (quote, term) => {
+    expect(current.labelForAddedSourceTerm(quote, quote, term, V3)).toBeNull();
+  });
+  it.each([
+    ["Required tools:WAI-ARIA", "WAI-ARIA", "WAI-ARIA"],
+    ["Profile:Orion:Forge.", "Orion:Forge", "Orion:Forge"],
+    ["必须掌握键盘可访问性的基本检查。", "键盘可访问性", "键盘可访问性"],
+    ["I never used Cafe\u0301Flux.", "CaféFlux", "Cafe\u0301Flux"],
+    ["I never used ﬃxtures.", "ffixtures", "ﬃxtures"],
+    ["I never used Ｃ＋＋.", "C++", "Ｃ＋＋"],
+    ["I never used Node.js.", "Node.js", "Node.js"],
+  ])("keeps a whole source spelling: %s", (quote, term, expected) => {
+    expect(current.labelForAddedSourceTerm(quote, quote, term, V3)).toBe(expected);
+    expect(current.findReviewedSourceTerm(quote, expected, V3)).toBe(expected);
+  });
+  it.each([
+    ["Read urn:SQL.", "SQL"], ["PostgreSQL", "SQL"], ["WAI-ARIA", "ARIA"],
+    ["Node.js", "Node"], ["C++", "C"], ["Profile:Orion:Forge.", "Forge"],
+    ["必须掌握键盘可访问性的基本检查。", "盘可访问性"], ["Cafe\u0301", "Cafe"],
+    ["ﬃ", "f"], ["I react quickly.", "react"], ["I use it.", "IT"],
+    ["retrieval augmented generation", "RAG"],
+  ])("rejects partial, homograph or invented labels: %s (%s)", (quote, label) => {
+    expect(current.labelForAddedSourceTerm(quote, quote, label, V3)).toBeNull();
+    expect(current.supportsReviewedSkillLabel(quote, label, V3)).toBe(false);
+  });
+});
+
+describe("independent comparison with accepted 8cba helper", () => {
+  const texts = [
+    "I have never configured SQL for production.", "I have never used SQL for production.",
+    "I tested SQL under supervision.", "My colleague tested SQL under supervision.",
+    "I will test SQL under supervision.", "The example says ‘I tested SQL under supervision.’",
+    "I haven't cleaned data.", "I cleaned data.", "Profile:Orion:Forge.",
+    "I never used SQL, but I use sql.", "PostgreSQL", "WAI-ARIA", "Node.js", "C++",
+    "必须掌握键盘可访问性的基本检查。", "I never used Cafe\u0301Flux.", "Tested SQL.",
+    "I am unsure whether I can test SQL independently.", "I am familiar with SQL.",
+    "I tested SQL and React under supervision.",
+  ];
+  const labels = ["SQL", "data cleaning", "cleaned data", "React", "ARIA", "Node", "C", "Orion:Forge", "键盘可访问性", "CaféFlux"];
+  const oldProjections = [undefined, V2, "unknown" as Projection];
+  it("matches all 600 old support cases, including unknown marker fallback", () => {
+    let count = 0;
+    for (const text of texts) for (const label of labels) for (const projection of oldProjections) {
+      expect(current.supportsReviewedSkillLabel(text, label, projection), JSON.stringify({ text, label, projection }))
+        .toBe(baseline.supportsReviewedSkillLabel(text, label, projection));
+      count++;
+    }
+    expect(count).toBe(600);
+  });
+  it("matches all 1200 old addition cases with original and stale current facts", () => {
+    let count = 0;
+    for (const quote of texts) for (const term of labels) for (const fact of [quote, "I tested React under supervision."]) for (const projection of oldProjections) {
+      expect(current.labelForAddedSourceTerm(quote, fact, term, projection), JSON.stringify({ quote, fact, term, projection }))
+        .toBe(baseline.labelForAddedSourceTerm(quote, fact, term));
+      count++;
+    }
+    expect(count).toBe(1200);
+  });
+  it("matches all 5760 old hint cases across origin, classification and deletion", () => {
+    let count = 0;
+    for (const text of texts) for (const projection of oldProjections) for (const origin of ["extracted", "user"] as const)
+      for (const kind of ["experience", "skill-claim", "requirement", "constraint"] as const)
+        for (const skillLabels of [undefined, [], ["SQL"], ["React"]]) for (const level of ["guided", "conceptual", "uncertain"] as const) {
+          const items = [item(text, { origin, kind, skillLabels, requirementLevel: kind === "requirement" ? "must" : null })];
+          const hints = [{ ...sqlHint, level }];
+          expect(current.retainedMaterialSelfAssessmentHints(items, hints, projection), JSON.stringify({ text, projection, origin, kind, skillLabels, level }))
+            .toEqual(baseline.retainedMaterialSelfAssessmentHints(items, hints, projection));
+          count++;
+        }
+    expect(count).toBe(5760);
+  });
+  it("preserves the observed configured exception and switches only the used denial", () => {
+    const configured = "I have never configured SQL for production.";
+    const used = "I have never used SQL for production.";
+    expect(baseline.supportsReviewedSkillLabel(configured, "SQL", V2)).toBe(true);
+    expect(baseline.labelForAddedSourceTerm(configured, configured, "SQL")).toBe("SQL");
+    expect(baseline.supportsReviewedSkillLabel(used, "SQL", V2)).toBe(false);
+    expect(baseline.labelForAddedSourceTerm(used, used, "SQL")).toBeNull();
+    expect(current.supportsReviewedSkillLabel(used, "SQL", V3)).toBe(true);
+    expect(current.labelForAddedSourceTerm(used, used, "SQL", V3)).toBe("SQL");
+    for (const projection of [undefined, V2, "unknown" as Projection]) {
+      expect(current.findReviewedSourceTerm(used, "SQL", projection)).toBeNull();
+      expect(current.labelForAddedSourceTerm(used, used, "SQL", projection)).toBeNull();
+    }
+  });
+});

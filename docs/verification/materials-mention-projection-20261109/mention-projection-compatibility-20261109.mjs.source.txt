@@ -1,0 +1,40 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "esbuild";
+
+const [sourceRoot, output, baseline] = process.argv.slice(2);
+assert.ok(sourceRoot && output);
+assert.match(output, /^work\/grounded-verification\/mention-projection-[a-z0-9-]+-results\.json$/u);
+assert.equal(existsSync(output), false, "Never overwrite an observation");
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const entry = "work/grounded-verification/mention-projection-compatibility-20261109.ts";
+const inputSource = readFileSync(entry, "utf8").replaceAll('"../../', '"' + resolve(sourceRoot).replaceAll("\\", "/") + "/");
+const compilation = await build({ stdin: { contents: inputSource, resolveDir: resolve("."), sourcefile: entry, loader: "ts" }, bundle: true,
+  write: false, platform: "node", format: "esm", target: "node24", metafile: true, external: ["cloudflare:workers", "node:*"] });
+const compiled = output.replace("-results.json", "-bundle.mjs");
+writeFileSync(compiled, compilation.outputFiles[0].contents, { flag: "wx" });
+const { observeCompatibility } = await import(pathToFileURL(resolve(compiled)).href);
+// Deterministic elapsed-clock offsets for immediate synthetic fetches only. Preserve all audit fields.
+const realDateNow = Date.now;
+let observed;
+try {
+  Date.now = () => Date.parse("2026-11-09T01:00:00.000Z");
+  observed = JSON.parse(JSON.stringify(await observeCompatibility()));
+} finally { Date.now = realDateNow; }
+assert.equal(observed.observations.length, 150);
+assert.equal(observed.helpers.length, 20);
+const inputs = Object.fromEntries(Object.keys(compilation.metafile.inputs).filter(path => path !== entry).sort().map(path => [path, sha(readFileSync(path))]));
+const result = { status: baseline ? "COMPATIBILITY_MATCHED" : "BEFORE_CHANGE_OBSERVATIONS_CAPTURED", sourceRoot: resolve(sourceRoot), entrySha256: sha(readFileSync(entry)),
+  compiledSha256: sha(compilation.outputFiles[0].contents), inputs, observed, observedSha256: sha(JSON.stringify(observed)), realModelCalls: 0, actualCostMicroUsd: 0,
+  transport: "HttpDocumentAnalysisProvider with in-process synthetic fetch for both POST and receipt GET; no external request; returned fixture bill is synthetic" };
+if (baseline) {
+  const prior = JSON.parse(readFileSync(baseline, "utf8"));
+  assert.equal(prior.entrySha256, result.entrySha256);
+  assert.deepEqual(observed, prior.observed);
+  result.baseline = { path: baseline, sha256: sha(readFileSync(baseline)) };
+}
+writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, observedSha256: result.observedSha256, providerCases: 150, helpers: 20, output, realModelCalls: 0 }));

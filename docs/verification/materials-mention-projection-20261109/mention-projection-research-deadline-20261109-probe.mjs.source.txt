@@ -1,0 +1,119 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const prefix = "work/grounded-verification/mention-projection-research-deadline-20261109";
+const sha256 = bytes => createHash("sha256").update(bytes).digest("hex");
+const driverPath = "scripts/test-research-cloud-smoke.mjs";
+const testPath = "tests/server/research-cloud-smoke-composition.test.ts";
+const driverBytes = readFileSync(driverPath);
+const driverSource = driverBytes.toString("utf8");
+const testBytes = readFileSync(testPath);
+const exactSection = (start, end) => {
+  assert.equal(driverSource.split(start).length, 2, `unique start: ${start}`);
+  assert.equal(driverSource.split(end).length, 2, `unique end: ${end}`);
+  const first = driverSource.indexOf(start), last = driverSource.indexOf(end, first);
+  assert.ok(last > first);
+  return driverSource.slice(first, last);
+};
+const controlSource = exactSection("async function control(", "async function replayApproval(");
+const safeStatusSource = exactSection("function safeStatus(", "async function control(");
+const accepted = { scenarioId: "long", state: "researching", backgroundAccepted: true,
+  jobId: "synthetic-probe-job", requestHash: "a".repeat(64), acceptedAt: 1000, settled: false };
+
+async function probe({ id, signCosts, behavior, expectedCalls, expectedStatus }) {
+  let now = 0, nextTimer = 0, signed = 0, completed = false, result, error;
+  const timers = new Map(), events = [], requests = [];
+  const setTimer = (callback, delay) => {
+    const timer = ++nextTimer;
+    timers.set(timer, { at: now + delay, callback });
+    events.push({ event: "timer-set", now, delay, at: now + delay, timer });
+    return timer;
+  };
+  const clearTimer = timer => { timers.delete(timer); };
+  const reject = code => { throw Object.assign(Error("Smoke driver refused"), { safeCode: code }); };
+  const responseNonces = () => ({ claim: async (_claim, check) => { check(); return true; } });
+  const control = new Function("performance", "setTimeout", "clearTimeout", "responseNonces", "reject",
+    "Request", "URL", "TextEncoder", "TextDecoder", "AbortController", "Date",
+    `const hex = /^[0-9a-f]{64}$/u;\n${safeStatusSource}\n${controlSource}\nreturn control;`)(
+    { now: () => now }, setTimer, clearTimer, responseNonces, reject,
+    Request, URL, TextEncoder, TextDecoder, AbortController, Date);
+  const helper = {
+    SCENARIOS: [{ id: "long", jobId: accepted.jobId }],
+    signBridgeMessage: async () => {
+      now += signCosts[Math.min(signed, signCosts.length - 1)];
+      events.push({ event: "signed", now, call: ++signed });
+      return {};
+    },
+    readBridgeBody: async response => new TextEncoder().encode(JSON.stringify(response.probeBody)),
+    verifyBridgeMessage: async options => { await options.nonces.claim({}); },
+  };
+  const transport = request => {
+    requests.push(request);
+    events.push({ event: "transport", now, path: new URL(request.url).pathname });
+    if (behavior === "hang") return new Promise(() => {});
+    if (behavior === "ambiguous") return Promise.reject(Error("Synthetic ambiguous result"));
+    const probeBody = behavior === "reconcile" && requests.length === 1
+      ? { scenarioId: "long", state: "initializing", backgroundAccepted: false }
+      : accepted;
+    return Promise.resolve({ status: 200, headers: {}, probeBody });
+  };
+  const pending = control({ mode: "start", scenarioId: "long" },
+    { inventory: { controlOrigin: "https://smoke.example.test", controlKeyId: "synthetic-control" } },
+    helper, new Uint8Array(32), transport, () => {}).then(
+      value => { result = value; completed = true; },
+      failure => { error = failure; completed = true; });
+  for (let turn = 0; !completed && turn < 20; turn++) {
+    // Drain immediate signing/transport/body/nonce continuations before advancing time.
+    for (let microtask = 0; microtask < 32; microtask++) await Promise.resolve();
+    if (completed) break;
+    const next = [...timers.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+    assert.ok(next, `${id}: unresolved operation has no scheduled timer`);
+    const [timer, task] = next;
+    timers.delete(timer); now = task.at;
+    events.push({ event: "timer-fired", now, timer });
+    task.callback();
+  }
+  assert.ok(completed, `${id}: probe must complete within the local deterministic bound`);
+  await pending;
+  if (error) throw error;
+  assert.equal(result.status, expectedStatus);
+  assert.equal(result.accepted, expectedStatus === "accepted");
+  assert.ok(requests.every(request => request.signal.aborted), `${id}: all dispatched signals aborted`);
+  let callContract;
+  try { assert.equal(requests.length, expectedCalls); callContract = { status: "PASS" }; }
+  catch (failure) { callContract = { status: "RED", actual: failure.actual, expected: failure.expected, message: failure.message }; }
+  return { id, fakeElapsedMs: now, expectedCalls, actualCalls: requests.length, result, callContract,
+    paths: requests.map(request => new URL(request.url).pathname), allSignalsAborted: true, events };
+}
+
+const cases = [];
+cases.push(await probe({ id: "fractional-signing-unresponsive-start", signCosts: [0.25], behavior: "hang", expectedCalls: 1, expectedStatus: "pending" }));
+cases.push(await probe({ id: "integer-signing-unresponsive-start-control", signCosts: [0], behavior: "hang", expectedCalls: 1, expectedStatus: "pending" }));
+cases.push(await probe({ id: "fast-ambiguous-transport-control", signCosts: [0.25], behavior: "ambiguous", expectedCalls: 3, expectedStatus: "pending" }));
+cases.push(await probe({ id: "accepted-start-control", signCosts: [0.25], behavior: "accepted", expectedCalls: 1, expectedStatus: "accepted" }));
+cases.push(await probe({ id: "reconciled-start-control", signCosts: [0.25], behavior: "reconcile", expectedCalls: 2, expectedStatus: "accepted" }));
+cases.push(await probe({ id: "signing-crosses-deadline-related-gap", signCosts: [10000.25], behavior: "hang", expectedCalls: 0, expectedStatus: "pending" }));
+
+const fileIdentity = path => ({ path, currentSha256: sha256(readFileSync(path)),
+  accepted8cbaSha256: sha256(execFileSync("git", ["show", `8cba14d:${path}`])),
+  oldFrozenCopySha256: sha256(readFileSync(resolve("D:/CodexTemp/arc-experience-priority-P3jdvc/source", path))) });
+const report = {
+  boundary: "Exact private control() and safeStatus() source extracted without rewrite. Synthetic monotonic clock, timers, signer, response body reader, verifier and nonce persistence. This isolates local deadline behavior; it is not native protocol or cloud acceptance evidence.",
+  head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+  driver: fileIdentity(driverPath), test: fileIdentity(testPath), exactControlSourceSha256: sha256(controlSource),
+  observedFailureLogSha256: sha256(readFileSync("work/grounded-verification/mention-projection-full-research-20261109-a.log")),
+  modelCalls: 0, networkCalls: 0, trackedSourceChanged: false, cases,
+};
+assert.deepEqual(readFileSync(driverPath), driverBytes);
+assert.deepEqual(readFileSync(testPath), testBytes);
+assert.equal(cases[0].callContract.status, "RED");
+assert.ok(cases.slice(1, 5).every(item => item.callContract.status === "PASS"));
+assert.equal(cases[5].callContract.status, "RED");
+writeFileSync(`${prefix}-probe-results.json`, `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
+console.log(JSON.stringify({ exactSourceSha256: report.exactControlSourceSha256,
+  cases: cases.map(({ id, fakeElapsedMs, actualCalls, expectedCalls, callContract }) => ({ id, fakeElapsedMs, actualCalls, expectedCalls, contract: callContract.status })) }));
+// Preserve the actual contract violations as RED, rather than treating discovery as acceptance.
+process.exitCode = 1;

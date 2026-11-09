@@ -1,0 +1,1 @@
+{"directory":"C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-reversal","unchangedTestSha256":"18a11b9ccdaa57be9e19b4978a4493d343dde70726b96433e3f6dd60a98112d8","timeoutMs":45000,"behavioralChanges":0}

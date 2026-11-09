@@ -1,0 +1,9 @@
+import base from "../../vitest.config";
+export default {
+  ...base,
+  define: {
+    "import.meta.env.ARC_MENTION_NATIVE_RESULT": JSON.stringify("work/grounded-verification/mention-projection-native-flow-20261109-final-b-results.json"),
+    "import.meta.env.ARC_MENTION_NODE_RESULT": JSON.stringify("work/grounded-verification/mention-projection-node-parity-20261109-final-b-results.json"),
+  },
+  test: { ...base.test, include: ["work/grounded-verification/mention-projection-node-parity-20261109.test.ts"], maxWorkers: 1 },
+};

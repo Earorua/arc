@@ -1,0 +1,34 @@
+{
+  "root": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+  "directory": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-reversal",
+  "baseline": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-a",
+  "unchangedTimeoutMs": 45000,
+  "behavioralChanges": 0,
+  "sourceUnmodified": true,
+  "changes": [
+    {
+      "before": "    mark(\"vite:createServer:after\");",
+      "after": "    mark(\"vite:createServer:after\");\n    console.log(JSON.stringify({ event: \"offline-recovery-watch-config\",\n      watchIsNull: server.config.server.watch === null,\n      watchType: typeof server.config.server.watch,\n      middlewareMode: server.config.server.middlewareMode,\n      watcherClass: server.watcher.constructor.name,\n      watchedDirectoryCount: Object.keys(server.watcher.getWatched()).length,\n      defaultWatchNullWasOverwritten: !Object.hasOwn(extra.server ?? {}, \"watch\") }));",
+      "reason": "Passive logging of original effective Vite watcher options"
+    },
+    {
+      "before": "      mark(\"harness:compositionSSR:after\");",
+      "after": "      mark(\"harness:compositionSSR:after\");\n      const watched = Object.entries(vite.watcher.getWatched());\n      const watchedPrefix = normalize(workspace).toLowerCase() + \"/\";\n      console.log(JSON.stringify({ event: \"offline-recovery-watched-counts\",\n        totalDirectories: watched.length, totalEntries: watched.reduce((sum, [, entries]) => sum + entries.length, 0),\n        byRoot: Object.fromEntries([\"app\", \"tests\", \"docs\", \"work\", \".worktrees\", \"node_modules\"].map(name =>\n          [name, watched.filter(([path]) => normalize(path).toLowerCase() === watchedPrefix + name || normalize(path).toLowerCase().startsWith(watchedPrefix + name + \"/\")).length])) }));",
+      "reason": "Passive counts of watched directories after composition load; no paths or file contents logged"
+    }
+  ],
+  "files": {
+    "server.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-reversal\\server.mjs",
+      "sha256": "b81c514cbee81a0fe908b074a57ece1e24eb8ffa37f8ffffa63297b5087068c9"
+    },
+    "research-recovery.test.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-reversal\\research-recovery.test.mjs",
+      "sha256": "18a11b9ccdaa57be9e19b4978a4493d343dde70726b96433e3f6dd60a98112d8"
+    },
+    "timing.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-reversal\\timing.mjs",
+      "sha256": "08d6116e68128a0294386836f9f19d71baccdf5fb4dd165b60236264a9dea8f7"
+    }
+  }
+}

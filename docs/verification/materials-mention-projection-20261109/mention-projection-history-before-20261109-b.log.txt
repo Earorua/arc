@@ -1,0 +1,1 @@
+{"status":"HISTORICAL_REVIEW_BASELINE_CAPTURED","records":6,"persist":"C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-history-store-20261109-Lgpalt","output":"work/grounded-verification/mention-projection-history-before-20261109-b-results.json","realModelCalls":0}

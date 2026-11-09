@@ -1,0 +1,167 @@
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { webcrypto } from "node:crypto";
+import { useState } from "react";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { MaterialTextPanel } from "../../app/components/materials/material-text-panel";
+import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION as V3 } from "../../app/contracts/documents";
+import { documentEndpointContracts, type DocumentEndpointRequest } from "../../app/contracts/documents-api";
+import type { DocumentsClient } from "../../app/lib/documents-client";
+import type { MaterialDocumentDraftRef } from "../../app/lib/use-material-selection";
+import { createDocumentRuntime } from "../../app/server/documents/runtime";
+import { createDocumentRoute } from "../../app/server/http/document-route-factories";
+import { createMaterialMentionReviewFixture } from "../../tests/helpers/material-mention-review-fixture";
+import { materialsClock } from "../../tests/helpers/materials-d1";
+import { materialSourceResolver } from "../../tests/helpers/material-planning";
+
+beforeEach(() => vi.stubGlobal("crypto", webcrypto));
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+async function setup() {
+  const f = createMaterialMentionReviewFixture(), text = "I have never used SQL or React.";
+  const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Independent quality probe", text, mutationId: "create-probe" });
+  expect((await f.deliver(doc, [{ id: "fact", kind: "experience", text, skillLabels: [], selfLevelHint: null,
+    requirementLevel: null, source: { segmentId: "segment-1", quote: text } }])).disposition).toBe("initialized");
+  const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
+  const draft = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
+  expect(draft.reviewProjection).toBe(V3);
+  const add = (word: string): DocumentEndpointRequest<"saveDocumentReviewDraft"> => ({ ...ref,
+    extractionId: draft.extractionId, items: [{ ...draft.items[0]!, origin: "user", skillLabels: [word] }],
+    selfAssessmentHints: [], expectedRevision: draft.revision, mutationId: `add-${word.toLowerCase()}`,
+    skillTermAddition: { itemId: "fact", sourceTerm: word },
+  });
+  return { f, doc, text, ref, draft, add };
+}
+
+it("serializes competing v3 additions and preserves retry identity without losing source data", async () => {
+  const { f, ref, add } = await setup();
+  try {
+    const extraction = f.db.database.prepare("SELECT * FROM document_extractions").all();
+    const versions = f.db.database.prepare("SELECT * FROM document_versions").all();
+    const objects = [...f.bucket.objects];
+    const requests = [add("SQL"), add("React")];
+    const outcomes = await Promise.allSettled(requests.map(request => f.client.request("saveDocumentReviewDraft", request)));
+    expect(outcomes.filter(outcome => outcome.status === "fulfilled")).toHaveLength(1);
+    expect(outcomes.filter(outcome => outcome.status === "rejected")).toHaveLength(1);
+    const winner = outcomes.findIndex(outcome => outcome.status === "fulfilled"), accepted = outcomes[winner]!;
+    if (accepted.status !== "fulfilled") throw new Error("No accepted addition");
+    const rejected = outcomes[1 - winner]!;
+    if (rejected.status !== "rejected") throw new Error("No rejected conflicting addition");
+    expect(rejected.reason).toMatchObject({ code: "conflict", status: 409 });
+    expect(accepted.value.draft.items[0]?.skillLabels).toEqual(requests[winner]!.items[0]!.skillLabels);
+    expect(accepted.value.draft.selfAssessmentHints).toEqual([]);
+    expect(accepted.value.draft.revision).toBe(1);
+    expect(await f.client.request("saveDocumentReviewDraft", requests[winner]!)).toEqual(accepted.value);
+    await expect(f.client.request("saveDocumentReviewDraft", { ...requests[winner]!, items: [{ ...requests[winner]!.items[0]!, text: "My colleague used SQL or React." }] }))
+      .rejects.toMatchObject({ code: "conflict", status: 409 });
+    await expect(f.client.request("saveDocumentReviewDraft", requests[1 - winner]!)).rejects.toMatchObject({ code: "conflict", status: 409 });
+    f.restart();
+    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(accepted.value.draft);
+    expect(f.db.database.prepare("SELECT * FROM document_mutations WHERE endpoint='saveDocumentReviewDraft'").all()).toHaveLength(1);
+    expect(f.db.database.prepare("SELECT * FROM document_extractions").all()).toEqual(extraction);
+    expect(f.db.database.prepare("SELECT * FROM document_versions").all()).toEqual(versions);
+    expect([...f.bucket.objects]).toEqual(objects);
+  } finally { f.dispose(); }
+});
+
+it("rolls back an addition if the mutation receipt cannot be written after the draft update", async () => {
+  const { f, ref, draft, add } = await setup();
+  try {
+    const before = f.db.database.prepare("SELECT * FROM document_review_drafts").all(), request = add("SQL");
+    // Existing review: active-version guard, draft write, changed guard, receipt.
+    f.db.failAtBatchStatement = 3;
+    await expect(f.client.request("saveDocumentReviewDraft", request)).rejects.toMatchObject({ code: "conflict", status: 409 });
+    expect(f.db.batches.at(-1)).toHaveLength(4);
+    expect(f.db.batches.at(-1)?.[3]).toContain("INSERT INTO document_mutations");
+    expect(f.db.database.prepare("SELECT * FROM document_review_drafts").all()).toEqual(before);
+    expect(f.db.database.prepare("SELECT * FROM document_mutations WHERE endpoint='saveDocumentReviewDraft'").all()).toEqual([]);
+    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
+    f.db.failAtBatchStatement = null;
+    const saved = await f.client.request("saveDocumentReviewDraft", request);
+    expect(saved.draft.items[0]?.skillLabels).toEqual(["SQL"]);
+    expect(saved.draft.reviewProjection).toBe(V3);
+    expect(await f.client.request("saveDocumentReviewDraft", request)).toEqual(saved);
+  } finally { f.dispose(); }
+});
+
+it("rejects forged raw HTTP fields and non-explicit additions before any saved-state mutation", async () => {
+  const { f, ref, draft, add } = await setup();
+  try {
+    const runtime = createDocumentRuntime({ DB: f.db as unknown as D1Database, DOCUMENT_ASSETS: f.bucket,
+      ARC_DOCUMENTS_ENABLED: "true", ARC_DOCUMENT_ANALYSIS_ENABLED: "false", ARC_DOCUMENT_PLANNING_ENABLED: "true" },
+    { now: materialsClock, sourceResolver: materialSourceResolver() });
+    const route = createDocumentRoute("saveDocumentReviewDraft", { requireUser: async () => ({ id: "owner-a" }),
+      configuredOrigin: () => "https://arc.test", createService: () => runtime,
+      rateLimiter: { reserve: async () => ({ allowed: true }) },
+    });
+    const send = (request: Record<string, unknown>) => {
+      const { documentId, ...body } = request;
+      return route(new Request(`https://arc.test/api/documents/${documentId}/review-draft`, {
+        method: documentEndpointContracts.saveDocumentReviewDraft.method,
+        headers: { "content-type": "application/json", origin: "https://arc.test" }, body: JSON.stringify(body),
+      }), { params: { documentId: String(documentId) } });
+    };
+    const valid = add("SQL"), { skillTermAddition, ...silent } = valid;
+    void skillTermAddition;
+    const cases: [Record<string, unknown>, number, string][] = [
+      [{ ...valid, reviewProjection: "grounded-skill-labels-v2" }, 400, "invalid-request"],
+      [{ ...valid, reclassifiedItemIds: [] }, 400, "invalid-request"],
+      [{ ...valid, skillTermAddition: { itemId: "missing", sourceTerm: "SQL" } }, 400, "invalid-request"],
+      [{ ...valid, items: [valid.items[0], valid.items[0]] }, 400, "invalid-request"],
+      [silent, 422, "invalid-content"],
+      [{ ...valid, items: [{ ...valid.items[0], origin: "extracted" }] }, 422, "invalid-content"],
+      [{ ...valid, items: [{ ...valid.items[0], skillLabels: ["SQL", "React"] }] }, 422, "invalid-content"],
+    ];
+    for (const [request, status, code] of cases) {
+      const response = await send(request);
+      expect(response.status).toBe(status);
+      expect(await response.json()).toEqual({ error: { code, status } });
+      expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
+    }
+    expect(f.db.database.prepare("SELECT * FROM document_mutations WHERE endpoint='saveDocumentReviewDraft'").all()).toEqual([]);
+    const accepted = await send(valid);
+    expect(accepted.status).toBe(200);
+    expect(await accepted.json()).toMatchObject({ draft: { reviewProjection: V3, items: [{ skillLabels: ["SQL"] }], selfAssessmentHints: [] } });
+  } finally { f.dispose(); }
+});
+
+it("keeps queued removal and text edits when the real editor receives a delayed v3 addition response", async () => {
+  const { f, doc, ref } = await setup();
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  let delayNext = true, committed = false;
+  const client: DocumentsClient = { capabilities: f.client.capabilities, async request(endpoint, input, signal) {
+    const result = await f.client.request(endpoint, input, signal);
+    if (endpoint === "saveDocumentReviewDraft" && delayNext) {
+      delayNext = false; committed = true; await held;
+    }
+    return result;
+  } };
+  try {
+    const capabilities = await client.capabilities(), adopted = vi.fn();
+    let latest: MaterialDocumentDraftRef = doc;
+    function Editor() {
+      const [value, setValue] = useState(latest);
+      return <MaterialTextPanel kind="resume" capabilities={capabilities} client={client} value={value}
+        skills={[{ id: "sql", name: "SQL" }]} onAdoptLevels={adopted}
+        onChange={next => { latest = next; setValue(next); }} />;
+    }
+    const page = render(<Editor />);
+    fireEvent.click(await screen.findByText("从原文补充技能词"));
+    fireEvent.change(screen.getByRole("textbox", { name: "事实 1 原文词" }), { target: { value: "SQL" } });
+    fireEvent.click(screen.getByRole("button", { name: "补充技能词" }));
+    await waitFor(() => expect(committed).toBe(true));
+    expect(screen.getByRole("button", { name: "确认这些事实" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "移除技能词 SQL" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "事实 1" }), { target: { value: "My colleague used SQL or React." } });
+    release();
+    await waitFor(async () => expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toMatchObject({
+      reviewProjection: V3, revision: 3, items: [{ text: "My colleague used SQL or React.", skillLabels: [] }], selfAssessmentHints: [],
+    }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "确认这些事实" })).toBeEnabled());
+    page.unmount(); f.restart(); render(<Editor />);
+    expect(await screen.findByRole("textbox", { name: "事实 1" })).toHaveValue("My colleague used SQL or React.");
+    expect(screen.queryByRole("button", { name: "移除技能词 SQL" })).not.toBeInTheDocument();
+    expect(adopted).not.toHaveBeenCalled();
+    expect(f.trace.filter(row => row.endpoint === "saveDocumentReviewDraft").map(row => row.status)).toEqual([200, 200, 200]);
+  } finally { release(); cleanup(); f.dispose(); }
+});

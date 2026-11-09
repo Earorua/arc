@@ -1,0 +1,163 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { stripVTControlCharacters } from "node:util";
+
+const work = "work/grounded-verification/";
+const prefix = `${work}mention-projection-recovery-watcher-spec-20261109`;
+const author = `${work}mention-projection-recovery-watcher-20261109`;
+const diagnosisPath = `${work}mention-projection-recovery-timing-20261109-comparison-results.json`;
+const baselinePath = `${work}mention-projection-snapshot-20261109-b-results.json`;
+const hash = input => createHash("sha256").update(input).digest("hex");
+const bytes = path => readFileSync(path);
+const json = path => JSON.parse(readFileSync(path, "utf8"));
+const git = (...args) => execFileSync("git", args, { maxBuffer: 32 * 1024 * 1024 });
+const root = realpathSync(process.cwd());
+const expectedRoot = realpathSync("C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision");
+assert.equal(root, expectedRoot);
+const head = git("rev-parse", "HEAD").toString().trim();
+const branch = git("branch", "--show-current").toString().trim();
+assert.equal(head, "d9a021907cc679e8b7b8960f3f4a167a7304c18b");
+assert.equal(branch, "codex/materials-replan-recovery-20261106");
+
+const freezeBytes = bytes(`${author}-freeze-results.json`);
+assert.equal(hash(freezeBytes), "00ec3f2516a6775128b7ae8053e76dcf879e8ac5bc3f60ca3c220cf8a4324537");
+const freeze = JSON.parse(freezeBytes);
+const baselineBytes = bytes(baselinePath);
+const baseline = JSON.parse(baselineBytes);
+assert.equal(hash(baselineBytes), "6ffedfe0a40163abbd128f49f4e2c4673450aa76fd299d2fe81236709829792e");
+assert.equal(baseline.manifestSha256, "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0");
+const paths = [...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").toString().split("\0").filter(path => path && !path.startsWith("docs/")))].sort();
+const filesSha256 = Object.fromEntries(paths.map(path => [path, hash(bytes(path))]));
+assert.equal(paths.length, 1007);
+assert.deepEqual(filesSha256, freeze.filesSha256);
+assert.equal(hash(JSON.stringify(filesSha256)), "88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a");
+assert.deepEqual(Object.keys(filesSha256), Object.keys(baseline.filesSha256));
+const changed = paths.filter(path => filesSha256[path] !== baseline.filesSha256[path]);
+const expectedChanges = ["tests/offline-uat/entry.test.mjs", "tests/offline-uat/server.mjs"];
+assert.deepEqual(changed, expectedChanges);
+assert.deepEqual(git("diff", "--name-only").toString().trim().split(/\r?\n/u).filter(path => !path.startsWith("docs/")), expectedChanges);
+for (const path of changed) assert.deepEqual(bytes(resolve(freeze.sourceDirectory, path)), bytes(path));
+const diff = git("diff", "--", ...expectedChanges);
+assert.deepEqual(diff, bytes(`${author}-fix.diff`));
+assert.equal(hash(diff), freeze.diffSha256);
+
+const entry = bytes(expectedChanges[0]).toString();
+const server = bytes(expectedChanges[1]).toString();
+const assertions = '    assert.equal(server.vite.config.server.watch, null, "offline harness must disable filesystem watching");\r\n'
+  + '    assert.deepEqual(server.vite.watcher.getWatched(), {}, "offline harness must not watch the checkout");\r\n';
+assert.equal(entry.split(assertions).length - 1, 1);
+assert.equal(hash(entry.replace(assertions, "")), baseline.filesSha256[expectedChanges[0]]);
+assert.ok(entry.includes('  const server = await createHarnessServer({ port: 4181 });\r\n  try {\r\n' + assertions));
+assert.ok(entry.includes("  } finally { await server.close(); }"));
+assert.ok(!/(?<!\r)\n/u.test(entry), "entry remains CRLF");
+assert.ok(!server.includes("\r"), "server remains LF");
+const oldOptions = '      host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],';
+const newOptions = oldOptions.replace("      host:", "      watch: null, host:");
+assert.equal(server.split(newOptions).length - 1, 1);
+assert.equal(hash(server.replace(newOptions, oldOptions)), baseline.filesSha256[expectedChanges[1]]);
+const recovery = bytes("tests/offline-uat/research-recovery.test.mjs").toString();
+assert.ok(recovery.includes('{ timeout: 45_000 }, async (context) => {\n  const server = await createHarnessServer({ port: 4181 });'));
+assert.equal(filesSha256["tests/offline-uat/research-recovery.test.mjs"], baseline.filesSha256["tests/offline-uat/research-recovery.test.mjs"]);
+assert.equal(filesSha256["tests/offline-uat/research-public-recovery.test.mjs"], baseline.filesSha256["tests/offline-uat/research-public-recovery.test.mjs"]);
+git("-c", "core.whitespace=cr-at-eol", "diff", "--check");
+
+function checkedRun(label, expectedExit) {
+  const reportPath = `${work}${label}.json`;
+  const logPath = `${work}${label}.log`;
+  const report = json(reportPath);
+  assert.equal(report.exit, expectedExit);
+  assert.equal(report.nonLoopbackDenials, 0);
+  assert.equal(report.logSha256, hash(bytes(logPath)));
+  return { reportPath, reportSha256: hash(bytes(reportPath)), logPath, ...report };
+}
+const authorRuns = {
+  red: checkedRun("mention-projection-recovery-watcher-20261109-red", 1),
+  green: checkedRun("mention-projection-recovery-watcher-20261109-green", 0),
+  lint: checkedRun("mention-projection-recovery-watcher-20261109-lint", 0),
+};
+const redLog = bytes(authorRuns.red.logPath).toString();
+for (const marker of ["offline harness must disable filesystem watching", "+ undefined", "- null", "ℹ fail 1", "ℹ cancelled 0"]) assert.ok(redLog.includes(marker));
+assert.equal(authorRuns.red.logSha256, "a2f0fd7a0a9a5dea376645bda15ad21b5c5173d05df4f1d233654967c914f5c3");
+const freshRuns = {
+  focused: checkedRun("mention-projection-recovery-watcher-spec-20261109-focused", 0),
+  lint: checkedRun("mention-projection-recovery-watcher-spec-20261109-lint", 0),
+};
+const focusedLog = bytes(freshRuns.focused.logPath).toString();
+for (const log of [focusedLog, bytes(authorRuns.green.logPath).toString()]) {
+  for (const marker of ["ℹ tests 21", "ℹ pass 21", "ℹ fail 0", "ℹ cancelled 0", "ℹ skipped 0"]) assert.ok(log.includes(marker));
+}
+const recoveryDuration = Number(/✔ a completed Start response can be discarded and recovered without another provider call or budget admission \(([0-9.]+)ms\)/u.exec(focusedLog)?.[1]);
+assert.ok(recoveryDuration > 0 && recoveryDuration < 45000);
+
+const diagnosisBytes = bytes(diagnosisPath);
+assert.equal(hash(diagnosisBytes), "6c5e2518802f8ea532d87a9bbbb4925aad21ef20ad8e6e6c07032ec90493475b");
+const diagnosis = JSON.parse(diagnosisBytes);
+const diagnosticRuns = {};
+for (const [key, expectedExit] of [["a", 1], ["b", 0], ["reversal", 1]]) {
+  const original = diagnosis.runs[key];
+  const run = checkedRun(original.name, expectedExit);
+  assert.equal(run.logSha256, original.logSha256);
+  const log = stripVTControlCharacters(bytes(run.logPath).toString());
+  const events = log.split(/\r?\n/u).filter(line => line.startsWith("{")).map(line => JSON.parse(line));
+  const phase = name => events.find(event => event.event === "offline-recovery-timing" && event.phase === name && !event.heartbeat);
+  const observedCompositionMs = phase("harness:compositionSSR:after").elapsedMs - phase("harness:compositionSSR:before").elapsedMs;
+  assert.ok(Math.abs(observedCompositionMs - original.phaseMs["harness:compositionSSR"]) < 0.01);
+  assert.equal(original.originalTimeoutMs, 45000);
+  assert.ok(log.includes(`ℹ cancelled ${expectedExit}`));
+  diagnosticRuns[key] = { ...run, compositionMs: original.phaseMs["harness:compositionSSR"], observedCompositionMs };
+}
+const reversalLog = bytes(diagnosticRuns.reversal.logPath).toString();
+assert.ok(reversalLog.includes('"watcherClass":"FSWatcher"'));
+assert.ok(reversalLog.includes('"totalDirectories":9341,"totalEntries":40489'));
+assert.ok(bytes(diagnosticRuns.b.logPath).toString().includes('"watcherClass":"NoopWatcher"'));
+const originalB = checkedRun("mention-projection-full-node-20261109-b", 1);
+assert.equal(originalB.logSha256, "87202fb42d1380a05a7179671cdf37e46b247527f8dd239c202190aea823e164");
+const originalBLog = bytes(originalB.logPath).toString();
+for (const marker of ["ℹ tests 290", "ℹ pass 289", "ℹ cancelled 1"]) assert.ok(originalBLog.includes(marker));
+const optimizerWarning = "Pre-transform error: The file does not exist at";
+assert.ok(originalBLog.includes(optimizerWarning));
+assert.ok(bytes(authorRuns.green.logPath).toString().includes(optimizerWarning));
+
+const viteSourcePath = "node_modules/vite/dist/node/chunks/node.js";
+const viteSource = bytes(viteSourcePath).toString();
+assert.ok(viteSource.includes("const watcher = serverConfig.watch !== null ? import_chokidar.watch(["));
+assert.ok(viteSource.includes("], resolvedWatchOptions) : createNoopWatcher(resolvedWatchOptions);"));
+const result = {
+  review: "Independent SPEC compliance review of the approved minimal offline Research harness watcher fix",
+  status: "PASS",
+  findings: [],
+  fullTask4Status: "HOLD: this focused review does not replace root's fresh C full acceptance",
+  timestamp: new Date().toISOString(), root, branch, head,
+  inspectedRequirements: "docs/superpowers/plans/2026-11-08-materials-mention-projection.md, Task 4 Node B startup diagnosis and approved two-file fix",
+  source: { sourceFileCount: paths.length, manifestSha256: hash(JSON.stringify(filesSha256)), unchangedFromB: paths.length - changed.length,
+    changes: changed.map(path => ({ path, baselineSha256: baseline.filesSha256[path], currentSha256: filesSha256[path] })),
+    freezePath: `${author}-freeze-results.json`, freezeSha256: hash(freezeBytes), baselinePath, baselineResultsSha256: hash(baselineBytes),
+    baselineManifestSha256: baseline.manifestSha256, diffSha256: hash(diff), frozenCopyBytesMatch: true, inverseEditsRecoverBaselineBytes: true,
+    recoveryAndPublicRecoveryUnchanged: true, original45SecondClockStillIncludesHarnessSetup: true, entryCRLFPreserved: true, serverLFPreserved: true, crlfAwareDiffCheckPassed: true },
+  requirements: [
+    { item: "Only explicit watch:null in createHarnessServer extra.server", status: "PASS", location: "tests/offline-uat/server.mjs:200" },
+    { item: "Actual harness effective config and empty getWatched regression inside existing try/finally", status: "PASS", location: "tests/offline-uat/entry.test.mjs:36" },
+    { item: "HTTP/auth/origin/nonce/filesystem/private asset/body/provider/counters/budget/cleanup and all prior assertions unchanged", status: "PASS", evidence: "Exact byte inversion of the two edits and 1005 unchanged non-document files" },
+    { item: "No timeout increase, test skip, setup relocation, baseline mutation or production scope extension", status: "PASS", evidence: "Exact frozen source manifest and unchanged original recovery test" },
+    { item: "Targeted old-code RED preserved and correctly fails undefined versus null", status: "PASS", evidence: "Author RED log inspected and SHA256 verified; not rerun or overwritten by reviewer" },
+    { item: "Fresh independent actual entry and both recovery paths plus scoped lint", status: "PASS", evidence: "21 pass, 0 fail/cancel/skip; lint exit 0; all run through offline wrapper" },
+  ],
+  authorRuns, freshRuns,
+  focusedTests: { total: 21, passed: 21, failed: 0, cancelled: 0, skipped: 0, compatibilityRecoveryMs: recoveryDuration },
+  diagnosis: { path: diagnosisPath, sha256: hash(diagnosisBytes), originalB, runs: diagnosticRuns, rootCauseSupportedByActualSourceAndRetainedLogs: true,
+    observedWatcher: { original: "FSWatcher", fixed: "NoopWatcher", originalDirectories: 9341, originalEntries: 40489 },
+    installedVite: { version: json("node_modules/vite/package.json").version, sourcePath: viteSourcePath, sourceSha256: hash(bytes(viteSourcePath)) } },
+  warning: { publicOptimizerMissingRuntime: "Existing separate observation, not this watcher root cause and not repaired or masked by the fix", observedInOriginalB: true, observedInAuthorGreen: true, observedInFreshSpecRun: focusedLog.includes(optimizerWarning),
+    envFileDeprecationAndExperimentalSQLite: "Still present in fresh focused log; no warning suppression added" },
+  reviewBoundary: { externalNetworkCalls: 0, wrapperNonLoopbackDenials: 0, productionEdits: 0, sourceEditsByReviewer: 0, documentationEditsByReviewer: 0, commits: 0, fullSuiteRuns: 0,
+    wrapperSha256: hash(bytes(`${work}run.mjs`)), outboundBlockerSha256: hash(bytes("work/materials-browser-handoff/block-outbound.cjs")),
+    note: "Only uniquely named ignored review artifacts were created. Existing source/docs dirty state preserved. Source listing intentionally excludes documents, as the approved 1007-file freeze does." },
+  limits: ["Quality review and root fresh C full-source acceptance remain separate gates.", "Timing is local to this checkout; no universal latency claim.", "Retained A/B/A and author RED evidence were verified, not rerun by this reviewer.", "Live model evaluation, migration, deployment, release and full Task 4 acceptance are outside this review."],
+  gitStatusAtAudit: git("status", "--short").toString(),
+};
+const output = `${prefix}-structured-results.json`;
+writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, fullTask4Status: result.fullTask4Status, output: resolve(output), sha256: hash(bytes(output)), sourceManifestSha256: result.source.manifestSha256, unchangedFromB: result.source.unchangedFromB, focusedTests: result.focusedTests }));

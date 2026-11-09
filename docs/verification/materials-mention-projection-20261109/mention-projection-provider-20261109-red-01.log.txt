@@ -1,0 +1,153 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/server/document-source-span-provider.test.ts [2m([22m[2m117 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m115 skipped[39m[2m)[22m[32m 48[2mms[22m[39m
+     [2m[90m↓[39m[22m uses source text as the editable draft for jd and validates it through the site
+     [2m[90m↓[39m[22m uses source text as the editable draft for resume and validates it through the site
+     [2m[90m↓[39m[22m uses source text as the editable draft for supplement and validates it through the site
+     [2m[90m↓[39m[22m settles a verified bill but never delivers incomplete JSON even when syntactically valid (length, undefined)
+     [2m[90m↓[39m[22m settles a verified bill but never delivers incomplete JSON even when syntactically valid (stop, length)
+     [2m[90m↓[39m[22m settles a verified bill but never delivers incomplete JSON even when syntactically valid (content_filter, undefined)
+     [2m[90m↓[39m[22m settles a verified bill but never delivers incomplete JSON even when syntactically valid (tool_calls, undefined)
+     [2m[90m↓[39m[22m settles a verified bill but never delivers incomplete JSON even when syntactically valid (null, undefined)
+     [2m[90m↓[39m[22m settles a verified bill but never delivers incomplete JSON even when syntactically valid (private-provider-sentinel, undefined)
+     [2m[90m↓[39m[22m records only a fixed reason for truncated JSON
+     [2m[90m↓[39m[22m records only a fixed reason for empty content
+     [2m[90m↓[39m[22m records only a fixed reason for legacy shape
+     [2m[90m↓[39m[22m records only a fixed reason for free-form text override
+     [2m[90m↓[39m[22m records only a fixed reason for invented source
+     [2m[90m↓[39m[22m records only a fixed reason for invented review point source
+     [2m[90m↓[39m[22m records only a fixed reason for invalid suggestion
+     [2m[90m↓[39m[22m rejects an ambiguous literal and a quote cutting a Unicode pair
+     [2m[90m↓[39m[22m does not parse or describe content when the paid receipt fails verification
+     [2m[90m↓[39m[22m honors explicit incomplete generation metadata even when chat reports stop
+     [2m[90m↓[39m[22m honors explicit incomplete generation metadata even when chat reports stop
+     [2m[90m↓[39m[22m honors explicit incomplete generation metadata even when chat reports stop
+     [2m[90m↓[39m[22m honors explicit incomplete generation metadata even when chat reports stop
+     [2m[90m↓[39m[22m requires an explicit level, including unspecified, for a role requirement
+     [2m[90m↓[39m[22m binds the new named Kimi policy to the standard route and approved generation version
+     [2m[90m↓[39m[22m rejects a quote that drops the surrounding statement's attribution or qualification
+     [2m[90m↓[39m[22m rejects a quote that drops the surrounding statement's attribution or qualification
+     [2m[90m↓[39m[22m rejects a quote that drops the surrounding statement's attribution or qualification
+     [2m[90m↓[39m[22m does not mistake an artificial segment edge for the start of a new claim
+     [2m[90m↓[39m[22m keeps a layout-wrapped qualifying clause attached to its statement
+     [2m[90m↓[39m[22m keeps a layout-wrapped qualifying clause attached to its statement
+     [2m[90m↓[39m[22m uses a paired boundary for each fact instead of joining two independently complete sentences
+     [2m[90m↓[39m[22m accepts a complete requirement under a Chinese JD heading or numbered list: 负责月度经营分析。
+     [2m[90m↓[39m[22m accepts a complete requirement under a Chinese JD heading or numbered list: 熟练使用 SQL。
+     [2m[90m↓[39m[22m accepts a complete requirement under a Chinese JD heading or numbered list: 有异常检测经验。
+     [2m[90m↓[39m[22m restores the actual sentence-ending mark in a complete fact inside a paragraph or bullet
+     [2m[90m↓[39m[22m restores the actual sentence-ending mark in a complete fact inside a paragraph or bullet
+     [2m[90m↓[39m[22m rejects identical observations before assigning local IDs
+     [2m[90m↓[39m[22m quarantines a non-assistant or tool response
+     [2m[90m↓[39m[22m quarantines a non-assistant or tool response
+     [2m[90m↓[39m[22m honors cancellation on the outer generation envelope without losing the verified fee
+     [2m[90m↓[39m[22m records an explicit token limit even when another receipt reports a generic cancellation
+     [2m[90m↓[39m[22m keeps the historical policy's full response contract and prompt
+     [32m✓[39m preserves a negative learning topic only under the explicit source-spans-v2 policy through site validation[32m 44[2mms[22m[39m
+[31m     [31m×[31m preserves a negative learning topic only under the explicit source-spans-v3 policy through site validation[39m[32m 3[2mms[22m[39m
+     [2m[90m↓[39m[22m keeps an explicit unpractised learning constraint and its question with provider nomination=false
+     [2m[90m↓[39m[22m keeps an explicit unpractised learning constraint and its question with provider nomination=true
+     [2m[90m↓[39m[22m preserves a constraint without endorsing a denied or embedded practice wish: I have not designed a live experiment and do not want practice with experiment planning.
+     [2m[90m↓[39m[22m preserves a constraint without endorsing a denied or embedded practice wish: I have not designed a live experiment and no longer want practice with experiment planning.
+     [2m[90m↓[39m[22m preserves a constraint without endorsing a denied or embedded practice wish: If I have not designed a live experiment and want practice with experiment planning, I will ask.
+     [2m[90m↓[39m[22m preserves a constraint without endorsing a denied or embedded practice wish: My mentor said, I have not designed a live experiment and want practice with experiment planning.
+     [2m[90m↓[39m[22m preserves a constraint without endorsing a denied or embedded practice wish: My colleague has not designed a live experiment and wants practice with experiment planning.
+     [2m[90m↓[39m[22m preserves compatible resume claims and a separate responsibility question through v2 decoding and site validation
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for 我用 React 实现了原型，交互测试由结对伙伴协助。
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for 我在导师指导下用 React 实现了原型。
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for 个人简介：我熟悉 SQL。
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for 我目前不能独立配置 Kubernetes 集群。
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for I can independently write SQL reports.
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for I built a React prototype, and I tested React under peer guidance.
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for 简介：可独立完成 SQL 报表。
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for I cannot independently configure Kubernetes.
+     [2m[90m↓[39m[22m projects the complete fact, exact terms and optional task-scoped hint for I cannot write SQL reports independently.
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 例如我负责 SQL 查询，我熟悉 SQL。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 例如，我熟悉 SQL。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 例如，我在导师指导下用 React 实现了原型。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 简介：例如我负责 SQL 查询，我熟悉 SQL。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 不能说我负责 SQL 查询，我熟悉 SQL。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 我没有说过，我熟悉 SQL。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 导师说，我熟悉 SQL。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 如果我完成了 React 原型，我在导师指导下测试 React。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: 我完成了 React 原型，但导师说，我熟悉 SQL。
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: I built a React prototype, but Alice said, I am familiar with SQL.
+     [2m[90m↓[39m[22m keeps a modal statement as a fact without adopting its nested self-assessment: I built a React prototype, and my mentor said, I tested SQL under supervision.
+     [2m[90m↓[39m[22m extracts source terms, preserves unknown tools and separates role coverage for resume
+     [2m[90m↓[39m[22m extracts source terms, preserves unknown tools and separates role coverage for jd
+     [2m[90m↓[39m[22m extracts source terms, preserves unknown tools and separates role coverage for supplement
+     [2m[90m↓[39m[22m keeps incomplete generations billable but unusable under the separately pinned policy
+     [2m[90m↓[39m[22m retains the action but withholds a model's unsupported level and its review question
+     [2m[90m↓[39m[22m still rejects a level supplied for a job requirement
+     [2m[90m↓[39m[22m keeps a JD familiarity requirement without accepting a model's personal assessment question
+     [2m[90m↓[39m[22m keeps a URL query and the following access restriction together in the fact and in its review
+     [2m[90m↓[39m[22m never presents a personal level from a sentence quoted inside a multi-sentence example
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I am familiar with HTML, but my colleague uses PostgreSQL.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I rehearsed migrations under supervision, but I independently use PostgreSQL.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I am familiar with log sampling, but I never used FakeTool.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: - I am familiar with SQL.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I am familiar with the example “My colleague uses PostgreSQL.”
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I am familiar with “PostgreSQL”.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: 没有证据说我能独立配置 React，但我熟悉 SQL。
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: It is false that I configured React, but I am familiar with SQL.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: 我熟悉 SQL，但导师说，我熟悉 React。
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: 我熟悉 SQL 但导师说，我熟悉 React。
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I am familiar with SQL, but Alice said, I am familiar with React.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I am familiar with SQL but Alice said, I am familiar with React.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I tested SQL under supervision and my mentor said, I tested React under supervision.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: It is false that I configured React, but I am familiar with SQL but Alice said, I am familiar with React.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I am familiar with SQL, but Alice said, I am familiar with React.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I documented that my colleague used PostgreSQL under supervision.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: I explained how my colleague built PostgreSQL under supervision.
+     [2m[90m↓[39m[22m binds a level to the retained terms and the full-document assertion: 我在导师指导下，安排同事使用 PostgreSQL。
+     [2m[90m↓[39m[22m rejects repeated v2 source facts even when the model varies labels
+     [2m[90m↓[39m[22m rejects repeated v2 source facts even when the model varies priority
+     [2m[90m↓[39m[22m rejects repeated v2 source facts even when the model varies kind
+     [2m[90m↓[39m[22m rejects repeated v2 source facts even when the model varies list marker
+     [2m[90m↓[39m[22m preserves separate source statements containing overlapping skill lists
+     [2m[90m↓[39m[22m keeps source-grounded contradictory priorities unresolved before user review
+     [2m[90m↓[39m[22m does not downgrade a requirement for an unsupported model conflict warning
+     [2m[90m↓[39m[22m still rejects an ambiguous complete fact when skill terms may repeat within a fact
+     [2m[90m↓[39m[22m derives the requirement level from source evidence: PostgreSQL is optional for this role.
+     [2m[90m↓[39m[22m derives the requirement level from source evidence: PostgreSQL is required for this role.
+     [2m[90m↓[39m[22m derives the requirement level from source evidence: We use PostgreSQL.
+     [2m[90m↓[39m[22m derives the requirement level from source evidence: SQL is required, but PostgreSQL is optional.
+     [2m[90m↓[39m[22m uses a complete unbulleted entry beneath the v2 heading Required:
+     [2m[90m↓[39m[22m uses a complete unbulleted entry beneath the v2 heading Must have
+     [2m[90m↓[39m[22m uses a complete unbulleted entry beneath the v2 heading 必备：
+     [2m[90m↓[39m[22m uses a complete unbulleted entry beneath the v2 heading Preferred skills
+     [2m[90m↓[39m[22m refuses downgraded and cross-version reply formats
+     [2m[90m↓[39m[22m binds the new policy to the same strict endpoint and refuses unimplemented versions
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/document-source-span-provider.test.ts[2m > [22mKimi source mentions v3[2m > [22mpreserves a negative learning topic only under the explicit source-spans-v3 policy through site validation
+[31m[1mAssertionError[22m: expected [] to deeply equal [ 'POST', 'GET' ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "POST",[39m
+[32m-   "GET",[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m analyze tests/server/document-source-span-provider.test.ts:[2m51:62[22m[39m
+    [90m 49|[39m   const outcome = await provider.analyze({ text, segments: options.seg…
+    [90m 50|[39m     kind: options.kind ?? "jd", providerPolicyId, outputSchemaVersion:…
+    [90m 51|[39m   expect(request.mock.calls.map(([, init]) => init?.method)).toEqual([…
+    [90m   |[39m                                                              [31m^[39m
+    [90m 52|[39m   if (outcome.kind !== "received") throw new Error("Missing fixture re…
+    [90m 53|[39m   return { outcome, body: JSON.parse(String(request.mock.calls[0]![1]?…
+[90m [2m❯[22m tests/server/document-source-span-provider.test.ts:[2m210:25[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[2m | [22m[33m115 skipped[39m[90m (117)[39m
+[2m   Start at [22m 15:38:56
+[2m   Duration [22m 756ms[2m (transform 226ms, setup 211ms, import 344ms, tests 48ms, environment 0ms)[22m
+

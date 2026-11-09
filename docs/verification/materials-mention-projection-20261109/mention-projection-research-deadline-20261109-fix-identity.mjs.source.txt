@@ -1,0 +1,57 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+
+const prefix = "work/grounded-verification/mention-projection-research-deadline-20261109";
+const hash = bytes => createHash("sha256").update(bytes).digest("hex");
+const git = (...args) => execFileSync("git", args, { maxBuffer: 32 * 1024 * 1024 });
+const baseline = JSON.parse(readFileSync("work/grounded-verification/mention-projection-snapshot-20261109-results.json", "utf8"));
+const files = [...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").toString().split("\0").filter(path => path && !path.startsWith("docs/")))].sort();
+const filesSha256 = Object.fromEntries(files.map(path => [path, hash(readFileSync(path))]));
+assert.deepEqual(Object.keys(filesSha256), Object.keys(baseline.filesSha256));
+const changed = files.filter(path => filesSha256[path] !== baseline.filesSha256[path]);
+const expected = ["scripts/test-research-cloud-smoke.mjs", "tests/server/research-cloud-smoke-composition.test.ts"];
+assert.deepEqual(changed, expected);
+const sourceDirectory = resolve(`${prefix}-source`);
+mkdirSync(sourceDirectory);
+for (const path of expected) {
+  const target = resolve(sourceDirectory, path);
+  mkdirSync(dirname(target), { recursive: true });
+  copyFileSync(path, target);
+  assert.equal(hash(readFileSync(target)), filesSha256[path]);
+}
+const diff = git("diff", "--", ...expected);
+writeFileSync(`${prefix}-fix.diff`, diff, { flag: "wx" });
+const commands = [
+  ["probe-a", 1], ["targeted-red-a", 1], ["targeted-green-a", 0],
+  ["probe-green-a", 0], ["lint-a", 0], ["operator-green-a", 0],
+];
+const verification = commands.map(([suffix, expectedExit]) => {
+  const name = `${prefix}-${suffix}`;
+  const report = JSON.parse(readFileSync(`${name}.json`, "utf8"));
+  assert.equal(report.exit, expectedExit);
+  assert.equal(report.nonLoopbackDenials, 0);
+  assert.equal(report.logSha256, hash(readFileSync(`${name}.log`)));
+  return { label: report.name, exit: report.exit, elapsedMs: report.elapsedMs, logSha256: report.logSha256, nonLoopbackDenials: report.nonLoopbackDenials };
+});
+const greenProbe = JSON.parse(readFileSync(`${prefix}-green-probe-results.json`, "utf8"));
+assert.equal(greenProbe.cases.length, 6);
+assert.ok(greenProbe.cases.every(item => item.callContract.status === "PASS"));
+const report = {
+  head: git("rev-parse", "HEAD").toString().trim(),
+  branch: git("branch", "--show-current").toString().trim(),
+  baselineManifestSha256: baseline.manifestSha256,
+  manifestSha256: hash(JSON.stringify(filesSha256)),
+  sourceFileCount: files.length, unchangedNonDocFiles: files.length - changed.length,
+  sourceDirectory,
+  changes: changed.map(path => ({ path, beforeSha256: baseline.filesSha256[path], afterSha256: filesSha256[path] })),
+  diffSha256: hash(diff), verification,
+  scope: "Only the host smoke driver's shared deadline latch and post-signing dispatch check, plus two exact-private-control regression cases. Existing budgets and assertions unchanged. No production worker, v3 materials source, historical sealed references, or baseline hash guards edited.",
+  boundaries: "Deterministic cases isolate exact private control source; bounded operator suite exercises the real runSmokeDriver with signed synthetic responses. No remote cloud acceptance claimed. Independent reviews and fresh full-checkout acceptance remain for the root task.",
+  filesSha256,
+};
+writeFileSync(`${prefix}-fix-identity-results.json`, `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
+console.log(JSON.stringify({ head: report.head, sourceFileCount: report.sourceFileCount, unchangedNonDocFiles: report.unchangedNonDocFiles,
+  manifestSha256: report.manifestSha256, changes: report.changes, sourceDirectory, commands: verification.map(({ label, exit }) => ({ label, exit })) }));

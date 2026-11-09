@@ -1,0 +1,153 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+
+const prefix = "work/grounded-verification/mention-projection-research-deadline-quality-20261109";
+const sha = value => createHash("sha256").update(value).digest("hex");
+const driverPath = "scripts/test-research-cloud-smoke.mjs";
+const testPath = "tests/server/research-cloud-smoke-composition.test.ts";
+const source = readFileSync(driverPath, "utf8");
+const extract = (start, end) => {
+  assert.equal(source.split(start).length, 2);
+  assert.equal(source.split(end).length, 2);
+  assert.ok(source.indexOf(end) > source.indexOf(start));
+  return source.slice(source.indexOf(start), source.indexOf(end));
+};
+const controlSource = extract("async function control(", "async function replayApproval(");
+const safeStatusSource = extract("function safeStatus(", "async function control(");
+const git = (...args) => execFileSync("git", args, { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }).trim();
+const frozen = JSON.parse(readFileSync("work/grounded-verification/mention-projection-research-deadline-20261109-fix-identity-results.json", "utf8"));
+const manifest = () => Object.fromEntries([...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z")
+  .split("\0").filter(path => path && !path.startsWith("docs/")))].sort().map(path => [path, sha(readFileSync(path))]));
+const before = manifest();
+assert.equal(git("rev-parse", "HEAD"), "4d6bc823e5609a008acf86644ddc8a3b33f844ca");
+assert.equal(git("branch", "--show-current"), "codex/materials-replan-recovery-20261106");
+assert.deepEqual(before, frozen.filesSha256);
+assert.equal(sha(JSON.stringify(before)), "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0");
+
+async function probe(spec) {
+  let now = 0, sequence = 0, signed = 0, readCalls = 0, verifyCalls = 0, nonceCalls = 0;
+  let completed = false, result, failure, lateRelease;
+  const timers = new Map(), requests = [], events = [];
+  const mode = spec.mode ?? "start", window = mode === "start" ? 10_000 : 5_000;
+  const schedule = (callback, delay, kind = "watchdog") => {
+    const id = ++sequence;
+    timers.set(id, { callback, at: now + delay, kind });
+    events.push({ kind: "scheduled", timer: kind, at: now + delay });
+    return id;
+  };
+  const hold = () => new Promise(resolve => schedule(resolve, window + 5, "late-completion"));
+  const drain = async () => { for (let index = 0; index < 32; index++) await Promise.resolve(); };
+  const accepted = { scenarioId: "long", state: "researching", jobId: "synthetic-quality-job",
+    requestHash: "a".repeat(64), acceptedAt: 1000, backgroundAccepted: true };
+  const response = (status = 200) => ({ status, headers: new Headers(), body: accepted });
+  const reject = code => { throw Object.assign(Error("Smoke driver refused"), { safeCode: code }); };
+  const responseNonces = () => ({ claim: async () => {
+    nonceCalls++;
+    if (spec.behavior === "late-nonce") await hold();
+    return true;
+  } });
+  const control = new Function("performance", "setTimeout", "clearTimeout", "responseNonces", "reject",
+    `const hex = /^[0-9a-f]{64}$/u;\n${safeStatusSource}\n${controlSource}\nreturn control;`)(
+    { now: () => now }, schedule, id => timers.delete(id), responseNonces, reject);
+  const helper = {
+    SCENARIOS: [{ id: "long", jobId: accepted.jobId }],
+    signBridgeMessage: async () => {
+      const costs = spec.signCosts ?? [0.25];
+      now += costs[Math.min(signed, costs.length - 1)];
+      signed++;
+      return new Headers();
+    },
+    readBridgeBody: async message => {
+      readCalls++;
+      if (spec.behavior === "early-body-failure") { now += 250; throw Error("early body failure"); }
+      if (spec.behavior === "late-body") await hold();
+      return new TextEncoder().encode(JSON.stringify(message.body));
+    },
+    verifyBridgeMessage: async options => {
+      verifyCalls++;
+      if (spec.behavior === "late-authentication") await hold();
+      await options.nonces.claim({});
+    },
+  };
+  const transport = request => {
+    requests.push(request);
+    events.push({ kind: "dispatch", at: now, path: new URL(request.url).pathname });
+    assert.equal(request.redirect, "error");
+    assert.equal(new URL(request.url).origin, "https://smoke.example.test");
+    if (spec.behavior === "sync-failure") throw Error("ambiguous");
+    if (spec.behavior === "async-failure") return Promise.reject(Error("ambiguous"));
+    if (spec.behavior === "hang") return new Promise(() => {});
+    if (spec.behavior === "late-transport") return new Promise(resolve => { lateRelease = () => resolve(response()); });
+    return Promise.resolve(response(spec.behavior === "server-retry" && requests.length === 1 ? 503 : 200));
+  };
+  const pending = control({ mode, scenarioId: "long" },
+    { inventory: { controlOrigin: "https://smoke.example.test", controlKeyId: "synthetic-quality" } },
+    helper, new Uint8Array(32), transport, () => {}).then(
+      value => { result = value; completed = true; },
+      error => { failure = error; completed = true; });
+  for (let turn = 0; !completed && turn < 12; turn++) {
+    await drain();
+    if (completed) break;
+    const next = [...timers.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+    assert.ok(next, `${spec.id}: no timer for unresolved probe`);
+    const [id, timer] = next;
+    timers.delete(id); now = timer.at;
+    events.push({ kind: "fired", timer: timer.kind, at: now });
+    timer.callback();
+  }
+  assert.equal(completed, true, `${spec.id}: bounded completion`);
+  await pending;
+  if (spec.error) assert.equal(failure?.safeCode, spec.error, spec.id);
+  else {
+    assert.equal(failure, undefined, spec.id);
+    assert.equal(result.status, spec.status ?? "pending", spec.id);
+    assert.equal(result.accepted, spec.status === "accepted", spec.id);
+  }
+  if (lateRelease) {
+    lateRelease(); await drain();
+    assert.equal(readCalls, 0, `${spec.id}: late response cannot resume body parsing`);
+    assert.equal(verifyCalls, 0, `${spec.id}: late response cannot resume authentication`);
+  }
+  assert.equal(requests.length, spec.calls, spec.id);
+  assert.deepEqual(requests.map(request => new URL(request.url).pathname),
+    Array.from({ length: spec.calls }, (_, index) => `/_smoke/${mode === "status" || index ? "status" : "start"}`), spec.id);
+  assert.equal(requests.every(request => request.signal.aborted), true, `${spec.id}: dispatched signal cleanup`);
+  assert.equal(timers.size, 0, `${spec.id}: timer cleanup`);
+  if (spec.behavior.startsWith("late-")) assert.notEqual(result?.accepted, true, `${spec.id}: cannot claim acceptance`);
+  return { id: spec.id, status: "PASS", elapsedSyntheticMs: now, signed, calls: requests.length,
+    readCalls, verifyCalls, nonceCalls, result, safeFailure: failure?.safeCode,
+    allSignalsAborted: true, remainingTimers: timers.size, events };
+}
+
+const specs = [
+  { id: "quick-async-start-failure-keeps-three-attempts", behavior: "async-failure", calls: 3 },
+  { id: "quick-sync-start-failure-keeps-three-attempts", behavior: "sync-failure", calls: 3 },
+  { id: "quick-status-failure-keeps-one-attempt", mode: "status", behavior: "async-failure", calls: 1 },
+  { id: "early-body-failure-does-not-latch-deadline", behavior: "early-body-failure", calls: 3 },
+  { id: "server-503-can-reconcile-to-accepted", behavior: "server-retry", calls: 2, status: "accepted" },
+  { id: "immediate-accepted-start-clears-watchdog", behavior: "accepted", calls: 1, status: "accepted" },
+  { id: "status-signing-exactly-at-five-seconds-stops-dispatch", mode: "status", behavior: "hang", signCosts: [5000], calls: 0 },
+  { id: "start-signing-past-ten-seconds-stops-dispatch", behavior: "hang", signCosts: [10000.25], calls: 0 },
+  { id: "retry-signing-crossing-deadline-stops-next-dispatch", behavior: "async-failure", signCosts: [0.25, 10000], calls: 1 },
+  { id: "fractional-status-watchdog-stops-at-one", mode: "status", behavior: "hang", calls: 1 },
+  { id: "transport-resolving-after-watchdog-cannot-resume", behavior: "late-transport", calls: 1 },
+  { id: "body-resolving-after-watchdog-fails-closed", behavior: "late-body", calls: 1, error: "response-authentication" },
+  { id: "authentication-resolving-after-watchdog-fails-closed", behavior: "late-authentication", calls: 1, error: "response-authentication" },
+  { id: "nonce-resolving-after-watchdog-fails-closed", behavior: "late-nonce", calls: 1, error: "response-authentication" },
+];
+const cases = [];
+for (const spec of specs) cases.push(await probe(spec));
+assert.deepEqual(manifest(), before);
+const report = {
+  status: "PASS", head: frozen.head, branch: frozen.branch,
+  boundary: "Exact current control() and safeStatus() with synthetic monotonic clock, timers, signer, transport, body reader, verifier and in-memory nonce store. Local control-flow evidence only; no native cryptography, persistent nonce, model, network, cloud, or full-checkout acceptance claim.",
+  manifestSha256: sha(JSON.stringify(before)), sourceFileCount: Object.keys(before).length,
+  sourceHashes: { [driverPath]: before[driverPath], [testPath]: before[testPath] },
+  exactControlSourceSha256: sha(controlSource), exactSafeStatusSourceSha256: sha(safeStatusSource),
+  sourceUnchanged: true, cases,
+};
+writeFileSync(`${prefix}-probe-results.json`, JSON.stringify(report, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: report.status, manifestSha256: report.manifestSha256,
+  sourceFileCount: report.sourceFileCount, cases: cases.map(({ id, status, calls, remainingTimers }) => ({ id, status, calls, remainingTimers })) }));

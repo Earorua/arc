@@ -1,0 +1,17 @@
+import { performance } from "node:perf_hooks";
+const start = performance.now();
+const cpuStart = process.cpuUsage();
+const loopStart = performance.eventLoopUtilization();
+let phase = "module:loaded";
+export function mark(next, heartbeat = false) {
+  const previousPhase = phase;
+  if (!heartbeat) phase = next;
+  const cpu = process.cpuUsage(cpuStart);
+  const loop = performance.eventLoopUtilization(loopStart);
+  console.log(JSON.stringify({ event: "offline-recovery-timing", phase: heartbeat ? phase : next,
+    previousPhase, heartbeat, elapsedMs: Math.round((performance.now() - start) * 1000) / 1000,
+    cpuUserMs: cpu.user / 1000, cpuSystemMs: cpu.system / 1000,
+    eventLoopActiveMs: loop.active, eventLoopIdleMs: loop.idle,
+    rssBytes: process.memoryUsage().rss }));
+}
+setInterval(() => mark(phase, true), 10000).unref();

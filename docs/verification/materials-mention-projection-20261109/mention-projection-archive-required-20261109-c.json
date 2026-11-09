@@ -1,0 +1,150 @@
+{
+  "checks": [
+    "mention-projection-library-20261109-green",
+    "mention-projection-library-20261109-tsc",
+    "mention-projection-library-20261109-lint",
+    "mention-projection-library-spec-20261109-probes-a",
+    "mention-projection-library-spec-20261109-suites-a",
+    "mention-projection-library-quality-20261109-focused-a",
+    "mention-projection-library-quality-20261109-probes-a",
+    "mention-projection-provider-20261109-suites-06",
+    "mention-projection-provider-20261109-types-07",
+    "mention-projection-provider-20261109-lint-08",
+    "mention-projection-provider-20261109-compat-09",
+    "mention-projection-provider-20261109-bundle-10",
+    "mention-projection-provider-spec-20261109-suites-01",
+    "mention-projection-provider-spec-20261109-probes-04",
+    "mention-projection-provider-spec-20261109-compat-03",
+    "mention-projection-provider-quality-20261109-suites-01",
+    "mention-projection-provider-quality-20261109-probes-04",
+    "mention-projection-provider-quality-20261109-compat-05",
+    "mention-projection-review-20261109-green-02",
+    "mention-projection-review-20261109-types-01",
+    "mention-projection-review-20261109-lint-01",
+    "mention-projection-review-spec-20261109-focused-01",
+    "mention-projection-review-spec-20261109-probes-02",
+    "mention-projection-review-quality-20261109-focused-01",
+    "mention-projection-review-quality-20261109-probes-01",
+    "mention-projection-research-deadline-20261109-targeted-green-a",
+    "mention-projection-research-deadline-20261109-operator-green-a",
+    "mention-projection-research-deadline-20261109-probe-green-a",
+    "mention-projection-research-deadline-spec-20261109-targeted-a",
+    "mention-projection-research-deadline-spec-20261109-identity-a",
+    "mention-projection-research-deadline-quality-20261109-regression-a",
+    "mention-projection-research-deadline-quality-20261109-probe-a",
+    "mention-projection-research-deadline-quality-20261109-lint-a",
+    "mention-projection-recovery-watcher-20261109-green",
+    "mention-projection-recovery-watcher-20261109-lint",
+    "mention-projection-recovery-watcher-spec-20261109-focused",
+    "mention-projection-recovery-watcher-spec-20261109-lint",
+    "mention-projection-recovery-watcher-spec-20261109-audit-final",
+    "mention-projection-recovery-watcher-quality-20261109-audit",
+    "mention-projection-snapshot-20261109-c",
+    "mention-projection-native-flow-20261109-final-b",
+    "mention-projection-node-parity-20261109-final-b",
+    "mention-projection-root-ui-20261109-final-b",
+    "mention-projection-compatibility-final-20261109-a",
+    "mention-projection-history-final-20261109-a",
+    "mention-projection-full-unit-20261109-c",
+    "mention-projection-full-serial-20261109-c",
+    "mention-projection-full-research-20261109-c",
+    "mention-projection-full-node-20261109-c",
+    "mention-projection-full-types-20261109-c",
+    "mention-projection-full-lint-20261109-c",
+    "mention-projection-build-20261109-c",
+    "mention-projection-render-20261109-c",
+    "mention-projection-integrity-20261109-final-c",
+    "mention-projection-full-coverage-20261109-c"
+  ],
+  "reviews": [
+    {
+      "task": 1,
+      "kind": "spec",
+      "verdict": "PASS",
+      "path": "mention-projection-library-spec-20261109-memo.md",
+      "sha256": "54b4ee20d97dd41e72e6d467ab85c6e67ec10285108a3e28d4aecd1b6178b4ad"
+    },
+    {
+      "task": 1,
+      "kind": "quality",
+      "verdict": "PASS",
+      "path": "mention-projection-library-quality-20261109-memo.md",
+      "sha256": "e5a2f18b348dc651840135f05ed4d3041994c8246a2158e492a721a7cbb0550f"
+    },
+    {
+      "task": 2,
+      "kind": "spec",
+      "verdict": "PASS",
+      "path": "mention-projection-provider-spec-20261109-memo.md",
+      "sha256": "f797d360684d35ecd5bca3428c3da0e600a48fc0eb70c4f227f9243d4c6ddc8c"
+    },
+    {
+      "task": 2,
+      "kind": "quality",
+      "verdict": "PASS",
+      "path": "mention-projection-provider-quality-20261109-memo.md",
+      "sha256": "cacb529d886027da852762b5bc4078e442f0184240194ca8a2e015a33d123cae"
+    },
+    {
+      "task": 3,
+      "kind": "spec",
+      "verdict": "PASS",
+      "path": "mention-projection-review-spec-20261109-memo.md",
+      "sha256": "e120f0d169b14b0fa6ebbf877d4697f1f02e6bd153202e8b73d7d7157fcfe290"
+    },
+    {
+      "task": 3,
+      "kind": "quality",
+      "verdict": "PASS",
+      "path": "mention-projection-review-quality-20261109-memo.md",
+      "sha256": "dbfb819b85f2054d49697ba0fbe4a5adc7d27f6a52c432c3525589862d1e6379"
+    },
+    {
+      "task": "research-deadline",
+      "kind": "spec",
+      "verdict": "PASS",
+      "path": "mention-projection-research-deadline-spec-20261109-memo.md",
+      "sha256": "93159fe34e657dee7608db16ab96aea50d1251c2a3139fc5b821754a0cf49583"
+    },
+    {
+      "task": "research-deadline",
+      "kind": "quality",
+      "verdict": "PASS",
+      "path": "mention-projection-research-deadline-quality-20261109-memo.md",
+      "sha256": "71ec1cf4f1cd1be2094ed52f3af9f281d373073d6013c2ff51b8ff48a64638aa"
+    },
+    {
+      "task": "research-recovery-watcher",
+      "kind": "spec",
+      "verdict": "PASS",
+      "path": "mention-projection-recovery-watcher-spec-20261109-memo.md",
+      "sha256": "3cc886c21d8a021eba445a7acc078e091093284db3c08564a87e91810988aa57"
+    },
+    {
+      "task": "research-recovery-watcher",
+      "kind": "quality",
+      "verdict": "PASS",
+      "path": "mention-projection-recovery-watcher-quality-20261109-memo.md",
+      "sha256": "cfd00461f2fc458ea236249f105d74b46d922d199ad65b625c980f5233461957"
+    },
+    {
+      "task": 4,
+      "kind": "integration",
+      "verdict": "PASS",
+      "path": "mention-projection-integration-review-20261109-final-memo.md",
+      "sha256": "9247c5c4729f33cc2e8825b226e38435cfb318b194f865d4b646bb4cbfa6edac"
+    }
+  ],
+  "fullCoverage": {
+    "path": "mention-projection-full-coverage-20261109-c-results.json",
+    "sha256": "8460997cb66cd90d7bffb77ea3b896d2d0004dd753813508e8676b475cf1c3ae",
+    "vitestFiles": 379,
+    "vitestTests": 9833,
+    "nodeTests": 290,
+    "renderTests": 5,
+    "nativeCases": 25,
+    "nodeParityCases": 25,
+    "actualServiceUiCases": 3,
+    "sourceManifestSha256": "88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a"
+  }
+}

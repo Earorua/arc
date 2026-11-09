@@ -1,0 +1,29 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "esbuild";
+
+const [output] = process.argv.slice(2);
+assert.match(output, /^work\/grounded-verification\/mention-projection-provider-quality-20261109-[a-z0-9-]+-results\.json$/u);
+assert.equal(existsSync(output), false, "Never overwrite a review observation");
+const entry = "work/grounded-verification/mention-projection-provider-quality-20261109-probes.ts";
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const manifest = JSON.parse(readFileSync("work/grounded-verification/mention-projection-provider-20261109-freeze-results.json", "utf8"));
+const files = manifest.files.map(file => ({ file: file.file, expected: file.sha256, sha256: sha(readFileSync(file.file)) }));
+for (const file of files) assert.equal(file.sha256, file.expected, `Frozen source changed: ${file.file}`);
+const compilation = await build({ entryPoints: [entry], bundle: true, write: false, platform: "node", format: "esm", target: "node24", metafile: true, external: ["cloudflare:workers", "node:*"] });
+const compiled = output.replace("-results.json", "-bundle.mjs");
+writeFileSync(compiled, compilation.outputFiles[0].contents, { flag: "wx" });
+const { runQualityProbes } = await import(pathToFileURL(resolve(compiled)).href);
+const observations = runQualityProbes();
+const passed = observations.filter(result => result.status === "PASS").length;
+const failed = observations.length - passed;
+const result = { status: failed ? "FAIL" : "PASS", baseHead: manifest.baseHead, files, passed, failed, observations,
+  entrySha256: sha(readFileSync(entry)), compiledSha256: sha(compilation.outputFiles[0].contents),
+  inputs: Object.fromEntries(Object.keys(compilation.metafile.inputs).sort().map(path => [path, sha(readFileSync(path))])), realModelCalls: 0, deployed: false };
+writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, passed, failed, output }));
+for (const failure of observations.filter(result => result.status === "FAIL")) console.log(JSON.stringify(failure));
+process.exitCode = failed ? 1 : 0;

@@ -1,0 +1,19 @@
+const fs = process.getBuiltinModule("node:fs");
+const net = process.getBuiltinModule("node:net");
+const allow = host => host == null || ["localhost","::1","[::1]"].includes(host) || /^127(?:\.\d{1,3}){3}$/.test(host);
+const deny = () => { fs.appendFileSync(process.env.ARC_LOCAL_BUILD_DENIAL_LOG, "blocked\n"); throw new Error("Non-loopback build connection blocked"); };
+const connect = net.Socket.prototype.connect;
+net.Socket.prototype.connect = function(...args) {
+  const parts = Array.isArray(args[0]) ? args[0] : args;
+  const first = parts[0];
+  if (typeof first === "object" && first !== null) {
+    if (first.port !== undefined && !allow(first.host || first.hostname)) deny();
+  } else if ((typeof first === "number" || /^\d+$/.test(first)) && typeof parts[1] === "string" && !allow(parts[1])) deny();
+  return connect.apply(this, args);
+};
+const originalFetch = globalThis.fetch;
+if (originalFetch) globalThis.fetch = function(input, ...args) {
+  const url = new URL(input?.url || input);
+  if (["http:", "https:"].includes(url.protocol) && !allow(url.hostname)) deny();
+  return originalFetch.call(this,input,...args);
+};

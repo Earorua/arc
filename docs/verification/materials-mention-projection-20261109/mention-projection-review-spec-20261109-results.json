@@ -1,0 +1,174 @@
+{
+  "task": "Task 3 v3 mention review",
+  "role": "Independent specification review",
+  "verdict": "PASS",
+  "base": "c36aa0e8049e3b8f245dc6004ac9d2c23b89ae29",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "authorFreezePath": "work/grounded-verification/mention-projection-review-20261109-freeze-results.json",
+  "authorFreezeSha256": "0f0cf48f75a46d84b65f83b11458920f147f401ecbf8575e2b76fc5742fd53c3",
+  "files": [
+    {
+      "path": "app/server/documents/review-service.ts",
+      "sha256": "8a98f8f6bb1f9b506434ff85e3a803294b07a3c02c4597c4c3cb95b1b7e8f378",
+      "matchesAuthorFreeze": true
+    },
+    {
+      "path": "app/components/materials/material-confirmation.tsx",
+      "sha256": "6e328b880f71447f89cd94619dbb72dd4967ec04d9dc74a7d23112cb0cdebd8f",
+      "matchesAuthorFreeze": true
+    },
+    {
+      "path": "tests/server/document-review-draft.test.ts",
+      "sha256": "cc0b49d830293e6dade78ed0758f1e270f624e484b69181eae18944d606ff2c1",
+      "matchesAuthorFreeze": true
+    },
+    {
+      "path": "tests/components/material-confirmation-source.test.tsx",
+      "sha256": "b6745699b335c5ed4686eb45426740a908f1fb6b02b908ad6b15d6d92d84d136",
+      "matchesAuthorFreeze": true
+    },
+    {
+      "path": "tests/components/material-source-term-correction.test.tsx",
+      "sha256": "55d4f555e9f82318948ba51899852299a36259065a3cd8682e13b63f0ae1db6d",
+      "matchesAuthorFreeze": true
+    },
+    {
+      "path": "tests/server/material-mention-review-flow.test.ts",
+      "sha256": "f1bfe99e0170ad70b2ef4347ecf93865bcd0a90f11b3d266b50f211f0eef8886",
+      "matchesAuthorFreeze": true
+    },
+    {
+      "path": "tests/helpers/material-mention-review-fixture.ts",
+      "sha256": "bf886c20b6c3ac433ca735928ed9cd29438001f6855cb6347e6412cd9c82e3d5",
+      "matchesAuthorFreeze": true
+    }
+  ],
+  "independentChecks": [
+    {
+      "label": "mention-projection-review-spec-20261109-focused-01",
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "passed": 338,
+      "failed": 0,
+      "files": 12,
+      "logSha256": "2e31df7f620cc3b27a115cfc0f7d22003e8fa068c58862939d4f3273202ba2de",
+      "logMatchesWrapper": true,
+      "resultsPath": "work/grounded-verification/mention-projection-review-spec-20261109-focused-01-results.json",
+      "resultsSha256": "9ce7bfac2756c1390a6dc5c4b6b3f520cb26ec7c7cd476e12d65dce3a5540abf"
+    },
+    {
+      "label": "mention-projection-review-spec-20261109-probes-01",
+      "exit": 1,
+      "nonLoopbackDenials": 0,
+      "passed": 12,
+      "failed": 1,
+      "files": 1,
+      "logSha256": "2e6292ea1c937fd42c6f02e0534d9ac9a0b7647336951dbaf61f99a6924fe58b",
+      "logMatchesWrapper": true,
+      "resultsPath": "work/grounded-verification/mention-projection-review-spec-20261109-probes-01-results.json",
+      "resultsSha256": "4de58498b749bf80225f9d7a313ef5b869c87e4e77026fedbcc08c8f819f0b8a"
+    },
+    {
+      "label": "mention-projection-review-spec-20261109-probes-02",
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "passed": 13,
+      "failed": 0,
+      "files": 1,
+      "logSha256": "270df658d53c4ccc9be2ea3fcd55b6ba0174c31697400cf349f4b8b13ea2b638",
+      "logMatchesWrapper": true,
+      "resultsPath": "work/grounded-verification/mention-projection-review-spec-20261109-probes-02-results.json",
+      "resultsSha256": "e517c672f23dcf0c05df0c7c3552a7f188924b40f74797ff545337510cd6f443"
+    }
+  ],
+  "authorEvidenceAudit": [
+    {
+      "label": "mention-projection-review-20261109-red-01",
+      "exit": 1,
+      "denials": 0,
+      "logSha256": "7c47912925ca6e6275c13a54237e31fd54ba50b943cf740e0d8c4dab4f7d5f55",
+      "logMatchesFreeze": true,
+      "resultsMatchFreeze": true
+    },
+    {
+      "label": "mention-projection-review-20261109-red-02",
+      "exit": 1,
+      "denials": 0,
+      "logSha256": "fce132549067d0dfcc3d5b43be1997628496fec5ef69716451421cafc92dd411",
+      "logMatchesFreeze": true,
+      "resultsMatchFreeze": true
+    },
+    {
+      "label": "mention-projection-review-20261109-green-01",
+      "exit": 1,
+      "denials": 0,
+      "logSha256": "37b887ccb32827e6892b9313ff29def503f85e5ddf17c86d5fc4db746e12b46e",
+      "logMatchesFreeze": true,
+      "resultsMatchFreeze": true
+    },
+    {
+      "label": "mention-projection-review-20261109-red-03",
+      "exit": 0,
+      "denials": 0,
+      "logSha256": "e9a4b78f6712bc896a3fb15bce57031cba58db0d17f0c12d2fc0c6cbda0e4472",
+      "logMatchesFreeze": true,
+      "resultsMatchFreeze": true
+    },
+    {
+      "label": "mention-projection-review-20261109-red-04",
+      "exit": 1,
+      "denials": 0,
+      "logSha256": "153892329b09cbb845619eaaf9c6791449a79aca476479e5194b6dc76f44c808",
+      "logMatchesFreeze": true,
+      "resultsMatchFreeze": true
+    },
+    {
+      "label": "mention-projection-review-20261109-green-02",
+      "exit": 0,
+      "denials": 0,
+      "logSha256": "20139aa37e33e44303d8752aef096f5b49f1faa8f73070ebd9605e236743fe1f",
+      "logMatchesFreeze": true,
+      "resultsMatchFreeze": true
+    },
+    {
+      "label": "mention-projection-review-20261109-types-01",
+      "exit": 0,
+      "denials": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logMatchesFreeze": true,
+      "resultsMatchFreeze": null
+    },
+    {
+      "label": "mention-projection-review-20261109-lint-01",
+      "exit": 0,
+      "denials": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logMatchesFreeze": true,
+      "resultsMatchFreeze": null
+    }
+  ],
+  "reviewEvidence": [
+    {
+      "path": "work/grounded-verification/mention-projection-review-spec-20261109-probes.test.tsx",
+      "sha256": "93221428e8d646ce8d7347eff96ca15fc479f3f6ca1d41e8ce28b1525fe9978e"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-review-spec-20261109-probes.config.ts",
+      "sha256": "1fecbd79f2839daf0a0fa10ec77da152d1e8cbecacec0cca0600fb8debe0e901"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-review-spec-20261109-probes-01-source.txt",
+      "sha256": "e67d00fde5c3bba8d316247a0184fe84e1d243d7269bf6ce06062a0d723fcd9b"
+    }
+  ],
+  "independentPassCount": 351,
+  "probeFailureExplanation": "Probes-01 has one invalid local fixture: it supplied two statements as one v3 extraction candidate. It failed before review assertions. Source and failed log retained; only ignored setup changed to two candidates. Probes-02 passes all 13.",
+  "qualityReview": "not performed",
+  "fullRepository": "not run",
+  "productEdits": 0,
+  "commits": 0,
+  "liveModelCalls": 0,
+  "remoteMigrations": 0,
+  "deployments": 0,
+  "pushes": 0
+}

@@ -1,0 +1,36 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mD:/CodexTemp/arc-mention-projection-watcher-6F7Kb3/source[39m
+
+ [32m✓[39m tests/server/document-diagnostic-pilot-host.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 41171[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps readiness read-only, atomically claims one global launch, and preserves an interrupted ledger across checkouts [33m 8240[2mms[22m[39m
+   [33m[2m✓[22m[39m requires pinned private budget and privacy evidence checked since this approval and before launch [33m 8144[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects substituted owner pins, output paths, public attachments, candidate tree and byte manifest [33m 13073[2mms[22m[39m
+   [33m[2m✓[22m[39m checks actual source bytes despite assume-unchanged and rejects untracked code and linked source ancestors [33m 11692[2mms[22m[39m
+(node:6436) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/materials-supplement-collection.test.ts [2m([22m[2m45 tests[22m[2m)[22m[33m 25444[2mms[22m[39m
+   [33m[2m✓[22m[39m prints the six public identity commitments and worst-case price offline for an issuer [33m 3097[2mms[22m[39m
+   [33m[2m✓[22m[39m uses the CLI's actual source bytes despite Git overrides, assume-unchanged files and ignored shadow modules [33m 4612[2mms[22m[39m
+   [33m[2m✓[22m[39m pins the grounded supplement policy and archives its product-decoded terms beside the untouched wire [33m 1009[2mms[22m[39m
+   [33m[2m✓[22m[39m runs the separately pinned source-span collector end to end and preserves the original replies beside the scored output [33m 922[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: legacy-shape [33m 824[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: invented-source [33m 817[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: output-limit [33m 828[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: generation-limit [33m 825[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: missing-fact [33m 707[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a raw archive mismatch instead of rescoring an alternative [33m 1381[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a canonical archive mismatch instead of rescoring an alternative [33m 780[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a missing archive mismatch instead of rescoring an alternative [33m 719[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a version archive mismatch instead of rescoring an alternative [33m 803[2mms[22m[39m
+   [33m[2m✓[22m[39m cannot turn six truncated source-span replies into a passing legacy run by changing the stored issuance before scoring [33m 822[2mms[22m[39m
+   [33m[2m✓[22m[39m durably reserves before each handoff, freezes the exact content before each GET, and scores the six settled captures [33m 801[2mms[22m[39m
+   [33m[2m✓[22m[39m stops on route-mismatch, preserving known charges and holding only unresolved costs [33m 1112[2mms[22m[39m
+   [33m[2m✓[22m[39m fails quality on malformed unedited content with a verified bill and never retries the inference [33m 717[2mms[22m[39m
+   [33m[2m✓[22m[39m rechecks the window at transport handoff and blocks metadata after expiry or a clock rollback [33m 368[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses a second simultaneous start and a failed durable reservation never reaches transport [33m 733[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m50 passed[39m[22m[90m (50)[39m
+[2m   Start at [22m 18:23:35
+[2m   Duration [22m 68.61s[2m (transform 491ms, setup 714ms, import 869ms, tests 66.61s, environment 0ms)[22m
+

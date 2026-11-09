@@ -1,0 +1,34 @@
+{
+  "status": "FROZEN_FOR_INDEPENDENT_REVIEW",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "baseHead": "afd6254cc8f2989520b19a46144b9ddd9779fd3e",
+  "files": [
+    {
+      "file": "app/server/documents/policy.ts",
+      "sha256": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d",
+      "frozen": "work/grounded-verification/mention-projection-provider-20261109-frozen-source/app__server__documents__policy.ts"
+    },
+    {
+      "file": "app/server/documents/extraction-validator.ts",
+      "sha256": "ac539b8d3087bd801554d6706840aff3689263c3543403de122406182826f32a",
+      "frozen": "work/grounded-verification/mention-projection-provider-20261109-frozen-source/app__server__documents__extraction-validator.ts"
+    },
+    {
+      "file": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "8a2e82a14485f75531025c8649c22f2086e37fa12d9ca53d1adf2272d2d0310c",
+      "frozen": "work/grounded-verification/mention-projection-provider-20261109-frozen-source/worker__document-executor__source-span-extraction.ts"
+    },
+    {
+      "file": "tests/server/document-extraction.test.ts",
+      "sha256": "215bde68aa0b8019ef2a100105edcb8421d882bb9f25380cfc65d70e14199708",
+      "frozen": "work/grounded-verification/mention-projection-provider-20261109-frozen-source/tests__server__document-extraction.test.ts"
+    },
+    {
+      "file": "tests/server/document-source-span-provider.test.ts",
+      "sha256": "98d2a6b57ba0f1228fdd875d9178735547c12eb4e86ba59aea89596227d1f2ed",
+      "frozen": "work/grounded-verification/mention-projection-provider-20261109-frozen-source/tests__server__document-source-span-provider.test.ts"
+    }
+  ],
+  "realModelCalls": 0,
+  "deployed": false
+}

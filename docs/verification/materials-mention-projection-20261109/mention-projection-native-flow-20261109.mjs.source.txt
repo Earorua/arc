@@ -1,0 +1,83 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
+import { build } from "esbuild";
+import { Miniflare, Log, LogLevel } from "miniflare";
+import { cases } from "./mention-projection-flow-cases-20261109.mjs";
+const output = process.argv[2];
+assert.match(output ?? "", /^work\/grounded-verification\/mention-projection-native-flow-[a-z0-9-]+-results\.json$/u);
+assert.equal(existsSync(output), false);
+assert.ok(cases.length <= 30, "Respect document quota in this isolated store");
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const worker = "work/grounded-verification/mention-projection-flow-worker-20261109.ts";
+const compilation = await build({ entryPoints: [worker], bundle: true, write: false, format: "esm", platform: "browser", target: "es2022",
+  external: ["cloudflare:workers", "node:*"], metafile: true });
+const script = compilation.outputFiles[0].text, observations = [];
+let outboundCalls = 0;
+const runtime = new Miniflare({ cf: false, modules: true, script, compatibilityDate: "2026-05-15", compatibilityFlags: ["nodejs_compat"],
+  d1Databases: { DB: "mention-v3-flow" }, r2Buckets: { DOCS: "mention-v3-flow-docs" }, log: new Log(LogLevel.ERROR),
+  outboundService: async () => { outboundCalls++; throw Error("Outbound denied"); } });
+try {
+  const db = await runtime.getD1Database("DB");
+  for (const file of readdirSync("drizzle").filter(name => /^\d{4}_.+\.sql$/u.test(name) && Number(name.slice(0, 4)) <= 15).sort()) {
+    for (const sql of readFileSync("drizzle/" + file, "utf8").split("--> statement-breakpoint").map(value => value.trim()).filter(Boolean)) await db.prepare(sql).run();
+  }
+  await db.prepare("INSERT INTO users(id,name,email,email_verified) VALUES('owner-a','Synthetic owner','owner-a@example.test',0)").run();
+  for (const entry of cases) {
+    const response = await runtime.dispatchFetch("http://localhost/case", { method: "POST", body: JSON.stringify(entry) });
+    const observed = await response.json();
+    const preview = observed.context?.preview;
+    const mapped = preview ? [...new Set((preview.mappingDetails ?? []).filter(row => row.status === "mapped").flatMap(row => row.skillIds))].sort() : null;
+    const priorities = preview ? preview.priorities.map(row => row.skillId).sort() : null;
+    const failures = [];
+    function check(name, action) { try { action(); } catch (error) { failures.push({ name, message: String(error.message) }); } }
+    check("successful actual HTTP flow", () => { assert.equal(response.status, 200); assert.equal(observed.ok, true); });
+    if (observed.ok) {
+      check("mapped course skills", () => assert.deepEqual(mapped, entry.mapped));
+      check("practice/requirement/intent priorities", () => assert.deepEqual(priorities, entry.priorities));
+      check("hints require own evidence", () => assert.deepEqual(observed.draft.selfAssessmentHints.map(h => h.skillLabel), entry.expectedHints ?? []));
+      check("review saved and read without change", () => assert.deepEqual(observed.draft, observed.rereadDraft));
+      check("original document remains intact", () => assert.equal(observed.document.text, entry.text));
+      check("edited fact preserved", () => assert.equal(observed.draft.items[0].text, entry.editedText ?? entry.text));
+      check("preview retry and read", () => { assert.deepEqual(observed.context, observed.replay); assert.deepEqual(preview, observed.reread.preview); });
+      check("synthetic nonce is used once", () => {
+        assert.equal(observed.syntheticRandomInput.calls, 1);
+        assert.match(observed.syntheticRandomInput.nonce, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-8[0-9a-f]{3}-[0-9a-f]{12}$/u);
+      });
+      check("fixed planning inputs retained", () => {
+        const snapshot = JSON.parse(observed.row.snapshot_json);
+        assert.equal(snapshot.policyVersion, "2026.11.3"); assert.equal(snapshot.mappingVersion, "2026.11.5");
+        for (const key of ["audit", "availability", "target"]) assert.deepEqual(snapshot[key], observed.input[key]);
+        assert.ok(preview.priorities.every(row => row.tier === (entry.tier ?? 3)));
+      });
+      if (!entry.manual) {
+        check("server-owned v3 marker", () => {
+          assert.equal(observed.initial.reviewProjection, "source-skill-mentions-v3");
+          assert.equal(observed.draft.reviewProjection, "source-skill-mentions-v3");
+          assert.equal(JSON.parse(observed.extractionRow.candidates_json).reviewProjection, "source-skill-mentions-v3");
+        });
+        check("source terms retained without expansion", () => assert.deepEqual(observed.draft.items[0].skillLabels, entry.expectedLabels ?? entry.labels));
+        check("original span retained", () => {
+          const ref = observed.draft.items[0].sourceRef;
+          assert.equal(ref.start, 0); assert.equal(ref.end, entry.text.length);
+          assert.deepEqual(ref, observed.initial.items[0].sourceRef);
+        });
+        check("synthetic provider parsed and audited", () => {
+          assert.deepEqual(observed.providerObserved.calls.map(call => call.method), ["POST", "GET"]);
+          assert.equal(observed.providerObserved.outcome.audit.status, "verified");
+          assert.equal(observed.providerObserved.outcome.audit.extractionRead, "parsed");
+        });
+      } else check("manual fallback remains manual", () => assert.equal(observed.draft.reviewProjection, undefined));
+      if (entry.expectedRequirement) check("requirement class follows source", () => assert.equal(observed.draft.items[0].requirementLevel, entry.expectedRequirement));
+    }
+    observations.push({ entry, status: response.status, observed, mapped, priorities, failures });
+  }
+  const inputs = Object.fromEntries(Object.keys(compilation.metafile.inputs).sort().map(path => [path, sha(readFileSync(path))]));
+  const failed = observations.filter(row => row.failures.length);
+  const result = { status: failed.length ? "EXPECTED_BEHAVIOR_NOT_MET" : "PASS", cases: cases.length, observations, inputs, compiledSha256: sha(script),
+    casesSha256: sha(readFileSync("work/grounded-verification/mention-projection-flow-cases-20261109.mjs")), outboundCalls, realModelCalls: 0, actualCostMicroUsd: 0,
+    transport: "Actual HttpDocumentAnalysisProvider with synthetic fetch and inert settled-job delivery → DocumentsClient → HTTP factory → runtime/ReviewService → local workerd/D1/R2 → confirmation/selection/context. Analysis disabled. Fixture fees are synthetic." };
+  writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+  console.log(JSON.stringify({ status: result.status, cases: cases.length, failed: failed.map(row => ({ id: row.entry.id, failures: row.failures, message: row.observed.message })), output }));
+  assert.equal(outboundCalls, 0); assert.equal(failed.length, 0);
+} finally { await runtime.dispose(); }

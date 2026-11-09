@@ -1,0 +1,10 @@
+{
+  "source": "https://github.com/Earorua/arc/blob/master/SOURCE_INDEX.md",
+  "method": "mcp__codex_apps__github_fetch",
+  "modified_date": "2026-11-08T17:16:22Z",
+  "readOnlyPublicSourceRouting": true,
+  "modelCalls": 0,
+  "remoteMutation": false,
+  "contentPath": "work/grounded-verification/mention-projection-routing-20261109-source-index.md",
+  "note": "Public routing read explicitly required by user AGENTS. Historical714 checkpoint superseded by localaccepted8cba+afd+c36; no fetch/prune/reset/merge/release commands executed from sourceindex."
+}

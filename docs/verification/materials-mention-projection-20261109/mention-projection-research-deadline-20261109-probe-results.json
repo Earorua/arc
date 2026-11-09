@@ -1,0 +1,363 @@
+{
+  "boundary": "Exact private control() and safeStatus() source extracted without rewrite. Synthetic monotonic clock, timers, signer, response body reader, verifier and nonce persistence. This isolates local deadline behavior; it is not native protocol or cloud acceptance evidence.",
+  "head": "4d6bc823e5609a008acf86644ddc8a3b33f844ca",
+  "driver": {
+    "path": "scripts/test-research-cloud-smoke.mjs",
+    "currentSha256": "f62204cbab92beafb4e83b765c490394d6d478dc4051072dd8d17377bc9acd1e",
+    "accepted8cbaSha256": "f62204cbab92beafb4e83b765c490394d6d478dc4051072dd8d17377bc9acd1e",
+    "oldFrozenCopySha256": "f62204cbab92beafb4e83b765c490394d6d478dc4051072dd8d17377bc9acd1e"
+  },
+  "test": {
+    "path": "tests/server/research-cloud-smoke-composition.test.ts",
+    "currentSha256": "bb4a4fbfcd20da8ea2c9f95d7510200ac67a119153e2eee80e25d9d0ce81f6d9",
+    "accepted8cbaSha256": "bb4a4fbfcd20da8ea2c9f95d7510200ac67a119153e2eee80e25d9d0ce81f6d9",
+    "oldFrozenCopySha256": "bb4a4fbfcd20da8ea2c9f95d7510200ac67a119153e2eee80e25d9d0ce81f6d9"
+  },
+  "exactControlSourceSha256": "5bc6981cc0f2a2cbba080095a245253710f0d643a3c4d8c3139eb905ed7fdea8",
+  "observedFailureLogSha256": "5b5e9ac3b5d6b3cfe40cb3f1001783f07491061e1992911f186673c9d0af8ec4",
+  "modelCalls": 0,
+  "networkCalls": 0,
+  "trackedSourceChanged": false,
+  "cases": [
+    {
+      "id": "fractional-signing-unresponsive-start",
+      "fakeElapsedMs": 10000.5,
+      "expectedCalls": 1,
+      "actualCalls": 2,
+      "result": {
+        "status": "pending",
+        "accepted": false,
+        "scenarioId": "long",
+        "reason": "acceptance-unknown"
+      },
+      "callContract": {
+        "status": "RED",
+        "actual": 2,
+        "expected": 1,
+        "message": "Expected values to be strictly equal:\n\n2 !== 1\n"
+      },
+      "paths": [
+        "/_smoke/start",
+        "/_smoke/status"
+      ],
+      "allSignalsAborted": true,
+      "events": [
+        {
+          "event": "signed",
+          "now": 0.25,
+          "call": 1
+        },
+        {
+          "event": "transport",
+          "now": 0.25,
+          "path": "/_smoke/start"
+        },
+        {
+          "event": "timer-set",
+          "now": 0.25,
+          "delay": 9999,
+          "at": 9999.25,
+          "timer": 1
+        },
+        {
+          "event": "timer-fired",
+          "now": 9999.25,
+          "timer": 1
+        },
+        {
+          "event": "signed",
+          "now": 9999.5,
+          "call": 2
+        },
+        {
+          "event": "transport",
+          "now": 9999.5,
+          "path": "/_smoke/status"
+        },
+        {
+          "event": "timer-set",
+          "now": 9999.5,
+          "delay": 1,
+          "at": 10000.5,
+          "timer": 2
+        },
+        {
+          "event": "timer-fired",
+          "now": 10000.5,
+          "timer": 2
+        }
+      ]
+    },
+    {
+      "id": "integer-signing-unresponsive-start-control",
+      "fakeElapsedMs": 10000,
+      "expectedCalls": 1,
+      "actualCalls": 1,
+      "result": {
+        "status": "pending",
+        "accepted": false,
+        "scenarioId": "long",
+        "reason": "acceptance-unknown"
+      },
+      "callContract": {
+        "status": "PASS"
+      },
+      "paths": [
+        "/_smoke/start"
+      ],
+      "allSignalsAborted": true,
+      "events": [
+        {
+          "event": "signed",
+          "now": 0,
+          "call": 1
+        },
+        {
+          "event": "transport",
+          "now": 0,
+          "path": "/_smoke/start"
+        },
+        {
+          "event": "timer-set",
+          "now": 0,
+          "delay": 10000,
+          "at": 10000,
+          "timer": 1
+        },
+        {
+          "event": "timer-fired",
+          "now": 10000,
+          "timer": 1
+        }
+      ]
+    },
+    {
+      "id": "fast-ambiguous-transport-control",
+      "fakeElapsedMs": 0.75,
+      "expectedCalls": 3,
+      "actualCalls": 3,
+      "result": {
+        "status": "pending",
+        "accepted": false,
+        "scenarioId": "long",
+        "reason": "acceptance-unknown"
+      },
+      "callContract": {
+        "status": "PASS"
+      },
+      "paths": [
+        "/_smoke/start",
+        "/_smoke/status",
+        "/_smoke/status"
+      ],
+      "allSignalsAborted": true,
+      "events": [
+        {
+          "event": "signed",
+          "now": 0.25,
+          "call": 1
+        },
+        {
+          "event": "transport",
+          "now": 0.25,
+          "path": "/_smoke/start"
+        },
+        {
+          "event": "timer-set",
+          "now": 0.25,
+          "delay": 9999,
+          "at": 9999.25,
+          "timer": 1
+        },
+        {
+          "event": "signed",
+          "now": 0.5,
+          "call": 2
+        },
+        {
+          "event": "transport",
+          "now": 0.5,
+          "path": "/_smoke/status"
+        },
+        {
+          "event": "timer-set",
+          "now": 0.5,
+          "delay": 9999,
+          "at": 9999.5,
+          "timer": 2
+        },
+        {
+          "event": "signed",
+          "now": 0.75,
+          "call": 3
+        },
+        {
+          "event": "transport",
+          "now": 0.75,
+          "path": "/_smoke/status"
+        },
+        {
+          "event": "timer-set",
+          "now": 0.75,
+          "delay": 9999,
+          "at": 9999.75,
+          "timer": 3
+        }
+      ]
+    },
+    {
+      "id": "accepted-start-control",
+      "fakeElapsedMs": 0.25,
+      "expectedCalls": 1,
+      "actualCalls": 1,
+      "result": {
+        "status": "accepted",
+        "accepted": true,
+        "view": {
+          "scenarioId": "long",
+          "state": "researching",
+          "backgroundAccepted": true,
+          "jobId": "synthetic-probe-job",
+          "requestHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "acceptedAt": 1000,
+          "settled": false
+        }
+      },
+      "callContract": {
+        "status": "PASS"
+      },
+      "paths": [
+        "/_smoke/start"
+      ],
+      "allSignalsAborted": true,
+      "events": [
+        {
+          "event": "signed",
+          "now": 0.25,
+          "call": 1
+        },
+        {
+          "event": "transport",
+          "now": 0.25,
+          "path": "/_smoke/start"
+        },
+        {
+          "event": "timer-set",
+          "now": 0.25,
+          "delay": 9999,
+          "at": 9999.25,
+          "timer": 1
+        }
+      ]
+    },
+    {
+      "id": "reconciled-start-control",
+      "fakeElapsedMs": 0.5,
+      "expectedCalls": 2,
+      "actualCalls": 2,
+      "result": {
+        "status": "accepted",
+        "accepted": true,
+        "view": {
+          "scenarioId": "long",
+          "state": "researching",
+          "backgroundAccepted": true,
+          "jobId": "synthetic-probe-job",
+          "requestHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "acceptedAt": 1000,
+          "settled": false
+        }
+      },
+      "callContract": {
+        "status": "PASS"
+      },
+      "paths": [
+        "/_smoke/start",
+        "/_smoke/status"
+      ],
+      "allSignalsAborted": true,
+      "events": [
+        {
+          "event": "signed",
+          "now": 0.25,
+          "call": 1
+        },
+        {
+          "event": "transport",
+          "now": 0.25,
+          "path": "/_smoke/start"
+        },
+        {
+          "event": "timer-set",
+          "now": 0.25,
+          "delay": 9999,
+          "at": 9999.25,
+          "timer": 1
+        },
+        {
+          "event": "signed",
+          "now": 0.5,
+          "call": 2
+        },
+        {
+          "event": "transport",
+          "now": 0.5,
+          "path": "/_smoke/status"
+        },
+        {
+          "event": "timer-set",
+          "now": 0.5,
+          "delay": 9999,
+          "at": 9999.5,
+          "timer": 2
+        }
+      ]
+    },
+    {
+      "id": "signing-crosses-deadline-related-gap",
+      "fakeElapsedMs": 10001.25,
+      "expectedCalls": 0,
+      "actualCalls": 1,
+      "result": {
+        "status": "pending",
+        "accepted": false,
+        "scenarioId": "long",
+        "reason": "acceptance-unknown"
+      },
+      "callContract": {
+        "status": "RED",
+        "actual": 1,
+        "expected": 0,
+        "message": "Expected values to be strictly equal:\n\n1 !== 0\n"
+      },
+      "paths": [
+        "/_smoke/start"
+      ],
+      "allSignalsAborted": true,
+      "events": [
+        {
+          "event": "signed",
+          "now": 10000.25,
+          "call": 1
+        },
+        {
+          "event": "transport",
+          "now": 10000.25,
+          "path": "/_smoke/start"
+        },
+        {
+          "event": "timer-set",
+          "now": 10000.25,
+          "delay": 1,
+          "at": 10001.25,
+          "timer": 1
+        },
+        {
+          "event": "timer-fired",
+          "now": 10001.25,
+          "timer": 1
+        }
+      ]
+    }
+  ]
+}

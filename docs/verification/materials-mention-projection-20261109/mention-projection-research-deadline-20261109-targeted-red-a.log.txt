@@ -1,0 +1,128 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:18624) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/research-cloud-smoke-composition.test.ts [2m([22m[2m89 tests[22m[2m | [22m[31m2 failed[39m[2m | [22m[33m87 skipped[39m[2m)[22m[32m 11[2mms[22m[39m
+     [2m[90m↓[39m[22m starts through the signed paired binding chain and persists actual acceptance
+     [2m[90m↓[39m[22m rejects absent and wrong approvals on a separate built pair and retains nonce protection after restart
+[31m     [31m×[31m 'does not retry after its watchdog fir…'[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m 'does not dispatch when signing finish…'[39m[32m 2[2mms[22m[39m
+     [2m[90m↓[39m[22m recovers transient nonce replacement denial without repeating a request or accepting a replay
+     [2m[90m↓[39m[22m keeps prior nonces on permanent replacement failure and permits a later clean invocation
+     [2m[90m↓[39m[22m does not retry a non-transient nonce replacement error ENOSPC
+     [2m[90m↓[39m[22m does not retry a non-transient nonce replacement error EIO
+     [2m[90m↓[39m[22m does not retry a non-transient nonce replacement error secret-never-echo
+     [2m[90m↓[39m[22m ignores old temporary files but fails closed while another nonce writer owns the lock
+     [2m[90m↓[39m[22m stops nonce replacement retries at the existing replay deadline
+     [2m[90m↓[39m[22m preserves the ledger and removes only its own partial file after a nonce write failure
+     [2m[90m↓[39m[22m replays six fixed signed steps from one pre-existing approval without claiming new acceptance
+     [2m[90m↓[39m[22m stops at submit on a signed rejection and retains preceding evidence
+     [2m[90m↓[39m[22m stops at status on a signed rejection and retains preceding evidence
+     [2m[90m↓[39m[22m stops at owner-a-recover on a signed rejection and retains preceding evidence
+     [2m[90m↓[39m[22m stops at owner-a-get on a signed rejection and retains preceding evidence
+     [2m[90m↓[39m[22m stops at owner-b-recover on a signed rejection and retains preceding evidence
+     [2m[90m↓[39m[22m stops at owner-b-get on a signed rejection and retains preceding evidence
+     [2m[90m↓[39m[22m clears redirected input bytes on successful and malformed decoding
+     [2m[90m↓[39m[22m stops at 'submit' for 'throw' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'submit' for 'unsigned' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'submit' for 'oversize' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'submit' for 'wrong-step' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'submit' for 'timeout' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'status' for 'throw' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'status' for 'unsigned' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'status' for 'oversize' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'status' for 'wrong-step' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'status' for 'timeout' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-recover' for 'throw' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-recover' for 'unsigned' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-recover' for 'oversize' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-recover' for 'wrong-step' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-recover' for 'timeout' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-get' for 'throw' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-get' for 'unsigned' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-get' for 'oversize' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-get' for 'wrong-step' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-a-get' for 'timeout' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-recover' for 'throw' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-recover' for 'unsigned' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-recover' for 'oversize' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-recover' for 'wrong-step' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-recover' for 'timeout' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-get' for 'throw' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-get' for 'unsigned' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-get' for 'oversize' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-get' for 'wrong-step' without fallback or duplicate requests
+     [2m[90m↓[39m[22m stops at 'owner-b-get' for 'timeout' without fallback or duplicate requests
+     [2m[90m↓[39m[22m refuses malformed approvals and unapproved scenarios before reading input
+     [2m[90m↓[39m[22m refuses arbitrary replay controls and approval in other modes before input
+     [2m[90m↓[39m[22m rejects a signed identity mismatch with safe evidence
+     [2m[90m↓[39m[22m rejects a signed time mismatch with safe evidence
+     [2m[90m↓[39m[22m rejects a signed receipt mismatch with safe evidence
+     [2m[90m↓[39m[22m rejects a signed queue mismatch with safe evidence
+     [2m[90m↓[39m[22m rejects a signed scenario mismatch with safe evidence
+     [2m[90m↓[39m[22m rejects a signed unknown-field mismatch with safe evidence
+     [2m[90m↓[39m[22m rejects a signed capability mismatch with safe evidence
+     [2m[90m↓[39m[22m rejects a signed isolation mismatch with safe evidence
+     [2m[90m↓[39m[22m classifies a production-signed HTTP 400 without a retry
+     [2m[90m↓[39m[22m classifies a production-signed HTTP 401 without a retry
+     [2m[90m↓[39m[22m classifies a production-signed HTTP 409 without a retry
+     [2m[90m↓[39m[22m classifies a production-signed HTTP 500 without a retry
+     [2m[90m↓[39m[22m classifies a production-signed HTTP 503 without a retry
+     [2m[90m↓[39m[22m classifies a production-signed HTTP 302 without a retry
+     [2m[90m↓[39m[22m rejects a reused response nonce across replay invocations before the next step
+     [2m[90m↓[39m[22m retains validated steps after step persistence fails and erases the allocated signing key
+     [2m[90m↓[39m[22m retains validated steps after report persistence fails and erases the allocated signing key
+     [2m[90m↓[39m[22m never resumes after late authentication completion
+     [2m[90m↓[39m[22m never resumes after late nonce persistence completion
+     [2m[90m↓[39m[22m erases the signing key after replay success
+     [2m[90m↓[39m[22m erases the signing key after replay rejection
+     [2m[90m↓[39m[22m erases the signing key after replay transport
+     [2m[90m↓[39m[22m does not read credentials when helper setup fails
+     [2m[90m↓[39m[22m does not read credentials when reused directory setup fails
+     [2m[90m↓[39m[22m does not read credentials when setup setup fails
+     [2m[90m↓[39m[22m never persists caller-supplied error codes from credential failures
+     [2m[90m↓[39m[22m refuses missing inventory and secret arguments before transport
+     [2m[90m↓[39m[22m rejects malformed/missing inventory, a local/source artifact and hash mismatch without transport
+     [2m[90m↓[39m[22m requires bounded redirected input and refuses unknown scenarios and unsigned responses
+     [2m[90m↓[39m[22m verifies one bounded status and persists response nonce rejection across invocations
+     [2m[90m↓[39m[22m reconciles the same start identity, and labels ambiguous transport results pending
+     [2m[90m↓[39m[22m aborts an unresponsive start within ten seconds without claiming acceptance
+     [2m[90m↓[39m[22m refuses an acceptance body whose durable proof belongs to another scenario
+     [2m[90m↓[39m[22m rejects a digest-pinned artifact report that lost its sealed build verification
+     [2m[90m↓[39m[22m forbids redirects on the single inventory-bound control target
+     [2m[90m↓[39m[22m refuses unknown inventory fields instead of echoing a credential-like value
+     [2m[90m↓[39m[22m refuses a reused report name without changing any existing report files
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/research-cloud-smoke-composition.test.ts[2m > [22misolated control deadline boundary[2m > [22m'does not retry after its watchdog fir…'
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called 1 times, but got 2 times[39m
+[36m [2m❯[22m tests/server/research-cloud-smoke-composition.test.ts:[2m156:23[22m[39m
+    [90m154|[39m     expect(await pending).toMatchObject({ status: "pending", accepted:…
+    [90m155|[39m     expect(requests.every(request => request.signal.aborted)).toBe(tru…
+    [90m156|[39m     [34mexpect[39m(transport)[33m.[39m[34mtoHaveBeenCalledTimes[39m(expectedCalls)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m157|[39m     expect(requests.map(request => new URL(request.url).pathname)).toE…
+    [90m158|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/server/research-cloud-smoke-composition.test.ts[2m > [22misolated control deadline boundary[2m > [22m'does not dispatch when signing finish…'
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called +0 times, but got 1 times[39m
+[36m [2m❯[22m tests/server/research-cloud-smoke-composition.test.ts:[2m156:23[22m[39m
+    [90m154|[39m     expect(await pending).toMatchObject({ status: "pending", accepted:…
+    [90m155|[39m     expect(requests.every(request => request.signal.aborted)).toBe(tru…
+    [90m156|[39m     [34mexpect[39m(transport)[33m.[39m[34mtoHaveBeenCalledTimes[39m(expectedCalls)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m157|[39m     expect(requests.map(request => new URL(request.url).pathname)).toE…
+    [90m158|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[33m87 skipped[39m[90m (89)[39m
+[2m   Start at [22m 17:14:58
+[2m   Duration [22m 1.38s[2m (transform 671ms, setup 200ms, import 1.02s, tests 11ms, environment 0ms)[22m
+

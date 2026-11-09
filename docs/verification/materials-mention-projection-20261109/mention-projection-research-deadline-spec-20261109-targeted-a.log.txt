@@ -1,0 +1,100 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:44012) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbuilt native smoke composition[2m > [22mstarts through the signed paired binding chain and persists actual acceptance
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbuilt native smoke composition[2m > [22mrejects absent and wrong approvals on a separate built pair and retains nonce protection after restart
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22misolated control deadline boundary[2m > [22m'does not retry after its watchdog fir…'[32m 5[2mms[22m[39m
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22misolated control deadline boundary[2m > [22m'does not dispatch when signing finish…'[32m 1[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrecovers transient nonce replacement denial without repeating a request or accepting a replay
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mkeeps prior nonces on permanent replacement failure and permits a later clean invocation
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mdoes not retry a non-transient nonce replacement error ENOSPC
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mdoes not retry a non-transient nonce replacement error EIO
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mdoes not retry a non-transient nonce replacement error secret-never-echo
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mignores old temporary files but fails closed while another nonce writer owns the lock
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops nonce replacement retries at the existing replay deadline
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mpreserves the ledger and removes only its own partial file after a nonce write failure
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mreplays six fixed signed steps from one pre-existing approval without claiming new acceptance
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at submit on a signed rejection and retains preceding evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at status on a signed rejection and retains preceding evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at owner-a-recover on a signed rejection and retains preceding evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at owner-a-get on a signed rejection and retains preceding evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at owner-b-recover on a signed rejection and retains preceding evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at owner-b-get on a signed rejection and retains preceding evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mclears redirected input bytes on successful and malformed decoding
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'submit' for 'throw' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'submit' for 'unsigned' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'submit' for 'oversize' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'submit' for 'wrong-step' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'submit' for 'timeout' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'status' for 'throw' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'status' for 'unsigned' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'status' for 'oversize' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'status' for 'wrong-step' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'status' for 'timeout' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-recover' for 'throw' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-recover' for 'unsigned' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-recover' for 'oversize' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-recover' for 'wrong-step' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-recover' for 'timeout' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-get' for 'throw' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-get' for 'unsigned' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-get' for 'oversize' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-get' for 'wrong-step' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-a-get' for 'timeout' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-recover' for 'throw' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-recover' for 'unsigned' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-recover' for 'oversize' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-recover' for 'wrong-step' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-recover' for 'timeout' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-get' for 'throw' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-get' for 'unsigned' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-get' for 'oversize' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-get' for 'wrong-step' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mstops at 'owner-b-get' for 'timeout' without fallback or duplicate requests
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrefuses malformed approvals and unapproved scenarios before reading input
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrefuses arbitrary replay controls and approval in other modes before input
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a signed identity mismatch with safe evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a signed time mismatch with safe evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a signed receipt mismatch with safe evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a signed queue mismatch with safe evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a signed scenario mismatch with safe evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a signed unknown-field mismatch with safe evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a signed capability mismatch with safe evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a signed isolation mismatch with safe evidence
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mclassifies a production-signed HTTP 400 without a retry
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mclassifies a production-signed HTTP 401 without a retry
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mclassifies a production-signed HTTP 409 without a retry
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mclassifies a production-signed HTTP 500 without a retry
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mclassifies a production-signed HTTP 503 without a retry
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mclassifies a production-signed HTTP 302 without a retry
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a reused response nonce across replay invocations before the next step
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mretains validated steps after step persistence fails and erases the allocated signing key
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mretains validated steps after report persistence fails and erases the allocated signing key
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mnever resumes after late authentication completion
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mnever resumes after late nonce persistence completion
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22merases the signing key after replay success
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22merases the signing key after replay rejection
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22merases the signing key after replay transport
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mdoes not read credentials when helper setup fails
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mdoes not read credentials when reused directory setup fails
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mdoes not read credentials when setup setup fails
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mnever persists caller-supplied error codes from credential failures
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrefuses missing inventory and secret arguments before transport
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects malformed/missing inventory, a local/source artifact and hash mismatch without transport[33m 2391[2mms[22m[39m
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrequires bounded redirected input and refuses unknown scenarios and unsigned responses[33m 1581[2mms[22m[39m
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mverifies one bounded status and persists response nonce rejection across invocations[33m 729[2mms[22m[39m
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mreconciles the same start identity, and labels ambiguous transport results pending[33m 1147[2mms[22m[39m
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22maborts an unresponsive start within ten seconds without claiming acceptance[33m 10378[2mms[22m[39m
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrefuses an acceptance body whose durable proof belongs to another scenario[33m 430[2mms[22m[39m
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrejects a digest-pinned artifact report that lost its sealed build verification[32m 13[2mms[22m[39m
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mforbids redirects on the single inventory-bound control target[33m 395[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrefuses unknown inventory fields instead of echoing a credential-like value
+ [2m[90m↓[39m[22m tests/server/research-cloud-smoke-composition.test.ts[2m > [22mbounded operator driver[2m > [22mrefuses a reused report name without changing any existing report files
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[2m | [22m[33m79 skipped[39m[90m (89)[39m
+[2m   Start at [22m 17:21:36
+[2m   Duration [22m 18.47s[2m (transform 3.12s, setup 193ms, import 1.06s, tests 17.07s, environment 0ms)[22m
+

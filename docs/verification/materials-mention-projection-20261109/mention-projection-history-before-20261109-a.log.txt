@@ -1,0 +1,16 @@
+node:internal/process/task_queues:104
+    runMicrotasks();
+    ^
+
+Error: D1_ERROR: no such table: document_mutation_receipts: SQLITE_ERROR
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rows (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/mention-projection-history-20261109.mjs:35:21)
+    at async file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/mention-projection-history-20261109.mjs:43:17 {
+  [cause]: Error: no such table: document_mutation_receipts: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:140:24)
+      at async cloudflare-internal:d1-api:366:41 {
+    [cause]: undefined
+  }
+}
+
+Node.js v24.14.1

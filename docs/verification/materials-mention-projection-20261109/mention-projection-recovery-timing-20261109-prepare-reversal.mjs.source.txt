@@ -1,0 +1,55 @@
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { resolve, join } from "node:path";
+import { createHash } from "node:crypto";
+import assert from "node:assert/strict";
+
+const work = resolve("work/grounded-verification");
+const prefix = "mention-projection-recovery-timing-20261109";
+const baseline = join(work, `${prefix}-probe-a`);
+const directory = join(work, `${prefix}-probe-reversal`);
+assert.ok(!existsSync(directory), "Reversal directory must be fresh");
+const sha256 = value => createHash("sha256").update(value).digest("hex");
+const originalManifest = JSON.parse(readFileSync(join(work, `${prefix}-prepare-results.json`), "utf8"));
+const files = {};
+for (const name of ["server.mjs", "research-recovery.test.mjs", "timing.mjs"]) {
+  const bytes = readFileSync(join(baseline, name));
+  assert.equal(sha256(bytes), originalManifest.copies[name].sha256);
+  files[name] = bytes.toString("utf8");
+}
+const newline = files["server.mjs"].includes("\r\n") ? "\r\n" : "\n";
+const changes = [];
+function replaceOne(before, after, reason) {
+  assert.equal(files["server.mjs"].split(before).length - 1, 1, reason);
+  files["server.mjs"] = files["server.mjs"].replace(before, after);
+  changes.push({ before, after, reason });
+}
+replaceOne('    mark("vite:createServer:after");', [
+  '    mark("vite:createServer:after");',
+  '    console.log(JSON.stringify({ event: "offline-recovery-watch-config",',
+  '      watchIsNull: server.config.server.watch === null,',
+  '      watchType: typeof server.config.server.watch,',
+  '      middlewareMode: server.config.server.middlewareMode,',
+  '      watcherClass: server.watcher.constructor.name,',
+  '      watchedDirectoryCount: Object.keys(server.watcher.getWatched()).length,',
+  '      defaultWatchNullWasOverwritten: !Object.hasOwn(extra.server ?? {}, "watch") }));'
+].join(newline), "Passive logging of original effective Vite watcher options");
+replaceOne('      mark("harness:compositionSSR:after");', [
+  '      mark("harness:compositionSSR:after");',
+  '      const watched = Object.entries(vite.watcher.getWatched());',
+  '      const watchedPrefix = normalize(workspace).toLowerCase() + "/";',
+  '      console.log(JSON.stringify({ event: "offline-recovery-watched-counts",',
+  '        totalDirectories: watched.length, totalEntries: watched.reduce((sum, [, entries]) => sum + entries.length, 0),',
+  '        byRoot: Object.fromEntries(["app", "tests", "docs", "work", ".worktrees", "node_modules"].map(name =>',
+  '          [name, watched.filter(([path]) => normalize(path).toLowerCase() === watchedPrefix + name || normalize(path).toLowerCase().startsWith(watchedPrefix + name + "/")).length])) }));'
+].join(newline), "Passive counts of watched directories after composition load; no paths or file contents logged");
+assert.ok(files["research-recovery.test.mjs"].includes("{ timeout: 45_000 }"));
+assert.equal(sha256(files["research-recovery.test.mjs"]), originalManifest.copies["research-recovery.test.mjs"].sha256);
+mkdirSync(directory);
+for (const [name, text] of Object.entries(files)) writeFileSync(join(directory, name), text);
+writeFileSync(join(work, `${prefix}-prepare-reversal-results.json`), JSON.stringify({
+  root: process.cwd(), directory, baseline, unchangedTimeoutMs: 45000, behavioralChanges: 0,
+  sourceUnmodified: Object.values(originalManifest.originals).every(file => sha256(readFileSync(file.path)) === file.sha256),
+  changes,
+  files: Object.fromEntries(Object.entries(files).map(([name, value]) => [name, { path: join(directory, name), sha256: sha256(value) }]))
+}, null, 2) + "\n");
+console.log(JSON.stringify({ directory, unchangedTestSha256: sha256(files["research-recovery.test.mjs"]), timeoutMs: 45000, behavioralChanges: 0 }));

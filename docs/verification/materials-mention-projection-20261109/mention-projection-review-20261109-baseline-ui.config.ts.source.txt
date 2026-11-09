@@ -1,0 +1,17 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+
+// Serve the accepted pre-Task-3 component at its original module path, preserving imports.
+// This keeps the shared working tree untouched while running the corrected UI assertions RED.
+const target = fileURLToPath(new URL("../../app/components/materials/material-confirmation.tsx", import.meta.url)).replaceAll("\\", "/");
+const baseline = readFileSync(new URL("./mention-projection-review-20261109-baseline-material-confirmation.tsx.source.txt", import.meta.url), "utf8");
+export default defineConfig({ ...base, plugins: [{ name: "task3-baseline-confirmation", enforce: "pre",
+  load(id) {
+    if (id.replaceAll("\\", "/").toLowerCase() === target.toLowerCase()) {
+      console.log("Task 3 baseline component override: c36aa0e");
+      return baseline;
+    }
+  },
+}] });

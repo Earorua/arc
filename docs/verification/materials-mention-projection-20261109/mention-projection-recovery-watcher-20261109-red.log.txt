@@ -1,0 +1,35 @@
+✔ asset classification rejects Windows aliases and private resolved paths without opening files (0.7594ms)
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+(node:45476) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✖ loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files (47146.7809ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47438.4037
+
+✖ failing tests:
+
+test at tests\offline-uat\entry.test.mjs:33:1
+✖ loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files (47146.7809ms)
+  AssertionError [ERR_ASSERTION]: offline harness must disable filesystem watching
+  + actual - expected
+  
+  + undefined
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/offline-uat/entry.test.mjs:36:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

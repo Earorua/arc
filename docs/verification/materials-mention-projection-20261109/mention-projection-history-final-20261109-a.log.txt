@@ -1,0 +1,1 @@
+{"status":"READ_ONLY_HISTORY_MATCHED","records":6,"persist":"C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-history-store-20261109-Lgpalt","output":"work/grounded-verification/mention-projection-history-final-20261109-a-results.json","realModelCalls":0}

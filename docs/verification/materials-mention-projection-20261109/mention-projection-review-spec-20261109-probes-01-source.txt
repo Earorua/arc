@@ -1,0 +1,157 @@
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { webcrypto } from "node:crypto";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { MaterialConfirmation } from "../../app/components/materials/material-confirmation";
+import { GROUNDED_MATERIAL_REVIEW_PROJECTION as V2, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION as V3 } from "../../app/contracts/documents";
+import type { DocumentCandidate, DocumentReviewDraft } from "../../app/contracts/documents";
+import type { DocumentEndpointRequest } from "../../app/contracts/documents-api";
+import { KIMI_GROUNDED_TERMS_POLICY_ID as P2, KIMI_SOURCE_MENTIONS_POLICY_ID as P3 } from "../../app/server/documents/policy";
+import { ReviewService } from "../../app/server/documents/review-service";
+import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
+import { DocumentStorage } from "../../app/server/documents/storage";
+import { createMaterialMentionReviewFixture } from "../../tests/helpers/material-mention-review-fixture";
+import { materialContextRequest } from "../../tests/helpers/material-planning";
+
+beforeEach(() => vi.stubGlobal("crypto", webcrypto));
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+const negative = "I have never used SQL.";
+const candidate = (text = negative, labels: string[] = ["SQL"], id = "fact"): DocumentCandidate => ({
+  id, kind: "experience", text, requirementLevel: null, skillLabels: labels, selfLevelHint: null,
+  source: { segmentId: "segment-1", quote: text },
+});
+async function setup(text = negative, labels: string[] = ["SQL"], policy: string = P3) {
+  const f = createMaterialMentionReviewFixture();
+  const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Independent spec probe", text, mutationId: "create-probe" });
+  const delivered = await f.deliver(doc, [candidate(text, labels)], policy);
+  expect(delivered.disposition).toBe("initialized");
+  const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
+  const draft = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
+  const request: DocumentEndpointRequest<"saveDocumentReviewDraft"> = { ...ref, extractionId: draft.extractionId,
+    items: draft.items, selfAssessmentHints: draft.selfAssessmentHints, expectedRevision: draft.revision, mutationId: "save-probe" };
+  return { f, doc, ref, draft, request };
+}
+
+it.each(["source-skill-mentions-v3-extra", "source-skill-mentions-v3 ", "grounded-skill-labels-v20", "future-v4"])(
+  "does not promote unknown saved marker %s into editable source-linked authority", async marker => {
+    const { f, ref, draft, request } = await setup();
+    try {
+      const row = f.db.database.prepare("SELECT candidates_json FROM document_extractions").get()!;
+      const envelope = JSON.parse(String(row.candidates_json));
+      envelope.reviewProjection = marker;
+      f.db.database.prepare("UPDATE document_extractions SET candidates_json=?").run(JSON.stringify(envelope));
+      const read = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
+      expect(read).not.toHaveProperty("reviewProjection");
+      expect(read).not.toHaveProperty("reclassifiedItemIds");
+      const service = new ReviewService(new D1DocumentRepository(f.db as unknown as D1Database), new DocumentStorage(f.bucket));
+      expect((await service.row("owner-a", ref.textVersionId))?.original_kinds).toBeNull();
+      await expect(f.client.request("saveDocumentReviewDraft", request)).rejects.toMatchObject({ code: "invalid-content" });
+      render(<MaterialConfirmation draft={{ ...draft, reviewProjection: marker } as DocumentReviewDraft} text={negative}
+        saving={false} confirmed={false} onItemsChange={vi.fn()} onConfirm={vi.fn()} />);
+      expect(screen.queryByText("从原文补充技能词")).not.toBeInTheDocument();
+    } finally { f.dispose(); }
+  });
+
+it("binds explicit additions to each candidate slice even when another sentence has the requested term", async () => {
+  const text = `${negative} My colleague used React.`, { f, doc, ref, draft, request } = await setup(text, []);
+  try {
+    const proposed = await f.deliver(doc, [candidate(negative, [], "sql"), candidate("My colleague used React.", [], "react")]);
+    const adopted = await f.client.request("adoptDocumentExtraction", { ...ref, extractionId: proposed.extractionId!, expectedRevision: draft.revision, mutationId: "adopt-split" });
+    const first = adopted.draft.items[0]!, second = adopted.draft.items[1]!;
+    const attempted = { ...first, origin: "user" as const, text: "My colleague used React.", skillLabels: ["React"] };
+    const save = { ...request, extractionId: proposed.extractionId!, expectedRevision: adopted.draft.revision,
+      skillTermAddition: { itemId: first.id, sourceTerm: "React" }, mutationId: "borrow-other-term" };
+    for (const sourceRef of [first.sourceRef, second.sourceRef]) {
+      await expect(f.client.request("saveDocumentReviewDraft", { ...save, items: [{ ...attempted, sourceRef }, second] }))
+        .rejects.toMatchObject({ code: "invalid-content" });
+    }
+    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(adopted.draft);
+  } finally { f.dispose(); }
+});
+
+it("rejects reverse canonical lookup and accepts only the actual negative alias without an ability hint", async () => {
+  const text = "I have no experience with data cleansing.", { f, ref, draft, request } = await setup(text, []);
+  try {
+    const items = [{ ...draft.items[0]!, origin: "user" as const, skillLabels: ["data cleaning"] }];
+    await expect(f.client.request("saveDocumentReviewDraft", { ...request, items,
+      skillTermAddition: { itemId: "fact", sourceTerm: "data cleaning" } })).rejects.toMatchObject({ code: "invalid-content" });
+    const saved = await f.client.request("saveDocumentReviewDraft", { ...request, items,
+      skillTermAddition: { itemId: "fact", sourceTerm: "data cleansing" } });
+    expect(saved.draft.items).toEqual(items);
+    expect(saved.draft.selfAssessmentHints).toEqual([]);
+    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(saved.draft);
+  } finally { f.dispose(); }
+});
+
+it.each([[P2, P3, V3], [P3, P2, V2], [P3, P3, V3], [P3, "older-policy", undefined]] as const)(
+  "requires explicit extraction adoption for %s to %s and keeps the destination marker", async (from, to, marker) => {
+    const { f, doc, ref, draft, request } = await setup(negative, ["SQL"], from);
+    try {
+      const delivery = await f.deliver(doc, [candidate()], to);
+      expect(delivery.disposition).toBe("candidates-available");
+      const proposed = await f.client.request("readDocumentExtraction", { documentId: doc.documentId, extractionId: delivery.extractionId! });
+      const savedSource = f.db.database.prepare("SELECT * FROM document_versions").all();
+      const envelopes = f.db.database.prepare("SELECT * FROM document_extractions").all();
+      await expect(f.client.request("saveDocumentReviewDraft", { ...request, extractionId: delivery.extractionId!, items: proposed.draft.items,
+        selfAssessmentHints: proposed.draft.selfAssessmentHints })).rejects.toMatchObject({ code: "conflict" });
+      const adopted = await f.client.request("adoptDocumentExtraction", { ...ref, extractionId: delivery.extractionId!,
+        expectedRevision: draft.revision, mutationId: "adopt-next" });
+      expect(adopted.draft.reviewProjection).toBe(marker);
+      expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(adopted.draft);
+      expect(f.db.database.prepare("SELECT * FROM document_versions").all()).toEqual(savedSource);
+      expect(f.db.database.prepare("SELECT * FROM document_extractions").all()).toEqual(envelopes);
+    } finally { f.dispose(); }
+  });
+
+it("does not regain mapping through the manual text fallback after a v3 word is removed and an old client omits labels", async () => {
+  const { f, doc, ref, draft, request } = await setup();
+  try {
+    const removed = await f.client.request("saveDocumentReviewDraft", { ...request, items: [{ ...draft.items[0]!, skillLabels: [] }] });
+    const { skillLabels: omitted, ...oldClientItem } = removed.draft.items[0]!;
+    void omitted;
+    const saved = await f.client.request("saveDocumentReviewDraft", { ...request, expectedRevision: removed.draft.revision,
+      items: [oldClientItem], mutationId: "old-client-omission" });
+    expect(saved.draft.items[0]?.skillLabels).toEqual([]);
+    const confirmation = await f.client.request("createDocumentConfirmation", { documentId: doc.documentId,
+      documentVersionId: doc.documentVersionId, textVersionId: doc.textVersionId, items: saved.draft.items,
+      reviewRevision: saved.draft.revision, expectedRevision: doc.revision, mutationId: "confirm-removed" });
+    const inputs = materialContextRequest();
+    const selectionRef = await f.client.request("createMaterialSelection", { scope: inputs.scope, entries: [{ slot: "resume",
+      documentId: doc.documentId, documentVersionId: doc.documentVersionId, confirmationId: confirmation.confirmationId }], mutationId: "select-removed" });
+    const { preview } = await f.client.request("createMaterialContext", { ...inputs, selectionRef });
+    expect(preview.confirmedItems[0]?.skillLabels).toEqual([]);
+    expect(preview.mappingDetails?.flatMap(row => row.skillIds)).toEqual([]);
+    expect(preview.priorities).toEqual([]);
+    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(saved.draft);
+  } finally { f.dispose(); }
+});
+
+it("rejects v3 review reads and writes after real deletion and prevents cross-owner access", async () => {
+  const { f, doc, ref, draft, request } = await setup();
+  try {
+    await expect(f.clientFor("owner-b").request("readDocumentReviewDraft", ref)).rejects.toMatchObject({ code: "not-found" });
+    await expect(f.clientFor("owner-b").request("saveDocumentReviewDraft", request)).rejects.toMatchObject({ code: "not-found" });
+    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
+    await f.client.request("deleteDocument", { documentId: doc.documentId, expectedRevision: doc.revision, mutationId: "delete-probe" });
+    await expect(f.client.request("readDocumentReviewDraft", ref)).rejects.toMatchObject({ code: "gone" });
+    await expect(f.client.request("saveDocumentReviewDraft", request)).rejects.toMatchObject({ code: "gone" });
+  } finally { f.dispose(); }
+});
+
+it("keeps v3 ability adoption as a separate explicit existing button", async () => {
+  const text = "I tested SQL under supervision.", { f, doc, ref, draft } = await setup(text);
+  try {
+    const delivery = await f.deliver(doc, [{ ...candidate(text), selfLevelHint: "guided" }]);
+    const { draft: current } = await f.client.request("adoptDocumentExtraction", { ...ref, extractionId: delivery.extractionId!,
+      expectedRevision: draft.revision, mutationId: "adopt-guided" });
+    expect(current.selfAssessmentHints).toHaveLength(1);
+    const adopted = vi.fn(), confirmed = vi.fn();
+    render(<MaterialConfirmation draft={current} text={text} saving={false} confirmed={false} skills={[{ id: "sql", name: "SQL" }]}
+      onItemsChange={vi.fn()} onConfirm={confirmed} onAdoptLevels={adopted} />);
+    expect(adopted).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    expect(confirmed).toHaveBeenCalledOnce();
+    expect(adopted).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "采用 SQL 的需指导完成建议" }));
+    expect(adopted).toHaveBeenCalledExactlyOnceWith({ sql: "guided" });
+  } finally { f.dispose(); }
+});

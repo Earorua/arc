@@ -1,0 +1,14 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [32m✓[39m tests/lib/materials/grounded-skill-terms.test.ts [2m([22m[2m190 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/material-skill-mentions.test.ts [2m([22m[2m123 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/retained-assessment-hints.test.ts [2m([22m[2m128 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/reviewed-source-mentions.test.ts [2m([22m[2m66 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m507 passed[39m[22m[90m (507)[39m
+[2m   Start at [22m 15:28:03
+[2m   Duration [22m 5.92s[2m (transform 139ms, setup 970ms, import 475ms, tests 247ms, environment 3.56s)[22m
+
+JSON report written to C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/mention-projection-library-spec-20261109-suites-a-results.json

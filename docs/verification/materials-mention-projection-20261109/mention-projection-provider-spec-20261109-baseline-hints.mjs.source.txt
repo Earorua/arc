@@ -1,0 +1,39 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "esbuild";
+
+const [output] = process.argv.slice(2);
+assert.match(output, /^work\/grounded-verification\/mention-projection-provider-spec-20261109-[a-z0-9-]+-results\.json$/u);
+assert.equal(existsSync(output), false);
+const sha = bytes => createHash("sha256").update(bytes).digest("hex");
+const observations = [];
+for (const [name, root] of [["before", "D:/CodexTemp/arc-experience-priority-P3jdvc/source"], ["current", resolve(".").replaceAll("\\", "/")]]) {
+  const input = `
+import { readSourceSpanExtraction } from ${JSON.stringify(root + "/worker/document-executor/source-span-extraction.ts")};
+import { supportsMaterialSelfLevelHint } from ${JSON.stringify(root + "/app/lib/materials/self-assessment-evidence.ts")};
+export function observe() {
+  return ["我在指导下清洗数据。", "我在指导下练习清洗数据。"].map(text => {
+    const sources = { text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+    const source = { segmentId: "segment-1", quote: text };
+    const wire = { format: "source-spans-v2", items: [{ kind: "experience", source, requirementLevel: null, skillTerms: ["清洗数据"], selfLevelHint: "guided" }], reviewPoints: [] };
+    const decoded = readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(wire) } }] }, sources, undefined, "source-spans-v2");
+    return { text, decoded, rawLabelSupportsGuided: supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["清洗数据"], level: "guided" }), canonicalLabelSupportsGuided: supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["data cleaning"], level: "guided" }) };
+  });
+}`;
+  const result = await build({ stdin: { contents: input, loader: "ts", resolveDir: resolve(".") }, bundle: true, write: false, platform: "node", format: "esm", target: "node24", metafile: true, external: ["node:*"] });
+  const compiled = output.replace("-results.json", `-${name}-bundle.mjs`);
+  writeFileSync(compiled, result.outputFiles[0].contents, { flag: "wx" });
+  const module = await import(pathToFileURL(resolve(compiled)).href);
+  observations.push({ name, root, inputs: Object.fromEntries(Object.keys(result.metafile.inputs).filter(path => path !== "<stdin>").sort().map(path => [path, sha(readFileSync(path))])), values: module.observe() });
+}
+assert.deepEqual(observations[0].values, observations[1].values);
+for (const observation of observations) {
+  assert.deepEqual(observation.values.map(value => value.decoded.candidate.items[0].skillLabels), [["data cleaning"], ["data cleaning"]]);
+  assert.deepEqual(observation.values.map(value => value.decoded.candidate.items[0].selfLevelHint), [null, "guided"]);
+  assert.deepEqual(observation.values.map(value => value.canonicalLabelSupportsGuided), [false, true]);
+}
+writeFileSync(output, JSON.stringify({ status: "PASS", cases: 2, baselineAndCurrentMatched: true, observations, realModelCalls: 0 }, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: "PASS", cases: 2, baselineAndCurrentMatched: true, output }));

@@ -1,0 +1,1 @@
+{"directory":"C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-a","originalHashesVerified":true,"snapshotInputsVerified":true,"markerOnlyEdits":22,"originalTimeoutMs":45000}

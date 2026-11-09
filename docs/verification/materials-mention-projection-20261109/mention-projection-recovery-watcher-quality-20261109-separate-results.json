@@ -1,0 +1,186 @@
+{
+  "status": "PASS",
+  "kind": "Independent quality source and retained-evidence audit; no test suite executed",
+  "timestamp": "2026-11-09T10:20:39.416Z",
+  "head": "d9a021907cc679e8b7b8960f3f4a167a7304c18b",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "source": {
+    "count": 1007,
+    "unchangedFromB": 1005,
+    "manifestSha256": "88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a",
+    "changes": [
+      {
+        "path": "tests/offline-uat/entry.test.mjs",
+        "before": "57bb44044ffdbd39f2fed5cce22f2d9d4da1c47b83ec2d948ecc7b6aab04bb8b",
+        "after": "f9b44e5e45a92f18f6c7ca07d0f018e3e9bc5f5aa7046c0ebbf6ff4e2b57d68d"
+      },
+      {
+        "path": "tests/offline-uat/server.mjs",
+        "before": "d760b28a1eb9f24a380af8d68621b3df22a1504a2c86c8a6d3040fb3e2391326",
+        "after": "9d8e3948e176b03c90a4cc13636f7e182fb6106e861266d817bf79028427ebaf"
+      }
+    ],
+    "exactInverseRecoversBaseline": true,
+    "frozenCopiesMatch": true,
+    "diffSha256": "e3de7b2322a13a5cecefc5b16814b2a04eb71acdf195cc51bf4b69e72854d98a",
+    "crlfAwareWhitespaceCheck": "PASS",
+    "entryCRLFPreserved": true,
+    "serverLFPreserved": true,
+    "original45SecondClockAndSetupPreserved": true
+  },
+  "auditedSpecTestEvidence": {
+    "tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "lintExit": 0,
+    "testsRerunByQualityReviewer": 0
+  },
+  "specReportFinalization": {
+    "initialSha256": "348a06dbe58ecfd843f24c0b25ed60e80c12b7bdb88ae7c3b7a78fb76a0def03",
+    "finalSha256": "deaab082db91cbd5af71a27b9f9bf17eee8925b76787c41fc36c4727bd3dfc38",
+    "sourceAndRunEvidenceIdentical": true
+  },
+  "optimizerWarning": {
+    "originalB": true,
+    "authorGreen": true,
+    "specFocused": false,
+    "fixedByThisPatch": false
+  },
+  "sourceOrDocumentEditsByReviewer": 0,
+  "gitStatusBeforeAndAfter": " M docs/superpowers/plans/2026-11-08-materials-mention-projection.md\n M docs/verification/2026-11-04-materials-public-release-progress.md\n M docs/verification/2026-11-06-materials-grounding-pause.md\n M tests/offline-uat/entry.test.mjs\n M tests/offline-uat/server.mjs\n?? docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md\n?? docs/verification/2026-11-09-materials-mention-projection.md\n",
+  "documentHashesUnchangedDuringAudit": true,
+  "wrapperBoundaryUnchanged": true,
+  "fullTask4Status": "HOLD pending root C full acceptance",
+  "runs": {
+    "mention-projection-recovery-watcher-20261109-red": {
+      "name": "mention-projection-recovery-watcher-20261109-red",
+      "exit": 1,
+      "elapsedMs": 47487,
+      "logSha256": "a2f0fd7a0a9a5dea376645bda15ad21b5c5173d05df4f1d233654967c914f5c3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-rwgmzr",
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-red.json",
+      "reportSha256": "1607368356d2df1f7237645fb923d9c22c3c17850114963babc51f06210fad14",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-red.log"
+    },
+    "mention-projection-recovery-watcher-20261109-green": {
+      "name": "mention-projection-recovery-watcher-20261109-green",
+      "exit": 0,
+      "elapsedMs": 24482,
+      "logSha256": "e5437e84f8a0eebbde36e87c67aa2efc67af8efb9f7d5f92911a74af9654e46c",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-B5fsDQ",
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-green.json",
+      "reportSha256": "55b7226f34bc37277e05ef95b6c6b54e13f99a26fcd213c7130831c19f417c67",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-green.log"
+    },
+    "mention-projection-recovery-watcher-20261109-lint": {
+      "name": "mention-projection-recovery-watcher-20261109-lint",
+      "exit": 0,
+      "elapsedMs": 5355,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-fMhIM4",
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-lint.json",
+      "reportSha256": "03eb94281f3837f00f58252049c07257f5d163bfe9562c021f14544b2e19701a",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-20261109-lint.log"
+    },
+    "mention-projection-recovery-watcher-spec-20261109-focused": {
+      "name": "mention-projection-recovery-watcher-spec-20261109-focused",
+      "exit": 0,
+      "elapsedMs": 23427,
+      "logSha256": "34453e80907e7fb569d61031f641f6e092e1a6ecf4e2b36936d4b97f065d5f3e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Bd7LCR",
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-focused.json",
+      "reportSha256": "f9677c2a8aa5744a84f5f6a34c03d258c42cb9804b3c9c857b09d7f20ef9dae0",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-focused.log"
+    },
+    "mention-projection-recovery-watcher-spec-20261109-lint": {
+      "name": "mention-projection-recovery-watcher-spec-20261109-lint",
+      "exit": 0,
+      "elapsedMs": 3733,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Cj1wOr",
+      "reportPath": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-lint.json",
+      "reportSha256": "f7dee77c1add25c8b91799e8a567f421b8118facc7d6b37b1f2180091de3ad00",
+      "logPath": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-lint.log"
+    },
+    "mention-projection-full-node-20261109-b": {
+      "name": "mention-projection-full-node-20261109-b",
+      "exit": 1,
+      "elapsedMs": 461473,
+      "logSha256": "87202fb42d1380a05a7179671cdf37e46b247527f8dd239c202190aea823e164",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-K7OlrL",
+      "reportPath": "work/grounded-verification/mention-projection-full-node-20261109-b.json",
+      "reportSha256": "e21114d39ee6e2427a167169fe02f7cf0e433733b1fb677ff27e09f04073b0c8",
+      "logPath": "work/grounded-verification/mention-projection-full-node-20261109-b.log"
+    },
+    "mention-projection-recovery-timing-20261109-a": {
+      "name": "mention-projection-recovery-timing-20261109-a",
+      "exit": 1,
+      "elapsedMs": 62641,
+      "logSha256": "a01e134fc2916456672743d6ac039afd71ecc9e6ba06a3fbe4eb987eecc0e6b1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-0WYqQK",
+      "reportPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-a.json",
+      "reportSha256": "bc79f8e8dc5a468b0811d30920c9530dd5f977555e07381e2dedc4cfeb2c6d83",
+      "logPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-a.log"
+    },
+    "mention-projection-recovery-timing-20261109-b": {
+      "name": "mention-projection-recovery-timing-20261109-b",
+      "exit": 0,
+      "elapsedMs": 7483,
+      "logSha256": "54dd0dceb2b29c0016ec6d15d91a3c0a220f231ed8295b392b99717c01069655",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-8Va0Be",
+      "reportPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-b.json",
+      "reportSha256": "bb1a16476add3150aa299bb6c772dc45c2de7a317d07ae5d6261abf039460f77",
+      "logPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-b.log"
+    },
+    "mention-projection-recovery-timing-20261109-reversal": {
+      "name": "mention-projection-recovery-timing-20261109-reversal",
+      "exit": 1,
+      "elapsedMs": 52006,
+      "logSha256": "639d8b0b29a7c70fafd25e9eeb1a4b18f9f74799bae093e42c68ee17aaea03cf",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-O2i6Lw",
+      "reportPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-reversal.json",
+      "reportSha256": "5330b3b46de3a329f7c968c8d608d82c3853efe736ded5bf71cb8283d1330b7c",
+      "logPath": "work/grounded-verification/mention-projection-recovery-timing-20261109-reversal.log"
+    }
+  },
+  "identities": {
+    "work/grounded-verification/mention-projection-recovery-watcher-20261109-freeze-results.json": "00ec3f2516a6775128b7ae8053e76dcf879e8ac5bc3f60ca3c220cf8a4324537",
+    "work/grounded-verification/mention-projection-snapshot-20261109-b-results.json": "6ffedfe0a40163abbd128f49f4e2c4673450aa76fd299d2fe81236709829792e",
+    "work/grounded-verification/mention-projection-recovery-timing-20261109-comparison-results.json": "6c5e2518802f8ea532d87a9bbbb4925aad21ef20ad8e6e6c07032ec90493475b",
+    "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-structured-results.json": "deaab082db91cbd5af71a27b9f9bf17eee8925b76787c41fc36c4727bd3dfc38",
+    "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-structured-results-initial.json": "348a06dbe58ecfd843f24c0b25ed60e80c12b7bdb88ae7c3b7a78fb76a0def03",
+    "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-memo.md": "3cc886c21d8a021eba445a7acc078e091093284db3c08564a87e91810988aa57",
+    "work/grounded-verification/mention-projection-recovery-watcher-20261109-red.json": "1607368356d2df1f7237645fb923d9c22c3c17850114963babc51f06210fad14",
+    "work/grounded-verification/mention-projection-recovery-watcher-20261109-red.log": "a2f0fd7a0a9a5dea376645bda15ad21b5c5173d05df4f1d233654967c914f5c3",
+    "work/grounded-verification/mention-projection-recovery-watcher-20261109-green.json": "55b7226f34bc37277e05ef95b6c6b54e13f99a26fcd213c7130831c19f417c67",
+    "work/grounded-verification/mention-projection-recovery-watcher-20261109-green.log": "e5437e84f8a0eebbde36e87c67aa2efc67af8efb9f7d5f92911a74af9654e46c",
+    "work/grounded-verification/mention-projection-recovery-watcher-20261109-lint.json": "03eb94281f3837f00f58252049c07257f5d163bfe9562c021f14544b2e19701a",
+    "work/grounded-verification/mention-projection-recovery-watcher-20261109-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-focused.json": "f9677c2a8aa5744a84f5f6a34c03d258c42cb9804b3c9c857b09d7f20ef9dae0",
+    "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-focused.log": "34453e80907e7fb569d61031f641f6e092e1a6ecf4e2b36936d4b97f065d5f3e",
+    "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-lint.json": "f7dee77c1add25c8b91799e8a567f421b8118facc7d6b37b1f2180091de3ad00",
+    "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/grounded-verification/mention-projection-full-node-20261109-b.json": "e21114d39ee6e2427a167169fe02f7cf0e433733b1fb677ff27e09f04073b0c8",
+    "work/grounded-verification/mention-projection-full-node-20261109-b.log": "87202fb42d1380a05a7179671cdf37e46b247527f8dd239c202190aea823e164",
+    "work/grounded-verification/mention-projection-recovery-timing-20261109-a.json": "bc79f8e8dc5a468b0811d30920c9530dd5f977555e07381e2dedc4cfeb2c6d83",
+    "work/grounded-verification/mention-projection-recovery-timing-20261109-a.log": "a01e134fc2916456672743d6ac039afd71ecc9e6ba06a3fbe4eb987eecc0e6b1",
+    "work/grounded-verification/mention-projection-recovery-timing-20261109-b.json": "bb1a16476add3150aa299bb6c772dc45c2de7a317d07ae5d6261abf039460f77",
+    "work/grounded-verification/mention-projection-recovery-timing-20261109-b.log": "54dd0dceb2b29c0016ec6d15d91a3c0a220f231ed8295b392b99717c01069655",
+    "work/grounded-verification/mention-projection-recovery-timing-20261109-reversal.json": "5330b3b46de3a329f7c968c8d608d82c3853efe736ded5bf71cb8283d1330b7c",
+    "work/grounded-verification/mention-projection-recovery-timing-20261109-reversal.log": "639d8b0b29a7c70fafd25e9eeb1a4b18f9f74799bae093e42c68ee17aaea03cf",
+    "node_modules/vite/dist/node/chunks/node.js": "3968fab97a9d0882f0e2e754bd0d5b417f0a84596e293179a9a6e585919f041c",
+    "work/grounded-verification/run.mjs": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+    "work/materials-browser-handoff/block-outbound.cjs": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+  }
+}

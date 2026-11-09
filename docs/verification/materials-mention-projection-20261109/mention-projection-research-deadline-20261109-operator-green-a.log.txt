@@ -1,0 +1,89 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:4224) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/research-cloud-smoke-composition.test.ts [2m([22m[2m89 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m[33m 94696[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers transient nonce replacement denial without repeating a request or accepting a replay [33m 3181[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps prior nonces on permanent replacement failure and permits a later clean invocation [33m 1918[2mms[22m[39m
+     [33m[2m✓[22m[39m does not retry a non-transient nonce replacement error ENOSPC [33m 385[2mms[22m[39m
+     [33m[2m✓[22m[39m does not retry a non-transient nonce replacement error EIO [33m 390[2mms[22m[39m
+     [33m[2m✓[22m[39m does not retry a non-transient nonce replacement error secret-never-echo [33m 404[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores old temporary files but fails closed while another nonce writer owns the lock [33m 782[2mms[22m[39m
+     [33m[2m✓[22m[39m stops nonce replacement retries at the existing replay deadline [33m 397[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves the ledger and removes only its own partial file after a nonce write failure [33m 1160[2mms[22m[39m
+     [33m[2m✓[22m[39m replays six fixed signed steps from one pre-existing approval without claiming new acceptance [33m 496[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at submit on a signed rejection and retains preceding evidence [33m 482[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at status on a signed rejection and retains preceding evidence [33m 444[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at owner-a-recover on a signed rejection and retains preceding evidence [33m 445[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at owner-a-get on a signed rejection and retains preceding evidence [33m 479[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at owner-b-recover on a signed rejection and retains preceding evidence [33m 487[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at owner-b-get on a signed rejection and retains preceding evidence [33m 469[2mms[22m[39m
+     [33m[2m✓[22m[39m clears redirected input bytes on successful and malformed decoding [33m 1328[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'submit' for 'throw' without fallback or duplicate requests [33m 426[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'submit' for 'unsigned' without fallback or duplicate requests [33m 418[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'submit' for 'oversize' without fallback or duplicate requests [33m 435[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'submit' for 'wrong-step' without fallback or duplicate requests [33m 438[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'submit' for 'timeout' without fallback or duplicate requests [33m 5443[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'status' for 'throw' without fallback or duplicate requests [33m 438[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'status' for 'unsigned' without fallback or duplicate requests [33m 587[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'status' for 'oversize' without fallback or duplicate requests [33m 470[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'status' for 'wrong-step' without fallback or duplicate requests [33m 454[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'status' for 'timeout' without fallback or duplicate requests [33m 5480[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-recover' for 'throw' without fallback or duplicate requests [33m 458[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-recover' for 'unsigned' without fallback or duplicate requests [33m 437[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-recover' for 'oversize' without fallback or duplicate requests [33m 483[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-recover' for 'wrong-step' without fallback or duplicate requests [33m 422[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-recover' for 'timeout' without fallback or duplicate requests [33m 5414[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-get' for 'throw' without fallback or duplicate requests [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-get' for 'unsigned' without fallback or duplicate requests [33m 400[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-get' for 'oversize' without fallback or duplicate requests [33m 470[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-get' for 'wrong-step' without fallback or duplicate requests [33m 403[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-a-get' for 'timeout' without fallback or duplicate requests [33m 5415[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-recover' for 'throw' without fallback or duplicate requests [33m 407[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-recover' for 'unsigned' without fallback or duplicate requests [33m 409[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-recover' for 'oversize' without fallback or duplicate requests [33m 464[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-recover' for 'wrong-step' without fallback or duplicate requests [33m 418[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-recover' for 'timeout' without fallback or duplicate requests [33m 5404[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-get' for 'throw' without fallback or duplicate requests [33m 412[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-get' for 'unsigned' without fallback or duplicate requests [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-get' for 'oversize' without fallback or duplicate requests [33m 485[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-get' for 'wrong-step' without fallback or duplicate requests [33m 427[2mms[22m[39m
+     [33m[2m✓[22m[39m stops at 'owner-b-get' for 'timeout' without fallback or duplicate requests [33m 5456[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses malformed approvals and unapproved scenarios before reading input [33m 3043[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a signed identity mismatch with safe evidence [33m 377[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a signed time mismatch with safe evidence [33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a signed receipt mismatch with safe evidence [33m 409[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a signed queue mismatch with safe evidence [33m 424[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a signed scenario mismatch with safe evidence [33m 387[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a signed unknown-field mismatch with safe evidence [33m 416[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a signed capability mismatch with safe evidence [33m 391[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a signed isolation mismatch with safe evidence [33m 419[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies a production-signed HTTP 400 without a retry [33m 385[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies a production-signed HTTP 401 without a retry [33m 377[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies a production-signed HTTP 409 without a retry [33m 374[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies a production-signed HTTP 500 without a retry [33m 385[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies a production-signed HTTP 503 without a retry [33m 374[2mms[22m[39m
+     [33m[2m✓[22m[39m classifies a production-signed HTTP 302 without a retry [33m 372[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a reused response nonce across replay invocations before the next step [33m 769[2mms[22m[39m
+     [33m[2m✓[22m[39m retains validated steps after step persistence fails and erases the allocated signing key [33m 402[2mms[22m[39m
+     [33m[2m✓[22m[39m retains validated steps after report persistence fails and erases the allocated signing key [33m 420[2mms[22m[39m
+     [33m[2m✓[22m[39m never resumes after late authentication completion [33m 5446[2mms[22m[39m
+     [33m[2m✓[22m[39m never resumes after late nonce persistence completion [33m 5453[2mms[22m[39m
+     [33m[2m✓[22m[39m erases the signing key after replay success [33m 465[2mms[22m[39m
+     [33m[2m✓[22m[39m erases the signing key after replay rejection [33m 490[2mms[22m[39m
+     [33m[2m✓[22m[39m erases the signing key after replay transport [33m 377[2mms[22m[39m
+     [33m[2m✓[22m[39m never persists caller-supplied error codes from credential failures [33m 384[2mms[22m[39m
+     [33m[2m✓[22m[39m requires bounded redirected input and refuses unknown scenarios and unsigned responses [33m 1485[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies one bounded status and persists response nonce rejection across invocations [33m 820[2mms[22m[39m
+     [33m[2m✓[22m[39m reconciles the same start identity, and labels ambiguous transport results pending [33m 1140[2mms[22m[39m
+     [33m[2m✓[22m[39m aborts an unresponsive start within ten seconds without claiming acceptance [33m 10441[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses an acceptance body whose durable proof belongs to another scenario [33m 481[2mms[22m[39m
+     [33m[2m✓[22m[39m forbids redirects on the single inventory-bound control target [33m 477[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses a reused report name without changing any existing report files [33m 443[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m87 passed[39m[22m[2m | [22m[33m2 skipped[39m[90m (89)[39m
+[2m   Start at [22m 17:16:35
+[2m   Duration [22m 96.07s[2m (transform 21.62s, setup 189ms, import 1.03s, tests 94.70s, environment 0ms)[22m
+

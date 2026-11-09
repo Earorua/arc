@@ -1,0 +1,213 @@
+import { describe, expect, it } from "vitest";
+import {
+  DOCUMENT_SCHEMA_VERSION,
+  GROUNDED_MATERIAL_REVIEW_PROJECTION,
+  SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION,
+  documentReviewDraftSchema,
+  isSourceLinkedMaterialReviewProjection,
+  type ConfirmedMaterialItem,
+  type DocumentReviewDraft,
+} from "../../../app/contracts/documents";
+import {
+  findReviewedSourceTerm,
+  labelForAddedSourceTerm,
+  retainedMaterialSelfAssessmentHints,
+  supportsReviewedSkillLabel,
+} from "../../../app/lib/materials/skill-labels";
+
+const mentionProjection = "source-skill-mentions-v3" as const;
+const sourceRef = { documentId: "document", documentVersionId: "version", textVersionId: "text", start: 0, end: 31 };
+const guidedHint: DocumentReviewDraft["selfAssessmentHints"][number] = {
+  id: "hint-fact-0", candidateId: "fact", skillLabel: "SQL", level: "guided",
+};
+function fact(text: string, changes: Partial<ConfirmedMaterialItem> = {}): ConfirmedMaterialItem {
+  return { id: "fact", kind: "experience", text, origin: "extracted", sourceRef, requirementLevel: null, skillLabels: ["SQL"], ...changes };
+}
+const draft = {
+  id: "draft", schemaVersion: DOCUMENT_SCHEMA_VERSION, documentId: "document", documentVersionId: "version",
+  textVersionId: "text", extractionId: null, origin: "manual", items: [], selfAssessmentHints: [],
+  revision: 0, updatedAt: "2026-11-09T00:00:00.000Z",
+};
+
+describe("versioned source-linked review projections", () => {
+  it("adds the explicit v3 identity without changing the document schema or v2 identity", () => {
+    expect(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION).toBe(mentionProjection);
+    expect(GROUNDED_MATERIAL_REVIEW_PROJECTION).toBe("grounded-skill-labels-v2");
+    expect(DOCUMENT_SCHEMA_VERSION).toBe("2026.11.1");
+  });
+
+  it.each([undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION, mentionProjection])("accepts only the optional supported projection %s", reviewProjection => {
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection }).success).toBe(true);
+  });
+
+  it.each(["", " ", "source-skill-mentions-v2", "source-skill-mentions-v4", "anything", null])("rejects an unknown projection %s", reviewProjection => {
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection }).success).toBe(false);
+  });
+
+  it.each([
+    [GROUNDED_MATERIAL_REVIEW_PROJECTION, true], [mentionProjection, true],
+    [undefined, false], [null, false], ["", false], ["grounded-skill-labels-v3", false],
+    ["source-skill-mentions-v4", false], ["anything", false], [true, false], [{}, false],
+  ] as const)("recognizes only an exact source-linked projection %s", (projection, expected) => {
+    expect(isSourceLinkedMaterialReviewProjection).toBeTypeOf("function");
+    expect(isSourceLinkedMaterialReviewProjection(projection)).toBe(expected);
+  });
+
+  it("keeps the existing eight-label, 100-UTF-16-unit and 100-fact quotas", () => {
+    const labels = Array.from({ length: 8 }, (_, index) => `Flux${index}`);
+    const item = fact("SQL", { skillLabels: labels });
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: mentionProjection, items: [item] }).success).toBe(true);
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: mentionProjection, items: [{ ...item, skillLabels: [...labels, "Flux8"] }] }).success).toBe(false);
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: mentionProjection, items: [{ ...item, skillLabels: ["𐐀".repeat(50)] }] }).success).toBe(true);
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: mentionProjection, items: [{ ...item, skillLabels: ["𐐀".repeat(50) + "Z"] }] }).success).toBe(false);
+    const items = Array.from({ length: 100 }, (_, index) => ({ ...item, id: `fact-${index}` }));
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: mentionProjection, items }).success).toBe(true);
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: mentionProjection, items: [...items, { ...item, id: "fact-100" }] }).success).toBe(false);
+  });
+});
+
+describe("reviewed source mentions", () => {
+  it("retains a negative SQL topic only with the v3 source-mention projection", () => {
+    const text = "I have never configured SQL for production.";
+    expect(supportsReviewedSkillLabel(text, "SQL", mentionProjection)).toBe(true);
+    expect(supportsReviewedSkillLabel(text, "SQL", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBe(false);
+  });
+
+  it("adds a denied source term only when v3 is explicitly selected", () => {
+    const text = "I have never configured SQL for production.";
+    expect(labelForAddedSourceTerm(text, text, "SQL", mentionProjection)).toBe("SQL");
+    expect(labelForAddedSourceTerm(text, text, "SQL", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBeNull();
+    expect(labelForAddedSourceTerm(text, text, "SQL")).toBeNull();
+  });
+
+  it("adds an existing recognized denial as a topic only in v3", () => {
+    const text = "I have never used SQL for production.";
+    expect(labelForAddedSourceTerm(text, text, "SQL")).toBeNull();
+    expect(labelForAddedSourceTerm(text, text, "SQL", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBeNull();
+    expect(supportsReviewedSkillLabel(text, "SQL", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBe(false);
+    expect(labelForAddedSourceTerm(text, text, "SQL", mentionProjection)).toBe("SQL");
+  });
+
+  it("routes denied reviewed equivalents to the existing mention locator only in v3", () => {
+    const text = "I haven't cleaned data.";
+    expect(findReviewedSourceTerm).toBeTypeOf("function");
+    expect(findReviewedSourceTerm(text, "data cleaning", mentionProjection)).toBe("cleaned data");
+    expect(findReviewedSourceTerm(text, "data cleaning", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBeNull();
+    expect(findReviewedSourceTerm(text, "data cleaning", undefined)).toBeNull();
+    expect(supportsReviewedSkillLabel(text, "data cleaning", mentionProjection)).toBe(true);
+    expect(supportsReviewedSkillLabel(text, "data cleaning", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBe(false);
+    expect(supportsReviewedSkillLabel(text, "data cleaning", undefined)).toBe(false);
+    expect(labelForAddedSourceTerm(text, text, "cleaned data", mentionProjection)).toBe("data cleaning");
+    expect(labelForAddedSourceTerm(text, text, "cleaned data", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBeNull();
+    expect(labelForAddedSourceTerm(text, text, "cleaned data")).toBeNull();
+  });
+
+  it("preserves legacy literal edits and affirmative v2 reviewed equivalents", () => {
+    const negative = "I never used SQL.";
+    expect(supportsReviewedSkillLabel(negative, "SQL", undefined)).toBe(true);
+    expect(supportsReviewedSkillLabel(negative, "SQL", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBe(false);
+    expect(supportsReviewedSkillLabel("I cleaned data.", "data cleaning", undefined)).toBe(false);
+    expect(supportsReviewedSkillLabel("I cleaned data.", "data cleaning", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBe(true);
+    expect(labelForAddedSourceTerm("I cleaned data.", "I cleaned data.", "cleaned data")).toBe("data cleaning");
+  });
+
+  it("requires a nominated raw source term and retains only the same supported concept", () => {
+    const quote = "I haven't cleaned data or used SQL, but I built a dashboard.";
+    for (const term of ["", "PostgreSQL", "data cleaning", "analytics", "data visualization"]) {
+      expect(labelForAddedSourceTerm(quote, quote, term, mentionProjection)).toBeNull();
+    }
+    expect(labelForAddedSourceTerm(quote, quote, "SQL", mentionProjection)).toBe("SQL");
+    expect(labelForAddedSourceTerm(quote, quote, "cleaned data", mentionProjection)).toBe("data cleaning");
+    expect(labelForAddedSourceTerm(quote, "I used PostgreSQL.", "SQL", mentionProjection)).toBeNull();
+    expect(labelForAddedSourceTerm(quote, "I built a dashboard.", "cleaned data", mentionProjection)).toBeNull();
+    expect(labelForAddedSourceTerm(quote, "I have never cleaned data.", "SQL", mentionProjection)).toBeNull();
+  });
+
+  it.each([
+    ["I never used SQL, but I now use sql.", "SQL"],
+    ["I never used ＳＱＬ, but I now use SQL.", "SQL"],
+    ["I never cleaned data, but I am cleaning data.", "cleaned data"],
+  ])("does not choose between differently spelled source occurrences in %s", (text, sourceTerm) => {
+    expect(labelForAddedSourceTerm(text, text, sourceTerm, mentionProjection)).toBeNull();
+  });
+
+  it.each([
+    ["Profile:Orion:Forge.", "Orion:Forge", "Orion:Forge"],
+    ["必须掌握键盘可访问性的基本检查。", "键盘可访问性", "键盘可访问性"],
+    ["I never used Ｃ＋＋.", "C++", "Ｃ＋＋"],
+    ["I never used Cafe\u0301Flux.", "CaféFlux", "Cafe\u0301Flux"],
+    ["I never used ﬃxtures.", "ffixtures", "ﬃxtures"],
+    ["I never used WAI-ARIA.", "WAI-ARIA", "WAI-ARIA"],
+    ["I never used Node.js.", "Node.js", "Node.js"],
+  ])("preserves existing source spelling and lexical boundaries in %s", (text, sourceTerm, label) => {
+    expect(labelForAddedSourceTerm(text, text, sourceTerm, mentionProjection)).toBe(label);
+    expect(findReviewedSourceTerm).toBeTypeOf("function");
+    expect(findReviewedSourceTerm(text, label, mentionProjection)).toBe(label);
+    expect(supportsReviewedSkillLabel(text, label, mentionProjection)).toBe(true);
+  });
+
+  it.each([
+    ["PostgreSQL", "SQL"], ["WAI-ARIA", "ARIA"], ["Node.js", "Node"], ["C++", "C"],
+    ["Profile:Orion:Forge.", "Forge"], ["必须掌握键盘可访问性的基本检查。", "盘可访问性"],
+    ["Cafe\u0301", "Cafe"], ["ﬃ", "f"], ["Read urn:SQL.", "SQL"],
+    ["We use retrieval augmented generation.", "RAG"],
+  ])("does not restore an incomplete or inferred term %s (%s)", (text, label) => {
+    expect(labelForAddedSourceTerm(text, text, label, mentionProjection)).toBeNull();
+    expect(supportsReviewedSkillLabel(text, label, mentionProjection)).toBe(false);
+  });
+});
+
+describe("source mentions remain separate from personal self-assessment", () => {
+  it.each([
+    "I have never configured SQL for production.",
+    "My colleague tested SQL under supervision.",
+    "The example says ‘I tested SQL under supervision.’",
+    "I will test SQL under supervision.",
+    "If I tested SQL under supervision, I would document it.",
+  ])("retains the topic and fact but removes an unsupported hint for %s", text => {
+    const item = fact(text);
+    const before = structuredClone(item);
+    expect(supportsReviewedSkillLabel(text, "SQL", mentionProjection)).toBe(true);
+    expect(retainedMaterialSelfAssessmentHints([item], [guidedHint], mentionProjection)).toEqual([]);
+    expect(item).toEqual(before);
+  });
+
+  it("checks mixed actors per skill while retaining both topics", () => {
+    const text = "My colleague tested SQL under supervision, and I tested React under supervision.";
+    const item = fact(text, { skillLabels: ["SQL", "React"] });
+    const reactHint = { ...guidedHint, id: "hint-fact-1", skillLabel: "React" };
+    expect(item.skillLabels?.every(label => supportsReviewedSkillLabel(text, label, mentionProjection))).toBe(true);
+    expect(retainedMaterialSelfAssessmentHints([item], [guidedHint, reactHint], mentionProjection)).toEqual([reactHint]);
+  });
+
+  it.each([undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION, mentionProjection])("revalidates an edited old hint under %s", projection => {
+    const item = fact("My colleague tested SQL under supervision.", { origin: "user" });
+    expect(retainedMaterialSelfAssessmentHints([item], [guidedHint], projection)).toEqual([]);
+  });
+
+  it("preserves unedited legacy compatibility while revalidating v2 and v3", () => {
+    const items = [fact("Tested SQL.")];
+    expect(retainedMaterialSelfAssessmentHints(items, [guidedHint])).toEqual([guidedHint]);
+    expect(retainedMaterialSelfAssessmentHints(items, [guidedHint], GROUNDED_MATERIAL_REVIEW_PROJECTION)).toEqual([]);
+    expect(retainedMaterialSelfAssessmentHints(items, [guidedHint], mentionProjection)).toEqual([]);
+  });
+
+  it("retains an existing supported hint without inventing one for another source topic", () => {
+    const items = [fact("I tested SQL and React under supervision.", { skillLabels: ["SQL", "React"] })];
+    const retained = retainedMaterialSelfAssessmentHints(items, [guidedHint], mentionProjection);
+    expect(retained).toEqual([guidedHint]);
+    expect(retained[0]).toBe(guidedHint);
+    expect(retainedMaterialSelfAssessmentHints(items, [], mentionProjection)).toEqual([]);
+    expect(retainedMaterialSelfAssessmentHints(items, [{ ...guidedHint, level: "conceptual" }], mentionProjection)).toEqual([]);
+  });
+
+  it.each([
+    { name: "deleted fact", items: [] },
+    { name: "explicit empty label list", items: [fact("I tested SQL under supervision.", { skillLabels: [] })] },
+    { name: "deleted label", items: [fact("I tested SQL under supervision.", { skillLabels: ["React"] })] },
+    { name: "reclassified requirement", items: [fact("I tested SQL under supervision.", { kind: "requirement", requirementLevel: "must" })] },
+    { name: "reclassified constraint", items: [fact("I tested SQL under supervision.", { kind: "constraint" })] },
+  ])("does not recreate hints after a $name", ({ items }) => {
+    expect(retainedMaterialSelfAssessmentHints(items, [guidedHint], mentionProjection)).toEqual([]);
+  });
+});

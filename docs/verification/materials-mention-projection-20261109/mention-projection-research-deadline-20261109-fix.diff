@@ -1,0 +1,89 @@
+diff --git a/scripts/test-research-cloud-smoke.mjs b/scripts/test-research-cloud-smoke.mjs
+index ee0663c..80c4ae7 100644
+--- a/scripts/test-research-cloud-smoke.mjs
++++ b/scripts/test-research-cloud-smoke.mjs
+@@ -224,6 +224,7 @@ function safeStatus(body, scenarioId, scenarios) {
+ async function control(options, configuration, helper, keyBytes, transport, recordNonceStorage) {
+   const { inventory } = configuration;
+   const end = performance.now() + (options.mode === "start" ? 10_000 : 5_000);
++  let deadlineExpired = false;
+   const nonces = responseNonces(inventory, recordNonceStorage);
+   const request = async operation => {
+     const context = { direction: "executor-to-site", kind: "request", method: "POST", path: `/_smoke/${operation}`,
+@@ -231,12 +232,13 @@ async function control(options, configuration, helper, keyBytes, transport, reco
+     const body = new TextEncoder().encode(JSON.stringify({ scenarioId: options.scenarioId }));
+     const headers = await helper.signBridgeMessage({ context, body, keyId: inventory.controlKeyId, keyBytes, now: Date.now });
+     const controller = new AbortController();
+-    const check = () => { if (controller.signal.aborted || performance.now() >= end) throw Error("Control deadline"); };
+-    const remaining = Math.max(1, Math.floor(end - performance.now()));
++    const check = () => { if (deadlineExpired || controller.signal.aborted || performance.now() >= end) throw Error("Control deadline"); };
+     let timer;
+     try {
++      check();
++      const remaining = Math.max(1, Math.floor(end - performance.now()));
+       const response = await Promise.race([transport(new Request(new URL(context.path, context.audience), { method: "POST", headers, body, redirect: "error", signal: controller.signal })),
+-        new Promise((_, no) => { timer = setTimeout(() => { controller.abort(); no(Object.assign(Error(), { pending: true })); }, remaining); })]);
++        new Promise((_, no) => { timer = setTimeout(() => { deadlineExpired = true; controller.abort(); no(Object.assign(Error(), { pending: true })); }, remaining); })]);
+       const bytes = await helper.readBridgeBody(response, { maxBytes: 4096, timeoutMs: Math.max(1, Math.min(4500, Math.floor(end - performance.now()))), signal: controller.signal });
+       try { await helper.verifyBridgeMessage({ context: { ...context, kind: "response", status: response.status }, body: bytes,
+         headers: response.headers, keyId: inventory.controlKeyId, keyBytes, now: Date.now,
+@@ -248,7 +250,7 @@ async function control(options, configuration, helper, keyBytes, transport, reco
+       return { view: safeStatus(parsed, options.scenarioId, helper.SCENARIOS) };
+     } finally { clearTimeout(timer); controller.abort(); }
+   };
+-  for (let attempt = 0; attempt < (options.mode === "start" ? 3 : 1) && performance.now() < end; attempt++) {
++  for (let attempt = 0; attempt < (options.mode === "start" ? 3 : 1) && !deadlineExpired && performance.now() < end; attempt++) {
+     let result;
+     try { result = await request(attempt === 0 ? options.mode : "status"); }
+     catch (error) { if (error.safeCode) throw error; result = { pending: true }; }
+diff --git a/tests/server/research-cloud-smoke-composition.test.ts b/tests/server/research-cloud-smoke-composition.test.ts
+index 1d66e24..469b99c 100644
+--- a/tests/server/research-cloud-smoke-composition.test.ts
++++ b/tests/server/research-cloud-smoke-composition.test.ts
+@@ -118,6 +118,46 @@ describe("built native smoke composition", () => {
+   }, 90_000);
+ });
+ 
++describe("isolated control deadline boundary", () => {
++  it.each([
++    { name: "does not retry after its watchdog fires at a fractional deadline", signingMs: 0.25, expectedCalls: 1 },
++    { name: "does not dispatch when signing finishes after the deadline", signingMs: 10000.25, expectedCalls: 0 },
++  ])("$name", async ({ signingMs, expectedCalls }) => {
++    // Execute the exact private function without adding a clock override to the CLI.
++    // Signing, scheduling and transport are synthetic; signed native responses are tested below.
++    const source = await readFile(resolve("scripts/test-research-cloud-smoke.mjs"), "utf8");
++    const start = "async function control(", end = "async function replayApproval(";
++    expect(source.split(start)).toHaveLength(2); expect(source.split(end)).toHaveLength(2);
++    const controlSource = source.slice(source.indexOf(start), source.indexOf(end));
++    let now = 0, completed = false;
++    const timers = new Map<number, { callback: () => void; at: number }>();
++    let sequence = 0;
++    const evaluate = new Function("performance", "setTimeout", "clearTimeout", "responseNonces", `${controlSource}; return control;`);
++    const control = evaluate({ now: () => now }, (callback: () => void, delay: number) => {
++      const id = ++sequence; timers.set(id, { callback, at: now + delay }); return id;
++    }, (id: number) => { timers.delete(id); }, () => ({})) as (...args: unknown[]) => Promise<Record<string, unknown>>;
++    const requests: Request[] = [];
++    const transport = vi.fn((request: Request) => { requests.push(request); return new Promise<Response>(() => undefined); });
++    const helper = { signBridgeMessage: async () => { now += signingMs; return new Headers(); } };
++    const pending = control({ mode: "start", scenarioId: "long" },
++      { inventory: { controlOrigin: "https://smoke.example.test", controlKeyId: "synthetic-control" } },
++      helper, new Uint8Array(32), transport, () => undefined);
++    void pending.then(() => { completed = true; }, () => { completed = true; });
++    for (let turn = 0; !completed && turn < 10; turn++) {
++      for (let microtask = 0; microtask < 16; microtask++) await Promise.resolve();
++      if (completed) break;
++      const next = [...timers.entries()].sort((a, b) => a[1].at - b[1].at)[0];
++      expect(next, "pending request must have a deadline timer").toBeDefined();
++      const [id, timer] = next!; timers.delete(id); now = timer.at; timer.callback();
++    }
++    expect(completed).toBe(true);
++    expect(await pending).toMatchObject({ status: "pending", accepted: false, reason: "acceptance-unknown" });
++    expect(requests.every(request => request.signal.aborted)).toBe(true);
++    expect(transport).toHaveBeenCalledTimes(expectedCalls);
++    expect(requests.map(request => new URL(request.url).pathname)).toEqual(expectedCalls ? ["/_smoke/start"] : []);
++  });
++});
++
+ describe("bounded operator driver", () => {
+   let sequence = 0;
+   const name = () => `t15p4-driver-${Date.now()}-${sequence++}`;

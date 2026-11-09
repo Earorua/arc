@@ -1,0 +1,169 @@
+import assert from "node:assert/strict";
+import { DOCUMENT_SCHEMA_VERSION, type MaterialReferenceContext } from "../../app/contracts/documents";
+import { KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
+import { serializeDocumentExtraction, validateDocumentExtraction, validateStoredDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { readSourceSpanExtraction } from "../../worker/document-executor/source-span-extraction";
+
+type Level = "guided" | "conceptual" | "uncertain" | null;
+const policy = KIMI_SOURCE_MENTIONS_POLICY_ID;
+const reference = (text: string): MaterialReferenceContext => ({ ownerId: "owner", lifecycle: "active", documentId: "document", documentVersionId: "version", textVersionId: "text", text, segments: [{ id: "section", start: 0, end: text.length }] });
+const canonicalItem = (quote: string, labels = ["SQL"], hint: Level = "guided", id = "fact", segmentId = "section") => ({ id, kind: "skill-claim", text: quote, source: { quote, segmentId }, skillLabels: labels, selfLevelHint: hint, requirementLevel: null });
+const canonical = (quote: string, labels = ["SQL"], hint: Level = "guided", segmentId = "section") => ({ schemaVersion: DOCUMENT_SCHEMA_VERSION, items: [canonicalItem(quote, labels, hint, "fact", segmentId)], reviewPoints: [] });
+const wireItem = (quote: string, labels = ["SQL"], hint: Level = "guided", segmentId = "section") => ({ kind: "skill-claim", source: { quote, segmentId }, skillTerms: labels, selfLevelHint: hint, requirementLevel: null });
+const wire = (quote: string, labels = ["SQL"], hint: Level = "guided", segmentId = "section") => ({ format: "source-spans-v3", items: [wireItem(quote, labels, hint, segmentId)], reviewPoints: [] });
+function decode(content: unknown, ref: MaterialReferenceContext) {
+  return readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { role: "assistant", content: JSON.stringify(content) } }] }, ref, undefined, "source-spans-v3");
+}
+const pairs = (review: ReturnType<typeof validateDocumentExtraction>) => review.selfAssessmentHints.map(hint => [hint.skillLabel, hint.level]);
+
+export function runQualityProbes() {
+  const results: { name: string; status: string; details?: unknown; error?: string }[] = [];
+  const check = (name: string, action: () => unknown) => {
+    try { results.push({ name, status: "PASS", details: action() }); }
+    catch (error) { results.push({ name, status: "FAIL", error: error instanceof Error ? error.stack : String(error) }); }
+  };
+
+  // Each marker is supported by the existing statement parser. Exercise full
+  // list citations and body-only citations after nonzero UTF-16 document offsets.
+  for (const prefix of ["- ", "* ", "• ", "▪ ", "‣ ", "1. ", "１２. ", "3) ", "3）", "三、", "(2) ", "（二）"]) {
+    for (const mode of ["whole", "body"] as const) {
+      for (const level of ["guided", "conceptual", "uncertain"] as const) {
+        const body = level === "guided" ? "I tested SQL under supervision."
+          : level === "conceptual" ? "I am familiar with SQL." : "I am unsure about my SQL proficiency.";
+        const document = `Résumé 🧪.\n\n${prefix}${body}`;
+        const quote = mode === "whole" ? prefix + body : body;
+        check(`list ${JSON.stringify(prefix)} ${mode} ${level}`, () => {
+          const ref = reference(document), decoded = decode(wire(quote, ["SQL"], level), ref);
+          assert.equal(decoded.extractionRead, "parsed");
+          const review = validateDocumentExtraction(decoded.candidate, "owner", ref, policy);
+          const direct = validateDocumentExtraction(canonical(quote, ["SQL"], level), "owner", ref, policy);
+          assert.deepEqual(pairs(review), [["SQL", level]]);
+          assert.deepEqual(pairs(direct), [["SQL", level]]);
+          assert.deepEqual(review.items[0]?.sourceRef, { documentId: "document", documentVersionId: "version", textVersionId: "text", start: document.indexOf(quote), end: document.length });
+          assert.deepEqual(validateStoredDocumentExtraction(serializeDocumentExtraction(decoded.candidate, policy), "owner", ref), review);
+          return { start: review.items[0]?.sourceRef?.start, hints: pairs(review) };
+        });
+      }
+    }
+  }
+
+  for (const ending of [".", "!", "?", "。", "！", "？"]) check(`worker restores only source terminal ${ending}`, () => {
+    const fragment = "I used SQL", document = fragment + ending, ref = reference(document);
+    const decoded = decode(wire(fragment, ["SQL"], null), ref);
+    assert.equal(decoded.extractionRead, "parsed");
+    const review = validateDocumentExtraction(decoded.candidate, "owner", ref, policy);
+    assert.equal(review.items[0]?.text, document);
+    assert.throws(() => validateDocumentExtraction(canonical(fragment, ["SQL"], null), "owner", ref, policy), /invalid-content/);
+    return { restoredText: review.items[0]?.text };
+  });
+
+  for (const newline of ["\n", "\r\n"]) check(`soft wrapped qualifier ${JSON.stringify(newline)}`, () => {
+    const text = `I tested SQL${newline}under supervision.`, ref = reference(text);
+    const decoded = decode(wire(text), ref);
+    assert.equal(decoded.extractionRead, "parsed");
+    assert.deepEqual(pairs(validateDocumentExtraction(decoded.candidate, "owner", ref, policy)), [["SQL", "guided"]]);
+    assert.deepEqual(pairs(validateDocumentExtraction(canonical(text), "owner", ref, policy)), [["SQL", "guided"]]);
+    return { quote: text };
+  });
+
+  for (const [name, text, quote, split, expected] of [
+    ["complete second statement", "First statement. I tested SQL under supervision.", "I tested SQL under supervision.", 17, "parsed"],
+    ["chunk cannot erase denial", "It is false to claim that I tested SQL under supervision.", "I tested SQL under supervision.", 25, "invalid-source"],
+    ["chunk cannot erase quote opener", "Example: “Begin. I tested SQL under supervision. End.”", "I tested SQL under supervision.", 16, "invalid-source"],
+  ] as const) check(`segment scope ${name}`, () => {
+    const document = reference(text);
+    const ref = { ...document, segments: [{ id: "first", start: 0, end: split }, { id: "second", start: split, end: text.length }] };
+    const decoded = decode(wire(quote, ["SQL"], "guided", "second"), ref);
+    assert.equal(decoded.extractionRead, expected);
+    if (expected === "parsed") {
+      const review = validateDocumentExtraction(decoded.candidate, "owner", ref, policy);
+      assert.deepEqual(pairs(review), [["SQL", "guided"]]);
+    } else assert.throws(() => validateDocumentExtraction(canonical(quote, ["SQL"], "guided", "second"), "owner", ref, policy), /invalid-content/);
+    return { extractionRead: decoded.extractionRead };
+  });
+
+  check("same literal in distinct segments remains uniquely source-addressed", () => {
+    const quote = "I tested SQL under supervision.", text = `${quote}\n${quote}`;
+    const ref = { ...reference(text), segments: [{ id: "first", start: 0, end: quote.length + 1 }, { id: "second", start: quote.length + 1, end: text.length }] };
+    for (const [segmentId, start] of [["first", 0], ["second", quote.length + 1]] as const) {
+      const decoded = decode(wire(quote, ["SQL"], "guided", segmentId), ref);
+      assert.equal(decoded.extractionRead, "parsed");
+      const review = validateDocumentExtraction(decoded.candidate, "owner", ref, policy);
+      assert.equal(review.items[0]?.sourceRef?.start, start);
+      assert.deepEqual(pairs(review), [["SQL", "guided"]]);
+    }
+    assert.equal(decode(wire(quote), reference(text)).extractionRead, "invalid-source");
+  });
+
+  for (const [name, text, labels, level] of [
+    ["named quoted tool", 'I tested "SQL" under supervision.', ["SQL"], "guided"],
+    ["negative second topic", "I tested SQL under supervision, but I have never used React.", ["SQL", "React"], null],
+    ["other actor second topic", "I tested SQL under supervision, while my colleague used React.", ["SQL", "React"], null],
+    ["future second topic", "I tested SQL under supervision, but I plan to test React.", ["SQL", "React"], null],
+    ["named literal homograph", "I tested Excel under supervision.", ["Excel"], "guided"],
+    ["explicit all topics guided", "I tested SQL and React under supervision.", ["SQL", "React"], "guided"],
+  ] as const) check(`hint scope ${name}`, () => {
+    const ref = reference(text), decoded = decode(wire(text, [...labels]), ref);
+    assert.equal(decoded.extractionRead, "parsed");
+    const workerReview = validateDocumentExtraction(decoded.candidate, "owner", ref, policy);
+    const directReview = validateDocumentExtraction(canonical(text, [...labels]), "owner", ref, policy);
+    assert.deepEqual(workerReview.items[0]?.skillLabels, labels);
+    assert.deepEqual(directReview.items[0]?.skillLabels, labels);
+    assert.deepEqual(pairs(workerReview), level ? labels.map(label => [label, level]) : []);
+    assert.deepEqual(pairs(directReview), pairs(workerReview));
+    return { labels: workerReview.items[0]?.skillLabels, hints: pairs(workerReview) };
+  });
+
+  check("all eight nominated terms survive with their supported hints", () => {
+    const labels = ["SQL", "React", "Python", "Rust", "Java", "Kotlin", "Swift", "Ruby"];
+    const text = `I tested ${labels.join(", ")} under supervision.`, ref = reference(text);
+    const decoded = decode(wire(text, labels), ref);
+    assert.equal(decoded.extractionRead, "parsed");
+    const review = validateDocumentExtraction(decoded.candidate, "owner", ref, policy);
+    assert.deepEqual(review.items[0]?.skillLabels, labels);
+    assert.deepEqual(pairs(review), labels.map(label => [label, "guided"]));
+    const bad = wire(text, [...labels, "Scala"]);
+    assert.equal(decode(bad, ref).extractionRead, "invalid-shape");
+    assert.throws(() => validateDocumentExtraction(canonical(text, [...labels, "Scala"]), "owner", ref, policy), /invalid-content/);
+    return { labels: review.items[0]?.skillLabels, hints: review.selfAssessmentHints.length };
+  });
+
+  check("100 complete facts and 100 generated hints fit exactly", () => {
+    const quotes = Array.from({ length: 100 }, (_, index) => `I tested SQL under supervision for task ${index + 1}.`);
+    const text = quotes.join("\n"), ref = reference(text);
+    const decoded = decode({ format: "source-spans-v3", items: quotes.map(quote => wireItem(quote)), reviewPoints: [] }, ref);
+    assert.equal(decoded.extractionRead, "parsed");
+    const review = validateDocumentExtraction(decoded.candidate, "owner", ref, policy);
+    assert.equal(review.items.length, 100);
+    assert.equal(review.selfAssessmentHints.length, 100);
+    assert.deepEqual(validateStoredDocumentExtraction(serializeDocumentExtraction(decoded.candidate, policy), "owner", ref), review);
+    return { items: review.items.length, hints: review.selfAssessmentHints.length, reviewPoints: review.reviewPoints.length };
+  });
+
+  check("combined hint quota rejects over-100 rather than truncating", () => {
+    const labels = ["SQL", "React"];
+    const quotes = Array.from({ length: 51 }, (_, index) => `I tested SQL and React under supervision for task ${index + 1}.`);
+    const text = quotes.join("\n"), ref = reference(text);
+    const direct = { schemaVersion: DOCUMENT_SCHEMA_VERSION, items: quotes.map((quote, index) => canonicalItem(quote, labels, "guided", `fact-${index}`)), reviewPoints: [] };
+    assert.throws(() => validateDocumentExtraction(direct, "owner", ref, policy), /invalid-content/);
+    assert.throws(() => validateStoredDocumentExtraction(serializeDocumentExtraction(direct, policy), "owner", ref), /invalid-content/);
+  });
+
+  for (const [name, mutate] of [
+    ["wrong owner", (ref: MaterialReferenceContext) => ({ ...ref, ownerId: "someone-else" })],
+    ["revoked document", (ref: MaterialReferenceContext) => ({ ...ref, lifecycle: "revoked" })],
+    ["duplicate segment IDs", (ref: MaterialReferenceContext) => ({ ...ref, segments: [...ref.segments, ...ref.segments] })],
+    ["out-of-bounds segment", (ref: MaterialReferenceContext) => ({ ...ref, segments: [{ id: "section", start: 0, end: ref.text.length + 1 }] })],
+  ] as const) check(`reference rejects ${name}`, () => {
+    const text = "I tested SQL under supervision.", ref = mutate(reference(text)), value = canonical(text);
+    assert.throws(() => validateDocumentExtraction(value, "owner", ref, policy), /invalid-content/);
+    assert.throws(() => validateStoredDocumentExtraction(serializeDocumentExtraction(value, policy), "owner", ref), /invalid-content/);
+  });
+
+  for (const marker of ["source-skill-mentions-v30", "source-skill-mentions-v3 ", "SOURCE-SKILL-MENTIONS-V3", null, {}, []]) check(`stored invalid marker ${JSON.stringify(marker)}`, () => {
+    const text = "I tested SQL under supervision.";
+    assert.throws(() => validateStoredDocumentExtraction(JSON.stringify({ reviewProjection: marker, candidate: canonical(text) }), "owner", reference(text)), /invalid-content/);
+  });
+
+  return results;
+}

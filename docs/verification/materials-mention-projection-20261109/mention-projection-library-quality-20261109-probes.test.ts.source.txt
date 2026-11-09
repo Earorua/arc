@@ -1,0 +1,185 @@
+import { describe, expect, it } from "vitest";
+import {
+  DOCUMENT_SCHEMA_VERSION,
+  GROUNDED_MATERIAL_REVIEW_PROJECTION as V2,
+  SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION as V3,
+  documentReviewDraftSchema,
+  isSourceLinkedMaterialReviewProjection,
+  type ConfirmedMaterialItem,
+  type DocumentReviewDraft,
+} from "../../app/contracts/documents";
+import {
+  findReviewedSourceTerm,
+  labelForAddedSourceTerm,
+  retainedMaterialSelfAssessmentHints,
+  supportsReviewedSkillLabel,
+} from "../../app/lib/materials/skill-labels";
+
+type Projection = DocumentReviewDraft["reviewProjection"];
+type Hint = DocumentReviewDraft["selfAssessmentHints"][number];
+const sourceRef = { documentId: "doc", documentVersionId: "version", textVersionId: "text", start: 7, end: 55 };
+const draft = {
+  id: "draft", schemaVersion: DOCUMENT_SCHEMA_VERSION, documentId: "doc", documentVersionId: "version",
+  textVersionId: "text", extractionId: null, origin: "manual", items: [], selfAssessmentHints: [],
+  revision: 0, updatedAt: "2026-11-09T00:00:00.000Z",
+};
+function fact(id: string, text: string, changes: Partial<ConfirmedMaterialItem> = {}): ConfirmedMaterialItem {
+  return { id, kind: "experience", text, origin: "extracted", sourceRef: { ...sourceRef }, requirementLevel: null, skillLabels: ["SQL"], ...changes };
+}
+function hint(id: string, candidateId: string, skillLabel = "SQL", level: Hint["level"] = "guided"): Hint {
+  return { id, candidateId, skillLabel, level };
+}
+function freezeDeep<T>(value: T): T {
+  if (value !== null && typeof value === "object") {
+    for (const child of Object.values(value)) freezeDeep(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+describe("quality review: exact marker trust boundary", () => {
+  const hostileObject = {
+    toString() { throw new Error("marker must not stringify"); },
+    valueOf() { throw new Error("marker must not coerce"); },
+    [Symbol.toPrimitive]() { throw new Error("marker must not coerce"); },
+  };
+  const markers: { name: string; marker: unknown }[] = [
+    { name: "zero width suffix", marker: V3 + "\u200b" },
+    { name: "NUL suffix", marker: V3 + "\u0000" },
+    { name: "fullwidth hyphen", marker: V3.replaceAll("-", "－") },
+    { name: "case mismatch", marker: "Source-skill-mentions-v3" },
+    { name: "old literal v1", marker: "literal-skill-labels-v1" },
+    { name: "future version", marker: "source-skill-mentions-v30" },
+    { name: "boxed marker", marker: Object(V3) },
+    { name: "singleton array", marker: [V3] },
+    { name: "coercion traps", marker: hostileObject },
+    { name: "symbol", marker: Symbol(V3) },
+    { name: "big integer", marker: 3n },
+  ];
+  it.each(markers)("rejects $name without coercion or accidental v3 dispatch", ({ marker }) => {
+    expect(isSourceLinkedMaterialReviewProjection(marker)).toBe(false);
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: marker }).success).toBe(false);
+    const projection = marker as Projection;
+    const text = "I have never used SQL.";
+    expect(findReviewedSourceTerm(text, "SQL", projection)).toBeNull();
+    expect(labelForAddedSourceTerm(text, text, "SQL", projection)).toBeNull();
+    // Runtime-invalid markers must retain the old literal helper fallback;
+    // the persisted-draft schema above rejects them before trusted callers.
+    expect(supportsReviewedSkillLabel(text, "SQL", projection)).toBe(true);
+  });
+});
+
+describe("quality review: both source and current fact must be usable", () => {
+  it.each([
+    ["I never used SQL.", "I used SQL and sql.", "SQL"],
+    ["I never used SQL.", "I used SQL and ＳＱＬ.", "SQL"],
+    ["I never cleaned data.", "I cleaned data and cleansed data.", "cleaned data"],
+    ["I never reviewed code.", "I reviewed code and performed code reviews.", "reviewed code"],
+    ["I never used Node.js.", "I used Node.", "Node.js"],
+    ["I never used WAI-ARIA.", "I used ARIA.", "WAI-ARIA"],
+  ])("rejects a source term when only the current fact is ambiguous or incomplete: %s / %s", (quote, current, term) => {
+    expect(labelForAddedSourceTerm(quote, quote, term, V3)).not.toBeNull();
+    expect(labelForAddedSourceTerm(quote, current, term, V3)).toBeNull();
+  });
+
+  it("preserves a source spelling even when the edited fact uses another compatible spelling", () => {
+    const quote = "I never used ＳＱＬ.";
+    const current = "I have never used SQL.";
+    expect(labelForAddedSourceTerm(quote, current, "SQL", V3)).toBe("ＳＱＬ");
+    expect(findReviewedSourceTerm(current, "ＳＱＬ", V3)).toBe("SQL");
+  });
+
+  it("accepts an explicitly nominated reviewed equivalent across languages without adding neighbors", () => {
+    const quote = "我从未分析数据或使用 SQL。";
+    const current = "I have never analyzed data or used SQL.";
+    expect(labelForAddedSourceTerm(quote, current, "分析数据", V3)).toBe("data analysis");
+    expect(labelForAddedSourceTerm(quote, current, "data analysis", V3)).toBeNull();
+    expect(findReviewedSourceTerm(current, "data analysis", V3)).toBe("analyzed data");
+  });
+
+  it("allows identical repeated source spelling without changing fact text", () => {
+    const text = "I never used SQL, and my colleague never used SQL.";
+    expect(findReviewedSourceTerm(text, "SQL", V3)).toBe("SQL");
+    expect(labelForAddedSourceTerm(text, text, "SQL", V3)).toBe("SQL");
+    expect(text).toBe("I never used SQL, and my colleague never used SQL.");
+  });
+
+  it.each(["", " ", "\t\n", "never used SQL", "not SQL"])("does not accept an empty or negative phrase as the nominated term: %s", term => {
+    const text = "I have never used SQL.";
+    expect(labelForAddedSourceTerm(text, text, term, V3)).toBeNull();
+    expect(findReviewedSourceTerm(text, term, V3)).toBeNull();
+    expect(supportsReviewedSkillLabel(text, term, V3)).toBe(false);
+  });
+});
+
+describe("quality review: per-fact hint provenance and pure filtering", () => {
+  it("does not lend a different fact's valid evidence to a denied fact with the same topic", () => {
+    const items = freezeDeep([
+      fact("denied", "I have never used SQL."),
+      fact("valid", "I tested SQL under supervision."),
+      fact("other", "My colleague tested SQL under supervision."),
+      fact("future", "I will test SQL under supervision."),
+      fact("unhinted", "I tested React under supervision.", { skillLabels: ["React"] }),
+    ]);
+    const validHint = hint("hint-valid", "valid");
+    const hints = freezeDeep([
+      hint("hint-denied", "denied"), validHint, hint("hint-other", "other"),
+      hint("hint-future", "future"), hint("hint-missing", "missing"),
+    ]);
+    const before = JSON.stringify({ items, hints });
+    expect(documentReviewDraftSchema.safeParse({ ...draft, reviewProjection: V3, items, selfAssessmentHints: hints }).success).toBe(true);
+    const result = retainedMaterialSelfAssessmentHints(items, hints, V3);
+    expect(result).toEqual([validHint]);
+    expect(result[0]).toBe(validHint);
+    expect(result).not.toBe(hints);
+    expect(JSON.stringify({ items, hints })).toBe(before);
+  });
+
+  it("preserves existing hint order and level across supported facts without filling a missing hint", () => {
+    const items = freezeDeep([
+      fact("guided", "I tested SQL under supervision."),
+      fact("conceptual", "I am familiar with React.", { skillLabels: ["React"] }),
+      fact("uncertain", "I am unsure whether I can test Node.js independently.", { skillLabels: ["Node.js"] }),
+      fact("unhinted", "I am familiar with WAI-ARIA.", { skillLabels: ["WAI-ARIA"] }),
+    ]);
+    const hints = freezeDeep([
+      hint("hint-uncertain", "uncertain", "Node.js", "uncertain"),
+      hint("hint-guided", "guided"),
+      hint("hint-conceptual", "conceptual", "React", "conceptual"),
+    ]);
+    const result = retainedMaterialSelfAssessmentHints(items, hints, V3);
+    expect(result).toEqual(hints);
+    result.forEach((entry, index) => expect(entry).toBe(hints[index]));
+    expect(retainedMaterialSelfAssessmentHints(items, [], V3)).toEqual([]);
+  });
+
+  it.each(["extracted", "user"] as const)("treats an absent label list differently from explicit deletion for %s facts", origin => {
+    const valid = fact("valid", "I tested SQL under supervision.", { origin, skillLabels: undefined });
+    const currentHint = hint("hint-valid", "valid");
+    expect(retainedMaterialSelfAssessmentHints([valid], [currentHint], V3)).toEqual([currentHint]);
+    expect(retainedMaterialSelfAssessmentHints([{ ...valid, skillLabels: [] }], [currentHint], V3)).toEqual([]);
+    expect(retainedMaterialSelfAssessmentHints([{ ...valid, text: "I tested MySQL under supervision." }], [currentHint], V3)).toEqual([]);
+  });
+
+  it("filters independently of item order and never mutates source offsets", () => {
+    const valid = fact("valid", "I tested SQL under supervision.");
+    const invalid = fact("invalid", "My colleague tested SQL under supervision.");
+    const hints = freezeDeep([hint("hint-invalid", "invalid"), hint("hint-valid", "valid")]);
+    const items = freezeDeep([invalid, valid]);
+    const reversedItems = freezeDeep([valid, invalid]);
+    expect(retainedMaterialSelfAssessmentHints(items, hints, V3)).toEqual([hints[1]]);
+    expect(retainedMaterialSelfAssessmentHints(reversedItems, hints, V3)).toEqual([hints[1]]);
+    expect(items.map(item => item.sourceRef)).toEqual([sourceRef, sourceRef]);
+  });
+
+  it("does not upgrade hints when v3 broadens topic retention", () => {
+    const text = "I have never used SQL.";
+    const items = freezeDeep([fact("fact", text)]);
+    const hints = freezeDeep([hint("hint-guided", "fact"), hint("hint-conceptual", "fact", "SQL", "conceptual"), hint("hint-uncertain", "fact", "SQL", "uncertain")]);
+    expect(supportsReviewedSkillLabel(text, "SQL", V2)).toBe(false);
+    expect(supportsReviewedSkillLabel(text, "SQL", V3)).toBe(true);
+    expect(retainedMaterialSelfAssessmentHints(items, hints, V2)).toEqual([]);
+    expect(retainedMaterialSelfAssessmentHints(items, hints, V3)).toEqual([]);
+    expect(retainedMaterialSelfAssessmentHints(items, hints)).toEqual(hints);
+  });
+});

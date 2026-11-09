@@ -1,0 +1,1 @@
+JSON report written to C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/mention-projection-review-20261109-red-03-results.json

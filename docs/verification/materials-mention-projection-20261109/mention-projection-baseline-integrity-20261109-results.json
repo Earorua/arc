@@ -1,0 +1,10 @@
+{
+  "status": "ACCEPTED_SOURCE_COPY_UNCHANGED",
+  "count": 1004,
+  "manifestSha256": "8ab545fbd75adeaa8274ac9c7b89d7a7bbd37085a473b748071f6d11a5042ecb",
+  "snapshotSha256": "0ef2c32dada1182b8ddda84518f3e19a6157593325e37712dcbaad6ff32d8ad8",
+  "source": "D:/CodexTemp/arc-experience-priority-P3jdvc/source",
+  "currentAcceptedHead": "8cba14ddabc3de6a72af10fe6490f51293559acc",
+  "use": "Before-change v1/v2 compatibility and persisted-review fixtures",
+  "mismatches": []
+}

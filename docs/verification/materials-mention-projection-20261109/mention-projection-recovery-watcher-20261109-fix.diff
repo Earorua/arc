@@ -1,0 +1,26 @@
+diff --git a/tests/offline-uat/entry.test.mjs b/tests/offline-uat/entry.test.mjs
+index ddb0d78..605e30d 100644
+--- a/tests/offline-uat/entry.test.mjs
++++ b/tests/offline-uat/entry.test.mjs
+@@ -33,6 +33,8 @@ function request(origin, path, options = {}) {
+ test("loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files", async (context) => {
+   const server = await createHarnessServer({ port: 4181 });
+   try {
++    assert.equal(server.vite.config.server.watch, null, "offline harness must disable filesystem watching");
++    assert.deepEqual(server.vite.watcher.getWatched(), {}, "offline harness must not watch the checkout");
+     const html = await request(server.origin, "/setup");
+     assert.equal(html.status, 200); assert.match(html.headers["content-security-policy"], /default-src 'self'/u);
+     const token = /name="arc-uat-control" content="([a-f0-9]+)"/u.exec(html.body)?.[1]; assert.ok(token);
+diff --git a/tests/offline-uat/server.mjs b/tests/offline-uat/server.mjs
+index e9cf2bb..199e00e 100644
+--- a/tests/offline-uat/server.mjs
++++ b/tests/offline-uat/server.mjs
+@@ -197,7 +197,7 @@ export async function createHarnessServer({ port = 4179, composition = "compatib
+   let vite;
+   try {
+     vite = await createOfflineVite({ plugins: [middleware, offlineAliases(), react()], server: {
+-      host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],
++      watch: null, host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],
+       fs: { strict: true, allow: [workspace], deny: ["**/.env*", "**/.git/**", "**/.codex/**", "**/.agents/**"] },
+     } });
+     security = await vite.ssrLoadModule("/tests/offline-uat/security.ts");

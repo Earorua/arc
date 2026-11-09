@@ -1,0 +1,58 @@
+{"event":"offline-recovery-timing","phase":"test:begin","previousPhase":"module:loaded","heartbeat":false,"elapsedMs":34.939,"cpuUserMs":31,"cpuSystemMs":0,"eventLoopActiveMs":0,"eventLoopIdleMs":0,"rssBytes":71204864}
+{"event":"offline-recovery-timing","phase":"test:harness:before","previousPhase":"test:begin","heartbeat":false,"elapsedMs":35.241,"cpuUserMs":31,"cpuSystemMs":0,"eventLoopActiveMs":0,"eventLoopIdleMs":0,"rssBytes":71237632}
+{"event":"offline-recovery-timing","phase":"harness:create:before","previousPhase":"test:harness:before","heartbeat":false,"elapsedMs":35.429,"cpuUserMs":31,"cpuSystemMs":0,"eventLoopActiveMs":0,"eventLoopIdleMs":0,"rssBytes":71237632}
+{"event":"offline-recovery-timing","phase":"vite:cache:before","previousPhase":"harness:create:before","heartbeat":false,"elapsedMs":35.8,"cpuUserMs":31,"cpuSystemMs":0,"eventLoopActiveMs":0,"eventLoopIdleMs":0,"rssBytes":71254016}
+{"event":"offline-recovery-timing","phase":"vite:cache:after","previousPhase":"vite:cache:before","heartbeat":false,"elapsedMs":37.993,"cpuUserMs":93,"cpuSystemMs":16,"eventLoopActiveMs":0.9051000002682209,"eventLoopIdleMs":0.1079,"rssBytes":72376320}
+{"event":"offline-recovery-timing","phase":"vite:createServer:before","previousPhase":"vite:cache:after","heartbeat":false,"elapsedMs":38.063,"cpuUserMs":93,"cpuSystemMs":16,"eventLoopActiveMs":0.9806000005364418,"eventLoopIdleMs":0.1079,"rssBytes":72380416}
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+{"event":"offline-recovery-timing","phase":"vite:createServer:after","previousPhase":"vite:createServer:before","heartbeat":false,"elapsedMs":56.094,"cpuUserMs":93,"cpuSystemMs":31,"eventLoopActiveMs":18.981900000721215,"eventLoopIdleMs":0.135,"rssBytes":76783616}
+{"event":"offline-recovery-watch-config","watchIsNull":false,"watchType":"undefined","middlewareMode":false,"watcherClass":"FSWatcher","watchedDirectoryCount":0,"defaultWatchNullWasOverwritten":true}
+{"event":"offline-recovery-timing","phase":"harness:securitySSR:before","previousPhase":"vite:createServer:after","heartbeat":false,"elapsedMs":56.208,"cpuUserMs":93,"cpuSystemMs":31,"eventLoopActiveMs":19.09840000025928,"eventLoopIdleMs":0.135,"rssBytes":76787712}
+{"event":"offline-recovery-timing","phase":"harness:securitySSR:after","previousPhase":"harness:securitySSR:before","heartbeat":false,"elapsedMs":92.682,"cpuUserMs":125,"cpuSystemMs":47,"eventLoopActiveMs":55.474500000602006,"eventLoopIdleMs":0.2269,"rssBytes":83714048}
+{"event":"offline-recovery-timing","phase":"harness:compositionSSR:before","previousPhase":"harness:securitySSR:after","heartbeat":false,"elapsedMs":92.77,"cpuUserMs":125,"cpuSystemMs":47,"eventLoopActiveMs":55.56709999976158,"eventLoopIdleMs":0.2269,"rssBytes":83714048}
+{"event":"offline-recovery-timing","phase":"harness:compositionSSR:before","previousPhase":"harness:compositionSSR:before","heartbeat":true,"elapsedMs":17058.427,"cpuUserMs":5390,"cpuSystemMs":20391,"eventLoopActiveMs":16500.289799999937,"eventLoopIdleMs":521.128,"rssBytes":550883328}
+{"event":"offline-recovery-timing","phase":"harness:compositionSSR:before","previousPhase":"harness:compositionSSR:before","heartbeat":true,"elapsedMs":27057.536,"cpuUserMs":7281,"cpuSystemMs":31047,"eventLoopActiveMs":26298.99670000005,"eventLoopIdleMs":721.5252,"rssBytes":604291072}
+{"event":"offline-recovery-timing","phase":"harness:compositionSSR:before","previousPhase":"harness:compositionSSR:before","heartbeat":true,"elapsedMs":37057.558,"cpuUserMs":10250,"cpuSystemMs":42016,"eventLoopActiveMs":36118.89060000067,"eventLoopIdleMs":901.643,"rssBytes":688214016}
+{"event":"offline-recovery-timing","phase":"test:abort","previousPhase":"harness:compositionSSR:before","heartbeat":false,"elapsedMs":45071.054,"cpuUserMs":12156,"cpuSystemMs":52469,"eventLoopActiveMs":43967.99930000038,"eventLoopIdleMs":1066.0553,"rssBytes":739799040}
+✖ a completed Start response can be discarded and recovered without another provider call or budget admission (45036.9701ms)
+{"event":"offline-recovery-timing","phase":"harness:compositionSSR:after","previousPhase":"test:abort","heartbeat":false,"elapsedMs":46061.669,"cpuUserMs":12843,"cpuSystemMs":53047,"eventLoopActiveMs":44886.177799999634,"eventLoopIdleMs":1138.5154,"rssBytes":797634560}
+{"event":"offline-recovery-watched-counts","totalDirectories":9341,"totalEntries":40489,"byRoot":{"app":132,"tests":24,"docs":85,"work":4335,".worktrees":0,"node_modules":0}}
+{"event":"offline-recovery-timing","phase":"harness:sqliteSSR:before","previousPhase":"harness:compositionSSR:after","heartbeat":false,"elapsedMs":46152.488,"cpuUserMs":12937,"cpuSystemMs":53047,"eventLoopActiveMs":44976.993399999956,"eventLoopIdleMs":1138.5154,"rssBytes":806862848}
+{"event":"offline-recovery-timing","phase":"harness:sqliteSSR:after","previousPhase":"harness:sqliteSSR:before","heartbeat":false,"elapsedMs":46158.923,"cpuUserMs":12937,"cpuSystemMs":53047,"eventLoopActiveMs":44981.94050000145,"eventLoopIdleMs":1140.0104,"rssBytes":806969344}
+{"event":"offline-recovery-timing","phase":"harness:reset:before","previousPhase":"harness:sqliteSSR:after","heartbeat":false,"elapsedMs":46158.962,"cpuUserMs":12937,"cpuSystemMs":53047,"eventLoopActiveMs":44981.98060000039,"eventLoopIdleMs":1140.0104,"rssBytes":806969344}
+{"event":"offline-recovery-timing","phase":"harness:reset:after","previousPhase":"harness:reset:before","heartbeat":false,"elapsedMs":46171.831,"cpuUserMs":12953,"cpuSystemMs":53047,"eventLoopActiveMs":44994.84850000127,"eventLoopIdleMs":1140.0104,"rssBytes":808108032}
+{"event":"offline-recovery-timing","phase":"harness:listen:before","previousPhase":"harness:reset:after","heartbeat":false,"elapsedMs":46171.877,"cpuUserMs":12953,"cpuSystemMs":53047,"eventLoopActiveMs":44994.89450000136,"eventLoopIdleMs":1140.0104,"rssBytes":808108032}
+(node:752) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"event":"offline-recovery-timing","phase":"harness:listen:after","previousPhase":"harness:listen:before","heartbeat":false,"elapsedMs":46197.702,"cpuUserMs":12984,"cpuSystemMs":53047,"eventLoopActiveMs":45018.097900000954,"eventLoopIdleMs":1142.6318,"rssBytes":811085824}
+{"event":"offline-recovery-timing","phase":"test:harness:after","previousPhase":"harness:listen:after","heartbeat":false,"elapsedMs":46197.756,"cpuUserMs":12984,"cpuSystemMs":53047,"eventLoopActiveMs":45018.15360000133,"eventLoopIdleMs":1142.6318,"rssBytes":811085824}
+{"event":"offline-recovery-timing","phase":"test:setup:before","previousPhase":"test:harness:after","heartbeat":false,"elapsedMs":46197.777,"cpuUserMs":12984,"cpuSystemMs":53047,"eventLoopActiveMs":45018.174400001386,"eventLoopIdleMs":1142.6318,"rssBytes":811085824}
+{"event":"offline-recovery-timing","phase":"test:setup:after","previousPhase":"test:setup:before","heartbeat":false,"elapsedMs":46236.826,"cpuUserMs":13015,"cpuSystemMs":53063,"eventLoopActiveMs":45057.14690000013,"eventLoopIdleMs":1142.7039,"rssBytes":819888128}
+{"event":"offline-recovery-timing","phase":"test:entry:before","previousPhase":"test:setup:after","heartbeat":false,"elapsedMs":46236.991,"cpuUserMs":13015,"cpuSystemMs":53063,"eventLoopActiveMs":45057.31540000074,"eventLoopIdleMs":1142.7039,"rssBytes":819892224}
+{"event":"offline-recovery-timing","phase":"test:entry:after","previousPhase":"test:entry:before","heartbeat":false,"elapsedMs":46254.532,"cpuUserMs":13047,"cpuSystemMs":53109,"eventLoopActiveMs":45074.326900000524,"eventLoopIdleMs":1143.232,"rssBytes":827731968}
+{"event":"offline-recovery-timing","phase":"test:reactDependency:before","previousPhase":"test:entry:after","heartbeat":false,"elapsedMs":46254.623,"cpuUserMs":13047,"cpuSystemMs":53109,"eventLoopActiveMs":45074.42010000053,"eventLoopIdleMs":1143.232,"rssBytes":827731968}
+{"event":"offline-recovery-timing","phase":"test:reactDependency:before","previousPhase":"test:reactDependency:before","heartbeat":true,"elapsedMs":50148.499,"cpuUserMs":15328,"cpuSystemMs":57484,"eventLoopActiveMs":48968.29109999987,"eventLoopIdleMs":1143.232,"rssBytes":870502400}
+{"event":"offline-recovery-timing","phase":"test:reactDependency:after","previousPhase":"test:reactDependency:before","heartbeat":false,"elapsedMs":50935.396,"cpuUserMs":16281,"cpuSystemMs":58219,"eventLoopActiveMs":49565.88309999976,"eventLoopIdleMs":1332.537,"rssBytes":1014243328}
+{"event":"offline-recovery-timing","phase":"test:clientSSR:before","previousPhase":"test:reactDependency:after","heartbeat":false,"elapsedMs":50935.472,"cpuUserMs":16281,"cpuSystemMs":58219,"eventLoopActiveMs":49565.96429999966,"eventLoopIdleMs":1332.537,"rssBytes":1014243328}
+{"event":"offline-recovery-timing","phase":"test:clientSSR:after","previousPhase":"test:clientSSR:before","heartbeat":false,"elapsedMs":50948.021,"cpuUserMs":16328,"cpuSystemMs":58219,"eventLoopActiveMs":49577.55659999991,"eventLoopIdleMs":1333.4917,"rssBytes":1014423552}
+{"event":"offline-recovery-timing","phase":"test:startResearch:before","previousPhase":"test:clientSSR:after","heartbeat":false,"elapsedMs":50948.125,"cpuUserMs":16328,"cpuSystemMs":58219,"eventLoopActiveMs":49577.661800000016,"eventLoopIdleMs":1333.4917,"rssBytes":1014423552}
+{"event":"offline-recovery-timing","phase":"test:startResearch:after","previousPhase":"test:startResearch:before","heartbeat":false,"elapsedMs":51009.358,"cpuUserMs":16422,"cpuSystemMs":58219,"eventLoopActiveMs":49638.86830000063,"eventLoopIdleMs":1333.5162,"rssBytes":1023639552}
+{"event":"offline-recovery-timing","phase":"test:recoverResearch:before","previousPhase":"test:startResearch:after","heartbeat":false,"elapsedMs":51010.869,"cpuUserMs":16422,"cpuSystemMs":58219,"eventLoopActiveMs":49640.38070000005,"eventLoopIdleMs":1333.5162,"rssBytes":1023676416}
+{"event":"offline-recovery-timing","phase":"test:recoverResearch:after","previousPhase":"test:recoverResearch:before","heartbeat":false,"elapsedMs":51021.848,"cpuUserMs":16422,"cpuSystemMs":58219,"eventLoopActiveMs":49651.347400001185,"eventLoopIdleMs":1333.528,"rssBytes":1023950848}
+{"event":"offline-recovery-timing","phase":"test:allAssertions:after","previousPhase":"test:recoverResearch:after","heartbeat":false,"elapsedMs":51038.557,"cpuUserMs":16437,"cpuSystemMs":58234,"eventLoopActiveMs":49668.02930000022,"eventLoopIdleMs":1333.555,"rssBytes":1024532480}
+{"event":"offline-recovery-timing","phase":"test:close:before","previousPhase":"test:allAssertions:after","heartbeat":false,"elapsedMs":51038.614,"cpuUserMs":16437,"cpuSystemMs":58234,"eventLoopActiveMs":49668.087400000244,"eventLoopIdleMs":1333.555,"rssBytes":1024532480}
+{"event":"offline-recovery-timing","phase":"test:close:after","previousPhase":"test:close:before","heartbeat":false,"elapsedMs":51716.257,"cpuUserMs":16609,"cpuSystemMs":58703,"eventLoopActiveMs":50340.906100000524,"eventLoopIdleMs":1338.3721,"rssBytes":821166080}
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 0
+ℹ cancelled 1
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51957.3299
+
+✖ failing tests:
+
+test at work\grounded-verification\mention-projection-recovery-timing-20261109-probe-reversal\research-recovery.test.mjs:26:1
+✖ a completed Start response can be discarded and recovered without another provider call or budget admission (45036.9701ms)
+  'test timed out after 45000ms'

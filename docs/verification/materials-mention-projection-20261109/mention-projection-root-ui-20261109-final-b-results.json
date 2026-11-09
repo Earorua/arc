@@ -1,0 +1,305 @@
+{
+  "observations": [
+    {
+      "id": "ui-denied",
+      "paragraph": "已对应课程 1 项技能；参与当前排序 0 项技能。",
+      "expectedMapped": 1,
+      "expectedPriorities": [],
+      "actualPreview": {
+        "overlay": {
+          "skillRanks": {
+            "web-platform": 5,
+            "typescript": 5,
+            "react": 5,
+            "design-systems": 5,
+            "http-apis": 5,
+            "edge-runtime": 5,
+            "sql": 5,
+            "object-storage": 5,
+            "testing": 5,
+            "security": 5,
+            "cloud-delivery": 5,
+            "observability": 5,
+            "llm-contracts": 5,
+            "retrieval": 5,
+            "product-thinking": 5,
+            "proof-of-work": 5
+          },
+          "mandatorySkillIds": [],
+          "semanticFingerprint": "19c0458ea1127b0033fe0fe2bd86b957174fd6edc8b957a6b57461c96570673f",
+          "policyVersion": "2026.11.3"
+        },
+        "planning": {
+          "fullScope": {
+            "estimatedCompletionDate": "2026-12-06",
+            "totalMinutes": 1260
+          },
+          "targetDate": {
+            "estimatedCompletionDate": "2026-12-06",
+            "totalMinutes": 1260
+          },
+          "infeasibleReason": null
+        },
+        "confirmedItems": [
+          {
+            "id": "material-item-6b554db272d7f0c8511715569c3accec",
+            "kind": "experience",
+            "text": "I have never configured SQL for production.",
+            "origin": "extracted",
+            "sourceRef": {
+              "documentId": "ui-denied-1",
+              "documentVersionId": "ui-denied-2",
+              "textVersionId": "ui-denied-3",
+              "start": 0,
+              "end": 43
+            },
+            "requirementLevel": null,
+            "skillLabels": [
+              "SQL"
+            ]
+          }
+        ],
+        "itemReferences": [
+          {
+            "id": "material-item-6b554db272d7f0c8511715569c3accec",
+            "confirmationId": "ui-denied-7",
+            "itemId": "candidate-1"
+          }
+        ],
+        "mappingDetails": [
+          {
+            "itemId": "material-item-6b554db272d7f0c8511715569c3accec",
+            "termIndexes": [
+              0
+            ],
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "priorities": [],
+        "issues": [],
+        "uncoveredLabels": []
+      },
+      "requests": [
+        "readDocumentCapabilities",
+        "readMaterialContext"
+      ],
+      "localStorage": "{\"arc:setup-draft:v1:user%3Aowner-a:materials%3Aui-denied\":\"{\\\"version\\\":1,\\\"owner\\\":\\\"user:owner-a\\\",\\\"source\\\":\\\"materials:ui-denied\\\",\\\"updatedAt\\\":1794213473519,\\\"data\\\":{\\\"draftId\\\":\\\"draft-a48725d9-6fc5-446c-894a-6734202d143c\\\",\\\"slots\\\":{\\\"resume\\\":{\\\"documentId\\\":\\\"ui-denied-1\\\",\\\"documentVersionId\\\":\\\"ui-denied-2\\\",\\\"textVersionId\\\":\\\"ui-denied-3\\\",\\\"revision\\\":1,\\\"confirmationId\\\":\\\"ui-denied-7\\\"}},\\\"supplements\\\":[],\\\"selection\\\":{\\\"selectionId\\\":\\\"ui-denied-8\\\",\\\"selectionRevision\\\":0},\\\"preview\\\":{\\\"contextVersionId\\\":\\\"ui-denied-9\\\",\\\"selectionRef\\\":{\\\"selectionId\\\":\\\"ui-denied-8\\\",\\\"selectionRevision\\\":0},\\\"previewToken\\\":\\\"72b94919fb4806e845777cba528c48d6c7dcc6a6494d3bd20262a7050553ddab\\\"}}}\"}"
+    },
+    {
+      "id": "ui-mixed",
+      "paragraph": "已对应课程 2 项技能；参与当前排序 1 项技能。",
+      "expectedMapped": 2,
+      "expectedPriorities": [
+        "react"
+      ],
+      "actualPreview": {
+        "overlay": {
+          "skillRanks": {
+            "web-platform": 5,
+            "typescript": 5,
+            "react": 3,
+            "design-systems": 5,
+            "http-apis": 5,
+            "edge-runtime": 5,
+            "sql": 5,
+            "object-storage": 5,
+            "testing": 5,
+            "security": 5,
+            "cloud-delivery": 5,
+            "observability": 5,
+            "llm-contracts": 5,
+            "retrieval": 5,
+            "product-thinking": 5,
+            "proof-of-work": 5
+          },
+          "mandatorySkillIds": [],
+          "semanticFingerprint": "b48c8e0f97889f785efea3361fa81005b1e432e33b02020cb3a418d0a65865f9",
+          "policyVersion": "2026.11.3"
+        },
+        "planning": {
+          "fullScope": {
+            "estimatedCompletionDate": "2026-12-06",
+            "totalMinutes": 1260
+          },
+          "targetDate": {
+            "estimatedCompletionDate": "2026-12-06",
+            "totalMinutes": 1260
+          },
+          "infeasibleReason": null
+        },
+        "confirmedItems": [
+          {
+            "id": "material-item-6f26635cc84f9e9a379485f8c22d57e6",
+            "kind": "experience",
+            "text": "I built React components, but my colleague wrote SQL queries.",
+            "origin": "extracted",
+            "sourceRef": {
+              "documentId": "ui-mixed-1",
+              "documentVersionId": "ui-mixed-2",
+              "textVersionId": "ui-mixed-3",
+              "start": 0,
+              "end": 61
+            },
+            "requirementLevel": null,
+            "skillLabels": [
+              "React",
+              "SQL"
+            ]
+          }
+        ],
+        "itemReferences": [
+          {
+            "id": "material-item-6f26635cc84f9e9a379485f8c22d57e6",
+            "confirmationId": "ui-mixed-7",
+            "itemId": "candidate-1"
+          }
+        ],
+        "mappingDetails": [
+          {
+            "itemId": "material-item-6f26635cc84f9e9a379485f8c22d57e6",
+            "termIndexes": [
+              0
+            ],
+            "status": "mapped",
+            "skillIds": [
+              "react"
+            ],
+            "basis": "literal"
+          },
+          {
+            "itemId": "material-item-6f26635cc84f9e9a379485f8c22d57e6",
+            "termIndexes": [
+              1
+            ],
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "priorities": [
+          {
+            "skillId": "react",
+            "tier": 3,
+            "itemIds": [
+              "material-item-6f26635cc84f9e9a379485f8c22d57e6"
+            ]
+          }
+        ],
+        "issues": [],
+        "uncoveredLabels": []
+      },
+      "requests": [
+        "readDocumentCapabilities",
+        "readMaterialContext"
+      ],
+      "localStorage": "{\"arc:setup-draft:v1:user%3Aowner-a:materials%3Aui-mixed\":\"{\\\"version\\\":1,\\\"owner\\\":\\\"user:owner-a\\\",\\\"source\\\":\\\"materials:ui-mixed\\\",\\\"updatedAt\\\":1794213473639,\\\"data\\\":{\\\"draftId\\\":\\\"draft-5a9725d9-96f3-4961-8f8f-278959bdd20f\\\",\\\"slots\\\":{\\\"resume\\\":{\\\"documentId\\\":\\\"ui-mixed-1\\\",\\\"documentVersionId\\\":\\\"ui-mixed-2\\\",\\\"textVersionId\\\":\\\"ui-mixed-3\\\",\\\"revision\\\":1,\\\"confirmationId\\\":\\\"ui-mixed-7\\\"}},\\\"supplements\\\":[],\\\"selection\\\":{\\\"selectionId\\\":\\\"ui-mixed-8\\\",\\\"selectionRevision\\\":0},\\\"preview\\\":{\\\"contextVersionId\\\":\\\"ui-mixed-9\\\",\\\"selectionRef\\\":{\\\"selectionId\\\":\\\"ui-mixed-8\\\",\\\"selectionRevision\\\":0},\\\"previewToken\\\":\\\"08ef873e19fd95d6fb3111b2c83db09b24c6a210ed3224b99649b3252ef8afbd\\\"}}}\"}"
+    },
+    {
+      "id": "ui-positive",
+      "paragraph": "已对应课程 1 项技能；参与当前排序 1 项技能。",
+      "expectedMapped": 1,
+      "expectedPriorities": [
+        "sql"
+      ],
+      "actualPreview": {
+        "overlay": {
+          "skillRanks": {
+            "web-platform": 5,
+            "typescript": 5,
+            "react": 5,
+            "design-systems": 5,
+            "http-apis": 5,
+            "edge-runtime": 5,
+            "sql": 3,
+            "object-storage": 5,
+            "testing": 5,
+            "security": 5,
+            "cloud-delivery": 5,
+            "observability": 5,
+            "llm-contracts": 5,
+            "retrieval": 5,
+            "product-thinking": 5,
+            "proof-of-work": 5
+          },
+          "mandatorySkillIds": [],
+          "semanticFingerprint": "311d92ad01b64d2cde28125aee8fb404610fd6fe95c480fd22c38051116d9ce8",
+          "policyVersion": "2026.11.3"
+        },
+        "planning": {
+          "fullScope": {
+            "estimatedCompletionDate": "2026-12-06",
+            "totalMinutes": 1260
+          },
+          "targetDate": {
+            "estimatedCompletionDate": "2026-12-06",
+            "totalMinutes": 1260
+          },
+          "infeasibleReason": null
+        },
+        "confirmedItems": [
+          {
+            "id": "material-item-2793478e24e979749ad920fa59ee50f0",
+            "kind": "experience",
+            "text": "I wrote SQL queries.",
+            "origin": "extracted",
+            "sourceRef": {
+              "documentId": "ui-positive-1",
+              "documentVersionId": "ui-positive-2",
+              "textVersionId": "ui-positive-3",
+              "start": 0,
+              "end": 20
+            },
+            "requirementLevel": null,
+            "skillLabels": [
+              "SQL"
+            ]
+          }
+        ],
+        "itemReferences": [
+          {
+            "id": "material-item-2793478e24e979749ad920fa59ee50f0",
+            "confirmationId": "ui-positive-7",
+            "itemId": "candidate-1"
+          }
+        ],
+        "mappingDetails": [
+          {
+            "itemId": "material-item-2793478e24e979749ad920fa59ee50f0",
+            "termIndexes": [
+              0
+            ],
+            "status": "mapped",
+            "skillIds": [
+              "sql"
+            ],
+            "basis": "literal"
+          }
+        ],
+        "priorities": [
+          {
+            "skillId": "sql",
+            "tier": 3,
+            "itemIds": [
+              "material-item-2793478e24e979749ad920fa59ee50f0"
+            ]
+          }
+        ],
+        "issues": [],
+        "uncoveredLabels": []
+      },
+      "requests": [
+        "readDocumentCapabilities",
+        "readMaterialContext"
+      ],
+      "localStorage": "{\"arc:setup-draft:v1:user%3Aowner-a:materials%3Aui-positive\":\"{\\\"version\\\":1,\\\"owner\\\":\\\"user:owner-a\\\",\\\"source\\\":\\\"materials:ui-positive\\\",\\\"updatedAt\\\":1794213473701,\\\"data\\\":{\\\"draftId\\\":\\\"draft-30e71ed4-74d0-4f3a-be00-d3216076a616\\\",\\\"slots\\\":{\\\"resume\\\":{\\\"documentId\\\":\\\"ui-positive-1\\\",\\\"documentVersionId\\\":\\\"ui-positive-2\\\",\\\"textVersionId\\\":\\\"ui-positive-3\\\",\\\"revision\\\":1,\\\"confirmationId\\\":\\\"ui-positive-7\\\"}},\\\"supplements\\\":[],\\\"selection\\\":{\\\"selectionId\\\":\\\"ui-positive-8\\\",\\\"selectionRevision\\\":0},\\\"preview\\\":{\\\"contextVersionId\\\":\\\"ui-positive-9\\\",\\\"selectionRef\\\":{\\\"selectionId\\\":\\\"ui-positive-8\\\",\\\"selectionRevision\\\":0},\\\"previewToken\\\":\\\"0e3cc9151fbd18425b0e0eeaded81042b610f3fafc0c83f7b3e4bcf0eabee2a5\\\"}}}\"}"
+    }
+  ],
+  "realModelCalls": 0,
+  "transport": "Actual MaterialContextReview and public HTTP factory/createDocumentRuntime over Node SQLite and in-memory R2; actual v3 synthetic-provider deliveries only; analysis disabled"
+}

@@ -1,0 +1,279 @@
+{
+  "status": "PASS",
+  "scope": "Offline integration of source-mention Tasks 1-3 and Task 4 verification; no live-quality, release or remaining-goal acceptance",
+  "reviewedAtUtc": "2026-11-09T10:45:31.9603019+00:00",
+  "reviewer": "mention_v3_integration_review",
+  "findings": [],
+  "source": {
+    "branch": "codex/materials-replan-recovery-20261106",
+    "baseline": "8cba14ddabc3de6a72af10fe6490f51293559acc",
+    "head": "2107109f4453c5d5bb19c9bd7609915b77ef9f6a",
+    "checkout": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+    "fixedCopy": "D:\\CodexTemp\\arc-mention-projection-watcher-6F7Kb3\\source",
+    "fileCount": 1007,
+    "manifestSha256": "88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a",
+    "snapshot": {
+      "path": "work/grounded-verification/mention-projection-snapshot-20261109-c-results.json",
+      "sha256": "b0056ad6aad0d707e0ba95972d9817fca59152d0197e3f58f855f80f4fc1ffac"
+    },
+    "changedFiles": 16,
+    "addedFiles": 3,
+    "removedFiles": 0
+  },
+  "versionBoundary": {
+    "policyId": "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3",
+    "wireVersion": "source-spans-v3",
+    "storedProjection": "source-skill-mentions-v3",
+    "legacyV1V2Preserved": true,
+    "clientCannotChooseProjection": true,
+    "topicDoesNotImplyPersonalHintOrPractice": true,
+    "sameSourceExplicitAddsOnly": true,
+    "maximumTerms": 8,
+    "removedEmptyOmittedStaleTermsNotRestored": true
+  },
+  "finalGate": {
+    "vitestFiles": 379,
+    "vitestTests": 9833,
+    "additionalNodePassed": 290,
+    "additionalNodeFailed": 0,
+    "additionalNodeCancelled": 0,
+    "additionalNodeSkipped": 0,
+    "renderPassed": 5,
+    "types": "PASS",
+    "lint": "PASS",
+    "lintErrors": 0,
+    "existingLintWarnings": 4,
+    "build": "PASS",
+    "executionLocations": {
+      "unit": "D:\\CodexTemp\\arc-mention-projection-watcher-6F7Kb3\\source",
+      "serial": "D:\\CodexTemp\\arc-mention-projection-watcher-6F7Kb3\\source",
+      "research": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "additionalNode": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "types": "D:\\CodexTemp\\arc-mention-projection-watcher-6F7Kb3\\source",
+      "lint": "D:\\CodexTemp\\arc-mention-projection-watcher-6F7Kb3\\source",
+      "build": "D:\\CodexTemp\\arc-mention-projection-watcher-6F7Kb3\\source",
+      "render": "D:\\CodexTemp\\arc-mention-projection-watcher-6F7Kb3\\source"
+    },
+    "nodeWasIsolated": true,
+    "runs": [
+      {
+        "label": "mention-projection-full-unit-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 534459,
+        "logSha256": "36852687102c172cef79999662d2b2c220de4578f7299c7e846ca51471cc6082"
+      },
+      {
+        "label": "mention-projection-full-serial-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 69159,
+        "logSha256": "65524aeaca797ad262ed92a756f30e61cf361af3e02fa8c1049d9cdc3528bdac"
+      },
+      {
+        "label": "mention-projection-full-research-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 251240,
+        "logSha256": "96920605a391c5a4460f71b40854e8600398388d45a118156bb20948f8a50ac7"
+      },
+      {
+        "label": "mention-projection-full-node-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 242855,
+        "logSha256": "d945662a688cc5390ffa351806559645d26fead4caf774a74ca082f367743fce"
+      },
+      {
+        "label": "mention-projection-full-types-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 14386,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "mention-projection-full-lint-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 20100,
+        "logSha256": "70d91b69ad9c1955aaaba0f6087589aed20c5dc305973f842f9c513cbe107721"
+      },
+      {
+        "label": "mention-projection-build-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 6332,
+        "logSha256": "b92af9a1261a4b3f04d31ba0f25e47d1534f01d5919fc8c9947542374f215278"
+      },
+      {
+        "label": "mention-projection-render-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 2377,
+        "logSha256": "e0e78af59e67b61a160fd8f0306af943d3868b5054a9b9b7581c8347d7b00288"
+      },
+      {
+        "label": "mention-projection-integrity-20261109-final-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 1083,
+        "logSha256": "5cb0b71d878c6525ad859a06ef36a7190b07ad822e3783067e781550dcbcd167"
+      },
+      {
+        "label": "mention-projection-full-coverage-20261109-c",
+        "exit": 0,
+        "nonLoopbackDenials": 0,
+        "elapsedMs": 104,
+        "logSha256": "04635a3e5b60c0632ebc442e0c408dd930cd144c7c0534855029a6f70f27b6d3"
+      }
+    ]
+  },
+  "reviewerReadOnlyAudit": {
+    "rootAndCopyFilesHashedEach": 1007,
+    "sourceHashMismatches": 0,
+    "frozenReferencesHashed": 26,
+    "frozenReferenceMismatches": 0,
+    "courseDependencyCountAuditedFromFinalIntegrity": 85,
+    "vitestInventoryExactOnce": 379,
+    "missingOrDuplicateVitestFiles": 0,
+    "nodeScriptInventory": 10,
+    "trackedNativeInputsMatchingC": 109,
+    "nativeObservedPayloadsMatchingNode": 25,
+    "observedPayloadMismatchCount": 0,
+    "comparisonBoundary": "Each complete observed provider/public/database/trace payload matched by case id; native fixture/evaluation wrappers differ from Node wrappers",
+    "actualContextUiCases": 3,
+    "oldBehaviorObservationsCompared": 170,
+    "persistedHistoricalReviewsCompared": 6,
+    "capturedTableSetsCompared": 8,
+    "historicalStoreReopenedOrMutatedByReviewer": false
+  },
+  "aggregates": {
+    "coverage": {
+      "path": "work/grounded-verification/mention-projection-full-coverage-20261109-c-results.json",
+      "sha256": "8460997cb66cd90d7bffb77ea3b896d2d0004dd753813508e8676b475cf1c3ae"
+    },
+    "integrity": {
+      "path": "work/grounded-verification/mention-projection-integrity-20261109-final-c-results.json",
+      "sha256": "ed34f041b40b633abf21ff93699b7a6fbed5a52ae673b5598929a37a30335cbe"
+    }
+  },
+  "verificationRepairs": {
+    "deadlineCommit": "d9a021907cc679e8b7b8960f3f4a167a7304c18b",
+    "watcherCommit": "2107109f4453c5d5bb19c9bd7609915b77ef9f6a",
+    "originalTimeoutsAssertionsAndProtectedHashesPreserved": true,
+    "researchFailure": {
+      "name": "mention-projection-full-research-20261109-a",
+      "exit": 1,
+      "logSha256": "5b5e9ac3b5d6b3cfe40cb3f1001783f07491061e1992911f186673c9d0af8ec4",
+      "passed": 98,
+      "failed": 1,
+      "diagnosisPath": "work/grounded-verification/mention-projection-research-deadline-20261109-probe-results.json",
+      "diagnosisSha256": "2d261708fbcf4ff9a745570df2d00456d7c3d35c06237ecc4e0ce495790a1d5a",
+      "deterministicDeadlineRedCases": 2,
+      "originalTimeoutsMs": [
+        10000,
+        5000
+      ],
+      "originalCallCountAssertionsPreserved": true,
+      "sourceAndSealedHashChecksPreserved": true
+    },
+    "nodeFailure": {
+      "name": "mention-projection-full-node-20261109-b",
+      "exit": 1,
+      "passed": 289,
+      "cancelled": 1,
+      "logSha256": "87202fb42d1380a05a7179671cdf37e46b247527f8dd239c202190aea823e164",
+      "checkout": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "diagnosisCheckout": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "originalTimeoutMs": 45000,
+      "originalRunWasAlreadyIsolated": true,
+      "subsequentRepair": "Preserve server.watch:null in offline harness; no deadline, assertion or routing relaxation",
+      "diagnosticPrefix": "mention-projection-recovery-timing-20261109-"
+    },
+    "firstNativeNodeNonceComparisonFailurePreserved": true,
+    "nonceCorrectionConfinedToSyntheticContextCreation": true
+  },
+  "supportingArtifacts": [
+    {
+      "path": "work/grounded-verification/mention-projection-native-flow-20261109-final-b-results.json",
+      "sha256": "9e786b7e7c4f96140b25e544bc70a25ac32849a2a8a4fe25d6b37fbf4cc5e123"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-node-parity-20261109-final-b-results.json",
+      "sha256": "a50cb88a10fc898d1341ba043336cb8c43384400f1809e1f9d58a3a9d1911043"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-root-ui-20261109-final-b-results.json",
+      "sha256": "db1f66577b8fea79ca7c8239a7d2d37391ce862912ddb1856f285221c29ce26b"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-compatibility-final-20261109-a-results.json",
+      "sha256": "07ad0e757fa2d4c0d1d88feea289ce6cdf8f858de05d98370a893170ee6ad4bc"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-history-final-20261109-a-results.json",
+      "sha256": "a5c489b0d466e991129099c1f8e3cac88db24c16143d969089c9bacf127c83cb"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-research-deadline-20261109-probe-results.json",
+      "sha256": "2d261708fbcf4ff9a745570df2d00456d7c3d35c06237ecc4e0ce495790a1d5a"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-research-deadline-spec-20261109-memo.md",
+      "sha256": "93159fe34e657dee7608db16ab96aea50d1251c2a3139fc5b821754a0cf49583"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-research-deadline-quality-20261109-memo.md",
+      "sha256": "71ec1cf4f1cd1be2094ed52f3af9f281d373073d6013c2ff51b8ff48a64638aa"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-recovery-timing-20261109-comparison-results.json",
+      "sha256": "6c5e2518802f8ea532d87a9bbbb4925aad21ef20ad8e6e6c07032ec90493475b"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-recovery-watcher-spec-20261109-memo.md",
+      "sha256": "3cc886c21d8a021eba445a7acc078e091093284db3c08564a87e91810988aa57"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-recovery-watcher-quality-20261109-memo.md",
+      "sha256": "cfd00461f2fc458ea236249f105d74b46d922d199ad65b625c980f5233461957"
+    }
+  ],
+  "finalReportRead": {
+    "path": "docs/verification/2026-11-09-materials-mention-projection.md",
+    "sha256AtReview": "9aed2865328ac5f64e1224673081e93ee4d0f14230cc60cdace018c1cf8bd5f4",
+    "state": "C gate complete; final review/archive pending; parent may update signoff and archive links"
+  },
+  "openLimits": [
+    "Natural Chinese guided-action hint false negative",
+    "Complete numbered-entry quote limitation; next numbered-statements plan excluded",
+    "Existing adoption button still requires later typed decision/source/persistence acceptance",
+    "New course reference binding and full 14-scenario native planning protocol",
+    "Live Kimi quality, Gate 1B, current-main UI integration and publication"
+  ],
+  "noNewLiveActions": {
+    "policyActivation": 0,
+    "modelCalls": 0,
+    "cost": 0,
+    "remoteMigrations": 0,
+    "deployments": 0,
+    "pushes": 0
+  },
+  "reviewerActivity": {
+    "testsExecuted": 0,
+    "nodeCommandsExecuted": 0,
+    "networkCalls": 0,
+    "trackedSourceOrDocEdits": 0,
+    "commits": 0,
+    "writes": "Ignored review memo/results only"
+  },
+  "interimMemoPreserved": {
+    "path": "work/grounded-verification/mention-projection-integration-review-20261109-interim-memo.md",
+    "sha256": "612f5fbfded811554d6ddb6fa7c5c017ad88a988baa1ce606483a9d3232134bb"
+  },
+  "finalMemo": {
+    "path": "work/grounded-verification/mention-projection-integration-review-20261109-final-memo.md",
+    "sha256": "9247c5c4729f33cc2e8825b226e38435cfb318b194f865d4b646bb4cbfa6edac"
+  },
+  "continuingGoalRemainsActive": true
+}

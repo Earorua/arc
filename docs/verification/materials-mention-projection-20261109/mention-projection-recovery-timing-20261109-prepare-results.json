@@ -1,0 +1,167 @@
+{
+  "root": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+  "directory": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-a",
+  "originalHarnessRoot": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\tests\\offline-uat",
+  "originalTimeoutMs": 45000,
+  "unchangedTimeoutMs": 45000,
+  "snapshotManifestSha256": "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0",
+  "snapshotResultsFileSha256": "6ffedfe0a40163abbd128f49f4e2c4673450aa76fd299d2fe81236709829792e",
+  "originals": {
+    "server.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\tests\\offline-uat\\server.mjs",
+      "sha256": "d760b28a1eb9f24a380af8d68621b3df22a1504a2c86c8a6d3040fb3e2391326"
+    },
+    "research-recovery.test.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\tests\\offline-uat\\research-recovery.test.mjs",
+      "sha256": "87ca8dc79280f7129a255c5cccec8d617531c1c8613a3a89e2660f10960a2b9c"
+    }
+  },
+  "copies": {
+    "server.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-a\\server.mjs",
+      "sha256": "9bb49ec70d1ca96d96fe1338fb7b2d9d0c0a4b9e4799fcb2b7132be37efcbeb3"
+    },
+    "research-recovery.test.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-a\\research-recovery.test.mjs",
+      "sha256": "18a11b9ccdaa57be9e19b4978a4493d343dde70726b96433e3f6dd60a98112d8"
+    },
+    "timing.mjs": {
+      "path": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\mention-projection-recovery-timing-20261109-probe-a\\timing.mjs",
+      "sha256": "08d6116e68128a0294386836f9f19d71baccdf5fb4dd165b60236264a9dea8f7"
+    }
+  },
+  "edits": [
+    {
+      "name": "server.mjs",
+      "reason": "timing-only import",
+      "before": "import { createServer } from \"vite\";",
+      "after": "import { mark } from \"./timing.mjs\";\nimport { createServer } from \"vite\";"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "preserve actual original harness root in relocated copy",
+      "before": "const harnessRoot = dirname(fileURLToPath(import.meta.url));",
+      "after": "const harnessRoot = \"C:\\\\Users\\\\XF\\\\.codex\\\\worktrees\\\\materials-replan-recovery\\\\ui-warm-precision\\\\tests\\\\offline-uat\";"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "cache creation begins",
+      "before": "export async function createOfflineVite(extra = {}) {",
+      "after": "export async function createOfflineVite(extra = {}) {\n  mark(\"vite:cache:before\");"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "cache creation ends",
+      "before": "  const removeCache = async () => {",
+      "after": "  mark(\"vite:cache:after\");\n  const removeCache = async () => {"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "Vite createServer begins",
+      "before": "    const server = await createServer({",
+      "after": "    mark(\"vite:createServer:before\");\n    const server = await createServer({"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "Vite createServer ends",
+      "before": "    const close = server.close.bind(server);",
+      "after": "    mark(\"vite:createServer:after\");\n    const close = server.close.bind(server);"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "harness creation begins",
+      "before": "export async function createHarnessServer({ port = 4179, composition = \"compatibility\" } = {}) {",
+      "after": "export async function createHarnessServer({ port = 4179, composition = \"compatibility\" } = {}) {\n  mark(\"harness:create:before\");"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "security SSR boundaries",
+      "before": "    security = await vite.ssrLoadModule(\"/tests/offline-uat/security.ts\");",
+      "after": "    mark(\"harness:securitySSR:before\");\n    security = await vite.ssrLoadModule(\"/tests/offline-uat/security.ts\");\n    mark(\"harness:securitySSR:after\");"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "composition SSR boundaries",
+      "before": "      ({ createOfflineComposition: compose } = await vite.ssrLoadModule(\"/tests/offline-uat/composition.ts\"));",
+      "after": "      mark(\"harness:compositionSSR:before\");\n      ({ createOfflineComposition: compose } = await vite.ssrLoadModule(\"/tests/offline-uat/composition.ts\"));\n      mark(\"harness:compositionSSR:after\");"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "SQLite SSR boundaries",
+      "before": "      ({ createResearchD1: createDb } = await vite.ssrLoadModule(\"/tests/helpers/sqlite-d1.ts\"));",
+      "after": "      mark(\"harness:sqliteSSR:before\");\n      ({ createResearchD1: createDb } = await vite.ssrLoadModule(\"/tests/helpers/sqlite-d1.ts\"));\n      mark(\"harness:sqliteSSR:after\");"
+    },
+    {
+      "name": "server.mjs",
+      "reason": "reset and listen boundaries",
+      "before": "    await reset(); await vite.listen();",
+      "after": "    mark(\"harness:reset:before\");\n    await reset();\n    mark(\"harness:reset:after\");\n    mark(\"harness:listen:before\");\n    await vite.listen();\n    mark(\"harness:listen:after\");"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "timing-only import",
+      "before": "import { test } from \"node:test\";",
+      "after": "import { mark } from \"./timing.mjs\";\nimport { test } from \"node:test\";"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "test entry/harness boundaries and passive abort observation",
+      "before": "  const server = await createHarnessServer({ port: 4181 });",
+      "after": "  mark(\"test:begin\");\n  context.signal.addEventListener(\"abort\", () => mark(\"test:abort\"), { once: true });\n  mark(\"test:harness:before\");\n  const server = await createHarnessServer({ port: 4181 });\n  mark(\"test:harness:after\");"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "setup HTTP boundaries",
+      "before": "    const html = await (await send(server.origin, \"/setup\")).text();",
+      "after": "    mark(\"test:setup:before\");\n    const html = await (await send(server.origin, \"/setup\")).text();\n    mark(\"test:setup:after\");"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "entry HTTP boundaries",
+      "before": "    const entryModule = await (await send(server.origin, \"/tests/offline-uat/main.tsx\")).text();",
+      "after": "    mark(\"test:entry:before\");\n    const entryModule = await (await send(server.origin, \"/tests/offline-uat/main.tsx\")).text();\n    mark(\"test:entry:after\");"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "React optimized dependency HTTP boundaries",
+      "before": "    assert.equal((await send(server.origin, dependency)).status, 200);",
+      "after": "    mark(\"test:reactDependency:before\");\n    assert.equal((await send(server.origin, dependency)).status, 200);\n    mark(\"test:reactDependency:after\");"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "real client SSR boundaries",
+      "before": "    const { createResearchClient, ResearchClientError } = await server.vite.ssrLoadModule(\"/app/lib/research-client.ts\");",
+      "after": "    mark(\"test:clientSSR:before\");\n    const { createResearchClient, ResearchClientError } = await server.vite.ssrLoadModule(\"/app/lib/research-client.ts\");\n    mark(\"test:clientSSR:after\");"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "Start request begins",
+      "before": "    await assert.rejects(client.startResearch(start, new AbortController().signal),",
+      "after": "    mark(\"test:startResearch:before\");\n    await assert.rejects(client.startResearch(start, new AbortController().signal),"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "Start request ends",
+      "before": "    context.diagnostic(\"Completed Start response was discarded.\");",
+      "after": "    mark(\"test:startResearch:after\");\n    context.diagnostic(\"Completed Start response was discarded.\");"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "recovery HTTP boundaries",
+      "before": "    const recovered = await client.recoverResearch(recovery, new AbortController().signal);",
+      "after": "    mark(\"test:recoverResearch:before\");\n    const recovered = await client.recoverResearch(recovery, new AbortController().signal);\n    mark(\"test:recoverResearch:after\");"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "assertions finished",
+      "before": "  } finally {",
+      "after": "    mark(\"test:allAssertions:after\");\n  } finally {"
+    },
+    {
+      "name": "research-recovery.test.mjs",
+      "reason": "cleanup boundaries",
+      "before": "    await server.close();",
+      "after": "    mark(\"test:close:before\");\n    await server.close();\n    mark(\"test:close:after\");"
+    }
+  ]
+}

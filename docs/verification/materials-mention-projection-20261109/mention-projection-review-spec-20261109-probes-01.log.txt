@@ -1,0 +1,46 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:47288) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/mention-projection-review-spec-20261109-probes.test.tsx [2m([22m[2m13 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 454[2mms[22m[39m
+   [32m✓[39m does not promote unknown saved marker source-skill-mentions-v3-extra into editable source-linked authority[32m 60[2mms[22m[39m
+   [32m✓[39m does not promote unknown saved marker source-skill-mentions-v3  into editable source-linked authority[32m 20[2mms[22m[39m
+   [32m✓[39m does not promote unknown saved marker grounded-skill-labels-v20 into editable source-linked authority[32m 18[2mms[22m[39m
+   [32m✓[39m does not promote unknown saved marker future-v4 into editable source-linked authority[32m 17[2mms[22m[39m
+[31m   [31m×[31m binds explicit additions to each candidate slice even when another sentence has the requested term[39m[32m 13[2mms[22m[39m
+   [32m✓[39m rejects reverse canonical lookup and accepts only the actual negative alias without an ability hint[32m 20[2mms[22m[39m
+   [32m✓[39m requires explicit extraction adoption for materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2 to materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3 and keeps the destination marker[32m 21[2mms[22m[39m
+   [32m✓[39m requires explicit extraction adoption for materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3 to materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2 and keeps the destination marker[32m 21[2mms[22m[39m
+   [32m✓[39m requires explicit extraction adoption for materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3 to materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3 and keeps the destination marker[32m 19[2mms[22m[39m
+   [32m✓[39m requires explicit extraction adoption for materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3 to older-policy and keeps the destination marker[32m 23[2mms[22m[39m
+   [32m✓[39m does not regain mapping through the manual text fallback after a v3 word is removed and an old client omits labels[32m 83[2mms[22m[39m
+   [32m✓[39m rejects v3 review reads and writes after real deletion and prevents cross-owner access[32m 19[2mms[22m[39m
+   [32m✓[39m keeps v3 ability adoption as a separate explicit existing button[32m 121[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/mention-projection-review-spec-20261109-probes.test.tsx[2m > [22mbinds explicit additions to each candidate slice even when another sentence has the requested term
+[31m[1mDocumentServiceError[22m: invalid-content[39m
+[36m [2m❯[22m app/server/documents/extraction-validator.ts:[2m48:74[22m[39m
+    [90m 46|[39m         // detached fragment must not turn another actor's words into …
+    [90m 47|[39m         if (sourceMentions && (item.text !== item.source.quote || boun…
+    [90m 48|[39m             || isDetachedQuotedStatement(item.source, reference))) thr…
+    [90m   |[39m                                                                          [31m^[39m
+    [90m 49|[39m         [35mreturn[39m {
+    [90m 50|[39m             id[33m:[39m item[33m.[39mid[33m,[39m
+[90m [2m❯[22m projectExtraction app/server/documents/extraction-validator.ts:[2m41:62[22m[39m
+[90m [2m❯[22m validateDocumentExtraction app/server/documents/extraction-validator.ts:[2m30:12[22m[39m
+[90m [2m❯[22m ReviewService.acceptAiExtraction app/server/documents/review-service.ts:[2m298:27[22m[39m
+[90m [2m❯[22m setup work/grounded-verification/mention-projection-review-spec-20261109-probes.test.tsx:[2m25:21[22m[39m
+[90m [2m❯[22m work/grounded-verification/mention-projection-review-spec-20261109-probes.test.tsx:[2m55:90[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m12 passed[39m[22m[90m (13)[39m
+[2m   Start at [22m 16:39:24
+[2m   Duration [22m 3.26s[2m (transform 766ms, setup 202ms, import 1.75s, tests 454ms, environment 707ms)[22m
+
+JSON report written to C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/mention-projection-review-spec-20261109-probes-01-results.json

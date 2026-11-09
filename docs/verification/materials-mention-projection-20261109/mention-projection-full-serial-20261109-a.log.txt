@@ -1,0 +1,35 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mD:/CodexTemp/arc-mention-projection-JS5CvU/source[39m
+
+ [32m✓[39m tests/server/document-diagnostic-pilot-host.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 40423[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps readiness read-only, atomically claims one global launch, and preserves an interrupted ledger across checkouts [33m 8417[2mms[22m[39m
+   [33m[2m✓[22m[39m requires pinned private budget and privacy evidence checked since this approval and before launch [33m 8292[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects substituted owner pins, output paths, public attachments, candidate tree and byte manifest [33m 12337[2mms[22m[39m
+   [33m[2m✓[22m[39m checks actual source bytes despite assume-unchanged and rejects untracked code and linked source ancestors [33m 11357[2mms[22m[39m
+(node:37460) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/materials-supplement-collection.test.ts [2m([22m[2m45 tests[22m[2m)[22m[33m 24633[2mms[22m[39m
+   [33m[2m✓[22m[39m prints the six public identity commitments and worst-case price offline for an issuer [33m 3358[2mms[22m[39m
+   [33m[2m✓[22m[39m uses the CLI's actual source bytes despite Git overrides, assume-unchanged files and ignored shadow modules [33m 4718[2mms[22m[39m
+   [33m[2m✓[22m[39m pins the grounded supplement policy and archives its product-decoded terms beside the untouched wire [33m 764[2mms[22m[39m
+   [33m[2m✓[22m[39m runs the separately pinned source-span collector end to end and preserves the original replies beside the scored output [33m 599[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: legacy-shape [33m 609[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: invented-source [33m 1015[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: output-limit [33m 628[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: generation-limit [33m 679[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps verified billing separate from a source-span quality failure: missing-fact [33m 659[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a raw archive mismatch instead of rescoring an alternative [33m 604[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a canonical archive mismatch instead of rescoring an alternative [33m 666[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a missing archive mismatch instead of rescoring an alternative [33m 792[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses to replay a version archive mismatch instead of rescoring an alternative [33m 2020[2mms[22m[39m
+   [33m[2m✓[22m[39m cannot turn six truncated source-span replies into a passing legacy run by changing the stored issuance before scoring [33m 592[2mms[22m[39m
+   [33m[2m✓[22m[39m durably reserves before each handoff, freezes the exact content before each GET, and scores the six settled captures [33m 636[2mms[22m[39m
+   [33m[2m✓[22m[39m fails quality on malformed unedited content with a verified bill and never retries the inference [33m 526[2mms[22m[39m
+   [33m[2m✓[22m[39m checkpoints same-micro-conflict billing evidence before a failed final state transition [33m 1930[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses a second simultaneous start and a failed durable reservation never reaches transport [33m 554[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m50 passed[39m[22m[90m (50)[39m
+[2m   Start at [22m 16:58:27
+[2m   Duration [22m 66.71s[2m (transform 461ms, setup 443ms, import 785ms, tests 65.06s, environment 0ms)[22m
+

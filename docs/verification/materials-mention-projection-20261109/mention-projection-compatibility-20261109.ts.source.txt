@@ -1,0 +1,80 @@
+import { HttpDocumentAnalysisProvider, isDocumentProviderQualified } from "../../worker/document-executor/provider-http";
+import { sourceSpanPolicy, KIMI_SOURCE_SPAN_ROUTE } from "../../worker/document-executor/source-span-extraction";
+import { serializeDocumentExtraction, validateDocumentExtraction, validateStoredDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { fixtureGenerationResponse } from "../../tests/helpers/document-generation-response";
+import { supportsReviewedSkillLabel, labelForAddedSourceTerm, retainedMaterialSelfAssessmentHints } from "../../app/lib/materials/skill-labels";
+
+const policies = ["materials-openrouter-kimi-k31-pro-mxfp4-zdr", "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1", "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2"];
+const facts = [
+  ["experience", "I have never configured SQL for production.", ["SQL"], "guided"],
+  ["experience", "My colleague configured SQL for production.", ["SQL"], "guided"],
+  ["experience", "I plan to configure SQL next month.", ["SQL"], "uncertain"],
+  ["experience", "I configured SQL under supervision.", ["SQL"], "guided"],
+  ["experience", "I configured React, while my colleague configured SQL.", ["React", "SQL"], "guided"],
+  ["experience", "我在指导下清洗数据。", ["清洗数据"], "guided"],
+  ["requirement", "SQL experience is preferred.", ["SQL"], null],
+  ["requirement", "SQL experience is not required.", ["SQL"], null],
+  ["constraint", "I want to learn SQL next month.", ["SQL"], null],
+  ["experience", "I configured SQL.", [], null],
+] as const;
+
+export async function observeCompatibility() {
+  const observations: unknown[] = [];
+  for (const providerPolicyId of policies) {
+    const config = {
+      provider: "OpenRouter / Moonshot AI", model: KIMI_SOURCE_SPAN_ROUTE.model, endpoint: KIMI_SOURCE_SPAN_ROUTE.endpoint,
+      apiKey: "offline-fixture-credential", providerPolicyId,
+      routingPolicy: { policyVersion: "2026.11.3", providerOrder: [KIMI_SOURCE_SPAN_ROUTE.tag], allowFallback: false as const, dataPolicy: "zdr-only" as const },
+      priceVersion: "2026.11.3", userDailyMicroUsd: 2_000_000, globalDailyMicroUsd: 2_000_000,
+      maxJobMicroUsd: 75_000, maxInputTokens: 16_000, maxOutputTokens: 4096, httpTimeoutMs: 1000,
+    };
+    const qualification = {
+      qualified: true as const, endpoint: config.endpoint, model: config.model, providerPolicyId, priceVersion: config.priceVersion,
+      routingPolicy: config.routingPolicy,
+      receiptRoute: { providerName: KIMI_SOURCE_SPAN_ROUTE.providerName, endpointId: KIMI_SOURCE_SPAN_ROUTE.endpointId, generationModel: KIMI_SOURCE_SPAN_ROUTE.generationModel },
+      inputMicroUsdPerMillionTokens: 2_000_000, outputMicroUsdPerMillionTokens: 10_000_000, inputTokenBound: "utf8-bytes-plus-4096" as const,
+    };
+    for (const [kind, text, labels, hint] of facts) {
+      const source = { segmentId: "segment-1", quote: text };
+      const item = { kind, source, requirementLevel: kind === "requirement" ? "preferred" : null, skillLabels: [...labels], selfLevelHint: hint };
+      const reviewPoints = hint ? [{ code: "confirm-self-assessment", source }] : [];
+      const policy = sourceSpanPolicy(providerPolicyId);
+      const wire = !policy ? { schemaVersion: "2026.11.1", items: [{ ...item, id: "candidate-1", text }], reviewPoints }
+        : { format: policy.format, items: [policy.format === "source-spans-v1" ? item : (({ skillLabels, ...rest }) => ({ ...rest, skillTerms: skillLabels }))(item)], reviewPoints };
+      for (const scenario of ["normal", "missing-source", "unexpected-field", "truncated", "refused"] as const) {
+        const modified = structuredClone(wire);
+        if (scenario === "missing-source") modified.items[0].source.quote = "Invented unsupported source.";
+        if (scenario === "unexpected-field") Object.assign(modified, { reviewProjection: "source-skill-mentions-v3" });
+        const calls: unknown[] = [];
+        const provider = new HttpDocumentAnalysisProvider(config, { qualification, now: () => new Date("2026-11-09T01:00:00.000Z"), fetch: async (url, init) => {
+          const method = init?.method;
+          calls.push({ url: String(url), method, ...(method === "POST" ? { body: JSON.parse(String(init?.body)) } : {}) });
+          if (method === "POST") return Response.json({ id: "offline-receipt", model: config.model,
+            choices: [{ finish_reason: scenario === "truncated" ? "length" : "stop",
+              message: { content: JSON.stringify(modified), ...(scenario === "refused" ? { refusal: "synthetic refusal" } : {}) } }],
+            usage: { prompt_tokens: 100, completion_tokens: 20, cost: 0.000007 } });
+          return fixtureGenerationResponse("offline-receipt", config.model, qualification.receiptRoute);
+        } });
+        const segments = [{ id: "segment-1", start: 0, end: text.length }];
+        const reference = { ownerId: "owner-a", documentId: "doc-1", documentVersionId: "version-1", textVersionId: "text-1", lifecycle: "active" as const, text, segments };
+        const outcome = await provider.analyze({ text, segments, textVersionId: "text-1", kind: kind === "requirement" ? "jd" : "resume", providerPolicyId, outputSchemaVersion: "2026.11.1" }, new AbortController().signal);
+        let projected: unknown = null, stored: unknown = null, storedRead: unknown = null;
+        if (outcome.kind === "received" && outcome.candidate !== null) {
+          try {
+            projected = validateDocumentExtraction(outcome.candidate, "owner-a", reference, providerPolicyId);
+            stored = serializeDocumentExtraction(outcome.candidate, providerPolicyId);
+            storedRead = validateStoredDocumentExtraction(String(stored), "owner-a", reference);
+          } catch (error) { projected = { error: String(error instanceof Error ? error.message : error) }; }
+        }
+        observations.push({ providerPolicyId, text, scenario, wire, qualified: isDocumentProviderQualified(config, qualification), policy, calls, outcome, projected, stored, storedRead });
+      }
+    }
+  }
+  const helpers = facts.flatMap(([kind, text, labels]) => [undefined, "grounded-skill-labels-v2" as const].map(projection => ({
+    text, projection: projection ?? null,
+    terms: labels.map(label => ({ label, supported: supportsReviewedSkillLabel(text, label, projection), addition: labelForAddedSourceTerm(text, text, label) })),
+    hints: retainedMaterialSelfAssessmentHints([{ id: "fact", kind, text, skillLabels: [...labels], requirementLevel: kind === "requirement" ? "preferred" : null, sourceRef: null, origin: "user" }],
+      labels.map((skillLabel, i) => ({ id: `hint-${i}`, candidateId: "fact", skillLabel, level: "guided" })), projection),
+  })));
+  return { policies: policies.map(id => ({ id, policy: sourceSpanPolicy(id) ?? null })), observations, helpers };
+}

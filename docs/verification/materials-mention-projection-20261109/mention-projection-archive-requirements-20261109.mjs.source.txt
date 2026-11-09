@@ -1,0 +1,91 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const work = 'work/grounded-verification/';
+const checks = [
+  'mention-projection-library-20261109-green',
+  'mention-projection-library-20261109-tsc',
+  'mention-projection-library-20261109-lint',
+  'mention-projection-library-spec-20261109-probes-a',
+  'mention-projection-library-spec-20261109-suites-a',
+  'mention-projection-library-quality-20261109-focused-a',
+  'mention-projection-library-quality-20261109-probes-a',
+  'mention-projection-provider-20261109-suites-06',
+  'mention-projection-provider-20261109-types-07',
+  'mention-projection-provider-20261109-lint-08',
+  'mention-projection-provider-20261109-compat-09',
+  'mention-projection-provider-20261109-bundle-10',
+  'mention-projection-provider-spec-20261109-suites-01',
+  'mention-projection-provider-spec-20261109-probes-04',
+  'mention-projection-provider-spec-20261109-compat-03',
+  'mention-projection-provider-quality-20261109-suites-01',
+  'mention-projection-provider-quality-20261109-probes-04',
+  'mention-projection-provider-quality-20261109-compat-05',
+  'mention-projection-review-20261109-green-02',
+  'mention-projection-review-20261109-types-01',
+  'mention-projection-review-20261109-lint-01',
+  'mention-projection-review-spec-20261109-focused-01',
+  'mention-projection-review-spec-20261109-probes-02',
+  'mention-projection-review-quality-20261109-focused-01',
+  'mention-projection-review-quality-20261109-probes-01',
+  'mention-projection-research-deadline-20261109-targeted-green-a',
+  'mention-projection-research-deadline-20261109-operator-green-a',
+  'mention-projection-research-deadline-20261109-probe-green-a',
+  'mention-projection-research-deadline-spec-20261109-targeted-a',
+  'mention-projection-research-deadline-spec-20261109-identity-a',
+  'mention-projection-research-deadline-quality-20261109-regression-a',
+  'mention-projection-research-deadline-quality-20261109-probe-a',
+  'mention-projection-research-deadline-quality-20261109-lint-a',
+  'mention-projection-snapshot-20261109-b',
+  'mention-projection-native-flow-20261109-final-b',
+  'mention-projection-node-parity-20261109-final-b',
+  'mention-projection-root-ui-20261109-final-b',
+  'mention-projection-compatibility-final-20261109-a',
+  'mention-projection-history-final-20261109-a',
+  'mention-projection-full-unit-20261109-b',
+  'mention-projection-full-serial-20261109-b',
+  'mention-projection-full-research-20261109-b',
+  'mention-projection-full-node-20261109-b',
+  'mention-projection-full-types-20261109-b',
+  'mention-projection-full-lint-20261109-b',
+  'mention-projection-build-20261109-b',
+  'mention-projection-render-20261109-b',
+  'mention-projection-integrity-20261109-final-b',
+  'mention-projection-full-coverage-20261109-b',
+];
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+for (const name of checks) {
+  const outcome = JSON.parse(readFileSync(work + name + '.json'));
+  assert.equal(outcome.name, name); assert.equal(outcome.exit, 0, name);
+  assert.equal(outcome.nonLoopbackDenials, 0, name);
+  assert.equal(outcome.logSha256, sha(readFileSync(work + name + '.log')), name);
+}
+const reviewNames = [
+  [1, 'spec', 'mention-projection-library-spec-20261109-memo.md'],
+  [1, 'quality', 'mention-projection-library-quality-20261109-memo.md'],
+  [2, 'spec', 'mention-projection-provider-spec-20261109-memo.md'],
+  [2, 'quality', 'mention-projection-provider-quality-20261109-memo.md'],
+  [3, 'spec', 'mention-projection-review-spec-20261109-memo.md'],
+  [3, 'quality', 'mention-projection-review-quality-20261109-memo.md'],
+  ['research-deadline', 'spec', 'mention-projection-research-deadline-spec-20261109-memo.md'],
+  ['research-deadline', 'quality', 'mention-projection-research-deadline-quality-20261109-memo.md'],
+  [4, 'integration', 'mention-projection-integration-review-20261109-final-memo.md'],
+];
+const reviews = reviewNames.map(([task, kind, path]) => {
+  const bytes = readFileSync(work + path);
+  assert.match(bytes.toString('utf8'), /PASS/u, path);
+  return { task, kind, verdict: 'PASS', path, sha256: sha(bytes) };
+});
+const coveragePath = 'mention-projection-full-coverage-20261109-b-results.json';
+const coverageBytes = readFileSync(work + coveragePath);
+const coverage = JSON.parse(coverageBytes);
+assert.equal(coverage.status, 'PASS');
+const result = { checks, reviews, fullCoverage: { path: coveragePath, sha256: sha(coverageBytes),
+  vitestFiles: coverage.vitestFiles, vitestTests: coverage.vitestTests, nodeTests: coverage.node.tests,
+  renderTests: coverage.render.tests, nativeCases: coverage.nativeCases, nodeParityCases: coverage.nodeParityCases,
+  actualServiceUiCases: coverage.actualServiceUiCases,
+  sourceManifestSha256: coverage.sourceManifestSha256,
+} };
+writeFileSync(work + 'mention-projection-archive-required-20261109-b.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ checks: checks.length, reviews: reviews.length, fullCoverage: result.fullCoverage }));

@@ -1,0 +1,51 @@
+{"event":"offline-recovery-timing","phase":"test:begin","previousPhase":"module:loaded","heartbeat":false,"elapsedMs":57.355,"cpuUserMs":31,"cpuSystemMs":32,"eventLoopActiveMs":0,"eventLoopIdleMs":0,"rssBytes":70389760}
+{"event":"offline-recovery-timing","phase":"test:harness:before","previousPhase":"test:begin","heartbeat":false,"elapsedMs":57.669,"cpuUserMs":31,"cpuSystemMs":32,"eventLoopActiveMs":0,"eventLoopIdleMs":0,"rssBytes":70438912}
+{"event":"offline-recovery-timing","phase":"harness:create:before","previousPhase":"test:harness:before","heartbeat":false,"elapsedMs":57.85,"cpuUserMs":31,"cpuSystemMs":32,"eventLoopActiveMs":0,"eventLoopIdleMs":0,"rssBytes":70438912}
+{"event":"offline-recovery-timing","phase":"vite:cache:before","previousPhase":"harness:create:before","heartbeat":false,"elapsedMs":58.414,"cpuUserMs":31,"cpuSystemMs":32,"eventLoopActiveMs":0,"eventLoopIdleMs":0,"rssBytes":70520832}
+{"event":"offline-recovery-timing","phase":"vite:cache:after","previousPhase":"vite:cache:before","heartbeat":false,"elapsedMs":61.263,"cpuUserMs":31,"cpuSystemMs":32,"eventLoopActiveMs":1.1615999998986721,"eventLoopIdleMs":0.1071,"rssBytes":71622656}
+{"event":"offline-recovery-timing","phase":"vite:createServer:before","previousPhase":"vite:cache:after","heartbeat":false,"elapsedMs":61.421,"cpuUserMs":31,"cpuSystemMs":32,"eventLoopActiveMs":1.3325000001579523,"eventLoopIdleMs":0.1071,"rssBytes":71622656}
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+{"event":"offline-recovery-timing","phase":"vite:createServer:after","previousPhase":"vite:createServer:before","heartbeat":false,"elapsedMs":92.044,"cpuUserMs":46,"cpuSystemMs":32,"eventLoopActiveMs":31.929499999636413,"eventLoopIdleMs":0.1376,"rssBytes":76079104}
+{"event":"offline-recovery-watch-config","watchIsNull":true,"middlewareMode":false,"watcherClass":"NoopWatcher","watchedDirectoryCount":0,"defaultWatchNullWasOverwritten":false}
+{"event":"offline-recovery-timing","phase":"harness:securitySSR:before","previousPhase":"vite:createServer:after","heartbeat":false,"elapsedMs":92.146,"cpuUserMs":46,"cpuSystemMs":32,"eventLoopActiveMs":32.03420000059307,"eventLoopIdleMs":0.1376,"rssBytes":76079104}
+{"event":"offline-recovery-timing","phase":"harness:securitySSR:after","previousPhase":"harness:securitySSR:before","heartbeat":false,"elapsedMs":263.904,"cpuUserMs":93,"cpuSystemMs":141,"eventLoopActiveMs":200.506400000605,"eventLoopIdleMs":3.4132,"rssBytes":99717120}
+{"event":"offline-recovery-timing","phase":"harness:compositionSSR:before","previousPhase":"harness:securitySSR:after","heartbeat":false,"elapsedMs":264.021,"cpuUserMs":93,"cpuSystemMs":141,"eventLoopActiveMs":200.63170000009538,"eventLoopIdleMs":3.4132,"rssBytes":99729408}
+{"event":"offline-recovery-timing","phase":"harness:compositionSSR:after","previousPhase":"harness:compositionSSR:before","heartbeat":false,"elapsedMs":1574.123,"cpuUserMs":1203,"cpuSystemMs":719,"eventLoopActiveMs":1253.6348000011058,"eventLoopIdleMs":260.5049,"rssBytes":316481536}
+{"event":"offline-recovery-timing","phase":"harness:sqliteSSR:before","previousPhase":"harness:compositionSSR:after","heartbeat":false,"elapsedMs":1574.217,"cpuUserMs":1203,"cpuSystemMs":719,"eventLoopActiveMs":1253.7352999998839,"eventLoopIdleMs":260.5049,"rssBytes":316481536}
+{"event":"offline-recovery-timing","phase":"harness:sqliteSSR:after","previousPhase":"harness:sqliteSSR:before","heartbeat":false,"elapsedMs":1578.398,"cpuUserMs":1203,"cpuSystemMs":719,"eventLoopActiveMs":1256.705100000149,"eventLoopIdleMs":261.7049,"rssBytes":316829696}
+{"event":"offline-recovery-timing","phase":"harness:reset:before","previousPhase":"harness:sqliteSSR:after","heartbeat":false,"elapsedMs":1578.474,"cpuUserMs":1203,"cpuSystemMs":719,"eventLoopActiveMs":1256.7786000000895,"eventLoopIdleMs":261.7049,"rssBytes":316837888}
+{"event":"offline-recovery-timing","phase":"harness:reset:after","previousPhase":"harness:reset:before","heartbeat":false,"elapsedMs":1591.795,"cpuUserMs":1218,"cpuSystemMs":719,"eventLoopActiveMs":1270.1179000011296,"eventLoopIdleMs":261.7049,"rssBytes":319016960}
+{"event":"offline-recovery-timing","phase":"harness:listen:before","previousPhase":"harness:reset:after","heartbeat":false,"elapsedMs":1591.828,"cpuUserMs":1218,"cpuSystemMs":719,"eventLoopActiveMs":1270.1523000004352,"eventLoopIdleMs":261.7049,"rssBytes":319016960}
+(node:41356) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"event":"offline-recovery-timing","phase":"harness:listen:after","previousPhase":"harness:listen:before","heartbeat":false,"elapsedMs":1612.908,"cpuUserMs":1218,"cpuSystemMs":735,"eventLoopActiveMs":1287.6149000001758,"eventLoopIdleMs":265.3214,"rssBytes":321363968}
+{"event":"offline-recovery-timing","phase":"test:harness:after","previousPhase":"harness:listen:after","heartbeat":false,"elapsedMs":1612.962,"cpuUserMs":1218,"cpuSystemMs":735,"eventLoopActiveMs":1287.669999999708,"eventLoopIdleMs":265.3214,"rssBytes":321363968}
+{"event":"offline-recovery-timing","phase":"test:setup:before","previousPhase":"test:harness:after","heartbeat":false,"elapsedMs":1612.979,"cpuUserMs":1218,"cpuSystemMs":735,"eventLoopActiveMs":1287.687100000462,"eventLoopIdleMs":265.3214,"rssBytes":321363968}
+{"event":"offline-recovery-timing","phase":"test:setup:after","previousPhase":"test:setup:before","heartbeat":false,"elapsedMs":1648.41,"cpuUserMs":1218,"cpuSystemMs":735,"eventLoopActiveMs":1323.0291000006796,"eventLoopIdleMs":265.408,"rssBytes":330575872}
+{"event":"offline-recovery-timing","phase":"test:entry:before","previousPhase":"test:setup:after","heartbeat":false,"elapsedMs":1648.507,"cpuUserMs":1218,"cpuSystemMs":735,"eventLoopActiveMs":1323.1278000006528,"eventLoopIdleMs":265.408,"rssBytes":330579968}
+{"event":"offline-recovery-timing","phase":"test:entry:after","previousPhase":"test:entry:before","heartbeat":false,"elapsedMs":1696.964,"cpuUserMs":1390,"cpuSystemMs":875,"eventLoopActiveMs":1369.9174999998838,"eventLoopIdleMs":267.0727,"rssBytes":340402176}
+{"event":"offline-recovery-timing","phase":"test:reactDependency:before","previousPhase":"test:entry:after","heartbeat":false,"elapsedMs":1697.069,"cpuUserMs":1390,"cpuSystemMs":875,"eventLoopActiveMs":1370.0249999998093,"eventLoopIdleMs":267.0727,"rssBytes":340467712}
+{"event":"offline-recovery-timing","phase":"test:reactDependency:after","previousPhase":"test:reactDependency:before","heartbeat":false,"elapsedMs":7016.064,"cpuUserMs":4421,"cpuSystemMs":6172,"eventLoopActiveMs":6451.546700000191,"eventLoopIdleMs":504.5431,"rssBytes":527740928}
+{"event":"offline-recovery-timing","phase":"test:clientSSR:before","previousPhase":"test:reactDependency:after","heartbeat":false,"elapsedMs":7016.131,"cpuUserMs":4421,"cpuSystemMs":6172,"eventLoopActiveMs":6451.617099999809,"eventLoopIdleMs":504.5431,"rssBytes":527740928}
+{"event":"offline-recovery-timing","phase":"test:clientSSR:after","previousPhase":"test:clientSSR:before","heartbeat":false,"elapsedMs":7092.623,"cpuUserMs":4578,"cpuSystemMs":6188,"eventLoopActiveMs":6526.393799999365,"eventLoopIdleMs":506.2546,"rssBytes":512692224}
+{"event":"offline-recovery-timing","phase":"test:startResearch:before","previousPhase":"test:clientSSR:after","heartbeat":false,"elapsedMs":7092.749,"cpuUserMs":4578,"cpuSystemMs":6188,"eventLoopActiveMs":6526.52260000036,"eventLoopIdleMs":506.2546,"rssBytes":512692224}
+{"event":"offline-recovery-timing","phase":"test:startResearch:after","previousPhase":"test:startResearch:before","heartbeat":false,"elapsedMs":7155.056,"cpuUserMs":4640,"cpuSystemMs":6188,"eventLoopActiveMs":6588.782900000063,"eventLoopIdleMs":506.2993,"rssBytes":512208896}
+{"event":"offline-recovery-timing","phase":"test:recoverResearch:before","previousPhase":"test:startResearch:after","heartbeat":false,"elapsedMs":7156.597,"cpuUserMs":4640,"cpuSystemMs":6188,"eventLoopActiveMs":6590.325999999491,"eventLoopIdleMs":506.2993,"rssBytes":512315392}
+{"event":"offline-recovery-timing","phase":"test:recoverResearch:after","previousPhase":"test:recoverResearch:before","heartbeat":false,"elapsedMs":7168.956,"cpuUserMs":4640,"cpuSystemMs":6204,"eventLoopActiveMs":6602.619600000933,"eventLoopIdleMs":506.3645,"rssBytes":513056768}
+{"event":"offline-recovery-timing","phase":"test:allAssertions:after","previousPhase":"test:recoverResearch:after","heartbeat":false,"elapsedMs":7185.731,"cpuUserMs":4656,"cpuSystemMs":6219,"eventLoopActiveMs":6619.367500000456,"eventLoopIdleMs":506.3921,"rssBytes":513855488}
+{"event":"offline-recovery-timing","phase":"test:close:before","previousPhase":"test:allAssertions:after","heartbeat":false,"elapsedMs":7185.779,"cpuUserMs":4656,"cpuSystemMs":6219,"eventLoopActiveMs":6619.415400001043,"eventLoopIdleMs":506.3921,"rssBytes":513855488}
+{"event":"offline-recovery-timing","phase":"test:close:after","previousPhase":"test:close:before","heartbeat":false,"elapsedMs":7194.024,"cpuUserMs":4687,"cpuSystemMs":6250,"eventLoopActiveMs":6622.75229999955,"eventLoopIdleMs":511.2995,"rssBytes":513925120}
+{"event":"offline-recovery-timing","phase":"test:abort","previousPhase":"test:close:after","heartbeat":false,"elapsedMs":7194.368,"cpuUserMs":4687,"cpuSystemMs":6250,"eventLoopActiveMs":6623.09710000056,"eventLoopIdleMs":511.2995,"rssBytes":513925120}
+✔ a completed Start response can be discarded and recovered without another provider call or budget admission (7137.5138ms)
+ℹ Offline harness and actual client loaded.
+ℹ Completed Start response was discarded.
+ℹ Recovery query returned.
+ℹ Loopback only; no response bodies, cookies, credentials, or provider payloads are logged.
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7425.1072

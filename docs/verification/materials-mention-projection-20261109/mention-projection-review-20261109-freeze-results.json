@@ -1,0 +1,146 @@
+{
+  "task": "Task 3 v3 mention review",
+  "status": "DONE: frozen for specification review then quality review",
+  "baselineHead": "c36aa0e8049e3b8f245dc6004ac9d2c23b89ae29",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "files": [
+    {
+      "path": "app/server/documents/review-service.ts",
+      "sha256": "8a98f8f6bb1f9b506434ff85e3a803294b07a3c02c4597c4c3cb95b1b7e8f378",
+      "bytes": 25113
+    },
+    {
+      "path": "app/components/materials/material-confirmation.tsx",
+      "sha256": "6e328b880f71447f89cd94619dbb72dd4967ec04d9dc74a7d23112cb0cdebd8f",
+      "bytes": 10723
+    },
+    {
+      "path": "tests/server/document-review-draft.test.ts",
+      "sha256": "cc0b49d830293e6dade78ed0758f1e270f624e484b69181eae18944d606ff2c1",
+      "bytes": 38350
+    },
+    {
+      "path": "tests/components/material-confirmation-source.test.tsx",
+      "sha256": "b6745699b335c5ed4686eb45426740a908f1fb6b02b908ad6b15d6d92d84d136",
+      "bytes": 18907
+    },
+    {
+      "path": "tests/components/material-source-term-correction.test.tsx",
+      "sha256": "55d4f555e9f82318948ba51899852299a36259065a3cd8682e13b63f0ae1db6d",
+      "bytes": 12745
+    },
+    {
+      "path": "tests/server/material-mention-review-flow.test.ts",
+      "sha256": "f1bfe99e0170ad70b2ef4347ecf93865bcd0a90f11b3d266b50f211f0eef8886",
+      "bytes": 11379
+    },
+    {
+      "path": "tests/helpers/material-mention-review-fixture.ts",
+      "sha256": "bf886c20b6c3ac433ca735928ed9cd29438001f6855cb6347e6412cd9c82e3d5",
+      "bytes": 4824
+    }
+  ],
+  "checks": [
+    {
+      "label": "mention-projection-review-20261109-red-01",
+      "exit": 1,
+      "logSha256": "7c47912925ca6e6275c13a54237e31fd54ba50b943cf740e0d8c4dab4f7d5f55",
+      "actualLogSha256": "7c47912925ca6e6275c13a54237e31fd54ba50b943cf740e0d8c4dab4f7d5f55",
+      "nonLoopbackDenials": 0,
+      "resultsPath": "work/grounded-verification/mention-projection-review-20261109-red-01-results.json",
+      "resultsSha256": "6bcf07089c7b45c17c0d34f11753233f3a8cdd0554b173c8615633813302f58c"
+    },
+    {
+      "label": "mention-projection-review-20261109-red-02",
+      "exit": 1,
+      "logSha256": "fce132549067d0dfcc3d5b43be1997628496fec5ef69716451421cafc92dd411",
+      "actualLogSha256": "fce132549067d0dfcc3d5b43be1997628496fec5ef69716451421cafc92dd411",
+      "nonLoopbackDenials": 0,
+      "resultsPath": "work/grounded-verification/mention-projection-review-20261109-red-02-results.json",
+      "resultsSha256": "28f923bc2aff149a7f4607e6da5cd9f36f9323a21b7edc0aff2b36c012d6f239"
+    },
+    {
+      "label": "mention-projection-review-20261109-green-01",
+      "exit": 1,
+      "logSha256": "37b887ccb32827e6892b9313ff29def503f85e5ddf17c86d5fc4db746e12b46e",
+      "actualLogSha256": "37b887ccb32827e6892b9313ff29def503f85e5ddf17c86d5fc4db746e12b46e",
+      "nonLoopbackDenials": 0,
+      "resultsPath": "work/grounded-verification/mention-projection-review-20261109-green-01-results.json",
+      "resultsSha256": "c693c71287297f6a1bf39a7635609371d4fe1f6298bad3ee36a0edba1685a8fb"
+    },
+    {
+      "label": "mention-projection-review-20261109-red-03",
+      "exit": 0,
+      "logSha256": "e9a4b78f6712bc896a3fb15bce57031cba58db0d17f0c12d2fc0c6cbda0e4472",
+      "actualLogSha256": "e9a4b78f6712bc896a3fb15bce57031cba58db0d17f0c12d2fc0c6cbda0e4472",
+      "nonLoopbackDenials": 0,
+      "resultsPath": "work/grounded-verification/mention-projection-review-20261109-red-03-results.json",
+      "resultsSha256": "de04c69dcaa551bf9e1997a0ef12605647e36e458b6319ed3a65d24bf6ee2932"
+    },
+    {
+      "label": "mention-projection-review-20261109-red-04",
+      "exit": 1,
+      "logSha256": "153892329b09cbb845619eaaf9c6791449a79aca476479e5194b6dc76f44c808",
+      "actualLogSha256": "153892329b09cbb845619eaaf9c6791449a79aca476479e5194b6dc76f44c808",
+      "nonLoopbackDenials": 0,
+      "resultsPath": "work/grounded-verification/mention-projection-review-20261109-red-04-results.json",
+      "resultsSha256": "dc54be65d88d2afedc38bff2ea2045c14f778ab6e8b1925f8766b81b6167f290"
+    },
+    {
+      "label": "mention-projection-review-20261109-green-02",
+      "exit": 0,
+      "logSha256": "20139aa37e33e44303d8752aef096f5b49f1faa8f73070ebd9605e236743fe1f",
+      "actualLogSha256": "20139aa37e33e44303d8752aef096f5b49f1faa8f73070ebd9605e236743fe1f",
+      "nonLoopbackDenials": 0,
+      "resultsPath": "work/grounded-verification/mention-projection-review-20261109-green-02-results.json",
+      "resultsSha256": "01da14a3c7d3596ae841005ce0fc4631303375a5c695318b3ffa299f8f623a3f"
+    },
+    {
+      "label": "mention-projection-review-20261109-types-01",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actualLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "resultsPath": null,
+      "resultsSha256": null
+    },
+    {
+      "label": "mention-projection-review-20261109-lint-01",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actualLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "resultsPath": null,
+      "resultsSha256": null
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work/grounded-verification/mention-projection-review-20261109-handoff.md",
+      "sha256": "288ceea7a6f7832a006bab7a98c6c39f591db1cc224f2c8311ec48f81a11fe40"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-review-20261109-tsconfig.json",
+      "sha256": "fb3bf53a63bff8d75e24439f2dfa88498f568a36f719f8a157841c2ab35625d1"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-review-20261109-baseline-ui.config.ts",
+      "sha256": "b2e37dae6fbc8cf4f1978017d815be0c2d04b255b4e53f85be08a85fed6b548b"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-review-20261109-baseline-material-confirmation.tsx.source.txt",
+      "sha256": "085d355db29c4fac069bcad3f353f5de40298d2a53135aff66c0373cb79a81c4"
+    }
+  ],
+  "focusedTests": {
+    "failed": 0,
+    "files": 12,
+    "passed": 338
+  },
+  "nativeAndHistoricalParentChecks": "pending root rerun",
+  "commits": 0,
+  "liveModelCalls": 0,
+  "remoteMigrations": 0,
+  "deployments": 0,
+  "pushes": 0
+}

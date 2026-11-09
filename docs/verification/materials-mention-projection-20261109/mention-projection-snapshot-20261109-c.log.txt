@@ -1,0 +1,1 @@
+{"head":"2107109f4453c5d5bb19c9bd7609915b77ef9f6a","checkout":"D:\\CodexTemp\\arc-mention-projection-watcher-6F7Kb3\\source","files":1007,"manifestSha256":"88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a"}

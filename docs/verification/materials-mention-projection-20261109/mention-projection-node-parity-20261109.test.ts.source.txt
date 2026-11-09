@@ -1,0 +1,36 @@
+// @vitest-environment node
+import { webcrypto, createHash } from "node:crypto";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { afterEach, expect, it, vi } from "vitest";
+import { createMaterialsD1, seedUser } from "../../tests/helpers/materials-d1";
+import { memoryBucket } from "../../tests/helpers/document-bucket";
+import worker from "./mention-projection-flow-worker-20261109";
+
+afterEach(() => vi.unstubAllGlobals());
+it("matches complete v3 provider/client/HTTP/review/context outcomes between Node SQLite and workerd D1", async () => {
+  vi.stubGlobal("crypto", webcrypto);
+  const source = import.meta.env.ARC_MENTION_NATIVE_RESULT;
+  const output = import.meta.env.ARC_MENTION_NODE_RESULT;
+  expect(source).toMatch(/^work\/grounded-verification\/mention-projection-native-flow-[a-z0-9-]+-results\.json$/u);
+  expect(output).toMatch(/^work\/grounded-verification\/mention-projection-node-parity-[a-z0-9-]+-results\.json$/u);
+  expect(existsSync(output)).toBe(false);
+  const bytes = readFileSync(source), native = JSON.parse(bytes.toString("utf8"));
+  expect(native.status).toBe("PASS");
+  expect(native.observations.length).toBe(25);
+  const db = createMaterialsD1(), bucket = memoryBucket(), observations: unknown[] = [];
+  seedUser(db, "owner-a");
+  try {
+    for (const { entry, observed: expected } of native.observations) {
+      const response = await worker.fetch(new Request("http://localhost/parity", { method: "POST", body: JSON.stringify(entry) }),
+        { DB: db as unknown as D1Database, DOCS: bucket as unknown as R2Bucket });
+      const observed = await response.json() as typeof expected;
+      observations.push({ id: entry.id, observed });
+      expect(observed.ok, entry.id + ": " + JSON.stringify(observed)).toBe(true);
+      expect(observed, entry.id + " complete public/provider/database/trace observation").toEqual(expected);
+    }
+    writeFileSync(output, JSON.stringify({ status: "PASS", cases: observations.length, nativeSource: source,
+      nativeSha256: createHash("sha256").update(bytes).digest("hex"), workerSha256: createHash("sha256").update(readFileSync("work/grounded-verification/mention-projection-flow-worker-20261109.ts")).digest("hex"),
+      observations, realModelCalls: 0, actualCostMicroUsd: 0,
+      transport: "Same complete provider/client/HTTP/runtime service flow, synthetic fetch with deterministic clocks, compared byte-equivalent JSON values across Node SQLite and workerd D1/R2. No provider activation or real billing." }, null, 2) + "\n", { flag: "wx" });
+  } finally { db.close(); }
+}, 45000);

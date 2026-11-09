@@ -1,0 +1,59 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const prefix = "work/grounded-verification/mention-projection-research-deadline-spec-20261109";
+const hash = bytes => createHash("sha256").update(bytes).digest("hex");
+const git = (...args) => execFileSync("git", args, { maxBuffer: 32 * 1024 * 1024 });
+const freezePath = "work/grounded-verification/mention-projection-research-deadline-20261109-fix-identity-results.json";
+const freeze = JSON.parse(readFileSync(freezePath, "utf8"));
+assert.equal(git("rev-parse", "HEAD").toString().trim(), "4d6bc823e5609a008acf86644ddc8a3b33f844ca");
+assert.equal(git("branch", "--show-current").toString().trim(), "codex/materials-replan-recovery-20261106");
+const files = [...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").toString().split("\0").filter(path => path && !path.startsWith("docs/")))].sort();
+const filesSha256 = Object.fromEntries(files.map(path => [path, hash(readFileSync(path))]));
+assert.deepEqual(filesSha256, freeze.filesSha256);
+const manifestSha256 = hash(JSON.stringify(filesSha256));
+assert.equal(manifestSha256, "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0");
+assert.equal(files.length, 1007);
+const driverPath = "scripts/test-research-cloud-smoke.mjs";
+const testPath = "tests/server/research-cloud-smoke-composition.test.ts";
+assert.equal(filesSha256[driverPath], "6f351aecd1d5723b6f8dd8737965e036a637ee49d5d452944e452d82e0445e20");
+assert.equal(filesSha256[testPath], "da97fada6f1898704331dd7295e93fda085362e527bc53ddfb0c7b8e080681df");
+for (const path of [driverPath, testPath]) assert.deepEqual(readFileSync(path), readFileSync(resolve(freeze.sourceDirectory, path)));
+const baseline = JSON.parse(readFileSync("work/grounded-verification/mention-projection-snapshot-20261109-results.json", "utf8"));
+const changed = files.filter(path => filesSha256[path] !== baseline.filesSha256[path]);
+assert.deepEqual(changed, [driverPath, testPath]);
+const currentTest = readFileSync(testPath, "utf8");
+const newBlockStart = 'describe("isolated control deadline boundary", () => {';
+const oldBlockStart = 'describe("bounded operator driver", () => {';
+assert.equal(currentTest.split(newBlockStart).length, 2);
+assert.equal(currentTest.split(oldBlockStart).length, 2);
+const start = currentTest.indexOf(newBlockStart), end = currentTest.indexOf(oldBlockStart);
+assert.ok(start < end);
+const testWithoutNewBlock = Buffer.from(currentTest.slice(0, start) + currentTest.slice(end));
+const originalTest = git("show", `HEAD:${testPath}`);
+assert.deepEqual(testWithoutNewBlock, originalTest);
+assert.equal(hash(originalTest), baseline.filesSha256[testPath]);
+const authorEvidence = freeze.verification.map(item => {
+  const path = `work/grounded-verification/${item.label}`;
+  const metadata = JSON.parse(readFileSync(`${path}.json`, "utf8"));
+  assert.equal(hash(readFileSync(`${path}.log`)), item.logSha256);
+  assert.equal(metadata.logSha256, item.logSha256);
+  assert.equal(metadata.exit, item.exit);
+  assert.equal(metadata.nonLoopbackDenials, 0);
+  return { label: item.label, exit: item.exit, logSha256: item.logSha256, integrity: "PASS" };
+});
+const result = {
+  status: "PASS", review: "independent spec identity and preservation check",
+  branch: freeze.branch, head: freeze.head, manifestSha256, sourceFileCount: files.length,
+  unchangedNonDocFiles: files.length - changed.length,
+  sourceHashes: Object.fromEntries(changed.map(path => [path, filesSha256[path]])),
+  exactFrozenFiles: true, entireOriginalTestPreservedByteForByte: true,
+  originalTestSha256: hash(originalTest), addedTestBlockLines: currentTest.slice(start, end).split("\n").length - 1,
+  authorEvidence,
+  limits: "Offline identity and preservation evidence; no full-checkout, native, cloud, model, or deployment acceptance claimed."
+};
+writeFileSync(`${prefix}-identity-results.json`, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify(result));

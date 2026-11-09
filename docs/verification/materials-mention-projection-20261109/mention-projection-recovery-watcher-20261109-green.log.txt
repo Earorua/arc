@@ -1,0 +1,60 @@
+✔ asset classification rejects Windows aliases and private resolved paths without opening files (0.7792ms)
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+(node:4108) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files
+  ✔ rejects non-client source through alternate asset path /app/server/auth/session.ts (0.8209ms)
+  ✔ rejects non-client source through alternate asset path /app/Server/auth/session.ts (0.9942ms)
+  ✔ rejects non-client source through alternate asset path /app/sErVeR/auth/session.ts (0.8686ms)
+  ✔ rejects non-client source through alternate asset path /app/%53erver/auth/session.ts (0.8149ms)
+  ✔ rejects non-client source through alternate asset path /@id/C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/app/server/auth/session.ts (0.7703ms)
+  ✔ rejects non-client source through alternate asset path /@id/C%3A%2FUsers%2FXF%2F.codex%2Fworktrees%2Fmaterials-replan-recovery%2Fui-warm-precision%2Fapp%2Fserver%2Fauth%2Fsession.ts (0.7803ms)
+  ✔ preserves required client asset /app/setup/page.tsx (1.5198ms)
+  ✔ preserves required client asset /app/path/page.tsx (0.9914ms)
+  ✔ preserves required client asset /app/today/page.tsx (1.0105ms)
+  ✔ preserves required client asset /app/stack/page.tsx (0.9802ms)
+  ✔ preserves required client asset /app/proof/page.tsx (0.9158ms)
+  ✔ preserves required client asset /app/server/auth/policy.ts (0.6988ms)
+  ✔ preserves required client asset /app/server/account-link/contracts.ts (0.7554ms)
+  ✔ preserves required client asset /app/globals.css (1.0293ms)
+  ✔ preserves required client asset /tests/offline-uat/api-trace.ts (0.9218ms)
+  ✔ preserves required client asset /node_modules/@fontsource-variable/manrope/index.css (0.7829ms)
+  ✔ preserves required client asset /node_modules/@fontsource-variable/newsreader/index.css (0.7522ms)
+✔ loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files (5802.1343ms)
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+(node:35188) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":33,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"workflow-create","state":"started","elapsedMs":33,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"workflow-create","state":"succeeded","elapsedMs":34,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"record-accepted","state":"started","elapsedMs":34,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"record-accepted","state":"succeeded","elapsedMs":55,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":55,"aborted":false}
+[2m18:07:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mdependency optimized: [33mreact-dom/client[32m[39m
+[2m18:07:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mdependency optimized: [33mzod[32m[39m
+[2m18:07:53[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32moptimized dependencies changed. reloading[39m
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":215,"aborted":false}
+[2m18:07:54[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: The file does not exist at "C:/Users/XF/AppData/Local/Temp/arc-grounded-check-B5fsDQ/arc-v8-offline-vite-iI0CmQ/deps/rolldown-runtime-BvCyGRYZ.js" which is in the optimize deps directory. The dependency might be incompatible with the dep optimizer. Try adding it to `optimizeDeps.exclude`.
+{"event":"arc.research.workflow-start","phase":"job-accept","state":"started","elapsedMs":0,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"job-accept","state":"succeeded","elapsedMs":13,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"started","elapsedMs":14,"aborted":false}
+{"event":"arc.research.workflow-start","phase":"site-accepted","state":"succeeded","elapsedMs":80,"aborted":false}
+✔ public durable HTTP recovery retains one independently executed job across graph and R2 reopenings (12010.9042ms)
+ℹ Real public HTTP/client; synthetic signed private transport and independent executor; no paid Provider.
+[33mThe `envFile` option is deprecated, please use `envDir: false` instead.[39m
+(node:50272) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a completed Start response can be discarded and recovered without another provider call or budget admission (5909.7318ms)
+ℹ Offline harness and actual client loaded.
+ℹ Completed Start response was discarded.
+ℹ Recovery query returned.
+ℹ Loopback only; no response bodies, cookies, credentials, or provider payloads are logged.
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24432.3048

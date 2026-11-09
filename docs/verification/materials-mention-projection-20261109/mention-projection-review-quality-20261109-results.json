@@ -1,0 +1,200 @@
+{
+  "task": "Task 3 v3 mention review",
+  "reviewType": "independent quality",
+  "verdict": "PASS",
+  "baselineHead": "c36aa0e8049e3b8f245dc6004ac9d2c23b89ae29",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "authorFreeze": {
+    "path": "work/grounded-verification/mention-projection-review-20261109-freeze-results.json",
+    "sha256": "0f0cf48f75a46d84b65f83b11458920f147f401ecbf8575e2b76fc5742fd53c3"
+  },
+  "specificationMemo": {
+    "path": "work/grounded-verification/mention-projection-review-spec-20261109-memo.md",
+    "sha256": "e120f0d169b14b0fa6ebbf877d4697f1f02e6bd153202e8b73d7d7157fcfe290"
+  },
+  "frozenSources": [
+    {
+      "path": "app/server/documents/review-service.ts",
+      "sha256": "8a98f8f6bb1f9b506434ff85e3a803294b07a3c02c4597c4c3cb95b1b7e8f378",
+      "expectedSha256": "8a98f8f6bb1f9b506434ff85e3a803294b07a3c02c4597c4c3cb95b1b7e8f378",
+      "bytes": 25113,
+      "match": true
+    },
+    {
+      "path": "app/components/materials/material-confirmation.tsx",
+      "sha256": "6e328b880f71447f89cd94619dbb72dd4967ec04d9dc74a7d23112cb0cdebd8f",
+      "expectedSha256": "6e328b880f71447f89cd94619dbb72dd4967ec04d9dc74a7d23112cb0cdebd8f",
+      "bytes": 10723,
+      "match": true
+    },
+    {
+      "path": "tests/server/document-review-draft.test.ts",
+      "sha256": "cc0b49d830293e6dade78ed0758f1e270f624e484b69181eae18944d606ff2c1",
+      "expectedSha256": "cc0b49d830293e6dade78ed0758f1e270f624e484b69181eae18944d606ff2c1",
+      "bytes": 38350,
+      "match": true
+    },
+    {
+      "path": "tests/components/material-confirmation-source.test.tsx",
+      "sha256": "b6745699b335c5ed4686eb45426740a908f1fb6b02b908ad6b15d6d92d84d136",
+      "expectedSha256": "b6745699b335c5ed4686eb45426740a908f1fb6b02b908ad6b15d6d92d84d136",
+      "bytes": 18907,
+      "match": true
+    },
+    {
+      "path": "tests/components/material-source-term-correction.test.tsx",
+      "sha256": "55d4f555e9f82318948ba51899852299a36259065a3cd8682e13b63f0ae1db6d",
+      "expectedSha256": "55d4f555e9f82318948ba51899852299a36259065a3cd8682e13b63f0ae1db6d",
+      "bytes": 12745,
+      "match": true
+    },
+    {
+      "path": "tests/server/material-mention-review-flow.test.ts",
+      "sha256": "f1bfe99e0170ad70b2ef4347ecf93865bcd0a90f11b3d266b50f211f0eef8886",
+      "expectedSha256": "f1bfe99e0170ad70b2ef4347ecf93865bcd0a90f11b3d266b50f211f0eef8886",
+      "bytes": 11379,
+      "match": true
+    },
+    {
+      "path": "tests/helpers/material-mention-review-fixture.ts",
+      "sha256": "bf886c20b6c3ac433ca735928ed9cd29438001f6855cb6347e6412cd9c82e3d5",
+      "expectedSha256": "bf886c20b6c3ac433ca735928ed9cd29438001f6855cb6347e6412cd9c82e3d5",
+      "bytes": 4824,
+      "match": true
+    }
+  ],
+  "findings": {
+    "critical": [],
+    "important": [],
+    "minor": []
+  },
+  "checks": [
+    {
+      "label": "mention-projection-review-quality-20261109-focused-01",
+      "exit": 0,
+      "elapsedMs": 6838,
+      "nonLoopbackDenials": 0,
+      "logSha256": "68492ec6c4163dc27e7f83d323b5c08a4381f3e75fe71ee905552708fb5520f3",
+      "wrapperPath": "work/grounded-verification/mention-projection-review-quality-20261109-focused-01.json",
+      "wrapperSha256": "09cfcbc46eee52e583453a794fddc34951d7120422e661861b2dde76ef70c103",
+      "resultsPath": "work/grounded-verification/mention-projection-review-quality-20261109-focused-01-results.json",
+      "resultsSha256": "65d2afb8a4098708c3eff49876f7a78913758b8e2c1880ebd20defe56040b10f"
+    },
+    {
+      "label": "mention-projection-review-quality-20261109-probes-01",
+      "exit": 0,
+      "elapsedMs": 3992,
+      "nonLoopbackDenials": 0,
+      "logSha256": "22a328559cc3c8a91d85338817d973fa3d736348fd1c6bb4a73d86cbfe5f66ba",
+      "wrapperPath": "work/grounded-verification/mention-projection-review-quality-20261109-probes-01.json",
+      "wrapperSha256": "ca34e1fc1f00ee18249beef9efa94dab3def685bfb1e2d7d623297487008d085",
+      "resultsPath": "work/grounded-verification/mention-projection-review-quality-20261109-probes-01-results.json",
+      "resultsSha256": "9a768c8300b4eb71cfe777328d09ca15ae13b5d6bccb2ac9082e7e885dc46c6d"
+    },
+    {
+      "label": "mention-projection-review-quality-20261109-types-01",
+      "exit": 0,
+      "elapsedMs": 6729,
+      "nonLoopbackDenials": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wrapperPath": "work/grounded-verification/mention-projection-review-quality-20261109-types-01.json",
+      "wrapperSha256": "edf1c660a8671dc84db6bcef0edcc8184255febe47e8fe524b60a0847a17f549",
+      "resultsPath": "work/grounded-verification/mention-projection-review-quality-20261109-types-01-results.json",
+      "resultsSha256": "3138c4c956a38dbe1bd60a6d8c59e9acea6896c1a5aace924fe6a2af7781a2ba"
+    },
+    {
+      "label": "mention-projection-review-quality-20261109-lint-01",
+      "exit": 0,
+      "elapsedMs": 7148,
+      "nonLoopbackDenials": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wrapperPath": "work/grounded-verification/mention-projection-review-quality-20261109-lint-01.json",
+      "wrapperSha256": "6ecbd9c6caece348011c8e82e96e526bdcc324c54adc7c1f7a253e2fc6537cce",
+      "resultsPath": "work/grounded-verification/mention-projection-review-quality-20261109-lint-01-results.json",
+      "resultsSha256": "83983406aaeee52b97fd92ee2683efacdd15e430c9c3c3fa7d9f0e0ae30b7b07"
+    }
+  ],
+  "focused": {
+    "passed": 338,
+    "failed": 0,
+    "pending": 0,
+    "files": 12,
+    "suites": [
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/components/material-confirmation-source.test.tsx",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/components/material-source-term-correction.test.tsx",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/document-confirmation.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/document-deletion.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/document-extraction.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/document-review-draft.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/document-storage.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/material-confirmed-skill-labels.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/material-learning-intents.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/material-mention-review-flow.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/material-practice-priorities.test.ts",
+      "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/material-selection.test.ts"
+    ]
+  },
+  "probes": {
+    "passed": 4,
+    "failed": 0,
+    "pending": 0,
+    "files": 1,
+    "cases": [
+      "serializes competing v3 additions and preserves retry identity without losing source data",
+      "rolls back an addition if the mutation receipt cannot be written after the draft update",
+      "rejects forged raw HTTP fields and non-explicit additions before any saved-state mutation",
+      "keeps queued removal and text edits when the real editor receives a delayed v3 addition response"
+    ],
+    "rawHttpRejectionVariants": 7
+  },
+  "lint": {
+    "files": 7,
+    "errors": 0.0,
+    "warnings": 0.0
+  },
+  "types": {
+    "config": "work/grounded-verification/mention-projection-review-20261109-tsconfig.json",
+    "exit": 0
+  },
+  "reviewerArtifacts": [
+    {
+      "path": "work/grounded-verification/mention-projection-review-quality-20261109-probes.test.tsx",
+      "sha256": "ba865131f3e28bbb358d504d861f0fb05098e598090cc38d3275975615f2148f"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-review-quality-20261109-probes.config.ts",
+      "sha256": "fe23de6519d691afacc2c55745baa70c89a2a70e4320d248dd8e4d2af8eceec5"
+    }
+  ],
+  "preexistingDirtyDocuments": [
+    {
+      "path": "docs/verification/2026-11-04-materials-public-release-progress.md",
+      "beforeSha256": "4e84ee06c990e513af7b5e076881fe590528de327904691edee3492491412e98",
+      "observedAfterSha256": "68b4dac6e483c358ca4c695c9300ed01fdeb1786000750bbb4a4e075812c7d4b",
+      "reviewerEdited": false,
+      "rootConfirmedConcurrentUpdate": true
+    },
+    {
+      "path": "docs/verification/2026-11-06-materials-grounding-pause.md",
+      "beforeSha256": "229eddd457d2782ef4439a99c482022afa2b2589e71db8ff2bac096250b3bab5",
+      "observedAfterSha256": "8fd95791fa7bedb106b6f5bb0eb0865f5b8c20ada30b60e4124adcf97413099d",
+      "reviewerEdited": false,
+      "rootConfirmedConcurrentUpdate": true
+    }
+  ],
+  "otherRootOwnedAddition": "docs/verification/2026-11-09-materials-mention-projection.md",
+  "diffCheckExit": 0,
+  "productOrTrackedTestEdits": 0,
+  "commits": 0,
+  "liveModelCalls": 0,
+  "remoteMigrations": 0,
+  "deployments": 0,
+  "pushes": 0,
+  "limits": [
+    "Offline bounded quality review; no full-repository acceptance, workerd, live provider, build or deployment run by this reviewer.",
+    "Root native/parity/historical checks and spec results read as supplementary evidence, not claimed as this reviewer executions.",
+    "Preexisting Chinese guided-action and whole numbered-entry quote false negatives remain open.",
+    "Existing separate ability-adoption UI is unchanged; later typed decision/source/persistence work remains open."
+  ],
+  "checkedAt": "2026-11-09T16:55:02.8031239+08:00"
+}

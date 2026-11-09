@@ -1,0 +1,19 @@
+import { build } from "esbuild";
+import { createHash } from "node:crypto";
+import { writeFileSync, readFileSync, existsSync } from "node:fs";
+import assert from "node:assert/strict";
+
+const output = "work/grounded-verification/mention-projection-provider-20261109-executor-bundle.mjs";
+const results = "work/grounded-verification/mention-projection-provider-20261109-bundle-results.json";
+assert.equal(existsSync(output), false);
+assert.equal(existsSync(results), false);
+const built = await build({ entryPoints: ["worker/document-executor/index.ts"], bundle: true, write: false, format: "esm",
+  platform: "browser", target: "es2022", external: ["cloudflare:*", "node:*"], metafile: true });
+const bytes = built.outputFiles[0].contents;
+const sha = value => createHash("sha256").update(value).digest("hex");
+writeFileSync(output, bytes, { flag: "wx" });
+const result = { status: "LOCAL_EXECUTOR_BUNDLE_PASSED", output, bytes: bytes.length, sha256: sha(bytes), warnings: built.warnings,
+  inputs: Object.fromEntries(Object.keys(built.metafile.inputs).sort().map(file => [file, sha(readFileSync(file))])),
+  realModelCalls: 0, deployed: false };
+writeFileSync(results, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, bytes: bytes.length, sha256: result.sha256, warnings: result.warnings.length, output, results }));

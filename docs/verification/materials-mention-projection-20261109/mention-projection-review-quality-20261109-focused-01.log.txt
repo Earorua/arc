@@ -1,0 +1,45 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:39096) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25336) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42344) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46612) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46648) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:45456) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46216) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:504) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-selection.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m tests/server/document-deletion.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m tests/server/document-confirmation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32m✓[39m tests/server/document-storage.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 225[2mms[22m[39m
+ [32m✓[39m tests/server/material-learning-intents.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 645[2mms[22m[39m
+(node:48392) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-extraction.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32m✓[39m tests/server/material-practice-priorities.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 1480[2mms[22m[39m
+(node:12384) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/material-mention-review-flow.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 759[2mms[22m[39m
+ [32m✓[39m tests/server/material-confirmed-skill-labels.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1368[2mms[22m[39m
+   [33m[2m✓[22m[39m uses the chosen source-bound JD alias in the generated plan after fact confirmation [33m 324[2mms[22m[39m
+   [33m[2m✓[22m[39m carries bilingual source terms through review, reload and confirmation, then maps only the retained JD words in the selected role [33m 325[2mms[22m[39m
+ [32m✓[39m tests/components/material-confirmation-source.test.tsx [2m([22m[2m99 tests[22m[2m)[22m[33m 2449[2mms[22m[39m
+ [32m✓[39m tests/server/document-review-draft.test.ts [2m([22m[2m131 tests[22m[2m)[22m[33m 3546[2mms[22m[39m
+ [32m✓[39m tests/components/material-source-term-correction.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1215[2mms[22m[39m
+   [33m[2m✓[22m[39m lets the reader restore an omitted source word in the real editor and includes it in the next confirmed plan [33m 685[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[32m338 passed[39m[22m[90m (338)[39m
+[2m   Start at [22m 16:50:22
+[2m   Duration [22m 6.33s[2m (transform 6.28s, setup 4.97s, import 13.89s, tests 12.07s, environment 4.08s)[22m
+
+JSON report written to C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/mention-projection-review-quality-20261109-focused-01-results.json

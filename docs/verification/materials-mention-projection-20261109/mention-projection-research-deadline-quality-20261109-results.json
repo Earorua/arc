@@ -1,0 +1,140 @@
+{
+  "status": "PASS",
+  "scope": [
+    "scripts/test-research-cloud-smoke.mjs",
+    "tests/server/research-cloud-smoke-composition.test.ts"
+  ],
+  "branch": "codex/materials-replan-recovery-20261106",
+  "head": "4d6bc823e5609a008acf86644ddc8a3b33f844ca",
+  "findings": {
+    "Critical": [],
+    "Important": [],
+    "Minor": []
+  },
+  "recommendation": "Proceed to fresh full-checkout acceptance; Task 4 remains HOLD until that gate passes",
+  "sourceFileCount": 1007,
+  "manifestSha256": "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0",
+  "sourceHashes": {
+    "scripts/test-research-cloud-smoke.mjs": "6f351aecd1d5723b6f8dd8737965e036a637ee49d5d452944e452d82e0445e20",
+    "tests/server/research-cloud-smoke-composition.test.ts": "da97fada6f1898704331dd7295e93fda085362e527bc53ddfb0c7b8e080681df"
+  },
+  "verification": [
+    {
+      "label": "mention-projection-research-deadline-quality-20261109-regression-a",
+      "exit": 0,
+      "elapsedMs": 1961,
+      "logSha256": "8b7d263d5e7d00cf620a3450a7aaa6b31a3faa0e62caa63f5019c6239df4f914",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "label": "mention-projection-research-deadline-quality-20261109-lint-a",
+      "exit": 0,
+      "elapsedMs": 4145,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "label": "mention-projection-research-deadline-quality-20261109-probe-a",
+      "exit": 0,
+      "elapsedMs": 483,
+      "logSha256": "fdfdaeef136124c5c703ba41cc23d53deff1aae0f4d632a75de95574e8137a10",
+      "nonLoopbackDenials": 0
+    }
+  ],
+  "probeCases": [
+    {
+      "id": "quick-async-start-failure-keeps-three-attempts",
+      "status": "PASS",
+      "calls": 3,
+      "remainingTimers": 0
+    },
+    {
+      "id": "quick-sync-start-failure-keeps-three-attempts",
+      "status": "PASS",
+      "calls": 3,
+      "remainingTimers": 0
+    },
+    {
+      "id": "quick-status-failure-keeps-one-attempt",
+      "status": "PASS",
+      "calls": 1,
+      "remainingTimers": 0
+    },
+    {
+      "id": "early-body-failure-does-not-latch-deadline",
+      "status": "PASS",
+      "calls": 3,
+      "remainingTimers": 0
+    },
+    {
+      "id": "server-503-can-reconcile-to-accepted",
+      "status": "PASS",
+      "calls": 2,
+      "remainingTimers": 0
+    },
+    {
+      "id": "immediate-accepted-start-clears-watchdog",
+      "status": "PASS",
+      "calls": 1,
+      "remainingTimers": 0
+    },
+    {
+      "id": "status-signing-exactly-at-five-seconds-stops-dispatch",
+      "status": "PASS",
+      "calls": 0,
+      "remainingTimers": 0
+    },
+    {
+      "id": "start-signing-past-ten-seconds-stops-dispatch",
+      "status": "PASS",
+      "calls": 0,
+      "remainingTimers": 0
+    },
+    {
+      "id": "retry-signing-crossing-deadline-stops-next-dispatch",
+      "status": "PASS",
+      "calls": 1,
+      "remainingTimers": 0
+    },
+    {
+      "id": "fractional-status-watchdog-stops-at-one",
+      "status": "PASS",
+      "calls": 1,
+      "remainingTimers": 0
+    },
+    {
+      "id": "transport-resolving-after-watchdog-cannot-resume",
+      "status": "PASS",
+      "calls": 1,
+      "remainingTimers": 0
+    },
+    {
+      "id": "body-resolving-after-watchdog-fails-closed",
+      "status": "PASS",
+      "calls": 1,
+      "remainingTimers": 0
+    },
+    {
+      "id": "authentication-resolving-after-watchdog-fails-closed",
+      "status": "PASS",
+      "calls": 1,
+      "remainingTimers": 0
+    },
+    {
+      "id": "nonce-resolving-after-watchdog-fails-closed",
+      "status": "PASS",
+      "calls": 1,
+      "remainingTimers": 0
+    }
+  ],
+  "memo": "work/grounded-verification/mention-projection-research-deadline-quality-20261109-memo.md",
+  "memoSha256": "71ec1cf4f1cd1be2094ed52f3af9f281d373073d6013c2ff51b8ff48a64638aa",
+  "probeResults": "work/grounded-verification/mention-projection-research-deadline-quality-20261109-probe-results.json",
+  "probeResultsSha256": "eb8ca5ef5e4e6a48849eab115db64e6a3d149c8d8e53d7c38519dc7f1d92629f",
+  "limits": [
+    "Synthetic exact-source probe is local control-flow evidence, not native cryptography or nonce-persistence acceptance",
+    "No full repository, full native pair or whole operator-suite rerun",
+    "No source edits, commit, model, network, deployment, migration or push"
+  ],
+  "sourceUnchanged": true
+}

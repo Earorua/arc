@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": { "incremental": false, "noEmit": true },
+  "include": [
+    "../../next-env.d.ts",
+    "../../worker-configuration.d.ts",
+    "../../tests/setup.ts",
+    "../../app/server/documents/review-service.ts",
+    "../../app/components/materials/material-confirmation.tsx",
+    "../../tests/server/document-review-draft.test.ts",
+    "../../tests/components/material-source-term-correction.test.tsx",
+    "../../tests/components/material-confirmation-source.test.tsx",
+    "../../tests/server/material-mention-review-flow.test.ts",
+    "../../tests/helpers/material-mention-review-fixture.ts"
+  ],
+  "exclude": ["../../node_modules", "../../work"]
+}

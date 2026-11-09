@@ -1,0 +1,94 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+
+const prefix = "work/grounded-verification/mention-projection-recovery-watcher-20261109";
+const hash = bytes => createHash("sha256").update(bytes).digest("hex");
+const git = (...args) => execFileSync("git", args, { maxBuffer: 32 * 1024 * 1024 });
+const baselinePath = "work/grounded-verification/mention-projection-snapshot-20261109-b-results.json";
+const baselineBytes = readFileSync(baselinePath);
+const baseline = JSON.parse(baselineBytes);
+assert.equal(baseline.manifestSha256, "12b789509f1fcee928f0e97c5cfcf055cca470c6f41db38b47dad475f94314c0");
+const files = [...new Set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").toString().split("\0").filter(path => path && !path.startsWith("docs/")))].sort();
+const filesSha256 = Object.fromEntries(files.map(path => [path, hash(readFileSync(path))]));
+assert.deepEqual(Object.keys(filesSha256), Object.keys(baseline.filesSha256));
+assert.equal(files.length, 1007);
+const changed = files.filter(path => filesSha256[path] !== baseline.filesSha256[path]);
+const expected = ["tests/offline-uat/entry.test.mjs", "tests/offline-uat/server.mjs"];
+assert.deepEqual(changed, expected);
+
+const entry = readFileSync(expected[0], "utf8");
+const addedAssertions = '    assert.equal(server.vite.config.server.watch, null, "offline harness must disable filesystem watching");\r\n'
+  + '    assert.deepEqual(server.vite.watcher.getWatched(), {}, "offline harness must not watch the checkout");\r\n';
+assert.equal(entry.split(addedAssertions).length - 1, 1);
+assert.equal(hash(entry.replace(addedAssertions, "")), baseline.filesSha256[expected[0]]);
+const server = readFileSync(expected[1], "utf8");
+const oldOptions = '      host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],';
+const newOptions = '      watch: null, host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],';
+assert.equal(server.split(newOptions).length - 1, 1);
+assert.equal(hash(server.replace(newOptions, oldOptions)), baseline.filesSha256[expected[1]]);
+assert.ok(readFileSync("tests/offline-uat/research-recovery.test.mjs", "utf8").includes("{ timeout: 45_000 }"));
+git("-c", "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol", "diff", "--check", "--", ...expected);
+
+const sourceDirectory = resolve(`${prefix}-source`);
+assert.ok(!existsSync(sourceDirectory), "Freeze directory must be fresh");
+mkdirSync(sourceDirectory);
+for (const path of expected) {
+  const target = resolve(sourceDirectory, path);
+  mkdirSync(dirname(target), { recursive: true });
+  copyFileSync(path, target);
+  assert.equal(hash(readFileSync(target)), filesSha256[path]);
+}
+const diff = git("diff", "--", ...expected);
+writeFileSync(`${prefix}-fix.diff`, diff, { flag: "wx" });
+const verification = [["red", 1], ["green", 0], ["lint", 0]].map(([suffix, expectedExit]) => {
+  const name = `${prefix}-${suffix}`;
+  const report = JSON.parse(readFileSync(`${name}.json`, "utf8"));
+  assert.equal(report.exit, expectedExit);
+  assert.equal(report.nonLoopbackDenials, 0);
+  assert.equal(report.logSha256, hash(readFileSync(`${name}.log`)));
+  return { label: report.name, exit: report.exit, elapsedMs: report.elapsedMs, logSha256: report.logSha256, nonLoopbackDenials: report.nonLoopbackDenials };
+});
+const redLog = readFileSync(`${prefix}-red.log`, "utf8");
+assert.ok(redLog.includes("offline harness must disable filesystem watching"));
+assert.ok(redLog.includes("+ undefined"));
+assert.ok(redLog.includes("- null"));
+const greenLog = readFileSync(`${prefix}-green.log`, "utf8");
+for (const marker of ["ℹ tests 21", "ℹ pass 21", "ℹ fail 0", "ℹ cancelled 0", "ℹ skipped 0"]) assert.ok(greenLog.includes(marker));
+const diagnosisPath = "work/grounded-verification/mention-projection-recovery-timing-20261109-comparison-results.json";
+const diagnosisBytes = readFileSync(diagnosisPath);
+assert.equal(hash(diagnosisBytes), "6c5e2518802f8ea532d87a9bbbb4925aad21ef20ad8e6e6c07032ec90493475b");
+const diagnosis = JSON.parse(diagnosisBytes);
+assert.equal(hash(baselineBytes), diagnosis.snapshotResultsFileSha256);
+const report = {
+  head: git("rev-parse", "HEAD").toString().trim(),
+  branch: git("branch", "--show-current").toString().trim(),
+  baselinePath, baselineResultsFileSha256: hash(baselineBytes), baselineManifestSha256: baseline.manifestSha256,
+  manifestSha256: hash(JSON.stringify(filesSha256)), sourceFileCount: files.length,
+  unchangedNonDocFiles: files.length - changed.length, sourceDirectory,
+  changes: changed.map(path => ({ path, beforeSha256: baseline.filesSha256[path], afterSha256: filesSha256[path] })),
+  inverseEditProof: "Removing exactly the two added entry assertions and exactly the call-site watch:null property recovers the original baseline byte hashes; all other 1005 non-document files are byte-identical.",
+  diffPath: resolve(`${prefix}-fix.diff`), diffSha256: hash(diff), verification,
+  diagnosticEvidence: { path: resolve(diagnosisPath), sha256: hash(diagnosisBytes), originalFailure: diagnosis.originalFailure,
+    runs: Object.fromEntries(Object.entries(diagnosis.runs).map(([label, run]) => [label, { exit: run.exit, elapsedMs: run.elapsedMs, logSha256: run.logSha256, compositionMs: run.phaseMs["harness:compositionSSR"], effectiveWatcher: run.effectiveWatcher, watchedCounts: run.watchedCounts }])) },
+  scope: "Only preserve disabled filesystem watching in the actual HTTP harness server options and assert effective watch:null plus an empty watched tree in the existing actual entry test. Original HTTP/private-asset checks, recovery assertions, 45-second timeout, loopback/outbound boundary, wrapper, and blocker are unchanged.",
+  commands: {
+    red: "node work/grounded-verification/run.mjs mention-projection-recovery-watcher-20261109-red --test --test-concurrency=1 tests/offline-uat/entry.test.mjs",
+    green: "node work/grounded-verification/run.mjs mention-projection-recovery-watcher-20261109-green --test --test-concurrency=1 tests/offline-uat/entry.test.mjs tests/offline-uat/research-recovery.test.mjs tests/offline-uat/research-public-recovery.test.mjs",
+    lint: "node work/grounded-verification/run.mjs mention-projection-recovery-watcher-20261109-lint node_modules/eslint/bin/eslint.js tests/offline-uat/server.mjs tests/offline-uat/entry.test.mjs",
+  },
+  limits: [
+    "Focused 21-test verification and scoped lint are complete; independent spec/quality review and required full-source acceptance remain for root.",
+    "Green log retains existing Vite envFile deprecation, experimental SQLite warning, and a public-recovery optimizer pre-transform missing-runtime message also present in original full Node B; assertions still pass. These unrelated messages are not repaired here.",
+    "Entry source is tracked CRLF and remains CRLF; server source remains LF. Default git diff --check flags CR at the two new entry lines; CRLF-aware check with all default whitespace checks enabled passes.",
+    "No commits, external network calls, remote mutation, migrations, or deployment performed.",
+  ],
+  filesSha256,
+};
+writeFileSync(`${prefix}-freeze-results.json`, JSON.stringify(report, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ freezePath: resolve(`${prefix}-freeze-results.json`), freezeSha256: hash(readFileSync(`${prefix}-freeze-results.json`)),
+  head: report.head, sourceFileCount: report.sourceFileCount, unchangedNonDocFiles: report.unchangedNonDocFiles,
+  manifestSha256: report.manifestSha256, changes: report.changes, sourceDirectory,
+  diffSha256: report.diffSha256, verification }));

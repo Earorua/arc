@@ -1,0 +1,98 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:3212) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m work/grounded-verification/mention-projection-node-parity-20261109.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 161[2mms[22m[39m
+[31m   [31m×[31m matches complete v3 provider/client/HTTP/review/context outcomes between Node SQLite and workerd D1[39m[32m 160[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m work/grounded-verification/mention-projection-node-parity-20261109.test.ts[2m > [22mmatches complete v3 provider/client/HTTP/review/context outcomes between Node SQLite and workerd D1
+[31m[1mAssertionError[22m: denied-used complete public/provider/database/trace observation: expected { ok: true, context: { …(3) }, …(14) } to deeply equal { ok: true, context: { …(3) }, …(14) }[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -118,11 +118,11 @@[39m
+[2m          },[22m
+[2m        },[22m
+[2m        "priorities": [],[22m
+[2m        "uncoveredLabels": [],[22m
+[2m      },[22m
+[32m-     "previewToken": "9f7d64ae2091b3a466d0c6b07dac838cde94fe641ce6fc708a550c75e0dfd836",[39m
+[31m+     "previewToken": "873e39a47f90eff7bdd7f270c1671f717b41c48b26b5273a1c2d82ac6c473334",[39m
+[2m    },[22m
+[2m    "document": {[22m
+[2m      "document": {[22m
+[2m        "createdAt": "2026-11-09T01:00:00.000Z",[22m
+[2m        "currentDocumentVersionId": "denied-used-2",[22m
+[33m@@ -569,11 +569,11 @@[39m
+[2m          },[22m
+[2m        },[22m
+[2m        "priorities": [],[22m
+[2m        "uncoveredLabels": [],[22m
+[2m      },[22m
+[32m-     "previewToken": "9f7d64ae2091b3a466d0c6b07dac838cde94fe641ce6fc708a550c75e0dfd836",[39m
+[31m+     "previewToken": "873e39a47f90eff7bdd7f270c1671f717b41c48b26b5273a1c2d82ac6c473334",[39m
+[2m    },[22m
+[2m    "reread": {[22m
+[2m      "contextVersionId": "denied-used-9",[22m
+[2m      "expiresAt": "2026-11-09T01:30:00.000Z",[22m
+[2m      "preview": {[22m
+[33m@@ -694,11 +694,11 @@[39m
+[2m      "expires_at": 1794187800000,[22m
+[2m      "fingerprint": "42ed9251dc6ed9662c3e49e2c79b091107a9286655b2304d92cc1c63a1ff6b45",[22m
+[2m      "id": "denied-used-9",[22m
+[2m      "owner_id": "owner-a",[22m
+[2m      "preview_json": "{\"overlay\":{\"skillRanks\":{\"web-platform\":5,\"typescript\":5,\"react\":5,\"design-systems\":5,\"http-apis\":5,\"edge-runtime\":5,\"sql\":5,\"object-storage\":5,\"testing\":5,\"security\":5,\"cloud-delivery\":5,\"observability\":5,\"llm-contracts\":5,\"retrieval\":5,\"product-thinking\":5,\"proof-of-work\":5},\"mandatorySkillIds\":[],\"semanticFingerprint\":\"42ed9251dc6ed9662c3e49e2c79b091107a9286655b2304d92cc1c63a1ff6b45\",\"policyVersion\":\"2026.11.3\"},\"planning\":{\"fullScope\":{\"estimatedCompletionDate\":\"2026-12-06\",\"totalMinutes\":1260},\"targetDate\":{\"estimatedCompletionDate\":\"2026-12-06\",\"totalMinutes\":1260},\"infeasibleReason\":null},\"confirmedItems\":[{\"id\":\"material-item-581389457aca79573ef186c9e2126bbb\",\"kind\":\"experience\",\"text\":\"I have never used SQL for production.\",\"origin\":\"extracted\",\"sourceRef\":{\"documentId\":\"denied-used-1\",\"documentVersionId\":\"denied-used-2\",\"textVersionId\":\"denied-used-3\",\"start\":0,\"end\":37},\"requirementLevel\":null,\"skillLabels\":[\"SQL\"]}],\"itemReferences\":[{\"id\":\"material-item-581389457aca79573ef186c9e2126bbb\",\"confirmationId\":\"denied-used-7\",\"itemId\":\"candidate-1\"}],\"mappingDetails\":[{\"itemId\":\"material-item-581389457aca79573ef186c9e2126bbb\",\"termIndexes\":[0],\"status\":\"mapped\",\"skillIds\":[\"sql\"],\"basis\":\"literal\"}],\"priorities\":[],\"issues\":[],\"uncoveredLabels\":[]}",[22m
+[32m-     "preview_token": "9f7d64ae2091b3a466d0c6b07dac838cde94fe641ce6fc708a550c75e0dfd836",[39m
+[31m+     "preview_token": "873e39a47f90eff7bdd7f270c1671f717b41c48b26b5273a1c2d82ac6c473334",[39m
+[2m      "selection_id": "denied-used-8",[22m
+[2m      "selection_revision": 0,[22m
+[2m      "snapshot_json": "{\"audit\":{\"answers\":[{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"web-platform\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"typescript\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"react\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"design-systems\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"http-apis\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"edge-runtime\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"sql\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"object-storage\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"testing\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"security\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"cloud-delivery\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"observability\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"llm-contracts\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"retrieval\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"product-thinking\"},{\"evidenceRefs\":[],\"level\":\"conceptual\",\"skillId\":\"proof-of-work\"}],\"blueprintId\":\"ai-native-full-stack-engineer\",\"blueprintVersion\":\"2026.08.1\",\"createdBy\":\"owner-a\",\"evidence\":[],\"id\":\"audit-a\",\"inputFingerprint\":\"audit-fingerprint\",\"schemaVersion\":\"2026.08.1\"},\"availability\":{\"exceptions\":[],\"id\":\"availability-a\",\"inputFingerprint\":\"availability-fingerprint\",\"schemaVersion\":\"2026.08.1\",\"timeZone\":\"UTC\",\"weekdays\":{\"friday\":60,\"monday\":60,\"saturday\":60,\"sunday\":60,\"thursday\":60,\"tuesday\":60,\"wednesday\":60},\"weeklyMinutes\":420},\"dependencies\":[{\"confirmationDigest\":\"7539543716e2c42cd8ac60237a8239a0da97cd2804cb9bb2d1f0eca397a483c8\",\"confirmationId\":\"denied-used-7\",\"documentId\":\"denied-used-1\",\"documentVersionId\":\"denied-used-2\",\"generation\":0,\"slot\":\"resume\",\"textVersionId\":\"denied-used-3\"}],\"explanationVersion\":\"2026.11.3\",\"mappingVersion\":\"2026.11.5\",\"ownerId\":\"owner-a\",\"planningDate\":\"2026-11-09\",\"policyVersion\":\"2026.11.3\",\"schemaVersion\":\"2026.11.1\",\"scope\":{\"draftId\":\"denied-used-draft\",\"kind\":\"draft\",\"previousGoalId\":null},\"selectedScope\":\"full-scope\",\"selectionRef\":{\"selectionId\":\"denied-used-8\",\"selectionRevision\":0},\"sourceReference\":{\"roleId\":\"ai-native-full-stack-engineer\",\"source\":\"flagship\"},\"sourceVersions\":{\"blueprintId\":\"ai-native-full-stack-engineer\",\"blueprintVersion\":\"2026.08.1\",\"contentDigest\":\"7958b285801731db188770cdb6afe938619d5d7ccbcdd6df976ee0ed30d1bf65\",\"registryId\":\"ai-native-full-stack-engineer-units\",\"registryVersion\":\"2026.08.1\"},\"target\":{\"id\":\"target-a\",\"inputFingerprint\":\"target-fingerprint\",\"schemaVersion\":\"2026.08.1\",\"targetWeeks\":52}}",[22m
+[2m      "state": "active",[22m
+[2m    },[22m
+[33m@@ -1144,11 +1144,11 @@[39m
+[2m              },[22m
+[2m            },[22m
+[2m            "priorities": [],[22m
+[2m            "uncoveredLabels": [],[22m
+[2m          },[22m
+[32m-         "previewToken": "9f7d64ae2091b3a466d0c6b07dac838cde94fe641ce6fc708a550c75e0dfd836",[39m
+[31m+         "previewToken": "873e39a47f90eff7bdd7f270c1671f717b41c48b26b5273a1c2d82ac6c473334",[39m
+[2m        },[22m
+[2m      },[22m
+[2m      {[22m
+[2m        "endpoint": "createMaterialContext",[22m
+[2m        "input": {[22m
+[33m@@ -1362,11 +1362,11 @@[39m
+[2m              },[22m
+[2m            },[22m
+[2m            "priorities": [],[22m
+[2m            "uncoveredLabels": [],[22m
+[2m          },[22m
+[32m-         "previewToken": "9f7d64ae2091b3a466d0c6b07dac838cde94fe641ce6fc708a550c75e0dfd836",[39m
+[31m+         "previewToken": "873e39a47f90eff7bdd7f270c1671f717b41c48b26b5273a1c2d82ac6c473334",[39m
+[2m        },[22m
+[2m      },[22m
+[2m      {[22m
+[2m        "endpoint": "readMaterialContext",[22m
+[2m        "input": {[22m
+
+[36m [2m❯[22m work/grounded-verification/mention-projection-node-parity-20261109.test.ts:[2m29:91[22m[39m
+    [90m 27|[39m       observations[33m.[39m[34mpush[39m({ id[33m:[39m entry[33m.[39mid[33m,[39m observed })[33m;[39m
+    [90m 28|[39m       expect(observed.ok, entry.id + ": " + JSON.stringify(observed)).…
+    [90m 29|[39m       expect(observed, entry.id + " complete public/provider/database/…
+    [90m   |[39m                                                                                           [31m^[39m
+    [90m 30|[39m     }
+    [90m 31|[39m     writeFileSync(output, JSON.stringify({ status: "PASS", cases: obse…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 16:35:02
+[2m   Duration [22m 2.24s[2m (transform 746ms, setup 214ms, import 1.70s, tests 161ms, environment 0ms)[22m
+
