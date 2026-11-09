@@ -254,6 +254,8 @@ function OwnedAdaptiveSetupFlow({ blueprint, registry, source, generate, navigat
     {draftError && <p className="setup-draft-notice">暂时无法保存草稿，请保持页面打开。</p>}
     {draftOwner && <details className="setup-draft-options"><summary>草稿选项</summary><button className="text-action" type="button" disabled={building || lockedGeneration} onClick={() => {
       navigateStep(1, true); setFurthestStep(1); setAuditDraft(createSkillAuditDraft(blueprint)); setAvailabilityDraft(createAvailabilityDraft(timeZone));
+      reviewedSkills.current.clear();
+      setMaterialAuditAcknowledged(null);
       setTargetWeeks(18); setSelectedScope(null); setNewPlanConfirmed(false); setRestored(false); buildAttempt.current = null; setSavedGeneration(null);
     }}>重新填写此岗位</button></details>}
     <h1 ref={headingRef} tabIndex={-1}>{stage === "audit" ? "评估你目前的技能。" : stage === "availability" ? "安排一周可持续的时间。" : "确认你的学习路线。"}</h1>
