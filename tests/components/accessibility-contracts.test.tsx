@@ -247,6 +247,12 @@ describe("navigation accessibility contracts", () => {
     expect(message).toHaveAttribute("role", "status");
     expect(screen.queryByText("callback-provider@example.com")).not.toBeInTheDocument();
 
+    // The verified callback also mounts a panel whose effect takes focus.
+    // Let that finish before focusing the notice and sending the Space key.
+    const dialog = screen.getByRole("dialog", { name: "Connect Google" });
+    const heading = within(dialog).getByRole("heading", { name: "Connect Google" });
+    await waitFor(() => expect(heading).toHaveFocus());
+
     const linkTrigger = screen.getByRole("button", { name: "Link Google" });
     const notice = message.closest(".account-link-notice");
     const dismiss = within(notice as HTMLElement).getByRole("button", {
@@ -255,7 +261,7 @@ describe("navigation accessibility contracts", () => {
     dismiss.focus();
     await user.keyboard(" ");
 
-    await waitFor(() => expect(message).not.toBeInTheDocument(), { timeout: 10_000 });
+    await waitFor(() => expect(message).not.toBeInTheDocument());
     expect(linkTrigger).toHaveFocus();
   });
 
