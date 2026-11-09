@@ -197,7 +197,7 @@ export async function createHarnessServer({ port = 4179, composition = "compatib
   let vite;
   try {
     vite = await createOfflineVite({ plugins: [middleware, offlineAliases(), react()], server: {
-      host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],
+      watch: null, host: "127.0.0.1", port, strictPort: true, cors: false, allowedHosts: ["127.0.0.1"],
       fs: { strict: true, allow: [workspace], deny: ["**/.env*", "**/.git/**", "**/.codex/**", "**/.agents/**"] },
     } });
     security = await vite.ssrLoadModule("/tests/offline-uat/security.ts");

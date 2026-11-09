@@ -33,6 +33,8 @@ function request(origin, path, options = {}) {
 test("loopback entry serves actual modules while rejecting origin spoofing, unsafe writes and private files", async (context) => {
   const server = await createHarnessServer({ port: 4181 });
   try {
+    assert.equal(server.vite.config.server.watch, null, "offline harness must disable filesystem watching");
+    assert.deepEqual(server.vite.watcher.getWatched(), {}, "offline harness must not watch the checkout");
     const html = await request(server.origin, "/setup");
     assert.equal(html.status, 200); assert.match(html.headers["content-security-policy"], /default-src 'self'/u);
     const token = /name="arc-uat-control" content="([a-f0-9]+)"/u.exec(html.body)?.[1]; assert.ok(token);
