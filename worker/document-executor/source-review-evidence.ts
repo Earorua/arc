@@ -7,7 +7,7 @@ import {
   supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope,
 } from "../../app/lib/materials/self-assessment-evidence";
 import { deniedAssertion, hypothetical, maskQuotes, quoted } from "../../app/lib/materials/quotation-evidence";
-import { statementBoundaries } from "./source-statements";
+import { completeNumberedStatementBoundaries, statementBoundaries } from "./source-statements";
 import { isRequirementLevelHeading } from "./source-requirement-evidence";
 
 type EvidenceItem = Pick<DocumentCandidate, "kind" | "source" | "selfLevelHint"> &
@@ -64,6 +64,10 @@ export function groundedStatementBoundaries(text: string) {
     return literal.replace(/[.!?]/gu, "x") + token.slice(literal.length);
   });
   return statementBoundaries(layout, isRequirementLevelHeading);
+}
+
+export function sourceMentionStatementBoundaries(text: string) {
+  return completeNumberedStatementBoundaries(text, groundedStatementBoundaries(text));
 }
 
 const instructionOverride = /^(?:(?:instructions? (?:for|to) (?:the )?(?:assistant|model)|assistant|system|ai|admin(?:istrator)?(?: override)?)\s*[:,，：]\s*)?(?:please\s+)?(?:ignore|disregard|discard|override|forget|bypass)\s+(?:(?:all|any|the|your|system|higher.priority|earlier|above|preceding|prior|previous|original)\s+){1,6}(?:instructions?|prompts?|rules?|safeguards?|constraints?)\b|^(?:(?:给|致)?(?:助手|模型|系统)[：:，,]\s*)?(?:请|务必|必须|现在)*(?:忽略|无视|绕过|覆盖)(?:之前|先前|此前|上面|上述|前面|原有|所有|全部|系统|的)*(?:指令|指示|提示词|规则)/iu;

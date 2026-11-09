@@ -26,3 +26,24 @@ export function statementBoundaries(text: string, additionalHeading?: (line: str
   }
   return bounds;
 }
+
+export function completeNumberedStatementBoundaries(
+  text: string, baseBounds: ReadonlyMap<number, number>,
+) {
+  const bounds = new Map(baseBounds);
+  for (const match of text.matchAll(/[^\r\n]+/gu)) {
+    const line = match[0], trimmed = line.trimStart();
+    const start = match.index + line.length - trimmed.length;
+    // A bare list ordinal is not a fact. Keep this tightening exclusive to v3.
+    if (/^[\d０-９]{1,3}\.\s*$/u.test(trimmed)) {
+      bounds.delete(start);
+      continue;
+    }
+    const prefix = listPrefix.exec(trimmed);
+    if (!prefix || !/^[\d０-９]{1,3}\./u.test(prefix[0])) continue;
+    const bodyStart = start + prefix[0].length;
+    const end = baseBounds.get(bodyStart);
+    if (end !== undefined) bounds.set(start, end);
+  }
+  return bounds;
+}
