@@ -1,0 +1,195 @@
+{
+  "status": "TASK_1_READY_FOR_SPEC_THEN_QUALITY_REVIEW",
+  "scope": "Only the new numbered-boundary helper, v3-facing boundary interface, and new regression tests; provider and site integration remain Task 2.",
+  "identity": {
+    "branch": "codex/materials-replan-recovery-20261106",
+    "head": "1f65e4a483399db8fb6c143e076f3d7523675399",
+    "status": " M worker/document-executor/source-review-evidence.ts\n M worker/document-executor/source-statements.ts\n?? tests/server/material-numbered-statements.test.ts",
+    "node": "v24.14.1",
+    "icu": "78.2"
+  },
+  "snapshots": [
+    {
+      "path": "worker/document-executor/source-statements.ts",
+      "sha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab",
+      "snapshot": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-source-statements.ts.source.txt"
+    },
+    {
+      "path": "worker/document-executor/source-review-evidence.ts",
+      "sha256": "f9ed3a14145535a7cc0e9d4b59b8f265deb1533c84679997c4c078544e35dc37",
+      "snapshot": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-source-review-evidence.ts.source.txt"
+    },
+    {
+      "path": "tests/server/material-numbered-statements.test.ts",
+      "sha256": "1aa53850930e5ce24acca8998a2df068cd503490d2055565e059548d36c4cec7",
+      "snapshot": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-material-numbered-statements.test.ts.source.txt"
+    }
+  ],
+  "trackedDiff": {
+    "path": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-tracked.patch",
+    "sha256": "8b9092569f1f92ea702b1819316836e7cee0a5e4f5ea804a92359ab8bb0e3851",
+    "note": "New untracked test is captured in its complete source snapshot."
+  },
+  "baseline": {
+    "path": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a-results.json",
+    "sha256": "06ccd54ebfe307c09c74d7c247d833d581ba9255812a5a480873df29bc25742c",
+    "fixtures": 40,
+    "comparisonsAgainstPriorDiagnosis": 68
+  },
+  "legacyComparison": {
+    "path": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a-results.json",
+    "sha256": "bc63e91146d52b151f82ff57ce430152cb3cf166cc1c6ca13f52d3c78ba916fb",
+    "unchangedCoordinateMaps": 80,
+    "scope": "Both old functions across all 40 fixtures, including exact UTF-16 starts/ends and source substrings."
+  },
+  "immutableHashes": {
+    "work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32",
+    "work/grounded-verification/mention-projection-snapshot-20261109-c-results.json": "b0056ad6aad0d707e0ba95972d9817fca59152d0197e3f58f855f80f4fc1ffac",
+    "work/grounded-verification/run.mjs": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+    "work/materials-browser-handoff/block-outbound.cjs": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+  },
+  "untouchedProviderAndSiteHashes": {
+    "worker/document-executor/source-span-extraction.ts": "8a2e82a14485f75531025c8649c22f2086e37fa12d9ca53d1adf2272d2d0310c",
+    "app/server/documents/extraction-validator.ts": "ac539b8d3087bd801554d6706840aff3689263c3543403de122406182826f32a"
+  },
+  "priorProviderObservations": {
+    "path": "work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json",
+    "sha256": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32",
+    "count": 168,
+    "unchangedV1V2Comparisons": 112
+  },
+  "runs": [
+    {
+      "label": "numbered-statements-boundary-20261109-baseline-a",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a.json",
+      "metadataSha256": "3c8b4d429c3ca6c5734e116f14e80fff352dc5227851df8b5b53ecb469d6cdc1",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a.log",
+      "name": "numbered-statements-boundary-20261109-baseline-a",
+      "exit": 0,
+      "elapsedMs": 345,
+      "logSha256": "576ee0676e8252c264571ded10219a738d6d1be522f28bcbbd3d108a225f70e9",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-WVB4ot"
+    },
+    {
+      "label": "numbered-statements-boundary-20261109-red-api-a",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-red-api-a.json",
+      "metadataSha256": "f9b4124068e2ff5fac4b057ae1631f320ec54da3ab2c3b4a6e010eb5ceb9e6e4",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-red-api-a.log",
+      "name": "numbered-statements-boundary-20261109-red-api-a",
+      "exit": 1,
+      "elapsedMs": 1824,
+      "logSha256": "5bf286f3a94a8f369428306effc1bb753e53b36f63aec5ffaeb0da722d803b35",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Hr4JiB"
+    },
+    {
+      "label": "numbered-statements-boundary-20261109-red-behavior-a",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-a.json",
+      "metadataSha256": "478a79504674462c05e32c1d78e8a17e7b64290190e2eb57449dde1599e55aea",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-a.log",
+      "name": "numbered-statements-boundary-20261109-red-behavior-a",
+      "exit": 1,
+      "elapsedMs": 1854,
+      "logSha256": "577afe5067d8c797c2757c75046d247151b09c8aa80552f3e247fc63ce8518a3",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-dINvBF"
+    },
+    {
+      "label": "numbered-statements-boundary-20261109-red-behavior-b",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-b.json",
+      "metadataSha256": "0f90c3590f6256661103a09e2a9cd22d657276aaee26d6b31777e12fe1c06085",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-b.log",
+      "name": "numbered-statements-boundary-20261109-red-behavior-b",
+      "exit": 1,
+      "elapsedMs": 1949,
+      "logSha256": "3a543a668e44952a55a14c0d8ac64190e035303826c84d6b0e1fe0601f4dbfbf",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-b1xEyC"
+    },
+    {
+      "label": "numbered-statements-boundary-20261109-green-a",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-green-a.json",
+      "metadataSha256": "5e078ec0b40f83225b9d3b7335dda4082e829cd46b91723ccd0702ec915fe36d",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-green-a.log",
+      "name": "numbered-statements-boundary-20261109-green-a",
+      "exit": 0,
+      "elapsedMs": 1805,
+      "logSha256": "b114ce0e060a1b7a3e583330a2f39430f1428c8442807908f40d6ad8a584badf",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-4xaHqB"
+    },
+    {
+      "label": "numbered-statements-boundary-20261109-compare-a",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a.json",
+      "metadataSha256": "e14fa24ad3563932964fbed9b696bcc8f1b76804d2e0a3139cc9545cae7f0b1c",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a.log",
+      "name": "numbered-statements-boundary-20261109-compare-a",
+      "exit": 0,
+      "elapsedMs": 370,
+      "logSha256": "68665bee5fd4250a0140bde8ac0f7437e4b864c627b6adc96d93d8c227964336",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-oaNISz"
+    },
+    {
+      "label": "numbered-statements-boundary-20261109-related-a",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-related-a.json",
+      "metadataSha256": "aca256fee110269bb541cbe5f5843d86e08955dac4284c8076f82df424d67499",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-related-a.log",
+      "name": "numbered-statements-boundary-20261109-related-a",
+      "exit": 0,
+      "elapsedMs": 6465,
+      "logSha256": "537e880a7ab28d20fa29f3841b7b037c6024f95e848971b5b36c55d46d05ba3b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-x6sKoj"
+    },
+    {
+      "label": "numbered-statements-boundary-20261109-types-a",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-types-a.json",
+      "metadataSha256": "9a0f534eb907d50db178ca6b063beded295e0eb2f2e72c53302d7171accb4a97",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-types-a.log",
+      "name": "numbered-statements-boundary-20261109-types-a",
+      "exit": 0,
+      "elapsedMs": 1723,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-oq0pb7"
+    },
+    {
+      "label": "numbered-statements-boundary-20261109-lint-a",
+      "metadataPath": "work/grounded-verification/numbered-statements-boundary-20261109-lint-a.json",
+      "metadataSha256": "faa47ee761f40008f71f5431658d01919fde9215c8ac00fe365d69ceaa5da89a",
+      "logPath": "work/grounded-verification/numbered-statements-boundary-20261109-lint-a.log",
+      "name": "numbered-statements-boundary-20261109-lint-a",
+      "exit": 0,
+      "elapsedMs": 5093,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-nYtR0L"
+    }
+  ],
+  "assertions": {
+    "newTests": 37,
+    "behavioralRedFailures": 23,
+    "behavioralRedControlsPassed": 14,
+    "relatedTestFiles": 5,
+    "relatedTestsPassed": 794,
+    "typecheckExit": 0,
+    "lintExit": 0,
+    "diffCheck": "clean",
+    "modelCalls": 0,
+    "nonLoopbackDenials": 0,
+    "commits": 0,
+    "migrations": 0,
+    "deployments": 0,
+    "pushes": 0
+  },
+  "rootCause": "The baseline literal has 0->2 (1.) and 3->33 (body). The new interface yields both 0->33 and 3->33 without changing the old functions.",
+  "tdd": "Initial API RED failed on absent exports. Minimal copy/delegation stubs then produced behavioral RED. Corrected RED-b has 23 intended failures including all 7 bare-ordinal cases; final minimal helper passes all 37 tests.",
+  "preservedEarlierRun": "RED-behavior-a included one incorrect test assumption that .NET has no start-3 boundary. Frozen diagnosis shows start 3->4 for dot only; the test was corrected before final implementation. That run remains unchanged.",
+  "limitations": [
+    "Task 1 alone does not wire the new interface into production provider/site paths.",
+    "Leading .NET remains rejected as a complete numbered/body statement: old body boundary is 3->4 only.",
+    "No new list syntax, capability predicate expansion, or full repository/native acceptance gate was added."
+  ]
+}

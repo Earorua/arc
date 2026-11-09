@@ -1,0 +1,56 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+
+const [expectedPath, output] = process.argv.slice(2);
+assert.match(expectedPath ?? '', /^work\/grounded-verification\/offline-closeout-expected-[a-z0-9-]+\.json$/u);
+assert.match(output ?? '', /^work\/grounded-verification\/offline-closeout-integrity-[a-z0-9-]+-results\.json$/u);
+assert.equal(existsSync(output), false);
+const sha = value => createHash('sha256').update(value).digest('hex');
+const git = (...args) => execFileSync('git', args, { maxBuffer: 32 * 1024 * 1024 });
+const expected = JSON.parse(readFileSync(expectedPath));
+const snapshotPath = 'work/grounded-verification/offline-closeout-snapshot-20261109-a-results.json';
+const snapshotBytes = readFileSync(snapshotPath), snapshot = JSON.parse(snapshotBytes);
+const head = git('rev-parse', 'HEAD').toString('utf8').trim();
+assert.equal(head, expected.sourceCommit);
+assert.equal(snapshot.head, head);
+const paths = [...new Set(git('ls-files', '--cached', '--others', '--exclude-standard', '-z').toString('utf8').split('\0').filter(path => path && !path.startsWith('docs/')))].sort();
+const filesSha256 = Object.fromEntries(paths.map(path => [path, sha(readFileSync(path))]));
+assert.deepEqual(filesSha256, snapshot.filesSha256);
+for (const [path, digest] of Object.entries(filesSha256)) assert.equal(sha(readFileSync(join(snapshot.checkout, path))), digest, 'Snapshot ' + path);
+const tree = new Map(git('ls-tree', '-rz', '--full-tree', head).toString('utf8').split('\0').filter(Boolean).map(entry => {
+  const split = entry.indexOf('\t'); return [entry.slice(split + 1), entry.slice(0, split).split(' ')[2]];
+}));
+const objects = execFileSync('git', ['-c', 'core.longpaths=true', 'hash-object', '--no-filters', '--stdin-paths'], { input: paths.join('\n') + '\n', encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }).trim().split(/\r?\n/u);
+assert.equal(objects.length, paths.length);
+paths.forEach((path, index) => assert.equal(tree.get(path), objects[index], 'Committed bytes ' + path));
+const priorPath = 'docs/verification/materials-mention-projection-20261109/verification.json';
+const priorBytes = readFileSync(priorPath), prior = JSON.parse(priorBytes);
+assert.equal(sha(priorBytes), 'e5355e6d703519017483184dff3f96da03a6ec0aee48497986e857c43f8cfdfe');
+for (const artifact of prior.artifacts) assert.equal(sha(readFileSync(join(dirname(priorPath), artifact.path))), artifact.sha256, artifact.path);
+const beforePath = 'docs/verification/materials-mention-projection-20261109/mention-projection-integrity-20261109-final-c-results.json';
+const before = JSON.parse(readFileSync(beforePath));
+const changed = paths.filter(path => before.filesSha256[path] && before.filesSha256[path] !== filesSha256[path]);
+const added = paths.filter(path => !before.filesSha256[path]);
+const removed = Object.keys(before.filesSha256).filter(path => !filesSha256[path]);
+assert.deepEqual(changed, expected.changed);
+assert.deepEqual(added, expected.added);
+assert.deepEqual(removed, []);
+for (const [path, digest] of Object.entries(before.frozenReferenceSha256)) assert.equal(sha(readFileSync(path)), digest, path);
+assert.equal(sha(readFileSync(before.approvedSpec.path)), before.approvedSpec.sha256);
+const courseCapturePath = 'work/grounded-verification/edited-assessment-course-capture-20261108-results.json';
+const course = JSON.parse(readFileSync(courseCapturePath));
+assert.equal(course.dependencies.length, 85);
+for (const dependency of course.dependencies) assert.equal(sha(readFileSync(dependency.path)), dependency.sha256, dependency.path);
+assert.equal(sha(readFileSync('work/grounded-verification/run.mjs')), '4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242');
+assert.equal(sha(readFileSync('work/materials-browser-handoff/block-outbound.cjs')), '48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f');
+const result = { status: 'PASS', sourceCommit: head, sourceFileCount: paths.length, sourceManifestSha256: sha(JSON.stringify(filesSha256)), filesSha256,
+  snapshotPath, snapshotSha256: sha(snapshotBytes), checkout: snapshot.checkout, changed, added, removed,
+  previousAcceptance: { path: priorPath, sha256: sha(priorBytes), artifactsUnchanged: prior.artifactCount },
+  frozenReferenceCount: Object.keys(before.frozenReferenceSha256).length, frozenReferenceSha256: before.frozenReferenceSha256,
+  approvedSpec: before.approvedSpec, courseCapturePath, courseDependencyCount: course.dependencies.length, courseDependencyBytesUnchanged: true,
+  newCourseReferenceApproved: false, realModelCalls: 0, newCostUsd: 0, remoteMigration: false, deployed: false };
+writeFileSync(output, JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, sourceFileCount: paths.length, sourceManifestSha256: result.sourceManifestSha256, changed, added, previousArtifactsUnchanged: prior.artifactCount, frozenReferences: result.frozenReferenceCount, courseDependencies: result.courseDependencyCount }));

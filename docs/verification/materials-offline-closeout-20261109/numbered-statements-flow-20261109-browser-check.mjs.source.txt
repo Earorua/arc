@@ -1,0 +1,31 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { build } from "esbuild";
+
+const output = process.argv[2];
+assert.match(output ?? "", /^work\/grounded-verification\/numbered-statements-flow-20261109-browser-[a-z0-9-]+-results\.json$/u);
+assert.equal(existsSync(output), false);
+const result = await build({ entryPoints: ["app/lib/materials/skill-labels.ts"], bundle: true, platform: "browser", format: "esm",
+  target: "es2022", write: false, metafile: true });
+const inputs = Object.keys(result.metafile.inputs), local = new Set(inputs.filter(path => /^(?:app|worker)\//u.test(path)));
+const active = new Set(), done = new Set();
+function visit(path) {
+  assert.equal(active.has(path), false, `Local dependency cycle at ${path}`);
+  if (done.has(path)) return;
+  active.add(path);
+  for (const dependency of result.metafile.inputs[path].imports) if (local.has(dependency.path)) visit(dependency.path);
+  active.delete(path); done.add(path);
+}
+for (const path of local) {
+  assert.equal(path.includes("/server/"), false, `Client helper loaded server code: ${path}`);
+  assert.equal(/provider-http|configuration|policy\.ts|runtime\.ts/u.test(path), false, `Client helper loaded execution/configuration: ${path}`);
+  visit(path);
+}
+const sha256 = bytes => createHash("sha256").update(bytes).digest("hex");
+const record = { status: "PASS", platform: "browser", localDependencyCycles: 0, localInputs: [...local].sort(),
+  inputs: Object.fromEntries(inputs.sort().map(path => [path, sha256(readFileSync(path))])),
+  outputBytes: result.outputFiles[0].contents.length, outputSha256: sha256(result.outputFiles[0].contents), warnings: result.warnings };
+assert.deepEqual(record.warnings, []);
+writeFileSync(output, JSON.stringify(record, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ ...record, inputs: inputs.length }));

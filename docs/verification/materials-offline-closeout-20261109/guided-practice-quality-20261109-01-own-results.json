@@ -1,0 +1,20 @@
+{
+  "status": "reviewer-probe-assertion-error",
+  "sourceFinding": false,
+  "failure": "The reviewer initially assumed every omitted-mode result was false. The existing unexecuted-plan default is true and intentionally preserved; the exact-v3 false assertion passed.",
+  "sourceHead": "6b49bce8daa98c22dfa5459298904e59b57a95da",
+  "scriptSha256": "6bf90b69b4a2c7d4d510dc48be1502a9487b43ce661f49e0a8eab59078a2eacd",
+  "bundleSha256": "5bdd816ef00eca269919ae24a58a5d75ba0e7d40a09f544b52dec744950013ca",
+  "logSha256": "cdc18faa2cad89463a45a44d40aee389713277e3102cb110a131f6f9d1d52b8a",
+  "run": {
+    "name": "guided-practice-quality-20261109-01",
+    "exit": 1,
+    "elapsedMs": 238,
+    "logSha256": "cdc18faa2cad89463a45a44d40aee389713277e3102cb110a131f6f9d1d52b8a",
+    "nonLoopbackDenials": 0,
+    "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-VV9Stv"
+  },
+  "correctedScript": "work/grounded-verification/guided-practice-quality-20261109-02.mjs",
+  "trackedSourceEdits": 0,
+  "committed": false
+}

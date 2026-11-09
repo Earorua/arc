@@ -1,0 +1,98 @@
+// DIAGNOSIS ONLY: one pure bundle; virtual modules simulate the plan without product edits.
+import assert from 'node:assert/strict';
+import { build } from 'esbuild';
+import { createHash } from 'node:crypto';
+import { readFileSync as read, writeFileSync as write, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const prefix = 'work/grounded-verification/numbered-statements-diagnosis-20261109-01';
+for (const s of ['-results.json', '-bundle.mjs']) assert.equal(existsSync(prefix + s), false);
+const sha = b => createHash('sha256').update(b).digest('hex');
+const p = { statements:'worker/document-executor/source-statements.ts', evidence:'worker/document-executor/source-review-evidence.ts', provider:'worker/document-executor/source-span-extraction.ts', site:'app/server/documents/extraction-validator.ts' };
+const src = Object.fromEntries(Object.entries(p).map(([k,v]) => [k,read(v,'utf8')]));
+const hashes = Object.fromEntries(Object.entries(p).map(([k,v]) => [v,sha(read(v))]));
+const manifestPath = 'work/grounded-verification/mention-projection-snapshot-20261109-c-results.json';
+const manifestHash = sha(read(manifestPath)), manifest = JSON.parse(read(manifestPath));
+assert.equal(manifest.manifestSha256,'88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a');
+for (const [f,h] of Object.entries(hashes)) assert.equal(h,manifest.filesSha256[f]);
+const helper = src.statements.split(/\r?\n/u).find(l => l.startsWith('const listPrefix = ')) + `
+import {groundedStatementBoundaries} from ${JSON.stringify(resolve(p.evidence))};
+export function complete(text,baseBounds) {
+  const bounds=new Map(baseBounds);
+  for(const match of text.matchAll(/[^\\r\\n]+/gu)) {
+    const line=match[0],trimmed=line.trimStart(),prefix=listPrefix.exec(trimmed);
+    if(!prefix||!/^[\\d０-９]{1,3}\\./u.test(prefix[0]))continue;
+    const start=match.index+line.length-trimmed.length,end=baseBounds.get(start+prefix[0].length);
+    if(end!==undefined)bounds.set(start,end);
+  } return bounds;
+}
+export const numbered=text=>complete(text,groundedStatementBoundaries(text));`;
+function transform(k,before,after) {
+  assert.equal(src[k].split(before).length,2);
+  return {contents:'import {numbered} from "probe:helper";\n'+src[k].replace(before,after),resolveDir:dirname(resolve(p[k]))};
+}
+const virtual = {helper:{contents:helper,resolveDir:process.cwd()},
+ provider:transform('provider','const bounds = groundedTerms ? groundedStatementBoundaries(sources.text) : statementBoundaries(sources.text);','const bounds = sourceMentions ? numbered(sources.text) : groundedTerms ? groundedStatementBoundaries(sources.text) : statementBoundaries(sources.text);'),
+ site:transform('site','const bounds = sourceMentions ? groundedStatementBoundaries(reference.text) : undefined;','const bounds = sourceMentions ? numbered(reference.text) : undefined;')};
+const entry=`export {readSourceSpanExtraction as actual,KIMI_SOURCE_MENTIONS_POLICY_ID as policy} from ${JSON.stringify(resolve(p.provider))};
+export {validateDocumentExtraction as actualSite} from ${JSON.stringify(resolve(p.site))};
+export {statementBoundaries} from ${JSON.stringify(resolve(p.statements))};
+export {groundedStatementBoundaries} from ${JSON.stringify(resolve(p.evidence))};
+export {readSourceSpanExtraction as experimental} from 'probe:provider';
+export {validateDocumentExtraction as experimentalSite} from 'probe:site';
+export * from 'probe:helper';`;
+const built=await build({stdin:{contents:entry,resolveDir:process.cwd(),sourcefile:'diagnosis.ts',loader:'ts'},bundle:true,write:false,platform:'node',format:'esm',target:'node24',plugins:[{name:'virtual-plan',setup(b){
+ b.onResolve({filter:/^probe:/u},a=>({path:a.path.slice(6),namespace:'probe'}));
+ b.onLoad({filter:/.*/,namespace:'probe'},a=>({...virtual[a.path],loader:'ts'}));
+}}]});
+write(prefix+'-bundle.mjs',built.outputFiles[0].contents,{flag:'wx'});
+const api=await import(pathToFileURL(resolve(prefix+'-bundle.mjs')).href), cases=[];
+const skill='I tested SQL under supervision.';
+function add(id,text,full,body,expected={read:'parsed',hint:'guided',labels:['SQL']},extra={}) {
+ cases.push({id,text,quotes:[...new Set([full,body].filter(v=>v!=null))],expected,...extra});
+}
+for(const marker of ['1. ','１２. ','- '])add(marker,marker+skill,marker+skill,skill);
+add('plan-literal','1. I practiced SQL with a mentor.','1. I practiced SQL with a mentor.','I practiced SQL with a mentor.',{read:'parsed'});
+add('indent','\t 1.\t '+skill,'1.\t '+skill,skill);
+add('emoji-crlf','Résumé 🧪.\r\n\r\n１２. '+skill,'１２. '+skill,skill);
+add('bare-heading','Skills\n1. '+skill,'1. '+skill,skill);
+add('soft-guidance','1. I tested SQL\r\nunder supervision.','1. I tested SQL\r\nunder supervision.','I tested SQL\r\nunder supervision.');
+for(const [id,body] of [['soft-negation','I tested SQL\nbut did not practice independently.'],['other','My colleague tested SQL under supervision.'],['future','I plan to test SQL under supervision.'],['negated','I did not test SQL under supervision.'],['quoted','My mentor said, "I tested SQL under supervision."']])add(id,'1. '+body,'1. '+body,body,{read:'parsed',hint:null,labels:['SQL']});
+add('chinese','１. 我在指导下清洗数据。','１. 我在指导下清洗数据。','我在指导下清洗数据。',{read:'parsed'},{terms:['清洗数据']});
+add('technical-dot','1. I tested Node.js under supervision.','1. I tested Node.js under supervision.','I tested Node.js under supervision.',{read:'parsed',hint:'guided',labels:['Node.js']},{terms:['Node.js']});
+for(const term of ['SQL','.NET'])add('jd-'+term,'1. '+term+' is required.','1. '+term+' is required.',term+' is required.',{read:'parsed',hint:null,labels:[term],requirement:'must'},{kind:'requirement',terms:[term]});
+add('jd-heading','Required skills:\r\n  1. SQL.','1. SQL.','SQL.',{read:'parsed',hint:null,labels:['SQL'],requirement:'must'},{kind:'requirement'});
+add('adjacent-first','1. '+skill+'\r\n2. I tested Python under supervision.','1. '+skill,skill);
+add('adjacent-second','1. '+skill+'\r\n2. I tested Python under supervision.','2. I tested Python under supervision.','I tested Python under supervision.',{read:'parsed',hint:'guided',labels:['Python']},{terms:['Python']});
+add('unnominated','1. '+skill,'1. '+skill,skill,{read:'parsed',labels:[]},{terms:[]});
+add('detached-quote','An example: “Begin.\n1. '+skill+' End.”','1. '+skill,skill,{read:'invalid-source'});
+for(const [id,text,quote] of [['cut-full','1. I tested SQL\nbut did not practice independently.','1. I tested SQL'],['cut-body','1. I tested SQL\nbut did not practice independently.','I tested SQL'],['cross-entries','1. '+skill+'\n2. I tested Python under supervision.','1. '+skill+'\n2. I tested Python under supervision.'],['ordinal-with-body','1. '+skill,'1.'],['orphan','1. \n','1.']])add(id,text,quote,null,{read:'invalid-source'});
+for(const text of ['1.2 SQL is required.','1.SQL is required.','1000. SQL is required.','1． SQL is required.','Task 1. SQL is required.','1.\nSQL is required.'])add('no-expansion-'+cases.length,text,text,null,{}, {unchanged:true});
+add('dedup','1. '+skill,'1. '+skill,skill,{read:'invalid-shape'},{duplicate:true});
+const observations=[],mismatches=[];let unchanged=0;
+const coords=(text,map)=>[...map].map(([start,end])=>({start,end,text:text.slice(start,end)}));
+for(const c of cases) {
+ const base=api.groundedStatementBoundaries(c.text),before=[...base],augmented=api.complete(c.text,base);
+ assert.deepEqual([...base],before);assert.notEqual(base,augmented);if(c.unchanged)assert.deepEqual([...augmented],before);
+ c.bounds={statement:coords(c.text,api.statementBoundaries(c.text)),grounded:coords(c.text,base),experiment:coords(c.text,augmented)};
+ const ref={ownerId:'owner',lifecycle:'active',documentId:'doc',documentVersionId:'version',textVersionId:'text',text:c.text,segments:[{id:'section',start:0,end:c.text.length}]};
+ for(const qs of c.duplicate?[c.quotes]:c.quotes.map(q=>[q]))for(const version of [1,2,3]) {
+  const format='source-spans-v'+version,wire={format,items:qs.map(quote=>({kind:c.kind??'skill-claim',source:{segmentId:'section',quote},requirementLevel:c.kind?'must':null,[version===1?'skillLabels':'skillTerms']:c.terms??['SQL'],selfLevelHint:c.kind?null:'guided'})),reviewPoints:[]};
+  const raw={choices:[{finish_reason:'stop',message:{role:'assistant',content:JSON.stringify(wire)}}]};
+  const actual=api.actual(raw,ref,undefined,format),experimental=api.experimental(raw,ref,undefined,format);
+  const row={id:c.id,input:wire,actual,experimental};
+  if(version<3){assert.deepEqual(actual,experimental);unchanged++;}
+  if(version===3) {
+   const item=experimental.candidate?.items[0],got={read:experimental.extractionRead,hint:item?.selfLevelHint,labels:item?.skillLabels,requirement:item?.requirementLevel};
+   for(const [key,value]of Object.entries(c.expected))if(JSON.stringify(got[key])!==JSON.stringify(value))mismatches.push({id:c.id,quotes:qs,key,expected:value,actual:got[key]});
+   if(item)for(const mode of ['actual','experimental']){try{row[mode+'Site']={accepted:true,review:api[mode+'Site'](experimental.candidate,'owner',ref,api.policy)};}catch(e){row[mode+'Site']={accepted:false,error:e.message};}}
+   if(item&&(!row.experimentalSite.accepted||item.text!==qs[0]||item.source.quote!==qs[0]))mismatches.push({id:c.id,key:'site-or-literal',actual:row.experimentalSite});
+   if(item&&c.expected.hint==='guided'&&!experimental.candidate.reviewPoints.some(r=>r.code==='confirm-self-assessment'&&r.source.quote===c.quotes.at(-1)))mismatches.push({id:c.id,key:'body-review',actual:experimental.candidate.reviewPoints});
+  }
+  observations.push(row);
+ }
+}
+for(const [f,h]of Object.entries(hashes))assert.equal(sha(read(f)),h);assert.equal(sha(read(manifestPath)),manifestHash);
+const result={status:'DIAGNOSIS_ONLY',modelCalls:0,network:false,trackedWrites:false,sourceHashes:hashes,cManifest:{artifactSha256:manifestHash,manifestSha256:manifest.manifestSha256,sourceFileCount:manifest.sourceFileCount,artifactUnchanged:true,relevantSourcesMatch:true},bundleSha256:sha(built.outputFiles[0].contents),virtualModules:virtual,rootCause:[...new Intl.Segmenter('en',{granularity:'sentence'}).segment('1. I practiced SQL with a mentor.')].map(({index,segment})=>({index,segment})),cases,observations,unchangedV1V2Comparisons:unchanged,mismatches};
+write(prefix+'-results.json',JSON.stringify(result,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({status:result.status,fixtures:cases.length,observations:observations.length,unchangedV1V2Comparisons:unchanged,mismatches,output:prefix+'-results.json'}));

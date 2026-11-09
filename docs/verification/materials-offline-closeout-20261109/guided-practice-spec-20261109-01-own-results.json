@@ -1,0 +1,436 @@
+{
+  "status": "PASS",
+  "scope": "Independent bounded v3 guided-cleaning specification review; not the full offline-closeout goal",
+  "sourceHead": "6b49bce8daa98c22dfa5459298904e59b57a95da",
+  "manifestSha256": "3f264e37dd4a8d30ee035389f9f1a5eca9e6e2e84cce18ce48b668b9374a34a2",
+  "sourceChecks": [
+    {
+      "path": "app/lib/materials/personal-assertion-scopes.ts",
+      "sha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3"
+    },
+    {
+      "path": "app/lib/materials/self-assessment-evidence.ts",
+      "sha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9"
+    },
+    {
+      "path": "app/lib/materials/skill-labels.ts",
+      "sha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb"
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157"
+    },
+    {
+      "path": "worker/document-executor/source-review-evidence.ts",
+      "sha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2"
+    },
+    {
+      "path": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef"
+    },
+    {
+      "path": "tests/helpers/material-guided-cleaning.ts",
+      "sha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce"
+    },
+    {
+      "path": "tests/helpers/material-mention-review-fixture.ts",
+      "sha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab"
+    },
+    {
+      "path": "tests/server/material-guided-cleaning.test.ts",
+      "sha256": "da76fbc92b29f5475ce9c64d5866441648815ef20a50cc85383cf1fb956d6d46"
+    },
+    {
+      "path": "tests/lib/materials/guided-cleaning-evidence.test.ts",
+      "sha256": "e0b30174d323dc6f492bb5d2f9a05de4b6549d33c2a2f7f53ca6fadcca2a2e10"
+    },
+    {
+      "path": "tests/components/material-guided-cleaning.test.tsx",
+      "sha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb"
+    },
+    {
+      "path": "tests/fixtures/material-guided-cleaning-legacy.json",
+      "sha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47"
+    }
+  ],
+  "evidenceChecks": [
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-baseline-01.log",
+      "sha256": "1feed32632742623f081ed2f1390ab5f516186a1824bc9636185e79083937273",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-red-01.log",
+      "sha256": "1f80585044b0eba1a2a34b5f12b6fdbcf88dc6d67ad62e587d9bb7686b914824",
+      "exit": 1
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-01.log",
+      "sha256": "3422000430674a84dfcaa6da7854e459aa66e6650071e3d651bf98886ebc73f7",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01.log",
+      "sha256": "00473705ac5f9b220043c2a90cd0bdba69e3689763504713b25167f5101cc0a1",
+      "exit": 1
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-red-02.log",
+      "sha256": "c0391c79818527624b9bdad4dab7a193f5c3e9ab91abc2ad122748bcbd464435",
+      "exit": 1
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-02.log",
+      "sha256": "62a660a86480f11f7b02192c2df6696ad7ea538358305fdd78490c7720217e8b",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-regression-01.log",
+      "sha256": "e42a0607097ca085e6422100bf00157d1b3a9d5b229e2b265235779ca62e1fbe",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-regression-02.log",
+      "sha256": "69d854b0545995303eb4277b0fec524b1f6da344d1c775b18b53f46a1d61f28b",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-types-01.log",
+      "sha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b",
+      "exit": 2
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-types-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-types-03.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-lint-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-lint-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-red-01-own-results.json",
+      "sha256": "6af28a484be49813aa7c2d26e5d47977f5197d5c005031285fb6e7e843cd5082"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-01-own-results.json",
+      "sha256": "98801f1a8c8b67d7a56c5fbc9405eb46b3d92a9c3b617382ec8f197dda557802"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-red-02-own-results.json",
+      "sha256": "dd998d921f92678ecde3f6a153c682138b13b1b145037886655e82a4fe369cb3"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-02-own-results.json",
+      "sha256": "4c53dbb5842049c1f7b92982897c2dc801e87aa4aa28817c7a11a103268359c4"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-regression-01-own-results.json",
+      "sha256": "93507f55019da95f1f322b427d898c2687d7ae45538b943b8439e683c8318966"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-regression-02-own-results.json",
+      "sha256": "144878707bc588112ecd118117c7d23da10fb698a0d5c7a9e270533ddfe1137c"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-baseline-01.mjs",
+      "sha256": "f3d454857a6f6c8a320fb5e74f5f1924332d38e917576aa2285adfbee112f601"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-baseline-01-bundle.mjs",
+      "sha256": "9f9b103aac226dcd743cc69f5608218aeefbe7b4b124662c6c8732b4fe190952"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-baseline-01-own-results.json",
+      "sha256": "3f118544d0d3e64d19fc17e6ff35f130e68bc950c4197d8390e78cfec0b3a5d2"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01.mjs",
+      "sha256": "a34e343690af1687ba4c6277b8be562386a2efef5b5b9bce4a80997f83f215cb"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01-bundle.mjs",
+      "sha256": "740d8130669955642cbe7b01052dd10da239cb252706def0acb9f00452fecb7f"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01-own-results.json",
+      "sha256": "d590579a0d4ab4da2ecd7952b6b5bb9a2820c50b5419f6d884f1255b4cdc2166"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-tsconfig.json",
+      "sha256": "0e346ee85e8661ad2cc6f5987fce8513a0d61ded895cddb4f5e4c6fd821e2582"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-freeze-01.mjs",
+      "sha256": "db28f17504b8b8a1fc535dabf12f741a48cf0b0a32e2d99d98ff38272cae8e46"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\manifest.json",
+      "sha256": "4a08eef9937c788a27abc50b9887080f06acf5c843585864dd0b4ff40b173298"
+    }
+  ],
+  "probe": {
+    "observations": [
+      {
+        "id": "plain",
+        "text": "我在指导下清洗数据。",
+        "decoderHint": "guided",
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "s",
+              "quote": "我在指导下清洗数据。"
+            }
+          }
+        ],
+        "siteHints": [
+          {
+            "id": "hint-c-0",
+            "candidateId": "c",
+            "skillLabel": "data cleaning",
+            "level": "guided"
+          }
+        ],
+        "storedReplay": true
+      },
+      {
+        "id": "aspect",
+        "text": "我在指导下清洗了数据。",
+        "decoderHint": "guided",
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "s",
+              "quote": "我在指导下清洗了数据。"
+            }
+          }
+        ],
+        "siteHints": [
+          {
+            "id": "hint-c-0",
+            "candidateId": "c",
+            "skillLabel": "data cleaning",
+            "level": "guided"
+          }
+        ],
+        "storedReplay": true
+      },
+      {
+        "id": "fronted",
+        "text": "在导师指导下，我清洗数据。",
+        "decoderHint": "guided",
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "s",
+              "quote": "在导师指导下，我清洗数据。"
+            }
+          }
+        ],
+        "siteHints": [
+          {
+            "id": "hint-c-0",
+            "candidateId": "c",
+            "skillLabel": "data cleaning",
+            "level": "guided"
+          }
+        ],
+        "storedReplay": true
+      },
+      {
+        "id": "short",
+        "text": "我按指导清洗数据。",
+        "decoderHint": "guided",
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "s",
+              "quote": "我按指导清洗数据。"
+            }
+          }
+        ],
+        "siteHints": [
+          {
+            "id": "hint-c-0",
+            "candidateId": "c",
+            "skillLabel": "data cleaning",
+            "level": "guided"
+          }
+        ],
+        "storedReplay": true
+      },
+      {
+        "id": "object",
+        "text": "我在指导下对原始数据进行清洗。",
+        "decoderHint": "guided",
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "s",
+              "quote": "我在指导下对原始数据进行清洗。"
+            }
+          }
+        ],
+        "siteHints": [
+          {
+            "id": "hint-c-0",
+            "candidateId": "c",
+            "skillLabel": "data cleaning",
+            "level": "guided"
+          }
+        ],
+        "storedReplay": true
+      },
+      {
+        "id": "numbered",
+        "text": "１２. 我在指导下清洗数据。",
+        "decoderHint": "guided",
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "s",
+              "quote": "我在指导下清洗数据。"
+            }
+          }
+        ],
+        "siteHints": [
+          {
+            "id": "hint-c-0",
+            "candidateId": "c",
+            "skillLabel": "data cleaning",
+            "level": "guided"
+          }
+        ],
+        "storedReplay": true
+      },
+      {
+        "id": "mixed-unsplit-SQL",
+        "text": "我在指导下清洗数据，记录了同事的 SQL 工作。",
+        "decoderHint": null,
+        "reviewPoints": [],
+        "siteHints": [],
+        "storedReplay": true
+      },
+      {
+        "id": "mixed-unsplit-repeated",
+        "text": "我在指导下清洗数据，记录了同事清洗数据的工作。",
+        "decoderHint": null,
+        "reviewPoints": [],
+        "siteHints": [],
+        "storedReplay": true
+      },
+      {
+        "id": "mixed-separated-SQL",
+        "text": "我在指导下清洗数据，但同事使用 SQL。",
+        "decoderHint": null,
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "s",
+              "quote": "我在指导下清洗数据，但同事使用 SQL。"
+            }
+          }
+        ],
+        "siteHints": [],
+        "storedReplay": true
+      },
+      {
+        "id": "mixed-separated-repeated",
+        "text": "我在指导下清洗数据，但我独立清洗数据。",
+        "decoderHint": null,
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "s",
+              "quote": "我在指导下清洗数据，但我独立清洗数据。"
+            }
+          }
+        ],
+        "siteHints": [],
+        "storedReplay": true
+      },
+      {
+        "id": "unexecuted-plan",
+        "text": "我在指导下清洗数据的计划尚未执行。",
+        "decoderHint": null,
+        "reviewPoints": [],
+        "siteHints": [],
+        "storedReplay": true
+      }
+    ],
+    "additionalChecks": [
+      "omitted mode unchanged",
+      "v2 unchanged",
+      "document mask respected",
+      "null proposed hint retained",
+      "empty labels yield no per-skill hint",
+      "empty nominations yield no per-skill hint",
+      "deleted item not restored"
+    ]
+  },
+  "probeSha256": "6a5289a148ecafd86962b31223f9c5bef23afd3b61777501445eb3d8947279b7",
+  "bundleSha256": "bbe67a1b2cd4e0322e1628ac3bb71d09bf951be56208724b819ca0d37037aa2b",
+  "sources": {
+    "app/contracts/document-capabilities.ts": "794c5bd4e1d1b75a065acb07ce7cfdf4ae86bd517ba8a9f86ed8f5edd9cc472d",
+    "app/contracts/documents-api.ts": "3a989194c2295f19d6807a3f5e9bd08a529f7b2c60197d274ba239d4d9ecbc93",
+    "app/contracts/documents.ts": "a66e8e843dca7817c2e36253702c10434f184aba3ae1b3be7c52d254695b9b9e",
+    "app/contracts/intelligence.ts": "22e4bde2ff3f059135b861f47b26d4686a92d6ccb4bcf386764e18245305e9f6",
+    "app/contracts/material-planning.ts": "d49cd8786457ab59944ce0caca9185acf2b0a006705a69ddff8180b0abe104f6",
+    "app/contracts/material-recovery.ts": "25f2012b6f6c0da0be119085f1deec80f98db1c39c3971ac8a5e3665cc862e8a",
+    "app/contracts/planning-api.ts": "a34be40b24dbedc065088e0162bf3fafdddc45d7c4ffddaa0727ab9409ad55d9",
+    "app/contracts/planning.ts": "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93",
+    "app/contracts/research.ts": "fd2731a493aee01f6e21814998b1c1fa0c7afd998a194eae7df7ceb13c49ae1b",
+    "app/lib/materials/grounded-skill-terms.ts": "fa3c23292ed421f3e9ac50a2d09e3dbf636331398160a9bac27152b1d3d7afc7",
+    "app/lib/materials/personal-assertion-scopes.ts": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3",
+    "app/lib/materials/quotation-evidence.ts": "03a77ad110f67b56b7f1d6f28facdf9c70a92d0e7cd152ecdad806967297516a",
+    "app/lib/materials/self-assessment-evidence.ts": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+    "app/lib/materials/skill-labels.ts": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+    "app/lib/planning/fingerprint.ts": "88bc521500da91d55e824b0721a511a8ea94cf750743805c209ec4735fb64e11",
+    "app/server/documents/d1-repository.ts": "6371159830da4b26ec3ccc2dace5939c556ee54eb510f3c352629d259c02db36",
+    "app/server/documents/extraction-validator.ts": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+    "app/server/documents/policy.ts": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d",
+    "app/server/documents/review-points.ts": "a6d7f26e42c0dcef85d649237e92f0f2cf9c3836d3b45984f8e15343720a0c06",
+    "worker/document-executor/source-requirement-evidence.ts": "ce98fac8b373f2b4279e9ab476fc352a6a9b3fe146ae7cae44ebd330e453d4e3",
+    "worker/document-executor/source-review-evidence.ts": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+    "worker/document-executor/source-span-extraction.ts": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef",
+    "worker/document-executor/source-statements.ts": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab"
+  },
+  "nativeEvidence": {
+    "path": "work/grounded-verification/offline-closeout-native-flow-20261109-final-a-results.json",
+    "sha256": "3b1ca6e5bbe23dd6d10be8d92a11bf9247076fab1600f30f0bf3dc97fd24a988",
+    "logSha256": "e2931121706af52b55b9b00e8334e3235e611959e17d7fad77ef44585764a9df",
+    "cases": 17,
+    "sixProductionInputsMatch": true
+  },
+  "reviewedRecordedCounts": {
+    "focused": 65,
+    "adjacent": 1329
+  },
+  "findings": [],
+  "limitations": [
+    "One bounded independent probe; recorded larger suites reviewed and hash-verified, not rerun",
+    "Raw root tsc scratch-fixture parse failure preserved; full repository gate remains pending",
+    "Synthetic provider replies only; no real model or remote deployment"
+  ],
+  "trackedWrites": false,
+  "realModelCalls": 0
+}

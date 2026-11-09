@@ -1,0 +1,1049 @@
+{
+  "status": "PASS",
+  "scopeOnly": true,
+  "verdict": "No actionable integration finding in the four-slice offline closeout at 2fad285. Ready for evidence archival, authorized local/GitHub save, and pause.",
+  "reviewType": "Final independent integration review under the approved SDD closeout plan",
+  "reviewerMode": "Static source/test/artifact review; PowerShell reads, SHA-256 checks, full JSON comparisons, and read-only Git inspection only. No Node, tests, background processes, model calls, network requests, migrations, commits, pushes, or deployment launched by reviewer.",
+  "baseCommit": "2107109f4453c5d5bb19c9bd7609915b77ef9f6a",
+  "sourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "sourceManifestSha256": "49323efc6738ecf9df2a5505d791d163559912ae053ce034714b87c622273765",
+  "sourceFileCount": 1014,
+  "slices": [
+    {
+      "commit": "e48e5eb",
+      "scope": "Numbered boundary helper; exact v3 wrapper, unchanged prior boundaries"
+    },
+    {
+      "commit": "6b49bce",
+      "scope": "Provider/site/full-numbered fact retention"
+    },
+    {
+      "commit": "820a98a",
+      "scope": "Exact-v3 bounded Chinese data-cleaning guidance"
+    },
+    {
+      "commit": "2fad285",
+      "scope": "Two-line role-audit reset plus actual adoption/persistence regression tests"
+    }
+  ],
+  "checks": [
+    "Numeric-dot boundary augmentation clones the map, uses an existing complete body end, rejects bare ordinals, and preserves original UTF-16 offsets. It does not expand unsupported syntax or the existing leading-dot .NET limitation.",
+    "Only exact source-spans-v3 and source-skill-mentions-v3 select the new boundaries and sourceMentions mode. Legacy/v1/v2/default paths, schemas, prompts and activation remain unchanged.",
+    "Provider and independent site validation preserve complete source text, ownership/lifecycle checks, identical quote/text, complete ends, duplicate rejection and document-wide quotation context.",
+    "Retention prepares only the proven complete numbered body for evidence assessment. It does not rewrite facts, quotations or source coordinates, and cannot restore removed hints, items or terms.",
+    "Chinese guidance requires the complete current cleaning action to equal already-grounded data-cleaning evidence. An unsplit mixed trailing task conservatively supplies no guided hint or forced capability reminder; facts/topics remain. Recognized separate actor/contrast scopes retain their own evidence.",
+    "The reset diff is exactly reviewedSkills.current.clear() and setMaterialAuditAcknowledged(null), preserving the existing reset/draft logic.",
+    "Real component tests show optional adoption, no adoption from fact confirmation, unique current mapping, manual override/remount behavior, preserved public evidence IDs, real context/planning/D1 audit persistence, and visible reset behavior.",
+    "Synthetic document transport is schema-validated and disclosed; these tests do not establish full HTTP planning protocol acceptance.",
+    "All 20 modified/new source/test files match both the start manifest and the fixed source copy.",
+    "All 833 unique dependency digests across new/legacy native, compatibility and history evidence match current files without conflicts.",
+    "Every complete observed JSON in the 17 new and 25 legacy native cases matches its Node counterpart; native source/worker identities match the respective fixture source.",
+    "All 170 old behavior observations match the frozen baseline in full. All six historical record public outcomes and all rows in eight tables match the same persistent-store baseline.",
+    "All 37 author-run metadata/log identities match, including 13 preserved nonzero runs. The boundary reviewer scope-guard failure and Chinese reviewer assertion error are explicitly classified without rewriting raw failures."
+  ],
+  "limitations": [
+    "Offline batch scope only; no Gate 1B, live Kimi quality, provider activation, public release, remote migration or deployment acceptance.",
+    "No new business-model call or cost; historical R2/P1 failures and expired paid authorizations remain unchanged.",
+    "The current flagship has no data-cleaning skill ID; a grounded hint does not create a course mapping.",
+    "Existing leading-dot .NET and conservative unsplit mixed-clause limits remain documented.",
+    "Actual course coverage/new references, complete 14-scenario native planning protocol, latest-master UI integration, newly authorized live quality, B3/B4/B5 and release remain after pause."
+  ],
+  "sourceEditsByReviewer": 0,
+  "duplicateBroadTestRuns": 0,
+  "realModelCalls": 0,
+  "newCostUsd": 0,
+  "networkRequestsByReviewer": 0,
+  "findings": [],
+  "actionsRequired": [],
+  "reviewedAtUtc": "2026-11-09T12:43:18.2014857Z",
+  "finalGateCoverageVerified": true,
+  "finalSourceVerification": {
+    "timestampUtc": "2026-11-09T12:43:18.2014857Z",
+    "integrityStatus": "PASS",
+    "sourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+    "sourceFileCount": 1014,
+    "sourceManifestSha256": "49323efc6738ecf9df2a5505d791d163559912ae053ce034714b87c622273765",
+    "fullSourceMapMatchesStart": true,
+    "currentAndCopyMismatches": [],
+    "changedSources": [
+      {
+        "path": "app/components/setup/adaptive-setup-flow.tsx",
+        "sha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf",
+        "snapshotSha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf",
+        "matches": true
+      },
+      {
+        "path": "app/lib/materials/personal-assertion-scopes.ts",
+        "sha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3",
+        "snapshotSha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3",
+        "matches": true
+      },
+      {
+        "path": "app/lib/materials/self-assessment-evidence.ts",
+        "sha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+        "snapshotSha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+        "matches": true
+      },
+      {
+        "path": "app/lib/materials/skill-labels.ts",
+        "sha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+        "snapshotSha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+        "matches": true
+      },
+      {
+        "path": "app/server/documents/extraction-validator.ts",
+        "sha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+        "snapshotSha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+        "matches": true
+      },
+      {
+        "path": "tests/components/material-adoption-persistence.test.tsx",
+        "sha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209",
+        "snapshotSha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209",
+        "matches": true
+      },
+      {
+        "path": "tests/components/material-guided-cleaning.test.tsx",
+        "sha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb",
+        "snapshotSha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb",
+        "matches": true
+      },
+      {
+        "path": "tests/fixtures/material-guided-cleaning-legacy.json",
+        "sha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47",
+        "snapshotSha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47",
+        "matches": true
+      },
+      {
+        "path": "tests/helpers/material-guided-cleaning.ts",
+        "sha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce",
+        "snapshotSha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce",
+        "matches": true
+      },
+      {
+        "path": "tests/helpers/material-mention-review-fixture.ts",
+        "sha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab",
+        "snapshotSha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab",
+        "matches": true
+      },
+      {
+        "path": "tests/lib/materials/guided-cleaning-evidence.test.ts",
+        "sha256": "e0b30174d323dc6f492bb5d2f9a05de4b6549d33c2a2f7f53ca6fadcca2a2e10",
+        "snapshotSha256": "e0b30174d323dc6f492bb5d2f9a05de4b6549d33c2a2f7f53ca6fadcca2a2e10",
+        "matches": true
+      },
+      {
+        "path": "tests/lib/materials/reviewed-source-mentions.test.ts",
+        "sha256": "644395e6047a2640603f78103064be0dcf8ecd90ceaba8602abd552a66aef0eb",
+        "snapshotSha256": "644395e6047a2640603f78103064be0dcf8ecd90ceaba8602abd552a66aef0eb",
+        "matches": true
+      },
+      {
+        "path": "tests/server/document-extraction.test.ts",
+        "sha256": "06b782e950e64fd8f98f80ca44f50f3de1d67fc96511a3e4f0bc551dac46c625",
+        "snapshotSha256": "06b782e950e64fd8f98f80ca44f50f3de1d67fc96511a3e4f0bc551dac46c625",
+        "matches": true
+      },
+      {
+        "path": "tests/server/document-source-span-provider.test.ts",
+        "sha256": "3eaee4aa55e074e8e7437f9c26604d490b9017938413e3f32f09076c25690446",
+        "snapshotSha256": "3eaee4aa55e074e8e7437f9c26604d490b9017938413e3f32f09076c25690446",
+        "matches": true
+      },
+      {
+        "path": "tests/server/material-guided-cleaning.test.ts",
+        "sha256": "da76fbc92b29f5475ce9c64d5866441648815ef20a50cc85383cf1fb956d6d46",
+        "snapshotSha256": "da76fbc92b29f5475ce9c64d5866441648815ef20a50cc85383cf1fb956d6d46",
+        "matches": true
+      },
+      {
+        "path": "tests/server/material-mention-review-flow.test.ts",
+        "sha256": "685ec1dee4ee5e1492bfcc7da4b874ce602d573f1c647b9b73cf638d72cbf229",
+        "snapshotSha256": "685ec1dee4ee5e1492bfcc7da4b874ce602d573f1c647b9b73cf638d72cbf229",
+        "matches": true
+      },
+      {
+        "path": "tests/server/material-numbered-statements.test.ts",
+        "sha256": "1aa53850930e5ce24acca8998a2df068cd503490d2055565e059548d36c4cec7",
+        "snapshotSha256": "1aa53850930e5ce24acca8998a2df068cd503490d2055565e059548d36c4cec7",
+        "matches": true
+      },
+      {
+        "path": "worker/document-executor/source-review-evidence.ts",
+        "sha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+        "snapshotSha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+        "matches": true
+      },
+      {
+        "path": "worker/document-executor/source-span-extraction.ts",
+        "sha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef",
+        "snapshotSha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef",
+        "matches": true
+      },
+      {
+        "path": "worker/document-executor/source-statements.ts",
+        "sha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab",
+        "snapshotSha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab",
+        "matches": true
+      }
+    ],
+    "previousArtifacts": 459,
+    "frozenReferences": 26,
+    "courseDependencies": 85,
+    "courseUnchanged": true,
+    "coverageStatus": "PASS",
+    "coverageSourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+    "coverageSourceManifestSha256": "49323efc6738ecf9df2a5505d791d163559912ae053ce034714b87c622273765",
+    "coverageFiles": 384,
+    "coverageTests": 10009,
+    "node": {
+      "name": "offline-closeout-full-node-20261109-a",
+      "tests": 290,
+      "passed": 290,
+      "logSha256": "6b313ec98863bd260385b6af8f14782a15d5435364ebb20ae24c4f6a112a497e"
+    },
+    "render": {
+      "name": "offline-closeout-render-20261109-a",
+      "tests": 5,
+      "passed": 5,
+      "logSha256": "44ab12c9253e8fc15dbad512912c300077259617d54f66c99cbd339ae9a4d170"
+    },
+    "chains": [
+      {
+        "nativeName": "offline-closeout-native-flow-20261109-final-a",
+        "parityName": "offline-closeout-node-parity-20261109-final-a",
+        "cases": 17,
+        "dependencyCount": 832,
+        "dependenciesMatchFinalSource": true
+      },
+      {
+        "nativeName": "offline-closeout-legacy-native-20261109-final-a",
+        "parityName": "offline-closeout-legacy-parity-20261109-final-a",
+        "cases": 25,
+        "dependencyCount": 832,
+        "dependenciesMatchFinalSource": true
+      }
+    ],
+    "locations": {
+      "unit": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "serial": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "research": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "additionalNode": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "types": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "lint": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "build": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "render": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source"
+    },
+    "additionalNodeIsolated": true,
+    "originalTimeoutsAndAssertions": true,
+    "finalIntegritySha256": "fa472c59fa10b6b166857f43fecd31f764b263978cd99636fffd6d3e6898505c",
+    "coverageSha256": "d3d08edbc47b634e62420297fa6101d1bedc598c5934414e0ec4a1b92b24ef56"
+  },
+  "finalGateRuns": [
+    {
+      "label": "offline-closeout-full-unit-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 531505,
+      "metadataSha256": "9e5b13b5d462b5780c14d0bf45d56abea913f42a817203e720939d1ec42a826a",
+      "logSha256": "0da667abcb611879b1ca9abff0fb852a91daba3bca09da7407f57f248105f327",
+      "logHashMatches": true,
+      "vitestSummary": "Test Files  380 passed (380)\n      Tests  9858 passed (9858)",
+      "nodeSummary": []
+    },
+    {
+      "label": "offline-closeout-full-serial-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 51577,
+      "metadataSha256": "0fc9835bd1d442cb4b45b93544a6a4f6bfc4f24fb817aaa54e96109996c8778e",
+      "logSha256": "41f585d5ac49907e1cf52ccb70d1b0b1b54923e21b73d4606b47a70a3786616c",
+      "logHashMatches": true,
+      "vitestSummary": "Test Files  2 passed (2)\n      Tests  50 passed (50)",
+      "nodeSummary": []
+    },
+    {
+      "label": "offline-closeout-full-research-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 239357,
+      "metadataSha256": "6b90e6ce7a6c496ce00ec040596b3067806fa789a36ac6de5543539ec590e144",
+      "logSha256": "1b645eedbc506bdc9a870b295488c60fc3fbb5381a5300f7be925013a41c6aae",
+      "logHashMatches": true,
+      "vitestSummary": "Test Files  2 passed (2)\n      Tests  101 passed (101)",
+      "nodeSummary": []
+    },
+    {
+      "label": "offline-closeout-full-types-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 16494,
+      "metadataSha256": "cd58a301eb997a2569d54ea642528068cdbe4ea38d5e713089139d0c48a9793f",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logHashMatches": true,
+      "vitestSummary": "",
+      "nodeSummary": []
+    },
+    {
+      "label": "offline-closeout-full-lint-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 22471,
+      "metadataSha256": "797e44bb506296b561f57174240d97fe71c1e88942ef8d19c3916c7a8e79d1a3",
+      "logSha256": "3d51106bd7c18ac17d256441abce8815189a83b3f2c087bc219f6d1616e9a588",
+      "logHashMatches": true,
+      "vitestSummary": "",
+      "nodeSummary": []
+    },
+    {
+      "label": "offline-closeout-build-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 6988,
+      "metadataSha256": "ee4286c3fc7c14471fb5541b5d0ca3353f4d4ccd80a16f61779ed01f1d9234b9",
+      "logSha256": "02f4c8d3510229011241f1d6d87113a93ae20b52fef9a30b3dbf36937fe5a91a",
+      "logHashMatches": true,
+      "vitestSummary": "",
+      "nodeSummary": []
+    },
+    {
+      "label": "offline-closeout-render-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 2271,
+      "metadataSha256": "729a006b9a4dd7e65efe1f5915c399d99dbffba5a8ea1900fb6a5e77ab3d3f31",
+      "logSha256": "44ab12c9253e8fc15dbad512912c300077259617d54f66c99cbd339ae9a4d170",
+      "logHashMatches": true,
+      "vitestSummary": "",
+      "nodeSummary": [
+        "ℹ tests 5",
+        "ℹ pass 5",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0"
+      ]
+    },
+    {
+      "label": "offline-closeout-full-node-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 284404,
+      "metadataSha256": "499f949c86fe84e9baf6208a132dd8230ee5cc8dc02352b071232df16017cee3",
+      "logSha256": "6b313ec98863bd260385b6af8f14782a15d5435364ebb20ae24c4f6a112a497e",
+      "logHashMatches": true,
+      "vitestSummary": "",
+      "nodeSummary": [
+        "ℹ tests 290",
+        "ℹ pass 290",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0"
+      ]
+    },
+    {
+      "label": "offline-closeout-integrity-20261109-final-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 1082,
+      "metadataSha256": "23a225419c5115943f97d10e129e172c27a39740499e5fe17cc60eab87aa76d8",
+      "logSha256": "286bb93c5fac9c895a8f39bb9724e1e4ffd254d3c5f7d6434fc0bed7e604bc1b",
+      "logHashMatches": true,
+      "vitestSummary": "",
+      "nodeSummary": []
+    },
+    {
+      "label": "offline-closeout-coverage-20261109-a",
+      "exit": 0,
+      "denials": 0,
+      "elapsedMs": 282,
+      "metadataSha256": "661ce51b6255f6e9a91627bcba3e2a547d4682a480f57f416d0c769ba589eebd",
+      "logSha256": "bee29e9c40db5ca9ef10a25a37cac501cf07df2784bd8334202081f04a63a0ea",
+      "logHashMatches": true,
+      "vitestSummary": "",
+      "nodeSummary": []
+    }
+  ],
+  "independentlyParsedCoverage": {
+    "vitestFilesExpected": 384,
+    "vitestFilesObserved": 384,
+    "vitestTests": 10009,
+    "missingFiles": [],
+    "duplicatedFiles": [],
+    "additionalNodeTests": 290,
+    "renderTests": 5,
+    "allStandardNodeFiles": 10,
+    "nodeFailed": 0,
+    "nodeCancelled": 0,
+    "nodeSkipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 4,
+    "knownUnchangedWarnings": [
+      {
+        "path": "tests/api/research-completed-acknowledgement.test.ts",
+        "line": 213,
+        "identifier": "_oldFingerprint"
+      },
+      {
+        "path": "tests/server/research-executor-runtime.test.ts",
+        "line": 1394,
+        "identifier": "_options"
+      },
+      {
+        "path": "tests/server/research-planning-integration.test.ts",
+        "line": 153,
+        "identifier": "_old"
+      },
+      {
+        "path": "tests/server/research-service-binding-transport.test.ts",
+        "line": 20,
+        "identifier": "_request"
+      }
+    ]
+  },
+  "staticEvidenceChecks": {
+    "currentAndSnapshotFilesHashed": 1014,
+    "changedSourceFilesHashed": 20,
+    "nativeParityCompleteJsonComparisons": 42,
+    "nativeCaseGroups": [
+      17,
+      25
+    ],
+    "dependencyArtifactsChecked": 4,
+    "uniqueInputDigestsChecked": 833,
+    "conflictingDigests": [],
+    "mismatchedDigests": [],
+    "authorRunMetadataAndLogsChecked": 37,
+    "preservedNonzeroAuthorRuns": 13,
+    "compatibilityProviderCases": 150,
+    "compatibilityHelperCases": 20,
+    "historicalRecords": 6,
+    "historicalTableRowsUnchangedAcrossTables": 8,
+    "noProductOrTestWrites": true,
+    "noNodeOrTestLaunchesByReviewer": true,
+    "additionalNodeIsolationEvidence": "Sequential gate script plus root coordinator confirmation; reviewer used only static reads and did not launch Node, tests or background workers."
+  },
+  "preservedFailureDisposition": [
+    "Boundary raw spec stays FAIL/exit 1 for two whole-checkout doc/path guards; 33 scoped hashes and 18 behavior observations passed. Root-owned doc edits were outside the three-file freeze; no raw rewrite.",
+    "Numbered HTTP CRLF fixture was corrected to the existing canonical-LF document contract. Separate provider raw-CRLF/UTF-16 checks remain; the actual retention RED is preserved.",
+    "Chinese first-clause-only escape was reproduced after the initial 61-test GREEN; exact whole-action matching fixes the four scope regressions. Earlier source snapshot, raw RED and final 65-test GREEN remain.",
+    "Chinese quality probe 01 mistakenly expected all omitted-mode results false. The existing legacy/default unexecuted-plan result is intentionally preserved; corrected probe 02 PASS did not change product code.",
+    "Raw root type failures from ignored historical work scratch fixtures remain. Final root-config tsc on the fixed source snapshot passes without changing the root config.",
+    "Reset RED is 4 passed/1 failed with three distinct stale-state assertions, followed by 5 focused and 150 related GREEN results.",
+    "An initial reviewer-only static comparison checked the legacy parity worker hash against the new-flow worker path. Reading the legacy parity source identified its declared mention-projection-flow worker; the correctly scoped hash matches. No runtime or source change occurred."
+  ],
+  "rootOwnedWorkingTreeDocumentation": "Expected modified/untracked plan, recovery and final-report documents were preserved. Product/test diff remained empty against source HEAD; documentation status drift is not a scoped-source failure.",
+  "routing": {
+    "localPath": "D:/CodexScratch/arc-source-readme-20261029/SOURCE_INDEX.md",
+    "githubUrl": "https://github.com/Earorua/arc/blob/master/SOURCE_INDEX.md",
+    "cachedPath": "work/grounded-verification/mention-projection-routing-20261109-source-index.md",
+    "bothContentSha256": "d1cea3a93223ebb3791207319c10e0877cd7af7fb5df67e2846e7d89db735527",
+    "remoteRead": "Fresh root-verified GitHub cache read; no network request by reviewer."
+  },
+  "artifactCount": 150,
+  "artifacts": [
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-green-01-own-results.json",
+      "sha256": "7259841165a357f818ff282eb2fc464979f1f30042bbd5f4f039c9916405185f"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-green-01.json",
+      "sha256": "da1e6109ccb2b3cad9370ba8749b2c46921c71a9862d3ae6470c33dc6bd26e9b"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-green-01.log",
+      "sha256": "90101ca4b6b50ff7b32b453f6007cdf151a0d5e17f9c04badbc70b3005c93135"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-lint-01.json",
+      "sha256": "89050a8f9ecfb4c3ef1872b429b8e590f238b932e31bda5b35ab5d1755eb8ae9"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-lint-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-manifest.json",
+      "sha256": "1800feb69854ad77fa25b72b3e7d9a3a2819d3b493ceb7d74875767aae016ffc"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-red-01-own-results.json",
+      "sha256": "bb6cc967cfcf48adab4c9085fb357f445c8dca4fb16d957edb7dbe6e5dcca868"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-red-01.json",
+      "sha256": "ed635dbc59312815d1c144db52c532b6586e043c9224e810f37a1eec709ee34c"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-red-01.log",
+      "sha256": "59d83f34024c145da0378a821448f8a2835e31c7c9897c3444d25c1fd2582c69"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-related-01.json",
+      "sha256": "1d62c985e4df1a71da370b8c252451af82d4ecd3db225bd2f3b3b615320477e9"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-related-01.log",
+      "sha256": "6c4c81b127ada9832ab3886871f21cf8f2c4376314f3fec6d8b1c6fdc7409173"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-types-01.json",
+      "sha256": "6dad5be7c23d08fe304ef59ae935c6b12da795abcad7e895f5b9c0f8c6c50ae8"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-types-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-quality-20261109-review-01-own-results.json",
+      "sha256": "1d588a035e591554c32881b6e459fafb7cda9be0d58d91967b1941cf9a86d959"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-spec-20261109-review-01-own-results.json",
+      "sha256": "311191629bb489bfd26a4ced81484bdcd63df701689ad5056b6b42e13f59c7b0"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-baseline-01.json",
+      "sha256": "ee21dd8d66c76244a704fc58bab531b30ca6a05be6f306a86bb2fe6cdfb1f349"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-baseline-01.log",
+      "sha256": "1feed32632742623f081ed2f1390ab5f516186a1824bc9636185e79083937273"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-freeze-01-own-results.json",
+      "sha256": "3f264e37dd4a8d30ee035389f9f1a5eca9e6e2e84cce18ce48b668b9374a34a2"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-green-01.json",
+      "sha256": "fba9aff3a95f7684b62267bc5d32302963ec28d208f8ca60164b4616aa8f1357"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-green-01.log",
+      "sha256": "3422000430674a84dfcaa6da7854e459aa66e6650071e3d651bf98886ebc73f7"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-green-02-own-results.json",
+      "sha256": "4c53dbb5842049c1f7b92982897c2dc801e87aa4aa28817c7a11a103268359c4"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-green-02.json",
+      "sha256": "3faf444b5c95af7e593f81e2e51477685cde4ad89bfa5a9fc0cb7ebf27e8ae26"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-green-02.log",
+      "sha256": "62a660a86480f11f7b02192c2df6696ad7ea538358305fdd78490c7720217e8b"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-lint-01.json",
+      "sha256": "0ba32a6d0de94fd712a32362b93247605f1c0eec7777c8b3a9b483a6e8d37e34"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-lint-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-lint-02.json",
+      "sha256": "b0b2101a67cf99f7da826345a9fedcfc3badda8a4e9e7c6743e9117a737dc159"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-lint-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-red-01.json",
+      "sha256": "0e3b4e0aafb9bdfc133266ad98efd8aa8af1804f6b3fb90d089bb92f5082fc35"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-red-01.log",
+      "sha256": "1f80585044b0eba1a2a34b5f12b6fdbcf88dc6d67ad62e587d9bb7686b914824"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-regression-01.json",
+      "sha256": "da9c7e6868f9d2c4566ec1a1b07d198d7b5128937b97aefbe14cc099a5860da2"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-regression-01.log",
+      "sha256": "e42a0607097ca085e6422100bf00157d1b3a9d5b229e2b265235779ca62e1fbe"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-regression-02.json",
+      "sha256": "23e08b99daa86c728666fc4382c6ba34051ce9cd7d376cae11cdbcf58492e286"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-regression-02.log",
+      "sha256": "69d854b0545995303eb4277b0fec524b1f6da344d1c775b18b53f46a1d61f28b"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-scope-probe-01-own-results.json",
+      "sha256": "d590579a0d4ab4da2ecd7952b6b5bb9a2820c50b5419f6d884f1255b4cdc2166"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-scope-probe-01.json",
+      "sha256": "abb8541007bfce6c65d6c9636a3207558d7bdce0c9388534029d6a5399bc1cc0"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-scope-probe-01.log",
+      "sha256": "00473705ac5f9b220043c2a90cd0bdba69e3689763504713b25167f5101cc0a1"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-scope-red-02-own-results.json",
+      "sha256": "dd998d921f92678ecde3f6a153c682138b13b1b145037886655e82a4fe369cb3"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-scope-red-02.json",
+      "sha256": "9a055b58c51ba77eed683d3d7fb941e06d7fea5c8e8c06a736064a2f2d5a6375"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-scope-red-02.log",
+      "sha256": "c0391c79818527624b9bdad4dab7a193f5c3e9ab91abc2ad122748bcbd464435"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-types-01.json",
+      "sha256": "211a8f79ab77da02f5f304da0a282dda6d73187821e4a4643759fb3f8e2f862f"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-types-01.log",
+      "sha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-types-02.json",
+      "sha256": "fcb84bb94453a20f0114c68c6612d8764e084fc83cdece11da612cc3555c42c9"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-types-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-types-03.json",
+      "sha256": "1d405e9f943e9decd764c953751608741bbf7ba570ac97354dbddc1d94160d24"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-20261109-types-03.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-quality-20261109-01-own-results.json",
+      "sha256": "a743e10303037606f2e346833edc7f5ad46ac722f8252ce5b92287ed561086e4"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-quality-20261109-02-own-results.json",
+      "sha256": "31e070717c59e1f7c1be80e9e0d9aba73935325fc12e4819a55c62c01e4b2f35"
+    },
+    {
+      "path": "work/grounded-verification/guided-practice-spec-20261109-01-own-results.json",
+      "sha256": "1b6b7d80393c0025c484c696172a60c8ca8e2dc477051c4f58fd3d635c2c08f1"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-compatibility-before-20261109-b-results.json",
+      "sha256": "de329b61bbdac52374e5161e6eca3c16f22673f989a8639863534f803119b74b"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-flow-worker-20261109.ts",
+      "sha256": "6f57023f7b94b26a32e5daf77038b329d358dac1c6aea9e29e02d1b5555168f6"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-history-before-20261109-b-results.json",
+      "sha256": "247f9e36e8c4c3f6d368f302fb8b575a81f4ab01e3540a5a548258c27c1457ea"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-routing-20261109-results.json",
+      "sha256": "8b4a6a8f0e42611847be2cf9a2ced2dc0b6dea9fbfefc3facbf67ed836c20e14"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-routing-20261109-source-index.md",
+      "sha256": "d1cea3a93223ebb3791207319c10e0877cd7af7fb5df67e2846e7d89db735527"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a.json",
+      "sha256": "3c8b4d429c3ca6c5734e116f14e80fff352dc5227851df8b5b53ecb469d6cdc1"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a.log",
+      "sha256": "576ee0676e8252c264571ded10219a738d6d1be522f28bcbbd3d108a225f70e9"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a.json",
+      "sha256": "e14fa24ad3563932964fbed9b696bcc8f1b76804d2e0a3139cc9545cae7f0b1c"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a.log",
+      "sha256": "68665bee5fd4250a0140bde8ac0f7437e4b864c627b6adc96d93d8c227964336"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-results.json",
+      "sha256": "cb29af4c72383844bf3fcb3358f7e3345be735ce230cf692cd437e615fee266f"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-green-a.json",
+      "sha256": "5e078ec0b40f83225b9d3b7335dda4082e829cd46b91723ccd0702ec915fe36d"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-green-a.log",
+      "sha256": "b114ce0e060a1b7a3e583330a2f39430f1428c8442807908f40d6ad8a584badf"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-lint-a.json",
+      "sha256": "faa47ee761f40008f71f5431658d01919fde9215c8ac00fe365d69ceaa5da89a"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-lint-a.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-api-a.json",
+      "sha256": "f9b4124068e2ff5fac4b057ae1631f320ec54da3ab2c3b4a6e010eb5ceb9e6e4"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-api-a.log",
+      "sha256": "5bf286f3a94a8f369428306effc1bb753e53b36f63aec5ffaeb0da722d803b35"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-a.json",
+      "sha256": "478a79504674462c05e32c1d78e8a17e7b64290190e2eb57449dde1599e55aea"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-a.log",
+      "sha256": "577afe5067d8c797c2757c75046d247151b09c8aa80552f3e247fc63ce8518a3"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-b.json",
+      "sha256": "0f90c3590f6256661103a09e2a9cd22d657276aaee26d6b31777e12fe1c06085"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-b.log",
+      "sha256": "3a543a668e44952a55a14c0d8ac64190e035303826c84d6b0e1fe0601f4dbfbf"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-related-a.json",
+      "sha256": "aca256fee110269bb541cbe5f5843d86e08955dac4284c8076f82df424d67499"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-related-a.log",
+      "sha256": "537e880a7ab28d20fa29f3841b7b037c6024f95e848971b5b36c55d46d05ba3b"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-types-a.json",
+      "sha256": "9a0f534eb907d50db178ca6b063beded295e0eb2f2e72c53302d7171accb4a97"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-types-a.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-quality-20261109-q1-own-results.json",
+      "sha256": "e6da08afe3039cb7fb4a1a462033c7dd4d6cec4617e9295f18eb3c7191351cdf"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a-results.json",
+      "sha256": "dfceda86954b631fa28cf999ba2992388506080080fb80b64b628a927bdeee83"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a-review-results.json",
+      "sha256": "c03643f49fd2009a152aae0cb2b5acfd410ea26d8d332d90fce33488f79f4c0e"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-browser-a.json",
+      "sha256": "d2984959d9187398585e9dbbeb4f100ff27d2fd6cb12514ff14bee17f36b4d6c"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-browser-a.log",
+      "sha256": "08f06bb0db1f3e2fab72cf70e5c3df103fcb5d0e9ea2129cfb9fc3e6f128a959"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a.json",
+      "sha256": "47669f1e285a57f785b145ed54e911b83355569430567631ee241f581e08f168"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a.log",
+      "sha256": "e3e7556712442de2786da6ef11a751710e2f972a997f09e901a573654056e2e2"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-results.json",
+      "sha256": "4a57492bb289cadf0723ee80c3082c16e523bfdc696c77387b6338ab27173d22"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-gate-a.json",
+      "sha256": "431493f4e1e40fcb96607aaba69923fee2cbd6b324c887ab988a902d54e7db9f"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-gate-a.log",
+      "sha256": "19399ab3449693091b141bc7a9e6515f70fa35d0bf3faa29ce48a02293587257"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-green-a.json",
+      "sha256": "d1b9485d9378a993e47f011166a9e86462fd002006292ab17e617476dfb20f14"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-green-a.log",
+      "sha256": "0e6e9e6741a5ee980c83913c5f6a640a3d9b8f34a852f69bff30ffbfe4f02b61"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-lint-a.json",
+      "sha256": "d94da30091b24c189254df2c15004605edec2b618f65716f5845e78346574563"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-lint-a.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-red-a.json",
+      "sha256": "a99794bea98d9b039ed02de984b7483f2d3ad2b34ee0b65b1fc70035df961a6e"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-red-a.log",
+      "sha256": "b6330beb23a3f6bbcc8b81501fffc5508371bc8d3d74f49fa42cf477de86ef31"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a.json",
+      "sha256": "9c2cc5e2f62006ce04613809a4a309435741da352c7dae9db5e4c44d636a8659"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a.log",
+      "sha256": "321376e39bf045a6a3010e41a014acee702d64ef67310ef200e32f0021a12b17"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a.json",
+      "sha256": "d1b637bf5a2047f80aa2199cffd3944955cd5edb99a13701b5e3dff64f3ad58f"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a.log",
+      "sha256": "712e0483f7d3fbae6d12032676a6d82a6f92c8c098ce75dd74e4d36ceb8bb793"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-types-a.json",
+      "sha256": "28b6c2d7d56318b3b6f6e7cc7ffd4dd6ec03dd48dcb2295f5578f38138f68d68"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-types-a.log",
+      "sha256": "346d94088e4390bdf48d2c84697ea70653e634887a107e8e44cc23127e255a50"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-types-b.json",
+      "sha256": "a27bfa29d1c51b8cb7b085c2920f49d2afbd9c7398daeb7014646d813884dece"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-types-b.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1-own-results.json",
+      "sha256": "4de2a4173bf6cf97243eb11cb6375912af4cdd47a3c4a1e79304cd3cea6641e3"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-spec-20261109-memo-a-results.json",
+      "sha256": "9756a26d1c53a89cb5252f058e61c9197edd2326f4c5dbe08b1b678eb069e32b"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-compatibility-20261109.mjs",
+      "sha256": "8115bfdefad58de27e7c591b21065da286468e77be388996b54c17fefeb7668e"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-compatibility-final-20261109-a-results.json",
+      "sha256": "d5c2cab96bc1651e8ef41064e17e8f54548aa838f7abf3aedbaeb05d43fc87e4"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-compatibility-final-20261109-a.json",
+      "sha256": "ba97a3b32f8feba3ca7148604bf868e473641ef9ae6a81e48db74e904d58a345"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-compatibility-final-20261109-a.log",
+      "sha256": "e2c1579c4802e53899d2836495c8045a6f8ff37b0eb7a272fa8f3560d6e28cdb"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-coverage-20261109.mjs",
+      "sha256": "0b717b8fc08d44e50e67d7df654293f6628800c9127e4d362da8d974fec2718e"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-flow-cases-20261109.mjs",
+      "sha256": "9de72d91a0a75ad1c20056608c48cd0aa25cee0987f7b1e2dca1b6a56aea299a"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-flow-worker-20261109.ts",
+      "sha256": "eb99918ba40803cb1c33017153425a0d6381fae04ea4dd70ff4c6514b5601551"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-gates-20261109.ps1",
+      "sha256": "c0a90a274af8b989aad50deab30da0c67f12b1ec4bc192581c03d50bf024d4ba"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-history-20261109.mjs",
+      "sha256": "f9e18d16d62756fe1f33ae0e6e66fcbcee08399c83df8413225be49920cdfc6d"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-history-final-20261109-a-results.json",
+      "sha256": "4d14aaed33f92da523204b4803c0daaa9caa282f2463adad8552fcd5ce8aa5e0"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-history-final-20261109-a.json",
+      "sha256": "2840ff336882c27d9370dffb4d22fd50c61715a808dce7a9ee94a63771834037"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-history-final-20261109-a.log",
+      "sha256": "2ca77cbe61e6de5584a1b091f700fa109017c0515b667da3d5c14af39cc64bf8"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-integrity-20261109-start-a-results.json",
+      "sha256": "fa472c59fa10b6b166857f43fecd31f764b263978cd99636fffd6d3e6898505c"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-integrity-20261109.mjs",
+      "sha256": "47d963956ce591fcf6bc4a9b591dc19ffc41d65410a94b5b1a7105cd13354434"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-legacy-native-20261109-final-a-results.json",
+      "sha256": "19bf8d2c814f8550caad85b57ef2cad56a2c2faf78052bc1d7e060f48c383947"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-legacy-native-20261109-final-a.json",
+      "sha256": "978f8d48089891f01f21fbe951c487c17b51503454666b85125fedd0ba90021e"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-legacy-native-20261109-final-a.log",
+      "sha256": "acb34f11345a89a5fd11e9feb9cf86ca601465fbfe355c065722a4337cb0c93b"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-legacy-parity-20261109-final-a-results.json",
+      "sha256": "9e30e113b092890f408e283a0bba0f97db647d04e5982927ce2e4cbd8a4471c7"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-legacy-parity-20261109-final-a.json",
+      "sha256": "c7803265a26b24f95b7966bef4ec9ba3f3f34c7fea37fe4e6a928f471ddccbcc"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-legacy-parity-20261109-final-a.log",
+      "sha256": "9ec2a38070ea16962bcc01f8e5f8c55458db6cbf520db6dd09ebb99749991911"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-legacy-parity-20261109.test.ts",
+      "sha256": "da39a38e3c822c7b4071247f182b8a2febb2b709a2e3835f2ebaca8331e2eb4b"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-native-flow-20261109-final-a-results.json",
+      "sha256": "3b1ca6e5bbe23dd6d10be8d92a11bf9247076fab1600f30f0bf3dc97fd24a988"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-native-flow-20261109-final-a.json",
+      "sha256": "fad2196c27d36626b4e65bd66508c74795bdb0f6db0cac323d964f2f0c4614e0"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-native-flow-20261109-final-a.log",
+      "sha256": "e2931121706af52b55b9b00e8334e3235e611959e17d7fad77ef44585764a9df"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-native-flow-20261109.mjs",
+      "sha256": "cacdb423d38fa4d8acb908423d9162557f880e7d018a640162acbf5e1b8db688"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-node-parity-20261109-final-a-results.json",
+      "sha256": "3729abfd49110b2fad6b7af299615214c621db7c21b323b8ceac6d7b4f89bee4"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-node-parity-20261109-final-a.json",
+      "sha256": "4b2bbe2ae912a06bb8bcf04e2dce3f113265225c67f3bc3ea8861c612e96f6dc"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-node-parity-20261109-final-a.log",
+      "sha256": "d37b71fa0604d87f8e8ae6a2029a84ce6075c52adb861eb40a2f78078543330e"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-node-parity-20261109.test.ts",
+      "sha256": "e006809104187a81b37f92025561007b8cb447523514718e45ac2056f35a9d73"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-snapshot-20261109-a-results.json",
+      "sha256": "c9b4c22c419a8d921f78c2a2929c8c13096392f74d68fbd3be2c063dca4fbea4"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-unit-20261109-a.json",
+      "sha256": "9e5b13b5d462b5780c14d0bf45d56abea913f42a817203e720939d1ec42a826a"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-unit-20261109-a.log",
+      "sha256": "0da667abcb611879b1ca9abff0fb852a91daba3bca09da7407f57f248105f327"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-serial-20261109-a.json",
+      "sha256": "0fc9835bd1d442cb4b45b93544a6a4f6bfc4f24fb817aaa54e96109996c8778e"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-serial-20261109-a.log",
+      "sha256": "41f585d5ac49907e1cf52ccb70d1b0b1b54923e21b73d4606b47a70a3786616c"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-research-20261109-a.json",
+      "sha256": "6b90e6ce7a6c496ce00ec040596b3067806fa789a36ac6de5543539ec590e144"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-research-20261109-a.log",
+      "sha256": "1b645eedbc506bdc9a870b295488c60fc3fbb5381a5300f7be925013a41c6aae"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-types-20261109-a.json",
+      "sha256": "cd58a301eb997a2569d54ea642528068cdbe4ea38d5e713089139d0c48a9793f"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-types-20261109-a.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-lint-20261109-a.json",
+      "sha256": "797e44bb506296b561f57174240d97fe71c1e88942ef8d19c3916c7a8e79d1a3"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-lint-20261109-a.log",
+      "sha256": "3d51106bd7c18ac17d256441abce8815189a83b3f2c087bc219f6d1616e9a588"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-build-20261109-a.json",
+      "sha256": "ee4286c3fc7c14471fb5541b5d0ca3353f4d4ccd80a16f61779ed01f1d9234b9"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-build-20261109-a.log",
+      "sha256": "02f4c8d3510229011241f1d6d87113a93ae20b52fef9a30b3dbf36937fe5a91a"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-render-20261109-a.json",
+      "sha256": "729a006b9a4dd7e65efe1f5915c399d99dbffba5a8ea1900fb6a5e77ab3d3f31"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-render-20261109-a.log",
+      "sha256": "44ab12c9253e8fc15dbad512912c300077259617d54f66c99cbd339ae9a4d170"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-node-20261109-a.json",
+      "sha256": "499f949c86fe84e9baf6208a132dd8230ee5cc8dc02352b071232df16017cee3"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-full-node-20261109-a.log",
+      "sha256": "6b313ec98863bd260385b6af8f14782a15d5435364ebb20ae24c4f6a112a497e"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-integrity-20261109-final-a.json",
+      "sha256": "23a225419c5115943f97d10e129e172c27a39740499e5fe17cc60eab87aa76d8"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-integrity-20261109-final-a.log",
+      "sha256": "286bb93c5fac9c895a8f39bb9724e1e4ffd254d3c5f7d6434fc0bed7e604bc1b"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-coverage-20261109-a.json",
+      "sha256": "661ce51b6255f6e9a91627bcba3e2a547d4682a480f57f416d0c769ba589eebd"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-coverage-20261109-a.log",
+      "sha256": "bee29e9c40db5ca9ef10a25a37cac501cf07df2784bd8334202081f04a63a0ea"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-integrity-20261109-final-a-results.json",
+      "sha256": "fa472c59fa10b6b166857f43fecd31f764b263978cd99636fffd6d3e6898505c"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-coverage-20261109-a-results.json",
+      "sha256": "d3d08edbc47b634e62420297fa6101d1bedc598c5934414e0ec4a1b92b24ef56"
+    }
+  ]
+}
+

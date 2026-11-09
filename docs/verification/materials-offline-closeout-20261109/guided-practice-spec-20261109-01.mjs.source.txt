@@ -1,0 +1,89 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "esbuild";
+const prefix = "work/grounded-verification/guided-practice-spec-20261109-01";
+const sha = value => createHash("sha256").update(value).digest("hex");
+const hashFile = path => sha(readFileSync(path));
+const probe = String.raw`
+import assert from "node:assert/strict";
+import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION } from "./app/contracts/documents";
+import { supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope } from "./app/lib/materials/self-assessment-evidence";
+import { retainedMaterialSelfAssessmentHints } from "./app/lib/materials/skill-labels";
+import { validateDocumentExtraction, serializeDocumentExtraction, validateStoredDocumentExtraction } from "./app/server/documents/extraction-validator";
+import { KIMI_SOURCE_MENTIONS_POLICY_ID } from "./app/server/documents/policy";
+import { readSourceSpanExtraction } from "./worker/document-executor/source-span-extraction";
+function reference(text) { return { ownerId: "reviewer", lifecycle: "active", documentId: "d", documentVersionId: "v", textVersionId: "t", text, segments: [{ id: "s", start: 0, end: text.length }] }; }
+function wire(text, terms, level = "guided", format = "source-spans-v3") { return { format, items: [{ kind: "experience", source: { segmentId: "s", quote: text }, requirementLevel: null, skillTerms: terms, selfLevelHint: level }], reviewPoints: [] }; }
+function decode(text, terms, level = "guided", format = "source-spans-v3") { return readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(wire(text, terms, level, format)) } }] }, reference(text), undefined, format); }
+function canonical(text, labels, level = "guided") { return { schemaVersion: "2026.11.1", items: [{ id: "c", kind: "experience", text, source: { segmentId: "s", quote: text }, requirementLevel: null, skillLabels: labels, selfLevelHint: level }], reviewPoints: [] }; }
+export function run() {
+  const cases = [
+    ["plain", "我在指导下清洗数据。", ["清洗数据"], ["data cleaning"], true, true],
+    ["aspect", "我在指导下清洗了数据。", ["清洗了数据"], ["data cleaning"], true, true],
+    ["fronted", "在导师指导下，我清洗数据。", ["清洗数据"], ["data cleaning"], true, true],
+    ["short", "我按指导清洗数据。", ["清洗数据"], ["data cleaning"], true, true],
+    ["object", "我在指导下对原始数据进行清洗。", ["对原始数据进行清洗"], ["data cleaning"], true, true],
+    ["numbered", "１２. 我在指导下清洗数据。", ["清洗数据"], ["data cleaning"], true, true],
+    ["mixed-unsplit-SQL", "我在指导下清洗数据，记录了同事的 SQL 工作。", ["清洗数据", "SQL"], ["data cleaning", "SQL"], false, false],
+    ["mixed-unsplit-repeated", "我在指导下清洗数据，记录了同事清洗数据的工作。", ["清洗数据"], ["data cleaning"], false, false],
+    ["mixed-separated-SQL", "我在指导下清洗数据，但同事使用 SQL。", ["清洗数据", "SQL"], ["data cleaning", "SQL"], false, true],
+    ["mixed-separated-repeated", "我在指导下清洗数据，但我独立清洗数据。", ["清洗数据"], ["data cleaning"], false, true],
+    ["unexecuted-plan", "我在指导下清洗数据的计划尚未执行。", ["清洗数据"], ["data cleaning"], false, false],
+  ];
+  const observations = cases.map(([id,text,terms,labels,hint,reminder]) => {
+    const out = decode(text,terms); assert.equal(out.extractionRead,"parsed",id);
+    assert.deepEqual(out.candidate.items[0].skillLabels, labels, id);
+    assert.equal(out.candidate.items[0].selfLevelHint, hint ? "guided" : null, id);
+    assert.equal(out.candidate.reviewPoints.some(p=>p.code === "confirm-self-assessment"),reminder,id);
+    const c = canonical(text,labels), ref=reference(text);
+    const site = validateDocumentExtraction(c,"reviewer",ref,KIMI_SOURCE_MENTIONS_POLICY_ID);
+    assert.deepEqual(site.selfAssessmentHints.map(h=>h.skillLabel),hint?labels:[],id);
+    assert.deepEqual(validateStoredDocumentExtraction(serializeDocumentExtraction(c,KIMI_SOURCE_MENTIONS_POLICY_ID),"reviewer",ref),site,id);
+    assert.equal(site.items[0].text,text,id);
+    assert.deepEqual(site.items[0].sourceRef,{documentId:"d",documentVersionId:"v",textVersionId:"t",start:0,end:text.length},id);
+    if (hint) assert.deepEqual(retainedMaterialSelfAssessmentHints(site.items,site.selfAssessmentHints,SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION),site.selfAssessmentHints,id);
+    return {id,text,decoderHint:out.candidate.items[0].selfLevelHint,reviewPoints:out.candidate.reviewPoints,siteHints:site.selfAssessmentHints,storedReplay:true};
+  });
+  const text=cases[0][1], ref=reference(text), c=canonical(text,["data cleaning"]);
+  assert.equal(supportsMaterialSelfLevelHint({kind:"experience",text,labels:["data cleaning"],level:"guided"}),false);
+  assert.equal(decode(text,["清洗数据"],"guided","source-spans-v2").candidate.items[0].selfLevelHint,null);
+  assert.equal(supportsSelfLevelHintInScope(text," ".repeat(text.length),"guided",["data cleaning"],true),false);
+  const nullHint=decode(text,["清洗数据"],null).candidate;
+  assert.equal(nullHint.items[0].selfLevelHint,null);
+  assert.equal(nullHint.reviewPoints[0].code,"confirm-self-assessment");
+  assert.deepEqual(validateDocumentExtraction(canonical(text,[]),"reviewer",ref,KIMI_SOURCE_MENTIONS_POLICY_ID).selfAssessmentHints,[]);
+  const noNomination=decode(text,[]).candidate;
+  assert.deepEqual(noNomination.items[0].skillLabels,[]);
+  assert.deepEqual(validateDocumentExtraction(noNomination,"reviewer",ref,KIMI_SOURCE_MENTIONS_POLICY_ID).selfAssessmentHints,[]);
+  assert.deepEqual(retainedMaterialSelfAssessmentHints([], [{id:"h",candidateId:"c",skillLabel:"data cleaning",level:"guided"}], SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION),[]);
+  return {observations, additionalChecks:["omitted mode unchanged","v2 unchanged","document mask respected","null proposed hint retained","empty labels yield no per-skill hint","empty nominations yield no per-skill hint","deleted item not restored"]};
+}`;
+for (const suffix of ["-bundle.mjs", "-own-results.json"]) assert.equal(existsSync(prefix+suffix),false,"review artifacts must be new");
+const built = await build({ stdin:{contents:probe,loader:"ts",resolveDir:resolve(".")}, bundle:true,write:false,platform:"node",format:"esm",target:"node24",metafile:true,external:["node:*"] });
+writeFileSync(prefix+"-bundle.mjs",built.outputFiles[0].contents,{flag:"wx"});
+const observations=(await import(pathToFileURL(resolve(prefix+"-bundle.mjs")).href)).run();
+const manifestPath="work/grounded-verification/guided-practice-20261109-freeze-01-own-results.json";
+const manifest=JSON.parse(readFileSync(manifestPath,"utf8"));
+assert.equal(hashFile(manifestPath),"3f264e37dd4a8d30ee035389f9f1a5eca9e6e2e84cce18ce48b668b9374a34a2");
+const sourceChecks=manifest.sourceFiles.map(x=>{assert.equal(hashFile(x.path),x.sha256,x.path);assert.equal(hashFile(x.frozen),x.sha256,x.frozen);return {path:x.path,sha256:x.sha256};});
+const evidenceChecks=[];
+for(const x of manifest.runs){assert.equal(hashFile(x.log),x.logSha256,x.log);assert.equal(hashFile(x.metadata),x.metadataSha256,x.metadata);evidenceChecks.push({path:x.log,sha256:x.logSha256,exit:x.exit});}
+for(const x of [...manifest.reports,...manifest.evidence]){assert.equal(hashFile(x.path),x.sha256,x.path);evidenceChecks.push({path:x.path,sha256:x.sha256});}
+const nativePath="work/grounded-verification/offline-closeout-native-flow-20261109-final-a-results.json";
+const native=JSON.parse(readFileSync(nativePath,"utf8"));
+assert.equal(native.status,"PASS");assert.equal(native.cases,17);assert.equal(native.outboundCalls,0);assert.equal(native.realModelCalls,0);
+assert(native.observations.every(x=>x.status===200 && x.failures.length===0));
+for(const x of manifest.sourceFiles.filter(x=>x.path.startsWith("app/")||x.path.startsWith("worker/"))) assert.equal(native.inputs[x.path],x.sha256,x.path+" native input");
+const nativeLog="work/grounded-verification/offline-closeout-native-flow-20261109-final-a.log";
+assert.equal(hashFile(nativeLog),"e2931121706af52b55b9b00e8334e3235e611959e17d7fad77ef44585764a9df");
+const focused=JSON.parse(readFileSync("work/grounded-verification/guided-practice-20261109-green-02-own-results.json","utf8"));
+const regression=JSON.parse(readFileSync("work/grounded-verification/guided-practice-20261109-regression-02-own-results.json","utf8"));
+assert.equal(focused.numPassedTests,65);assert.equal(focused.numFailedTests,0);
+assert.equal(regression.numPassedTests,1329);assert.equal(regression.numFailedTests,0);
+const sources=Object.fromEntries(Object.keys(built.metafile.inputs).filter(x=>x!=="<stdin>"&&!x.includes("node_modules")).sort().map(x=>[x,hashFile(x)]));
+const result={status:"PASS",scope:"Independent bounded v3 guided-cleaning specification review; not the full offline-closeout goal",sourceHead:manifest.sourceHead,manifestSha256:hashFile(manifestPath),sourceChecks,evidenceChecks,probe:observations,probeSha256:sha(probe),bundleSha256:hashFile(prefix+"-bundle.mjs"),sources,nativeEvidence:{path:nativePath,sha256:hashFile(nativePath),logSha256:hashFile(nativeLog),cases:17,sixProductionInputsMatch:true},reviewedRecordedCounts:{focused:65,adjacent:1329},findings:[],limitations:["One bounded independent probe; recorded larger suites reviewed and hash-verified, not rerun","Raw root tsc scratch-fixture parse failure preserved; full repository gate remains pending","Synthetic provider replies only; no real model or remote deployment"],trackedWrites:false,realModelCalls:0};
+writeFileSync(prefix+"-own-results.json",JSON.stringify(result,null,2)+"\n",{flag:"wx"});
+console.log(JSON.stringify({status:result.status,probeCases:observations.observations.length,additionalChecks:observations.additionalChecks.length,freezeFiles:sourceChecks.length,recordedFocused:65,recordedAdjacent:1329,nativeCases:17,resultSha256:hashFile(prefix+"-own-results.json")}));

@@ -1,0 +1,105 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "esbuild";
+
+const prefix = "work/grounded-verification/guided-practice-diagnosis-20261109-01";
+const output = prefix + "-results.json";
+const bundle = prefix + "-bundle.mjs";
+assert.equal(existsSync(output), false);
+assert.equal(existsSync(bundle), false);
+const sha = value => createHash("sha256").update(value).digest("hex");
+const source = String.raw`
+import { readSourceSpanExtraction } from "./worker/document-executor/source-span-extraction";
+import { validateDocumentExtraction, serializeDocumentExtraction, validateStoredDocumentExtraction } from "./app/server/documents/extraction-validator";
+import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, GROUNDED_MATERIAL_REVIEW_PROJECTION } from "./app/contracts/documents";
+import { KIMI_SOURCE_MENTIONS_POLICY_ID, KIMI_GROUNDED_TERMS_POLICY_ID } from "./app/server/documents/policy";
+import { supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope, hasPersonalCapabilityQuestion } from "./app/lib/materials/self-assessment-evidence";
+import { retainedMaterialSelfAssessmentHints } from "./app/lib/materials/skill-labels";
+import { chineseGuidance, practiceAction, guidedSkillScope, assessmentScopes } from "./app/lib/materials/personal-assertion-scopes";
+import { findMaterialSkillEvidence, findMaterialSkillMention, groundMaterialSkillMentions } from "./app/lib/materials/grounded-skill-terms";
+import { maskQuotes } from "./app/lib/materials/quotation-evidence";
+import { groundSourceSelfLevelHint, groundSourceReviewPoints } from "./worker/document-executor/source-review-evidence";
+import { supportsMaterialExperience } from "./app/lib/materials/experience-evidence";
+
+const rows = [
+  ["known-natural", "我在指导下清洗数据。", "清洗数据"],
+  ["working-explicit-practice", "我在指导下练习清洗数据。", "清洗数据"],
+  ["natural-aspect", "我在指导下清洗了数据。", "清洗了数据"],
+  ["fronted-guidance", "在导师指导下，我清洗数据。", "清洗数据"],
+  ["short-guidance", "我按指导清洗数据。", "清洗数据"],
+  ["grounded-data-object", "我在指导下对原始数据进行清洗。", "对原始数据进行清洗"],
+  ["denied-action", "我在指导下没有清洗数据。", "清洗数据"],
+  ["future-action", "我在指导下计划清洗数据。", "清洗数据"],
+  ["other-actor", "同事在指导下清洗数据。", "清洗数据"],
+  ["fronted-other-actor", "在导师指导下，我的同事清洗数据。", "清洗数据"],
+  ["reported-action", "我报告说，我在指导下清洗数据。", "清洗数据"],
+  ["quoted-action", "示例：“我在指导下清洗数据。”", "清洗数据"],
+  ["conditional-action", "如果我在指导下清洗数据，我会记录过程。", "清洗数据"],
+  ["nominal-topic", "我在指导下数据清洗。", "数据清洗"],
+  ["nominal-plan", "我在指导下清洗数据的计划尚未执行。", "清洗数据"],
+  ["nondata-object", "我在指导下清洗设备。", "清洗设备"],
+  ["data-center", "我在指导下清洗数据中心。", "清洗数据"],
+  ["same-term-unsupported-scope", "我在指导下清洗数据，但我独立清洗数据。", "清洗数据"],
+];
+
+function observe([id, text, term]) {
+  const sources = { text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+  const reference = { ...sources, ownerId: "owner", lifecycle: "active", documentId: "doc-guided", documentVersionId: "version-guided", textVersionId: "text-guided" };
+  const source = { segmentId: "segment-1", quote: text };
+  const proposed = { kind: "experience", source, requirementLevel: null, skillLabels: ["data cleaning"], selfLevelHint: "guided" };
+  const candidate = { schemaVersion: "2026.11.1", items: [{ ...proposed, id: "candidate-1", text }], reviewPoints: [{ code: "confirm-self-assessment", source }] };
+  const masked = maskQuotes(text), zh = chineseGuidance.exec(masked);
+  const action = zh ? masked.slice(zh[0].length).replace(/^[，,\s]*(?:我|本人)?/u, "") : null;
+  const scopes = assessmentScopes(text, masked).map(scope => ({ ...scope, guided: guidedSkillScope(scope.raw, scope.text) }));
+  const decode = format => {
+    const wire = { format, items: [{ ...proposed, skillLabels: undefined, skillTerms: [term] }], reviewPoints: [] };
+    return readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(wire) } }] }, sources, undefined, format);
+  };
+  const v2 = decode("source-spans-v2"), v3 = decode("source-spans-v3");
+  const site = policy => validateDocumentExtraction(candidate, "owner", reference, policy);
+  const v3Site = site(KIMI_SOURCE_MENTIONS_POLICY_ID);
+  const v3Stored = validateStoredDocumentExtraction(serializeDocumentExtraction(candidate, KIMI_SOURCE_MENTIONS_POLICY_ID), "owner", reference);
+  const hint = { id: "hint-candidate-1-0", candidateId: "candidate-1", skillLabel: "data cleaning", level: "guided" };
+  const edited = { id: "candidate-1", kind: "experience", text, origin: "user", sourceRef: null, requirementLevel: null, skillLabels: ["data cleaning"] };
+  return { id, text, term, canonicalEvidence: findMaterialSkillEvidence(text, "data cleaning"), canonicalMention: findMaterialSkillMention(text, "data cleaning"),
+    nominatedTopics: groundMaterialSkillMentions(text, [term]), zh: zh?.[0] ?? null, action, actionMatch: action === null ? null : practiceAction.exec(action)?.[0] ?? null,
+    scopes, defaultHint: supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["data cleaning"], level: "guided" }),
+    rawHint: supportsMaterialSelfLevelHint({ kind: "experience", text, labels: [term], level: "guided" }),
+    scopeHint: supportsSelfLevelHintInScope(text, masked, "guided", ["data cleaning"]),
+    capabilityQuestion: hasPersonalCapabilityQuestion(text, masked, true), groundHint: groundSourceSelfLevelHint(proposed),
+    groundPoints: groundSourceReviewPoints([{ code: "confirm-self-assessment", source }], [proposed], sources),
+    experience: supportsMaterialExperience({ kind: "experience", text, target: { kind: "terms", terms: ["data cleaning"] } }),
+    v2, v3, directV3Site: v3Site, v3StoredMatches: JSON.stringify(v3Stored) === JSON.stringify(v3Site),
+    editedRetained: [undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION].map(projection => ({ projection: projection ?? "legacy/default", hints: retainedMaterialSelfAssessmentHints([edited], [hint], projection) })),
+  };
+}
+
+export function run() { return rows.map(observe); }
+`;
+const built = await build({ stdin: { contents: source, loader: "ts", resolveDir: resolve(".") }, bundle: true, write: false, platform: "node", format: "esm", target: "node24", metafile: true, external: ["node:*"] });
+writeFileSync(bundle, built.outputFiles[0].contents, { flag: "wx" });
+const module = await import(pathToFileURL(resolve(bundle)).href);
+const observations = module.run();
+const natural = observations.find(row => row.id === "known-natural");
+const working = observations.find(row => row.id === "working-explicit-practice");
+assert.equal(natural.canonicalEvidence, "清洗数据");
+assert.deepEqual(natural.nominatedTopics, ["data cleaning"]);
+assert.equal(natural.zh, "我在指导下");
+assert.equal(natural.actionMatch, null);
+assert.equal(natural.defaultHint, false);
+assert.equal(natural.groundHint, null);
+assert.deepEqual(natural.groundPoints, []);
+assert.equal(natural.v2.candidate.items[0].selfLevelHint, null);
+assert.equal(natural.v3.candidate.items[0].selfLevelHint, null);
+assert.deepEqual(natural.directV3Site.selfAssessmentHints, []);
+assert.equal(working.actionMatch, "练习");
+assert.equal(working.defaultHint, true);
+assert.equal(working.v3.candidate.items[0].selfLevelHint, "guided");
+assert.equal(working.directV3Site.selfAssessmentHints.length, 1);
+assert.ok(observations.every(row => row.v3StoredMatches));
+const projectInputs = Object.fromEntries(Object.keys(built.metafile.inputs).filter(path => path !== "<stdin>" && !path.includes("node_modules")).sort().map(path => [path, sha(readFileSync(path))]));
+writeFileSync(output, JSON.stringify({ status: "diagnosis-confirmed", knownDefect: "natural Chinese data cleaning guided practice rejected by shared practice verb gate", sourceHead: "1f65e4a483399db8fb6c143e076f3d7523675399", projectInputs, realModelCalls: 0, observations }, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: "diagnosis-confirmed", cases: observations.length, realModelCalls: 0, output, natural: { topic: natural.nominatedTopics, actionMatch: natural.actionMatch, providerHint: natural.v3.candidate.items[0].selfLevelHint, siteHints: natural.directV3Site.selfAssessmentHints.length }, working: { actionMatch: working.actionMatch, providerHint: working.v3.candidate.items[0].selfLevelHint, siteHints: working.directV3Site.selfAssessmentHints.length } }));

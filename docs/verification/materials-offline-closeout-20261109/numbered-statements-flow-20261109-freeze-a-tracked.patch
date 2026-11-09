@@ -1,0 +1,460 @@
+diff --git a/app/lib/materials/skill-labels.ts b/app/lib/materials/skill-labels.ts
+index 756542d..cf5f857 100644
+--- a/app/lib/materials/skill-labels.ts
++++ b/app/lib/materials/skill-labels.ts
+@@ -1,6 +1,7 @@
+ import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, isSourceLinkedMaterialReviewProjection, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../contracts/documents";
+ import { findMaterialSkillEvidence, findMaterialSkillMention, groundMaterialSkillMentions, groundMaterialSkillTerms } from "./grounded-skill-terms";
+ import { supportsMaterialSelfLevelHint } from "./self-assessment-evidence";
++import { sourceMentionStatementBoundaries } from "../../../worker/document-executor/source-review-evidence";
+ 
+ export function normalizeMaterialSkillLabel(label: string) {
+   return label.normalize("NFKC").toLowerCase();
+@@ -39,6 +40,16 @@ export function labelForAddedSourceTerm(quote: string, fact: string, sourceTerm:
+   return label && findReviewedSourceTerm(fact, label, projection) !== null ? label : null;
+ }
+ 
++function sourceMentionAssessmentText(text: string) {
++  const start = text.length - text.trimStart().length, end = text.trimEnd().length;
++  const prefix = /^[\d０-９]{1,3}\.[^\S\r\n]+/u.exec(text.slice(start, end));
++  if (!prefix) return text;
++  const bodyStart = start + prefix[0].length, bounds = sourceMentionStatementBoundaries(text);
++  // Prepare only a complete numeric-dot entry's proven body. Keep attribution,
++  // multiple statements and every stored fact/source field unchanged.
++  return bounds.get(start) === end && bounds.get(bodyStart) === end ? text.slice(bodyStart, end) : text;
++}
++
+ export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMaterialItem[], hints: DocumentReviewDraft["selfAssessmentHints"], projection?: DocumentReviewDraft["reviewProjection"]) {
+   return hints.filter(hint => {
+     const item = items.find(item => item.id === hint.candidateId);
+@@ -46,6 +57,7 @@ export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMat
+     const retainedLabel = item.skillLabels ? item.skillLabels.includes(hint.skillLabel) : item.origin === "extracted" || containsMaterialSkillLabel(item.text, hint.skillLabel);
+     if (!retainedLabel) return false;
+     const needsEvidence = isSourceLinkedMaterialReviewProjection(projection) || item.origin === "user";
+-    return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text: item.text, labels: [hint.skillLabel], level: hint.level });
++    const text = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION ? sourceMentionAssessmentText(item.text) : item.text;
++    return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text, labels: [hint.skillLabel], level: hint.level });
+   });
+ }
+diff --git a/app/server/documents/extraction-validator.ts b/app/server/documents/extraction-validator.ts
+index b543a82..225202c 100644
+--- a/app/server/documents/extraction-validator.ts
++++ b/app/server/documents/extraction-validator.ts
+@@ -3,7 +3,7 @@ import { documentExtractionSchema, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_M
+ import { supportsReviewedSkillLabel } from "../../lib/materials/skill-labels";
+ import { supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope } from "../../lib/materials/self-assessment-evidence";
+ import { maskQuotes } from "../../lib/materials/quotation-evidence";
+-import { groundedStatementBoundaries, isDetachedQuotedStatement } from "../../../worker/document-executor/source-review-evidence";
++import { sourceMentionStatementBoundaries, isDetachedQuotedStatement } from "../../../worker/document-executor/source-review-evidence";
+ import { DocumentServiceError } from "./d1-repository";
+ import { validateDocumentReviewPoints } from "./review-points";
+ import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "./policy";
+@@ -35,7 +35,7 @@ function projectExtraction(candidate: unknown, ownerId: string, reference: Mater
+         throw new DocumentServiceError("invalid-content");
+     const reviewProjection = isSourceLinkedMaterialReviewProjection(projection) ? projection : undefined;
+     const sourceMentions = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
+-    const bounds = sourceMentions ? groundedStatementBoundaries(reference.text) : undefined;
++    const bounds = sourceMentions ? sourceMentionStatementBoundaries(reference.text) : undefined;
+     const statementStarts = new Map(bounds && [...bounds].map(([start, end]) => [end, start]));
+     const masked = sourceMentions ? maskQuotes(reference.text) : "";
+     const items: ConfirmedMaterialItem[] = parsed.data.items.map(item => {
+diff --git a/tests/lib/materials/reviewed-source-mentions.test.ts b/tests/lib/materials/reviewed-source-mentions.test.ts
+index 83d65c3..62f09b4 100644
+--- a/tests/lib/materials/reviewed-source-mentions.test.ts
++++ b/tests/lib/materials/reviewed-source-mentions.test.ts
+@@ -161,6 +161,50 @@ describe("reviewed source mentions", () => {
+ });
+ 
+ describe("source mentions remain separate from personal self-assessment", () => {
++  it.each([
++    ["1. I tested SQL under supervision.", "guided"],
++    ["１２. I tested SQL under supervision.", "guided"],
++    ["  1. I tested SQL under supervision.\r\n", "guided"],
++    ["1. I am familiar with SQL.", "conceptual"],
++    ["1. I am unsure about my SQL proficiency.", "uncertain"],
++  ] as const)("retains only the existing v3 hint supported by a complete numbered fact: %s", (text, level) => {
++    const item = fact(text), before = structuredClone(item), hint = { ...guidedHint, level };
++    expect(retainedMaterialSelfAssessmentHints([item], [hint], mentionProjection)).toEqual([hint]);
++    expect(retainedMaterialSelfAssessmentHints([item], [], mentionProjection)).toEqual([]);
++    expect(retainedMaterialSelfAssessmentHints([item], [hint], GROUNDED_MATERIAL_REVIEW_PROJECTION)).toEqual([]);
++    expect(item).toEqual(before);
++  });
++
++  it.each([
++    "1. My colleague tested SQL under supervision.",
++    "1. I will test SQL under supervision.",
++    "1. I did not test SQL under supervision.",
++    "1. I tested SQL under no supervision.",
++    "1. If I tested SQL under supervision, I would document it.",
++    '1. My mentor said, "I tested SQL under supervision."',
++    '“1. I tested SQL under supervision.”',
++    "1. I tested SQL under supervision. 2. My colleague used SQL.",
++    "1. I tested SQL under supervision.\r\n2. My colleague used SQL.",
++    "1.\nI tested SQL under supervision.",
++    "1234. I tested SQL under supervision.",
++    "1.5 I tested SQL under supervision.",
++    "- I tested SQL under supervision.",
++  ])("does not discard the attribution or broaden list grammar during v3 retention: %s", text => {
++    const item = fact(text, { origin: "user" }), before = structuredClone(item);
++    expect(retainedMaterialSelfAssessmentHints([item], [guidedHint], mentionProjection)).toEqual([]);
++    expect(item).toEqual(before);
++  });
++
++  it.each([undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION, mentionProjection])(
++    "preserves body-only hint retention and historical numbered behavior under %s", projection => {
++      expect(retainedMaterialSelfAssessmentHints([fact("I tested SQL under supervision.")], [guidedHint], projection)).toEqual([guidedHint]);
++      const numbered = fact("1. I tested SQL under supervision.");
++      expect(retainedMaterialSelfAssessmentHints([numbered], [guidedHint], projection))
++        .toEqual(projection === GROUNDED_MATERIAL_REVIEW_PROJECTION ? [] : [guidedHint]);
++      expect(retainedMaterialSelfAssessmentHints([{ ...numbered, origin: "user" }], [guidedHint], projection))
++        .toEqual(projection === mentionProjection ? [guidedHint] : []);
++    });
++
+   it.each(["conceptual", "guided", "uncertain"] as const)("does not retain a %s hint just because the configured SQL denial mentions a topic", level => {
+     const items = [fact("I have never configured SQL for production.")];
+     expect(retainedMaterialSelfAssessmentHints(items, [{ ...guidedHint, level }], mentionProjection)).toEqual([]);
+diff --git a/tests/server/document-extraction.test.ts b/tests/server/document-extraction.test.ts
+index 1cd621c..02d4263 100644
+--- a/tests/server/document-extraction.test.ts
++++ b/tests/server/document-extraction.test.ts
+@@ -130,6 +130,43 @@ it.each([
+     const review = validateDocumentExtraction(mentionExtraction(text, ["SQL"], level), "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID);
+     expect(review.selfAssessmentHints).toEqual([{ id: "hint-fact-0", candidateId: "fact", skillLabel: "SQL", level }]);
+ });
++it.each(["1. I tested SQL under supervision.", "１２. I tested SQL under supervision."])(
++    "independently accepts the complete numbered v3 source without rewriting it: %s", text => {
++        const original = mentionReference(text), extraction = mentionExtraction(text);
++        const review = validateDocumentExtraction(extraction, "owner", original, KIMI_SOURCE_MENTIONS_POLICY_ID);
++        expect(review.items[0]).toMatchObject({ text, skillLabels: ["SQL"], sourceRef: {
++            documentId: "doc", documentVersionId: "version", textVersionId: "text", start: 0, end: text.length,
++        } });
++        expect(review.selfAssessmentHints).toEqual([{ id: "hint-fact-0", candidateId: "fact", skillLabel: "SQL", level: "guided" }]);
++        expect(validateStoredDocumentExtraction(serializeDocumentExtraction(extraction, KIMI_SOURCE_MENTIONS_POLICY_ID), "owner", original)).toEqual(review);
++    });
++it.each([
++    "1. My colleague tested SQL under supervision.",
++    "1. I will test SQL under supervision.",
++    "1. I did not test SQL under supervision.",
++    "1. I tested SQL\r\nnot under supervision.",
++    '1. My mentor said, "I tested SQL under supervision."',
++])("independently removes a forged numbered v3 hint without removing its topic: %s", text => {
++    const review = validateDocumentExtraction(mentionExtraction(text), "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID);
++    expect(review).toMatchObject({ items: [{ text, skillLabels: ["SQL"] }], selfAssessmentHints: [] });
++});
++it.each([
++    ["1. I tested SQL\r\nnot under supervision.", "1. I tested SQL"],
++    ["1. I tested SQL\r\nnot under supervision.", "I tested SQL"],
++    ["1. I tested SQL under supervision.\r\n2. My colleague used React.", "1. I tested SQL under supervision.\r\n2. My colleague used React."],
++    ["1. \n", "1."],
++    ["  １２. \r\n", "１２."],
++    ['The worksheet says “Begin.\r\n1. I tested SQL under supervision.\r\nEnd.”', "1. I tested SQL under supervision."],
++])("independently rejects an incomplete or detached numbered source: %s (%s)", (text, quote) => {
++    expect(() => validateDocumentExtraction(mentionExtraction(quote), "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
++});
++it("retains the numbered v3 quotation and source identity checks independently of provider decoding", () => {
++    const text = "1. I tested SQL under supervision.", extraction = mentionExtraction(text), original = mentionReference(text);
++    expect(() => validateDocumentExtraction({ ...extraction, items: [{ ...extraction.items[0], text: text.slice(3) }] },
++        "owner", original, KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
++    expect(() => validateDocumentExtraction(extraction, "other-owner", original, KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
++    expect(() => validateDocumentExtraction(extraction, "owner", { ...original, lifecycle: "revoked" }, KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
++});
+ it.each([
+     ["I did not test SQL under supervision.", "I tested SQL under supervision."],
+     ["I tested SQL under supervision.", "I did not test SQL under supervision."],
+diff --git a/tests/server/document-source-span-provider.test.ts b/tests/server/document-source-span-provider.test.ts
+index 1e54c86..ac5e671 100644
+--- a/tests/server/document-source-span-provider.test.ts
++++ b/tests/server/document-source-span-provider.test.ts
+@@ -5,7 +5,7 @@ import { KIMI_SOURCE_MENTIONS_POLICY_ID, type DocumentAnalysisConfiguration } fr
+ import { documentReceiptAuditSchema } from "../../app/server/documents/provider-receipt";
+ import { HttpDocumentAnalysisProvider, isDocumentProviderQualified, type DocumentProviderQualification } from "../../worker/document-executor/provider-http";
+ import { fixtureGenerationResponse } from "../helpers/document-generation-response";
+-import { sourceSpanPolicy } from "../../worker/document-executor/source-span-extraction";
++import { readSourceSpanExtraction, sourceSpanPolicy } from "../../worker/document-executor/source-span-extraction";
+ 
+ const policy = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1";
+ const config: DocumentAnalysisConfiguration = {
+@@ -211,6 +211,100 @@ function projectMentionCandidate(candidate: unknown, text: string) {
+     documentVersionId: "version-one", textVersionId: "text-one", text, segments: [{ id: "section-one", start: 0, end: text.length }] }, sourceMentionsPolicy);
+ }
+ describe("Kimi source mentions v3", () => {
++  it("decodes the complete numbered quotation only with the exact v3 policy", () => {
++    const text = "1. I tested SQL under supervision.", body = "I tested SQL under supervision.";
++    const sources = { text, segments: [{ id: "section-one", start: 0, end: text.length }] };
++    const decode = (policyId: string) => {
++      const format = sourceSpanPolicy(policyId)!.format;
++      return readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: {
++        content: JSON.stringify({ ...mentionWire(text), format }),
++      } }] }, sources, undefined, format);
++    };
++    expect(decode(sourceMentionsPolicy)).toEqual({ extractionRead: "parsed", candidate: {
++      schemaVersion: "2026.11.1", items: [{ id: "candidate-1", kind: "skill-claim", text,
++        source: { segmentId: "section-one", quote: text }, requirementLevel: null, skillLabels: ["SQL"], selfLevelHint: "guided" }],
++      reviewPoints: [{ code: "confirm-self-assessment", source: { segmentId: "section-one", quote: body } }],
++    } });
++    expect(decode("materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2"))
++      .toEqual({ candidate: null, extractionRead: "invalid-source" });
++  });
++
++  it.each([
++    ["1. I tested SQL under supervision.", "1. I tested SQL under supervision."],
++    ["1. I tested SQL under supervision.", "I tested SQL under supervision."],
++    ["１２. I tested SQL under supervision.", "１２. I tested SQL under supervision."],
++    ["😀 Profile.\r\n  1. I tested SQL under supervision.", "1. I tested SQL under supervision."],
++  ])("preserves the original numbered quotation and body-scoped evidence through both gates: %s (%s)", async (text, quote) => {
++    const { outcome } = await analyze(mentionWire(quote), { policyId: sourceMentionsPolicy, kind: "resume", text });
++    const body = "I tested SQL under supervision.", start = text.indexOf(quote), bodyStart = text.indexOf(body);
++    expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: {
++      items: [{ text: quote, source: { segmentId: "section-one", quote }, skillLabels: ["SQL"], selfLevelHint: "guided" }],
++      reviewPoints: [{ code: "confirm-self-assessment", source: { segmentId: "section-one", quote: body } }],
++    } });
++    const draft = projectMentionCandidate(outcome.candidate, text);
++    expect(draft.items[0]).toMatchObject({ text: quote, skillLabels: ["SQL"], sourceRef: {
++      documentId: "doc-one", documentVersionId: "version-one", textVersionId: "text-one", start, end: start + quote.length,
++    } });
++    expect(draft.selfAssessmentHints).toEqual([{ id: "hint-candidate-1-0", candidateId: "candidate-1", skillLabel: "SQL", level: "guided" }]);
++    expect(draft.reviewPoints).toMatchObject([{ code: "confirm-self-assessment", sourceRef: { start: bodyStart, end: bodyStart + body.length } }]);
++  });
++
++  it.each(["1. SQL experience is required.", "SQL experience is required."])(
++    "derives the same JD requirement from the numbered body while preserving the quote: %s", async quote => {
++      const text = "Required skills:\r\n  1. SQL experience is required.";
++      const { outcome } = await analyze({ format: "source-spans-v3", items: [{ ...mentionItem(quote, ["SQL"], null),
++        kind: "requirement", requirementLevel: "preferred" }], reviewPoints: [] }, { policyId: sourceMentionsPolicy, kind: "jd", text });
++      expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: {
++        items: [{ text: quote, source: { segmentId: "section-one", quote }, skillLabels: ["SQL"], requirementLevel: "must", selfLevelHint: null }], reviewPoints: [],
++      } });
++      expect(projectMentionCandidate(outcome.candidate, text)).toMatchObject({ items: [{ text: quote, requirementLevel: "must",
++        sourceRef: { start: text.indexOf(quote), end: text.length } }], selfAssessmentHints: [], reviewPoints: [] });
++    });
++
++  it.each([
++    "1. My colleague tested SQL under supervision.",
++    "1. I will test SQL under supervision.",
++    "1. I did not test SQL under supervision.",
++    "1. I tested SQL\r\nnot under supervision.",
++    '1. My mentor said, "I tested SQL under supervision."',
++  ])("keeps a numbered topic without granting an unsupported level or reminder: %s", async text => {
++    const wire = mentionWire(text);
++    const { outcome } = await analyze({ ...wire, reviewPoints: [{ code: "confirm-self-assessment", source: wire.items[0]!.source }] },
++      { policyId: sourceMentionsPolicy, kind: "supplement", text });
++    expect(outcome).toMatchObject({ audit: { extractionRead: "parsed" }, candidate: {
++      items: [{ text, source: { segmentId: "section-one", quote: text }, skillLabels: ["SQL"], selfLevelHint: null }], reviewPoints: [],
++    } });
++    expect(projectMentionCandidate(outcome.candidate, text)).toMatchObject({ items: [{ text, skillLabels: ["SQL"] }], selfAssessmentHints: [], reviewPoints: [] });
++  });
++
++  it.each([
++    ["1. I tested SQL\r\nnot under supervision.", "1. I tested SQL"],
++    ["1. I tested SQL\r\nnot under supervision.", "I tested SQL"],
++    ["1. I tested SQL under supervision.\r\n2. My colleague used React.", "1. I tested SQL under supervision.\r\n2. My colleague used React."],
++    ["1. \n", "1."],
++    ["  １２. \r\n", "１２."],
++    ['The worksheet says “Begin.\r\n1. I tested SQL under supervision.\r\nEnd.”', "1. I tested SQL under supervision."],
++  ])("rejects incomplete or detached numbered quotations: %s (%s)", async (text, quote) => {
++    const { outcome } = await analyze(mentionWire(quote), { policyId: sourceMentionsPolicy, text });
++    expect(outcome).toMatchObject({ candidate: null, audit: { extractionRead: "invalid-source" } });
++  });
++
++  it("rejects full-prefix and body nominations of the same numbered fact", async () => {
++    const text = "1. I tested SQL under supervision.";
++    const { outcome } = await analyze({ format: "source-spans-v3", items: [mentionItem(text), mentionItem(text.slice(3))], reviewPoints: [] },
++      { policyId: sourceMentionsPolicy, text });
++    expect(outcome).toMatchObject({ candidate: null, audit: { extractionRead: "invalid-shape" } });
++  });
++
++  it("does not infer unrequested terms from a complete numbered quotation", async () => {
++    const text = "1. I tested SQL and React under supervision.";
++    for (const [terms, labels] of [[[], []], [["SQL", "Rust"], ["SQL"]]]) {
++      const { outcome } = await analyze(mentionWire(text, terms, null), { policyId: sourceMentionsPolicy, text });
++      expect(outcome.candidate).toMatchObject({ items: [{ text, skillLabels: labels, selfLevelHint: null }] });
++      expect(projectMentionCandidate(outcome.candidate, text).items[0]?.skillLabels).toEqual(labels);
++    }
++  });
++
+   it.each([
+     ["source-spans-v2", "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v2", []],
+     ["source-spans-v3", sourceMentionsPolicy, ["configure a Kubernetes cluster"]],
+diff --git a/tests/server/material-mention-review-flow.test.ts b/tests/server/material-mention-review-flow.test.ts
+index ec70577..42776f3 100644
+--- a/tests/server/material-mention-review-flow.test.ts
++++ b/tests/server/material-mention-review-flow.test.ts
+@@ -1,12 +1,14 @@
+ // @vitest-environment node
+ import { expect, it } from "vitest";
+-import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, type DocumentReviewDraft } from "../../app/contracts/documents";
++import { documentExtractionSchema, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, type DocumentCandidate, type DocumentReviewDraft } from "../../app/contracts/documents";
+ import type { DocumentEndpointResponse } from "../../app/contracts/documents-api";
++import { KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
++import { readSourceSpanExtraction, sourceSpanPolicy } from "../../worker/document-executor/source-span-extraction";
+ import { createMaterialMentionReviewFixture } from "../helpers/material-mention-review-fixture";
+ import { materialContextRequest } from "../helpers/material-planning";
+ 
+ type Fixture = ReturnType<typeof createMaterialMentionReviewFixture>;
+-async function confirmAndSelect(f: Fixture, doc: DocumentEndpointResponse<"createDocument">, draft: DocumentReviewDraft, slot: "resume" | "supplement" = "resume") {
++async function confirmAndSelect(f: Fixture, doc: DocumentEndpointResponse<"createDocument">, draft: DocumentReviewDraft, slot: "resume" | "supplement" | "jd" = "resume") {
+   const confirmation = await f.client.request("createDocumentConfirmation", { documentId: doc.documentId,
+     documentVersionId: doc.documentVersionId, textVersionId: doc.textVersionId, items: draft.items,
+     reviewRevision: draft.revision, expectedRevision: doc.revision, mutationId: "confirm-mentions" });
+@@ -17,6 +19,138 @@ async function confirmAndSelect(f: Fixture, doc: DocumentEndpointResponse<"creat
+   return { confirmation, request: { ...inputs, selectionRef } };
+ }
+ 
++function decodeMentionFact(text: string, quote = text, kind: DocumentCandidate["kind"] = "experience") {
++  const format = sourceSpanPolicy(KIMI_SOURCE_MENTIONS_POLICY_ID)!.format;
++  const decoded = readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify({ format,
++    items: [{ kind, source: { segmentId: "segment-1", quote }, requirementLevel: kind === "requirement" ? "preferred" : null,
++      skillTerms: ["SQL"], selfLevelHint: kind === "requirement" ? null : "guided" }], reviewPoints: [],
++  }) } }] }, { text, segments: [{ id: "segment-1", start: 0, end: text.length }] }, undefined, format);
++  expect(decoded.extractionRead).toBe("parsed");
++  return documentExtractionSchema.parse(decoded.candidate);
++}
++
++it.each([
++  ["ASCII", "resume", "1. I tested SQL under supervision.", "1. I tested SQL under supervision."],
++  ["body-only", "resume", "1. I tested SQL under supervision.", "I tested SQL under supervision."],
++  ["fullwidth", "resume", "１２. I tested SQL under supervision.", "１２. I tested SQL under supervision."],
++  ["emoji and CRLF", "resume", "😀 Profile.\r\n  1. I tested SQL under supervision.", "1. I tested SQL under supervision."],
++  ["supplement", "supplement", "1. I tested SQL under supervision.", "1. I tested SQL under supervision."],
++  ["JD requirement", "jd", "1. SQL experience is required.", "1. SQL experience is required."],
++] as const)("keeps a numbered %s fact through actual save, reload, confirmation and planning", async (_name, kind, text, quote) => {
++  const f = createMaterialMentionReviewFixture();
++  try {
++    const doc = await f.client.request("createDocument", { kind, displayName: "Numbered practice", text, mutationId: "create-numbered" });
++    const sourceText = (await f.client.request("readDocument", { documentId: doc.documentId })).text!;
++    expect(sourceText).toBe(text.replace(/\r\n?/gu, "\n"));
++    const extraction = decodeMentionFact(sourceText, quote, kind === "jd" ? "requirement" : "experience");
++    expect((await f.deliver(doc, extraction.items)).disposition).toBe("initialized");
++    const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
++    const initial = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
++    expect(initial.selfAssessmentHints).toEqual(kind === "jd" ? [] : [{ id: "hint-candidate-1-0", candidateId: "candidate-1", skillLabel: "SQL", level: "guided" }]);
++    expect(initial.items[0]).toMatchObject({ text: quote, skillLabels: ["SQL"], requirementLevel: kind === "jd" ? "must" : null,
++      sourceRef: { documentId: doc.documentId, documentVersionId: doc.documentVersionId, textVersionId: doc.textVersionId,
++        start: sourceText.indexOf(quote), end: sourceText.indexOf(quote) + quote.length } });
++    const { draft } = await f.client.request("saveDocumentReviewDraft", { ...ref, extractionId: initial.extractionId,
++      items: initial.items, selfAssessmentHints: initial.selfAssessmentHints, expectedRevision: initial.revision, mutationId: "save-numbered" });
++    expect(draft.selfAssessmentHints).toEqual(initial.selfAssessmentHints);
++    expect(draft.items).toEqual(initial.items);
++    expect(draft.reviewProjection).toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
++    expect(JSON.parse(String(f.db.database.prepare("SELECT candidates_json FROM document_extractions").get()!.candidates_json)).reviewProjection)
++      .toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
++    f.restart();
++    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
++    expect((await f.client.request("readDocument", { documentId: doc.documentId })).text).toBe(sourceText);
++    const flow = await confirmAndSelect(f, doc, draft, kind);
++    const context = await f.client.request("createMaterialContext", flow.request);
++    expect(context.preview.confirmedItems[0]).toMatchObject({ text: quote, skillLabels: ["SQL"], sourceRef: initial.items[0]!.sourceRef });
++    expect(context.preview.mappingDetails?.filter(row => row.status === "mapped").flatMap(row => row.skillIds)).toEqual(["sql"]);
++    expect(context.preview.priorities.map(row => [row.skillId, row.tier])).toEqual([["sql", kind === "jd" ? 0 : 3]]);
++    expect((await f.client.request("readMaterialContext", { contextVersionId: context.contextVersionId })).preview).toEqual(context.preview);
++    expect((await f.client.request("readDocumentReviewDraft", { ...ref, includeConfirmation: "current" })).confirmation).toEqual(flow.confirmation);
++  } finally { f.dispose(); }
++});
++
++it.each([
++  "1. My colleague tested SQL under supervision.",
++  "1. I will test SQL under supervision.",
++  "1. I did not test SQL under supervision.",
++  '1. My mentor said, "I tested SQL under supervision."',
++])("removes the hint and personal practice when a numbered fact is edited to %s", async editedText => {
++  const f = createMaterialMentionReviewFixture(), text = "1. I tested SQL under supervision.";
++  try {
++    const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Edited numbered practice", text, mutationId: "create-edit" });
++    await f.deliver(doc, decodeMentionFact(text).items);
++    const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
++    const initial = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
++    expect(initial.selfAssessmentHints).toHaveLength(1);
++    const { draft } = await f.client.request("saveDocumentReviewDraft", { ...ref, extractionId: initial.extractionId,
++      items: [{ ...initial.items[0]!, text: editedText, origin: "user" }], selfAssessmentHints: initial.selfAssessmentHints,
++      expectedRevision: initial.revision, mutationId: "edit-numbered" });
++    expect(draft.selfAssessmentHints).toEqual([]);
++    expect(draft.items[0]).toMatchObject({ text: editedText, skillLabels: ["SQL"], sourceRef: initial.items[0]!.sourceRef });
++    f.restart();
++    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
++    const flow = await confirmAndSelect(f, doc, draft);
++    const { preview } = await f.client.request("createMaterialContext", flow.request);
++    expect(preview.mappingDetails?.filter(row => row.status === "mapped").flatMap(row => row.skillIds)).toEqual(["sql"]);
++    expect(preview.priorities).toEqual([]);
++    expect((await f.client.request("readDocument", { documentId: doc.documentId })).text).toBe(text);
++  } finally { f.dispose(); }
++});
++
++it.each(["empty", "omitted", "deleted"] as const)("does not restore %s numbered source topics or hints through a saved review", async removal => {
++  const f = createMaterialMentionReviewFixture(), text = "1. I tested SQL under supervision.";
++  try {
++    const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Removed numbered topic", text, mutationId: "create-removal" });
++    await f.deliver(doc, decodeMentionFact(text).items);
++    const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
++    const initial = (await f.client.request("readDocumentReviewDraft", ref)).draft!, fact = initial.items[0]!;
++    const { skillLabels: removed, ...withoutLabels } = fact;
++    void removed;
++    const save = { ...ref, extractionId: initial.extractionId, selfAssessmentHints: initial.selfAssessmentHints,
++      expectedRevision: initial.revision, mutationId: "remove-numbered" };
++    const { draft } = await f.client.request("saveDocumentReviewDraft", { ...save,
++      items: removal === "deleted" ? [] : removal === "omitted" ? [withoutLabels] : [{ ...fact, skillLabels: [] }] });
++    expect(draft.items).toEqual(removal === "deleted" ? [] : [{ ...fact, skillLabels: [] }]);
++    expect(draft.selfAssessmentHints).toEqual([]);
++    f.restart();
++    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
++    await expect(f.client.request("saveDocumentReviewDraft", { ...save, items: initial.items, expectedRevision: draft.revision,
++      mutationId: "restore-old-numbered" })).rejects.toBeDefined();
++    const resaved = await f.client.request("saveDocumentReviewDraft", { ...save, items: draft.items, selfAssessmentHints: draft.selfAssessmentHints,
++      expectedRevision: draft.revision, mutationId: "resave-removed-numbered" });
++    expect(resaved.draft.items).toEqual(draft.items);
++    expect(resaved.draft.selfAssessmentHints).toEqual([]);
++  } finally { f.dispose(); }
++});
++
++it("preserves numbered review ownership, source, marker, revision and reclassification guards through HTTP", async () => {
++  const f = createMaterialMentionReviewFixture(), text = "1. I tested SQL under supervision.";
++  try {
++    const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Guarded numbered practice", text, mutationId: "create-guards" });
++    await f.deliver(doc, decodeMentionFact(text).items);
++    const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
++    const initial = (await f.client.request("readDocumentReviewDraft", ref)).draft!, fact = initial.items[0]!;
++    const save = { ...ref, extractionId: initial.extractionId, items: initial.items, selfAssessmentHints: initial.selfAssessmentHints,
++      expectedRevision: initial.revision, mutationId: "save-guards" };
++    await expect(f.clientFor("owner-b").request("saveDocumentReviewDraft", save)).rejects.toBeDefined();
++    await expect(f.client.request("saveDocumentReviewDraft", { ...save, reviewProjection: SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION } as never)).rejects.toBeDefined();
++    for (const sourceRef of [{ ...fact.sourceRef!, textVersionId: "stale-text" }, { ...fact.sourceRef!, start: fact.sourceRef!.start + 3 }]) {
++      await expect(f.client.request("saveDocumentReviewDraft", { ...save, items: [{ ...fact, origin: "user", sourceRef }] })).rejects.toBeDefined();
++    }
++    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(initial);
++    const { draft } = await f.client.request("saveDocumentReviewDraft", { ...save,
++      items: [{ ...fact, kind: "constraint", origin: "user" }], mutationId: "reclassify-numbered" });
++    expect(draft).toMatchObject({ items: [{ skillLabels: [] }], selfAssessmentHints: [], reclassifiedItemIds: [fact.id] });
++    await expect(f.client.request("saveDocumentReviewDraft", { ...save, mutationId: "stale-numbered" })).rejects.toBeDefined();
++    await expect(f.client.request("saveDocumentReviewDraft", { ...save, items: [{ ...draft.items[0]!, skillLabels: ["SQL"] }],
++      skillTermAddition: { itemId: fact.id, sourceTerm: "SQL" }, expectedRevision: draft.revision, mutationId: "add-reclassified-numbered" })).rejects.toBeDefined();
++    f.restart();
++    expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
++    expect(f.trace.some(row => row.endpoint === "saveDocumentReviewDraft" && row.status === 409)).toBe(true);
++  } finally { f.dispose(); }
++});
++
+ it.each([
+   ["negative SQL", "I have never used SQL.", ["SQL"], []],
+   ["another actor's SQL", "My colleague wrote SQL queries.", ["SQL"], []],
+diff --git a/worker/document-executor/source-span-extraction.ts b/worker/document-executor/source-span-extraction.ts
+index 51fc489..398c393 100644
+--- a/worker/document-executor/source-span-extraction.ts
++++ b/worker/document-executor/source-span-extraction.ts
+@@ -7,7 +7,7 @@ import type { DocumentExtractionRead } from "../../app/server/documents/provider
+ import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
+ import { groundMaterialSkillMentions, groundMaterialSkillTerms } from "../../app/lib/materials/grounded-skill-terms";
+ import { statementBoundaries } from "./source-statements";
+-import { groundedStatementBoundaries, groundSourceReviewPoints, groundSourceSelfLevelHint, isDetachedQuotedStatement } from "./source-review-evidence";
++import { groundedStatementBoundaries, groundSourceReviewPoints, groundSourceSelfLevelHint, isDetachedQuotedStatement, sourceMentionStatementBoundaries } from "./source-review-evidence";
+ import { groundSourceRequirementLevel } from "./source-requirement-evidence";
+ 
+ export const KIMI_SOURCE_SPAN_POLICY_ID = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1";
+@@ -108,7 +108,8 @@ export function readSourceSpanExtraction(raw: Record<string, unknown>, sources:
+   if (!reviewPoints.every(({ source }) => source.quote.trim() && locateCandidateQuote(source, sources))) {
+     return { candidate: null, extractionRead: "invalid-source" };
+   }
+-  const bounds = groundedTerms ? groundedStatementBoundaries(sources.text) : statementBoundaries(sources.text);
++  const bounds = sourceMentions ? sourceMentionStatementBoundaries(sources.text)
++    : groundedTerms ? groundedStatementBoundaries(sources.text) : statementBoundaries(sources.text);
+   const statementStarts = new Map([...bounds].map(([start, end]) => [end, start]));
+   const observed = new Set<string>(), candidates = [];
+   for (const item of items) {

@@ -1,0 +1,1308 @@
+{
+  "status": "FROZEN_BASELINE",
+  "modelCalls": 0,
+  "network": false,
+  "trackedWrites": false,
+  "identity": {
+    "branch": "codex/materials-replan-recovery-20261106",
+    "head": "1f65e4a483399db8fb6c143e076f3d7523675399",
+    "status": ""
+  },
+  "sourceHashes": {
+    "worker/document-executor/source-statements.ts": "245287bb6f2bbac461bd759f17579ef7cf6b8c101c5e68fcbfb8747f6fcdb065",
+    "worker/document-executor/source-review-evidence.ts": "e0cbed00b6e2d49c12d4932fddd28457b33ab2a429e4471c711003db520a5ab6",
+    "worker/document-executor/source-span-extraction.ts": "8a2e82a14485f75531025c8649c22f2086e37fa12d9ca53d1adf2272d2d0310c",
+    "app/server/documents/extraction-validator.ts": "ac539b8d3087bd801554d6706840aff3689263c3543403de122406182826f32a"
+  },
+  "immutableHashes": {
+    "work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32",
+    "work/grounded-verification/mention-projection-snapshot-20261109-c-results.json": "b0056ad6aad0d707e0ba95972d9817fca59152d0197e3f58f855f80f4fc1ffac",
+    "work/grounded-verification/run.mjs": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+    "work/materials-browser-handoff/block-outbound.cjs": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+  },
+  "cManifest": {
+    "path": "work/grounded-verification/mention-projection-snapshot-20261109-c-results.json",
+    "manifestSha256": "88b472fd3c2421f3d89d5de6a21bd2b5f0b6cb9f9d2b021a90b0c60998221d5a",
+    "sourceFileCount": 1007
+  },
+  "ownedTestHash": null,
+  "scriptSha256": "94946a3eebd6cad16ce19bb0ff5e6880d459e956b34ff386282cab91f4f064d2",
+  "bundleSha256": "a2fe7a385ad52d8f3099bd3e01977b13729b2f581122b1f555f166475495e259",
+  "originalProviderObservations": {
+    "path": "work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json",
+    "sha256": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32",
+    "count": 168,
+    "unchangedV1V2Comparisons": 112
+  },
+  "rootCause": [
+    {
+      "start": 0,
+      "end": 2,
+      "text": "1."
+    },
+    {
+      "start": 3,
+      "end": 33,
+      "text": "I practiced SQL with a mentor."
+    }
+  ],
+  "controls": [
+    {
+      "text": "I practiced SQL with a mentor.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 30,
+          "text": "I practiced SQL with a mentor."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 30,
+          "text": "I practiced SQL with a mentor."
+        }
+      ]
+    },
+    {
+      "text": "- I practiced SQL with a mentor.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 32,
+          "text": "- I practiced SQL with a mentor."
+        },
+        {
+          "start": 2,
+          "end": 32,
+          "text": "I practiced SQL with a mentor."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 32,
+          "text": "- I practiced SQL with a mentor."
+        },
+        {
+          "start": 2,
+          "end": 32,
+          "text": "I practiced SQL with a mentor."
+        }
+      ]
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "1. ",
+      "text": "1. I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "１２. ",
+      "text": "１２. I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 3,
+          "text": "１２."
+        },
+        {
+          "start": 4,
+          "end": 35,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 3,
+          "text": "１２."
+        },
+        {
+          "start": 4,
+          "end": 35,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "- ",
+      "text": "- I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 33,
+          "text": "- I tested SQL under supervision."
+        },
+        {
+          "start": 2,
+          "end": 33,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 33,
+          "text": "- I tested SQL under supervision."
+        },
+        {
+          "start": 2,
+          "end": 33,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "plan-literal",
+      "text": "1. I practiced SQL with a mentor.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 33,
+          "text": "I practiced SQL with a mentor."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 33,
+          "text": "I practiced SQL with a mentor."
+        }
+      ]
+    },
+    {
+      "id": "indent",
+      "text": "\t 1.\t I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 2,
+          "end": 4,
+          "text": "1."
+        },
+        {
+          "start": 6,
+          "end": 37,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 2,
+          "end": 4,
+          "text": "1."
+        },
+        {
+          "start": 6,
+          "end": 37,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "emoji-crlf",
+      "text": "Résumé 🧪.\r\n\r\n１２. I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 10,
+          "text": "Résumé 🧪."
+        },
+        {
+          "start": 14,
+          "end": 17,
+          "text": "１２."
+        },
+        {
+          "start": 18,
+          "end": 49,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 10,
+          "text": "Résumé 🧪."
+        },
+        {
+          "start": 14,
+          "end": 17,
+          "text": "１２."
+        },
+        {
+          "start": 18,
+          "end": 49,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "bare-heading",
+      "text": "Skills\n1. I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 6,
+          "text": "Skills"
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "text": "1."
+        },
+        {
+          "start": 10,
+          "end": 41,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 6,
+          "text": "Skills"
+        },
+        {
+          "start": 7,
+          "end": 9,
+          "text": "1."
+        },
+        {
+          "start": 10,
+          "end": 41,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "soft-guidance",
+      "text": "1. I tested SQL\r\nunder supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 35,
+          "text": "I tested SQL\r\nunder supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 35,
+          "text": "I tested SQL\r\nunder supervision."
+        }
+      ]
+    },
+    {
+      "id": "soft-negation",
+      "text": "1. I tested SQL\nbut did not practice independently.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 51,
+          "text": "I tested SQL\nbut did not practice independently."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 51,
+          "text": "I tested SQL\nbut did not practice independently."
+        }
+      ]
+    },
+    {
+      "id": "other",
+      "text": "1. My colleague tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 45,
+          "text": "My colleague tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 45,
+          "text": "My colleague tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "future",
+      "text": "1. I plan to test SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 40,
+          "text": "I plan to test SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 40,
+          "text": "I plan to test SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "negated",
+      "text": "1. I did not test SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 40,
+          "text": "I did not test SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 40,
+          "text": "I did not test SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "quoted",
+      "text": "1. My mentor said, \"I tested SQL under supervision.\"",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 52,
+          "text": "My mentor said, \"I tested SQL under supervision.\""
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 52,
+          "text": "My mentor said, \"I tested SQL under supervision.\""
+        }
+      ]
+    },
+    {
+      "id": "chinese",
+      "text": "１. 我在指导下清洗数据。",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "１."
+        },
+        {
+          "start": 3,
+          "end": 13,
+          "text": "我在指导下清洗数据。"
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "１."
+        },
+        {
+          "start": 3,
+          "end": 13,
+          "text": "我在指导下清洗数据。"
+        }
+      ]
+    },
+    {
+      "id": "technical-dot",
+      "text": "1. I tested Node.js under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 38,
+          "text": "I tested Node.js under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 38,
+          "text": "I tested Node.js under supervision."
+        }
+      ]
+    },
+    {
+      "id": "jd-SQL",
+      "text": "1. SQL is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "id": "jd-.NET",
+      "text": "1. .NET is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 4,
+          "text": "1. ."
+        },
+        {
+          "start": 3,
+          "end": 4,
+          "text": "."
+        },
+        {
+          "start": 4,
+          "end": 20,
+          "text": "NET is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 4,
+          "text": "1. ."
+        },
+        {
+          "start": 3,
+          "end": 4,
+          "text": "."
+        },
+        {
+          "start": 4,
+          "end": 20,
+          "text": "NET is required."
+        }
+      ]
+    },
+    {
+      "id": "jd-heading",
+      "text": "Required skills:\r\n  1. SQL.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 16,
+          "text": "Required skills:"
+        },
+        {
+          "start": 20,
+          "end": 22,
+          "text": "1."
+        },
+        {
+          "start": 23,
+          "end": 27,
+          "text": "SQL."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 16,
+          "text": "Required skills:"
+        },
+        {
+          "start": 20,
+          "end": 22,
+          "text": "1."
+        },
+        {
+          "start": 23,
+          "end": 27,
+          "text": "SQL."
+        }
+      ]
+    },
+    {
+      "id": "adjacent-first",
+      "text": "1. I tested SQL under supervision.\r\n2. I tested Python under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        },
+        {
+          "start": 36,
+          "end": 38,
+          "text": "2."
+        },
+        {
+          "start": 39,
+          "end": 73,
+          "text": "I tested Python under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        },
+        {
+          "start": 36,
+          "end": 38,
+          "text": "2."
+        },
+        {
+          "start": 39,
+          "end": 73,
+          "text": "I tested Python under supervision."
+        }
+      ]
+    },
+    {
+      "id": "adjacent-second",
+      "text": "1. I tested SQL under supervision.\r\n2. I tested Python under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        },
+        {
+          "start": 36,
+          "end": 38,
+          "text": "2."
+        },
+        {
+          "start": 39,
+          "end": 73,
+          "text": "I tested Python under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        },
+        {
+          "start": 36,
+          "end": 38,
+          "text": "2."
+        },
+        {
+          "start": 39,
+          "end": 73,
+          "text": "I tested Python under supervision."
+        }
+      ]
+    },
+    {
+      "id": "unnominated",
+      "text": "1. I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "detached-quote",
+      "text": "An example: “Begin.\n1. I tested SQL under supervision. End.”",
+      "statement": [
+        {
+          "start": 0,
+          "end": 19,
+          "text": "An example: “Begin."
+        },
+        {
+          "start": 20,
+          "end": 22,
+          "text": "1."
+        },
+        {
+          "start": 23,
+          "end": 54,
+          "text": "I tested SQL under supervision."
+        },
+        {
+          "start": 55,
+          "end": 60,
+          "text": "End.”"
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 19,
+          "text": "An example: “Begin."
+        },
+        {
+          "start": 20,
+          "end": 22,
+          "text": "1."
+        },
+        {
+          "start": 23,
+          "end": 54,
+          "text": "I tested SQL under supervision."
+        },
+        {
+          "start": 55,
+          "end": 60,
+          "text": "End.”"
+        }
+      ]
+    },
+    {
+      "id": "cut-full",
+      "text": "1. I tested SQL\nbut did not practice independently.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 51,
+          "text": "I tested SQL\nbut did not practice independently."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 51,
+          "text": "I tested SQL\nbut did not practice independently."
+        }
+      ]
+    },
+    {
+      "id": "cut-body",
+      "text": "1. I tested SQL\nbut did not practice independently.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 51,
+          "text": "I tested SQL\nbut did not practice independently."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 51,
+          "text": "I tested SQL\nbut did not practice independently."
+        }
+      ]
+    },
+    {
+      "id": "cross-entries",
+      "text": "1. I tested SQL under supervision.\n2. I tested Python under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        },
+        {
+          "start": 35,
+          "end": 37,
+          "text": "2."
+        },
+        {
+          "start": 38,
+          "end": 72,
+          "text": "I tested Python under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        },
+        {
+          "start": 35,
+          "end": 37,
+          "text": "2."
+        },
+        {
+          "start": 38,
+          "end": 72,
+          "text": "I tested Python under supervision."
+        }
+      ]
+    },
+    {
+      "id": "ordinal-with-body",
+      "text": "1. I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "orphan",
+      "text": "1. \n",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        }
+      ]
+    },
+    {
+      "id": "no-expansion-27",
+      "text": "1.2 SQL is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 20,
+          "text": "1.2 SQL is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 20,
+          "text": "1.2 SQL is required."
+        }
+      ]
+    },
+    {
+      "id": "no-expansion-28",
+      "text": "1.SQL is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 2,
+          "end": 18,
+          "text": "SQL is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 2,
+          "end": 18,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "id": "no-expansion-29",
+      "text": "1000. SQL is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 5,
+          "text": "1000."
+        },
+        {
+          "start": 6,
+          "end": 22,
+          "text": "SQL is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 5,
+          "text": "1000."
+        },
+        {
+          "start": 6,
+          "end": 22,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "id": "no-expansion-30",
+      "text": "1． SQL is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1．"
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1．"
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "id": "no-expansion-31",
+      "text": "Task 1. SQL is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 7,
+          "text": "Task 1."
+        },
+        {
+          "start": 8,
+          "end": 24,
+          "text": "SQL is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 7,
+          "text": "Task 1."
+        },
+        {
+          "start": 8,
+          "end": 24,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "id": "no-expansion-32",
+      "text": "1.\nSQL is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "id": "dedup",
+      "text": "1. I tested SQL under supervision.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 34,
+          "text": "I tested SQL under supervision."
+        }
+      ]
+    },
+    {
+      "id": "orphan-ascii",
+      "text": "1.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        }
+      ]
+    },
+    {
+      "id": "orphan-fullwidth",
+      "text": "１２.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 3,
+          "text": "１２."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 3,
+          "text": "１２."
+        }
+      ]
+    },
+    {
+      "id": "orphan-indented",
+      "text": "  1. \n",
+      "statement": [
+        {
+          "start": 2,
+          "end": 4,
+          "text": "1."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 2,
+          "end": 4,
+          "text": "1."
+        }
+      ]
+    },
+    {
+      "id": "orphan-crlf",
+      "text": "\t１２.\t\r\n",
+      "statement": [
+        {
+          "start": 1,
+          "end": 4,
+          "text": "１２."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 1,
+          "end": 4,
+          "text": "１２."
+        }
+      ]
+    },
+    {
+      "id": "orphan-next-line-body",
+      "text": "1.\nSQL is required.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "id": "orphan-between-items",
+      "text": "1. SQL is required.\r\n2. \r\n3. Python is optional.",
+      "statement": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        },
+        {
+          "start": 21,
+          "end": 23,
+          "text": "2."
+        },
+        {
+          "start": 26,
+          "end": 28,
+          "text": "3."
+        },
+        {
+          "start": 29,
+          "end": 48,
+          "text": "Python is optional."
+        }
+      ],
+      "grounded": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        },
+        {
+          "start": 21,
+          "end": 23,
+          "text": "2."
+        },
+        {
+          "start": 26,
+          "end": 28,
+          "text": "3."
+        },
+        {
+          "start": 29,
+          "end": 48,
+          "text": "Python is optional."
+        }
+      ]
+    }
+  ],
+  "baselineComparisons": 68
+}

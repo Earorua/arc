@@ -23,8 +23,8 @@
 - Modify: `worker/document-executor/source-review-evidence.ts`
 - Create: `tests/server/material-numbered-statements.test.ts`
 
-- [ ] 冻结本批起点源码身份。只读保存旧 `statementBoundaries`／`groundedStatementBoundaries` 的全部坐标、每个坐标对应的原文片段及 v1/v2/v3 provider 输出，写入新的 `numbered-statements-*` 忽略目录工件，不覆盖上述历史结果。
-- [ ] 在实际现有函数上验证 `1. I practiced SQL with a mentor.` 的编号与正文边界分离，并保留正文／`- ` 项目符号正常对照。随后先添加新接口的失败测试：
+- [x] 冻结本批起点源码身份。只读保存旧 `statementBoundaries`／`groundedStatementBoundaries` 的全部坐标、每个坐标对应的原文片段及 v1/v2/v3 provider 输出，写入新的 `numbered-statements-*` 忽略目录工件，不覆盖上述历史结果。
+- [x] 在实际现有函数上验证 `1. I practiced SQL with a mentor.` 的编号与正文边界分离，并保留正文／`- ` 项目符号正常对照。随后先添加新接口的失败测试：
 
 ```ts
 const text = "1. I practiced SQL with a mentor.";
@@ -33,7 +33,7 @@ expect(sourceMentionStatementBoundaries(text).get(3)).toBe(text.length);
 expect(groundedStatementBoundaries(text).get(0)).not.toBe(text.length);
 ```
 
-- [ ] 新接口 `sourceMentionStatementBoundaries(text: string)` 位于 `source-review-evidence.ts`，复用 `groundedStatementBoundaries(text)`；编号识别复用 `source-statements.ts` 的现有 `listPrefix`。新增 `completeNumberedStatementBoundaries(text, baseBounds)` 返回复制后的 Map，不能修改调用方 Map。核心行为如下，实际类型沿用仓库格式：
+- [x] 新接口 `sourceMentionStatementBoundaries(text: string)` 位于 `source-review-evidence.ts`，复用 `groundedStatementBoundaries(text)`；编号识别复用 `source-statements.ts` 的现有 `listPrefix`。新增 `completeNumberedStatementBoundaries(text, baseBounds)` 返回复制后的 Map，不能修改调用方 Map。核心行为如下，实际类型沿用仓库格式：
 
 ```ts
 export function completeNumberedStatementBoundaries(
@@ -62,22 +62,27 @@ export function sourceMentionStatementBoundaries(text: string) {
 }
 ```
 
-- [ ] 验证 ASCII／全角数字、缩进、CRLF、相邻多条、软换行限定、中文正文、技术名内部句点、emoji 前置段落的原始 UTF-16 起止。完整前缀与正文两种引用均须定位同一正文终点；编号单独引用不可成为完整事实。
-- [ ] 反例覆盖小数、无空格数字技术名、超过既有三位数字范围、仅编号空行、句中数字、跨两条列表的引用和截掉后置否定的半句。不要添加全角句点或新列表语法；若发现不同根因，先保存反例再调整设计。
-- [ ] 运行新测试及现有源引用相关测试，完成独立规格→质量审阅并冻结本任务文件。旧函数的全量坐标必须与本批起点相同；单独新接口通过不代表生产路径接通。
+- [x] 验证 ASCII／全角数字、缩进、CRLF、相邻多条、软换行限定、中文正文、技术名内部句点、emoji 前置段落的原始 UTF-16 起止。完整前缀与正文两种引用均须定位同一正文终点；编号单独引用不可成为完整事实。
+- [x] 反例覆盖小数、无空格数字技术名、超过既有三位数字范围、仅编号空行、句中数字、跨两条列表的引用和截掉后置否定的半句。不要添加全角句点或新列表语法；若发现不同根因，先保存反例再调整设计。
+- [x] 运行新测试及现有源引用相关测试，完成独立规格→质量审阅并冻结本任务文件。旧函数的全量坐标必须与本批起点相同；单独新接口通过不代表生产路径接通。
+
+Task 1 已保存为 `e48e5eb`：37 项边界回归及 794 项相关测试、类型／Lint 通过，80 项旧坐标不变；独立规格 18 项观察和质量 12 项检查通过。规格 raw probe 仍记 exit 1：两个全工作树路径断言遇到根任务的计划文档更新，三份源码冻结及 33 项证据摘要均匹配；审阅已明确作用域后给出 PASS，原失败不重写。Task 2 尚未验收。
 
 ## Task 2：provider、服务端与实际持久化接入
 
 **Files:**
 - Modify: `worker/document-executor/source-span-extraction.ts`
 - Modify: `app/server/documents/extraction-validator.ts`
+- Modify after reproduced persistence RED: `app/lib/materials/skill-labels.ts` 及对应等级保留测试。
 - Modify: `tests/server/document-source-span-provider.test.ts`
 - Modify: `tests/server/document-extraction.test.ts`
 - Modify: `tests/server/material-mention-review-flow.test.ts`
 - Reuse unchanged: `tests/helpers/material-mention-review-fixture.ts`
 
-- [ ] 先在真实 provider 解码助手写 RED。新 policy 的 source-spans-v3 回复引用完整编号行，应得到完整文本、完整来源与原文主题；同一 v2 输入继续保留旧拒绝结果。不得用直接构造已通过候选替代 provider 解码。
-- [ ] provider 仅在 `sourceMentions` 分支调用新边界：
+实际 RED 已证明还需接通编辑保留路径：只切换 provider／site 边界后，160 项 provider 和 32 项 extraction 通过，但 HTTP 保存把初始 guided 提示清空；ReviewService 调用的保留函数仍直接评估含 `1. ` 的整条事实。该缺口在本 Task 2 内修复：仅对确切 v3、已证明整段为一个完整编号事实时，取相同终点的正文用于能力证据判断。保留实际事实、原引用和所有坐标，不移除任意归属、标题或引用，不改变 v2／默认个人语法。辅助模块必须纯函数且可供浏览器安全打包；多句、否定、他人、未来、引述及旧版本均加对照。原 RED `numbered-statements-flow-20261109-red-a`／中间 `gate-a` 保留。
+
+- [x] 先在真实 provider 解码助手写 RED。新 policy 的 source-spans-v3 回复引用完整编号行，应得到完整文本、完整来源与原文主题；同一 v2 输入继续保留旧拒绝结果。不得用直接构造已通过候选替代 provider 解码。
+- [x] provider 仅在 `sourceMentions` 分支调用新边界：
 
 ```ts
 const bounds = sourceMentions ? sourceMentionStatementBoundaries(sources.text)
@@ -85,18 +90,22 @@ const bounds = sourceMentions ? sourceMentionStatementBoundaries(sources.text)
   : statementBoundaries(sources.text);
 ```
 
-- [ ] `extraction-validator.ts` 的 v3 分支使用同一新边界。服务端仍独立检查候选正文等于完整引用、原文身份、范围和引用上下文；不得依赖 provider 已检查的假设。其它版本没有新增重投影。
-- [ ] 用完整编号和正文引用分别验证能力提示、JD 要求级别及提醒来自同一完整正文；重复提名同一条的两种引用仍按现有去重规则拒绝。来源必须保留实际送达的完整引用，不裁剪并重写为正文。
-- [ ] 正面例覆盖本人指导 SQL、必备 SQL 的 JD、补充资料；反例覆盖他人、未来、后置否定、引述示例和未提名主题。编号可接受不能让任何能力或优先级绕过各自证据检查。
-- [ ] 通过实际 DocumentsClient→HTTP→runtime→ReviewService 验证完整编号事实保存、重读、确认、选择及上下文。删除词／空词仍不恢复；客户端伪造标记、过期来源、所有权错误、重分类补词仍被拒绝。保留合法单一主 JD 和原配额。
-- [ ] 专项通过后，独立规格→质量审阅；保存实际差异和本地提交。新旧 policy、marker、schemaVersion 和 prompt 均不改名；这只修复尚未启用 v3 的完整条目实现。
+- [x] `extraction-validator.ts` 的 v3 分支使用同一新边界。服务端仍独立检查候选正文等于完整引用、原文身份、范围和引用上下文；不得依赖 provider 已检查的假设。其它版本没有新增重投影。
+- [x] 用完整编号和正文引用分别验证能力提示、JD 要求级别及提醒来自同一完整正文；重复提名同一条的两种引用仍按现有去重规则拒绝。来源必须保留实际送达的完整引用，不裁剪并重写为正文。
+- [x] 正面例覆盖本人指导 SQL、必备 SQL 的 JD、补充资料；反例覆盖他人、未来、后置否定、引述示例和未提名主题。编号可接受不能让任何能力或优先级绕过各自证据检查。
+- [x] 通过实际 DocumentsClient→HTTP→runtime→ReviewService 验证完整编号事实保存、重读、确认、选择及上下文。删除词／空词仍不恢复；客户端伪造标记、过期来源、所有权错误、重分类补词仍被拒绝。保留合法单一主 JD 和原配额。
+- [x] 专项通过后，独立规格→质量审阅；保存实际差异和本地提交。新旧 policy、marker、schemaVersion 和 prompt 均不改名；这只修复尚未启用 v3 的完整条目实现。
+
+Task 2 已保存为 `6b49bce`：624 项专项、类型／Lint／浏览器纯依赖检查通过；独立规格 59 项（另有 269 项被名称过滤、未计通过）和质量 25 项检查 PASS。11 项编号原生场景通过，中间 16 例整体仍 exit 1，仅中文指导提示待修。实际 HTTP 夹具按既有保存契约使用 LF 文本，纯 provider 仍检查原始 CRLF 坐标；测试前提错误与修正均保留。完整兼容、原生对照和全仓留至 Task 3 的最终统一验收。
 
 ## Task 3：本地最终验收与后续入口
 
-- [ ] 用上一批固定的 170 项旧行为、6 份真实保存的旧记录只读重载及 25 场景完整链路做兼容检查。新增编号场景另存，不能重写冻结基准或只比较摘录字段。
-- [ ] 对新增合法完整编号、否定／他人、删除补词、JD 要求及引用拒绝，用本地 workerd/D1/R2 与 Node 对照完整返回、原文坐标、持久行及审计；合成模型回复必须明确标注，不能称为真实 Kimi 质量验收。
-- [ ] 新建逐文件源码副本，完成全仓 Vitest 分组、独占附加 Node、类型／Lint、构建／页面、旧参考及课程依赖完整性检查。附加 Node 不与长验证并行，超时值及断言保持。
-- [ ] 最终集成审阅后归档 RED/GREEN、脚本、源码身份和审阅，更新恢复入口与发布进度并本地保存。然后继续中文指导实践提示和实际采用决策契约；持续目标保持 active。
+最新执行安排见[离线收尾计划](2026-11-09-materials-offline-closeout.md)：编号专项、两阶段审阅、原生及旧行为检查先完成；本项完整全仓检查与中文指导、采用重置修复合并到最终源码上统一执行，避免对中间源码重复全仓。所有要求仍保留，最终全仓前不宣布整批收尾通过。
+
+- [x] 用上一批固定的 170 项旧行为、6 份真实保存的旧记录只读重载及 25 场景完整链路做兼容检查。新增编号场景另存，不能重写冻结基准或只比较摘录字段。
+- [x] 对新增合法完整编号、否定／他人、删除补词、JD 要求及引用拒绝，用本地 workerd/D1/R2 与 Node 对照完整返回、原文坐标、持久行及审计；合成模型回复必须明确标注，不能称为真实 Kimi 质量验收。
+- [x] 新建逐文件源码副本，完成全仓 Vitest 分组、独占附加 Node、类型／Lint、构建／页面、旧参考及课程依赖完整性检查。附加 Node 不与长验证并行，超时值及断言保持。
+- [x] 最终集成审阅后归档 RED/GREEN、脚本、源码身份和审阅，更新恢复入口与发布进度并本地保存。按用户最新停止边界，中文指导与能力采用／重置合并在同批完成；随后推送资料分支并暂停目标，不开启下一批工作。
 
 所有运行标签在使用前检查不存在。命令形状：
 

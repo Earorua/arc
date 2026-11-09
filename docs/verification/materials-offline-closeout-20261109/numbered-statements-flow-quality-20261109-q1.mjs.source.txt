@@ -1,0 +1,155 @@
+import assert from 'node:assert/strict';
+import { build } from 'esbuild';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const prefix = 'work/grounded-verification/numbered-statements-flow-quality-20261109-q1';
+for (const suffix of ['-probe-results.json', '-bundle.mjs']) assert.equal(existsSync(prefix + suffix), false);
+const json = path => JSON.parse(readFileSync(path, 'utf8'));
+const sha = path => createHash('sha256').update(readFileSync(path)).digest('hex');
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8', windowsHide: true }).trim();
+const freezePath = 'work/grounded-verification/numbered-statements-flow-20261109-freeze-a-results.json';
+const freeze = json(freezePath);
+const identity = { branch: git('branch', '--show-current'), head: git('rev-parse', 'HEAD'), status: git('status', '--porcelain=v1') };
+const checks = [], observations = [], sources = [], preserved = [], artifacts = [];
+function check(id, fn) {
+  try { fn(); checks.push({ id, pass: true }); }
+  catch (error) { checks.push({ id, pass: false, error: String(error) }); }
+}
+check('frozen-seven-files-and-identity', () => {
+  assert.equal(identity.branch, freeze.identity.branch);
+  assert.equal(identity.head, freeze.identity.head);
+  for (const item of freeze.snapshots) {
+    const row = { path: item.path, sha256: sha(item.path), snapshotSha256: sha(item.snapshot), expectedSha256: item.sha256 };
+    sources.push(row);
+    assert.equal(row.sha256, row.expectedSha256, row.path);
+    assert.equal(row.snapshotSha256, row.expectedSha256, item.snapshot);
+  }
+  for (const [path, expectedSha256] of Object.entries({ ...freeze.untouched, ...freeze.immutableHashes })) {
+    const row = { path, sha256: sha(path), expectedSha256 };
+    preserved.push(row); assert.equal(row.sha256, expectedSha256, path);
+  }
+});
+check('author-freeze-and-run-integrity', () => {
+  assert.equal(sha(freeze.trackedDiff.path), freeze.trackedDiff.sha256);
+  artifacts.push({ path: freezePath, sha256: sha(freezePath) }, freeze.trackedDiff);
+  for (const run of freeze.runs) {
+    for (const [path, expectedSha256] of [[run.metadataPath, run.metadataSha256], [run.logPath, run.logSha256], ...(run.resultsPath ? [[run.resultsPath, run.resultsSha256]] : [])]) {
+      assert.equal(sha(path), expectedSha256, path); artifacts.push({ path, sha256: expectedSha256 });
+    }
+    const metadata = json(run.metadataPath);
+    assert.equal(metadata.exit, run.exit); assert.equal(metadata.nonLoopbackDenials, 0);
+  }
+});
+
+const exports = {
+  'app/lib/materials/skill-labels.ts': ['retainedMaterialSelfAssessmentHints'],
+  'app/server/documents/extraction-validator.ts': ['validateDocumentExtraction'],
+  'worker/document-executor/source-span-extraction.ts': ['readSourceSpanExtraction'],
+  'app/contracts/documents.ts': ['SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION', 'GROUNDED_MATERIAL_REVIEW_PROJECTION'],
+  'app/server/documents/policy.ts': ['KIMI_SOURCE_MENTIONS_POLICY_ID'],
+};
+const entry = Object.entries(exports).map(([path, names]) => `export { ${names.join(', ')} } from ${JSON.stringify(resolve(path))};`).join('\n');
+const built = await build({ stdin: { contents: entry, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, platform: 'node', target: 'node24', format: 'esm', write: false, logLevel: 'silent' });
+writeFileSync(prefix + '-bundle.mjs', built.outputFiles[0].contents, { flag: 'wx' });
+const api = await import(pathToFileURL(resolve(prefix + '-bundle.mjs')).href);
+const v3 = api.SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, v2 = api.GROUNDED_MATERIAL_REVIEW_PROJECTION;
+const reference = text => ({ ownerId: 'owner', documentId: 'doc', documentVersionId: 'version', textVersionId: 'text', lifecycle: 'active', text,
+  segments: [{ id: 'segment', start: 0, end: text.length }] });
+const item = (text, labels) => ({ id: 'fact', kind: 'experience', text, requirementLevel: null, skillLabels: labels, selfLevelHint: 'guided', source: { segmentId: 'segment', quote: text } });
+const hints = labels => labels.map((skillLabel, index) => ({ id: 'hint-' + index, candidateId: 'fact', skillLabel, level: 'guided' }));
+function retain(text, labels, ...projectionArg) {
+  const projection = projectionArg.length ? projectionArg[0] : v3;
+  const fact = { id: 'fact', kind: 'experience', text, origin: 'user', requirementLevel: null, skillLabels: labels,
+    sourceRef: { documentId: 'doc', documentVersionId: 'version', textVersionId: 'text', start: 0, end: text.length } };
+  const before = JSON.stringify(fact);
+  const result = api.retainedMaterialSelfAssessmentHints([fact], hints(labels), projection);
+  assert.equal(JSON.stringify(fact), before);
+  return result.map(hint => hint.skillLabel);
+}
+function decode(text, quote = text, labels = ['SQL'], format = 'source-spans-v3') {
+  const wireItem = { kind: 'experience', source: { segmentId: 'segment', quote }, requirementLevel: null, selfLevelHint: 'guided',
+    [format === 'source-spans-v1' ? 'skillLabels' : 'skillTerms']: labels };
+  const wire = { format, items: [wireItem], reviewPoints: [] };
+  return api.readSourceSpanExtraction({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(wire) } }] }, reference(text), undefined, format);
+}
+
+for (const [id, body, labels, retained, providerHint] of [
+  ['both-personal-guided', 'I tested SQL and React under supervision.', ['SQL', 'React'], ['SQL', 'React'], 'guided'],
+  ['different-actor-topic', 'I tested SQL under supervision and my colleague tested React under supervision.', ['SQL', 'React'], ['SQL'], null],
+  ['different-independent-topic', 'I tested SQL under supervision and I used React independently.', ['SQL', 'React'], ['SQL'], null],
+  ['repeated-topic-other-task', 'I tested SQL under supervision and I used SQL independently.', ['SQL'], [], null],
+  ['wrapped-negative-guidance', 'I tested SQL\r\nnot under supervision.', ['SQL'], [], null],
+  ['quoted-proposition', 'My mentor said, "I tested SQL under supervision."', ['SQL'], [], null],
+  ['future-activity', 'I will test SQL under supervision.', ['SQL'], [], null],
+  ['conditional-activity', 'If I tested SQL under supervision, I would document it.', ['SQL'], [], null],
+  ['quoted-tool-name', 'I tested "SQL" under supervision.', ['SQL'], ['SQL'], 'guided'],
+]) {
+  check('scope-' + id, () => {
+    const text = '1. ' + body, decoded = decode(text, text, labels);
+    assert.equal(decoded.extractionRead, 'parsed');
+    assert.equal(decoded.candidate.items[0].text, text);
+    assert.equal(decoded.candidate.items[0].selfLevelHint, providerHint);
+    const review = api.validateDocumentExtraction({ schemaVersion: '2026.11.1', items: [item(text, labels)], reviewPoints: [] }, 'owner', reference(text), api.KIMI_SOURCE_MENTIONS_POLICY_ID);
+    assert.equal(review.items[0].text, text);
+    assert.deepEqual(review.selfAssessmentHints.map(hint => hint.skillLabel), providerHint ? labels : []);
+    const actual = retain(text, labels);
+    assert.deepEqual(actual, retained);
+    assert.deepEqual(actual, retain(body, labels));
+    observations.push({ id, text, labels, providerHint, retained: actual });
+  });
+}
+for (const prefixText of ['1. ', '１２. ', '123.\t', '\u3000１２.\u00a0']) {
+  check('exact-v3-prefix-' + JSON.stringify(prefixText), () => {
+    const text = prefixText + 'I tested SQL under supervision.\r\n';
+    assert.deepEqual(retain(text, ['SQL']), ['SQL']);
+    assert.deepEqual(retain(text, ['SQL'], v2), []);
+    assert.deepEqual(retain(text, ['SQL'], undefined), []);
+  });
+}
+for (const text of [
+  '1. I tested SQL under supervision.\n2. My colleague used SQL.',
+  '1. I tested SQL under supervision. I used SQL independently.',
+  '1.\nI tested SQL under supervision.',
+  '1234. I tested SQL under supervision.',
+  '“1. I tested SQL under supervision.”',
+  '- I tested SQL under supervision.',
+]) {
+  check('no-overbroad-retention-' + text, () => assert.deepEqual(retain(text, ['SQL']), []));
+}
+check('unmodified-v1-v2-full-numbered-rejection', () => {
+  const text = '1. I tested SQL under supervision.';
+  for (const format of ['source-spans-v1', 'source-spans-v2']) assert.equal(decode(text, text, ['SQL'], format).extractionRead, 'invalid-source');
+});
+check('independent-provider-and-site-incomplete-guards', () => {
+  for (const [text, quote] of [
+    ['1. I tested SQL\r\nnot under supervision.', '1. I tested SQL'],
+    ['1. I tested SQL under supervision.\n2. I used React.', '1. I tested SQL under supervision.\n2. I used React.'],
+    ['1. \n', '1.'],
+    ['The worksheet says “Begin.\n1. I tested SQL under supervision.\nEnd.”', '1. I tested SQL under supervision.'],
+  ]) {
+    assert.equal(decode(text, quote).extractionRead, 'invalid-source');
+    assert.throws(() => api.validateDocumentExtraction({ schemaVersion: '2026.11.1', items: [item(quote, ['SQL'])], reviewPoints: [] }, 'owner', reference(text), api.KIMI_SOURCE_MENTIONS_POLICY_ID), /invalid-content/);
+  }
+});
+check('provider-full-body-duplicate-remains-invalid', () => {
+  const text = '1. I tested SQL under supervision.', sources = reference(text);
+  const items = [text, text.slice(3)].map(quote => ({ kind: 'experience', source: { segmentId: 'segment', quote }, requirementLevel: null, skillTerms: ['SQL'], selfLevelHint: 'guided' }));
+  const raw = { choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ format: 'source-spans-v3', items, reviewPoints: [] }) } }] };
+  assert.equal(api.readSourceSpanExtraction(raw, sources, undefined, 'source-spans-v3').extractionRead, 'invalid-shape');
+});
+check('sources-remain-frozen-after-probe', () => {
+  for (const item of sources) assert.equal(sha(item.path), item.sha256);
+  for (const item of preserved) assert.equal(sha(item.path), item.sha256);
+});
+const failed = checks.filter(check => !check.pass);
+const result = { status: failed.length ? 'FAIL' : 'PASS', identity, runtime: { node: process.version, icu: process.versions.icu },
+  counts: { passed: checks.length - failed.length, failed: failed.length }, checks, observations, sources, preserved, artifacts,
+  bundle: { path: prefix + '-bundle.mjs', sha256: sha(prefix + '-bundle.mjs') },
+  scope: 'One bounded independent quality probe; no full suite, real provider/network execution, deployment, migration, tracked edits, commit or push.' };
+writeFileSync(prefix + '-probe-results.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, counts: result.counts, failures: failed }));
+if (failed.length) process.exitCode = 1;

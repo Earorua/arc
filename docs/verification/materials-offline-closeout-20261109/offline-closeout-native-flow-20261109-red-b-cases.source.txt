@@ -1,0 +1,230 @@
+// Independently specified behavior; wire terms are literal source text, retained labels may normalize.
+export const cases = [
+  {
+    "id": "numbered-guided",
+    "text": "1. I practiced SQL under supervision.",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "expectedHints": [
+      "SQL"
+    ],
+    "mapped": [
+      "sql"
+    ],
+    "priorities": [
+      "sql"
+    ]
+  },
+  {
+    "id": "numbered-body",
+    "text": "1. I practiced SQL under supervision.",
+    "quote": "I practiced SQL under supervision.",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "expectedHints": [
+      "SQL"
+    ],
+    "mapped": [
+      "sql"
+    ],
+    "priorities": [
+      "sql"
+    ]
+  },
+  {
+    "id": "numbered-fullwidth",
+    "text": "１２. I practiced SQL under supervision.",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "expectedHints": [
+      "SQL"
+    ],
+    "mapped": [
+      "sql"
+    ],
+    "priorities": [
+      "sql"
+    ]
+  },
+  {
+    "id": "numbered-emoji-offset",
+    "text": "😀 Profile.\r\n  1. I practiced SQL under supervision.",
+    "quote": "1. I practiced SQL under supervision.",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "expectedHints": [
+      "SQL"
+    ],
+    "mapped": [
+      "sql"
+    ],
+    "priorities": [
+      "sql"
+    ]
+  },
+  {
+    "id": "numbered-jd",
+    "text": "1. SQL experience is required.",
+    "docKind": "jd",
+    "itemKind": "requirement",
+    "labels": [
+      "SQL"
+    ],
+    "expectedRequirement": "must",
+    "mapped": [
+      "sql"
+    ],
+    "priorities": [
+      "sql"
+    ],
+    "tier": 0
+  },
+  {
+    "id": "numbered-supplement",
+    "text": "1. I practiced SQL under supervision.",
+    "docKind": "supplement",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "expectedHints": [
+      "SQL"
+    ],
+    "mapped": [
+      "sql"
+    ],
+    "priorities": [
+      "sql"
+    ]
+  },
+  {
+    "id": "numbered-other",
+    "text": "1. My colleague practiced SQL under supervision.",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "mapped": [
+      "sql"
+    ],
+    "priorities": []
+  },
+  {
+    "id": "numbered-future",
+    "text": "1. I will practice SQL under supervision.",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "mapped": [
+      "sql"
+    ],
+    "priorities": []
+  },
+  {
+    "id": "numbered-removed",
+    "text": "1. I practiced SQL under supervision.",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "retained": [],
+    "expectedLabels": [],
+    "mapped": [],
+    "priorities": []
+  },
+  {
+    "id": "numbered-half",
+    "text": "1. I practiced SQL under supervision, but only as a hypothetical example.",
+    "quote": "1. I practiced SQL under supervision",
+    "labels": [
+      "SQL"
+    ],
+    "hint": "guided",
+    "reject": true
+  },
+  {
+    "id": "numbered-orphan",
+    "text": "1. \n",
+    "quote": "1.",
+    "labels": [],
+    "reject": true
+  },
+  {
+    "id": "chinese-guided-cleaning",
+    "text": "我在指导下清洗数据。",
+    "labels": [
+      "清洗数据"
+    ],
+    "hint": "guided",
+    "expectedHints": [
+      "data cleaning"
+    ],
+    "mapped": [],
+    "priorities": [],
+    "expectedLabels": [
+      "data cleaning"
+    ]
+  },
+  {
+    "id": "chinese-other-cleaning",
+    "text": "我的同事在指导下清洗数据。",
+    "labels": [
+      "清洗数据"
+    ],
+    "hint": "guided",
+    "mapped": [],
+    "priorities": [],
+    "expectedLabels": [
+      "data cleaning"
+    ]
+  },
+  {
+    "id": "chinese-future-cleaning",
+    "text": "我计划在指导下清洗数据。",
+    "labels": [
+      "清洗数据"
+    ],
+    "hint": "guided",
+    "mapped": [],
+    "priorities": [],
+    "expectedLabels": [
+      "data cleaning"
+    ]
+  },
+  {
+    "id": "chinese-edited-other",
+    "text": "我在指导下清洗数据。",
+    "labels": [
+      "清洗数据"
+    ],
+    "hint": "guided",
+    "editedText": "我的同事在指导下清洗数据。",
+    "mapped": [],
+    "priorities": [],
+    "expectedLabels": [
+      "data cleaning"
+    ]
+  },
+  {
+    "id": "chinese-no-guidance",
+    "text": "我清洗数据。",
+    "labels": [
+      "清洗数据"
+    ],
+    "hint": "guided",
+    "mapped": [],
+    "priorities": [],
+    "expectedLabels": [
+      "data cleaning"
+    ]
+  }
+];

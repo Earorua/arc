@@ -1,0 +1,1 @@
+{"status":"UNCHANGED_LEGACY_BOUNDARIES","fixtures":40,"baselineComparisons":80,"rootCause":[{"start":0,"end":2,"text":"1."},{"start":3,"end":33,"text":"I practiced SQL with a mentor."}],"output":"work/grounded-verification/numbered-statements-boundary-20261109-compare-a-results.json"}

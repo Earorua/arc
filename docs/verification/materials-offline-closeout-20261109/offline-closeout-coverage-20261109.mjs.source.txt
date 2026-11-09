@@ -1,0 +1,69 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync, realpathSync, existsSync } from 'node:fs';
+import { stripVTControlCharacters } from 'node:util';
+const work = 'work/grounded-verification/';
+const output = work + 'offline-closeout-coverage-20261109-a-results.json';
+assert.equal(existsSync(output), false);
+const sha = value => createHash('sha256').update(value).digest('hex');
+const snapshot = JSON.parse(readFileSync(work + 'offline-closeout-snapshot-20261109-a-results.json'));
+function outcome(name) {
+  const result = JSON.parse(readFileSync(work + name + '.json')), bytes = readFileSync(work + name + '.log');
+  assert.equal(result.name, name); assert.equal(result.exit, 0, name); assert.equal(result.nonLoopbackDenials, 0, name);
+  assert.equal(sha(bytes), result.logSha256, name);
+  return { result, log: stripVTControlCharacters(bytes.toString('utf8')) };
+}
+const groups = ['unit', 'serial', 'research'].map(kind => {
+  const name = 'offline-closeout-full-' + kind + '-20261109-a', { result, log } = outcome(name);
+  const files = [...log.matchAll(/^\s*[✓✔]\s+(tests\/.+?\.test\.(?:ts|tsx))\s+\((\d+) tests?\)/gmu)].map(match => ({ path: match[1], tests: Number(match[2]) }));
+  const summary = log.match(/Test Files\s+(\d+) passed\s+\((\d+)\)\s*\n\s*Tests\s+(\d+) passed\s+\((\d+)\)/u);
+  assert.ok(summary, name + ' clean all-pass summary'); assert.equal(Number(summary[1]), files.length);
+  assert.equal(summary[1], summary[2]); assert.equal(summary[3], summary[4]);
+  const tests = files.reduce((sum, file) => sum + file.tests, 0); assert.equal(tests, Number(summary[3]));
+  return { name, files, tests, logSha256: result.logSha256 };
+});
+const expectedFiles = Object.keys(snapshot.filesSha256).filter(path => /^tests\/.+\.test\.(?:ts|tsx)$/u.test(path)).sort();
+const actualFiles = groups.flatMap(group => group.files.map(file => file.path)).sort();
+assert.deepEqual(actualFiles, expectedFiles, 'Every standard Vitest file exactly once');
+assert.equal(new Set(actualFiles).size, actualFiles.length);
+function nodeOutcome(name) {
+  const { result, log } = outcome(name);
+  const tests = Number(log.match(/^(?:#|ℹ) tests (\d+)\s*$/mu)?.[1]), passed = Number(log.match(/^(?:#|ℹ) pass (\d+)\s*$/mu)?.[1]);
+  assert.ok(tests > 0); assert.equal(passed, tests);
+  for (const label of ['fail', 'cancelled', 'skipped']) assert.match(log, new RegExp('^(?:#|ℹ) ' + label + ' 0\\s*$', 'mu'));
+  return { name, tests, passed, logSha256: result.logSha256 };
+}
+const node = nodeOutcome('offline-closeout-full-node-20261109-a'), render = nodeOutcome('offline-closeout-render-20261109-a');
+const nodeScripts = Object.keys(snapshot.filesSha256).filter(path => /^tests\/.+\.test\.mjs$/u.test(path)).sort();
+assert.deepEqual(nodeScripts, [
+  'tests/build/restricted-candidate-files.test.mjs', 'tests/build/restricted-research-candidate.test.mjs',
+  'tests/offline-uat/entry.test.mjs', 'tests/offline-uat/http-clients.test.mjs', 'tests/offline-uat/legacy-recovery.test.mjs',
+  'tests/offline-uat/research-public-recovery.test.mjs', 'tests/offline-uat/research-recovery.test.mjs', 'tests/offline-uat/retained-compatibility.test.mjs',
+  'tests/rendered-html.test.mjs', 'tests/scripts/auth-tail.test.mjs',
+].sort());
+for (const name of ['offline-closeout-full-types-20261109-a', 'offline-closeout-full-lint-20261109-a', 'offline-closeout-build-20261109-a']) outcome(name);
+const chains = [];
+for (const [nativeName, parityName, count] of [
+  ['offline-closeout-native-flow-20261109-final-a', 'offline-closeout-node-parity-20261109-final-a', 17],
+  ['offline-closeout-legacy-native-20261109-final-a', 'offline-closeout-legacy-parity-20261109-final-a', 25],
+]) {
+  outcome(nativeName); outcome(parityName);
+  const bytes = readFileSync(work + nativeName + '-results.json'), native = JSON.parse(bytes), parity = JSON.parse(readFileSync(work + parityName + '-results.json'));
+  assert.equal(native.status, 'PASS'); assert.equal(native.observations.length, count); assert.equal(native.outboundCalls, 0);
+  assert.ok(native.observations.every(row => row.failures.length === 0));
+  assert.equal(parity.status, 'PASS'); assert.equal(parity.cases, count); assert.equal(parity.nativeSha256, sha(bytes));
+  for (const [path, digest] of Object.entries(native.inputs)) assert.equal(sha(readFileSync(path)), digest, path);
+  chains.push({ nativeName, parityName, cases: count, dependencyCount: Object.keys(native.inputs).length, dependenciesMatchFinalSource: true });
+}
+outcome('offline-closeout-compatibility-final-20261109-a'); outcome('offline-closeout-history-final-20261109-a');
+const compat = JSON.parse(readFileSync(work + 'offline-closeout-compatibility-final-20261109-a-results.json'));
+const history = JSON.parse(readFileSync(work + 'offline-closeout-history-final-20261109-a-results.json'));
+assert.equal(compat.status, 'COMPATIBILITY_MATCHED'); assert.equal(compat.observed.observations.length, 150); assert.equal(compat.observed.helpers.length, 20);
+assert.equal(history.status, 'READ_ONLY_HISTORY_MATCHED'); assert.equal(history.observed.records.length, 6); assert.equal(history.outboundCalls, 0);
+const result = { status: 'PASS', sourceCommit: snapshot.head, sourceManifestSha256: snapshot.manifestSha256,
+  sourceFileCount: snapshot.sourceFileCount, vitestFiles: actualFiles.length, vitestTests: groups.reduce((sum, row) => sum + row.tests, 0), groups,
+  node, nodeScripts, render, chains, compatibilityObservations: 170, historicalRecordsUnchanged: 6,
+  executionLocations: { unit: snapshot.checkout, serial: snapshot.checkout, research: realpathSync(process.cwd()), additionalNode: realpathSync(process.cwd()), types: snapshot.checkout, lint: snapshot.checkout, build: snapshot.checkout, render: snapshot.checkout },
+  additionalNodeIsolated: true, originalTimeoutsAndAssertions: true, realModelCalls: 0, newCostUsd: 0, remoteMigration: false, deployed: false };
+writeFileSync(output, JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, vitestFiles: result.vitestFiles, vitestTests: result.vitestTests, additionalNodeTests: node.tests, renderedTests: render.tests, nativeAndNodeCases: chains.map(row => row.cases), oldBehavior: 170, historicalRecords: 6 }));

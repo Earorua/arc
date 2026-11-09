@@ -1,0 +1,326 @@
+{
+  "status": "scoped-fix-frozen",
+  "sourceHead": "6b49bce8daa98c22dfa5459298904e59b57a95da",
+  "sourceFiles": [
+    {
+      "path": "app/lib/materials/personal-assertion-scopes.ts",
+      "sha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3",
+      "bytes": 13171,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\app\\lib\\materials\\personal-assertion-scopes.ts.source.txt"
+    },
+    {
+      "path": "app/lib/materials/self-assessment-evidence.ts",
+      "sha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+      "bytes": 5656,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\app\\lib\\materials\\self-assessment-evidence.ts.source.txt"
+    },
+    {
+      "path": "app/lib/materials/skill-labels.ts",
+      "sha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+      "bytes": 4114,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\app\\lib\\materials\\skill-labels.ts.source.txt"
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+      "bytes": 6349,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\app\\server\\documents\\extraction-validator.ts.source.txt"
+    },
+    {
+      "path": "worker/document-executor/source-review-evidence.ts",
+      "sha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+      "bytes": 20824,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\worker\\document-executor\\source-review-evidence.ts.source.txt"
+    },
+    {
+      "path": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef",
+      "bytes": 18754,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\worker\\document-executor\\source-span-extraction.ts.source.txt"
+    },
+    {
+      "path": "tests/helpers/material-guided-cleaning.ts",
+      "sha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce",
+      "bytes": 6760,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\helpers\\material-guided-cleaning.ts.source.txt"
+    },
+    {
+      "path": "tests/helpers/material-mention-review-fixture.ts",
+      "sha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab",
+      "bytes": 4944,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\helpers\\material-mention-review-fixture.ts.source.txt"
+    },
+    {
+      "path": "tests/server/material-guided-cleaning.test.ts",
+      "sha256": "da76fbc92b29f5475ce9c64d5866441648815ef20a50cc85383cf1fb956d6d46",
+      "bytes": 11993,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\server\\material-guided-cleaning.test.ts.source.txt"
+    },
+    {
+      "path": "tests/lib/materials/guided-cleaning-evidence.test.ts",
+      "sha256": "e0b30174d323dc6f492bb5d2f9a05de4b6549d33c2a2f7f53ca6fadcca2a2e10",
+      "bytes": 6703,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\lib\\materials\\guided-cleaning-evidence.test.ts.source.txt"
+    },
+    {
+      "path": "tests/components/material-guided-cleaning.test.tsx",
+      "sha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb",
+      "bytes": 5093,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\components\\material-guided-cleaning.test.tsx.source.txt"
+    },
+    {
+      "path": "tests/fixtures/material-guided-cleaning-legacy.json",
+      "sha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47",
+      "bytes": 33216,
+      "frozen": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\fixtures\\material-guided-cleaning-legacy.json.source.txt"
+    }
+  ],
+  "runs": [
+    {
+      "name": "guided-practice-20261109-baseline-01",
+      "exit": 0,
+      "elapsedMs": 260,
+      "logSha256": "1feed32632742623f081ed2f1390ab5f516186a1824bc9636185e79083937273",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-zEFCqF",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-baseline-01.json",
+      "metadataSha256": "ee21dd8d66c76244a704fc58bab531b30ca6a05be6f306a86bb2fe6cdfb1f349",
+      "log": "work\\grounded-verification\\guided-practice-20261109-baseline-01.log"
+    },
+    {
+      "name": "guided-practice-20261109-red-01",
+      "exit": 1,
+      "elapsedMs": 5957,
+      "logSha256": "1f80585044b0eba1a2a34b5f12b6fdbcf88dc6d67ad62e587d9bb7686b914824",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-dMzRuc",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-red-01.json",
+      "metadataSha256": "0e3b4e0aafb9bdfc133266ad98efd8aa8af1804f6b3fb90d089bb92f5082fc35",
+      "log": "work\\grounded-verification\\guided-practice-20261109-red-01.log"
+    },
+    {
+      "name": "guided-practice-20261109-green-01",
+      "exit": 0,
+      "elapsedMs": 5702,
+      "logSha256": "3422000430674a84dfcaa6da7854e459aa66e6650071e3d651bf98886ebc73f7",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-MNfMKH",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-green-01.json",
+      "metadataSha256": "fba9aff3a95f7684b62267bc5d32302963ec28d208f8ca60164b4616aa8f1357",
+      "log": "work\\grounded-verification\\guided-practice-20261109-green-01.log"
+    },
+    {
+      "name": "guided-practice-20261109-scope-probe-01",
+      "exit": 1,
+      "elapsedMs": 232,
+      "logSha256": "00473705ac5f9b220043c2a90cd0bdba69e3689763504713b25167f5101cc0a1",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-rRXcmd",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01.json",
+      "metadataSha256": "abb8541007bfce6c65d6c9636a3207558d7bdce0c9388534029d6a5399bc1cc0",
+      "log": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01.log"
+    },
+    {
+      "name": "guided-practice-20261109-scope-red-02",
+      "exit": 1,
+      "elapsedMs": 3971,
+      "logSha256": "c0391c79818527624b9bdad4dab7a193f5c3e9ab91abc2ad122748bcbd464435",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-rMhSMp",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-scope-red-02.json",
+      "metadataSha256": "9a055b58c51ba77eed683d3d7fb941e06d7fea5c8e8c06a736064a2f2d5a6375",
+      "log": "work\\grounded-verification\\guided-practice-20261109-scope-red-02.log"
+    },
+    {
+      "name": "guided-practice-20261109-green-02",
+      "exit": 0,
+      "elapsedMs": 5993,
+      "logSha256": "62a660a86480f11f7b02192c2df6696ad7ea538358305fdd78490c7720217e8b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-WxMmYU",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-green-02.json",
+      "metadataSha256": "3faf444b5c95af7e593f81e2e51477685cde4ad89bfa5a9fc0cb7ebf27e8ae26",
+      "log": "work\\grounded-verification\\guided-practice-20261109-green-02.log"
+    },
+    {
+      "name": "guided-practice-20261109-regression-01",
+      "exit": 0,
+      "elapsedMs": 17610,
+      "logSha256": "e42a0607097ca085e6422100bf00157d1b3a9d5b229e2b265235779ca62e1fbe",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-RScegB",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-regression-01.json",
+      "metadataSha256": "da9c7e6868f9d2c4566ec1a1b07d198d7b5128937b97aefbe14cc099a5860da2",
+      "log": "work\\grounded-verification\\guided-practice-20261109-regression-01.log"
+    },
+    {
+      "name": "guided-practice-20261109-regression-02",
+      "exit": 0,
+      "elapsedMs": 16991,
+      "logSha256": "69d854b0545995303eb4277b0fec524b1f6da344d1c775b18b53f46a1d61f28b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-n5N9z8",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-regression-02.json",
+      "metadataSha256": "23e08b99daa86c728666fc4382c6ba34051ce9cd7d376cae11cdbcf58492e286",
+      "log": "work\\grounded-verification\\guided-practice-20261109-regression-02.log"
+    },
+    {
+      "name": "guided-practice-20261109-types-01",
+      "exit": 2,
+      "elapsedMs": 10988,
+      "logSha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-3f8MpR",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-types-01.json",
+      "metadataSha256": "211a8f79ab77da02f5f304da0a282dda6d73187821e4a4643759fb3f8e2f862f",
+      "log": "work\\grounded-verification\\guided-practice-20261109-types-01.log"
+    },
+    {
+      "name": "guided-practice-20261109-types-02",
+      "exit": 0,
+      "elapsedMs": 14375,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-tq6Ivd",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-types-02.json",
+      "metadataSha256": "fcb84bb94453a20f0114c68c6612d8764e084fc83cdece11da612cc3555c42c9",
+      "log": "work\\grounded-verification\\guided-practice-20261109-types-02.log"
+    },
+    {
+      "name": "guided-practice-20261109-types-03",
+      "exit": 0,
+      "elapsedMs": 16441,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-kZX4Ou",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-types-03.json",
+      "metadataSha256": "1d405e9f943e9decd764c953751608741bbf7ba570ac97354dbddc1d94160d24",
+      "log": "work\\grounded-verification\\guided-practice-20261109-types-03.log"
+    },
+    {
+      "name": "guided-practice-20261109-lint-01",
+      "exit": 0,
+      "elapsedMs": 5412,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-w9JuLF",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-lint-01.json",
+      "metadataSha256": "0ba32a6d0de94fd712a32362b93247605f1c0eec7777c8b3a9b483a6e8d37e34",
+      "log": "work\\grounded-verification\\guided-practice-20261109-lint-01.log"
+    },
+    {
+      "name": "guided-practice-20261109-lint-02",
+      "exit": 0,
+      "elapsedMs": 4900,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-g35yp5",
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-lint-02.json",
+      "metadataSha256": "b0b2101a67cf99f7da826345a9fedcfc3badda8a4e9e7c6743e9117a737dc159",
+      "log": "work\\grounded-verification\\guided-practice-20261109-lint-02.log"
+    }
+  ],
+  "reports": [
+    {
+      "name": "red-01",
+      "path": "work\\grounded-verification\\guided-practice-20261109-red-01-own-results.json",
+      "sha256": "6af28a484be49813aa7c2d26e5d47977f5197d5c005031285fb6e7e843cd5082",
+      "total": 61,
+      "passed": 26,
+      "failed": 35,
+      "pending": 0
+    },
+    {
+      "name": "green-01",
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-01-own-results.json",
+      "sha256": "98801f1a8c8b67d7a56c5fbc9405eb46b3d92a9c3b617382ec8f197dda557802",
+      "total": 61,
+      "passed": 61,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "name": "scope-red-02",
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-red-02-own-results.json",
+      "sha256": "dd998d921f92678ecde3f6a153c682138b13b1b145037886655e82a4fe369cb3",
+      "total": 58,
+      "passed": 0,
+      "failed": 4,
+      "pending": 54
+    },
+    {
+      "name": "green-02",
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-02-own-results.json",
+      "sha256": "4c53dbb5842049c1f7b92982897c2dc801e87aa4aa28817c7a11a103268359c4",
+      "total": 65,
+      "passed": 65,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "name": "regression-01",
+      "path": "work\\grounded-verification\\guided-practice-20261109-regression-01-own-results.json",
+      "sha256": "93507f55019da95f1f322b427d898c2687d7ae45538b943b8439e683c8318966",
+      "total": 1329,
+      "passed": 1329,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "name": "regression-02",
+      "path": "work\\grounded-verification\\guided-practice-20261109-regression-02-own-results.json",
+      "sha256": "144878707bc588112ecd118117c7d23da10fb698a0d5c7a9e270533ddfe1137c",
+      "total": 1329,
+      "passed": 1329,
+      "failed": 0,
+      "pending": 0
+    }
+  ],
+  "evidence": [
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-baseline-01.mjs",
+      "sha256": "f3d454857a6f6c8a320fb5e74f5f1924332d38e917576aa2285adfbee112f601"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-baseline-01-bundle.mjs",
+      "sha256": "9f9b103aac226dcd743cc69f5608218aeefbe7b4b124662c6c8732b4fe190952"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-baseline-01-own-results.json",
+      "sha256": "3f118544d0d3e64d19fc17e6ff35f130e68bc950c4197d8390e78cfec0b3a5d2"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01.mjs",
+      "sha256": "a34e343690af1687ba4c6277b8be562386a2efef5b5b9bce4a80997f83f215cb"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01-bundle.mjs",
+      "sha256": "740d8130669955642cbe7b01052dd10da239cb252706def0acb9f00452fecb7f"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01-own-results.json",
+      "sha256": "d590579a0d4ab4da2ecd7952b6b5bb9a2820c50b5419f6d884f1255b4cdc2166"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-tsconfig.json",
+      "sha256": "0e346ee85e8661ad2cc6f5987fce8513a0d61ded895cddb4f5e4c6fd821e2582"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-freeze-01.mjs",
+      "sha256": "db28f17504b8b8a1fc535dabf12f741a48cf0b0a32e2d99d98ff38272cae8e46"
+    },
+    {
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\manifest.json",
+      "sha256": "4a08eef9937c788a27abc50b9887080f06acf5c843585864dd0b4ff40b173298"
+    }
+  ],
+  "implementation": "Default-false sourceMentions propagates only from exact v3 boundaries; a direct Chinese cleaning action must equal existing grounded cleaning evidence after terminal punctuation/whitespace is removed.",
+  "scopeDecision": "After a concrete colleague-SQL and repeated-cleaning suffix regression, unsegmented trailing narratives are conservatively rejected by the new branch. Their facts/topics remain, but no guided hint or inferred capability reminder is generated. Existing recognized separate assertion scopes retain their reminder behavior.",
+  "compatibility": "Seven frozen before cases deeply compare omitted helper mode, generic experience, edited default/v2 hints, v1/v2 decode, legacy and v1/v2 stored/direct projections. Shared practiceAction, personalPassivePractice, prompts, policy IDs, schemas, markers and default callers are unchanged.",
+  "typeLimit": "Raw root tsc types-01 is preserved with parser errors in historical ignored work/materials-browser-handoff/profile scratch fixtures. types-02 and types-03 use an untracked derived config excluding node_modules and work, preserving the root config.",
+  "realModelCalls": 0,
+  "externalNetworkCalls": 0,
+  "trackedDocsEdited": false,
+  "committed": false,
+  "fullGateRun": false
+}

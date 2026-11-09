@@ -1,0 +1,203 @@
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { writeFileSync } from "node:fs";
+import { webcrypto } from "node:crypto";
+import { AdaptiveSetupFlow } from "../../app/components/setup/adaptive-setup-flow";
+import { MaterialSetupProvider, useMaterialSetup } from "../../app/components/materials/material-setup-provider";
+import { MaterialConfirmation } from "../../app/components/materials/material-confirmation";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import { GROUNDED_MATERIAL_REVIEW_PROJECTION, type DocumentReviewDraft } from "../../app/contracts/documents";
+import type { DocumentsClient } from "../../app/lib/documents-client";
+import type { GeneratePlanningRequest } from "../../app/contracts/planning-api";
+import type { PlanningWorkspace } from "../../app/contracts/planning";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+import { materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { PlanningService } from "../../app/server/planning/service";
+
+const outcomes: Record<string, unknown> = {};
+const dbs: ReturnType<typeof createMaterialsD1>[] = [];
+const caps = { documentsEnabled: true, analysisEnabled: true, planningEnabled: true, hasDocuments: true, providerLabel: "Offline", providerPolicyId: "policy", policyVersion: "2026.11.1", reason: "ready" } as const;
+const ref = { documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", revision: 0, confirmationId: "confirmation-a" };
+const text = "I tested TypeScript under supervision.";
+function makeDraft(): DocumentReviewDraft {
+  return { id: "review-a", schemaVersion: "2026.11.1", documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", extractionId: "extraction-a", origin: "extracted", revision: 0, updatedAt: "2026-11-04T08:00:00.000Z", reviewProjection: GROUNDED_MATERIAL_REVIEW_PROJECTION,
+    items: [{ id: "practice-a", kind: "experience", origin: "extracted", text, sourceRef: { documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", start: 0, end: text.length }, requirementLevel: null, skillLabels: ["TypeScript"] }],
+    selfAssessmentHints: [{ id: "hint-a", candidateId: "practice-a", skillLabel: "TypeScript", level: "guided" }], reviewPoints: [] };
+}
+function skillGroup(id: string) {
+  const skill = flagshipBlueprint.skills.find(skill => skill.id === id)!;
+  return within(screen.getByRole("group", { name: `${skill.name} 自我评估`, hidden: true }));
+}
+function level(id: string, value: string) {
+  return document.querySelector<HTMLInputElement>(`input[name="level-${id}"][value="${value}"]`)!;
+}
+function fixture() {
+  const db = createMaterialsD1(); dbs.push(db); seedMaterialSelection(db);
+  const draft = makeDraft();
+  db.database.prepare("UPDATE documents SET kind='resume',display_name='Synthetic Resume'").run();
+  db.database.prepare("UPDATE material_selection_entries SET slot='resume'").run();
+  db.database.prepare("UPDATE document_confirmations SET items_json=?").run(JSON.stringify(draft.items));
+  const sourceResolver = materialSourceResolver(); let id = 0;
+  const repository = new D1PlanningRepository(db as unknown as D1Database, { sourceResolver, now: materialNow, createId: () => `stored-${++id}` });
+  const materials = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver, planningRepository: repository, now: materialNow, createId: () => `context-${++id}` });
+  const service = new PlanningService({ repository, sourceResolver, materials, now: materialNow, createId: () => `planning-${++id}` });
+  let selection: any;
+  let review = draft;
+  const invoke = vi.fn(async (endpoint: string, body: any): Promise<unknown> => {
+    if (endpoint === "readDocument") return { document: { displayName: "Synthetic Resume", currentDocumentVersionId: "version-a", revision: 0 }, text };
+    if (endpoint === "readDocumentReviewDraft") return { draft: review };
+    if (endpoint === "saveDocumentReviewDraft") { review = { ...review, ...body, id: review.id, revision: review.revision + 1 }; return { draft: review }; }
+    if (endpoint === "createDocumentConfirmation") return { confirmationId: "confirmation-a", revision: 0 };
+    if (endpoint === "createMaterialSelection") {
+      selection = { selectionId: "selection-a", schemaVersion: "2026.11.1", selectionRevision: 0, scope: body.scope, entries: body.entries, state: "active", boundGoalId: null };
+      db.database.prepare("UPDATE material_selections SET scope_json=? WHERE id='selection-a'").run(JSON.stringify(body.scope));
+      return { selectionId: "selection-a", selectionRevision: 0 };
+    }
+    if (endpoint === "readMaterialSelection") return { selection, versions: [{ documentId: "doc-a", documentVersionId: "version-a", state: "active" }] };
+    if (endpoint === "createMaterialContext") return materials.create("owner-a", body);
+    if (endpoint === "readMaterialContext") return materials.read("owner-a", body.contextVersionId);
+    throw Error(`Unexpected offline endpoint: ${endpoint}`);
+  });
+  const client = { capabilities: async () => caps, request: invoke } as unknown as DocumentsClient;
+  const requests: GeneratePlanningRequest[] = [];
+  let generated: PlanningWorkspace | null = null;
+  const generate = vi.fn(async (request: GeneratePlanningRequest) => {
+    requests.push(request);
+    generated = (await service.generate("owner-a", request)).workspace;
+    return true;
+  });
+  function SelectResume() {
+    const state = useMaterialSetup();
+    return <button disabled={!state?.ready} onClick={() => state?.setSlot("resume", ref)}>Load synthetic resume</button>;
+  }
+  function App() {
+    return <MaterialSetupProvider ownerId="owner-a" scopeKey="adoption-diagnosis" client={client}>
+      <SelectResume />
+      <AdaptiveSetupFlow draftOwner="user:owner-a" blueprint={flagshipBlueprint} registry={flagshipUnitRegistry} generate={generate}
+        navigate={vi.fn()} createMutationId={() => "generation-diagnosis"} now={materialNow} timeZone="UTC" />
+    </MaterialSetupProvider>;
+  }
+  return { db, client, invoke, App, requests, service, sourceResolver, generated: () => generated };
+}
+async function loadResume() {
+  await waitFor(() => expect(screen.getByText("Load synthetic resume")).toBeEnabled());
+  fireEvent.click(screen.getByText("Load synthetic resume"));
+  await screen.findByRole("button", { name: "采用 TypeScript 的需指导完成建议" });
+}
+beforeEach(() => { localStorage.clear(); vi.stubGlobal("crypto", webcrypto); });
+afterEach(() => { cleanup(); dbs.splice(0).forEach(db => db.close()); vi.unstubAllGlobals(); writeFileSync("work/grounded-verification/adoption-persistence-diagnosis-20261109-results.json", JSON.stringify(outcomes, null, 2) + "\n"); });
+
+describe("actual adoption and persistence diagnostic", () => {
+  it("keeps adoption optional, preserves manual edits through reload, and persists the exact audit through real server storage", async () => {
+    const f = fixture(); const page = render(<f.App />); await loadResume();
+    expect(level("typescript", "unseen")).toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: "确认这些事实" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "确认这些事实" })).toBeEnabled());
+    expect(level("typescript", "unseen")).toBeChecked();
+    fireEvent.click(skillGroup("web-platform").getByRole("radio", { name: "了解概念" }));
+    fireEvent.click(screen.getByRole("button", { name: "采用 TypeScript 的需指导完成建议" }));
+    expect(level("typescript", "guided")).toBeChecked();
+    expect(level("web-platform", "conceptual")).toBeChecked();
+    expect(level("sql", "unseen")).toBeChecked();
+    fireEvent.click(skillGroup("typescript").getByRole("radio", { name: "可独立完成" }));
+    fireEvent.click(screen.getByRole("button", { name: "未逐项评估的技能设为不确定" }));
+    expect(level("typescript", "independent")).toBeChecked();
+    expect(level("web-platform", "conceptual")).toBeChecked();
+    expect(level("sql", "uncertain")).toBeChecked();
+    page.unmount(); render(<f.App />);
+    await screen.findByText("已恢复本岗位的设置草稿。");
+    await screen.findByRole("button", { name: "采用 TypeScript 的需指导完成建议" });
+    expect(level("typescript", "independent")).toBeChecked();
+    expect(level("web-platform", "conceptual")).toBeChecked();
+    expect(level("sql", "uncertain")).toBeChecked();
+    fireEvent.click(screen.getByRole("checkbox", { name: "我已核对当前技能自评" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续" }));
+    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "创建路线" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "创建路线" }));
+    await screen.findByText("计划已就绪。");
+    const request = f.requests[0]!;
+    expect(f.requests).toHaveLength(1);
+    expect(request.audit.answers.find(answer => answer.skillId === "typescript")?.level).toBe("independent");
+    expect(request.audit.answers.find(answer => answer.skillId === "sql")?.level).toBe("uncertain");
+    expect(request.audit.evidence).toEqual([]);
+    expect(request.materials).toBeDefined();
+    const reopened = new PlanningService({ repository: new D1PlanningRepository(f.db as unknown as D1Database, { sourceResolver: f.sourceResolver }), sourceResolver: f.sourceResolver });
+    const reloaded = await reopened.getWorkspace("owner-a");
+    expect(reloaded?.audit).toEqual(request.audit);
+    expect(reloaded).toEqual(f.generated());
+    const snapshot = f.db.database.prepare("SELECT snapshot_json FROM material_context_versions").get() as { snapshot_json: string };
+    expect(JSON.parse(snapshot.snapshot_json).audit).toEqual(request.audit);
+    const path = reloaded!.pathVersions.find(path => path.id === reloaded!.activePathVersionId)!;
+    const kinds = (skillId: string) => [...new Set(path.units.filter(unit => unit.skillId === skillId).map(unit => unit.kind))];
+    expect(kinds("typescript")).toContain("calibrate");
+    expect(kinds("typescript")).not.toContain("learn");
+    expect(kinds("sql")).toEqual(expect.arrayContaining(["calibrate", "learn"]));
+    outcomes.actualFlow = { status: "passed", adoptionOptional: true, factsDoNotAdopt: true, singleAdoptionWorked: true, manualOverrideSurvivedReload: true, unmentionedUncertainExplicit: true, auditExactAfterD1Reload: true, frozenContextMatchesFinalAudit: true, finalLevels: Object.fromEntries(request.audit.answers.map(answer => [answer.skillId, answer.level])), schemaVersion: request.audit.schemaVersion, evidence: request.audit.evidence, pathKinds: { typescript: kinds("typescript"), sql: kinds("sql") } };
+  });
+
+  it("offers only a retained hint with one current skill match", () => {
+    const draft = makeDraft(), adopt = vi.fn();
+    const props = { draft, text, saving: false, confirmed: false, onItemsChange: vi.fn(), onConfirm: vi.fn(), onAdoptLevels: adopt };
+    const page = render(<MaterialConfirmation {...props} skills={[]} />);
+    expect(screen.queryByRole("button", { name: /采用 TypeScript/ })).not.toBeInTheDocument();
+    page.rerender(<MaterialConfirmation {...props} skills={[{ id: "a", name: "TypeScript" }, { id: "b", name: "TypeScript" }]} />);
+    expect(screen.queryByRole("button", { name: /采用 TypeScript/ })).not.toBeInTheDocument();
+    page.rerender(<MaterialConfirmation {...props} skills={flagshipBlueprint.skills} />);
+    expect(adopt).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: /采用 TypeScript/ }));
+    expect(adopt).toHaveBeenCalledExactlyOnceWith({ typescript: "guided" });
+    page.rerender(<MaterialConfirmation {...props} skills={flagshipBlueprint.skills} draft={{ ...draft, items: [] }} />);
+    expect(screen.queryByRole("button", { name: /采用 TypeScript/ })).not.toBeInTheDocument();
+    outcomes.currentMapping = { status: "passed", unknownExcluded: true, ambiguousExcluded: true, removedFactExcluded: true };
+  });
+
+  it("persists an adopted guided level and keeps an existing public evidence reference", async () => {
+    const f = fixture(); render(<f.App />); await loadResume();
+    const skillRoot = within(level("typescript", "unseen").closest(".audit-skill") as HTMLElement);
+    fireEvent.click(skillRoot.getByText("添加作品证据（可选）"));
+    fireEvent.click(await skillRoot.findByRole("button", { name: "为 TypeScript 添加证据链接" }));
+    fireEvent.change(screen.getByLabelText("TypeScript 证据链接 1"), { target: { value: "https://github.com/example/public-project" } });
+    fireEvent.change(screen.getByLabelText("TypeScript 证据说明 1"), { target: { value: "Public project I selected" } });
+    fireEvent.click(screen.getByRole("button", { name: "采用 TypeScript 的需指导完成建议" }));
+    fireEvent.click(screen.getByRole("button", { name: "未逐项评估的技能设为不确定" }));
+    expect(level("typescript", "guided")).toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: "继续" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续" }));
+    fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "创建路线" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "创建路线" }));
+    await screen.findByText("计划已就绪。");
+    const request = f.requests[0]!;
+    const answer = request.audit.answers.find(answer => answer.skillId === "typescript")!;
+    expect(answer.level).toBe("guided");
+    expect(answer.evidenceRefs).toEqual(["evidence-typescript-1"]);
+    expect(request.audit.evidence).toEqual([{ id: "evidence-typescript-1", kind: "project", url: "https://github.com/example/public-project", note: "Public project I selected", skillId: "typescript" }]);
+    const reopened = new PlanningService({ repository: new D1PlanningRepository(f.db as unknown as D1Database, { sourceResolver: f.sourceResolver }), sourceResolver: f.sourceResolver });
+    expect((await reopened.getWorkspace("owner-a"))?.audit).toEqual(request.audit);
+    outcomes.guidedWithEvidence = { status: "passed", finalLevel: answer.level, preservedEvidenceIds: answer.evidenceRefs, exactAuditOnD1Reload: true };
+  });
+
+  it("observes whether explicit start-over clears prior review markers", async () => {
+    const f = fixture(); render(<f.App />); await loadResume();
+    fireEvent.click(screen.getByRole("button", { name: "采用 TypeScript 的需指导完成建议" }));
+    expect(level("typescript", "guided")).toBeChecked();
+    fireEvent.click(screen.getByRole("checkbox", { name: "我已核对当前技能自评" }));
+    expect(screen.getByRole("button", { name: "继续" })).toBeEnabled();
+    fireEvent.click(screen.getByText("草稿选项"));
+    fireEvent.click(screen.getByRole("button", { name: "重新填写此岗位" }));
+    expect(level("typescript", "unseen")).toBeChecked();
+    const acknowledgedAfterReset = (screen.getByRole("checkbox", { name: "我已核对当前技能自评" }) as HTMLInputElement).checked;
+    const continueEnabledAfterReset = !(screen.getByRole("button", { name: "继续" }) as HTMLButtonElement).disabled;
+    fireEvent.click(screen.getByRole("button", { name: "未逐项评估的技能设为不确定" }));
+    const observed = level("typescript", "unseen").checked ? "unseen" : "uncertain";
+    outcomes.startOver = { status: observed === "uncertain" && !acknowledgedAfterReset ? "passed" : "reproduced-gap", adoptedThenResetTypeScript: observed, untouchedSql: level("sql", "uncertain").checked ? "uncertain" : "other", expectedAfterResetAndExplicitUnknown: "uncertain", acknowledgedAfterReset, continueEnabledAfterReset };
+    expect.soft(observed).toBe("uncertain");
+    expect.soft(acknowledgedAfterReset).toBe(false);
+    expect.soft(continueEnabledAfterReset).toBe(false);
+  });
+});

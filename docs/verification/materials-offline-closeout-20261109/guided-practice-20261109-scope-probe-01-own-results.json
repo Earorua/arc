@@ -1,0 +1,146 @@
+{
+  "status": "confirmed-scope-borrowing",
+  "result": {
+    "text": "我在指导下清洗数据，记录了同事的 SQL 工作。",
+    "labels": [
+      "data cleaning",
+      "SQL"
+    ],
+    "scopes": [
+      {
+        "raw": "我在指导下清洗数据，记录了同事的 SQL 工作。",
+        "text": "我在指导下清洗数据，记录了同事的 SQL 工作。",
+        "old": null,
+        "current": "我在指导下清洗数据，记录了同事的 SQL 工作。"
+      }
+    ],
+    "defaultHint": false,
+    "currentHint": true,
+    "defaultQuestion": false,
+    "currentQuestion": true,
+    "v2": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下清洗数据，记录了同事的 SQL 工作。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "data cleaning",
+              "SQL"
+            ],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据，记录了同事的 SQL 工作。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "v3": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下清洗数据，记录了同事的 SQL 工作。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "data cleaning",
+              "SQL"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据，记录了同事的 SQL 工作。"
+            }
+          }
+        ],
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据，记录了同事的 SQL 工作。"
+            }
+          }
+        ]
+      },
+      "extractionRead": "parsed"
+    },
+    "independentSite": {
+      "reviewProjection": "source-skill-mentions-v3",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据，记录了同事的 SQL 工作。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 24
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning",
+            "SQL"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        },
+        {
+          "id": "hint-candidate-1-1",
+          "candidateId": "candidate-1",
+          "skillLabel": "SQL",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    }
+  },
+  "sources": {
+    "app/contracts/document-capabilities.ts": "794c5bd4e1d1b75a065acb07ce7cfdf4ae86bd517ba8a9f86ed8f5edd9cc472d",
+    "app/contracts/documents-api.ts": "3a989194c2295f19d6807a3f5e9bd08a529f7b2c60197d274ba239d4d9ecbc93",
+    "app/contracts/documents.ts": "a66e8e843dca7817c2e36253702c10434f184aba3ae1b3be7c52d254695b9b9e",
+    "app/contracts/intelligence.ts": "22e4bde2ff3f059135b861f47b26d4686a92d6ccb4bcf386764e18245305e9f6",
+    "app/contracts/material-planning.ts": "d49cd8786457ab59944ce0caca9185acf2b0a006705a69ddff8180b0abe104f6",
+    "app/contracts/material-recovery.ts": "25f2012b6f6c0da0be119085f1deec80f98db1c39c3971ac8a5e3665cc862e8a",
+    "app/contracts/planning-api.ts": "a34be40b24dbedc065088e0162bf3fafdddc45d7c4ffddaa0727ab9409ad55d9",
+    "app/contracts/planning.ts": "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93",
+    "app/contracts/research.ts": "fd2731a493aee01f6e21814998b1c1fa0c7afd998a194eae7df7ceb13c49ae1b",
+    "app/lib/materials/experience-evidence.ts": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec",
+    "app/lib/materials/grounded-skill-terms.ts": "fa3c23292ed421f3e9ac50a2d09e3dbf636331398160a9bac27152b1d3d7afc7",
+    "app/lib/materials/personal-assertion-scopes.ts": "f23f75011cc661b7eaa8dee4b2096b1be56118222b0f9846ec27abf5864e3bd2",
+    "app/lib/materials/quotation-evidence.ts": "03a77ad110f67b56b7f1d6f28facdf9c70a92d0e7cd152ecdad806967297516a",
+    "app/lib/materials/self-assessment-evidence.ts": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+    "app/lib/materials/skill-labels.ts": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+    "app/lib/planning/fingerprint.ts": "88bc521500da91d55e824b0721a511a8ea94cf750743805c209ec4735fb64e11",
+    "app/server/documents/d1-repository.ts": "6371159830da4b26ec3ccc2dace5939c556ee54eb510f3c352629d259c02db36",
+    "app/server/documents/extraction-validator.ts": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+    "app/server/documents/policy.ts": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d",
+    "app/server/documents/review-points.ts": "a6d7f26e42c0dcef85d649237e92f0f2cf9c3836d3b45984f8e15343720a0c06",
+    "tests/helpers/material-guided-cleaning.ts": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce",
+    "worker/document-executor/source-requirement-evidence.ts": "ce98fac8b373f2b4279e9ab476fc352a6a9b3fe146ae7cae44ebd330e453d4e3",
+    "worker/document-executor/source-review-evidence.ts": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+    "worker/document-executor/source-span-extraction.ts": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef",
+    "worker/document-executor/source-statements.ts": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab"
+  },
+  "probeSha256": "ec03a88610bfcd5b81c1135e79aaece0d26f8b61a7ec341015c9051defd87578",
+  "bundleSha256": "740d8130669955642cbe7b01052dd10da239cb252706def0acb9f00452fecb7f",
+  "realModelCalls": 0
+}

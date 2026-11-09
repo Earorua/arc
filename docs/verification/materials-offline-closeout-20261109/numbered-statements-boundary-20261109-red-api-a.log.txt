@@ -1,0 +1,30 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [31m❯[39m tests/server/material-numbered-statements.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 5[2mms[22m[39m
+[31m     [31m×[31m accepts the complete numbered statement while preserving its body and legacy coordinates[39m[32m 4[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-numbered-statements.test.ts[2m > [22mcomplete numbered source-mention statements[2m > [22maccepts the complete numbered statement while preserving its body and legacy coordinates
+[31m[1mAssertionError[22m: expected undefined to be type of 'function'[39m
+
+Expected: [32m"[7mf[27mun[7mction[27m"[39m
+Received: [31m"un[7mdefined[27m"[39m
+
+[36m [2m❯[22m tests/server/material-numbered-statements.test.ts:[2m7:49[22m[39m
+    [90m  5|[39m [34mdescribe[39m([32m"complete numbered source-mention statements"[39m[33m,[39m () [33m=>[39m {
+    [90m  6|[39m   it("accepts the complete numbered statement while preserving its bod…
+    [90m  7|[39m     [34mexpect[39m(completeNumberedStatementBoundaries)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m   |[39m                                                 [31m^[39m
+    [90m  8|[39m     [34mexpect[39m(sourceMentionStatementBoundaries)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m  9|[39m     [35mconst[39m text [33m=[39m [32m"1. I practiced SQL with a mentor."[39m[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 18:55:08
+[2m   Duration [22m 1.41s[2m (transform 127ms, setup 226ms, import 214ms, tests 5ms, environment 803ms)[22m
+

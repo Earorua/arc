@@ -1,0 +1,1 @@
+{"status":"diagnosis-confirmed","cases":18,"realModelCalls":0,"output":"work/grounded-verification/guided-practice-diagnosis-20261109-01-results.json","natural":{"topic":["data cleaning"],"actionMatch":null,"providerHint":null,"siteHints":0},"working":{"actionMatch":"练习","providerHint":"guided","siteHints":1}}

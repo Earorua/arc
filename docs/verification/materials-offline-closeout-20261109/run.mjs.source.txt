@@ -1,0 +1,27 @@
+import {spawnSync} from "node:child_process";
+import {openSync, closeSync, readFileSync, writeFileSync, mkdirSync, mkdtempSync, realpathSync} from "node:fs";
+import {homedir} from "node:os";
+import {join,resolve,sep} from "node:path";
+import {stripVTControlCharacters} from "node:util";
+import {createHash} from "node:crypto";
+const root = realpathSync(process.cwd()), [name, ...args] = process.argv.slice(2);
+if (!/^[a-z0-9-]+$/.test(name) || !args.length) throw Error("missing name or command");
+const work = join(root,"work","grounded-verification");
+mkdirSync(work,{recursive:true});
+const profile = mkdtempSync(join(homedir(),"AppData","Local","Temp","arc-grounded-check-"));
+const cwd = process.env.ARC_LOCAL_GROUNDED_CHECKOUT || root;
+const env = Object.fromEntries(["Path","SystemRoot","ComSpec","WINDIR","PATHEXT","SystemDrive","ProgramFiles","ProgramFiles(x86)","NUMBER_OF_PROCESSORS","PROCESSOR_ARCHITECTURE"].filter(k=>process.env[k]).map(k=>[k,process.env[k]]));
+const blocked=join(profile,"network.log");writeFileSync(blocked,"");
+Object.assign(env,{USERPROFILE:profile,APPDATA:profile,LOCALAPPDATA:profile,TEMP:profile,TMP:profile,XDG_CONFIG_HOME:profile,GIT_ALLOW_PROTOCOL:"file",GIT_TERMINAL_PROMPT:"0",
+  ARC_SUPPLEMENT_COLLECTION_ENABLED:"false",ARC_DOCUMENT_QUALIFICATION_ENABLED:"false",ARC_DOCUMENT_PILOT_ENABLED:"false",ARC_DOCUMENT_PRODUCTION_ENABLED:"false",
+  NEXT_TELEMETRY_DISABLED:"1",WRANGLER_SEND_METRICS:"false",CLOUDFLARE_SEND_METRICS:"false",npm_config_offline:"true",NO_UPDATE_NOTIFIER:"1",
+  ARC_CLOUDFLARE_TARGET:join(cwd,"tests/fixtures/build/materials-acceptance.json"),ARC_LOCAL_BUILD_DENIAL_LOG:blocked,
+  NODE_OPTIONS:'--require "'+resolve("work/materials-browser-handoff/block-outbound.cjs").split(sep).join("/")+'"'});
+const log=join(work,name+".log"),fd=openSync(log,"w"),start=Date.now();let r;
+try{r=spawnSync(process.execPath,args,{cwd,env,windowsHide:true,stdio:["ignore",fd,fd]});}finally{closeSync(fd);}
+const buf=readFileSync(log),plain=stripVTControlCharacters(buf.toString("utf8"));
+const outcome={name,exit:r.status,elapsedMs:Date.now()-start,logSha256:createHash("sha256").update(buf).digest("hex"),nonLoopbackDenials:readFileSync(blocked).length,profile};
+writeFileSync(join(work,name+".json"),JSON.stringify(outcome,null,2)+"\n");
+console.log(JSON.stringify(outcome));console.log(plain.split(/\r?\n/).slice(r.status===0?-9:-60).join("\n").slice(-6200));
+if(r.error)throw r.error;
+process.exitCode=outcome.nonLoopbackDenials?5:r.status??2;

@@ -1,0 +1,55 @@
+{
+  "actualFlow": {
+    "status": "passed",
+    "adoptionOptional": true,
+    "factsDoNotAdopt": true,
+    "singleAdoptionWorked": true,
+    "manualOverrideSurvivedReload": true,
+    "unmentionedUncertainExplicit": true,
+    "auditExactAfterD1Reload": true,
+    "frozenContextMatchesFinalAudit": true,
+    "finalLevels": {
+      "web-platform": "conceptual",
+      "typescript": "independent",
+      "react": "uncertain",
+      "design-systems": "uncertain",
+      "http-apis": "uncertain",
+      "edge-runtime": "uncertain",
+      "sql": "uncertain",
+      "object-storage": "uncertain",
+      "testing": "uncertain",
+      "security": "uncertain",
+      "cloud-delivery": "uncertain",
+      "observability": "uncertain",
+      "llm-contracts": "uncertain",
+      "retrieval": "uncertain",
+      "product-thinking": "uncertain",
+      "proof-of-work": "uncertain"
+    },
+    "schemaVersion": "2026.08.1",
+    "evidence": [],
+    "pathKinds": {
+      "typescript": [
+        "calibrate"
+      ],
+      "sql": [
+        "calibrate",
+        "learn"
+      ]
+    }
+  },
+  "currentMapping": {
+    "status": "passed",
+    "unknownExcluded": true,
+    "ambiguousExcluded": true,
+    "removedFactExcluded": true
+  },
+  "startOver": {
+    "status": "reproduced-gap",
+    "adoptedThenResetTypeScript": "unseen",
+    "untouchedSql": "uncertain",
+    "expectedAfterResetAndExplicitUnknown": "uncertain",
+    "acknowledgedAfterReset": true,
+    "continueEnabledAfterReset": true
+  }
+}

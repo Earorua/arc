@@ -1,0 +1,150 @@
+{
+  "status": "implementation frozen for root review; no commit",
+  "baseHead": "820a98aa6e904048ed71719882c4967596fbdcb5",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "ownedPaths": [
+    {
+      "path": "app/components/setup/adaptive-setup-flow.tsx",
+      "sha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf"
+    },
+    {
+      "path": "tests/components/material-adoption-persistence.test.tsx",
+      "sha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209"
+    }
+  ],
+  "runs": [
+    {
+      "label": "adoption-persistence-20261109-red-01",
+      "exit": 1,
+      "nonLoopbackDenials": 0,
+      "elapsedMs": 5638,
+      "logSha256": "59d83f34024c145da0378a821448f8a2835e31c7c9897c3444d25c1fd2582c69",
+      "files": 1,
+      "tests": 5,
+      "passed": 4,
+      "failed": 1,
+      "pending": 0
+    },
+    {
+      "label": "adoption-persistence-20261109-green-01",
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "elapsedMs": 6588,
+      "logSha256": "90101ca4b6b50ff7b32b453f6007cdf151a0d5e17f9c04badbc70b3005c93135",
+      "files": 1,
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "label": "adoption-persistence-20261109-related-01",
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "elapsedMs": 10470,
+      "logSha256": "6c4c81b127ada9832ab3886871f21cf8f2c4376314f3fec6d8b1c6fdc7409173",
+      "files": 9,
+      "tests": 150,
+      "passed": 150,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "label": "adoption-persistence-20261109-lint-01",
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "elapsedMs": 5834,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "adoption-persistence-20261109-types-01",
+      "exit": 0,
+      "nonLoopbackDenials": 0,
+      "elapsedMs": 16259,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-green-01-adaptive-setup-flow.tsx.source.txt",
+      "sha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-green-01-own-results.json",
+      "sha256": "7259841165a357f818ff282eb2fc464979f1f30042bbd5f4f039c9916405185f"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-green-01-test.tsx.source.txt",
+      "sha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-green-01.json",
+      "sha256": "da1e6109ccb2b3cad9370ba8749b2c46921c71a9862d3ae6470c33dc6bd26e9b"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-green-01.log",
+      "sha256": "90101ca4b6b50ff7b32b453f6007cdf151a0d5e17f9c04badbc70b3005c93135"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-handoff.md",
+      "sha256": "10e5455fccf29013027a99afb38e87a59eec89dc114ff1c8f5384d24ff0b91cf"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-lint-01.json",
+      "sha256": "89050a8f9ecfb4c3ef1872b429b8e590f238b932e31bda5b35ab5d1755eb8ae9"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-lint-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-red-01-adaptive-setup-flow.tsx.source.txt",
+      "sha256": "b3dfffff8bd4fc8465950ee500e2237abddf5b92ead388772425db16fc39da7b"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-red-01-own-results.json",
+      "sha256": "bb6cc967cfcf48adab4c9085fb357f445c8dca4fb16d957edb7dbe6e5dcca868"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-red-01-test.tsx.source.txt",
+      "sha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-red-01.json",
+      "sha256": "ed635dbc59312815d1c144db52c532b6586e043c9224e810f37a1eec709ee34c"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-red-01.log",
+      "sha256": "59d83f34024c145da0378a821448f8a2835e31c7c9897c3444d25c1fd2582c69"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-related-01-own-results.json",
+      "sha256": "c97c988abaa7a8736a6746a88f071c8fbddaf459d7ccf33843528b37f8df0546"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-related-01.json",
+      "sha256": "1d62c985e4df1a71da370b8c252451af82d4ecd3db225bd2f3b3b615320477e9"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-related-01.log",
+      "sha256": "6c4c81b127ada9832ab3886871f21cf8f2c4376314f3fec6d8b1c6fdc7409173"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-tsconfig.json",
+      "sha256": "0e346ee85e8661ad2cc6f5987fce8513a0d61ded895cddb4f5e4c6fd821e2582"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-types-01.json",
+      "sha256": "6dad5be7c23d08fe304ef59ae935c6b12da795abcad7e895f5b9c0f8c6c50ae8"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-types-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limitations": [
+    "Synthetic DocumentsClient document and selection metadata; actual context/service/D1 persistence, no full HTTP transport",
+    "No full-repository, model, deployment or release gate; root owns final gate",
+    "Existing CRLF retained; diff check uses core.whitespace=cr-at-eol"
+  ]
+}

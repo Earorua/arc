@@ -1,0 +1,47 @@
+{
+  "status": "read-only diagnosis; one demonstrated reset defect remains",
+  "head": "1f65e4a483399db8fb6c143e076f3d7523675399",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "testFiles": 1,
+  "tests": 4,
+  "passed": 3,
+  "failed": 1,
+  "exit": 1,
+  "nonLoopbackDenials": 0,
+  "artifacts": [
+    {
+      "path": "work\\grounded-verification\\adoption-persistence-diagnosis-20261109-probe-05.test.tsx.source.txt",
+      "sha256": "99be86df4410b7ef2de9ea89eff5e19eab5f196c2651ac831e571c643edbadee"
+    },
+    {
+      "path": "work\\grounded-verification\\adoption-persistence-diagnosis-20261109-probe-05.config.ts.source.txt",
+      "sha256": "8a4ca39c625dc49f5e9d47c195a40707a8e24a16338298de58bb46192a25eb35"
+    },
+    {
+      "path": "work\\grounded-verification\\adoption-persistence-diagnosis-20261109-probe-05-adaptive-setup-flow.tsx.source.txt",
+      "sha256": "b3dfffff8bd4fc8465950ee500e2237abddf5b92ead388772425db16fc39da7b"
+    },
+    {
+      "path": "work\\grounded-verification\\adoption-persistence-diagnosis-20261109-probe-05-results.json",
+      "sha256": "bd3e2c9f6a0de96f28b78262f2b6458b277bc95ab0cc5976f75e3ee7c8b1bd2a"
+    },
+    {
+      "path": "work\\grounded-verification\\adoption-persistence-diagnosis-20261109-probe-05-observations.json",
+      "sha256": "6875b059135ad4801d696f8ab97a687739500f833d04a77db13d8680c4dbaf6b"
+    },
+    {
+      "path": "work\\grounded-verification\\adoption-persistence-diagnosis-20261109-probe-05.json",
+      "sha256": "0e947acc3843ae9dae120dbf9d0d18e05cbf1fa60abf4d9caee45ffc250a3c49"
+    },
+    {
+      "path": "work\\grounded-verification\\adoption-persistence-diagnosis-20261109-probe-05.log",
+      "sha256": "574736e8f91bbddde7c37771cd1254f30caeb42a29e52d71c001190ca9189d49"
+    }
+  ],
+  "incompleteRun": {
+    "label": "adoption-persistence-diagnosis-20261109-probe-01",
+    "exit": 1,
+    "acceptedAsEvidence": false,
+    "reason": "merged include glob selected broad suite; interrupted; original config/raw log preserved; zero matching node or Vitest processes after interruption"
+  }
+}

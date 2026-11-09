@@ -1,0 +1,17 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:42840) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/components/material-adoption-persistence.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 3314[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps grounded-skill-labels-v2 adoption optional and persists the explicit audit after a manual override and remount [33m 1263[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps source-skill-mentions-v3 adoption optional and persists the explicit audit after a manual override and remount [33m 918[2mms[22m[39m
+     [33m[2m✓[22m[39m persists an adopted guided level with the existing public project evidence reference [33m 668[2mms[22m[39m
+     [33m[2m✓[22m[39m clears prior skill review and acknowledgment when explicitly restarting the role audit [33m 448[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 20:15:53
+[2m   Duration [22m 5.07s[2m (transform 478ms, setup 212ms, import 662ms, tests 3.31s, environment 723ms)[22m
+
+JSON report written to C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/adoption-persistence-spec-20261109-focused-01-own-results.json

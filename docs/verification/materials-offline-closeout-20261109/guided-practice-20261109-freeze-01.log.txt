@@ -1,0 +1,1 @@
+{"status":"scoped-fix-frozen","sourceFiles":12,"focused":65,"regression":1329,"output":"work\\grounded-verification\\guided-practice-20261109-freeze-01-own-results.json","sha256":"3f264e37dd4a8d30ee035389f9f1a5eca9e6e2e84cce18ce48b668b9374a34a2"}

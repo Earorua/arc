@@ -1,0 +1,15 @@
+
+D:\CodexTemp\arc-materials-closeout-bCGZHw\source\tests\api\research-completed-acknowledgement.test.ts
+  213:35  warning  '_oldFingerprint' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\CodexTemp\arc-materials-closeout-bCGZHw\source\tests\server\research-executor-runtime.test.ts
+  1394:41  warning  '_options' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\CodexTemp\arc-materials-closeout-bCGZHw\source\tests\server\research-planning-integration.test.ts
+  153:33  warning  '_old' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\CodexTemp\arc-materials-closeout-bCGZHw\source\tests\server\research-service-binding-transport.test.ts
+  20:51  warning  '_request' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 4 problems (0 errors, 4 warnings)
+

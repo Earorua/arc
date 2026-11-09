@@ -1,0 +1,1 @@
+{"status":"COMPATIBILITY_MATCHED","observedSha256":"4b8f798db0a43a034a82690133c1e9cb0ba5f3d83091492a9c59211e6a9a5a07","providerCases":150,"helpers":20,"output":"work/grounded-verification/offline-closeout-compatibility-final-20261109-a-results.json","realModelCalls":0}

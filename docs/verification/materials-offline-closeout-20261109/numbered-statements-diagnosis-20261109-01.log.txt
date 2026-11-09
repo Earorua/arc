@@ -1,0 +1,16 @@
+C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\node_modules\esbuild\lib\main.js:1230
+      if (error) return callback(new Error(error), null);
+                                 ^
+
+Error: [virtual-plan] "onResolve" filter is not a valid Go regular expression: "(?u)^probe:"
+    at C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\node_modules\esbuild\lib\main.js:1230:34
+    at responseCallbacks.<computed> (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\node_modules\esbuild\lib\main.js:884:9)
+    at handleIncomingPacket (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\node_modules\esbuild\lib\main.js:938:31)
+    at Socket.readFromStdout (C:\Users\XF\.codex\worktrees\materials-replan-recovery\ui-warm-precision\node_modules\esbuild\lib\main.js:862:7)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:563:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+    at Readable.push (node:internal/streams/readable:394:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+
+Node.js v24.14.1

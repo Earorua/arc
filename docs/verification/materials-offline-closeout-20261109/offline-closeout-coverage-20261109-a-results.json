@@ -1,0 +1,1625 @@
+{
+  "status": "PASS",
+  "sourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+  "sourceManifestSha256": "49323efc6738ecf9df2a5505d791d163559912ae053ce034714b87c622273765",
+  "sourceFileCount": 1014,
+  "vitestFiles": 384,
+  "vitestTests": 10009,
+  "groups": [
+    {
+      "name": "offline-closeout-full-unit-20261109-a",
+      "files": [
+        {
+          "path": "tests/server/kimi-launcher-policy.test.ts",
+          "tests": 56
+        },
+        {
+          "path": "tests/server/research-cloud-smoke-build.test.ts",
+          "tests": 43
+        },
+        {
+          "path": "tests/server/research-cloud-smoke-replay.test.ts",
+          "tests": 188
+        },
+        {
+          "path": "tests/build/materials-production-package.test.ts",
+          "tests": 19
+        },
+        {
+          "path": "tests/server/research-executor-maintenance.test.ts",
+          "tests": 33
+        },
+        {
+          "path": "tests/server/research-cloud-smoke-launcher.test.ts",
+          "tests": 34
+        },
+        {
+          "path": "tests/server/document-executor-runtime.test.ts",
+          "tests": 13
+        },
+        {
+          "path": "tests/components/research-setup-activation.test.tsx",
+          "tests": 103
+        },
+        {
+          "path": "tests/server/research-public-integration.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/research-executor-runtime.test.ts",
+          "tests": 72
+        },
+        {
+          "path": "tests/server/document-production-workflow.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/server/research-executor-receipt-store.test.ts",
+          "tests": 26
+        },
+        {
+          "path": "tests/server/site-import.test.ts",
+          "tests": 44
+        },
+        {
+          "path": "tests/server/d1-site-import-publication.test.ts",
+          "tests": 57
+        },
+        {
+          "path": "tests/lib/planning/local-repository.test.ts",
+          "tests": 25
+        },
+        {
+          "path": "tests/server/site-import-native-d1.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/server/document-workflow-probe.test.ts",
+          "tests": 18
+        },
+        {
+          "path": "tests/server/material-context-only-adoption.test.ts",
+          "tests": 26
+        },
+        {
+          "path": "tests/server/remote-public-reader.test.ts",
+          "tests": 89
+        },
+        {
+          "path": "tests/lib/use-planning-workspace.test.tsx",
+          "tests": 45
+        },
+        {
+          "path": "tests/api/research-completed-acknowledgement.test.ts",
+          "tests": 31
+        },
+        {
+          "path": "tests/components/setup-flow.test.tsx",
+          "tests": 19
+        },
+        {
+          "path": "tests/build/document-fake-transport.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/server/live-research-validation.test.ts",
+          "tests": 65
+        },
+        {
+          "path": "tests/components/materials-b0-rehearsal.test.tsx",
+          "tests": 1
+        },
+        {
+          "path": "tests/server/d1-site-import-repository.test.ts",
+          "tests": 69
+        },
+        {
+          "path": "tests/server/d1-site-execution-repository.test.ts",
+          "tests": 87
+        },
+        {
+          "path": "tests/server/site-expiry.test.ts",
+          "tests": 25
+        },
+        {
+          "path": "tests/pages/setup-time-edit.test.tsx",
+          "tests": 17
+        },
+        {
+          "path": "tests/server/d1-site-begin-repository.test.ts",
+          "tests": 46
+        },
+        {
+          "path": "tests/components/research-workspace-pages.test.tsx",
+          "tests": 38
+        },
+        {
+          "path": "tests/components/material-adoption-persistence.test.tsx",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/auth-migration-runtime.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/d1-research-budget-repository.test.ts",
+          "tests": 90
+        },
+        {
+          "path": "tests/components/skill-audit-step.test.tsx",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/live-native-transport.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/components/adaptive-setup-flow.test.tsx",
+          "tests": 9
+        },
+        {
+          "path": "tests/server/d1-research-repository.test.ts",
+          "tests": 121
+        },
+        {
+          "path": "tests/server/site-admission.test.ts",
+          "tests": 35
+        },
+        {
+          "path": "tests/server/material-adopted-refs.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/live-account-check.test.ts",
+          "tests": 126
+        },
+        {
+          "path": "tests/api/research-bridge-routes.test.ts",
+          "tests": 34
+        },
+        {
+          "path": "tests/server/site-import-integration.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/research-cloud-smoke-control.test.ts",
+          "tests": 83
+        },
+        {
+          "path": "tests/components/stack-browser.test.tsx",
+          "tests": 16
+        },
+        {
+          "path": "tests/lib/material-workspace-selection.test.tsx",
+          "tests": 16
+        },
+        {
+          "path": "tests/server/live-launcher-output.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/components/accessibility-contracts.test.tsx",
+          "tests": 24
+        },
+        {
+          "path": "tests/server/material-replan-atomic.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/server/d1-site-bridge-repository.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/server/document-storage-runtime.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/document-review-draft.test.ts",
+          "tests": 131
+        },
+        {
+          "path": "tests/components/setup-resume.test.tsx",
+          "tests": 7
+        },
+        {
+          "path": "tests/components/setup-completion.test.tsx",
+          "tests": 11
+        },
+        {
+          "path": "tests/build/research-acceptance-build.test.ts",
+          "tests": 102
+        },
+        {
+          "path": "tests/server/research-service-factory.test.ts",
+          "tests": 31
+        },
+        {
+          "path": "tests/server/minimal-probe-transport.test.ts",
+          "tests": 29
+        },
+        {
+          "path": "tests/components/adaptive-today-session.test.tsx",
+          "tests": 18
+        },
+        {
+          "path": "tests/server/research-orchestrator.test.ts",
+          "tests": 66
+        },
+        {
+          "path": "tests/server/material-learning-intent-flow.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/document-production-admission.test.ts",
+          "tests": 42
+        },
+        {
+          "path": "tests/lib/use-arc-state.test.tsx",
+          "tests": 16
+        },
+        {
+          "path": "tests/components/material-context-choices.test.tsx",
+          "tests": 29
+        },
+        {
+          "path": "tests/components/availability-step.test.tsx",
+          "tests": 5
+        },
+        {
+          "path": "tests/api/r9-completion-latency-diagnostic.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/pages/setup.test.tsx",
+          "tests": 7
+        },
+        {
+          "path": "tests/components/material-confirmation-source.test.tsx",
+          "tests": 99
+        },
+        {
+          "path": "tests/server/research-closed-preflight.test.ts",
+          "tests": 39
+        },
+        {
+          "path": "tests/server/d1-planning-repository.test.ts",
+          "tests": 21
+        },
+        {
+          "path": "tests/server/research-planning-integration.test.ts",
+          "tests": 30
+        },
+        {
+          "path": "tests/components/learning-coach.test.tsx",
+          "tests": 26
+        },
+        {
+          "path": "tests/components/role-research-panel.test.tsx",
+          "tests": 42
+        },
+        {
+          "path": "tests/lib/planning/parity.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/build/research-acceptance-target.test.ts",
+          "tests": 111
+        },
+        {
+          "path": "tests/pages/path.test.tsx",
+          "tests": 15
+        },
+        {
+          "path": "tests/server/remote-public-service.test.ts",
+          "tests": 37
+        },
+        {
+          "path": "tests/server/research-request-contract.test.ts",
+          "tests": 16
+        },
+        {
+          "path": "tests/server/material-detach.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/document-acceptance-admission.test.ts",
+          "tests": 22
+        },
+        {
+          "path": "tests/components/account-menu.test.tsx",
+          "tests": 27
+        },
+        {
+          "path": "tests/components/materials-plan-diff.test.tsx",
+          "tests": 15
+        },
+        {
+          "path": "tests/api/r9-completion-roundtrip-diagnostic.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/components/stack-proof-navigation.test.tsx",
+          "tests": 35
+        },
+        {
+          "path": "tests/components/today-session.test.tsx",
+          "tests": 3
+        },
+        {
+          "path": "tests/build/cloudflare-build.test.ts",
+          "tests": 45
+        },
+        {
+          "path": "tests/server/research-quality-orchestrator.test.ts",
+          "tests": 16
+        },
+        {
+          "path": "tests/server/material-practice-priorities.test.ts",
+          "tests": 32
+        },
+        {
+          "path": "tests/server/material-mention-review-flow.test.ts",
+          "tests": 22
+        },
+        {
+          "path": "tests/server/research-service-binding-integration.test.ts",
+          "tests": 15
+        },
+        {
+          "path": "tests/server/live-result-diagnostics.test.ts",
+          "tests": 74
+        },
+        {
+          "path": "tests/server/d1-site-import-snapshot.test.ts",
+          "tests": 33
+        },
+        {
+          "path": "tests/server/d1-entitlement-repository.test.ts",
+          "tests": 71
+        },
+        {
+          "path": "tests/components/plan-diff-review.test.tsx",
+          "tests": 8
+        },
+        {
+          "path": "tests/server/site-import-validation.test.ts",
+          "tests": 16
+        },
+        {
+          "path": "tests/server/auth-migration-cleanup.test.ts",
+          "tests": 46
+        },
+        {
+          "path": "tests/server/material-confirmed-skill-labels.test.ts",
+          "tests": 12
+        },
+        {
+          "path": "tests/components/material-source-term-correction.test.tsx",
+          "tests": 4
+        },
+        {
+          "path": "tests/lib/use-proof-ledger.test.tsx",
+          "tests": 9
+        },
+        {
+          "path": "tests/components/research-recovery-interaction.test.tsx",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/material-mappings.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/server/live-response-preflight.test.ts",
+          "tests": 13
+        },
+        {
+          "path": "tests/components/material-library.test.tsx",
+          "tests": 15
+        },
+        {
+          "path": "tests/server/research-cloud-smoke-transports.test.ts",
+          "tests": 44
+        },
+        {
+          "path": "tests/components/adaptive-path.test.tsx",
+          "tests": 15
+        },
+        {
+          "path": "tests/pages/sign-in.test.tsx",
+          "tests": 15
+        },
+        {
+          "path": "tests/server/research-bridge-transport.test.ts",
+          "tests": 46
+        },
+        {
+          "path": "tests/server/live-quality-diagnostic.test.ts",
+          "tests": 17
+        },
+        {
+          "path": "tests/server/openrouter-response-compatibility.test.ts",
+          "tests": 64
+        },
+        {
+          "path": "tests/api/planning.test.ts",
+          "tests": 25
+        },
+        {
+          "path": "tests/server/research-policy-migration-integration.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/components/evidence-navigation.test.tsx",
+          "tests": 25
+        },
+        {
+          "path": "tests/components/materials-boundaries.test.tsx",
+          "tests": 7
+        },
+        {
+          "path": "tests/components/plan-history.test.tsx",
+          "tests": 8
+        },
+        {
+          "path": "tests/server/live-native-fetch-diagnostic.test.ts",
+          "tests": 18
+        },
+        {
+          "path": "tests/components/migration-banner.test.tsx",
+          "tests": 8
+        },
+        {
+          "path": "tests/components/materials-ai-flow.test.tsx",
+          "tests": 13
+        },
+        {
+          "path": "tests/server/research-search-policy.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/components/account-link-panel.test.tsx",
+          "tests": 10
+        },
+        {
+          "path": "tests/server/material-proposal-public-view.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/api/research-routes.test.ts",
+          "tests": 58
+        },
+        {
+          "path": "tests/pages/today.test.tsx",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/material-supplement-flow.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/server/live-response-format.test.ts",
+          "tests": 15
+        },
+        {
+          "path": "tests/components/material-generation-recovery.test.tsx",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/material-generation-atomic.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/lib/use-material-selection.test.tsx",
+          "tests": 3
+        },
+        {
+          "path": "tests/components/public-learning-entry.test.tsx",
+          "tests": 17
+        },
+        {
+          "path": "tests/pages/stack-evidence-restoration.test.tsx",
+          "tests": 2
+        },
+        {
+          "path": "tests/lib/planning/event-reducer.test.ts",
+          "tests": 21
+        },
+        {
+          "path": "tests/server/planning-security.test.ts",
+          "tests": 15
+        },
+        {
+          "path": "tests/components/agent-companion.test.tsx",
+          "tests": 27
+        },
+        {
+          "path": "tests/components/materials-setup.test.tsx",
+          "tests": 7
+        },
+        {
+          "path": "tests/server/planning-service.test.ts",
+          "tests": 16
+        },
+        {
+          "path": "tests/server/live-candidate-diagnostic.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/db/site-execution-migration.test.ts",
+          "tests": 72
+        },
+        {
+          "path": "tests/components/case-showcase.test.tsx",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/auth-migration-link-callback.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/server/live-transport-diagnostics.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/server/learning-agents.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/server/research-quality-observation.test.ts",
+          "tests": 58
+        },
+        {
+          "path": "tests/server/material-learning-intents.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/pages/workspace-state.test.tsx",
+          "tests": 7
+        },
+        {
+          "path": "tests/components/materials-recovery.test.tsx",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/kimi-local-validation.test.ts",
+          "tests": 13
+        },
+        {
+          "path": "tests/server/document-acceptance-budget.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/lib/planning/agent-replanned.test.ts",
+          "tests": 12
+        },
+        {
+          "path": "tests/db/research-migration.test.ts",
+          "tests": 48
+        },
+        {
+          "path": "tests/components/proof-workspace.test.tsx",
+          "tests": 13
+        },
+        {
+          "path": "tests/components/material-workspace-adoption.test.tsx",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/auth-migration-link-reset.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/offline-uat/composition.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/offline-uat/storage-smoke.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/document-cancellation-delivery.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/server/materials-e2e.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/components/agent-context.test.tsx",
+          "tests": 12
+        },
+        {
+          "path": "tests/server/material-guided-cleaning.test.ts",
+          "tests": 36
+        },
+        {
+          "path": "tests/server/provider-failure-diagnostic.test.ts",
+          "tests": 108
+        },
+        {
+          "path": "tests/server/material-generation-recovery.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/components/target-step.test.tsx",
+          "tests": 4
+        },
+        {
+          "path": "tests/components/material-guided-cleaning.test.tsx",
+          "tests": 7
+        },
+        {
+          "path": "tests/components/sign-in-panel.test.tsx",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/document-source-span-provider.test.ts",
+          "tests": 175
+        },
+        {
+          "path": "tests/server/research-executor-job-store.test.ts",
+          "tests": 72
+        },
+        {
+          "path": "tests/server/live-research-failure-summary.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/lib/planning-client.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/components/seven-day-timeline.test.tsx",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/account-recovery.test.ts",
+          "tests": 18
+        },
+        {
+          "path": "tests/server/site-import-diagnostic.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/pages/home.test.tsx",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/agent-context.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/contracts/planning.test.ts",
+          "tests": 122
+        },
+        {
+          "path": "tests/server/research-package-validator.test.ts",
+          "tests": 97
+        },
+        {
+          "path": "tests/server/document-source-review-evidence.test.ts",
+          "tests": 448
+        },
+        {
+          "path": "tests/server/document-jobs.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/components/site-header.test.tsx",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/live-output-budget.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/document-deletion-races.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/lib/use-role-research.test.tsx",
+          "tests": 81
+        },
+        {
+          "path": "tests/components/material-detach.test.tsx",
+          "tests": 1
+        },
+        {
+          "path": "tests/components/cloud-recovery.test.tsx",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/auth-migration-identity.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/components/basic-time-edit.test.tsx",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/openrouter-provider.test.ts",
+          "tests": 138
+        },
+        {
+          "path": "tests/lib/offline-queue.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/auth-oauth-diagnostics.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/server/material-context.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/research-executor-nonce-store.test.ts",
+          "tests": 51
+        },
+        {
+          "path": "tests/server/auth-migration-oauth-state.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/db/site-import-migration.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/auth-migration-credentials.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/research-bridge-contract.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/server/document-storage.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/components/workspace-header.test.tsx",
+          "tests": 7
+        },
+        {
+          "path": "tests/pages/evidence-account-boundary.test.tsx",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/document-model-diagnostic-pilot.test.ts",
+          "tests": 16
+        },
+        {
+          "path": "tests/server/d1-admin-research-health.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/pages/admin.test.tsx",
+          "tests": 4
+        },
+        {
+          "path": "tests/pages/proof-origin-boundary.test.tsx",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/planning-history.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/lib/research-client.test.ts",
+          "tests": 61
+        },
+        {
+          "path": "tests/server/research-resource-access.test.ts",
+          "tests": 31
+        },
+        {
+          "path": "tests/pages/public-information.test.tsx",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/document-model-qualification-guards.test.ts",
+          "tests": 23
+        },
+        {
+          "path": "tests/pages/session-hydration.test.tsx",
+          "tests": 8
+        },
+        {
+          "path": "tests/lib/planning/scheduler.test.ts",
+          "tests": 45
+        },
+        {
+          "path": "tests/lib/planning/material-path-builder.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/server/research-source-authority.test.ts",
+          "tests": 33
+        },
+        {
+          "path": "tests/db/release-schema-snapshot.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/components/account-boundary.test.tsx",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/account-link-service.test.ts",
+          "tests": 59
+        },
+        {
+          "path": "tests/server/research-quality-contract.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/server/document-generation-audit.test.ts",
+          "tests": 51
+        },
+        {
+          "path": "tests/lib/materials/experience-evidence.test.ts",
+          "tests": 259
+        },
+        {
+          "path": "tests/server/document-confirmation.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/research-recovery.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/pages/not-found.test.tsx",
+          "tests": 1
+        },
+        {
+          "path": "tests/lib/planning/path-builder.test.ts",
+          "tests": 25
+        },
+        {
+          "path": "tests/server/document-extraction.test.ts",
+          "tests": 44
+        },
+        {
+          "path": "tests/db/site-begin-migration.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/server/research-policy-migration.test.ts",
+          "tests": 31
+        },
+        {
+          "path": "tests/server/materials-privacy.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/components/section-reveal.test.tsx",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/document-supplement-quality.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/lib/materials/self-assessment-evidence.test.ts",
+          "tests": 142
+        },
+        {
+          "path": "tests/server/research-source-audit.test.ts",
+          "tests": 54
+        },
+        {
+          "path": "tests/db/site-bridge-migration.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/lib/materials/material-skill-mentions.test.ts",
+          "tests": 123
+        },
+        {
+          "path": "tests/lib/materials/grounded-skill-terms.test.ts",
+          "tests": 190
+        },
+        {
+          "path": "tests/lib/materials/retained-assessment-hints.test.ts",
+          "tests": 128
+        },
+        {
+          "path": "tests/db/planning-migration.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/server/d1-research-run-recorder.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/account-link-auth-hooks.test.ts",
+          "tests": 40
+        },
+        {
+          "path": "tests/server/research-service-binding-transport.test.ts",
+          "tests": 41
+        },
+        {
+          "path": "tests/server/openrouter-response-preflight.test.ts",
+          "tests": 19
+        },
+        {
+          "path": "tests/server/research-executor-receipt.test.ts",
+          "tests": 31
+        },
+        {
+          "path": "tests/server/document-workflow.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+          "tests": 25
+        },
+        {
+          "path": "tests/server/materials-fixture.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/lib/materials/guided-cleaning-evidence.test.ts",
+          "tests": 22
+        },
+        {
+          "path": "tests/server/document-quality-evaluation.test.ts",
+          "tests": 35
+        },
+        {
+          "path": "tests/lib/intelligence-validation.test.ts",
+          "tests": 31
+        },
+        {
+          "path": "tests/server/research-executor-configuration.test.ts",
+          "tests": 55
+        },
+        {
+          "path": "tests/contracts/research-contracts.test.ts",
+          "tests": 82
+        },
+        {
+          "path": "tests/server/document-deletion.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/research-execution-policy.test.ts",
+          "tests": 22
+        },
+        {
+          "path": "tests/lib/materials/contextual-skill-mapping.test.ts",
+          "tests": 89
+        },
+        {
+          "path": "tests/contracts/documents.test.ts",
+          "tests": 54
+        },
+        {
+          "path": "tests/lib/materials/planning-priority.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/server/proof-service.test.ts",
+          "tests": 17
+        },
+        {
+          "path": "tests/server/document-repository.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/openrouter-transport-observation.test.ts",
+          "tests": 36
+        },
+        {
+          "path": "tests/server/research-executor-auth.test.ts",
+          "tests": 54
+        },
+        {
+          "path": "tests/server/site-admission-fixture.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/research-executor-begin.test.ts",
+          "tests": 31
+        },
+        {
+          "path": "tests/contracts/material-planning.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/server/provider-result-diagnostic.test.ts",
+          "tests": 93
+        },
+        {
+          "path": "tests/server/research-candidate-diagnostic.test.ts",
+          "tests": 38
+        },
+        {
+          "path": "tests/server/document-receipt-credential-privacy.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/api/account-link.test.ts",
+          "tests": 46
+        },
+        {
+          "path": "tests/db/materials-transaction-probe.test.ts",
+          "tests": 37
+        },
+        {
+          "path": "tests/db/documents-migration.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/material-selection.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/db/proof-ledger-migration.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/server/agent-repository.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/research-executor-byte-identity.test.ts",
+          "tests": 13
+        },
+        {
+          "path": "tests/server/research-executor-body.test.ts",
+          "tests": 32
+        },
+        {
+          "path": "tests/server/document-generation-model-identity.test.ts",
+          "tests": 13
+        },
+        {
+          "path": "tests/lib/materials/reviewed-source-mentions.test.ts",
+          "tests": 87
+        },
+        {
+          "path": "tests/server/guarded-fetch-diagnostic.test.ts",
+          "tests": 17
+        },
+        {
+          "path": "tests/components/proof-profile.test.tsx",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/fake-research-provider.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/document-provider.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/server/production-provider-diagnostic.test.ts",
+          "tests": 8
+        },
+        {
+          "path": "tests/server/openrouter-response-format.test.ts",
+          "tests": 19
+        },
+        {
+          "path": "tests/server/document-executor-auth.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/research-response-preflight.test.ts",
+          "tests": 23
+        },
+        {
+          "path": "tests/api/admin-health.test.ts",
+          "tests": 23
+        },
+        {
+          "path": "tests/api/research-eligibility.test.ts",
+          "tests": 12
+        },
+        {
+          "path": "tests/api/account-recovery.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/server/research-quality-diagnostic.test.ts",
+          "tests": 55
+        },
+        {
+          "path": "tests/lib/planning/calendar.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/server/research-executor-maintenance-policy.test.ts",
+          "tests": 20
+        },
+        {
+          "path": "tests/server/kimi-output-budget.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/contracts/planning-api.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/lib/use-research-eligibility.test.tsx",
+          "tests": 10
+        },
+        {
+          "path": "tests/lib/materials/skill-mapper.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/build/materials-acceptance-target.test.ts",
+          "tests": 17
+        },
+        {
+          "path": "tests/api/local-migration.test.ts",
+          "tests": 15
+        },
+        {
+          "path": "tests/api/proof-ledger.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/data/flagship-unit-registry.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/db/migration-safety.test.ts",
+          "tests": 32
+        },
+        {
+          "path": "tests/build/cloudflare-target.test.ts",
+          "tests": 43
+        },
+        {
+          "path": "tests/lib/proof/local-repository.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/api/account-link-production.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/document-qualification-journal.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/components/root-layout.test.tsx",
+          "tests": 1
+        },
+        {
+          "path": "tests/api/proof-sharing.test.ts",
+          "tests": 16
+        },
+        {
+          "path": "tests/server/document-source-requirement-evidence.test.ts",
+          "tests": 124
+        },
+        {
+          "path": "tests/offline-uat/api-trace.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/research-executor-job.test.ts",
+          "tests": 20
+        },
+        {
+          "path": "tests/server/account-link-crypto.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/offline-uat/security.test.ts",
+          "tests": 15
+        },
+        {
+          "path": "tests/lib/cloud-client.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/db/schema.test.ts",
+          "tests": 21
+        },
+        {
+          "path": "tests/server/public-operation-scope.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/api/workspace.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/api/planning-history.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/research-source-coverage.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/d1-account-link-repository.test.ts",
+          "tests": 37
+        },
+        {
+          "path": "tests/api/proof-assets.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/server/agent-provider.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/api/learning-events.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/api/agents.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/api/documents.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/contracts/proof-ledger.test.ts",
+          "tests": 15
+        },
+        {
+          "path": "tests/server/d1-proof-repository.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/lib/proof-client.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/lib/documents-client.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/intelligence-service.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/server/research-environment.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/admin-policy.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/server/research-annotation-diagnostic.test.ts",
+          "tests": 34
+        },
+        {
+          "path": "tests/lib/planning/registry-validation.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/server/entitlements.test.ts",
+          "tests": 19
+        },
+        {
+          "path": "tests/api/intelligence-flagship.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/api/intelligence-preview.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/components/setup-draft.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/lib/proof/projection.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/contracts/intelligence.test.ts",
+          "tests": 29
+        },
+        {
+          "path": "tests/server/document-policy.test.ts",
+          "tests": 26
+        },
+        {
+          "path": "tests/server/proof-storage.test.ts",
+          "tests": 13
+        },
+        {
+          "path": "tests/server/operational-events.test.ts",
+          "tests": 34
+        },
+        {
+          "path": "tests/lib/planning/plan-diff.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/lib/agent-client.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/observability.test.ts",
+          "tests": 11
+        },
+        {
+          "path": "tests/server/research-budget.test.ts",
+          "tests": 20
+        },
+        {
+          "path": "tests/lib/planning/v7-upgrade.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/server/cloud-service.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/d1-cloud-repository.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/server/live-minimal-probe.test.ts",
+          "tests": 19
+        },
+        {
+          "path": "tests/server/auth-runtime.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/server/ai-gateway.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/material-numbered-statements.test.ts",
+          "tests": 37
+        },
+        {
+          "path": "tests/server/document-review-points.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/lib/research-recovery-storage.test.ts",
+          "tests": 14
+        },
+        {
+          "path": "tests/data/flagship-blueprint.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/server/document-b0-inputs.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/server/research-bootstrap-diagnostic.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/lib/demo-store.test.ts",
+          "tests": 10
+        },
+        {
+          "path": "tests/server/research-transport-diagnostic.test.ts",
+          "tests": 50
+        },
+        {
+          "path": "tests/server/auth-diagnostics.test.ts",
+          "tests": 67
+        },
+        {
+          "path": "tests/api/auth-link-bypass.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/research-response-format.test.ts",
+          "tests": 58
+        },
+        {
+          "path": "tests/server/document-job-state.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/contracts/proof-api.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/server/native-fetch-diagnostic.test.ts",
+          "tests": 41
+        },
+        {
+          "path": "tests/lib/planning/fingerprint.test.ts",
+          "tests": 9
+        },
+        {
+          "path": "tests/server/account-link-contracts.test.ts",
+          "tests": 7
+        },
+        {
+          "path": "tests/server/document-budget.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/lib/navigation-context.test.ts",
+          "tests": 46
+        },
+        {
+          "path": "tests/api/planning-production.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/proof-validators.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "tests/server/rate-limit.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/lib/personalized-plan.test.ts",
+          "tests": 17
+        },
+        {
+          "path": "tests/server/sqlite-d1-batch.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/contracts/planning-history.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/api/auth-providers.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/feature-cohort.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/data/flagship-role.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/server/document-text.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/auth-policy.test.ts",
+          "tests": 4
+        },
+        {
+          "path": "tests/lib/core-loop.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/db/d1.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/lib/materials/explanations.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/server/agent-configuration.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/lib/migration-dismissal.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/lib/proof-profile.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "tests/lib/proof/legacy-adapter.test.ts",
+          "tests": 2
+        },
+        {
+          "path": "tests/lib/skill-map.test.ts",
+          "tests": 1
+        },
+        {
+          "path": "tests/harness.test.ts",
+          "tests": 1
+        }
+      ],
+      "tests": 9858,
+      "logSha256": "0da667abcb611879b1ca9abff0fb852a91daba3bca09da7407f57f248105f327"
+    },
+    {
+      "name": "offline-closeout-full-serial-20261109-a",
+      "files": [
+        {
+          "path": "tests/server/document-diagnostic-pilot-host.test.ts",
+          "tests": 5
+        },
+        {
+          "path": "tests/server/materials-supplement-collection.test.ts",
+          "tests": 45
+        }
+      ],
+      "tests": 50,
+      "logSha256": "41f585d5ac49907e1cf52ccb70d1b0b1b54923e21b73d4606b47a70a3786616c"
+    },
+    {
+      "name": "offline-closeout-full-research-20261109-a",
+      "files": [
+        {
+          "path": "tests/server/research-executor-private-integration.test.ts",
+          "tests": 12
+        },
+        {
+          "path": "tests/server/research-cloud-smoke-composition.test.ts",
+          "tests": 89
+        }
+      ],
+      "tests": 101,
+      "logSha256": "1b645eedbc506bdc9a870b295488c60fc3fbb5381a5300f7be925013a41c6aae"
+    }
+  ],
+  "node": {
+    "name": "offline-closeout-full-node-20261109-a",
+    "tests": 290,
+    "passed": 290,
+    "logSha256": "6b313ec98863bd260385b6af8f14782a15d5435364ebb20ae24c4f6a112a497e"
+  },
+  "nodeScripts": [
+    "tests/build/restricted-candidate-files.test.mjs",
+    "tests/build/restricted-research-candidate.test.mjs",
+    "tests/offline-uat/entry.test.mjs",
+    "tests/offline-uat/http-clients.test.mjs",
+    "tests/offline-uat/legacy-recovery.test.mjs",
+    "tests/offline-uat/research-public-recovery.test.mjs",
+    "tests/offline-uat/research-recovery.test.mjs",
+    "tests/offline-uat/retained-compatibility.test.mjs",
+    "tests/rendered-html.test.mjs",
+    "tests/scripts/auth-tail.test.mjs"
+  ],
+  "render": {
+    "name": "offline-closeout-render-20261109-a",
+    "tests": 5,
+    "passed": 5,
+    "logSha256": "44ab12c9253e8fc15dbad512912c300077259617d54f66c99cbd339ae9a4d170"
+  },
+  "chains": [
+    {
+      "nativeName": "offline-closeout-native-flow-20261109-final-a",
+      "parityName": "offline-closeout-node-parity-20261109-final-a",
+      "cases": 17,
+      "dependencyCount": 832,
+      "dependenciesMatchFinalSource": true
+    },
+    {
+      "nativeName": "offline-closeout-legacy-native-20261109-final-a",
+      "parityName": "offline-closeout-legacy-parity-20261109-final-a",
+      "cases": 25,
+      "dependencyCount": 832,
+      "dependenciesMatchFinalSource": true
+    }
+  ],
+  "compatibilityObservations": 170,
+  "historicalRecordsUnchanged": 6,
+  "executionLocations": {
+    "unit": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+    "serial": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+    "research": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+    "additionalNode": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+    "types": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+    "lint": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+    "build": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+    "render": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source"
+  },
+  "additionalNodeIsolated": true,
+  "originalTimeoutsAndAssertions": true,
+  "realModelCalls": 0,
+  "newCostUsd": 0,
+  "remoteMigration": false,
+  "deployed": false
+}

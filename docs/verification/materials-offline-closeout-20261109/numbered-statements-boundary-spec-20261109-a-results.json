@@ -1,0 +1,717 @@
+{
+  "status": "FAIL",
+  "scope": "Independent Task 1 specification review only; no provider/site integration or final repository acceptance claim.",
+  "identity": {
+    "branch": "codex/materials-replan-recovery-20261106",
+    "head": "1f65e4a483399db8fb6c143e076f3d7523675399",
+    "status": "M docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md\n M worker/document-executor/source-review-evidence.ts\n M worker/document-executor/source-statements.ts\n?? docs/superpowers/plans/2026-11-09-materials-offline-closeout.md\n?? tests/server/material-numbered-statements.test.ts"
+  },
+  "freeze": {
+    "path": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-results.json",
+    "sha256": "cb29af4c72383844bf3fcb3358f7e3345be735ce230cf692cd437e615fee266f"
+  },
+  "scriptSha256": "f5d86deb839b48a00f384cca6091cb8fbc313dda374fc9fcbf424ad94bbd7449",
+  "bundleSha256": "c028f797887b8ca031f84b80d5a61b758bde14bdc1dd6bad42efa08f5c1b484b",
+  "checks": [
+    {
+      "id": "frozen-identity",
+      "pass": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'M docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md\\n' +\n+   ' M worker/document-executor/source-review-evidence.ts\\n' +\n- 'M worker/document-executor/source-review-evidence.ts\\n' +\n    ' M worker/document-executor/source-statements.ts\\n' +\n+   '?? docs/superpowers/plans/2026-11-09-materials-offline-closeout.md\\n' +\n    '?? tests/server/material-numbered-statements.test.ts'\n"
+    },
+    {
+      "id": "frozen-artifact-and-source-hashes",
+      "pass": true,
+      "detail": {
+        "files": 33
+      }
+    },
+    {
+      "id": "raw-red-green-related-counts",
+      "pass": true,
+      "detail": {
+        "behavioralRed": {
+          "failed": 23,
+          "passed": 14
+        },
+        "green": 37,
+        "related": 794
+      }
+    },
+    {
+      "id": "preserved-legacy-coordinate-evidence",
+      "pass": true,
+      "detail": {
+        "fixtures": 40,
+        "savedEqualCoordinateMaps": 80,
+        "preservedProviderObservations": 168
+      }
+    },
+    {
+      "id": "legacy-source-is-exactly-unchanged",
+      "pass": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md\\n' +\n+   'worker/document-executor/source-review-evidence.ts\\n' +\n- 'worker/document-executor/source-review-evidence.ts\\n' +\n    'worker/document-executor/source-statements.ts'\n"
+    },
+    {
+      "id": "root-cause-and-new-full-citation",
+      "pass": true
+    },
+    {
+      "id": "mixed-digits-cr-only-and-emoji-utf16",
+      "pass": true
+    },
+    {
+      "id": "crlf-indentation-qualifier-and-adjacent-entry",
+      "pass": true
+    },
+    {
+      "id": "chinese-body-and-internal-technical-dot-and-url",
+      "pass": true
+    },
+    {
+      "id": "same-line-following-sentence-is-not-joined",
+      "pass": true
+    },
+    {
+      "id": "orphan-and-cross-line-prefix-are-not-facts",
+      "pass": true
+    },
+    {
+      "id": "unsupported-syntax-and-leading-dot-limitation-stay-unchanged",
+      "pass": true
+    },
+    {
+      "id": "clone-body-authority-and-unrelated-entry-preservation",
+      "pass": true
+    },
+    {
+      "id": "frozen-source-hashes-still-match-after-probe",
+      "pass": true
+    }
+  ],
+  "verifiedFiles": [
+    {
+      "path": "worker/document-executor/source-statements.ts",
+      "sha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-source-statements.ts.source.txt",
+      "sha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab"
+    },
+    {
+      "path": "worker/document-executor/source-review-evidence.ts",
+      "sha256": "f9ed3a14145535a7cc0e9d4b59b8f265deb1533c84679997c4c078544e35dc37"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-source-review-evidence.ts.source.txt",
+      "sha256": "f9ed3a14145535a7cc0e9d4b59b8f265deb1533c84679997c4c078544e35dc37"
+    },
+    {
+      "path": "tests/server/material-numbered-statements.test.ts",
+      "sha256": "1aa53850930e5ce24acca8998a2df068cd503490d2055565e059548d36c4cec7"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-material-numbered-statements.test.ts.source.txt",
+      "sha256": "1aa53850930e5ce24acca8998a2df068cd503490d2055565e059548d36c4cec7"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-tracked.patch",
+      "sha256": "8b9092569f1f92ea702b1819316836e7cee0a5e4f5ea804a92359ab8bb0e3851"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a-results.json",
+      "sha256": "06ccd54ebfe307c09c74d7c247d833d581ba9255812a5a480873df29bc25742c"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a-results.json",
+      "sha256": "bc63e91146d52b151f82ff57ce430152cb3cf166cc1c6ca13f52d3c78ba916fb"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json",
+      "sha256": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-snapshot-20261109-c-results.json",
+      "sha256": "b0056ad6aad0d707e0ba95972d9817fca59152d0197e3f58f855f80f4fc1ffac"
+    },
+    {
+      "path": "work/grounded-verification/run.mjs",
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    },
+    {
+      "path": "work/materials-browser-handoff/block-outbound.cjs",
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    },
+    {
+      "path": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "8a2e82a14485f75531025c8649c22f2086e37fa12d9ca53d1adf2272d2d0310c"
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "ac539b8d3087bd801554d6706840aff3689263c3543403de122406182826f32a"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a.json",
+      "sha256": "3c8b4d429c3ca6c5734e116f14e80fff352dc5227851df8b5b53ecb469d6cdc1"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a.log",
+      "sha256": "576ee0676e8252c264571ded10219a738d6d1be522f28bcbbd3d108a225f70e9"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-api-a.json",
+      "sha256": "f9b4124068e2ff5fac4b057ae1631f320ec54da3ab2c3b4a6e010eb5ceb9e6e4"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-api-a.log",
+      "sha256": "5bf286f3a94a8f369428306effc1bb753e53b36f63aec5ffaeb0da722d803b35"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-a.json",
+      "sha256": "478a79504674462c05e32c1d78e8a17e7b64290190e2eb57449dde1599e55aea"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-a.log",
+      "sha256": "577afe5067d8c797c2757c75046d247151b09c8aa80552f3e247fc63ce8518a3"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-b.json",
+      "sha256": "0f90c3590f6256661103a09e2a9cd22d657276aaee26d6b31777e12fe1c06085"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-b.log",
+      "sha256": "3a543a668e44952a55a14c0d8ac64190e035303826c84d6b0e1fe0601f4dbfbf"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-green-a.json",
+      "sha256": "5e078ec0b40f83225b9d3b7335dda4082e829cd46b91723ccd0702ec915fe36d"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-green-a.log",
+      "sha256": "b114ce0e060a1b7a3e583330a2f39430f1428c8442807908f40d6ad8a584badf"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a.json",
+      "sha256": "e14fa24ad3563932964fbed9b696bcc8f1b76804d2e0a3139cc9545cae7f0b1c"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a.log",
+      "sha256": "68665bee5fd4250a0140bde8ac0f7437e4b864c627b6adc96d93d8c227964336"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-related-a.json",
+      "sha256": "aca256fee110269bb541cbe5f5843d86e08955dac4284c8076f82df424d67499"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-related-a.log",
+      "sha256": "537e880a7ab28d20fa29f3841b7b037c6024f95e848971b5b36c55d46d05ba3b"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-types-a.json",
+      "sha256": "9a0f534eb907d50db178ca6b063beded295e0eb2f2e72c53302d7171accb4a97"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-types-a.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-lint-a.json",
+      "sha256": "faa47ee761f40008f71f5431658d01919fde9215c8ac00fe365d69ceaa5da89a"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-boundary-20261109-lint-a.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "observations": [
+    {
+      "text": "1. I practiced SQL with a mentor.",
+      "base": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 3,
+          "end": 33,
+          "text": "I practiced SQL with a mentor."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 33,
+          "text": "1. I practiced SQL with a mentor."
+        },
+        {
+          "start": 3,
+          "end": 33,
+          "text": "I practiced SQL with a mentor."
+        }
+      ]
+    },
+    {
+      "text": "🧪.\r\r\t１2３. SQL is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 3,
+          "text": "🧪."
+        },
+        {
+          "start": 6,
+          "end": 10,
+          "text": "１2３."
+        },
+        {
+          "start": 11,
+          "end": 27,
+          "text": "SQL is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 3,
+          "text": "🧪."
+        },
+        {
+          "start": 6,
+          "end": 27,
+          "text": "１2３. SQL is required."
+        },
+        {
+          "start": 11,
+          "end": 27,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "text": "\t１２. I tested SQL\r\nbut did not practice independently.\r\n  2. Python is optional.",
+      "base": [
+        {
+          "start": 1,
+          "end": 4,
+          "text": "１２."
+        },
+        {
+          "start": 5,
+          "end": 54,
+          "text": "I tested SQL\r\nbut did not practice independently."
+        },
+        {
+          "start": 58,
+          "end": 60,
+          "text": "2."
+        },
+        {
+          "start": 61,
+          "end": 80,
+          "text": "Python is optional."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 1,
+          "end": 54,
+          "text": "１２. I tested SQL\r\nbut did not practice independently."
+        },
+        {
+          "start": 5,
+          "end": 54,
+          "text": "I tested SQL\r\nbut did not practice independently."
+        },
+        {
+          "start": 58,
+          "end": 80,
+          "text": "2. Python is optional."
+        },
+        {
+          "start": 61,
+          "end": 80,
+          "text": "Python is optional."
+        }
+      ]
+    },
+    {
+      "text": "１. 我在指导下清洗数据。",
+      "base": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "１."
+        },
+        {
+          "start": 3,
+          "end": 13,
+          "text": "我在指导下清洗数据。"
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 13,
+          "text": "１. 我在指导下清洗数据。"
+        },
+        {
+          "start": 3,
+          "end": 13,
+          "text": "我在指导下清洗数据。"
+        }
+      ]
+    },
+    {
+      "text": "12. Node.js and SQL are required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 3,
+          "text": "12."
+        },
+        {
+          "start": 4,
+          "end": 33,
+          "text": "Node.js and SQL are required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 33,
+          "text": "12. Node.js and SQL are required."
+        },
+        {
+          "start": 4,
+          "end": 33,
+          "text": "Node.js and SQL are required."
+        }
+      ]
+    },
+    {
+      "text": "2. See https://learn.invalid/start?q=SQL for practice.",
+      "base": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "2."
+        },
+        {
+          "start": 3,
+          "end": 54,
+          "text": "See https://learn.invalid/start?q=SQL for practice."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 54,
+          "text": "2. See https://learn.invalid/start?q=SQL for practice."
+        },
+        {
+          "start": 3,
+          "end": 54,
+          "text": "See https://learn.invalid/start?q=SQL for practice."
+        }
+      ]
+    },
+    {
+      "text": "12. SQL is required. Python is optional.",
+      "base": [
+        {
+          "start": 0,
+          "end": 3,
+          "text": "12."
+        },
+        {
+          "start": 4,
+          "end": 20,
+          "text": "SQL is required."
+        },
+        {
+          "start": 21,
+          "end": 40,
+          "text": "Python is optional."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 20,
+          "text": "12. SQL is required."
+        },
+        {
+          "start": 4,
+          "end": 20,
+          "text": "SQL is required."
+        },
+        {
+          "start": 21,
+          "end": 40,
+          "text": "Python is optional."
+        }
+      ]
+    },
+    {
+      "text": "123.",
+      "base": [
+        {
+          "start": 0,
+          "end": 4,
+          "text": "123."
+        }
+      ],
+      "numbered": []
+    },
+    {
+      "text": "\t１2３. \r\n",
+      "base": [
+        {
+          "start": 1,
+          "end": 5,
+          "text": "１2３."
+        }
+      ],
+      "numbered": []
+    },
+    {
+      "text": "  1.\rSQL is required.",
+      "base": [
+        {
+          "start": 2,
+          "end": 4,
+          "text": "1."
+        },
+        {
+          "start": 5,
+          "end": 21,
+          "text": "SQL is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 5,
+          "end": 21,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "text": "1.\n\nSQL is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 4,
+          "end": 20,
+          "text": "SQL is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 4,
+          "end": 20,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "text": "1.2 SQL is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 20,
+          "text": "1.2 SQL is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 20,
+          "text": "1.2 SQL is required."
+        }
+      ]
+    },
+    {
+      "text": "1.Node.js is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 2,
+          "end": 22,
+          "text": "Node.js is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1."
+        },
+        {
+          "start": 2,
+          "end": 22,
+          "text": "Node.js is required."
+        }
+      ]
+    },
+    {
+      "text": "1000. SQL is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 5,
+          "text": "1000."
+        },
+        {
+          "start": 6,
+          "end": 22,
+          "text": "SQL is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 5,
+          "text": "1000."
+        },
+        {
+          "start": 6,
+          "end": 22,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "text": "１０００. SQL is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 5,
+          "text": "１０００."
+        },
+        {
+          "start": 6,
+          "end": 22,
+          "text": "SQL is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 5,
+          "text": "１０００."
+        },
+        {
+          "start": 6,
+          "end": 22,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "text": "1． SQL is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1．"
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 2,
+          "text": "1．"
+        },
+        {
+          "start": 3,
+          "end": 19,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "text": "Task 1. SQL is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 7,
+          "text": "Task 1."
+        },
+        {
+          "start": 8,
+          "end": 24,
+          "text": "SQL is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 7,
+          "text": "Task 1."
+        },
+        {
+          "start": 8,
+          "end": 24,
+          "text": "SQL is required."
+        }
+      ]
+    },
+    {
+      "text": "1. .NET is required.",
+      "base": [
+        {
+          "start": 0,
+          "end": 4,
+          "text": "1. ."
+        },
+        {
+          "start": 3,
+          "end": 4,
+          "text": "."
+        },
+        {
+          "start": 4,
+          "end": 20,
+          "text": "NET is required."
+        }
+      ],
+      "numbered": [
+        {
+          "start": 0,
+          "end": 4,
+          "text": "1. ."
+        },
+        {
+          "start": 3,
+          "end": 4,
+          "text": "."
+        },
+        {
+          "start": 4,
+          "end": 20,
+          "text": "NET is required."
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Leading .NET retains its existing incomplete body boundary.",
+    "Task 2 provider and site wiring remains deliberately absent."
+  ],
+  "trackedWrites": false,
+  "modelCalls": 0
+}

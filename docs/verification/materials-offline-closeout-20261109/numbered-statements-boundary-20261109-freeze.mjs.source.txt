@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename } from 'node:path';
+
+const dir = 'work/grounded-verification/';
+const prefix = dir + 'numbered-statements-boundary-20261109-freeze-a';
+const read = path => readFileSync(path);
+const json = path => JSON.parse(read(path));
+const sha = value => createHash('sha256').update(value).digest('hex');
+const fileSha = path => sha(read(path));
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8', windowsHide: true });
+const baselinePath = dir + 'numbered-statements-boundary-20261109-baseline-a-results.json';
+const comparePath = dir + 'numbered-statements-boundary-20261109-compare-a-results.json';
+const baseline = json(baselinePath), comparison = json(comparePath);
+const owned = ['worker/document-executor/source-statements.ts', 'worker/document-executor/source-review-evidence.ts', 'tests/server/material-numbered-statements.test.ts'];
+const status = git('status', '--porcelain=v1').trimEnd();
+assert.deepEqual(status.split(/\r?\n/u).map(line => line.slice(3)).sort(), owned.toSorted());
+assert.equal(git('rev-parse', 'HEAD').trim(), baseline.identity.head);
+for (const [path, expected] of Object.entries(comparison.sourceHashes)) assert.equal(fileSha(path), expected);
+assert.equal(fileSha(owned[2]), comparison.ownedTestHash);
+for (const [path, expected] of Object.entries(baseline.immutableHashes)) assert.equal(fileSha(path), expected);
+const labels = {
+  'baseline-a': 0, 'red-api-a': 1, 'red-behavior-a': 1, 'red-behavior-b': 1,
+  'green-a': 0, 'compare-a': 0, 'related-a': 0, 'types-a': 0, 'lint-a': 0,
+};
+const runs = Object.entries(labels).map(([suffix, expectedExit]) => {
+  const label = 'numbered-statements-boundary-20261109-' + suffix;
+  const metadataPath = dir + label + '.json', logPath = dir + label + '.log', metadata = json(metadataPath);
+  assert.equal(metadata.exit, expectedExit);
+  assert.equal(metadata.nonLoopbackDenials, 0);
+  assert.equal(fileSha(logPath), metadata.logSha256);
+  return { label, metadataPath, metadataSha256: fileSha(metadataPath), logPath, ...metadata };
+});
+const snapshots = owned.map(path => ({ path, sha256: fileSha(path), snapshot: prefix + '-' + basename(path) + '.source.txt' }));
+for (const { path, snapshot } of snapshots) {
+  assert.equal(existsSync(snapshot), false);
+  writeFileSync(snapshot, read(path), { flag: 'wx' });
+}
+const diff = git('diff', '--no-ext-diff', '--', ...owned.slice(0, 2));
+writeFileSync(prefix + '-tracked.patch', diff, { flag: 'wx' });
+assert.equal(git('diff', '--check'), '');
+const result = {
+  status: 'TASK_1_READY_FOR_SPEC_THEN_QUALITY_REVIEW',
+  scope: 'Only the new numbered-boundary helper, v3-facing boundary interface, and new regression tests; provider and site integration remain Task 2.',
+  identity: { branch: git('branch', '--show-current').trim(), head: baseline.identity.head, status, node: process.version, icu: process.versions.icu },
+  snapshots, trackedDiff: { path: prefix + '-tracked.patch', sha256: sha(diff), note: 'New untracked test is captured in its complete source snapshot.' },
+  baseline: { path: baselinePath, sha256: fileSha(baselinePath), fixtures: baseline.fixtures.length, comparisonsAgainstPriorDiagnosis: baseline.baselineComparisons },
+  legacyComparison: { path: comparePath, sha256: fileSha(comparePath), unchangedCoordinateMaps: comparison.baselineComparisons, scope: 'Both old functions across all 40 fixtures, including exact UTF-16 starts/ends and source substrings.' },
+  immutableHashes: baseline.immutableHashes,
+  untouchedProviderAndSiteHashes: Object.fromEntries(Object.entries(comparison.sourceHashes).slice(2)),
+  priorProviderObservations: comparison.originalProviderObservations,
+  runs,
+  assertions: { newTests: 37, behavioralRedFailures: 23, behavioralRedControlsPassed: 14, relatedTestFiles: 5, relatedTestsPassed: 794, typecheckExit: 0, lintExit: 0, diffCheck: 'clean', modelCalls: 0, nonLoopbackDenials: 0, commits: 0, migrations: 0, deployments: 0, pushes: 0 },
+  rootCause: 'The baseline literal has 0->2 (1.) and 3->33 (body). The new interface yields both 0->33 and 3->33 without changing the old functions.',
+  tdd: 'Initial API RED failed on absent exports. Minimal copy/delegation stubs then produced behavioral RED. Corrected RED-b has 23 intended failures including all 7 bare-ordinal cases; final minimal helper passes all 37 tests.',
+  preservedEarlierRun: 'RED-behavior-a included one incorrect test assumption that .NET has no start-3 boundary. Frozen diagnosis shows start 3->4 for dot only; the test was corrected before final implementation. That run remains unchanged.',
+  limitations: ['Task 1 alone does not wire the new interface into production provider/site paths.', 'Leading .NET remains rejected as a complete numbered/body statement: old body boundary is 3->4 only.', 'No new list syntax, capability predicate expansion, or full repository/native acceptance gate was added.'],
+};
+writeFileSync(prefix + '-results.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, sources: snapshots, newTests: 37, relatedTestsPassed: 794, unchangedCoordinateMaps: comparison.baselineComparisons, handoff: prefix + '-results.json' }));

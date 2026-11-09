@@ -1,0 +1,62 @@
+[
+  {
+    "path": "app/lib/materials/personal-assertion-scopes.ts",
+    "sha256": "f23f75011cc661b7eaa8dee4b2096b1be56118222b0f9846ec27abf5864e3bd2",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\app__lib__materials__personal-assertion-scopes.ts.source.txt"
+  },
+  {
+    "path": "app/lib/materials/self-assessment-evidence.ts",
+    "sha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\app__lib__materials__self-assessment-evidence.ts.source.txt"
+  },
+  {
+    "path": "app/lib/materials/skill-labels.ts",
+    "sha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\app__lib__materials__skill-labels.ts.source.txt"
+  },
+  {
+    "path": "app/server/documents/extraction-validator.ts",
+    "sha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\app__server__documents__extraction-validator.ts.source.txt"
+  },
+  {
+    "path": "worker/document-executor/source-review-evidence.ts",
+    "sha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\worker__document-executor__source-review-evidence.ts.source.txt"
+  },
+  {
+    "path": "worker/document-executor/source-span-extraction.ts",
+    "sha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\worker__document-executor__source-span-extraction.ts.source.txt"
+  },
+  {
+    "path": "tests/helpers/material-guided-cleaning.ts",
+    "sha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\tests__helpers__material-guided-cleaning.ts.source.txt"
+  },
+  {
+    "path": "tests/helpers/material-mention-review-fixture.ts",
+    "sha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\tests__helpers__material-mention-review-fixture.ts.source.txt"
+  },
+  {
+    "path": "tests/server/material-guided-cleaning.test.ts",
+    "sha256": "c8bea5547f6dd65d8ba02e97c7afd48fdab7304ae3597cf479d92c744b877bb6",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\tests__server__material-guided-cleaning.test.ts.source.txt"
+  },
+  {
+    "path": "tests/lib/materials/guided-cleaning-evidence.test.ts",
+    "sha256": "9542851e8f05032455fdf9683b145991f7b13d807721519c674ccea45147d123",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\tests__lib__materials__guided-cleaning-evidence.test.ts.source.txt"
+  },
+  {
+    "path": "tests/components/material-guided-cleaning.test.tsx",
+    "sha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\tests__components__material-guided-cleaning.test.tsx.source.txt"
+  },
+  {
+    "path": "tests/fixtures/material-guided-cleaning-legacy.json",
+    "sha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47",
+    "frozen": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\guided-practice-20261109-green-01-source-freeze\\tests__fixtures__material-guided-cleaning-legacy.json.source.txt"
+  }
+]

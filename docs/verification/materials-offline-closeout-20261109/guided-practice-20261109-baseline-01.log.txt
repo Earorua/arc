@@ -1,0 +1,1 @@
+{"status":"legacy-before-frozen","cases":7,"fixture":"tests/fixtures/material-guided-cleaning-legacy.json","fixtureSha256":"7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47"}

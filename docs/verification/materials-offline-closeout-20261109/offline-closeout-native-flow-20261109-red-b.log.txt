@@ -1,0 +1,20 @@
+{"status":"EXPECTED_BEHAVIOR_NOT_MET","cases":16,"failed":[{"id":"numbered-guided","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"numbered-body","failures":[{"name":"practice/requirement/intent priorities","message":"Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   'sql'\n- ]\n"}]},{"id":"numbered-fullwidth","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"numbered-emoji-offset","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"numbered-jd","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"numbered-supplement","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"numbered-other","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"numbered-future","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"numbered-removed","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"numbered-orphan","failures":[{"name":"successful actual HTTP flow","message":"Expected values to be strictly equal:\n\nfalse !== true\n"}]},{"id":"chinese-guided-cleaning","failures":[{"name":"hints require own evidence","message":"Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   'data cleaning'\n- ]\n"}]}],"output":"work/grounded-verification/offline-closeout-native-flow-20261109-red-b-results.json"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+11 !== 0
+
+    at file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/offline-closeout-native-flow-20261109.mjs:84:42
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 11,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.1

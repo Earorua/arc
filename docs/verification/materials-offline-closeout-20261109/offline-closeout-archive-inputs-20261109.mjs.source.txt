@@ -1,0 +1,59 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+
+const work = 'work/grounded-verification/';
+const output = work + 'offline-closeout-archive-required-20261109-a.json';
+assert.equal(existsSync(output), false);
+const checks = [
+  'numbered-statements-boundary-20261109-green-a', 'numbered-statements-boundary-20261109-related-a',
+  'numbered-statements-boundary-20261109-compare-a', 'numbered-statements-boundary-20261109-types-a',
+  'numbered-statements-boundary-20261109-lint-a', 'numbered-statements-boundary-quality-20261109-q1',
+  'numbered-statements-flow-20261109-green-a', 'numbered-statements-flow-20261109-browser-a',
+  'numbered-statements-flow-20261109-types-b', 'numbered-statements-flow-20261109-lint-a',
+  'numbered-statements-flow-spec-20261109-a', 'numbered-statements-flow-quality-20261109-q1',
+  'guided-practice-20261109-green-02', 'guided-practice-20261109-regression-02',
+  'guided-practice-20261109-types-03', 'guided-practice-20261109-lint-02',
+  'guided-practice-spec-20261109-01', 'guided-practice-quality-20261109-02',
+  'adoption-persistence-20261109-green-01', 'adoption-persistence-20261109-related-01',
+  'adoption-persistence-20261109-types-01', 'adoption-persistence-20261109-lint-01',
+  'adoption-persistence-spec-20261109-focused-01', 'adoption-persistence-quality-20261109-focused-01',
+  'offline-closeout-snapshot-20261109-a', 'offline-closeout-integrity-20261109-start-a',
+  'offline-closeout-full-unit-20261109-a', 'offline-closeout-full-serial-20261109-a',
+  'offline-closeout-full-research-20261109-a', 'offline-closeout-full-node-20261109-a',
+  'offline-closeout-full-types-20261109-a', 'offline-closeout-full-lint-20261109-a',
+  'offline-closeout-build-20261109-a', 'offline-closeout-render-20261109-a',
+  'offline-closeout-native-flow-20261109-final-a', 'offline-closeout-node-parity-20261109-final-a',
+  'offline-closeout-legacy-native-20261109-final-a', 'offline-closeout-legacy-parity-20261109-final-a',
+  'offline-closeout-compatibility-final-20261109-a', 'offline-closeout-history-final-20261109-a',
+  'offline-closeout-integrity-20261109-final-a', 'offline-closeout-coverage-20261109-a',
+];
+const reviewInputs = [
+  ['numbered-boundary', 'spec', 'numbered-statements-boundary-spec-20261109-a-review-results.json'],
+  ['numbered-boundary', 'quality', 'numbered-statements-boundary-quality-20261109-q1-own-results.json'],
+  ['numbered-flow', 'spec', 'numbered-statements-flow-spec-20261109-memo-a-results.json'],
+  ['numbered-flow', 'quality', 'numbered-statements-flow-quality-20261109-q1-own-results.json'],
+  ['guided-practice', 'spec', 'guided-practice-spec-20261109-01-own-results.json'],
+  ['guided-practice', 'quality', 'guided-practice-quality-20261109-02-own-results.json'],
+  ['adoption-persistence', 'spec', 'adoption-persistence-spec-20261109-review-01-own-results.json'],
+  ['adoption-persistence', 'quality', 'adoption-persistence-quality-20261109-review-01-own-results.json'],
+  ['combined-closeout', 'integration', 'offline-closeout-integration-review-20261109-final-own-results.json'],
+];
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+for (const name of checks) {
+  const result = JSON.parse(readFileSync(work + name + '.json'));
+  assert.equal(result.name, name); assert.equal(result.exit, 0, name); assert.equal(result.nonLoopbackDenials, 0, name);
+  assert.equal(sha(readFileSync(work + name + '.log')), result.logSha256, name);
+}
+const scopedReviewStatuses = new Map([
+  ['adoption-persistence-spec-20261109-review-01-own-results.json', 'pass-scope-only'],
+  ['adoption-persistence-quality-20261109-review-01-own-results.json', 'pass-scope-only'],
+]);
+const reviews = reviewInputs.map(([task, kind, path]) => {
+  const bytes = readFileSync(work + path), result = JSON.parse(bytes);
+  assert.equal(result.status, scopedReviewStatuses.get(path) ?? 'PASS', path);
+  assert.deepEqual(result.findings, [], path + ' unresolved findings');
+  return { task, kind, path, sha256: sha(bytes), reportedStatus: result.status, verdict: 'PASS', verdictScope: 'Named task only; not live quality or release' };
+});
+writeFileSync(output, JSON.stringify({ checks, reviews }, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ requiredChecks: checks.length, reviews: reviews.length, sha256: sha(readFileSync(output)) }));

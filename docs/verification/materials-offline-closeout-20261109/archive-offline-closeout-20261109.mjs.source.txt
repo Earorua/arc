@@ -1,0 +1,98 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
+
+const [sourceCommit, requiredPath] = process.argv.slice(2);
+assert.match(sourceCommit ?? '', /^[0-9a-f]{40}$/u);
+assert.match(requiredPath ?? '', /^work\/grounded-verification\/offline-closeout-archive-required-20261109-[a-z0-9-]+\.json$/u);
+const work = 'work/grounded-verification', destination = 'docs/verification/materials-offline-closeout-20261109';
+const sha = value => createHash('sha256').update(value).digest('hex');
+const git = (...args) => execFileSync('git', args, { maxBuffer: 32 * 1024 * 1024 });
+assert.equal(git('rev-parse', 'HEAD').toString('utf8').trim(), sourceCommit);
+assert.equal(existsSync(destination), false, 'Never overwrite an acceptance edition');
+const integrityPath = join(work, 'offline-closeout-integrity-20261109-final-a-results.json');
+const integrityBytes = readFileSync(integrityPath), integrity = JSON.parse(integrityBytes);
+assert.equal(integrity.status, 'PASS'); assert.equal(integrity.sourceCommit, sourceCommit);
+const sourcePaths = Object.keys(integrity.filesSha256);
+const tree = new Map(git('ls-tree', '-rz', '--full-tree', sourceCommit).toString('utf8').split('\0').filter(Boolean).map(entry => {
+  const split = entry.indexOf('\t'); return [entry.slice(split + 1), entry.slice(0, split).split(' ')[2]];
+}));
+const objects = execFileSync('git', ['-c', 'core.longpaths=true', 'hash-object', '--no-filters', '--stdin-paths'], {
+  input: sourcePaths.join('\n') + '\n', encoding: 'utf8', maxBuffer: 32 * 1024 * 1024,
+}).trim().split(/\r?\n/u);
+assert.equal(objects.length, sourcePaths.length);
+sourcePaths.forEach((path, i) => {
+  assert.equal(tree.get(path), objects[i], path);
+  assert.equal(sha(readFileSync(path)), integrity.filesSha256[path], path);
+});
+const previousPath = 'docs/verification/materials-mention-projection-20261109/verification.json';
+const previousBytes = readFileSync(previousPath), previous = JSON.parse(previousBytes);
+assert.equal(sha(previousBytes), 'e5355e6d703519017483184dff3f96da03a6ec0aee48497986e857c43f8cfdfe');
+for (const artifact of previous.artifacts) assert.equal(sha(readFileSync(join(dirname(previousPath), artifact.path))), artifact.sha256, artifact.path);
+const requirements = JSON.parse(readFileSync(requiredPath));
+const requiredChecks = requirements.checks.map(name => {
+  const result = JSON.parse(readFileSync(join(work, name + '.json')));
+  assert.equal(result.name, name); assert.equal(result.exit, 0, name); assert.equal(result.nonLoopbackDenials, 0, name);
+  assert.equal(sha(readFileSync(join(work, name + '.log'))), result.logSha256, name); return result;
+});
+const reviews = requirements.reviews.map(review => {
+  assert.equal(sha(readFileSync(join(work, review.path))), review.sha256, review.path); return review;
+});
+for (const task of ['numbered-boundary', 'numbered-flow', 'guided-practice', 'adoption-persistence'])
+  for (const kind of ['spec', 'quality']) assert.ok(reviews.some(review => review.task === task && review.kind === kind && review.verdict === 'PASS'), `${task} ${kind}`);
+assert.ok(reviews.some(review => review.kind === 'integration' && review.verdict === 'PASS'));
+const coverage = JSON.parse(readFileSync(join(work, 'offline-closeout-coverage-20261109-a-results.json')));
+assert.equal(coverage.status, 'PASS'); assert.equal(coverage.sourceCommit, sourceCommit);
+assert.equal(coverage.sourceManifestSha256, integrity.sourceManifestSha256);
+const paths = [];
+function walk(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) walk(path); else { assert.ok(entry.isFile(), path); paths.push(path); }
+  }
+}
+for (const entry of readdirSync(work, { withFileTypes: true })) {
+  if (!/^(?:numbered-statements|guided-practice|adoption-persistence|offline-closeout)-/u.test(entry.name)) continue;
+  assert.ok(entry.name.includes('20261109'), entry.name);
+  if (entry.isDirectory()) walk(join(work, entry.name)); else if (entry.isFile()) paths.push(join(work, entry.name));
+}
+paths.push(join(work, 'run.mjs'), 'work/materials-browser-handoff/block-outbound.cjs', join(work, 'archive-offline-closeout-20261109.mjs'));
+const artifacts = [], recordedOutcomes = [];
+for (const path of [...new Set(paths)].sort()) {
+  let name = path.startsWith('work/materials-browser-handoff/') ? 'block-outbound.cjs' : relative(work, path).replaceAll('\\', '/');
+  assert.ok(!/\.(?:sqlite|sqlite3|db|db-shm|db-wal)$/iu.test(name), 'Do not publish local databases');
+  const bytes = readFileSync(path);
+  assert.ok(!/sk-or-v1-[0-9a-f]{40,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/iu.test(bytes.toString('utf8')), 'Secret-like data ' + name);
+  if (name.endsWith('.json')) {
+    const value = JSON.parse(bytes);
+    if (typeof value.name === 'string' && typeof value.exit === 'number' && typeof value.logSha256 === 'string') {
+      assert.equal(sha(readFileSync(join(work, value.name + '.log'))), value.logSha256, path);
+      recordedOutcomes.push({ name: value.name, exit: value.exit, logSha256: value.logSha256, nonLoopbackDenials: value.nonLoopbackDenials });
+    }
+  }
+  if (name.endsWith('.log')) name += '.txt'; else if (/\.(?:mjs|cjs|ts|tsx|ps1)$/u.test(name)) name += '.source.txt';
+  artifacts.push({ source: path.replaceAll('\\', '/'), path: name, bytes: bytes.length, sha256: sha(bytes) });
+}
+// Validate all inputs before the first archive mutation.
+for (const artifact of artifacts) {
+  const target = join(destination, artifact.path); mkdirSync(dirname(target), { recursive: true });
+  writeFileSync(target, readFileSync(artifact.source), { flag: 'wx' });
+  assert.equal(sha(readFileSync(target)), artifact.sha256);
+}
+const manifest = { schemaVersion: 1, status: 'MATERIALS_OFFLINE_CLOSEOUT_ACCEPTED', sourceCommit,
+  sourceManifest: relative(work, integrityPath).replaceAll('\\', '/'), sourceIdentitySha256: sha(integrityBytes),
+  sourceFileCount: integrity.sourceFileCount, sourceManifestSha256: integrity.sourceManifestSha256,
+  previousAcceptance: { path: previousPath, sha256: sha(previousBytes), artifactsUnchanged: previous.artifactCount },
+  artifactCount: artifacts.length, artifacts, requiredChecks, reviews, recordedOutcomes, fullCoverage: coverage,
+  frozenReferenceCount: integrity.frozenReferenceCount, courseDependencyCount: integrity.courseDependencyCount,
+  limits: ['Offline numbered quotations, bounded Chinese guided cleaning, and adoption/reset persistence only; not Gate 1B or public release',
+    'Mixed unsplit action tails conservatively receive no automatic level; leading .NET statement limitation remains separate',
+    'Course coverage/new references, full 14-scenario native planning protocol, current master UI integration, live model quality and release gates remain open',
+    'No new paid, migration or deployment authorization'],
+  realModelCalls: 0, newCostUsd: 0, deployed: false, remoteMigration: false,
+  githubSaveStatusAtArchive: 'Pending the subsequent archive commit and normal branch push; verify the final branch ref separately' };
+writeFileSync(join(destination, 'verification.json'), JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: manifest.status, sourceCommit, artifacts: artifacts.length, requiredChecks: requiredChecks.length,
+  reviews: reviews.length, manifestSha256: sha(readFileSync(join(destination, 'verification.json'))) }));

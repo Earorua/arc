@@ -1,0 +1,176 @@
+import assert from 'node:assert/strict';
+import { build } from 'esbuild';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { stripVTControlCharacters } from 'node:util';
+
+const prefix = 'work/grounded-verification/numbered-statements-boundary-spec-20261109-a';
+for (const suffix of ['-results.json', '-bundle.mjs']) assert.equal(existsSync(prefix + suffix), false);
+const read = path => readFileSync(path, 'utf8');
+const json = path => JSON.parse(read(path));
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const fileSha = path => sha(readFileSync(path));
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8', windowsHide: true }).trim();
+const checks = [];
+const check = (id, fn) => {
+  try { const detail = fn(); checks.push({ id, pass: true, ...(detail === undefined ? {} : { detail }) }); }
+  catch (error) { checks.push({ id, pass: false, error: String(error) }); }
+};
+const verifiedFiles = [];
+const verifyFile = (path, expected) => {
+  const actual = fileSha(path);
+  assert.equal(actual, expected, path);
+  verifiedFiles.push({ path, sha256: actual });
+};
+const freezePath = 'work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-results.json';
+const freeze = json(freezePath);
+const identity = { branch: git('branch', '--show-current'), head: git('rev-parse', 'HEAD'), status: git('status', '--porcelain=v1') };
+check('frozen-identity', () => {
+  assert.equal(identity.branch, freeze.identity.branch);
+  assert.equal(identity.head, freeze.identity.head);
+  assert.equal(identity.status, freeze.identity.status.trim());
+});
+check('frozen-artifact-and-source-hashes', () => {
+  for (const item of freeze.snapshots) {
+    verifyFile(item.path, item.sha256);
+    verifyFile(item.snapshot, item.sha256);
+  }
+  verifyFile(freeze.trackedDiff.path, freeze.trackedDiff.sha256);
+  verifyFile(freeze.baseline.path, freeze.baseline.sha256);
+  verifyFile(freeze.legacyComparison.path, freeze.legacyComparison.sha256);
+  for (const [path, expected] of Object.entries(freeze.immutableHashes)) verifyFile(path, expected);
+  for (const [path, expected] of Object.entries(freeze.untouchedProviderAndSiteHashes)) verifyFile(path, expected);
+  for (const run of freeze.runs) {
+    verifyFile(run.metadataPath, run.metadataSha256);
+    verifyFile(run.logPath, run.logSha256);
+    const metadata = json(run.metadataPath);
+    assert.equal(metadata.exit, run.exit);
+    assert.equal(metadata.logSha256, run.logSha256);
+    assert.equal(metadata.nonLoopbackDenials, 0);
+  }
+  return { files: verifiedFiles.length };
+});
+check('raw-red-green-related-counts', () => {
+  const plain = suffix => stripVTControlCharacters(read('work/grounded-verification/numbered-statements-boundary-20261109-' + suffix + '.log'));
+  assert.match(plain('red-behavior-b'), /Tests\s+23 failed \| 14 passed \(37\)/u);
+  assert.match(plain('green-a'), /Tests\s+37 passed \(37\)/u);
+  assert.match(plain('related-a'), /Test Files\s+5 passed \(5\)/u);
+  assert.match(plain('related-a'), /Tests\s+794 passed \(794\)/u);
+  return { behavioralRed: { failed: 23, passed: 14 }, green: 37, related: 794 };
+});
+check('preserved-legacy-coordinate-evidence', () => {
+  const baseline = json(freeze.baseline.path), compared = json(freeze.legacyComparison.path);
+  assert.equal(baseline.fixtures.length, 40);
+  assert.deepEqual(compared.fixtures, baseline.fixtures);
+  assert.equal(compared.baselineComparisons, 80);
+  const diagnosis = json(freeze.priorProviderObservations.path);
+  assert.equal(diagnosis.observations.length, 168);
+  assert.equal(diagnosis.unchangedV1V2Comparisons, 112);
+  return { fixtures: 40, savedEqualCoordinateMaps: 80, preservedProviderObservations: 168 };
+});
+check('legacy-source-is-exactly-unchanged', () => {
+  const normalized = text => text.replace(/\r\n/gu, '\n').trimEnd();
+  const statements = normalized(read('worker/document-executor/source-statements.ts'));
+  const legacyStatements = normalized(git('show', 'HEAD:worker/document-executor/source-statements.ts'));
+  assert.equal(statements.slice(0, statements.indexOf('\nexport function completeNumberedStatementBoundaries')).trimEnd(), legacyStatements);
+  const review = normalized(read('worker/document-executor/source-review-evidence.ts'))
+    .replace('completeNumberedStatementBoundaries, statementBoundaries', 'statementBoundaries')
+    .replace('\nexport function sourceMentionStatementBoundaries(text: string) {\n  return completeNumberedStatementBoundaries(text, groundedStatementBoundaries(text));\n}\n', '');
+  assert.equal(review, normalized(git('show', 'HEAD:worker/document-executor/source-review-evidence.ts')));
+  assert.equal(git('diff', '--name-only'), 'worker/document-executor/source-review-evidence.ts\nworker/document-executor/source-statements.ts');
+});
+
+const entry = ['source-statements', 'source-review-evidence'].map(name => `export * from ${JSON.stringify(resolve('worker/document-executor/' + name + '.ts'))};`).join('\n');
+const built = await build({ stdin: { contents: entry, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, platform: 'node', target: 'node24', format: 'esm', write: false, logLevel: 'silent' });
+writeFileSync(prefix + '-bundle.mjs', built.outputFiles[0].contents, { flag: 'wx' });
+const api = await import(pathToFileURL(resolve(prefix + '-bundle.mjs')).href);
+const coordinates = (text, bounds) => [...bounds].map(([start, end]) => ({ start, end, text: text.slice(start, end) }));
+const observations = [];
+const observe = text => {
+  const base = api.groundedStatementBoundaries(text), numbered = api.sourceMentionStatementBoundaries(text);
+  observations.push({ text, base: coordinates(text, base), numbered: coordinates(text, numbered) });
+  return { base, numbered };
+};
+check('root-cause-and-new-full-citation', () => {
+  const text = '1. I practiced SQL with a mentor.', { base, numbered } = observe(text);
+  assert.deepEqual([...base], [[0, 2], [3, 33]]);
+  assert.deepEqual([...numbered], [[0, 33], [3, 33]]);
+});
+check('mixed-digits-cr-only-and-emoji-utf16', () => {
+  const text = '🧪.\r\r\t１2３. SQL is required.', { base, numbered } = observe(text);
+  const start = text.indexOf('１2３.'), bodyStart = text.indexOf('SQL');
+  assert.equal(numbered.get(0), 3);
+  assert.equal(numbered.get(start), text.length);
+  assert.equal(numbered.get(bodyStart), text.length);
+  assert.equal(numbered.get(start), base.get(bodyStart));
+});
+check('crlf-indentation-qualifier-and-adjacent-entry', () => {
+  const first = '\t１２. I tested SQL\r\nbut did not practice independently.';
+  const text = first + '\r\n  2. Python is optional.', { base, numbered } = observe(text);
+  const firstStart = 1, bodyStart = text.indexOf('I tested'), secondStart = text.indexOf('2.');
+  assert.equal(numbered.get(firstStart), first.length);
+  assert.equal(numbered.get(bodyStart), first.length);
+  assert.equal(numbered.get(firstStart), base.get(bodyStart));
+  assert.equal(numbered.get(secondStart), text.length);
+  assert.notEqual(numbered.get(firstStart), text.indexOf('\r\n'));
+  assert.notEqual(numbered.get(firstStart), text.length);
+});
+check('chinese-body-and-internal-technical-dot-and-url', () => {
+  for (const text of ['１. 我在指导下清洗数据。', '12. Node.js and SQL are required.', '2. See https://learn.invalid/start?q=SQL for practice.']) {
+    const { base, numbered } = observe(text), bodyStart = text.indexOf(' ') + 1;
+    assert.equal(numbered.get(0), text.length);
+    assert.equal(numbered.get(0), base.get(bodyStart));
+    assert.equal(numbered.get(bodyStart), text.length);
+  }
+});
+check('same-line-following-sentence-is-not-joined', () => {
+  const first = '12. SQL is required.', text = first + ' Python is optional.', { numbered } = observe(text);
+  assert.equal(numbered.get(0), first.length);
+  assert.equal(numbered.get(4), first.length);
+  assert.equal(numbered.get(first.length + 1), text.length);
+});
+check('orphan-and-cross-line-prefix-are-not-facts', () => {
+  for (const text of ['123.', '\t１2３. \r\n', '  1.\rSQL is required.', '1.\n\nSQL is required.']) {
+    const { base, numbered } = observe(text), start = text.search(/\S/u);
+    assert.equal(base.has(start), true);
+    assert.equal(numbered.has(start), false);
+  }
+});
+check('unsupported-syntax-and-leading-dot-limitation-stay-unchanged', () => {
+  for (const text of ['1.2 SQL is required.', '1.Node.js is required.', '1000. SQL is required.', '１０００. SQL is required.', '1． SQL is required.', 'Task 1. SQL is required.', '1. .NET is required.']) {
+    const { base, numbered } = observe(text);
+    assert.deepEqual([...numbered], [...base]);
+  }
+});
+check('clone-body-authority-and-unrelated-entry-preservation', () => {
+  const text = '1. SQL is required.', base = new Map([[0, 2], [3, 6], [77, 88]]), before = [...base];
+  const numbered = api.completeNumberedStatementBoundaries(text, base);
+  assert.notEqual(numbered, base);
+  assert.deepEqual([...numbered], [[0, 6], [3, 6], [77, 88]]);
+  assert.deepEqual([...base], before);
+  numbered.delete(3);
+  assert.deepEqual([...base], before);
+  const noBody = new Map([[0, 2], [4, text.length]]);
+  assert.deepEqual([...api.completeNumberedStatementBoundaries(text, noBody)], [...noBody]);
+  const empty = new Map();
+  assert.deepEqual([...api.completeNumberedStatementBoundaries(text, empty)], []);
+  assert.notEqual(api.completeNumberedStatementBoundaries(text, empty), empty);
+});
+check('frozen-source-hashes-still-match-after-probe', () => {
+  for (const item of freeze.snapshots) assert.equal(fileSha(item.path), item.sha256);
+});
+const result = {
+  status: checks.every(item => item.pass) ? 'PASS' : 'FAIL',
+  scope: 'Independent Task 1 specification review only; no provider/site integration or final repository acceptance claim.',
+  identity, freeze: { path: freezePath, sha256: fileSha(freezePath) },
+  scriptSha256: fileSha(prefix + '.mjs'), bundleSha256: fileSha(prefix + '-bundle.mjs'),
+  checks, verifiedFiles, observations,
+  limitations: ['Leading .NET retains its existing incomplete body boundary.', 'Task 2 provider and site wiring remains deliberately absent.'],
+  trackedWrites: false, modelCalls: 0,
+};
+writeFileSync(prefix + '-results.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, checks: checks.length, failed: checks.filter(item => !item.pass), observations: observations.length, verifiedFiles: verifiedFiles.length, output: prefix + '-results.json' }));
+process.exitCode = result.status === 'PASS' ? 0 : 1;

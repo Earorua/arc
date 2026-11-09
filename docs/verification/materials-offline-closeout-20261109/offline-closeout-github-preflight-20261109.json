@@ -1,0 +1,19 @@
+{
+  "status": "READY_FOR_NORMAL_PUSH_AFTER_ARCHIVE_COMMIT",
+  "remote": "https://github.com/Earorua/arc.git",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "sourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+  "remoteBeforePush": "714ea9e54d87b91a1fee4883176d4f1dd06ecf63",
+  "aheadBeforeArchiveCommit": 11,
+  "behind": 0,
+  "remoteAncestorVerified": true,
+  "prePushHookPresent": false,
+  "workflow": ".github/workflows/ci.yml: pull_request and pushes to master; tests/lint/build only",
+  "pushPerformedAtThisCheckpoint": false,
+  "authorization": "User explicitly requested local and GitHub save after this offline closeout, followed by pausing the goal",
+  "forcePushAuthorizedOrUsed": false,
+  "deployed": false,
+  "remoteMigration": false,
+  "realModelCalls": 0,
+  "newCostUsd": 0
+}

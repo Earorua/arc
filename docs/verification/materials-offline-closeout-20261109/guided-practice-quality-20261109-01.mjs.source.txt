@@ -1,0 +1,124 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "esbuild";
+
+const prefix = "work/grounded-verification/guided-practice-quality-20261109-01";
+const manifestPath = "work/grounded-verification/guided-practice-20261109-freeze-01-own-results.json";
+const expectedManifest = "3f264e37dd4a8d30ee035389f9f1a5eca9e6e2e84cce18ce48b668b9374a34a2";
+const sha = data => createHash("sha256").update(data).digest("hex");
+const hashFile = path => sha(readFileSync(path));
+for (const suffix of ["-bundle.mjs", "-own-results.json"]) assert.equal(existsSync(prefix + suffix), false, "review artifact already exists");
+assert.equal(hashFile(manifestPath), expectedManifest);
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+const sourceChecks = manifest.sourceFiles.map(file => {
+  const liveSha256 = hashFile(file.path), frozenSha256 = hashFile(file.frozen);
+  assert.equal(liveSha256, file.sha256, file.path);
+  assert.equal(frozenSha256, file.sha256, file.frozen);
+  return { path: file.path, expectedSha256: file.sha256, liveSha256, frozenPath: file.frozen, frozenSha256 };
+});
+const evidenceChecks = manifest.runs.map(run => {
+  assert.equal(hashFile(run.metadata), run.metadataSha256, run.metadata);
+  assert.equal(hashFile(run.log), run.logSha256, run.log);
+  const meta = JSON.parse(readFileSync(run.metadata, "utf8"));
+  assert.equal(meta.exit, run.exit);
+  assert.equal(meta.nonLoopbackDenials, 0);
+  return { name: run.name, exit: run.exit, metadata: run.metadata, metadataSha256: run.metadataSha256, log: run.log, logSha256: run.logSha256 };
+});
+const reportChecks = manifest.reports.map(report => {
+  assert.equal(hashFile(report.path), report.sha256, report.path);
+  const raw = JSON.parse(readFileSync(report.path, "utf8"));
+  assert.equal(raw.numTotalTests, report.total, report.path);
+  assert.equal(raw.numPassedTests, report.passed, report.path);
+  assert.equal(raw.numFailedTests, report.failed, report.path);
+  return report;
+});
+
+const probe = String.raw`
+import assert from "node:assert/strict";
+import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, GROUNDED_MATERIAL_REVIEW_PROJECTION } from "./app/contracts/documents";
+import { supportsMaterialSelfLevelHint, hasPersonalCapabilityQuestion } from "./app/lib/materials/self-assessment-evidence";
+import { maskQuotes } from "./app/lib/materials/quotation-evidence";
+import { retainedMaterialSelfAssessmentHints } from "./app/lib/materials/skill-labels";
+import { readSourceSpanExtraction } from "./worker/document-executor/source-span-extraction";
+import { validateDocumentExtraction, serializeDocumentExtraction, validateStoredDocumentExtraction } from "./app/server/documents/extraction-validator";
+import { KIMI_SOURCE_MENTIONS_POLICY_ID } from "./app/server/documents/policy";
+
+const v3 = SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
+const reference = text => ({ ownerId: "quality-reviewer", lifecycle: "active", documentId: "d", documentVersionId: "dv", textVersionId: "tv", text, segments: [{ id: "s", start: 0, end: text.length }] });
+const canonical = (text, level = "guided") => ({ schemaVersion: "2026.11.1", items: [{ id: "c", kind: "experience", text, source: { segmentId: "s", quote: text }, requirementLevel: null, skillLabels: ["data cleaning"], selfLevelHint: level }], reviewPoints: [] });
+const h = Object.freeze({ id: "h", candidateId: "c", skillLabel: "data cleaning", level: "guided" });
+const fact = text => Object.freeze({ id: "c", kind: "experience", text, origin: "user", sourceRef: null, requirementLevel: null, skillLabels: Object.freeze(["data cleaning"]) });
+function decode(text, format, level = "guided", terms = ["清洗数据"]) {
+  const wire = { format, items: [{ kind: "experience", source: { segmentId: "s", quote: text }, requirementLevel: null, skillTerms: terms, selfLevelHint: level }], reviewPoints: [] };
+  return readSourceSpanExtraction({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(wire) } }] }, reference(text), undefined, format);
+}
+export function run() {
+  const results = [];
+  for (const [id, text, accepted] of [
+    ["no-terminal-mark", "我在指导下清洗数据", true],
+    ["terminal-space", "我在指导下清洗数据。  ", true],
+    ["aspect", "我在指导下清洗了数据。", true],
+    ["qualified-data", "我在指导下对原始数据进行清洗。", true],
+    ["unexecuted-plan", "我在指导下清洗数据的计划尚未执行。", false],
+    ["unsplit-SQL-tail", "我在指导下清洗数据，记录了同事的 SQL 工作。", false],
+    ["unsplit-repeated-tail", "我在指导下清洗数据，记录了同事清洗数据的工作。", false],
+    ["quoted-example", "示例：“我在指导下清洗数据。”", false],
+    ["condition", "如果我在指导下清洗数据，我会记录过程。", false],
+  ]) {
+    const input = { kind: "experience", text, labels: ["data cleaning"], level: "guided" };
+    assert.equal(supportsMaterialSelfLevelHint({ ...input, sourceMentions: true }), accepted, id);
+    assert.equal(hasPersonalCapabilityQuestion(text, maskQuotes(text), true, true), accepted, id);
+    assert.equal(supportsMaterialSelfLevelHint(input), false, id + " default");
+    for (const level of ["conceptual", "uncertain"]) assert.equal(supportsMaterialSelfLevelHint({ ...input, level, sourceMentions: true }), false, id + " level isolation");
+    results.push({ id, v3Guided: accepted, defaultGuided: false, otherLevels: false });
+  }
+  const text = "我在指导下清洗数据。";
+  const items = Object.freeze([fact(text)]), hints = Object.freeze([h]);
+  const before = JSON.stringify({ items, hints });
+  for (let count = 0; count < 3; count++) assert.deepEqual(retainedMaterialSelfAssessmentHints(items, hints, v3), hints);
+  assert.equal(JSON.stringify({ items, hints }), before);
+  for (const projection of [undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION, v3 + "-unknown"])
+    assert.deepEqual(retainedMaterialSelfAssessmentHints(items, hints, projection), []);
+  assert.deepEqual(retainedMaterialSelfAssessmentHints(items, [], v3), []);
+  const removed = retainedMaterialSelfAssessmentHints([fact("我在指导下清洗数据的计划尚未执行。")], hints, v3);
+  assert.deepEqual(removed, []);
+  assert.deepEqual(retainedMaterialSelfAssessmentHints(items, removed, v3), []);
+  results.push({ id: "retention-edit-cycle", immutableInputs: true, repeatedStable: true, removedStaysAbsent: true, defaultAndUnknownUnchanged: true });
+  const decoded3 = decode(text, "source-spans-v3"), decoded2 = decode(text, "source-spans-v2");
+  assert.equal(decoded3.extractionRead, "parsed"); assert.equal(decoded2.extractionRead, "parsed");
+  assert.equal(decoded3.candidate.items[0].selfLevelHint, "guided");
+  assert.equal(decoded3.candidate.reviewPoints[0].code, "confirm-self-assessment");
+  assert.equal(decoded2.candidate.items[0].selfLevelHint, null); assert.deepEqual(decoded2.candidate.reviewPoints, []);
+  assert.equal(decode(text, "source-spans-v3-unknown").extractionRead, "invalid-shape");
+  assert.equal(decode(text, "source-spans-v3", null).candidate.items[0].selfLevelHint, null);
+  const noNomination = decode(text, "source-spans-v3", "guided", []).candidate;
+  assert.deepEqual(noNomination.items[0].skillLabels, []);
+  assert.deepEqual(validateDocumentExtraction(noNomination, "quality-reviewer", reference(text), KIMI_SOURCE_MENTIONS_POLICY_ID).selfAssessmentHints, []);
+  results.push({ id: "decoder-exact-mode", exactV3: true, v2Unchanged: true, unknownRejected: true, nullPreserved: true, emptyNominationNoPerSkillHint: true });
+  const numbered = "１２. 我在指导下清洗数据。", ref = reference(numbered), candidate = canonical(numbered);
+  const site = validateDocumentExtraction(candidate, "quality-reviewer", ref, KIMI_SOURCE_MENTIONS_POLICY_ID);
+  assert.deepEqual(site.selfAssessmentHints.map(hint => hint.level), ["guided"]);
+  assert.deepEqual(validateStoredDocumentExtraction(serializeDocumentExtraction(candidate, KIMI_SOURCE_MENTIONS_POLICY_ID), "quality-reviewer", ref), site);
+  assert.deepEqual(retainedMaterialSelfAssessmentHints(site.items, site.selfAssessmentHints, v3), site.selfAssessmentHints);
+  assert.equal(site.items[0].text, numbered); assert.equal(site.items[0].sourceRef.start, 0); assert.equal(site.items[0].sourceRef.end, numbered.length);
+  const unknownPolicy = KIMI_SOURCE_MENTIONS_POLICY_ID + "-unknown";
+  assert.deepEqual(validateDocumentExtraction(candidate, "quality-reviewer", ref, unknownPolicy), validateDocumentExtraction(candidate, "quality-reviewer", ref));
+  results.push({ id: "numbered-storage", completeFactPreserved: true, sourceCoordinatesPreserved: true, retainedGuided: true, storedDeepEqual: true, unknownPolicyUnchanged: true });
+  return results;
+}
+`;
+const built = await build({ stdin: { contents: probe, loader: "ts", resolveDir: resolve(".") }, bundle: true, write: false, platform: "node", format: "esm", target: "node24", metafile: true, external: ["node:*"] });
+writeFileSync(prefix + "-bundle.mjs", built.outputFiles[0].contents, { flag: "wx" });
+const { run } = await import(pathToFileURL(resolve(prefix + "-bundle.mjs")).href);
+const probeResults = run();
+const bundledSources = Object.keys(built.metafile.inputs).filter(path => path !== "<stdin>" && !path.includes("node_modules")).sort().map(path => ({ path, sha256: hashFile(path) }));
+for (const check of sourceChecks) assert.equal(hashFile(check.path), check.liveSha256, check.path + " changed during review");
+const output = { status: "PASS", scope: "Independent code-quality review of the frozen bounded v3 Chinese guided-cleaning change only", sourceHead: manifest.sourceHead,
+  manifestPath, manifestSha256: expectedManifest, sourceChecks, evidenceChecks, reportChecks, findings: [], probeCases: probeResults.length, probeResults, bundledSources,
+  scriptSha256: hashFile(prefix + ".mjs"), probeSha256: sha(probe), bundleSha256: hashFile(prefix + "-bundle.mjs"),
+  trackedSourceEdits: 0, committed: false, realModelCalls: 0, externalNetworkCalls: 0, broadSuitesRerun: false, fullRepositoryGate: "pending root task" };
+writeFileSync(prefix + "-own-results.json", JSON.stringify(output, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: output.status, scope: output.scope, sourceFiles: sourceChecks.length, recordedRunsVerified: evidenceChecks.length, recordedReportsVerified: reportChecks.length, probeCases: probeResults.length, findings: output.findings, resultPath: prefix + "-own-results.json", resultSha256: hashFile(prefix + "-own-results.json") }));

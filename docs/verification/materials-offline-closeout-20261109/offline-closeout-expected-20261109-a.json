@@ -1,0 +1,27 @@
+{
+  "sourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+  "changed": [
+    "app/components/setup/adaptive-setup-flow.tsx",
+    "app/lib/materials/personal-assertion-scopes.ts",
+    "app/lib/materials/self-assessment-evidence.ts",
+    "app/lib/materials/skill-labels.ts",
+    "app/server/documents/extraction-validator.ts",
+    "tests/helpers/material-mention-review-fixture.ts",
+    "tests/lib/materials/reviewed-source-mentions.test.ts",
+    "tests/server/document-extraction.test.ts",
+    "tests/server/document-source-span-provider.test.ts",
+    "tests/server/material-mention-review-flow.test.ts",
+    "worker/document-executor/source-review-evidence.ts",
+    "worker/document-executor/source-span-extraction.ts",
+    "worker/document-executor/source-statements.ts"
+  ],
+  "added": [
+    "tests/components/material-adoption-persistence.test.tsx",
+    "tests/components/material-guided-cleaning.test.tsx",
+    "tests/fixtures/material-guided-cleaning-legacy.json",
+    "tests/helpers/material-guided-cleaning.ts",
+    "tests/lib/materials/guided-cleaning-evidence.test.ts",
+    "tests/server/material-guided-cleaning.test.ts",
+    "tests/server/material-numbered-statements.test.ts"
+  ]
+}

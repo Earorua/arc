@@ -1,0 +1,6 @@
+import { defineConfig } from "vitest/config";
+import original from "../../vitest.config";
+export default defineConfig({ ...original, test: { ...original.test,
+  include: ["work/grounded-verification/adoption-persistence-diagnosis-20261109-probe.test.tsx"],
+  testTimeout: 15_000,
+} });

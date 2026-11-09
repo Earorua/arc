@@ -1,0 +1,129 @@
+{
+  "checks": [
+    "numbered-statements-boundary-20261109-green-a",
+    "numbered-statements-boundary-20261109-related-a",
+    "numbered-statements-boundary-20261109-compare-a",
+    "numbered-statements-boundary-20261109-types-a",
+    "numbered-statements-boundary-20261109-lint-a",
+    "numbered-statements-boundary-quality-20261109-q1",
+    "numbered-statements-flow-20261109-green-a",
+    "numbered-statements-flow-20261109-browser-a",
+    "numbered-statements-flow-20261109-types-b",
+    "numbered-statements-flow-20261109-lint-a",
+    "numbered-statements-flow-spec-20261109-a",
+    "numbered-statements-flow-quality-20261109-q1",
+    "guided-practice-20261109-green-02",
+    "guided-practice-20261109-regression-02",
+    "guided-practice-20261109-types-03",
+    "guided-practice-20261109-lint-02",
+    "guided-practice-spec-20261109-01",
+    "guided-practice-quality-20261109-02",
+    "adoption-persistence-20261109-green-01",
+    "adoption-persistence-20261109-related-01",
+    "adoption-persistence-20261109-types-01",
+    "adoption-persistence-20261109-lint-01",
+    "adoption-persistence-spec-20261109-focused-01",
+    "adoption-persistence-quality-20261109-focused-01",
+    "offline-closeout-snapshot-20261109-a",
+    "offline-closeout-integrity-20261109-start-a",
+    "offline-closeout-full-unit-20261109-a",
+    "offline-closeout-full-serial-20261109-a",
+    "offline-closeout-full-research-20261109-a",
+    "offline-closeout-full-node-20261109-a",
+    "offline-closeout-full-types-20261109-a",
+    "offline-closeout-full-lint-20261109-a",
+    "offline-closeout-build-20261109-a",
+    "offline-closeout-render-20261109-a",
+    "offline-closeout-native-flow-20261109-final-a",
+    "offline-closeout-node-parity-20261109-final-a",
+    "offline-closeout-legacy-native-20261109-final-a",
+    "offline-closeout-legacy-parity-20261109-final-a",
+    "offline-closeout-compatibility-final-20261109-a",
+    "offline-closeout-history-final-20261109-a",
+    "offline-closeout-integrity-20261109-final-a",
+    "offline-closeout-coverage-20261109-a"
+  ],
+  "reviews": [
+    {
+      "task": "numbered-boundary",
+      "kind": "spec",
+      "path": "numbered-statements-boundary-spec-20261109-a-review-results.json",
+      "sha256": "c03643f49fd2009a152aae0cb2b5acfd410ea26d8d332d90fce33488f79f4c0e",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "numbered-boundary",
+      "kind": "quality",
+      "path": "numbered-statements-boundary-quality-20261109-q1-own-results.json",
+      "sha256": "e6da08afe3039cb7fb4a1a462033c7dd4d6cec4617e9295f18eb3c7191351cdf",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "numbered-flow",
+      "kind": "spec",
+      "path": "numbered-statements-flow-spec-20261109-memo-a-results.json",
+      "sha256": "9756a26d1c53a89cb5252f058e61c9197edd2326f4c5dbe08b1b678eb069e32b",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "numbered-flow",
+      "kind": "quality",
+      "path": "numbered-statements-flow-quality-20261109-q1-own-results.json",
+      "sha256": "4de2a4173bf6cf97243eb11cb6375912af4cdd47a3c4a1e79304cd3cea6641e3",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "guided-practice",
+      "kind": "spec",
+      "path": "guided-practice-spec-20261109-01-own-results.json",
+      "sha256": "1b6b7d80393c0025c484c696172a60c8ca8e2dc477051c4f58fd3d635c2c08f1",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "guided-practice",
+      "kind": "quality",
+      "path": "guided-practice-quality-20261109-02-own-results.json",
+      "sha256": "31e070717c59e1f7c1be80e9e0d9aba73935325fc12e4819a55c62c01e4b2f35",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "adoption-persistence",
+      "kind": "spec",
+      "path": "adoption-persistence-spec-20261109-review-01-own-results.json",
+      "sha256": "311191629bb489bfd26a4ced81484bdcd63df701689ad5056b6b42e13f59c7b0",
+      "reportedStatus": "pass-scope-only",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "adoption-persistence",
+      "kind": "quality",
+      "path": "adoption-persistence-quality-20261109-review-01-own-results.json",
+      "sha256": "1d588a035e591554c32881b6e459fafb7cda9be0d58d91967b1941cf9a86d959",
+      "reportedStatus": "pass-scope-only",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "combined-closeout",
+      "kind": "integration",
+      "path": "offline-closeout-integration-review-20261109-final-own-results.json",
+      "sha256": "654f799185f77d0448c3bd734258e00621f17e59a9d320c55a5462a9c43d85bb",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    }
+  ]
+}

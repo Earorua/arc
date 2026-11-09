@@ -1,0 +1,14 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+ [32m✓[39m tests/server/document-source-span-provider.test.ts [2m([22m[2m155 tests[22m[2m)[22m[32m 262[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-review-evidence.test.ts [2m([22m[2m448 tests[22m[2m)[22m[32m 182[2mms[22m[39m
+ [32m✓[39m tests/server/document-extraction.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-requirement-evidence.test.ts [2m([22m[2m124 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/server/material-numbered-statements.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m794 passed[39m[22m[90m (794)[39m
+[2m   Start at [22m 18:59:01
+[2m   Duration [22m 6.04s[2m (transform 515ms, setup 1.07s, import 1.08s, tests 543ms, environment 2.50s)[22m
+

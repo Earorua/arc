@@ -1,0 +1,48 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+
+const work = "work/grounded-verification", prefix = "guided-practice-20261109-", output = join(work, prefix + "freeze-01-own-results.json");
+const freeze = join(work, prefix + "final-source-freeze");
+assert.equal(existsSync(output), false); assert.equal(existsSync(freeze), false);
+const sha = data => createHash("sha256").update(data).digest("hex");
+const files = [
+  "app/lib/materials/personal-assertion-scopes.ts", "app/lib/materials/self-assessment-evidence.ts", "app/lib/materials/skill-labels.ts",
+  "app/server/documents/extraction-validator.ts", "worker/document-executor/source-review-evidence.ts", "worker/document-executor/source-span-extraction.ts",
+  "tests/helpers/material-guided-cleaning.ts", "tests/helpers/material-mention-review-fixture.ts", "tests/server/material-guided-cleaning.test.ts",
+  "tests/lib/materials/guided-cleaning-evidence.test.ts", "tests/components/material-guided-cleaning.test.tsx", "tests/fixtures/material-guided-cleaning-legacy.json",
+];
+const sourceFiles = files.map(path => {
+  const data = readFileSync(path), frozen = join(freeze, path + ".source.txt");
+  mkdirSync(dirname(frozen), { recursive: true }); writeFileSync(frozen, data, { flag: "wx" });
+  return { path, sha256: sha(data), bytes: data.length, frozen };
+});
+const runs = ["baseline-01", "red-01", "green-01", "scope-probe-01", "scope-red-02", "green-02", "regression-01", "regression-02", "types-01", "types-02", "types-03", "lint-01", "lint-02"].map(name => {
+  const file = join(work, prefix + name + ".json"), result = JSON.parse(readFileSync(file, "utf8"));
+  const log = join(work, prefix + name + ".log");
+  assert.equal(result.nonLoopbackDenials, 0); assert.equal(sha(readFileSync(log)), result.logSha256);
+  return { name, ...result, metadata: file, metadataSha256: sha(readFileSync(file)), log };
+});
+const reports = ["red-01", "green-01", "scope-red-02", "green-02", "regression-01", "regression-02"].map(name => {
+  const path = join(work, prefix + name + "-own-results.json"), report = JSON.parse(readFileSync(path, "utf8"));
+  return { name, path, sha256: sha(readFileSync(path)), total: report.numTotalTests, passed: report.numPassedTests, failed: report.numFailedTests, pending: report.numPendingTests };
+});
+assert.equal(reports.find(row => row.name === "red-01").failed, 35);
+assert.equal(reports.find(row => row.name === "green-01").passed, 61);
+assert.equal(reports.find(row => row.name === "scope-red-02").failed, 4);
+assert.equal(reports.find(row => row.name === "green-02").passed, 65);
+assert.equal(reports.find(row => row.name === "regression-02").passed, 1329);
+for (const name of ["green-02", "regression-02", "types-03", "lint-02"]) assert.equal(runs.find(row => row.name === prefix + name || row.name === name)?.exit, 0);
+const evidencePaths = ["baseline-01.mjs", "baseline-01-bundle.mjs", "baseline-01-own-results.json", "scope-probe-01.mjs", "scope-probe-01-bundle.mjs", "scope-probe-01-own-results.json", "tsconfig.json", "freeze-01.mjs", "green-01-source-freeze/manifest.json"];
+const evidence = evidencePaths.map(name => { const path = join(work, prefix + name); return { path, sha256: sha(readFileSync(path)) }; });
+const result = {
+  status: "scoped-fix-frozen", sourceHead: "6b49bce8daa98c22dfa5459298904e59b57a95da", sourceFiles, runs, reports, evidence,
+  implementation: "Default-false sourceMentions propagates only from exact v3 boundaries; a direct Chinese cleaning action must equal existing grounded cleaning evidence after terminal punctuation/whitespace is removed.",
+  scopeDecision: "After a concrete colleague-SQL and repeated-cleaning suffix regression, unsegmented trailing narratives are conservatively rejected by the new branch. Their facts/topics remain, but no guided hint or inferred capability reminder is generated. Existing recognized separate assertion scopes retain their reminder behavior.",
+  compatibility: "Seven frozen before cases deeply compare omitted helper mode, generic experience, edited default/v2 hints, v1/v2 decode, legacy and v1/v2 stored/direct projections. Shared practiceAction, personalPassivePractice, prompts, policy IDs, schemas, markers and default callers are unchanged.",
+  typeLimit: "Raw root tsc types-01 is preserved with parser errors in historical ignored work/materials-browser-handoff/profile scratch fixtures. types-02 and types-03 use an untracked derived config excluding node_modules and work, preserving the root config.",
+  realModelCalls: 0, externalNetworkCalls: 0, trackedDocsEdited: false, committed: false, fullGateRun: false,
+};
+writeFileSync(output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: result.status, sourceFiles: sourceFiles.length, focused: 65, regression: 1329, output, sha256: sha(readFileSync(output)) }));

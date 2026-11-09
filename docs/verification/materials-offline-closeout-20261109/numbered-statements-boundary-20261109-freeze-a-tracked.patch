@@ -1,0 +1,53 @@
+diff --git a/worker/document-executor/source-review-evidence.ts b/worker/document-executor/source-review-evidence.ts
+index f9cf433..0b80426 100644
+--- a/worker/document-executor/source-review-evidence.ts
++++ b/worker/document-executor/source-review-evidence.ts
+@@ -7,7 +7,7 @@ import {
+   supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope,
+ } from "../../app/lib/materials/self-assessment-evidence";
+ import { deniedAssertion, hypothetical, maskQuotes, quoted } from "../../app/lib/materials/quotation-evidence";
+-import { statementBoundaries } from "./source-statements";
++import { completeNumberedStatementBoundaries, statementBoundaries } from "./source-statements";
+ import { isRequirementLevelHeading } from "./source-requirement-evidence";
+ 
+ type EvidenceItem = Pick<DocumentCandidate, "kind" | "source" | "selfLevelHint"> &
+@@ -66,6 +66,10 @@ export function groundedStatementBoundaries(text: string) {
+   return statementBoundaries(layout, isRequirementLevelHeading);
+ }
+ 
++export function sourceMentionStatementBoundaries(text: string) {
++  return completeNumberedStatementBoundaries(text, groundedStatementBoundaries(text));
++}
++
+ const instructionOverride = /^(?:(?:instructions? (?:for|to) (?:the )?(?:assistant|model)|assistant|system|ai|admin(?:istrator)?(?: override)?)\s*[:,，：]\s*)?(?:please\s+)?(?:ignore|disregard|discard|override|forget|bypass)\s+(?:(?:all|any|the|your|system|higher.priority|earlier|above|preceding|prior|previous|original)\s+){1,6}(?:instructions?|prompts?|rules?|safeguards?|constraints?)\b|^(?:(?:给|致)?(?:助手|模型|系统)[：:，,]\s*)?(?:请|务必|必须|现在)*(?:忽略|无视|绕过|覆盖)(?:之前|先前|此前|上面|上述|前面|原有|所有|全部|系统|的)*(?:指令|指示|提示词|规则)/iu;
+ const falsifiedResult = /^(?:(?:assistant|model|system|ai)\s*[:,，：]\s*)?(?:please\s+|you must\s+)?(?:mark|set|report|declare)\s+[^.;]{0,70}\b(?:skills?|proficiency|mastery|applicant|tasks?)\b[^.;]{0,25}\b(?:verified|mastered|complete)\b|^(?:请|务必|直接|强制|要求模型|要求助手)*(?:把|将)[^。]{0,48}(?:技能|能力|任务)[^。]{0,18}(?:标记|写|判定|设定)为(?:已验证|已掌握|已完成)/iu;
+ const commandToAssistant = /^(?:(?:assistant|model|ai)\s*[:,，：]\s*(?:follow|obey|execute) (?:this|the following) (?:instruction|command|directive)|(?:助手|模型)[：:，,]\s*请?(?:执行|遵循)(?:以下|这个)(?:指令|命令))\s*[:：]\s*/iu;
+diff --git a/worker/document-executor/source-statements.ts b/worker/document-executor/source-statements.ts
+index 2ded79b..a5afaf0 100644
+--- a/worker/document-executor/source-statements.ts
++++ b/worker/document-executor/source-statements.ts
+@@ -26,3 +26,24 @@ export function statementBoundaries(text: string, additionalHeading?: (line: str
+   }
+   return bounds;
+ }
++
++export function completeNumberedStatementBoundaries(
++  text: string, baseBounds: ReadonlyMap<number, number>,
++) {
++  const bounds = new Map(baseBounds);
++  for (const match of text.matchAll(/[^\r\n]+/gu)) {
++    const line = match[0], trimmed = line.trimStart();
++    const start = match.index + line.length - trimmed.length;
++    // A bare list ordinal is not a fact. Keep this tightening exclusive to v3.
++    if (/^[\d０-９]{1,3}\.\s*$/u.test(trimmed)) {
++      bounds.delete(start);
++      continue;
++    }
++    const prefix = listPrefix.exec(trimmed);
++    if (!prefix || !/^[\d０-９]{1,3}\./u.test(prefix[0])) continue;
++    const bodyStart = start + prefix[0].length;
++    const end = baseBounds.get(bodyStart);
++    if (end !== undefined) bounds.set(start, end);
++  }
++  return bounds;
++}

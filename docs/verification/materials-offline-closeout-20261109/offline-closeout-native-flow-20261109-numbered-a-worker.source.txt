@@ -1,0 +1,146 @@
+import { createDocumentRuntime } from "../../app/server/documents/runtime";
+import { createDocumentRoute } from "../../app/server/http/document-route-factories";
+import { documentEndpointContracts, type DocumentEndpoint } from "../../app/contracts/documents-api";
+import { ReviewService } from "../../app/server/documents/review-service";
+import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
+import { DocumentStorage } from "../../app/server/documents/storage";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { createDocumentsClient } from "../../app/lib/documents-client";
+import { HttpDocumentAnalysisProvider } from "../../worker/document-executor/provider-http";
+import { KIMI_SOURCE_SPAN_ROUTE } from "../../worker/document-executor/source-span-extraction";
+import { fixtureGenerationResponse } from "../../tests/helpers/document-generation-response";
+const clock = () => new Date("2026-11-09T01:00:00.000Z");
+export default { async fetch(request: Request, env: { DB: D1Database; DOCS: R2Bucket }) {
+  const entry = await request.json() as { id: string; text: string; quote?: string; reject?: boolean; labels?: string[]; retained?: string[]; editedText?: string;
+    addition?: { sourceTerm: string; expectedLabel: string }; hint?: "conceptual" | "guided" | "uncertain" | null;
+    reclassify?: "constraint"; manual?: boolean;
+    docKind?: "resume" | "jd" | "supplement"; itemKind?: "experience" | "skill-claim" | "requirement" | "constraint";
+    wholeTarget?: string; termTarget?: { label: string; skills: string[] }; adopt?: boolean };
+  const trace: unknown[] = [];
+  try {
+    let serial = 0;
+    const ownerId = "owner-a", id = () => entry.id + "-" + ++serial;
+    const runtime = createDocumentRuntime({ DB: env.DB, DOCUMENT_ASSETS: env.DOCS,
+      ARC_DOCUMENTS_ENABLED: "true", ARC_DOCUMENT_PLANNING_ENABLED: "true", ARC_DOCUMENT_ANALYSIS_ENABLED: "false" }, { now: clock, createId: id });
+    async function http(endpoint: DocumentEndpoint, input: Record<string, unknown>) {
+      const params: Record<string, string> = {};
+      for (const match of documentEndpointContracts[endpoint].path.matchAll(/\[([A-Za-z]+)\]/gu)) params[match[1]] = String(input[match[1]]);
+      const client = createDocumentsClient({ fetch: async (url, init) => {
+        const headers = new Headers(init?.headers); if (init?.method !== "GET") headers.set("origin", "https://arc.test");
+        const response = await createDocumentRoute(endpoint, { requireUser: async () => ({ id: ownerId }), configuredOrigin: () => "https://arc.test",
+          createService: () => runtime, rateLimiter: { reserve: async () => ({ allowed: true }) } })(new Request(new URL(String(url), "https://arc.test"), { ...init, headers }), { params });
+        trace.push({ endpoint, input, status: response.status, value: await response.clone().json() });
+        return response;
+      } });
+      return await client.request(endpoint, input as any) as Record<string, any>;
+    }
+    const kind = entry.itemKind ?? "experience", docKind = entry.docKind ?? "resume";
+    const receipt = await http("createDocument", { kind: docKind, displayName: "Synthetic " + entry.id, text: entry.text, mutationId: entry.id + "-create" });
+    const sourceDocument = await http("readDocument", { documentId: receipt.documentId });
+    const analysisText = sourceDocument.text as string;
+    if (typeof analysisText !== "string") throw Error("Expected saved canonical source text");
+    let draft: Record<string, any>, acceptance: unknown, providerObserved: unknown;
+    if (!entry.manual) {
+      const policy = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v3", consent = entry.id + "-consent", job = entry.id + "-job";
+      const config = { provider: "OpenRouter / Moonshot AI", model: KIMI_SOURCE_SPAN_ROUTE.model, endpoint: KIMI_SOURCE_SPAN_ROUTE.endpoint,
+        apiKey: "offline-fixture-credential", providerPolicyId: policy,
+        routingPolicy: { policyVersion: "2026.11.3", providerOrder: [KIMI_SOURCE_SPAN_ROUTE.tag], allowFallback: false as const, dataPolicy: "zdr-only" as const },
+        priceVersion: "2026.11.3", userDailyMicroUsd: 2_000_000, globalDailyMicroUsd: 2_000_000,
+        maxJobMicroUsd: 75_000, maxInputTokens: 16_000, maxOutputTokens: 4096, httpTimeoutMs: 1000 };
+      const qualification = { qualified: true as const, endpoint: config.endpoint, model: config.model, providerPolicyId: policy, priceVersion: config.priceVersion,
+        routingPolicy: config.routingPolicy, receiptRoute: { providerName: KIMI_SOURCE_SPAN_ROUTE.providerName, endpointId: KIMI_SOURCE_SPAN_ROUTE.endpointId, generationModel: KIMI_SOURCE_SPAN_ROUTE.generationModel },
+        inputMicroUsdPerMillionTokens: 2_000_000, outputMicroUsdPerMillionTokens: 10_000_000, inputTokenBound: "utf8-bytes-plus-4096" as const };
+      const source = { segmentId: "segment-1", quote: entry.quote ?? analysisText };
+      const wire = { format: "source-spans-v3", items: [{ kind, source, requirementLevel: kind === "requirement" ? "must" : null,
+        skillTerms: entry.labels ?? ["SQL"], selfLevelHint: entry.hint ?? null }],
+        reviewPoints: entry.hint ? [{ code: "confirm-self-assessment", source }] : [] };
+      // The real receipt privacy guard correctly rejects IDs containing an eight-character source excerpt.
+      // Keep synthetic IDs opaque and deterministic, rather than embedding scenario words.
+      const receiptId = "gen-local-" + Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(entry.id))))
+        .map(byte => byte.toString(16).padStart(2, "0")).join("");
+      const calls: unknown[] = [];
+      const provider = new HttpDocumentAnalysisProvider(config, { qualification, now: clock, fetch: async (url, init) => {
+        calls.push({ url: String(url), method: init?.method, ...(init?.method === "POST" ? { body: JSON.parse(String(init.body)) } : {}) });
+        return init?.method === "POST" ? Response.json({ id: receiptId, model: config.model,
+          choices: [{ finish_reason: "stop", message: { content: JSON.stringify(wire) } }], usage: { prompt_tokens: 100, completion_tokens: 20, cost: 0.000007 } })
+          : fixtureGenerationResponse(receiptId, config.model, qualification.receiptRoute);
+      } });
+      const actualNow = Date.now;
+      let outcome;
+      try {
+        Date.now = () => clock().getTime();
+        outcome = await provider.analyze({ text: analysisText, segments: [{ id: "segment-1", start: 0, end: analysisText.length }],
+          textVersionId: receipt.textVersionId, kind: docKind, providerPolicyId: policy, outputSchemaVersion: "2026.11.1" }, new AbortController().signal);
+      } finally { Date.now = actualNow; }
+      providerObserved = { calls, wire, outcome };
+      if (entry.reject) return Response.json({ ok: outcome.kind === "received" && !outcome.candidate, rejected: !outcome.candidate, providerObserved, trace });
+      if (outcome.kind !== "received" || !outcome.candidate) throw Error("Synthetic provider did not return a candidate: " + JSON.stringify(providerObserved));
+      // Inert local consent/job rows exercise accepted result delivery. Analysis and dispatch remain disabled.
+      await env.DB.prepare("INSERT INTO document_processing_consents VALUES(?,?,?,?,?,'analysis','2026.11.1',?,0,0,NULL)")
+        .bind(ownerId, consent, receipt.textVersionId, receipt.documentId, receipt.documentVersionId, policy).run();
+      await env.DB.prepare("INSERT INTO document_jobs(owner_id,id,text_version_id,document_id,document_version_id,consent_id,generation,document_revision,revision,state,dispatch_state,execution_slot,queued_at,queue_expires_at,provider_policy_id,price_version,policy_version,reservation_id,updated_at) VALUES(?,?,?,?,?,?,0,0,0,'running','settled',NULL,0,1,?,'2026.11.1','2026.11.1',?,0)")
+        .bind(ownerId, job, receipt.textVersionId, receipt.documentId, receipt.documentVersionId, consent, policy, entry.id + "-reservation").run();
+      acceptance = await new ReviewService(new D1DocumentRepository(env.DB, clock, id), new DocumentStorage(env.DOCS)).acceptAiExtraction(ownerId,
+        { ...receipt, jobId: job, generation: 0, documentRevision: 0, consentId: consent,
+          candidate: outcome.candidate } as any);
+      draft = (await http("readDocumentReviewDraft", { documentId: receipt.documentId, textVersionId: receipt.textVersionId })).draft;
+    } else {
+      draft = (await http("saveDocumentReviewDraft", { documentId: receipt.documentId, textVersionId: receipt.textVersionId,
+        extractionId: null, expectedRevision: 0, mutationId: entry.id + "-save", selfAssessmentHints: [],
+        items: [{ id: "fact", kind, text: entry.text, origin: "user", sourceRef: null, requirementLevel: kind === "requirement" ? "must" : null }] })).draft;
+    }
+    const initial = structuredClone(draft);
+    if (entry.editedText !== undefined || entry.retained !== undefined || entry.addition || entry.reclassify) {
+      const changed = { ...draft.items[0], origin: "user", ...(entry.editedText !== undefined ? { text: entry.editedText } : {}),
+        ...(entry.retained !== undefined ? { skillLabels: entry.retained } : {}),
+        ...(entry.reclassify ? { kind: entry.reclassify, requirementLevel: null } : {}) };
+      if (entry.addition) changed.skillLabels = [...changed.skillLabels, entry.addition.expectedLabel];
+      draft = (await http("saveDocumentReviewDraft", { documentId: receipt.documentId, textVersionId: receipt.textVersionId,
+        extractionId: draft.extractionId, expectedRevision: draft.revision, mutationId: entry.id + "-edit", selfAssessmentHints: draft.selfAssessmentHints,
+        reviewPoints: draft.reviewPoints, items: [changed],
+        ...(entry.addition ? { skillTermAddition: { itemId: changed.id, sourceTerm: entry.addition.sourceTerm } } : {}) })).draft;
+    }
+    const afterEdit = structuredClone(draft);
+    draft = (await http("saveDocumentReviewDraft", { documentId: receipt.documentId, textVersionId: receipt.textVersionId,
+      extractionId: draft.extractionId, expectedRevision: draft.revision, mutationId: entry.id + "-review", selfAssessmentHints: draft.selfAssessmentHints,
+      items: draft.items, reviewPoints: draft.reviewPoints.map((point: any) => ({ ...point, resolution: "confirmed" })) })).draft;
+    const rereadDraft = (await http("readDocumentReviewDraft", { documentId: receipt.documentId, textVersionId: receipt.textVersionId })).draft;
+    const confirmation = await http("createDocumentConfirmation", { documentId: receipt.documentId, documentVersionId: receipt.documentVersionId,
+      textVersionId: receipt.textVersionId, reviewRevision: draft.revision, expectedRevision: receipt.revision, items: draft.items, mutationId: entry.id + "-confirm" });
+    const scope = { kind: "draft", draftId: entry.id + "-draft", previousGoalId: null };
+    const selectionRef = await http("createMaterialSelection", { scope, entries: [{ slot: docKind, documentId: receipt.documentId,
+      documentVersionId: receipt.documentVersionId, confirmationId: confirmation.confirmationId }], mutationId: entry.id + "-selection" });
+    const ref = { confirmationId: confirmation.confirmationId, itemId: draft.items[0].id };
+    const input = { scope, selectionRef, source: { source: "flagship", roleId: "ai-native-full-stack-engineer" },
+      audit: { id: "audit-a", schemaVersion: "2026.08.1", blueprintId: flagshipBlueprint.id, blueprintVersion: flagshipBlueprint.version,
+        answers: flagshipBlueprint.skills.map(skill => ({ skillId: skill.id, level: "conceptual", evidenceRefs: [] })),
+        evidence: [], createdBy: ownerId, inputFingerprint: "audit-fingerprint" },
+      availability: { id: "availability-a", schemaVersion: "2026.08.1", timeZone: "UTC", weekdays: { monday: 60, tuesday: 60, wednesday: 60, thursday: 60, friday: 60, saturday: 60, sunday: 60 },
+        exceptions: [], weeklyMinutes: 420, inputFingerprint: "availability-fingerprint" },
+      target: { id: "target-a", schemaVersion: "2026.08.1", targetWeeks: 52, inputFingerprint: "target-fingerprint" },
+      planningDate: "2026-11-09", selectedScope: "full-scope", mutationId: entry.id + "-context",
+      ...(entry.wholeTarget ? { skillMappings: [{ ...ref, skillId: entry.wholeTarget }] } : {}),
+      ...(entry.termTarget ? { termMappings: [{ ...ref, skillLabel: entry.termTarget.label, skillIds: entry.termTarget.skills }] } : {}),
+      ...(entry.adopt ? { learningIntents: [ref] } : {}) };
+    // A real preview hashes a fresh random nonce. Fix only this synthetic test input,
+    // so complete native/Node payloads (including the stored token) remain comparable.
+    const nonceHex = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(entry.id + "-context-nonce"))))
+      .map(byte => byte.toString(16).padStart(2, "0")).join("");
+    const nonce = `${nonceHex.slice(0, 8)}-${nonceHex.slice(8, 12)}-4${nonceHex.slice(13, 16)}-8${nonceHex.slice(17, 20)}-${nonceHex.slice(20, 32)}`;
+    const originalRandom = Object.getOwnPropertyDescriptor(crypto, "randomUUID");
+    let nonceCalls = 0, context;
+    Object.defineProperty(crypto, "randomUUID", { configurable: true, value: () => { nonceCalls++; return nonce; } });
+    try { context = await http("createMaterialContext", input); }
+    finally {
+      if (originalRandom) Object.defineProperty(crypto, "randomUUID", originalRandom);
+      else Reflect.deleteProperty(crypto, "randomUUID");
+    }
+    const replay = await http("createMaterialContext", input);
+    const reread = await http("readMaterialContext", { contextVersionId: context.contextVersionId });
+    const document = await http("readDocument", { documentId: receipt.documentId });
+    const row = await env.DB.prepare("SELECT * FROM material_context_versions WHERE owner_id=? AND id=?").bind(ownerId, context.contextVersionId).first();
+    const extractionRow = draft.extractionId ? await env.DB.prepare("SELECT * FROM document_extractions WHERE owner_id=? AND id=?").bind(ownerId, draft.extractionId).first() : null;
+    return Response.json({ ok: true, context, replay, reread, document, initial, afterEdit, draft, rereadDraft, acceptance, providerObserved, confirmation, input, row, extractionRow, trace,
+      syntheticRandomInput: { nonce, calls: nonceCalls } });
+  } catch (error) { return Response.json({ ok: false, message: String(error instanceof Error ? error.message : error), trace }); }
+} };

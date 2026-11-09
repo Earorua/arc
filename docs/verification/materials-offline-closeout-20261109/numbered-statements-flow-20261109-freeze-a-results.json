@@ -1,0 +1,261 @@
+{
+  "status": "TASK_2_READY_FOR_SPEC_THEN_QUALITY_REVIEW",
+  "identity": {
+    "branch": "codex/materials-replan-recovery-20261106",
+    "head": "e48e5eb1d4d6dbeb28398ee7c9231ec357cda167",
+    "status": " M app/lib/materials/skill-labels.ts\n M app/server/documents/extraction-validator.ts\n M docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md\n M docs/verification/2026-11-06-materials-grounding-pause.md\n M tests/lib/materials/reviewed-source-mentions.test.ts\n M tests/server/document-extraction.test.ts\n M tests/server/document-source-span-provider.test.ts\n M tests/server/material-mention-review-flow.test.ts\n M worker/document-executor/source-span-extraction.ts\n?? docs/superpowers/plans/2026-11-09-materials-offline-closeout.md\n",
+    "node": "v24.14.1",
+    "icu": "78.2"
+  },
+  "scope": "Exact-v3 provider/site numbered boundaries and v3-only complete-numeric-body hint retention; no old projection, stored quote, personal grammar, policy/schema/prompt/configuration changes.",
+  "snapshots": [
+    {
+      "path": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "b13167ff0587dc6c5a1549e8a5f14a2cef8b19b55de0211ca525c023d6b8422d",
+      "snapshot": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-source-span-extraction.ts.source.txt"
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "8a780698b7823eaa73685f5bbe0e3087edfb72edb2221abd0828b32d162b953f",
+      "snapshot": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-extraction-validator.ts.source.txt"
+    },
+    {
+      "path": "app/lib/materials/skill-labels.ts",
+      "sha256": "83e6cc46ffa5242d005f7ed5d8e60a2952f41a4f326067c6fecf4ed792d58b87",
+      "snapshot": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-skill-labels.ts.source.txt"
+    },
+    {
+      "path": "tests/server/document-source-span-provider.test.ts",
+      "sha256": "3eaee4aa55e074e8e7437f9c26604d490b9017938413e3f32f09076c25690446",
+      "snapshot": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-document-source-span-provider.test.ts.source.txt"
+    },
+    {
+      "path": "tests/server/document-extraction.test.ts",
+      "sha256": "06b782e950e64fd8f98f80ca44f50f3de1d67fc96511a3e4f0bc551dac46c625",
+      "snapshot": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-document-extraction.test.ts.source.txt"
+    },
+    {
+      "path": "tests/server/material-mention-review-flow.test.ts",
+      "sha256": "685ec1dee4ee5e1492bfcc7da4b874ce602d573f1c647b9b73cf638d72cbf229",
+      "snapshot": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-material-mention-review-flow.test.ts.source.txt"
+    },
+    {
+      "path": "tests/lib/materials/reviewed-source-mentions.test.ts",
+      "sha256": "644395e6047a2640603f78103064be0dcf8ecd90ceaba8602abd552a66aef0eb",
+      "snapshot": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-reviewed-source-mentions.test.ts.source.txt"
+    }
+  ],
+  "trackedDiff": {
+    "path": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-tracked.patch",
+    "sha256": "215fd45d3a8c903ca6afa32ada3186ab0c7cb7c554e9a2c94df94191bcf71822"
+  },
+  "untouched": {
+    "tests/helpers/material-mention-review-fixture.ts": "bf886c20b6c3ac433ca735928ed9cd29438001f6855cb6347e6412cd9c82e3d5",
+    "app/lib/materials/personal-assertion-scopes.ts": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+    "app/lib/materials/experience-evidence.ts": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec",
+    "app/contracts/documents.ts": "a66e8e843dca7817c2e36253702c10434f184aba3ae1b3be7c52d254695b9b9e",
+    "app/server/documents/policy.ts": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d",
+    "worker/document-executor/source-statements.ts": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab",
+    "worker/document-executor/source-review-evidence.ts": "f9ed3a14145535a7cc0e9d4b59b8f265deb1533c84679997c4c078544e35dc37"
+  },
+  "immutableHashes": {
+    "work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32",
+    "work/grounded-verification/mention-projection-snapshot-20261109-c-results.json": "b0056ad6aad0d707e0ba95972d9817fca59152d0197e3f58f855f80f4fc1ffac",
+    "work/grounded-verification/run.mjs": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+    "work/materials-browser-handoff/block-outbound.cjs": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+  },
+  "runs": [
+    {
+      "name": "numbered-statements-flow-20261109-red-a",
+      "exit": 1,
+      "elapsedMs": 5126,
+      "logSha256": "b6330beb23a3f6bbcc8b81501fffc5508371bc8d3d74f49fa42cf477de86ef31",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-G4X7M2",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-red-a.json",
+      "metadataSha256": "a99794bea98d9b039ed02de984b7483f2d3ad2b34ee0b65b1fc70035df961a6e",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-red-a.log",
+      "resultsPath": "work/grounded-verification/numbered-statements-flow-20261109-red-a-results.json",
+      "resultsSha256": "d2f84087ea81913569792877b08ae4441845b52a50c7ad6e208b0806539b81d1"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-gate-a",
+      "exit": 1,
+      "elapsedMs": 4891,
+      "logSha256": "19399ab3449693091b141bc7a9e6515f70fa35d0bf3faa29ce48a02293587257",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-tH8w7C",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-gate-a.json",
+      "metadataSha256": "431493f4e1e40fcb96607aaba69923fee2cbd6b324c887ab988a902d54e7db9f",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-gate-a.log",
+      "resultsPath": "work/grounded-verification/numbered-statements-flow-20261109-gate-a-results.json",
+      "resultsSha256": "388a4f46644db074f557154ddda1b2de52ab7ed4695cb2245434e6059d01c293"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-retention-red-a",
+      "exit": 1,
+      "elapsedMs": 4412,
+      "logSha256": "712e0483f7d3fbae6d12032676a6d82a6f92c8c098ce75dd74e4d36ceb8bb793",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-WXLyg6",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a.json",
+      "metadataSha256": "d1b637bf5a2047f80aa2199cffd3944955cd5edb99a13701b5e3dff64f3ad58f",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a.log",
+      "resultsPath": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a-results.json",
+      "resultsSha256": "e62efd2167a3eb615aad4484c477f9b7d7949aee1b4a4d0f45433b3e5ec828a9"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-retention-green-a",
+      "exit": 0,
+      "elapsedMs": 7425,
+      "logSha256": "321376e39bf045a6a3010e41a014acee702d64ef67310ef200e32f0021a12b17",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-UMV79I",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a.json",
+      "metadataSha256": "9c2cc5e2f62006ce04613809a4a309435741da352c7dae9db5e4c44d636a8659",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a.log",
+      "resultsPath": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a-results.json",
+      "resultsSha256": "01f4e1ef95f6e7856d396babf76fc32e3eee526ccf56ae5a19c62350c537f407"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-expanded-a",
+      "exit": 1,
+      "elapsedMs": 11485,
+      "logSha256": "e3e7556712442de2786da6ef11a751710e2f972a997f09e901a573654056e2e2",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-IalZ9Z",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a.json",
+      "metadataSha256": "47669f1e285a57f785b145ed54e911b83355569430567631ee241f581e08f168",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a.log",
+      "resultsPath": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a-results.json",
+      "resultsSha256": "63c7f05e7bff7804b18035963f464dbd22cc11b9b9cb43606e843212dfc9ae5b"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-green-a",
+      "exit": 0,
+      "elapsedMs": 12590,
+      "logSha256": "0e6e9e6741a5ee980c83913c5f6a640a3d9b8f34a852f69bff30ffbfe4f02b61",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-kOmXLk",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-green-a.json",
+      "metadataSha256": "d1b9485d9378a993e47f011166a9e86462fd002006292ab17e617476dfb20f14",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-green-a.log",
+      "resultsPath": "work/grounded-verification/numbered-statements-flow-20261109-green-a-results.json",
+      "resultsSha256": "2659f8b435a72339d4674bfc90b31923be31752b8e57a3ed407f94cb5c09bc03"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-types-a",
+      "exit": 2,
+      "elapsedMs": 5044,
+      "logSha256": "346d94088e4390bdf48d2c84697ea70653e634887a107e8e44cc23127e255a50",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-vk9TCp",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-types-a.json",
+      "metadataSha256": "28b6c2d7d56318b3b6f6e7cc7ffd4dd6ec03dd48dcb2295f5578f38138f68d68",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-types-a.log"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-types-b",
+      "exit": 0,
+      "elapsedMs": 3522,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-cBXnTy",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-types-b.json",
+      "metadataSha256": "a27bfa29d1c51b8cb7b085c2920f49d2afbd9c7398daeb7014646d813884dece",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-types-b.log"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-lint-a",
+      "exit": 0,
+      "elapsedMs": 5693,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-KV1kzM",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-lint-a.json",
+      "metadataSha256": "d94da30091b24c189254df2c15004605edec2b618f65716f5845e78346574563",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-lint-a.log"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-browser-a",
+      "exit": 0,
+      "elapsedMs": 152,
+      "logSha256": "08f06bb0db1f3e2fab72cf70e5c3df103fcb5d0e9ea2129cfb9fc3e6f128a959",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-2bzBT3",
+      "metadataPath": "work/grounded-verification/numbered-statements-flow-20261109-browser-a.json",
+      "metadataSha256": "d2984959d9187398585e9dbbeb4f100ff27d2fd6cb12514ff14bee17f36b4d6c",
+      "logPath": "work/grounded-verification/numbered-statements-flow-20261109-browser-a.log",
+      "resultsPath": "work/grounded-verification/numbered-statements-flow-20261109-browser-a-results.json",
+      "resultsSha256": "93c44034f5fa45f2862f84b2e2c97cc7e4302fccbbfbabfb307e97f0cea18587"
+    }
+  ],
+  "focusedTests": {
+    "files": 7,
+    "passed": 624,
+    "failed": 0,
+    "suites": [
+      {
+        "name": "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/document-extraction.test.ts",
+        "status": "passed",
+        "tests": 44
+      },
+      {
+        "name": "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/document-review-draft.test.ts",
+        "status": "passed",
+        "tests": 131
+      },
+      {
+        "name": "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/document-source-span-provider.test.ts",
+        "status": "passed",
+        "tests": 175
+      },
+      {
+        "name": "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/material-mention-review-flow.test.ts",
+        "status": "passed",
+        "tests": 22
+      },
+      {
+        "name": "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/server/material-numbered-statements.test.ts",
+        "status": "passed",
+        "tests": 37
+      },
+      {
+        "name": "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/lib/materials/retained-assessment-hints.test.ts",
+        "status": "passed",
+        "tests": 128
+      },
+      {
+        "name": "C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/tests/lib/materials/reviewed-source-mentions.test.ts",
+        "status": "passed",
+        "tests": 87
+      }
+    ]
+  },
+  "checks": {
+    "scopedTypecheck": "types-b",
+    "scopedLint": "lint-a",
+    "browserBundleAndLocalDependencyCycles": "browser-a",
+    "gitDiffCheck": "PASS"
+  },
+  "evidenceNotes": [
+    "red-a: 7 expected missing-v3-integration failures; gate-a: provider/site pass and the actual review save drops the initial guided hint.",
+    "retention-red-a: 7 expected failures including actual save; retained-hint preparation was then authorized and implemented only for exact v3.",
+    "expanded-a: sole failure was a test assuming raw CRLF survives createDocument. Existing canonicalization stores LF. Final HTTP test reads saved text before decoding and asserting source refs; pure provider test still checks raw CRLF offsets.",
+    "types-a: scoped harness omitted worker-configuration.d.ts and therefore Env declarations. New types-b config adds the existing ambient files; no production fix.",
+    "The unchanged shared fixture seeds only decoded items. Provider/site tests cover grounded reminders; the parent's actual native full-candidate driver separately covers their persistence.",
+    "Browser bundle checks sourceMentionStatementBoundaries import uses only pure contracts/evidence/boundaries; no local dependency cycle or server/execution/configuration import."
+  ],
+  "handoff": {
+    "commitCreated": false,
+    "docsEditedByThisTask": false,
+    "fullRepositoryGateRun": false,
+    "nativeDriverRunByThisTask": false,
+    "deferredToRoot": [
+      "Independent spec then quality review",
+      "Frozen 150 provider + 20 helper compatibility and saved-history checks",
+      "Native full-candidate flow with canonical LF fixture expectations",
+      "Combined final repository/type/lint/build/page gate after Chinese guidance and adoption reset work"
+    ]
+  }
+}

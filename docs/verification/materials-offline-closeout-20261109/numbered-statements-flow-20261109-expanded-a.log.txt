@@ -1,0 +1,78 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:32412) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/server/document-review-draft.test.ts [2m([22m[2m131 tests[22m[2m)[22m[33m 2044[2mms[22m[39m
+(node:14016) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-mention-review-flow.test.ts [2m([22m[2m22 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 789[2mms[22m[39m
+   [32m✓[39m keeps a numbered ASCII fact through actual save, reload, confirmation and planning[32m 135[2mms[22m[39m
+   [32m✓[39m keeps a numbered body-only fact through actual save, reload, confirmation and planning[32m 46[2mms[22m[39m
+   [32m✓[39m keeps a numbered fullwidth fact through actual save, reload, confirmation and planning[32m 48[2mms[22m[39m
+[31m   [31m×[31m keeps a numbered emoji and CRLF fact through actual save, reload, confirmation and planning[39m[32m 22[2mms[22m[39m
+   [32m✓[39m keeps a numbered supplement fact through actual save, reload, confirmation and planning[32m 37[2mms[22m[39m
+   [32m✓[39m keeps a numbered JD requirement fact through actual save, reload, confirmation and planning[32m 36[2mms[22m[39m
+   [32m✓[39m removes the hint and personal practice when a numbered fact is edited to 1. My colleague tested SQL under supervision.[32m 34[2mms[22m[39m
+   [32m✓[39m removes the hint and personal practice when a numbered fact is edited to 1. I will test SQL under supervision.[32m 33[2mms[22m[39m
+   [32m✓[39m removes the hint and personal practice when a numbered fact is edited to 1. I did not test SQL under supervision.[32m 32[2mms[22m[39m
+   [32m✓[39m removes the hint and personal practice when a numbered fact is edited to 1. My mentor said, "I tested SQL under supervision."[32m 32[2mms[22m[39m
+   [32m✓[39m does not restore empty numbered source topics or hints through a saved review[32m 19[2mms[22m[39m
+   [32m✓[39m does not restore omitted numbered source topics or hints through a saved review[32m 18[2mms[22m[39m
+   [32m✓[39m does not restore deleted numbered source topics or hints through a saved review[32m 17[2mms[22m[39m
+   [32m✓[39m preserves numbered review ownership, source, marker, revision and reclassification guards through HTTP[32m 21[2mms[22m[39m
+   [32m✓[39m keeps negative SQL mapped without inventing personal practice through the real client and saved review[32m 34[2mms[22m[39m
+   [32m✓[39m keeps another actor's SQL mapped without inventing personal practice through the real client and saved review[32m 36[2mms[22m[39m
+   [32m✓[39m keeps future SQL mapped without inventing personal practice through the real client and saved review[32m 33[2mms[22m[39m
+   [32m✓[39m keeps personal React and colleague SQL mapped without inventing personal practice through the real client and saved review[32m 36[2mms[22m[39m
+   [32m✓[39m requires separate learning-intent adoption for a v3 supplemental topic and preserves planning inputs[32m 44[2mms[22m[39m
+   [32m✓[39m preserves manual fallback behavior through the same review and planning routes: I wrote SQL queries.[32m 28[2mms[22m[39m
+   [32m✓[39m preserves manual fallback behavior through the same review and planning routes: I have never used SQL.[32m 26[2mms[22m[39m
+   [32m✓[39m keeps the source-add quota at eight v3 topics and does not restore a ninth word by omission[32m 19[2mms[22m[39m
+ [32m✓[39m tests/server/document-source-span-provider.test.ts [2m([22m[2m175 tests[22m[2m)[22m[32m 206[2mms[22m[39m
+ [32m✓[39m tests/server/document-extraction.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/retained-assessment-hints.test.ts [2m([22m[2m128 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m tests/lib/materials/reviewed-source-mentions.test.ts [2m([22m[2m87 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m tests/server/material-numbered-statements.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-mention-review-flow.test.ts[2m > [22mkeeps a numbered emoji and CRLF fact through actual save, reload, confirmation and planning
+[31m[1mAssertionError[22m: expected { id: 'candidate-1', …(6) } to match object { …(4) }
+(3 matching properties omitted from actual)[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -4,11 +4,11 @@[39m
+[2m      "SQL",[22m
+[2m    ],[22m
+[2m    "sourceRef": {[22m
+[2m      "documentId": "mention-fixture-1",[22m
+[2m      "documentVersionId": "mention-fixture-2",[22m
+[32m-     "end": 49,[39m
+[32m-     "start": 15,[39m
+[31m+     "end": 48,[39m
+[31m+     "start": 14,[39m
+[2m      "textVersionId": "mention-fixture-3",[22m
+[2m    },[22m
+[2m    "text": "1. I tested SQL under supervision.",[22m
+[2m  }[22m
+
+[36m [2m❯[22m tests/server/material-mention-review-flow.test.ts:[2m48:30[22m[39m
+    [90m 46|[39m     const initial = (await f.client.request("readDocumentReviewDraft",…
+    [90m 47|[39m     expect(initial.selfAssessmentHints).toEqual(kind === "jd" ? [] : […
+    [90m 48|[39m     expect(initial.items[0]).toMatchObject({ text: quote, skillLabels:…
+    [90m   |[39m                              [31m^[39m
+    [90m 49|[39m       sourceRef: { documentId: doc.documentId, documentVersionId: doc.…
+    [90m 50|[39m         start: text.indexOf(quote), end: text.indexOf(quote) + quote.l…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m623 passed[39m[22m[90m (624)[39m
+[2m   Start at [22m 19:18:42
+[2m   Duration [22m 11.05s[2m (transform 1.12s, setup 1.30s, import 2.70s, tests 3.22s, environment 2.84s)[22m
+
+JSON report written to C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/numbered-statements-flow-20261109-expanded-a-results.json

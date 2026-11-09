@@ -1,0 +1,159 @@
+import assert from 'node:assert/strict';
+import { build } from 'esbuild';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const prefix = 'work/grounded-verification/numbered-statements-boundary-quality-20261109-q1';
+for (const suffix of ['-probe-results.json', '-bundle.mjs']) assert.equal(existsSync(prefix + suffix), false);
+const read = path => readFileSync(path, 'utf8');
+const json = path => JSON.parse(read(path));
+const sha = path => createHash('sha256').update(readFileSync(path)).digest('hex');
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8', windowsHide: true }).trim();
+const freezePath = 'work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-results.json';
+const freeze = json(freezePath);
+const checks = [];
+const check = (id, fn) => {
+  try { const detail = fn(); checks.push({ id, pass: true, ...(detail === undefined ? {} : { detail }) }); }
+  catch (error) { checks.push({ id, pass: false, error: String(error) }); }
+};
+const sourceHashes = {};
+const preservedHashes = {};
+const verifiedArtifacts = [];
+const identity = { branch: git('branch', '--show-current'), head: git('rev-parse', 'HEAD'), status: git('status', '--porcelain=v1') };
+check('scope-identity-and-freeze', () => {
+  assert.equal(identity.branch, freeze.identity.branch);
+  assert.equal(identity.head, freeze.identity.head);
+  for (const item of freeze.snapshots) {
+    sourceHashes[item.path] = sha(item.path);
+    assert.equal(sourceHashes[item.path], item.sha256, item.path);
+    assert.equal(sha(item.snapshot), item.sha256, item.snapshot);
+  }
+  for (const [path, expected] of Object.entries({ ...freeze.immutableHashes, ...freeze.untouchedProviderAndSiteHashes })) {
+    preservedHashes[path] = sha(path);
+    assert.equal(preservedHashes[path], expected, path);
+  }
+});
+check('frozen-evidence-and-raw-run-integrity', () => {
+  for (const item of [freeze.trackedDiff, freeze.baseline, freeze.legacyComparison]) {
+    assert.equal(sha(item.path), item.sha256, item.path);
+    verifiedArtifacts.push({ path: item.path, sha256: item.sha256 });
+  }
+  for (const run of freeze.runs) {
+    assert.equal(sha(run.metadataPath), run.metadataSha256, run.metadataPath);
+    assert.equal(sha(run.logPath), run.logSha256, run.logPath);
+    const raw = json(run.metadataPath);
+    assert.equal(raw.exit, run.exit);
+    assert.equal(raw.nonLoopbackDenials, 0);
+    verifiedArtifacts.push({ path: run.metadataPath, sha256: run.metadataSha256 }, { path: run.logPath, sha256: run.logSha256 });
+  }
+});
+check('legacy-functions-exactly-preserved', () => {
+  const normalized = text => text.replace(/\r\n/gu, '\n').trimEnd();
+  const statements = normalized(read('worker/document-executor/source-statements.ts'));
+  assert.equal(statements.slice(0, statements.indexOf('\nexport function completeNumberedStatementBoundaries')).trimEnd(), normalized(git('show', 'HEAD:worker/document-executor/source-statements.ts')));
+  const review = normalized(read('worker/document-executor/source-review-evidence.ts'))
+    .replace('completeNumberedStatementBoundaries, statementBoundaries', 'statementBoundaries')
+    .replace('\nexport function sourceMentionStatementBoundaries(text: string) {\n  return completeNumberedStatementBoundaries(text, groundedStatementBoundaries(text));\n}\n', '');
+  assert.equal(review, normalized(git('show', 'HEAD:worker/document-executor/source-review-evidence.ts')));
+});
+
+const entry = ['source-statements', 'source-review-evidence'].map(name => `export * from ${JSON.stringify(resolve('worker/document-executor/' + name + '.ts'))};`).join('\n');
+const built = await build({ stdin: { contents: entry, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, platform: 'node', target: 'node24', format: 'esm', write: false, logLevel: 'silent' });
+writeFileSync(prefix + '-bundle.mjs', built.outputFiles[0].contents, { flag: 'wx' });
+const bundleUrl = pathToFileURL(resolve(prefix + '-bundle.mjs')).href;
+const api = await import(bundleUrl);
+const observations = [];
+const coords = (text, bounds) => [...bounds].map(([start, end]) => ({ start, end, text: text.slice(start, end) }));
+const observe = (id, text) => {
+  const base = api.groundedStatementBoundaries(text), before = [...base];
+  const numbered = api.completeNumberedStatementBoundaries(text, base);
+  observations.push({ id, text, base: coords(text, base), numbered: coords(text, numbered) });
+  assert.deepEqual([...base], before);
+  assert.deepEqual([...numbered], [...api.sourceMentionStatementBoundaries(text)]);
+  return { base, numbered };
+};
+check('unpunctuated-adjacent-numbered-bodies-stay-separate', () => {
+  const first = '1. SQL is required', last = '2. Python is optional.';
+  for (const newline of ['\n', '\r\n', '\r']) {
+    const text = first + newline + last, { numbered } = observe('unpunctuated-adjacent-' + JSON.stringify(newline), text);
+    assert.equal(numbered.get(0), first.length);
+    assert.equal(numbered.get(3), first.length);
+    assert.equal(numbered.get(first.length + newline.length), text.length);
+  }
+});
+check('later-negation-remains-in-complete-fact', () => {
+  const first = '12. I tested SQL with a mentor,\r\nbut did not use it independently.';
+  const text = first + '\r\n3. Python is optional.', { numbered } = observe('soft-wrapped-negation-before-next-entry', text);
+  assert.equal(numbered.get(0), first.length);
+  assert.equal(numbered.get(4), first.length);
+  assert.notEqual(numbered.get(0), text.indexOf('\r\n'));
+  assert.notEqual(numbered.get(0), text.length);
+});
+check('unicode-spacing-and-emoji-body-keep-utf16', () => {
+  const text = '\u3000１２.\u00a0I tested SQL 🧪 with a mentor.  ', { numbered } = observe('unicode-indentation-and-emoji-body', text);
+  assert.equal(numbered.get(1), text.trimEnd().length);
+  assert.equal(numbered.get(text.indexOf('I tested')), text.trimEnd().length);
+  assert.equal(text.slice(1, numbered.get(1)), text.trim());
+});
+check('quoted-single-sentence-keeps-both-closing-marks', () => {
+  const first = '1. “I practiced SQL with a mentor.”', text = first + '\n2. Python is optional.';
+  const { numbered } = observe('quoted-single-sentence', text);
+  assert.equal(numbered.get(0), first.length);
+  assert.equal(numbered.get(3), first.length);
+  assert.equal(text.slice(0, numbered.get(0)).endsWith('.”'), true);
+});
+check('enclosing-quotation-guard-remains-effective-for-new-start', () => {
+  const text = '“Example:\n1. I practiced SQL with a mentor.\nEnd.”', { base, numbered } = observe('entry-inside-enclosing-quotation', text);
+  const start = text.indexOf('1.'), end = numbered.get(start), bodyStart = text.indexOf('I practiced');
+  assert.equal(end, base.get(bodyStart));
+  const sources = { text, segments: [{ id: 'full', start: 0, end: text.length }] };
+  assert.equal(api.isDetachedQuotedStatement({ segmentId: 'full', quote: text.slice(start, end) }, sources), true);
+  assert.equal(api.isDetachedQuotedStatement({ segmentId: 'full', quote: text.slice(bodyStart, base.get(bodyStart)) }, sources), true);
+});
+check('blank-ordinal-does-not-gain-a-following-body', () => {
+  const text = '1.\t\r\n  I practiced SQL with a mentor.', { base, numbered } = observe('blank-ordinal-with-next-line-body', text);
+  assert.equal(base.has(0), true);
+  assert.equal(numbered.has(0), false);
+  assert.equal(numbered.get(text.indexOf('I practiced')), base.get(text.indexOf('I practiced')));
+});
+check('leading-dotnet-limitation-remains-explicit', () => {
+  const text = '1. .NET is required.', { base, numbered } = observe('leading-dotnet', text);
+  assert.deepEqual([...numbered], [...base]);
+  assert.notEqual(numbered.get(0), text.length);
+  assert.notEqual(numbered.get(3), text.length);
+});
+const originalSegmenter = Object.getOwnPropertyDescriptor(Intl, 'Segmenter');
+try {
+  Object.defineProperty(Intl, 'Segmenter', { value: undefined, configurable: true, writable: true });
+  const absent = await import(bundleUrl + '?without-intl-segmenter');
+  check('missing-intl-segmenter-fails-closed', () => {
+    for (const text of ['1. I practiced SQL with a mentor.', '１２. 我在指导下清洗数据。', '1.\nSQL is required.']) {
+      const plain = absent.statementBoundaries(text), grounded = absent.groundedStatementBoundaries(text), numbered = absent.sourceMentionStatementBoundaries(text);
+      assert.deepEqual([...plain], []);
+      assert.deepEqual([...grounded], []);
+      assert.deepEqual([...numbered], []);
+      observations.push({ id: 'without-intl-segmenter', text, plain: [], base: [], numbered: [] });
+    }
+  });
+} finally {
+  Object.defineProperty(Intl, 'Segmenter', originalSegmenter);
+}
+check('frozen-files-still-match-after-probe', () => {
+  for (const item of freeze.snapshots) assert.equal(sha(item.path), item.sha256, item.path);
+  for (const [path, expected] of Object.entries(preservedHashes)) assert.equal(sha(path), expected, path);
+});
+const result = {
+  status: checks.every(check => check.pass) ? 'PASS' : 'FAIL',
+  scope: 'Task 1 three-file independent quality probe only; provider/site remain unwired and combined final acceptance remains pending.',
+  identity, freeze: { path: freezePath, sha256: sha(freezePath) },
+  node: process.version, icu: process.versions.icu,
+  sourceHashes, preservedHashes, verifiedArtifacts,
+  scriptSha256: sha(prefix + '.mjs'), bundleSha256: sha(prefix + '-bundle.mjs'),
+  checks, observations, trackedWrites: false, modelCalls: 0,
+};
+writeFileSync(prefix + '-probe-results.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, checks: checks.length, failures: checks.filter(check => !check.pass), observations: observations.length, resultsPath: prefix + '-probe-results.json' }));
+process.exitCode = result.status === 'PASS' ? 0 : 1;

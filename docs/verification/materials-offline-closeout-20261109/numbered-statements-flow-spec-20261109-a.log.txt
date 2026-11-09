@@ -1,0 +1,3 @@
+(node:41668) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+JSON report written to C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/numbered-statements-flow-spec-20261109-a-results.json

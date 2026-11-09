@@ -1,0 +1,35 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "esbuild";
+const prefix = "work/grounded-verification/guided-practice-20261109-scope-probe-01", bundle = prefix + "-bundle.mjs";
+const sha = data => createHash("sha256").update(data).digest("hex");
+const probe = String.raw`
+import { supportsMaterialSelfLevelHint, hasPersonalCapabilityQuestion } from "./app/lib/materials/self-assessment-evidence";
+import { guidedSkillScope, assessmentScopes } from "./app/lib/materials/personal-assertion-scopes";
+import { maskQuotes } from "./app/lib/materials/quotation-evidence";
+import { decodeCleaning, cleaningCandidate, cleaningReference } from "./tests/helpers/material-guided-cleaning";
+import { validateDocumentExtraction } from "./app/server/documents/extraction-validator";
+import { KIMI_SOURCE_MENTIONS_POLICY_ID } from "./app/server/documents/policy";
+export function run() {
+  const text = "我在指导下清洗数据，记录了同事的 SQL 工作。", labels = ["data cleaning", "SQL"], masked = maskQuotes(text);
+  const input = { kind: "experience", text, labels, level: "guided" };
+  return { text, labels,
+    scopes: assessmentScopes(text, masked).map(scope => ({ ...scope, old: guidedSkillScope(scope.raw, scope.text), current: guidedSkillScope(scope.raw, scope.text, true) })),
+    defaultHint: supportsMaterialSelfLevelHint(input), currentHint: supportsMaterialSelfLevelHint({ ...input, sourceMentions: true }),
+    defaultQuestion: hasPersonalCapabilityQuestion(text, masked, true), currentQuestion: hasPersonalCapabilityQuestion(text, masked, true, true),
+    v2: decodeCleaning(text, ["清洗数据", "SQL"], {}, "source-spans-v2"), v3: decodeCleaning(text, ["清洗数据", "SQL"]),
+    independentSite: validateDocumentExtraction(cleaningCandidate(text, { labels }), "owner", cleaningReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID),
+  };
+}`;
+const built = await build({ stdin: { contents: probe, loader: "ts", resolveDir: resolve(".") }, bundle: true, write: false, platform: "node", format: "esm", target: "node24", metafile: true, external: ["node:*"] });
+writeFileSync(bundle, built.outputFiles[0].contents, { flag: "wx" });
+const result = (await import(pathToFileURL(resolve(bundle)).href)).run();
+const sources = Object.fromEntries(Object.keys(built.metafile.inputs).filter(path => path !== "<stdin>" && !path.includes("node_modules")).sort().map(path => [path, sha(readFileSync(path))]));
+writeFileSync(prefix + "-own-results.json", JSON.stringify({ status: result.currentHint ? "confirmed-scope-borrowing" : "scope-borrowing-not-reproduced", result, sources,
+  probeSha256: sha(probe), bundleSha256: sha(readFileSync(bundle)), realModelCalls: 0 }, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ defaultHint: result.defaultHint, currentHint: result.currentHint, currentQuestion: result.currentQuestion,
+  v2: result.v2.candidate.items[0].selfLevelHint, v3: result.v3.candidate.items[0].selfLevelHint, siteHints: result.independentSite.selfAssessmentHints }));
+assert.equal(result.currentHint, false, "A recorded colleague SQL task must not borrow the cleaning clause's guided level");

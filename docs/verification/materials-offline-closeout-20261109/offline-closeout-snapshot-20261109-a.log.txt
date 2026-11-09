@@ -1,0 +1,1 @@
+{"head":"2fad2850e447dd353c8d7a9587f114f60ce3dd01","checkout":"D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source","files":1014,"manifestSha256":"49323efc6738ecf9df2a5505d791d163559912ae053ce034714b87c622273765"}

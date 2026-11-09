@@ -1,0 +1,338 @@
+{
+  "status": "PASS",
+  "reviewKind": "Independent quality review",
+  "scope": "Task 2 frozen seven source/test files only; Task 1 accepted at e48e5eb, root-owned docs excluded",
+  "identity": {
+    "branch": "codex/materials-replan-recovery-20261106",
+    "head": "e48e5eb1d4d6dbeb28398ee7c9231ec357cda167",
+    "status": "M app/lib/materials/skill-labels.ts\n M app/server/documents/extraction-validator.ts\n M docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md\n M docs/verification/2026-11-06-materials-grounding-pause.md\n M tests/lib/materials/reviewed-source-mentions.test.ts\n M tests/server/document-extraction.test.ts\n M tests/server/document-source-span-provider.test.ts\n M tests/server/material-mention-review-flow.test.ts\n M worker/document-executor/source-span-extraction.ts\n?? docs/superpowers/plans/2026-11-09-materials-offline-closeout.md"
+  },
+  "routingRead": [
+    "D:/CodexScratch/arc-source-readme-20261029/SOURCE_INDEX.md",
+    "work/grounded-verification/mention-projection-routing-20261109-source-index.md"
+  ],
+  "findings": [],
+  "conclusions": [
+    "Exact v3 selection only; v1/v2 branches, policies, schema and prompts unchanged.",
+    "Provider and site retain complete source/end and detached-quotation validation; provider full/body duplicate guard remains effective.",
+    "Private hint preparation requires exact numeric-dot prefix, horizontal gap and matching entire trimmed fact/body ends; no stored field mutation.",
+    "Mixed actor/topic, repeated task, quote, negation, conditional/future and old-version controls passed the fresh bounded probe.",
+    "No maintainability blocker: private small helper, existing pure boundary/evidence APIs, hash-verified 11-input browser graph with zero cycles and no execution/configuration/server imports."
+  ],
+  "independentProbe": {
+    "name": "numbered-statements-flow-quality-20261109-q1",
+    "exit": 0,
+    "counts": {
+      "passed": 25,
+      "failed": 0
+    },
+    "elapsedMs": 465,
+    "nonLoopbackDenials": 0,
+    "resultsPath": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1-probe-results.json"
+  },
+  "sources": [
+    {
+      "path": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "b13167ff0587dc6c5a1549e8a5f14a2cef8b19b55de0211ca525c023d6b8422d",
+      "snapshotSha256": "b13167ff0587dc6c5a1549e8a5f14a2cef8b19b55de0211ca525c023d6b8422d",
+      "expectedSha256": "b13167ff0587dc6c5a1549e8a5f14a2cef8b19b55de0211ca525c023d6b8422d"
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "8a780698b7823eaa73685f5bbe0e3087edfb72edb2221abd0828b32d162b953f",
+      "snapshotSha256": "8a780698b7823eaa73685f5bbe0e3087edfb72edb2221abd0828b32d162b953f",
+      "expectedSha256": "8a780698b7823eaa73685f5bbe0e3087edfb72edb2221abd0828b32d162b953f"
+    },
+    {
+      "path": "app/lib/materials/skill-labels.ts",
+      "sha256": "83e6cc46ffa5242d005f7ed5d8e60a2952f41a4f326067c6fecf4ed792d58b87",
+      "snapshotSha256": "83e6cc46ffa5242d005f7ed5d8e60a2952f41a4f326067c6fecf4ed792d58b87",
+      "expectedSha256": "83e6cc46ffa5242d005f7ed5d8e60a2952f41a4f326067c6fecf4ed792d58b87"
+    },
+    {
+      "path": "tests/server/document-source-span-provider.test.ts",
+      "sha256": "3eaee4aa55e074e8e7437f9c26604d490b9017938413e3f32f09076c25690446",
+      "snapshotSha256": "3eaee4aa55e074e8e7437f9c26604d490b9017938413e3f32f09076c25690446",
+      "expectedSha256": "3eaee4aa55e074e8e7437f9c26604d490b9017938413e3f32f09076c25690446"
+    },
+    {
+      "path": "tests/server/document-extraction.test.ts",
+      "sha256": "06b782e950e64fd8f98f80ca44f50f3de1d67fc96511a3e4f0bc551dac46c625",
+      "snapshotSha256": "06b782e950e64fd8f98f80ca44f50f3de1d67fc96511a3e4f0bc551dac46c625",
+      "expectedSha256": "06b782e950e64fd8f98f80ca44f50f3de1d67fc96511a3e4f0bc551dac46c625"
+    },
+    {
+      "path": "tests/server/material-mention-review-flow.test.ts",
+      "sha256": "685ec1dee4ee5e1492bfcc7da4b874ce602d573f1c647b9b73cf638d72cbf229",
+      "snapshotSha256": "685ec1dee4ee5e1492bfcc7da4b874ce602d573f1c647b9b73cf638d72cbf229",
+      "expectedSha256": "685ec1dee4ee5e1492bfcc7da4b874ce602d573f1c647b9b73cf638d72cbf229"
+    },
+    {
+      "path": "tests/lib/materials/reviewed-source-mentions.test.ts",
+      "sha256": "644395e6047a2640603f78103064be0dcf8ecd90ceaba8602abd552a66aef0eb",
+      "snapshotSha256": "644395e6047a2640603f78103064be0dcf8ecd90ceaba8602abd552a66aef0eb",
+      "expectedSha256": "644395e6047a2640603f78103064be0dcf8ecd90ceaba8602abd552a66aef0eb"
+    }
+  ],
+  "preserved": [
+    {
+      "path": "tests/helpers/material-mention-review-fixture.ts",
+      "sha256": "bf886c20b6c3ac433ca735928ed9cd29438001f6855cb6347e6412cd9c82e3d5",
+      "expectedSha256": "bf886c20b6c3ac433ca735928ed9cd29438001f6855cb6347e6412cd9c82e3d5"
+    },
+    {
+      "path": "app/lib/materials/personal-assertion-scopes.ts",
+      "sha256": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a",
+      "expectedSha256": "743f1f2a547948e00c015d8c920b15e9c3859d511a59798b620521af0c3bc94a"
+    },
+    {
+      "path": "app/lib/materials/experience-evidence.ts",
+      "sha256": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec",
+      "expectedSha256": "12f25330b1719338eec736881d2a19dc8635dbd1c71fa997059dd9bfc21debec"
+    },
+    {
+      "path": "app/contracts/documents.ts",
+      "sha256": "a66e8e843dca7817c2e36253702c10434f184aba3ae1b3be7c52d254695b9b9e",
+      "expectedSha256": "a66e8e843dca7817c2e36253702c10434f184aba3ae1b3be7c52d254695b9b9e"
+    },
+    {
+      "path": "app/server/documents/policy.ts",
+      "sha256": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d",
+      "expectedSha256": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d"
+    },
+    {
+      "path": "worker/document-executor/source-statements.ts",
+      "sha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab",
+      "expectedSha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab"
+    },
+    {
+      "path": "worker/document-executor/source-review-evidence.ts",
+      "sha256": "f9ed3a14145535a7cc0e9d4b59b8f265deb1533c84679997c4c078544e35dc37",
+      "expectedSha256": "f9ed3a14145535a7cc0e9d4b59b8f265deb1533c84679997c4c078544e35dc37"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json",
+      "sha256": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32",
+      "expectedSha256": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-snapshot-20261109-c-results.json",
+      "sha256": "b0056ad6aad0d707e0ba95972d9817fca59152d0197e3f58f855f80f4fc1ffac",
+      "expectedSha256": "b0056ad6aad0d707e0ba95972d9817fca59152d0197e3f58f855f80f4fc1ffac"
+    },
+    {
+      "path": "work/grounded-verification/run.mjs",
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242",
+      "expectedSha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    },
+    {
+      "path": "work/materials-browser-handoff/block-outbound.cjs",
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f",
+      "expectedSha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    }
+  ],
+  "authorArtifacts": [
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-results.json",
+      "sha256": "4a57492bb289cadf0723ee80c3082c16e523bfdc696c77387b6338ab27173d22"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-tracked.patch",
+      "sha256": "215fd45d3a8c903ca6afa32ada3186ab0c7cb7c554e9a2c94df94191bcf71822"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-red-a.json",
+      "sha256": "a99794bea98d9b039ed02de984b7483f2d3ad2b34ee0b65b1fc70035df961a6e"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-red-a.log",
+      "sha256": "b6330beb23a3f6bbcc8b81501fffc5508371bc8d3d74f49fa42cf477de86ef31"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-red-a-results.json",
+      "sha256": "d2f84087ea81913569792877b08ae4441845b52a50c7ad6e208b0806539b81d1"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-gate-a.json",
+      "sha256": "431493f4e1e40fcb96607aaba69923fee2cbd6b324c887ab988a902d54e7db9f"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-gate-a.log",
+      "sha256": "19399ab3449693091b141bc7a9e6515f70fa35d0bf3faa29ce48a02293587257"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-gate-a-results.json",
+      "sha256": "388a4f46644db074f557154ddda1b2de52ab7ed4695cb2245434e6059d01c293"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a.json",
+      "sha256": "d1b637bf5a2047f80aa2199cffd3944955cd5edb99a13701b5e3dff64f3ad58f"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a.log",
+      "sha256": "712e0483f7d3fbae6d12032676a6d82a6f92c8c098ce75dd74e4d36ceb8bb793"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a-results.json",
+      "sha256": "e62efd2167a3eb615aad4484c477f9b7d7949aee1b4a4d0f45433b3e5ec828a9"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a.json",
+      "sha256": "9c2cc5e2f62006ce04613809a4a309435741da352c7dae9db5e4c44d636a8659"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a.log",
+      "sha256": "321376e39bf045a6a3010e41a014acee702d64ef67310ef200e32f0021a12b17"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a-results.json",
+      "sha256": "01f4e1ef95f6e7856d396babf76fc32e3eee526ccf56ae5a19c62350c537f407"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a.json",
+      "sha256": "47669f1e285a57f785b145ed54e911b83355569430567631ee241f581e08f168"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a.log",
+      "sha256": "e3e7556712442de2786da6ef11a751710e2f972a997f09e901a573654056e2e2"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a-results.json",
+      "sha256": "63c7f05e7bff7804b18035963f464dbd22cc11b9b9cb43606e843212dfc9ae5b"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-green-a.json",
+      "sha256": "d1b9485d9378a993e47f011166a9e86462fd002006292ab17e617476dfb20f14"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-green-a.log",
+      "sha256": "0e6e9e6741a5ee980c83913c5f6a640a3d9b8f34a852f69bff30ffbfe4f02b61"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-green-a-results.json",
+      "sha256": "2659f8b435a72339d4674bfc90b31923be31752b8e57a3ed407f94cb5c09bc03"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-types-a.json",
+      "sha256": "28b6c2d7d56318b3b6f6e7cc7ffd4dd6ec03dd48dcb2295f5578f38138f68d68"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-types-a.log",
+      "sha256": "346d94088e4390bdf48d2c84697ea70653e634887a107e8e44cc23127e255a50"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-types-b.json",
+      "sha256": "a27bfa29d1c51b8cb7b085c2920f49d2afbd9c7398daeb7014646d813884dece"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-types-b.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-lint-a.json",
+      "sha256": "d94da30091b24c189254df2c15004605edec2b618f65716f5845e78346574563"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-lint-a.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-browser-a.json",
+      "sha256": "d2984959d9187398585e9dbbeb4f100ff27d2fd6cb12514ff14bee17f36b4d6c"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-browser-a.log",
+      "sha256": "08f06bb0db1f3e2fab72cf70e5c3df103fcb5d0e9ea2129cfb9fc3e6f128a959"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-20261109-browser-a-results.json",
+      "sha256": "93c44034f5fa45f2862f84b2e2c97cc7e4302fccbbfbabfb307e97f0cea18587"
+    }
+  ],
+  "reviewArtifacts": [
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1.mjs",
+      "sha256": "8a04aa8bda666035e5d4cec0d76078aa9d128bc820ad4048f4c18798ad92174d"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1-memo.md",
+      "sha256": "1080448a5124210d5c85dbdd9be9f4a2c76c0efefd39fe2182d0534e1f3f8661"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1-probe-results.json",
+      "sha256": "6102de6c2c1d48311350de128be3039f22ffe727db949505c20cdb29b6def905"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1.json",
+      "sha256": "129a7ae030714cdcda06ffe457fa10fff3b54478377c7961ca15be7e0b600912"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1.log",
+      "sha256": "20877b56edac36048017d7e60ae8f1f86933fb739d816c59c2cf50653ac2af11"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-spec-20261109-memo-a-results.json",
+      "sha256": "9756a26d1c53a89cb5252f058e61c9197edd2326f4c5dbe08b1b678eb069e32b"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-spec-20261109-a-results.json",
+      "sha256": "22c5992b5a70c10e56311bc96b79271a90558083676f0ae1b6063b31b5d6d8e0"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-spec-20261109-a.json",
+      "sha256": "1081d8e445e4839b5ad0e1fa4352b3f51144c96f91713ff3c479dfe787aef1b1"
+    },
+    {
+      "path": "work/grounded-verification/numbered-statements-flow-spec-20261109-a.log",
+      "sha256": "39d111b034c01d2b31e3678732d0d5a26d9bff847b0e214fe9faf2654b6912f9"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a-results.json",
+      "sha256": "9174d53eb9bd871b09f131fd81d55176ec1def0560d551865c1978e78a827e93"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a.json",
+      "sha256": "e061b88405e2bdd78149dc76cf10659c9f3ae2c51b52c205045a925be91b392e"
+    },
+    {
+      "path": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a.log",
+      "sha256": "68851d410e4a064666e0ea323be5085e7891680c9b2bdb18596525244f58b0e1"
+    }
+  ],
+  "priorEvidence": {
+    "authorFocused": "624 passed, 0 failed",
+    "spec": "59 passed, 269 explicit filtered skips",
+    "scopedTypecheck": "PASS",
+    "scopedLint": "PASS",
+    "browser": "PASS: 11 local pure inputs; zero cycles"
+  },
+  "nativeEvidence": {
+    "path": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a-results.json",
+    "rawStatus": "EXPECTED_BEHAVIOR_NOT_MET",
+    "rawExit": 1,
+    "numberedPassed": 11,
+    "controlsPassed": 4,
+    "failures": [
+      {
+        "id": "chinese-guided-cleaning",
+        "failures": [
+          {
+            "name": "hints require own evidence",
+            "message": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   'data cleaning'\n- ]\n"
+          }
+        ]
+      }
+    ],
+    "outboundCalls": 0,
+    "realModelCalls": 0,
+    "actualCostMicroUsd": 0
+  },
+  "scopedGitDiffCheck": "PASS",
+  "trackedEditsByReviewer": false,
+  "limits": [
+    "Task 2 quality PASS is not overall closeout approval.",
+    "Native raw exit 1 remains failure for deferred chinese-guided-cleaning; all 11 numbered and 4 controls passed.",
+    "No broad test/model/network/migration/deployment/commit/push run.",
+    "Final combined gates, saved-history/compatibility work, Chinese guidance and reset work remain root-owned."
+  ]
+}

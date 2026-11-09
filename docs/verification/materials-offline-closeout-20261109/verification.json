@@ -1,0 +1,4760 @@
+{
+  "schemaVersion": 1,
+  "status": "MATERIALS_OFFLINE_CLOSEOUT_ACCEPTED",
+  "sourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+  "sourceManifest": "offline-closeout-integrity-20261109-final-a-results.json",
+  "sourceIdentitySha256": "fa472c59fa10b6b166857f43fecd31f764b263978cd99636fffd6d3e6898505c",
+  "sourceFileCount": 1014,
+  "sourceManifestSha256": "49323efc6738ecf9df2a5505d791d163559912ae053ce034714b87c622273765",
+  "previousAcceptance": {
+    "path": "docs/verification/materials-mention-projection-20261109/verification.json",
+    "sha256": "e5355e6d703519017483184dff3f96da03a6ec0aee48497986e857c43f8cfdfe",
+    "artifactsUnchanged": 459
+  },
+  "artifactCount": 364,
+  "artifacts": [
+    {
+      "source": "work/materials-browser-handoff/block-outbound.cjs",
+      "path": "block-outbound.cjs.source.txt",
+      "bytes": 1134,
+      "sha256": "48332c5bcf02a17b7cc7fbf27e3771db7e8809afb36acd1c870b683909d10e9f"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-green-01-adaptive-setup-flow.tsx.source.txt",
+      "path": "adoption-persistence-20261109-green-01-adaptive-setup-flow.tsx.source.txt",
+      "bytes": 26487,
+      "sha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-green-01-own-results.json",
+      "path": "adoption-persistence-20261109-green-01-own-results.json",
+      "bytes": 2794,
+      "sha256": "7259841165a357f818ff282eb2fc464979f1f30042bbd5f4f039c9916405185f"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-green-01-test.tsx.source.txt",
+      "path": "adoption-persistence-20261109-green-01-test.tsx.source.txt",
+      "bytes": 16848,
+      "sha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-green-01.json",
+      "path": "adoption-persistence-20261109-green-01.json",
+      "bytes": 278,
+      "sha256": "da1e6109ccb2b3cad9370ba8749b2c46921c71a9862d3ae6470c33dc6bd26e9b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-green-01.log",
+      "path": "adoption-persistence-20261109-green-01.log.txt",
+      "bytes": 348,
+      "sha256": "90101ca4b6b50ff7b32b453f6007cdf151a0d5e17f9c04badbc70b3005c93135"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-handoff.md",
+      "path": "adoption-persistence-20261109-handoff.md",
+      "bytes": 4432,
+      "sha256": "10e5455fccf29013027a99afb38e87a59eec89dc114ff1c8f5384d24ff0b91cf"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-lint-01.json",
+      "path": "adoption-persistence-20261109-lint-01.json",
+      "bytes": 277,
+      "sha256": "89050a8f9ecfb4c3ef1872b429b8e590f238b932e31bda5b35ab5d1755eb8ae9"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-lint-01.log",
+      "path": "adoption-persistence-20261109-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-manifest.json",
+      "path": "adoption-persistence-20261109-manifest.json",
+      "bytes": 6063,
+      "sha256": "1800feb69854ad77fa25b72b3e7d9a3a2819d3b493ceb7d74875767aae016ffc"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-red-01-adaptive-setup-flow.tsx.source.txt",
+      "path": "adoption-persistence-20261109-red-01-adaptive-setup-flow.tsx.source.txt",
+      "bytes": 26405,
+      "sha256": "b3dfffff8bd4fc8465950ee500e2237abddf5b92ead388772425db16fc39da7b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-red-01-own-results.json",
+      "path": "adoption-persistence-20261109-red-01-own-results.json",
+      "bytes": 5755,
+      "sha256": "bb6cc967cfcf48adab4c9085fb357f445c8dca4fb16d957edb7dbe6e5dcca868"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-red-01-test.tsx.source.txt",
+      "path": "adoption-persistence-20261109-red-01-test.tsx.source.txt",
+      "bytes": 16848,
+      "sha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-red-01.json",
+      "path": "adoption-persistence-20261109-red-01.json",
+      "bytes": 276,
+      "sha256": "ed635dbc59312815d1c144db52c532b6586e043c9224e810f37a1eec709ee34c"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-red-01.log",
+      "path": "adoption-persistence-20261109-red-01.log.txt",
+      "bytes": 346,
+      "sha256": "59d83f34024c145da0378a821448f8a2835e31c7c9897c3444d25c1fd2582c69"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-related-01-own-results.json",
+      "path": "adoption-persistence-20261109-related-01-own-results.json",
+      "bytes": 65130,
+      "sha256": "c97c988abaa7a8736a6746a88f071c8fbddaf459d7ccf33843528b37f8df0546"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-related-01.json",
+      "path": "adoption-persistence-20261109-related-01.json",
+      "bytes": 281,
+      "sha256": "1d62c985e4df1a71da370b8c252451af82d4ecd3db225bd2f3b3b615320477e9"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-related-01.log",
+      "path": "adoption-persistence-20261109-related-01.log.txt",
+      "bytes": 1193,
+      "sha256": "6c4c81b127ada9832ab3886871f21cf8f2c4376314f3fec6d8b1c6fdc7409173"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-tsconfig.json",
+      "path": "adoption-persistence-20261109-tsconfig.json",
+      "bytes": 153,
+      "sha256": "0e346ee85e8661ad2cc6f5987fce8513a0d61ded895cddb4f5e4c6fd821e2582"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-types-01.json",
+      "path": "adoption-persistence-20261109-types-01.json",
+      "bytes": 279,
+      "sha256": "6dad5be7c23d08fe304ef59ae935c6b12da795abcad7e895f5b9c0f8c6c50ae8"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-20261109-types-01.log",
+      "path": "adoption-persistence-20261109-types-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-handoff.md",
+      "path": "adoption-persistence-diagnosis-20261109-handoff.md",
+      "bytes": 12251,
+      "sha256": "6a71952fb836542f5fb3415043c01693ab900c933f5196102ed641c14bd8101f"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-manifest.json",
+      "path": "adoption-persistence-diagnosis-20261109-manifest.json",
+      "bytes": 2112,
+      "sha256": "68179f914642957d55a04ef0fb86a78ccf1af57da951a610b4d79e07284b69b3"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-01-incomplete.config.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-01-incomplete.config.txt",
+      "bytes": 291,
+      "sha256": "a32eade4bfe0f1059fb11ec5301d0cc285790a9fdc23f3b135ae6edb5672c972"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-01.log",
+      "path": "adoption-persistence-diagnosis-20261109-probe-01.log.txt",
+      "bytes": 5477,
+      "sha256": "b526ad3bc994c6b449f8163a18d960c6a19e12c303980960f1bcee59741aa555"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-02-results.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-02-results.json",
+      "bytes": 2284,
+      "sha256": "7209350b077580640c4be2f115c6e2046de99a5de6d4136a7f928d717e4370da"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-02.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-02.json",
+      "bytes": 288,
+      "sha256": "5ef81c376d5640370615d0cb881dceace135b2a4c197e39c0864bcf1bfd5c40c"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-02.log",
+      "path": "adoption-persistence-diagnosis-20261109-probe-02.log.txt",
+      "bytes": 354,
+      "sha256": "c67016b0392ef6bd1dd62bf6a1642c0f5d7e01b91ec7870bd10146ae0006c13a"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-03-adaptive-setup-flow.tsx.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-03-adaptive-setup-flow.tsx.source.txt",
+      "bytes": 26405,
+      "sha256": "b3dfffff8bd4fc8465950ee500e2237abddf5b92ead388772425db16fc39da7b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-03-observations.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-03-observations.json",
+      "bytes": 1473,
+      "sha256": "f93982db488b7fceb2b465263820295a996dc335b023bc59bf25327f75f2ecae"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-03-results.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-03-results.json",
+      "bytes": 10941,
+      "sha256": "3ba3b103e6273eec13d13a825bd5ca6c77c9d84a3fce2daaf0b66e399087388b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-03.config.ts.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-03.config.ts.source.txt",
+      "bytes": 286,
+      "sha256": "8a4ca39c625dc49f5e9d47c195a40707a8e24a16338298de58bb46192a25eb35"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-03.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-03.json",
+      "bytes": 288,
+      "sha256": "79632d065d8aeedac705037c1b3764079fa13f0ccb2bc89d08b0ce9bb267f4e1"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-03.log",
+      "path": "adoption-persistence-diagnosis-20261109-probe-03.log.txt",
+      "bytes": 354,
+      "sha256": "a3f7ae7c1dd224c7d829147a6f040ed564ca0e7c72d010cf3a5f250ee431e612"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-03.test.tsx.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-03.test.tsx.source.txt",
+      "bytes": 16502,
+      "sha256": "626ffcf897f7daf4c61ce800427fcdcbfa2dd27dfaff11dfa15472fb8f479baf"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-04-adaptive-setup-flow.tsx.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-04-adaptive-setup-flow.tsx.source.txt",
+      "bytes": 26405,
+      "sha256": "b3dfffff8bd4fc8465950ee500e2237abddf5b92ead388772425db16fc39da7b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-04-observations.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-04-observations.json",
+      "bytes": 1473,
+      "sha256": "f93982db488b7fceb2b465263820295a996dc335b023bc59bf25327f75f2ecae"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-04-results.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-04-results.json",
+      "bytes": 36666,
+      "sha256": "2a91863b612682c7ef7e745de363164a38425042cec0d4ddf800230860be83cb"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-04.config.ts.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-04.config.ts.source.txt",
+      "bytes": 286,
+      "sha256": "8a4ca39c625dc49f5e9d47c195a40707a8e24a16338298de58bb46192a25eb35"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-04.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-04.json",
+      "bytes": 288,
+      "sha256": "edef78132e68bd9bd6df2936a82c50c08c769ea0b708eb61c59f0003b1c60572"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-04.log",
+      "path": "adoption-persistence-diagnosis-20261109-probe-04.log.txt",
+      "bytes": 354,
+      "sha256": "feb8703f71cf384c36e148b4fc76bf101ab29a787e1c03b7374e81a023320529"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-04.test.tsx.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-04.test.tsx.source.txt",
+      "bytes": 16509,
+      "sha256": "211262e8bf7facb67507f1ae182e3ab3bb5d62fe8b9501c6c22b1d9517c118f1"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-05-adaptive-setup-flow.tsx.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-05-adaptive-setup-flow.tsx.source.txt",
+      "bytes": 26405,
+      "sha256": "b3dfffff8bd4fc8465950ee500e2237abddf5b92ead388772425db16fc39da7b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-05-observations.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-05-observations.json",
+      "bytes": 1656,
+      "sha256": "6875b059135ad4801d696f8ab97a687739500f833d04a77db13d8680c4dbaf6b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-05-results.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-05-results.json",
+      "bytes": 3427,
+      "sha256": "bd3e2c9f6a0de96f28b78262f2b6458b277bc95ab0cc5976f75e3ee7c8b1bd2a"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-05.config.ts.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-05.config.ts.source.txt",
+      "bytes": 286,
+      "sha256": "8a4ca39c625dc49f5e9d47c195a40707a8e24a16338298de58bb46192a25eb35"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-05.json",
+      "path": "adoption-persistence-diagnosis-20261109-probe-05.json",
+      "bytes": 288,
+      "sha256": "0e947acc3843ae9dae120dbf9d0d18e05cbf1fa60abf4d9caee45ffc250a3c49"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-05.log",
+      "path": "adoption-persistence-diagnosis-20261109-probe-05.log.txt",
+      "bytes": 354,
+      "sha256": "574736e8f91bbddde7c37771cd1254f30caeb42a29e52d71c001190ca9189d49"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe-05.test.tsx.source.txt",
+      "path": "adoption-persistence-diagnosis-20261109-probe-05.test.tsx.source.txt",
+      "bytes": 16521,
+      "sha256": "99be86df4410b7ef2de9ea89eff5e19eab5f196c2651ac831e571c643edbadee"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-probe.test.tsx",
+      "path": "adoption-persistence-diagnosis-20261109-probe.test.tsx.source.txt",
+      "bytes": 16521,
+      "sha256": "99be86df4410b7ef2de9ea89eff5e19eab5f196c2651ac831e571c643edbadee"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109-results.json",
+      "path": "adoption-persistence-diagnosis-20261109-results.json",
+      "bytes": 1656,
+      "sha256": "6875b059135ad4801d696f8ab97a687739500f833d04a77db13d8680c4dbaf6b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-diagnosis-20261109.config.ts",
+      "path": "adoption-persistence-diagnosis-20261109.config.ts.source.txt",
+      "bytes": 286,
+      "sha256": "8a4ca39c625dc49f5e9d47c195a40707a8e24a16338298de58bb46192a25eb35"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-quality-20261109-focused-01-own-results.json",
+      "path": "adoption-persistence-quality-20261109-focused-01-own-results.json",
+      "bytes": 2793,
+      "sha256": "596e235aa395aa96965e94ff253dbe098fb86cd5092e59240c225b235341df3b"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-quality-20261109-focused-01.json",
+      "path": "adoption-persistence-quality-20261109-focused-01.json",
+      "bytes": 288,
+      "sha256": "7e6fc5596028f6d2c0632aa406e59458204478f5c04ebce1712e7a406081afd4"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-quality-20261109-focused-01.log",
+      "path": "adoption-persistence-quality-20261109-focused-01.log.txt",
+      "bytes": 1528,
+      "sha256": "bfdbd254ccde3e733a6843aaf35c804c8151463c8cc1b59222647319996f04c9"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-quality-20261109-review-01-own-results.json",
+      "path": "adoption-persistence-quality-20261109-review-01-own-results.json",
+      "bytes": 12419,
+      "sha256": "1d588a035e591554c32881b6e459fafb7cda9be0d58d91967b1941cf9a86d959"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-quality-20261109-review-01.md",
+      "path": "adoption-persistence-quality-20261109-review-01.md",
+      "bytes": 3347,
+      "sha256": "8aca8722b2451a851a7f89a2adb927a14ba393c65a4a21f49f57e684c0ffd3ab"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-spec-20261109-focused-01-own-results.json",
+      "path": "adoption-persistence-spec-20261109-focused-01-own-results.json",
+      "bytes": 2784,
+      "sha256": "0885b47d84e50d1ed8321e8dd989b3f353b0f86e976a0fd4c9edaa10cf5fe3b4"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-spec-20261109-focused-01.json",
+      "path": "adoption-persistence-spec-20261109-focused-01.json",
+      "bytes": 285,
+      "sha256": "21c89bb6a832da474067f6aab0020ebeb406cf702acbfc996667c994c11dcc95"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-spec-20261109-focused-01.log",
+      "path": "adoption-persistence-spec-20261109-focused-01.log.txt",
+      "bytes": 1525,
+      "sha256": "6cce45ebd21e10f347df26388ba71e1cfd59014825ae1230854d8c3c4a3975de"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-spec-20261109-review-01-own-results.json",
+      "path": "adoption-persistence-spec-20261109-review-01-own-results.json",
+      "bytes": 12452,
+      "sha256": "311191629bb489bfd26a4ced81484bdcd63df701689ad5056b6b42e13f59c7b0"
+    },
+    {
+      "source": "work/grounded-verification/adoption-persistence-spec-20261109-review-01.md",
+      "path": "adoption-persistence-spec-20261109-review-01.md",
+      "bytes": 5316,
+      "sha256": "3983cba4f9622db1b39eb93a82efabfea5d9edd64a2718006664867efebf2f80"
+    },
+    {
+      "source": "work/grounded-verification/archive-offline-closeout-20261109.mjs",
+      "path": "archive-offline-closeout-20261109.mjs.source.txt",
+      "bytes": 7632,
+      "sha256": "9cd2cd92b687a44da5a4b72c60b5b197a58d9e31d58f45b38fed8bd3cb53bd1f"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-baseline-01-bundle.mjs",
+      "path": "guided-practice-20261109-baseline-01-bundle.mjs.source.txt",
+      "bytes": 744716,
+      "sha256": "9f9b103aac226dcd743cc69f5608218aeefbe7b4b124662c6c8732b4fe190952"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-baseline-01-own-results.json",
+      "path": "guided-practice-20261109-baseline-01-own-results.json",
+      "bytes": 39070,
+      "sha256": "3f118544d0d3e64d19fc17e6ff35f130e68bc950c4197d8390e78cfec0b3a5d2"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-baseline-01.json",
+      "path": "guided-practice-20261109-baseline-01.json",
+      "bytes": 275,
+      "sha256": "ee21dd8d66c76244a704fc58bab531b30ca6a05be6f306a86bb2fe6cdfb1f349"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-baseline-01.log",
+      "path": "guided-practice-20261109-baseline-01.log.txt",
+      "bytes": 191,
+      "sha256": "1feed32632742623f081ed2f1390ab5f516186a1824bc9636185e79083937273"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-baseline-01.mjs",
+      "path": "guided-practice-20261109-baseline-01.mjs.source.txt",
+      "bytes": 2054,
+      "sha256": "f3d454857a6f6c8a320fb5e74f5f1924332d38e917576aa2285adfbee112f601"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/app/lib/materials/personal-assertion-scopes.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/app/lib/materials/personal-assertion-scopes.ts.source.txt",
+      "bytes": 13171,
+      "sha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/app/lib/materials/self-assessment-evidence.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/app/lib/materials/self-assessment-evidence.ts.source.txt",
+      "bytes": 5656,
+      "sha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/app/lib/materials/skill-labels.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/app/lib/materials/skill-labels.ts.source.txt",
+      "bytes": 4114,
+      "sha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/app/server/documents/extraction-validator.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/app/server/documents/extraction-validator.ts.source.txt",
+      "bytes": 6349,
+      "sha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/tests/components/material-guided-cleaning.test.tsx.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/tests/components/material-guided-cleaning.test.tsx.source.txt",
+      "bytes": 5093,
+      "sha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/tests/fixtures/material-guided-cleaning-legacy.json.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/tests/fixtures/material-guided-cleaning-legacy.json.source.txt",
+      "bytes": 33216,
+      "sha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/tests/helpers/material-guided-cleaning.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/tests/helpers/material-guided-cleaning.ts.source.txt",
+      "bytes": 6760,
+      "sha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/tests/helpers/material-mention-review-fixture.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/tests/helpers/material-mention-review-fixture.ts.source.txt",
+      "bytes": 4944,
+      "sha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/tests/lib/materials/guided-cleaning-evidence.test.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/tests/lib/materials/guided-cleaning-evidence.test.ts.source.txt",
+      "bytes": 6703,
+      "sha256": "e0b30174d323dc6f492bb5d2f9a05de4b6549d33c2a2f7f53ca6fadcca2a2e10"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/tests/server/material-guided-cleaning.test.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/tests/server/material-guided-cleaning.test.ts.source.txt",
+      "bytes": 11993,
+      "sha256": "da76fbc92b29f5475ce9c64d5866441648815ef20a50cc85383cf1fb956d6d46"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/worker/document-executor/source-review-evidence.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/worker/document-executor/source-review-evidence.ts.source.txt",
+      "bytes": 20824,
+      "sha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-final-source-freeze/worker/document-executor/source-span-extraction.ts.source.txt",
+      "path": "guided-practice-20261109-final-source-freeze/worker/document-executor/source-span-extraction.ts.source.txt",
+      "bytes": 18754,
+      "sha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-freeze-01-own-results.json",
+      "path": "guided-practice-20261109-freeze-01-own-results.json",
+      "bytes": 16478,
+      "sha256": "3f264e37dd4a8d30ee035389f9f1a5eca9e6e2e84cce18ce48b668b9374a34a2"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-freeze-01.json",
+      "path": "guided-practice-20261109-freeze-01.json",
+      "bytes": 272,
+      "sha256": "939039307b52d5aa57f30d71f837d5359fc6ae266ab7665b3595fbe72ad4c8bf"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-freeze-01.log",
+      "path": "guided-practice-20261109-freeze-01.log.txt",
+      "bytes": 247,
+      "sha256": "c5c3eaac9dc86e8618975ea6b6989542d4ec433d2dbd51aab89e00485a58e692"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-freeze-01.mjs",
+      "path": "guided-practice-20261109-freeze-01.mjs.source.txt",
+      "bytes": 4994,
+      "sha256": "db28f17504b8b8a1fc535dabf12f741a48cf0b0a32e2d99d98ff38272cae8e46"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-own-results.json",
+      "path": "guided-practice-20261109-green-01-own-results.json",
+      "bytes": 23134,
+      "sha256": "98801f1a8c8b67d7a56c5fbc9405eb46b3d92a9c3b617382ec8f197dda557802"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/app__lib__materials__personal-assertion-scopes.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/app__lib__materials__personal-assertion-scopes.ts.source.txt",
+      "bytes": 13101,
+      "sha256": "f23f75011cc661b7eaa8dee4b2096b1be56118222b0f9846ec27abf5864e3bd2"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/app__lib__materials__self-assessment-evidence.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/app__lib__materials__self-assessment-evidence.ts.source.txt",
+      "bytes": 5656,
+      "sha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/app__lib__materials__skill-labels.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/app__lib__materials__skill-labels.ts.source.txt",
+      "bytes": 4114,
+      "sha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/app__server__documents__extraction-validator.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/app__server__documents__extraction-validator.ts.source.txt",
+      "bytes": 6349,
+      "sha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/manifest.json",
+      "path": "guided-practice-20261109-green-01-source-freeze/manifest.json",
+      "bytes": 4720,
+      "sha256": "4a08eef9937c788a27abc50b9887080f06acf5c843585864dd0b4ff40b173298"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/tests__components__material-guided-cleaning.test.tsx.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/tests__components__material-guided-cleaning.test.tsx.source.txt",
+      "bytes": 5093,
+      "sha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/tests__fixtures__material-guided-cleaning-legacy.json.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/tests__fixtures__material-guided-cleaning-legacy.json.source.txt",
+      "bytes": 33216,
+      "sha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/tests__helpers__material-guided-cleaning.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/tests__helpers__material-guided-cleaning.ts.source.txt",
+      "bytes": 6760,
+      "sha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/tests__helpers__material-mention-review-fixture.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/tests__helpers__material-mention-review-fixture.ts.source.txt",
+      "bytes": 4944,
+      "sha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/tests__lib__materials__guided-cleaning-evidence.test.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/tests__lib__materials__guided-cleaning-evidence.test.ts.source.txt",
+      "bytes": 5979,
+      "sha256": "9542851e8f05032455fdf9683b145991f7b13d807721519c674ccea45147d123"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/tests__server__material-guided-cleaning.test.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/tests__server__material-guided-cleaning.test.ts.source.txt",
+      "bytes": 10928,
+      "sha256": "c8bea5547f6dd65d8ba02e97c7afd48fdab7304ae3597cf479d92c744b877bb6"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/worker__document-executor__source-review-evidence.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/worker__document-executor__source-review-evidence.ts.source.txt",
+      "bytes": 20824,
+      "sha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01-source-freeze/worker__document-executor__source-span-extraction.ts.source.txt",
+      "path": "guided-practice-20261109-green-01-source-freeze/worker__document-executor__source-span-extraction.ts.source.txt",
+      "bytes": 18754,
+      "sha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01.json",
+      "path": "guided-practice-20261109-green-01.json",
+      "bytes": 273,
+      "sha256": "fba9aff3a95f7684b62267bc5d32302963ec28d208f8ca60164b4616aa8f1357"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-01.log",
+      "path": "guided-practice-20261109-green-01.log.txt",
+      "bytes": 342,
+      "sha256": "3422000430674a84dfcaa6da7854e459aa66e6650071e3d651bf98886ebc73f7"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-02-own-results.json",
+      "path": "guided-practice-20261109-green-02-own-results.json",
+      "bytes": 25142,
+      "sha256": "4c53dbb5842049c1f7b92982897c2dc801e87aa4aa28817c7a11a103268359c4"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-02.json",
+      "path": "guided-practice-20261109-green-02.json",
+      "bytes": 273,
+      "sha256": "3faf444b5c95af7e593f81e2e51477685cde4ad89bfa5a9fc0cb7ebf27e8ae26"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-green-02.log",
+      "path": "guided-practice-20261109-green-02.log.txt",
+      "bytes": 343,
+      "sha256": "62a660a86480f11f7b02192c2df6696ad7ea538358305fdd78490c7720217e8b"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-lint-01.json",
+      "path": "guided-practice-20261109-lint-01.json",
+      "bytes": 272,
+      "sha256": "0ba32a6d0de94fd712a32362b93247605f1c0eec7777c8b3a9b483a6e8d37e34"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-lint-01.log",
+      "path": "guided-practice-20261109-lint-01.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-lint-02.json",
+      "path": "guided-practice-20261109-lint-02.json",
+      "bytes": 272,
+      "sha256": "b0b2101a67cf99f7da826345a9fedcfc3badda8a4e9e7c6743e9117a737dc159"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-lint-02.log",
+      "path": "guided-practice-20261109-lint-02.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-red-01-own-results.json",
+      "path": "guided-practice-20261109-red-01-own-results.json",
+      "bytes": 147165,
+      "sha256": "6af28a484be49813aa7c2d26e5d47977f5197d5c005031285fb6e7e843cd5082"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-red-01.json",
+      "path": "guided-practice-20261109-red-01.json",
+      "bytes": 271,
+      "sha256": "0e3b4e0aafb9bdfc133266ad98efd8aa8af1804f6b3fb90d089bb92f5082fc35"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-red-01.log",
+      "path": "guided-practice-20261109-red-01.log.txt",
+      "bytes": 341,
+      "sha256": "1f80585044b0eba1a2a34b5f12b6fdbcf88dc6d67ad62e587d9bb7686b914824"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-regression-01-own-results.json",
+      "path": "guided-practice-20261109-regression-01-own-results.json",
+      "bytes": 569557,
+      "sha256": "93507f55019da95f1f322b427d898c2687d7ae45538b943b8439e683c8318966"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-regression-01.json",
+      "path": "guided-practice-20261109-regression-01.json",
+      "bytes": 279,
+      "sha256": "da9c7e6868f9d2c4566ec1a1b07d198d7b5128937b97aefbe14cc099a5860da2"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-regression-01.log",
+      "path": "guided-practice-20261109-regression-01.log.txt",
+      "bytes": 515,
+      "sha256": "e42a0607097ca085e6422100bf00157d1b3a9d5b229e2b265235779ca62e1fbe"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-regression-02-own-results.json",
+      "path": "guided-practice-20261109-regression-02-own-results.json",
+      "bytes": 569594,
+      "sha256": "144878707bc588112ecd118117c7d23da10fb698a0d5c7a9e270533ddfe1137c"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-regression-02.json",
+      "path": "guided-practice-20261109-regression-02.json",
+      "bytes": 279,
+      "sha256": "23e08b99daa86c728666fc4382c6ba34051ce9cd7d376cae11cdbcf58492e286"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-regression-02.log",
+      "path": "guided-practice-20261109-regression-02.log.txt",
+      "bytes": 517,
+      "sha256": "69d854b0545995303eb4277b0fec524b1f6da344d1c775b18b53f46a1d61f28b"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-scope-probe-01-bundle.mjs",
+      "path": "guided-practice-20261109-scope-probe-01-bundle.mjs.source.txt",
+      "bytes": 731828,
+      "sha256": "740d8130669955642cbe7b01052dd10da239cb252706def0acb9f00452fecb7f"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-scope-probe-01-own-results.json",
+      "path": "guided-practice-20261109-scope-probe-01-own-results.json",
+      "bytes": 6337,
+      "sha256": "d590579a0d4ab4da2ecd7952b6b5bb9a2820c50b5419f6d884f1255b4cdc2166"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-scope-probe-01.json",
+      "path": "guided-practice-20261109-scope-probe-01.json",
+      "bytes": 278,
+      "sha256": "abb8541007bfce6c65d6c9636a3207558d7bdce0c9388534029d6a5399bc1cc0"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-scope-probe-01.log",
+      "path": "guided-practice-20261109-scope-probe-01.log.txt",
+      "bytes": 917,
+      "sha256": "00473705ac5f9b220043c2a90cd0bdba69e3689763504713b25167f5101cc0a1"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-scope-probe-01.mjs",
+      "path": "guided-practice-20261109-scope-probe-01.mjs.source.txt",
+      "bytes": 3314,
+      "sha256": "a34e343690af1687ba4c6277b8be562386a2efef5b5b9bce4a80997f83f215cb"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-scope-red-02-own-results.json",
+      "path": "guided-practice-20261109-scope-red-02-own-results.json",
+      "bytes": 26979,
+      "sha256": "dd998d921f92678ecde3f6a153c682138b13b1b145037886655e82a4fe369cb3"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-scope-red-02.json",
+      "path": "guided-practice-20261109-scope-red-02.json",
+      "bytes": 277,
+      "sha256": "9a055b58c51ba77eed683d3d7fb941e06d7fea5c8e8c06a736064a2f2d5a6375"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-scope-red-02.log",
+      "path": "guided-practice-20261109-scope-red-02.log.txt",
+      "bytes": 347,
+      "sha256": "c0391c79818527624b9bdad4dab7a193f5c3e9ab91abc2ad122748bcbd464435"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-tsconfig.json",
+      "path": "guided-practice-20261109-tsconfig.json",
+      "bytes": 153,
+      "sha256": "0e346ee85e8661ad2cc6f5987fce8513a0d61ded895cddb4f5e4c6fd821e2582"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-types-01.json",
+      "path": "guided-practice-20261109-types-01.json",
+      "bytes": 274,
+      "sha256": "211a8f79ab77da02f5f304da0a282dda6d73187821e4a4643759fb3f8e2f862f"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-types-01.log",
+      "path": "guided-practice-20261109-types-01.log.txt",
+      "bytes": 1029,
+      "sha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-types-02.json",
+      "path": "guided-practice-20261109-types-02.json",
+      "bytes": 274,
+      "sha256": "fcb84bb94453a20f0114c68c6612d8764e084fc83cdece11da612cc3555c42c9"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-types-02.log",
+      "path": "guided-practice-20261109-types-02.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-types-03.json",
+      "path": "guided-practice-20261109-types-03.json",
+      "bytes": 274,
+      "sha256": "1d405e9f943e9decd764c953751608741bbf7ba570ac97354dbddc1d94160d24"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-20261109-types-03.log",
+      "path": "guided-practice-20261109-types-03.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-diagnosis-20261109-01-bundle.mjs",
+      "path": "guided-practice-diagnosis-20261109-01-bundle.mjs.source.txt",
+      "bytes": 743384,
+      "sha256": "94ce1581980db287db1aa9c1d5ebbbc5fbcd3fdc79fa8e727b1be16c67bcf907"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-diagnosis-20261109-01-results.json",
+      "path": "guided-practice-diagnosis-20261109-01-results.json",
+      "bytes": 69649,
+      "sha256": "174e8b2b22a6631c88a7a8ef5bab1881ca782c11f43fe0b4586fc727dd7ffd87"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-diagnosis-20261109-01.json",
+      "path": "guided-practice-diagnosis-20261109-01.json",
+      "bytes": 276,
+      "sha256": "ed58eaf29fd894de457b2a1118bdd8b0e793455f8a1cb31ec7cedb59864e3da9"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-diagnosis-20261109-01.log",
+      "path": "guided-practice-diagnosis-20261109-01.log.txt",
+      "bytes": 316,
+      "sha256": "c556f888deee78704170c6af2f465ff6b13378d541ea823130b249019c3350d9"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-diagnosis-20261109-01.mjs",
+      "path": "guided-practice-diagnosis-20261109-01.mjs.source.txt",
+      "bytes": 9085,
+      "sha256": "145bcbef6f26e0aa85ffea819c47093a254547ab6a22e45dc67225fa91ece5c0"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-diagnosis-20261109-memo.md",
+      "path": "guided-practice-diagnosis-20261109-memo.md",
+      "bytes": 11031,
+      "sha256": "21f419dcbc4e8eef71abbc358f9a85dc2cf34b005d704c777b2b798335de6310"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-01-bundle.mjs",
+      "path": "guided-practice-quality-20261109-01-bundle.mjs.source.txt",
+      "bytes": 737743,
+      "sha256": "5bdd816ef00eca269919ae24a58a5d75ba0e7d40a09f544b52dec744950013ca"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-01-own-results.json",
+      "path": "guided-practice-quality-20261109-01-own-results.json",
+      "bytes": 1043,
+      "sha256": "a743e10303037606f2e346833edc7f5ad46ac722f8252ce5b92287ed561086e4"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-01.json",
+      "path": "guided-practice-quality-20261109-01.json",
+      "bytes": 274,
+      "sha256": "63a39c2d1fc194c2684f52a4b418ab330eaec5f6c9a34745bb9f5995b882a5c7"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-01.log",
+      "path": "guided-practice-quality-20261109-01.log.txt",
+      "bytes": 740,
+      "sha256": "cdc18faa2cad89463a45a44d40aee389713277e3102cb110a131f6f9d1d52b8a"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-01.mjs",
+      "path": "guided-practice-quality-20261109-01.mjs.source.txt",
+      "bytes": 10728,
+      "sha256": "6bf90b69b4a2c7d4d510dc48be1502a9487b43ce661f49e0a8eab59078a2eacd"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-02-bundle.mjs",
+      "path": "guided-practice-quality-20261109-02-bundle.mjs.source.txt",
+      "bytes": 737808,
+      "sha256": "f1674e5c060038dd58aa359d28e94d3d20149f82c34d7f2ec6c608bb49711059"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-02-memo.txt",
+      "path": "guided-practice-quality-20261109-02-memo.txt",
+      "bytes": 4773,
+      "sha256": "c258b3308bdd1ab27f876cf1a2530714068f6adca41ac9226ab7991f697dc2a0"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-02-own-results.json",
+      "path": "guided-practice-quality-20261109-02-own-results.json",
+      "bytes": 19708,
+      "sha256": "31e070717c59e1f7c1be80e9e0d9aba73935325fc12e4819a55c62c01e4b2f35"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-02.json",
+      "path": "guided-practice-quality-20261109-02.json",
+      "bytes": 274,
+      "sha256": "df98ace62017ae0a12c4f3ffb7da905598816eeb1488681c15f402d67317e53b"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-02.log",
+      "path": "guided-practice-quality-20261109-02.log.txt",
+      "bytes": 399,
+      "sha256": "4956c99bbc976f38cb7501f896b934565540a313005b421330c1ef81bad0b83d"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-quality-20261109-02.mjs",
+      "path": "guided-practice-quality-20261109-02.mjs.source.txt",
+      "bytes": 10789,
+      "sha256": "4f386ce2604f0153c685772321956f472c368b416788b68ef0e4363eb3bf053b"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-spec-20261109-01-bundle.mjs",
+      "path": "guided-practice-spec-20261109-01-bundle.mjs.source.txt",
+      "bytes": 737189,
+      "sha256": "bbe67a1b2cd4e0322e1628ac3bb71d09bf951be56208724b819ca0d37037aa2b"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-spec-20261109-01-memo.txt",
+      "path": "guided-practice-spec-20261109-01-memo.txt",
+      "bytes": 3882,
+      "sha256": "53532cbb92d51986cde86f5509d13c7ebd96a53ae91d85f93fd3d4863f0e936e"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-spec-20261109-01-own-results.json",
+      "path": "guided-practice-spec-20261109-01-own-results.json",
+      "bytes": 16844,
+      "sha256": "1b6b7d80393c0025c484c696172a60c8ca8e2dc477051c4f58fd3d635c2c08f1"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-spec-20261109-01.json",
+      "path": "guided-practice-spec-20261109-01.json",
+      "bytes": 271,
+      "sha256": "46ad3e228c77b474bb1a0f7e16c7e936a74e483390e86725f81352ea7fd99c2e"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-spec-20261109-01.log",
+      "path": "guided-practice-spec-20261109-01.log.txt",
+      "bytes": 216,
+      "sha256": "6a55bf89b4c671adcd09aa48d720ef147d62098256c45c32c0a8f3ae2a0ed86a"
+    },
+    {
+      "source": "work/grounded-verification/guided-practice-spec-20261109-01.mjs",
+      "path": "guided-practice-spec-20261109-01.mjs.source.txt",
+      "bytes": 10214,
+      "sha256": "3d04b74a6134d9e54fb17eb777a7289cbb38a4877808ff17e2b4718959cad9f4"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a-bundle.mjs",
+      "path": "numbered-statements-boundary-20261109-baseline-a-bundle.mjs.source.txt",
+      "bytes": 639650,
+      "sha256": "a2fe7a385ad52d8f3099bd3e01977b13729b2f581122b1f555f166475495e259"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a-results.json",
+      "path": "numbered-statements-boundary-20261109-baseline-a-results.json",
+      "bytes": 27002,
+      "sha256": "06ccd54ebfe307c09c74d7c247d833d581ba9255812a5a480873df29bc25742c"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a.json",
+      "path": "numbered-statements-boundary-20261109-baseline-a.json",
+      "bytes": 287,
+      "sha256": "3c8b4d429c3ca6c5734e116f14e80fff352dc5227851df8b5b53ecb469d6cdc1"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-baseline-a.log",
+      "path": "numbered-statements-boundary-20261109-baseline-a.log.txt",
+      "bytes": 275,
+      "sha256": "576ee0676e8252c264571ded10219a738d6d1be522f28bcbbd3d108a225f70e9"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a-bundle.mjs",
+      "path": "numbered-statements-boundary-20261109-compare-a-bundle.mjs.source.txt",
+      "bytes": 640516,
+      "sha256": "c028f797887b8ca031f84b80d5a61b758bde14bdc1dd6bad42efa08f5c1b484b"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a-results.json",
+      "path": "numbered-statements-boundary-20261109-compare-a-results.json",
+      "bytes": 41386,
+      "sha256": "bc63e91146d52b151f82ff57ce430152cb3cf166cc1c6ca13f52d3c78ba916fb"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a.json",
+      "path": "numbered-statements-boundary-20261109-compare-a.json",
+      "bytes": 286,
+      "sha256": "e14fa24ad3563932964fbed9b696bcc8f1b76804d2e0a3139cc9545cae7f0b1c"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-compare-a.log",
+      "path": "numbered-statements-boundary-20261109-compare-a.log.txt",
+      "bytes": 286,
+      "sha256": "68665bee5fd4250a0140bde8ac0f7437e4b864c627b6adc96d93d8c227964336"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-material-numbered-statements.test.ts.source.txt",
+      "path": "numbered-statements-boundary-20261109-freeze-a-material-numbered-statements.test.ts.source.txt",
+      "bytes": 7383,
+      "sha256": "1aa53850930e5ce24acca8998a2df068cd503490d2055565e059548d36c4cec7"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-results.json",
+      "path": "numbered-statements-boundary-20261109-freeze-a-results.json",
+      "bytes": 11029,
+      "sha256": "cb29af4c72383844bf3fcb3358f7e3345be735ce230cf692cd437e615fee266f"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-source-review-evidence.ts.source.txt",
+      "path": "numbered-statements-boundary-20261109-freeze-a-source-review-evidence.ts.source.txt",
+      "bytes": 20669,
+      "sha256": "f9ed3a14145535a7cc0e9d4b59b8f265deb1533c84679997c4c078544e35dc37"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-source-statements.ts.source.txt",
+      "path": "numbered-statements-boundary-20261109-freeze-a-source-statements.ts.source.txt",
+      "bytes": 2996,
+      "sha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-tracked.patch",
+      "path": "numbered-statements-boundary-20261109-freeze-a-tracked.patch",
+      "bytes": 3631,
+      "sha256": "8b9092569f1f92ea702b1819316836e7cee0a5e4f5ea804a92359ab8bb0e3851"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a.json",
+      "path": "numbered-statements-boundary-20261109-freeze-a.json",
+      "bytes": 285,
+      "sha256": "4620d3b94b0300501703a41266f6c4f52913659ff37aa89ad6489f11e525db7c"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a.log",
+      "path": "numbered-statements-boundary-20261109-freeze-a.log.txt",
+      "bytes": 1020,
+      "sha256": "9fdd27c1c7efa386fedc5cbfcaf2bfcc73bcb98bf8c2c9cd18207da06cf21ec4"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-freeze.mjs",
+      "path": "numbered-statements-boundary-20261109-freeze.mjs.source.txt",
+      "bytes": 5384,
+      "sha256": "f4ad6f37c1cd510c4dbe267848244241b48b333031b6d92e308c198870001cc6"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-green-a.json",
+      "path": "numbered-statements-boundary-20261109-green-a.json",
+      "bytes": 285,
+      "sha256": "5e078ec0b40f83225b9d3b7335dda4082e829cd46b91723ccd0702ec915fe36d"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-green-a.log",
+      "path": "numbered-statements-boundary-20261109-green-a.log.txt",
+      "bytes": 539,
+      "sha256": "b114ce0e060a1b7a3e583330a2f39430f1428c8442807908f40d6ad8a584badf"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-inspect.mjs",
+      "path": "numbered-statements-boundary-20261109-inspect.mjs.source.txt",
+      "bytes": 5541,
+      "sha256": "94946a3eebd6cad16ce19bb0ff5e6880d459e956b34ff386282cab91f4f064d2"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-lint-a.json",
+      "path": "numbered-statements-boundary-20261109-lint-a.json",
+      "bytes": 284,
+      "sha256": "faa47ee761f40008f71f5431658d01919fde9215c8ac00fe365d69ceaa5da89a"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-lint-a.log",
+      "path": "numbered-statements-boundary-20261109-lint-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-red-api-a.json",
+      "path": "numbered-statements-boundary-20261109-red-api-a.json",
+      "bytes": 287,
+      "sha256": "f9b4124068e2ff5fac4b057ae1631f320ec54da3ab2c3b4a6e010eb5ceb9e6e4"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-red-api-a.log",
+      "path": "numbered-statements-boundary-20261109-red-api-a.log.txt",
+      "bytes": 2084,
+      "sha256": "5bf286f3a94a8f369428306effc1bb753e53b36f63aec5ffaeb0da722d803b35"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-a.json",
+      "path": "numbered-statements-boundary-20261109-red-behavior-a.json",
+      "bytes": 292,
+      "sha256": "478a79504674462c05e32c1d78e8a17e7b64290190e2eb57449dde1599e55aea"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-a.log",
+      "path": "numbered-statements-boundary-20261109-red-behavior-a.log.txt",
+      "bytes": 28659,
+      "sha256": "577afe5067d8c797c2757c75046d247151b09c8aa80552f3e247fc63ce8518a3"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-b.json",
+      "path": "numbered-statements-boundary-20261109-red-behavior-b.json",
+      "bytes": 292,
+      "sha256": "0f90c3590f6256661103a09e2a9cd22d657276aaee26d6b31777e12fe1c06085"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-red-behavior-b.log",
+      "path": "numbered-statements-boundary-20261109-red-behavior-b.log.txt",
+      "bytes": 27504,
+      "sha256": "3a543a668e44952a55a14c0d8ac64190e035303826c84d6b0e1fe0601f4dbfbf"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-related-a.json",
+      "path": "numbered-statements-boundary-20261109-related-a.json",
+      "bytes": 287,
+      "sha256": "aca256fee110269bb541cbe5f5843d86e08955dac4284c8076f82df424d67499"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-related-a.log",
+      "path": "numbered-statements-boundary-20261109-related-a.log.txt",
+      "bytes": 1059,
+      "sha256": "537e880a7ab28d20fa29f3841b7b037c6024f95e848971b5b36c55d46d05ba3b"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-tsconfig.json",
+      "path": "numbered-statements-boundary-20261109-tsconfig.json",
+      "bytes": 452,
+      "sha256": "2b76f2eb3d17bc4967ad1ef4a4250e0e3575a7a20b61c65a4e283800795fb5e1"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-types-a.json",
+      "path": "numbered-statements-boundary-20261109-types-a.json",
+      "bytes": 285,
+      "sha256": "9a0f534eb907d50db178ca6b063beded295e0eb2f2e72c53302d7171accb4a97"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-20261109-types-a.log",
+      "path": "numbered-statements-boundary-20261109-types-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-quality-20261109-q1-bundle.mjs",
+      "path": "numbered-statements-boundary-quality-20261109-q1-bundle.mjs.source.txt",
+      "bytes": 640516,
+      "sha256": "c028f797887b8ca031f84b80d5a61b758bde14bdc1dd6bad42efa08f5c1b484b"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-quality-20261109-q1-memo.md",
+      "path": "numbered-statements-boundary-quality-20261109-q1-memo.md",
+      "bytes": 2738,
+      "sha256": "1556485162a03c80c0076e3d6da389a024c1686c5ef3e2ef7dd7e8a85c2a6fd9"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-quality-20261109-q1-own-results.json",
+      "path": "numbered-statements-boundary-quality-20261109-q1-own-results.json",
+      "bytes": 5912,
+      "sha256": "e6da08afe3039cb7fb4a1a462033c7dd4d6cec4617e9295f18eb3c7191351cdf"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-quality-20261109-q1-probe-results.json",
+      "path": "numbered-statements-boundary-quality-20261109-q1-probe-results.json",
+      "bytes": 15879,
+      "sha256": "4cc4c6bcf71bd43a3d516c2ac55638c60ea8dfc40cd46ee7115177714e96a05d"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-quality-20261109-q1.json",
+      "path": "numbered-statements-boundary-quality-20261109-q1.json",
+      "bytes": 287,
+      "sha256": "3bc18370da857bd85017a11c0642526b636728c1355b466f6a913b25740ecc1c"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-quality-20261109-q1.log",
+      "path": "numbered-statements-boundary-quality-20261109-q1.log.txt",
+      "bytes": 173,
+      "sha256": "4ab60da175c03c60bce97f4531022d41d5464ef701e47b10d907f96b86ce906f"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-quality-20261109-q1.mjs",
+      "path": "numbered-statements-boundary-quality-20261109-q1.mjs.source.txt",
+      "bytes": 9958,
+      "sha256": "1c42ffebf8fda701f556e26bc9c0edd8b611deef274fe767f103193b8cd3d424"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a-bundle.mjs",
+      "path": "numbered-statements-boundary-spec-20261109-a-bundle.mjs.source.txt",
+      "bytes": 640516,
+      "sha256": "c028f797887b8ca031f84b80d5a61b758bde14bdc1dd6bad42efa08f5c1b484b"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a-hashes.json",
+      "path": "numbered-statements-boundary-spec-20261109-a-hashes.json",
+      "bytes": 1090,
+      "sha256": "ca79164850eca642096ae01b2a791c8bd48a608247b7200f639bfedb63dfbc2b"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a-memo.md",
+      "path": "numbered-statements-boundary-spec-20261109-a-memo.md",
+      "bytes": 2380,
+      "sha256": "18a5458abd4b78d9c0257550f9bc7104711d36e4f826f2c8ccfeb018875480c1"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a-results.json",
+      "path": "numbered-statements-boundary-spec-20261109-a-results.json",
+      "bytes": 19303,
+      "sha256": "dfceda86954b631fa28cf999ba2992388506080080fb80b64b628a927bdeee83"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a-review-results.json",
+      "path": "numbered-statements-boundary-spec-20261109-a-review-results.json",
+      "bytes": 2735,
+      "sha256": "c03643f49fd2009a152aae0cb2b5acfd410ea26d8d332d90fce33488f79f4c0e"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a.json",
+      "path": "numbered-statements-boundary-spec-20261109-a.json",
+      "bytes": 283,
+      "sha256": "5cbba33da2fe194ae27818720a8c0b6520209e494b54200e2dd112c90b97e267"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a.log",
+      "path": "numbered-statements-boundary-spec-20261109-a.log.txt",
+      "bytes": 1147,
+      "sha256": "23575ee1155d05dfc097f5e9bddcf854eb9cbbffebe6d687023dda10a0357b10"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a.mjs",
+      "path": "numbered-statements-boundary-spec-20261109-a.mjs.source.txt",
+      "bytes": 10713,
+      "sha256": "f5d86deb839b48a00f384cca6091cb8fbc313dda374fc9fcbf424ad94bbd7449"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-diagnosis-20261109-01.json",
+      "path": "numbered-statements-diagnosis-20261109-01.json",
+      "bytes": 279,
+      "sha256": "50d9a7df666b9d85d24c93bf91c077357cec86ae66fcdbbb1f5f20f5212743b1"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-diagnosis-20261109-01.log",
+      "path": "numbered-statements-diagnosis-20261109-01.log.txt",
+      "bytes": 1188,
+      "sha256": "f459fe79c333ed2fb4a2e5f2d54eff0b78fdf3d413db3ed73bd3609567d16edb"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-diagnosis-20261109-01.mjs",
+      "path": "numbered-statements-diagnosis-20261109-01.mjs.source.txt",
+      "bytes": 10672,
+      "sha256": "0d58fbc78706d1aa1d05027b717aec7335f198a9fc44cc205ecbb9694e56b1c9"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-diagnosis-20261109-02-bundle.mjs",
+      "path": "numbered-statements-diagnosis-20261109-02-bundle.mjs.source.txt",
+      "bytes": 748277,
+      "sha256": "f8a497894f293011f345f1b9d9480b887f7e81aa5ffb238591b849494d3f04a0"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json",
+      "path": "numbered-statements-diagnosis-20261109-02-results.json",
+      "bytes": 368700,
+      "sha256": "11c704c32c78937387c932dbd67c6e950a8702d6ea31a2d181697ad6ee707c32"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-diagnosis-20261109-02.json",
+      "path": "numbered-statements-diagnosis-20261109-02.json",
+      "bytes": 280,
+      "sha256": "5b7ac3f5a1767ef785d0aab4954b94b27ec8bd815b9f1647f1376dfdb7cc567f"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-diagnosis-20261109-02.log",
+      "path": "numbered-statements-diagnosis-20261109-02.log.txt",
+      "bytes": 1009,
+      "sha256": "ef5807c7bd3a586395b18292cca1713014317130145af48a8727b28b2c8ed22d"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-diagnosis-20261109-02.mjs",
+      "path": "numbered-statements-diagnosis-20261109-02.mjs.source.txt",
+      "bytes": 10673,
+      "sha256": "cc6c492f349ccd504bfea5a841edb75bd96ce5d672982af2401340f77d19bc10"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-browser-a-results.json",
+      "path": "numbered-statements-flow-20261109-browser-a-results.json",
+      "bytes": 10757,
+      "sha256": "93c44034f5fa45f2862f84b2e2c97cc7e4302fccbbfbabfb307e97f0cea18587"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-browser-a.json",
+      "path": "numbered-statements-flow-20261109-browser-a.json",
+      "bytes": 282,
+      "sha256": "d2984959d9187398585e9dbbeb4f100ff27d2fd6cb12514ff14bee17f36b4d6c"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-browser-a.log",
+      "path": "numbered-statements-flow-20261109-browser-a.log.txt",
+      "bytes": 677,
+      "sha256": "08f06bb0db1f3e2fab72cf70e5c3df103fcb5d0e9ea2129cfb9fc3e6f128a959"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-browser-check.mjs",
+      "path": "numbered-statements-flow-20261109-browser-check.mjs.source.txt",
+      "bytes": 1940,
+      "sha256": "9d33bbca784c347256c8d5331405c3dc3928347cf7b0497a5f903c2e4a970380"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a-results.json",
+      "path": "numbered-statements-flow-20261109-expanded-a-results.json",
+      "bytes": 253348,
+      "sha256": "63c7f05e7bff7804b18035963f464dbd22cc11b9b9cb43606e843212dfc9ae5b"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a.json",
+      "path": "numbered-statements-flow-20261109-expanded-a.json",
+      "bytes": 285,
+      "sha256": "47669f1e285a57f785b145ed54e911b83355569430567631ee241f581e08f168"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-expanded-a.log",
+      "path": "numbered-statements-flow-20261109-expanded-a.log.txt",
+      "bytes": 6657,
+      "sha256": "e3e7556712442de2786da6ef11a751710e2f972a997f09e901a573654056e2e2"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-document-extraction.test.ts.source.txt",
+      "path": "numbered-statements-flow-20261109-freeze-a-document-extraction.test.ts.source.txt",
+      "bytes": 17466,
+      "sha256": "06b782e950e64fd8f98f80ca44f50f3de1d67fc96511a3e4f0bc551dac46c625"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-document-source-span-provider.test.ts.source.txt",
+      "path": "numbered-statements-flow-20261109-freeze-a-document-source-span-provider.test.ts.source.txt",
+      "bytes": 61335,
+      "sha256": "3eaee4aa55e074e8e7437f9c26604d490b9017938413e3f32f09076c25690446"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-extraction-validator.ts.source.txt",
+      "path": "numbered-statements-flow-20261109-freeze-a-extraction-validator.ts.source.txt",
+      "bytes": 6317,
+      "sha256": "8a780698b7823eaa73685f5bbe0e3087edfb72edb2221abd0828b32d162b953f"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-material-mention-review-flow.test.ts.source.txt",
+      "path": "numbered-statements-flow-20261109-freeze-a-material-mention-review-flow.test.ts.source.txt",
+      "bytes": 22481,
+      "sha256": "685ec1dee4ee5e1492bfcc7da4b874ce602d573f1c647b9b73cf638d72cbf229"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-results.json",
+      "path": "numbered-statements-flow-20261109-freeze-a-results.json",
+      "bytes": 15450,
+      "sha256": "4a57492bb289cadf0723ee80c3082c16e523bfdc696c77387b6338ab27173d22"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-reviewed-source-mentions.test.ts.source.txt",
+      "path": "numbered-statements-flow-20261109-freeze-a-reviewed-source-mentions.test.ts.source.txt",
+      "bytes": 16561,
+      "sha256": "644395e6047a2640603f78103064be0dcf8ecd90ceaba8602abd552a66aef0eb"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-skill-labels.ts.source.txt",
+      "path": "numbered-statements-flow-20261109-freeze-a-skill-labels.ts.source.txt",
+      "bytes": 4034,
+      "sha256": "83e6cc46ffa5242d005f7ed5d8e60a2952f41a4f326067c6fecf4ed792d58b87"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-source-span-extraction.ts.source.txt",
+      "path": "numbered-statements-flow-20261109-freeze-a-source-span-extraction.ts.source.txt",
+      "bytes": 18722,
+      "sha256": "b13167ff0587dc6c5a1549e8a5f14a2cef8b19b55de0211ca525c023d6b8422d"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-tracked.patch",
+      "path": "numbered-statements-flow-20261109-freeze-a-tracked.patch",
+      "bytes": 35153,
+      "sha256": "215fd45d3a8c903ca6afa32ada3186ab0c7cb7c554e9a2c94df94191bcf71822"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a.json",
+      "path": "numbered-statements-flow-20261109-freeze-a.json",
+      "bytes": 281,
+      "sha256": "d58e0d05e1befe8c1f4c82dd19b2cd6ec66ba9d99e46e66f64effdeb39fe0199"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a.log",
+      "path": "numbered-statements-flow-20261109-freeze-a.log.txt",
+      "bytes": 259,
+      "sha256": "9626d2c3f327a99d48cf7a3b5e1a46a6a95124a95b41df183e77d5fc6867a90c"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-freeze.mjs",
+      "path": "numbered-statements-flow-20261109-freeze.mjs.source.txt",
+      "bytes": 6279,
+      "sha256": "13bf31a6a46f15dd3bb08b74aec57e7a355a26cb517d6aeaab0609fd97d7fbfc"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-gate-a-results.json",
+      "path": "numbered-statements-flow-20261109-gate-a-results.json",
+      "bytes": 80001,
+      "sha256": "388a4f46644db074f557154ddda1b2de52ab7ed4695cb2245434e6059d01c293"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-gate-a.json",
+      "path": "numbered-statements-flow-20261109-gate-a.json",
+      "bytes": 280,
+      "sha256": "431493f4e1e40fcb96607aaba69923fee2cbd6b324c887ab988a902d54e7db9f"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-gate-a.log",
+      "path": "numbered-statements-flow-20261109-gate-a.log.txt",
+      "bytes": 4017,
+      "sha256": "19399ab3449693091b141bc7a9e6515f70fa35d0bf3faa29ce48a02293587257"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-green-a-results.json",
+      "path": "numbered-statements-flow-20261109-green-a-results.json",
+      "bytes": 252413,
+      "sha256": "2659f8b435a72339d4674bfc90b31923be31752b8e57a3ed407f94cb5c09bc03"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-green-a.json",
+      "path": "numbered-statements-flow-20261109-green-a.json",
+      "bytes": 282,
+      "sha256": "d1b9485d9378a993e47f011166a9e86462fd002006292ab17e617476dfb20f14"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-green-a.log",
+      "path": "numbered-statements-flow-20261109-green-a.log.txt",
+      "bytes": 1822,
+      "sha256": "0e6e9e6741a5ee980c83913c5f6a640a3d9b8f34a852f69bff30ffbfe4f02b61"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-lint-a.json",
+      "path": "numbered-statements-flow-20261109-lint-a.json",
+      "bytes": 280,
+      "sha256": "d94da30091b24c189254df2c15004605edec2b618f65716f5845e78346574563"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-lint-a.log",
+      "path": "numbered-statements-flow-20261109-lint-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-red-a-results.json",
+      "path": "numbered-statements-flow-20261109-red-a-results.json",
+      "bytes": 86540,
+      "sha256": "d2f84087ea81913569792877b08ae4441845b52a50c7ad6e208b0806539b81d1"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-red-a.json",
+      "path": "numbered-statements-flow-20261109-red-a.json",
+      "bytes": 279,
+      "sha256": "a99794bea98d9b039ed02de984b7483f2d3ad2b34ee0b65b1fc70035df961a6e"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-red-a.log",
+      "path": "numbered-statements-flow-20261109-red-a.log.txt",
+      "bytes": 39251,
+      "sha256": "b6330beb23a3f6bbcc8b81501fffc5508371bc8d3d74f49fa42cf477de86ef31"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a-results.json",
+      "path": "numbered-statements-flow-20261109-retention-green-a-results.json",
+      "bytes": 176167,
+      "sha256": "01f4e1ef95f6e7856d396babf76fc32e3eee526ccf56ae5a19c62350c537f407"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a.json",
+      "path": "numbered-statements-flow-20261109-retention-green-a.json",
+      "bytes": 291,
+      "sha256": "9c2cc5e2f62006ce04613809a4a309435741da352c7dae9db5e4c44d636a8659"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-retention-green-a.log",
+      "path": "numbered-statements-flow-20261109-retention-green-a.log.txt",
+      "bytes": 1411,
+      "sha256": "321376e39bf045a6a3010e41a014acee702d64ef67310ef200e32f0021a12b17"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a-results.json",
+      "path": "numbered-statements-flow-20261109-retention-red-a-results.json",
+      "bytes": 46892,
+      "sha256": "e62efd2167a3eb615aad4484c477f9b7d7949aee1b4a4d0f45433b3e5ec828a9"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a.json",
+      "path": "numbered-statements-flow-20261109-retention-red-a.json",
+      "bytes": 289,
+      "sha256": "d1b637bf5a2047f80aa2199cffd3944955cd5edb99a13701b5e3dff64f3ad58f"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-retention-red-a.log",
+      "path": "numbered-statements-flow-20261109-retention-red-a.log.txt",
+      "bytes": 21043,
+      "sha256": "712e0483f7d3fbae6d12032676a6d82a6f92c8c098ce75dd74e4d36ceb8bb793"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-types-a.json",
+      "path": "numbered-statements-flow-20261109-types-a.json",
+      "bytes": 281,
+      "sha256": "28b6c2d7d56318b3b6f6e7cc7ffd4dd6ec03dd48dcb2295f5578f38138f68d68"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-types-a.log",
+      "path": "numbered-statements-flow-20261109-types-a.log.txt",
+      "bytes": 1424,
+      "sha256": "346d94088e4390bdf48d2c84697ea70653e634887a107e8e44cc23127e255a50"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-types-b.config.json",
+      "path": "numbered-statements-flow-20261109-types-b.config.json",
+      "bytes": 668,
+      "sha256": "2dd2cbbb143790fa0c70ad83198d2d95d1f06b9e4dc073f43b97b30555e6accd"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-types-b.json",
+      "path": "numbered-statements-flow-20261109-types-b.json",
+      "bytes": 281,
+      "sha256": "a27bfa29d1c51b8cb7b085c2920f49d2afbd9c7398daeb7014646d813884dece"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-types-b.log",
+      "path": "numbered-statements-flow-20261109-types-b.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-20261109-types.config.json",
+      "path": "numbered-statements-flow-20261109-types.config.json",
+      "bytes": 558,
+      "sha256": "fd3cc1ecef3112fbe310ef9276c1e24d9395a4c66e4c65602943d2821fe31f88"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1-bundle.mjs",
+      "path": "numbered-statements-flow-quality-20261109-q1-bundle.mjs.source.txt",
+      "bytes": 729860,
+      "sha256": "29cd63612e8ea1c5a56a1feae338ae461a38748b43bfef66ec1fff3efe01b7f6"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1-memo.md",
+      "path": "numbered-statements-flow-quality-20261109-q1-memo.md",
+      "bytes": 3352,
+      "sha256": "1080448a5124210d5c85dbdd9be9f4a2c76c0efefd39fe2182d0534e1f3f8661"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1-own-results.json",
+      "path": "numbered-statements-flow-quality-20261109-q1-own-results.json",
+      "bytes": 16965,
+      "sha256": "4de2a4173bf6cf97243eb11cb6375912af4cdd47a3c4a1e79304cd3cea6641e3"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1-probe-results.json",
+      "path": "numbered-statements-flow-quality-20261109-q1-probe-results.json",
+      "bytes": 16286,
+      "sha256": "6102de6c2c1d48311350de128be3039f22ffe727db949505c20cdb29b6def905"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1.json",
+      "path": "numbered-statements-flow-quality-20261109-q1.json",
+      "bytes": 283,
+      "sha256": "129a7ae030714cdcda06ffe457fa10fff3b54478377c7961ca15be7e0b600912"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1.log",
+      "path": "numbered-statements-flow-quality-20261109-q1.log.txt",
+      "bytes": 66,
+      "sha256": "20877b56edac36048017d7e60ae8f1f86933fb739d816c59c2cf50653ac2af11"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-quality-20261109-q1.mjs",
+      "path": "numbered-statements-flow-quality-20261109-q1.mjs.source.txt",
+      "bytes": 10692,
+      "sha256": "8a04aa8bda666035e5d4cec0d76078aa9d128bc820ad4048f4c18798ad92174d"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-spec-20261109-a-results.json",
+      "path": "numbered-statements-flow-spec-20261109-a-results.json",
+      "bytes": 121219,
+      "sha256": "22c5992b5a70c10e56311bc96b79271a90558083676f0ae1b6063b31b5d6d8e0"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-spec-20261109-a.json",
+      "path": "numbered-statements-flow-spec-20261109-a.json",
+      "bytes": 280,
+      "sha256": "1081d8e445e4839b5ad0e1fa4352b3f51144c96f91713ff3c479dfe787aef1b1"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-spec-20261109-a.log",
+      "path": "numbered-statements-flow-spec-20261109-a.log.txt",
+      "bytes": 346,
+      "sha256": "39d111b034c01d2b31e3678732d0d5a26d9bff847b0e214fe9faf2654b6912f9"
+    },
+    {
+      "source": "work/grounded-verification/numbered-statements-flow-spec-20261109-memo-a-results.json",
+      "path": "numbered-statements-flow-spec-20261109-memo-a-results.json",
+      "bytes": 7902,
+      "sha256": "9756a26d1c53a89cb5252f058e61c9197edd2326f4c5dbe08b1b678eb069e32b"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-inputs-20261109-a.json",
+      "path": "offline-closeout-archive-inputs-20261109-a.json",
+      "bytes": 280,
+      "sha256": "647b80111230e0674d272f0759736564eb255c5170b46d60a9faf272b4f08b03"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-inputs-20261109-a.log",
+      "path": "offline-closeout-archive-inputs-20261109-a.log.txt",
+      "bytes": 1010,
+      "sha256": "705c7a289a64d7a1ac1b33a5e68c0c630570b4256867b0c9a58daf5ee8c0e733"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-inputs-20261109-a.source.txt",
+      "path": "offline-closeout-archive-inputs-20261109-a.source.txt",
+      "bytes": 3987,
+      "sha256": "9d1f0318def143fd6b0f224a8cf1882ea23f71d90d863aab8dbb5bc2ee322ccd"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-inputs-20261109-b.json",
+      "path": "offline-closeout-archive-inputs-20261109-b.json",
+      "bytes": 280,
+      "sha256": "878405ddad98be2f4475cf274c888c0360e577e089b74d5d07560618dc332a1c"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-inputs-20261109-b.log",
+      "path": "offline-closeout-archive-inputs-20261109-b.log.txt",
+      "bytes": 110,
+      "sha256": "19c08154b54102d7c1d146e8b413bbad1ef3a90033842e96841a0d9332e1fa98"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-inputs-20261109.mjs",
+      "path": "offline-closeout-archive-inputs-20261109.mjs.source.txt",
+      "bytes": 4408,
+      "sha256": "ce6b48c82808de10ad13dcb9e810c01258e31461787da90c1d8d907556628b31"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-required-20261109-a.json",
+      "path": "offline-closeout-archive-required-20261109-a.json",
+      "bytes": 5334,
+      "sha256": "06f70eb1a1e25a5a6509de5fb43f420c64f4ac573de24078d5face34318a32b5"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-syntax-20261109-a.json",
+      "path": "offline-closeout-archive-syntax-20261109-a.json",
+      "bytes": 280,
+      "sha256": "5336047d19550b8ec8190d73623c900c98aef59f762f8cf778d4726f21ca7d4b"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-archive-syntax-20261109-a.log",
+      "path": "offline-closeout-archive-syntax-20261109-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-build-20261109-a.json",
+      "path": "offline-closeout-build-20261109-a.json",
+      "bytes": 273,
+      "sha256": "ee4286c3fc7c14471fb5541b5d0ca3353f4d4ccd80a16f61779ed01f1d9234b9"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-build-20261109-a.log",
+      "path": "offline-closeout-build-20261109-a.log.txt",
+      "bytes": 5911,
+      "sha256": "02f4c8d3510229011241f1d6d87113a93ae20b52fef9a30b3dbf36937fe5a91a"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-compatibility-20261109.mjs",
+      "path": "offline-closeout-compatibility-20261109.mjs.source.txt",
+      "bytes": 2888,
+      "sha256": "8115bfdefad58de27e7c591b21065da286468e77be388996b54c17fefeb7668e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-compatibility-final-20261109-a-bundle.mjs",
+      "path": "offline-closeout-compatibility-final-20261109-a-bundle.mjs.source.txt",
+      "bytes": 769450,
+      "sha256": "d6a2c6b1fda27518899aa7a8014cbc5fe3d6a91d29dd47cc9cafec015e09fe31"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-compatibility-final-20261109-a-results.json",
+      "path": "offline-closeout-compatibility-final-20261109-a-results.json",
+      "bytes": 1385860,
+      "sha256": "d5c2cab96bc1651e8ef41064e17e8f54548aa838f7abf3aedbaeb05d43fc87e4"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-compatibility-final-20261109-a.json",
+      "path": "offline-closeout-compatibility-final-20261109-a.json",
+      "bytes": 286,
+      "sha256": "ba97a3b32f8feba3ca7148604bf868e473641ef9ae6a81e48db74e904d58a345"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-compatibility-final-20261109-a.log",
+      "path": "offline-closeout-compatibility-final-20261109-a.log.txt",
+      "bytes": 270,
+      "sha256": "e2c1579c4802e53899d2836495c8045a6f8ff37b0eb7a272fa8f3560d6e28cdb"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-coverage-20261109-a-results.json",
+      "path": "offline-closeout-coverage-20261109-a-results.json",
+      "bytes": 44011,
+      "sha256": "d3d08edbc47b634e62420297fa6101d1bedc598c5934414e0ec4a1b92b24ef56"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-coverage-20261109-a.json",
+      "path": "offline-closeout-coverage-20261109-a.json",
+      "bytes": 275,
+      "sha256": "661ce51b6255f6e9a91627bcba3e2a547d4682a480f57f416d0c769ba589eebd"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-coverage-20261109-a.log",
+      "path": "offline-closeout-coverage-20261109-a.log.txt",
+      "bytes": 169,
+      "sha256": "bee29e9c40db5ca9ef10a25a37cac501cf07df2784bd8334202081f04a63a0ea"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-coverage-20261109.mjs",
+      "path": "offline-closeout-coverage-20261109.mjs.source.txt",
+      "bytes": 6291,
+      "sha256": "0b717b8fc08d44e50e67d7df654293f6628800c9127e4d362da8d974fec2718e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-coverage-syntax-20261109-a.json",
+      "path": "offline-closeout-coverage-syntax-20261109-a.json",
+      "bytes": 281,
+      "sha256": "d7a586a26da214d676472d0e370f6dcc237e54053c538902f9292452c6e6dfd2"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-coverage-syntax-20261109-a.log",
+      "path": "offline-closeout-coverage-syntax-20261109-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-expected-20261109-a.json",
+      "path": "offline-closeout-expected-20261109-a.json",
+      "bytes": 1200,
+      "sha256": "6c2075949ebaa2615f8b29beed619a381ab1ef403a93d9bac57d5539744d7128"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-flow-cases-20261109.mjs",
+      "path": "offline-closeout-flow-cases-20261109.mjs.source.txt",
+      "bytes": 4630,
+      "sha256": "9de72d91a0a75ad1c20056608c48cd0aa25cee0987f7b1e2dca1b6a56aea299a"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-flow-worker-20261109.ts",
+      "path": "offline-closeout-flow-worker-20261109.ts.source.txt",
+      "bytes": 14469,
+      "sha256": "eb99918ba40803cb1c33017153425a0d6381fae04ea4dd70ff4c6514b5601551"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-lint-20261109-a.json",
+      "path": "offline-closeout-full-lint-20261109-a.json",
+      "bytes": 278,
+      "sha256": "797e44bb506296b561f57174240d97fe71c1e88942ef8d19c3916c7a8e79d1a3"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-lint-20261109-a.log",
+      "path": "offline-closeout-full-lint-20261109-a.log.txt",
+      "bytes": 836,
+      "sha256": "3d51106bd7c18ac17d256441abce8815189a83b3f2c087bc219f6d1616e9a588"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-node-20261109-a.json",
+      "path": "offline-closeout-full-node-20261109-a.json",
+      "bytes": 279,
+      "sha256": "499f949c86fe84e9baf6208a132dd8230ee5cc8dc02352b071232df16017cee3"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-node-20261109-a.log",
+      "path": "offline-closeout-full-node-20261109-a.log.txt",
+      "bytes": 34902,
+      "sha256": "6b313ec98863bd260385b6af8f14782a15d5435364ebb20ae24c4f6a112a497e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-research-20261109-a.json",
+      "path": "offline-closeout-full-research-20261109-a.json",
+      "bytes": 283,
+      "sha256": "6b90e6ce7a6c496ce00ec040596b3067806fa789a36ac6de5543539ec590e144"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-research-20261109-a.log",
+      "path": "offline-closeout-full-research-20261109-a.log.txt",
+      "bytes": 302757,
+      "sha256": "1b645eedbc506bdc9a870b295488c60fc3fbb5381a5300f7be925013a41c6aae"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-serial-20261109-a.json",
+      "path": "offline-closeout-full-serial-20261109-a.json",
+      "bytes": 280,
+      "sha256": "0fc9835bd1d442cb4b45b93544a6a4f6bfc4f24fb817aaa54e96109996c8778e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-serial-20261109-a.log",
+      "path": "offline-closeout-full-serial-20261109-a.log.txt",
+      "bytes": 3920,
+      "sha256": "41f585d5ac49907e1cf52ccb70d1b0b1b54923e21b73d4606b47a70a3786616c"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-types-20261109-a.json",
+      "path": "offline-closeout-full-types-20261109-a.json",
+      "bytes": 279,
+      "sha256": "cd58a301eb997a2569d54ea642528068cdbe4ea38d5e713089139d0c48a9793f"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-types-20261109-a.log",
+      "path": "offline-closeout-full-types-20261109-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-unit-20261109-a.json",
+      "path": "offline-closeout-full-unit-20261109-a.json",
+      "bytes": 279,
+      "sha256": "9e5b13b5d462b5780c14d0bf45d56abea913f42a817203e720939d1ec42a826a"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-full-unit-20261109-a.log",
+      "path": "offline-closeout-full-unit-20261109-a.log.txt",
+      "bytes": 851931,
+      "sha256": "0da667abcb611879b1ca9abff0fb852a91daba3bca09da7407f57f248105f327"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-gates-20261109.ps1",
+      "path": "offline-closeout-gates-20261109.ps1.source.txt",
+      "bytes": 3389,
+      "sha256": "c0a90a274af8b989aad50deab30da0c67f12b1ec4bc192581c03d50bf024d4ba"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-github-preflight-20261109.json",
+      "path": "offline-closeout-github-preflight-20261109.json",
+      "bytes": 808,
+      "sha256": "e3d2c6447199ef20ab39c41d9aed3add3e771f5a0c0944c6d852835f0b306864"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-history-20261109.mjs",
+      "path": "offline-closeout-history-20261109.mjs.source.txt",
+      "bytes": 4481,
+      "sha256": "f9e18d16d62756fe1f33ae0e6e66fcbcee08399c83df8413225be49920cdfc6d"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-history-final-20261109-a-results.json",
+      "path": "offline-closeout-history-final-20261109-a-results.json",
+      "bytes": 195067,
+      "sha256": "4d14aaed33f92da523204b4803c0daaa9caa282f2463adad8552fcd5ce8aa5e0"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-history-final-20261109-a.json",
+      "path": "offline-closeout-history-final-20261109-a.json",
+      "bytes": 281,
+      "sha256": "2840ff336882c27d9370dffb4d22fd50c61715a808dce7a9ee94a63771834037"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-history-final-20261109-a.log",
+      "path": "offline-closeout-history-final-20261109-a.log.txt",
+      "bytes": 333,
+      "sha256": "2ca77cbe61e6de5584a1b091f700fa109017c0515b667da3d5c14af39cc64bf8"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integration-review-20261109-final-memo.md",
+      "path": "offline-closeout-integration-review-20261109-final-memo.md",
+      "bytes": 5731,
+      "sha256": "3afc700e100640ba868be02604f4ce5b071b4d3af3135eb98fee31ebf3d5b40c"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integration-review-20261109-final-own-results.json",
+      "path": "offline-closeout-integration-review-20261109-final-own-results.json",
+      "bytes": 49880,
+      "sha256": "654f799185f77d0448c3bd734258e00621f17e59a9d320c55a5462a9c43d85bb"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-20261109-final-a-results.json",
+      "path": "offline-closeout-integrity-20261109-final-a-results.json",
+      "bytes": 122681,
+      "sha256": "fa472c59fa10b6b166857f43fecd31f764b263978cd99636fffd6d3e6898505c"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-20261109-final-a.json",
+      "path": "offline-closeout-integrity-20261109-final-a.json",
+      "bytes": 283,
+      "sha256": "23a225419c5115943f97d10e129e172c27a39740499e5fe17cc60eab87aa76d8"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-20261109-final-a.log",
+      "path": "offline-closeout-integrity-20261109-final-a.log.txt",
+      "bytes": 1231,
+      "sha256": "286bb93c5fac9c895a8f39bb9724e1e4ffd254d3c5f7d6434fc0bed7e604bc1b"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-20261109-start-a-results.json",
+      "path": "offline-closeout-integrity-20261109-start-a-results.json",
+      "bytes": 122681,
+      "sha256": "fa472c59fa10b6b166857f43fecd31f764b263978cd99636fffd6d3e6898505c"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-20261109-start-a.json",
+      "path": "offline-closeout-integrity-20261109-start-a.json",
+      "bytes": 283,
+      "sha256": "3d5a80cba4d38a87671ebdfb5224b5235c22a067eb32f54bee38c740dc31a2b4"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-20261109-start-a.log",
+      "path": "offline-closeout-integrity-20261109-start-a.log.txt",
+      "bytes": 1231,
+      "sha256": "286bb93c5fac9c895a8f39bb9724e1e4ffd254d3c5f7d6434fc0bed7e604bc1b"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-20261109.mjs",
+      "path": "offline-closeout-integrity-20261109.mjs.source.txt",
+      "bytes": 5169,
+      "sha256": "47d963956ce591fcf6bc4a9b591dc19ffc41d65410a94b5b1a7105cd13354434"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-syntax-20261109-a.json",
+      "path": "offline-closeout-integrity-syntax-20261109-a.json",
+      "bytes": 282,
+      "sha256": "ba39d7be8a6a5ddd2998f9c03a84a1949a784671d1070224cba36f7aab9e692e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-integrity-syntax-20261109-a.log",
+      "path": "offline-closeout-integrity-syntax-20261109-a.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-native-20261109-final-a-results.json",
+      "path": "offline-closeout-legacy-native-20261109-final-a-results.json",
+      "bytes": 1653043,
+      "sha256": "19bf8d2c814f8550caad85b57ef2cad56a2c2faf78052bc1d7e060f48c383947"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-native-20261109-final-a.json",
+      "path": "offline-closeout-legacy-native-20261109-final-a.json",
+      "bytes": 287,
+      "sha256": "978f8d48089891f01f21fbe951c487c17b51503454666b85125fedd0ba90021e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-native-20261109-final-a.log",
+      "path": "offline-closeout-legacy-native-20261109-final-a.log.txt",
+      "bytes": 140,
+      "sha256": "acb34f11345a89a5fd11e9feb9cf86ca601465fbfe355c065722a4337cb0c93b"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-native-20261109.mjs",
+      "path": "offline-closeout-legacy-native-20261109.mjs.source.txt",
+      "bytes": 6939,
+      "sha256": "c94d673569bd79a04b3a339833419135ae9da6b9708d0166f29691045e8b8d54"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-parity-20261109-final-a-results.json",
+      "path": "offline-closeout-legacy-parity-20261109-final-a-results.json",
+      "bytes": 1536825,
+      "sha256": "9e30e113b092890f408e283a0bba0f97db647d04e5982927ce2e4cbd8a4471c7"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-parity-20261109-final-a.json",
+      "path": "offline-closeout-legacy-parity-20261109-final-a.json",
+      "bytes": 287,
+      "sha256": "c7803265a26b24f95b7966bef4ec9ba3f3f34c7fea37fe4e6a928f471ddccbcc"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-parity-20261109-final-a.log",
+      "path": "offline-closeout-legacy-parity-20261109-final-a.log.txt",
+      "bytes": 883,
+      "sha256": "9ec2a38070ea16962bcc01f8e5f8c55458db6cbf520db6dd09ebb99749991911"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-parity-20261109.config.ts",
+      "path": "offline-closeout-legacy-parity-20261109.config.ts.source.txt",
+      "bytes": 528,
+      "sha256": "69ab95091614f3e3ae2de4ffc45bb17b5c05ef91af738cadd388f716cff92d25"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-legacy-parity-20261109.test.ts",
+      "path": "offline-closeout-legacy-parity-20261109.test.ts.source.txt",
+      "bytes": 2592,
+      "sha256": "da39a38e3c822c7b4071247f182b8a2febb2b709a2e3835f2ebaca8331e2eb4b"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-final-a-results.json",
+      "path": "offline-closeout-native-flow-20261109-final-a-results.json",
+      "bytes": 1135885,
+      "sha256": "3b1ca6e5bbe23dd6d10be8d92a11bf9247076fab1600f30f0bf3dc97fd24a988"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-final-a.json",
+      "path": "offline-closeout-native-flow-20261109-final-a.json",
+      "bytes": 285,
+      "sha256": "fad2196c27d36626b4e65bd66508c74795bdb0f6db0cac323d964f2f0c4614e0"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-final-a.log",
+      "path": "offline-closeout-native-flow-20261109-final-a.log.txt",
+      "bytes": 138,
+      "sha256": "e2931121706af52b55b9b00e8334e3235e611959e17d7fad77ef44585764a9df"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a-cases.source.txt",
+      "path": "offline-closeout-native-flow-20261109-numbered-a-cases.source.txt",
+      "bytes": 4321,
+      "sha256": "0aa5bd25a26732817b3a7be6e4e6921d1c3d5f38e33ea18d5f8147aa3492cc4b"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a-driver.source.txt",
+      "path": "offline-closeout-native-flow-20261109-numbered-a-driver.source.txt",
+      "bytes": 7536,
+      "sha256": "cacdb423d38fa4d8acb908423d9162557f880e7d018a640162acbf5e1b8db688"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a-results.json",
+      "path": "offline-closeout-native-flow-20261109-numbered-a-results.json",
+      "bytes": 1052054,
+      "sha256": "9174d53eb9bd871b09f131fd81d55176ec1def0560d551865c1978e78a827e93"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a-worker.source.txt",
+      "path": "offline-closeout-native-flow-20261109-numbered-a-worker.source.txt",
+      "bytes": 14469,
+      "sha256": "eb99918ba40803cb1c33017153425a0d6381fae04ea4dd70ff4c6514b5601551"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a.json",
+      "path": "offline-closeout-native-flow-20261109-numbered-a.json",
+      "bytes": 288,
+      "sha256": "e061b88405e2bdd78149dc76cf10659c9f3ae2c51b52c205045a925be91b392e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a.log",
+      "path": "offline-closeout-native-flow-20261109-numbered-a.log.txt",
+      "bytes": 924,
+      "sha256": "68851d410e4a064666e0ea323be5085e7891680c9b2bdb18596525244f58b0e1"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-pre-canonical-driver.source.txt",
+      "path": "offline-closeout-native-flow-20261109-pre-canonical-driver.source.txt",
+      "bytes": 7415,
+      "sha256": "8ad474f785e83ae4787850877a4d3fc9c3047478d1f608fc7a38b3ff282a9d7e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-a-cases.source.txt",
+      "path": "offline-closeout-native-flow-20261109-red-a-cases.source.txt",
+      "bytes": 3969,
+      "sha256": "227177ce99e164ddf4033d5153aa5732731425a997934fea69176112296cd32e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-a-driver.source.txt",
+      "path": "offline-closeout-native-flow-20261109-red-a-driver.source.txt",
+      "bytes": 7175,
+      "sha256": "19f8ea0d57b53be52e94bc787fea7cd879ac8aebddd898743de29a43cd55cf7a"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-a-results.json",
+      "path": "offline-closeout-native-flow-20261109-red-a-results.json",
+      "bytes": 529928,
+      "sha256": "d112be5c1d8589315274e885ac00ea19e7158365358e7766241a537f181ac900"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-a.json",
+      "path": "offline-closeout-native-flow-20261109-red-a.json",
+      "bytes": 283,
+      "sha256": "21a65618a9cc91c27d523ea7e59acba280b62d9f536175ab3a42b294de64f475"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-a.log",
+      "path": "offline-closeout-native-flow-20261109-red-a.log.txt",
+      "bytes": 45390,
+      "sha256": "fc1d8d25a9cc8a06f2e1e05cfb50b7ad4cb02eda23f842845dcba74d1be75ed2"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-b-cases.source.txt",
+      "path": "offline-closeout-native-flow-20261109-red-b-cases.source.txt",
+      "bytes": 4286,
+      "sha256": "76b2b27188cd45361cc650e076bbe03351e9bb504639dbe35804fd7be9f1480c"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-b-results.json",
+      "path": "offline-closeout-native-flow-20261109-red-b-results.json",
+      "bytes": 559316,
+      "sha256": "f24a95baf85339d8ed59a5774cb010a7321ef70fa638d49229cc7d24dd121c92"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-b.json",
+      "path": "offline-closeout-native-flow-20261109-red-b.json",
+      "bytes": 283,
+      "sha256": "e93999470e42710962506eaf2be20bd11c1f13a13c651740ed48273f22bb9062"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-b.log",
+      "path": "offline-closeout-native-flow-20261109-red-b.log.txt",
+      "bytes": 2446,
+      "sha256": "3b7b6d837764639c56caa34097e661ef4965cc897fb3fd605880435d0072d2fe"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-c-cases.source.txt",
+      "path": "offline-closeout-native-flow-20261109-red-c-cases.source.txt",
+      "bytes": 4249,
+      "sha256": "16db4ba448a705d2cf78dcb0885ba7073b9b30367dc105fa3ddd51bec34457e9"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-c-driver.source.txt",
+      "path": "offline-closeout-native-flow-20261109-red-c-driver.source.txt",
+      "bytes": 7144,
+      "sha256": "fa961fe00a831afd642aa391062713c2dcf9c373d2571e446940c6ff03beb150"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-c-results.json",
+      "path": "offline-closeout-native-flow-20261109-red-c-results.json",
+      "bytes": 560424,
+      "sha256": "347b778361ce9a6fba222840756920af260ecaba8856680c9e9bb3ce5c2f28d6"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-c-worker.source.txt",
+      "path": "offline-closeout-native-flow-20261109-red-c-worker.source.txt",
+      "bytes": 14221,
+      "sha256": "d8d35da8fed8f3a184d46728d3e8d56bf23b624c3bb77c42f4203e76c97b2be0"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-c.json",
+      "path": "offline-closeout-native-flow-20261109-red-c.json",
+      "bytes": 283,
+      "sha256": "4f44b90386c3db56c170e991cf6f2f7a3db8281b136cddbad4565a1a91655200"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109-red-c.log",
+      "path": "offline-closeout-native-flow-20261109-red-c.log.txt",
+      "bytes": 2253,
+      "sha256": "e962b6c6c76feb1b6abdcf4d698b94a8d48d6ba2f064c6d77725492382b75e71"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-native-flow-20261109.mjs",
+      "path": "offline-closeout-native-flow-20261109.mjs.source.txt",
+      "bytes": 7536,
+      "sha256": "cacdb423d38fa4d8acb908423d9162557f880e7d018a640162acbf5e1b8db688"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-node-parity-20261109-final-a-results.json",
+      "path": "offline-closeout-node-parity-20261109-final-a-results.json",
+      "bytes": 1021980,
+      "sha256": "3729abfd49110b2fad6b7af299615214c621db7c21b323b8ceac6d7b4f89bee4"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-node-parity-20261109-final-a.json",
+      "path": "offline-closeout-node-parity-20261109-final-a.json",
+      "bytes": 285,
+      "sha256": "4b2bbe2ae912a06bb8bcf04e2dce3f113265225c67f3bc3ea8861c612e96f6dc"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-node-parity-20261109-final-a.log",
+      "path": "offline-closeout-node-parity-20261109-final-a.log.txt",
+      "bytes": 880,
+      "sha256": "d37b71fa0604d87f8e8ae6a2029a84ce6075c52adb861eb40a2f78078543330e"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-node-parity-20261109.config.ts",
+      "path": "offline-closeout-node-parity-20261109.config.ts.source.txt",
+      "bytes": 522,
+      "sha256": "243c67de84f6b4c2f842bff230265d56f2d6a9aa0650a8264e31ed6fbf93c58a"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-node-parity-20261109.test.ts",
+      "path": "offline-closeout-node-parity-20261109.test.ts.source.txt",
+      "bytes": 2584,
+      "sha256": "e006809104187a81b37f92025561007b8cb447523514718e45ac2056f35a9d73"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-preparation-20261109.md",
+      "path": "offline-closeout-preparation-20261109.md",
+      "bytes": 3433,
+      "sha256": "0267d365cf5a71883ca3e0d12f424cac8b87092e9bc0340dc91bf1da35bab590"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-render-20261109-a.json",
+      "path": "offline-closeout-render-20261109-a.json",
+      "bytes": 274,
+      "sha256": "729a006b9a4dd7e65efe1f5915c399d99dbffba5a8ea1900fb6a5e77ab3d3f31"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-render-20261109-a.log",
+      "path": "offline-closeout-render-20261109-a.log.txt",
+      "bytes": 519,
+      "sha256": "44ab12c9253e8fc15dbad512912c300077259617d54f66c99cbd339ae9a4d170"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-snapshot-20261109-a-results.json",
+      "path": "offline-closeout-snapshot-20261109-a-results.json",
+      "bytes": 117119,
+      "sha256": "c9b4c22c419a8d921f78c2a2929c8c13096392f74d68fbd3be2c063dca4fbea4"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-snapshot-20261109-a.json",
+      "path": "offline-closeout-snapshot-20261109-a.json",
+      "bytes": 276,
+      "sha256": "a2a78823d5eabc1f23ed3cb40cb85a75738823d420da5c70c14847070a3ebed7"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-snapshot-20261109-a.log",
+      "path": "offline-closeout-snapshot-20261109-a.log.txt",
+      "bytes": 215,
+      "sha256": "49a9fbc2e059e7371b8107a91e8a367cb1c23f1e99636814cd30e40b5a9a64bd"
+    },
+    {
+      "source": "work/grounded-verification/offline-closeout-snapshot-20261109.mjs",
+      "path": "offline-closeout-snapshot-20261109.mjs.source.txt",
+      "bytes": 2623,
+      "sha256": "6ea49d2154d1fe7b0ed3e3d170e5d6067147097eba5d214d8c33767e89885658"
+    },
+    {
+      "source": "work/grounded-verification/run.mjs",
+      "path": "run.mjs.source.txt",
+      "bytes": 2497,
+      "sha256": "4a2fe29b3c5c0fd9c6ce06cfd436e86e8a9ef9daa8fada44e7c87021c5f28242"
+    }
+  ],
+  "requiredChecks": [
+    {
+      "name": "numbered-statements-boundary-20261109-green-a",
+      "exit": 0,
+      "elapsedMs": 1805,
+      "logSha256": "b114ce0e060a1b7a3e583330a2f39430f1428c8442807908f40d6ad8a584badf",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-4xaHqB"
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-related-a",
+      "exit": 0,
+      "elapsedMs": 6465,
+      "logSha256": "537e880a7ab28d20fa29f3841b7b037c6024f95e848971b5b36c55d46d05ba3b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-x6sKoj"
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-compare-a",
+      "exit": 0,
+      "elapsedMs": 370,
+      "logSha256": "68665bee5fd4250a0140bde8ac0f7437e4b864c627b6adc96d93d8c227964336",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-oaNISz"
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-types-a",
+      "exit": 0,
+      "elapsedMs": 1723,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-oq0pb7"
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-lint-a",
+      "exit": 0,
+      "elapsedMs": 5093,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-nYtR0L"
+    },
+    {
+      "name": "numbered-statements-boundary-quality-20261109-q1",
+      "exit": 0,
+      "elapsedMs": 481,
+      "logSha256": "4ab60da175c03c60bce97f4531022d41d5464ef701e47b10d907f96b86ce906f",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-iCW0sX"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-green-a",
+      "exit": 0,
+      "elapsedMs": 12590,
+      "logSha256": "0e6e9e6741a5ee980c83913c5f6a640a3d9b8f34a852f69bff30ffbfe4f02b61",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-kOmXLk"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-browser-a",
+      "exit": 0,
+      "elapsedMs": 152,
+      "logSha256": "08f06bb0db1f3e2fab72cf70e5c3df103fcb5d0e9ea2129cfb9fc3e6f128a959",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-2bzBT3"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-types-b",
+      "exit": 0,
+      "elapsedMs": 3522,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-cBXnTy"
+    },
+    {
+      "name": "numbered-statements-flow-20261109-lint-a",
+      "exit": 0,
+      "elapsedMs": 5693,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-KV1kzM"
+    },
+    {
+      "name": "numbered-statements-flow-spec-20261109-a",
+      "exit": 0,
+      "elapsedMs": 6520,
+      "logSha256": "39d111b034c01d2b31e3678732d0d5a26d9bff847b0e214fe9faf2654b6912f9",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-m20NNb"
+    },
+    {
+      "name": "numbered-statements-flow-quality-20261109-q1",
+      "exit": 0,
+      "elapsedMs": 465,
+      "logSha256": "20877b56edac36048017d7e60ae8f1f86933fb739d816c59c2cf50653ac2af11",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-fnG8bp"
+    },
+    {
+      "name": "guided-practice-20261109-green-02",
+      "exit": 0,
+      "elapsedMs": 5993,
+      "logSha256": "62a660a86480f11f7b02192c2df6696ad7ea538358305fdd78490c7720217e8b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-WxMmYU"
+    },
+    {
+      "name": "guided-practice-20261109-regression-02",
+      "exit": 0,
+      "elapsedMs": 16991,
+      "logSha256": "69d854b0545995303eb4277b0fec524b1f6da344d1c775b18b53f46a1d61f28b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-n5N9z8"
+    },
+    {
+      "name": "guided-practice-20261109-types-03",
+      "exit": 0,
+      "elapsedMs": 16441,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-kZX4Ou"
+    },
+    {
+      "name": "guided-practice-20261109-lint-02",
+      "exit": 0,
+      "elapsedMs": 4900,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-g35yp5"
+    },
+    {
+      "name": "guided-practice-spec-20261109-01",
+      "exit": 0,
+      "elapsedMs": 255,
+      "logSha256": "6a55bf89b4c671adcd09aa48d720ef147d62098256c45c32c0a8f3ae2a0ed86a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-iXwqPN"
+    },
+    {
+      "name": "guided-practice-quality-20261109-02",
+      "exit": 0,
+      "elapsedMs": 244,
+      "logSha256": "4956c99bbc976f38cb7501f896b934565540a313005b421330c1ef81bad0b83d",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-g8xkGj"
+    },
+    {
+      "name": "adoption-persistence-20261109-green-01",
+      "exit": 0,
+      "elapsedMs": 6588,
+      "logSha256": "90101ca4b6b50ff7b32b453f6007cdf151a0d5e17f9c04badbc70b3005c93135",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-wBlW8X"
+    },
+    {
+      "name": "adoption-persistence-20261109-related-01",
+      "exit": 0,
+      "elapsedMs": 10470,
+      "logSha256": "6c4c81b127ada9832ab3886871f21cf8f2c4376314f3fec6d8b1c6fdc7409173",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-F3hHZh"
+    },
+    {
+      "name": "adoption-persistence-20261109-types-01",
+      "exit": 0,
+      "elapsedMs": 16259,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-xFUqpT"
+    },
+    {
+      "name": "adoption-persistence-20261109-lint-01",
+      "exit": 0,
+      "elapsedMs": 5834,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-48OiGz"
+    },
+    {
+      "name": "adoption-persistence-spec-20261109-focused-01",
+      "exit": 0,
+      "elapsedMs": 5452,
+      "logSha256": "6cce45ebd21e10f347df26388ba71e1cfd59014825ae1230854d8c3c4a3975de",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-uN060C"
+    },
+    {
+      "name": "adoption-persistence-quality-20261109-focused-01",
+      "exit": 0,
+      "elapsedMs": 5404,
+      "logSha256": "bfdbd254ccde3e733a6843aaf35c804c8151463c8cc1b59222647319996f04c9",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-2j8Vtb"
+    },
+    {
+      "name": "offline-closeout-snapshot-20261109-a",
+      "exit": 0,
+      "elapsedMs": 3279,
+      "logSha256": "49a9fbc2e059e7371b8107a91e8a367cb1c23f1e99636814cd30e40b5a9a64bd",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-thCxHo"
+    },
+    {
+      "name": "offline-closeout-integrity-20261109-start-a",
+      "exit": 0,
+      "elapsedMs": 1039,
+      "logSha256": "286bb93c5fac9c895a8f39bb9724e1e4ffd254d3c5f7d6434fc0bed7e604bc1b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-UeUZZl"
+    },
+    {
+      "name": "offline-closeout-full-unit-20261109-a",
+      "exit": 0,
+      "elapsedMs": 531505,
+      "logSha256": "0da667abcb611879b1ca9abff0fb852a91daba3bca09da7407f57f248105f327",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-H2DSzz"
+    },
+    {
+      "name": "offline-closeout-full-serial-20261109-a",
+      "exit": 0,
+      "elapsedMs": 51577,
+      "logSha256": "41f585d5ac49907e1cf52ccb70d1b0b1b54923e21b73d4606b47a70a3786616c",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-rCJYnG"
+    },
+    {
+      "name": "offline-closeout-full-research-20261109-a",
+      "exit": 0,
+      "elapsedMs": 239357,
+      "logSha256": "1b645eedbc506bdc9a870b295488c60fc3fbb5381a5300f7be925013a41c6aae",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-rUtYqr"
+    },
+    {
+      "name": "offline-closeout-full-node-20261109-a",
+      "exit": 0,
+      "elapsedMs": 284404,
+      "logSha256": "6b313ec98863bd260385b6af8f14782a15d5435364ebb20ae24c4f6a112a497e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-FZa29F"
+    },
+    {
+      "name": "offline-closeout-full-types-20261109-a",
+      "exit": 0,
+      "elapsedMs": 16494,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-5fAJyE"
+    },
+    {
+      "name": "offline-closeout-full-lint-20261109-a",
+      "exit": 0,
+      "elapsedMs": 22471,
+      "logSha256": "3d51106bd7c18ac17d256441abce8815189a83b3f2c087bc219f6d1616e9a588",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-TVXoPV"
+    },
+    {
+      "name": "offline-closeout-build-20261109-a",
+      "exit": 0,
+      "elapsedMs": 6988,
+      "logSha256": "02f4c8d3510229011241f1d6d87113a93ae20b52fef9a30b3dbf36937fe5a91a",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-DHrcqi"
+    },
+    {
+      "name": "offline-closeout-render-20261109-a",
+      "exit": 0,
+      "elapsedMs": 2271,
+      "logSha256": "44ab12c9253e8fc15dbad512912c300077259617d54f66c99cbd339ae9a4d170",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-Vsa1IT"
+    },
+    {
+      "name": "offline-closeout-native-flow-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 7436,
+      "logSha256": "e2931121706af52b55b9b00e8334e3235e611959e17d7fad77ef44585764a9df",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-V80rW7"
+    },
+    {
+      "name": "offline-closeout-node-parity-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 3430,
+      "logSha256": "d37b71fa0604d87f8e8ae6a2029a84ce6075c52adb861eb40a2f78078543330e",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-bMecur"
+    },
+    {
+      "name": "offline-closeout-legacy-native-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 9842,
+      "logSha256": "acb34f11345a89a5fd11e9feb9cf86ca601465fbfe355c065722a4337cb0c93b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-pmwdoC"
+    },
+    {
+      "name": "offline-closeout-legacy-parity-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 3232,
+      "logSha256": "9ec2a38070ea16962bcc01f8e5f8c55458db6cbf520db6dd09ebb99749991911",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-A2GgiU"
+    },
+    {
+      "name": "offline-closeout-compatibility-final-20261109-a",
+      "exit": 0,
+      "elapsedMs": 423,
+      "logSha256": "e2c1579c4802e53899d2836495c8045a6f8ff37b0eb7a272fa8f3560d6e28cdb",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-C8fVcU"
+    },
+    {
+      "name": "offline-closeout-history-final-20261109-a",
+      "exit": 0,
+      "elapsedMs": 1950,
+      "logSha256": "2ca77cbe61e6de5584a1b091f700fa109017c0515b667da3d5c14af39cc64bf8",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-mEOYWJ"
+    },
+    {
+      "name": "offline-closeout-integrity-20261109-final-a",
+      "exit": 0,
+      "elapsedMs": 1082,
+      "logSha256": "286bb93c5fac9c895a8f39bb9724e1e4ffd254d3c5f7d6434fc0bed7e604bc1b",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-lyWfeZ"
+    },
+    {
+      "name": "offline-closeout-coverage-20261109-a",
+      "exit": 0,
+      "elapsedMs": 282,
+      "logSha256": "bee29e9c40db5ca9ef10a25a37cac501cf07df2784bd8334202081f04a63a0ea",
+      "nonLoopbackDenials": 0,
+      "profile": "C:\\Users\\XF\\AppData\\Local\\Temp\\arc-grounded-check-q5k7v9"
+    }
+  ],
+  "reviews": [
+    {
+      "task": "numbered-boundary",
+      "kind": "spec",
+      "path": "numbered-statements-boundary-spec-20261109-a-review-results.json",
+      "sha256": "c03643f49fd2009a152aae0cb2b5acfd410ea26d8d332d90fce33488f79f4c0e",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "numbered-boundary",
+      "kind": "quality",
+      "path": "numbered-statements-boundary-quality-20261109-q1-own-results.json",
+      "sha256": "e6da08afe3039cb7fb4a1a462033c7dd4d6cec4617e9295f18eb3c7191351cdf",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "numbered-flow",
+      "kind": "spec",
+      "path": "numbered-statements-flow-spec-20261109-memo-a-results.json",
+      "sha256": "9756a26d1c53a89cb5252f058e61c9197edd2326f4c5dbe08b1b678eb069e32b",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "numbered-flow",
+      "kind": "quality",
+      "path": "numbered-statements-flow-quality-20261109-q1-own-results.json",
+      "sha256": "4de2a4173bf6cf97243eb11cb6375912af4cdd47a3c4a1e79304cd3cea6641e3",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "guided-practice",
+      "kind": "spec",
+      "path": "guided-practice-spec-20261109-01-own-results.json",
+      "sha256": "1b6b7d80393c0025c484c696172a60c8ca8e2dc477051c4f58fd3d635c2c08f1",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "guided-practice",
+      "kind": "quality",
+      "path": "guided-practice-quality-20261109-02-own-results.json",
+      "sha256": "31e070717c59e1f7c1be80e9e0d9aba73935325fc12e4819a55c62c01e4b2f35",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "adoption-persistence",
+      "kind": "spec",
+      "path": "adoption-persistence-spec-20261109-review-01-own-results.json",
+      "sha256": "311191629bb489bfd26a4ced81484bdcd63df701689ad5056b6b42e13f59c7b0",
+      "reportedStatus": "pass-scope-only",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "adoption-persistence",
+      "kind": "quality",
+      "path": "adoption-persistence-quality-20261109-review-01-own-results.json",
+      "sha256": "1d588a035e591554c32881b6e459fafb7cda9be0d58d91967b1941cf9a86d959",
+      "reportedStatus": "pass-scope-only",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    },
+    {
+      "task": "combined-closeout",
+      "kind": "integration",
+      "path": "offline-closeout-integration-review-20261109-final-own-results.json",
+      "sha256": "654f799185f77d0448c3bd734258e00621f17e59a9d320c55a5462a9c43d85bb",
+      "reportedStatus": "PASS",
+      "verdict": "PASS",
+      "verdictScope": "Named task only; not live quality or release"
+    }
+  ],
+  "recordedOutcomes": [
+    {
+      "name": "adoption-persistence-20261109-green-01",
+      "exit": 0,
+      "logSha256": "90101ca4b6b50ff7b32b453f6007cdf151a0d5e17f9c04badbc70b3005c93135",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-20261109-lint-01",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-20261109-red-01",
+      "exit": 1,
+      "logSha256": "59d83f34024c145da0378a821448f8a2835e31c7c9897c3444d25c1fd2582c69",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-20261109-related-01",
+      "exit": 0,
+      "logSha256": "6c4c81b127ada9832ab3886871f21cf8f2c4376314f3fec6d8b1c6fdc7409173",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-20261109-types-01",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-diagnosis-20261109-probe-02",
+      "exit": 1,
+      "logSha256": "c67016b0392ef6bd1dd62bf6a1642c0f5d7e01b91ec7870bd10146ae0006c13a",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-diagnosis-20261109-probe-03",
+      "exit": 1,
+      "logSha256": "a3f7ae7c1dd224c7d829147a6f040ed564ca0e7c72d010cf3a5f250ee431e612",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-diagnosis-20261109-probe-04",
+      "exit": 1,
+      "logSha256": "feb8703f71cf384c36e148b4fc76bf101ab29a787e1c03b7374e81a023320529",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-diagnosis-20261109-probe-05",
+      "exit": 1,
+      "logSha256": "574736e8f91bbddde7c37771cd1254f30caeb42a29e52d71c001190ca9189d49",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-quality-20261109-focused-01",
+      "exit": 0,
+      "logSha256": "bfdbd254ccde3e733a6843aaf35c804c8151463c8cc1b59222647319996f04c9",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "adoption-persistence-spec-20261109-focused-01",
+      "exit": 0,
+      "logSha256": "6cce45ebd21e10f347df26388ba71e1cfd59014825ae1230854d8c3c4a3975de",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-baseline-01",
+      "exit": 0,
+      "logSha256": "1feed32632742623f081ed2f1390ab5f516186a1824bc9636185e79083937273",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-freeze-01",
+      "exit": 0,
+      "logSha256": "c5c3eaac9dc86e8618975ea6b6989542d4ec433d2dbd51aab89e00485a58e692",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-green-01",
+      "exit": 0,
+      "logSha256": "3422000430674a84dfcaa6da7854e459aa66e6650071e3d651bf98886ebc73f7",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-green-02",
+      "exit": 0,
+      "logSha256": "62a660a86480f11f7b02192c2df6696ad7ea538358305fdd78490c7720217e8b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-lint-01",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-lint-02",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-red-01",
+      "exit": 1,
+      "logSha256": "1f80585044b0eba1a2a34b5f12b6fdbcf88dc6d67ad62e587d9bb7686b914824",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-regression-01",
+      "exit": 0,
+      "logSha256": "e42a0607097ca085e6422100bf00157d1b3a9d5b229e2b265235779ca62e1fbe",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-regression-02",
+      "exit": 0,
+      "logSha256": "69d854b0545995303eb4277b0fec524b1f6da344d1c775b18b53f46a1d61f28b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-scope-probe-01",
+      "exit": 1,
+      "logSha256": "00473705ac5f9b220043c2a90cd0bdba69e3689763504713b25167f5101cc0a1",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-scope-red-02",
+      "exit": 1,
+      "logSha256": "c0391c79818527624b9bdad4dab7a193f5c3e9ab91abc2ad122748bcbd464435",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-types-01",
+      "exit": 2,
+      "logSha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-types-02",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-20261109-types-03",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-diagnosis-20261109-01",
+      "exit": 0,
+      "logSha256": "c556f888deee78704170c6af2f465ff6b13378d541ea823130b249019c3350d9",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-quality-20261109-01",
+      "exit": 1,
+      "logSha256": "cdc18faa2cad89463a45a44d40aee389713277e3102cb110a131f6f9d1d52b8a",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-quality-20261109-02",
+      "exit": 0,
+      "logSha256": "4956c99bbc976f38cb7501f896b934565540a313005b421330c1ef81bad0b83d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "guided-practice-spec-20261109-01",
+      "exit": 0,
+      "logSha256": "6a55bf89b4c671adcd09aa48d720ef147d62098256c45c32c0a8f3ae2a0ed86a",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-baseline-a",
+      "exit": 0,
+      "logSha256": "576ee0676e8252c264571ded10219a738d6d1be522f28bcbbd3d108a225f70e9",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-compare-a",
+      "exit": 0,
+      "logSha256": "68665bee5fd4250a0140bde8ac0f7437e4b864c627b6adc96d93d8c227964336",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-freeze-a",
+      "exit": 0,
+      "logSha256": "9fdd27c1c7efa386fedc5cbfcaf2bfcc73bcb98bf8c2c9cd18207da06cf21ec4",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-green-a",
+      "exit": 0,
+      "logSha256": "b114ce0e060a1b7a3e583330a2f39430f1428c8442807908f40d6ad8a584badf",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-lint-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-red-api-a",
+      "exit": 1,
+      "logSha256": "5bf286f3a94a8f369428306effc1bb753e53b36f63aec5ffaeb0da722d803b35",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-red-behavior-a",
+      "exit": 1,
+      "logSha256": "577afe5067d8c797c2757c75046d247151b09c8aa80552f3e247fc63ce8518a3",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-red-behavior-b",
+      "exit": 1,
+      "logSha256": "3a543a668e44952a55a14c0d8ac64190e035303826c84d6b0e1fe0601f4dbfbf",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-related-a",
+      "exit": 0,
+      "logSha256": "537e880a7ab28d20fa29f3841b7b037c6024f95e848971b5b36c55d46d05ba3b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-20261109-types-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-quality-20261109-q1",
+      "exit": 0,
+      "logSha256": "4ab60da175c03c60bce97f4531022d41d5464ef701e47b10d907f96b86ce906f",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-boundary-spec-20261109-a",
+      "exit": 1,
+      "logSha256": "23575ee1155d05dfc097f5e9bddcf854eb9cbbffebe6d687023dda10a0357b10",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-diagnosis-20261109-01",
+      "exit": 1,
+      "logSha256": "f459fe79c333ed2fb4a2e5f2d54eff0b78fdf3d413db3ed73bd3609567d16edb",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-diagnosis-20261109-02",
+      "exit": 0,
+      "logSha256": "ef5807c7bd3a586395b18292cca1713014317130145af48a8727b28b2c8ed22d",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-browser-a",
+      "exit": 0,
+      "logSha256": "08f06bb0db1f3e2fab72cf70e5c3df103fcb5d0e9ea2129cfb9fc3e6f128a959",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-expanded-a",
+      "exit": 1,
+      "logSha256": "e3e7556712442de2786da6ef11a751710e2f972a997f09e901a573654056e2e2",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-freeze-a",
+      "exit": 0,
+      "logSha256": "9626d2c3f327a99d48cf7a3b5e1a46a6a95124a95b41df183e77d5fc6867a90c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-gate-a",
+      "exit": 1,
+      "logSha256": "19399ab3449693091b141bc7a9e6515f70fa35d0bf3faa29ce48a02293587257",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-green-a",
+      "exit": 0,
+      "logSha256": "0e6e9e6741a5ee980c83913c5f6a640a3d9b8f34a852f69bff30ffbfe4f02b61",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-lint-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-red-a",
+      "exit": 1,
+      "logSha256": "b6330beb23a3f6bbcc8b81501fffc5508371bc8d3d74f49fa42cf477de86ef31",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-retention-green-a",
+      "exit": 0,
+      "logSha256": "321376e39bf045a6a3010e41a014acee702d64ef67310ef200e32f0021a12b17",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-retention-red-a",
+      "exit": 1,
+      "logSha256": "712e0483f7d3fbae6d12032676a6d82a6f92c8c098ce75dd74e4d36ceb8bb793",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-types-a",
+      "exit": 2,
+      "logSha256": "346d94088e4390bdf48d2c84697ea70653e634887a107e8e44cc23127e255a50",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-20261109-types-b",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-quality-20261109-q1",
+      "exit": 0,
+      "logSha256": "20877b56edac36048017d7e60ae8f1f86933fb739d816c59c2cf50653ac2af11",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "numbered-statements-flow-spec-20261109-a",
+      "exit": 0,
+      "logSha256": "39d111b034c01d2b31e3678732d0d5a26d9bff847b0e214fe9faf2654b6912f9",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-archive-inputs-20261109-a",
+      "exit": 1,
+      "logSha256": "705c7a289a64d7a1ac1b33a5e68c0c630570b4256867b0c9a58daf5ee8c0e733",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-archive-inputs-20261109-b",
+      "exit": 0,
+      "logSha256": "19c08154b54102d7c1d146e8b413bbad1ef3a90033842e96841a0d9332e1fa98",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-archive-syntax-20261109-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-build-20261109-a",
+      "exit": 0,
+      "logSha256": "02f4c8d3510229011241f1d6d87113a93ae20b52fef9a30b3dbf36937fe5a91a",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-compatibility-final-20261109-a",
+      "exit": 0,
+      "logSha256": "e2c1579c4802e53899d2836495c8045a6f8ff37b0eb7a272fa8f3560d6e28cdb",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-coverage-20261109-a",
+      "exit": 0,
+      "logSha256": "bee29e9c40db5ca9ef10a25a37cac501cf07df2784bd8334202081f04a63a0ea",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-coverage-syntax-20261109-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-full-lint-20261109-a",
+      "exit": 0,
+      "logSha256": "3d51106bd7c18ac17d256441abce8815189a83b3f2c087bc219f6d1616e9a588",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-full-node-20261109-a",
+      "exit": 0,
+      "logSha256": "6b313ec98863bd260385b6af8f14782a15d5435364ebb20ae24c4f6a112a497e",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-full-research-20261109-a",
+      "exit": 0,
+      "logSha256": "1b645eedbc506bdc9a870b295488c60fc3fbb5381a5300f7be925013a41c6aae",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-full-serial-20261109-a",
+      "exit": 0,
+      "logSha256": "41f585d5ac49907e1cf52ccb70d1b0b1b54923e21b73d4606b47a70a3786616c",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-full-types-20261109-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-full-unit-20261109-a",
+      "exit": 0,
+      "logSha256": "0da667abcb611879b1ca9abff0fb852a91daba3bca09da7407f57f248105f327",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-history-final-20261109-a",
+      "exit": 0,
+      "logSha256": "2ca77cbe61e6de5584a1b091f700fa109017c0515b667da3d5c14af39cc64bf8",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-integrity-20261109-final-a",
+      "exit": 0,
+      "logSha256": "286bb93c5fac9c895a8f39bb9724e1e4ffd254d3c5f7d6434fc0bed7e604bc1b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-integrity-20261109-start-a",
+      "exit": 0,
+      "logSha256": "286bb93c5fac9c895a8f39bb9724e1e4ffd254d3c5f7d6434fc0bed7e604bc1b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-integrity-syntax-20261109-a",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-legacy-native-20261109-final-a",
+      "exit": 0,
+      "logSha256": "acb34f11345a89a5fd11e9feb9cf86ca601465fbfe355c065722a4337cb0c93b",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-legacy-parity-20261109-final-a",
+      "exit": 0,
+      "logSha256": "9ec2a38070ea16962bcc01f8e5f8c55458db6cbf520db6dd09ebb99749991911",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-native-flow-20261109-final-a",
+      "exit": 0,
+      "logSha256": "e2931121706af52b55b9b00e8334e3235e611959e17d7fad77ef44585764a9df",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-native-flow-20261109-numbered-a",
+      "exit": 1,
+      "logSha256": "68851d410e4a064666e0ea323be5085e7891680c9b2bdb18596525244f58b0e1",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-native-flow-20261109-red-a",
+      "exit": 1,
+      "logSha256": "fc1d8d25a9cc8a06f2e1e05cfb50b7ad4cb02eda23f842845dcba74d1be75ed2",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-native-flow-20261109-red-b",
+      "exit": 1,
+      "logSha256": "3b7b6d837764639c56caa34097e661ef4965cc897fb3fd605880435d0072d2fe",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-native-flow-20261109-red-c",
+      "exit": 1,
+      "logSha256": "e962b6c6c76feb1b6abdcf4d698b94a8d48d6ba2f064c6d77725492382b75e71",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-node-parity-20261109-final-a",
+      "exit": 0,
+      "logSha256": "d37b71fa0604d87f8e8ae6a2029a84ce6075c52adb861eb40a2f78078543330e",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-render-20261109-a",
+      "exit": 0,
+      "logSha256": "44ab12c9253e8fc15dbad512912c300077259617d54f66c99cbd339ae9a4d170",
+      "nonLoopbackDenials": 0
+    },
+    {
+      "name": "offline-closeout-snapshot-20261109-a",
+      "exit": 0,
+      "logSha256": "49a9fbc2e059e7371b8107a91e8a367cb1c23f1e99636814cd30e40b5a9a64bd",
+      "nonLoopbackDenials": 0
+    }
+  ],
+  "fullCoverage": {
+    "status": "PASS",
+    "sourceCommit": "2fad2850e447dd353c8d7a9587f114f60ce3dd01",
+    "sourceManifestSha256": "49323efc6738ecf9df2a5505d791d163559912ae053ce034714b87c622273765",
+    "sourceFileCount": 1014,
+    "vitestFiles": 384,
+    "vitestTests": 10009,
+    "groups": [
+      {
+        "name": "offline-closeout-full-unit-20261109-a",
+        "files": [
+          {
+            "path": "tests/server/kimi-launcher-policy.test.ts",
+            "tests": 56
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-build.test.ts",
+            "tests": 43
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-replay.test.ts",
+            "tests": 188
+          },
+          {
+            "path": "tests/build/materials-production-package.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/server/research-executor-maintenance.test.ts",
+            "tests": 33
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-launcher.test.ts",
+            "tests": 34
+          },
+          {
+            "path": "tests/server/document-executor-runtime.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/components/research-setup-activation.test.tsx",
+            "tests": 103
+          },
+          {
+            "path": "tests/server/research-public-integration.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/research-executor-runtime.test.ts",
+            "tests": 72
+          },
+          {
+            "path": "tests/server/document-production-workflow.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/research-executor-receipt-store.test.ts",
+            "tests": 26
+          },
+          {
+            "path": "tests/server/site-import.test.ts",
+            "tests": 44
+          },
+          {
+            "path": "tests/server/d1-site-import-publication.test.ts",
+            "tests": 57
+          },
+          {
+            "path": "tests/lib/planning/local-repository.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/server/site-import-native-d1.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/document-workflow-probe.test.ts",
+            "tests": 18
+          },
+          {
+            "path": "tests/server/material-context-only-adoption.test.ts",
+            "tests": 26
+          },
+          {
+            "path": "tests/server/remote-public-reader.test.ts",
+            "tests": 89
+          },
+          {
+            "path": "tests/lib/use-planning-workspace.test.tsx",
+            "tests": 45
+          },
+          {
+            "path": "tests/api/research-completed-acknowledgement.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/components/setup-flow.test.tsx",
+            "tests": 19
+          },
+          {
+            "path": "tests/build/document-fake-transport.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/live-research-validation.test.ts",
+            "tests": 65
+          },
+          {
+            "path": "tests/components/materials-b0-rehearsal.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/d1-site-import-repository.test.ts",
+            "tests": 69
+          },
+          {
+            "path": "tests/server/d1-site-execution-repository.test.ts",
+            "tests": 87
+          },
+          {
+            "path": "tests/server/site-expiry.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/pages/setup-time-edit.test.tsx",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/d1-site-begin-repository.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/components/research-workspace-pages.test.tsx",
+            "tests": 38
+          },
+          {
+            "path": "tests/components/material-adoption-persistence.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/auth-migration-runtime.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/d1-research-budget-repository.test.ts",
+            "tests": 90
+          },
+          {
+            "path": "tests/components/skill-audit-step.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/live-native-transport.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/components/adaptive-setup-flow.test.tsx",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/d1-research-repository.test.ts",
+            "tests": 121
+          },
+          {
+            "path": "tests/server/site-admission.test.ts",
+            "tests": 35
+          },
+          {
+            "path": "tests/server/material-adopted-refs.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/live-account-check.test.ts",
+            "tests": 126
+          },
+          {
+            "path": "tests/api/research-bridge-routes.test.ts",
+            "tests": 34
+          },
+          {
+            "path": "tests/server/site-import-integration.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-control.test.ts",
+            "tests": 83
+          },
+          {
+            "path": "tests/components/stack-browser.test.tsx",
+            "tests": 16
+          },
+          {
+            "path": "tests/lib/material-workspace-selection.test.tsx",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/live-launcher-output.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/components/accessibility-contracts.test.tsx",
+            "tests": 24
+          },
+          {
+            "path": "tests/server/material-replan-atomic.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/d1-site-bridge-repository.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/document-storage-runtime.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/document-review-draft.test.ts",
+            "tests": 131
+          },
+          {
+            "path": "tests/components/setup-resume.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/setup-completion.test.tsx",
+            "tests": 11
+          },
+          {
+            "path": "tests/build/research-acceptance-build.test.ts",
+            "tests": 102
+          },
+          {
+            "path": "tests/server/research-service-factory.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/server/minimal-probe-transport.test.ts",
+            "tests": 29
+          },
+          {
+            "path": "tests/components/adaptive-today-session.test.tsx",
+            "tests": 18
+          },
+          {
+            "path": "tests/server/research-orchestrator.test.ts",
+            "tests": 66
+          },
+          {
+            "path": "tests/server/material-learning-intent-flow.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/document-production-admission.test.ts",
+            "tests": 42
+          },
+          {
+            "path": "tests/lib/use-arc-state.test.tsx",
+            "tests": 16
+          },
+          {
+            "path": "tests/components/material-context-choices.test.tsx",
+            "tests": 29
+          },
+          {
+            "path": "tests/components/availability-step.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/api/r9-completion-latency-diagnostic.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/pages/setup.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/material-confirmation-source.test.tsx",
+            "tests": 99
+          },
+          {
+            "path": "tests/server/research-closed-preflight.test.ts",
+            "tests": 39
+          },
+          {
+            "path": "tests/server/d1-planning-repository.test.ts",
+            "tests": 21
+          },
+          {
+            "path": "tests/server/research-planning-integration.test.ts",
+            "tests": 30
+          },
+          {
+            "path": "tests/components/learning-coach.test.tsx",
+            "tests": 26
+          },
+          {
+            "path": "tests/components/role-research-panel.test.tsx",
+            "tests": 42
+          },
+          {
+            "path": "tests/lib/planning/parity.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/build/research-acceptance-target.test.ts",
+            "tests": 111
+          },
+          {
+            "path": "tests/pages/path.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/remote-public-service.test.ts",
+            "tests": 37
+          },
+          {
+            "path": "tests/server/research-request-contract.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/material-detach.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/document-acceptance-admission.test.ts",
+            "tests": 22
+          },
+          {
+            "path": "tests/components/account-menu.test.tsx",
+            "tests": 27
+          },
+          {
+            "path": "tests/components/materials-plan-diff.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/api/r9-completion-roundtrip-diagnostic.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/components/stack-proof-navigation.test.tsx",
+            "tests": 35
+          },
+          {
+            "path": "tests/components/today-session.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/build/cloudflare-build.test.ts",
+            "tests": 45
+          },
+          {
+            "path": "tests/server/research-quality-orchestrator.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/material-practice-priorities.test.ts",
+            "tests": 32
+          },
+          {
+            "path": "tests/server/material-mention-review-flow.test.ts",
+            "tests": 22
+          },
+          {
+            "path": "tests/server/research-service-binding-integration.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/live-result-diagnostics.test.ts",
+            "tests": 74
+          },
+          {
+            "path": "tests/server/d1-site-import-snapshot.test.ts",
+            "tests": 33
+          },
+          {
+            "path": "tests/server/d1-entitlement-repository.test.ts",
+            "tests": 71
+          },
+          {
+            "path": "tests/components/plan-diff-review.test.tsx",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/site-import-validation.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/auth-migration-cleanup.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/server/material-confirmed-skill-labels.test.ts",
+            "tests": 12
+          },
+          {
+            "path": "tests/components/material-source-term-correction.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/use-proof-ledger.test.tsx",
+            "tests": 9
+          },
+          {
+            "path": "tests/components/research-recovery-interaction.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/material-mappings.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/live-response-preflight.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/components/material-library.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-transports.test.ts",
+            "tests": 44
+          },
+          {
+            "path": "tests/components/adaptive-path.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/pages/sign-in.test.tsx",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/research-bridge-transport.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/server/live-quality-diagnostic.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/openrouter-response-compatibility.test.ts",
+            "tests": 64
+          },
+          {
+            "path": "tests/api/planning.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/server/research-policy-migration-integration.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/components/evidence-navigation.test.tsx",
+            "tests": 25
+          },
+          {
+            "path": "tests/components/materials-boundaries.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/plan-history.test.tsx",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/live-native-fetch-diagnostic.test.ts",
+            "tests": 18
+          },
+          {
+            "path": "tests/components/migration-banner.test.tsx",
+            "tests": 8
+          },
+          {
+            "path": "tests/components/materials-ai-flow.test.tsx",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/research-search-policy.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/components/account-link-panel.test.tsx",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/material-proposal-public-view.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/api/research-routes.test.ts",
+            "tests": 58
+          },
+          {
+            "path": "tests/pages/today.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/material-supplement-flow.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/live-response-format.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/components/material-generation-recovery.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/material-generation-atomic.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/lib/use-material-selection.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/components/public-learning-entry.test.tsx",
+            "tests": 17
+          },
+          {
+            "path": "tests/pages/stack-evidence-restoration.test.tsx",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/planning/event-reducer.test.ts",
+            "tests": 21
+          },
+          {
+            "path": "tests/server/planning-security.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/components/agent-companion.test.tsx",
+            "tests": 27
+          },
+          {
+            "path": "tests/components/materials-setup.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/planning-service.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/live-candidate-diagnostic.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/db/site-execution-migration.test.ts",
+            "tests": 72
+          },
+          {
+            "path": "tests/components/case-showcase.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/auth-migration-link-callback.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/live-transport-diagnostics.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/learning-agents.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/research-quality-observation.test.ts",
+            "tests": 58
+          },
+          {
+            "path": "tests/server/material-learning-intents.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/pages/workspace-state.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/materials-recovery.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/kimi-local-validation.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/document-acceptance-budget.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/lib/planning/agent-replanned.test.ts",
+            "tests": 12
+          },
+          {
+            "path": "tests/db/research-migration.test.ts",
+            "tests": 48
+          },
+          {
+            "path": "tests/components/proof-workspace.test.tsx",
+            "tests": 13
+          },
+          {
+            "path": "tests/components/material-workspace-adoption.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/auth-migration-link-reset.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/offline-uat/composition.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/offline-uat/storage-smoke.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/document-cancellation-delivery.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/materials-e2e.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/components/agent-context.test.tsx",
+            "tests": 12
+          },
+          {
+            "path": "tests/server/material-guided-cleaning.test.ts",
+            "tests": 36
+          },
+          {
+            "path": "tests/server/provider-failure-diagnostic.test.ts",
+            "tests": 108
+          },
+          {
+            "path": "tests/server/material-generation-recovery.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/components/target-step.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/components/material-guided-cleaning.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/components/sign-in-panel.test.tsx",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/document-source-span-provider.test.ts",
+            "tests": 175
+          },
+          {
+            "path": "tests/server/research-executor-job-store.test.ts",
+            "tests": 72
+          },
+          {
+            "path": "tests/server/live-research-failure-summary.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/planning-client.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/components/seven-day-timeline.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/account-recovery.test.ts",
+            "tests": 18
+          },
+          {
+            "path": "tests/server/site-import-diagnostic.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/pages/home.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/agent-context.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/contracts/planning.test.ts",
+            "tests": 122
+          },
+          {
+            "path": "tests/server/research-package-validator.test.ts",
+            "tests": 97
+          },
+          {
+            "path": "tests/server/document-source-review-evidence.test.ts",
+            "tests": 448
+          },
+          {
+            "path": "tests/server/document-jobs.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/components/site-header.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/live-output-budget.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/document-deletion-races.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/lib/use-role-research.test.tsx",
+            "tests": 81
+          },
+          {
+            "path": "tests/components/material-detach.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/components/cloud-recovery.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/auth-migration-identity.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/components/basic-time-edit.test.tsx",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/openrouter-provider.test.ts",
+            "tests": 138
+          },
+          {
+            "path": "tests/lib/offline-queue.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/auth-oauth-diagnostics.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/material-context.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-executor-nonce-store.test.ts",
+            "tests": 51
+          },
+          {
+            "path": "tests/server/auth-migration-oauth-state.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/db/site-import-migration.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/auth-migration-credentials.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-bridge-contract.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/document-storage.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/components/workspace-header.test.tsx",
+            "tests": 7
+          },
+          {
+            "path": "tests/pages/evidence-account-boundary.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/document-model-diagnostic-pilot.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/d1-admin-research-health.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/pages/admin.test.tsx",
+            "tests": 4
+          },
+          {
+            "path": "tests/pages/proof-origin-boundary.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/planning-history.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/lib/research-client.test.ts",
+            "tests": 61
+          },
+          {
+            "path": "tests/server/research-resource-access.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/pages/public-information.test.tsx",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/document-model-qualification-guards.test.ts",
+            "tests": 23
+          },
+          {
+            "path": "tests/pages/session-hydration.test.tsx",
+            "tests": 8
+          },
+          {
+            "path": "tests/lib/planning/scheduler.test.ts",
+            "tests": 45
+          },
+          {
+            "path": "tests/lib/planning/material-path-builder.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/research-source-authority.test.ts",
+            "tests": 33
+          },
+          {
+            "path": "tests/db/release-schema-snapshot.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/components/account-boundary.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/account-link-service.test.ts",
+            "tests": 59
+          },
+          {
+            "path": "tests/server/research-quality-contract.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/document-generation-audit.test.ts",
+            "tests": 51
+          },
+          {
+            "path": "tests/lib/materials/experience-evidence.test.ts",
+            "tests": 259
+          },
+          {
+            "path": "tests/server/document-confirmation.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/research-recovery.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/pages/not-found.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/lib/planning/path-builder.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/server/document-extraction.test.ts",
+            "tests": 44
+          },
+          {
+            "path": "tests/db/site-begin-migration.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/research-policy-migration.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/server/materials-privacy.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/components/section-reveal.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/document-supplement-quality.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/lib/materials/self-assessment-evidence.test.ts",
+            "tests": 142
+          },
+          {
+            "path": "tests/server/research-source-audit.test.ts",
+            "tests": 54
+          },
+          {
+            "path": "tests/db/site-bridge-migration.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/materials/material-skill-mentions.test.ts",
+            "tests": 123
+          },
+          {
+            "path": "tests/lib/materials/grounded-skill-terms.test.ts",
+            "tests": 190
+          },
+          {
+            "path": "tests/lib/materials/retained-assessment-hints.test.ts",
+            "tests": 128
+          },
+          {
+            "path": "tests/db/planning-migration.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/d1-research-run-recorder.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/account-link-auth-hooks.test.ts",
+            "tests": 40
+          },
+          {
+            "path": "tests/server/research-service-binding-transport.test.ts",
+            "tests": 41
+          },
+          {
+            "path": "tests/server/openrouter-response-preflight.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/server/research-executor-receipt.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/server/document-workflow.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/lib/materials/practice-skill-mapping.test.ts",
+            "tests": 25
+          },
+          {
+            "path": "tests/server/materials-fixture.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/lib/materials/guided-cleaning-evidence.test.ts",
+            "tests": 22
+          },
+          {
+            "path": "tests/server/document-quality-evaluation.test.ts",
+            "tests": 35
+          },
+          {
+            "path": "tests/lib/intelligence-validation.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/server/research-executor-configuration.test.ts",
+            "tests": 55
+          },
+          {
+            "path": "tests/contracts/research-contracts.test.ts",
+            "tests": 82
+          },
+          {
+            "path": "tests/server/document-deletion.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/research-execution-policy.test.ts",
+            "tests": 22
+          },
+          {
+            "path": "tests/lib/materials/contextual-skill-mapping.test.ts",
+            "tests": 89
+          },
+          {
+            "path": "tests/contracts/documents.test.ts",
+            "tests": 54
+          },
+          {
+            "path": "tests/lib/materials/planning-priority.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/proof-service.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/document-repository.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/openrouter-transport-observation.test.ts",
+            "tests": 36
+          },
+          {
+            "path": "tests/server/research-executor-auth.test.ts",
+            "tests": 54
+          },
+          {
+            "path": "tests/server/site-admission-fixture.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/research-executor-begin.test.ts",
+            "tests": 31
+          },
+          {
+            "path": "tests/contracts/material-planning.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/provider-result-diagnostic.test.ts",
+            "tests": 93
+          },
+          {
+            "path": "tests/server/research-candidate-diagnostic.test.ts",
+            "tests": 38
+          },
+          {
+            "path": "tests/server/document-receipt-credential-privacy.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/api/account-link.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/db/materials-transaction-probe.test.ts",
+            "tests": 37
+          },
+          {
+            "path": "tests/db/documents-migration.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/material-selection.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/db/proof-ledger-migration.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/agent-repository.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-executor-byte-identity.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/research-executor-body.test.ts",
+            "tests": 32
+          },
+          {
+            "path": "tests/server/document-generation-model-identity.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/lib/materials/reviewed-source-mentions.test.ts",
+            "tests": 87
+          },
+          {
+            "path": "tests/server/guarded-fetch-diagnostic.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/components/proof-profile.test.tsx",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/fake-research-provider.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/document-provider.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/production-provider-diagnostic.test.ts",
+            "tests": 8
+          },
+          {
+            "path": "tests/server/openrouter-response-format.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/server/document-executor-auth.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-response-preflight.test.ts",
+            "tests": 23
+          },
+          {
+            "path": "tests/api/admin-health.test.ts",
+            "tests": 23
+          },
+          {
+            "path": "tests/api/research-eligibility.test.ts",
+            "tests": 12
+          },
+          {
+            "path": "tests/api/account-recovery.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/research-quality-diagnostic.test.ts",
+            "tests": 55
+          },
+          {
+            "path": "tests/lib/planning/calendar.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/research-executor-maintenance-policy.test.ts",
+            "tests": 20
+          },
+          {
+            "path": "tests/server/kimi-output-budget.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/contracts/planning-api.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/lib/use-research-eligibility.test.tsx",
+            "tests": 10
+          },
+          {
+            "path": "tests/lib/materials/skill-mapper.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/build/materials-acceptance-target.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/api/local-migration.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/api/proof-ledger.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/data/flagship-unit-registry.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/db/migration-safety.test.ts",
+            "tests": 32
+          },
+          {
+            "path": "tests/build/cloudflare-target.test.ts",
+            "tests": 43
+          },
+          {
+            "path": "tests/lib/proof/local-repository.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/api/account-link-production.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/document-qualification-journal.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/components/root-layout.test.tsx",
+            "tests": 1
+          },
+          {
+            "path": "tests/api/proof-sharing.test.ts",
+            "tests": 16
+          },
+          {
+            "path": "tests/server/document-source-requirement-evidence.test.ts",
+            "tests": 124
+          },
+          {
+            "path": "tests/offline-uat/api-trace.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/research-executor-job.test.ts",
+            "tests": 20
+          },
+          {
+            "path": "tests/server/account-link-crypto.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/offline-uat/security.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/lib/cloud-client.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/db/schema.test.ts",
+            "tests": 21
+          },
+          {
+            "path": "tests/server/public-operation-scope.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/api/workspace.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/api/planning-history.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-source-coverage.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/d1-account-link-repository.test.ts",
+            "tests": 37
+          },
+          {
+            "path": "tests/api/proof-assets.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/agent-provider.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/api/learning-events.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/api/agents.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/api/documents.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/contracts/proof-ledger.test.ts",
+            "tests": 15
+          },
+          {
+            "path": "tests/server/d1-proof-repository.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/lib/proof-client.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/documents-client.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/intelligence-service.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/research-environment.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/admin-policy.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/research-annotation-diagnostic.test.ts",
+            "tests": 34
+          },
+          {
+            "path": "tests/lib/planning/registry-validation.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/server/entitlements.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/api/intelligence-flagship.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/api/intelligence-preview.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/components/setup-draft.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/lib/proof/projection.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/contracts/intelligence.test.ts",
+            "tests": 29
+          },
+          {
+            "path": "tests/server/document-policy.test.ts",
+            "tests": 26
+          },
+          {
+            "path": "tests/server/proof-storage.test.ts",
+            "tests": 13
+          },
+          {
+            "path": "tests/server/operational-events.test.ts",
+            "tests": 34
+          },
+          {
+            "path": "tests/lib/planning/plan-diff.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/lib/agent-client.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/observability.test.ts",
+            "tests": 11
+          },
+          {
+            "path": "tests/server/research-budget.test.ts",
+            "tests": 20
+          },
+          {
+            "path": "tests/lib/planning/v7-upgrade.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/cloud-service.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/d1-cloud-repository.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/live-minimal-probe.test.ts",
+            "tests": 19
+          },
+          {
+            "path": "tests/server/auth-runtime.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/ai-gateway.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/material-numbered-statements.test.ts",
+            "tests": 37
+          },
+          {
+            "path": "tests/server/document-review-points.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/lib/research-recovery-storage.test.ts",
+            "tests": 14
+          },
+          {
+            "path": "tests/data/flagship-blueprint.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/server/document-b0-inputs.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/research-bootstrap-diagnostic.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/demo-store.test.ts",
+            "tests": 10
+          },
+          {
+            "path": "tests/server/research-transport-diagnostic.test.ts",
+            "tests": 50
+          },
+          {
+            "path": "tests/server/auth-diagnostics.test.ts",
+            "tests": 67
+          },
+          {
+            "path": "tests/api/auth-link-bypass.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/research-response-format.test.ts",
+            "tests": 58
+          },
+          {
+            "path": "tests/server/document-job-state.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/contracts/proof-api.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/server/native-fetch-diagnostic.test.ts",
+            "tests": 41
+          },
+          {
+            "path": "tests/lib/planning/fingerprint.test.ts",
+            "tests": 9
+          },
+          {
+            "path": "tests/server/account-link-contracts.test.ts",
+            "tests": 7
+          },
+          {
+            "path": "tests/server/document-budget.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/navigation-context.test.ts",
+            "tests": 46
+          },
+          {
+            "path": "tests/api/planning-production.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/proof-validators.test.ts",
+            "tests": 6
+          },
+          {
+            "path": "tests/server/rate-limit.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/lib/personalized-plan.test.ts",
+            "tests": 17
+          },
+          {
+            "path": "tests/server/sqlite-d1-batch.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/contracts/planning-history.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/api/auth-providers.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/feature-cohort.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/data/flagship-role.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/server/document-text.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/auth-policy.test.ts",
+            "tests": 4
+          },
+          {
+            "path": "tests/lib/core-loop.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/db/d1.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/materials/explanations.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/server/agent-configuration.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/migration-dismissal.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/proof-profile.test.ts",
+            "tests": 3
+          },
+          {
+            "path": "tests/lib/proof/legacy-adapter.test.ts",
+            "tests": 2
+          },
+          {
+            "path": "tests/lib/skill-map.test.ts",
+            "tests": 1
+          },
+          {
+            "path": "tests/harness.test.ts",
+            "tests": 1
+          }
+        ],
+        "tests": 9858,
+        "logSha256": "0da667abcb611879b1ca9abff0fb852a91daba3bca09da7407f57f248105f327"
+      },
+      {
+        "name": "offline-closeout-full-serial-20261109-a",
+        "files": [
+          {
+            "path": "tests/server/document-diagnostic-pilot-host.test.ts",
+            "tests": 5
+          },
+          {
+            "path": "tests/server/materials-supplement-collection.test.ts",
+            "tests": 45
+          }
+        ],
+        "tests": 50,
+        "logSha256": "41f585d5ac49907e1cf52ccb70d1b0b1b54923e21b73d4606b47a70a3786616c"
+      },
+      {
+        "name": "offline-closeout-full-research-20261109-a",
+        "files": [
+          {
+            "path": "tests/server/research-executor-private-integration.test.ts",
+            "tests": 12
+          },
+          {
+            "path": "tests/server/research-cloud-smoke-composition.test.ts",
+            "tests": 89
+          }
+        ],
+        "tests": 101,
+        "logSha256": "1b645eedbc506bdc9a870b295488c60fc3fbb5381a5300f7be925013a41c6aae"
+      }
+    ],
+    "node": {
+      "name": "offline-closeout-full-node-20261109-a",
+      "tests": 290,
+      "passed": 290,
+      "logSha256": "6b313ec98863bd260385b6af8f14782a15d5435364ebb20ae24c4f6a112a497e"
+    },
+    "nodeScripts": [
+      "tests/build/restricted-candidate-files.test.mjs",
+      "tests/build/restricted-research-candidate.test.mjs",
+      "tests/offline-uat/entry.test.mjs",
+      "tests/offline-uat/http-clients.test.mjs",
+      "tests/offline-uat/legacy-recovery.test.mjs",
+      "tests/offline-uat/research-public-recovery.test.mjs",
+      "tests/offline-uat/research-recovery.test.mjs",
+      "tests/offline-uat/retained-compatibility.test.mjs",
+      "tests/rendered-html.test.mjs",
+      "tests/scripts/auth-tail.test.mjs"
+    ],
+    "render": {
+      "name": "offline-closeout-render-20261109-a",
+      "tests": 5,
+      "passed": 5,
+      "logSha256": "44ab12c9253e8fc15dbad512912c300077259617d54f66c99cbd339ae9a4d170"
+    },
+    "chains": [
+      {
+        "nativeName": "offline-closeout-native-flow-20261109-final-a",
+        "parityName": "offline-closeout-node-parity-20261109-final-a",
+        "cases": 17,
+        "dependencyCount": 832,
+        "dependenciesMatchFinalSource": true
+      },
+      {
+        "nativeName": "offline-closeout-legacy-native-20261109-final-a",
+        "parityName": "offline-closeout-legacy-parity-20261109-final-a",
+        "cases": 25,
+        "dependencyCount": 832,
+        "dependenciesMatchFinalSource": true
+      }
+    ],
+    "compatibilityObservations": 170,
+    "historicalRecordsUnchanged": 6,
+    "executionLocations": {
+      "unit": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "serial": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "research": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "additionalNode": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision",
+      "types": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "lint": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "build": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source",
+      "render": "D:\\CodexTemp\\arc-materials-closeout-bCGZHw\\source"
+    },
+    "additionalNodeIsolated": true,
+    "originalTimeoutsAndAssertions": true,
+    "realModelCalls": 0,
+    "newCostUsd": 0,
+    "remoteMigration": false,
+    "deployed": false
+  },
+  "frozenReferenceCount": 26,
+  "courseDependencyCount": 85,
+  "limits": [
+    "Offline numbered quotations, bounded Chinese guided cleaning, and adoption/reset persistence only; not Gate 1B or public release",
+    "Mixed unsplit action tails conservatively receive no automatic level; leading .NET statement limitation remains separate",
+    "Course coverage/new references, full 14-scenario native planning protocol, current master UI integration, live model quality and release gates remain open",
+    "No new paid, migration or deployment authorization"
+  ],
+  "realModelCalls": 0,
+  "newCostUsd": 0,
+  "deployed": false,
+  "remoteMigration": false,
+  "githubSaveStatusAtArchive": "Pending the subsequent archive commit and normal branch push; verify the final branch ref separately"
+}

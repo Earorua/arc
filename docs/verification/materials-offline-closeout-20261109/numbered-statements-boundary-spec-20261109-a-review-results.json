@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "reviewType": "Independent Task 1 specification review",
+  "scope": [
+    "worker/document-executor/source-statements.ts",
+    "worker/document-executor/source-review-evidence.ts",
+    "tests/server/material-numbered-statements.test.ts"
+  ],
+  "branch": "codex/materials-replan-recovery-20261106",
+  "head": "1f65e4a483399db8fb6c143e076f3d7523675399",
+  "findings": [],
+  "sourceHashes": {
+    "worker/document-executor/source-statements.ts": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab",
+    "worker/document-executor/source-review-evidence.ts": "f9ed3a14145535a7cc0e9d4b59b8f265deb1533c84679997c4c078544e35dc37",
+    "tests/server/material-numbered-statements.test.ts": "1aa53850930e5ce24acca8998a2df068cd503490d2055565e059548d36c4cec7"
+  },
+  "evidence": {
+    "freezePath": "work/grounded-verification/numbered-statements-boundary-20261109-freeze-a-results.json",
+    "freezeSha256": "cb29af4c72383844bf3fcb3358f7e3345be735ce230cf692cd437e615fee266f",
+    "probeResultsPath": "work/grounded-verification/numbered-statements-boundary-spec-20261109-a-results.json",
+    "probeResultsSha256": "dfceda86954b631fa28cf999ba2992388506080080fb80b64b628a927bdeee83",
+    "rawProbeStatus": "FAIL",
+    "rawProbeExit": 1,
+    "passingBoundaryObservations": 18,
+    "verifiedFileHashes": 33,
+    "behavioralRedFailures": 23,
+    "behavioralRedControlsPassed": 14,
+    "authorGreenTests": 37,
+    "authorRelatedGreenTests": 794,
+    "preservedLegacyCoordinateMaps": 80,
+    "legacyFixtures": 40,
+    "nonLoopbackDenials": 0
+  },
+  "rawFailureDisposition": {
+    "failedGuards": ["frozen-identity", "legacy-source-is-exactly-unchanged"],
+    "cause": "Whole-checkout status and diff-path assertions included concurrent root-owned documentation changes outside the three-file Task 1 freeze. The legacy source-content assertions before the diff-path assertion passed.",
+    "rootConfirmed": true,
+    "extraPaths": [
+      "docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md",
+      "docs/superpowers/plans/2026-11-09-materials-offline-closeout.md"
+    ],
+    "inspection": "Tracked plan diff only adds a Task 3 scheduling paragraph. Task 1 requirements and all three frozen file hashes remain unchanged.",
+    "resolution": "Scoped specification PASS; raw failed probe artifacts preserved unchanged. No repeated probe."
+  },
+  "unchangedLegacySource": true,
+  "providerAndSiteWiringDeliberatelyAbsent": true,
+  "leadingDotNetStillSeparateLimitation": true,
+  "trackedWritesByReviewer": false,
+  "modelCalls": 0,
+  "commits": 0,
+  "migrations": 0,
+  "deployments": 0,
+  "pushes": 0,
+  "doesNotClaim": ["quality-review approval", "Task 2 integration", "combined final acceptance"]
+}

@@ -1,0 +1,191 @@
+{
+  "status": "PASS",
+  "reviewKind": "Independent specification review",
+  "scope": "Numbered statements Task 2 only; Task 1 helper accepted at e48e5eb and not re-reviewed as a separate batch",
+  "identity": {
+    "branch": "codex/materials-replan-recovery-20261106",
+    "head": "e48e5eb1d4d6dbeb28398ee7c9231ec357cda167"
+  },
+  "routingRead": [
+    "D:/CodexScratch/arc-source-readme-20261029/SOURCE_INDEX.md",
+    "work/grounded-verification/mention-projection-routing-20261109-source-index.md"
+  ],
+  "freeze": {
+    "path": "work/grounded-verification/numbered-statements-flow-20261109-freeze-a-results.json",
+    "sha256": "4a57492bb289cadf0723ee80c3082c16e523bfdc696c77387b6338ab27173d22",
+    "sevenScopedDiffsMatchFrozenPatch": true,
+    "frozenPatchHashVerified": true,
+    "rootOwnedDocsExcluded": true
+  },
+  "sources": [
+    {
+      "path": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "b13167ff0587dc6c5a1549e8a5f14a2cef8b19b55de0211ca525c023d6b8422d",
+      "liveMatchesFreeze": true,
+      "snapshotMatchesFreeze": true
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "8a780698b7823eaa73685f5bbe0e3087edfb72edb2221abd0828b32d162b953f",
+      "liveMatchesFreeze": true,
+      "snapshotMatchesFreeze": true
+    },
+    {
+      "path": "app/lib/materials/skill-labels.ts",
+      "sha256": "83e6cc46ffa5242d005f7ed5d8e60a2952f41a4f326067c6fecf4ed792d58b87",
+      "liveMatchesFreeze": true,
+      "snapshotMatchesFreeze": true
+    },
+    {
+      "path": "tests/server/document-source-span-provider.test.ts",
+      "sha256": "3eaee4aa55e074e8e7437f9c26604d490b9017938413e3f32f09076c25690446",
+      "liveMatchesFreeze": true,
+      "snapshotMatchesFreeze": true
+    },
+    {
+      "path": "tests/server/document-extraction.test.ts",
+      "sha256": "06b782e950e64fd8f98f80ca44f50f3de1d67fc96511a3e4f0bc551dac46c625",
+      "liveMatchesFreeze": true,
+      "snapshotMatchesFreeze": true
+    },
+    {
+      "path": "tests/server/material-mention-review-flow.test.ts",
+      "sha256": "685ec1dee4ee5e1492bfcc7da4b874ce602d573f1c647b9b73cf638d72cbf229",
+      "liveMatchesFreeze": true,
+      "snapshotMatchesFreeze": true
+    },
+    {
+      "path": "tests/lib/materials/reviewed-source-mentions.test.ts",
+      "sha256": "644395e6047a2640603f78103064be0dcf8ecd90ceaba8602abd552a66aef0eb",
+      "liveMatchesFreeze": true,
+      "snapshotMatchesFreeze": true
+    }
+  ],
+  "hashVerification": {
+    "snapshotFiles": 7,
+    "unchangedFiles": 7,
+    "immutableInputs": 4,
+    "runMetadataAndLogs": 10,
+    "availableRunResults": 7,
+    "allMatched": true
+  },
+  "findings": [],
+  "conclusions": [
+    "Only exact source-spans-v3/provider-policy/projection uses sourceMentionStatementBoundaries; existing v1/v2 ternary branches and policies, schema, prompts, and activation are unchanged.",
+    "Full ASCII/fullwidth numbered and body-only quotes retain their original text/source identity and complete end. Provider duplicate full/body nominations reject by the existing segment/end key; incomplete, cross-entry, orphan and detached quotation cases reject.",
+    "Provider evidence, JD requirement levels and reminders use the same complete body. Site validation independently verifies quote equals text, source ownership/lifecycle, complete bounds and full-document quotation scope.",
+    "The approved hint-retention preparation is exact-v3 only. It requires a numeric-dot prefix plus whitespace and both full fact/body boundaries ending at the entire trimmed fact end. Only evidence assessment input is sliced; stored fact/source fields are untouched. Attribution, negation, future and multi-statement controls remain restrictive.",
+    "Added actual DocumentsClient/HTTP/runtime/ReviewService tests prove save/reload/confirm/select/context preservation, removal and no resurrection, edited other/future/negative/quoted hint removal, and ownership/source/client marker/revision/reclassification guards.",
+    "The HTTP CRLF fixture correction follows createDocument canonicalization and reads saved canonical text before provider decoding; separate provider test still proves raw CRLF and emoji UTF-16 offsets.",
+    "The unchanged shared fixture seeds decoded items only. Full-candidate reminder persistence is supported separately by the native workerd/D1/R2 evidence; it is not attributed to that fixture.",
+    "Browser evidence has 11 pure local dependencies and zero local cycles; the new import does not pull server execution or configuration into the browser graph."
+  ],
+  "independentProbe": {
+    "name": "numbered-statements-flow-spec-20261109-a",
+    "resultsPath": "work/grounded-verification/numbered-statements-flow-spec-20261109-a-results.json",
+    "resultsSha256": "22c5992b5a70c10e56311bc96b79271a90558083676f0ae1b6063b31b5d6d8e0",
+    "exit": 0,
+    "passed": 59,
+    "failed": 0,
+    "skipped": 269,
+    "files": 4,
+    "testNamePattern": "numbered",
+    "elapsedMs": 6520,
+    "nonLoopbackDenials": 0
+  },
+  "authorEvidence": {
+    "red": "194 passed / 7 failed",
+    "boundaryOnlyGate": "200 passed / 1 failed: actual save lost hint",
+    "retentionRed": "89 passed / 7 failed",
+    "retentionGreen": "416 passed / 0 failed",
+    "expandedPreserved": "623 passed / 1 CRLF fixture failure",
+    "finalFocused": "624 passed / 0 failed across 7 files",
+    "scopedTypecheck": "types-b PASS; failed types-a retained as missing ambient Env harness evidence",
+    "scopedLint": "PASS",
+    "browser": "PASS"
+  },
+  "nativeEvidence": {
+    "path": "work/grounded-verification/offline-closeout-native-flow-20261109-numbered-a-results.json",
+    "sha256": "9174d53eb9bd871b09f131fd81d55176ec1def0560d551865c1978e78a827e93",
+    "rawStatus": "EXPECTED_BEHAVIOR_NOT_MET",
+    "rawExit": 1,
+    "numberedPassed": 11,
+    "controlsPassed": 4,
+    "deferredFailure": "chinese-guided-cleaning",
+    "observations": [
+      {
+        "id": "numbered-guided",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-body",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-fullwidth",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-emoji-offset",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-jd",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-supplement",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-other",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-future",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-removed",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-half",
+        "failureCount": 0
+      },
+      {
+        "id": "numbered-orphan",
+        "failureCount": 0
+      },
+      {
+        "id": "chinese-guided-cleaning",
+        "failureCount": 1
+      },
+      {
+        "id": "chinese-other-cleaning",
+        "failureCount": 0
+      },
+      {
+        "id": "chinese-future-cleaning",
+        "failureCount": 0
+      },
+      {
+        "id": "chinese-edited-other",
+        "failureCount": 0
+      },
+      {
+        "id": "chinese-no-guidance",
+        "failureCount": 0
+      }
+    ],
+    "outboundCalls": 0,
+    "realModelCalls": 0,
+    "actualCostMicroUsd": 0
+  },
+  "limits": [
+    "This PASS is Task 2 specification compliance, not the independent quality review or completed closeout.",
+    "No full repository suite, deployment, migration, network/model call, commit or push performed by this review.",
+    "Frozen compatibility/saved-history checks and final repository/type/lint/build/page gates remain root-owned; final combined gates follow Chinese-guidance and adoption-reset fixes."
+  ],
+  "trackedEditsByReviewer": false
+}

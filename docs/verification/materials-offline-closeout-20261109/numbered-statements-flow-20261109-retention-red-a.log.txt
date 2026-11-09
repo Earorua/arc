@@ -1,0 +1,249 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90mC:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision[39m
+
+(node:51952) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/server/material-mention-review-flow.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 473[2mms[22m[39m
+[31m   [31m×[31m keeps a complete numbered guided fact and its hint through actual review save, reload, confirmation and planning[39m[32m 71[2mms[22m[39m
+   [32m✓[39m keeps negative SQL mapped without inventing personal practice through the real client and saved review[32m 89[2mms[22m[39m
+   [32m✓[39m keeps another actor's SQL mapped without inventing personal practice through the real client and saved review[32m 61[2mms[22m[39m
+   [32m✓[39m keeps future SQL mapped without inventing personal practice through the real client and saved review[32m 46[2mms[22m[39m
+   [32m✓[39m keeps personal React and colleague SQL mapped without inventing personal practice through the real client and saved review[32m 57[2mms[22m[39m
+   [32m✓[39m requires separate learning-intent adoption for a v3 supplemental topic and preserves planning inputs[32m 55[2mms[22m[39m
+   [32m✓[39m preserves manual fallback behavior through the same review and planning routes: I wrote SQL queries.[32m 38[2mms[22m[39m
+   [32m✓[39m preserves manual fallback behavior through the same review and planning routes: I have never used SQL.[32m 33[2mms[22m[39m
+   [32m✓[39m keeps the source-add quota at eight v3 topics and does not restore a ninth word by omission[32m 22[2mms[22m[39m
+ [31m❯[39m tests/lib/materials/reviewed-source-mentions.test.ts [2m([22m[2m87 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 51[2mms[22m[39m
+     [32m✓[39m adds the explicit v3 identity without changing the document schema or v2 identity[32m 1[2mms[22m[39m
+     [32m✓[39m accepts only the optional supported projection undefined[32m 2[2mms[22m[39m
+     [32m✓[39m accepts only the optional supported projection grounded-skill-labels-v2[32m 0[2mms[22m[39m
+     [32m✓[39m accepts only the optional supported projection source-skill-mentions-v3[32m 0[2mms[22m[39m
+     [32m✓[39m rejects an unknown projection [32m 0[2mms[22m[39m
+     [32m✓[39m rejects an unknown projection  [32m 0[2mms[22m[39m
+     [32m✓[39m rejects an unknown projection source-skill-mentions-v2[32m 0[2mms[22m[39m
+     [32m✓[39m rejects an unknown projection source-skill-mentions-v4[32m 0[2mms[22m[39m
+     [32m✓[39m rejects an unknown projection anything[32m 0[2mms[22m[39m
+     [32m✓[39m rejects an unknown projection null[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection grounded-skill-labels-v2[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection source-skill-mentions-v3[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection undefined[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection null[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection [32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection grounded-skill-labels-v3[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection source-skill-mentions-v4[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection anything[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection true[32m 0[2mms[22m[39m
+     [32m✓[39m recognizes only an exact source-linked projection {}[32m 0[2mms[22m[39m
+     [32m✓[39m keeps the existing eight-label, 100-UTF-16-unit and 100-fact quotas[32m 4[2mms[22m[39m
+     [32m✓[39m retains the configured SQL topic while preserving its pre-existing v2 response[32m 7[2mms[22m[39m
+     [32m✓[39m preserves pre-existing added-term behavior for the configured SQL sentence[32m 2[2mms[22m[39m
+     [32m✓[39m adds an existing recognized denial as a topic only in v3[32m 0[2mms[22m[39m
+     [32m✓[39m routes denied reviewed equivalents to the existing mention locator only in v3[32m 1[2mms[22m[39m
+     [32m✓[39m preserves legacy literal edits and affirmative v2 reviewed equivalents[32m 0[2mms[22m[39m
+     [32m✓[39m requires a nominated raw source term and retains only the same supported concept[32m 1[2mms[22m[39m
+     [32m✓[39m does not choose between differently spelled source occurrences in I never used SQL, but I now use sql.[32m 0[2mms[22m[39m
+     [32m✓[39m does not choose between differently spelled source occurrences in I never used ＳＱＬ, but I now use SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not choose between differently spelled source occurrences in I never cleaned data, but I am cleaning data.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves existing source spelling and lexical boundaries in Profile:Orion:Forge.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves existing source spelling and lexical boundaries in 必须掌握键盘可访问性的基本检查。[32m 2[2mms[22m[39m
+     [32m✓[39m preserves existing source spelling and lexical boundaries in I never used Ｃ＋＋.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves existing source spelling and lexical boundaries in I never used CaféFlux.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves existing source spelling and lexical boundaries in I never used ﬃxtures.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves existing source spelling and lexical boundaries in I never used WAI-ARIA.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves existing source spelling and lexical boundaries in I never used Node.js.[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term PostgreSQL (SQL)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term WAI-ARIA (ARIA)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term Node.js (Node)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term C++ (C)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term Profile:Orion:Forge. (Forge)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term 必须掌握键盘可访问性的基本检查。 (盘可访问性)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term Café (Cafe)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term ﬃ (f)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term Read urn:SQL. (SQL)[32m 0[2mms[22m[39m
+     [32m✓[39m does not restore an incomplete or inferred term We use retrieval augmented generation. (RAG)[32m 0[2mms[22m[39m
+[31m     [31m×[31m retains only the existing v3 hint supported by a complete numbered fact: 1. I tested SQL under supervision.[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m retains only the existing v3 hint supported by a complete numbered fact: １２. I tested SQL under supervision.[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m retains only the existing v3 hint supported by a complete numbered fact:   1. I tested SQL under supervision.
+[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m retains only the existing v3 hint supported by a complete numbered fact: 1. I am familiar with SQL.[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m retains only the existing v3 hint supported by a complete numbered fact: 1. I am unsure about my SQL proficiency.[39m[32m 1[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1. My colleague tested SQL under supervision.[32m 1[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1. I will test SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1. I did not test SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1. I tested SQL under no supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1. If I tested SQL under supervision, I would document it.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1. My mentor said, "I tested SQL under supervision."[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: “1. I tested SQL under supervision.”[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1. I tested SQL under supervision. 2. My colleague used SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1. I tested SQL under supervision.
+2. My colleague used SQL.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1.
+I tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1234. I tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: 1.5 I tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m does not discard the attribution or broaden list grammar during v3 retention: - I tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m preserves body-only hint retention and historical numbered behavior under undefined[32m 0[2mms[22m[39m
+     [32m✓[39m preserves body-only hint retention and historical numbered behavior under grounded-skill-labels-v2[32m 1[2mms[22m[39m
+[31m     [31m×[31m preserves body-only hint retention and historical numbered behavior under source-skill-mentions-v3[39m[32m 1[2mms[22m[39m
+     [32m✓[39m does not retain a conceptual hint just because the configured SQL denial mentions a topic[32m 1[2mms[22m[39m
+     [32m✓[39m does not retain a guided hint just because the configured SQL denial mentions a topic[32m 0[2mms[22m[39m
+     [32m✓[39m does not retain a uncertain hint just because the configured SQL denial mentions a topic[32m 0[2mms[22m[39m
+     [32m✓[39m retains the topic and fact but removes an unsupported hint for I have never configured SQL for production.[32m 0[2mms[22m[39m
+     [32m✓[39m retains the topic and fact but removes an unsupported hint for My colleague tested SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m retains the topic and fact but removes an unsupported hint for The example says ‘I tested SQL under supervision.’[32m 0[2mms[22m[39m
+     [32m✓[39m retains the topic and fact but removes an unsupported hint for I will test SQL under supervision.[32m 0[2mms[22m[39m
+     [32m✓[39m retains the topic and fact but removes an unsupported hint for If I tested SQL under supervision, I would document it.[32m 0[2mms[22m[39m
+     [32m✓[39m checks mixed actors per skill while retaining both topics[32m 3[2mms[22m[39m
+     [32m✓[39m revalidates an edited old hint under undefined[32m 0[2mms[22m[39m
+     [32m✓[39m revalidates an edited old hint under grounded-skill-labels-v2[32m 0[2mms[22m[39m
+     [32m✓[39m revalidates an edited old hint under source-skill-mentions-v3[32m 0[2mms[22m[39m
+     [32m✓[39m preserves unedited legacy compatibility while revalidating v2 and v3[32m 0[2mms[22m[39m
+     [32m✓[39m retains an existing supported hint without inventing one for another source topic[32m 0[2mms[22m[39m
+     [32m✓[39m does not recreate hints after a 'deleted fact'[32m 0[2mms[22m[39m
+     [32m✓[39m does not recreate hints after a 'explicit empty label list'[32m 0[2mms[22m[39m
+     [32m✓[39m does not recreate hints after a 'deleted label'[32m 0[2mms[22m[39m
+     [32m✓[39m does not recreate hints after a 'reclassified requirement'[32m 0[2mms[22m[39m
+     [32m✓[39m does not recreate hints after a 'reclassified constraint'[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/server/material-mention-review-flow.test.ts[2m > [22mkeeps a complete numbered guided fact and its hint through actual review save, reload, confirmation and planning
+[31m[1mAssertionError[22m: expected [] to deeply equal [ { id: 'hint-candidate-1-0', …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   {[39m
+[32m-     "candidateId": "candidate-1",[39m
+[32m-     "id": "hint-candidate-1-0",[39m
+[32m-     "level": "guided",[39m
+[32m-     "skillLabel": "SQL",[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m tests/server/material-mention-review-flow.test.ts:[2m39:39[22m[39m
+    [90m 37|[39m     const { draft } = await f.client.request("saveDocumentReviewDraft"…
+    [90m 38|[39m       items: initial.items, selfAssessmentHints: initial.selfAssessmen…
+    [90m 39|[39m     expect(draft.selfAssessmentHints).toEqual(initial.selfAssessmentHi…
+    [90m   |[39m                                       [31m^[39m
+    [90m 40|[39m     [34mexpect[39m(draft[33m.[39mitems)[33m.[39m[34mtoEqual[39m(initial[33m.[39mitems)[33m;[39m
+    [90m 41|[39m     expect(draft.reviewProjection).toBe(SOURCE_MENTION_MATERIAL_REVIEW…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/reviewed-source-mentions.test.ts[2m > [22msource mentions remain separate from personal self-assessment[2m > [22mretains only the existing v3 hint supported by a complete numbered fact: 1. I tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/reviewed-source-mentions.test.ts[2m > [22msource mentions remain separate from personal self-assessment[2m > [22mretains only the existing v3 hint supported by a complete numbered fact: １２. I tested SQL under supervision.
+[41m[1m FAIL [22m[49m tests/lib/materials/reviewed-source-mentions.test.ts[2m > [22msource mentions remain separate from personal self-assessment[2m > [22mretains only the existing v3 hint supported by a complete numbered fact:   1. I tested SQL under supervision.
+
+[31m[1mAssertionError[22m: expected [] to deeply equal [ { id: 'hint-fact-0', …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   {[39m
+[32m-     "candidateId": "fact",[39m
+[32m-     "id": "hint-fact-0",[39m
+[32m-     "level": "guided",[39m
+[32m-     "skillLabel": "SQL",[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m tests/lib/materials/reviewed-source-mentions.test.ts:[2m172:84[22m[39m
+    [90m170|[39m   ] as const)("retains only the existing v3 hint supported by a comple…
+    [90m171|[39m     const item = fact(text), before = structuredClone(item), hint = { …
+    [90m172|[39m     expect(retainedMaterialSelfAssessmentHints([item], [hint], mention…
+    [90m   |[39m                                                                                    [31m^[39m
+    [90m173|[39m     expect(retainedMaterialSelfAssessmentHints([item], [], mentionProj…
+    [90m174|[39m     expect(retainedMaterialSelfAssessmentHints([item], [hint], GROUNDE…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/reviewed-source-mentions.test.ts[2m > [22msource mentions remain separate from personal self-assessment[2m > [22mretains only the existing v3 hint supported by a complete numbered fact: 1. I am familiar with SQL.
+[31m[1mAssertionError[22m: expected [] to deeply equal [ { id: 'hint-fact-0', …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   {[39m
+[32m-     "candidateId": "fact",[39m
+[32m-     "id": "hint-fact-0",[39m
+[32m-     "level": "conceptual",[39m
+[32m-     "skillLabel": "SQL",[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m tests/lib/materials/reviewed-source-mentions.test.ts:[2m172:84[22m[39m
+    [90m170|[39m   ] as const)("retains only the existing v3 hint supported by a comple…
+    [90m171|[39m     const item = fact(text), before = structuredClone(item), hint = { …
+    [90m172|[39m     expect(retainedMaterialSelfAssessmentHints([item], [hint], mention…
+    [90m   |[39m                                                                                    [31m^[39m
+    [90m173|[39m     expect(retainedMaterialSelfAssessmentHints([item], [], mentionProj…
+    [90m174|[39m     expect(retainedMaterialSelfAssessmentHints([item], [hint], GROUNDE…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/reviewed-source-mentions.test.ts[2m > [22msource mentions remain separate from personal self-assessment[2m > [22mretains only the existing v3 hint supported by a complete numbered fact: 1. I am unsure about my SQL proficiency.
+[31m[1mAssertionError[22m: expected [] to deeply equal [ { id: 'hint-fact-0', …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   {[39m
+[32m-     "candidateId": "fact",[39m
+[32m-     "id": "hint-fact-0",[39m
+[32m-     "level": "uncertain",[39m
+[32m-     "skillLabel": "SQL",[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m tests/lib/materials/reviewed-source-mentions.test.ts:[2m172:84[22m[39m
+    [90m170|[39m   ] as const)("retains only the existing v3 hint supported by a comple…
+    [90m171|[39m     const item = fact(text), before = structuredClone(item), hint = { …
+    [90m172|[39m     expect(retainedMaterialSelfAssessmentHints([item], [hint], mention…
+    [90m   |[39m                                                                                    [31m^[39m
+    [90m173|[39m     expect(retainedMaterialSelfAssessmentHints([item], [], mentionProj…
+    [90m174|[39m     expect(retainedMaterialSelfAssessmentHints([item], [hint], GROUNDE…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lib/materials/reviewed-source-mentions.test.ts[2m > [22msource mentions remain separate from personal self-assessment[2m > [22mpreserves body-only hint retention and historical numbered behavior under source-skill-mentions-v3
+[31m[1mAssertionError[22m: expected [] to deeply equal [ { id: 'hint-fact-0', …(3) } ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   {[39m
+[32m-     "candidateId": "fact",[39m
+[32m-     "id": "hint-fact-0",[39m
+[32m-     "level": "guided",[39m
+[32m-     "skillLabel": "SQL",[39m
+[32m-   },[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m tests/lib/materials/reviewed-source-mentions.test.ts:[2m203:10[22m[39m
+    [90m201|[39m       [35mconst[39m numbered [33m=[39m [34mfact[39m([32m"1. I tested SQL under supervision."[39m)[33m;[39m
+    [90m202|[39m       expect(retainedMaterialSelfAssessmentHints([numbered], [guidedHi…
+    [90m203|[39m         .toEqual(projection === GROUNDED_MATERIAL_REVIEW_PROJECTION ? …
+    [90m   |[39m          [31m^[39m
+    [90m204|[39m       expect(retainedMaterialSelfAssessmentHints([{ ...numbered, origi…
+    [90m205|[39m         [33m.[39m[34mtoEqual[39m(projection [33m===[39m mentionProjection [33m?[39m [guidedHint] [33m:[39m [])[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m89 passed[39m[22m[90m (96)[39m
+[2m   Start at [22m 19:15:10
+[2m   Duration [22m 4.01s[2m (transform 899ms, setup 408ms, import 2.02s, tests 525ms, environment 752ms)[22m
+
+JSON report written to C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/numbered-statements-flow-20261109-retention-red-a-results.json

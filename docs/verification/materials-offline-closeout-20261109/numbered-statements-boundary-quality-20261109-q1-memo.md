@@ -1,0 +1,13 @@
+# Task 1 independent quality review
+
+Verdict: **PASS**. No actionable quality findings in the three freeze-a files at `1f65e4a483399db8fb6c143e076f3d7523675399` on `codex/materials-replan-recovery-20261106`.
+
+The change is small and maintainable: `source-statements.ts:30-49` clones the caller's Map, reuses the existing list-prefix grammar, limits augmentation to 1–3 ASCII/fullwidth digits plus an ASCII dot on the same CR/LF-delimited line, and copies an existing body end. It removes only isolated ordinal starts in the returned map. It neither mutates input coordinates nor computes a broader sentence end. The linear scan and Map copy introduce no unbounded matching or normalization. `source-review-evidence.ts:69-71` is a direct wrapper; both legacy implementations are byte-equivalent after line-ending normalization and removal of the explicit additions.
+
+The authored 37-test suite is focused and includes meaningful positive and negative controls. Its frozen evidence retains GREEN 37, related GREEN 794, type/lint exit 0, and 80 unchanged legacy coordinate maps across 40 fixtures. This review verified the frozen source, snapshots, historical evidence, and raw run hashes without rerunning those suites.
+
+One new offline quality probe passed 12 checks and recorded 12 boundary observations: adjacent unpunctuated entries remain separate under LF/CRLF/CR; a wrapped later negation is retained; Unicode spacing and an emoji inside the body keep UTF-16 offsets; a complete quoted sentence keeps its closing mark; the existing enclosing-quotation guard still rejects the new numbered start; a next-line body cannot turn a bare ordinal into a fact; missing `Intl.Segmenter` returns empty maps. The leading `.NET` limitation is unchanged and is not claimed fixed. Raw probe exit 0, 481 ms, non-loopback denials 0. Scoped `git diff --check` also exited 0.
+
+All three source hashes still match freeze-a, and provider/site plus immutable evidence hashes remain unchanged. Root-owned plan changes are outside this review. The specification probe's raw exit 1 remains recorded as a failed raw run: its two whole-checkout guards encountered those documentation changes; its 18 boundary observations and 33 hash checks passed. Its separate scoped specification verdict is PASS. This quality verdict does not relabel that raw run.
+
+Raw quality evidence: `numbered-statements-boundary-quality-20261109-q1.log`, `.json`, and `-probe-results.json`; structured verdict, hashes, and raw references: `numbered-statements-boundary-quality-20261109-q1-own-results.json` in this directory. No tracked edits, broad tests, model calls, migrations, deployment, commits, or push. Task 2 wiring and the combined final acceptance gate remain pending.

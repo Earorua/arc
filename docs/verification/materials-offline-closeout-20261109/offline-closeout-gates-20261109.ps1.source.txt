@@ -1,0 +1,59 @@
+$ErrorActionPreference = 'Stop'
+if ($env:ARC_LOCAL_GROUNDED_CHECKOUT) { throw 'Unexpected checkout override' }
+$closeoutSnapshot = Get-Content -LiteralPath 'work/grounded-verification/offline-closeout-snapshot-20261109-a-results.json' -Raw | ConvertFrom-Json
+$closeoutLabels = @(
+  'offline-closeout-full-unit-20261109-a', 'offline-closeout-full-serial-20261109-a',
+  'offline-closeout-full-research-20261109-a', 'offline-closeout-full-types-20261109-a',
+  'offline-closeout-full-lint-20261109-a', 'offline-closeout-build-20261109-a',
+  'offline-closeout-render-20261109-a', 'offline-closeout-full-node-20261109-a'
+)
+foreach ($closeoutLabel in $closeoutLabels) {
+  foreach ($closeoutExtension in @('.json', '.log')) {
+    if (Test-Path -LiteralPath ('work/grounded-verification/' + $closeoutLabel + $closeoutExtension)) {
+      throw ('Existing verification label: ' + $closeoutLabel)
+    }
+  }
+}
+
+function Invoke-CloseoutCheck {
+  param([string]$Label, [bool]$UseCopy, [string[]]$NodeArguments)
+  try {
+    if ($UseCopy) { $env:ARC_LOCAL_GROUNDED_CHECKOUT = $closeoutSnapshot.checkout }
+    Write-Output ('Starting ' + $Label)
+    & node work/grounded-verification/run.mjs $Label @NodeArguments
+    if ($LASTEXITCODE -ne 0) { throw ('Verification failed: ' + $Label) }
+  } finally {
+    Remove-Item Env:ARC_LOCAL_GROUNDED_CHECKOUT -ErrorAction SilentlyContinue
+  }
+}
+
+# Sequential execution avoids the resource contention preserved in prior evidence.
+Invoke-CloseoutCheck $closeoutLabels[0] $true @(
+  'node_modules/vitest/vitest.mjs', 'run', '--maxWorkers=2',
+  '--exclude', 'tests/server/document-diagnostic-pilot-host.test.ts',
+  '--exclude', 'tests/server/materials-supplement-collection.test.ts',
+  '--exclude', 'tests/server/research-cloud-smoke-composition.test.ts',
+  '--exclude', 'tests/server/research-executor-private-integration.test.ts'
+)
+Invoke-CloseoutCheck $closeoutLabels[1] $true @(
+  'node_modules/vitest/vitest.mjs', 'run', '--maxWorkers=1',
+  'tests/server/document-diagnostic-pilot-host.test.ts', 'tests/server/materials-supplement-collection.test.ts'
+)
+Invoke-CloseoutCheck $closeoutLabels[2] $false @(
+  'node_modules/vitest/vitest.mjs', 'run', '--maxWorkers=1',
+  'tests/server/research-cloud-smoke-composition.test.ts', 'tests/server/research-executor-private-integration.test.ts'
+)
+Invoke-CloseoutCheck $closeoutLabels[3] $true @('node_modules/typescript/bin/tsc', '--noEmit')
+Invoke-CloseoutCheck $closeoutLabels[4] $true @('node_modules/eslint/bin/eslint.js', '.', '--ignore-pattern', 'dist', '--ignore-pattern', '.next')
+Invoke-CloseoutCheck $closeoutLabels[5] $true @('scripts/run-vinext.mjs', 'build')
+Invoke-CloseoutCheck $closeoutLabels[6] $true @('--test', 'tests/rendered-html.test.mjs')
+# Additional Node checks run alone, after every other gate has exited.
+Invoke-CloseoutCheck $closeoutLabels[7] $false @(
+  '--test', '--test-concurrency=1',
+  'tests/build/restricted-candidate-files.test.mjs', 'tests/build/restricted-research-candidate.test.mjs',
+  'tests/offline-uat/entry.test.mjs', 'tests/offline-uat/http-clients.test.mjs',
+  'tests/offline-uat/legacy-recovery.test.mjs', 'tests/offline-uat/research-public-recovery.test.mjs',
+  'tests/offline-uat/research-recovery.test.mjs', 'tests/offline-uat/retained-compatibility.test.mjs',
+  'tests/scripts/auth-tail.test.mjs'
+)
+Write-Output 'All eight offline repository gates completed successfully.'

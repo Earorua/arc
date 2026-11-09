@@ -1,0 +1,75 @@
+import assert from 'node:assert/strict';
+import { build } from 'esbuild';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const [mode, label] = process.argv.slice(2);
+assert.ok(['baseline', 'compare'].includes(mode));
+assert.match(label, /^numbered-statements-boundary-20261109-[a-z-]+$/u);
+const prefix = `work/grounded-verification/${label}`;
+for (const suffix of ['-results.json', '-bundle.mjs']) assert.equal(existsSync(prefix + suffix), false);
+const read = path => readFileSync(path, 'utf8');
+const sha = value => createHash('sha256').update(value).digest('hex');
+const fileSha = path => sha(readFileSync(path));
+const diagnosisPath = 'work/grounded-verification/numbered-statements-diagnosis-20261109-02-results.json';
+const diagnosis = JSON.parse(read(diagnosisPath));
+const cManifestPath = 'work/grounded-verification/mention-projection-snapshot-20261109-c-results.json';
+const cManifest = JSON.parse(read(cManifestPath));
+const baselinePath = 'work/grounded-verification/numbered-statements-boundary-20261109-baseline-a-results.json';
+const sourceFiles = Object.keys(diagnosis.sourceHashes);
+const immutableFiles = [diagnosisPath, cManifestPath, 'work/grounded-verification/run.mjs', 'work/materials-browser-handoff/block-outbound.cjs'];
+const sourceHashes = Object.fromEntries(sourceFiles.map(path => [path, fileSha(path)]));
+const immutableHashes = Object.fromEntries(immutableFiles.map(path => [path, fileSha(path)]));
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8', windowsHide: true }).trim();
+const entry = ['source-statements', 'source-review-evidence'].map(name => `export * from ${JSON.stringify(resolve(`worker/document-executor/${name}.ts`))};`).join('\n');
+const built = await build({ stdin: { contents: entry, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, platform: 'node', target: 'node24', format: 'esm', write: false, logLevel: 'silent' });
+writeFileSync(prefix + '-bundle.mjs', built.outputFiles[0].contents, { flag: 'wx' });
+const api = await import(pathToFileURL(resolve(prefix + '-bundle.mjs')).href);
+const coordinates = (text, bounds) => [...bounds].map(([start, end]) => ({ start, end, text: text.slice(start, end) }));
+const extras = [
+  ['orphan-ascii', '1.'], ['orphan-fullwidth', '１２.'], ['orphan-indented', '  1. \n'],
+  ['orphan-crlf', '\t１２.\t\r\n'], ['orphan-next-line-body', '1.\nSQL is required.'],
+  ['orphan-between-items', '1. SQL is required.\r\n2. \r\n3. Python is optional.'],
+].map(([id, text]) => ({ id, text }));
+const fixtures = [...diagnosis.cases, ...extras].map(({ id, text }) => ({
+  id, text, statement: coordinates(text, api.statementBoundaries(text)), grounded: coordinates(text, api.groundedStatementBoundaries(text)),
+}));
+let baselineComparisons = 0;
+if (mode === 'baseline') {
+  assert.deepEqual(sourceHashes, diagnosis.sourceHashes);
+  assert.equal(fileSha(cManifestPath), diagnosis.cManifest.artifactSha256);
+  for (const [index, fixture] of fixtures.entries()) {
+    if (index >= diagnosis.cases.length) continue;
+    assert.deepEqual(fixture.statement, diagnosis.cases[index].bounds.statement);
+    assert.deepEqual(fixture.grounded, diagnosis.cases[index].bounds.grounded);
+    baselineComparisons += 2;
+  }
+} else {
+  const baseline = JSON.parse(read(baselinePath));
+  assert.deepEqual(immutableHashes, baseline.immutableHashes);
+  assert.deepEqual(fixtures, baseline.fixtures);
+  for (const path of sourceFiles.slice(2)) assert.equal(sourceHashes[path], baseline.sourceHashes[path]);
+  baselineComparisons = fixtures.length * 2;
+}
+const literal = '1. I practiced SQL with a mentor.';
+const controls = ['I practiced SQL with a mentor.', '- I practiced SQL with a mentor.'];
+const result = {
+  status: mode === 'baseline' ? 'FROZEN_BASELINE' : 'UNCHANGED_LEGACY_BOUNDARIES',
+  modelCalls: 0, network: false, trackedWrites: false,
+  identity: { branch: git('branch', '--show-current'), head: git('rev-parse', 'HEAD'), status: git('status', '--porcelain=v1') },
+  sourceHashes, immutableHashes,
+  cManifest: { path: cManifestPath, manifestSha256: cManifest.manifestSha256, sourceFileCount: cManifest.sourceFileCount },
+  ownedTestHash: existsSync('tests/server/material-numbered-statements.test.ts') ? fileSha('tests/server/material-numbered-statements.test.ts') : null,
+  scriptSha256: fileSha('work/grounded-verification/numbered-statements-boundary-20261109-inspect.mjs'),
+  bundleSha256: sha(built.outputFiles[0].contents),
+  originalProviderObservations: { path: diagnosisPath, sha256: fileSha(diagnosisPath), count: diagnosis.observations.length, unchangedV1V2Comparisons: diagnosis.unchangedV1V2Comparisons },
+  rootCause: coordinates(literal, api.groundedStatementBoundaries(literal)),
+  controls: controls.map(text => ({ text, statement: coordinates(text, api.statementBoundaries(text)), grounded: coordinates(text, api.groundedStatementBoundaries(text)) })),
+  fixtures, baselineComparisons,
+  ...(mode === 'compare' ? { numbered: fixtures.map(({ id, text }) => ({ id, text, coordinates: coordinates(text, api.sourceMentionStatementBoundaries(text)) })) } : {}),
+};
+writeFileSync(prefix + '-results.json', JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ status: result.status, fixtures: fixtures.length, baselineComparisons, rootCause: result.rootCause, output: prefix + '-results.json' }));

@@ -1,0 +1,73 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { basename } from "node:path";
+
+const label = process.argv[2];
+assert.match(label ?? "", /^numbered-statements-flow-20261109-freeze-[a-z0-9-]+$/u);
+const root = "work/grounded-verification/", output = root + label + "-results.json";
+assert.equal(existsSync(output), false);
+const sha256 = bytes => createHash("sha256").update(bytes).digest("hex");
+const git = (...args) => execFileSync("git", args, { encoding: "utf8", windowsHide: true });
+const files = [
+  "worker/document-executor/source-span-extraction.ts", "app/server/documents/extraction-validator.ts", "app/lib/materials/skill-labels.ts",
+  "tests/server/document-source-span-provider.test.ts", "tests/server/document-extraction.test.ts",
+  "tests/server/material-mention-review-flow.test.ts", "tests/lib/materials/reviewed-source-mentions.test.ts",
+];
+const snapshots = files.map(path => {
+  const source = readFileSync(path), snapshot = root + label + "-" + basename(path) + ".source.txt";
+  writeFileSync(snapshot, source, { flag: "wx" });
+  return { path, sha256: sha256(source), snapshot };
+});
+const diff = git("diff", "--", ...files), diffPath = root + label + "-tracked.patch";
+writeFileSync(diffPath, diff, { flag: "wx" });
+git("diff", "--check", "--", ...files);
+const retained = [
+  "tests/helpers/material-mention-review-fixture.ts", "app/lib/materials/personal-assertion-scopes.ts",
+  "app/lib/materials/experience-evidence.ts", "app/contracts/documents.ts", "app/server/documents/policy.ts",
+  "worker/document-executor/source-statements.ts", "worker/document-executor/source-review-evidence.ts",
+];
+const untouched = Object.fromEntries(retained.map(path => {
+  assert.equal(git("diff", "HEAD", "--", path), "", `Unexpected change to ${path}`);
+  return [path, sha256(readFileSync(path))];
+}));
+const boundaryFreeze = JSON.parse(readFileSync(root + "numbered-statements-boundary-20261109-freeze-a-results.json", "utf8"));
+for (const [path, hash] of Object.entries(boundaryFreeze.immutableHashes)) assert.equal(sha256(readFileSync(path)), hash, path);
+for (const path of retained.filter(path => path.startsWith("worker/"))) {
+  assert.equal(untouched[path], boundaryFreeze.snapshots.find(row => row.path === path).sha256);
+}
+const labels = ["red-a", "gate-a", "retention-red-a", "retention-green-a", "expanded-a", "green-a", "types-a", "types-b", "lint-a", "browser-a"];
+const runs = labels.map(suffix => {
+  const name = "numbered-statements-flow-20261109-" + suffix, metadataPath = root + name + ".json", logPath = root + name + ".log";
+  const metadata = JSON.parse(readFileSync(metadataPath, "utf8"));
+  assert.equal(metadata.nonLoopbackDenials, 0);
+  assert.equal(metadata.logSha256, sha256(readFileSync(logPath)));
+  const resultsPath = root + name + "-results.json";
+  return { ...metadata, metadataPath, metadataSha256: sha256(readFileSync(metadataPath)), logPath,
+    ...(existsSync(resultsPath) ? { resultsPath, resultsSha256: sha256(readFileSync(resultsPath)) } : {}) };
+});
+const green = JSON.parse(readFileSync(root + "numbered-statements-flow-20261109-green-a-results.json", "utf8"));
+assert.equal(green.success, true); assert.equal(green.numFailedTests, 0); assert.equal(green.numTotalTests, 624);
+for (const suffix of ["green-a", "types-b", "lint-a", "browser-a"]) assert.equal(runs.find(run => run.name.endsWith("-" + suffix)).exit, 0);
+const record = {
+  status: "TASK_2_READY_FOR_SPEC_THEN_QUALITY_REVIEW",
+  identity: { branch: git("branch", "--show-current").trim(), head: git("rev-parse", "HEAD").trim(), status: git("status", "--short"), node: process.version, icu: process.versions.icu },
+  scope: "Exact-v3 provider/site numbered boundaries and v3-only complete-numeric-body hint retention; no old projection, stored quote, personal grammar, policy/schema/prompt/configuration changes.",
+  snapshots, trackedDiff: { path: diffPath, sha256: sha256(Buffer.from(diff)) }, untouched,
+  immutableHashes: boundaryFreeze.immutableHashes, runs,
+  focusedTests: { files: 7, passed: green.numPassedTests, failed: green.numFailedTests, suites: green.testResults.map(row => ({ name: row.name, status: row.status, tests: row.assertionResults.length })) },
+  checks: { scopedTypecheck: "types-b", scopedLint: "lint-a", browserBundleAndLocalDependencyCycles: "browser-a", gitDiffCheck: "PASS" },
+  evidenceNotes: [
+    "red-a: 7 expected missing-v3-integration failures; gate-a: provider/site pass and the actual review save drops the initial guided hint.",
+    "retention-red-a: 7 expected failures including actual save; retained-hint preparation was then authorized and implemented only for exact v3.",
+    "expanded-a: sole failure was a test assuming raw CRLF survives createDocument. Existing canonicalization stores LF. Final HTTP test reads saved text before decoding and asserting source refs; pure provider test still checks raw CRLF offsets.",
+    "types-a: scoped harness omitted worker-configuration.d.ts and therefore Env declarations. New types-b config adds the existing ambient files; no production fix.",
+    "The unchanged shared fixture seeds only decoded items. Provider/site tests cover grounded reminders; the parent's actual native full-candidate driver separately covers their persistence.",
+    "Browser bundle checks sourceMentionStatementBoundaries import uses only pure contracts/evidence/boundaries; no local dependency cycle or server/execution/configuration import.",
+  ],
+  handoff: { commitCreated: false, docsEditedByThisTask: false, fullRepositoryGateRun: false, nativeDriverRunByThisTask: false,
+    deferredToRoot: ["Independent spec then quality review", "Frozen 150 provider + 20 helper compatibility and saved-history checks", "Native full-candidate flow with canonical LF fixture expectations", "Combined final repository/type/lint/build/page gate after Chinese guidance and adoption reset work"] },
+};
+writeFileSync(output, JSON.stringify(record, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: record.status, output, files: snapshots.length, focusedPassed: green.numPassedTests, diffSha256: record.trackedDiff.sha256 }));

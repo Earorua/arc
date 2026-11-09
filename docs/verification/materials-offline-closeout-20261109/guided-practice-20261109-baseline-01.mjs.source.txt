@@ -1,0 +1,24 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { build } from "esbuild";
+
+const prefix = "work/grounded-verification/guided-practice-20261109-baseline-01";
+const bundle = prefix + "-bundle.mjs";
+const probe = 'export { legacyCleaningObservations } from "./tests/helpers/material-guided-cleaning";';
+const hash = content => createHash("sha256").update(content).digest("hex");
+const built = await build({ stdin: { contents: probe, loader: "ts", resolveDir: resolve(".") }, bundle: true, write: false, platform: "node", format: "esm", target: "node24", metafile: true, external: ["node:*"] });
+writeFileSync(bundle, built.outputFiles[0].contents, { flag: "wx" });
+const { legacyCleaningObservations } = await import(pathToFileURL(resolve(bundle)).href);
+const observations = legacyCleaningObservations();
+assert.equal(observations[0].defaultHint, false);
+assert.equal(observations[0].v2.candidate.items[0].selfLevelHint, null);
+assert.equal(observations[1].v2.candidate.items[0].selfLevelHint, "guided");
+const fixture = "tests/fixtures/material-guided-cleaning-legacy.json";
+writeFileSync(fixture, JSON.stringify(observations, null, 2) + "\n", { flag: "wx" });
+const sources = Object.fromEntries(Object.keys(built.metafile.inputs).filter(path => path !== "<stdin>" && !path.includes("node_modules")).sort().map(path => [path, hash(readFileSync(path))]));
+writeFileSync(prefix + "-own-results.json", JSON.stringify({ status: "legacy-before-frozen", sourceHead: "6b49bce8daa98c22dfa5459298904e59b57a95da", cases: observations.length,
+  sources, probeSha256: hash(probe), bundleSha256: hash(readFileSync(bundle)), fixture, fixtureSha256: hash(readFileSync(fixture)), observations, realModelCalls: 0 }, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ status: "legacy-before-frozen", cases: observations.length, fixture, fixtureSha256: hash(readFileSync(fixture)) }));

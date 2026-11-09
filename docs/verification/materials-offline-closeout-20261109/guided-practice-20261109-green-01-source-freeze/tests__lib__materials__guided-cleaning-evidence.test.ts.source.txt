@@ -1,0 +1,72 @@
+import { describe, expect, it } from "vitest";
+import { GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../../app/contracts/documents";
+import { supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope, hasPersonalCapabilityQuestion } from "../../../app/lib/materials/self-assessment-evidence";
+import { guidedSkillScope, practiceAction, personalPassivePractice } from "../../../app/lib/materials/personal-assertion-scopes";
+import { maskQuotes } from "../../../app/lib/materials/quotation-evidence";
+import { retainedMaterialSelfAssessmentHints } from "../../../app/lib/materials/skill-labels";
+import { groundSourceSelfLevelHint, groundSourceReviewPoints, sourceMentionStatementBoundaries } from "../../../worker/document-executor/source-review-evidence";
+import { cleaningCandidate, cleaningReference, guidedCleaningHint, guidedCleaningPositive, guidedCleaningNegative } from "../../helpers/material-guided-cleaning";
+
+function fact(text: string, changes: Partial<ConfirmedMaterialItem> = {}): ConfirmedMaterialItem {
+  return { id: "candidate-1", text, kind: "experience", origin: "user", sourceRef: null, requirementLevel: null, skillLabels: ["data cleaning"], ...changes };
+}
+
+describe("bounded source-mention guided cleaning", () => {
+  it.each(guidedCleaningPositive)("recognizes the existing %s cleaning predicate only in explicit source-mention mode", (_name, text) => {
+    const input = { kind: "experience" as const, text, labels: ["data cleaning"], level: "guided" as const }, masked = maskQuotes(text);
+    expect(supportsMaterialSelfLevelHint({ ...input, sourceMentions: true })).toBe(true);
+    expect(supportsMaterialSelfLevelHint(input)).toBe(false);
+    expect(supportsMaterialSelfLevelHint({ ...input, sourceMentions: false })).toBe(false);
+    expect(supportsSelfLevelHintInScope(text, masked, "guided", input.labels, true)).toBe(true);
+    expect(hasPersonalCapabilityQuestion(text, masked, true, true)).toBe(true);
+    expect(guidedSkillScope(text, masked, true)).not.toBeNull();
+    const item = cleaningCandidate(text).items[0]!;
+    expect(groundSourceSelfLevelHint(item, true)).toBe("guided");
+    expect(groundSourceReviewPoints([], [item], cleaningReference(text), sourceMentionStatementBoundaries(text), true)?.map(point => point.code))
+      .toEqual(["confirm-self-assessment"]);
+    expect(groundSourceReviewPoints([], [], cleaningReference(text), sourceMentionStatementBoundaries(text), true)?.map(point => point.code))
+      .toEqual(["confirm-self-assessment"]);
+  });
+
+  it.each(guidedCleaningNegative)("denies a %s even when a topic was grounded", (_name, text) => {
+    expect(supportsMaterialSelfLevelHint({ kind: "experience", text, labels: ["data cleaning"], level: "guided", sourceMentions: true })).toBe(false);
+    expect(hasPersonalCapabilityQuestion(text, maskQuotes(text), true, true)).toBe(false);
+  });
+
+  it("preserves the shared practice grammar and requires the entire direct cleaning predicate", () => {
+    expect(practiceAction.test("清洗数据")).toBe(false);
+    expect(personalPassivePractice.test("由我清洗数据")).toBe(false);
+    for (const text of ["我在指导下清洗数据的报告。", "我在指导下清洗设备。", "我在指导下清洗数据中心。", "我在指导下清洗数据是下周的计划。"])
+      expect(supportsMaterialSelfLevelHint({ kind: "experience", text, level: "guided", sourceMentions: true })).toBe(false);
+  });
+
+  it.each(["experience", "skill-claim"] as const)("retains an existing %s hint through supported current text and a complete numeric body", kind => {
+    for (const text of ["我在指导下清洗数据。", "我在指导下清洗了数据。", "１２. 我在指导下清洗数据。"])
+      expect(retainedMaterialSelfAssessmentHints([fact(text, { kind })], [guidedCleaningHint], SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION)).toEqual([guidedCleaningHint]);
+  });
+
+  it("never manufactures a missing hint or restores a removed item or label", () => {
+    const items = [fact("我在指导下清洗数据。")], v3 = SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
+    expect(retainedMaterialSelfAssessmentHints(items, [], v3)).toEqual([]);
+    expect(retainedMaterialSelfAssessmentHints([], [guidedCleaningHint], v3)).toEqual([]);
+    expect(retainedMaterialSelfAssessmentHints([fact(items[0]!.text, { skillLabels: [] })], [guidedCleaningHint], v3)).toEqual([]);
+    for (const kind of ["requirement", "constraint"] as const)
+      expect(retainedMaterialSelfAssessmentHints([fact(items[0]!.text, { kind })], [guidedCleaningHint], v3)).toEqual([]);
+  });
+
+  it("does not lend guidance to another actor's label or another task with the same label", () => {
+    const sqlHint = { ...guidedCleaningHint, id: "hint-candidate-1-1", skillLabel: "SQL" };
+    const mixed = [fact("我在指导下清洗数据，但同事使用 SQL。", { skillLabels: ["data cleaning", "SQL"] })];
+    expect(retainedMaterialSelfAssessmentHints(mixed, [guidedCleaningHint, sqlHint], SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION)).toEqual([guidedCleaningHint]);
+    expect(retainedMaterialSelfAssessmentHints([fact("我在指导下清洗数据，但我独立清洗数据。")], [guidedCleaningHint], SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION)).toEqual([]);
+  });
+
+  it("keeps default, v2 and unknown projection edits on the original rule", () => {
+    const projections = [undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION,
+      (SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION + "-unknown") as DocumentReviewDraft["reviewProjection"]];
+    for (const projection of projections) {
+      expect(retainedMaterialSelfAssessmentHints([fact("我在指导下清洗数据。")], [guidedCleaningHint], projection)).toEqual([]);
+      expect(retainedMaterialSelfAssessmentHints([fact("我在指导下练习清洗数据。")], [guidedCleaningHint], projection)).toEqual([guidedCleaningHint]);
+    }
+  });
+});

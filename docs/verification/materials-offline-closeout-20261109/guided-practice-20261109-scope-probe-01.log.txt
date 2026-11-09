@@ -1,0 +1,20 @@
+{"defaultHint":false,"currentHint":true,"currentQuestion":true,"v2":null,"v3":"guided","siteHints":[{"id":"hint-candidate-1-0","candidateId":"candidate-1","skillLabel":"data cleaning","level":"guided"},{"id":"hint-candidate-1-1","candidateId":"candidate-1","skillLabel":"SQL","level":"guided"}]}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: A recorded colleague SQL task must not borrow the cleaning clause's guided level
+
+true !== false
+
+    at file:///C:/Users/XF/.codex/worktrees/materials-replan-recovery/ui-warm-precision/work/grounded-verification/guided-practice-20261109-scope-probe-01.mjs:35:8
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.1

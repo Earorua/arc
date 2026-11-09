@@ -1,0 +1,257 @@
+{
+  "review": "adoption-persistence-quality-20261109-review-01",
+  "reviewedAtUtc": "2026-11-09T12:21:49.0595291Z",
+  "status": "pass-scope-only",
+  "findings": [],
+  "head": "820a98aa6e904048ed71719882c4967596fbdcb5",
+  "branch": "codex/materials-replan-recovery-20261106",
+  "scope": [
+    "app/components/setup/adaptive-setup-flow.tsx",
+    "tests/components/material-adoption-persistence.test.tsx"
+  ],
+  "sourceModifiedByReviewer": false,
+  "commitsCreated": 0,
+  "finalFullGate": "pending-root",
+  "qualityChecks": [
+    "exact-two-line-restart-only-change",
+    "ref-cleared-with-reset-levels",
+    "resume-acknowledgment-invalidated-on-explicit-reset",
+    "existing-reset-and-draft-behavior-preserved",
+    "observable-ui-regression-covers-both-stale-states",
+    "v2-v3-manual-override-remount-and-real-persistence",
+    "existing-public-evidence-id-preserved",
+    "synthetic-transport-contracts-validated",
+    "fixture-teardown-cleans-db-and-globals",
+    "no-diagnostic-writes-or-any-types"
+  ],
+  "frozenEvidence": {
+    "checked": 21,
+    "mismatches": 0,
+    "hashes": [
+      {
+        "path": "app/components/setup/adaptive-setup-flow.tsx",
+        "expectedSha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf",
+        "actualSha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf",
+        "matches": true
+      },
+      {
+        "path": "tests/components/material-adoption-persistence.test.tsx",
+        "expectedSha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209",
+        "actualSha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-green-01-adaptive-setup-flow.tsx.source.txt",
+        "expectedSha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf",
+        "actualSha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-green-01-own-results.json",
+        "expectedSha256": "7259841165a357f818ff282eb2fc464979f1f30042bbd5f4f039c9916405185f",
+        "actualSha256": "7259841165a357f818ff282eb2fc464979f1f30042bbd5f4f039c9916405185f",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-green-01-test.tsx.source.txt",
+        "expectedSha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209",
+        "actualSha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-green-01.json",
+        "expectedSha256": "da1e6109ccb2b3cad9370ba8749b2c46921c71a9862d3ae6470c33dc6bd26e9b",
+        "actualSha256": "da1e6109ccb2b3cad9370ba8749b2c46921c71a9862d3ae6470c33dc6bd26e9b",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-green-01.log",
+        "expectedSha256": "90101ca4b6b50ff7b32b453f6007cdf151a0d5e17f9c04badbc70b3005c93135",
+        "actualSha256": "90101ca4b6b50ff7b32b453f6007cdf151a0d5e17f9c04badbc70b3005c93135",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-handoff.md",
+        "expectedSha256": "10e5455fccf29013027a99afb38e87a59eec89dc114ff1c8f5384d24ff0b91cf",
+        "actualSha256": "10e5455fccf29013027a99afb38e87a59eec89dc114ff1c8f5384d24ff0b91cf",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-lint-01.json",
+        "expectedSha256": "89050a8f9ecfb4c3ef1872b429b8e590f238b932e31bda5b35ab5d1755eb8ae9",
+        "actualSha256": "89050a8f9ecfb4c3ef1872b429b8e590f238b932e31bda5b35ab5d1755eb8ae9",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-lint-01.log",
+        "expectedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actualSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-red-01-adaptive-setup-flow.tsx.source.txt",
+        "expectedSha256": "b3dfffff8bd4fc8465950ee500e2237abddf5b92ead388772425db16fc39da7b",
+        "actualSha256": "b3dfffff8bd4fc8465950ee500e2237abddf5b92ead388772425db16fc39da7b",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-red-01-own-results.json",
+        "expectedSha256": "bb6cc967cfcf48adab4c9085fb357f445c8dca4fb16d957edb7dbe6e5dcca868",
+        "actualSha256": "bb6cc967cfcf48adab4c9085fb357f445c8dca4fb16d957edb7dbe6e5dcca868",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-red-01-test.tsx.source.txt",
+        "expectedSha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209",
+        "actualSha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-red-01.json",
+        "expectedSha256": "ed635dbc59312815d1c144db52c532b6586e043c9224e810f37a1eec709ee34c",
+        "actualSha256": "ed635dbc59312815d1c144db52c532b6586e043c9224e810f37a1eec709ee34c",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-red-01.log",
+        "expectedSha256": "59d83f34024c145da0378a821448f8a2835e31c7c9897c3444d25c1fd2582c69",
+        "actualSha256": "59d83f34024c145da0378a821448f8a2835e31c7c9897c3444d25c1fd2582c69",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-related-01-own-results.json",
+        "expectedSha256": "c97c988abaa7a8736a6746a88f071c8fbddaf459d7ccf33843528b37f8df0546",
+        "actualSha256": "c97c988abaa7a8736a6746a88f071c8fbddaf459d7ccf33843528b37f8df0546",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-related-01.json",
+        "expectedSha256": "1d62c985e4df1a71da370b8c252451af82d4ecd3db225bd2f3b3b615320477e9",
+        "actualSha256": "1d62c985e4df1a71da370b8c252451af82d4ecd3db225bd2f3b3b615320477e9",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-related-01.log",
+        "expectedSha256": "6c4c81b127ada9832ab3886871f21cf8f2c4376314f3fec6d8b1c6fdc7409173",
+        "actualSha256": "6c4c81b127ada9832ab3886871f21cf8f2c4376314f3fec6d8b1c6fdc7409173",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-tsconfig.json",
+        "expectedSha256": "0e346ee85e8661ad2cc6f5987fce8513a0d61ded895cddb4f5e4c6fd821e2582",
+        "actualSha256": "0e346ee85e8661ad2cc6f5987fce8513a0d61ded895cddb4f5e4c6fd821e2582",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-types-01.json",
+        "expectedSha256": "6dad5be7c23d08fe304ef59ae935c6b12da795abcad7e895f5b9c0f8c6c50ae8",
+        "actualSha256": "6dad5be7c23d08fe304ef59ae935c6b12da795abcad7e895f5b9c0f8c6c50ae8",
+        "matches": true
+      },
+      {
+        "path": "work/grounded-verification/adoption-persistence-20261109-types-01.log",
+        "expectedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actualSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "matches": true
+      }
+    ],
+    "red": {
+      "tests": 5,
+      "passed": 4,
+      "failed": 1,
+      "intendedResetAssertionFailures": 3,
+      "evidence": "inspected-author-report-no-red-rerun"
+    }
+  },
+  "freshCheck": {
+    "label": "adoption-persistence-quality-20261109-focused-01",
+    "command": "node work/grounded-verification/run.mjs adoption-persistence-quality-20261109-focused-01 node_modules/vitest/vitest.mjs run tests/components/material-adoption-persistence.test.tsx --reporter=default --reporter=json --outputFile=work/grounded-verification/adoption-persistence-quality-20261109-focused-01-own-results.json",
+    "exit": 0,
+    "elapsedMs": 5404,
+    "nonLoopbackDenials": 0,
+    "logSha256": "bfdbd254ccde3e733a6843aaf35c804c8151463c8cc1b59222647319996f04c9",
+    "files": 1,
+    "tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "pending": 0,
+    "cases": [
+      {
+        "fullName": "material capability adoption and persistence keeps grounded-skill-labels-v2 adoption optional and persists the explicit audit after a manual override and remount",
+        "status": "passed"
+      },
+      {
+        "fullName": "material capability adoption and persistence keeps source-skill-mentions-v3 adoption optional and persists the explicit audit after a manual override and remount",
+        "status": "passed"
+      },
+      {
+        "fullName": "material capability adoption and persistence offers adoption only for a retained hint with one current skill match",
+        "status": "passed"
+      },
+      {
+        "fullName": "material capability adoption and persistence persists an adopted guided level with the existing public project evidence reference",
+        "status": "passed"
+      },
+      {
+        "fullName": "material capability adoption and persistence clears prior skill review and acknowledgment when explicitly restarting the role audit",
+        "status": "passed"
+      }
+    ]
+  },
+  "freshWhitespace": {
+    "command": "git -c core.whitespace=cr-at-eol diff --check -- app/components/setup/adaptive-setup-flow.tsx",
+    "exit": 0,
+    "productionCRLF": 292,
+    "productionBareLF": 0,
+    "testCRLF": 0,
+    "testBareLF": 260
+  },
+  "artifacts": [
+    {
+      "path": "work/grounded-verification/adoption-persistence-quality-20261109-review-01.md",
+      "sha256": "8aca8722b2451a851a7f89a2adb927a14ba393c65a4a21f49f57e684c0ffd3ab"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-20261109-manifest.json",
+      "sha256": "1800feb69854ad77fa25b72b3e7d9a3a2819d3b493ceb7d74875767aae016ffc"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-quality-20261109-focused-01.json",
+      "sha256": "7e6fc5596028f6d2c0632aa406e59458204478f5c04ebce1712e7a406081afd4"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-quality-20261109-focused-01.log",
+      "sha256": "bfdbd254ccde3e733a6843aaf35c804c8151463c8cc1b59222647319996f04c9"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-quality-20261109-focused-01-own-results.json",
+      "sha256": "596e235aa395aa96965e94ff253dbe098fb86cd5092e59240c225b235341df3b"
+    },
+    {
+      "path": "work/grounded-verification/adoption-persistence-spec-20261109-review-01-own-results.json",
+      "sha256": "311191629bb489bfd26a4ced81484bdcd63df701689ad5056b6b42e13f59c7b0"
+    },
+    {
+      "path": "work/grounded-verification/mention-projection-routing-20261109-source-index.md",
+      "sha256": "d1cea3a93223ebb3791207319c10e0877cd7af7fb5df67e2846e7d89db735527"
+    },
+    {
+      "path": "D:/CodexScratch/arc-source-readme-20261029/SOURCE_INDEX.md",
+      "sha256": "d1cea3a93223ebb3791207319c10e0877cd7af7fb5df67e2846e7d89db735527"
+    }
+  ],
+  "finalStatus": [
+    " M app/components/setup/adaptive-setup-flow.tsx",
+    " M docs/superpowers/plans/2026-11-09-materials-v3-numbered-statements.md",
+    " M docs/verification/2026-11-06-materials-grounding-pause.md",
+    "?? docs/superpowers/plans/2026-11-09-materials-offline-closeout.md",
+    "?? tests/components/material-adoption-persistence.test.tsx"
+  ],
+  "finalStatusMatchesInitial": true,
+  "limitations": [
+    "document-confirmation-selection transport synthetic",
+    "no full HTTP planning transport claim",
+    "no full suite/model/deployment/release acceptance",
+    "root owns final full gate and save-pause"
+  ]
+}

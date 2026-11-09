@@ -1,0 +1,439 @@
+{
+  "status": "PASS",
+  "scope": "Independent code-quality review of the frozen bounded v3 Chinese guided-cleaning change only",
+  "sourceHead": "6b49bce8daa98c22dfa5459298904e59b57a95da",
+  "manifestPath": "work/grounded-verification/guided-practice-20261109-freeze-01-own-results.json",
+  "manifestSha256": "3f264e37dd4a8d30ee035389f9f1a5eca9e6e2e84cce18ce48b668b9374a34a2",
+  "sourceChecks": [
+    {
+      "path": "app/lib/materials/personal-assertion-scopes.ts",
+      "expectedSha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3",
+      "liveSha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\app\\lib\\materials\\personal-assertion-scopes.ts.source.txt",
+      "frozenSha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3"
+    },
+    {
+      "path": "app/lib/materials/self-assessment-evidence.ts",
+      "expectedSha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+      "liveSha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\app\\lib\\materials\\self-assessment-evidence.ts.source.txt",
+      "frozenSha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9"
+    },
+    {
+      "path": "app/lib/materials/skill-labels.ts",
+      "expectedSha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+      "liveSha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\app\\lib\\materials\\skill-labels.ts.source.txt",
+      "frozenSha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb"
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "expectedSha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+      "liveSha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\app\\server\\documents\\extraction-validator.ts.source.txt",
+      "frozenSha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157"
+    },
+    {
+      "path": "worker/document-executor/source-review-evidence.ts",
+      "expectedSha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+      "liveSha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\worker\\document-executor\\source-review-evidence.ts.source.txt",
+      "frozenSha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2"
+    },
+    {
+      "path": "worker/document-executor/source-span-extraction.ts",
+      "expectedSha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef",
+      "liveSha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\worker\\document-executor\\source-span-extraction.ts.source.txt",
+      "frozenSha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef"
+    },
+    {
+      "path": "tests/helpers/material-guided-cleaning.ts",
+      "expectedSha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce",
+      "liveSha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\helpers\\material-guided-cleaning.ts.source.txt",
+      "frozenSha256": "90dda66f3bb70cab4918ecfd75d680c120f49e5012b9ba2d8440b0c9b44f56ce"
+    },
+    {
+      "path": "tests/helpers/material-mention-review-fixture.ts",
+      "expectedSha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab",
+      "liveSha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\helpers\\material-mention-review-fixture.ts.source.txt",
+      "frozenSha256": "1bfbf566b24e23a5f6de1e53d570a6e75db5b56a99ef0de5ba4127aa480b42ab"
+    },
+    {
+      "path": "tests/server/material-guided-cleaning.test.ts",
+      "expectedSha256": "da76fbc92b29f5475ce9c64d5866441648815ef20a50cc85383cf1fb956d6d46",
+      "liveSha256": "da76fbc92b29f5475ce9c64d5866441648815ef20a50cc85383cf1fb956d6d46",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\server\\material-guided-cleaning.test.ts.source.txt",
+      "frozenSha256": "da76fbc92b29f5475ce9c64d5866441648815ef20a50cc85383cf1fb956d6d46"
+    },
+    {
+      "path": "tests/lib/materials/guided-cleaning-evidence.test.ts",
+      "expectedSha256": "e0b30174d323dc6f492bb5d2f9a05de4b6549d33c2a2f7f53ca6fadcca2a2e10",
+      "liveSha256": "e0b30174d323dc6f492bb5d2f9a05de4b6549d33c2a2f7f53ca6fadcca2a2e10",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\lib\\materials\\guided-cleaning-evidence.test.ts.source.txt",
+      "frozenSha256": "e0b30174d323dc6f492bb5d2f9a05de4b6549d33c2a2f7f53ca6fadcca2a2e10"
+    },
+    {
+      "path": "tests/components/material-guided-cleaning.test.tsx",
+      "expectedSha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb",
+      "liveSha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\components\\material-guided-cleaning.test.tsx.source.txt",
+      "frozenSha256": "50275db181beedb5e98c8601f01ebd408ee5fe3bd34170bf7e76edfeba6d79eb"
+    },
+    {
+      "path": "tests/fixtures/material-guided-cleaning-legacy.json",
+      "expectedSha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47",
+      "liveSha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47",
+      "frozenPath": "work\\grounded-verification\\guided-practice-20261109-final-source-freeze\\tests\\fixtures\\material-guided-cleaning-legacy.json.source.txt",
+      "frozenSha256": "7e3f7288afd55d38c4bbd37bf7609416cb6deb02d22b78685a560a0b23173b47"
+    }
+  ],
+  "evidenceChecks": [
+    {
+      "name": "guided-practice-20261109-baseline-01",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-baseline-01.json",
+      "metadataSha256": "ee21dd8d66c76244a704fc58bab531b30ca6a05be6f306a86bb2fe6cdfb1f349",
+      "log": "work\\grounded-verification\\guided-practice-20261109-baseline-01.log",
+      "logSha256": "1feed32632742623f081ed2f1390ab5f516186a1824bc9636185e79083937273"
+    },
+    {
+      "name": "guided-practice-20261109-red-01",
+      "exit": 1,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-red-01.json",
+      "metadataSha256": "0e3b4e0aafb9bdfc133266ad98efd8aa8af1804f6b3fb90d089bb92f5082fc35",
+      "log": "work\\grounded-verification\\guided-practice-20261109-red-01.log",
+      "logSha256": "1f80585044b0eba1a2a34b5f12b6fdbcf88dc6d67ad62e587d9bb7686b914824"
+    },
+    {
+      "name": "guided-practice-20261109-green-01",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-green-01.json",
+      "metadataSha256": "fba9aff3a95f7684b62267bc5d32302963ec28d208f8ca60164b4616aa8f1357",
+      "log": "work\\grounded-verification\\guided-practice-20261109-green-01.log",
+      "logSha256": "3422000430674a84dfcaa6da7854e459aa66e6650071e3d651bf98886ebc73f7"
+    },
+    {
+      "name": "guided-practice-20261109-scope-probe-01",
+      "exit": 1,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01.json",
+      "metadataSha256": "abb8541007bfce6c65d6c9636a3207558d7bdce0c9388534029d6a5399bc1cc0",
+      "log": "work\\grounded-verification\\guided-practice-20261109-scope-probe-01.log",
+      "logSha256": "00473705ac5f9b220043c2a90cd0bdba69e3689763504713b25167f5101cc0a1"
+    },
+    {
+      "name": "guided-practice-20261109-scope-red-02",
+      "exit": 1,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-scope-red-02.json",
+      "metadataSha256": "9a055b58c51ba77eed683d3d7fb941e06d7fea5c8e8c06a736064a2f2d5a6375",
+      "log": "work\\grounded-verification\\guided-practice-20261109-scope-red-02.log",
+      "logSha256": "c0391c79818527624b9bdad4dab7a193f5c3e9ab91abc2ad122748bcbd464435"
+    },
+    {
+      "name": "guided-practice-20261109-green-02",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-green-02.json",
+      "metadataSha256": "3faf444b5c95af7e593f81e2e51477685cde4ad89bfa5a9fc0cb7ebf27e8ae26",
+      "log": "work\\grounded-verification\\guided-practice-20261109-green-02.log",
+      "logSha256": "62a660a86480f11f7b02192c2df6696ad7ea538358305fdd78490c7720217e8b"
+    },
+    {
+      "name": "guided-practice-20261109-regression-01",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-regression-01.json",
+      "metadataSha256": "da9c7e6868f9d2c4566ec1a1b07d198d7b5128937b97aefbe14cc099a5860da2",
+      "log": "work\\grounded-verification\\guided-practice-20261109-regression-01.log",
+      "logSha256": "e42a0607097ca085e6422100bf00157d1b3a9d5b229e2b265235779ca62e1fbe"
+    },
+    {
+      "name": "guided-practice-20261109-regression-02",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-regression-02.json",
+      "metadataSha256": "23e08b99daa86c728666fc4382c6ba34051ce9cd7d376cae11cdbcf58492e286",
+      "log": "work\\grounded-verification\\guided-practice-20261109-regression-02.log",
+      "logSha256": "69d854b0545995303eb4277b0fec524b1f6da344d1c775b18b53f46a1d61f28b"
+    },
+    {
+      "name": "guided-practice-20261109-types-01",
+      "exit": 2,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-types-01.json",
+      "metadataSha256": "211a8f79ab77da02f5f304da0a282dda6d73187821e4a4643759fb3f8e2f862f",
+      "log": "work\\grounded-verification\\guided-practice-20261109-types-01.log",
+      "logSha256": "1f97a737f32b9f2a21ff0058d8951be1cc5d70352f04a80d36a14d441f98e66b"
+    },
+    {
+      "name": "guided-practice-20261109-types-02",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-types-02.json",
+      "metadataSha256": "fcb84bb94453a20f0114c68c6612d8764e084fc83cdece11da612cc3555c42c9",
+      "log": "work\\grounded-verification\\guided-practice-20261109-types-02.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "guided-practice-20261109-types-03",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-types-03.json",
+      "metadataSha256": "1d405e9f943e9decd764c953751608741bbf7ba570ac97354dbddc1d94160d24",
+      "log": "work\\grounded-verification\\guided-practice-20261109-types-03.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "guided-practice-20261109-lint-01",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-lint-01.json",
+      "metadataSha256": "0ba32a6d0de94fd712a32362b93247605f1c0eec7777c8b3a9b483a6e8d37e34",
+      "log": "work\\grounded-verification\\guided-practice-20261109-lint-01.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "guided-practice-20261109-lint-02",
+      "exit": 0,
+      "metadata": "work\\grounded-verification\\guided-practice-20261109-lint-02.json",
+      "metadataSha256": "b0b2101a67cf99f7da826345a9fedcfc3badda8a4e9e7c6743e9117a737dc159",
+      "log": "work\\grounded-verification\\guided-practice-20261109-lint-02.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "reportChecks": [
+    {
+      "name": "red-01",
+      "path": "work\\grounded-verification\\guided-practice-20261109-red-01-own-results.json",
+      "sha256": "6af28a484be49813aa7c2d26e5d47977f5197d5c005031285fb6e7e843cd5082",
+      "total": 61,
+      "passed": 26,
+      "failed": 35,
+      "pending": 0
+    },
+    {
+      "name": "green-01",
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-01-own-results.json",
+      "sha256": "98801f1a8c8b67d7a56c5fbc9405eb46b3d92a9c3b617382ec8f197dda557802",
+      "total": 61,
+      "passed": 61,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "name": "scope-red-02",
+      "path": "work\\grounded-verification\\guided-practice-20261109-scope-red-02-own-results.json",
+      "sha256": "dd998d921f92678ecde3f6a153c682138b13b1b145037886655e82a4fe369cb3",
+      "total": 58,
+      "passed": 0,
+      "failed": 4,
+      "pending": 54
+    },
+    {
+      "name": "green-02",
+      "path": "work\\grounded-verification\\guided-practice-20261109-green-02-own-results.json",
+      "sha256": "4c53dbb5842049c1f7b92982897c2dc801e87aa4aa28817c7a11a103268359c4",
+      "total": 65,
+      "passed": 65,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "name": "regression-01",
+      "path": "work\\grounded-verification\\guided-practice-20261109-regression-01-own-results.json",
+      "sha256": "93507f55019da95f1f322b427d898c2687d7ae45538b943b8439e683c8318966",
+      "total": 1329,
+      "passed": 1329,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "name": "regression-02",
+      "path": "work\\grounded-verification\\guided-practice-20261109-regression-02-own-results.json",
+      "sha256": "144878707bc588112ecd118117c7d23da10fb698a0d5c7a9e270533ddfe1137c",
+      "total": 1329,
+      "passed": 1329,
+      "failed": 0,
+      "pending": 0
+    }
+  ],
+  "findings": [],
+  "probeCases": 12,
+  "probeResults": [
+    {
+      "id": "no-terminal-mark",
+      "v3Guided": true,
+      "defaultGuided": false,
+      "otherLevels": false
+    },
+    {
+      "id": "terminal-space",
+      "v3Guided": true,
+      "defaultGuided": false,
+      "otherLevels": false
+    },
+    {
+      "id": "aspect",
+      "v3Guided": true,
+      "defaultGuided": false,
+      "otherLevels": false
+    },
+    {
+      "id": "qualified-data",
+      "v3Guided": true,
+      "defaultGuided": false,
+      "otherLevels": false
+    },
+    {
+      "id": "unexecuted-plan",
+      "v3Guided": false,
+      "defaultGuided": true,
+      "otherLevels": false
+    },
+    {
+      "id": "unsplit-SQL-tail",
+      "v3Guided": false,
+      "defaultGuided": false,
+      "otherLevels": false
+    },
+    {
+      "id": "unsplit-repeated-tail",
+      "v3Guided": false,
+      "defaultGuided": false,
+      "otherLevels": false
+    },
+    {
+      "id": "quoted-example",
+      "v3Guided": false,
+      "defaultGuided": false,
+      "otherLevels": false
+    },
+    {
+      "id": "condition",
+      "v3Guided": false,
+      "defaultGuided": false,
+      "otherLevels": false
+    },
+    {
+      "id": "retention-edit-cycle",
+      "immutableInputs": true,
+      "repeatedStable": true,
+      "removedStaysAbsent": true,
+      "defaultAndUnknownUnchanged": true
+    },
+    {
+      "id": "decoder-exact-mode",
+      "exactV3": true,
+      "v2Unchanged": true,
+      "unknownRejected": true,
+      "nullPreserved": true,
+      "emptyNominationNoPerSkillHint": true
+    },
+    {
+      "id": "numbered-storage",
+      "completeFactPreserved": true,
+      "sourceCoordinatesPreserved": true,
+      "retainedGuided": true,
+      "storedDeepEqual": true,
+      "unknownPolicyUnchanged": true
+    }
+  ],
+  "bundledSources": [
+    {
+      "path": "app/contracts/document-capabilities.ts",
+      "sha256": "794c5bd4e1d1b75a065acb07ce7cfdf4ae86bd517ba8a9f86ed8f5edd9cc472d"
+    },
+    {
+      "path": "app/contracts/documents-api.ts",
+      "sha256": "3a989194c2295f19d6807a3f5e9bd08a529f7b2c60197d274ba239d4d9ecbc93"
+    },
+    {
+      "path": "app/contracts/documents.ts",
+      "sha256": "a66e8e843dca7817c2e36253702c10434f184aba3ae1b3be7c52d254695b9b9e"
+    },
+    {
+      "path": "app/contracts/intelligence.ts",
+      "sha256": "22e4bde2ff3f059135b861f47b26d4686a92d6ccb4bcf386764e18245305e9f6"
+    },
+    {
+      "path": "app/contracts/material-planning.ts",
+      "sha256": "d49cd8786457ab59944ce0caca9185acf2b0a006705a69ddff8180b0abe104f6"
+    },
+    {
+      "path": "app/contracts/material-recovery.ts",
+      "sha256": "25f2012b6f6c0da0be119085f1deec80f98db1c39c3971ac8a5e3665cc862e8a"
+    },
+    {
+      "path": "app/contracts/planning-api.ts",
+      "sha256": "a34be40b24dbedc065088e0162bf3fafdddc45d7c4ffddaa0727ab9409ad55d9"
+    },
+    {
+      "path": "app/contracts/planning.ts",
+      "sha256": "861260a27d55287661034d5e0a5ca175d6571400031ac3c9d58cb9608b67db93"
+    },
+    {
+      "path": "app/contracts/research.ts",
+      "sha256": "fd2731a493aee01f6e21814998b1c1fa0c7afd998a194eae7df7ceb13c49ae1b"
+    },
+    {
+      "path": "app/lib/materials/grounded-skill-terms.ts",
+      "sha256": "fa3c23292ed421f3e9ac50a2d09e3dbf636331398160a9bac27152b1d3d7afc7"
+    },
+    {
+      "path": "app/lib/materials/personal-assertion-scopes.ts",
+      "sha256": "26feeefb6e58426a4e8a30ba274431a9302eff7ce3247c4da295ef1ef8aa17e3"
+    },
+    {
+      "path": "app/lib/materials/quotation-evidence.ts",
+      "sha256": "03a77ad110f67b56b7f1d6f28facdf9c70a92d0e7cd152ecdad806967297516a"
+    },
+    {
+      "path": "app/lib/materials/self-assessment-evidence.ts",
+      "sha256": "b642aa37e47a5c54b6023d4e4b3fe8c6317367607e453316a801bd6cc6c3ccb9"
+    },
+    {
+      "path": "app/lib/materials/skill-labels.ts",
+      "sha256": "aeeb3543f791cdad06455702124021b0d4599336ee3dd75bcf361aac420754eb"
+    },
+    {
+      "path": "app/lib/planning/fingerprint.ts",
+      "sha256": "88bc521500da91d55e824b0721a511a8ea94cf750743805c209ec4735fb64e11"
+    },
+    {
+      "path": "app/server/documents/d1-repository.ts",
+      "sha256": "6371159830da4b26ec3ccc2dace5939c556ee54eb510f3c352629d259c02db36"
+    },
+    {
+      "path": "app/server/documents/extraction-validator.ts",
+      "sha256": "08ffe233328b3e0224d37ed804b47ecc57f20161376196ee9f8261b6b7a28157"
+    },
+    {
+      "path": "app/server/documents/policy.ts",
+      "sha256": "10b674829aae6e26a9bb6ba6eb9e0178bcd18c87ea2c58d68642298363c8b80d"
+    },
+    {
+      "path": "app/server/documents/review-points.ts",
+      "sha256": "a6d7f26e42c0dcef85d649237e92f0f2cf9c3836d3b45984f8e15343720a0c06"
+    },
+    {
+      "path": "worker/document-executor/source-requirement-evidence.ts",
+      "sha256": "ce98fac8b373f2b4279e9ab476fc352a6a9b3fe146ae7cae44ebd330e453d4e3"
+    },
+    {
+      "path": "worker/document-executor/source-review-evidence.ts",
+      "sha256": "af1aec262033a78f80049fa9c9976e96c4d2ca2ffaf3974c2619ec113b633cc2"
+    },
+    {
+      "path": "worker/document-executor/source-span-extraction.ts",
+      "sha256": "69f7f09d893ef7445d3cc40cd64a1be0b2b4428695f08a5df86b4d07d2b5c1ef"
+    },
+    {
+      "path": "worker/document-executor/source-statements.ts",
+      "sha256": "ca52b5d1fc9b0f31f1c52d6d8ea08a0aa976eb8d2d1e08f82845f775557640ab"
+    }
+  ],
+  "scriptSha256": "4f386ce2604f0153c685772321956f472c368b416788b68ef0e4363eb3bf053b",
+  "probeSha256": "baffd84e375943c0adfe7d798d78edd02f45422af4a79b98289b38fc84dfec34",
+  "bundleSha256": "f1674e5c060038dd58aa359d28e94d3d20149f82c34d7f2ec6c608bb49711059",
+  "trackedSourceEdits": 0,
+  "committed": false,
+  "realModelCalls": 0,
+  "externalNetworkCalls": 0,
+  "broadSuitesRerun": false,
+  "fullRepositoryGate": "pending root task"
+}
