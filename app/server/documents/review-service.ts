@@ -1,4 +1,4 @@
-import { DOCUMENT_SCHEMA_VERSION, GROUNDED_MATERIAL_REVIEW_PROJECTION, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
+import { DOCUMENT_SCHEMA_VERSION, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, isSourceLinkedMaterialReviewProjection, documentReviewDraftSchema, validateMaterialSourceRef, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReferenceContext, type MaterialReviewPoint } from "../../contracts/documents";
 import { documentEndpointContracts, type DocumentEndpointRequest as Request, type DocumentEndpointResponse as Response, type DocumentMutationIdentity } from "../../contracts/documents-api";
 import { canonicalJson } from "../../lib/planning/fingerprint";
 import { labelForAddedSourceTerm, supportsReviewedSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
@@ -31,7 +31,7 @@ function parseDraft(input: unknown): DocumentReviewDraft {
 // Only the server's extraction envelope chooses an edit rule. The draft and confirmation keep the user's word list.
 const extractionJoin = `LEFT JOIN document_extractions e ON e.owner_id=r.owner_id AND e.id=r.extraction_id AND e.text_version_id=r.text_version_id`;
 const reviewProjectionColumns = `json_extract(e.candidates_json, '$.reviewProjection') AS review_projection,
-    CASE WHEN json_extract(e.candidates_json, '$.reviewProjection')='${GROUNDED_MATERIAL_REVIEW_PROJECTION}' THEN
+    CASE WHEN json_extract(e.candidates_json, '$.reviewProjection') IN ('${GROUNDED_MATERIAL_REVIEW_PROJECTION}','${SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION}') THEN
       (SELECT json_group_object(json_extract(i.value,'$.id'),json_extract(i.value,'$.kind')) FROM json_each(e.candidates_json,'$.candidate.items') i)
     END AS original_kinds`;
 
@@ -43,27 +43,27 @@ function reclassifiedFacts(items: ConfirmedMaterialItem[], originalKinds: Record
 function reviewedItem(item: ConfirmedMaterialItem, candidate: ConfirmedMaterialItem | undefined, prior: ConfirmedMaterialItem | undefined,
     projection: DocumentReviewDraft["reviewProjection"], addition: string | undefined, originalText: string): ConfirmedMaterialItem {
     const { skillLabels, ...fact } = item;
-    const grounded = projection === GROUNDED_MATERIAL_REVIEW_PROJECTION;
+    const sourceLinked = isSourceLinkedMaterialReviewProjection(projection);
     const sameSource = candidate && canonicalJson(item.sourceRef) === canonicalJson(candidate.sourceRef);
     const sameFact = sameSource && item.text === candidate.text && item.kind === candidate.kind;
     if (item.origin === "extracted" && (!sameFact || item.requirementLevel !== candidate.requirementLevel))
         throw new DocumentServiceError("invalid-content");
-    if (grounded && item.sourceRef && !sameSource)
+    if (sourceLinked && item.sourceRef && !sameSource)
         throw new DocumentServiceError("invalid-content");
     let addedLabel: string | null = null;
     if (addition) {
-        if (!grounded || !sameSource || !candidate.sourceRef || item.origin !== "user" || item.kind !== candidate.kind || prior?.kind !== candidate.kind
+        if (!sourceLinked || !sameSource || !candidate.sourceRef || item.origin !== "user" || item.kind !== candidate.kind || prior?.kind !== candidate.kind
             || canonicalJson(prior.sourceRef) !== canonicalJson(candidate.sourceRef))
             throw new DocumentServiceError("invalid-content");
-        addedLabel = labelForAddedSourceTerm(originalText.slice(candidate.sourceRef.start, candidate.sourceRef.end), item.text, addition);
+        addedLabel = labelForAddedSourceTerm(originalText.slice(candidate.sourceRef.start, candidate.sourceRef.end), item.text, addition, projection);
         if (!addedLabel || !skillLabels?.includes(addedLabel) || prior.skillLabels?.includes(addedLabel))
             throw new DocumentServiceError("invalid-content");
     }
-    // Every previously saved V2 word came from this source, via the extraction or an explicit correction.
-    if (skillLabels?.some(label => !sameSource || (label !== addedLabel && (!prior?.skillLabels?.includes(label) || (!grounded && !candidate.skillLabels?.includes(label))))))
+    // Every previously saved source-linked word came from this source, via the extraction or an explicit correction.
+    if (skillLabels?.some(label => !sameSource || (label !== addedLabel && (!prior?.skillLabels?.includes(label) || (!sourceLinked && !candidate.skillLabels?.includes(label))))))
         throw new DocumentServiceError("invalid-content");
-    const reviewedWords = prior?.skillLabels ?? (grounded ? candidate?.skillLabels : undefined);
-    if (!sameFact || (grounded && item.text !== prior?.text)) {
+    const reviewedWords = prior?.skillLabels ?? (sourceLinked ? candidate?.skillLabels : undefined);
+    if (!sameFact || (sourceLinked && item.text !== prior?.text)) {
         if (!reviewedWords) return fact;
         const labels = sameSource && item.kind === candidate.kind ? skillLabels ?? [] : [];
         return { ...fact, skillLabels: labels.filter(label => supportsReviewedSkillLabel(fact.text, label, projection)) };
@@ -148,8 +148,8 @@ export class ReviewService {
             textVersionId: row.text_version_id,
             extractionId: row.extraction_id,
             origin: row.origin,
-            ...(row.review_projection === GROUNDED_MATERIAL_REVIEW_PROJECTION ? {
-                reviewProjection: GROUNDED_MATERIAL_REVIEW_PROJECTION, ...reclassifiedFacts(items, JSON.parse(String(row.original_kinds))),
+            ...(isSourceLinkedMaterialReviewProjection(row.review_projection) ? {
+                reviewProjection: row.review_projection, ...reclassifiedFacts(items, JSON.parse(String(row.original_kinds))),
             } : {}),
             items,
             selfAssessmentHints: JSON.parse(String(row.self_assessment_hints_json)),
@@ -232,7 +232,7 @@ export class ReviewService {
             extraction = validateStoredDocumentExtraction(String(row.candidates_json), owner.ownerId, reference);
         }
         if (!adoptionIdentity && current && current.extraction_id !== request.extractionId
-            && (current.review_projection === GROUNDED_MATERIAL_REVIEW_PROJECTION || extraction?.reviewProjection))
+            && (isSourceLinkedMaterialReviewProjection(current.review_projection) || isSourceLinkedMaterialReviewProjection(extraction?.reviewProjection)))
             throw new DocumentServiceError("conflict");
         if (request.skillTermAddition && (!current || current.extraction_id !== request.extractionId || adoptionIdentity))
             throw new DocumentServiceError("invalid-content");
@@ -254,7 +254,7 @@ export class ReviewService {
         const draft = parseDraft({
             id, schemaVersion: DOCUMENT_SCHEMA_VERSION, documentId: request.documentId, documentVersionId: stored.version.id,
             textVersionId: request.textVersionId, extractionId: request.extractionId, origin, items, selfAssessmentHints, reviewPoints,
-            ...(extraction?.reviewProjection ? { reviewProjection: extraction.reviewProjection,
+            ...(isSourceLinkedMaterialReviewProjection(extraction?.reviewProjection) ? { reviewProjection: extraction.reviewProjection,
                 ...reclassifiedFacts(items, Object.fromEntries(extraction.items.map(item => [item.id, item.kind]))),
             } : {}),
             revision, updatedAt: new Date(now).toISOString()

@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { MATERIAL_HIGH_IMPACT_REVIEW_CODES, MAX_MATERIAL_SKILL_LABELS_PER_ITEM, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReviewPoint } from "../../contracts/documents";
+import { MATERIAL_HIGH_IMPACT_REVIEW_CODES, MAX_MATERIAL_SKILL_LABELS_PER_ITEM, isSourceLinkedMaterialReviewProjection, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialReviewPoint } from "../../contracts/documents";
 import type { DocumentEndpointRequest } from "../../contracts/documents-api";
 import type { SkillSelfLevel } from "../../contracts/planning";
-import { findMaterialSkillEvidence } from "../../lib/materials/grounded-skill-terms";
-import { labelForAddedSourceTerm, supportsReviewedSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
+import { findReviewedSourceTerm, labelForAddedSourceTerm, supportsReviewedSkillLabel, retainedMaterialSelfAssessmentHints } from "../../lib/materials/skill-labels";
 const hintLabels = { conceptual: "了解概念", guided: "需指导完成", uncertain: "不确定" };
 const reviewLabels: Record<string, string> = { "confirm-self-assessment": "请单独确认能力自评", "prompt-injection": "原文包含指令，请核对并忽略其操作要求", "team-attribution": "团队成果不直接等于个人独立能力", "conflicting-self-assessment": "能力表述存在冲突", "conflicting-requirement": "岗位要求分类存在冲突", "missing-information": "信息缺失或待确认", "uncovered-skill": "可能超出当前技能蓝图", "untrusted-resource-url": "原文链接不会作为受信课程采用" };
 
-function AddSourceTerm({ item, index, quote, saving, onAdd }: { item: ConfirmedMaterialItem; index: number; quote: string; saving: boolean;
+function AddSourceTerm({ item, index, quote, projection, saving, onAdd }: { item: ConfirmedMaterialItem; index: number; quote: string;
+  projection: DocumentReviewDraft["reviewProjection"]; saving: boolean;
   onAdd(sourceTerm: string, label: string): void }) {
   const [term, setTerm] = useState("");
   const words = item.skillLabels ?? [];
-  const label = term.trim() ? labelForAddedSourceTerm(quote, item.text, term) : null;
+  const label = term.trim() ? labelForAddedSourceTerm(quote, item.text, term, projection) : null;
   const ready = label !== null && !words.includes(label) && words.length < MAX_MATERIAL_SKILL_LABELS_PER_ITEM;
   const noun = item.kind === "constraint" ? "约束主题" : "技能词";
   return <details><summary>从原文补充{noun}</summary><blockquote>{quote}</blockquote>
@@ -43,7 +43,7 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
     {(draft.reviewPoints?.length ?? 0) > 0 && <section className="material-review-points"><h4>重点核对</h4>
       {unresolved.length > 0 && <p role="alert">还有 {unresolved.length} 项重点提醒需要处理。</p>}
       {draft.reviewPoints!.map(point => {
-        const label = draft.reviewProjection && point.code === "uncovered-skill" ? "原文提到课程覆盖缺口，请核对"
+        const label = isSourceLinkedMaterialReviewProjection(draft.reviewProjection) && point.code === "uncovered-skill" ? "原文提到课程覆盖缺口，请核对"
           : !isMainJd && point.code === "conflicting-requirement" ? "建议或学习要求分类存在冲突" : reviewLabels[point.code];
         return <fieldset key={point.id}><legend>{label ?? "请核对原文"}</legend>
         <blockquote>{text.slice(point.sourceRef.start, point.sourceRef.end)}</blockquote>
@@ -66,14 +66,14 @@ export function MaterialConfirmation({ draft, text, saving, confirmed, onItemsCh
       } : row))} /></label>
       {quote !== null && <details><summary>查看原文依据</summary><blockquote>{quote}</blockquote></details>}
       {Boolean(item.skillLabels?.length) && <div><p>{item.kind === "constraint" ? "约束中提到的主题" : "随事实确认的技能词"}</p><ul>{item.skillLabels!.map(label => {
-        const evidence = draft.reviewProjection && quote ? findMaterialSkillEvidence(quote, label) : null;
+        const evidence = isSourceLinkedMaterialReviewProjection(draft.reviewProjection) && quote ? findReviewedSourceTerm(quote, label, draft.reviewProjection) : null;
         const sourceTerm = evidence ?? label;
         return <li key={label}>{sourceTerm} {sourceTerm !== label && <small>（规范名称 {label}） </small>}
           <button type="button" className="text-action" aria-label={`移除${item.kind === "constraint" ? "约束主题" : "技能词"} ${sourceTerm}`} onClick={() => onItemsChange(draft.items.map(row =>
             row.id === item.id ? { ...row, skillLabels: row.skillLabels!.filter(word => word !== label) } : row))}>移除</button>
         </li>;
       })}</ul></div>}
-      {draft.reviewProjection && quote && !draft.reclassifiedItemIds?.includes(item.id) && <AddSourceTerm item={item} index={index} quote={quote} saving={saving}
+      {isSourceLinkedMaterialReviewProjection(draft.reviewProjection) && quote && !draft.reclassifiedItemIds?.includes(item.id) && <AddSourceTerm item={item} index={index} quote={quote} projection={draft.reviewProjection} saving={saving}
         onAdd={(sourceTerm, label) => onItemsChange(draft.items.map(row => row.id === item.id
           ? { ...row, origin: "user", skillLabels: [...row.skillLabels ?? [], label] } : row), { itemId: item.id, sourceTerm })} />}
       {item.kind === "requirement" && (isMainJd

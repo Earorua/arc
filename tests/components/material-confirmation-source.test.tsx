@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MaterialConfirmation } from "../../app/components/materials/material-confirmation";
-import { GROUNDED_MATERIAL_REVIEW_PROJECTION, type DocumentReviewDraft } from "../../app/contracts/documents";
+import { GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, type DocumentReviewDraft } from "../../app/contracts/documents";
 
 const draft: DocumentReviewDraft = {
   id: "review-a", schemaVersion: "2026.11.1", documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a",
@@ -78,7 +78,7 @@ describe("edited material self-assessment suggestions", () => {
     };
   }
 
-  for (const projection of [undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION]) {
+  for (const projection of [undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION]) {
     it.each([
       "My colleague tested SQL under supervision.",
       "I will test SQL under supervision.",
@@ -186,4 +186,91 @@ describe("edited material self-assessment suggestions", () => {
     expect(screen.queryByRole("button", { name: buttonName })).not.toBeInTheDocument();
     expect(adopted).not.toHaveBeenCalled();
   });
+});
+
+describe("versioned source-mention review controls", () => {
+  afterEach(cleanup);
+  function sourceDraft(text: string, skillLabels: string[] = []): DocumentReviewDraft {
+    return { ...draft, reviewProjection: SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION,
+      items: [{ id: "mention", kind: "experience", text, origin: "extracted", requirementLevel: null, skillLabels,
+        sourceRef: { documentId: draft.documentId, documentVersionId: draft.documentVersionId, textVersionId: draft.textVersionId,
+          start: 0, end: text.length } }],
+    };
+  }
+
+  it("adds a v3 negative source mention and displays its raw spelling beside the canonical label", () => {
+    const text = "I have no experience with data cleansing.", changed = vi.fn(), adopted = vi.fn();
+    function Editor() {
+      const [value, setValue] = useState(sourceDraft(text));
+      return <MaterialConfirmation draft={value} text={text} saving={false} confirmed={false}
+        onItemsChange={(items, addition) => { changed(items, addition); setValue({ ...value, items }); }}
+        onConfirm={vi.fn()} onAdoptLevels={adopted} />;
+    }
+    render(<Editor />);
+    fireEvent.click(screen.getByText("从原文补充技能词"));
+    const input = screen.getByRole("textbox", { name: "事实 1 原文词" });
+    fireEvent.change(input, { target: { value: "data cleansing" } });
+    expect(screen.getByRole("button", { name: "补充技能词" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "补充技能词" }));
+    expect(changed).toHaveBeenCalledExactlyOnceWith([expect.objectContaining({ text, origin: "user", skillLabels: ["data cleaning"] })],
+      { itemId: "mention", sourceTerm: "data cleansing" });
+    expect(screen.getByRole("button", { name: "移除技能词 data cleansing" })).toBeInTheDocument();
+    expect(screen.getByText("（规范名称 data cleaning）")).toBeInTheDocument();
+    expect(screen.queryByText("单独核对能力建议")).not.toBeInTheDocument();
+    expect(adopted).not.toHaveBeenCalled();
+  });
+
+  it("shows the raw alias of an already nominated negative v3 topic", () => {
+    const text = "I have no experience with data cleansing.";
+    render(<MaterialConfirmation draft={sourceDraft(text, ["data cleaning"])} text={text} saving={false} confirmed={false}
+      onItemsChange={vi.fn()} onConfirm={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "移除技能词 data cleansing" })).toBeInTheDocument();
+    expect(screen.getByText("（规范名称 data cleaning）")).toBeInTheDocument();
+  });
+
+  it("keeps the v2 negative-source correction rule when the same text is reopened", () => {
+    const text = "I have never used SQL.", value = { ...sourceDraft(text), reviewProjection: GROUNDED_MATERIAL_REVIEW_PROJECTION };
+    render(<MaterialConfirmation draft={value} text={text} saving={false} confirmed={false} onItemsChange={vi.fn()} onConfirm={vi.fn()} />);
+    fireEvent.click(screen.getByText("从原文补充技能词"));
+    fireEvent.change(screen.getByRole("textbox", { name: "事实 1 原文词" }), { target: { value: "SQL" } });
+    expect(screen.getByRole("button", { name: "补充技能词" })).toBeDisabled();
+  });
+
+  it.each([GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION])(
+    "keeps the eight-term quota and hides correction after persisted reclassification for %s", reviewProjection => {
+      const words = ["SQL", "React", "TypeScript", "Docker", "Python", "Rust", "Vitest", "WAI-ARIA"];
+      const text = `I used ${words.join(", ")} and CSS.`, value = { ...sourceDraft(text, words), reviewProjection };
+      const props = { text, saving: false, confirmed: false, onItemsChange: vi.fn(), onConfirm: vi.fn() };
+      const page = render(<MaterialConfirmation {...props} draft={value} />);
+      fireEvent.click(screen.getByText("从原文补充技能词"));
+      fireEvent.change(screen.getByRole("textbox", { name: "事实 1 原文词" }), { target: { value: "CSS" } });
+      expect(screen.getByRole("button", { name: "补充技能词" })).toBeDisabled();
+      page.rerender(<MaterialConfirmation {...props} draft={{ ...value, reclassifiedItemIds: ["mention"],
+        items: [{ ...value.items[0]!, kind: "constraint", origin: "user", skillLabels: [] }] }} />);
+      expect(screen.queryByText("从原文补充约束主题")).not.toBeInTheDocument();
+      expect(screen.queryByRole("textbox", { name: "事实 1 原文词" })).not.toBeInTheDocument();
+    });
+
+  it.each(["SQL is not required.", "If assigned to the database team, SQL will be required."])(
+    "keeps the normal main-JD classification gate for a v3 mention: %s", text => {
+      const confirmed = vi.fn(), adopted = vi.fn(), initial = sourceDraft(text, ["SQL"]);
+      function Editor() {
+        const [value, setValue] = useState<DocumentReviewDraft>({ ...initial,
+          items: [{ ...initial.items[0]!, kind: "requirement", requirementLevel: "unspecified" }] });
+        return <MaterialConfirmation draft={value} text={text} documentKind="jd" saving={false} confirmed={false}
+          onItemsChange={items => setValue({ ...value, items })} onConfirm={confirmed} onAdoptLevels={adopted} />;
+      }
+      render(<Editor />);
+      const confirm = screen.getByRole("button", { name: "确认这些事实" });
+      expect(confirm).toBeDisabled();
+      expect(screen.getByRole("combobox", { name: "事实 1 要求类型" })).toHaveValue("unspecified");
+      expect(screen.getByRole("button", { name: "移除技能词 SQL" })).toBeInTheDocument();
+      fireEvent.click(confirm);
+      expect(confirmed).not.toHaveBeenCalled();
+      fireEvent.change(screen.getByRole("combobox", { name: "事实 1 要求类型" }), { target: { value: "preferred" } });
+      expect(confirm).toBeEnabled();
+      fireEvent.click(confirm);
+      expect(confirmed).toHaveBeenCalledOnce();
+      expect(adopted).not.toHaveBeenCalled();
+    });
 });

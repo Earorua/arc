@@ -93,9 +93,9 @@ Task 2 于 2026-11-09 完成：11 套件 1,342 项、专项类型／Lint、执�
 
 **Files:** `app/server/documents/review-service.ts`、`app/components/materials/material-confirmation.tsx`，必要时`material-text-panel.tsx`的类型/传参；`tests/server/document-review-draft.test.ts`、`tests/components/material-source-term-correction.test.tsx`、`tests/components/material-confirmation-source.test.tsx`，新增`tests/server/material-mention-review-flow.test.ts`。
 
-- [ ] 先用实际ReviewService保存/重载与真实核对组件建立红例：AI保留否定SQL；用户从同一原文补回先前未保留的SQL；修改本人为同事或未来计划后主题仍在、旧等级提示消失；删除/空词后重载不恢复。
-- [ ] `reviewProjectionColumns`仅对已知v2/v3读取原candidate分类；`rowDraft`输出实际已保存的marker。`reviewedItem`、来源补词、重分类及保存结果用共享版本判别，禁止把v3输出固定写回v2，也禁止客户端请求覆盖服务端版本。
-- [ ] 服务端补词调用第四参数：
+- [x] 先用实际ReviewService保存/重载与真实核对组件建立红例：AI保留否定SQL；用户从同一原文补回先前未保留的SQL；修改本人为同事或未来计划后主题仍在、旧等级提示消失；删除/空词后重载不恢复。
+- [x] `reviewProjectionColumns`仅对已知v2/v3读取原candidate分类；`rowDraft`输出实际已保存的marker。`reviewedItem`、来源补词、重分类及保存结果用共享版本判别，禁止把v3输出固定写回v2，也禁止客户端请求覆盖服务端版本。
+- [x] 服务端补词调用第四参数：
 
 ```ts
 addedLabel = labelForAddedSourceTerm(
@@ -106,11 +106,13 @@ addedLabel = labelForAddedSourceTerm(
 );
 ```
 
-- [ ] 核对组件`AddSourceTerm`增加`projection: DocumentReviewDraft["reviewProjection"]`属性；父组件只传`draft.reviewProjection`。补词按钮调用相同版本函数，来源词展示使用`findReviewedSourceTerm`，继续显示真实原文与规范名称的区别。保留原8词限制、重分类禁补、来源校验和旧快照交互。
-- [ ] 通过实际DocumentsClient→HTTP工厂→runtime→ReviewService持久化验证核对与重载，不能只手工组装一个成功预览。确认后进入选取/上下文：否定或他人SQL保留课程对应但无实践优先级；本人React/他人SQL只给React实践；显式学习重点、人工兜底、已确认自评、工时和目标分别保持。
-- [ ] 主JD的负面/有条件要求仍保持现有`unspecified`与用户核对门槛，不从主题出现推断must/preferred。任何实际已批准等级建议仍须用户单独采用，本次不顺带实现该尚未接通的采用入口。
-- [ ] 对既有v2核对与补词跑相同历史输入，对照旧输出；legacy/literal-v1/v2标记及来源摘要不重写。所有权、精确来源版本、过期、删除、重试和原有原子提交保护继续有效。
-- [ ] 完成独立规格与质量审阅。若发现新的明确根因，先封存反例与旧源码，再修改；不把未通过的候选当作当前验收结论。
+- [x] 核对组件`AddSourceTerm`增加`projection: DocumentReviewDraft["reviewProjection"]`属性；父组件只传`draft.reviewProjection`。补词按钮调用相同版本函数，来源词展示使用`findReviewedSourceTerm`，继续显示真实原文与规范名称的区别。保留原8词限制、重分类禁补、来源校验和旧快照交互。
+- [x] 通过实际DocumentsClient→HTTP工厂→runtime→ReviewService持久化验证核对与重载，不能只手工组装一个成功预览。确认后进入选取/上下文：否定或他人SQL保留课程对应但无实践优先级；本人React/他人SQL只给React实践；显式学习重点、人工兜底、已确认自评、工时和目标分别保持。
+- [x] 主JD的负面/有条件要求仍保持现有`unspecified`与用户核对门槛，不从主题出现推断must/preferred。任何实际已批准等级建议仍须用户单独采用，本次不顺带实现该尚未接通的采用入口。
+- [x] 对既有v2核对与补词跑相同历史输入，对照旧输出；legacy/literal-v1/v2标记及来源摘要不重写。所有权、精确来源版本、过期、删除、重试和原有原子提交保护继续有效。
+- [x] 完成独立规格与质量审阅。若发现新的明确根因，先封存反例与旧源码，再修改；不把未通过的候选当作当前验收结论。
+
+Task 3 于 2026-11-09 完成：七文件冻结，作者 338 项及专项类型／Lint通过；独立规格 338＋13 项与质量 338＋4 项（含 7 种 HTTP 拒绝变体）通过，无待修审阅问题。根任务 25 项原生／Node 完整对照、3 项实际上下文组件、170 项旧行为和 6 份真实历史核对记录只读重载通过。全部原始失败、夹具修正及未关闭的质量缺口另存，Task 4 全仓与最终归档仍待完成。现有能力建议按钮已存在，后续缺口是明确决策契约与实际持久化验证，不是创建第一个按钮。
 
 ## Task 4：本地整体验证与交接
 

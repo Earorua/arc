@@ -6,8 +6,8 @@ import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
 import { DocumentStorage } from "../../app/server/documents/storage";
 import { ReviewService } from "../../app/server/documents/review-service";
 import { materialsClock } from "../helpers/materials-d1";
-import { MAX_DOCUMENT_ITEMS_JSON_BYTES, utf8Bytes, type ConfirmedMaterialItem, type DocumentCandidate } from "../../app/contracts/documents";
-import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
+import { MAX_DOCUMENT_ITEMS_JSON_BYTES, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, utf8Bytes, type ConfirmedMaterialItem, type DocumentCandidate } from "../../app/contracts/documents";
+import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
 const item = {
     id: "fact",
     kind: "skill-claim" as const,
@@ -234,13 +234,14 @@ it("initializes AI review once and preserves user edits when a later extraction 
     expect(JSON.parse(String(db.database.prepare("SELECT review_points_json FROM document_confirmations").get()!.review_points_json))[0].resolution).toBe("confirmed");
 });
 
-async function assessmentReview(projection: "legacy" | "literal" | "grounded", options: {
+async function assessmentReview(projection: "legacy" | "literal" | "grounded" | "mentions", options: {
     source?: string; summary?: string; labels?: string[]; level?: DocumentCandidate["selfLevelHint"];
 } = {}) {
     const source = options.source ?? "I tested SQL under supervision.";
-    const f = await pendingExtraction(projection === "grounded" ? KIMI_GROUNDED_TERMS_POLICY_ID : "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1", {
+    const f = await pendingExtraction(projection === "mentions" ? KIMI_SOURCE_MENTIONS_POLICY_ID
+        : projection === "grounded" ? KIMI_GROUNDED_TERMS_POLICY_ID : "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1", {
         id: "practice", kind: "experience", text: options.summary ?? source, requirementLevel: null,
-        skillLabels: options.labels ?? ["SQL"], selfLevelHint: options.level ?? "guided", source: { segmentId: "segment-1", quote: source },
+        skillLabels: options.labels ?? ["SQL"], selfLevelHint: options.level === undefined ? "guided" : options.level, source: { segmentId: "segment-1", quote: source },
     });
     expect((await f.review.acceptAiExtraction(f.owner.ownerId, f.input)).disposition).toBe("initialized");
     const ref = { documentId: f.receipt.documentId, textVersionId: f.receipt.textVersionId };
@@ -257,7 +258,7 @@ async function assessmentReview(projection: "legacy" | "literal" | "grounded", o
     return { ...f, ref, draft, request };
 }
 
-for (const projection of ["legacy", "literal", "grounded"] as const) {
+for (const projection of ["legacy", "literal", "grounded", "mentions"] as const) {
     it.each([
         "My colleague tested SQL under supervision.",
         "I will test SQL under supervision.",
@@ -423,4 +424,114 @@ it("keeps unsupported-hint removal inside the owner and atomic revision guards",
     expect(saved.draft.selfAssessmentHints).toEqual([]);
     expect(saved.draft.revision).toBe(1);
     expect(await f.services.saveDocumentReviewDraft(f.owner, request)).toEqual(saved);
+});
+
+it("keeps the server's v3 marker and negative SQL topic through delivery, save, retry and reload", async () => {
+    const f = await assessmentReview("mentions", { source: "I have never used SQL.", level: null });
+    expect(f.draft.reviewProjection).toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
+    expect(f.draft.items[0]?.skillLabels).toEqual(["SQL"]);
+    expect(f.draft.selfAssessmentHints).toEqual([]);
+    const extraction = f.db.database.prepare("SELECT * FROM document_extractions").get();
+    const versions = f.db.database.prepare("SELECT * FROM document_versions").all();
+    const objects = [...f.bucket.objects];
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, f.request);
+    expect(saved.draft.reviewProjection).toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
+    expect(saved.draft.items).toEqual(f.draft.items);
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(saved.draft);
+    expect(await f.services.saveDocumentReviewDraft(f.owner, f.request)).toEqual(saved);
+    expect((await f.services.readDocumentExtraction(f.owner, { documentId: f.ref.documentId, extractionId: saved.draft.extractionId! })).draft.reviewProjection)
+        .toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
+    expect(f.db.database.prepare("SELECT * FROM document_extractions").get()).toEqual(extraction);
+    expect(f.db.database.prepare("SELECT * FROM document_versions").all()).toEqual(versions);
+    expect([...f.bucket.objects]).toEqual(objects);
+});
+
+it("accepts only an explicit v3 source-term addition to the saved original fact", async () => {
+    const f = await assessmentReview("mentions", { source: "I have never used SQL.", labels: [], level: null });
+    const fact = f.draft.items[0]!, correction = { ...fact, origin: "user" as const, skillLabels: ["SQL"] };
+    const request = { ...f.request, items: [correction], skillTermAddition: { itemId: fact.id, sourceTerm: "SQL" } };
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...f.request, items: [correction] })).rejects.toMatchObject({ code: "invalid-content" });
+    for (const reviewProjection of ["grounded-skill-labels-v2", SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, "future-v4"]) {
+        await expect(f.services.saveDocumentReviewDraft(f.owner, { ...request, reviewProjection } as never)).rejects.toBeDefined();
+    }
+    for (const key of ["documentId", "documentVersionId", "textVersionId"] as const) {
+        await expect(f.services.saveDocumentReviewDraft(f.owner, { ...request,
+            items: [{ ...correction, sourceRef: { ...fact.sourceRef!, [key]: "other-version" } }] })).rejects.toMatchObject({ code: "invalid-content" });
+    }
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...request,
+        items: [{ ...correction, sourceRef: { ...fact.sourceRef!, end: fact.sourceRef!.end - 1 } }] })).rejects.toMatchObject({ code: "invalid-content" });
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...request,
+        items: [{ ...correction, text: "No database work." }] })).rejects.toMatchObject({ code: "invalid-content" });
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...request,
+        items: [{ ...correction, kind: "constraint" }] })).rejects.toMatchObject({ code: "invalid-content" });
+    await expect(f.services.saveDocumentReviewDraft({ ownerId: "owner-b" }, request)).rejects.toMatchObject({ code: "not-found" });
+    f.db.failAtBatchStatement = 2;
+    await expect(f.services.saveDocumentReviewDraft(f.owner, request)).rejects.toMatchObject({ code: "conflict" });
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(f.draft);
+    f.db.failAtBatchStatement = null;
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, request);
+    expect(saved.draft.items).toEqual([correction]);
+    expect(saved.draft.selfAssessmentHints).toEqual([]);
+    expect(saved.draft.reviewProjection).toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(saved.draft);
+    expect(await f.services.saveDocumentReviewDraft(f.owner, request)).toEqual(saved);
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...request, mutationId: "stale-addition" })).rejects.toMatchObject({ code: "conflict" });
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...request, expectedRevision: saved.draft.revision,
+        mutationId: "duplicate-addition" })).rejects.toMatchObject({ code: "invalid-content" });
+});
+
+it.each(["empty", "omitted", "deleted"] as const)("keeps v3 %s labels removed after reload and refuses restoration from an old snapshot", async removal => {
+    const f = await assessmentReview("mentions", { source: "I have never used SQL.", level: null });
+    const fact = f.draft.items[0]!;
+    const { skillLabels, ...withoutLabels } = fact;
+    void skillLabels;
+    const items = removal === "deleted" ? [] : removal === "empty" ? [{ ...fact, skillLabels: [] }] : [withoutLabels];
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request, items });
+    expect(saved.draft.items).toEqual(removal === "deleted" ? [] : [{ ...fact, skillLabels: [] }]);
+    expect(saved.draft.reviewProjection).toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
+    const read = (await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft!;
+    expect(read).toEqual(saved.draft);
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...f.request, expectedRevision: read.revision,
+        mutationId: "old-snapshot" })).rejects.toMatchObject({ code: "invalid-content" });
+    const resaved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request, items: read.items, expectedRevision: read.revision,
+        mutationId: "keep-removed" });
+    expect(resaved.draft.items).toEqual(read.items);
+});
+
+it("exposes v3 reclassification after reload and refuses source additions on that reclassified fact", async () => {
+    const f = await assessmentReview("mentions", { source: "I have never used SQL.", level: null });
+    const saved = await f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: f.draft.items.map(item => ({ ...item, kind: "constraint", origin: "user" })) });
+    expect(saved.draft.items[0]?.skillLabels).toEqual([]);
+    expect(saved.draft.reclassifiedItemIds).toEqual(["practice"]);
+    const read = (await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft!;
+    expect(read).toEqual(saved.draft);
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...f.request, expectedRevision: read.revision,
+        items: [{ ...read.items[0]!, skillLabels: ["SQL"] }], skillTermAddition: { itemId: "practice", sourceTerm: "SQL" },
+        mutationId: "add-after-reclassification" })).rejects.toMatchObject({ code: "invalid-content" });
+});
+
+it("validates the exact v3 source even when the edited fact has no labels", async () => {
+    const f = await assessmentReview("mentions", { source: "I have never used SQL.", labels: [], level: null });
+    const fact = f.draft.items[0]!;
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...f.request,
+        items: [{ ...fact, origin: "user", sourceRef: { ...fact.sourceRef!, start: 1 } }] })).rejects.toMatchObject({ code: "invalid-content" });
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(f.draft);
+});
+
+it("requires explicit adoption when switching a saved v3 review to an older extraction", async () => {
+    const f = await assessmentReview("mentions", { source: "I have never used SQL.", level: null });
+    f.db.database.prepare("INSERT INTO document_jobs(owner_id,id,text_version_id,document_id,document_version_id,consent_id,generation,document_revision,revision,state,dispatch_state,execution_slot,queued_at,queue_expires_at,provider_policy_id,price_version,policy_version,reservation_id,updated_at) VALUES(?,'legacy-job',?,?,?,'consent',0,0,0,'running','settled',NULL,0,1,'older-policy','2026.11.1','2026.11.1','old-reservation',0)")
+        .run(f.owner.ownerId, f.receipt.textVersionId, f.receipt.documentId, f.receipt.documentVersionId);
+    const late = await f.review.acceptAiExtraction(f.owner.ownerId, { ...f.input, jobId: "legacy-job" });
+    expect(late.disposition).toBe("candidates-available");
+    const proposed = await f.services.readDocumentExtraction(f.owner, { documentId: f.ref.documentId, extractionId: late.extractionId! });
+    expect(proposed.draft.reviewProjection).toBeUndefined();
+    await expect(f.services.saveDocumentReviewDraft(f.owner, { ...f.request, extractionId: late.extractionId!,
+        items: proposed.draft.items, selfAssessmentHints: proposed.draft.selfAssessmentHints })).rejects.toMatchObject({ code: "conflict" });
+    const adopted = await f.services.adoptDocumentExtraction(f.owner, { ...f.ref, extractionId: late.extractionId!,
+        expectedRevision: f.draft.revision, mutationId: "explicit-adoption" });
+    expect(adopted.draft.reviewProjection).toBeUndefined();
+    expect(adopted.draft.items).toEqual(proposed.draft.items);
+    expect((await f.services.readDocumentReviewDraft(f.owner, f.ref)).draft).toEqual(adopted.draft);
 });
