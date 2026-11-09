@@ -65,8 +65,8 @@ Task 1 于 2026-11-09 完成：4 套件 507 项、专项类型／Lint通过；�
 
 **Files:** `app/server/documents/policy.ts`、`worker/document-executor/source-span-extraction.ts`、`app/server/documents/extraction-validator.ts`；`tests/server/document-source-span-provider.test.ts`、`tests/server/document-extraction.test.ts`。若现有严格策略分派需要调整，仅改明确的v3分支，不放宽未知策略或路由校验。
 
-- [ ] 修改前保存v1/v2 prompt、策略选择、正反响应和服务端投影的只读观察，固定输入与源码摘要。旧结果只作为兼容对照，另存新的测试期望，不修改冻结历史记录。
-- [ ] 先补v3真实provider解码到服务端投影的红例，沿用该测试文件现有`analyze`合成fetch助手，禁止真实fetch。核心输入：
+- [x] 修改前保存v1/v2 prompt、策略选择、正反响应和服务端投影的只读观察，固定输入与源码摘要。旧结果只作为兼容对照，另存新的测试期望，不修改冻结历史记录。
+- [x] 先补v3真实provider解码到服务端投影的红例，沿用该测试文件现有`analyze`合成fetch助手，禁止真实fetch。核心输入：
 
 ```ts
 const text = "I cannot yet configure a Kubernetes cluster myself.";
@@ -79,13 +79,15 @@ expect(outcome.candidate).toMatchObject({ items: [{ text, source,
   skillLabels: ["configure a Kubernetes cluster"], selfLevelHint: null }] });
 ```
 
-- [ ] `sourceSpanPolicy`仅为新ID返回`source-spans-v3`。新增严格v3 schema，复用v2的字段形状、完整句子/独立列表条目定位、引文上下文、review point及要求等级规则。v3主题步骤调用`groundMaterialSkillMentions`；v2继续调用`groundMaterialSkillTerms`，v1保持原路径。
-- [ ] 新prompt明确“可以提名否定、他人或未来陈述中的真实原文主题；它们不代表本人能力或实践”。保持不可信文档、禁止工具/外链、完整引文、有限词数和不认证掌握等原约束。v1/v2 prompt字节不改，v3格式与策略必须对应；错配format、未知前缀策略、截断/拒答/额外字段继续拒绝。
-- [ ] `serializeDocumentExtraction`只在已核对policy为新ID时写新标记；`storedExtractionSchema`明确增加v3。`validateStoredDocumentExtraction`按保存标记读取，不用当前默认policy重投影旧记录。
-- [ ] 新v3服务端投影独立校验主题来源与个人等级证据。即使送达的candidate带有错误guided/uncertain提示，v3也必须用现有个人等级谓词过滤；不能仅靠worker解码器保证安全。旧legacy/literal-v1/v2的初始投影行为保持对应版本语义。
-- [ ] 测试新policy不能由provider额外字段、用户草稿标记或错误来源伪造；未提名不加词、超限不截成合法资料、旧marker不升级。测试中伪造的是合成候选，不向真实服务发送内容。
-- [ ] 对相同源事实对照v2与v3：只有明确选择v3才保留负面主题；全句、限定、引用、现有要求等级和安全提醒不丢失。本人SQL与同事React的两个词均可发现，等级建议仍不相互借用；正常本人/指导实践继续有证据支持。
-- [ ] 运行provider/extraction/receipt/quotation/requirement/self-level相关既有测试及类型/Lint、本地执行器打包，确认新库可被worker包含。完成独立规格→质量审阅后保存源码；不改任何账户或运行配置。
+- [x] `sourceSpanPolicy`仅为新ID返回`source-spans-v3`。新增严格v3 schema，复用v2的字段形状、完整句子/独立列表条目定位、引文上下文、review point及要求等级规则。v3主题步骤调用`groundMaterialSkillMentions`；v2继续调用`groundMaterialSkillTerms`，v1保持原路径。
+- [x] 新prompt明确“可以提名否定、他人或未来陈述中的真实原文主题；它们不代表本人能力或实践”。保持不可信文档、禁止工具/外链、完整引文、有限词数和不认证掌握等原约束。v1/v2 prompt字节不改，v3格式与策略必须对应；错配format、未知前缀策略、截断/拒答/额外字段继续拒绝。
+- [x] `serializeDocumentExtraction`只在已核对policy为新ID时写新标记；`storedExtractionSchema`明确增加v3。`validateStoredDocumentExtraction`按保存标记读取，不用当前默认policy重投影旧记录。
+- [x] 新v3服务端投影独立校验主题来源与个人等级证据。即使送达的candidate带有错误guided/uncertain提示，v3也必须用现有个人等级谓词过滤；不能仅靠worker解码器保证安全。旧legacy/literal-v1/v2的初始投影行为保持对应版本语义。
+- [x] 测试新policy不能由provider额外字段、用户草稿标记或错误来源伪造；未提名不加词、超限不截成合法资料、旧marker不升级。测试中伪造的是合成候选，不向真实服务发送内容。
+- [x] 对相同源事实对照v2与v3：只有明确选择v3才保留负面主题；全句、限定、引用、现有要求等级和安全提醒不丢失。本人SQL与同事React的两个词均可发现，等级建议仍不相互借用；正常本人/指导实践继续有证据支持。
+- [x] 运行provider/extraction/receipt/quotation/requirement/self-level相关既有测试及类型/Lint、本地执行器打包，确认新库可被worker包含。完成独立规格→质量审阅后保存源码；不改任何账户或运行配置。
+
+Task 2 于 2026-11-09 完成：11 套件 1,342 项、专项类型／Lint、执行器本地打包和 170 项旧行为对照通过；独立规格 74 项与质量 103 项检查通过。v3 服务端另拒绝候选正文与完整引文不一致、截断或脱离引用上下文的事实；旧版本保持原语义。审阅记录了两个既有质量缺口（自然中文“在指导下清洗数据”的等级提示、完整 `1.`／`１２.` 编号条目引文）；本批未修改共享语法，后续须按新候选版本范围修复，不能将它们算作已关闭。
 
 ## Task 3：核对、人工补词与保存/重载
 

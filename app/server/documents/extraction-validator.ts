@@ -1,15 +1,19 @@
 import { z } from "zod";
-import { documentExtractionSchema, GROUNDED_MATERIAL_REVIEW_PROJECTION, MAX_DOCUMENT_ITEMS_JSON_BYTES, fitsJsonBytes, utf8Bytes, resolveCandidateSourceRef, type MaterialReferenceContext, type ConfirmedMaterialItem, materialSelfAssessmentHintsSchema } from "../../contracts/documents";
+import { documentExtractionSchema, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, isSourceLinkedMaterialReviewProjection, MAX_DOCUMENT_ITEMS_JSON_BYTES, fitsJsonBytes, utf8Bytes, resolveCandidateSourceRef, type MaterialReferenceContext, type ConfirmedMaterialItem, materialSelfAssessmentHintsSchema } from "../../contracts/documents";
 import { supportsReviewedSkillLabel } from "../../lib/materials/skill-labels";
+import { supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope } from "../../lib/materials/self-assessment-evidence";
+import { maskQuotes } from "../../lib/materials/quotation-evidence";
+import { groundedStatementBoundaries, isDetachedQuotedStatement } from "../../../worker/document-executor/source-review-evidence";
 import { DocumentServiceError } from "./d1-repository";
 import { validateDocumentReviewPoints } from "./review-points";
-import { KIMI_GROUNDED_TERMS_POLICY_ID } from "./policy";
+import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "./policy";
 
 // The server writes this envelope only after validating the provider's canonical candidate.
 // Unwrapped historical captures originally projected facts without a skill-word list.
-const storedProjection = z.enum(["literal-skill-labels-v1", GROUNDED_MATERIAL_REVIEW_PROJECTION]);
+const storedProjection = z.enum(["literal-skill-labels-v1", GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION]);
 const storedExtractionSchema = z.object({ reviewProjection: storedProjection, candidate: z.unknown() }).strict();
 function extractionProjection(providerPolicyId?: string) {
+    if (providerPolicyId === KIMI_SOURCE_MENTIONS_POLICY_ID) return SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
     return providerPolicyId === KIMI_GROUNDED_TERMS_POLICY_ID ? GROUNDED_MATERIAL_REVIEW_PROJECTION : "literal-skill-labels-v1";
 }
 export function serializeDocumentExtraction(candidate: unknown, providerPolicyId?: string) {
@@ -29,11 +33,19 @@ function projectExtraction(candidate: unknown, ownerId: string, reference: Mater
     const parsed = documentExtractionSchema.safeParse(candidate);
     if (!parsed.success)
         throw new DocumentServiceError("invalid-content");
-    const reviewProjection = projection === GROUNDED_MATERIAL_REVIEW_PROJECTION ? projection : undefined;
+    const reviewProjection = isSourceLinkedMaterialReviewProjection(projection) ? projection : undefined;
+    const sourceMentions = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
+    const bounds = sourceMentions ? groundedStatementBoundaries(reference.text) : undefined;
+    const statementStarts = new Map(bounds && [...bounds].map(([start, end]) => [end, start]));
+    const masked = sourceMentions ? maskQuotes(reference.text) : "";
     const items: ConfirmedMaterialItem[] = parsed.data.items.map(item => {
         const sourceRef = resolveCandidateSourceRef(item.source, ownerId, reference);
         if (!sourceRef)
             throw new DocumentServiceError("invalid-content");
+        // V3 is an extractive contract at both boundaries. A rewritten fact or
+        // detached fragment must not turn another actor's words into evidence.
+        if (sourceMentions && (item.text !== item.source.quote || bounds!.get(sourceRef.start) !== sourceRef.end
+            || isDetachedQuotedStatement(item.source, reference))) throw new DocumentServiceError("invalid-content");
         return {
             id: item.id,
             kind: item.kind,
@@ -46,10 +58,22 @@ function projectExtraction(candidate: unknown, ownerId: string, reference: Mater
             } : {})
         };
     });
-    const hints = parsed.data.items.flatMap((item, itemIndex) => item.selfLevelHint === null ? [] : item.skillLabels.flatMap((label, index) => {
-        if (projection !== "legacy" && !items[itemIndex]!.skillLabels?.includes(label)) return [];
-        return [{ id: `hint-${item.id}-${index}`, candidateId: item.id, skillLabel: label, level: item.selfLevelHint }];
-    }));
+    const hints = parsed.data.items.flatMap((item, itemIndex) => {
+        if (item.selfLevelHint === null) return [];
+        if (sourceMentions) {
+            const projected = items[itemIndex]!, { start, end } = projected.sourceRef!;
+            // Use the statement body for list entries, retaining the complete
+            // document's quotation scope. Topic presence never supplies a level.
+            const assessmentStart = statementStarts.get(end) ?? start;
+            const text = reference.text.slice(assessmentStart, end), labels = projected.skillLabels;
+            if (!supportsMaterialSelfLevelHint({ kind: item.kind, text, labels, level: item.selfLevelHint })
+                || !supportsSelfLevelHintInScope(text, masked.slice(assessmentStart, end), item.selfLevelHint, labels)) return [];
+        }
+        return item.skillLabels.flatMap((label, index) => {
+            if (projection !== "legacy" && !items[itemIndex]!.skillLabels?.includes(label)) return [];
+            return [{ id: `hint-${item.id}-${index}`, candidateId: item.id, skillLabel: label, level: item.selfLevelHint }];
+        });
+    });
     const selfAssessmentHints = materialSelfAssessmentHintsSchema.safeParse(hints);
     if (!selfAssessmentHints.success) throw new DocumentServiceError("invalid-content");
     const review = {

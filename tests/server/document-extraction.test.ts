@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { serializeDocumentExtraction, validateDocumentExtraction, validateStoredDocumentExtraction } from "../../app/server/documents/extraction-validator";
-import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../app/server/documents/policy";
+import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
 const reference = {
     ownerId: "owner",
     documentId: "doc",
@@ -97,4 +97,94 @@ it("keeps historical unwrapped captures separate from the explicit v1 and v2 env
     expect(legacy.items[0]).not.toHaveProperty("skillLabels");
     expect(legacy).not.toHaveProperty("reviewProjection");
     expect(legacy.selfAssessmentHints.map(hint => hint.skillLabel)).toEqual(["data cleaning"]);
+});
+
+function mentionReference(text: string) {
+    return { ...reference, text, segments: [{ id: "segment-1", start: 0, end: text.length }] };
+}
+function mentionExtraction(text: string, labels = ["SQL"], level: "guided" | "conceptual" | "uncertain" | null = "guided") {
+    return { ...candidate, items: [{ ...candidate.items[0]!, kind: "skill-claim", text, requirementLevel: null,
+        skillLabels: labels, selfLevelHint: level, source: { segmentId: "segment-1", quote: text } }] };
+}
+it.each([
+    ["I cannot yet configure a Kubernetes cluster myself.", ["configure a Kubernetes cluster"], "guided"],
+    ["I cannot yet configure a Kubernetes cluster myself.", ["configure a Kubernetes cluster"], "uncertain"],
+    ["I have never used SQL for production.", ["SQL"], "guided"],
+    ["My colleague tested React under supervision.", ["React"], "guided"],
+    ["I plan to test React under supervision.", ["React"], "guided"],
+    ['My mentor said, "I tested React under supervision."', ["React"], "guided"],
+    ["I tested SQL under supervision and my colleague tested React under supervision.", ["SQL", "React"], "guided"],
+] as const)("independently removes an unsupported v3 level while retaining source topics: %s (%s, %s)", (text, labels, level) => {
+    const extraction = mentionExtraction(text, [...labels], level);
+    const review = validateDocumentExtraction(extraction, "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID);
+    expect(review).toMatchObject({ reviewProjection: "source-skill-mentions-v3", items: [{ text, skillLabels: labels,
+        sourceRef: { start: 0, end: text.length } }], selfAssessmentHints: [] });
+    expect(validateStoredDocumentExtraction(serializeDocumentExtraction(extraction, KIMI_SOURCE_MENTIONS_POLICY_ID), "owner", mentionReference(text))).toEqual(review);
+});
+it.each([
+    ["I tested SQL under supervision.", "guided"],
+    ["I am familiar with SQL.", "conceptual"],
+    ["I am unsure about my SQL proficiency.", "uncertain"],
+    ["- I tested SQL under supervision.", "guided"],
+] as const)("retains a v3 level supported by the full personal statement: %s", (text, level) => {
+    const review = validateDocumentExtraction(mentionExtraction(text, ["SQL"], level), "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID);
+    expect(review.selfAssessmentHints).toEqual([{ id: "hint-fact-0", candidateId: "fact", skillLabel: "SQL", level }]);
+});
+it.each([
+    ["I did not test SQL under supervision.", "I tested SQL under supervision."],
+    ["I tested SQL under supervision.", "I did not test SQL under supervision."],
+    ["My colleague tested SQL under supervision.", "I tested SQL under supervision."],
+])("refuses contradictory v3 canonical text without losing the actual source context: %s", (text, forged) => {
+    const extraction = mentionExtraction(text);
+    extraction.items[0]!.text = forged;
+    expect(() => validateDocumentExtraction(extraction, "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
+});
+it.each([
+    "The worksheet illustrates an example: “Begin. I tested SQL under supervision. End.”",
+    "It is false to claim that I tested SQL under supervision.",
+    "It is false to claim that\nI tested SQL under supervision.",
+])("refuses a v3 quote detached from its original attribution: %s", text => {
+    const extraction = mentionExtraction("I tested SQL under supervision.");
+    expect(() => validateDocumentExtraction(extraction, "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
+});
+it("requires v3 source labels to be nominated and grounded without adding other mentioned tools", () => {
+    const text = "I tested SQL under supervision and my colleague used React.";
+    for (const [nominated, expected] of [[[], []], [["SQL", "Rust"], ["SQL"]]]) {
+        const review = validateDocumentExtraction(mentionExtraction(text, nominated, null), "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID);
+        expect(review.items[0]?.skillLabels).toEqual(expected);
+        expect(review.selfAssessmentHints).toEqual([]);
+    }
+});
+it("selects and reloads v3 only from its exact trusted policy and stored marker", () => {
+    const text = "I have never used SQL for production.", extraction = mentionExtraction(text, ["SQL"], null), original = mentionReference(text);
+    const cases = [
+        [undefined, "literal-skill-labels-v1", undefined, ["SQL"]],
+        ["materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1", "literal-skill-labels-v1", undefined, ["SQL"]],
+        [KIMI_GROUNDED_TERMS_POLICY_ID, "grounded-skill-labels-v2", "grounded-skill-labels-v2", []],
+        [KIMI_SOURCE_MENTIONS_POLICY_ID, "source-skill-mentions-v3", "source-skill-mentions-v3", ["SQL"]],
+        [KIMI_SOURCE_MENTIONS_POLICY_ID + "-forged", "literal-skill-labels-v1", undefined, ["SQL"]],
+    ] as const;
+    for (const [policyId, marker, projection, labels] of cases) {
+        const json = serializeDocumentExtraction(extraction, policyId);
+        expect(JSON.parse(json).reviewProjection).toBe(marker);
+        const review = validateStoredDocumentExtraction(json, "owner", original);
+        expect(review.reviewProjection).toBe(projection);
+        expect(review.items[0]?.skillLabels).toEqual(labels);
+        expect(review).toEqual(validateDocumentExtraction(extraction, "owner", original, policyId));
+    }
+    const legacy = validateStoredDocumentExtraction(JSON.stringify(extraction), "owner", original);
+    expect(legacy).not.toHaveProperty("reviewProjection");
+    expect(legacy.items[0]).not.toHaveProperty("skillLabels");
+});
+it("rejects forged v3 policy, marker, candidate and source fields at the site boundary", () => {
+    const text = "I tested SQL under supervision.", extraction = mentionExtraction(text), original = mentionReference(text);
+    for (const extra of [{ reviewProjection: "source-skill-mentions-v3" }, { providerPolicyId: KIMI_SOURCE_MENTIONS_POLICY_ID }, { candidate: extraction }]) {
+        expect(() => validateDocumentExtraction({ ...extraction, ...extra }, "owner", original, KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
+    }
+    for (const source of [{ segmentId: "other", quote: text }, { segmentId: "segment-1", quote: "I tested Rust under supervision." },
+        { segmentId: "segment-1", quote: text, reviewProjection: "source-skill-mentions-v3" }]) {
+        expect(() => validateDocumentExtraction({ ...extraction, items: [{ ...extraction.items[0], source }] }, "owner", original, KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
+    }
+    expect(() => validateStoredDocumentExtraction(JSON.stringify({ reviewProjection: "source-skill-mentions-v3", candidate: extraction,
+        providerPolicyId: KIMI_SOURCE_MENTIONS_POLICY_ID }), "owner", original)).toThrow("invalid-content");
 });
