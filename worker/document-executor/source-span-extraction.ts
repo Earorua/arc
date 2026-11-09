@@ -122,7 +122,7 @@ export function readSourceSpanExtraction(raw: Record<string, unknown>, sources: 
     // used for the review citation without discarding any attribution or qualifier.
     const assessmentSource = { ...source, quote: sources.text.slice(statementStarts.get(span.end) ?? span.start, span.end) };
     const selfLevelHint = groundedTerms && (item.kind === "experience" || item.kind === "skill-claim")
-      ? groundSourceSelfLevelHint({ ...item, source: assessmentSource, skillLabels }) : item.selfLevelHint;
+      ? groundSourceSelfLevelHint({ ...item, source: assessmentSource, skillLabels }, sourceMentions) : item.selfLevelHint;
     const requirementLevel = groundedTerms && item.kind === "requirement" ? groundSourceRequirementLevel(source, sources) : item.requirementLevel;
     const key = JSON.stringify(groundedTerms ? [source.segmentId, span.end]
       : [item.kind, source.segmentId, source.quote, item.requirementLevel, selfLevelHint, [...skillLabels].sort()]);
@@ -130,7 +130,7 @@ export function readSourceSpanExtraction(raw: Record<string, unknown>, sources: 
     observed.add(key);
     candidates.push({ ...item, skillLabels, selfLevelHint, requirementLevel, source, id: `candidate-${candidates.length + 1}`, text: source.quote });
   }
-  const questions = groundedTerms ? groundSourceReviewPoints(reviewPoints, candidates, sources, bounds) : reviewPoints;
+  const questions = groundedTerms ? groundSourceReviewPoints(reviewPoints, candidates, sources, bounds, sourceMentions) : reviewPoints;
   if (!questions) return { candidate: null, extractionRead: "invalid-source" };
   if (groundedTerms) {
     // Review evidence uses the full document's quotation context. A standalone

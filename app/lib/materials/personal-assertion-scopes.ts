@@ -33,7 +33,7 @@ export function instructionalFragmentStart(part: string) {
   return !deniedInstructionalPractice.test(body)
     && /^(?:followed|used)\s+(?:[\w'’-]+\s+){0,3}(?:runbooks?|tutorials?|examples?)\s+to\s+(?:inspect|configure|trace|test|build|write|debug|repair|implement|calibrate)\b/iu.test(body) ? start : null;
 }
-function guidedPractice(part: string) {
+function guidedPractice(part: string, sourceMentions = false) {
   if (guidedNegation.test(part)) return false;
   // A resume can put a date/project before the personal assertion. Only discard
   // a context clause; another actor, report, denial or future plan is not context.
@@ -43,6 +43,14 @@ function guidedPractice(part: string) {
   const zh = chineseGuidance.exec(body);
   if (zh) {
     const action = body.slice(zh[0].length).replace(/^[，,\s]*(?:我|本人)?/u, "");
+    // V3 can use an already grounded direct cleaning predicate. Require the
+    // whole assertion before the generic scan can skip into a later plan verb.
+    // An unsegmented trailing task cannot borrow the cleaning action's guidance.
+    if (sourceMentions && /^清洗|^对[^，,；;。!?！？]{1,80}清洗/u.test(action)) {
+      const clause = action.replace(/[，,；;。.!?！？\s]+$/u, "").trim();
+      const evidence = findMaterialSkillEvidence(clause, "data cleaning");
+      return evidence !== null && evidence === clause;
+    }
     const practice = practiceAction.exec(action);
     // The short “按指导” qualifier needs a direct practice verb, not a later
     // action inside a denial, plan, report, or another person's activity.
@@ -74,10 +82,10 @@ function guidedPractice(part: string) {
     && !/\b(?:planned|enrolled|hired|intended|asked|wanted|expected|hoped|watched|observed|pretended|claimed)\b/iu.test(action);
 }
 
-export function guidedSkillScope(raw: string, text: string) {
+export function guidedSkillScope(raw: string, text: string, sourceMentions = false) {
   // A helper doing another task does not establish guidance for the learner's
   // preceding work. Require the learner's own practice and guidance together.
-  if (!guidedPractice(text)) return null;
+  if (!guidedPractice(text, sourceMentions)) return null;
   const fragment = instructionalFragmentStart(text);
   if (fragment !== null) return raw.slice(fragment);
   const actor = /\bI\s+/iu.exec(text);

@@ -66,8 +66,8 @@ function projectExtraction(candidate: unknown, ownerId: string, reference: Mater
             // document's quotation scope. Topic presence never supplies a level.
             const assessmentStart = statementStarts.get(end) ?? start;
             const text = reference.text.slice(assessmentStart, end), labels = projected.skillLabels;
-            if (!supportsMaterialSelfLevelHint({ kind: item.kind, text, labels, level: item.selfLevelHint })
-                || !supportsSelfLevelHintInScope(text, masked.slice(assessmentStart, end), item.selfLevelHint, labels)) return [];
+            if (!supportsMaterialSelfLevelHint({ kind: item.kind, text, labels, level: item.selfLevelHint, sourceMentions })
+                || !supportsSelfLevelHintInScope(text, masked.slice(assessmentStart, end), item.selfLevelHint, labels, sourceMentions)) return [];
         }
         return item.skillLabels.flatMap((label, index) => {
             if (projection !== "legacy" && !items[itemIndex]!.skillLabels?.includes(label)) return [];

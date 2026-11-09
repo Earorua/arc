@@ -1,0 +1,1261 @@
+[
+  {
+    "id": "natural",
+    "text": "我在指导下清洗数据。",
+    "term": "清洗数据",
+    "defaultHint": false,
+    "scopeHint": false,
+    "question": false,
+    "scopes": [
+      null
+    ],
+    "groundHint": null,
+    "groundPoints": [],
+    "experience": true,
+    "edited": [
+      [],
+      []
+    ],
+    "v1": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "清洗数据"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "v2": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "data cleaning"
+            ],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "legacy": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 10
+          },
+          "requirementLevel": null
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "literal": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 10
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    },
+    "v2Site": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 10
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "v2Stored": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 10
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    }
+  },
+  {
+    "id": "explicit practice",
+    "text": "我在指导下练习清洗数据。",
+    "term": "清洗数据",
+    "defaultHint": true,
+    "scopeHint": true,
+    "question": true,
+    "scopes": [
+      "我在指导下练习清洗数据。"
+    ],
+    "groundHint": "guided",
+    "groundPoints": [
+      {
+        "code": "confirm-self-assessment",
+        "source": {
+          "segmentId": "segment-1",
+          "quote": "我在指导下练习清洗数据。"
+        }
+      }
+    ],
+    "experience": true,
+    "edited": [
+      [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ]
+    ],
+    "v1": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下练习清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "清洗数据"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下练习清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "v2": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下练习清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "data cleaning"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下练习清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下练习清洗数据。"
+            }
+          }
+        ]
+      },
+      "extractionRead": "parsed"
+    },
+    "legacy": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下练习清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 12
+          },
+          "requirementLevel": null
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "literal": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下练习清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 12
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    },
+    "v2Site": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下练习清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 12
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "v2Stored": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下练习清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 12
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    }
+  },
+  {
+    "id": "denial",
+    "text": "我在指导下没有清洗数据。",
+    "term": "清洗数据",
+    "defaultHint": false,
+    "scopeHint": false,
+    "question": false,
+    "scopes": [
+      null
+    ],
+    "groundHint": null,
+    "groundPoints": [],
+    "experience": false,
+    "edited": [
+      [],
+      []
+    ],
+    "v1": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下没有清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "清洗数据"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下没有清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "v2": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下没有清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下没有清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "legacy": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下没有清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 12
+          },
+          "requirementLevel": null
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "literal": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下没有清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 12
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    },
+    "v2Site": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下没有清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 12
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    },
+    "v2Stored": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下没有清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 12
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    }
+  },
+  {
+    "id": "other actor",
+    "text": "同事在指导下清洗数据。",
+    "term": "清洗数据",
+    "defaultHint": false,
+    "scopeHint": false,
+    "question": false,
+    "scopes": [
+      null
+    ],
+    "groundHint": null,
+    "groundPoints": [],
+    "experience": false,
+    "edited": [
+      [],
+      []
+    ],
+    "v1": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "同事在指导下清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "清洗数据"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "同事在指导下清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "v2": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "同事在指导下清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "data cleaning"
+            ],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "同事在指导下清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "legacy": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "同事在指导下清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 11
+          },
+          "requirementLevel": null
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "literal": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "同事在指导下清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 11
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    },
+    "v2Site": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "同事在指导下清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 11
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "v2Stored": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "同事在指导下清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 11
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    }
+  },
+  {
+    "id": "quotation",
+    "text": "示例：“我在指导下清洗数据。”",
+    "term": "清洗数据",
+    "defaultHint": false,
+    "scopeHint": false,
+    "question": false,
+    "scopes": [
+      null
+    ],
+    "groundHint": null,
+    "groundPoints": [],
+    "experience": false,
+    "edited": [
+      [],
+      []
+    ],
+    "v1": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "示例：“我在指导下清洗数据。”",
+            "requirementLevel": null,
+            "skillLabels": [
+              "清洗数据"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "示例：“我在指导下清洗数据。”"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "v2": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "示例：“我在指导下清洗数据。”",
+            "requirementLevel": null,
+            "skillLabels": [
+              "data cleaning"
+            ],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "示例：“我在指导下清洗数据。”"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "legacy": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "示例：“我在指导下清洗数据。”",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 15
+          },
+          "requirementLevel": null
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "literal": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "示例：“我在指导下清洗数据。”",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 15
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    },
+    "v2Site": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "示例：“我在指导下清洗数据。”",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 15
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "v2Stored": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "示例：“我在指导下清洗数据。”",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 15
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    }
+  },
+  {
+    "id": "unexecuted plan",
+    "text": "我在指导下清洗数据的计划尚未执行。",
+    "term": "清洗数据",
+    "defaultHint": true,
+    "scopeHint": true,
+    "question": true,
+    "scopes": [
+      "我在指导下清洗数据的计划尚未执行。"
+    ],
+    "groundHint": "guided",
+    "groundPoints": [
+      {
+        "code": "confirm-self-assessment",
+        "source": {
+          "segmentId": "segment-1",
+          "quote": "我在指导下清洗数据的计划尚未执行。"
+        }
+      }
+    ],
+    "experience": false,
+    "edited": [
+      [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ]
+    ],
+    "v1": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下清洗数据的计划尚未执行。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "清洗数据"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据的计划尚未执行。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "v2": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下清洗数据的计划尚未执行。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "data cleaning"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据的计划尚未执行。"
+            }
+          }
+        ],
+        "reviewPoints": [
+          {
+            "code": "confirm-self-assessment",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据的计划尚未执行。"
+            }
+          }
+        ]
+      },
+      "extractionRead": "parsed"
+    },
+    "legacy": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据的计划尚未执行。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 17
+          },
+          "requirementLevel": null
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "literal": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据的计划尚未执行。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 17
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    },
+    "v2Site": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据的计划尚未执行。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 17
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "v2Stored": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据的计划尚未执行。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 17
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    }
+  },
+  {
+    "id": "mixed same label",
+    "text": "我在指导下清洗数据，但我独立清洗数据。",
+    "term": "清洗数据",
+    "defaultHint": false,
+    "scopeHint": false,
+    "question": false,
+    "scopes": [
+      null,
+      null
+    ],
+    "groundHint": null,
+    "groundPoints": [],
+    "experience": true,
+    "edited": [
+      [],
+      []
+    ],
+    "v1": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下清洗数据，但我独立清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "清洗数据"
+            ],
+            "selfLevelHint": "guided",
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据，但我独立清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "v2": {
+      "candidate": {
+        "schemaVersion": "2026.11.1",
+        "items": [
+          {
+            "id": "candidate-1",
+            "kind": "experience",
+            "text": "我在指导下清洗数据，但我独立清洗数据。",
+            "requirementLevel": null,
+            "skillLabels": [
+              "data cleaning"
+            ],
+            "selfLevelHint": null,
+            "source": {
+              "segmentId": "segment-1",
+              "quote": "我在指导下清洗数据，但我独立清洗数据。"
+            }
+          }
+        ],
+        "reviewPoints": []
+      },
+      "extractionRead": "parsed"
+    },
+    "legacy": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据，但我独立清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 19
+          },
+          "requirementLevel": null
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "literal": {
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据，但我独立清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 19
+          },
+          "requirementLevel": null,
+          "skillLabels": []
+        }
+      ],
+      "selfAssessmentHints": [],
+      "reviewPoints": []
+    },
+    "v2Site": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据，但我独立清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 19
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    },
+    "v2Stored": {
+      "reviewProjection": "grounded-skill-labels-v2",
+      "items": [
+        {
+          "id": "candidate-1",
+          "kind": "experience",
+          "text": "我在指导下清洗数据，但我独立清洗数据。",
+          "origin": "extracted",
+          "sourceRef": {
+            "documentId": "doc-cleaning",
+            "documentVersionId": "version-cleaning",
+            "textVersionId": "text-cleaning",
+            "start": 0,
+            "end": 19
+          },
+          "requirementLevel": null,
+          "skillLabels": [
+            "data cleaning"
+          ]
+        }
+      ],
+      "selfAssessmentHints": [
+        {
+          "id": "hint-candidate-1-0",
+          "candidateId": "candidate-1",
+          "skillLabel": "data cleaning",
+          "level": "guided"
+        }
+      ],
+      "reviewPoints": []
+    }
+  }
+]

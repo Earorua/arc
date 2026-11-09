@@ -58,6 +58,7 @@ export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMat
     if (!retainedLabel) return false;
     const needsEvidence = isSourceLinkedMaterialReviewProjection(projection) || item.origin === "user";
     const text = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION ? sourceMentionAssessmentText(item.text) : item.text;
-    return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text, labels: [hint.skillLabel], level: hint.level });
+    return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text, labels: [hint.skillLabel], level: hint.level,
+      sourceMentions: projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION });
   });
 }

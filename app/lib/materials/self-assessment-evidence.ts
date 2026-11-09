@@ -14,7 +14,7 @@ function personalPracticeNeed(text: string) {
   return /^I (?:have|had) not (?:yet )?(?:designed|built|implemented|run|completed|deployed|configured|tested)\b[^.;]{0,160}\band\s+(?:(?:do|still|now)\s+)?(?:want|need|would like)\s+(?:more )?practice\b/iu.test(text);
 }
 
-export function hasPersonalCapabilityQuestion(quote: string, masked: string, allowImplicit: boolean) {
+export function hasPersonalCapabilityQuestion(quote: string, masked: string, allowImplicit: boolean, sourceMentions = false) {
   // Review a directly stated ability, limit or learning scope independently of
   // whether one optional level can safely apply to every term in the whole fact.
   const headedPersonalAbility = allowImplicit && personalAssessmentHeading.test(masked);
@@ -22,7 +22,7 @@ export function hasPersonalCapabilityQuestion(quote: string, masked: string, all
     // An unanchored “熟悉 SQL” could be a JD requirement. First-person evidence
     // can stand alone; implicit résumé phrasing needs a personal fact candidate.
     if (!allowImplicit && !/^(?:I\b|my\b|我|本人)|\bI\s+|[，,]\s*(?:我|本人)/iu.test(text)) return false;
-    return conceptualAssessment(text) || (selfUncertain.test(text) && personalUncertainty(text)) || guidedSkillScope(raw, text) !== null
+    return conceptualAssessment(text) || (selfUncertain.test(text) && personalUncertainty(text)) || guidedSkillScope(raw, text, sourceMentions) !== null
     || /^I (?:(?:can|cannot|can['’]t)(?: yet)?|am (?:not )?(?:yet )?able to)\s+(?:independently\s+(?:configure|design|build|implement|run|complete|deploy|test|debug|repair|write|use)\b|(?:configure|design|build|implement|run|complete|deploy|test|debug|repair|write|use)\b[^.;]{0,160}\b(?:myself|independently|on my own)\b)/iu.test(text)
     || ((headedPersonalAbility || /^(?:我|本人)/u.test(text))
       && /^(?:我|本人)?(?:目前|现在|还|仍|尚)*(?:能|能够|可以|可|不能|无法)独立(?:配置|设计|构建|实现|运行|完成|部署|测试|调试|修复|编写|使用)\s*[\p{L}\p{N}]/u.test(text))
@@ -34,13 +34,13 @@ function personalUncertainty(part: string) {
     && (selfUncertain.test(part) || (/(?:\bmy\b|我|^自评)/iu.test(part) && selfConflict.test(part)));
 }
 /** Retain document-wide quotation masking when reviewing a statement slice. */
-export function supportsSelfLevelHintInScope(quote: string, masked: string, proposed: NonNullable<Hint>, labels?: readonly string[]) {
+export function supportsSelfLevelHintInScope(quote: string, masked: string, proposed: NonNullable<Hint>, labels?: readonly string[], sourceMentions = false) {
   const scopes = assessmentScopes(quote, masked);
   if (proposed !== "uncertain" && scopes.some(scope => personalUncertainty(scope.text))) return false;
   const supported = scopes.map(scope => {
     const raw = scope.raw.replace(/\s+/gu, " ").trim(), text = maskQuotes(raw);
     if (proposed === "guided") {
-      const evidence = guidedSkillScope(raw, text);
+      const evidence = guidedSkillScope(raw, text, sourceMentions);
       return evidence;
     }
     return (proposed === "uncertain" ? personalUncertainty(text) : conceptualAssessment(text)) ? raw : null;
@@ -61,9 +61,10 @@ export function supportsMaterialSelfLevelHint(input: {
   text: string;
   labels?: readonly string[];
   level: DocumentCandidate["selfLevelHint"];
+  sourceMentions?: boolean;
 }): boolean {
   if (!input.level || (input.kind !== "experience" && input.kind !== "skill-claim")) return false;
-  return supportsSelfLevelHintInScope(input.text, maskQuotes(input.text), input.level, input.labels);
+  return supportsSelfLevelHintInScope(input.text, maskQuotes(input.text), input.level, input.labels, input.sourceMentions);
 }
 
 /** A learning-limit reminder is separate from assigning a self-level hint. */

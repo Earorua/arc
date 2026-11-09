@@ -1,5 +1,5 @@
 import { documentEndpointContracts, type DocumentEndpoint, type DocumentEndpointResponse } from "../../app/contracts/documents-api";
-import type { DocumentCandidate } from "../../app/contracts/documents";
+import type { DocumentCandidate, DocumentCandidateReviewPoint } from "../../app/contracts/documents";
 import { createDocumentsClient } from "../../app/lib/documents-client";
 import { D1DocumentRepository } from "../../app/server/documents/d1-repository";
 import { KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
@@ -50,14 +50,14 @@ export function createMaterialMentionReviewFixture() {
   return {
     db, bucket, trace, client: clientFor(), clientFor,
     restart() { runtime = freshRuntime(); },
-    async deliver(doc: DocumentEndpointResponse<"createDocument">, items: DocumentCandidate[], providerPolicyId = KIMI_SOURCE_MENTIONS_POLICY_ID) {
+    async deliver(doc: DocumentEndpointResponse<"createDocument">, items: DocumentCandidate[], providerPolicyId = KIMI_SOURCE_MENTIONS_POLICY_ID, reviewPoints?: DocumentCandidateReviewPoint[]) {
       const consentId = id(), jobId = id();
       db.database.prepare("INSERT INTO document_processing_consents VALUES(?,?,?,?,?,'analysis','2026.11.1',?,0,0,NULL)")
         .run("owner-a", consentId, doc.textVersionId, doc.documentId, doc.documentVersionId, providerPolicyId);
       db.database.prepare("INSERT INTO document_jobs(owner_id,id,text_version_id,document_id,document_version_id,consent_id,generation,document_revision,revision,state,dispatch_state,execution_slot,queued_at,queue_expires_at,provider_policy_id,price_version,policy_version,reservation_id,updated_at) VALUES(?,?,?,?,?,?,0,?,0,'running','settled',NULL,0,1,?,'2026.11.1','2026.11.1',?,0)")
         .run("owner-a", jobId, doc.textVersionId, doc.documentId, doc.documentVersionId, consentId, doc.revision, providerPolicyId, id());
       return review.acceptAiExtraction("owner-a", { ...doc, jobId, generation: 0, documentRevision: doc.revision, consentId,
-        candidate: { schemaVersion: "2026.11.1", items } });
+        candidate: { schemaVersion: "2026.11.1", items, ...(reviewPoints ? { reviewPoints } : {}) } });
     },
     dispose() { db.close(); },
   };

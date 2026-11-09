@@ -83,8 +83,8 @@ const missingInformation = /\b(?:availability|available time|study time|work(?:i
 const missingPersonalResponsibility = /^(?:本人|我)(?:是否(?:亲自|独立)?(?:编写|完成|实现|配置|设计|测试|部署)[^，,；;。]{1,60}|负责的(?:范围|部分|工作|职责))\s*(?:仍|尚)?(?:待确认|未确认|未明确)[。.]?$|^Whether I (?:personally )?(?:wrote|completed|implemented|configured|designed|tested|deployed)\b[^.;]{1,100}\s+(?:is|remains)\s+(?:unconfirmed|unknown|not (?:confirmed|specified))[.!]?$/iu;
 
 /** A proposed level is optional, and an individual skill rating requires personal evidence. */
-export function groundSourceSelfLevelHint(item: EvidenceItem): Hint {
-  return supportsMaterialSelfLevelHint({ kind: item.kind, text: item.source.quote, labels: item.skillLabels, level: item.selfLevelHint }) ? item.selfLevelHint : null;
+export function groundSourceSelfLevelHint(item: EvidenceItem, sourceMentions = false): Hint {
+  return supportsMaterialSelfLevelHint({ kind: item.kind, text: item.source.quote, labels: item.skillLabels, level: item.selfLevelHint, sourceMentions }) ? item.selfLevelHint : null;
 }
 
 type Anchor = { start: number; end: number; code?: Code; item?: EvidenceItem; pairedConflict?: boolean };
@@ -166,7 +166,7 @@ function markPairedConflicts(anchors: Anchor[], text: string) {
   }
 }
 
-function supportedCodes(quote: string, masked: string, anchors: Anchor[]) {
+function supportedCodes(quote: string, masked: string, anchors: Anchor[], sourceMentions: boolean) {
   const codes = new Set<Code>();
   if (hasLiteralUrl(quote)) codes.add("untrusted-resource-url");
   const addressed = commandToAssistant.exec(masked);
@@ -192,7 +192,7 @@ function supportedCodes(quote: string, masked: string, anchors: Anchor[]) {
   if (masked.split(/[;；]/u).some(clause => missingPersonalResponsibility.test(clause.trim())
     && !/(?:并非|不是|不再)\s*(?:待确认|未确认|未明确)/u.test(clause))) codes.add("missing-information");
   const hint = anchors.some(({ item }) => item && (item.kind === "experience" || item.kind === "skill-claim")
-    && item.selfLevelHint && supportsSelfLevelHintInScope(quote, masked, item.selfLevelHint, item.skillLabels));
+    && item.selfLevelHint && supportsSelfLevelHintInScope(quote, masked, item.selfLevelHint, item.skillLabels, sourceMentions));
   const personal = anchors.some(({ item }) => item?.kind === "experience" || item?.kind === "skill-claim");
   // An explicit unpractised learning need can remain a constraint and still
   // warrant a question. It does not supply a level or reclassify the fact.
@@ -201,8 +201,8 @@ function supportedCodes(quote: string, masked: string, anchors: Anchor[]) {
   const noItems = !anchors.some(anchor => anchor.item);
   const asked = anchors.some(anchor => anchor.code === "confirm-self-assessment");
   const labels = anchors.flatMap(anchor => anchor.item?.skillLabels ?? []);
-  if (hint || learningLimit || ((personal || noItems) && hasPersonalCapabilityQuestion(quote, masked, personal))
-    || (asked && personal && (["conceptual", "guided", "uncertain"] as const).some(level => supportsSelfLevelHintInScope(quote, masked, level, labels)))) {
+  if (hint || learningLimit || ((personal || noItems) && hasPersonalCapabilityQuestion(quote, masked, personal, sourceMentions))
+    || (asked && personal && (["conceptual", "guided", "uncertain"] as const).some(level => supportsSelfLevelHintInScope(quote, masked, level, labels, sourceMentions)))) {
     codes.add("confirm-self-assessment");
   }
   return codes;
@@ -212,6 +212,7 @@ function supportedCodes(quote: string, masked: string, anchors: Anchor[]) {
 export function groundSourceReviewPoints(
   points: readonly DocumentCandidateReviewPoint[], items: readonly EvidenceItem[], sources: Sources,
   bounds?: ReadonlyMap<number, number>,
+  sourceMentions = false,
 ): DocumentCandidateReviewPoint[] | null {
   if (points.length > 100 || items.length > 100) return null;
   const segments = [...sources.segments].sort((a, b) => a.start - b.start);
@@ -254,7 +255,7 @@ export function groundSourceReviewPoints(
       if (anchor.start >= outerStart && anchor.end <= end) local.push(anchor);
     }
     const quote = sources.text.slice(start, end);
-    const codes = supportedCodes(quote, masked.slice(start, end), local);
+    const codes = supportedCodes(quote, masked.slice(start, end), local, sourceMentions);
     if (!codes.size) continue;
     while (segmentIndex < segments.length && segments[segmentIndex]!.end <= start) segmentIndex++;
     const segment = segments[segmentIndex];

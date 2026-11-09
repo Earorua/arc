@@ -1,0 +1,151 @@
+// @vitest-environment node
+import { describe, expect, it } from "vitest";
+import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION } from "../../app/contracts/documents";
+import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
+import { validateDocumentExtraction, serializeDocumentExtraction, validateStoredDocumentExtraction } from "../../app/server/documents/extraction-validator";
+import { cleaningCandidate, cleaningReference, decodeCleaning, parsedCleaning, guidedCleaningHint, guidedCleaningPositive, guidedCleaningNegative, legacyCleaningObservations } from "../helpers/material-guided-cleaning";
+import { createMaterialMentionReviewFixture } from "../helpers/material-mention-review-fixture";
+import legacy from "../fixtures/material-guided-cleaning-legacy.json";
+
+describe("v3 guided Chinese cleaning evidence", () => {
+  it.each(guidedCleaningPositive)("decodes %s literal terms into a guided canonical fact and sourced reminder", (_name, text, term) => {
+    const result = parsedCleaning(text, [term]);
+    expect(result.items[0]).toMatchObject({ text, source: { quote: text }, skillLabels: ["data cleaning"], selfLevelHint: "guided" });
+    expect(result.reviewPoints).toEqual([{ code: "confirm-self-assessment", source: { segmentId: "segment-1", quote: text } }]);
+  });
+
+  it.each(guidedCleaningPositive)("independently validates and replays canonical %s hints", (_name, text) => {
+    const candidate = cleaningCandidate(text), reference = cleaningReference(text);
+    const direct = validateDocumentExtraction(candidate, "owner", reference, KIMI_SOURCE_MENTIONS_POLICY_ID);
+    expect(direct.selfAssessmentHints).toEqual([guidedCleaningHint]);
+    expect(direct.reviewProjection).toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
+    expect(validateStoredDocumentExtraction(serializeDocumentExtraction(candidate, KIMI_SOURCE_MENTIONS_POLICY_ID), "owner", reference)).toEqual(direct);
+  });
+
+  it.each(guidedCleaningNegative)("retains the %s topic without a hint or invented capability question", (_name, text, term) => {
+    const result = parsedCleaning(text, [term]);
+    expect(result.items[0]).toMatchObject({ skillLabels: ["data cleaning"], selfLevelHint: null });
+    expect(result.reviewPoints).toEqual([]);
+    const candidate = cleaningCandidate(text), reference = cleaningReference(text);
+    expect(validateDocumentExtraction(candidate, "owner", reference, KIMI_SOURCE_MENTIONS_POLICY_ID).selfAssessmentHints).toEqual([]);
+    expect(validateStoredDocumentExtraction(serializeDocumentExtraction(candidate, KIMI_SOURCE_MENTIONS_POLICY_ID), "owner", reference).selfAssessmentHints).toEqual([]);
+  });
+
+  it.each(["我在指导下清洗设备。", "我在指导下清洗数据中心。"])("does not canonicalize a non-data object: %s", text => {
+    const terms = text.includes("中心") ? ["清洗数据"] : ["清洗设备"];
+    const result = parsedCleaning(text, terms);
+    expect(result.items[0]?.skillLabels).not.toContain("data cleaning");
+    expect(result.items[0]?.selfLevelHint).toBeNull();
+    expect(result.reviewPoints).toEqual([]);
+  });
+
+  it.each([
+    ["我在指导下清洗数据，但我独立清洗数据。", ["清洗数据"], ["data cleaning"]],
+    ["我在指导下清洗数据，但同事使用 SQL。", ["清洗数据", "SQL"], ["data cleaning", "SQL"]],
+  ])("keeps an independent personal question without lending one whole-fact hint: %s", (text, terms, labels) => {
+    const result = parsedCleaning(text as string, terms as string[]);
+    expect(result.items[0]).toMatchObject({ skillLabels: labels, selfLevelHint: null });
+    expect(result.reviewPoints?.map(point => point.code)).toEqual(["confirm-self-assessment"]);
+    expect(validateDocumentExtraction(cleaningCandidate(text as string, { labels: labels as string[] }), "owner", cleaningReference(text as string), KIMI_SOURCE_MENTIONS_POLICY_ID).selfAssessmentHints).toEqual([]);
+  });
+
+  it.each([
+    ["我在指导下清洗数据，记录了同事的 SQL 工作。", ["清洗数据", "SQL"], ["data cleaning", "SQL"]],
+    ["我在指导下清洗数据，记录了同事清洗数据的工作。", ["清洗数据"], ["data cleaning"]],
+  ] as const)("retains topics in an unsegmented mixed clause without a level or inferred reminder: %s", (text, terms, labels) => {
+    const result = parsedCleaning(text, [...terms]);
+    expect(result.items[0]).toMatchObject({ text, skillLabels: labels, selfLevelHint: null });
+    expect(result.reviewPoints).toEqual([]);
+    const candidate = cleaningCandidate(text, { labels: [...labels] }), reference = cleaningReference(text);
+    const direct = validateDocumentExtraction(candidate, "owner", reference, KIMI_SOURCE_MENTIONS_POLICY_ID);
+    expect(direct.items[0]?.skillLabels).toEqual(labels);
+    expect(direct.selfAssessmentHints).toEqual([]);
+    expect(validateStoredDocumentExtraction(serializeDocumentExtraction(candidate, KIMI_SOURCE_MENTIONS_POLICY_ID), "owner", reference)).toEqual(direct);
+  });
+
+  it("does not generate a missing hint, source nomination, or capability from a canonical wire replacement", () => {
+    const text = guidedCleaningPositive[0][1];
+    expect(parsedCleaning(text, ["清洗数据"], { level: null })).toMatchObject({ items: [{ skillLabels: ["data cleaning"], selfLevelHint: null }],
+      reviewPoints: [{ code: "confirm-self-assessment" }] });
+    expect(parsedCleaning(text, []).items[0]?.skillLabels).toEqual([]);
+    expect(parsedCleaning(text, ["data cleaning"]).items[0]?.skillLabels).toEqual([]);
+    expect(validateDocumentExtraction(cleaningCandidate(text, { level: null }), "owner", cleaningReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID).selfAssessmentHints).toEqual([]);
+  });
+
+  it.each(["requirement", "constraint"] as const)("keeps %s ineligible for a personal hint or reminder", kind => {
+    const text = guidedCleaningPositive[0][1], result = parsedCleaning(text, ["清洗数据"], { kind, level: null });
+    expect(result.items[0]?.selfLevelHint).toBeNull();
+    expect(result.reviewPoints).toEqual([]);
+  });
+
+  it("keeps full-document quotation scope when the quoted example contains multiple sentences", () => {
+    const text = "示例：“我在指导下清洗数据。我练习 SQL。”", quote = "我在指导下清洗数据。";
+    expect(decodeCleaning(text, ["清洗数据"], { quote })).toMatchObject({ candidate: null, extractionRead: "invalid-source" });
+    expect(() => validateDocumentExtraction(cleaningCandidate(text, { quote }), "owner", cleaningReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow();
+  });
+
+  it("deep-compares omitted helper mode and legacy/v1/v2 contracts with the frozen pre-change results", () => {
+    expect(legacyCleaningObservations()).toEqual(legacy);
+    const text = guidedCleaningPositive[0][1];
+    expect(decodeCleaning(text, ["清洗数据"], {}, "source-spans-v2").candidate).toMatchObject({ items: [{ selfLevelHint: null }] });
+    expect(decodeCleaning("我在指导下练习清洗数据。", ["清洗数据"], {}, "source-spans-v2").candidate).toMatchObject({ items: [{ selfLevelHint: "guided" }] });
+    const unknown = KIMI_SOURCE_MENTIONS_POLICY_ID + "-unrecognized";
+    expect(validateDocumentExtraction(cleaningCandidate(text), "owner", cleaningReference(text), unknown))
+      .toEqual(validateDocumentExtraction(cleaningCandidate(text), "owner", cleaningReference(text)));
+    expect(validateStoredDocumentExtraction(serializeDocumentExtraction(cleaningCandidate(text), KIMI_GROUNDED_TERMS_POLICY_ID), "owner", cleaningReference(text)).reviewProjection)
+      .not.toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
+  });
+});
+
+describe("guided Chinese cleaning through actual ReviewService persistence", () => {
+  it.each(["我在指导下清洗数据。", "１. 我在指导下清洗数据。"])("keeps %s on untouched and edited save/reload with the full source quote", async text => {
+    const f = createMaterialMentionReviewFixture();
+    try {
+      const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Guided cleaning", text, mutationId: "create-cleaning" });
+      const decoded = parsedCleaning(text, ["清洗数据"]);
+      expect(decoded.items[0]?.selfLevelHint).toBe("guided");
+      expect(decoded.reviewPoints).toEqual([{ code: "confirm-self-assessment", source: { segmentId: "segment-1", quote: "我在指导下清洗数据。" } }]);
+      expect((await f.deliver(doc, decoded.items, KIMI_SOURCE_MENTIONS_POLICY_ID, decoded.reviewPoints)).disposition).toBe("initialized");
+      const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
+      let draft = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
+      expect(draft.selfAssessmentHints).toEqual([guidedCleaningHint]);
+      expect(draft.reviewPoints).toEqual([expect.objectContaining({ code: "confirm-self-assessment", resolution: "unresolved",
+        sourceRef: expect.objectContaining({ start: text.startsWith("１.") ? 3 : 0, end: text.length }) })]);
+      const sourceRef = draft.items[0]!.sourceRef;
+      expect(sourceRef).toMatchObject({ start: 0, end: text.length });
+      for (const edit of [undefined, text.replace("清洗数据", "清洗了数据")]) {
+        const items = edit ? [{ ...draft.items[0]!, text: edit, origin: "user" as const }] : draft.items;
+        ({ draft } = await f.client.request("saveDocumentReviewDraft", { ...ref, extractionId: draft.extractionId, expectedRevision: draft.revision,
+          items, selfAssessmentHints: draft.selfAssessmentHints, mutationId: edit ? "edit-cleaning" : "save-cleaning" }));
+        expect(draft.selfAssessmentHints).toEqual([guidedCleaningHint]);
+        expect(draft.items[0]).toMatchObject({ text: edit ?? text, skillLabels: ["data cleaning"], sourceRef });
+        expect(draft.reviewProjection).toBe(SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION);
+        f.restart();
+        expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
+        expect((await f.client.request("readDocument", { documentId: doc.documentId })).text).toBe(text);
+      }
+    } finally { f.dispose(); }
+  });
+
+  it.each(["hint", "label", "item", "negative edit"] as const)("does not restore a removed %s on later saves and reloads", async removal => {
+    const f = createMaterialMentionReviewFixture(), text = guidedCleaningPositive[0][1];
+    try {
+      const doc = await f.client.request("createDocument", { kind: "resume", displayName: "Cleaning removals", text, mutationId: "create-removal" });
+      await f.deliver(doc, parsedCleaning(text, ["清洗数据"]).items);
+      const ref = { documentId: doc.documentId, textVersionId: doc.textVersionId };
+      const initial = (await f.client.request("readDocumentReviewDraft", ref)).draft!;
+      expect(initial.selfAssessmentHints).toEqual([guidedCleaningHint]);
+      const items = removal === "item" ? [] : initial.items.map(item => removal === "label" ? { ...item, skillLabels: [] }
+        : removal === "negative edit" ? { ...item, text: "我在指导下清洗数据的计划尚未执行。", origin: "user" as const } : item);
+      let { draft } = await f.client.request("saveDocumentReviewDraft", { ...ref, extractionId: initial.extractionId, expectedRevision: initial.revision,
+        items, selfAssessmentHints: removal === "hint" ? [] : initial.selfAssessmentHints, mutationId: "remove-cleaning" });
+      expect(draft.selfAssessmentHints).toEqual([]);
+      ({ draft } = await f.client.request("saveDocumentReviewDraft", { ...ref, extractionId: draft.extractionId, expectedRevision: draft.revision,
+        items: draft.items, selfAssessmentHints: initial.selfAssessmentHints, mutationId: "resend-cleaning-hint" }));
+      expect(draft.selfAssessmentHints).toEqual([]);
+      expect(draft.items).toEqual(items);
+      f.restart();
+      expect((await f.client.request("readDocumentReviewDraft", ref)).draft).toEqual(draft);
+    } finally { f.dispose(); }
+  });
+});
