@@ -118,6 +118,46 @@ describe("built native smoke composition", () => {
   }, 90_000);
 });
 
+describe("isolated control deadline boundary", () => {
+  it.each([
+    { name: "does not retry after its watchdog fires at a fractional deadline", signingMs: 0.25, expectedCalls: 1 },
+    { name: "does not dispatch when signing finishes after the deadline", signingMs: 10000.25, expectedCalls: 0 },
+  ])("$name", async ({ signingMs, expectedCalls }) => {
+    // Execute the exact private function without adding a clock override to the CLI.
+    // Signing, scheduling and transport are synthetic; signed native responses are tested below.
+    const source = await readFile(resolve("scripts/test-research-cloud-smoke.mjs"), "utf8");
+    const start = "async function control(", end = "async function replayApproval(";
+    expect(source.split(start)).toHaveLength(2); expect(source.split(end)).toHaveLength(2);
+    const controlSource = source.slice(source.indexOf(start), source.indexOf(end));
+    let now = 0, completed = false;
+    const timers = new Map<number, { callback: () => void; at: number }>();
+    let sequence = 0;
+    const evaluate = new Function("performance", "setTimeout", "clearTimeout", "responseNonces", `${controlSource}; return control;`);
+    const control = evaluate({ now: () => now }, (callback: () => void, delay: number) => {
+      const id = ++sequence; timers.set(id, { callback, at: now + delay }); return id;
+    }, (id: number) => { timers.delete(id); }, () => ({})) as (...args: unknown[]) => Promise<Record<string, unknown>>;
+    const requests: Request[] = [];
+    const transport = vi.fn((request: Request) => { requests.push(request); return new Promise<Response>(() => undefined); });
+    const helper = { signBridgeMessage: async () => { now += signingMs; return new Headers(); } };
+    const pending = control({ mode: "start", scenarioId: "long" },
+      { inventory: { controlOrigin: "https://smoke.example.test", controlKeyId: "synthetic-control" } },
+      helper, new Uint8Array(32), transport, () => undefined);
+    void pending.then(() => { completed = true; }, () => { completed = true; });
+    for (let turn = 0; !completed && turn < 10; turn++) {
+      for (let microtask = 0; microtask < 16; microtask++) await Promise.resolve();
+      if (completed) break;
+      const next = [...timers.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+      expect(next, "pending request must have a deadline timer").toBeDefined();
+      const [id, timer] = next!; timers.delete(id); now = timer.at; timer.callback();
+    }
+    expect(completed).toBe(true);
+    expect(await pending).toMatchObject({ status: "pending", accepted: false, reason: "acceptance-unknown" });
+    expect(requests.every(request => request.signal.aborted)).toBe(true);
+    expect(transport).toHaveBeenCalledTimes(expectedCalls);
+    expect(requests.map(request => new URL(request.url).pathname)).toEqual(expectedCalls ? ["/_smoke/start"] : []);
+  });
+});
+
 describe("bounded operator driver", () => {
   let sequence = 0;
   const name = () => `t15p4-driver-${Date.now()}-${sequence++}`;

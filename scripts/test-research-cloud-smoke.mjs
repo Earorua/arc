@@ -224,6 +224,7 @@ function safeStatus(body, scenarioId, scenarios) {
 async function control(options, configuration, helper, keyBytes, transport, recordNonceStorage) {
   const { inventory } = configuration;
   const end = performance.now() + (options.mode === "start" ? 10_000 : 5_000);
+  let deadlineExpired = false;
   const nonces = responseNonces(inventory, recordNonceStorage);
   const request = async operation => {
     const context = { direction: "executor-to-site", kind: "request", method: "POST", path: `/_smoke/${operation}`,
@@ -231,12 +232,13 @@ async function control(options, configuration, helper, keyBytes, transport, reco
     const body = new TextEncoder().encode(JSON.stringify({ scenarioId: options.scenarioId }));
     const headers = await helper.signBridgeMessage({ context, body, keyId: inventory.controlKeyId, keyBytes, now: Date.now });
     const controller = new AbortController();
-    const check = () => { if (controller.signal.aborted || performance.now() >= end) throw Error("Control deadline"); };
-    const remaining = Math.max(1, Math.floor(end - performance.now()));
+    const check = () => { if (deadlineExpired || controller.signal.aborted || performance.now() >= end) throw Error("Control deadline"); };
     let timer;
     try {
+      check();
+      const remaining = Math.max(1, Math.floor(end - performance.now()));
       const response = await Promise.race([transport(new Request(new URL(context.path, context.audience), { method: "POST", headers, body, redirect: "error", signal: controller.signal })),
-        new Promise((_, no) => { timer = setTimeout(() => { controller.abort(); no(Object.assign(Error(), { pending: true })); }, remaining); })]);
+        new Promise((_, no) => { timer = setTimeout(() => { deadlineExpired = true; controller.abort(); no(Object.assign(Error(), { pending: true })); }, remaining); })]);
       const bytes = await helper.readBridgeBody(response, { maxBytes: 4096, timeoutMs: Math.max(1, Math.min(4500, Math.floor(end - performance.now()))), signal: controller.signal });
       try { await helper.verifyBridgeMessage({ context: { ...context, kind: "response", status: response.status }, body: bytes,
         headers: response.headers, keyId: inventory.controlKeyId, keyBytes, now: Date.now,
@@ -248,7 +250,7 @@ async function control(options, configuration, helper, keyBytes, transport, reco
       return { view: safeStatus(parsed, options.scenarioId, helper.SCENARIOS) };
     } finally { clearTimeout(timer); controller.abort(); }
   };
-  for (let attempt = 0; attempt < (options.mode === "start" ? 3 : 1) && performance.now() < end; attempt++) {
+  for (let attempt = 0; attempt < (options.mode === "start" ? 3 : 1) && !deadlineExpired && performance.now() < end; attempt++) {
     let result;
     try { result = await request(attempt === 0 ? options.mode : "status"); }
     catch (error) { if (error.safeCode) throw error; result = { pending: true }; }
