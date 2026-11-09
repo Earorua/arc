@@ -1,6 +1,6 @@
 # 将原文主题保留接入新的提取与核对版本
 
-**2026-11-08 晚状态：** 仅保存下一批实施计划，尚未开始实现。用户已要求暂停；前置的个人实践接入仍在质量修复，须用户恢复并完成该批验收后再执行本计划。
+**2026-11-09 恢复状态：** 用户已恢复持续目标。前置个人实践接入已完成独立规格、质量和全仓验收，保存于 `8cba14ddabc3de6a72af10fe6490f51293559acc`。本计划开始离线实施，逐项完成规格与质量审阅；不启用真实模型、远程迁移或部署。11 月 8 日保存时尚未开始实现、前置修复未复测的状态保留在 Git 历史。
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -34,10 +34,10 @@ export const KIMI_SOURCE_MENTIONS_POLICY_ID = "materials-openrouter-kimi-k31-pro
 
 **Files:** `app/contracts/documents.ts`、`app/lib/materials/skill-labels.ts`；新增`tests/lib/materials/reviewed-source-mentions.test.ts`，复用已有`tests/lib/materials/retained-assessment-hints.test.ts`和`material-skill-mentions.test.ts`。
 
-- [ ] 先添加失败测试。新标记下负面原文中的SQL可保留、可从同一原文明确补充；旧v2保持原肯定过滤。以下使用现有`GROUNDED_MATERIAL_REVIEW_PROJECTION`和新常量：
+- [x] 先添加失败测试。新标记下负面原文中的SQL可保留、可从同一原文明确补充；旧v2保持原肯定过滤。以下使用现有`GROUNDED_MATERIAL_REVIEW_PROJECTION`和新常量：
 
 ```ts
-const text = "I have never configured SQL for production.";
+const text = "I have never used SQL for production.";
 expect(supportsReviewedSkillLabel(text, "SQL", SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION)).toBe(true);
 expect(supportsReviewedSkillLabel(text, "SQL", GROUNDED_MATERIAL_REVIEW_PROJECTION)).toBe(false);
 expect(labelForAddedSourceTerm(text, text, "SQL", SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION)).toBe("SQL");
@@ -45,12 +45,14 @@ expect(labelForAddedSourceTerm(text, text, "SQL", GROUNDED_MATERIAL_REVIEW_PROJE
 expect(labelForAddedSourceTerm(text, text, "SQL")).toBeNull();
 ```
 
-- [ ] 在documentReviewDraft的可选标记中接受两种明确版本，保留原v2常量。增加共享判别函数`isSourceLinkedMaterialReviewProjection(projection)`，仅对v2/v3返回true；不要以任意非空字符串获得新规则。
-- [ ] 在`skill-labels.ts`增加`findReviewedSourceTerm(text, label, projection)`，v3调用`findMaterialSkillMention`，其它版本调用原`findMaterialSkillEvidence`。`supportsReviewedSkillLabel`的legacy分支继续使用原字面规则，v2仍走肯定接口，v3才走mention接口。
-- [ ] `labelForAddedSourceTerm`增加可选第四参数`projection: DocumentReviewDraft["reviewProjection"]`；v3用`groundMaterialSkillMentions`绑定原文提名，并在当前事实中以mention规则验证。省略参数和v2调用保持原肯定语义，不能把全局旧函数直接替换为mention模式。
-- [ ] `retainedMaterialSelfAssessmentHints`对v2/v3或用户编辑事实均复用`supportsMaterialSelfLevelHint`；未编辑legacy兼容分支不变。针对否定、他人、引用、未来、混合主体和改写后旧提示验证：主题可保留，失去个人证据的旧提示移除，不新造提示。
-- [ ] 用原文不存在、canonical名称反推、重复大小写来源、重分类、显式空列表和已删除词作反例；保留已审等价词、标题、中文名词尾、字素和完整技术名的现有检查。禁止新词典或另一套词法定位器。
-- [ ] 执行新测试与既有三个相关套件、相关类型/Lint；完成独立规格与质量审阅，再由根任务保存源码。示例唯一标签首次使用前必须确认不存在：
+2026-11-09 实测修正：初稿使用 `never configured SQL`，但原 v2 词语定位器对该动词的既有输出是 `true`／`SQL`，不是初稿假定的 `false`／`null`。原 RED（41 失败／22 通过）和测试源码保存在 `mention-projection-library-20261109-red*`，原库摘要为 `d2a5c3c69c1bd671a30b9597bcec44435baa21b3ce7aedd7664045217118bad0`。因此用已被 v2 过滤的 `never used SQL` 验证版本差异，并为原句保留旧 v2 输出的兼容断言；不改共享定位器来迁就错误假设。v3 对两句均保留主题，但能力建议和实践仍须分别通过已有个人证据检查。
+
+- [x] 在documentReviewDraft的可选标记中接受两种明确版本，保留原v2常量。增加共享判别函数`isSourceLinkedMaterialReviewProjection(projection)`，仅对v2/v3返回true；不要以任意非空字符串获得新规则。
+- [x] 在`skill-labels.ts`增加`findReviewedSourceTerm(text, label, projection)`，v3调用`findMaterialSkillMention`，其它版本调用原`findMaterialSkillEvidence`。`supportsReviewedSkillLabel`的legacy分支继续使用原字面规则，v2仍走肯定接口，v3才走mention接口。
+- [x] `labelForAddedSourceTerm`增加可选第四参数`projection: DocumentReviewDraft["reviewProjection"]`；v3用`groundMaterialSkillMentions`绑定原文提名，并在当前事实中以mention规则验证。省略参数和v2调用保持原肯定语义，不能把全局旧函数直接替换为mention模式。
+- [x] `retainedMaterialSelfAssessmentHints`对v2/v3或用户编辑事实均复用`supportsMaterialSelfLevelHint`；未编辑legacy兼容分支不变。针对否定、他人、引用、未来、混合主体和改写后旧提示验证：主题可保留，失去个人证据的旧提示移除，不新造提示。
+- [x] 用原文不存在、canonical名称反推、重复大小写来源、重分类、显式空列表和已删除词作反例；保留已审等价词、标题、中文名词尾、字素和完整技术名的现有检查。禁止新词典或另一套词法定位器。
+- [x] 执行新测试与既有三个相关套件、相关类型/Lint；完成独立规格与质量审阅，再由根任务保存源码。示例唯一标签首次使用前必须确认不存在：
 
 ```powershell
 node work/grounded-verification/run.mjs mention-projection-library-20261108-red node_modules/vitest/vitest.mjs run --maxWorkers=1 tests/lib/materials/reviewed-source-mentions.test.ts
@@ -58,6 +60,8 @@ node work/grounded-verification/run.mjs mention-projection-library-20261108-gree
 ```
 
 ## Task 2：新增提取策略与服务端投影
+
+Task 1 于 2026-11-09 完成：4 套件 507 项、专项类型／Lint通过；独立规格 51 项探针（含 7,560 次旧行为对照）与质量 31 项探针通过，三文件摘要保持冻结。根任务 150 个旧 provider 场景、20 个 helper 观察及 6 份实际 v1/v2 持久化记录只读重载一致。本批整体仍须完成 Task 2–4，不能以库验收替代完整接入。
 
 **Files:** `app/server/documents/policy.ts`、`worker/document-executor/source-span-extraction.ts`、`app/server/documents/extraction-validator.ts`；`tests/server/document-source-span-provider.test.ts`、`tests/server/document-extraction.test.ts`。若现有严格策略分派需要调整，仅改明确的v3分支，不放宽未知策略或路由校验。
 

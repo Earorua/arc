@@ -1,5 +1,5 @@
-import { GROUNDED_MATERIAL_REVIEW_PROJECTION, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../contracts/documents";
-import { findMaterialSkillEvidence, groundMaterialSkillTerms } from "./grounded-skill-terms";
+import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, isSourceLinkedMaterialReviewProjection, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../contracts/documents";
+import { findMaterialSkillEvidence, findMaterialSkillMention, groundMaterialSkillMentions, groundMaterialSkillTerms } from "./grounded-skill-terms";
 import { supportsMaterialSelfLevelHint } from "./self-assessment-evidence";
 
 export function normalizeMaterialSkillLabel(label: string) {
@@ -18,16 +18,25 @@ export function containsMaterialSkillLabel(text: string, label: string) {
   return false;
 }
 
-/** Old reviews retain their literal edit rule. V2 accepts only a grounded source term or its reviewed equivalent. */
+/** Recover a source term using the review's versioned grounding rules. */
+export function findReviewedSourceTerm(text: string, label: string, projection: DocumentReviewDraft["reviewProjection"]): string | null {
+  return projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION
+    ? findMaterialSkillMention(text, label)
+    : findMaterialSkillEvidence(text, label);
+}
+
+/** Old reviews retain their literal edit rule; source-linked reviews use their versioned locator. */
 export function supportsReviewedSkillLabel(text: string, label: string, projection: DocumentReviewDraft["reviewProjection"]) {
-  return projection === GROUNDED_MATERIAL_REVIEW_PROJECTION
-    ? findMaterialSkillEvidence(text, label) !== null
+  return isSourceLinkedMaterialReviewProjection(projection)
+    ? findReviewedSourceTerm(text, label, projection) !== null
     : containsMaterialSkillLabel(text, label);
 }
 
-export function labelForAddedSourceTerm(quote: string, fact: string, sourceTerm: string): string | null {
-  const [label] = groundMaterialSkillTerms(quote, [sourceTerm]);
-  return label && findMaterialSkillEvidence(fact, label) !== null ? label : null;
+export function labelForAddedSourceTerm(quote: string, fact: string, sourceTerm: string, projection?: DocumentReviewDraft["reviewProjection"]): string | null {
+  const [label] = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION
+    ? groundMaterialSkillMentions(quote, [sourceTerm])
+    : groundMaterialSkillTerms(quote, [sourceTerm]);
+  return label && findReviewedSourceTerm(fact, label, projection) !== null ? label : null;
 }
 
 export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMaterialItem[], hints: DocumentReviewDraft["selfAssessmentHints"], projection?: DocumentReviewDraft["reviewProjection"]) {
@@ -36,7 +45,7 @@ export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMat
     if (!item || (item.kind !== "skill-claim" && item.kind !== "experience")) return false;
     const retainedLabel = item.skillLabels ? item.skillLabels.includes(hint.skillLabel) : item.origin === "extracted" || containsMaterialSkillLabel(item.text, hint.skillLabel);
     if (!retainedLabel) return false;
-    const needsEvidence = projection === GROUNDED_MATERIAL_REVIEW_PROJECTION || item.origin === "user";
+    const needsEvidence = isSourceLinkedMaterialReviewProjection(projection) || item.origin === "user";
     return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text: item.text, labels: [hint.skillLabel], level: hint.level });
   });
 }
