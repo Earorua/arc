@@ -3,7 +3,7 @@ import { documentExtractionSchema, GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_M
 import { supportsReviewedSkillLabel } from "../../lib/materials/skill-labels";
 import { supportsMaterialSelfLevelHint, supportsSelfLevelHintInScope } from "../../lib/materials/self-assessment-evidence";
 import { maskQuotes } from "../../lib/materials/quotation-evidence";
-import { groundedStatementBoundaries, isDetachedQuotedStatement } from "../../../worker/document-executor/source-review-evidence";
+import { sourceMentionStatementBoundaries, isDetachedQuotedStatement } from "../../../worker/document-executor/source-review-evidence";
 import { DocumentServiceError } from "./d1-repository";
 import { validateDocumentReviewPoints } from "./review-points";
 import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "./policy";
@@ -35,7 +35,7 @@ function projectExtraction(candidate: unknown, ownerId: string, reference: Mater
         throw new DocumentServiceError("invalid-content");
     const reviewProjection = isSourceLinkedMaterialReviewProjection(projection) ? projection : undefined;
     const sourceMentions = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION;
-    const bounds = sourceMentions ? groundedStatementBoundaries(reference.text) : undefined;
+    const bounds = sourceMentions ? sourceMentionStatementBoundaries(reference.text) : undefined;
     const statementStarts = new Map(bounds && [...bounds].map(([start, end]) => [end, start]));
     const masked = sourceMentions ? maskQuotes(reference.text) : "";
     const items: ConfirmedMaterialItem[] = parsed.data.items.map(item => {

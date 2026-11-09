@@ -1,6 +1,7 @@
 import { SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION, isSourceLinkedMaterialReviewProjection, type ConfirmedMaterialItem, type DocumentReviewDraft } from "../../contracts/documents";
 import { findMaterialSkillEvidence, findMaterialSkillMention, groundMaterialSkillMentions, groundMaterialSkillTerms } from "./grounded-skill-terms";
 import { supportsMaterialSelfLevelHint } from "./self-assessment-evidence";
+import { sourceMentionStatementBoundaries } from "../../../worker/document-executor/source-review-evidence";
 
 export function normalizeMaterialSkillLabel(label: string) {
   return label.normalize("NFKC").toLowerCase();
@@ -39,6 +40,16 @@ export function labelForAddedSourceTerm(quote: string, fact: string, sourceTerm:
   return label && findReviewedSourceTerm(fact, label, projection) !== null ? label : null;
 }
 
+function sourceMentionAssessmentText(text: string) {
+  const start = text.length - text.trimStart().length, end = text.trimEnd().length;
+  const prefix = /^[\d０-９]{1,3}\.[^\S\r\n]+/u.exec(text.slice(start, end));
+  if (!prefix) return text;
+  const bodyStart = start + prefix[0].length, bounds = sourceMentionStatementBoundaries(text);
+  // Prepare only a complete numeric-dot entry's proven body. Keep attribution,
+  // multiple statements and every stored fact/source field unchanged.
+  return bounds.get(start) === end && bounds.get(bodyStart) === end ? text.slice(bodyStart, end) : text;
+}
+
 export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMaterialItem[], hints: DocumentReviewDraft["selfAssessmentHints"], projection?: DocumentReviewDraft["reviewProjection"]) {
   return hints.filter(hint => {
     const item = items.find(item => item.id === hint.candidateId);
@@ -46,6 +57,7 @@ export function retainedMaterialSelfAssessmentHints(items: readonly ConfirmedMat
     const retainedLabel = item.skillLabels ? item.skillLabels.includes(hint.skillLabel) : item.origin === "extracted" || containsMaterialSkillLabel(item.text, hint.skillLabel);
     if (!retainedLabel) return false;
     const needsEvidence = isSourceLinkedMaterialReviewProjection(projection) || item.origin === "user";
-    return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text: item.text, labels: [hint.skillLabel], level: hint.level });
+    const text = projection === SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION ? sourceMentionAssessmentText(item.text) : item.text;
+    return !needsEvidence || supportsMaterialSelfLevelHint({ kind: item.kind, text, labels: [hint.skillLabel], level: hint.level });
   });
 }

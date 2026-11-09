@@ -161,6 +161,50 @@ describe("reviewed source mentions", () => {
 });
 
 describe("source mentions remain separate from personal self-assessment", () => {
+  it.each([
+    ["1. I tested SQL under supervision.", "guided"],
+    ["１２. I tested SQL under supervision.", "guided"],
+    ["  1. I tested SQL under supervision.\r\n", "guided"],
+    ["1. I am familiar with SQL.", "conceptual"],
+    ["1. I am unsure about my SQL proficiency.", "uncertain"],
+  ] as const)("retains only the existing v3 hint supported by a complete numbered fact: %s", (text, level) => {
+    const item = fact(text), before = structuredClone(item), hint = { ...guidedHint, level };
+    expect(retainedMaterialSelfAssessmentHints([item], [hint], mentionProjection)).toEqual([hint]);
+    expect(retainedMaterialSelfAssessmentHints([item], [], mentionProjection)).toEqual([]);
+    expect(retainedMaterialSelfAssessmentHints([item], [hint], GROUNDED_MATERIAL_REVIEW_PROJECTION)).toEqual([]);
+    expect(item).toEqual(before);
+  });
+
+  it.each([
+    "1. My colleague tested SQL under supervision.",
+    "1. I will test SQL under supervision.",
+    "1. I did not test SQL under supervision.",
+    "1. I tested SQL under no supervision.",
+    "1. If I tested SQL under supervision, I would document it.",
+    '1. My mentor said, "I tested SQL under supervision."',
+    '“1. I tested SQL under supervision.”',
+    "1. I tested SQL under supervision. 2. My colleague used SQL.",
+    "1. I tested SQL under supervision.\r\n2. My colleague used SQL.",
+    "1.\nI tested SQL under supervision.",
+    "1234. I tested SQL under supervision.",
+    "1.5 I tested SQL under supervision.",
+    "- I tested SQL under supervision.",
+  ])("does not discard the attribution or broaden list grammar during v3 retention: %s", text => {
+    const item = fact(text, { origin: "user" }), before = structuredClone(item);
+    expect(retainedMaterialSelfAssessmentHints([item], [guidedHint], mentionProjection)).toEqual([]);
+    expect(item).toEqual(before);
+  });
+
+  it.each([undefined, GROUNDED_MATERIAL_REVIEW_PROJECTION, mentionProjection])(
+    "preserves body-only hint retention and historical numbered behavior under %s", projection => {
+      expect(retainedMaterialSelfAssessmentHints([fact("I tested SQL under supervision.")], [guidedHint], projection)).toEqual([guidedHint]);
+      const numbered = fact("1. I tested SQL under supervision.");
+      expect(retainedMaterialSelfAssessmentHints([numbered], [guidedHint], projection))
+        .toEqual(projection === GROUNDED_MATERIAL_REVIEW_PROJECTION ? [] : [guidedHint]);
+      expect(retainedMaterialSelfAssessmentHints([{ ...numbered, origin: "user" }], [guidedHint], projection))
+        .toEqual(projection === mentionProjection ? [guidedHint] : []);
+    });
+
   it.each(["conceptual", "guided", "uncertain"] as const)("does not retain a %s hint just because the configured SQL denial mentions a topic", level => {
     const items = [fact("I have never configured SQL for production.")];
     expect(retainedMaterialSelfAssessmentHints(items, [{ ...guidedHint, level }], mentionProjection)).toEqual([]);

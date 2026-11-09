@@ -7,7 +7,7 @@ import type { DocumentExtractionRead } from "../../app/server/documents/provider
 import { KIMI_GROUNDED_TERMS_POLICY_ID, KIMI_SOURCE_MENTIONS_POLICY_ID } from "../../app/server/documents/policy";
 import { groundMaterialSkillMentions, groundMaterialSkillTerms } from "../../app/lib/materials/grounded-skill-terms";
 import { statementBoundaries } from "./source-statements";
-import { groundedStatementBoundaries, groundSourceReviewPoints, groundSourceSelfLevelHint, isDetachedQuotedStatement } from "./source-review-evidence";
+import { groundedStatementBoundaries, groundSourceReviewPoints, groundSourceSelfLevelHint, isDetachedQuotedStatement, sourceMentionStatementBoundaries } from "./source-review-evidence";
 import { groundSourceRequirementLevel } from "./source-requirement-evidence";
 
 export const KIMI_SOURCE_SPAN_POLICY_ID = "materials-openrouter-kimi-k31-pro-mxfp4-zdr-extractive-v1";
@@ -108,7 +108,8 @@ export function readSourceSpanExtraction(raw: Record<string, unknown>, sources: 
   if (!reviewPoints.every(({ source }) => source.quote.trim() && locateCandidateQuote(source, sources))) {
     return { candidate: null, extractionRead: "invalid-source" };
   }
-  const bounds = groundedTerms ? groundedStatementBoundaries(sources.text) : statementBoundaries(sources.text);
+  const bounds = sourceMentions ? sourceMentionStatementBoundaries(sources.text)
+    : groundedTerms ? groundedStatementBoundaries(sources.text) : statementBoundaries(sources.text);
   const statementStarts = new Map([...bounds].map(([start, end]) => [end, start]));
   const observed = new Set<string>(), candidates = [];
   for (const item of items) {

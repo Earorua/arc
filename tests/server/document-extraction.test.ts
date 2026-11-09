@@ -130,6 +130,43 @@ it.each([
     const review = validateDocumentExtraction(mentionExtraction(text, ["SQL"], level), "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID);
     expect(review.selfAssessmentHints).toEqual([{ id: "hint-fact-0", candidateId: "fact", skillLabel: "SQL", level }]);
 });
+it.each(["1. I tested SQL under supervision.", "１２. I tested SQL under supervision."])(
+    "independently accepts the complete numbered v3 source without rewriting it: %s", text => {
+        const original = mentionReference(text), extraction = mentionExtraction(text);
+        const review = validateDocumentExtraction(extraction, "owner", original, KIMI_SOURCE_MENTIONS_POLICY_ID);
+        expect(review.items[0]).toMatchObject({ text, skillLabels: ["SQL"], sourceRef: {
+            documentId: "doc", documentVersionId: "version", textVersionId: "text", start: 0, end: text.length,
+        } });
+        expect(review.selfAssessmentHints).toEqual([{ id: "hint-fact-0", candidateId: "fact", skillLabel: "SQL", level: "guided" }]);
+        expect(validateStoredDocumentExtraction(serializeDocumentExtraction(extraction, KIMI_SOURCE_MENTIONS_POLICY_ID), "owner", original)).toEqual(review);
+    });
+it.each([
+    "1. My colleague tested SQL under supervision.",
+    "1. I will test SQL under supervision.",
+    "1. I did not test SQL under supervision.",
+    "1. I tested SQL\r\nnot under supervision.",
+    '1. My mentor said, "I tested SQL under supervision."',
+])("independently removes a forged numbered v3 hint without removing its topic: %s", text => {
+    const review = validateDocumentExtraction(mentionExtraction(text), "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID);
+    expect(review).toMatchObject({ items: [{ text, skillLabels: ["SQL"] }], selfAssessmentHints: [] });
+});
+it.each([
+    ["1. I tested SQL\r\nnot under supervision.", "1. I tested SQL"],
+    ["1. I tested SQL\r\nnot under supervision.", "I tested SQL"],
+    ["1. I tested SQL under supervision.\r\n2. My colleague used React.", "1. I tested SQL under supervision.\r\n2. My colleague used React."],
+    ["1. \n", "1."],
+    ["  １２. \r\n", "１２."],
+    ['The worksheet says “Begin.\r\n1. I tested SQL under supervision.\r\nEnd.”', "1. I tested SQL under supervision."],
+])("independently rejects an incomplete or detached numbered source: %s (%s)", (text, quote) => {
+    expect(() => validateDocumentExtraction(mentionExtraction(quote), "owner", mentionReference(text), KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
+});
+it("retains the numbered v3 quotation and source identity checks independently of provider decoding", () => {
+    const text = "1. I tested SQL under supervision.", extraction = mentionExtraction(text), original = mentionReference(text);
+    expect(() => validateDocumentExtraction({ ...extraction, items: [{ ...extraction.items[0], text: text.slice(3) }] },
+        "owner", original, KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
+    expect(() => validateDocumentExtraction(extraction, "other-owner", original, KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
+    expect(() => validateDocumentExtraction(extraction, "owner", { ...original, lifecycle: "revoked" }, KIMI_SOURCE_MENTIONS_POLICY_ID)).toThrow("invalid-content");
+});
 it.each([
     ["I did not test SQL under supervision.", "I tested SQL under supervision."],
     ["I tested SQL under supervision.", "I did not test SQL under supervision."],
