@@ -1,0 +1,3 @@
+(node:36468) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"historicalV2Control":"accepted-by-registrar-and-in-memory-sqlite","currentQualifiedProjectionDigest":"892574c4a5d37288614fca6c8e6fe812fdd291f4ecb5af2d1c1d4bd86998eaa8","differingField":"providerPolicyId in config and qualification","currentV3":"refused-by-registrar-and-database-under-both-plan-ids","verifiedDenials":4,"sqlite":"memory only","actualEnrollment":false,"modelRequests":0}

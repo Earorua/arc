@@ -1,0 +1,110 @@
+{
+  "status": "OFFLINE_PREPARED_PENDING_B2",
+  "base": "817cbc9c559db216c6350b9ef44b78a411ace38e",
+  "testedImplementation": "805f1de52090e3f82f33c359a42b8aa5b880ddb7",
+  "candidate": "455693a32e2ad5036026ad35b6c0ac1c597aeffb",
+  "reproducedTree": "bc17e3b8ebc78d6545da47bf70694ec2216943e0",
+  "changed": [
+    "docs/superpowers/runbooks/2026-11-04-materials-gate-1b-ui-casebook.md",
+    "docs/superpowers/runbooks/2026-11-04-materials-production-package.md",
+    "scripts/materials-ui-acceptance-enroll.ts",
+    "tests/server/document-acceptance-budget.test.ts",
+    "worker/document-executor/migrations/0006_document_extractive_receipt_budget.sql"
+  ],
+  "files": [
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/prepared.patch.txt",
+      "bytes": 14466,
+      "sha256": "d888497ca1118b22c2c9826e8c4fb717ed8ed449d7aed21a4c4def4eb69da4b3"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/baseline.log.txt",
+      "bytes": 558,
+      "sha256": "8ab230ee071a5356964246747ecb6f7c31846d72c1a96639b8ad626f9b8f795d"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/baseline.json",
+      "bytes": 281,
+      "sha256": "d3c5056701a72429ececa8b40365d7f255aa1237c779a9ce14f5ec3f90c95b79"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/red.log.txt",
+      "bytes": 5606,
+      "sha256": "37ee4f51c0e0266d9c321b4e250803c6d92489520eaa1fcfd815e0e98c78e0d8"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/red.json",
+      "bytes": 276,
+      "sha256": "d43836d28b305efcc5f4892ed82c5b7b14cf6bc3fb7135b8450e159fa8c5635c"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/green.log.txt",
+      "bytes": 692,
+      "sha256": "78675fad51c31e327f6b4369c5460906ed0e5a11bec05d4c54fb7af02879342a"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/green.json",
+      "bytes": 278,
+      "sha256": "05b73ff09132b73e2038fb2b75cfc5db9a260d255f298283d89fd347f2c00157"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/types.log.txt",
+      "bytes": 142,
+      "sha256": "d9e621ecfd4fe9fbe2c3e71c46059aeeb9277a5ef9a5581eba0dc551ae05fc55"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/types.json",
+      "bytes": 278,
+      "sha256": "dc6a144d5b1fc0d3710f37bfcec5426b748b5886fcf95cc1b02dea0ff08cc185"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/lint.log.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/lint.json",
+      "bytes": 277,
+      "sha256": "0061dbdf24169f6226964f4e3645a6e7fa10a4d04a47d298802cd56ce8d2a3ad"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/native.log.txt",
+      "bytes": 503,
+      "sha256": "c97a51e9b5b2fd5c5d0811412ab7638fb41c7d7bafb202199fccb2c4c17560fa"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/native.json",
+      "bytes": 279,
+      "sha256": "62ae738f493eda7f874d5ae1181d1e934c05fc3af61b18c03fa090fc31e8c6d8"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/baseline.mts.source.txt",
+      "bytes": 4058,
+      "sha256": "3a7f27c4c64a0c54fdbb3454ac1f06e65ef04030245f4c7942f4ddbfd1aae7fa"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/native.mjs.source.txt",
+      "bytes": 5856,
+      "sha256": "cf93105e7ec83f9975e6917d4d7b5e0960bcbffe67b2d9dc0fa94842e677ff45"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/types.mjs.source.txt",
+      "bytes": 1221,
+      "sha256": "f6e6b116f7dba52c8142845d35c4ff09ecef857bc8d349fd42bf48c8aa4146fa"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/independent-review.md",
+      "bytes": 3866,
+      "sha256": "df3929e4f4fe61bb567afefa157babd8f8c8e414f5df96db0db0d296c166560f"
+    },
+    {
+      "path": "docs/verification/materials-b4-extractive-preparation/independent-review-final.md",
+      "bytes": 1031,
+      "sha256": "619f84b9a9271a9418a7c619553e533ad29283618a89b079cac3abfd74457675"
+    }
+  ],
+  "paidAuthorization": false,
+  "realEnrollments": 0,
+  "remoteMigrations": 0,
+  "realModelCalls": 0
+}

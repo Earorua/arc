@@ -1,0 +1,49 @@
+import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
+import { DatabaseSync } from 'node:sqlite';
+import { renderDocumentAcceptanceEnrollment } from '../../scripts/materials-ui-acceptance-enroll.ts';
+import { documentAcceptanceCases, documentAcceptanceConfigurationDigest, documentAcceptanceCorpusSha256 } from '../../worker/document-executor/acceptance-policy.ts';
+
+const json = (path: string) => JSON.parse(readFileSync(path, 'utf8'));
+const historical = json('docs/verification/materials-gate-1b-b1/b2-settings.canonical-model.review.json');
+const draft = json('docs/verification/materials-quality-next/request-draft/manifest.json');
+const current = draft.configurations['resume-jd'];
+assert.equal(current.qualification.qualified, false);
+assert.equal(historical.qualification.qualified, false);
+assert.deepEqual({ ...current.config, providerPolicyId: historical.config.providerPolicyId }, historical.config);
+assert.deepEqual({ ...current.qualification, providerPolicyId: historical.qualification.providerPolicyId }, historical.qualification);
+const corpus = json('tests/fixtures/documents/quality-corpus.json');
+const cases = corpus.documents.map((item: { id: string }) => ({ caseId: item.id, documentId: randomUUID(), documentVersionId: randomUUID(),
+  textVersionId: randomUUID(), generation: 0, textSha256: documentAcceptanceCases[item.id] }));
+const expiredFixture = { runId: 'offline-budget-repro', ownerId: 'OfflineProbe', corpusSha256: documentAcceptanceCorpusSha256,
+  approvedAt: '2025-01-01T00:00:00.000Z', expiresAt: '2025-01-01T00:30:00.000Z', maxRequests: 24, totalBudgetMicroUsd: 2_000_000, cases };
+const v2 = 'b4-kimi-k31-pro-mxfp4-v2', v3 = 'b4-kimi-k31-pro-mxfp4-v3';
+const historicalConfig = { config: historical.config, qualification: { ...historical.qualification, qualified: true } };
+const currentConfig = { config: current.config, qualification: { ...current.qualification, qualified: true } };
+const oldDigest = await documentAcceptanceConfigurationDigest(historicalConfig.config, historicalConfig.qualification);
+const currentDigest = await documentAcceptanceConfigurationDigest(currentConfig.config, currentConfig.qualification);
+assert.equal(oldDigest, 'ec56126eff54568bbd9960ad050c7311b137cb0ac44c2f42e0ea506c6c81718f');
+assert.equal(currentDigest, current.configurationSha256);
+const oldInsert = await renderDocumentAcceptanceEnrollment({ ...expiredFixture, ...historicalConfig, budgetPlan: v2 });
+const db = new DatabaseSync(':memory:');
+try {
+  db.exec('PRAGMA foreign_keys = ON');
+  const migrationDir = 'worker/document-executor/migrations';
+  for (const file of readdirSync(migrationDir).filter(file => /^000[0-5]_.+\.sql$/u.test(file)).sort()) db.exec(readFileSync(migrationDir + '/' + file, 'utf8'));
+  db.exec(oldInsert);
+  let denials = 0;
+  for (const plan of [v2, v3]) {
+    await assert.rejects(() => renderDocumentAcceptanceEnrollment({ ...expiredFixture, ...currentConfig, runId: 'offline-current', budgetPlan: plan }),
+      /Invalid document acceptance (?:enrollment|budget plan)/u);
+    assert.throws(() => db.prepare(`INSERT INTO document_acceptance_runs(run_id,owner_id,corpus_sha256,configuration_sha256,
+      approved_at,expires_at,max_requests,total_budget_micro_usd,cases_json,budget_plan) VALUES (?,?,?,?,1,2,24,2000000,?,?)`)
+      .run('offline-current', expiredFixture.ownerId, documentAcceptanceCorpusSha256, currentDigest, JSON.stringify(cases), plan), /CHECK constraint failed/u);
+    denials += 2;
+  }
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM document_acceptance_runs').get()!.n, 1);
+  console.log(JSON.stringify({ historicalV2Control: 'accepted-by-registrar-and-in-memory-sqlite',
+    currentQualifiedProjectionDigest: currentDigest, differingField: 'providerPolicyId in config and qualification',
+    currentV3: 'refused-by-registrar-and-database-under-both-plan-ids', verifiedDenials: denials,
+    sqlite: 'memory only', actualEnrollment: false, modelRequests: 0 }));
+} finally { db.close(); }

@@ -1,0 +1,154 @@
+diff --git a/docs/superpowers/runbooks/2026-11-04-materials-gate-1b-ui-casebook.md b/docs/superpowers/runbooks/2026-11-04-materials-gate-1b-ui-casebook.md
+index 4b9db6801527d83948b7cd310631d10dfa8a79dd..a8926cce17e82666931f5f7f02bad218daaf82b5 100644
+--- a/docs/superpowers/runbooks/2026-11-04-materials-gate-1b-ui-casebook.md
++++ b/docs/superpowers/runbooks/2026-11-04-materials-gate-1b-ui-casebook.md
+@@ -2,7 +2,9 @@
+ 
+ 本表供通过 B2、B3 并取得 B4 单独授权后使用。以下 24 页的初始状态均为 `NOT RUN`。B0 使用固定回执和合成候选的结果另存于离线报告，不填入本表。
+ 
+-**Kimi 标准端点预算（2026-11-05 离线核对）。** 原登记默认最多 500,000 微美元。若批准为 24 份固定简历/JD 预留全部顶格金额，新的独立 B4 登记需注明 `budgetPlan: "b4-kimi-k31-pro-mxfp4-v1"`，配置与语料摘要必须与[离线验收记录](../../verification/2026-11-05-materials-offline-repair.md)对应。每份预留 72,960 微美元，24 份需 1,751,040 微美元；登记硬上限为 2,000,000 微美元。签发前先核实该专用 key 的实际可用余额及其他轮次已用金额。新增迁移不改旧授权，不改变本表的 `NOT RUN` 状态。
++**Kimi 标准端点的 B4 预算。** 当前候选使用 v3 原文提取策略。若该候选通过 B2、B3，且持有人单独批准浏览器轮，24 份固定简历／JD 的 B4 登记使用 `b4-kimi-k31-pro-mxfp4-v3`。登记工具与执行数据库迁移 `0006` 同时核对配置摘要 `892574c4a5d37288614fca6c8e6fe812fdd291f4ecb5af2d1c1d4bd86998eaa8` 和原 24 份语料。每份顶格预留 72,960 微美元，24 份共 1,751,040 微美元，本轮独立授权硬上限为 2,000,000 微美元。签发前核实当时专用 key 的实际余量、账户限制和获准窗口。[当前配置与语料](../../verification/materials-quality-next/request-draft/manifest.json)
++
++既有 v1、v2 登记各自绑定原配置，默认登记上限为 500,000 微美元。此前采集所需的两份授权分别覆盖 B2 的 24 份简历／JD 和六份补充资料，各有运行标识、额度和账本。B4 的 24 份浏览器用例另行授权并单独记账，页面取证状态仍为 `NOT RUN`。[B4 登记工具](../../../scripts/materials-ui-acceptance-enroll.ts) · [数据库约束](../../../worker/document-executor/migrations/0006_document_extractive_receipt_budget.sql)
+ 
+ ## 操作约定
+ 
+diff --git a/docs/superpowers/runbooks/2026-11-04-materials-production-package.md b/docs/superpowers/runbooks/2026-11-04-materials-production-package.md
+index 4b21449292c740a20cfd509a262e43150fc1b31c..5ef130b729305d241315df7febd3c1a32fce9fe7 100644
+--- a/docs/superpowers/runbooks/2026-11-04-materials-production-package.md
++++ b/docs/superpowers/runbooks/2026-11-04-materials-production-package.md
+@@ -29,7 +29,7 @@ node --import tsx scripts/prepare-materials-production-package.mjs work/material
+ 1. 取得当日、完整的站点版本与部署回读。验证唯一生效版本承接 100% 流量，域名、路由、预览、地域、静态资源入口、登录、Research 服务与学习 Agent 使用的绑定均与批准清单一致。历史快照可用于演练，正式放行使用新鲜回读。
+ 2. 核对两个私有桶的访问策略、私有执行器的路由与预览关闭、两个方向的具名服务绑定、Workflow 和清理 cron。执行器使用普通用户分析专用凭据；站点只持有资料服务的桥接秘密。核实实际账户限制与费率。平台保存秘密后只核验绑定名称和就绪响应。
+ 3. 独立批准生产资格、数据处理范围、用户日限额、全局日限额、单次上限、总授权额和有效期。授权的 `purpose` 必须是 `production-private-material-analysis`，同时记录唯一 `id`、`configurationSha256`、`approvedAt`、`expiresAt`、`totalBudgetMicroUsd`。摘要覆盖端点、固定路由、回执、价格和限额。B2、B4 及其专用 key 额度各有独立用途。[执行器策略](../../../worker/document-executor/production-policy.ts)
+-4. 核对站点增量迁移和执行器 `0000` 至 `0003` 的实际应用清单、兼容读取、备份和恢复演练。先验证关闭态能读取与删除既有资料，并核实新分析不可用。取得发布批准后，分别核对站点与执行器上的开关、同一授权、就绪握手、私有 D1、R2 和任务绑定，再开放入口。正式切换时再次核对授权时间、预算和当前版本。
++4. 以当次产物 `verification.json` 的 `siteMigrations` 和 `executorMigrations` 对照两库的实际应用记录，逐项核对备份、兼容读取与恢复演练。当前候选站点迁移到 `0015_document_storage_uploads.sql`，执行器迁移到 `0006_document_extractive_receipt_budget.sql`。先验证关闭态能读取与删除既有资料，以及新分析请求会被拒绝。取得发布批准后，核对双端开关、同一授权、就绪握手、私有 D1、R2 和任务绑定，再开放入口。正式切换时复核授权时间、预算和当前版本。
+ 5. 上线后用专用测试账户和获准的合成资料验证提取、人工修改、采用与学习计划差异预览、换公司 JD、保护已完成任务及删除。每次获准模型请求只产生一次可核对的费用。未登录请求、跨用户访问、未授权资料版本和超额请求均须拒绝。登记实际线上版本、测试范围和费用。
+ 
+ ## 停发与对账
+diff --git a/scripts/materials-ui-acceptance-enroll.ts b/scripts/materials-ui-acceptance-enroll.ts
+index bcca115704eae61e744a546fabf237a57deb3c55..97c7dc8ec4bd645840b91ba91ef1c18ace5572cf 100644
+--- a/scripts/materials-ui-acceptance-enroll.ts
++++ b/scripts/materials-ui-acceptance-enroll.ts
+@@ -9,12 +9,12 @@ import {
+ const id = z.string().max(256).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
+ const hash = z.string().regex(/^[a-f0-9]{64}$/u);
+ const amount = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
+-// Exact reviewed settings digests. v1 is historical; v2 additionally pins the generation model.
+-// Migrations 0004/0005 enforce the same pairs on the independently issued B4 grant.
++// Each independently issued B4 plan pins one configuration, also checked by the executor database.
+ const kimiBudget = {
+   configurations: {
+     "b4-kimi-k31-pro-mxfp4-v1": "5b55cb672995351b5c01b6c15a74dae17e3a314f5ab45aa8c1625cfb8eef59e8",
+     "b4-kimi-k31-pro-mxfp4-v2": "ec56126eff54568bbd9960ad050c7311b137cb0ac44c2f42e0ea506c6c81718f",
++    "b4-kimi-k31-pro-mxfp4-v3": "892574c4a5d37288614fca6c8e6fe812fdd291f4ecb5af2d1c1d4bd86998eaa8",
+   },
+   ceilingMicroUsd: 2_000_000,
+ } as const;
+@@ -26,7 +26,7 @@ const authorization = z.object({
+   runId: id, ownerId: z.string().max(256).regex(/^[A-Za-z0-9_-]+$/u), corpusSha256: z.literal(documentAcceptanceCorpusSha256),
+   approvedAt: z.iso.datetime({offset:true}), expiresAt: z.iso.datetime({offset:true}), maxRequests: z.literal(24),
+   totalBudgetMicroUsd: amount.min(1).max(kimiBudget.ceilingMicroUsd),
+-  budgetPlan: z.enum(["b4-kimi-k31-pro-mxfp4-v1", "b4-kimi-k31-pro-mxfp4-v2"]).optional(),
++  budgetPlan: z.enum(["b4-kimi-k31-pro-mxfp4-v1", "b4-kimi-k31-pro-mxfp4-v2", "b4-kimi-k31-pro-mxfp4-v3"]).optional(),
+   config: z.object({ provider: z.string(), model: z.string(), endpoint: z.url(), providerPolicyId: id,
+     priceVersion: z.string(), routingPolicy, userDailyMicroUsd: amount, globalDailyMicroUsd: amount,
+     maxJobMicroUsd: amount, maxInputTokens: amount, maxOutputTokens: amount, httpTimeoutMs: amount }).strict(),
+diff --git a/tests/server/document-acceptance-budget.test.ts b/tests/server/document-acceptance-budget.test.ts
+index 1ac3942c66f2319df3414fe3791a4cdbffdc566c..13a7a73b89ac3d462f9cf5dae7609b56906dc0b7 100644
+--- a/tests/server/document-acceptance-budget.test.ts
++++ b/tests/server/document-acceptance-budget.test.ts
+@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
+ import { join } from "node:path";
+ import { afterEach, describe, expect, it } from "vitest";
+ import { normalizeDocumentText } from "../../app/contracts/documents";
+-import type { DocumentAnalysisMetadata } from "../../app/server/documents/policy";
++import { KIMI_SOURCE_MENTIONS_POLICY_ID, type DocumentAnalysisMetadata } from "../../app/server/documents/policy";
+ import { documentProviderConfigurationDigest, type DocumentProviderInput } from "../../app/server/documents/provider";
+ import { renderDocumentAcceptanceEnrollment } from "../../scripts/materials-ui-acceptance-enroll";
+ import {
+@@ -18,6 +18,8 @@ import { SqliteD1 } from "../helpers/sqlite-d1";
+ // The published 2026.11.3 review settings, with qualification simulated only inside these expired fixtures.
+ const budgetPlan = "b4-kimi-k31-pro-mxfp4-v1";
+ const canonicalPlan = "b4-kimi-k31-pro-mxfp4-v2";
++const extractivePlan = "b4-kimi-k31-pro-mxfp4-v3";
++const extractiveDigest = "892574c4a5d37288614fca6c8e6fe812fdd291f4ecb5af2d1c1d4bd86998eaa8";
+ const config: DocumentAnalysisMetadata = {
+   provider: "OpenRouter / Moonshot AI", model: "moonshotai/kimi-k3.1-pro",
+   endpoint: "https://openrouter.ai/api/v1/chat/completions", providerPolicyId: "materials-openrouter-kimi-k31-pro-mxfp4-zdr",
+@@ -74,6 +76,48 @@ function database(through = Infinity) {
+ afterEach(() => { for (const db of opened.splice(0)) db.close(); });
+ 
+ describe("B4 second-round budget", () => {
++  it("registers the frozen extractive v3 settings only under their own Kimi plan", async () => {
++    const scope = enrollment(2_000_000, canonicalPlan);
++    const current = { ...scope, budgetPlan: extractivePlan,
++      config: { ...config, providerPolicyId: KIMI_SOURCE_MENTIONS_POLICY_ID },
++      qualification: { ...canonicalQualification, providerPolicyId: KIMI_SOURCE_MENTIONS_POLICY_ID } };
++    expect(await documentAcceptanceConfigurationDigest(current.config, current.qualification)).toBe(extractiveDigest);
++    const insert = await renderDocumentAcceptanceEnrollment(current);
++    const sql = database().database;
++    sql.exec(insert);
++    expect(sql.prepare("SELECT budget_plan,configuration_sha256,total_budget_micro_usd FROM document_acceptance_runs").get())
++      .toEqual({ budget_plan: extractivePlan, configuration_sha256: extractiveDigest, total_budget_micro_usd: 2_000_000 });
++    for (const changed of [
++      { ...current, budgetPlan: canonicalPlan }, { ...scope, budgetPlan: extractivePlan },
++      { ...current, config: { ...current.config, maxOutputTokens: 4095 } },
++      { ...current, qualification: { ...current.qualification, receiptRoute: qualification.receiptRoute } },
++    ]) await expect(renderDocumentAcceptanceEnrollment(changed)).rejects.toThrow();
++  });
++
++  it("preserves an issued v2 run and checks the extractive budget directly in SQLite", async () => {
++    const db = database(5), sql = db.database;
++    const scope = enrollment(1_751_040, canonicalPlan);
++    sql.exec(await renderDocumentAcceptanceEnrollment(scope));
++    sql.prepare("UPDATE document_acceptance_runs SET last_checked_at=100, stopped_at=101").run();
++    const priorRuns = () => sql.prepare("SELECT * FROM document_acceptance_runs ORDER BY run_id").all();
++    const oldRows = priorRuns();
++    migrate(db, 6);
++    expect(priorRuns()).toEqual(oldRows);
++    expect(sql.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
++    const canonicalDigest = await documentAcceptanceConfigurationDigest(config, canonicalQualification);
++    const insert = sql.prepare(`INSERT INTO document_acceptance_runs(run_id,owner_id,corpus_sha256,configuration_sha256,
++      approved_at,expires_at,max_requests,total_budget_micro_usd,cases_json,budget_plan) VALUES('offline-extractive','OfflineOwner',?,?,1,2,24,?,?,?)`);
++    const issue = (plan: string, digest: string, corpusHash = scope.corpusSha256, amount = 2_000_000) =>
++      insert.run(corpusHash, digest, amount, JSON.stringify(scope.cases), plan);
++    expect(() => issue(canonicalPlan, extractiveDigest)).toThrow();
++    expect(() => issue(extractivePlan, canonicalDigest)).toThrow();
++    expect(() => issue(extractivePlan, extractiveDigest, "0".repeat(64))).toThrow();
++    expect(() => issue(extractivePlan, extractiveDigest, scope.corpusSha256, 2_000_001)).toThrow();
++    expect(() => issue(extractivePlan, extractiveDigest)).not.toThrow();
++    expect(() => issue(extractivePlan, extractiveDigest)).toThrow();
++    expect(() => sql.exec("UPDATE document_acceptance_runs SET expires_at=3 WHERE run_id='offline-extractive'")).toThrow();
++  });
++
+   it("binds the successor plan to the canonical version in both the registrar and database", async () => {
+     const data = enrollment(2_000_000, canonicalPlan), sql = database().database;
+     const digest = await documentAcceptanceConfigurationDigest(config, canonicalQualification);
+diff --git a/worker/document-executor/migrations/0006_document_extractive_receipt_budget.sql b/worker/document-executor/migrations/0006_document_extractive_receipt_budget.sql
+new file mode 100644
+index 0000000000000000000000000000000000000000..4e39bd5835ee93e20f87e556a53b7b82b34fc7f3
+--- /dev/null
++++ b/worker/document-executor/migrations/0006_document_extractive_receipt_budget.sql
+@@ -0,0 +1,21 @@
++-- Install the replacement before removing the old check so every step enforces a budget.
++ALTER TABLE document_acceptance_runs ADD COLUMN extractive_budget_guard INTEGER NOT NULL DEFAULT 1 CHECK (
++  extractive_budget_guard=1 AND total_budget_micro_usd IS NOT NULL AND (
++    (budget_plan IS NULL AND total_budget_micro_usd BETWEEN 1 AND 500000)
++    OR (typeof(total_budget_micro_usd)='integer' AND total_budget_micro_usd BETWEEN 1 AND 2000000
++      AND corpus_sha256='69e5ddd1005f12abf24483e10dd235629ef309ba3a84e922166963ccd9aed750'
++      AND (
++        (budget_plan IS 'b4-kimi-k31-pro-mxfp4-v1'
++          AND configuration_sha256='5b55cb672995351b5c01b6c15a74dae17e3a314f5ab45aa8c1625cfb8eef59e8')
++        OR (budget_plan IS 'b4-kimi-k31-pro-mxfp4-v2'
++          AND configuration_sha256='ec56126eff54568bbd9960ad050c7311b137cb0ac44c2f42e0ea506c6c81718f')
++        OR (budget_plan IS 'b4-kimi-k31-pro-mxfp4-v3'
++          AND configuration_sha256='892574c4a5d37288614fca6c8e6fe812fdd291f4ecb5af2d1c1d4bd86998eaa8')
++      )
++    )
++  )
++);
++--> statement-breakpoint
++ALTER TABLE document_acceptance_runs DROP COLUMN budget_plan_guard;
++--> statement-breakpoint
++ALTER TABLE document_acceptance_runs RENAME COLUMN extractive_budget_guard TO budget_plan_guard;

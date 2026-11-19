@@ -2,11 +2,13 @@
 
 ## 2026-11-19 最新恢复入口 · 实际启动前校验通过，等待专用 key 只读结果
 
+等待期间已解决后续 B4 登记对当前 v3 策略的兼容缺口。修复在独立工作树完成，13/13 预算检查、本地 D1 迁移及独立复审通过。资料分支以文档保存五文件补丁和原始证据，实际 B2 候选、30 份请求、16 份附件与额度保持冻结。B2 真实质量达标并核对同一配置后合入。B3 远程迁移和 B4 浏览器运行仍按各自授权推进。[B4 修复及合入条件](materials-b4-extractive-preparation/README.md)
+
 已核对本机与 GitHub 的源码索引、资料分支及最新记录。完整 14 场景原生规划已实跑并通过，后续两条受课程改动影响的链路也已补验。课程关系软件对照为 146/146。应用与课程源码相对最终离线验收没有变化，恢复时直接继续真实质量验收的准备。[原生 14 场景](materials-native-acceptance/planning-result.md) · [课程与两条增量链路](materials-course-relations-20261119/native-result.md)
 
 修复了有效的六份补充授权被误拒、个别参数要等前 24 份完成才会被拦截的问题。规格与质量独立复审通过。执行源码 `ff1d60f` 与之前全仓验收相差操作入口及其测试两文件。公开 v2 提案更正了三个机器标识，绑定 1,038 项执行文件和 16 份附件。在干净文档提交 `50c5b6d` 上实跑无密钥 `--verify` 一次通过，0 推理、0 启动槽、账本字节与行数一致。[详细结果与原始证据](materials-quality-next/packet-preflight.md) · [当前提案](materials-quality-next/candidate-proposal-v2.json)
 
-下一动作是读取持有人在本机隐藏输入后生成的 `key-inspection-*.txt`，核对历史专用 key 与当前精确余量，再集中申请新一轮 24＋6 的费用、缓存条件及专用 key 累计上限调整。本机目录为 `C:/Users/XF/.arc-materials/gate-1b/materials-b2/quality-preflight/20261119/`。恢复时先检查 `inspect-account.ps1`、只读结果及未签发草稿 `unsigned-quality-scope-v2.json` 的实际状态，核对 Git HEAD。正式授权、两组真实回执及模型质量验收仍待完成。目标为 active。本批新增真实推理、费用、远程迁移与部署均为 0。[操作单](../superpowers/runbooks/2026-11-19-materials-kimi-quality-draft.md)
+下一动作是读取持有人在本机隐藏输入后生成的 `key-inspection-*.txt`，核对历史专用 key 与当前精确余量，再集中申请新一轮 24＋6 的费用、缓存条件及专用 key 累计上限调整。本机目录为 `C:/Users/XF/.arc-materials/gate-1b/materials-b2/quality-preflight/20261119/`。恢复时检查 `inspect-account.ps1`、只读结果、未签发草稿 `unsigned-quality-scope-v2.json` 及匹配实际 HEAD 的 `unsigned-scope-commit-*.json`。后者记录文档提交与原草稿的关系，正式签发还需当前账户证据、持有人批准和时间。目标为 active。本批新增真实推理、费用、远程迁移与部署均为 0。[操作单](../superpowers/runbooks/2026-11-19-materials-kimi-quality-draft.md)
 
 ## 最新进展：2026-11-19，最终离线验收通过，继续账户与授权包
 

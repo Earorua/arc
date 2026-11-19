@@ -1,0 +1,77 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { createHash, randomUUID } from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const require = createRequire(resolve('package.json'));
+const { Miniflare } = require('miniflare');
+const { unstable_splitSqlQuery } = require('wrangler');
+const load = path => import(pathToFileURL(resolve(path)).href);
+const { renderDocumentAcceptanceEnrollment } = await load('scripts/materials-ui-acceptance-enroll.ts');
+const { documentAcceptanceCases, documentAcceptanceCorpusSha256 } = await load('worker/document-executor/acceptance-policy.ts');
+const json = path => JSON.parse(readFileSync(path, 'utf8'));
+const baseCommit = '817cbc9c559db216c6350b9ef44b78a411ace38e';
+const directory = 'worker/document-executor/migrations';
+const migrations = readdirSync(directory).filter(name => /^\d{4}_.+\.sql$/u.test(name)).sort();
+assert.equal(migrations.length, 7);
+assert.equal(migrations[6], '0006_document_extractive_receipt_budget.sql');
+for (const name of migrations.slice(0, 6)) {
+  const file = directory + '/' + name;
+  assert.ok(execFileSync('git', ['show', baseCommit + ':' + file]).equals(readFileSync(file)), file);
+}
+const current = json('docs/verification/materials-quality-next/request-draft/manifest.json').configurations['resume-jd'];
+const historical = json('docs/verification/materials-gate-1b-b1/b2-settings.canonical-model.review.json');
+const cases = json('tests/fixtures/documents/quality-corpus.json').documents.map(row => ({ caseId: row.id, documentId: randomUUID(),
+  documentVersionId: randomUUID(), textVersionId: randomUUID(), generation: 0, textSha256: documentAcceptanceCases[row.id] }));
+function expiredFixture(scope, suffix) {
+  assert.equal(scope.qualification.qualified, false);
+  return { runId: 'offline-native-b4-' + suffix, ownerId: 'OfflineNative', budgetPlan: 'b4-kimi-k31-pro-mxfp4-' + suffix,
+    config: scope.config, qualification: { ...scope.qualification, qualified: true }, corpusSha256: documentAcceptanceCorpusSha256,
+    maxRequests: 24, totalBudgetMicroUsd: 2_000_000, cases, approvedAt: '2025-01-01T00:00:00.000Z', expiresAt: '2025-01-01T01:00:00.000Z' };
+}
+assert.equal(process.env.ARC_DOCUMENT_QUALIFICATION_ENABLED, 'false');
+assert.equal(process.env.ARC_CURRENT_MATERIALS_KEY, undefined);
+let egress = 0;
+const runtime = new Miniflare({ name: 'b4-budget-local', host: '127.0.0.1', modules: true,
+  compatibilityDate: '2025-05-05', d1Databases: ['DB'], d1Persist: false,
+  script: 'export default {fetch(){return new Response(null,{status:404})}}',
+  outboundService: () => { egress++; throw Error('Unexpected outbound request'); } });
+try {
+  const db = await runtime.getD1Database('DB');
+  const apply = async name => {
+    const sql = readFileSync(directory + '/' + name, 'utf8');
+    await db.batch(unstable_splitSqlQuery(sql).map(statement => db.prepare(statement)));
+  };
+  for (const name of migrations.slice(0, 6)) await apply(name);
+  const old = expiredFixture(historical, 'v2'), next = expiredFixture(current, 'v3');
+  await db.prepare(await renderDocumentAcceptanceEnrollment(old)).run();
+  await db.batch([
+    db.prepare('UPDATE document_acceptance_runs SET last_checked_at=111,stopped_at=120 WHERE run_id=?').bind(old.runId),
+    db.prepare("INSERT INTO document_executor_jobs(job_id,state,dispatch_state,created_at,updated_at) VALUES('offline-held','cost-unknown','may-have-sent',100,120)"),
+    db.prepare("INSERT INTO document_acceptance_dispatches(run_id,case_id,job_id,reserved_micro_usd,claimed_at,state) VALUES(?,'resume-01','offline-held',72960,100,'pending')").bind(old.runId),
+    db.prepare("INSERT INTO document_executor_jobs(job_id,state,dispatch_state,created_at,updated_at) VALUES('offline-settled','delivered','settled',100,110)"),
+    db.prepare("INSERT INTO document_acceptance_dispatches(run_id,case_id,job_id,reserved_micro_usd,claimed_at,state,receipt_id,actual_micro_usd) VALUES(?,'resume-02','offline-settled',72960,100,'verified','offline-receipt',700)").bind(old.runId),
+    db.prepare('INSERT INTO document_paid_transport_hold VALUES(1,120)'),
+  ]);
+  const snapshot = async () => {
+    const queries = ['SELECT * FROM document_acceptance_runs ORDER BY run_id','SELECT * FROM document_acceptance_cases ORDER BY case_id',
+      'SELECT * FROM document_acceptance_dispatches ORDER BY job_id','SELECT * FROM document_paid_transport_hold'];
+    const result = await db.batch(queries.map(query => db.prepare(query)));
+    return result.map(table => table.results);
+  };
+  const before = await snapshot();
+  await apply(migrations[6]);
+  assert.deepEqual(await snapshot(), before);
+  assert.deepEqual((await db.prepare('PRAGMA foreign_key_check').all()).results, []);
+  await db.prepare(await renderDocumentAcceptanceEnrollment(next)).run();
+  assert.deepEqual(await db.prepare('SELECT budget_plan,configuration_sha256,total_budget_micro_usd FROM document_acceptance_runs WHERE run_id=?').bind(next.runId).first(),
+    {budget_plan:next.budgetPlan, configuration_sha256:current.configurationSha256, total_budget_micro_usd:2_000_000});
+  assert.equal(egress, 0);
+  console.log(JSON.stringify({ baseCommit, runtime: 'local Miniflare/workerd D1', previousMigrationsPinned: 6,
+    appliedMigration: migrations[6], migrationSha256: createHash('sha256').update(readFileSync(directory + '/' + migrations[6])).digest('hex'),
+    oldRunsPreserved: before[0].length, viewsPreserved: before[1].length, dispatchesPreserved: before[2].length, holdsPreserved: before[3].length,
+    foreignKeyViolations: 0, newExpiredFixturePlan: next.budgetPlan, egress, remoteMigrations: 0, realEnrollments: 0, modelCalls: 0 }));
+} finally { await runtime.dispose(); }

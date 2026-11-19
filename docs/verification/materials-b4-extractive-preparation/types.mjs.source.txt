@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
+const require = createRequire(resolve('package.json'));
+const ts = require('typescript');
+const config = ts.readConfigFile('tsconfig.json', ts.sys.readFile);
+assert.equal(config.error, undefined);
+const project = ts.parseJsonConfigFileContent(config.config, ts.sys, process.cwd(), { noEmit: true, incremental: false });
+const program = ts.createProgram(project.fileNames, project.options);
+const files = ['scripts/materials-ui-acceptance-enroll.ts', 'tests/server/document-acceptance-budget.test.ts'];
+const diagnostics = [...project.errors];
+for (const file of files) {
+  const source = program.getSourceFile(resolve(file));
+  assert.ok(source, file);
+  diagnostics.push(...program.getSyntacticDiagnostics(source), ...program.getSemanticDiagnostics(source));
+}
+if (diagnostics.length) console.log(ts.formatDiagnosticsWithColorAndContext(diagnostics, {
+  getCurrentDirectory: ts.sys.getCurrentDirectory, getCanonicalFileName: name => name, getNewLine: () => '\n'
+}));
+assert.equal(diagnostics.length, 0);
+console.log(JSON.stringify({ files, diagnostics: diagnostics.length, fullProgram: false }));
