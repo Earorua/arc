@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "materials-native-planning-input-v1",
+  "bindingId": "materials-native-planning-20261119-v1",
+  "clock": "2026-11-19T08:00:00.000Z",
+  "planningDate": "2026-11-19",
+  "goal": { "roleId": "ai-native-full-stack-engineer", "level": "beginner", "weeklyMinutes": 420, "targetWeeks": 52 },
+  "availability": { "timeZone": "UTC", "weekdays": { "monday": 60, "tuesday": 60, "wednesday": 60, "thursday": 60, "friday": 60, "saturday": 60, "sunday": 60 }, "exceptions": [], "weeklyMinutes": 420 },
+  "audit": { "defaultLevel": "conceptual", "evidence": [] },
+  "proof": { "title": "Synthetic completed task evidence", "summary": "Local synthetic evidence of a completed task, established before the evaluated material operation.", "artifactUrl": "https://example.com/synthetic-completed-task", "visibility": "private" },
+  "documents": {
+    "primaryA": { "kind": "jd", "name": "Synthetic primary JD A", "text": "SQL", "items": [{ "id": "primary-a-sql", "kind": "requirement", "text": "SQL", "requirementLevel": "must" }] },
+    "primaryC": { "kind": "jd", "name": "Synthetic primary JD C, same role", "text": "React", "items": [{ "id": "primary-c-react", "kind": "requirement", "text": "React", "requirementLevel": "must" }] },
+    "resume": { "kind": "resume", "name": "Synthetic resume", "text": "I tested TypeScript under supervision.", "items": [{ "id": "resume-typescript", "kind": "experience", "text": "I tested TypeScript under supervision.", "requirementLevel": null }] },
+    "focus": { "kind": "supplement", "name": "Synthetic optional practice suggestions", "text": "Coach suggests SQL practice.\nCoach suggests React practice.", "syntheticExtraction": true, "items": [{ "id": "focus-sql", "kind": "constraint", "text": "Coach suggests SQL practice.", "requirementLevel": null, "skillLabels": ["SQL"], "selfLevelHint": null }, { "id": "focus-react", "kind": "constraint", "text": "Coach suggests React practice.", "requirementLevel": null, "skillLabels": ["React"], "selfLevelHint": null }] },
+    "terms": { "kind": "supplement", "name": "Synthetic two-term practice suggestion", "text": "Practice SQL and React.", "syntheticExtraction": true, "items": [{ "id": "focus-two-terms", "kind": "constraint", "text": "Practice SQL and React.", "requirementLevel": null, "skillLabels": ["SQL", "React"], "selfLevelHint": null }] },
+    "guidedResume": { "kind": "resume", "name": "Synthetic source-bound guided hint", "text": "I tested TypeScript under supervision.", "syntheticExtraction": true, "items": [{ "id": "guided-typescript", "kind": "experience", "text": "I tested TypeScript under supervision.", "requirementLevel": null, "skillLabels": ["TypeScript"], "selfLevelHint": "guided" }] },
+    "secondary": { "kind": "supplement", "name": "Synthetic secondary company JD", "text": "React is mandatory.", "syntheticExtraction": true, "items": [{ "id": "secondary-react", "kind": "requirement", "text": "React is mandatory.", "requirementLevel": "must", "skillLabels": ["React"], "selfLevelHint": null }] },
+    "factOnly": { "kind": "supplement", "name": "Synthetic confirmation-only fact", "text": "TypeScript practice", "items": [{ "id": "new-practice-fact", "kind": "experience", "text": "TypeScript practice", "requirementLevel": null }] },
+    "conflict": { "kind": "supplement", "name": "Synthetic unresolved requirement", "text": "SQL must. SQL preferred.", "items": [{ "id": "conflict-sql", "kind": "requirement", "text": "SQL must. SQL preferred.", "requirementLevel": "unspecified" }] }
+  },
+  "cases": [
+    { "id": "fact-confirm-only", "layer": "native-document-services-existing-plan", "initialIntents": [] },
+    { "id": "explicit-guided-self-adopt", "layer": "accepted-ui-evidence-plus-native-initial-generation", "setupChoice": { "skillId": "typescript", "level": "guided" }, "initialIntents": [] },
+    { "id": "reject-batch-independent", "layer": "actual-adoption-contract-plus-accepted-ui-evidence", "initialIntents": [] },
+    { "id": "explicit-single-independent", "layer": "accepted-ui-evidence-plus-native-initial-generation", "setupChoice": { "skillId": "typescript", "level": "independent" }, "initialIntents": [] },
+    { "id": "unadopted-learning-intent", "layer": "native-context-services-existing-plan", "initialIntents": [] },
+    { "id": "explicit-adopt-soft-focus", "layer": "native-context-proposal-and-acceptance", "initialIntents": [] },
+    { "id": "withdraw-focus", "layer": "native-item-intent-withdrawal-and-acceptance", "initialIntents": ["focus-sql", "focus-react"] },
+    { "id": "delete-material", "layer": "native-document-deletion-and-replay-guards", "initialIntents": ["focus-sql", "focus-react"] },
+    { "id": "exclude-individual-term", "layer": "native-exact-term-choice-and-acceptance", "supplement": "terms", "initialIntents": ["focus-two-terms"] },
+    { "id": "replace-primary-jd-same-job", "layer": "native-current-versus-proposed-primary-selection", "initialIntents": [] },
+    { "id": "accept-current-primary-jd-preview", "layer": "native-atomic-proposal-acceptance", "initialIntents": [] },
+    { "id": "secondary-jd-cannot-add-must", "layer": "native-primary-authority-and-optional-soft-intent", "supplement": "secondary", "initialIntents": [] },
+    { "id": "unresolved-conflict-not-hard-resolved", "layer": "native-confirmation-guard-with-declared-upstream-review-fixture", "initialIntents": [] },
+    { "id": "stale-preview-reject", "layer": "native-selection-invalidation-and-acceptance-guard", "initialIntents": [] }
+  ],
+  "reuse": { "acceptedDate": "2026-11-09", "acceptedSource": "2fad2850e447dd353c8d7a9587f114f60ce3dd01", "uiTestPath": "tests/components/material-adoption-persistence.test.tsx", "uiCases": 5, "description": "Previously accepted explicit single-choice and bulk-independent-control behavior; not rerun or relabelled as fresh UI evidence." },
+  "limits": { "realProviderCalls": 0, "externalHttpAllowed": false, "newActivePlanSelfAssessmentEndpoint": false, "independentIsSelfReport": true, "modelQualityApproved": false, "gateApproved": false, "publicationApproved": false }
+}

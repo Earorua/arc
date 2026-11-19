@@ -1,0 +1,3 @@
+import { defineConfig } from "vitest/config";
+import base from "../../vitest.config";
+export default defineConfig({ ...base, test: { ...base.test, include: ["work/grounded-verification/native-planning-20261119-bulk-ui.test.tsx"], exclude: [] } });

@@ -32,18 +32,18 @@ Completed 2026-11-19: five focused tests, targeted lint and actual capture/CLI p
 
 ## Task 2: Native bindings for the existing 14 behaviors
 
-Protocol and its independent review are complete in `docs/verification/materials-native-acceptance/planning-protocol.md`. Execute the native collection after Task 3 settles, so course/preview changes do not trigger an immediate duplicate run.
+Completed 2026-11-19 after Task 3 settled: one fixed native collection, 14/14 passed, no retries/outbound/source drift. The narrowly missing bulk-control UI citation was closed by one additional actual UI observation; the original matrix remains unchanged. Specification and quality reviews passed without duplicate runs. See `docs/verification/materials-native-acceptance/planning-result.md` and its addendum, which also preserves the interrupted wrong-scope UI configuration attempt.
 
 **Files:** new `docs/verification/materials-native-acceptance/planning-protocol.md`, native scenario driver/worker and results; reuse the existing local native harness and `tests/components/material-adoption-persistence.test.tsx` evidence where applicable. Existing frozen `planning-reference-cases.json` remains unchanged.
 
-- [ ] Write the 14-row evidence matrix before running tests, mapping original case IDs to legal native setup, action, observation and preservation requirements.
-- [ ] Use a target of at least four weeks, actual generated workspaces and separate document/selection/context/workspace versions. Create completed units and HTTPS synthetic Proof records through the existing services. Only starting synthetic inputs may be seeded.
+- [x] Write the 14-row evidence matrix before running tests, mapping original case IDs to legal native setup, action, observation and preservation requirements.
+- [x] Use a target of at least four weeks, actual generated workspaces and separate document/selection/context/workspace versions. Create completed units and HTTPS synthetic Proof records through the existing services. Only starting synthetic inputs may be seeded.
 - Use `CloudService.importLocalState` with `D1CloudRepository`, an explicit synthetic consent and empty completion/Proof arrays to establish the legal initial goal in the isolated local database. `saveSetup` alone cannot initialize an absent goal. Do not copy the historical helper's direct `career_goals` INSERT. Then create/confirm materials through document services, followed by `PlanningService.generate`, completion events and `ProofService.create`. This local fixture import performs no remote migration.
-- [ ] Observe confirmation-only, guided adoption, batch-independent rejection, single independent adoption, unadopted intent, adopted soft focus, withdrawal, deletion, one-term exclusion, primary-JD replacement, explicit preview acceptance, secondary-JD authority, unresolved conflict and stale preview.
-- [ ] Existing self-assessment UI is the explicit adoption boundary. Reuse its accepted interaction evidence and bind actual generated/persisted audits; do not invent an active-plan audit-edit endpoint. Clearly identify this native interpretation.
-- [ ] Collect full before/after records, actual errors and separate lifecycle versions. Do not manufacture an expected audit entry, revision, Proof, proposal or state to fit the abstract fixture. Compare declared invariants independently from production outputs.
-- [ ] Retain other selected materials, source/goal identity, protected task content/dependencies/minutes, completion events and Proof. Any accepted context switch must be explicit and persist after reload. A rejected or abandoned preview must not apply proposed context.
-- [ ] Run the fixed native matrix once after its protocol review. Diagnose failures before changes; rerun only affected cases during repairs and the full 14 only when their shared harness or relevant product behavior changes.
+- [x] Observe confirmation-only, guided adoption, batch-independent rejection, single independent adoption, unadopted intent, adopted soft focus, withdrawal, deletion, one-term exclusion, primary-JD replacement, explicit preview acceptance, secondary-JD authority, unresolved conflict and stale preview.
+- [x] Existing self-assessment UI is the explicit adoption boundary. Reuse its accepted interaction evidence and bind actual generated/persisted audits; do not invent an active-plan audit-edit endpoint. Clearly identify this native interpretation.
+- [x] Collect full before/after records, actual errors and separate lifecycle versions. Do not manufacture an expected audit entry, revision, Proof, proposal or state to fit the abstract fixture. Compare declared invariants independently from production outputs.
+- [x] Retain other selected materials, source/goal identity, protected task content/dependencies/minutes, completion events and Proof. Any accepted context switch must be explicit and persist after reload. A rejected or abandoned preview must not apply proposed context.
+- [x] Run the fixed native matrix once after its protocol review. Diagnose failures before changes; rerun only affected cases during repairs and the full 14 only when their shared harness or relevant product behavior changes.
 
 ## Task 3: Actual course-task coverage
 
@@ -61,10 +61,12 @@ The read-only audit confirmed that topic correspondence exists but task-coverage
 
 ## Task 4: Review, evidence and next checkpoint
 
-- [ ] Specification review, then code-quality review of changed code/protocol; reviewers reuse recorded outputs and add only probes addressing a concrete uncertainty.
-- [ ] Run tests selected by changed files, plus relevant types/lint. No full-repository run solely because a report or binding record changed. Reserve the next full repository acceptance for the final integrated application version.
-- [ ] Record exact completed/missing cases, changed files, actual test results and the immutable historical reference hashes. Keep intermediate failures separate from final results.
-- [ ] Update the latest recovery record with the next concrete step. Model quality, hosted environment validation, accounting/cleanup/rollback and publication remain separate unresolved release steps until their actual evidence exists.
+Completed 2026-11-19: both product and native slices passed specification then quality review; original raw results and additive correction are archived. The next batch is the separate mainline integration plan. No Gate or publication approval is implied.
+
+- [x] Specification review, then code-quality review of changed code/protocol; reviewers reuse recorded outputs and add only probes addressing a concrete uncertainty.
+- [x] Run tests selected by changed files, plus relevant types/lint. No full-repository run solely because a report or binding record changed. Reserve the next full repository acceptance for the final integrated application version.
+- [x] Record exact completed/missing cases, changed files, actual test results and the immutable historical reference hashes. Keep intermediate failures separate from final results.
+- [x] Update the latest recovery record with the next concrete step. Model quality, hosted environment validation, accounting/cleanup/rollback and publication remain separate unresolved release steps until their actual evidence exists.
 
 ## Stop conditions
 

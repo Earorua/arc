@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "materials-native-planning-collection-index-v1",
+  "bindingId": "materials-native-planning-20261119-v1",
+  "manifestSha256": "c65d84b1048dbad28f0eea7e21e81c77c4c577b43c0bb67ab77fb978fd1b6d4d",
+  "completedAt": "2026-11-19T06:01:33.706Z",
+  "results": [
+    {
+      "caseId": "fact-confirm-only",
+      "collectionStatus": "collected",
+      "path": "fact-confirm-only.json",
+      "sha256": "e4e77b7928c55c1a857f3b7a4ba48d57a42e03f33f752d15e41d3b0ce5528b07",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "explicit-guided-self-adopt",
+      "collectionStatus": "collected",
+      "path": "explicit-guided-self-adopt.json",
+      "sha256": "3b96089081646ad06793e4f28379bb750b8d96ded3dbd1b90f81d0fb2d4e48b0",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "reject-batch-independent",
+      "collectionStatus": "collected",
+      "path": "reject-batch-independent.json",
+      "sha256": "1543ad190de36294ab1a4eaf76aa4e1bf60500a63e99c2832efa4dea5c3ce2a1",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "explicit-single-independent",
+      "collectionStatus": "collected",
+      "path": "explicit-single-independent.json",
+      "sha256": "46f725309be336d648cb49c60b105c83a89496d2159ba72c3740ca66cd8a60e3",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "unadopted-learning-intent",
+      "collectionStatus": "collected",
+      "path": "unadopted-learning-intent.json",
+      "sha256": "39614cd2f173ada0f6b3fe9721a4ae9eac94734b3d9ffc85cb624f11eeb29a1f",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "explicit-adopt-soft-focus",
+      "collectionStatus": "collected",
+      "path": "explicit-adopt-soft-focus.json",
+      "sha256": "d5ed4aaa434c373dc1e9e1eefc51f57adab43dbce9361c4cd7a63be0ebded053",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "withdraw-focus",
+      "collectionStatus": "collected",
+      "path": "withdraw-focus.json",
+      "sha256": "6195c92c406a6f889dd19018760935854fa8579d33a176c0bbb531789dc49765",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "delete-material",
+      "collectionStatus": "collected",
+      "path": "delete-material.json",
+      "sha256": "0c26b94d8c22dc2c404d631eb91cd6ff5f17056a80896bc3208904508b274f4d",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "exclude-individual-term",
+      "collectionStatus": "collected",
+      "path": "exclude-individual-term.json",
+      "sha256": "53b986c0966969a7671fe74e499d3db2b12f7fc3d65f1b511490ee6030989f5f",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "replace-primary-jd-same-job",
+      "collectionStatus": "collected",
+      "path": "replace-primary-jd-same-job.json",
+      "sha256": "2c4db5f138e473725e836cb16873e74454744c9ccf4bf6da31bb3ac914ed6651",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "accept-current-primary-jd-preview",
+      "collectionStatus": "collected",
+      "path": "accept-current-primary-jd-preview.json",
+      "sha256": "d501469d74cbd03c41c78e8dd096227ebc3cef49f26cc80cd1d108cc177e74a6",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "secondary-jd-cannot-add-must",
+      "collectionStatus": "collected",
+      "path": "secondary-jd-cannot-add-must.json",
+      "sha256": "bc0300d1c9f64ebda4e39fbcc623407366cfb3186e2069667f8604323426920b",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "unresolved-conflict-not-hard-resolved",
+      "collectionStatus": "collected",
+      "path": "unresolved-conflict-not-hard-resolved.json",
+      "sha256": "3004549ab04dfd15ec14db87da426e337362390be70ea62ff741f01e4096334d",
+      "outboundAttempts": 0
+    },
+    {
+      "caseId": "stale-preview-reject",
+      "collectionStatus": "collected",
+      "path": "stale-preview-reject.json",
+      "sha256": "c693e985103a751f4d32c1121e26beb91f5f79ae076a8e4612b78f4939259189",
+      "outboundAttempts": 0
+    }
+  ],
+  "requestedCases": [
+    "fact-confirm-only",
+    "explicit-guided-self-adopt",
+    "reject-batch-independent",
+    "explicit-single-independent",
+    "unadopted-learning-intent",
+    "explicit-adopt-soft-focus",
+    "withdraw-focus",
+    "delete-material",
+    "exclude-individual-term",
+    "replace-primary-jd-same-job",
+    "accept-current-primary-jd-preview",
+    "secondary-jd-cannot-add-must",
+    "unresolved-conflict-not-hard-resolved",
+    "stale-preview-reject"
+  ],
+  "sourceDrift": [],
+  "outboundAttempts": 0
+}

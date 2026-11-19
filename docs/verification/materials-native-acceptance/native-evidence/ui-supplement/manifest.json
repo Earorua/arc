@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "materials-native-ui-supplement-v1",
+  "sourceCommit": "47b0e0af9d257e0e72bf86476411b621553fa309",
+  "status": "passed-one-focused-observation",
+  "passed": 1,
+  "nativeMatrixRerun": false,
+  "originalAcceptedTestEdited": false,
+  "source": [
+    {
+      "path": "tests/components/material-adoption-persistence.test.tsx",
+      "sha256": "885a7ec004959a359087748185600161dbf6ac0a1a91a8f2f116da17f6424209"
+    },
+    {
+      "path": "app/components/setup/adaptive-setup-flow.tsx",
+      "sha256": "cf93de74e1ab7525f00897bcd5b9997d21e3abbbbdfd6eb64f8c4226889e79cf"
+    },
+    {
+      "path": "app/components/setup/skill-audit-step.tsx",
+      "sha256": "17940f508c432040b95cbc9f8e9eb4726277002121881a6f9c4eefddc6f7ef84"
+    },
+    {
+      "path": "app/components/materials/material-setup-provider.tsx",
+      "sha256": "8e80ba0f3540b3840dd16b24e7239b392bf79de0d926d2d409acacad48729b93"
+    },
+    {
+      "path": "app/components/materials/material-confirmation.tsx",
+      "sha256": "6e328b880f71447f89cd94619dbb72dd4967ec04d9dc74a7d23112cb0cdebd8f"
+    }
+  ],
+  "artifacts": [
+    {
+      "source": "work/grounded-verification/native-planning-20261119-bulk-ui.test.tsx",
+      "file": "native-planning-20261119-bulk-ui.test.tsx.source.txt",
+      "sha256": "4e3bbe87d55cd3a8fe13217b1aea2f38c8591f9b95572a9f7b26c7f9259bd27e",
+      "bytes": 10193
+    },
+    {
+      "source": "work/grounded-verification/native-planning-20261119-bulk-ui.config.ts",
+      "file": "native-planning-20261119-bulk-ui.config.ts.source.txt",
+      "sha256": "5425bf40c8b6fa29b027b12426958e3a1ae3c182c26c94558be23bc3e08f8e08",
+      "bytes": 247
+    },
+    {
+      "source": "work/grounded-verification/native-planning-20261119-bulk-ui-scope-01.config.ts.source.txt",
+      "file": "native-planning-20261119-bulk-ui-scope-01.config.ts.source.txt",
+      "sha256": "f6fc358626056ea6284db69ac62fd7ca9c969e0929c072872ccf2378a0b0b0fc",
+      "bytes": 256
+    },
+    {
+      "source": "work/grounded-verification/native-planning-20261119-bulk-ui-01.log",
+      "file": "native-planning-20261119-bulk-ui-01.log.txt",
+      "sha256": "7c791ebd7c44f6de20f408280f9de2bb25c03e231e18623d91ca2bcffc2f501e",
+      "bytes": 211237
+    },
+    {
+      "source": "work/grounded-verification/native-planning-20261119-bulk-ui-01-interruption.json",
+      "file": "native-planning-20261119-bulk-ui-01-interruption.json",
+      "sha256": "6a5fc74e6e173efdfa16a0a673abbfa2a01a62e93284ce9d69796d22d221f91a",
+      "bytes": 507
+    },
+    {
+      "source": "work/grounded-verification/native-planning-20261119-bulk-ui-02.log",
+      "file": "native-planning-20261119-bulk-ui-02.log.txt",
+      "sha256": "7641b8467b24dc3043200b90f1ce8e5e6c38442b0d8cd108ead533946dcde871",
+      "bytes": 867
+    },
+    {
+      "source": "work/grounded-verification/native-planning-20261119-bulk-ui-02.json",
+      "file": "native-planning-20261119-bulk-ui-02.json",
+      "sha256": "73003bc26d33a0cd680b73342335213ae13bc8665f9c0a51339f0f2d5e52d8db",
+      "bytes": 275
+    }
+  ],
+  "priorAttempt": "Interrupted wrong-scope configuration, not an acceptance result",
+  "boundary": "Synthetic document transport fixture; actual provider state and AdaptiveSetupFlow/SkillAuditStep rendering and interaction. No model or deployment."
+}

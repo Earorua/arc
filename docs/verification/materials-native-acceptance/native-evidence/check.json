@@ -1,0 +1,402 @@
+{
+  "schemaVersion": "materials-native-planning-check-v1",
+  "bindingId": "materials-native-planning-20261119-v1",
+  "checkedAt": "2026-11-19T06:01:38.697Z",
+  "collectionDirectory": "C:\\Users\\XF\\.codex\\worktrees\\materials-replan-recovery\\ui-warm-precision\\work\\grounded-verification\\native-planning-20261119-matrix-01",
+  "manifestSha256": "c65d84b1048dbad28f0eea7e21e81c77c4c577b43c0bb67ab77fb978fd1b6d4d",
+  "checkerSha256": "51ce03f02fceefb4fac44c1fe7b2f7f4176177760fc6442904fdd3b0a62ce124",
+  "status": "passed",
+  "counts": {
+    "passed": 14,
+    "failed": 0,
+    "notCollected": 0
+  },
+  "results": [
+    {
+      "caseId": "fact-confirm-only",
+      "layer": "native-document-services-existing-plan",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "e4e77b7928c55c1a857f3b7a4ba48d57a42e03f33f752d15e41d3b0ce5528b07"
+    },
+    {
+      "caseId": "explicit-guided-self-adopt",
+      "layer": "accepted-ui-evidence-plus-native-initial-generation",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "explicit setup choice precedes actual generation and persists",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "3b96089081646ad06793e4f28379bb750b8d96ded3dbd1b90f81d0fb2d4e48b0"
+    },
+    {
+      "caseId": "reject-batch-independent",
+      "layer": "actual-adoption-contract-plus-accepted-ui-evidence",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "1543ad190de36294ab1a4eaf76aa4e1bf60500a63e99c2832efa4dea5c3ce2a1"
+    },
+    {
+      "caseId": "explicit-single-independent",
+      "layer": "accepted-ui-evidence-plus-native-initial-generation",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "explicit setup choice precedes actual generation and persists",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "46f725309be336d648cb49c60b105c83a89496d2159ba72c3740ca66cd8a60e3"
+    },
+    {
+      "caseId": "unadopted-learning-intent",
+      "layer": "native-context-services-existing-plan",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "39614cd2f173ada0f6b3fe9721a4ae9eac94734b3d9ffc85cb624f11eeb29a1f"
+    },
+    {
+      "caseId": "explicit-adopt-soft-focus",
+      "layer": "native-context-proposal-and-acceptance",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "d5ed4aaa434c373dc1e9e1eefc51f57adab43dbce9361c4cd7a63be0ebded053"
+    },
+    {
+      "caseId": "withdraw-focus",
+      "layer": "native-item-intent-withdrawal-and-acceptance",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "6195c92c406a6f889dd19018760935854fa8579d33a176c0bbb531789dc49765"
+    },
+    {
+      "caseId": "delete-material",
+      "layer": "native-document-deletion-and-replay-guards",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "0c26b94d8c22dc2c404d631eb91cd6ff5f17056a80896bc3208904508b274f4d"
+    },
+    {
+      "caseId": "exclude-individual-term",
+      "layer": "native-exact-term-choice-and-acceptance",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "53b986c0966969a7671fe74e499d3db2b12f7fc3d65f1b511490ee6030989f5f"
+    },
+    {
+      "caseId": "replace-primary-jd-same-job",
+      "layer": "native-current-versus-proposed-primary-selection",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "2c4db5f138e473725e836cb16873e74454744c9ccf4bf6da31bb3ac914ed6651"
+    },
+    {
+      "caseId": "accept-current-primary-jd-preview",
+      "layer": "native-atomic-proposal-acceptance",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "d501469d74cbd03c41c78e8dd096227ebc3cef49f26cc80cd1d108cc177e74a6"
+    },
+    {
+      "caseId": "secondary-jd-cannot-add-must",
+      "layer": "native-primary-authority-and-optional-soft-intent",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "bc0300d1c9f64ebda4e39fbcc623407366cfb3186e2069667f8604323426920b"
+    },
+    {
+      "caseId": "unresolved-conflict-not-hard-resolved",
+      "layer": "native-confirmation-guard-with-declared-upstream-review-fixture",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "3004549ab04dfd15ec14db87da426e337362390be70ea62ff741f01e4096334d"
+    },
+    {
+      "caseId": "stale-preview-reject",
+      "layer": "native-selection-invalidation-and-acceptance-guard",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "native collection, binding and offline boundary",
+          "status": "passed"
+        },
+        {
+          "name": "fresh repository reload matches after records",
+          "status": "passed"
+        },
+        {
+          "name": "complete protected native workspace and Proof",
+          "status": "passed"
+        },
+        {
+          "name": "current plan and context stay active until explicit acceptance",
+          "status": "passed"
+        },
+        {
+          "name": "declared behavior",
+          "status": "passed"
+        }
+      ],
+      "artifactSha256": "c693e985103a751f4d32c1121e26beb91f5f79ae076a8e4612b78f4939259189"
+    }
+  ],
+  "notCollected": [],
+  "limits": {
+    "realProviderCalls": 0,
+    "externalHttpAllowed": false,
+    "newActivePlanSelfAssessmentEndpoint": false,
+    "independentIsSelfReport": true,
+    "modelQualityApproved": false,
+    "gateApproved": false,
+    "publicationApproved": false
+  }
+}

@@ -1,0 +1,161 @@
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { webcrypto } from "node:crypto";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { MaterialConfirmation } from "../../app/components/materials/material-confirmation";
+import { MaterialSetupProvider, useMaterialSetup } from "../../app/components/materials/material-setup-provider";
+import { AdaptiveSetupFlow } from "../../app/components/setup/adaptive-setup-flow";
+import {
+  GROUNDED_MATERIAL_REVIEW_PROJECTION, SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION,
+  type DocumentReviewDraft, type MaterialSelection,
+} from "../../app/contracts/documents";
+import {
+  documentEndpointContracts, type DocumentEndpoint, type DocumentEndpointRequest, type DocumentEndpointResponse,
+} from "../../app/contracts/documents-api";
+import type { PlanningWorkspace, SkillSelfLevel } from "../../app/contracts/planning";
+import type { GeneratePlanningRequest } from "../../app/contracts/planning-api";
+import { flagshipBlueprint } from "../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../app/data/flagship-unit-registry";
+import type { DocumentsClient } from "../../app/lib/documents-client";
+import { MaterialContextService } from "../../app/server/documents/context-builder";
+import { D1PlanningRepository } from "../../app/server/planning/d1-planning-repository";
+import { PlanningService } from "../../app/server/planning/service";
+import { materialNow, materialSourceResolver, seedMaterialSelection } from "../../tests/helpers/material-planning";
+import { createMaterialsD1 } from "../../tests/helpers/materials-d1";
+
+const dbs: ReturnType<typeof createMaterialsD1>[] = [];
+const caps = { documentsEnabled: true, analysisEnabled: true, planningEnabled: true, hasDocuments: true,
+  providerLabel: "Offline", providerPolicyId: "policy", policyVersion: "2026.11.1", reason: "ready" } as const;
+const ref = { documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", revision: 0, confirmationId: "confirmation-a" };
+const text = "I tested TypeScript under supervision.";
+type ReviewProjection = NonNullable<DocumentReviewDraft["reviewProjection"]>;
+
+function makeDraft(reviewProjection: ReviewProjection = SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION): DocumentReviewDraft {
+  return {
+    id: "review-a", schemaVersion: "2026.11.1", documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a",
+    extractionId: "extraction-a", origin: "ai", revision: 0, updatedAt: materialNow().toISOString(), reviewProjection,
+    items: [{ id: "practice-a", kind: "experience", origin: "extracted", text,
+      sourceRef: { documentId: "doc-a", documentVersionId: "version-a", textVersionId: "text-a", start: 0, end: text.length },
+      requirementLevel: null, skillLabels: ["TypeScript"] }],
+    selfAssessmentHints: [{ id: "hint-a", candidateId: "practice-a", skillLabel: "TypeScript", level: "guided" }], reviewPoints: [],
+  };
+}
+
+function skillGroup(id: string) {
+  const skill = flagshipBlueprint.skills.find(skill => skill.id === id)!;
+  return within(screen.getByRole("group", { name: `${skill.name} 自我评估`, hidden: true }));
+}
+
+function level(id: string, value: SkillSelfLevel) {
+  return document.querySelector<HTMLInputElement>(`input[name="level-${id}"][value="${value}"]`)!;
+}
+
+function fixture(projection: ReviewProjection = SOURCE_MENTION_MATERIAL_REVIEW_PROJECTION) {
+  const db = createMaterialsD1();
+  dbs.push(db);
+  seedMaterialSelection(db);
+  const draft = makeDraft(projection);
+  db.database.prepare("UPDATE documents SET kind='resume',display_name='Synthetic Resume'").run();
+  db.database.prepare("UPDATE material_selection_entries SET slot='resume'").run();
+  db.database.prepare("UPDATE document_confirmations SET items_json=?").run(JSON.stringify(draft.items));
+  const sourceResolver = materialSourceResolver();
+  let id = 0;
+  const repository = new D1PlanningRepository(db as unknown as D1Database, { sourceResolver, now: materialNow, createId: () => `stored-${++id}` });
+  const materials = new MaterialContextService({ db: db as unknown as D1Database, sourceResolver, planningRepository: repository,
+    now: materialNow, createId: () => `context-${++id}` });
+  const service = new PlanningService({ repository, sourceResolver, materials, now: materialNow, createId: () => `planning-${++id}` });
+  let selection: MaterialSelection | null = null;
+
+  // Only document transport/selection metadata is synthetic. Context creation, planning,
+  // audit serialization and repository reload use the real services and in-memory D1.
+  async function invoke(endpoint: DocumentEndpoint, body: unknown): Promise<unknown> {
+    if (endpoint === "readDocument") return {
+      document: { id: "doc-a", schemaVersion: "2026.11.1", kind: "resume", displayName: "Synthetic Resume",
+        revision: 0, generation: 0, lifecycle: "active", currentDocumentVersionId: "version-a",
+        createdAt: materialNow().toISOString(), updatedAt: materialNow().toISOString() },
+      version: { id: "version-a", documentId: "doc-a", textVersionId: "text-a", schemaVersion: "2026.11.1", revision: 0,
+        state: "ready", parserVersion: "2026.11.1", textDigest: "a".repeat(64), codePoints: text.length,
+        utf8Bytes: text.length, createdAt: materialNow().toISOString() },
+      text,
+    };
+    if (endpoint === "readDocumentReviewDraft") return { draft };
+    if (endpoint === "createDocumentConfirmation") return { confirmationId: "confirmation-a", revision: 0 };
+    if (endpoint === "createMaterialSelection") {
+      const input = documentEndpointContracts.createMaterialSelection.request.parse(body);
+      selection = { selectionId: "selection-a", schemaVersion: "2026.11.1", selectionRevision: 0, scope: input.scope,
+        entries: input.entries, state: "active", boundGoalId: null };
+      db.database.prepare("UPDATE material_selections SET scope_json=? WHERE id='selection-a'").run(JSON.stringify(input.scope));
+      return { selectionId: "selection-a", selectionRevision: 0 };
+    }
+    if (endpoint === "readMaterialSelection") return { selection,
+      versions: [{ documentId: "doc-a", documentVersionId: "version-a", state: "active" }] };
+    if (endpoint === "createMaterialContext") return materials.create("owner-a", documentEndpointContracts.createMaterialContext.request.parse(body));
+    if (endpoint === "readMaterialContext") return materials.read("owner-a", documentEndpointContracts.readMaterialContext.request.parse(body).contextVersionId);
+    throw new Error(`Unexpected offline endpoint: ${endpoint}`);
+  }
+  const client: DocumentsClient = {
+    capabilities: async () => caps,
+    async request<K extends DocumentEndpoint>(endpoint: K, body: DocumentEndpointRequest<K>): Promise<DocumentEndpointResponse<K>> {
+      documentEndpointContracts[endpoint].request.parse(body);
+      return documentEndpointContracts[endpoint].response.parse(await invoke(endpoint, body)) as DocumentEndpointResponse<K>;
+    },
+  };
+  const requests: GeneratePlanningRequest[] = [];
+  let generated: PlanningWorkspace | null = null;
+  async function generate(request: GeneratePlanningRequest) {
+    requests.push(request);
+    generated = (await service.generate("owner-a", request)).workspace;
+    return true;
+  }
+  function SelectResume() {
+    const state = useMaterialSetup();
+    return <button disabled={!state?.ready} onClick={() => state?.setSlot("resume", ref)}>Load synthetic resume</button>;
+  }
+  function App() {
+    return <MaterialSetupProvider ownerId="owner-a" scopeKey="adoption-persistence" client={client}>
+      <SelectResume />
+      <AdaptiveSetupFlow draftOwner="user:owner-a" blueprint={flagshipBlueprint} registry={flagshipUnitRegistry} generate={generate}
+        navigate={vi.fn()} createMutationId={() => "generation-adoption"} now={materialNow} timeZone="UTC" />
+    </MaterialSetupProvider>;
+  }
+  return { db, App, requests, sourceResolver, generated: () => generated };
+}
+
+async function loadResume() {
+  await waitFor(() => expect(screen.getByRole("button", { name: "Load synthetic resume" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Load synthetic resume" }));
+  await screen.findByRole("button", { name: "采用 TypeScript 的需指导完成建议" });
+}
+
+async function createRoute() {
+  fireEvent.click(screen.getByRole("button", { name: "继续" }));
+  fireEvent.click(screen.getByRole("button", { name: "继续" }));
+  fireEvent.click(screen.getByRole("button", { name: "核对资料对路线的影响" }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "创建路线" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "创建路线" }));
+  await screen.findByText("计划已就绪。");
+}
+
+async function reloadWorkspace(f: ReturnType<typeof fixture>) {
+  const reopened = new PlanningService({ repository: new D1PlanningRepository(f.db as unknown as D1Database,
+    { sourceResolver: f.sourceResolver }), sourceResolver: f.sourceResolver });
+  return reopened.getWorkspace("owner-a");
+}
+
+beforeEach(() => { localStorage.clear(); vi.stubGlobal("crypto", webcrypto); });
+afterEach(() => { cleanup(); dbs.splice(0).forEach(db => db.close()); vi.unstubAllGlobals(); });
+
+// One supplemental observation; existing fixture copied without altering product or accepted tests.
+it("hides bulk independent only after materials selection while retaining individual choice", async () => {
+  const f = fixture();
+  render(<f.App />);
+  expect(screen.getAllByRole("button", { name: /^将.*设为可独立完成$/, hidden: true }).length).toBeGreaterThan(0);
+  await loadResume();
+  expect(screen.queryAllByRole("button", { name: /^将.*设为可独立完成$/, hidden: true })).toHaveLength(0);
+  expect(level("typescript", "unseen")).toBeChecked();
+  fireEvent.click(skillGroup("typescript").getByRole("radio", { name: "可独立完成" }));
+  expect(level("typescript", "independent")).toBeChecked();
+  for (const skill of flagshipBlueprint.skills.filter(skill => skill.id !== "typescript")) {
+    expect(level(skill.id, "unseen")).toBeChecked();
+  }
+  expect(f.requests).toHaveLength(0);
+});

@@ -1,0 +1,330 @@
+// Offline observation adapter. Assertions live in check-planning.mjs, not in this worker.
+import inputFile from "./planning-inputs.json";
+import { materialSelfAssessmentAdoptionSchema, materialReviewPointsSchema, type ConfirmedMaterialItem, type DocumentReviewDraft, type MaterialSelectionEntry, type MaterialSelectionRef, type MaterialScope } from "../../../app/contracts/documents";
+import type { AvailabilityVersion, PlanningTarget, PlanningWorkspace, SkillAuditVersion, SkillSelfLevel } from "../../../app/contracts/planning";
+import type { MaterialLearningIntentChoice, MaterialTermMappingChoice } from "../../../app/contracts/material-planning";
+import { flagshipBlueprint } from "../../../app/data/flagship-blueprint";
+import { flagshipUnitRegistry } from "../../../app/data/flagship-unit-registry";
+import { CloudService } from "../../../app/server/cloud/service";
+import { D1CloudRepository } from "../../../app/server/cloud/d1-cloud-repository";
+import { createDocumentServices } from "../../../app/server/documents/service";
+import { D1DocumentRepository } from "../../../app/server/documents/d1-repository";
+import { validateDocumentExtraction, serializeDocumentExtraction } from "../../../app/server/documents/extraction-validator";
+import { KIMI_GROUNDED_TERMS_POLICY_ID } from "../../../app/server/documents/policy";
+import { MaterialContextService } from "../../../app/server/documents/context-builder";
+import { PlanningSourceResolver } from "../../../app/server/planning/source-resolver";
+import { D1PlanningRepository } from "../../../app/server/planning/d1-planning-repository";
+import { PlanningService } from "../../../app/server/planning/service";
+import { D1ProofRepository } from "../../../app/server/proof/d1-proof-repository";
+import { ProofService } from "../../../app/server/proof/service";
+
+type Environment = { DB: D1Database; MATERIALS: R2Bucket };
+type CaseSpec = { id: string; layer: string; initialIntents: string[]; supplement?: string; setupChoice?: { skillId: string; level: SkillSelfLevel } };
+type DocumentSpec = { kind: MaterialSelectionEntry["slot"]; name: string; text: string; syntheticExtraction?: boolean; items: Array<{
+  id: string; kind: ConfirmedMaterialItem["kind"]; text: string; requirementLevel: ConfirmedMaterialItem["requirementLevel"];
+  skillLabels?: string[]; selfLevelHint?: "guided" | "conceptual" | "independent" | null;
+}> };
+const inputs = inputFile as unknown as Omit<typeof inputFile, "cases" | "documents"> & { cases: CaseSpec[]; documents: Record<string, DocumentSpec> };
+type StoredDocument = { entry: MaterialSelectionEntry; documentId: string; documentVersionId: string; textVersionId: string; revision: number; draft: DocumentReviewDraft };
+type Trace = { index: number; phase: string; operation: string; input: unknown; outcome: "returned" | "threw"; response?: unknown; error?: ReturnType<typeof errorRecord> };
+const TABLES = [
+  "users", "learner_profiles", "career_goals", "migration_runs", "learning_events", "idempotency_records",
+  "skill_audit_versions", "availability_versions", "learning_path_versions", "plan_versions", "daily_units", "planning_workspaces", "planning_events",
+  "proof_items", "proof_versions", "proof_review_events", "user_skill_projections",
+  "documents", "document_versions", "document_text_versions", "document_extractions", "document_review_drafts", "document_confirmations",
+  "document_processing_consents", "document_jobs", "document_mutations", "document_storage_operations", "document_deletion_jobs",
+  "material_selections", "material_selection_entries", "material_context_versions", "material_context_dependencies", "material_plan_proposals",
+  "goal_document_links", "document_usage_links",
+] as const;
+const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+function errorRecord(error: unknown) {
+  const value = error as { name?: string; message?: string; code?: unknown; issues?: unknown; stack?: string };
+  return { name: value?.name ?? "UnknownError", message: value?.message ?? String(error), code: value?.code ?? null,
+    issues: value?.issues ?? null, stack: value?.stack ?? null };
+}
+
+async function collect(env: Environment, spec: CaseSpec) {
+  const owner = { ownerId: `native-${spec.id}` };
+  let serial = 0;
+  const id = () => `native-${++serial}`;
+  const now = () => new Date(inputs.clock);
+  const trace: Trace[] = [];
+  const snapshots: Array<Record<string, unknown>> = [];
+  const fixtureImports: Array<Record<string, unknown>> = [];
+  const refs: Record<string, unknown> = {};
+  let phase = "setup";
+  let activeGoal = false;
+  const graph = () => {
+    const sourceResolver = new PlanningSourceResolver({ intelligence: { getPublished: async () => flagshipBlueprint }, flagshipRegistry: flagshipUnitRegistry });
+    const repository = new D1PlanningRepository(env.DB, { sourceResolver, now, createId: id });
+    const contexts = new MaterialContextService({ db: env.DB, sourceResolver, planningRepository: repository, now, createId: id });
+    return { repository, contexts, planning: new PlanningService({ repository, materials: contexts, sourceResolver, now, createId: id }) };
+  };
+  const { planning, contexts } = graph();
+  const docs = createDocumentServices({ db: env.DB, bucket: env.MATERIALS, clock: now, id });
+  const proof = () => new ProofService({ repository: new D1ProofRepository(env.DB), blueprint: flagshipBlueprint, registry: flagshipUnitRegistry, now });
+  const cloud = new CloudService(new D1CloudRepository(env.DB, { now, createId: id }));
+
+  async function call<T>(operation: string, input: unknown, execute: () => Promise<T> | T): Promise<T> {
+    const base = { index: trace.length, phase, operation, input: copy(input) };
+    try {
+      const response = await execute();
+      trace.push({ ...base, outcome: "returned", response: copy(response) });
+      return response;
+    } catch (error) {
+      trace.push({ ...base, outcome: "threw", error: errorRecord(error) });
+      throw error;
+    }
+  }
+  async function attempt(operation: string, input: unknown, execute: () => Promise<unknown> | unknown) {
+    try { await call(operation, input, execute); } catch { /* Captured attempted-call error, never a persisted field. */ }
+  }
+  async function snapshot(label: string) {
+    const tables: Record<string, unknown[]> = {};
+    for (const table of TABLES) tables[table] = (await env.DB.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()).results;
+    const fresh = graph();
+    const response = activeGoal ? await fresh.planning.getWorkspaceResponse(owner.ownerId) : { workspace: null, sourceContext: null };
+    const objects: Array<{ key: string; size: number; text: string | null }> = [];
+    const listing = await env.MATERIALS.list();
+    for (const object of listing.objects) objects.push({ key: object.key, size: object.size, text: await (await env.MATERIALS.get(object.key))?.text() ?? null });
+    const value = { label, phase, traceLength: trace.length, workspace: response.workspace,
+      sourceReference: response.sourceContext?.reference ?? null,
+      proofWorkspace: activeGoal ? await proof().getWorkspace(owner.ownerId) : null,
+      tables, r2: objects.sort((a, b) => a.key.localeCompare(b.key)) };
+    snapshots.push(value);
+    return value;
+  }
+  async function importSyntheticExtraction(document: { documentId: string; documentVersionId: string; textVersionId: string }, definition: DocumentSpec) {
+    const repository = new D1DocumentRepository(env.DB, now, id);
+    const stored = await repository.version(owner.ownerId, document.documentId, document.documentVersionId);
+    const reference = { ownerId: owner.ownerId, ...document, lifecycle: stored.document.lifecycle, text: definition.text, segments: stored.segments };
+    const candidate = { schemaVersion: "2026.11.1", items: definition.items.map(item => ({ id: item.id, kind: item.kind, text: item.text,
+      skillLabels: item.skillLabels ?? [], requirementLevel: item.requirementLevel, selfLevelHint: item.selfLevelHint ?? null,
+      source: { segmentId: stored.segments.find(segment => definition.text.slice(segment.start, segment.end).includes(item.text))?.id, quote: item.text } })), reviewPoints: [] };
+    const projected = validateDocumentExtraction(candidate, owner.ownerId, reference, KIMI_GROUNDED_TERMS_POLICY_ID);
+    const extractionId = id(), draftId = id(), upstreamJobId = `synthetic-unexecuted-${id()}`;
+    const importInput = { boundary: "upstream synthetic extraction result and initial review draft", evaluatedUpstreamExtraction: false,
+      realProviderConstructed: false, document, candidate, projected, extractionId, draftId, upstreamJobId };
+    fixtureImports.push(copy(importInput));
+    await call("fixture.importUpstreamExtraction", importInput, async () => {
+      // The job identifier is provenance for an unexecuted synthetic upstream result.
+      // No provider/job/consent execution is claimed. No evaluated after-state is seeded.
+      await env.DB.batch([
+        env.DB.prepare("INSERT INTO document_extractions(owner_id,id,job_id,document_id,text_version_id,candidates_json,state,created_at,model_version,policy_version) VALUES(?,?,?,?,?,?,'active',?,'synthetic-offline-input','2026.11.1')")
+          .bind(owner.ownerId, extractionId, upstreamJobId, document.documentId, document.textVersionId, serializeDocumentExtraction(candidate, KIMI_GROUNDED_TERMS_POLICY_ID), now().getTime()),
+        env.DB.prepare("INSERT INTO document_review_drafts(owner_id,id,document_id,document_version_id,text_version_id,extraction_id,origin,items_json,self_assessment_hints_json,review_points_json,revision,state,updated_at) VALUES(?,?,?,?,?,?,'ai',?,?,?,0,'active',?)")
+          .bind(owner.ownerId, draftId, document.documentId, document.documentVersionId, document.textVersionId, extractionId, JSON.stringify(projected.items), JSON.stringify(projected.selfAssessmentHints), JSON.stringify(projected.reviewPoints), now().getTime()),
+      ]);
+      return { extractionId, draftId };
+    });
+    await snapshot(`${phase}:synthetic-extraction:${definition.name}`);
+  }
+  async function document(key: string, confirm = true): Promise<StoredDocument> {
+    const definition = inputs.documents[key];
+    if (!definition) throw new Error(`Unknown fixed document ${key}`);
+    const create = { kind: definition.kind, displayName: definition.name, text: definition.text, mutationId: id() };
+    const created = await call("documents.createDocument", create, () => docs.createDocument(owner, create));
+    await snapshot(`${phase}:document-created:${key}`);
+    if (definition.syntheticExtraction) await importSyntheticExtraction(created, definition);
+    const readInput = { documentId: created.documentId, textVersionId: created.textVersionId };
+    const initial = await call("documents.readDocumentReviewDraft", readInput, () => docs.readDocumentReviewDraft(owner, readInput));
+    const items: ConfirmedMaterialItem[] = initial.draft?.items ?? definition.items.map(item => ({ id: item.id, kind: item.kind,
+      text: item.text, requirementLevel: item.requirementLevel, origin: "user", sourceRef: null }));
+    const reviewInput = { ...readInput, extractionId: initial.draft?.extractionId ?? null, items,
+      selfAssessmentHints: initial.draft?.selfAssessmentHints ?? [], expectedRevision: initial.draft?.revision ?? 0, mutationId: id() };
+    const { draft } = await call("documents.saveDocumentReviewDraft", reviewInput, () => docs.saveDocumentReviewDraft(owner, reviewInput));
+    await snapshot(`${phase}:review-saved:${key}`);
+    let confirmationId = "", revision = created.revision;
+    if (confirm) {
+      const confirmationInput = { ...created, items: draft.items, reviewRevision: draft.revision, expectedRevision: created.revision, mutationId: id() };
+      // createDocument's receipt contains revision, which is not a confirmation input field.
+      const { revision: ignored, ...request } = confirmationInput; void ignored;
+      const response = await call("documents.createDocumentConfirmation", request, () => docs.createDocumentConfirmation(owner, request));
+      confirmationId = response.confirmationId; revision = response.revision;
+      await snapshot(`${phase}:confirmed:${key}`);
+    }
+    return { ...created, revision, draft, entry: { slot: definition.kind, documentId: created.documentId,
+      documentVersionId: created.documentVersionId, confirmationId } };
+  }
+  async function select(entries: MaterialSelectionEntry[], scope: MaterialScope, label: string): Promise<MaterialSelectionRef> {
+    const request = { entries, scope, mutationId: id() };
+    const result = await call("documents.createMaterialSelection", request, () => docs.createMaterialSelection(owner, request));
+    refs[label] = { scope, selectionRef: result, entries };
+    await snapshot(`${phase}:selection:${label}`);
+    return result;
+  }
+  const baseAudit: SkillAuditVersion = { id: id(), schemaVersion: "2026.08.1", blueprintId: flagshipBlueprint.id,
+    blueprintVersion: flagshipBlueprint.version, answers: flagshipBlueprint.skills.map(skill => ({ skillId: skill.id, level: "conceptual", evidenceRefs: [] })),
+    evidence: [], createdBy: owner.ownerId, inputFingerprint: `native-audit-${spec.id}` };
+  const availability: AvailabilityVersion = { id: id(), schemaVersion: "2026.08.1", ...inputs.availability, inputFingerprint: `native-availability-${spec.id}` };
+  const target: PlanningTarget = { id: id(), schemaVersion: "2026.08.1", targetWeeks: inputs.goal.targetWeeks, inputFingerprint: `native-target-${spec.id}` };
+  const source = { source: "flagship" as const, roleId: "ai-native-full-stack-engineer" as const };
+  let audit = copy(baseAudit);
+  const planningInputs = () => ({ source, audit, availability, target, planningDate: inputs.planningDate, selectedScope: "full-scope" as const });
+  const scopeFor = (workspace: PlanningWorkspace) => ({ kind: "goal" as const, goalId: workspace.goalId, workspaceId: workspace.id,
+    revision: workspace.revision, baseVersionId: workspace.activePlanVersionId });
+  async function context(scope: MaterialScope, selectionRef: MaterialSelectionRef, learningIntents: MaterialLearningIntentChoice[], label: string, termMappings: MaterialTermMappingChoice[] = []) {
+    const request = { ...planningInputs(), scope, selectionRef, learningIntents, termMappings, mutationId: id() };
+    const result = await call("contexts.create", request, () => contexts.create(owner.ownerId, request));
+    refs[label] = { scope, selectionRef, ...result };
+    await snapshot(`${phase}:context:${label}`);
+    return result;
+  }
+  async function propose(scope: ReturnType<typeof scopeFor>, selectionRef: MaterialSelectionRef, preview: Awaited<ReturnType<typeof context>>) {
+    const request = { scope, selectionRef, contextVersionId: preview.contextVersionId, previewToken: preview.previewToken, mutationId: id() };
+    const response = await call("planning.proposeMaterialReplanResponse", request, () => planning.proposeMaterialReplanResponse(owner.ownerId, request));
+    refs.proposal = { input: request, response };
+    await snapshot("proposed");
+    if (response.outcome !== "proposed") throw new Error("The fixed scenario could not reach its required proposal phase.");
+    return response.planning.result.workspace;
+  }
+  async function accept(workspace: PlanningWorkspace) {
+    if (!workspace.pendingPlanVersionId) throw new Error("No native pending candidate to accept.");
+    const request = { mutationId: id(), baseVersionId: workspace.activePlanVersionId, candidatePlanVersionId: workspace.pendingPlanVersionId };
+    refs.decision = request;
+    return call("planning.acceptReplan", request, () => planning.acceptReplan(owner.ownerId, request));
+  }
+  let failure: ReturnType<typeof errorRecord> | null = null;
+  try {
+    const identity = { id: owner.ownerId, name: "Synthetic native acceptance user", email: `${owner.ownerId}@example.test`, emailVerified: false };
+    fixtureImports.push({ boundary: "synthetic local identity only", ...identity });
+    await call("fixture.initializeLocalIdentity", identity, async () => {
+      await env.DB.prepare("INSERT INTO users(id,name,email,email_verified) VALUES(?,?,?,0)").bind(identity.id, identity.name, identity.email).run();
+      return identity;
+    });
+    const cloudInput = { migrationId: `local-goal-${spec.id}`, consent: true as const,
+      state: { setup: inputs.goal, completedUnitIds: [], proofs: [] }, conflictResolution: "reject" as const };
+    await call("cloud.importLocalState", cloudInput, () => cloud.importLocalState(owner.ownerId, cloudInput));
+    activeGoal = true;
+    await snapshot("local-goal-created");
+    const primary = await document("primaryA");
+    const resume = await document(spec.setupChoice?.level === "guided" ? "guidedResume" : "resume");
+    const supplement = await document(spec.supplement ?? "focus");
+    const entries = [primary.entry, resume.entry, supplement.entry];
+    refs.materials = { primary, resume, supplement };
+    const intents = (itemIds: string[]) => itemIds.map(itemId => ({ confirmationId: supplement.entry.confirmationId, itemId }));
+    const draftScope = { kind: "draft" as const, draftId: id(), previousGoalId: null };
+    const initialSelection = await select(entries, draftScope, "initialSelection");
+
+    if (spec.setupChoice) {
+      await snapshot("before-setup-choice");
+      const choice = { mode: "single", decisions: [{ ...spec.setupChoice,
+        sourceItemIds: spec.setupChoice.level === "guided" ? [resume.draft.items[0]!.id] : [] }] };
+      const result = await call("contract.materialSelfAssessmentAdoptionSchema.parse", choice, () => materialSelfAssessmentAdoptionSchema.parse(choice));
+      // The explicit UI action is established by the accepted UI evidence. Here its chosen
+      // setup audit is an input to real native generation, not an active-workspace mutation.
+      audit = { ...baseAudit, answers: baseAudit.answers.map(answer => answer.skillId === result.decisions[0]!.skillId
+        ? { ...answer, level: result.decisions[0]!.level } : answer) };
+      refs.setupChoice = { baseAudit, selectedAudit: audit, choice, uiEvidenceReuse: inputs.reuse, nativeBoundary: "initial-generation-input" };
+    }
+    const initialContext = await context(draftScope, initialSelection, intents(spec.initialIntents), "initialContext");
+    const generateInput = { ...planningInputs(), mutationId: id(), materials: { selectionRef: initialSelection,
+      contextVersionId: initialContext.contextVersionId, previewToken: initialContext.previewToken } };
+    const generated = await call("planning.generate", generateInput, () => planning.generate(owner.ownerId, generateInput));
+    await snapshot("generated");
+    if (spec.setupChoice) {
+      await snapshot("after");
+      await snapshot("reload");
+    } else {
+      const scheduledPlan = generated.workspace.planVersions.find(plan => plan.id === generated.workspace.activePlanVersionId)!;
+      const day = scheduledPlan.days.find(candidate => candidate.primaryUnitId !== null)!;
+      const completedUnit = generated.workspace.dailyUnits.find(unit => unit.id === day.primaryUnitId && unit.planVersionId === scheduledPlan.id)!;
+      const completionInput = { mutationId: id(), baseVersionId: generated.workspace.activePlanVersionId,
+        event: { kind: "completed" as const, unitId: completedUnit.id, actualMinutes: completedUnit.estimatedMinutes, planningDate: day.date } };
+      await call("planning.appendEvent", completionInput, () => planning.appendEvent(owner.ownerId, completionInput));
+      const proofInput = { mutationId: id(), baseRevision: 0, intent: "submit" as const, validatorKey: null, dailyUnitId: completedUnit.id,
+        ...inputs.proof, visibility: "private" as const, kind: "document" as const, assetId: null,
+        skillIds: [completedUnit.skillId], completionCriteria: completedUnit.completionCriteria };
+      await call("proof.create", proofInput, () => proof().create(owner.ownerId, proofInput));
+      phase = "action";
+      const before = await snapshot("before");
+      const workspace = before.workspace!;
+      const scope = scopeFor(workspace);
+      if (spec.id === "fact-confirm-only") {
+        refs.factOnly = await document("factOnly");
+      } else if (spec.id === "reject-batch-independent") {
+        const request = { mode: "batch", decisions: [{ skillId: "typescript", level: "independent", sourceItemIds: [resume.draft.items[0]!.id] }] };
+        await attempt("contract.materialSelfAssessmentAdoptionSchema.parse", request, () => materialSelfAssessmentAdoptionSchema.parse(request));
+      } else if (spec.id === "unresolved-conflict-not-hard-resolved") {
+        const conflict = await document("conflict", false);
+        const reviewPoints = materialReviewPointsSchema.parse([{ id: "native-unresolved-conflict", code: "conflicting-requirement", resolution: "unresolved",
+          sourceRef: { documentId: conflict.documentId, documentVersionId: conflict.documentVersionId, textVersionId: conflict.textVersionId,
+            start: 0, end: inputs.documents.conflict.text.length } }]);
+        const boundary = { boundary: "source-bound unresolved upstream review point before confirmation", evaluatedUpstreamExtraction: false,
+          documentId: conflict.documentId, draftId: conflict.draft.id, reviewPoints };
+        fixtureImports.push(boundary);
+        await call("fixture.importUnresolvedBeforeReviewPoint", boundary, async () => {
+          await env.DB.prepare("UPDATE document_review_drafts SET review_points_json=? WHERE owner_id=? AND id=?")
+            .bind(JSON.stringify(reviewPoints), owner.ownerId, conflict.draft.id).run();
+          return boundary;
+        });
+        refs.conflict = conflict;
+        await snapshot("before-confirmation-attempt");
+        const request = { documentId: conflict.documentId, documentVersionId: conflict.documentVersionId, textVersionId: conflict.textVersionId,
+          items: conflict.draft.items, reviewRevision: conflict.draft.revision, expectedRevision: conflict.revision, mutationId: id() };
+        await attempt("documents.createDocumentConfirmation", request, () => docs.createDocumentConfirmation(owner, request));
+      } else {
+        let selectedEntries = entries;
+        if (["replace-primary-jd-same-job", "accept-current-primary-jd-preview"].includes(spec.id)) {
+          const replacement = await document("primaryC");
+          refs.replacement = replacement;
+          selectedEntries = [replacement.entry, resume.entry, supplement.entry];
+        }
+        const selection = await select(selectedEntries, scope, "actionSelection");
+        if (spec.id === "secondary-jd-cannot-add-must") {
+          await context(scope, selection, [], "unadoptedContext");
+          await context(scope, selection, intents(["secondary-react"]), "proposedContext");
+        } else {
+          let nextIntents = intents(spec.initialIntents);
+          const termMappings: MaterialTermMappingChoice[] = [];
+          if (["explicit-adopt-soft-focus", "stale-preview-reject"].includes(spec.id)) nextIntents = intents(["focus-react"]);
+          if (["withdraw-focus", "delete-material"].includes(spec.id)) nextIntents = intents(["focus-react"]);
+          if (spec.id === "exclude-individual-term") termMappings.push({ confirmationId: supplement.entry.confirmationId, itemId: "focus-two-terms", skillLabel: "SQL", skillIds: [] });
+          const preview = await context(scope, selection, nextIntents, "proposedContext", termMappings);
+          if (spec.id !== "unadopted-learning-intent") {
+            const pending = await propose(scope, selection, preview);
+            if (spec.id === "replace-primary-jd-same-job") {
+              // This category deliberately stops at a persisted candidate, before acceptance.
+            } else if (spec.id === "delete-material") {
+              const request = { documentId: supplement.documentId, expectedRevision: supplement.revision, mutationId: id() };
+              const deletion = await call("documents.deleteDocument", request, () => docs.deleteDocument(owner, request));
+              refs.deletion = deletion;
+              await call("documents.readDocumentDeletion", { deletionJobId: deletion.deletionJobId }, () => docs.readDocumentDeletion(owner, { deletionJobId: deletion.deletionJobId }));
+              await snapshot("deleted-before-reuse");
+              await attempt("contexts.read", { contextVersionId: preview.contextVersionId }, () => contexts.read(owner.ownerId, preview.contextVersionId));
+              const requestToAccept = { mutationId: id(), baseVersionId: pending.activePlanVersionId, candidatePlanVersionId: pending.pendingPlanVersionId! };
+              await attempt("planning.acceptReplan", requestToAccept, () => planning.acceptReplan(owner.ownerId, requestToAccept));
+            } else if (spec.id === "stale-preview-reject") {
+              await select([primary.entry, resume.entry], scopeFor(pending), "invalidationSelection");
+              await snapshot("invalidated-before-acceptance");
+              const request = { mutationId: id(), baseVersionId: pending.activePlanVersionId, candidatePlanVersionId: pending.pendingPlanVersionId! };
+              await attempt("planning.acceptReplan", request, () => planning.acceptReplan(owner.ownerId, request));
+            } else {
+              const accepted = await accept(pending);
+              refs.accepted = accepted;
+            }
+          }
+        }
+      }
+      await snapshot("after");
+      await snapshot("reload");
+    }
+  } catch (error) {
+    failure = errorRecord(error);
+    try { await snapshot("failure"); } catch (snapshotError) { refs.failureSnapshotError = errorRecord(snapshotError); }
+  }
+  return { schemaVersion: "materials-native-planning-case-result-v1", bindingId: inputs.bindingId, caseId: spec.id, layer: spec.layer,
+    input: { spec, clock: inputs.clock, ownerId: owner.ownerId, goal: inputs.goal, baseAudit, availability, target },
+    collectionStatus: failure ? "failed" : "collected", failure, fixtureImports, refs, trace, snapshots,
+    limits: inputs.limits, evidenceReuse: spec.setupChoice || spec.id === "reject-batch-independent" ? inputs.reuse : null };
+}
+
+const worker = {
+  async fetch(request: Request, env: Environment) {
+    const body = await request.json() as { caseId: string };
+    const spec = inputs.cases.find(value => value.id === body.caseId);
+    if (!spec) return Response.json({ error: "Unknown fixed native case" }, { status: 400 });
+    return Response.json(await collect(env, spec));
+  },
+};
+export default worker;

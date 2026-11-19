@@ -1,0 +1,8 @@
+{
+  "name": "native-planning-20261119-bulk-ui-01",
+  "status": "interrupted-wrong-test-scope",
+  "observedTerminalExit": 1,
+  "reason": "mergeConfig concatenated include arrays and began unrelated tests. Interrupted immediately after detecting this; no completed suite result claimed.",
+  "logSha256": "7c791ebd7c44f6de20f408280f9de2bb25c03e231e18623d91ca2bcffc2f501e",
+  "repair": "Explicit object override of test.include plus exact file CLI filter; only the single supplemental UI test is authorized."
+}

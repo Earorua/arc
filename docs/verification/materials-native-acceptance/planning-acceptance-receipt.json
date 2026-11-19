@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "materials-native-acceptance-review-v1",
+  "recordedAt": "2026-11-19T06:15:06.1715571Z",
+  "status": "accepted-bounded-native-protocol",
+  "applicationCommit": "47b0e0af9d257e0e72bf86476411b621553fa309",
+  "nativeBindingId": "materials-native-planning-20261119-v1",
+  "sourceClosureDigest": "c82c4fb905f089c9f62ddd3280be5e51d1bd355d5bc756fd3823b8fb31a993a3",
+  "nativeResults": {
+    "matrixRuns": 1,
+    "passed": 14,
+    "failed": 0,
+    "notCollected": 0,
+    "outboundAttempts": 0,
+    "sourceDrift": 0,
+    "retries": 0
+  },
+  "supplementalUI": {
+    "passed": 1,
+    "originalTestFileUnchanged": true,
+    "interruptedWrongScopeAttemptRetained": true
+  },
+  "reviews": {
+    "specification": "PASS",
+    "quality": "PASS",
+    "reviewTestReruns": 0
+  },
+  "files": [
+    {
+      "path": "planning-inputs.json",
+      "sha256": "1dc54a3f857cf2d03940005e48bbe7e5a6993d83e6b659638e28eeb936c40064"
+    },
+    {
+      "path": "planning-worker.ts",
+      "sha256": "7d82e3e0ac65c21bd8934b7d0f7e63e995849512371b0b08540c94dd9c72e201"
+    },
+    {
+      "path": "collect-planning.mjs",
+      "sha256": "ef747d47f4fc6305b0c3ccaa800c7e9eefb1d0fa15e8224b2b5a47ef3686b2d6"
+    },
+    {
+      "path": "check-planning.mjs",
+      "sha256": "51ce03f02fceefb4fac44c1fe7b2f7f4176177760fc6442904fdd3b0a62ce124"
+    },
+    {
+      "path": "planning-collector.md",
+      "sha256": "7d05f4c81dc7cbf97afa2c2a046a7f21f0b1a0e6cef1f6f2197ad7f008bc9740"
+    },
+    {
+      "path": "planning-evidence-20261119.json",
+      "sha256": "ccb36e14d3f26020e1f34dd6585172ebf43b75948dabab962ce03035467da13a"
+    },
+    {
+      "path": "planning-ui-evidence-addendum.md",
+      "sha256": "4db0b3db51ef49f4180dbbfb690730ef178e43fdb5a445d36212e80d244c2b2e"
+    },
+    {
+      "path": "planning-result.md",
+      "sha256": "4e1d49db140b7da5f448d42ea072f7ded04c401750965fb3ab92e59fe88a1150"
+    },
+    {
+      "path": "planning-spec-review.md",
+      "sha256": "4bd4d706057934613adfac9527244684ea47afcae588279b5d0092f5a4e3d6df"
+    },
+    {
+      "path": "planning-quality-review.md",
+      "sha256": "d53ddbf8da45779a297aa26afa90ca3fdfcba8b517bc0902c66791447fe9371d"
+    },
+    {
+      "path": "native-evidence/archive-manifest.json",
+      "sha256": "f4f82e7b086f235e9165226e1e1f378b27cbf3c6abae1f39ad69e30fee5a669e"
+    },
+    {
+      "path": "native-evidence/ui-supplement/manifest.json",
+      "sha256": "79c7bef78ecae875dbbfad70fa99a1c4e2314af37a726024c65a22c28f095675"
+    }
+  ],
+  "limits": {
+    "physicalDeletionCleanup": "pending",
+    "newRealModelCalls": 0,
+    "remoteMigrationPerformed": false,
+    "deployed": false,
+    "modelQualityApproved": false,
+    "gateApproved": false
+  }
+}
