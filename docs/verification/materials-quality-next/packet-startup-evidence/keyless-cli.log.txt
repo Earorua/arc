@@ -1,0 +1,4 @@
+(node:47952) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"actualCommand":"--verify","candidateCommit":"ff1d60fe63694851f8b80936f8b6ef47e036dd4e","packetCommit":"50c5b6d33f194c6fbf8ba050eb28f00f5feb5527","fixtureOnly":true,"credentialSupplied":false,"status":"verified-without-credential","refusalReason":null,"childExit":0}
+{"result":{"status":"verified-without-credential","inferenceRequests":0},"ledgerBytesUnchanged":true,"ledgerCountsUnchanged":true,"startupSlotsCreated":0,"actualOwnerAuthorization":false}

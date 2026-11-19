@@ -1,0 +1,46 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { materialIdSchema } from '../../app/contracts/documents.ts';
+import { inspectDiagnosticPilotSourceManifest } from '../../scripts/materials-diagnostic-pilot-host.ts';
+
+const base = 'docs/verification/materials-quality-next/';
+const oldSourcePath = base + 'current-source-manifest.json', oldProposalPath = base + 'candidate-proposal.json';
+const sourcePath = base + 'current-source-manifest-v2.json', proposalPath = base + 'candidate-proposal-v2.json';
+const reviewPath = base + 'packet-preflight-evidence/manifest.json';
+assert.equal(existsSync(sourcePath) || existsSync(proposalPath), false, 'Preserve previously frozen files');
+const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex');
+const json = path => JSON.parse(readFileSync(path, 'utf8'));
+assert.equal(hash(oldSourcePath), 'd625bcca2e64db109d115d3cdfd7a5008dabd25766fa4c24964ebc3c03f70321');
+assert.equal(hash(oldProposalPath), '0b76a3e077eb211605483e9b5457da931a0d5df11dffabe09642650e6e144aa4');
+const prior = json(oldProposalPath), priorSource = json(oldSourcePath);
+assert.equal(prior.status, 'NOT_AUTHORIZED'); assert.equal(prior.inferenceAllowed, false);
+for (const file of prior.attachments) assert.equal(hash(file.path), file.sha256, file.path);
+
+const candidateCommit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const source = await inspectDiagnosticPilotSourceManifest(resolve('.'), candidateCommit);
+assert.deepEqual(source.files.map(file => file.path), priorSource.files.map(file => file.path));
+const changed = source.files.filter((file, index) => file.sha256 !== priorSource.files[index].sha256).map(file => file.path);
+assert.deepEqual(changed, ['scripts/materials-current-quality-operator.ts', 'tests/server/materials-current-quality-operator.test.ts']);
+const review = json(reviewPath);
+for (const path of changed) assert.equal(hash(path), review.source[path], path);
+for (const file of review.files) assert.equal(hash(file.path), file.sha256, file.path);
+
+const fields = [prior.packetId, prior.qualification.authorizationId, prior.supplement.authorizationId, prior.qualification.runId, prior.supplement.runId];
+const originalIdAcceptance = fields.map(id => materialIdSchema.safeParse(id).success);
+assert.deepEqual(originalIdAcceptance, [false, false, false, true, true]);
+const [packetId, firstAuthorizationId, sixAuthorizationId] = fields.map(id => materialIdSchema.parse(id.toLowerCase()));
+writeFileSync(sourcePath, JSON.stringify(source, null, 2) + '\n', { flag: 'wx' });
+const proposal = { ...prior, schemaVersion: 'materials-current-quality-proposal-v2', createdAt: new Date().toISOString(), packetId,
+  candidateCommit, candidateTree: source.candidateTree, priorProposal: { path: oldProposalPath, sha256: hash(oldProposalPath) },
+  sourceManifest: { path: sourcePath, sha256: hash(sourcePath) }, attachments: [...prior.attachments, { path: reviewPath, sha256: hash(reviewPath) }],
+  qualification: { ...prior.qualification, authorizationId: firstAuthorizationId }, supplement: { ...prior.supplement, authorizationId: sixAuthorizationId } };
+assert.equal(proposal.ownerApproval, null); assert.equal(proposal.credentialSha256, null); assert.equal(proposal.approvedAt, null);
+assert.equal(proposal.expiresAt, null); assert.equal(proposal.qualification.issuance, null); assert.equal(proposal.supplement.issuance, null);
+assert.equal(new Set(proposal.attachments.map(file => file.path)).size, proposal.attachments.length);
+writeFileSync(proposalPath, JSON.stringify(proposal, null, 2) + '\n', { flag: 'wx' });
+console.log(JSON.stringify({ candidateCommit, sourceFiles: source.files.length, changed, sourceManifestSha256: hash(sourcePath),
+  priorIdsAccepted: originalIdAcceptance, correctedIdsAccepted: 5, packetId, attachments: proposal.attachments.length,
+  proposalSha256: hash(proposalPath), status: proposal.status, inferenceAllowed: proposal.inferenceAllowed }));

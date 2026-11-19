@@ -1,0 +1,109 @@
+import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
+import { basename, join, resolve } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+
+// Only the isolated, outbound-blocked test wrapper may create these fixtures.
+const profile = realpathSync(homedir());
+assert.equal(profile, realpathSync(tmpdir()));
+assert.match(basename(profile), /^arc-grounded-check-[A-Za-z0-9]+$/u);
+assert.equal(process.env.ARC_DOCUMENT_QUALIFICATION_ENABLED, 'false');
+assert.equal(process.env.ARC_SUPPLEMENT_COLLECTION_ENABLED, 'false');
+assert.equal(process.env.ARC_CURRENT_MATERIALS_KEY, undefined);
+assert.equal(process.env.ARC_DOCUMENT_PROVIDER_API_KEY, undefined);
+assert.equal(process.env.ARC_SUPPLEMENT_PROVIDER_API_KEY, undefined);
+assert.equal(process.env.GIT_ALLOW_PROTOCOL, 'file');
+assert.match(process.env.NODE_OPTIONS ?? '', /block-outbound\.cjs/u);
+
+const base = 'docs/verification/materials-quality-next/';
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const proposal = JSON.parse(readFileSync(base + 'candidate-proposal-v2.json'));
+assert.equal(proposal.status, 'NOT_AUTHORIZED');
+const packetCommit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+assert.equal(execFileSync('git', ['-c', 'core.longpaths=true', 'status', '--porcelain'], { encoding: 'utf8' }).trim(), '');
+for (const path of [base + 'candidate-proposal-v2.json', proposal.sourceManifest.path, ...proposal.attachments.map(item => item.path)]) {
+  const committed = execFileSync('git', ['-c', 'core.longpaths=true', 'show', packetCommit + ':' + path], { maxBuffer: 16 * 1024 * 1024 });
+  assert.ok(committed.equals(readFileSync(path)), path);
+}
+const draftPath = base + 'request-draft/manifest.json';
+assert.equal(sha(readFileSync(draftPath)), proposal.requestDraftSha256);
+const draft = JSON.parse(readFileSync(draftPath));
+const fixtureId = 'fixture-keyless-startup';
+const directory = join(profile, '.arc-materials', 'gate-1b', 'materials-b2', 'quality-approvals', 'current', fixtureId);
+assert.equal(existsSync(directory), false);
+mkdirSync(directory, { recursive: true });
+execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `
+$ErrorActionPreference='Stop'
+$folder=[Console]::In.ReadToEnd()
+$ownerSid=[Security.Principal.WindowsIdentity]::GetCurrent().User
+$privateAcl=[Security.AccessControl.DirectorySecurity]::new()
+$privateAcl.SetOwner($ownerSid)
+$privateAcl.SetAccessRuleProtection($true,$false)
+foreach($sid in @($ownerSid.Value,'S-1-5-18','S-1-5-32-544')) {
+  $privateAcl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new([Security.Principal.SecurityIdentifier]::new($sid),'FullControl','ContainerInherit,ObjectInherit','None','Allow'))
+}
+Set-Acl -LiteralPath $folder -AclObject $privateAcl`], { input: directory, windowsHide: true });
+
+function fixtureFile(name, object) {
+  const bytes = JSON.stringify(object, null, 2) + '\n';
+  writeFileSync(join(directory, name), bytes, { flag: 'wx' });
+  return { path: name, sha256: sha(bytes) };
+}
+const fixtureFingerprint = '0'.repeat(64); // No credential exists in this exercise.
+const fixtureTime = new Date();
+const window = { approvedAt: fixtureTime.toISOString(), expiresAt: new Date(fixtureTime.getTime() + 120_000).toISOString() };
+const testEvidence = fixtureFile('synthetic-evidence.json', { fixture: true, explanation: 'Synthetic test inputs for --verify only.' });
+const testReadback = fixtureFile('synthetic-account.json', { version: 'materials-current-account-readback-v1', reviewedBy: 'offline-fixture',
+  capturedAt: fixtureTime.toISOString(), account: { creatorUserId: 'offline-fixture', organizationId: null, workspaceId: 'offline-fixture' },
+  credentialSha256: fixtureFingerprint, source: 'openrouter-credits-ui', precision: 'whole-dollar-lower-bound', displayedUsd: '3.00',
+  evidence: testEvidence, strictZdrAssigned: true, safetyRetentionAllowed: false, inputOutputLogging: false, trainingEnabled: false,
+  publicPrompts: false, traceDestinations: 0, responseCacheOptIn: false, moonshotByok: false, implicitCacheScope: 'thirty-synthetic-documents' });
+
+// This CLI reads the original registered ledger. Keep its bytes and all run/attempt counts unchanged.
+const ledgerFile = realpathSync.native(resolve('work/materials-supplement-collection/ledger.sqlite'));
+const ledgerBytes = sha(readFileSync(ledgerFile));
+function inspectLedger() {
+  const db = new DatabaseSync(ledgerFile, { readOnly: true });
+  try { return { identity: sha(JSON.stringify([ledgerFile, db.prepare('SELECT id FROM ledger_identity WHERE singleton=1').get().id])),
+    runs: db.prepare('SELECT count(*) AS n FROM collection_runs').get().n, attempts: db.prepare('SELECT count(*) AS n FROM attempts').get().n }; }
+  finally { db.close(); }
+}
+const originalLedger = inspectLedger();
+const first = draft.configurations['resume-jd'], six = draft.configurations.supplement;
+const firstId = proposal.qualification, sixId = proposal.supplement;
+const qualification = { ...first.qualification, qualified: true };
+const qualificationIssuance = fixtureFile('synthetic-24.json', { runId: firstId.runId, config: first.config, qualification,
+  authorization: { id: firstId.authorizationId, runId: firstId.runId, endpoint: first.config.endpoint, model: first.config.model,
+    provider: first.config.provider, providerPolicyId: first.config.providerPolicyId, priceVersion: first.config.priceVersion,
+    routingPolicy: first.config.routingPolicy, receiptRoute: qualification.receiptRoute,
+    inputMicroUsdPerMillionTokens: qualification.inputMicroUsdPerMillionTokens, outputMicroUsdPerMillionTokens: qualification.outputMicroUsdPerMillionTokens,
+    maxRequests: firstId.maxRequests, totalBudgetMicroUsd: firstId.budgetMicroUsd, corpusSha256: draft.sourceInputs[0].sha256,
+    privacyEvidence: 'https://openrouter.ai/docs/guides/features/zdr', pricingEvidence: 'https://openrouter.ai/api/v1/models/moonshotai/kimi-k3.1-pro/endpoints', ...window } });
+const supplementIssuance = fixtureFile('synthetic-six.json', { config: six.config, qualification: { ...six.qualification, qualified: true },
+  authorization: { purpose: 'collect-six-synthetic-supplements', id: sixId.authorizationId, issuedBy: 'offline-fixture', runId: sixId.runId,
+    candidateCommit: proposal.candidateCommit, configurationSha256: six.configurationSha256, credentialSha256: fixtureFingerprint,
+    ledgerSha256: originalLedger.identity, corpusSha256: draft.sourceInputs[1].sha256, outputSchemaVersion: '2026.11.1',
+    documents: draft.records.filter(row => row.group === 'supplement').map(({ documentId, documentVersionId, textVersionId }) => ({ documentId, documentVersionId, textVersionId })),
+    ...window, maxRequests: sixId.maxRequests, perRequestMicroUsd: proposal.perRequestCapMicroUsd, totalBudgetMicroUsd: sixId.budgetMicroUsd,
+    maxMetadataReadsPerDocument: proposal.maxMetadataReadsPerDocument } });
+const envelope = fixtureFile('approved.json', { version: 'materials-current-quality-v1', status: 'owner-approved', packetId: fixtureId,
+  candidateCommit: proposal.candidateCommit, packetCommit, ...window, credentialSha256: fixtureFingerprint,
+  ownerApproval: testEvidence, accountReadback: testReadback, sourceManifest: proposal.sourceManifest, attachments: proposal.attachments,
+  qualification: { runId: firstId.runId, authorizationId: firstId.authorizationId, issuance: qualificationIssuance },
+  supplement: { runId: sixId.runId, authorizationId: sixId.authorizationId, issuance: supplementIssuance },
+  requestDraftSha256: proposal.requestDraftSha256, totalBudgetMicroUsd: proposal.totalBudgetMicroUsd,
+  maxMetadataReadsPerDocument: proposal.maxMetadataReadsPerDocument });
+const beforeFiles = readdirSync(directory).sort();
+const cli = spawnSync(process.execPath, ['--import', 'tsx', 'scripts/materials-current-quality-operator.ts', '--verify', fixtureId, envelope.sha256],
+  { cwd: process.cwd(), encoding: 'utf8', windowsHide: true, timeout: 90_000 });
+assert.ifError(cli.error);
+const result = JSON.parse(cli.stdout);
+console.log(JSON.stringify({ actualCommand: '--verify', candidateCommit: proposal.candidateCommit, packetCommit,
+  fixtureOnly: true, credentialSupplied: false, status: result.status, refusalReason: result.reason ?? null, childExit: cli.status }));
+assert.deepEqual(readdirSync(directory).sort(), beforeFiles, 'Read-only verification created a startup slot or output');
+assert.deepEqual(inspectLedger(), originalLedger); assert.equal(sha(readFileSync(ledgerFile)), ledgerBytes);
+assert.equal(cli.status, 0); assert.deepEqual(result, { status: 'verified-without-credential', inferenceRequests: 0 });
+console.log(JSON.stringify({ result, ledgerBytesUnchanged: true, ledgerCountsUnchanged: true, startupSlotsCreated: 0, actualOwnerAuthorization: false }));

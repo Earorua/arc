@@ -1,0 +1,37 @@
+{
+  "candidateCommit": "ff1d60fe63694851f8b80936f8b6ef47e036dd4e",
+  "checkedPacketCommit": "50c5b6d33f194c6fbf8ba050eb28f00f5feb5527",
+  "scope": "Committed proposal/source freeze and single actual offline CLI --verify with non-spendable account and grant fixtures.",
+  "files": [
+    {
+      "path": "docs/verification/materials-quality-next/packet-startup-evidence/candidate-rebind.json",
+      "bytes": 285,
+      "sha256": "581844237fd8f588a386a934c6b3f714575ac19bec47835cae5740608e6509b7"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/packet-startup-evidence/candidate-rebind.log.txt",
+      "bytes": 554,
+      "sha256": "725b0cead7a6e9762a9f731827e43a0c622c730e2601c63b016a831250a421ca"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/packet-startup-evidence/candidate-rebind.mjs.source.txt",
+      "bytes": 4152,
+      "sha256": "4178a31d1145e703caca84fb128b8d5caafaa143e9696315de1059b01ec6e1f7"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/packet-startup-evidence/keyless-cli.json",
+      "bytes": 286,
+      "sha256": "158fcdaea1889903433e6f4786335c3576434e41f12ebbdacc8674c8dc22f7b5"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/packet-startup-evidence/keyless-cli.log.txt",
+      "bytes": 625,
+      "sha256": "2355ff07770b4fc3abb3df67b1ac3b12736807d1f5475ab8ba8e75031a17732e"
+    },
+    {
+      "path": "docs/verification/materials-quality-next/packet-startup-evidence/keyless-cli.mjs.source.txt",
+      "bytes": 9008,
+      "sha256": "8f840adb45853fa0374eb379fbd56c0c0132353201f84ed579b54ace1d139a42"
+    }
+  ]
+}

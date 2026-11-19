@@ -41,6 +41,8 @@ Before requesting paid approval, use a small, openly authored software control t
 
 ## Task 3 — freeze and present one concrete operator packet
 
+The later [packet preflight result](../../verification/materials-quality-next/packet-preflight.md) records the corrected operator and proposal v2. All 1,038 source files were compared. The new two-file delta passed focused checks and two independent reviews. A single actual credential-free `--verify` then passed on a clean committed proposal with fixture grants, zero requests and unchanged ledger bytes. Fresh key metadata and owner approval are still required for actual issuance.
+
 Implementation accepted offline, 2026-11-19: the fixed PowerShell/operator path, denial-only collector hooks, mandatory runtime attachment scope and installed-resolver guard passed focused checks and independent specification/quality rechecks. See `docs/verification/materials-quality-next/operator-result.md` and its 106 preserved raw artifacts. Final application acceptance passed 389 Vitest files / 10,068 tests, 291 Node tests, five render checks, types, lint and build. Candidate `d6f24dc67ab2a853c70927e4da3b506d7d15dd1b`, its 1,038-file execution manifest and 15 docs attachments are frozen in the non-authorized proposal. Precise key readback, final private packet issuance and new owner fee/cache approval remain unfinished. This is not a completed live packet or permission to collect.
 
 After both slices pass their reviews, freeze the actual execution commit, source/tool hashes and all 30 exact outbound request-body digests using intercepted offline transport. Keep separate fresh run IDs and startup slots for 24 and six; reuse existing authorization/journal machinery and do not execute historical launch scripts.
